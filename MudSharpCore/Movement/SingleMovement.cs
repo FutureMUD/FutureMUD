@@ -21,11 +21,15 @@ public class SingleMovement : MovementBase
 	public SingleMovement(ICellExit exit, ICharacter mover, TimeSpan duration, IEmote playerEmote = null)
 		: base(exit, duration)
 	{
-		Mover = mover;
-		Mover.Movement = this;
-		MoverEmote = playerEmote;
-		Exit.Origin.RegisterMovement(this);
-		Duration = duration;
+                Mover = mover;
+                Mover.Movement = this;
+                foreach (var rider in Mover.Riders)
+                {
+                        rider.Movement = this;
+                }
+                MoverEmote = playerEmote;
+                Exit.Origin.RegisterMovement(this);
+                Duration = duration;
 	}
 
 	/// <summary>
@@ -35,10 +39,14 @@ public class SingleMovement : MovementBase
 	public SingleMovement(GroupMovement movement, ICharacter mover)
 		: base(movement.Exit, movement.Duration)
 	{
-		Mover = mover;
-		Mover.Movement = this;
-		Exit.Origin.RegisterMovement(this);
-		IntermediateStep();
+                Mover = mover;
+                Mover.Movement = this;
+                foreach (var rider in Mover.Riders)
+                {
+                        rider.Movement = this;
+                }
+                Exit.Origin.RegisterMovement(this);
+                IntermediateStep();
 	}
 
 	protected ICharacter Mover { get; set; }
@@ -136,30 +144,46 @@ public class SingleMovement : MovementBase
 				flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource).Append(MoverEmote));
 	}
 
-	public virtual void FinalStep()
-	{
-		if (Cancelled)
-		{
-			return;
-		}
+        public virtual void FinalStep()
+        {
+                if (Cancelled)
+                {
+                        return;
+                }
 
-		Exit.Destination.ResolveMovement(this);
-		if (Mover.Movement == this)
-		{
-			Mover.Movement = null;
-			if (Mover.QueuedMoveCommands.Count > 0)
-			{
-				Mover.Move(Mover.QueuedMoveCommands.Dequeue());
-			}
-		}
-	}
+                Exit.Destination.ResolveMovement(this);
+                if (Mover.Movement == this)
+                {
+                        Mover.Movement = null;
+                        if (Mover.QueuedMoveCommands.Count > 0)
+                        {
+                                Mover.Move(Mover.QueuedMoveCommands.Dequeue());
+                        }
+                }
+
+                foreach (var rider in Mover.Riders)
+                {
+                        if (rider.Movement == this)
+                        {
+                                rider.Movement = null;
+                                if (rider.QueuedMoveCommands.Count > 0)
+                                {
+                                        rider.Move(rider.QueuedMoveCommands.Dequeue());
+                                }
+                        }
+                }
+        }
 
 	protected virtual TrackCircumstances MovementTrackCircumstances => TrackCircumstances.None;
 
-	public override void InitialAction()
-	{
-		Mover.StartMove(this);
-		var output = GetMovementOutput.Append(MoverEmote);
+        public override void InitialAction()
+        {
+                Mover.StartMove(this);
+                foreach (var rider in Mover.Riders)
+                {
+                        rider.StartMove(this);
+                }
+                var output = GetMovementOutput.Append(MoverEmote);
 		foreach (var character in Mover.Location.Characters.Where(x => SeenBy(x)))
 		{
 			character.OutputHandler.Send(output);
@@ -236,25 +260,55 @@ public class SingleMovement : MovementBase
 		return character == Mover;
 	}
 
-	public override IEnumerable<ICharacter> CharacterMovers => new[] { Mover };
+        public override IEnumerable<ICharacter> CharacterMovers => new[] { Mover }.Concat(Mover.Riders);
 
-	public override bool Cancel()
-	{
-		Cancelled = true;
-		Mover.StopMovement(this);
-		Mover.Movement = null;
-		Mover.QueuedMoveCommands.Clear();
-		if (Phase == MovementPhase.OriginalRoom)
-		{
-			Exit.Origin.ResolveMovement(this);
-		}
-		else
+        public override bool Cancel()
+        {
+                Cancelled = true;
+                Mover.StopMovement(this);
+                Mover.Movement = null;
+                Mover.QueuedMoveCommands.Clear();
+                foreach (var rider in Mover.Riders)
+                {
+                        rider.StopMovement(this);
+                        if (rider.Movement == this)
+                        {
+                                rider.Movement = null;
+                                rider.QueuedMoveCommands.Clear();
+                        }
+                }
+                if (Phase == MovementPhase.OriginalRoom)
+                {
+                        Exit.Origin.ResolveMovement(this);
+                }
+                else
 		{
 			Exit.Destination.ResolveMovement(this);
 		}
 
-		return true;
-	}
+                return true;
+        }
+
+        public override bool CancelForMoverOnly(IMove mover)
+        {
+                if (mover == Mover || mover is not ICharacter ch)
+                {
+                        return Cancel();
+                }
+
+                if (Mover.Riders.Contains(ch))
+                {
+                        if (ch.RidingMount == Mover)
+                        {
+                                return false;
+                        }
+
+                        ch.Movement = null;
+                        return true;
+                }
+
+                return Cancel();
+        }
 
 	#endregion
 }

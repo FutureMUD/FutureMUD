@@ -53,15 +53,31 @@ public class DragMovement : MovementBase
 	public DragMovement(ICharacter dragger, IEnumerable<ICharacter> helpers, IPerceivable target, Dragging effect,
 		ICellExit exit, TimeSpan duration) : base(exit, duration)
 	{
-		Dragger = dragger;
-		_helpers.AddRange(helpers);
-		Target = target;
-		DragEffect = effect;
-		Dragger.Movement = this;
-		foreach (var helper in _helpers)
-		{
-			helper.Movement = this;
-		}
+               Dragger = dragger;
+               _helpers.AddRange(helpers);
+               Target = target;
+               DragEffect = effect;
+               Dragger.Movement = this;
+               if (Dragger.RidingMount != null && Dragger.RidingMount.Movement == null)
+               {
+                       Dragger.RidingMount.Movement = this;
+               }
+               foreach (var rider in Dragger.Riders)
+               {
+                       rider.Movement = this;
+               }
+               foreach (var helper in _helpers)
+               {
+                       helper.Movement = this;
+                       if (helper.RidingMount != null && helper.RidingMount.Movement == null)
+                       {
+                               helper.RidingMount.Movement = this;
+                       }
+                       foreach (var rider in helper.Riders)
+                       {
+                               rider.Movement = this;
+                       }
+               }
 
 		if (Target is IMove move)
 		{
@@ -254,10 +270,21 @@ public class DragMovement : MovementBase
 			return;
 		}
 
-		foreach (var mover in CharacterMovers)
-		{
-			mover.Movement = null;
-		}
+               foreach (var mover in CharacterMovers)
+               {
+                       mover.Movement = null;
+                       foreach (var rider in mover.Riders)
+                       {
+                               if (rider.Movement == this)
+                               {
+                                       rider.Movement = null;
+                               }
+                       }
+                       if (mover.RidingMount != null && mover.RidingMount.Movement == this)
+                       {
+                               mover.RidingMount.Movement = null;
+                       }
+               }
 
 		if (Target is IMove move)
 		{
@@ -316,11 +343,22 @@ public class DragMovement : MovementBase
 	public override bool Cancel()
 	{
 		Cancelled = true;
-		foreach (var mover in CharacterMovers)
-		{
-			mover.StopMovement(this);
-			mover.Movement = null;
-		}
+               foreach (var mover in CharacterMovers)
+               {
+                       mover.StopMovement(this);
+                       mover.Movement = null;
+                       foreach (var rider in mover.Riders)
+                       {
+                               if (rider.Movement == this)
+                               {
+                                       rider.Movement = null;
+                               }
+                       }
+                       if (mover.RidingMount != null && mover.RidingMount.Movement == this)
+                       {
+                               mover.RidingMount.Movement = null;
+                       }
+               }
 
 		if (Phase == MovementPhase.OriginalRoom)
 		{
@@ -334,8 +372,37 @@ public class DragMovement : MovementBase
 		return true;
 	}
 
-	public override bool CancelForMoverOnly(IMove mover)
-	{
-		return Cancel();
-	}
+        public override bool CancelForMoverOnly(IMove mover)
+        {
+                if (mover == Dragger || mover is not ICharacter ch)
+                {
+                        return Cancel();
+                }
+
+                if (_helpers.Contains(ch))
+                {
+                        if (ch.RidingMount != null && ch.RidingMount.Movement == this)
+                        {
+                                return false;
+                        }
+
+                        _helpers.Remove(ch);
+                        ch.Movement = null;
+                        foreach (var rider in ch.Riders)
+                        {
+                                if (rider.Movement == this)
+                                {
+                                        rider.Movement = null;
+                                }
+                        }
+                        return true;
+                }
+
+                if (Target == ch)
+                {
+                        return Cancel();
+                }
+
+                return Cancel();
+        }
 }

@@ -372,13 +372,15 @@ public partial class Body
 				$"{(voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) ? "are" : "is")} {stateDesc}{Actor.Cover.Cover.Describe(Actor, Actor.Cover.CoverItem?.Parent, voyeur)}.";
 		}
 
-		var followingDesc = Actor.Combat != null
-			? Actor.Combat.LDescAddendumFor(Actor, voyeur)
-			: DescribePosition(voyeur);
+               var followingDesc = Actor.Combat != null
+                       ? Actor.Combat.LDescAddendumFor(Actor, voyeur)
+                       : DescribePosition(voyeur);
 
-		return
-			$"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} " +
-			$"{(voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) ? "are" : "is")} {stateDesc}{followingDesc}";
+               var ridingDesc = Actor.RidingMount != null ? $" riding {Actor.RidingMount.HowSeen(voyeur)}" : string.Empty;
+
+               return
+                       $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} " +
+                       $"{(voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) ? "are" : "is")} {stateDesc}{followingDesc}{ridingDesc}";
 	}
 
 	public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short,

@@ -24,18 +24,30 @@ public class GroupMovement : MovementBase
 		Party = movers;
 		Party.Movement = this;
 		// todo - consider this next step handled in the Party.Movement setter
-		_characterMovers = Party
-			.CharacterMembers
-			.Where(x => 
-				x.InRoomLocation == Party.Leader.InRoomLocation &&
-				x.Movement is null &&
-				x.CanMove())
-			.ToList();
-		foreach (var mover in _characterMovers)
-		{
-			mover.Movement?.CancelForMoverOnly(mover);
-			mover.Movement = this;
-		}
+               _characterMovers = Party
+                       .CharacterMembers
+                       .Where(x =>
+                               x.InRoomLocation == Party.Leader.InRoomLocation &&
+                               x.Movement is null &&
+                               x.CanMove())
+                       .ToList();
+
+               foreach (var mover in _characterMovers.ToList())
+               {
+                       mover.Movement?.CancelForMoverOnly(mover);
+                       mover.Movement = this;
+
+                       if (mover.RidingMount != null && mover.RidingMount.Movement == null)
+                       {
+                               _characterMovers.Add(mover.RidingMount);
+                               mover.RidingMount.Movement = this;
+                       }
+
+                       foreach (var rider in mover.Riders)
+                       {
+                               rider.Movement = this;
+                       }
+               }
 
 		Exit.Origin.RegisterMovement(this);
 		Duration = duration;
@@ -359,17 +371,29 @@ public class GroupMovement : MovementBase
 		return true;
 	}
 
-	public override bool CancelForMoverOnly(IMove mover)
-	{
-		if (mover == Party.Leader || !(mover is ICharacter ch))
-		{
-			return Cancel();
-		}
+        public override bool CancelForMoverOnly(IMove mover)
+        {
+                if (mover == Party.Leader || mover is not ICharacter ch)
+                {
+                        return Cancel();
+                }
 
-		RemoveMover(ch);
-		ch.Movement = null;
-		return true;
-	}
+                if (ch.RidingMount != null && _characterMovers.Contains(ch.RidingMount))
+                {
+                        return false;
+                }
+
+                RemoveMover(ch);
+                ch.Movement = null;
+                foreach (var rider in ch.Riders)
+                {
+                        if (rider.Movement == this)
+                        {
+                                rider.Movement = null;
+                        }
+                }
+                return true;
+        }
 
 	#endregion
 }

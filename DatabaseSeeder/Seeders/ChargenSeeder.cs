@@ -286,13 +286,13 @@ Please answer #3yes#f or #3no#f: ",
 			FunctionText = @"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 6'10.5""
-      return 210
-    else
-      // 6'8""
-      return 203
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 6'10.5""
+	  return 210
+	else
+	  // 6'8""
+	  return 203
+	end if
 end switch
 return 200"
 		};
@@ -317,13 +317,13 @@ return 200"
 			FunctionText = @"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 4'11""
-      return 149
-    else
-      // 4'9.5""
-      return 145
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 4'11""
+	  return 149
+	else
+	  // 4'9.5""
+	  return 145
+	end if
 end switch
 return 149"
 		};
@@ -349,9 +349,9 @@ return 149"
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
-    bmi = 50
+	bmi = 50
   default
-    bmi = 50
+	bmi = 50
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 		};
@@ -377,9 +377,9 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
-    bmi = 16
+	bmi = 16
   default
-    bmi = 16
+	bmi = 16
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 		};
@@ -407,8 +407,8 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 // Racial skills
 switch (@ch.Race)
   case (ToRace(""Human""))
-    // additem skills ToTrait(""Skill Name"")
-    break
+	// additem skills ToTrait(""Skill Name"")
+	break
 end switch
 
 // Class-Based skills?
@@ -752,10 +752,10 @@ return 10"
 		AddStage(ChargenStage.SelectDisfigurements, "DisfigurementPicker", ChargenStage.SelectMerits,
 			@"<Screen><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit one to the staff on Discord.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit one to the staff on Discord.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game 
 	<Prosthetic>
- 			<Item>ITEM ID</Item>
- 			<Costs><Cost resource=""RESOURCE ID"" amount=""RESOURCE AMOUNT""/></Costs>
- 			<CanSelectProg>PROG NAME/ID - must take a single 'TOON' as a parameter and return boolean</CanSelectProg>
- 	</Prosthetic>
+			<Item>ITEM ID</Item>
+			<Costs><Cost resource=""RESOURCE ID"" amount=""RESOURCE AMOUNT""/></Costs>
+			<CanSelectProg>PROG NAME/ID - must take a single 'TOON' as a parameter and return boolean</CanSelectProg>
+	</Prosthetic>
 	--></Prostheses></Screen>", ChargenStage.SelectCulture);
 
 		if (questionAnswers["merits"].EqualToAny("merit"))

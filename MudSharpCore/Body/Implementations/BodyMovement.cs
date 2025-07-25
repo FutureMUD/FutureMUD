@@ -73,21 +73,26 @@ public partial class Body
 		}
 	}
 
-	public bool CanSpendStamina(double amount)
-	{
-		return amount <= CurrentStamina + SecondWindsAvailable().Count() * MaximumStamina;
-	}
+        public bool CanSpendStamina(double amount)
+        {
+                var mult = Actor.CombinedEffectsOfType<IStaminaExpenditureEffect>()
+                    .Aggregate(1.0, (x, y) => x * y.Multiplier);
+                return amount * mult <= CurrentStamina + SecondWindsAvailable().Count() * MaximumStamina;
+        }
 
-	public void GainStamina(double amount)
-	{
-		_currentStamina += amount;
-		_currentStamina = Math.Min(_currentStamina, MaximumStamina);
-		StaminaChanged = true;
-	}
+        public void GainStamina(double amount)
+        {
+                _currentStamina += amount;
+                _currentStamina = Math.Min(_currentStamina, MaximumStamina);
+                StaminaChanged = true;
+        }
 
-	public void SpendStamina(double amount)
-	{
-		_staminaSpentInCurrentPeriod += amount;
+        public void SpendStamina(double amount)
+        {
+                var mult = Actor.CombinedEffectsOfType<IStaminaExpenditureEffect>()
+                    .Aggregate(1.0, (x, y) => x * y.Multiplier);
+                amount *= mult;
+                _staminaSpentInCurrentPeriod += amount;
 		if (amount > _currentStamina)
 		{
 			foreach (var availableSecondWind in SecondWindsAvailable())
@@ -278,10 +283,13 @@ public partial class Body
 
 	public void StaminaTenSecondHeartbeat()
 	{
-		if (CurrentStamina < MaximumStamina)
-		{
-			GainStamina(Convert.ToDouble(Prototype.StaminaRecoveryProg.Execute(Actor)));
-		}
+                if (CurrentStamina < MaximumStamina)
+                {
+                        var regen = Convert.ToDouble(Prototype.StaminaRecoveryProg.Execute(Actor));
+                        var mult = Actor.CombinedEffectsOfType<IStaminaRegenerationRateEffect>()
+                            .Aggregate(1.0, (x, y) => x * y.Multiplier);
+                        GainStamina(regen * mult);
+                }
 
 		var staminaSpentRatio = _staminaSpentInCurrentPeriod / MaximumStamina;
 		ExertionLevel staminaExertion;

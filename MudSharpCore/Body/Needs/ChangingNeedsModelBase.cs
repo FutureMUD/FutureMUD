@@ -1,6 +1,8 @@
 ﻿using System;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using System.Linq;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 
@@ -17,41 +19,45 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
 	public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
 	{
-		var oldStatus = Status;
+                var oldStatus = Status;
 
-		// Todo calories
-		WaterLitres += fulfiller.WaterLitres;
-		FoodSatiatedHours += fulfiller.SatiationPoints;
-		DrinkSatiatedHours += fulfiller.ThirstPoints;
-		Calories += fulfiller.Calories;
-		if (!ignoreDelays && fulfiller.AlcoholLitres > 0.0)
-		{
-			AlcoholLitres += fulfiller.AlcoholLitres * 0.25;
-			var timespan = TimeSpan.FromMinutes(Math.Max(1.0,
-				15.0 * (1.0 + FoodSatiatedHours / 12.0) * RealSecondsToInGameSeconds));
-			Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-				new NeedFulfiller
-				{
-					AlcoholLitres = fulfiller.AlcoholLitres * 0.25
-				}
-			), timespan);
-			Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-				new NeedFulfiller
-				{
-					AlcoholLitres = fulfiller.AlcoholLitres * 0.25
-				}
-			), timespan + timespan);
-			Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-				new NeedFulfiller
-				{
-					AlcoholLitres = fulfiller.AlcoholLitres * 0.25
-				}
-			), timespan + timespan + timespan);
-		}
-		else
-		{
-			AlcoholLitres += fulfiller.AlcoholLitres;
-		}
+                var effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToActive).ToList();
+                var hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
+                var thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
+                var drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
+
+                WaterLitres += fulfiller.WaterLitres;
+                FoodSatiatedHours += fulfiller.SatiationPoints * hungerMult;
+                DrinkSatiatedHours += fulfiller.ThirstPoints * thirstMult;
+                Calories += fulfiller.Calories * hungerMult;
+                if (!ignoreDelays && fulfiller.AlcoholLitres > 0.0)
+                {
+                        AlcoholLitres += fulfiller.AlcoholLitres * 0.25 * drunkMult;
+                        var timespan = TimeSpan.FromMinutes(Math.Max(1.0,
+                                15.0 * (1.0 + FoodSatiatedHours / 12.0) * RealSecondsToInGameSeconds));
+                        Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
+                                new NeedFulfiller
+                                {
+                                        AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
+                                }
+                        ), timespan);
+                        Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
+                                new NeedFulfiller
+                                {
+                                        AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
+                                }
+                        ), timespan + timespan);
+                        Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
+                                new NeedFulfiller
+                                {
+                                        AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
+                                }
+                        ), timespan + timespan + timespan);
+                }
+                else
+                {
+                        AlcoholLitres += fulfiller.AlcoholLitres * drunkMult;
+                }
 
 		NormaliseValues();
 

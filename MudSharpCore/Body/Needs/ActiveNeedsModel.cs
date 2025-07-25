@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using MudSharp.Character;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Effects.Interfaces;
 
 namespace MudSharp.Body.Needs;
 
@@ -31,18 +32,22 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
 
 	public override void NeedsHeartbeat()
 	{
-		var ownerMerits = Owner.Merits.OfType<INeedRateChangingMerit>().Where(x => x.Applies(Owner)).ToList();
-		var oldStatus = Status;
-		var hoursPassed = 1 / 60.0 * RealSecondsToInGameSeconds;
-		DrinkSatiatedHours -= hoursPassed * Owner.Race.ThirstRate * ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
-		FoodSatiatedHours -= hoursPassed * Owner.Race.HungerRate * ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
-		AlcoholLitres -= hoursPassed * Owner.Body.LiverAlcoholRemovalKilogramsPerHour *
-		                 ownerMerits.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
-		// 1 Litre of Alcohol ~= 1 KG of Alcohol
-		WaterLitres -= hoursPassed * Owner.Body.WaterLossLitresPerHour *
-		               ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
-		Calories -= hoursPassed * Owner.Body.CaloricConsumptionPerHour *
-		            ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
+                var ownerMerits = Owner.Merits.OfType<INeedRateChangingMerit>().Where(x => x.Applies(Owner)).ToList();
+                var effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToPassive).ToList();
+                var hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
+                var thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
+                var drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
+                var oldStatus = Status;
+                var hoursPassed = 1 / 60.0 * RealSecondsToInGameSeconds;
+                DrinkSatiatedHours -= hoursPassed * Owner.Race.ThirstRate * ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
+                FoodSatiatedHours -= hoursPassed * Owner.Race.HungerRate * ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier) * hungerMult;
+                AlcoholLitres -= hoursPassed * Owner.Body.LiverAlcoholRemovalKilogramsPerHour *
+                                 ownerMerits.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier) * drunkMult;
+                // 1 Litre of Alcohol ~= 1 KG of Alcohol
+                WaterLitres -= hoursPassed * Owner.Body.WaterLossLitresPerHour *
+                               ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
+                Calories -= hoursPassed * Owner.Body.CaloricConsumptionPerHour *
+                            ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier) * hungerMult;
 		NeedsChanged(oldStatus, true, true, false);
 	}
 }

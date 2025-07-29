@@ -62,13 +62,13 @@ public class StaminaExpenditureSpellEffect : IMagicSpellEffectTemplate
         }
         Multiplier = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Stamina expenditure multiplier set to {value:N2}.");
+        actor.OutputHandler.Send($"Stamina expenditure multiplier set to {value.ToStringP2(actor)}.");
         return true;
     }
 
     public string Show(ICharacter actor)
     {
-        return $"StaminaExpendRate x{Multiplier:N2}";
+        return $"StaminaExpendRate x{Multiplier.ToStringP2(actor)}";
     }
 
     public bool IsInstantaneous => false;

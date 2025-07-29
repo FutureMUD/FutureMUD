@@ -33,7 +33,7 @@ public class SpellStaminaExpenditureEffect : MagicSpellEffectBase, IStaminaExpen
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"Stamina Cost x{Multiplier:N2}";
+        return $"Stamina Cost x{Multiplier.ToStringP2(voyeur)}";
     }
 
     protected override string SpecificEffectType => "SpellStaminaExpenditure";

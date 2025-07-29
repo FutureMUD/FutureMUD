@@ -87,7 +87,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
         }
         HungerDelta = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Hunger change set to {value:N2} hours.");
+        actor.OutputHandler.Send($"Hunger change set to {value.ToStringN2(actor)} hours.");
         return true;
     }
 
@@ -100,7 +100,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
         }
         ThirstDelta = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Thirst change set to {value:N2} hours.");
+        actor.OutputHandler.Send($"Thirst change set to {value.ToStringN2(actor)} hours.");
         return true;
     }
 
@@ -113,13 +113,13 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
         }
         DrunkDelta = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Drunkenness change set to {value:N2} litres.");
+        actor.OutputHandler.Send($"Drunkenness change set to {value.ToStringN2(actor)} litres.");
         return true;
     }
 
     public string Show(ICharacter actor)
     {
-        return $"NeedDelta H:{HungerDelta:N2} T:{ThirstDelta:N2} D:{DrunkDelta:N2}";
+        return $"NeedDelta H:{HungerDelta.ToStringN2(actor)} T:{ThirstDelta.ToStringN2(actor)} D:{DrunkDelta.ToStringN2(actor)}";
     }
 
     public bool IsInstantaneous => true;

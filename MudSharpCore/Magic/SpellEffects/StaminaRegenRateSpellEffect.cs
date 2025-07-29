@@ -62,13 +62,13 @@ public class StaminaRegenRateSpellEffect : IMagicSpellEffectTemplate
         }
         Multiplier = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Stamina regen multiplier set to {value:N2}.");
+        actor.OutputHandler.Send($"Stamina regen multiplier set to {value.ToStringP2(actor)}.");
         return true;
     }
 
     public string Show(ICharacter actor)
     {
-        return $"StaminaRegenRate x{Multiplier:N2}";
+        return $"StaminaRegenRate x{Multiplier.ToStringP2(actor)}";
     }
 
     public bool IsInstantaneous => false;

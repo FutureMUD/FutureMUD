@@ -33,7 +33,7 @@ public class SpellStaminaRegenerationEffect : MagicSpellEffectBase, IStaminaRege
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"Stamina Regen x{Multiplier:N2}";
+        return $"Stamina Regen x{Multiplier.ToStringP2(voyeur)}";
     }
 
     protected override string SpecificEffectType => "SpellStaminaRegen";

@@ -110,7 +110,7 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
         }
         HungerMultiplier = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Hunger multiplier now {value:P2}.");
+        actor.OutputHandler.Send($"Hunger multiplier now {value.ToStringP2(actor)}.");
         return true;
     }
 
@@ -123,7 +123,7 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
         }
         ThirstMultiplier = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Thirst multiplier now {value:P2}.");
+        actor.OutputHandler.Send($"Thirst multiplier now {value.ToStringP2(actor)}.");
         return true;
     }
 
@@ -136,14 +136,14 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
         }
         DrunkennessMultiplier = value;
         Spell.Changed = true;
-        actor.OutputHandler.Send($"Drunkenness multiplier now {value:P2}.");
+        actor.OutputHandler.Send($"Drunkenness multiplier now {value.ToStringP2(actor)}.");
         return true;
     }
 
     public string Show(ICharacter actor)
     {
         var type = AppliesToPassive ? "Passive" : "Active";
-        return $"NeedRate {type} - H:{HungerMultiplier:P2} T:{ThirstMultiplier:P2} D:{DrunkennessMultiplier:P2}";
+        return $"NeedRate {type} - H:{HungerMultiplier.ToStringP2(actor)} T:{ThirstMultiplier.ToStringP2(actor)} D:{DrunkennessMultiplier.ToStringP2(actor)}";
     }
 
     public bool IsInstantaneous => false;

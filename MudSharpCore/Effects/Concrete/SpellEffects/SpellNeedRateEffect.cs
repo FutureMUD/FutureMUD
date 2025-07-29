@@ -46,7 +46,7 @@ public class SpellNeedRateEffect : MagicSpellEffectBase, INeedRateEffect
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"Need Rate x{HungerMultiplier:N2}/{ThirstMultiplier:N2}/{DrunkennessMultiplier:N2}";
+        return $"Need Rate x{HungerMultiplier.ToStringP2(voyeur)}/{ThirstMultiplier.ToStringP2(voyeur)}/{DrunkennessMultiplier.ToStringP2(voyeur)}";
     }
 
     protected override string SpecificEffectType => "SpellNeedRate";

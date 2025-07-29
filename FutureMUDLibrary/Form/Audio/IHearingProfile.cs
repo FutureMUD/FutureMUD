@@ -1,5 +1,6 @@
 ﻿using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Form.Audio {
@@ -7,7 +8,7 @@ namespace MudSharp.Form.Audio {
     ///     An IHearingProfile supplies information about how difficult it is to hear a particular sound at a given location,
     ///     volume and proximity
     /// </summary>
-    public interface IHearingProfile : IFrameworkItem {
+    public interface IHearingProfile : IEditableItem {
         /// <summary>
         ///     What this HearingProfile shows up as in the survey command
         /// </summary>

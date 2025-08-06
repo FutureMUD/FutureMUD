@@ -19,7 +19,8 @@ public class CelestialSeeder : IDatabaseSeeder
 			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
 		{
                        ("celestials",
-                               @"Which celestial bodies would you like to install? You can choose from Sun, Moon, Mercury, Venus, Mars and Pluto.
+                               @"Which celestial bodies would you like to install? These options add models of the sun as seen from each world.
+You can choose from Earth's Sun (Sun), Earth's Moon (Moon), Mercury's Sun (Mercury), Venus's Sun (Venus), Mars's Sun (Mars) and Pluto's Sun (Pluto).
 
 Please provide a comma separated list of your choices: ", (context, answers) => true,
                                (answer, context) =>
@@ -28,7 +29,7 @@ Please provide a comma separated list of your choices: ", (context, answers) => 
                                                         .Select(x => x.Trim());
                                        return list.All(x => x.EqualToAny("sun", "moon", "mercury", "venus", "mars", "pluto"))
                                                ? (true, string.Empty)
-                                               : (false, "Please choose only from Sun, Moon, Mercury, Venus, Mars or Pluto.");
+                                               : (false, "Please choose only from Sun, Moon, Mercury, Venus, Mars or Pluto. These refer to the sun as seen from those worlds.");
                                }),
                         ("suncalendar",
                                 @"Which calendar would you like your sun to be tied to, for the purposes of working out where it should be in the sky?

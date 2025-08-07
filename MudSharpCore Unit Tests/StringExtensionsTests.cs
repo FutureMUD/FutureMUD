@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework;
+using MudSharp.Accounts;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +21,24 @@ public class StringExtensionsTests
     public void StarRectangle_PadsAndBrackets()
     {
         Assert.AreEqual("[ab*  ]", "ab".StarRectangle(3, 8));
+    }
+
+    [TestMethod]
+    public void SquareBracketsSpace_AppendsSpace()
+    {
+        Assert.AreEqual("[abc] ", "abc".SquareBracketsSpace());
+    }
+
+    [TestMethod]
+    public void CurlyBrackets_AddsBraces()
+    {
+        Assert.AreEqual("{abc}", "abc".CurlyBrackets());
+    }
+
+    [TestMethod]
+    public void CurlyBracketsSpace_AddsBracesAndSpace()
+    {
+        Assert.AreEqual("{abc} ", "abc".CurlyBracketsSpace());
     }
 
     [TestMethod]
@@ -199,6 +219,13 @@ public class StringExtensionsTests
     }
 
     [TestMethod]
+    public void NormaliseSpacing_IgnoresPunctuationWhenRequested()
+    {
+        var text = "Hello ,  world !This   is  test.";
+        Assert.AreEqual("Hello , world !This is test.", text.NormaliseSpacing(true));
+    }
+
+    [TestMethod]
     public void IfNullOrWhiteSpace_ReturnsFallback()
     {
         Assert.AreEqual("x", "".IfNullOrWhiteSpace("x"));
@@ -220,6 +247,20 @@ public class StringExtensionsTests
     }
 
     [TestMethod]
+    public void RawTextSubstring_ReturnsPlainSubstring()
+    {
+        Assert.AreEqual("cd", "abcdef".RawTextSubstring(2,5));
+    }
+
+    [TestMethod]
+    public void RawTextSubstring_ReturnsAnsiSubstring()
+    {
+        var text = $"{Telnet.Green}abc{Telnet.RESET}def";
+        var expected = $"{Telnet.Green}abc{Telnet.RESET}de";
+        Assert.AreEqual(expected, text.RawTextSubstring(0,6));
+    }
+
+    [TestMethod]
     public void RawTextSubstring_HandlesCodes()
     {
         var text = $"{Telnet.Red}abc{Telnet.RESET}de";
@@ -232,6 +273,67 @@ public class StringExtensionsTests
         var raw = $"{Telnet.Red}ab{Telnet.RESET}";
         Assert.IsTrue(raw.RawTextPadLeft(4).EndsWith(raw));
         Assert.IsTrue(raw.RawTextPadRight(4).StartsWith(raw));
+    }
+
+    [TestMethod]
+    public void RemoveBlankLines_RemovesExtraBlankLines()
+    {
+        var input = "Line1\n\n\nLine2\n";
+        Assert.AreEqual("Line1\n\nLine2\n", input.RemoveBlankLines());
+    }
+
+    [TestMethod]
+    public void RemoveBlankLines_RemovesAllWhenConfigured()
+    {
+        var input = "Line1\n\nLine2\n";
+        Assert.AreEqual("Line1\nLine2\n", input.RemoveBlankLines(false));
+    }
+
+    [TestMethod]
+    public void CollapseString_RemovesSeparators()
+    {
+        Assert.AreEqual("longdescription", "long_description".CollapseString());
+    }
+
+    [TestMethod]
+    public void SplitStringsForDiscord_SplitsAt1950()
+    {
+        var message = new string('a', 1900) + "\n" + new string('b', 100);
+        var parts = message.SplitStringsForDiscord().ToList();
+        Assert.AreEqual(2, parts.Count);
+        Assert.AreEqual(1900, parts[0].Length);
+        Assert.AreEqual(100, parts[1].Length);
+    }
+
+    [TestMethod]
+    public void RawTextForDiscord_ReplacesColours()
+    {
+        var text = $"{Telnet.Red}abc{Telnet.RESET}";
+        Assert.AreEqual("**abc**", text.RawTextForDiscord());
+    }
+
+    [TestMethod]
+    public void GetLineWithTitle_UsesAccountSettings()
+    {
+        var account = new Mock<IAccount>();
+        account.SetupGet(a => a.LineFormatLength).Returns(40);
+        account.SetupGet(a => a.UseUnicode).Returns(true);
+        var person = new Mock<IHaveAccount>();
+        person.SetupGet(p => p.Account).Returns(account.Object);
+        var result = "Title".GetLineWithTitle(person.Object, null, null);
+        Assert.AreEqual("═══════╣ Title ╠════════════════════════════", result);
+    }
+
+    [TestMethod]
+    public void GetLineWithTitleInner_UsesInnerLengthAndAscii()
+    {
+        var account = new Mock<IAccount>();
+        account.SetupGet(a => a.InnerLineFormatLength).Returns(30);
+        account.SetupGet(a => a.UseUnicode).Returns(false);
+        var person = new Mock<IHaveAccount>();
+        person.SetupGet(p => p.Account).Returns(account.Object);
+        var result = "Title".GetLineWithTitleInner(person.Object, null, null);
+        Assert.AreEqual("=======[ Title ]==============", result);
     }
 
     [TestMethod]
@@ -284,10 +386,24 @@ public class StringExtensionsTests
     }
 
     [TestMethod]
+    public void ToBonusString_PositiveNoColour()
+    {
+        Assert.AreEqual("+1", 1.ToBonusString(null, false));
+    }
+
+    [TestMethod]
     public void Wrap_Simple()
     {
         var wrapped = "a b c d".Wrap(3);
         Assert.IsTrue(wrapped.Contains("\n"));
+    }
+
+    [TestMethod]
+    public void Wrap_CustomIndent_MultipleLines()
+    {
+        var text = "one two three four";
+        var wrapped = text.Wrap(10, "--");
+        Assert.AreEqual("--one two\n--three four", wrapped);
     }
 
     [TestMethod]

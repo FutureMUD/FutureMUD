@@ -20,6 +20,14 @@ public class CollectionExtensionsMoreTests
     }
 
     [TestMethod]
+    public void RemoveAllKeys_NoRemovals()
+    {
+        var dict = new Dictionary<int, string> { {1,"a"}, {2,"b"} };
+        MC.RemoveAllKeys<Dictionary<int,string>,int,string>(dict, k => k > 3);
+        CollectionAssert.AreEquivalent(new[] {1,2}, dict.Keys.ToList());
+    }
+
+    [TestMethod]
     public void SumAndConcatVariants_Basic()
     {
         var decimals = new[] {1.5m, 2.5m};
@@ -51,6 +59,14 @@ public class CollectionExtensionsMoreTests
     }
 
     [TestMethod]
+    public void ExceptCovariant_IgnoresNullElements()
+    {
+        string?[] src = {"a", null, "b"};
+        var result = src.ExceptCovariant<string?, string>("c").ToList();
+        CollectionAssert.AreEqual(new[]{"a","b"}, result);
+    }
+
+    [TestMethod]
     public void Plus_ValueOrDefault_WhereMaxMin()
     {
         var list = new[]{1,3,2};
@@ -65,6 +81,21 @@ public class CollectionExtensionsMoreTests
         CollectionAssert.AreEqual(new[]{1,3}, max);
         var min = tuples.WhereMin(x=>x.Score).Select(x=>x.Id).Single();
         Assert.AreEqual(2,min);
+    }
+
+    [TestMethod]
+    public void ValueOrDefault_KeyAbsent()
+    {
+        var dict = new Dictionary<string,int>{{"a",1}};
+        Assert.AreEqual(42, dict.ValueOrDefault("b",42));
+    }
+
+    [TestMethod]
+    public void WhereMaxMin_EmptySource()
+    {
+        var tuples = Array.Empty<(int Id,int Score)>();
+        Assert.IsFalse(tuples.WhereMax(x=>x.Score).Any());
+        Assert.IsFalse(tuples.WhereMin(x=>x.Score).Any());
     }
 
     [TestMethod]
@@ -116,6 +147,40 @@ public class CollectionExtensionsMoreTests
     }
 
     [TestMethod]
+    public void ArrayAdjacents_CornerCells()
+    {
+        var grid = new int[2,2];
+        int val = 0;
+        for(int i=0;i<2;i++)
+            for(int j=0;j<2;j++)
+                grid[i,j]=val++;
+        var visited = new List<int>();
+        grid.ApplyActionToAdjacents(0,0,x=>visited.Add(x));
+        CollectionAssert.AreEquivalent(new[]{1,2,3}, visited);
+
+        visited.Clear();
+        grid.ApplyActionToAdjacentsWithInfo(0,0,(value,dir,x,y)=>visited.Add(value));
+        CollectionAssert.AreEquivalent(new[]{1,2,3}, visited);
+
+        visited.Clear();
+        grid.ApplyActionToAdjacentsWithDirection(0,0,(value,dir)=>visited.Add(value));
+        CollectionAssert.AreEquivalent(new[]{1,2,3}, visited);
+
+        var count = grid.ApplyFunctionToAdjacentsReturnCount(0,0,v=>true);
+        Assert.AreEqual(3,count);
+        count = grid.ApplyFunctionToAdjacentsReturnCountWithDirection(0,0,(v,d)=>true);
+        Assert.AreEqual(3,count);
+    }
+
+    [TestMethod]
+    public void GetCoordsOfElement_MissingThrows()
+    {
+        var grid = new int[1,1];
+        grid[0,0]=5;
+        Assert.ThrowsException<InvalidOperationException>(()=>grid.GetCoordsOfElement(3));
+    }
+
+    [TestMethod]
     public void FrameworkItemLookups_Work()
     {
         var items = new[]{ new FrameworkItemStub{Name="Alpha",Id=1}, new FrameworkItemStub{Name="Alphabet",Id=2} };
@@ -124,6 +189,18 @@ public class CollectionExtensionsMoreTests
         Assert.AreEqual(2, items.GetByIdOrName("2")?.Id);
         Assert.AreEqual(1, items.GetByIdOrOrder("#1")?.Id);
         Assert.AreEqual(1, items.OrdinalPositionOf(items[0]));
+    }
+
+    [TestMethod]
+    public void FrameworkItemLookups_More()
+    {
+        var items = new[]{ new FrameworkItemStub{Name="Alpha",Id=1}, new FrameworkItemStub{Name="Alphabet",Id=2} };
+        Assert.AreEqual(1, items.GetByNameOrAbbreviation("alp")?.Id);
+        Assert.IsNull(items.GetByNameOrAbbreviation("beta"));
+        Assert.AreEqual(2, items.GetByIdOrName("Alphabet")?.Id);
+        Assert.AreEqual(1, items.GetByIdOrOrder("1")?.Id);
+        Assert.IsNull(items.GetByIdOrOrder("#abc"));
+        Assert.AreEqual(0, items.OrdinalPositionOf(new FrameworkItemStub{Name="Gamma",Id=3}));
     }
 
     [TestMethod]
@@ -137,5 +214,16 @@ public class CollectionExtensionsMoreTests
         Assert.AreEqual(1, items.GetByIdOrNameRevisable("Alpha")?.RevisionNumber);
         Assert.AreEqual(1, items.GetByRevisableId("1")?.RevisionNumber);
         Assert.AreEqual(1, items.GetById("1")?.Id);
+    }
+
+    [TestMethod]
+    public void RevisableLookups_ByNumericId()
+    {
+        var items = new[]{
+            new RevisableItemStub{Name="Alpha",Id=1,RevisionNumber=1,Status=RevisionStatus.Current},
+            new RevisableItemStub{Name="Alpha",Id=1,RevisionNumber=2,Status=RevisionStatus.PendingRevision}
+        };
+        Assert.AreEqual(2, items.GetByIdOrNameRevisableForEditing("1")?.RevisionNumber);
+        Assert.AreEqual(1, items.GetByIdOrNameRevisable("1")?.RevisionNumber);
     }
 }

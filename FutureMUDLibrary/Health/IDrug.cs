@@ -75,17 +75,24 @@ namespace MudSharp.Health
 		#endregion
 	}
 
-	public class MagicAbilityAdditionalInfo : DrugAdditionalInfo
-	{
-		public required List<long> MagicCapabilityIds { get; set; }
+        public class MagicAbilityAdditionalInfo : DrugAdditionalInfo
+        {
+                public required List<long> MagicCapabilityIds { get; set; }
 
 		#region Overrides of DrugAdditionalInfo
 
 		/// <inheritdoc />
-		public override string DatabaseString => MagicCapabilityIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
+                public override string DatabaseString => MagicCapabilityIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
 
-		#endregion
-	}
+                #endregion
+        }
+
+        public class OrganFunctionAdditionalInfo : DrugAdditionalInfo
+        {
+                public required List<BodypartTypeEnum> OrganTypes { get; set; }
+
+                public override string DatabaseString => OrganTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
+        }
 
 	public interface IDrug : IEditableItem, IProgVariable {
 		DrugVector DrugVectors { get; }

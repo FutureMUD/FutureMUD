@@ -1147,15 +1147,34 @@ The syntax for this command is as follows:
 			}
 		}
 
-		var (truth, reason) = shop.CanBuy(actor, merch, quantity, payment);
-		if (!truth)
-		{
-			actor.OutputHandler.Send(
-				$"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
-			return;
-		}
+                var (truth, reason) = shop.CanBuy(actor, merch, quantity, payment);
+                if (!truth)
+                {
+                        actor.OutputHandler.Send(
+                                $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
+                        return;
+                }
 
-		shop.Buy(actor, merch, quantity, payment);
+                var preview = shop.PreviewBuy(actor, merch, quantity, payment);
+                if (preview.Items.Any(x => x.Prototype.Morphs &&
+                                             x.Prototype.MorphTimeSpan > TimeSpan.Zero &&
+                                             (x.CachedMorphTime ?? (x.MorphTime == DateTime.MinValue ? x.Prototype.MorphTimeSpan : x.MorphTime - DateTime.UtcNow))
+                                             .TotalSeconds / x.Prototype.MorphTimeSpan.TotalSeconds < 0.3))
+                {
+                        actor.OutputHandler.Send(
+                                $"Warning: That item will morph soon.\n{Accept.StandardAcceptPhrasing}");
+                        actor.AddEffect(new Accept(actor, new GenericProposal
+                        {
+                                DescriptionString = "confirming near-morph purchase",
+                                AcceptAction = text => { shop.Buy(actor, merch, quantity, payment); },
+                                RejectAction = text => { actor.OutputHandler.Send("You decide not to buy it."); },
+                                ExpireAction = () => { actor.OutputHandler.Send("You decide not to buy it."); },
+                                Keywords = new List<string> { "buy" }
+                        }), TimeSpan.FromSeconds(120));
+                        return;
+                }
+
+                shop.Buy(actor, merch, quantity, payment);
 	}
 
 	[PlayerCommand("Sell", "Sell")]

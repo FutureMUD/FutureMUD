@@ -104,10 +104,11 @@ public partial class Body
 				numberOfEyes /= 2.0;
 			}
 
-			// TODO - other things that impact on eyes without totally blinding them
+                        var multiplier = CombinedEffectsOfType<IVisionLimitEffect>()
+                            .Aggregate(1.0, (sum, x) => sum * x.VisionMultiplier);
 
-			return numberOfEyes >= 2.0 ? 1.0 : numberOfEyes / 2.0;
-		}
+                        return multiplier * (numberOfEyes >= 2.0 ? 1.0 : numberOfEyes / 2.0);
+                }
 	}
 
 	public override bool CanSee(IPerceivable thing, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)

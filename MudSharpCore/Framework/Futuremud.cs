@@ -17,6 +17,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Autobuilder;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
+using MudSharp.Form.Audio;
 using MudSharp.Email;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Characteristics;
@@ -1389,10 +1390,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_marketPopulations.Add(item);
 	}
 
-	public void Add(IHeightWeightModel model)
-	{
-		_heightWeightModels.Add(model);
-	}
+        public void Add(IHeightWeightModel model)
+        {
+                _heightWeightModels.Add(model);
+        }
+
+        public void Add(IHearingProfile profile)
+        {
+                _hearingProfiles.Add(profile);
+        }
 
 	public void Add(IShieldType shield)
 	{
@@ -1617,10 +1623,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	{
 		_shoppers.Remove(shopper);
 	}
-	public void Destroy(IHeightWeightModel model)
-	{
-		_heightWeightModels.Remove(model);
-	}
+        public void Destroy(IHeightWeightModel model)
+        {
+                _heightWeightModels.Remove(model);
+        }
+
+        public void Destroy(IHearingProfile profile)
+        {
+                _hearingProfiles.Remove(profile);
+        }
 
 	public void Destroy(ITrack track)
 	{

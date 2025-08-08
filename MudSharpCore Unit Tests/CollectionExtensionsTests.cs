@@ -38,14 +38,33 @@ public class CollectionExtensionsTests
 	}
 
 	[TestMethod]
-	public void TestSum3Double()
-	{
-		var data = new[] { 1.0, 2.0, 3.0 };
-		var (s1, s2, s3) = data.Sum3(x => x, x => x * 2.0, x => x * 0.5);
-		Assert.AreEqual(6.0, s1, 1e-6, "Sum1 incorrect");
-		Assert.AreEqual(12.0, s2, 1e-6, "Sum2 incorrect");
-		Assert.AreEqual(3.0, s3, 1e-6, "Sum3 incorrect");
-	}
+        public void TestSum3Double()
+        {
+                var data = new[] { 1.0, 2.0, 3.0 };
+                var (s1, s2, s3) = data.Sum3(x => x, x => x * 2.0, x => x * 0.5);
+                Assert.AreEqual(6.0, s1, 1e-6, "Sum1 incorrect");
+                Assert.AreEqual(12.0, s2, 1e-6, "Sum2 incorrect");
+                Assert.AreEqual(3.0, s3, 1e-6, "Sum3 incorrect");
+        }
+
+        [TestMethod]
+        public void TestSum2Decimal()
+        {
+                var data = new[] { 1.5m, 2.5m, 3.0m };
+                var (s1, s2) = data.Sum2(x => x, x => x * 2m);
+                Assert.AreEqual(7.0m, s1, "Sum1 incorrect");
+                Assert.AreEqual(14.0m, s2, "Sum2 incorrect");
+        }
+
+        [TestMethod]
+        public void TestSum3Long()
+        {
+                var data = new long[] { 1, 2, 3 };
+                var (s1, s2, s3) = data.Sum3(x => x, x => x * 2, x => x * 3);
+                Assert.AreEqual(6L, s1, "Sum1 incorrect");
+                Assert.AreEqual(12L, s2, "Sum2 incorrect");
+                Assert.AreEqual(18L, s3, "Sum3 incorrect");
+        }
 
 	[TestMethod]
 	public void TestMinMaxInt()
@@ -75,13 +94,31 @@ public class CollectionExtensionsTests
 	}
 
 	[TestMethod]
-	public void TestMinMaxDoublePredicate()
-	{
-		var data = new[] { -1.5, 0.5, 2.5 };
-		var (min, max) = data.MinMax(x => x >= 0);
-		Assert.AreEqual(0.0, min, 1e-6, "Min incorrect");
-		Assert.AreEqual(2.5, max, 1e-6, "Max incorrect");
-	}
+        public void TestMinMaxDoublePredicate()
+        {
+                var data = new[] { -1.5, 0.5, 2.5 };
+                var (min, max) = data.MinMax(x => x >= 0);
+                Assert.AreEqual(0.0, min, 1e-6, "Min incorrect");
+                Assert.AreEqual(2.5, max, 1e-6, "Max incorrect");
+        }
+
+        [TestMethod]
+        public void TestMinMaxDecimal()
+        {
+                var data = new[] { -1.5m, 0m, 2.5m };
+                var (min, max) = data.MinMax();
+                Assert.AreEqual(-1.5m, min, "Min incorrect");
+                Assert.AreEqual(2.5m, max, "Max incorrect");
+        }
+
+        [TestMethod]
+        public void TestMinMaxDecimalPredicate()
+        {
+                var data = new[] { -1.5m, 0m, 2.5m };
+                var (min, max) = data.MinMax(x => x >= 0m);
+                Assert.AreEqual(0m, min, "Min incorrect");
+                Assert.AreEqual(2.5m, max, "Max incorrect");
+        }
 
 	[TestMethod]
 	public void TestFirstMaxValueType()
@@ -130,31 +167,51 @@ public class CollectionExtensionsTests
 
 
 	[TestMethod]
-	public void TestFirstMinReferenceType()
-	{
-		var data = new List<Tuple<int, int>>
-		{
-			Tuple.Create(1, -5),
-			Tuple.Create(2, 0),
-			Tuple.Create(3, 3),
-			Tuple.Create(4, 3),
-		};
-		var result = data.FirstMin(x => x.Item2);
-		Assert.IsNotNull(result);
-		Assert.AreEqual(1, result.Item1, "Incorrect element returned");
-	}
+        public void TestFirstMinReferenceType()
+        {
+                var data = new List<Tuple<int, int>>
+                {
+                        Tuple.Create(1, -5),
+                        Tuple.Create(2, 0),
+                        Tuple.Create(3, 3),
+                        Tuple.Create(4, 3),
+                };
+                var result = data.FirstMin(x => x.Item2);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(1, result.Item1, "Incorrect element returned");
+        }
+
+        [TestMethod]
+        public void TestFirstMaxDefaultValueBehaviour()
+        {
+                Assert.AreEqual(0, Array.Empty<int>().FirstMax(x => x, 3));
+        }
+
+        [TestMethod]
+        public void TestFirstMinDefaultValueBehaviour()
+        {
+                Assert.AreEqual(0, Array.Empty<int>().FirstMin(x => x, 0));
+        }
 
 	[TestMethod]
-	public void TestFindSequenceConsecutive()
-	{
-		var data = new[] { 1, 2, 2, 2, 3 };
-		var results = data.FindSequenceConsecutive(x => x == 2, 2).ToList();
-		Assert.AreEqual(2, results.Count, "Unexpected sequence count");
-		foreach (var seq in results)
-		{
-			CollectionAssert.AreEqual(new[] { 2, 2 }, seq.ToList(), "Sequence mismatch");
-		}
-	}
+        public void TestFindSequenceConsecutive()
+        {
+                var data = new[] { 1, 2, 2, 2, 3 };
+                var results = data.FindSequenceConsecutive(x => x == 2, 2).ToList();
+                Assert.AreEqual(2, results.Count, "Unexpected sequence count");
+                foreach (var seq in results)
+                {
+                        CollectionAssert.AreEqual(new[] { 2, 2 }, seq.ToList(), "Sequence mismatch");
+                }
+        }
+
+        [TestMethod]
+        public void TestFindSequenceConsecutiveNoMatch()
+        {
+                var data = new[] { 1, 3, 1, 3 };
+                var results = data.FindSequenceConsecutive(x => x == 2, 2);
+                Assert.AreEqual(0, results.Count());
+        }
 
 	[TestMethod]
 	public void TestSwapByIndex()

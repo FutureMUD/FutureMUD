@@ -4076,13 +4076,19 @@ For information on the syntax to use in emotes (such as those included in bracke
 				case "Sun":
 					_celestialObjects.Add(new NewSun(celestial, this));
 					continue;
-				case "PlanetaryMoon":
-					_celestialObjects.Add(new PlanetaryMoon(celestial, this));
-					continue;
-				default:
-					throw new ApplicationException($"Unknown Celestial type {celestial.CelestialType}.");
-			}
-		}
+                                case "PlanetaryMoon":
+                                        _celestialObjects.Add(new PlanetaryMoon(celestial, this));
+                                        continue;
+                               case "PlanetFromMoon":
+                                       _celestialObjects.Add(new PlanetFromMoon(celestial, this));
+                                       continue;
+                               case "SunFromPlanetaryMoon":
+                                       _celestialObjects.Add(new SunFromPlanetaryMoon(celestial, this));
+                                       continue;
+                               default:
+                                       throw new ApplicationException($"Unknown Celestial type {celestial.CelestialType}.");
+                       }
+               }
 #if DEBUG
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

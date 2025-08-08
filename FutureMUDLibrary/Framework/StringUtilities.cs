@@ -297,7 +297,7 @@ namespace MudSharp.Framework
 					return match.Groups["text"].Value;
 				}
 
-				if (!double.TryParse(match.Groups["value"].Value, out var value))
+                                if (!double.TryParse(match.Groups["difficulty"].Value, out var value))
 				{
 					return match.Groups["text"].Value;
 				}

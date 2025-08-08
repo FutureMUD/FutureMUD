@@ -4338,11 +4338,35 @@ You can use the following syntax with this command:
 	[PlayerCommand("Improver", "improver")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("Improver", ImproverHelpText, AutoHelp.HelpArgOrNoArg)]
-	protected static void Improver(ICharacter actor, string input)
-	{
-		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ImproverHelper);
-	}
-	#endregion
+        protected static void Improver(ICharacter actor, string input)
+        {
+                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ImproverHelper);
+        }
+        #endregion
+
+        #region Hearing Profiles
+
+        public const string HearingProfileHelpText = @"The #3hearprof#0 command is used to edit hearing profiles used by the perception system.
+
+You can use the following syntax with this command:
+
+        #3hearprof list#0 - lists all hearing profiles
+        #3hearprof edit <which>#0 - begins editing a profile
+        #3hearprof edit new <type> <name>#0 - creates a new profile
+        #3hearprof close#0 - stops editing a profile
+        #3hearprof show <which>#0 - views a profile
+        #3hearprof show#0 - views your currently editing profile
+        #3hearprof set ...#0 - edits the profile";
+
+        [PlayerCommand("HearProf", "hearprof", "hprof")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("HearProf", HearingProfileHelpText, AutoHelp.HelpArgOrNoArg)]
+        protected static void HearProf(ICharacter actor, string input)
+        {
+                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.HearingProfileHelper);
+        }
+
+        #endregion
 
 	#region Height Weight Models
 

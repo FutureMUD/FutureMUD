@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using MudSharp.Form.Audio;
+using MudSharp.Form.Audio.HearingProfiles;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Body;
@@ -2635,8 +2637,8 @@ public partial class EditableItemHelper
 		GetEditHeader = item => $"Unit #{item.Id:N0} ({item.Name})"
 	};
 
-	public static EditableItemHelper HeightWeightModelHelper = new()
-	{
+        public static EditableItemHelper HeightWeightModelHelper = new()
+        {
 		ItemName = "Height/Weight Model",
 		ItemNamePlural = "Height/Weight Models",
 		SetEditableItemAction = (actor, item) =>
@@ -2750,7 +2752,69 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = BuilderModule.HeightWeightModelHelp,
 
 		GetEditHeader = item => $"Height/Weight Model #{item.Id:N0} ({item.Name})"
-	};
+        };
+
+        public static EditableItemHelper HearingProfileHelper { get; } = new()
+        {
+                ItemName = "Hearing Profile",
+                ItemNamePlural = "Hearing Profiles",
+                SetEditableItemAction = (actor, item) =>
+                {
+                        actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
+                        if (item == null)
+                        {
+                                return;
+                        }
+
+                        actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = (IHearingProfile)item });
+                },
+                GetEditableItemFunc = actor => actor.CombinedEffectsOfType<BuilderEditingEffect<IHearingProfile>>().FirstOrDefault()?.EditingItem,
+                GetAllEditableItems = actor => actor.Gameworld.HearingProfiles.ToList(),
+                GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.HearingProfiles.Get(id),
+                GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.HearingProfiles.GetByIdOrName(input),
+                AddItemToGameWorldAction = item => item.Gameworld.Add((IHearingProfile)item),
+                CastToType = typeof(IHearingProfile),
+                EditableNewAction = (actor, input) =>
+                {
+                        if (input.CountRemainingArguments() < 2)
+                        {
+                                actor.OutputHandler.Send("You must specify a type (simple|temporal|weekday) and a name.");
+                                return;
+                        }
+
+                        var type = input.PopSpeech().ToLowerInvariant();
+                        var name = input.SafeRemainingArgument.TitleCase();
+                        if (actor.Gameworld.HearingProfiles.Any(x => x.Name.EqualTo(name)))
+                        {
+                                actor.OutputHandler.Send($"There is already a hearing profile called {name.ColourName()}.");
+                                return;
+                        }
+
+                        HearingProfile profile = type switch
+                        {
+                                "simple" => new SimpleHearingProfile(actor.Gameworld, name),
+                                "temporal" => new TemporalHearingProfile(actor.Gameworld, name),
+                                "weekday" => new WeekdayHearingProfile(actor.Gameworld, name),
+                                _ => null
+                        };
+
+                        if (profile == null)
+                        {
+                                actor.OutputHandler.Send("The type must be simple, temporal or weekday.");
+                                return;
+                        }
+
+                        actor.Gameworld.Add(profile);
+                        actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
+                        actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = profile });
+                        actor.OutputHandler.Send($"You create a new {type} hearing profile called {name.ColourValue()}, which you are now editing.");
+                },
+                GetListTableHeaderFunc = character => new List<string> { "Id", "Name", "Type" },
+                GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IHearingProfile>()
+                                                                  select new List<string> { proto.Id.ToString("N0", character), proto.Name, (proto as HearingProfile)?.Type ?? "" },
+                DefaultCommandHelp = BuilderModule.HearingProfileHelpText,
+                GetEditHeader = item => $"Hearing Profile #{item.Id:N0} ({item.Name})"
+        };
 
 	public string ItemName { get; private set; }
 	public string ItemNamePlural { get; private set; }

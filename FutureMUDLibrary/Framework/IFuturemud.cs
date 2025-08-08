@@ -367,10 +367,11 @@ namespace MudSharp.Framework
 		void Add(IDrug drug);
 		void Add(IShopper shopper);
 		void Add(IColour colour);
-		void Add(IChargenResource resource);
-		void Add(IShieldType shield);
-		void Add(IHeightWeightModel model);
-		void Add(ITrack track);
+                void Add(IChargenResource resource);
+                void Add(IShieldType shield);
+                void Add(IHeightWeightModel model);
+                void Add(IHearingProfile profile);
+                void Add(ITrack track);
 		void Add(IMoveSpeed speed);
 		void Add(IImprovementModel model);
 		void Add(ICurrency currency);
@@ -527,8 +528,9 @@ namespace MudSharp.Framework
 
 		void Destroy(object obj);
 		void Destroy(IShopper shopper);
-		void Destroy(IHeightWeightModel model);
-		void Destroy(ITrack track);
+                void Destroy(IHeightWeightModel model);
+                void Destroy(IHearingProfile profile);
+                void Destroy(ITrack track);
 		void Destroy(ICombatArena arena);
 		void Destroy(ICurrency currency);
 		void Destroy(ICoin coin);

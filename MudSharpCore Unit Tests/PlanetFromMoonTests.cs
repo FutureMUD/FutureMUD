@@ -122,4 +122,35 @@ public class PlanetFromMoonTests
         _clock.CurrentTime.SetTime(0,0,0);
         Assert.IsTrue(_planet.IsSunEclipsed(new GeographicCoordinate(0,0,0,0)), "Sun should be eclipsed by planet");
     }
+
+    [TestMethod]
+    public void TidallyLockedMoonKeepsPlanetNearlyFixed()
+    {
+        var coord = new GeographicCoordinate(0,0,0,0);
+        _calendar.SetDate("21/jan/2000");
+        _clock.CurrentTime.SetTime(0,0,0);
+        var alt1 = _planet.CurrentElevationAngle(coord);
+        _calendar.SetDate("22/jan/2000");
+        _clock.CurrentTime.SetTime(0,0,0);
+        var alt2 = _planet.CurrentElevationAngle(coord);
+        var unlockedDelta = Math.Abs(alt2 - alt1);
+
+        var original = _moon.SiderealTimePerDay;
+        try
+        {
+            _moon.SiderealTimePerDay = _moon.AnomalyChangeAnglePerDay;
+            _calendar.SetDate("21/jan/2000");
+            _clock.CurrentTime.SetTime(0,0,0);
+            alt1 = _planet.CurrentElevationAngle(coord);
+            _calendar.SetDate("22/jan/2000");
+            _clock.CurrentTime.SetTime(0,0,0);
+            alt2 = _planet.CurrentElevationAngle(coord);
+            var lockedDelta = Math.Abs(alt2 - alt1);
+            Assert.IsTrue(lockedDelta < unlockedDelta * 0.1, "Planet should move far less when moon is tidally locked");
+        }
+        finally
+        {
+            _moon.SiderealTimePerDay = original;
+        }
+    }
 }

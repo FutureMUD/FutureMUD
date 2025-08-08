@@ -240,7 +240,7 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
                 <OrbitalEccentricity>0.0549</OrbitalEccentricity>
                 <DayNumberAtEpoch>2451545</DayNumberAtEpoch>
                 <SiderealTimeAtEpoch>4.889488</SiderealTimeAtEpoch>
-                <SiderealTimePerDay>6.300388</SiderealTimePerDay>
+                <SiderealTimePerDay>0.228027</SiderealTimePerDay>
                 <EpochDate>{epoch}</EpochDate>
         </Orbital>
                 <Illumination>

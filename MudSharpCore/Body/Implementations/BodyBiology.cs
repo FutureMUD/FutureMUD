@@ -316,13 +316,16 @@ public partial class Body
 							.OfType<IOrganImplant>()
 							.Select(x => (Organ: x.TargetOrgan, Factor: x.FunctionFactor))
 							.ToCollectionDictionary();
-		var external = Implants
-					   .SelectNotNull(x => x.Parent.GetItemType<ICannula>())
-					   .SelectMany(x =>
-						   x.ConnectedItems.SelectNotNull(y => y.Item2.Parent.GetItemType<IExternalOrganFunction>()))
-					   .Distinct()
-					   .SelectMany(x => x.OrganFunctions.Select(y => (Organ: y.Organ, Factor: y.Function)))
-					   .ToCollectionDictionary();
+                var external = Implants
+                                           .SelectNotNull(x => x.Parent.GetItemType<ICannula>())
+                                           .SelectMany(x =>
+                                                   x.ConnectedItems.SelectNotNull(y => y.Item2.Parent.GetItemType<IExternalOrganFunction>()))
+                                           .Distinct()
+                                           .SelectMany(x => x.OrganFunctions.Select(y => (Organ: y.Organ, Factor: y.Function)))
+                                           .ToCollectionDictionary();
+                var effectBonuses = CombinedEffectsOfType<IOrganFunctionEffect>()
+                                         .SelectMany(x => x.OrganFunctionBonuses(this))
+                                         .ToCollectionDictionary();
 
 		// Pre-calculate spinal organs because other organs will depend on it
 		foreach (var organ in Organs.OrderByDescending(x => x is SpineProto))
@@ -342,11 +345,12 @@ public partial class Body
 				}
 			}
 
-			var bonus =
-				merits[organ].Sum() +
-				organs[organ].Sum() +
-				implantOrgans[organ].Sum() +
-				external[organ].Sum();
+                        var bonus =
+                                merits[organ].Sum() +
+                                organs[organ].Sum() +
+                                implantOrgans[organ].Sum() +
+                                external[organ].Sum() +
+                                effectBonuses[organ].Sum();
 			_cachedOrganFunctionsByOrgan[organ] = bonus;
 			_cachedOrganFunctionsByType[organ.GetType()] += bonus;
 			if (!initialCalculation)

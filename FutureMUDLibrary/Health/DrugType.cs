@@ -16,5 +16,8 @@
         NeutraliseSpecificDrug = 13,
         Paralysis = 14,
         Antibiotic = 15,
+        OrganFunction = 16,
+        VisionImpairment = 17,
+        ThermalImbalance = 18,
     }
 }

@@ -163,19 +163,28 @@ public class Drug : SaveableItem, IDrug
 					HealingRateIntensity = double.Parse(extra.Split(" ")[0]),
 					HealingDifficultyIntensity = double.Parse(extra.Split(" ")[1])
 				};
-			case DrugType.MagicAbility:
-				return new MagicAbilityAdditionalInfo
-				{
-					MagicCapabilityIds = extra
-					                     .Split(' ')
-					                     .Select(long.Parse)
-					                     .ToList()
-				};
-			case DrugType.NeutraliseSpecificDrug:
-				return new NeutraliseSpecificDrugAdditionalInfo()
-				{
-					NeutralisedIds = extra
-					                 .Split(' ')
+                        case DrugType.MagicAbility:
+                                return new MagicAbilityAdditionalInfo
+                                {
+                                        MagicCapabilityIds = extra
+                                                             .Split(' ')
+                                                             .Select(long.Parse)
+                                                             .ToList()
+                                };
+                        case DrugType.OrganFunction:
+                                return new OrganFunctionAdditionalInfo
+                                {
+                                        OrganTypes = extra
+                                                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                                        .Select(int.Parse)
+                                                        .Cast<BodypartTypeEnum>()
+                                                        .ToList()
+                                };
+                        case DrugType.NeutraliseSpecificDrug:
+                                return new NeutraliseSpecificDrugAdditionalInfo()
+                                {
+                                        NeutralisedIds = extra
+                                                         .Split(' ')
 					                 .Select(long.Parse)
 					                 .ToList()
 				};
@@ -245,15 +254,17 @@ The following options require a matching intensity for the type before using the
 				return BuildingCommandNeutralise(actor, command);
 			case "neutralisespecific":
 				return BuildingCommandNeutraliseSpecific(actor, command);
-			case "damage":
-				return BuildingCommandDamage(actor, command);
-			default:
-				return false;
-		}
-	}
+                        case "damage":
+                                return BuildingCommandDamage(actor, command);
+                        case "organfunction":
+                                return BuildingCommandOrganFunction(actor, command);
+                        default:
+                                return false;
+                }
+        }
 
-	private bool BuildingCommandDamage(ICharacter actor, StringStack command)
-	{
+        private bool BuildingCommandDamage(ICharacter actor, StringStack command)
+        {
 		if (!DrugTypeMulipliers.ContainsKey(DrugType.BodypartDamage))
 		{
 			actor.OutputHandler.Send("This drug does not contain a bodypart damage effect intensity. You must set that first.");
@@ -283,9 +294,44 @@ The following options require a matching intensity for the type before using the
 			extra.BodypartTypes.Add(value);
 			actor.OutputHandler.Send($"This drug will now damage bodyparts of type {value.DescribeEnum().ColourValue()}.");
 		}
-		Changed = true;
-		return true;
-	}
+                Changed = true;
+                return true;
+        }
+
+        private bool BuildingCommandOrganFunction(ICharacter actor, StringStack command)
+        {
+                if (!DrugTypeMulipliers.ContainsKey(DrugType.OrganFunction))
+                {
+                        actor.OutputHandler.Send("This drug does not contain an organ function effect intensity. You must set that first.");
+                        return false;
+                }
+
+                if (command.IsFinished)
+                {
+                        actor.OutputHandler.Send($"Which organ type do you want to toggle? The valid choices are {Enum.GetValues<BodypartTypeEnum>().ListToColouredString()}.");
+                        return false;
+                }
+
+                if (!command.SafeRemainingArgument.TryParseEnum<BodypartTypeEnum>(out var value))
+                {
+                        actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid organ type. The valid choices are {Enum.GetValues<BodypartTypeEnum>().ListToColouredString()}.");
+                        return false;
+                }
+
+                var extra = (OrganFunctionAdditionalInfo)DrugTypeMulipliers[DrugType.OrganFunction].ExtraInfo;
+                if (extra.OrganTypes.Contains(value))
+                {
+                        extra.OrganTypes.Remove(value);
+                        actor.OutputHandler.Send($"This drug will no longer affect organs of type {value.DescribeEnum().ColourValue()}.");
+                }
+                else
+                {
+                        extra.OrganTypes.Add(value);
+                        actor.OutputHandler.Send($"This drug will now affect organs of type {value.DescribeEnum().ColourValue()}.");
+                }
+                Changed = true;
+                return true;
+        }
 
 	private bool BuildingCommandNeutraliseSpecific(ICharacter actor, StringStack command)
 	{
@@ -658,17 +704,20 @@ The following options require a matching intensity for the type before using the
 					var extra = (HealingRateAdditionalInfo)effect.Value.ExtraInfo;
 					sb.AppendLine($" - Rate {extra.HealingRateIntensity.ToBonusPercentageString(voyeur)}, Difficulty Bonus {extra.HealingDifficultyIntensity.ToBonusPercentageString(voyeur)}");
 					break;
-				case DrugType.BodypartDamage:
-					sb.AppendLine($" - {((BodypartDamageAdditionalInfo)effect.Value.ExtraInfo).BodypartTypes.ListToColouredString()}");
-					break;
-				case DrugType.MagicAbility:
-					sb.AppendLine($" - {((MagicAbilityAdditionalInfo)effect.Value.ExtraInfo).MagicCapabilityIds.SelectNotNull(x => Gameworld.MagicCapabilities.Get(x)).Select(x => x.Name.Colour(x.School.PowerListColour)).ListToString()}");
-					break;
-				default:
-					sb.AppendLine();
-					break;
-			}
-		}
+                                case DrugType.BodypartDamage:
+                                        sb.AppendLine($" - {((BodypartDamageAdditionalInfo)effect.Value.ExtraInfo).BodypartTypes.ListToColouredString()}");
+                                        break;
+                                case DrugType.MagicAbility:
+                                        sb.AppendLine($" - {((MagicAbilityAdditionalInfo)effect.Value.ExtraInfo).MagicCapabilityIds.SelectNotNull(x => Gameworld.MagicCapabilities.Get(x)).Select(x => x.Name.Colour(x.School.PowerListColour)).ListToString()}");
+                                        break;
+                                case DrugType.OrganFunction:
+                                        sb.AppendLine($" - {((OrganFunctionAdditionalInfo)effect.Value.ExtraInfo).OrganTypes.ListToColouredString()}");
+                                        break;
+                                default:
+                                        sb.AppendLine();
+                                        break;
+                        }
+                }
 
 		return sb.ToString();
 	}
@@ -690,14 +739,21 @@ The following options require a matching intensity for the type before using the
 				var split = AdditionalInfoFor<HealingRateAdditionalInfo>(DrugType.HealingRate);
 				return
 					$"HealingRate Mult ({split.HealingRateIntensity.ToString("N4", voyeur)}) Diff ({split.HealingDifficultyIntensity.ToString("N4", voyeur)}) @ {IntensityForType(type).ToString("N4", voyeur)}";
-			case DrugType.MagicAbility:
-				var capabilities = AdditionalInfoFor<MagicAbilityAdditionalInfo>(DrugType.MagicAbility)
-				                   .MagicCapabilityIds
-				                   .SelectNotNull(x => Gameworld.MagicCapabilities.Get(x))
-				                   .ToList();
-				return
-					$"MagicAbility of {capabilities.Select(x => x.Name.Colour(x.School.PowerListColour)).ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}";
-		}
+                        case DrugType.MagicAbility:
+                                var capabilities = AdditionalInfoFor<MagicAbilityAdditionalInfo>(DrugType.MagicAbility)
+                                                   .MagicCapabilityIds
+                                                   .SelectNotNull(x => Gameworld.MagicCapabilities.Get(x))
+                                                   .ToList();
+                                return
+                                        $"MagicAbility of {capabilities.Select(x => x.Name.Colour(x.School.PowerListColour)).ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}"; 
+                        case DrugType.OrganFunction:
+                                return
+                                        $"OrganFunction affecting {AdditionalInfoFor<OrganFunctionAdditionalInfo>(DrugType.OrganFunction).OrganTypes.Select(x => x.DescribeEnum().Pluralise().ColourValue()).ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}";
+                        case DrugType.VisionImpairment:
+                                return $"VisionImpairment @ {IntensityForType(type).ToString("N4", voyeur)}";
+                        case DrugType.ThermalImbalance:
+                                return $"ThermalImbalance @ {IntensityForType(type).ToString("N4", voyeur)}";
+                }
 
 		return $"{type.DescribeEnum()} @ {IntensityForType(type).ToString("N4", voyeur)}";
 	}

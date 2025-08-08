@@ -154,9 +154,11 @@ public class NewSun : PerceivedItem, ICelestialObject
 
 	public double MeanAnomaly(double dayNumber)
 	{
-		return (MeanAnomalyAngleAtEpoch + AnomalyChangeAnglePerDay * Math.Truncate(dayNumber - DayNumberAtEpoch))
-			.Modulus(2 * Math.PI);
-	}
+               // Use the fractional component of the day number so that the anomaly
+               // advances smoothly with time rather than in daily steps.
+               return (MeanAnomalyAngleAtEpoch + AnomalyChangeAnglePerDay * (dayNumber - DayNumberAtEpoch))
+                       .Modulus(2 * Math.PI);
+       }
 
 	public double TrueAnomaly(double dayNumber)
 	{

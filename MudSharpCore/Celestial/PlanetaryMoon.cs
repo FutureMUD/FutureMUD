@@ -178,21 +178,21 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
 			.Modulus(2 * Math.PI);
 	}
 
-	private (double RA, double Dec) EquatorialCoordinates(double dayNumber)
-	{
-		var v = TrueAnomaly(dayNumber);
-		var wv = v + ArgumentOfPeriapsis;
+       public (double RA, double Dec) EquatorialCoordinates(double dayNumber)
+       {
+               var v = TrueAnomaly(dayNumber);
+               var wv = v + ArgumentOfPeriapsis;
 
-		var x = Math.Cos(LongitudeOfAscendingNode) * Math.Cos(wv) -
-				Math.Sin(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
-		var y = Math.Sin(LongitudeOfAscendingNode) * Math.Cos(wv) +
-				Math.Cos(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
-		var z = Math.Sin(wv) * Math.Sin(OrbitalInclination);
+               var x = Math.Cos(LongitudeOfAscendingNode) * Math.Cos(wv) -
+                               Math.Sin(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
+               var y = Math.Sin(LongitudeOfAscendingNode) * Math.Cos(wv) +
+                               Math.Cos(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
+               var z = Math.Sin(wv) * Math.Sin(OrbitalInclination);
 
-		var ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
-		var dec = Math.Asin(z);
-		return (ra, dec);
-	}
+               var ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
+               var dec = Math.Asin(z);
+               return (ra, dec);
+       }
 
 	private double SiderealTime(double dayNumber, GeographicCoordinate coordinate)
 	{

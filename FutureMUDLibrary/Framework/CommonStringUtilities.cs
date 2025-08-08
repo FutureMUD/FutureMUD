@@ -384,19 +384,23 @@ namespace MudSharp.Framework
 						sb.Append(' ');
 					}
 				}
-				if (options == StringListToCSVOptions.RFC4180Compliant)
-				{
-					if (item.Contains('"') || item.Contains(separator) || item.Contains('\n'))
-					{
-						sb.Append('"');
-						sb.Append(item.Replace("\"", "\"\""));
-						sb.Append('"');
-					}
-				}
-				else
-				{
-					sb.Append(item);
-				}
+                               if (options == StringListToCSVOptions.RFC4180Compliant)
+                               {
+                                       if (item.Contains('"') || item.Contains(separator) || item.Contains('\n'))
+                                       {
+                                               sb.Append('"');
+                                               sb.Append(item.Replace("\"", "\"\""));
+                                               sb.Append('"');
+                                       }
+                                       else
+                                       {
+                                               sb.Append(item);
+                                       }
+                               }
+                               else
+                               {
+                                       sb.Append(item);
+                               }
 			}
 			return sb.ToString();
 		}
@@ -466,8 +470,8 @@ namespace MudSharp.Framework
 		public static string ListToColouredStringOr(this IEnumerable<string> items, ANSIColour colour = null)
 		{
 			colour ??= Telnet.Green;
-			return items.Select(x => x.Colour(colour)).ListToString(conjunction: " or");
-		}
+                       return items.Select(x => x.Colour(colour)).ListToString(conjunction: "or ");
+               }
 
 		/// <summary>
 		/// This is a shortcut for doing .Select(x => x.Colour()).ListToString()

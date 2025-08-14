@@ -104,14 +104,17 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
 			case "consumecommodity":
 			case "consumedcommodity":
 				return new InventoryPlanActionConsumeCommodity(root, gameworld);
-			case "consumeliquid":
-			case "consumedliquid":
-				return new InventoryPlanActionConsumeLiquid(root, gameworld);
-			default:
-				throw new NotImplementedException(
-					$"InventoryActionPlan type {root.Attribute("state").Value} not implemented in InventoryActionPlan.LoadAction");
-		}
-	}
+                        case "consumeliquid":
+                        case "consumedliquid":
+                                return new InventoryPlanActionConsumeLiquid(root, gameworld);
+                        case "apply":
+                        case "applied":
+                                return new InventoryPlanActionApply(root, gameworld);
+                        default:
+                                throw new NotImplementedException(
+                                        $"InventoryActionPlan type {root.Attribute("state").Value} not implemented in InventoryActionPlan.LoadAction");
+                }
+        }
 
 	public static IInventoryPlanAction LoadAction(IFuturemud gameworld, DesiredItemState state, long primaryTag,
 		long secondaryTag, Func<IGameItem, bool> primaryselector, Func<IGameItem, bool> secondaryselector,

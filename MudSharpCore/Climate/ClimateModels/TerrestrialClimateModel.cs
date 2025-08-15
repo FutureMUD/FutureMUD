@@ -14,68 +14,141 @@ namespace MudSharp.Climate.ClimateModels;
 
 public class TerrestrialClimateModel : ClimateModelBase
 {
-	private readonly DictionaryWithDefault<(ISeason Season, IWeatherEvent Event), double> _weatherEventChangeChance = new();
+       private readonly DictionaryWithDefault<(ISeason Season, IWeatherEvent Event), double> _weatherEventChangeChance = new();
 
-	private readonly CollectionDictionary<(ISeason Season, IWeatherEvent OldEvent), (IWeatherEvent NewEvent, double Chance)>
-		_newWeatherEventChances = new();
+       private readonly CollectionDictionary<(ISeason Season, IWeatherEvent OldEvent), (IWeatherEvent NewEvent, double Chance)>
+               _newWeatherEventChances = new();
 
-	private readonly DictionaryWithDefault<ISeason, double> _maximumAdditionalChangeChanceFromStableWeather = new();
-	private readonly DictionaryWithDefault<ISeason, double> _incrementalAdditionalChangeChanceFromStableWeather = new();
+       private readonly DictionaryWithDefault<ISeason, double> _maximumAdditionalChangeChanceFromStableWeather = new();
+       private readonly DictionaryWithDefault<ISeason, double> _incrementalAdditionalChangeChanceFromStableWeather = new();
 
-	public override IEnumerable<ISeason> Seasons => _maximumAdditionalChangeChanceFromStableWeather.Keys.ToList();
+       private readonly Dictionary<(ISeason Season, IWeatherEvent OldEvent, TimeOfDay Time), (IWeatherEvent NewEvent, double Chance)[]> _cachedTransitions = new();
+       private readonly Dictionary<(ISeason Season, IWeatherEvent OldEvent, TimeOfDay Time), double> _cachedTransitionTotals = new();
+       private readonly Dictionary<(ISeason Season, TimeOfDay Time), (IWeatherEvent Event, double Chance)[]> _seasonEventCache = new();
+       private readonly Dictionary<(ISeason Season, TimeOfDay Time), double> _seasonEventTotals = new();
+       private static readonly TimeOfDay[] _timesOfDay = Enum.GetValues<TimeOfDay>();
 
-	public override IEnumerable<IWeatherEvent> WeatherEvents => _weatherEventChangeChance.Select(x => x.Key.Event).Distinct().ToList();
+       public override IEnumerable<ISeason> Seasons => _maximumAdditionalChangeChanceFromStableWeather.Keys.ToList();
 
-	#region Overrides of ClimateModelBase
+       public override IEnumerable<IWeatherEvent> WeatherEvents => _weatherEventChangeChance.Select(x => x.Key.Event).Distinct().ToList();
 
-	public override IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason,
-		TimeOfDay currentTime, int consecutiveUnchangedPeriods)
-	{
-		if (currentWeather is null)
-		{
-			return _weatherEventChangeChance.Where(x => x.Key.Season == currentSeason).Select(x => x.Key.Event).GetRandomElement();
-		}
+       private void RecalculateCaches()
+       {
+               _cachedTransitions.Clear();
+               _cachedTransitionTotals.Clear();
+               foreach (var kvp in _newWeatherEventChances)
+               {
+                       foreach (var time in _timesOfDay)
+                       {
+                               var arr = kvp.Value.Where(x => x.NewEvent.PermittedTimesOfDay.Contains(time)).ToArray();
+                               _cachedTransitions[(kvp.Key.Season, kvp.Key.OldEvent, time)] = arr;
+                               _cachedTransitionTotals[(kvp.Key.Season, kvp.Key.OldEvent, time)] = arr.Sum(x => x.Chance);
+                       }
+               }
 
-		if (!_weatherEventChangeChance.ContainsKey((currentSeason, currentWeather))){
-			return currentWeather;
-		}
+               _seasonEventCache.Clear();
+               _seasonEventTotals.Clear();
+               var temp = new Dictionary<(ISeason, TimeOfDay), List<(IWeatherEvent, double)>>();
+               foreach (var kvp in _weatherEventChangeChance)
+               {
+                       foreach (var time in kvp.Key.Event.PermittedTimesOfDay)
+                       {
+                               var key = (kvp.Key.Season, time);
+                               if (!temp.TryGetValue(key, out var list))
+                               {
+                                       list = new List<(IWeatherEvent, double)>();
+                                       temp[key] = list;
+                               }
+                               list.Add((kvp.Key.Event, kvp.Value));
+                       }
+               }
 
-		if (!_newWeatherEventChances.ContainsKey((currentSeason, currentWeather))) {  
-			return currentWeather; 
-		}
+               foreach (var kvp in temp)
+               {
+                       var arr = kvp.Value.ToArray();
+                       _seasonEventCache[kvp.Key] = arr;
+                       _seasonEventTotals[kvp.Key] = arr.Sum(x => x.Item2);
+               }
+       }
 
-		if (!currentWeather.PermittedTimesOfDay.Contains(currentTime) || RandomUtilities.Roll(1.0,
-			    _weatherEventChangeChance[(currentSeason, currentWeather)] + Math.Min(
-				    _maximumAdditionalChangeChanceFromStableWeather[currentSeason],
-				    _incrementalAdditionalChangeChanceFromStableWeather[currentSeason] * consecutiveUnchangedPeriods)))
-		{
-			var permittedChanges = _newWeatherEventChances[(currentSeason, currentWeather)]
-			                       .Where(x => x.NewEvent.PermittedTimesOfDay.Contains(currentTime)).ToList();
-			if (!permittedChanges.Any())
-			{
-				return currentWeather;
-			}
+       private static IWeatherEvent SelectRandom((IWeatherEvent Event, double Chance)[] options, double total)
+       {
+               if (options.Length == 0)
+               {
+                       return null;
+               }
 
-			return permittedChanges.GetWeightedRandom(x => x.Chance)
-			                       .NewEvent;
-		}
+               if (total <= 0.0)
+               {
+                       return options.GetRandomElement().Event;
+               }
 
-		return currentWeather;
-	}
+               var roll = Constants.Random.NextDouble() * total;
+               foreach (var option in options)
+               {
+                       if (option.Chance <= 0.0)
+                       {
+                               continue;
+                       }
 
-	public override IEnumerable<IWeatherEvent> PermittedTransitions(IWeatherEvent currentEvent, ISeason currentSeason,
-		TimeOfDay timeOfDay)
-	{
-		if (!_newWeatherEventChances.ContainsKey((currentSeason, currentEvent)))
-		{
-			return Enumerable.Empty<IWeatherEvent>();
-		}
+                       if ((roll -= option.Chance) <= 0.0)
+                       {
+                               return option.Event;
+                       }
+               }
 
-		return _newWeatherEventChances[(currentSeason, currentEvent)]
-		       .Where(x => x.NewEvent.PermittedTimesOfDay.Contains(timeOfDay))
-		       .Select(x => x.NewEvent)
-		       .ToList();
-	}
+               return options.Last().Event;
+       }
+
+       private IWeatherEvent RandomEventForSeason(ISeason season, TimeOfDay time)
+       {
+               return _seasonEventCache.TryGetValue((season, time), out var options)
+                       ? SelectRandom(options, _seasonEventTotals[(season, time)])
+                       : null;
+       }
+
+       #region Overrides of ClimateModelBase
+
+       public override IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason,
+               TimeOfDay currentTime, int consecutiveUnchangedPeriods)
+       {
+               if (currentWeather is null)
+               {
+                       return RandomEventForSeason(currentSeason, currentTime);
+               }
+
+               var hasData = _weatherEventChangeChance.ContainsKey((currentSeason, currentWeather)) &&
+                             _newWeatherEventChances.ContainsKey((currentSeason, currentWeather));
+               var forceChange = !hasData || !currentWeather.PermittedTimesOfDay.Contains(currentTime);
+
+               if (forceChange || RandomUtilities.Roll(1.0,
+                           _weatherEventChangeChance[(currentSeason, currentWeather)] + Math.Min(
+                                   _maximumAdditionalChangeChanceFromStableWeather[currentSeason],
+                                   _incrementalAdditionalChangeChanceFromStableWeather[currentSeason] * consecutiveUnchangedPeriods)))
+               {
+                       if (_cachedTransitions.TryGetValue((currentSeason, currentWeather, currentTime), out var options) &&
+                           options.Length > 0)
+                       {
+                               return SelectRandom(options,
+                                       _cachedTransitionTotals[(currentSeason, currentWeather, currentTime)]);
+                       }
+
+                       if (forceChange)
+                       {
+                               return RandomEventForSeason(currentSeason, currentTime) ?? currentWeather;
+                       }
+               }
+
+               return currentWeather;
+       }
+
+       public override IEnumerable<IWeatherEvent> PermittedTransitions(IWeatherEvent currentEvent, ISeason currentSeason,
+               TimeOfDay timeOfDay)
+       {
+               return _cachedTransitions.TryGetValue((currentSeason, currentEvent, timeOfDay), out var list)
+                       ? list.Select(x => x.NewEvent)
+                       : Enumerable.Empty<IWeatherEvent>();
+       }
 
 	public const string HelpText = @"You can use the following options with this command:
 
@@ -171,10 +244,11 @@ public class TerrestrialClimateModel : ClimateModelBase
 			_weatherEventChangeChance[(season, weather)] = _weatherEventChangeChance[(clone, weather)];
 		}
 
-		Changed = true;
-		actor.OutputHandler.Send($"You add the season {season.DisplayName.ColourValue()} as a clone of {clone.DisplayName.ColourValue()}, inheriting all its events and chances.");
-		return true;
-	}
+               Changed = true;
+               RecalculateCaches();
+               actor.OutputHandler.Send($"You add the season {season.DisplayName.ColourValue()} as a clone of {clone.DisplayName.ColourValue()}, inheriting all its events and chances.");
+               return true;
+       }
 
 	private bool BuildingCommandSeason(ICharacter actor, StringStack command)
 	{
@@ -262,21 +336,23 @@ public class TerrestrialClimateModel : ClimateModelBase
 			}
 		}
 
-		if (chance <= 0.0)
-		{
-			_newWeatherEventChances[(season, weather)].RemoveAll(x => x.NewEvent == newWeather);
-			Changed = true;
-			actor.OutputHandler.Send($"It will no longer be possible for the {weather.Name.ColourValue()} event to transition to the {newWeather.Name.ColourValue()} event.");
-			return false;
-		}
+               if (chance <= 0.0)
+               {
+                       _newWeatherEventChances[(season, weather)].RemoveAll(x => x.NewEvent == newWeather);
+                       Changed = true;
+                       RecalculateCaches();
+                       actor.OutputHandler.Send($"It will no longer be possible for the {weather.Name.ColourValue()} event to transition to the {newWeather.Name.ColourValue()} event.");
+                       return false;
+               }
 
-		_newWeatherEventChances[(season, weather)].RemoveAll(x => x.NewEvent == newWeather);
-		_newWeatherEventChances[(season,weather)].Add((newWeather, chance));
-		Changed = true;
-		var total = _newWeatherEventChances[(season, weather)].Sum(x => x.Chance);
-		actor.OutputHandler.Send($"The {weather.Name.ColourValue()} event will now transition to the {newWeather.Name.ColourValue()} event with a weight of {chance.ToStringN2Colour(actor)} ({(chance/total).ToStringP2Colour(actor)} chance).");
-		return true;
-	}
+               _newWeatherEventChances[(season, weather)].RemoveAll(x => x.NewEvent == newWeather);
+               _newWeatherEventChances[(season,weather)].Add((newWeather, chance));
+               Changed = true;
+               RecalculateCaches();
+               var total = _newWeatherEventChances[(season, weather)].Sum(x => x.Chance);
+               actor.OutputHandler.Send($"The {weather.Name.ColourValue()} event will now transition to the {newWeather.Name.ColourValue()} event with a weight of {chance.ToStringN2Colour(actor)} ({(chance/total).ToStringP2Colour(actor)} chance).");
+               return true;
+       }
 
 	private bool BuildingCommandSeasonChance(ICharacter actor, StringStack command, ISeason season)
 	{
@@ -310,11 +386,12 @@ public class TerrestrialClimateModel : ClimateModelBase
 			value = 0.0;
 		}
 
-		_weatherEventChangeChance[(season, weather)] = value;
-		Changed = true;
-		actor.OutputHandler.Send($"The weather event {weather.Name.ColourValue()} in the {season.DisplayName.ColourValue()} season now has a {value.ToStringP2Colour(actor)} base chance to change.");
-		return true;
-	}
+               _weatherEventChangeChance[(season, weather)] = value;
+               Changed = true;
+               RecalculateCaches();
+               actor.OutputHandler.Send($"The weather event {weather.Name.ColourValue()} in the {season.DisplayName.ColourValue()} season now has a {value.ToStringP2Colour(actor)} base chance to change.");
+               return true;
+       }
 
 	private bool BuildingCommandRemoveSeason(ICharacter actor, StringStack command)
 	{
@@ -338,11 +415,12 @@ public class TerrestrialClimateModel : ClimateModelBase
 			{
 				actor.OutputHandler.Send($"You delete the season {season.DisplayName.ColourValue()} from the climate model.");
 				_incrementalAdditionalChangeChanceFromStableWeather.Remove(season);
-				_maximumAdditionalChangeChanceFromStableWeather.Remove(season);
-				_newWeatherEventChances.RemoveAllKeys(x => x.Season == season);
-				_weatherEventChangeChance.RemoveAllKeys<IDictionary<(ISeason,IWeatherEvent),double>,(ISeason,IWeatherEvent),double>(x => x.Item1 == season);
-				Changed = true;
-			},
+                               _maximumAdditionalChangeChanceFromStableWeather.Remove(season);
+                               _newWeatherEventChances.RemoveAllKeys(x => x.Season == season);
+                               _weatherEventChangeChance.RemoveAllKeys<IDictionary<(ISeason,IWeatherEvent),double>,(ISeason,IWeatherEvent),double>(x => x.Item1 == season);
+                               Changed = true;
+                               RecalculateCaches();
+                       },
 			RejectAction = text =>
 			{
 				actor.OutputHandler.Send("You decide not to delete the season from the climate model.");
@@ -372,17 +450,19 @@ public class TerrestrialClimateModel : ClimateModelBase
 			return false;
 		}
 
-		if (Seasons.Contains(season))
-		{
-			actor.OutputHandler.Send($"The season {season.DisplayName.ColourValue()} is already present on this climate model.");
-			return false;
-		}
+               if (Seasons.Contains(season))
+               {
+                       actor.OutputHandler.Send($"The season {season.DisplayName.ColourValue()} is already present on this climate model.");
+                       return false;
+               }
 
-		_incrementalAdditionalChangeChanceFromStableWeather[season] = 0.0005;
-		_maximumAdditionalChangeChanceFromStableWeather[season] = 0.3;
-		actor.OutputHandler.Send($"You add the season {season.DisplayName.ColourValue()} to this climate model.");
-		return true;
-	}
+               _incrementalAdditionalChangeChanceFromStableWeather[season] = 0.0005;
+               _maximumAdditionalChangeChanceFromStableWeather[season] = 0.3;
+               Changed = true;
+               RecalculateCaches();
+               actor.OutputHandler.Send($"You add the season {season.DisplayName.ColourValue()} to this climate model.");
+               return true;
+       }
 
 	private bool BuildingCommandEchoTicks(ICharacter actor, StringStack command)
 	{
@@ -565,15 +645,16 @@ public class TerrestrialClimateModel : ClimateModelBase
 		}
 	}
 
-	public TerrestrialClimateModel(IFuturemud gameworld, string name)
-	{
-		Gameworld = gameworld;
-		_name = name;
-		MinimumMinutesBetweenFlavourEchoes = 60;
-		MinuteProcessingInterval = 60;
-		MinuteFlavourEchoChance = 0.01;
-		DoDatabaseInsert();
-	}
+        public TerrestrialClimateModel(IFuturemud gameworld, string name)
+        {
+                Gameworld = gameworld;
+                _name = name;
+                MinimumMinutesBetweenFlavourEchoes = 60;
+                MinuteProcessingInterval = 60;
+                MinuteFlavourEchoChance = 0.01;
+                DoDatabaseInsert();
+                RecalculateCaches();
+        }
 
 	public TerrestrialClimateModel(TerrestrialClimateModel rhs, string name)
 	{
@@ -582,23 +663,24 @@ public class TerrestrialClimateModel : ClimateModelBase
 		MinimumMinutesBetweenFlavourEchoes = rhs.MinimumMinutesBetweenFlavourEchoes;
 		MinuteProcessingInterval = rhs.MinuteProcessingInterval;
 		MinuteFlavourEchoChance = rhs.MinuteFlavourEchoChance;
-		foreach (var season in rhs.Seasons)
-		{
-			_incrementalAdditionalChangeChanceFromStableWeather[season] = rhs._incrementalAdditionalChangeChanceFromStableWeather[season];
-			_maximumAdditionalChangeChanceFromStableWeather[season] = rhs._maximumAdditionalChangeChanceFromStableWeather[season];
-			foreach (var weather in rhs.WeatherEvents)
-			{
-				if (!rhs._weatherEventChangeChance.ContainsKey((season, weather)))
-				{
-					continue;
-				}
+                foreach (var season in rhs.Seasons)
+                {
+                        _incrementalAdditionalChangeChanceFromStableWeather[season] = rhs._incrementalAdditionalChangeChanceFromStableWeather[season];
+                        _maximumAdditionalChangeChanceFromStableWeather[season] = rhs._maximumAdditionalChangeChanceFromStableWeather[season];
+                        foreach (var weather in rhs.WeatherEvents)
+                        {
+                                if (!rhs._weatherEventChangeChance.ContainsKey((season, weather)))
+                                {
+                                        continue;
+                                }
 
-				_weatherEventChangeChance[(season, weather)] = rhs._weatherEventChangeChance[(season, weather)];
-				_newWeatherEventChances[(season, weather)].AddRange(rhs._newWeatherEventChances[(season, weather)]);
-			}
-		}
-		DoDatabaseInsert();
-	}
+                                _weatherEventChangeChance[(season, weather)] = rhs._weatherEventChangeChance[(season, weather)];
+                                _newWeatherEventChances[(season, weather)].AddRange(rhs._newWeatherEventChances[(season, weather)]);
+                        }
+                }
+               DoDatabaseInsert();
+               RecalculateCaches();
+        }
 
 	public TerrestrialClimateModel(Models.ClimateModel model, IFuturemud gameworld)
 	{
@@ -628,10 +710,11 @@ public class TerrestrialClimateModel : ClimateModelBase
 					transitions.Add((other, double.Parse(transition.Attribute("chance").Value)));
 				}
 
-				_newWeatherEventChances[(season, we)] = transitions;
-			}
-		}
-	}
+                                _newWeatherEventChances[(season, we)] = transitions;
+                        }
+                }
+               RecalculateCaches();
+        }
 
 	#region Overrides of SaveableItem
 

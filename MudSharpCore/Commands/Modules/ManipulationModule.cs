@@ -1022,12 +1022,171 @@ There are a couple of ways you can use this command:
 			return;
 		}
 
-		turnable.Turn(actor, dvalue, emote);
-	}
+                turnable.Turn(actor, dvalue, emote);
+        }
 
-	[PlayerCommand("Inject", "inject")]
-	[RequiredCharacterState(CharacterState.Able)]
-	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [PlayerCommand("Apply", "apply")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [HelpInfo("apply", @"The #3apply#0 command is used to apply creams or similar items to a target bodypart.
+
+You must be holding a suitable item and the bodypart you're trying to apply it to must be accessible. The target must be helpless or consent to the application.
+
+If you don't specify an amount, you will use the whole amount of the cream.", AutoHelp.HelpArgOrNoArg)]
+        protected static void Apply(ICharacter character, string command)
+        {
+                var ss = new StringStack(command.RemoveFirstWord());
+                if (ss.IsFinished)
+                {
+                        character.Send("Who or what do you want to apply?");
+                        return;
+                }
+
+                var item = character.TargetHeldItem(ss.PopSpeech());
+                if (item == null)
+                {
+                        character.Send("You are not holding anything like that to apply.");
+                        return;
+                }
+
+                var applicable = item.GetItemType<IApply>();
+                if (applicable == null)
+                {
+                        character.Send($"{item.HowSeen(character, true)} is not something that can be applied.");
+                        return;
+                }
+
+                var targetCharacter = character.TargetActor(ss.PopSpeech());
+                if (targetCharacter == null)
+                {
+                        character.Send($"There is nobody like that for you to apply {item.HowSeen(character)} to.");
+                        return;
+                }
+
+                if (ss.IsFinished)
+                {
+                        character.Send($"Which bodypart of {targetCharacter.HowSeen(character, type: DescriptionType.Possessive)} do you want to apply {item.HowSeen(character)} to?");
+                        return;
+                }
+
+                var bodypart = targetCharacter.Body.GetTargetBodypart(ss.PopSpeech());
+                if (bodypart == null)
+                {
+                        character.Send($"{targetCharacter.HowSeen(character)} does not have any such bodypart for you to apply {item.HowSeen(character)} to.");
+                        return;
+                }
+
+                var emote = ss.PopParentheses();
+                var amount = 0.0;
+                if (!ss.IsFinished)
+                {
+                        amount = character.Gameworld.UnitManager.GetBaseUnits(ss.SafeRemainingArgument, UnitType.Mass, out var success);
+                        if (!success)
+                        {
+                                character.OutputHandler.Send("That is not a valid amount to apply.");
+                                return;
+                        }
+                        if (string.IsNullOrWhiteSpace(emote))
+                        {
+                                emote = ss.PopParentheses();
+                        }
+                }
+
+                PlayerEmote pemote = null;
+                if (!string.IsNullOrWhiteSpace(emote))
+                {
+                        pemote = new PlayerEmote(emote, character);
+                        if (!pemote.Valid)
+                        {
+                                character.Send(pemote.ErrorMessage);
+                                return;
+                        }
+                }
+
+                switch (applicable.CanApply(targetCharacter.Body, bodypart))
+                {
+                        case WhyCannotApply.CannotApplyEmpty:
+                                character.Send($"You cannot apply {item.HowSeen(character)} because it is empty.");
+                                return;
+                        case WhyCannotApply.CannotApplyNoAccessToPart:
+                                character.Send($"You cannot apply {item.HowSeen(character)} to {targetCharacter.HowSeen(character, type: DescriptionType.Possessive)} {bodypart.FullDescription()} because the bodypart is obstructed by items.");
+                                return;
+                }
+
+                if (character != targetCharacter && !targetCharacter.WillingToPermitMedicalIntervention(character))
+                {
+                        targetCharacter.AddEffect(new Accept(targetCharacter, new GenericProposal(
+                                text =>
+                                {
+                                        if (targetCharacter.Location != character.Location)
+                                        {
+                                                targetCharacter.Send("You are no longer in the same location as the person who wanted to apply something to you.");
+                                                return;
+                                        }
+
+                                        if (targetCharacter.Combat != null && targetCharacter.MeleeRange)
+                                        {
+                                                targetCharacter.Send("You can't be willingly applied while you are in melee combat!");
+                                                return;
+                                        }
+
+                                        if (character.Combat != null && character.MeleeRange)
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer capable of applying that as they are in melee combat.");
+                                                return;
+                                        }
+
+                                        if (!CharacterState.Able.HasFlag(character.State))
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer capable of applying that as they are {character.State.Describe()}.");
+                                                return;
+                                        }
+
+                                        if (targetCharacter.Location != character.Location)
+                                        {
+                                                targetCharacter.Send("You are no longer in the same location as the person who wanted to apply something to you.");
+                                                return;
+                                        }
+
+                                        if (!character.Body.HeldItems.Contains(item))
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer holding the item they wanted to apply to you.");
+                                                return;
+                                        }
+
+                                        if (applicable.CanApply(targetCharacter.Body, bodypart) != WhyCannotApply.CanApply)
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer capable of applying that item to you.");
+                                                return;
+                                        }
+
+                                        character.OutputHandler.Handle(character == targetCharacter
+                                                ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
+                                                : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
+                                        applicable.Apply(targetCharacter.Body, bodypart, amount, character);
+                                },
+                                text =>
+                                {
+                                        targetCharacter.OutputHandler.Send(new EmoteOutput(new Emote("@ decline|declines to allow $1 to apply &0.", targetCharacter, targetCharacter, character)));
+                                },
+                                () =>
+                                {
+                                        targetCharacter.OutputHandler.Send(new EmoteOutput(new Emote("@ decline|declines to allow $1 to apply &0.", targetCharacter, targetCharacter, character)));
+                                },
+                                "proposing to be applied", "apply")), TimeSpan.FromSeconds(120));
+                        character.OutputHandler.Handle(new EmoteOutput(new Emote($"@ are|is proposing to apply $1 to &0's {bodypart.FullDescription()}.", character, targetCharacter, item)));
+                        return;
+                }
+
+                character.OutputHandler.Handle(character == targetCharacter
+                        ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
+                        : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
+                applicable.Apply(targetCharacter.Body, bodypart, amount, character);
+        }
+
+        [PlayerCommand("Inject", "inject")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[HelpInfo("inject", @"The #3inject#0 command is used to inject liquids into a person or thing using a syringe or similar. 
 
 You must be holding a syringe full of liquid and the bodypart you're trying to inject into must be accessible. The target must be helpless or consent to the injection.

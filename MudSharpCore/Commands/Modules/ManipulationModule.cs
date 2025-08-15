@@ -46,10 +46,15 @@ internal class ManipulationModule : Module<ICharacter>
 			@"^(?<target>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[\w]{0,}[a-z0-9.\- ]{1,}?)[ ]{0,1}){0,1}(?: on (?<table>[a-z0-9.]+))*(?: \\((?<emote>.+)\\))*$",
 			RegexOptions.IgnoreCase);
 
-	private static readonly Regex FillCommandRegex =
-		new(
-			@"^(?<target>[\w]{0,}[a-z.-@]{1,}) (?<from>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
-			RegexOptions.IgnoreCase);
+        private static readonly Regex FillCommandRegex =
+                new(
+                        @"^(?<target>[\w]{0,}[a-z.-@]{1,}) (?<from>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
+                        RegexOptions.IgnoreCase);
+
+        public const string FillGasHelpText =
+                "The #3fillgas#0 command allows you transfer gas from one container to another.\n\n" +
+                "#3fillgas <vessel> <from vessel>#0 - fills as much gas as possible from one container to another\n" +
+                "#3fillgas <vessel> <from vessel> <amount>#0 - fills a specific amount of gas";
 
 	private static readonly Regex PourCommandRegex =
 		new(
@@ -2006,8 +2011,8 @@ The syntax to use this command is as follows:
 	[NoHideCommand]
 	[NoCombatCommand]
 	[HelpInfo("fill", FillHelpText, AutoHelp.HelpArgOrNoArg)]
-	protected static void Fill(ICharacter character, string command)
-	{
+        protected static void Fill(ICharacter character, string command)
+        {
 		var text = command.RemoveFirstWord();
 		if (string.IsNullOrEmpty(text))
 		{
@@ -2170,9 +2175,112 @@ The syntax to use this command is as follows:
 				style: OutputStyle.IgnoreLiquidsAndFlags).Append(emote));
 		}
 
-		targetAsContainer.MergeLiquid(containerAsContainer.RemoveLiquidAmount(amount, character, "fill"), character,
-			"fill");
-	}
+                targetAsContainer.MergeLiquid(containerAsContainer.RemoveLiquidAmount(amount, character, "fill"), character,
+                        "fill");
+        }
+
+        [PlayerCommand("FillGas", "fillgas")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [NoHideCommand]
+        [NoCombatCommand]
+        [HelpInfo("fillgas", FillGasHelpText, AutoHelp.HelpArgOrNoArg)]
+        protected static void FillGas(ICharacter character, string command)
+        {
+                var text = command.RemoveFirstWord();
+                if (string.IsNullOrEmpty(text))
+                {
+                        character.Send("What vessel do you want to fill?");
+                        return;
+                }
+
+                var match = FillCommandRegex.Match(text);
+                if (!match.Success)
+                {
+                        character.OutputHandler.Send(FillGasHelpText.SubstituteANSIColour());
+                        return;
+                }
+
+                var target = character.TargetHeldItem(match.Groups["target"].Value);
+                if (target == null)
+                {
+                        character.Send("You do not have anything like that to fill.");
+                        return;
+                }
+
+                var targetContainer = target.GetItemType<IGasContainer>();
+                if (targetContainer == null)
+                {
+                        character.Send("{0} is not a gas container.", target.HowSeen(character, true));
+                        return;
+                }
+
+                var source = character.TargetItem(match.Groups["from"].Value);
+                if (source == null)
+                {
+                        character.Send("There is nothing like that from which to fill {0}.", target.HowSeen(character));
+                        return;
+                }
+
+                var sourceContainer = source.GetItemType<IGasContainer>();
+                if (sourceContainer == null)
+                {
+                        character.Send("{0} is not a gas container.", source.HowSeen(character, true));
+                        return;
+                }
+
+                if (sourceContainer.Gas == null || sourceContainer.GasVolumeAtOneAtmosphere <= 0)
+                {
+                        character.Send("{0} is empty.", source.HowSeen(character, true));
+                        return;
+                }
+
+                if (targetContainer.Gas != null && !targetContainer.Gas.GasCountAs(sourceContainer.Gas))
+                {
+                        character.Send("{0} already contains a different gas.", target.HowSeen(character, true));
+                        return;
+                }
+
+                var amount = Math.Min(targetContainer.GasCapacityAtOneAtmosphere - targetContainer.GasVolumeAtOneAtmosphere,
+                        sourceContainer.GasVolumeAtOneAtmosphere);
+                if (match.Groups["amount"].Length > 0)
+                {
+                        amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value, UnitType.FluidVolume,
+                                out var success);
+                        if (!success)
+                        {
+                                character.Send("That is not a valid amount of gas.");
+                                return;
+                        }
+
+                        amount = Math.Min(amount,
+                                Math.Min(targetContainer.GasCapacityAtOneAtmosphere - targetContainer.GasVolumeAtOneAtmosphere,
+                                        sourceContainer.GasVolumeAtOneAtmosphere));
+                }
+
+                if (amount <= 0.0)
+                {
+                        character.Send("There is not room for any gas to transfer.");
+                        return;
+                }
+
+                var (truth, error) = character.CanManipulateItem(target);
+                if (!truth)
+                {
+                        character.Send(error);
+                        return;
+                }
+
+                if (targetContainer.Gas == null)
+                {
+                        targetContainer.Gas = sourceContainer.Gas;
+                }
+
+                sourceContainer.GasVolumeAtOneAtmosphere -= amount;
+                targetContainer.GasVolumeAtOneAtmosphere += amount;
+
+                character.OutputHandler.Handle(new EmoteOutput(new Emote("@ fill|fills $0 from $1", character, target, source)));
+        }
 
 	[PlayerCommand("Empty", "empty")]
 	[RequiredCharacterState(CharacterState.Able)]
@@ -2622,11 +2730,11 @@ The syntax is as follows:
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoHideCommand]
-	protected static void Smoke(ICharacter character, string command)
-	{
-		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
+        protected static void Smoke(ICharacter character, string command)
+        {
+                var ss = new StringStack(command.RemoveFirstWord());
+                if (ss.IsFinished)
+                {
 			character.Send("What is it that you want to smoke?");
 			return;
 		}
@@ -2656,8 +2764,50 @@ The syntax is as follows:
 			}
 		}
 
-		target.GetItemType<ISmokeable>().Smoke(character, emote);
-	}
+                target.GetItemType<ISmokeable>().Smoke(character, emote);
+        }
+
+        [PlayerCommand("Puff", "puff")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [NoHideCommand]
+        protected static void Puff(ICharacter character, string command)
+        {
+                var ss = new StringStack(command.RemoveFirstWord());
+                if (ss.IsFinished)
+                {
+                        character.Send("What is it that you want to puff?");
+                        return;
+                }
+
+                var target = character.TargetHeldItem(ss.Pop());
+                if (target == null)
+                {
+                        character.Send("You do not see anything like that to puff.");
+                        return;
+                }
+
+                var puffable = target.GetItemType<IPuffable>();
+                if (puffable == null)
+                {
+                        character.Send("{0} is not something that can be puffed.", target.HowSeen(character, true));
+                        return;
+                }
+
+                var emoteText = ss.PopParentheses();
+                PlayerEmote emote = null;
+                if (!string.IsNullOrEmpty(emoteText))
+                {
+                        emote = new PlayerEmote(emoteText, character);
+                        if (!emote.Valid)
+                        {
+                                character.Send(emote.ErrorMessage);
+                                return;
+                        }
+                }
+
+                puffable.Puff(character, emote);
+        }
 
 	[PlayerCommand("Light", "light")]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]

@@ -249,108 +249,135 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 		#region Urban
 
-		AddTerrain("Residence", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Re", true, tags: ["Urban"]);
-		AddTerrain("Bedroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Br", tags: ["Urban"]);
-		AddTerrain("Kitchen", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ki", tags: ["Urban"]);
-		AddTerrain("Bathroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "To", tags: ["Urban"]);
-		AddTerrain("Living Room", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "LR", tags: ["Urban"]);
-		AddTerrain("Hallway", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Hw", tags: ["Urban"]);
-		AddTerrain("Hall", "cave", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Ha", tags: ["Urban"]);
-		AddTerrain("Barracks", "cave", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Urban"]);
-		AddTerrain("Gymnasium", "cave", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Gy", tags: ["Urban"]);
-		AddTerrain("Shopfront", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Office", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Factory", "cave", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Warehouse", "cave", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Indoor Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Underground Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
-		AddTerrain("Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ga", tags: ["Urban"]);
-		AddTerrain("Underground Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ga", tags: ["Urban"]);
-		AddTerrain("Barn", "cave", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "St", tags: ["Rural"]);
-		AddTerrain("Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ja", tags: ["Urban"]);
-		AddTerrain("Dank Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Ja", tags: ["Urban"]);
-		AddTerrain("Dungeon", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Du", tags: ["Urban"]);
-		AddTerrain("Grotto", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ca", tags: ["Rural"]);
-		AddTerrain("Cellar", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ca", tags: ["Urban"]);
-		AddTerrain("Baths", "indoors", 0.5, 3.0, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Urban"]);
-		AddTerrain("Indoor Pool", $"shallowwater {poolwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Urban"]);
-		AddTerrain("Indoor Spring", $"shallowwater {springwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Rural"]);
+                AddTerrain("Residence", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsWithWindows, Color.CornflowerBlue, "Re", true,
+                        tags: ["Urban", "Residential", "Private"]);
+                AddTerrain("Bedroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsWithWindows, Color.MediumPurple, "Br",
+                        tags: ["Urban", "Residential", "Private"]);
+                AddTerrain("Kitchen", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsWithWindows, Color.Orange, "Ki",
+                        tags: ["Urban", "Residential", "Private"]);
+                AddTerrain("Bathroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsWithWindows, Color.SkyBlue, "To",
+                        tags: ["Urban", "Residential", "Private"]);
+                AddTerrain("Living Room", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsWithWindows, Color.SeaGreen, "LR",
+                        tags: ["Urban", "Residential", "Private"]);
+                AddTerrain("Hallway", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Indoors, Color.CadetBlue, "Hw",
+                        tags: ["Urban", "Residential", "Private"]);
+               AddTerrain("Hall", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.Indoors, Color.Teal, "Ha", tags: ["Urban", "Administrative", "Public"]);
+               AddTerrain("Barracks", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.Indoors, Color.OliveDrab, "Bk", tags: ["Urban", "Residential", "Private"]);
+               AddTerrain("Gymnasium", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.Indoors, Color.Goldenrod, "Gy", tags: ["Urban", "Commercial", "Public"]);
+               AddTerrain("Shopfront", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsWithWindows, Color.SandyBrown, "Sf",
+                       tags: ["Urban", "Commercial", "Public"]);
+               AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsWithWindows, Color.SaddleBrown, "Ws",
+                       tags: ["Urban", "Industrial", "Private"]);
+               AddTerrain("Office", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "Of",
+                       tags: ["Urban", "Administrative", "Private"]);
+               AddTerrain("Factory", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsWithWindows, Color.Silver, "Fa",
+                       tags: ["Urban", "Industrial", "Private"]);
+               AddTerrain("Warehouse", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsWithWindows, Color.DarkGray, "Wh",
+                       tags: ["Urban", "Industrial", "Private"]);
+               AddTerrain("Indoor Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
+                       "Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.Plum, "Im",
+                       tags: ["Urban", "Commercial", "Public"]);
+               AddTerrain("Underground Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
+                       "Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkOrchid, "Um",
+                       tags: ["Urban", "Commercial", "Public"]);
+               AddTerrain("Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsWithWindows, Color.DimGray, "Ga",
+                       tags: ["Urban", "Industrial", "Private"]);
+               AddTerrain("Underground Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
+                       "Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, "Ug",
+                       tags: ["Urban", "Industrial", "Private"]);
+                AddTerrain("Barn", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Indoors, Color.Brown, "Bn", tags: ["Rural"]);
+                AddTerrain("Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsNoLight, Color.LightSlateGray, "Ce",
+                        tags: ["Urban", "Administrative", "Private"]);
+                AddTerrain("Dank Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsNoLight, Color.Gray, "Dc",
+                        tags: ["Urban", "Administrative", "Private"]);
+               AddTerrain("Dungeon", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsNoLight, Color.Indigo, "Du",
+                       tags: ["Urban", "Administrative", "Private"]);
+               AddTerrain("Grotto", "cave", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+                       CellOutdoorsType.IndoorsNoLight, Color.DarkSlateBlue, "Gr", tags: ["Rural"]);
+               AddTerrain("Cellar", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsNoLight, Color.BurlyWood, "Cl",
+                        tags: ["Urban", "Residential", "Private"]);
+               AddTerrain("Baths", "indoors", 0.5, 3.0, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+                        "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.LightBlue, "Bt",
+                        tags: ["Urban", "Aquatic", "Commercial", "Public"]);
+               AddTerrain("Indoor Pool", $"shallowwater {poolwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
+                        Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DeepSkyBlue, "IP",
+                        tags: ["Urban", "Aquatic", "Private"]);
+               AddTerrain("Indoor Spring", $"shallowwater {springwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
+                        Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MediumAquamarine, "IS", tags: ["Rural", "Aquatic"]);
 
-		AddTerrain("Rooftop", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Ghetto Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Slum Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Poor Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Urban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Suburban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Wealthy Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Village Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
-		AddTerrain("Rural Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
+                AddTerrain("Rooftop", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban", "Private"]);
+                AddTerrain("Ghetto Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban", "Public"]);
+                AddTerrain("Slum Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.Gray, tags: ["Urban", "Public"]);
+                AddTerrain("Poor Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
+                AddTerrain("Urban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGray, tags: ["Urban", "Public"]);
+                AddTerrain("Suburban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Urban", "Public"]);
+                AddTerrain("Wealthy Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Urban", "Public"]);
+                AddTerrain("Village Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGray, tags: ["Urban", "Public"]);
+                AddTerrain("Rural Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Urban", "Public"]);
 
-		AddTerrain("Marketplace", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.VeryEasy, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Courtyard", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Park", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
-		AddTerrain("Garden", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
-		AddTerrain("Lawn", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
-		AddTerrain("Showground", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
-		AddTerrain("Forum", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Public Square", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Outdoor Mall", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Alleyway", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Garbage Dump", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Diggable Soil"]);
-		AddTerrain("Midden Heap", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Diggable Soil"]);
-		AddTerrain("Gatehouse", "indoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Trivial, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray, tags: ["Urban"]);
-		AddTerrain("Battlement", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Trivial, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
+                AddTerrain("Marketplace", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.VeryEasy, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Commercial", "Public"]);
+                AddTerrain("Courtyard", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Private"]);
+                AddTerrain("Park", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Public", "Diggable Soil"]);
+                AddTerrain("Garden", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
+                AddTerrain("Lawn", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
+                AddTerrain("Showground", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Automatic,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen,
+                        tags: ["Urban", "Commercial", "Public", "Diggable Soil"]);
+                AddTerrain("Forum", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Public"]);
+                AddTerrain("Public Square", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                        tags: ["Urban", "Administrative", "Public"]);
+                AddTerrain("Outdoor Mall", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                        tags: ["Urban", "Commercial", "Public"]);
+                AddTerrain("Alleyway", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
+                AddTerrain("Garbage Dump", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                        tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
+                AddTerrain("Midden Heap", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+                        "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                        tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
+                AddTerrain("Gatehouse", "indoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Trivial, "Breathable Atmosphere",
+                        CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray,
+                        tags: ["Urban", "Administrative", "Private"]);
+                AddTerrain("Battlement", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Trivial, "Breathable Atmosphere",
+                        CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Private"]);
 
 		#endregion
 
@@ -9589,9 +9616,16 @@ end if",
 		AddTag(context, "Terrain", "");
 		AddTag(context, "Wild", "Terrain");
 		AddTag(context, "Human Influenced", "Terrain");
-		AddTag(context, "Urban", "Human Influenced");
-		AddTag(context, "Rural", "Human Influenced");
-		AddTag(context, "Diggable Soil", "Terrain");
+                AddTag(context, "Urban", "Human Influenced");
+                AddTag(context, "Rural", "Human Influenced");
+                AddTag(context, "Public", "Urban");
+                AddTag(context, "Private", "Urban");
+                AddTag(context, "Commercial", "Urban");
+                AddTag(context, "Residential", "Urban");
+                AddTag(context, "Administrative", "Urban");
+                AddTag(context, "Industrial", "Urban");
+                AddTag(context, "Natural", "Urban");
+                AddTag(context, "Diggable Soil", "Terrain");
 		AddTag(context, "Foragable Clay", "Terrain");
 		AddTag(context, "Foragable Sand", "Terrain");
 		AddTag(context, "Terrestrial", "Wild");

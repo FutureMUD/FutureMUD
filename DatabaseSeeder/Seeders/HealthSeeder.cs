@@ -378,49 +378,49 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ", (context, answers
 
                         AddSurgicalProcedure("Organ Extraction", "organ extraction", "Human Medicine", SurgicalProcedureType.OrganExtraction, 0.0, _knowledges["Surgery"].Id, CheckType.OrganExtractionCheck, "cutting out", "@ begin|begins to perform an organ extraction on $1", "", "");
                         AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 1, 30, "checkorgan exposed", "@ make|makes a long incision with $i1 and retract|retracts the flesh with $i2", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1),(InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 2, 35, null, "@ sever|severs connective tissue with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 3, 25, null, "@ lift|lifts the organ free and set|sets it aside");
+			AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 2, 35, null, "@ sever|severs connective tissue with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
+			AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 3, 25, null, "@ lift|lifts the organ free and set|sets it aside");
 
-                        AddSurgicalProcedure("Organ Transplant", "organ transplant", "Human Medicine", SurgicalProcedureType.OrganTransplant, 0.0, _knowledges["Surgery"].Id, CheckType.OrganTransplantCheck, "transplanting", "@ begin|begins an organ transplantation on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 1, 30, "checkspace", "@ prepare|prepares the cavity in $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 2, 35, "checkorgan", "@ seat|seats the new organ and suture|sutures vessels with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 3, 30, null, "@ close|closes up the incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
+			AddSurgicalProcedure("Organ Transplant", "organ transplant", "Human Medicine", SurgicalProcedureType.OrganTransplant, 0.0, _knowledges["Surgery"].Id, CheckType.OrganTransplantCheck, "transplanting", "@ begin|begins an organ transplantation on $1", "", "");
+			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 1, 30, "checkspace", "@ prepare|prepares the cavity in $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
+			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 2, 35, "checkorgan", "@ seat|seats the new organ and suture|sutures vessels with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
+			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 3, 30, null, "@ close|closes up the incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
 
-                        AddSurgicalProcedure("Intestinal Resection", "intestinal resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins to remove damaged intestine from $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 1, 35, "checkorgan", "@ open|opens $1's belly with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 2, 35, null, "@ excise|excises diseased loops with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 3, 30, null, "@ reconnect|reconnects the bowel and close|closes the wound with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
+			AddSurgicalProcedure("Intestinal Resection", "intestinal resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins to remove damaged intestine from $1", "", "");
+			AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 1, 35, "checkorgan", "@ open|opens $1's belly with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
+			AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 2, 35, null, "@ excise|excises diseased loops with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
+			AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 3, 30, null, "@ reconnect|reconnects the bowel and close|closes the wound with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
 
-                        AddSurgicalProcedure("Liver Resection", "liver resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins a liver resection on $1", "", GetDefinitionForBodyparts("liver"));
-                        AddSurgicalProcedurePhase(_procedures["Liver Resection"], 1, 35, "checkorgan", "@ slice|slices beneath $1's ribs with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Liver Resection"], 2, 35, null, "@ trim|trims away damaged hepatic tissue with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Liver Resection"], 3, 30, null, "@ close|closes the incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
+			AddSurgicalProcedure("Liver Resection", "liver resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins a liver resection on $1", "", GetDefinitionForBodyparts("liver"));
+			AddSurgicalProcedurePhase(_procedures["Liver Resection"], 1, 35, "checkorgan", "@ slice|slices beneath $1's ribs with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
+			AddSurgicalProcedurePhase(_procedures["Liver Resection"], 2, 35, null, "@ trim|trims away damaged hepatic tissue with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
+			AddSurgicalProcedurePhase(_procedures["Liver Resection"], 3, 30, null, "@ close|closes the incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
 
-                        AddSurgicalProcedure("Lung Resection", "lung resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins a lung resection on $1", "", GetDefinitionForBodyparts("llung","rlung"));
-                        AddSurgicalProcedurePhase(_procedures["Lung Resection"], 1, 35, "checkorgan", "@ open|opens $1's chest with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Lung Resection"], 2, 35, null, "@ remove|removes the damaged portion with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Lung Resection"], 3, 30, null, "@ suture|sutures the remaining lung and close|closes the chest with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
+			AddSurgicalProcedure("Lung Resection", "lung resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins a lung resection on $1", "", GetDefinitionForBodyparts("llung", "rlung"));
+			AddSurgicalProcedurePhase(_procedures["Lung Resection"], 1, 35, "checkorgan", "@ open|opens $1's chest with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
+			AddSurgicalProcedurePhase(_procedures["Lung Resection"], 2, 35, null, "@ remove|removes the damaged portion with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
+			AddSurgicalProcedurePhase(_procedures["Lung Resection"], 3, 30, null, "@ suture|sutures the remaining lung and close|closes the chest with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
 
-                                                AddSurgicalProcedure("Bone Setting", "bone setting", "Human Medicine", SurgicalProcedureType.SurgicalBoneSetting, 0.0, _knowledges["Surgery"].Id, CheckType.SurgicalSetCheck, "setting", "@ begin|begins to set $1's bone", "", "");
-                                                AddSurgicalProcedurePhase(_procedures["Bone Setting"], 1, 30, "exposed checkbone", "@ examine|examines $1's {0}");
-                                                AddSurgicalProcedurePhase(_procedures["Bone Setting"], 2, 30, null, "@ manipulate|manipulates the bone back into alignment with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                                                AddSurgicalProcedurePhase(_procedures["Bone Setting"], 3, 20, null, "@ secure|secures the bone with a splint");
+			AddSurgicalProcedure("Bone Setting", "bone setting", "Human Medicine", SurgicalProcedureType.SurgicalBoneSetting, 0.0, _knowledges["Surgery"].Id, CheckType.SurgicalSetCheck, "setting", "@ begin|begins to set $1's bone", "", "");
+			AddSurgicalProcedurePhase(_procedures["Bone Setting"], 1, 30, "exposed checkbone", "@ examine|examines $1's {0}");
+			AddSurgicalProcedurePhase(_procedures["Bone Setting"], 2, 30, null, "@ manipulate|manipulates the bone back into alignment with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
+			AddSurgicalProcedurePhase(_procedures["Bone Setting"], 3, 20, null, "@ secure|secures the bone with a splint");
 
-						AddSurgicalProcedure("Install Implant", "install implant", "Human Medicine", SurgicalProcedureType.InstallImplant, 0.0, _knowledges["Surgery"].Id, CheckType.InstallImplantSurgery, "installing", "@ begin|begins to install an implant in $1", "", "");
-						AddSurgicalProcedurePhase(_procedures["Install Implant"], 1, 30, "exposed checkspace", "@ open|opens $1's {0} with $i2", ProduceInventoryPlanDefinition((InventoryState.Held,"Implant",1),(InventoryState.Held,"Scalpel",1)));
-						AddSurgicalProcedurePhase(_procedures["Install Implant"], 2, 30, null, "@ insert|inserts $i1 and secure|secures it", ProduceInventoryPlanDefinition((InventoryState.Held,"Implant",1)));
-						AddSurgicalProcedurePhase(_procedures["Install Implant"], 3, 20, null, "@ close|closes the incision with $i2", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
+			AddSurgicalProcedure("Install Implant", "install implant", "Human Medicine", SurgicalProcedureType.InstallImplant, 0.0, _knowledges["Surgery"].Id, CheckType.InstallImplantSurgery, "installing", "@ begin|begins to install an implant in $1", "", "");
+			AddSurgicalProcedurePhase(_procedures["Install Implant"], 1, 30, "exposed checkspace", "@ open|opens $1's {0} with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Implant", 1), (InventoryState.Held, "Scalpel", 1)));
+			AddSurgicalProcedurePhase(_procedures["Install Implant"], 2, 30, null, "@ insert|inserts $i1 and secure|secures it", ProduceInventoryPlanDefinition((InventoryState.Held, "Implant", 1)));
+			AddSurgicalProcedurePhase(_procedures["Install Implant"], 3, 20, null, "@ close|closes the incision with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
 
-						AddSurgicalProcedure("Remove Implant", "remove implant", "Human Medicine", SurgicalProcedureType.RemoveImplant, 0.0, _knowledges["Surgery"].Id, CheckType.RemoveImplantSurgery, "removing", "@ begin|begins to remove an implant from $1", "", "");
-						AddSurgicalProcedurePhase(_procedures["Remove Implant"], 1, 30, "exposed", "@ open|opens $1's {0} with $i2", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-						AddSurgicalProcedurePhase(_procedures["Remove Implant"], 2, 30, null, "@ extract|extracts the implant using $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Implant",1)));
-						AddSurgicalProcedurePhase(_procedures["Remove Implant"], 3, 20, null, "@ close|closes the incision with $i2", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
+			AddSurgicalProcedure("Remove Implant", "remove implant", "Human Medicine", SurgicalProcedureType.RemoveImplant, 0.0, _knowledges["Surgery"].Id, CheckType.RemoveImplantSurgery, "removing", "@ begin|begins to remove an implant from $1", "", "");
+			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 1, 30, "exposed", "@ open|opens $1's {0} with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
+			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 2, 30, null, "@ extract|extracts the implant using $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Implant", 1)));
+			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 3, 20, null, "@ close|closes the incision with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
 
-						AddSurgicalProcedure("Configure Implant Power", "configure implant power", "Human Medicine", SurgicalProcedureType.ConfigureImplantPower, 0.0, _knowledges["Surgery"].Id, CheckType.ConfigureImplantPowerSurgery, "configuring", "@ begin|begins to configure power settings for $1's implants", "", "");
-						AddSurgicalProcedurePhase(_procedures["Configure Implant Power"], 1, 20, null, "@ adjust|adjusts wiring and power settings");
+			AddSurgicalProcedure("Configure Implant Power", "configure implant power", "Human Medicine", SurgicalProcedureType.ConfigureImplantPower, 0.0, _knowledges["Surgery"].Id, CheckType.ConfigureImplantPowerSurgery, "configuring", "@ begin|begins to configure power settings for $1's implants", "", "");
+			AddSurgicalProcedurePhase(_procedures["Configure Implant Power"], 1, 20, null, "@ adjust|adjusts wiring and power settings");
 
-						AddSurgicalProcedure("Configure Implant Interface", "configure implant interface", "Human Medicine", SurgicalProcedureType.ConfigureImplantInterface, 0.0, _knowledges["Surgery"].Id, CheckType.ConfigureImplantInterfaceSurgery, "configuring", "@ begin|begins to configure interface settings for $1's implants", "", "");
-						AddSurgicalProcedurePhase(_procedures["Configure Implant Interface"], 1, 20, null, "@ tune|tunes the interface connections");
+			AddSurgicalProcedure("Configure Implant Interface", "configure implant interface", "Human Medicine", SurgicalProcedureType.ConfigureImplantInterface, 0.0, _knowledges["Surgery"].Id, CheckType.ConfigureImplantInterfaceSurgery, "configuring", "@ begin|begins to configure interface settings for $1's implants", "", "");
+			AddSurgicalProcedurePhase(_procedures["Configure Implant Interface"], 1, 20, null, "@ tune|tunes the interface connections");
 		}
 
 				private string ProduceInventoryPlanDefinition(params (InventoryState State, string Tag, int Quantity)[] actions)

@@ -9,12 +9,14 @@ It inherits from the [Solution-Level AGENTS.md](../AGENTS.md).
 * Precedence: **Module > Project > Solution**.
 
 ## Purpose of Project
-
-To be filled out
+Provides a standalone Discord bot that interacts with the FutureMUD engine via DSharpPlus.
 
 ## Key Architectural Principles
-
-To be filled out
+* `DiscordBot` is a singleton that manages the connection and any TCP bridges to the game server.
+* Commands and features live in the `Modules/` folder and use DSharpPlus CommandNext.
+* Operations should be asynchronous; avoid blocking the event loop.
+* Configuration is read from `DiscordBotSettings`; keep tokens and secrets out of source control.
+* Logging is handled through Serilog and `Microsoft.Extensions.Logging`.
 
 ## Notes
 

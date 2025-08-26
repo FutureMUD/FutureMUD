@@ -9,12 +9,14 @@ It inherits from the [Solution-Level AGENTS.md](../AGENTS.md).
 * Precedence: **Module > Project > Solution**.
 
 ## Purpose of Project
-
-To be filled out
+Provide shared interfaces, extension methods, and utility types used across multiple FutureMUD products. Code here is engine-agnostic so that other projects can implement or reuse these abstractions.
 
 ## Key Architectural Principles
-
-To be filled out
+* Keep the library free of concrete engine logic—only abstractions and helpers.
+* Interface definitions belong here; names start with `I` and live under the appropriate domain folder.
+* Extension methods are implemented as static classes alongside their related interfaces.
+* Avoid direct database or network access. Depend only on the standard library and other solution libraries.
+* Public APIs should remain stable to avoid breaking downstream projects.
 
 ## Notes
 

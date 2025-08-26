@@ -1,5 +1,13 @@
 # FutureMUD Solution Instructions for AI Agents
 
+## Scope
+This document defines **global principles and defaults** that apply across all projects and modules in this solution.
+
+## Inheritance
+- All projects and modules inherit these rules by default.
+- Lower-level `AGENTS.md` files may **extend** or **override** specific rules where necessary.
+- Precedence: **Module > Project > Solution**.
+
 ## Purpose
 
 FutureMUD is an engine for creating Roleplay Intensive (RPI) MUD games. It is an engine project, in that it is intended that other people take this engine and builds games with it - it's not necessarily a game but an engine for games.
@@ -40,6 +48,8 @@ There are multiple projects in the solution and many of them are separate "produ
 
 This is a collection of interfaces, helper methods and extensions that are used in multiple products in the solution. Typically all extension methods and interfaces should go in this project. It uses a similar namespace structure to the main game engine.
 
+- [Project FutureMUDLibrary](./FutureMUDLibrary/AGENTS.md)
+
 ###FutureMUDDatabaseLibrary Project
 
 This is where the Entity Framework code goes - the DatabaseContext, Models, Migrations and the like. Anything to do with database should go in here. 
@@ -51,17 +61,25 @@ using (new FMDB())
    // Code accesses FMDB.Context static method only within this using block. 
 }
 
+- [Project FutureMUDDaabaseLibrary](./FutureMUDDatabaseLibrary/AGENTS.md)
+
 ###ExpressionEngine Project
 
 This library is used to supply an IExpression interface and an Expression implementation that provide some functionality over the top of an NCalc library. It is mostly use to take user-defined formulas and efficiently interpret them for a mathematical outcome in the engine, for example damage formulas, hit points and the like.
+
+- [Project ExpressionEngine](./ExpressionEngine/AGENTS.md)
 
 ###MudSharpCore Project
 
 This is the main MUD engine - the core FutureMUD product. It is a console application and listens on specified TCP ports for input.
 
+- [Project MudSharpCore](./MudSharpCore/AGENTS.md)
+
 ###MudSharpCore Unit Tests Project
 
 This is a unit test project for MudSharpCore. Implement any unit tests in here.
+
+- [Project MudSharpCore Unit Tests](./MudSharpCore Unit Tests/AGENTS.md)
 
 ###DatabaseSeeder Project
 
@@ -73,9 +91,13 @@ It also sets up a few supporting files for the engine and sets up a startup scri
 
 The seeder can also be run again in the future to add additional options and context, or when new content is released in the seeder that the user wants to import.
 
+- [Project DatabaseSeeder](./DatabaseSeeder/AGENTS.md)
+
 ###DiscordBotCore Project
 
 The discord bot is a bot designed to run alongside the engine to provide some discord interactions for the game owners, like echoing in game messages or providing admins some control over the engine via discord commands. It uses the DSharpPlus library for discord and is a console application.
+
+- [Project DiscordBotCore](./DiscordBotCore/AGENTS.md)
 
 ## Code Style
 - Use **tabs** for indentation.
@@ -88,6 +110,9 @@ The discord bot is a bot designed to run alongside the engine to provide some di
 - Use LINQ where possible unless you're being instructed to optimise a particular high-bottleneck section of code. Prefer to put your LINQ statements on separate lines for clarity and don't be afraid to break up logic into multiple steps (e.g. having multiple .Where calls rather than cramming all your logic into one lambda)
 - Interface-first design - if you're introducing a new feature get the interface first, implement the logic to work with the interface and then do the implementation last.
 - Use design patterns where they make sense. Not everything needs the maximum level of abstraction but we should prefer to follow common C# design patterns where we can.
+
+## Notes
+- When in doubt, defer to this file unless overridden at a lower level.
 
 ## Instructions for Codex
 

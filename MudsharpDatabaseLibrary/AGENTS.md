@@ -9,12 +9,14 @@ It inherits from the [Solution-Level AGENTS.md](../AGENTS.md).
 * Precedence: **Module > Project > Solution**.
 
 ## Purpose of Project
-
-To be filled out
+Houses the Entity Framework Core `DbContext`, models, and migrations for the FutureMUD database.
 
 ## Key Architectural Principles
-
-To be filled out
+* Model classes map directly to database tables; avoid introducing game logic here.
+* Use partial classes to extend generated models without altering scaffolded code.
+* `FuturemudDatabaseContext` configures MySQL with lazy-loading proxies.
+* Migrations reside in the `Migrations/` folder and should be created via EF Core tooling.
+* Connection strings are provided at runtime—do not commit credentials.
 
 ## Notes
 

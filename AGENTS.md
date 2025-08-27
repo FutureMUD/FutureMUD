@@ -61,7 +61,7 @@ using (new FMDB())
    // Code accesses FMDB.Context static method only within this using block. 
 }
 
-- [Project FutureMUDDaabaseLibrary](./FutureMUDDatabaseLibrary/AGENTS.md)
+- [Project MudsharpDatabaseLibrary](./MudsharpDatabaseLibrary/AGENTS.md)
 
 ###ExpressionEngine Project
 
@@ -106,6 +106,8 @@ The discord bot is a bot designed to run alongside the engine to provide some di
 - Name classes, methods, and properties in **PascalCase**. Private fields use camelCase with a leading underscore.
 - Prefer `var` for local variables when the type is clear and favour early returns for validation.
 - Use string interpolation over string format functions were possible. Prefer verbatim strings over normal strings with special characters.
+- Enable nullable reference types (`#nullable enable`) in new files and annotate nullable references with `?`.
+- Prefer `async`/`await` for I/O-bound work and return `Task` or `Task<T>` rather than `void`.
 - Important helper methods are found in the FutureMUDLibrary project under the MudSharp.Framework namespace.
 - Use LINQ where possible unless you're being instructed to optimise a particular high-bottleneck section of code. Prefer to put your LINQ statements on separate lines for clarity and don't be afraid to break up logic into multiple steps (e.g. having multiple .Where calls rather than cramming all your logic into one lambda)
 - Interface-first design - if you're introducing a new feature get the interface first, implement the logic to work with the interface and then do the implementation last.

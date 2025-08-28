@@ -4602,7 +4602,74 @@ The syntax is as follows:
 	}
 	#endregion
 
-	#region Drugs
+        #region Blood Types
+
+        public const string BloodAntigenHelpText = @"The #3bloodantigen#0 command is used to view, edit and create blood antigens.
+
+You can use the following syntax:
+
+#3bloodantigen list#0 - lists all of the blood antigens
+#3bloodantigen edit <which>#0 - begins editing a blood antigen
+#3bloodantigen edit new <name>#0 - creates a new blood antigen
+#3bloodantigen close#0 - stops editing a blood antigen
+#3bloodantigen show <which>#0 - views information about a blood antigen
+#3bloodantigen show#0 - views information about your currently editing blood antigen
+#3bloodantigen set name <name>#0 - renames this blood antigen";
+
+        [PlayerCommand("BloodAntigen", "bloodantigen", "bantigen")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("BloodAntigen", BloodAntigenHelpText, AutoHelp.HelpArgOrNoArg)]
+        protected static void BloodAntigen(ICharacter actor, string input)
+        {
+                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.BloodtypeAntigenHelper);
+        }
+
+        public const string BloodTypeHelpText = @"The #3bloodtype#0 command is used to view, edit and create blood types.
+
+The syntax is as follows:
+
+#3bloodtype list#0 - lists all of the blood types
+#3bloodtype edit <which>#0 - begins editing a blood type
+#3bloodtype edit new <name>#0 - creates a new blood type
+#3bloodtype close#0 - stops editing a blood type
+#3bloodtype show <which>#0 - views information about a blood type
+#3bloodtype show#0 - views information about your currently editing blood type
+#3bloodtype set name <name>#0 - renames this blood type
+#3bloodtype set antigen <antigen>#0 - toggles an antigen for this blood type";
+
+        [PlayerCommand("BloodType", "bloodtype")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("BloodType", BloodTypeHelpText, AutoHelp.HelpArgOrNoArg)]
+        protected static void BloodType(ICharacter actor, string input)
+        {
+                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.BloodtypeHelper);
+        }
+
+        public const string PopulationBloodModelHelpText = @"The #3popbloodmodel#0 command is used to view, edit and create population blood models.
+
+The syntax is as follows:
+
+#3popbloodmodel list#0 - lists all of the population blood models
+#3popbloodmodel edit <which>#0 - begins editing a population blood model
+#3popbloodmodel edit new <name>#0 - creates a new population blood model
+#3popbloodmodel close#0 - stops editing a population blood model
+#3popbloodmodel show <which>#0 - views information about a population blood model
+#3popbloodmodel show#0 - views information about your currently editing population blood model
+#3popbloodmodel set name <name>#0 - renames this model
+#3popbloodmodel set type <bloodtype> <weight>#0 - adds or sets a blood type with a weight
+#3popbloodmodel set remove <bloodtype>#0 - removes a blood type from this model";
+
+        [PlayerCommand("PopBloodModel", "popbloodmodel", "pbloodmodel")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("PopBloodModel", PopulationBloodModelHelpText, AutoHelp.HelpArgOrNoArg)]
+        protected static void PopBloodModel(ICharacter actor, string input)
+        {
+                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.PopulationBloodModelHelper);
+        }
+
+        #endregion
+
+        #region Drugs
 
 	public const string DrugsHelp = @"The #3drug#0 command is used to view, edit and create drugs. Drugs can be added to food, liquid and attacks.
 

@@ -1,16 +1,13 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 
-namespace MudSharp.Health
+namespace MudSharp.Health;
+
+public interface IBloodtype : IEditableItem
 {
-    public interface IBloodtype : IFrameworkItem
-    {
-        IEnumerable<IBloodtypeAntigen> Antigens { get; }
+    IEnumerable<IBloodtypeAntigen> Antigens { get; }
 
-        bool IsCompatibleWithDonorBlood(IBloodtype donorBloodtype);
-    }
+    bool IsCompatibleWithDonorBlood(IBloodtype donorBloodtype);
 }
+

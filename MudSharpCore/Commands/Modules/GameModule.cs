@@ -1763,12 +1763,16 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 							newEffectQueue = GetCleanableEffectQueue(newItem, actor, false);
 						}
 
-						actor.AddEffect(
-							new SimpleCharacterAction(actor, CleanAction(newItem, actor, newEffectQueue, itemQueue),
-								$"cleaning {newItem.Name}", new[] { "general", "movement" }, "cleaning an item"),
-							newEffectQueue.Peek().BaseCleanTime);
-						actor.OutputHandler.Handle(
-							new EmoteOutput(new Emote(newEffectQueue.Peek().EmoteBeginClean, actor, newItem)));
+                                                actor.AddEffect(
+                                                        new CharacterActionWithTarget(actor, newItem,
+                                                                CleanAction(newItem, actor, newEffectQueue, itemQueue),
+                                                                $"cleaning {newItem.Name}",
+                                                                "@ $0|stop|stops cleaning $1.",
+                                                                "@ cannot move because $0 $0|are|is cleaning $1.",
+                                                                new[] { "general", "movement" }, "cleaning an item"),
+                                                        newEffectQueue.Peek().BaseCleanTime);
+                                                actor.OutputHandler.Handle(
+                                                        new EmoteOutput(new Emote(newEffectQueue.Peek().EmoteBeginClean, actor, newItem)));
 					}
 
 					return;
@@ -1883,12 +1887,16 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
 			if (effectQueue.Any())
 			{
-				actor.AddEffect(
-					new SimpleCharacterAction(actor, CleanAction(gitem, actor, effectQueue, itemQueue),
-						$"cleaning {gitem.Name}", new[] { "general", "movement" }, "cleaning an item"),
-					effectQueue.Peek().BaseCleanTime);
-				return;
-			}
+                                actor.AddEffect(
+                                        new CharacterActionWithTarget(actor, gitem,
+                                                CleanAction(gitem, actor, effectQueue, itemQueue),
+                                                $"cleaning {gitem.Name}",
+                                                "@ $0|stop|stops cleaning $1.",
+                                                "@ cannot move because $0 $0|are|is cleaning $1.",
+                                                new[] { "general", "movement" }, "cleaning an item"),
+                                        effectQueue.Peek().BaseCleanTime);
+                                return;
+                        }
 
 			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ have|has finished cleaning $0.", actor, gitem)));
 
@@ -1909,12 +1917,16 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 					newEffectQueue = GetCleanableEffectQueue(newItem, actor, false);
 				}
 
-				actor.AddEffect(
-					new SimpleCharacterAction(actor, CleanAction(newItem, actor, newEffectQueue, itemQueue),
-						$"cleaning {newItem.Name}", new[] { "general", "movement" }, "cleaning an item"),
-					newEffectQueue.Peek().BaseCleanTime);
-				actor.OutputHandler.Handle(
-					new EmoteOutput(new Emote(newEffectQueue.Peek().EmoteBeginClean, actor, newItem)));
+                                actor.AddEffect(
+                                        new CharacterActionWithTarget(actor, newItem,
+                                                CleanAction(newItem, actor, newEffectQueue, itemQueue),
+                                                $"cleaning {newItem.Name}",
+                                                "@ $0|stop|stops cleaning $1.",
+                                                "@ cannot move because $0 $0|are|is cleaning $1.",
+                                                new[] { "general", "movement" }, "cleaning an item"),
+                                        newEffectQueue.Peek().BaseCleanTime);
+                                actor.OutputHandler.Handle(
+                                        new EmoteOutput(new Emote(newEffectQueue.Peek().EmoteBeginClean, actor, newItem)));
 			}
 			else
 			{
@@ -1926,11 +1938,9 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 	private static Queue<ICleanableEffect> GetCleanableEffectQueue(IPerceivable target, ICharacter actor,
 		bool echoFailure)
 	{
-		var originalCleanableEffects =
-			target.EffectsOfType<ICleanableEffect>().Where(x => x.Applies(actor)).ToList();
-		originalCleanableEffects =
-			originalCleanableEffects.Where(x => x.LiquidRequired != null).ToList(); //Filter out non-cleanable liquids
-		var cleanableEffects = originalCleanableEffects;
+                var originalCleanableEffects =
+                        target.EffectsOfType<ICleanableEffect>().Where(x => x.Applies(actor)).ToList();
+                var cleanableEffects = originalCleanableEffects.ToList();
 		if (!cleanableEffects.Any())
 		{
 			if (echoFailure)
@@ -2008,11 +2018,15 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 			return;
 		}
 
-		actor.AddEffect(
-			new SimpleCharacterAction(actor, CleanAction(target, actor, effectQueue, new Queue<IPerceivable>()),
-				$"cleaning {target.Name}", new[] { "general", "movement" }, "cleaning an item"),
-			effectQueue.Peek().BaseCleanTime);
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote(effectQueue.Peek().EmoteBeginClean, actor, target)));
+                actor.AddEffect(
+                        new CharacterActionWithTarget(actor, target,
+                                CleanAction(target, actor, effectQueue, new Queue<IPerceivable>()),
+                                $"cleaning {target.Name}",
+                                "@ $0|stop|stops cleaning $1.",
+                                "@ cannot move because $0 $0|are|is cleaning $1.",
+                                new[] { "general", "movement" }, "cleaning an item"),
+                        effectQueue.Peek().BaseCleanTime);
+                actor.OutputHandler.Handle(new EmoteOutput(new Emote(effectQueue.Peek().EmoteBeginClean, actor, target)));
 	}
 
 	private static void CleanAll(ICharacter actor, bool onlyMine)
@@ -2046,12 +2060,16 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
 		var effectQueue = GetCleanableEffectQueue(cleanableItems.First(), actor, false);
 		var itemQueue = new Queue<IPerceivable>(cleanableItems.Skip(1));
-		actor.AddEffect(
-			new SimpleCharacterAction(actor, CleanAction(cleanableItems.First(), actor, effectQueue, itemQueue),
-				$"cleaning {cleanableItems.First().Name}", new[] { "general", "movement" }, "cleaning an item"),
-			effectQueue.Peek().BaseCleanTime);
-		actor.OutputHandler.Handle(
-			new EmoteOutput(new Emote(effectQueue.Peek().EmoteBeginClean, actor, cleanableItems.First())));
+                actor.AddEffect(
+                        new CharacterActionWithTarget(actor, cleanableItems.First(),
+                                CleanAction(cleanableItems.First(), actor, effectQueue, itemQueue),
+                                $"cleaning {cleanableItems.First().Name}",
+                                "@ $0|stop|stops cleaning $1.",
+                                "@ cannot move because $0 $0|are|is cleaning $1.",
+                                new[] { "general", "movement" }, "cleaning an item"),
+                        effectQueue.Peek().BaseCleanTime);
+                actor.OutputHandler.Handle(
+                        new EmoteOutput(new Emote(effectQueue.Peek().EmoteBeginClean, actor, cleanableItems.First())));
 	}
 
 	#endregion Clean SubCommands

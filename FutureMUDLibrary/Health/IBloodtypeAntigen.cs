@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 
-namespace MudSharp.Health
+namespace MudSharp.Health;
+
+public interface IBloodtypeAntigen : IEditableItem
 {
-    public interface IBloodtypeAntigen : IFrameworkItem
-    {
-    }
 }
+

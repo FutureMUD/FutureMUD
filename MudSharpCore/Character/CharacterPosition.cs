@@ -27,8 +27,8 @@ public partial class Character
 	public bool CanMovePosition(IPositionState whichPosition, bool ignoreMovement = false)
 	{
 		return PositionState != whichPosition &&
-		       EffectsOfType<IPreventPositionChange>().All(x => !x.PreventsChange(PositionState, whichPosition)) &&
-		       CanMovePosition(whichPosition, PositionModifier, PositionTarget, true, ignoreMovement);
+			   EffectsOfType<IPreventPositionChange>().All(x => !x.PreventsChange(PositionState, whichPosition)) &&
+			   CanMovePosition(whichPosition, PositionModifier, PositionTarget, true, ignoreMovement);
 	}
 
 	public string WhyCannotMovePosition(IPositionState whichPosition, bool ignoreMovement = false)
@@ -41,7 +41,7 @@ public partial class Character
 		if (EffectsOfType<IPreventPositionChange>().Any(x => x.PreventsChange(PositionState, whichPosition)))
 		{
 			return EffectsOfType<IPreventPositionChange>().First(x => x.PreventsChange(PositionState, whichPosition))
-			                                              .WhyPreventsChange(PositionState, whichPosition);
+														  .WhyPreventsChange(PositionState, whichPosition);
 		}
 
 		return WhyCannotMovePosition(whichPosition, PositionModifier, PositionTarget, true, ignoreMovement);
@@ -157,22 +157,22 @@ public partial class Character
 		PositionHasChanged();
 	}
 
-        public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
-                IEmote playerEmote, IEmote playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderMovePosition(whichPosition, whichModifier, target, this, playerEmote,
-                                playerPmote, ignoreMovementRestrictions, ignoreMovement);
-                        return;
-                }
+		public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
+				IEmote playerEmote, IEmote playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
+		{
+				if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+				{
+						RidingMount.RiderMovePosition(whichPosition, whichModifier, target, this, playerEmote,
+								playerPmote, ignoreMovementRestrictions, ignoreMovement);
+						return;
+				}
 
-                if (!ignoreMovementRestrictions && Combat != null)
-                {
-                        if (TakeOrQueueCombatAction(
-				    SelectedCombatAction.GetEffectReposition(
-					    this, whichPosition, whichModifier, target, playerEmote, playerPmote)) &&
-			    Gameworld.GetStaticBool("EchoQueuedActions"))
+				if (!ignoreMovementRestrictions && Combat != null)
+				{
+						if (TakeOrQueueCombatAction(
+					SelectedCombatAction.GetEffectReposition(
+						this, whichPosition, whichModifier, target, playerEmote, playerPmote)) &&
+				Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				OutputHandler.Send(
 					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}{whichPosition.DefaultDescription()}.");
@@ -198,8 +198,8 @@ public partial class Character
 		if (!PositionState.Upright && whichPosition.Upright)
 		{
 			foreach (var thing in TargetedBy.Where(x =>
-				         x.PositionTarget == this && x.Location == Location &&
-				         x.PositionModifier == PositionModifier.On))
+						 x.PositionTarget == this && x.Location == Location &&
+						 x.PositionModifier == PositionModifier.On))
 			{
 				thing.SetModifier(PositionModifier.None);
 				if (!(thing is ICharacter body))
@@ -221,17 +221,17 @@ public partial class Character
 		PositionHasChanged();
 	}
 
-        public void MovePosition(IPositionState whichPosition, IEmote playerEmote, IEmote playerPmote)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderMovePosition(whichPosition, PositionModifier, PositionTarget, this, playerEmote, playerPmote);
-                        return;
-                }
+		public void MovePosition(IPositionState whichPosition, IEmote playerEmote, IEmote playerPmote)
+		{
+				if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+				{
+						RidingMount.RiderMovePosition(whichPosition, PositionModifier, PositionTarget, this, playerEmote, playerPmote);
+						return;
+				}
 
-                if (!CanMovePosition(whichPosition))
-                {
-                        OutputHandler.Send(WhyCannotMovePosition(whichPosition));
+				if (!CanMovePosition(whichPosition))
+				{
+						OutputHandler.Send(WhyCannotMovePosition(whichPosition));
 			return;
 		}
 
@@ -244,8 +244,8 @@ public partial class Character
 		if (!PositionState.Upright && whichPosition.Upright)
 		{
 			foreach (var thing in TargetedBy.Where(x =>
-				         x.PositionTarget == this && x.Location == Location &&
-				         x.PositionModifier == PositionModifier.On))
+						 x.PositionTarget == this && x.Location == Location &&
+						 x.PositionModifier == PositionModifier.On))
 			{
 				thing.SetModifier(PositionModifier.None);
 				if (!(thing is ICharacter body))
@@ -377,8 +377,8 @@ public partial class Character
 		}
 
 		if ((PositionTarget != null &&
-		     (PositionTarget.IsSelf(thing.PositionTarget) || PositionTarget.IsSelf(thing))) ||
-		    thing.PositionTarget?.IsSelf(this) == true)
+			 (PositionTarget.IsSelf(thing.PositionTarget) || PositionTarget.IsSelf(thing))) ||
+			thing.PositionTarget?.IsSelf(this) == true)
 		{
 			return Proximity.Immediate;
 		}
@@ -437,7 +437,7 @@ public partial class Character
 		}
 
 		if (!ignoreMovementRestrictions && (whichModifier != PositionModifier || target != PositionTarget) &&
-		    PositionState.MoveRestrictions == MovementAbility.Restricted)
+			PositionState.MoveRestrictions == MovementAbility.Restricted)
 		{
 			return false;
 		}
@@ -502,7 +502,7 @@ public partial class Character
 		}
 
 		if ((whichModifier != PositionModifier || target != PositionTarget) && !ignoreMovementRestrictions &&
-		    PositionState.MoveRestrictions == MovementAbility.Restricted)
+			PositionState.MoveRestrictions == MovementAbility.Restricted)
 		{
 			return "You must first get up before you can move about.";
 		}

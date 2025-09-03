@@ -3,11 +3,12 @@ using System.Linq;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -51,7 +52,7 @@ Note - anyone in the room at the time you hide yourself or an item will be able 
 				return;
 			}
 
-			if (!actor.CanMove())
+			if (!actor.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 			{
 				actor.OutputHandler.Send(actor.WhyCannotMove());
 				return;

@@ -6,18 +6,19 @@ using System.Threading.Tasks;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
 using MudSharp.Combat.Moves;
+using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
-using MudSharp.GameItems.Inventory.Plans;
-using MudSharp.Construction.Boundary;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -433,7 +434,7 @@ public abstract class StrategyBase : ICombatStrategy
 		if (combatant is ICharacter ch)
 		{
 			ICombatMove move;
-			var canMove = ch.CanMove();
+			var canMove = ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers);
 
 			// Everyone tries to break free of clinch first if they can
 			if ((move = HandleClinchBreaking(ch, canMove)) != null)

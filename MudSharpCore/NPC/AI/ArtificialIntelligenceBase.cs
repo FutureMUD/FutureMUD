@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Database;
 using System.Xml.Linq;
+using MudSharp.Movement;
 
 namespace MudSharp.NPC.AI;
 
@@ -187,7 +188,7 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 			return false;
 		}
 
-		if (!ch.CanMove() && !ignoreMovement)
+		if (!ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers) && !ignoreMovement)
 		{
 			return false;
 		}

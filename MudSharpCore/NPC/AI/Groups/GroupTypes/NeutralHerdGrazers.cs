@@ -1,19 +1,20 @@
-﻿using MudSharp.Celestial;
-using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Construction.Boundary;
-using MudSharp.Form.Shape;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Celestial;
+using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
+using MudSharp.Movement;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.NPC.AI.Groups.GroupTypes;
 
@@ -546,7 +547,7 @@ public class NeutralHerdGrazers : HerdGrazers
 			var targetExit = preferredExits.GetRandomElement();
 			foreach (var ch in characters)
 			{
-				if (!ch.CanMove(targetExit, false, true))
+				if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
 				{
 					continue;
 				}
@@ -562,7 +563,7 @@ public class NeutralHerdGrazers : HerdGrazers
 			var targetExit = allExits.GetRandomElement();
 			foreach (var ch in characters)
 			{
-				if (!ch.CanMove(targetExit, false, true))
+				if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
 				{
 					continue;
 				}

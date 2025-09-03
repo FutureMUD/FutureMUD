@@ -116,6 +116,11 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 		return false;
 	}
 
+	bool IHaveEffects.AffectedBy<T>(Predicate<T> predicate)
+	{
+		return false;
+	}
+
 	bool IHaveEffects.AffectedBy<T>(object target)
 	{
 		return false;

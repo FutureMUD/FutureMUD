@@ -3,25 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Models;
-using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Construction.Boundary;
-using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.Effects.Concrete;
 using System.Xml.Linq;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Celestial;
+using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
+using MudSharp.Events;
+using MudSharp.Framework;
 using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine.Parsers;
-using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.Models;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Lists;
-using MudSharp.Effects;
-using MudSharp.Celestial;
-using MudSharp.GameItems.Interfaces;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.NPC.AI;
 
@@ -1220,7 +1221,7 @@ public class WildAnimalHerdAI : PathingAIBase
 
 		if (role == WildAnimalHerdRole.Outsider)
 		{
-			if (character.CanMove())
+			if (character.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement | CanMoveFlags.IgnoreWhetherExitCanBeCrossed))
 			{
 				var pathToLeader = character
 								   .PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)

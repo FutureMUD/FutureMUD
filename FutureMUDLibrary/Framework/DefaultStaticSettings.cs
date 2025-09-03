@@ -699,7 +699,8 @@ public static class DefaultStaticSettings
 			{ "GunpowderMaterialId", "0"},
 			{ "WadItemTagId", "0"},
 			{ "MusketUnjammingToolTag", "0"},
-			{ "UnjammingGunDurationExpression", "20 - (degrees * 3)"}
+			{ "UnjammingGunDurationExpression", "20 - (degrees * 3)"},
+			{ "MaximumMoveTimeMilliseconds", "60000"}
 		};
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>

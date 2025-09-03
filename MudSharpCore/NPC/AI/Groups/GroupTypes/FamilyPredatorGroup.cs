@@ -16,6 +16,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Construction.Boundary;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -137,36 +138,36 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
 		#endregion
 	}
 
-        /// <inheritdoc />
-        public override void HandleMinuteTick(IGroupAI herd)
-        {
-                base.HandleMinuteTick(herd);
-        }
+		/// <inheritdoc />
+		public override void HandleMinuteTick(IGroupAI herd)
+		{
+				base.HandleMinuteTick(herd);
+		}
 
 	/// <inheritdoc />
-        public override IGroupTypeData LoadData(XElement root, IFuturemud gameworld)
-        {
-                return new FamilyPredatorData(root, gameworld);
-        }
+		public override IGroupTypeData LoadData(XElement root, IFuturemud gameworld)
+		{
+				return new FamilyPredatorData(root, gameworld);
+		}
 
 	/// <inheritdoc />
-        public override IGroupTypeData GetInitialData(IFuturemud gameworld)
-        {
-                return new FamilyPredatorData(gameworld);
-        }
+		public override IGroupTypeData GetInitialData(IFuturemud gameworld)
+		{
+				return new FamilyPredatorData(gameworld);
+		}
 
 	/// <inheritdoc />
-        public override XElement SaveToXml()
-        {
-                return new XElement("GroupType",
-                        new XAttribute("typename", "familypredator"),
-                        new XElement("ActiveTimes",
-                                from time in ActiveTimesOfDay
-                                select new XElement("Time", (int)time)
-                        ),
-                        new XElement("Gender", (short)DominantGender)
-                );
-        }
+		public override XElement SaveToXml()
+		{
+				return new XElement("GroupType",
+						new XAttribute("typename", "familypredator"),
+						new XElement("ActiveTimes",
+								from time in ActiveTimesOfDay
+								select new XElement("Time", (int)time)
+						),
+						new XElement("Gender", (short)DominantGender)
+				);
+		}
 
 	public override bool ConsidersThreat(ICharacter ch, IGroupAI group, GroupAlertness alertness)
 	{
@@ -216,348 +217,348 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
 		}
 	}
 
-        protected override bool HandleTenSecondAction(IGroupAI group, PredatorGroupData data,
-                GroupAction groupCurrentAction)
-        {
-                var (main, stragglers, vulnerable) = GetGroups(group, data);
-                var threats = GetThreats(group, data);
-                switch (groupCurrentAction)
-                {
-                        case GroupAction.AvoidThreat:
-                                HandleAvoidThreat(group, data, threats, main, stragglers, vulnerable);
-                                return true;
-                        case GroupAction.Flee:
-                                HandleFlee(group, data, threats, main, stragglers, vulnerable);
-                                return true;
-                        case GroupAction.Posture:
-                                HandlePosture(group, data, threats, main, stragglers, vulnerable);
-                                return true;
-                        case GroupAction.ControlledRetreat:
-                                HandleControlledRetreat(group, data, threats, main, stragglers, vulnerable);
-                                return true;
-                        case GroupAction.AttackThreats:
-                                HandleAttackThreats(group, data, threats, main, stragglers, vulnerable);
-                                return true;
-                }
+		protected override bool HandleTenSecondAction(IGroupAI group, PredatorGroupData data,
+				GroupAction groupCurrentAction)
+		{
+				var (main, stragglers, vulnerable) = GetGroups(group, data);
+				var threats = GetThreats(group, data);
+				switch (groupCurrentAction)
+				{
+						case GroupAction.AvoidThreat:
+								HandleAvoidThreat(group, data, threats, main, stragglers, vulnerable);
+								return true;
+						case GroupAction.Flee:
+								HandleFlee(group, data, threats, main, stragglers, vulnerable);
+								return true;
+						case GroupAction.Posture:
+								HandlePosture(group, data, threats, main, stragglers, vulnerable);
+								return true;
+						case GroupAction.ControlledRetreat:
+								HandleControlledRetreat(group, data, threats, main, stragglers, vulnerable);
+								return true;
+						case GroupAction.AttackThreats:
+								HandleAttackThreats(group, data, threats, main, stragglers, vulnerable);
+								return true;
+				}
 
-                return false;
-        }
+				return false;
+		}
 
 	/// <inheritdoc />
-        protected override void HandleFindFood(IGroupAI group, PredatorGroupData data)
-        {
-                var leader = group.GroupRoles.First(x => x.Value == GroupRole.Leader).Key;
-                var items = leader.Location.LayerGameItems(leader.RoomLayer)
-                                   .SelectMany(x => x.ShallowAccessibleItems(leader)).ToList();
-                var hasFood = items.Any(item =>
-                        (item.IsItemType<IEdible>() &&
-                         leader.CanEat(item.GetItemType<IEdible>(), item.ContainedIn?.GetItemType<IContainer>(), null, 1.0)) ||
-                        (item.IsItemType<ICorpse>() &&
-                         leader.CanEat(item.GetItemType<ICorpse>(), leader.Race.BiteWeight).Success) ||
-                        (item.IsItemType<ISeveredBodypart>() &&
-                         leader.CanEat(item.GetItemType<ISeveredBodypart>(), leader.Race.BiteWeight).Success));
+		protected override void HandleFindFood(IGroupAI group, PredatorGroupData data)
+		{
+				var leader = group.GroupRoles.First(x => x.Value == GroupRole.Leader).Key;
+				var items = leader.Location.LayerGameItems(leader.RoomLayer)
+								   .SelectMany(x => x.ShallowAccessibleItems(leader)).ToList();
+				var hasFood = items.Any(item =>
+						(item.IsItemType<IEdible>() &&
+						 leader.CanEat(item.GetItemType<IEdible>(), item.ContainedIn?.GetItemType<IContainer>(), null, 1.0)) ||
+						(item.IsItemType<ICorpse>() &&
+						 leader.CanEat(item.GetItemType<ICorpse>(), leader.Race.BiteWeight).Success) ||
+						(item.IsItemType<ISeveredBodypart>() &&
+						 leader.CanEat(item.GetItemType<ISeveredBodypart>(), leader.Race.BiteWeight).Success));
 
-                if (hasFood)
-                {
-                        group.CurrentAction = GroupAction.Graze;
-                        return;
-                }
+				if (hasFood)
+				{
+						group.CurrentAction = GroupAction.Graze;
+						return;
+				}
 
-                if (leader.CouldMove(false, null).Success)
-                {
-                        var recent = leader.EffectsOfType<AdjacentToExit>().FirstOrDefault();
-                        var random = leader.Location.ExitsFor(leader)
-                                                 .Where(x => CanMoveExitFunctionFor(leader, group).Invoke(x))
-                                                 .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
-                        if (random != null && leader.CanMove(random))
-                        {
-                                leader.Move(random);
-                        }
-                }
-        }
+				if (leader.CouldMove(false, null).Success)
+				{
+						var recent = leader.EffectsOfType<AdjacentToExit>().FirstOrDefault();
+						var random = leader.Location.ExitsFor(leader)
+												 .Where(x => CanMoveExitFunctionFor(leader, group).Invoke(x))
+												 .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
+						if (random != null && leader.CanMove(random))
+						{
+								leader.Move(random);
+						}
+				}
+		}
 
-        protected override void EvaluateAlertLevel(IGroupAI group, PredatorGroupData pdata)
-        {
-                var data = (FamilyPredatorData)pdata;
-                var (main, _, _) = GetGroups(group, data);
+		protected override void EvaluateAlertLevel(IGroupAI group, PredatorGroupData pdata)
+		{
+				var data = (FamilyPredatorData)pdata;
+				var (main, _, _) = GetGroups(group, data);
 
-                if (!main.Any())
-                {
-                        return;
-                }
+				if (!main.Any())
+				{
+						return;
+				}
 
-                var threats = GetThreats(group, data);
-                if (threats.Any())
-                {
-                        switch (group.Alertness)
-                        {
-                                case GroupAlertness.NotAlert:
-                                        group.Alertness = GroupAlertness.Wary;
-                                        group.Changed = true;
-                                        break;
-                                case GroupAlertness.Wary:
-                                        if (Constants.Random.Next(0, 100) > threats.Count)
-                                        {
-                                                return;
-                                        }
+				var threats = GetThreats(group, data);
+				if (threats.Any())
+				{
+						switch (group.Alertness)
+						{
+								case GroupAlertness.NotAlert:
+										group.Alertness = GroupAlertness.Wary;
+										group.Changed = true;
+										break;
+								case GroupAlertness.Wary:
+										if (Constants.Random.Next(0, 100) > threats.Count)
+										{
+												return;
+										}
 
-                                        group.Alertness = GroupAlertness.Agitated;
-                                        group.Changed = true;
-                                        break;
-                                case GroupAlertness.Agitated:
-                                        if (Constants.Random.Next(0, 100) > threats.Count)
-                                        {
-                                                return;
-                                        }
+										group.Alertness = GroupAlertness.Agitated;
+										group.Changed = true;
+										break;
+								case GroupAlertness.Agitated:
+										if (Constants.Random.Next(0, 100) > threats.Count)
+										{
+												return;
+										}
 
-                                        group.Alertness = GroupAlertness.VeryAgitated;
-                                        group.Changed = true;
-                                        break;
-                                case GroupAlertness.VeryAgitated:
-                                        if (Constants.Random.Next(0, 100) > threats.Count)
-                                        {
-                                                return;
-                                        }
+										group.Alertness = GroupAlertness.VeryAgitated;
+										group.Changed = true;
+										break;
+								case GroupAlertness.VeryAgitated:
+										if (Constants.Random.Next(0, 100) > threats.Count)
+										{
+												return;
+										}
 
-                                        group.Alertness = GroupAlertness.Aggressive;
-                                        group.Changed = true;
-                                        break;
-                                case GroupAlertness.Aggressive:
-                                        group.Alertness = GroupAlertness.Broken;
-                                        group.Changed = true;
-                                        break;
-                        }
+										group.Alertness = GroupAlertness.Aggressive;
+										group.Changed = true;
+										break;
+								case GroupAlertness.Aggressive:
+										group.Alertness = GroupAlertness.Broken;
+										group.Changed = true;
+										break;
+						}
 
-                        return;
-                }
+						return;
+				}
 
-                switch (group.Alertness)
-                {
-                        case GroupAlertness.Wary:
-                                if (Constants.Random.Next(0, 120) > main.Count())
-                                {
-                                        return;
-                                }
+				switch (group.Alertness)
+				{
+						case GroupAlertness.Wary:
+								if (Constants.Random.Next(0, 120) > main.Count())
+								{
+										return;
+								}
 
-                                group.Alertness = GroupAlertness.NotAlert;
-                                group.Changed = true;
-                                break;
-                        case GroupAlertness.Agitated:
-                                if (Constants.Random.Next(0, 120) > main.Count())
-                                {
-                                        return;
-                                }
+								group.Alertness = GroupAlertness.NotAlert;
+								group.Changed = true;
+								break;
+						case GroupAlertness.Agitated:
+								if (Constants.Random.Next(0, 120) > main.Count())
+								{
+										return;
+								}
 
-                                group.Alertness = GroupAlertness.Wary;
-                                group.Changed = true;
-                                break;
-                        case GroupAlertness.VeryAgitated:
-                                if (Constants.Random.Next(0, 120) > main.Count())
-                                {
-                                        return;
-                                }
+								group.Alertness = GroupAlertness.Wary;
+								group.Changed = true;
+								break;
+						case GroupAlertness.VeryAgitated:
+								if (Constants.Random.Next(0, 120) > main.Count())
+								{
+										return;
+								}
 
-                                group.Alertness = GroupAlertness.Agitated;
-                                group.Changed = true;
-                                break;
-                        case GroupAlertness.Aggressive:
-                                if (Constants.Random.Next(0, 60) > main.Count())
-                                {
-                                        return;
-                                }
+								group.Alertness = GroupAlertness.Agitated;
+								group.Changed = true;
+								break;
+						case GroupAlertness.Aggressive:
+								if (Constants.Random.Next(0, 60) > main.Count())
+								{
+										return;
+								}
 
-                                group.Alertness = GroupAlertness.VeryAgitated;
-                                group.Changed = true;
-                                break;
-                        case GroupAlertness.Broken:
-                                group.Alertness = GroupAlertness.Aggressive;
-                                group.Changed = true;
-                                break;
-                }
-        }
+								group.Alertness = GroupAlertness.VeryAgitated;
+								group.Changed = true;
+								break;
+						case GroupAlertness.Broken:
+								group.Alertness = GroupAlertness.Aggressive;
+								group.Changed = true;
+								break;
+				}
+		}
 
-        private void HandleAvoidThreat(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
-                IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
-        {
-                if (!threats.Any())
-                {
-                        group.CurrentAction = GroupAction.Graze;
-                        group.Changed = true;
-                        return;
-                }
+		private void HandleAvoidThreat(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
+				IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
+		{
+				if (!threats.Any())
+				{
+						group.CurrentAction = GroupAction.Graze;
+						group.Changed = true;
+						return;
+				}
 
-                var leader = main.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ?? main.FirstOrDefault();
-                HandleAvoidThreatForSubgroup(group, data, threats, main, leader);
-                foreach (var vg in vulnerable.GroupBy(x => (x.Location, x.RoomLayer)))
-                {
-                        HandleAvoidThreatForSubgroup(group, data, threats, vg, vg.GetRandomElement());
-                }
-        }
+				var leader = main.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ?? main.FirstOrDefault();
+				HandleAvoidThreatForSubgroup(group, data, threats, main, leader);
+				foreach (var vg in vulnerable.GroupBy(x => (x.Location, x.RoomLayer)))
+				{
+						HandleAvoidThreatForSubgroup(group, data, threats, vg, vg.GetRandomElement());
+				}
+		}
 
-        private void HandleAvoidThreatForSubgroup(IGroupAI group, PredatorGroupData data, IEnumerable<ICharacter> threats,
-                IEnumerable<ICharacter> characters, ICharacter leader)
-        {
-                var threatPaths = threats
-                                  .Select(x => (Character: x, Path: leader.PathBetween(x, 5, PathSearch.RespectClosedDoors)))
-                                  .ToList();
-                var threatDirections = threatPaths.Select(x => x.Path)
-                                                  .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>, IEnumerable<ICellExit>>()
-                                                  .ContainedDirections();
-                var allExitsIncludingLayers = leader.Location
-                                                    .ExitsFor(leader, true)
-                                                    .Where(x => !x.MovementTransition(leader).TransitionType.In(
-                                                            CellMovementTransition.FlyOnly,
-                                                            CellMovementTransition.NoViableTransition))
-                                                    .ToList();
-                var allExits = leader.Location
-                                     .ExitsFor(leader)
-                                     .Where(x => !x.MovementTransition(leader).TransitionType.In(CellMovementTransition.FlyOnly,
-                                             CellMovementTransition.NoViableTransition))
-                                     .ToList();
-                var preferredExits = allExits
-                                     .Where(x =>
-                                             !threatDirections.Contains(x.OutboundDirection) &&
-                                             !group.AvoidCell(x.Destination, group.Alertness) &&
-                                             !x.MovementTransition(leader).TransitionType
-                                               .In(CellMovementTransition.FallExit, CellMovementTransition.SwimOnly)
-                                     )
-                                     .ToList();
+		private void HandleAvoidThreatForSubgroup(IGroupAI group, PredatorGroupData data, IEnumerable<ICharacter> threats,
+				IEnumerable<ICharacter> characters, ICharacter leader)
+		{
+				var threatPaths = threats
+								  .Select(x => (Character: x, Path: leader.PathBetween(x, 5, PathSearch.RespectClosedDoors)))
+								  .ToList();
+				var threatDirections = threatPaths.Select(x => x.Path)
+												  .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>, IEnumerable<ICellExit>>()
+												  .ContainedDirections();
+				var allExitsIncludingLayers = leader.Location
+													.ExitsFor(leader, true)
+													.Where(x => !x.MovementTransition(leader).TransitionType.In(
+															CellMovementTransition.FlyOnly,
+															CellMovementTransition.NoViableTransition))
+													.ToList();
+				var allExits = leader.Location
+									 .ExitsFor(leader)
+									 .Where(x => !x.MovementTransition(leader).TransitionType.In(CellMovementTransition.FlyOnly,
+											 CellMovementTransition.NoViableTransition))
+									 .ToList();
+				var preferredExits = allExits
+									 .Where(x =>
+											 !threatDirections.Contains(x.OutboundDirection) &&
+											 !group.AvoidCell(x.Destination, group.Alertness) &&
+											 !x.MovementTransition(leader).TransitionType
+											   .In(CellMovementTransition.FallExit, CellMovementTransition.SwimOnly)
+									 )
+									 .ToList();
 
-                if (preferredExits.Any())
-                {
-                        var targetExit = preferredExits.GetRandomElement();
-                        foreach (var ch in characters)
-                        {
-                                if (!ch.CanMove(targetExit, false, true))
-                                {
-                                        continue;
-                                }
+				if (preferredExits.Any())
+				{
+						var targetExit = preferredExits.GetRandomElement();
+						foreach (var ch in characters)
+						{
+								if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
+								{
+										continue;
+								}
 
-                                ch.Move(targetExit, null, true);
-                        }
+								ch.Move(targetExit, null, true);
+						}
 
-                        return;
-                }
+						return;
+				}
 
-                if (allExits.Any())
-                {
-                        var targetExit = allExits.GetRandomElement();
-                        foreach (var ch in characters)
-                        {
-                                if (!ch.CanMove(targetExit, false, true))
-                                {
-                                        continue;
-                                }
+				if (allExits.Any())
+				{
+						var targetExit = allExits.GetRandomElement();
+						foreach (var ch in characters)
+						{
+								if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
+								{
+										continue;
+								}
 
-                                ch.Move(targetExit, null, true);
-                        }
+								ch.Move(targetExit, null, true);
+						}
 
-                        return;
-                }
+						return;
+				}
 
-                if (allExitsIncludingLayers.Any())
-                {
-                        var targetLayer = allExitsIncludingLayers.SelectMany(x => x.WhichLayersExitAppears()).Distinct()
-                                                                 .ClosestLayer(leader.RoomLayer);
-                        foreach (var ch in characters)
-                        {
-                                PathIndividualToLayer(ch, targetLayer);
-                        }
-                }
-        }
+				if (allExitsIncludingLayers.Any())
+				{
+						var targetLayer = allExitsIncludingLayers.SelectMany(x => x.WhichLayersExitAppears()).Distinct()
+																 .ClosestLayer(leader.RoomLayer);
+						foreach (var ch in characters)
+						{
+								PathIndividualToLayer(ch, targetLayer);
+						}
+				}
+		}
 
-        private void HandleFlee(IGroupAI group, PredatorGroupData data, List<ICharacter> threats, IEnumerable<ICharacter> main,
-                IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
-        {
-                if (!threats.Any())
-                {
-                        group.CurrentAction = GroupAction.Graze;
-                        group.Changed = true;
-                        return;
-                }
+		private void HandleFlee(IGroupAI group, PredatorGroupData data, List<ICharacter> threats, IEnumerable<ICharacter> main,
+				IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
+		{
+				if (!threats.Any())
+				{
+						group.CurrentAction = GroupAction.Graze;
+						group.Changed = true;
+						return;
+				}
 
-                foreach (var ch in group.GroupMembers)
-                {
-                        ch.CombatStrategyMode = Combat.CombatStrategyMode.Flee;
-                }
+				foreach (var ch in group.GroupMembers)
+				{
+						ch.CombatStrategyMode = Combat.CombatStrategyMode.Flee;
+				}
 
-                HandleAvoidThreat(group, data, threats, main, stragglers, vulnerable);
-        }
+				HandleAvoidThreat(group, data, threats, main, stragglers, vulnerable);
+		}
 
-        private void HandleAttackThreats(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
-                IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
-        {
-                var fighters = main.Where(x => group.GroupRoles[x] != GroupRole.Child).ToList();
-                foreach (var fighter in fighters)
-                {
-                        if (fighter.Combat == null || fighter.CombatTarget == null)
-                        {
-                                foreach (var threat in threats.Shuffle())
-                                {
-                                        if (!fighter.CanSee(threat))
-                                        {
-                                                continue;
-                                        }
+		private void HandleAttackThreats(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
+				IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
+		{
+				var fighters = main.Where(x => group.GroupRoles[x] != GroupRole.Child).ToList();
+				foreach (var fighter in fighters)
+				{
+						if (fighter.Combat == null || fighter.CombatTarget == null)
+						{
+								foreach (var threat in threats.Shuffle())
+								{
+										if (!fighter.CanSee(threat))
+										{
+												continue;
+										}
 
-                                        if (fighter.CanEngage(threat))
-                                        {
-                                                fighter.Engage(threat);
-                                                continue;
-                                        }
-                                }
-                        }
-                }
-        }
+										if (fighter.CanEngage(threat))
+										{
+												fighter.Engage(threat);
+												continue;
+										}
+								}
+						}
+				}
+		}
 
-        private void HandlePosture(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
-                IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
-        {
-                var emotes = group.GroupEmotes.Where(x => x.Applies(group)).ToList();
-                if (!emotes.Any() || Dice.Roll(1, 6) != 1)
-                {
-                        return;
-                }
+		private void HandlePosture(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
+				IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
+		{
+				var emotes = group.GroupEmotes.Where(x => x.Applies(group)).ToList();
+				if (!emotes.Any() || Dice.Roll(1, 6) != 1)
+				{
+						return;
+				}
 
-                var emote = emotes.GetRandomElement();
-                var emoter = main.Where(x =>
-                        x.State.IsAble() && threats.Any(y => y.ColocatedWith(x)) &&
-                        (!emote.RequiredRole.HasValue || group.GroupRoles[x] == emote.RequiredRole)).GetRandomElement();
-                emoter?.OutputHandler.Handle(new EmoteOutput(new Emote(emote.EmoteText, emoter, emoter,
-                        threats.Where(x => x.ColocatedWith(emoter)).GetRandomElement())));
-        }
+				var emote = emotes.GetRandomElement();
+				var emoter = main.Where(x =>
+						x.State.IsAble() && threats.Any(y => y.ColocatedWith(x)) &&
+						(!emote.RequiredRole.HasValue || group.GroupRoles[x] == emote.RequiredRole)).GetRandomElement();
+				emoter?.OutputHandler.Handle(new EmoteOutput(new Emote(emote.EmoteText, emoter, emoter,
+						threats.Where(x => x.ColocatedWith(emoter)).GetRandomElement())));
+		}
 
-        private void HandleControlledRetreat(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
-                IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
-        {
-                var fighters = main.Where(x => group.GroupRoles[x] == GroupRole.Elder).ToList();
-                var nonFighters = main.Except(fighters).ToList();
-                foreach (var fighter in fighters)
-                {
-                        if (fighter.Combat == null || fighter.CombatTarget == null)
-                        {
-                                foreach (var threat in threats.Shuffle())
-                                {
-                                        if (!fighter.CanSee(threat))
-                                        {
-                                                continue;
-                                        }
+		private void HandleControlledRetreat(IGroupAI group, PredatorGroupData data, List<ICharacter> threats,
+				IEnumerable<ICharacter> main, IEnumerable<ICharacter> stragglers, IEnumerable<ICharacter> vulnerable)
+		{
+				var fighters = main.Where(x => group.GroupRoles[x] == GroupRole.Elder).ToList();
+				var nonFighters = main.Except(fighters).ToList();
+				foreach (var fighter in fighters)
+				{
+						if (fighter.Combat == null || fighter.CombatTarget == null)
+						{
+								foreach (var threat in threats.Shuffle())
+								{
+										if (!fighter.CanSee(threat))
+										{
+												continue;
+										}
 
-                                        if (fighter.CanEngage(threat))
-                                        {
-                                                fighter.Engage(threat);
-                                                continue;
-                                        }
-                                }
-                        }
-                }
+										if (fighter.CanEngage(threat))
+										{
+												fighter.Engage(threat);
+												continue;
+										}
+								}
+						}
+				}
 
-                if (nonFighters.Any())
-                {
-                        HandleAvoidThreatForSubgroup(group, data, threats, nonFighters,
-                                nonFighters.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ??
-                                nonFighters.GetRandomElement());
-                }
-        }
+				if (nonFighters.Any())
+				{
+						HandleAvoidThreatForSubgroup(group, data, threats, nonFighters,
+								nonFighters.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ??
+								nonFighters.GetRandomElement());
+				}
+		}
 	
 
 	#endregion

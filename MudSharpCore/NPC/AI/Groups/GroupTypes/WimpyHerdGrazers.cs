@@ -10,6 +10,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Movement;
 
 namespace MudSharp.NPC.AI.Groups.GroupTypes;
 
@@ -300,7 +301,7 @@ public class WimpyHerdGrazers : HerdGrazers
 			var targetExit = preferredExits.GetRandomElement();
 			foreach (var ch in characters)
 			{
-				if (!ch.CanMove(targetExit, false, true))
+				if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
 				{
 					continue;
 				}
@@ -316,7 +317,7 @@ public class WimpyHerdGrazers : HerdGrazers
 			var targetExit = allExits.GetRandomElement();
 			foreach (var ch in characters)
 			{
-				if (!ch.CanMove(targetExit, false, true))
+				if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
 				{
 					continue;
 				}

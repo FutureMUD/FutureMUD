@@ -26,6 +26,8 @@ public abstract class PositionState : FrameworkItem, IPositionState
 	/// </summary>
 	public virtual bool Upright => false;
 
+	public virtual bool IgnoreTerrainStaminaCostsForMovement => false;
+
 	/// <summary>
 	///     What sort of restrictions being in this position state imposes upon Movement
 	/// </summary>
@@ -47,7 +49,7 @@ public abstract class PositionState : FrameworkItem, IPositionState
 
 	public static IPositionState GetState(long id)
 	{
-		return StateDictionary.ContainsKey(id) ? StateDictionary[id] : PositionUndefined.Instance;
+		return StateDictionary.TryGetValue(id, out var value) ? value : PositionUndefined.Instance;
 	}
 
 	[CanBeNull]
@@ -94,6 +96,7 @@ public abstract class PositionState : FrameworkItem, IPositionState
 			PositionSwimming.Instance.Initialise();
 			PositionFloatingInWater.Instance.Initialise();
 			PositionFlying.Instance.Initialise();
+			PositionRiding.Instance.Initialise();
 		}
 
 		_positionsInitialised = true;

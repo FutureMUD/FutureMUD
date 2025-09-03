@@ -1,4 +1,10 @@
-﻿using MudSharp.Models;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -8,16 +14,11 @@ using MudSharp.Events.Hooks;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Models;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 
@@ -548,7 +549,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 	private bool WillHandleFlee(ICharacter character)
 	{
-		return CharacterState.Able.HasFlag(character.State) && character.CanMove(true) &&
+		return CharacterState.Able.HasFlag(character.State) && character.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement | CanMoveFlags.IgnoreWhetherExitCanBeCrossed) &&
 		       !character.AffectedBy<AIFleeing>();
 	}
 

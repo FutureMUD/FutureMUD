@@ -150,6 +150,7 @@ public partial class Character
 		}
 
 		rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.DismountEmote(this, rider), this, this, rider)));
+		rider.RidingMount = null;
 		_riders.Remove(rider);
 	}
 

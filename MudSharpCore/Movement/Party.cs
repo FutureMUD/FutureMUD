@@ -215,6 +215,8 @@ public class Party : PerceiverItem, IParty
 		protected set => _leader = value;
 	}
 
+	public bool LeaveNoneBehind { get; set; }
+
 	protected readonly List<IMove> _members = new();
 	public IEnumerable<IMove> Members => _members;
 
@@ -234,8 +236,12 @@ public class Party : PerceiverItem, IParty
 	{
 		get
 		{
-			return Members.Where(x =>
-				x.Location == Leader.Location && x.CanMove() && !x.EffectsOfType<IDragParticipant>().Any()).ToList();
+			return Members
+			       .Where(x =>
+				x.Location == Leader.Location && 
+				x.CanMove(CanMoveFlags.None).Result && 
+				!x.EffectsOfType<IDragParticipant>().Any())
+			              .ToList();
 		}
 	}
 
@@ -247,7 +253,7 @@ public class Party : PerceiverItem, IParty
 		get
 		{
 			return CharacterMembers.Where(x =>
-				x.InRoomLocation == Leader.InRoomLocation && x.CanMove()).ToList();
+				x.InRoomLocation == Leader.InRoomLocation && x.CanMove(CanMoveFlags.None).Result).ToList();
 		}
 	}
 
@@ -288,32 +294,88 @@ public class Party : PerceiverItem, IParty
 		}
 	}
 
-	public bool CanMove(bool ignoreBlockers = false)
+	/// <inheritdoc />
+	public CanMoveResponse CanMove(CanMoveFlags flags)
 	{
-		if (ActiveMembers.Any(x => !x.CanMove(ignoreBlockers)))
+		var nonMovers = new List<ICharacter>();
+		var leaderCanMove = false;
+		foreach (var ch in ActiveCharacterMembers)
 		{
-			_cannotMoveReason = ActiveMembers.Where(x => !x.CanMove(ignoreBlockers)).Select(x => x.HowSeen(Leader))
-			                                 .ListToString() +
-			                    " cannot move.";
-			return false;
+			if (ch.CanMove(flags))
+			{
+				if (Leader == ch)
+				{
+					leaderCanMove = true;
+				}
+				continue;
+			}
+
+			nonMovers.Add(ch);
 		}
 
-		var args = new PerceivableRejectionResponse();
-		OnWantsToMove?.Invoke(this, args);
-
-		if (args.Rejected)
+		if (LeaveNoneBehind && nonMovers.Count > 0)
 		{
-			_cannotMoveReason = args.Reason;
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = "You can't move because some or all members of your party cannot move.",
+				WouldBeAbleToCross = null,
+				HighestMovingPositionState = null,
+				FastestMoveSpeed = null
+			};
 		}
 
-		return true;
+		if (!leaderCanMove)
+		{
+			return Leader.CanMove(flags);
+		}
+
+		return CanMoveResponse.True;
+	}
+
+	/// <inheritdoc />
+	public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None)
+	{
+		var nonMovers = new List<ICharacter>();
+		var leaderCanMove = false;
+		foreach (var ch in ActiveCharacterMembers)
+		{
+			if (ch.CanMove(exit, flags))
+			{
+				if (Leader == ch)
+				{
+					leaderCanMove = true;
+				}
+				continue;
+			}
+
+			nonMovers.Add(ch);
+		}
+
+		if (LeaveNoneBehind && nonMovers.Count > 0)
+		{
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = "You can't move because some or all members of your party cannot move.",
+				WouldBeAbleToCross = null,
+				HighestMovingPositionState = null,
+				FastestMoveSpeed = null
+			};
+		}
+
+		if (!leaderCanMove)
+		{
+			return Leader.CanMove(exit, flags);
+		}
+
+		return CanMoveResponse.True;
 	}
 
 	public (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove(bool ignoreBlockingEffects,
 		IPositionState fixedPosition)
 	{
-		return (CanMove(ignoreBlockingEffects), null, Leader.CurrentSpeed);
+		return Leader.CouldMove(ignoreBlockingEffects, fixedPosition);
 	}
 
 	public IMove Following { get; protected set; }
@@ -363,39 +425,6 @@ public class Party : PerceiverItem, IParty
 
 	public Queue<string> QueuedMoveCommands => Leader?.QueuedMoveCommands ?? new Queue<string>();
 
-	public bool CanMove(ICellExit exit, bool ignoreBlockers = false, bool ignoreSafeMovement = false)
-	{
-		var cannotMoveReasons = new List<string>();
-		foreach (var member in CharacterMembers)
-		{
-			if (member.InRoomLocation != Leader.InRoomLocation)
-			{
-				continue;
-			}
-
-			if (member.Movement != null)
-			{
-				continue;
-			}
-
-			if (member.CanMove(exit, ignoreBlockers, ignoreSafeMovement))
-			{
-				continue;
-			}
-
-			cannotMoveReasons.Add(member.HowSeen(Leader));
-		}
-
-		if (cannotMoveReasons.Count == 0)
-		{
-			_cannotMoveReason = string.Empty;
-			return true;
-		}
-
-		_cannotMoveReason = $"{cannotMoveReasons.ListToString()} cannot move.".ProperSentences();
-		return false;
-	}
-
 	public bool Move(string rawString)
 	{
 		return Leader.Move(rawString);
@@ -403,63 +432,15 @@ public class Party : PerceiverItem, IParty
 
 	public bool Move(ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false)
 	{
-		var movers = new List<ICharacter>();
-		if (CanMove(exit, ignoreSafeMovement: ignoreSafeMovement))
+		var movement = MudSharp.Movement.Movement.CreateMovement(Leader, exit, emote, ignoreSafeMovement);
+		if (movement is null)
 		{
-			foreach (var member in CharacterMembers)
-			{
-				if (member.InRoomLocation != Leader.InRoomLocation)
-				{
-					continue;
-				}
-
-				if (member.Movement != null)
-				{
-					continue;
-				}
-
-				if (!member.CanMove(exit, false, ignoreSafeMovement))
-				{
-					continue;
-				}
-
-				if (member.PositionState.TransitionOnMovement != null)
-				{
-					member.SetState(member.PositionState.TransitionOnMovement);
-				}
-
-				member.SetModifier(PositionModifier.None);
-				member.SetTarget(null);
-				movers.Add(member);
-			}
-
-			var timespan = TimeSpan.Zero;
-			if (!Leader.AffectedBy<IImmwalkEffect>())
-			{
-				timespan = TimeSpan.FromMilliseconds(MoveSpeed(exit, movers));
-			}
-
-			IMovement movement;
-			if (movers.Any(x => x.AffectedBy<IDragParticipant>()))
-			{
-				var effects = movers
-							  .SelectMany(x => x.EffectsOfType<Dragging>())
-				              .Distinct()
-				              .Select(x => (x, x.CharacterOwner, x.CharacterDraggers.Except(x.CharacterOwner),
-					              x.Target))
-				              .ToList();
-				movement = new GroupDragMovement(this, effects, exit, timespan);
-			}
-			else
-			{
-				movement = new GroupMovement(exit, this, timespan);
-			}
-
-			movement.InitialAction();
-			return true;
+			return false;
 		}
 
-		return false;
+		Movement = movement;
+		movement.InitialAction();
+		return true;
 	}
 
 	public bool Move(CardinalDirection direction, IEmote emote = null, bool ignoreSafeMovement = false)
@@ -491,14 +472,14 @@ public class Party : PerceiverItem, IParty
 
 	public IMovement Movement { get; set; }
 
-	public int MoveSpeed(ICellExit exit)
+	public double MoveSpeed(ICellExit exit)
 	{
 		return CharacterMembers
 			.Where(x => x.Movement == Movement)
 			.Max(x => x.MoveSpeed(exit));
 	}
 
-	public int MoveSpeed(ICellExit exit, IEnumerable<ICharacter> movers)
+	public double MoveSpeed(ICellExit exit, IEnumerable<ICharacter> movers)
 	{
 		return movers.Max(x => x.MoveSpeed(exit));
 	}

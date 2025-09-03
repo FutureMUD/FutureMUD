@@ -18,6 +18,7 @@ namespace MudSharp.Movement {
         /// Active Members are people who are present with the leader, and able and willing to move
         /// </summary>
         IEnumerable<ICharacter> ActiveCharacterMembers { get; }
+        bool LeaveNoneBehind { get; set; }
 
         IMoveSpeed SlowestSpeed(ICellExit exit);
 

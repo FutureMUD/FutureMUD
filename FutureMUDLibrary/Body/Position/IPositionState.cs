@@ -38,6 +38,8 @@ namespace MudSharp.Body.Position
         /// </summary>
         bool Upright { get; }
 
+        bool IgnoreTerrainStaminaCostsForMovement { get; }
+
         /// <summary>
         ///     What sort of restrictions being in this position state imposes upon Movement
         /// </summary>

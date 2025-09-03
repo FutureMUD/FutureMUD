@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 
 namespace MudSharp.Movement {
@@ -31,6 +32,16 @@ namespace MudSharp.Movement {
 		ICellExit Exit { get; }
 		MovementPhase Phase { get; }
 		IEnumerable<ICharacter> CharacterMovers { get; }
+		public IParty Party { get;}
+		public IEnumerable<IDragging> DragEffects { get; }
+		public IEnumerable<ICharacter> Draggers { get; } 
+		public IEnumerable<ICharacter> Helpers { get; } 
+		public IEnumerable<ICharacter> NonDraggers { get; } 
+		public IEnumerable<ICharacter> NonConsensualMovers { get; } 
+		public IEnumerable<ICharacter> Mounts { get; }
+		public IEnumerable<IPerceivable> Targets { get; } 
+		public IReadOnlyDictionary<ICharacter, ISneakMoveEffect> SneakMoveEffects { get; }
+		public TimeSpan Duration { get; }
 
 		/// <summary>
 		///     Cancels the movement. Does not handle any of the echoes
@@ -38,7 +49,13 @@ namespace MudSharp.Movement {
 		/// <returns></returns>
 		bool Cancel();
 
-		bool CancelForMoverOnly(IMove mover);
+		/// <summary>
+		/// Cancels participation in this move for only the specified mover (and any dependent movers, like mounts).
+		/// </summary>
+		/// <param name="mover">The mover to cancel for</param>
+		/// <param name="echo">Whether or not to echo cancellation to any dependent entities, not including the mover</param>
+		/// <returns></returns>
+		bool CancelForMoverOnly(IMove mover, bool echo = false);
 
 		/// <summary>
 		///     The leader/mover calls a stop to the movement voluntarily
@@ -54,7 +71,6 @@ namespace MudSharp.Movement {
 
 		void InitialAction();
 		double StaminaMultiplier { get; }
-		bool IgnoreTerrainStamina { get; }
-		MovementType MovementType { get; }
+		MovementType MovementTypeForMover(ICharacter mover);
 	}
 }

@@ -7,6 +7,7 @@ namespace MudSharp.Effects {
         IEnumerable<IEffect> Effects { get; }
         IEnumerable<T> EffectsOfType<T>(Predicate<T> predicate = null) where T : class, IEffect;
         bool AffectedBy<T>() where T : class, IEffect;
+        bool AffectedBy<T>(Predicate<T> predicate) where T : class, IEffect;
         bool AffectedBy<T>(object target) where T : class, IEffect;
         bool AffectedBy<T>(object target, object thirdparty) where T : class, IEffect;
 

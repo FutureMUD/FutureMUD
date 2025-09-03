@@ -833,6 +833,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		return EffectHandler.AffectedBy<T>(target);
 	}
 
+	public virtual bool AffectedBy<T>(Predicate<T> predicate) where T : class, IEffect
+	{
+		return EffectHandler.AffectedBy<T>(predicate);
+	}
+
 	public virtual bool AffectedBy<T>(object target, object thirdparty) where T : class, IEffect
 	{
 		return EffectHandler.AffectedBy<T>(target, thirdparty);

@@ -52,15 +52,15 @@ public partial class Body
 			return true;
 		}
 
-                if (AffectedBy<IDeafnessEffect>())
-                {
-                        return false;
-                }
+				if (AffectedBy<IDeafnessEffect>())
+				{
+						return false;
+				}
 
-                if (OrganFunction<EarProto>() <= 0.0)
-                {
-                        return false;
-                }
+				if (OrganFunction<EarProto>() <= 0.0)
+				{
+						return false;
+				}
 
 		return !Actor.State.HasFlag(CharacterState.Unconscious);
 	}
@@ -89,7 +89,7 @@ public partial class Body
 				}
 
 				if (AffectedBy<IBodypartIneffectiveEffect>(eye) &&
-				    !Prosthetics.Any(y => eye.DownstreamOfPart(y.TargetBodypart) && y.Functional))
+					!Prosthetics.Any(y => eye.DownstreamOfPart(y.TargetBodypart) && y.Functional))
 				{
 					continue;
 				}
@@ -98,8 +98,8 @@ public partial class Body
 			}
 
 			if (Actor.Merits.OfType<IMyopiaMerit>().Any(x =>
-				    x.Applies(Actor) && (!x.CorrectedByGlasses ||
-				                         eyes.Any(y => !WornItemsFor(y).Any(z => z.IsItemType<ICorrectMyopia>())))))
+					x.Applies(Actor) && (!x.CorrectedByGlasses ||
+										 eyes.Any(y => !WornItemsFor(y).Any(z => z.IsItemType<ICorrectMyopia>())))))
 			{
 				numberOfEyes /= 2.0;
 			}
@@ -141,30 +141,30 @@ public partial class Body
 		var perceiverThing = thing as IPerceiver;
 
 		// Require at least 1 eye to see unless things are in your inventory or are cell exits
-                var eyes = Bodyparts.OfType<EyeProto>().ToList();
-                if (!visionExemptThing)
-                {
-                        if (AffectedBy<IBlindnessEffect>())
-                        {
-                                return false;
-                        }
+				var eyes = Bodyparts.OfType<EyeProto>().ToList();
+				if (!visionExemptThing)
+				{
+						if (AffectedBy<IBlindnessEffect>())
+						{
+								return false;
+						}
 
-                        if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
-                                                                               eyes.All(
-       AffectedBy<IBodypartIneffectiveEffect>) ||
-                                                                               eyes.All(x => Prosthetics.Any(
-       y => x.DownstreamOfPart(
-                    y.TargetBodypart) &&
-            !y.Functional)) ||
-                                                                               eyes.All(x => WornItemsFor(x)
-       .Any(
-               y => y
-                       .IsItemType<IBlindfold>())))
-                           )
-                        {
-                                return false;
-                        }
-                }
+						if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
+																			   eyes.All(
+	   AffectedBy<IBodypartIneffectiveEffect>) ||
+																			   eyes.All(x => Prosthetics.Any(
+	   y => x.DownstreamOfPart(
+					y.TargetBodypart) &&
+			!y.Functional)) ||
+																			   eyes.All(x => WornItemsFor(x)
+	   .Any(
+			   y => y
+					   .IsItemType<IBlindfold>())))
+						   )
+						{
+								return false;
+						}
+				}
 
 		if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreConsciousness) && Actor.State.IsUnconscious())
 		{
@@ -174,9 +174,9 @@ public partial class Body
 		if (thing is ICelestialObject celestial)
 		{
 			return (Actor.GetPerception(Actor.NaturalPerceptionTypes) & PerceptionTypes.AllVisual &
-			        celestial.PerceivableTypes) != PerceptionTypes.None &&
-			       (Location?.OutdoorsType(Actor) == CellOutdoorsType.IndoorsWithWindows ||
-			        Location?.OutdoorsType(Actor) == CellOutdoorsType.Outdoors);
+					celestial.PerceivableTypes) != PerceptionTypes.None &&
+				   (Location?.OutdoorsType(Actor) == CellOutdoorsType.IndoorsWithWindows ||
+					Location?.OutdoorsType(Actor) == CellOutdoorsType.Outdoors);
 		}
 
 		if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreObscured) && perceiverThing != null)
@@ -186,7 +186,7 @@ public partial class Body
 				!ColocatedWith(perceiverThing) &&
 				Actor.Merits.OfType<IMyopiaMerit>().Any(x =>
 					x.Applies(Actor) && (!x.CorrectedByGlasses ||
-					                     eyes.Any(y => !WornItemsFor(y).Any(z => z.IsItemType<ICorrectMyopia>()))))
+										 eyes.Any(y => !WornItemsFor(y).Any(z => z.IsItemType<ICorrectMyopia>()))))
 			)
 			{
 				return false;
@@ -297,13 +297,13 @@ public partial class Body
 		}
 
 		if (Actor.EffectsOfType<IDoorguardModeEffect>().Any() &&
-		    ((voyeur as ICharacter)?.IsAdministrator() ?? false))
+			((voyeur as ICharacter)?.IsAdministrator() ?? false))
 		{
 			sb.Append(" (door guard)".Colour(Telnet.Cyan));
 		}
 
 		if (Actor.EffectsOfType<PatrolMemberEffect>().Any() &&
-		    ((voyeur as ICharacter)?.IsAdministrator() ?? false))
+			((voyeur as ICharacter)?.IsAdministrator() ?? false))
 		{
 			var pme = Actor.EffectsOfType<PatrolMemberEffect>().First();
 			if (pme.Patrol.PatrolStrategy.Name == "Judge")
@@ -329,58 +329,61 @@ public partial class Body
 
 	public string GetPositionDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags)
 	{
+		var parts = new List<string>();
 		var stateDesc = "";
 		if (Actor.State.HasFlag(CharacterState.Unconscious))
 		{
-			stateDesc = "unconscious, ";
+			parts.Add("unconscious");
 		}
 		else if (Actor.State.HasFlag(CharacterState.Sleeping))
 		{
-			stateDesc = "asleep, ";
+			parts.Add("asleep");
 		}
 		else if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreHiding) && Actor.CombinedEffectsOfType<IHideEffect>().Any())
 		{
-			stateDesc = "hiding, ";
+			parts.Add("hiding");
+		}
+
+		if (Actor.Cover != null)
+		{
+			parts.Add(Actor.Cover.Cover.Describe(Actor, Actor.Cover.CoverItem?.Parent, voyeur));
+		}
+
+		if (Actor.Combat is not null)
+		{
+			parts.Add(Actor.Combat.LDescAddendumFor(Actor, voyeur));
+		}
+
+		if (Actor.RidingMount is not null)
+		{
+			parts.Add($"riding {Actor.RidingMount.HowSeen(voyeur)}");
+		}
+		else
+		{
+			parts.Add(DescribePosition(voyeur, true));
+		}
+
+		switch (Actor.Riders.Count())
+		{
+			case 0:
+				break;
+			case 1:
+				parts.Add($"being ridden by {Actor.Riders.First().HowSeen(voyeur)}");
+				break;
+			default:
+				parts.Add("being ridden by multiple riders");
+				break;
 		}
 
 		var ldescEffect = Actor.CombinedEffectsOfType<ILDescSuffixEffect>()
 		                       .FirstOrDefault(x => x.Applies() && x.SuffixApplies());
 		if (ldescEffect != null)
 		{
-			return $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} " +
-			       $"{(voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) ? "are" : "is")} {stateDesc}{ldescEffect.SuffixFor(voyeur)}";
+			parts.Add(ldescEffect.SuffixFor(voyeur));
 		}
 
-		if (Actor.Cover != null)
-		{
-			if (Actor.Combat != null && string.IsNullOrEmpty(stateDesc))
-			{
-				if (voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf))
-				{
-					return
-						$"You are {stateDesc}{Actor.Cover.Cover.Describe(Actor, Actor.Cover.CoverItem?.Parent, voyeur)}, {Actor.Combat.LDescAddendumFor(Actor, voyeur)}"
-							.Fullstop();
-				}
-
-				return
-					$"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} is {stateDesc}{Actor.Cover.Cover.Describe(Actor, Actor.Cover.CoverItem?.Parent, voyeur)}, {Actor.Combat.LDescAddendumFor(Actor, voyeur)}"
-						.Fullstop();
-			}
-
-			return
-				$"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} " +
-				$"{(voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) ? "are" : "is")} {stateDesc}{Actor.Cover.Cover.Describe(Actor, Actor.Cover.CoverItem?.Parent, voyeur)}.";
-		}
-
-               var followingDesc = Actor.Combat != null
-                       ? Actor.Combat.LDescAddendumFor(Actor, voyeur)
-                       : DescribePosition(voyeur);
-
-               var ridingDesc = Actor.RidingMount != null ? $" riding {Actor.RidingMount.HowSeen(voyeur)}" : string.Empty;
-
-               return
-                       $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} " +
-                       $"{(voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) ? "are" : "is")} {stateDesc}{followingDesc}{ridingDesc}";
+		var usePlural = voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) || !IsSingleEntity;
+		return $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} {(usePlural ? "are" : "is")} {parts.ListToCommaSeparatedValues(", ")} here";
 	}
 
 	public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short,
@@ -393,11 +396,11 @@ public partial class Body
 		}
 
 		if (CombinedEffectsOfType<IOverrideDescEffect>().Any(x => x.OverrideApplies(voyeur, type)) &&
-		    (voyeur.CanSee(this) || flags.HasFlag(PerceiveIgnoreFlags.IgnoreCanSee)))
+			(voyeur.CanSee(this) || flags.HasFlag(PerceiveIgnoreFlags.IgnoreCanSee)))
 		{
 			return CombinedEffectsOfType<IOverrideDescEffect>()
-			       .First(x => x.OverrideApplies(voyeur, type))
-			       .Description(type, colour);
+				   .First(x => x.OverrideApplies(voyeur, type))
+				   .Description(type, colour);
 		}
 
 		// TODO - add in obscuring effects like cloaks
@@ -407,7 +410,7 @@ public partial class Body
 				return ShortDescription(voyeur, proper, type, colour, flags);
 			case DescriptionType.Possessive:
 				if ((voyeur == this || (voyeur is ICharacter && ((ICharacter)voyeur).Body == this)) &&
-				    !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf))
+					!flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf))
 				{
 					return colour ? (proper ? "Your" : "your").ColourCharacter() : proper ? "Your" : "your";
 				}
@@ -429,7 +432,7 @@ public partial class Body
 		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
 	{
 		if ((voyeur == this || (voyeur is ICharacter && ((ICharacter)voyeur).Body == this)) &&
-		    !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf))
+			!flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf))
 		{
 			return proper ? "You" : "you";
 		}
@@ -453,7 +456,7 @@ public partial class Body
 			flags.HasFlag(PerceiveIgnoreFlags.IgnoreDisguises)
 				? null
 				: WornItems.SelectNotNull(x => x.GetItemType<IObscureIdentity>()).Reverse()
-				           .FirstOrDefault(x => x.CurrentlyApplies);
+						   .FirstOrDefault(x => x.CurrentlyApplies);
 
 		var output = ProcessDescriptionAdditions(
 			(this as IHaveCharacteristics)
@@ -476,16 +479,16 @@ public partial class Body
 		}
 
 		var identityObscurer = WornItems.SelectNotNull(x => x.GetItemType<IObscureIdentity>()).Reverse()
-		                                .FirstOrDefault(x => x.CurrentlyApplies);
+										.FirstOrDefault(x => x.CurrentlyApplies);
 
 		var text = identityObscurer?.OverriddenFullDescription ?? _fullDescriptionPattern?.Pattern ?? _fullDescription;
 		text = text.SubstituteWrittenLanguage(voyeur, Gameworld);
 		text = (this as IHaveCharacteristics).ParseCharacteristics(text, voyeur);
 
 		text = Effects.Concat(Actor.Effects).OfType<IDescriptionAdditionEffect>().Where(x => x.DescriptionAdditionApplies(voyeur))
-		              .Aggregate(text,
-			              (current, component) =>
-				              $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
+					  .Aggregate(text,
+						  (current, component) =>
+							  $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
 
 		return text.NormaliseSpacing().ProperSentences().Wrap(voyeur.InnerLineFormatLength);
 	}
@@ -523,10 +526,10 @@ public partial class Body
 		foreach (
 			var move in
 			Location.Characters.Where(x => x != Actor && x.Movement != null && x.RoomLayer == RoomLayer)
-			        .Select(x => x.Movement)
-			        .Distinct()
-			        .Where(move => move.SeenBy(Actor))
-			        .ToList())
+					.Select(x => x.Movement)
+					.Distinct()
+					.Where(move => move.SeenBy(Actor))
+					.ToList())
 		{
 			sb.AppendLine(move.Describe(Actor).Wrap(InnerLineFormatLength).Colour(Telnet.Yellow));
 		}
@@ -539,10 +542,10 @@ public partial class Body
 
 		var items = Location.LayerGameItems(RoomLayer).Where(x => CanSee(x)).ToList();
 		if (items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&
-		    GameItemProto.TooManyItemsGroup != null)
+			GameItemProto.TooManyItemsGroup != null)
 		{
 			sb.AppendLine(GameItemProto.TooManyItemsGroup.Describe(Actor, items, Actor.Location).Fullstop()
-			                           .Wrap(InnerLineFormatLength).Colour(Telnet.Cyan));
+									   .Wrap(InnerLineFormatLength).Colour(Telnet.Cyan));
 		}
 		else
 		{
@@ -566,9 +569,9 @@ public partial class Body
 			if (commodityTag is not null)
 			{
 				var residues = items
-				               .SelectNotNull(x => x.GetItemType<ICommodity>())
-				               .Where(x => x.Tag == commodityTag)
-				               .ToList();
+							   .SelectNotNull(x => x.GetItemType<ICommodity>())
+							   .Where(x => x.Tag == commodityTag)
+							   .ToList();
 				if (residues.Any())
 				{
 					sb.AppendLine(PuddleGameItemComponentProto.ResidueGroup.Describe(Actor, residues.Select(x => x.Parent), Location).Wrap(InnerLineFormatLength));
@@ -583,7 +586,7 @@ public partial class Body
 				{
 					sb.AppendLine(
 						group.Key.Describe(Actor, group.AsEnumerable(), Location).Wrap(InnerLineFormatLength)
-						     .Colour(Telnet.Cyan));
+							 .Colour(Telnet.Cyan));
 				}
 				else
 				{
@@ -596,7 +599,7 @@ public partial class Body
 		}
 
 		foreach (var ch in Location.Characters.Where(x =>
-			         x != Actor && x.Movement == null && x.RoomLayer == RoomLayer && CanSee(x)))
+					 x != Actor && x.Movement == null && x.RoomLayer == RoomLayer && CanSee(x)))
 		{
 			sb.AppendLine(ch.HowSeen(Actor, true, DescriptionType.Long).Wrap(InnerLineFormatLength));
 		}
@@ -652,11 +655,11 @@ public partial class Body
 			var wounds = mortal.VisibleWounds(Actor,
 				Actor.Combat != null ? WoundExaminationType.Glance : WoundExaminationType.Look).ToList();
 			var woundDescs = wounds
-			                 .Select(x => (Description: x.Describe(
-				                 Actor.Combat != null ? WoundExaminationType.Glance : WoundExaminationType.Look,
-				                 Outcome.MajorPass), x.Bodypart))
-			                 .Where(x => !string.IsNullOrWhiteSpace(x.Description))
-			                 .ToList();
+							 .Select(x => (Description: x.Describe(
+								 Actor.Combat != null ? WoundExaminationType.Glance : WoundExaminationType.Look,
+								 Outcome.MajorPass), x.Bodypart))
+							 .Where(x => !string.IsNullOrWhiteSpace(x.Description))
+							 .ToList();
 			var gender = mortal.ApparentGender(Actor);
 			var genderWord = gender.Possessive();
 			var woundsName = thing is IGameItem ? "signs of damage" : "wounds";
@@ -724,18 +727,18 @@ public partial class Body
 				sb.AppendLine();
 				var severs =
 					actor.Body.SeveredRoots.Where(
-						     x =>
-							     !(x is IOrganProto) &&
-							     x.Significant &&
-							     actor.Body.WornItemsProfilesFor(x)
-							          .All(
-								          y =>
-									          (y.Item1.GetItemType<IWearable>()?.GloballyTransparent ?? false) &&
-									          !y.Item2.HidesSeveredBodyparts) &&
-							     actor.Body.Prosthetics.All(y =>
-								     x != y.TargetBodypart && !x.DownstreamOfPart(y.TargetBodypart)))
-					     .GroupBy(x => actor.Body.GetLimbFor(x))
-					     .ToList();
+							 x =>
+								 !(x is IOrganProto) &&
+								 x.Significant &&
+								 actor.Body.WornItemsProfilesFor(x)
+									  .All(
+										  y =>
+											  (y.Item1.GetItemType<IWearable>()?.GloballyTransparent ?? false) &&
+											  !y.Item2.HidesSeveredBodyparts) &&
+								 actor.Body.Prosthetics.All(y =>
+									 x != y.TargetBodypart && !x.DownstreamOfPart(y.TargetBodypart)))
+						 .GroupBy(x => actor.Body.GetLimbFor(x))
+						 .ToList();
 				foreach (var item in severs.OrderByDescending(x => x.Key != null))
 				{
 					if (item.Key == null)
@@ -768,14 +771,14 @@ public partial class Body
 				var prosthetics = (actor == Actor || Actor.IsAdministrator()
 						? actor.Body.Prosthetics
 						: actor.Body.Prosthetics.Select(
-							       x => (Item: x, Profiles: x.IncludedParts
-							                                 .Select(y => actor.Body.WornItemsProfilesFor(y).ToList())
-							                                 .ToList()))
-						       .Where(x => x.Item.Obvious && CanSee(x.Item.Parent) && (!x.Profiles.Any() ||
-							       !x.Profiles.All(y => y.Any(z =>
-								       z.Item1.GetItemType<IWearable>()?.GloballyTransparent != true &&
-								       z.Item2.HidesSeveredBodyparts))))
-						       .Select(x => x.Item))
+								   x => (Item: x, Profiles: x.IncludedParts
+															 .Select(y => actor.Body.WornItemsProfilesFor(y).ToList())
+															 .ToList()))
+							   .Where(x => x.Item.Obvious && CanSee(x.Item.Parent) && (!x.Profiles.Any() ||
+								   !x.Profiles.All(y => y.Any(z =>
+									   z.Item1.GetItemType<IWearable>()?.GloballyTransparent != true &&
+									   z.Item2.HidesSeveredBodyparts))))
+							   .Select(x => x.Item))
 					.ToList();
 				if (prosthetics.Any())
 				{
@@ -799,7 +802,7 @@ public partial class Body
 			// Tattoos
 			var tattoos = actor.Body.Tattoos.ToList();
 			var visibleTattoos = tattoos.Where(x => actor.Body.ExposedBodyparts.Contains(x.Bodypart))
-			                            .ToList();
+										.ToList();
 			var quantityDesc = "among many others";
 			switch (visibleTattoos.Count)
 			{
@@ -827,7 +830,7 @@ public partial class Body
 					goto default;
 				default:
 					var biggest = visibleTattoos.OrderByDescending(x => x.Size)
-					                            .ThenByDescending(x => x.CompletionPercentage).Take(3).ToList();
+												.ThenByDescending(x => x.CompletionPercentage).Take(3).ToList();
 					sb.AppendLine(
 						$"{gender.Subjective(true)} {gender.Has()} {biggest.Select(x => $"{x.ShortDescription.Colour(Telnet.BoldOrange)} on {gender.Possessive()} {x.Bodypart.FullDescription()}").ListToString()}, {quantityDesc}."
 							.Wrap(InnerLineFormatLength));
@@ -863,7 +866,7 @@ public partial class Body
 					goto default;
 				default:
 					var biggest = visibleScars.OrderByDescending(x => x.Size).ThenByDescending(x => x.Distinctiveness)
-					                          .Take(3).ToList();
+											  .Take(3).ToList();
 					sb.AppendLine(
 						$"{gender.Subjective(true)} {gender.Has()} {biggest.Select(x => $"{x.ShortDescription.Colour(Telnet.BoldPink)} on {gender.Possessive()} {x.Bodypart.FullDescription()}").ListToString()}, {quantityDesc}."
 							.Wrap(InnerLineFormatLength));
@@ -911,8 +914,8 @@ public partial class Body
 				var legalAuthority =
 					Gameworld.LegalAuthorities.FirstOrDefault(x => x.EnforcementZones.Contains(thing.Location.Zone));
 				if (legalAuthority is not null &&
-				    (Actor.IsAdministrator() || (legalAuthority.GetEnforcementAuthority(Actor) is not null &&
-				                                 !actor.IdentityIsObscuredTo(Actor))))
+					(Actor.IsAdministrator() || (legalAuthority.GetEnforcementAuthority(Actor) is not null &&
+												 !actor.IdentityIsObscuredTo(Actor))))
 				{
 					var enforcer = legalAuthority.GetEnforcementAuthority(actor);
 					if (enforcer is not null)
@@ -946,7 +949,7 @@ public partial class Body
 	public string LookInText(IPerceivable thing)
 	{
 		if (thing is not IGameItem item ||
-		    (!item.IsItemType<IContainer>() && !item.IsItemType<ISheath>() && !item.IsItemType<ILiquidContainer>()))
+			(!item.IsItemType<IContainer>() && !item.IsItemType<ISheath>() && !item.IsItemType<ILiquidContainer>()))
 		{
 			return thing.HowSeen(Actor, true) + " is not something that can be looked in.";
 		}
@@ -1126,9 +1129,9 @@ public partial class Body
 		var sb = new StringBuilder();
 		sb.AppendLine($"{thing.HowSeen(Actor, true)} has the following wounds:");
 		var wounds = thing.VisibleWounds(Actor,
-			                  Actor.Combat == null ? WoundExaminationType.Look : WoundExaminationType.Glance)
-		                  .OrderBy(x => (x.Bodypart as IExternalBodypart)?.DisplayOrder ?? 0)
-		                  .ThenByDescending(x => x.Severity);
+							  Actor.Combat == null ? WoundExaminationType.Look : WoundExaminationType.Glance)
+						  .OrderBy(x => (x.Bodypart as IExternalBodypart)?.DisplayOrder ?? 0)
+						  .ThenByDescending(x => x.Severity);
 		foreach (var wound in wounds)
 		{
 			if (wound.Bodypart != null)

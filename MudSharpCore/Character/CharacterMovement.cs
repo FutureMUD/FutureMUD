@@ -1,33 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
+using MudSharp.Climate;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
+using MudSharp.Models;
 using MudSharp.Movement;
+using MudSharp.NPC.AI.Groups;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using MudSharp.RPG.Merits.Interfaces;
-using ExpressionEngine;
-using MudSharp.Climate;
-using MudSharp.Form.Material;
-using MudSharp.NPC.AI.Groups;
 using MudSharp.RPG.Merits.CharacterMerits;
+using MudSharp.RPG.Merits.Interfaces;
 
 namespace MudSharp.Character;
 
@@ -265,7 +266,7 @@ public partial class Character
 			if (_fallDamageExpression == null)
 			{
 				_fallDamageExpression =
-					new TraitExpression(Futuremud.Games.First().GetStaticConfiguration("CharacterFallDamageExpression"),
+					new Body.Traits.TraitExpression(Futuremud.Games.First().GetStaticConfiguration("CharacterFallDamageExpression"),
 						Futuremud.Games.First());
 			}
 
@@ -414,6 +415,13 @@ public partial class Character
 		OnStartMove?.Invoke(this, new MoveEventArgs(this, movement));
 		EffectHandler.RemoveAllEffects(x => x.IsEffectType<IRemoveOnStartMovement>(), true);
 		Body.RemoveAllEffects(x => x.IsEffectType<IRemoveOnStartMovement>(), true);
+		if (PositionState.TransitionOnMovement != null)
+		{
+			SetState(PositionState.TransitionOnMovement);
+		}
+
+		SetModifier(PositionModifier.None);
+		SetTarget(null);
 	}
 
 	public void JoinParty(IParty party)
@@ -467,102 +475,33 @@ public partial class Character
 
 		ConvertGrapplesToDrags();
 
-		if (Party != null && Party.Leader == this &&
-			Party.CharacterMembers.All(x => x.Combat == null || !x.MeleeRange))
+		var flags = CanMoveFlags.IgnoreWhetherExitCanBeCrossed | CanMoveFlags.IgnoreCancellableActionBlockers;
+		if (ignoreSafeMovement)
 		{
-			return Party.Move(exit, emote);
+			flags |= CanMoveFlags.IgnoreSafeMovement;
 		}
 
-		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		var response = CanMove(flags);
+		if (!response.Result)
 		{
-			return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+			OutputHandler.Send(response.ErrorMessage);
+			HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
+			return false;
 		}
 
-		if (CanMove(exit, ignoreSafeMovement: ignoreSafeMovement))
+		var movement = MudSharp.Movement.Movement.CreateMovement(this, exit, emote, ignoreSafeMovement);
+		if (movement is null)
 		{
-			if (exit.IsClimbExit)
-			{
-				PositionState = PositionClimbing.Instance;
-			}
-			else
-			{
-				if (PositionState.TransitionOnMovement != null)
-				{
-					SetState(PositionState.TransitionOnMovement);
-				}
-			}
-
-			SetModifier(PositionModifier.None);
-			SetTarget(null);
-
-			var timespan = TimeSpan.FromMilliseconds(0);
-			if (!EffectHandler.AffectedBy<IImmwalkEffect>())
-			{
-				timespan = TimeSpan.FromMilliseconds(MoveSpeed(exit));
-			}
-
-			if (CurrentSpeed == null)
-			// The only way this can happen is if they are IMMWALKing, so this is fine
-			{
-				PositionState = PositionStanding.Instance;
-			}
-
-			IMovement movement;
-			if (EffectHandler.AffectedBy<Dragging>())
-			{
-				var drag = EffectHandler.EffectsOfType<Dragging>().First();
-				timespan = TimeSpan.FromMilliseconds(timespan.TotalMilliseconds * 2);
-				if (PositionState == PositionSwimming.Instance || (exit.Destination.IsSwimmingLayer(RoomLayer) &&
-																   PositionState != PositionFlying.Instance))
-				{
-					movement = new SwimmingDragMovement(this, drag.Helpers, drag.Target, drag, exit, timespan);
-				}
-				else if (PositionState == PositionFlying.Instance)
-				{
-					movement = new FlyingDragMovement(this, drag.Helpers, drag.Target, drag, exit, timespan);
-				}
-				else if (PositionState == PositionClimbing.Instance)
-				{
-					movement = new ClimbingDragMovement(this, drag.Helpers, drag.Target, drag, exit, timespan);
-				}
-				else
-				{
-					movement = new DragMovement(this, drag.Helpers, drag.Target, drag, exit, timespan);
-				}
-			}
-			else
-			{
-				if (PositionState == PositionSwimming.Instance || (exit.Destination.IsSwimmingLayer(RoomLayer) &&
-																   PositionState != PositionFlying.Instance))
-				{
-					movement = new SwimMovement(exit, this, timespan, emote);
-				}
-				else if (PositionState == PositionFlying.Instance)
-				{
-					movement = new FlyMovement(exit, this, timespan, emote);
-				}
-				else if (PositionState == PositionClimbing.Instance)
-				{
-					movement = new ClimbMovement(exit, this, timespan, emote);
-				}
-				else if (EffectHandler.AffectedBy<ISneakEffect>())
-				{
-					timespan = TimeSpan.FromMilliseconds(timespan.TotalMilliseconds * 2);
-					movement = new SingleStealthMovement(exit, this, timespan, emote,
-						EffectHandler.EffectsOfType<ISneakEffect>().First(x => x.Applies()).Subtle);
-				}
-				else
-				{
-					movement = new SingleMovement(exit, this, timespan, emote);
-				}
-			}
-
-			movement.InitialAction();
-			return true;
+			return false;
 		}
 
-		HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
-		return false;
+		foreach (var mover in movement.CharacterMovers)
+		{
+			mover.Movement = movement;
+		}
+		
+		movement.InitialAction();
+		return true;
 	}
 
 	protected double StaminaForMovement(IPositionState movingPosition, IMoveSpeed speed, double staminaMultiplier,
@@ -584,21 +523,33 @@ public partial class Character
 			speed.StaminaMultiplier;
 	}
 
-	public bool CanMove(bool ignoreBlockers = false)
+
+
+	public CanMoveResponse CanMove(CanMoveFlags flags)
 	{
-		if (!ignoreBlockers && Effects.Any(x => x.IsBlockingEffect("movement")))
+		if (EffectsOfType<IImmwalkEffect>().Any())
 		{
-			_cannotMoveReason =
-				$"You cannot move because you are {Effects.First(x => x.IsBlockingEffect("movement")).BlockingDescription("movement", this)}.";
-			return false;
+			return CanMoveResponse.True;
+		}
+
+		if (!flags.HasFlag(CanMoveFlags.IgnoreCancellableActionBlockers) && Effects.Any(x => x.IsBlockingEffect("movement") && !x.CanBeStoppedByPlayer))
+		{
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = $"You cannot move because you are {Effects.First(x => x.IsBlockingEffect("movement") && !x.CanBeStoppedByPlayer).BlockingDescription("movement", this)}."
+			};
 		}
 
 		if (PositionState.MoveRestrictions == MovementAbility.Restricted ||
 			(PositionState.MoveRestrictions == MovementAbility.FreeIfNotInOn &&
 			 (PositionModifier == PositionModifier.On || PositionModifier == PositionModifier.In)))
 		{
-			_cannotMoveReason = "Your position prevents you from moving. You should stand up first.";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = "Your position prevents you from moving. You should stand up first."
+			};
 		}
 
 		var dragging = CombinedEffectsOfType<Dragging>().Any();
@@ -628,8 +579,11 @@ public partial class Character
 
 		if (!CurrentSpeeds.ContainsKey(movingPosition))
 		{
-			_cannotMoveReason = "Your position prevents you from moving. You should stand up first.";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = "Your position prevents you from moving. You should stand up first."
+			};
 		}
 
 		var staminaCost = StaminaForMovement(movingPosition, CurrentSpeeds[movingPosition], staminaMultiplier,
@@ -638,17 +592,22 @@ public partial class Character
 			Race.RaceUsesStamina &&
 			!CanSpendStamina(staminaCost))
 		{
-			_cannotMoveReason = Gameworld.GetStaticBool("ShowStaminaCostInExhaustedMessage")
-				? $"You are too exhausted to move ({staminaCost.ToString("N2", this).ColourValue()} stamina required)."
-				: "You are too exhausted to move.";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = Gameworld.GetStaticBool("ShowStaminaCostInExhaustedMessage")
+					? $"You are too exhausted to move ({staminaCost.ToString("N2", this).ColourValue()} stamina required)."
+					: "You are too exhausted to move."
+			};
 		}
 
 		if (Body.ExternalItems.Any(x => x.PreventsMovement()))
 		{
-			_cannotMoveReason =
-				$"You cannot move because {Body.ExternalItems.First(x => x.PreventsMovement()).WhyPreventsMovement(this)}";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = $"You cannot move because {Body.ExternalItems.First(x => x.PreventsMovement()).WhyPreventsMovement(this)}"
+			};
 		}
 
 		if ((PositionState == PositionProne.Instance ||
@@ -658,8 +617,11 @@ public partial class Character
 				Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
 		   )
 		{
-			_cannotMoveReason = $"You need at least one working arm, leg, limb or other appendage to crawl.";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = $"You need at least one working arm, leg, limb or other appendage to crawl."
+			};
 		}
 
 		if ((PositionState == PositionProstrate.Instance ||
@@ -667,8 +629,11 @@ public partial class Character
 			Body.Limbs.Count(x => x.LimbType == LimbType.Leg && Body.CanUseLimb(x) == CanUseLimbResult.CanUse) <
 			Body.Prototype.MinimumLegsToStand)
 		{
-			_cannotMoveReason = $"All of your legs need to be working in order for you to shuffle.";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = $"All of your {Body.Prototype.LegDescriptionPlural} need to be working in order for you to shuffle."
+			};
 		}
 
 		if (movingPosition == PositionClimbing.Instance && !Body.Limbs.Any(x =>
@@ -676,8 +641,11 @@ public partial class Character
 				Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
 		   )
 		{
-			_cannotMoveReason = $"You need at least one working arm, leg, limb or other appendage to climb.";
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = "You need at least one working arm, leg, limb or other appendage to climb."
+			};
 		}
 
 		var args = new PerceivableRejectionResponse();
@@ -685,105 +653,114 @@ public partial class Character
 
 		if (args.Rejected)
 		{
-			_cannotMoveReason = args.Reason;
-			return false;
+			return new CanMoveResponse
+			{
+				Result = false,
+				ErrorMessage = args.Reason
+			};
 		}
 
-		return true;
+		return CanMoveResponse.True;
 	}
 
-	public bool CanMove(ICellExit exit, bool ignoreBlockers = false, bool ignoreSafeMovement = false)
+	public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags)
 	{
-		if (EffectsOfType<IImmwalkEffect>().Any())
+		var response = CanMove(flags);
+		if (!response.Result)
 		{
-			return true;
+			return response;
 		}
 
-		var result = CanMove(ignoreBlockers);
-		if (result)
+		if (exit.Exit.MaximumSizeToEnter < Body.CurrentContextualSize(SizeContext.CellExit))
 		{
-			if (exit.Exit.MaximumSizeToEnter < Body.CurrentContextualSize(SizeContext.CellExit))
+			return new CanMoveResponse
 			{
-				_cannotMoveReason =
-					$"Only something of size {exit.Exit.MaximumSizeToEnter.Describe().Colour(Telnet.Green)} or smaller can use that exit, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}.";
-				return false;
-			}
+				Result = false,
+				ErrorMessage = $"Only something of size {exit.Exit.MaximumSizeToEnter.Describe().Colour(Telnet.Green)} or smaller can use that exit, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}."
+			};
+		}
 
-			if (exit.Exit.MaximumSizeToEnterUpright < Body.CurrentContextualSize(SizeContext.CellExit) &&
-				PositionState.Upright && PositionState != PositionFlying.Instance &&
-				PositionState != PositionSwimming.Instance && PositionState != PositionClimbing.Instance)
+		if (exit.Exit.MaximumSizeToEnterUpright < Body.CurrentContextualSize(SizeContext.CellExit) &&
+			PositionState.Upright && PositionState != PositionFlying.Instance &&
+			PositionState != PositionSwimming.Instance && PositionState != PositionClimbing.Instance)
+		{
+			return new CanMoveResponse
 			{
-				_cannotMoveReason =
-					$"Only something of size {exit.Exit.MaximumSizeToEnterUpright.Describe().Colour(Telnet.Green)} or smaller can use that exit while standing up, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}. Consider crawling.";
-				return false;
-			}
+				Result = false,
+				ErrorMessage = $"Only something of size {exit.Exit.MaximumSizeToEnterUpright.Describe().Colour(Telnet.Green)} or smaller can use that exit while standing up, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}. Consider crawling."
+			};
+		}
 
-			if (exit.IsFlyExit && PositionState != PositionFlying.Instance)
+		if (exit.IsFlyExit && PositionState != PositionFlying.Instance)
+		{
+			return new CanMoveResponse
 			{
-				_cannotMoveReason = "You cannot move in that direction unless you can fly.";
-				return false;
-			}
+				Result = false,
+				ErrorMessage = "You cannot move in that direction unless you can fly."
+			};
+		}
 
-			if (exit.IsClimbExit && !Race.CanClimb)
+		if (exit.IsClimbExit && !Race.CanClimb)
+		{
+			return new CanMoveResponse
 			{
-				_cannotMoveReason = "Your kind are not built for climbing.";
-				return false;
-			}
+				Result = false,
+				ErrorMessage = "Your kind are not built for climbing."
+			};
+		}
 
-			if (!ignoreSafeMovement)
+		if (!flags.HasFlag(CanMoveFlags.IgnoreSafeMovement))
+		{
+			switch (exit.MovementTransition(this).TransitionType)
 			{
-				switch (exit.MovementTransition(this).TransitionType)
-				{
-					case CellMovementTransition.TreesToTrees:
+				case CellMovementTransition.TreesToTrees:
+					break;
+				case CellMovementTransition.FlyOnly:
+					if (PositionState == PositionFlying.Instance)
+					{
 						break;
-					case CellMovementTransition.FlyOnly:
-						if (PositionState == PositionFlying.Instance)
+					}
+
+					if (exit.IsClimbExit)
+					{
+						if (PositionState == PositionClimbing.Instance)
 						{
 							break;
 						}
-
-						if (exit.IsClimbExit)
+						return new CanMoveResponse
 						{
-							if (PositionState == PositionClimbing.Instance)
-							{
-								break;
-							}
+							Result = false,
+							ErrorMessage = "You must climb to use that exit."
+						};
+					}
 
-							_cannotMoveReason = "You must climb to use that exit.";
-							return false;
-						}
+					return new CanMoveResponse
+					{
+						Result = false,
+						ErrorMessage = "You must be able to fly to move in that direction."
+					};
 
-						_cannotMoveReason = "You must be able to fly to move in that direction.";
-						return false;
-					case CellMovementTransition.SwimOnly:
-						if (PositionState != PositionSwimming.Instance)
+				case CellMovementTransition.SwimOnly:
+					if (PositionState != PositionSwimming.Instance)
+					{
+						return new CanMoveResponse
 						{
-							if (Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).WouldBeAbjectFailure(this))
-							{
-								_cannotMoveReason =
-									$"You would begin swimming if you moved in that direction.\nYou must append ! to your movement command to move anyway due to your safe movement settings.\n{"WARNING: You are unable to swim. If you swim into the water, you will probably drown.".Colour(Telnet.BoldRed).Blink()}";
-							}
-							else
-							{
-								_cannotMoveReason =
-									"You would begin swimming if you moved in that direction.\nYou must append ! to your movement command to move anyway due to your safe movement settings.";
-							}
+							Result = false,
+							ErrorMessage = Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).WouldBeAbjectFailure(this) ?
+								$"You would begin swimming if you moved in that direction.\nYou must append ! to your movement command to move anyway due to your safe movement settings.\n{"WARNING: You are unable to swim. If you swim into the water, you will probably drown.".Colour(Telnet.BoldRed).Blink()}" :
+								"You would begin swimming if you moved in that direction.\nYou must append ! to your movement command to move anyway due to your safe movement settings."
+						};
+					}
 
-							return false;
-						}
-
-						break;
-					case CellMovementTransition.FallExit:
-						break;
-					case CellMovementTransition.SwimToLand:
-						break;
-				}
+					break;
+				case CellMovementTransition.FallExit:
+					break;
+				case CellMovementTransition.SwimToLand:
+					break;
 			}
-
-			return true;
 		}
 
-		return false;
+		return CanMoveResponse.True;
 	}
 
 	public (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove(bool ignoreBlockingEffects,
@@ -953,7 +930,12 @@ public partial class Character
 		get => _movement;
 		set
 		{
+			var old = _movement;
 			_movement = value;
+			if (old is not null && old != value)
+			{
+				old.CancelForMoverOnly(this, false);
+			}
 			if (value != null)
 			{
 				SetEmote(null);
@@ -961,7 +943,7 @@ public partial class Character
 		}
 	}
 
-	public int MoveSpeed(ICellExit exit)
+	public double MoveSpeed(ICellExit exit)
 	{
 		var (transition, _) = exit?.MovementTransition(this) ??
 							  (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
@@ -975,7 +957,7 @@ public partial class Character
 			default:
 				if (!Body.CurrentSpeeds.ContainsKey(PositionState))
 				{
-					return int.MaxValue;
+					return -1;
 				}
 
 				speed = Body.CurrentSpeeds[PositionState];
@@ -984,7 +966,7 @@ public partial class Character
 
 		if (speed == null)
 		{
-			return int.MaxValue;
+			return -1;
 		}
 
 		var sightMultiplier = 1.0;
@@ -1048,15 +1030,20 @@ public partial class Character
 				  .Select(x => x.SpeedMultiplier(speed))
 				  .Aggregate(1.0, (x, y) => x * y);
 
-		return
-			(int)
-			(baseSpeed *
-			 (exit?.Exit.TimeMultiplier ?? 1.0) *
-			 meritMultiplier *
-			 speed.Multiplier *
-			 sightMultiplier *
-			 Location.Terrain(this).MovementRate *
-			 aidePenalty);
+		var multiplier = (exit?.Exit.TimeMultiplier ?? 1.0) +
+		                 meritMultiplier +
+		                 speed.Multiplier +
+		                 sightMultiplier +
+		                 Location.Terrain(this).MovementRate +
+		                 aidePenalty -
+		                 5.0;
+		if (multiplier < 0)
+		{
+			multiplier = 0;
+		}
+
+		var result = baseSpeed * multiplier;
+		return result;
 	}
 
 	public bool Move(string rawInput)
@@ -1130,7 +1117,7 @@ public partial class Character
 
 	public string WhyCannotMove()
 	{
-		return Party == null || Party.Leader != this ? _cannotMoveReason : Party.WhyCannotMove();
+		return CanMove(CanMoveFlags.None).ErrorMessage;
 	}
 
 	protected void TargetMoved(object sender, MoveEventArgs args)
@@ -1204,18 +1191,17 @@ public partial class Character
 		return new string(' ', indent) + HowSeen(voyeur);
 	}
 
+	public override bool ShouldFall()
+	{
+		if (RidingMount != null)
+		{
+			return false;
+		}
 
-        public override bool ShouldFall()
-        {
-                if (RidingMount != null)
-                {
-                        return false;
-                }
-
-                if (EffectHandler.AffectedBy<IImmwalkEffect>())
-                {
-                        return false;
-                }
+		if (EffectHandler.AffectedBy<IImmwalkEffect>())
+		{
+			return false;
+		}
 
 		if (!RoomLayer.IsHigherThan(RoomLayer.GroundLevel))
 		{
@@ -1244,8 +1230,7 @@ public partial class Character
 	{
 		if (!EffectHandler.AffectedBy<IImmwalkEffect>())
 		{
-			SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier,
-				movement.IgnoreTerrainStamina));
+			SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier, PositionState.IgnoreTerrainStaminaCostsForMovement));
 		}
 
 		movement?.Exit?.Origin?.Leave(this);
@@ -1265,16 +1250,17 @@ public partial class Character
 			}
 		}
 
-                Moved(movement);
-                movement?.Exit?.Destination?.Enter(this, movement.Exit, roomLayer: targetLayer);
+		Moved(movement);
+		movement?.Exit?.Destination?.Enter(this, movement.Exit, roomLayer: targetLayer);
 
-                foreach (var rider in Riders)
-                {
-                        movement?.Exit?.Origin?.Leave(rider);
-                        rider.RoomLayer = targetLayer;
-                        movement?.Exit?.Destination?.Enter(rider, movement.Exit, roomLayer: targetLayer);
-                        rider.Moved(movement);
-                }
+		foreach (var rider in Riders)
+		{
+			movement?.Exit?.Origin?.Leave(rider);
+			rider.RoomLayer = targetLayer;
+			movement?.Exit?.Destination?.Enter(rider, movement.Exit, roomLayer: targetLayer);
+			rider.Moved(movement);
+		}
+
 		switch (transition)
 		{
 			case CellMovementTransition.TreesToTrees:
@@ -1831,19 +1817,19 @@ public partial class Character
 					? "AscendFlyEmoteTargetLocationLeaveTrees"
 					: "AscendFlyEmoteTargetLocation"), this, this);
 		OutputHandler.Handle(new EmoteOutput(emote, flags: OutputFlags.SuppressObscured));
-                RoomLayer = desired;
-               if (EffectsOfType<Dragging>().FirstOrDefault()?.Target is IPerceiver dragTarget)
-               {
-                       dragTarget.RoomLayer = RoomLayer;
-                       (dragTarget as ICharacter)?.Body.Look(true);
-               }
+				RoomLayer = desired;
+			   if (EffectsOfType<Dragging>().FirstOrDefault()?.Target is IPerceiver dragTarget)
+			   {
+					   dragTarget.RoomLayer = RoomLayer;
+					   (dragTarget as ICharacter)?.Body.Look(true);
+			   }
 
 
-               foreach (var rider in Riders)
-               {
-                       rider.RoomLayer = RoomLayer;
-                       rider.Body.Look(true);
-               }
+			   foreach (var rider in Riders)
+			   {
+					   rider.RoomLayer = RoomLayer;
+					   rider.Body.Look(true);
+			   }
 
 		OutputHandler.Handle(new EmoteOutput(targetEmote,
 			flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));

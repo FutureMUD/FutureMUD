@@ -50,6 +50,11 @@ public class EffectHandler : IEffectHandler
 		return _effects.Any(x => x.IsEffectType<T>(target));
 	}
 
+	public bool AffectedBy<T>(Predicate<T> predicate) where T : class, IEffect
+	{
+		return _effects.OfType<T>().Any(x => predicate(x));
+	}
+
 	public bool AffectedBy<T>(object target, object thirdparty) where T : class, IEffect
 	{
 		return _effects.Any(x => x.IsEffectType<T>(target, thirdparty));

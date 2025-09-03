@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Combat.Moves;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -51,7 +52,7 @@ public class FullAdvanceStrategy : RangeBaseStrategy
 				return new ChangePositionMove { Assailant = ch, DesiredState = position };
 			}
 
-			if (ch.CanMove())
+			if (ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 			{
 				if (ch.CombatTarget.Location != ch.Location)
 				{

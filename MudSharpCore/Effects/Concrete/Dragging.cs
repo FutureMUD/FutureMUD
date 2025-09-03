@@ -178,7 +178,7 @@ public class Dragging : Effect, IDragging
 
 	private void Helper_Moved(object sender, MoveEventArgs e)
 	{
-		if (e.Movement is DragMovement)
+		if (e.Movement.DragEffects.Contains(this))
 		{
 			return;
 		}
@@ -202,7 +202,7 @@ public class Dragging : Effect, IDragging
 	private void Helper_PositionChanged(IPerceivable owner)
 	{
 		var actor = (ICharacter)owner;
-		if (!actor.CanMove(true))
+		if (!actor.CanMove(CanMoveFlags.IgnoreSafeMovement).Result)
 		{
 			RemoveHelper(actor);
 			actor.OutputHandler.Handle(new EmoteOutput(new Emote(

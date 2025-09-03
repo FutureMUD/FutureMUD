@@ -90,8 +90,14 @@ public class RidingModule : Module<ICharacter>
 	[HelpInfo("dismount", @"", AutoHelp.HelpArg)]
 	protected static void Dismount(ICharacter actor, string command)
 	{
-		var ss = new StringStack(command.RemoveFirstWord());
+		if (actor.RidingMount is null)
+		{
+			actor.OutputHandler.Send("You are not currently riding a mount.");
+			return;
+		}
 
+
+		actor.RidingMount.Dismount(actor);
 	}
 
 	[PlayerCommand("Buck", "buck")]

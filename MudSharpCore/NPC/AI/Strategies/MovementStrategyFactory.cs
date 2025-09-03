@@ -8,6 +8,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
+using MudSharp.Movement;
 
 namespace MudSharp.NPC.AI.Strategies;
 
@@ -109,7 +110,7 @@ public class MovementStrategyFactory
 
 		public bool CheckPosition(ICharacter ch)
 		{
-			if (!ch.CanMove())
+			if (!ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement | CanMoveFlags.IgnoreWhetherExitCanBeCrossed))
 			{
 				if (ch.PositionState.MoveRestrictions == MovementAbility.Restricted)
 				{
@@ -121,7 +122,7 @@ public class MovementStrategyFactory
 
 					ch.MovePosition(position, PositionModifier.None, null, null, null);
 
-					if (!ch.CanMove())
+					if (!ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement | CanMoveFlags.IgnoreWhetherExitCanBeCrossed))
 					{
 						return false;
 					}

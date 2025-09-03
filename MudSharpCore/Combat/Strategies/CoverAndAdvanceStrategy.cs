@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
-using MudSharp.Framework;
 using MudSharp.Character;
 using MudSharp.Combat.Moves;
+using MudSharp.Framework;
+using MudSharp.Movement;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -79,7 +80,7 @@ public class CoverAndAdvanceStrategy : CoverSeekingRangedStrategy
 				return new ChangePositionMove { Assailant = ch, DesiredState = position };
 			}
 
-			if (ch.CanMove())
+			if (ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 			{
 				if (ch.CombatTarget.Location != ch.Location)
 				{

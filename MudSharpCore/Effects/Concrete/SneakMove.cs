@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -37,7 +38,9 @@ public class SneakMove : Effect, ISneakMoveEffect
 		_sawSneakers.Add(effect);
 	}
 
-	public bool Subtle { get; init; }
+	public required bool Subtle { get; init; }
+
+	public required Outcome StealthOutcome { get; init; }
 
 	#endregion
 

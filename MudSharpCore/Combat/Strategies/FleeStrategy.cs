@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Framework;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Combat.Moves;
 using MudSharp.Character;
+using MudSharp.Combat.Moves;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
+using MudSharp.Framework;
+using MudSharp.Movement;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -38,7 +39,7 @@ public class FleeStrategy : StandardMeleeStrategy
 			return null;
 		}
 
-		if (ch.CanMove())
+		if (ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 		{
 			return new FleeMove { Assailant = ch };
 		}

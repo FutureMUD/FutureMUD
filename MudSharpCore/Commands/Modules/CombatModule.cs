@@ -9,8 +9,11 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
-using MudSharp.Effects.Interfaces;
+using MudSharp.Construction.Boundary;
+using MudSharp.Economy.Currency;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -18,13 +21,11 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using MudSharp.Construction.Boundary;
-using MudSharp.Economy.Currency;
-using MudSharp.Effects;
 using MudSharp.RPG.Law;
 
 namespace MudSharp.Commands.Modules;
@@ -1907,21 +1908,21 @@ The syntax is simply #3flee#0 to toggle it on, and the same again to return to y
 			return;
 		}
 
-                if (actor.CombatStrategyMode == CombatStrategyMode.Flee)
-                {
-                        var mode = actor.MeleeRange
-                                ? actor.CombatSettings.PreferredMeleeMode
-                                : actor.CombatSettings.PreferredRangedMode;
-                        if (mode == CombatStrategyMode.Flee)
-                        {
-                                mode = actor.MeleeRange ? CombatStrategyMode.StandardMelee : CombatStrategyMode.StandardRange;
-                        }
+				if (actor.CombatStrategyMode == CombatStrategyMode.Flee)
+				{
+						var mode = actor.MeleeRange
+								? actor.CombatSettings.PreferredMeleeMode
+								: actor.CombatSettings.PreferredRangedMode;
+						if (mode == CombatStrategyMode.Flee)
+						{
+								mode = actor.MeleeRange ? CombatStrategyMode.StandardMelee : CombatStrategyMode.StandardRange;
+						}
 
-                        actor.CombatStrategyMode = mode;
-                        actor.Send("You are no longer attempting to flee.");
-                        actor.AcquireTarget();
-                        return;
-                }
+						actor.CombatStrategyMode = mode;
+						actor.Send("You are no longer attempting to flee.");
+						actor.AcquireTarget();
+						return;
+				}
 
 		if (actor.Combat.Friendly)
 		{
@@ -2573,7 +2574,7 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!actor.CanMove())
+		if (!actor.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 		{
 			actor.Send("You need to be able to move to be able to seek cover.");
 			return;
@@ -2697,7 +2698,7 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!actor.CanMove())
+		if (!actor.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 		{
 			actor.Send("You can't charge at anything because you can't move.");
 			return;
@@ -2750,7 +2751,7 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!actor.CanMove())
+		if (!actor.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
 		{
 			actor.Send("You can't engage anything because you can't move.");
 			return;

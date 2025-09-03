@@ -249,9 +249,19 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 	/// <summary>
 	/// This property calculates whether a combatant is in melee range with their target or is themselves engaged in melee by another
 	/// </summary>
-	public bool IsEngagedInMelee => MeleeRange ||
-	                                (Combat?.Combatants.Except(this).Any(x => x.CombatTarget == this && x.MeleeRange) ??
-	                                 false);
+	public bool IsEngagedInMelee
+	{
+		get
+		{
+			if (Combat is null)
+			{
+				return false;
+			}
+
+			return MeleeRange ||
+			       (Combat.Combatants.Except(this).Any(x => x.CombatTarget == this && x.MeleeRange));
+		}
+	}
 
 	public virtual bool CanEngage(IPerceiver target)
 	{

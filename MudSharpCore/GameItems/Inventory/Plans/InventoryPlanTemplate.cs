@@ -98,16 +98,20 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			case "used":
 				state = DesiredItemState.Consumed;
 				break;
-			case "liquid":
-			case "consumeliquid":
-			case "consumedliquid":
-				state = DesiredItemState.ConsumeLiquid;
-				break;
-			default:
-				actor.OutputHandler.Send(
-					$"That is not a valid action type. The valid options are {new List<string> { "held", "wielded", "worn", "attached", "sheathed", "inroom", "incontainer", "consumed", "consumedliquid" }.Select(x => x.ColourValue()).ListToString()}.");
-				return null;
-		}
+                        case "liquid":
+                        case "consumeliquid":
+                        case "consumedliquid":
+                                state = DesiredItemState.ConsumeLiquid;
+                                break;
+                        case "apply":
+                        case "applied":
+                                state = DesiredItemState.Apply;
+                                break;
+                        default:
+                                actor.OutputHandler.Send(
+                                        $"That is not a valid action type. The valid options are {new List<string> { "held", "wielded", "worn", "attached", "sheathed", "inroom", "incontainer", "consumed", "consumedliquid", "apply" }.Select(x => x.ColourValue()).ListToString()}.");
+                                return null;
+                }
 
 		IInventoryPlanAction action;
 		switch (state)
@@ -263,12 +267,12 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 				}
 
 				break;
-			case DesiredItemState.ConsumeLiquid:
-				if (command.IsFinished)
-				{
-					actor.OutputHandler.Send("Which liquid do you want this plan to consume?");
-					return null;
-				}
+                        case DesiredItemState.ConsumeLiquid:
+                                if (command.IsFinished)
+                                {
+                                        actor.OutputHandler.Send("Which liquid do you want this plan to consume?");
+                                        return null;
+                                }
 
 				var liquid = actor.Gameworld.Liquids.GetByIdOrName(command.PopSpeech());
 				if (liquid is null)
@@ -309,13 +313,63 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 					secondTag = matchedtags.Single();
 				}
 
-				action = new InventoryPlanActionConsumeLiquid(actor.Gameworld, 0, secondTag?.Id ?? 0, item => true, null,
-					mixture => mixture.CountsAs(liquid).Truth,
-					new LiquidMixture(liquid, liquidAmount, actor.Gameworld));
-				break;
-			default:
-				throw new ArgumentOutOfRangeException();
-		}
+                                action = new InventoryPlanActionConsumeLiquid(actor.Gameworld, 0, secondTag?.Id ?? 0, item => true, null,
+                                        mixture => mixture.CountsAs(liquid).Truth,
+                                        new LiquidMixture(liquid, liquidAmount, actor.Gameworld));
+                                break;
+                        case DesiredItemState.Apply:
+                                if (command.IsFinished)
+                                {
+                                        actor.OutputHandler.Send("You must specify a tag for the item you want to add to the plan.");
+                                        return null;
+                                }
+
+                                matchedtags = actor.Gameworld.Tags.FindMatchingTags(command.PopSpeech());
+                                if (matchedtags.Count == 0)
+                                {
+                                        actor.OutputHandler.Send("There is no such tag.");
+                                        return null;
+                                }
+
+                                if (matchedtags.Count > 1)
+                                {
+                                        actor.OutputHandler.Send($"Your text matched multiple tags. Please specify one of the following tags:\n\n{matchedtags.Select(x => $"\t[{x.Id.ToString("N0", actor)}] {x.FullName.ColourName()}").ListToLines()}");
+                                        return null;
+                                }
+
+                                tag = matchedtags.Single();
+
+                                if (command.IsFinished)
+                                {
+                                        actor.OutputHandler.Send("You must specify a bodypart to apply the cream to.");
+                                        return null;
+                                }
+
+                                var bodypart = actor.Body.GetTargetBodypart(command.PopSpeech());
+                                if (bodypart == null)
+                                {
+                                        actor.OutputHandler.Send("You must specify a valid bodypart.");
+                                        return null;
+                                }
+
+                                if (command.IsFinished)
+                                {
+                                        actor.OutputHandler.Send("You must specify an amount of cream in grams to apply.");
+                                        return null;
+                                }
+
+                                if (!double.TryParse(command.SafeRemainingArgument, out var grams) || grams <= 0.0)
+                                {
+                                        actor.OutputHandler.Send("You must enter a valid amount greater than zero.");
+                                        return null;
+                                }
+
+                                action = new InventoryPlanActionApply(actor.Gameworld, tag.Id, 0, null, null, bodypart.Name, grams)
+                                { ItemsAlreadyInPlaceOverrideFitnessScore = true };
+                                break;
+                        default:
+                                throw new ArgumentOutOfRangeException();
+                }
 
 		return action;
 	}
@@ -599,29 +653,42 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			});
 		}
 
-		// held items next to last
-		foreach (var target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Held).ToList())
-		{
-			results.Add(new InventoryPlanActionResult
-			{
-				ActionState = target.Action.DesiredState,
-				OriginalReference = target.Action.OriginalReference,
-				PrimaryTarget = target.Primary
-			});
-		}
+                // held items next to last
+                foreach (var target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Held).ToList())
+                {
+                        results.Add(new InventoryPlanActionResult
+                        {
+                                ActionState = target.Action.DesiredState,
+                                OriginalReference = target.Action.OriginalReference,
+                                PrimaryTarget = target.Primary
+                        });
+                }
 
-		// consumed items last of all
-		foreach (var target in targets.Where(x =>
-			         x.Action.DesiredState == DesiredItemState.Consumed ||
-			         x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
-		{
-			results.Add(new InventoryPlanActionResult
-			{
-				ActionState = target.Action.DesiredState,
-				OriginalReference = target.Action.OriginalReference,
-				PrimaryTarget = target.Primary
-			});
-		}
+                // apply actions next
+                foreach (var target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Apply).ToList())
+                {
+                        var part = actor.Body.GetTargetBodypart(((InventoryPlanActionApply)target.Action).Bodypart);
+                        results.Add(new InventoryPlanActionResult
+                        {
+                                ActionState = target.Action.DesiredState,
+                                OriginalReference = target.Action.OriginalReference,
+                                PrimaryTarget = target.Primary,
+                                TertiaryTarget = part
+                        });
+                }
+
+                // consumed items last of all
+                foreach (var target in targets.Where(x =>
+                                 x.Action.DesiredState == DesiredItemState.Consumed ||
+                                 x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
+                {
+                        results.Add(new InventoryPlanActionResult
+                        {
+                                ActionState = target.Action.DesiredState,
+                                OriginalReference = target.Action.OriginalReference,
+                                PrimaryTarget = target.Primary
+                        });
+                }
 
 		return results;
 	}
@@ -819,20 +886,26 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
 		}
 
-		// held items next to last
-		foreach (var target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Held).ToList())
-		{
-			MarkItemForRestoration(actor, target.Primary, plan);
-			results.Add(TakeAction(actor, target.Primary, null, DesiredItemState.Held, target.Action, false));
-		}
+                // held items next to last
+                foreach (var target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Held).ToList())
+                {
+                        MarkItemForRestoration(actor, target.Primary, plan);
+                        results.Add(TakeAction(actor, target.Primary, null, DesiredItemState.Held, target.Action, false));
+                }
 
-		// consumed items last of all
-		foreach (var target in targets.Where(x =>
-			         x.Action.DesiredState == DesiredItemState.Consumed ||
-			         x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
-		{
-			results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
-		}
+                // apply actions next
+                foreach (var target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Apply).ToList())
+                {
+                        results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
+                }
+
+                // consumed items last of all
+                foreach (var target in targets.Where(x =>
+                                 x.Action.DesiredState == DesiredItemState.Consumed ||
+                                 x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
+                {
+                        results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
+                }
 
 		return results;
 	}
@@ -1193,13 +1266,15 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			case DesiredItemState.Consumed:
 				return ConsumeItem(actor, item, ((InventoryPlanActionConsume)action).Quantity,
 					action?.OriginalReference);
-			case DesiredItemState.ConsumeLiquid:
-				return ConsumeLiquid(actor, item, (InventoryPlanActionConsumeLiquid)action, action?.OriginalReference);
-			case DesiredItemState.Unknown:
-				return new InventoryPlanActionResult
-				{
-					PrimaryTarget = item,
-					SecondaryTarget = target,
+                        case DesiredItemState.ConsumeLiquid:
+                                return ConsumeLiquid(actor, item, (InventoryPlanActionConsumeLiquid)action, action?.OriginalReference);
+                        case DesiredItemState.Apply:
+                                return ApplyItem(actor, item, (InventoryPlanActionApply)action, action?.OriginalReference);
+                        case DesiredItemState.Unknown:
+                                return new InventoryPlanActionResult
+                                {
+                                        PrimaryTarget = item,
+                                        SecondaryTarget = target,
 					ActionState = DesiredItemState.Unknown,
 					OriginalReference = action?.OriginalReference
 				};
@@ -1668,17 +1743,17 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		};
 	}
 
-	private InventoryPlanActionResult ConsumeLiquid(ICharacter actor, IGameItem item,
-		InventoryPlanActionConsumeLiquid action, object originalReference)
-	{
-		var container = item.GetItemType<ILiquidContainer>();
-		foreach (var instance in action.LiquidToTake.Instances)
-		{
-			var equivalent = container.LiquidMixture.Instances.FirstOrDefault(x => x.CanMergeWith(instance));
-			if (equivalent == null)
-			{
-				continue;
-			}
+        private InventoryPlanActionResult ConsumeLiquid(ICharacter actor, IGameItem item,
+                InventoryPlanActionConsumeLiquid action, object originalReference)
+        {
+                var container = item.GetItemType<ILiquidContainer>();
+                foreach (var instance in action.LiquidToTake.Instances)
+                {
+                        var equivalent = container.LiquidMixture.Instances.FirstOrDefault(x => x.CanMergeWith(instance));
+                        if (equivalent == null)
+                        {
+                                continue;
+                        }
 
 			container.LiquidMixture.RemoveLiquidVolume(equivalent, instance.Amount);
 			if (container.LiquidMixture?.IsEmpty != false)
@@ -1690,13 +1765,26 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			container.Changed = true;
 		}
 
-		return new InventoryPlanActionResult
-		{
-			PrimaryTarget = item,
-			ActionState = DesiredItemState.ConsumeLiquid,
-			OriginalReference = originalReference
-		};
-	}
+                return new InventoryPlanActionResult
+                {
+                        PrimaryTarget = item,
+                        ActionState = DesiredItemState.ConsumeLiquid,
+                        OriginalReference = originalReference
+                };
+        }
+
+        private InventoryPlanActionResult ApplyItem(ICharacter actor, IGameItem item, InventoryPlanActionApply action, object originalReference)
+        {
+                var part = actor.Body.GetTargetBodypart(action.Bodypart);
+                item.GetItemType<IApply>()?.Apply(actor.Body, part, action.Grams, actor);
+                return new InventoryPlanActionResult
+                {
+                        PrimaryTarget = item,
+                        TertiaryTarget = part,
+                        ActionState = DesiredItemState.Apply,
+                        OriginalReference = originalReference
+                };
+        }
 
 	#endregion
 

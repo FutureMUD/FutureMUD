@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Models;
@@ -219,38 +220,79 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 		var epoch = questionAnswers["moonepoch"];
 		var calendar = context.Calendars.First(x => x.Id == moonCalendarId);
 
-		context.Celestials.Add(new Celestial
-		{
-			CelestialType = "PlanetaryMoon",
-			CelestialYear = 0,
-			LastYearBump = 0,
-			Minutes = 0,
-			FeedClockId = calendar.FeedClockId,
-			Definition = @$"<PlanetaryMoon>
-	<Name>{moonName}</Name>
-	<Calendar>{moonCalendarId}</Calendar>
-	<Orbital>
-		<CelestialDaysPerYear>29.530588</CelestialDaysPerYear>
-		<MeanAnomalyAngleAtEpoch>5.55665</MeanAnomalyAngleAtEpoch>
-		<AnomalyChangeAnglePerDay>0.229971</AnomalyChangeAnglePerDay>
-		<ArgumentOfPeriapsis>5.1985</ArgumentOfPeriapsis>
-		<LongitudeOfAscendingNode>2.18244</LongitudeOfAscendingNode>
-		<OrbitalInclination>0.0898</OrbitalInclination>
-		<OrbitalEccentricity>0.0549</OrbitalEccentricity>
-		<DayNumberAtEpoch>2451545</DayNumberAtEpoch>
-		<SiderealTimeAtEpoch>4.889488</SiderealTimeAtEpoch>
-		<SiderealTimePerDay>6.300388</SiderealTimePerDay>
-		<EpochDate>{epoch}</EpochDate>
-	</Orbital>
-		<Illumination>
-				<PeakIllumination>1.0</PeakIllumination>
-				<FullMoonReferenceDay>0</FullMoonReferenceDay>
-		</Illumination>
-		<Triggers>
-		  <Trigger angle=""-0.015184"" direction=""Ascending""><![CDATA[The moon rises above the horizon.]]></Trigger>
-		  <Trigger angle=""-0.015184"" direction=""Descending""><![CDATA[The moon sets on the horizon.]]></Trigger>
-		</Triggers>
+               var moonCelestial = new Celestial
+               {
+                       CelestialType = "PlanetaryMoon",
+                       CelestialYear = 0,
+                       LastYearBump = 0,
+                       Minutes = 0,
+                       FeedClockId = calendar.FeedClockId,
+                       Definition = @$"<PlanetaryMoon>
+        <Name>{moonName}</Name>
+        <Calendar>{moonCalendarId}</Calendar>
+        <Orbital>
+                <CelestialDaysPerYear>29.530588</CelestialDaysPerYear>
+                <MeanAnomalyAngleAtEpoch>2.355556</MeanAnomalyAngleAtEpoch>
+                <AnomalyChangeAnglePerDay>0.228027</AnomalyChangeAnglePerDay>
+                <ArgumentOfPeriapsis>5.552765</ArgumentOfPeriapsis>
+                <LongitudeOfAscendingNode>2.18244</LongitudeOfAscendingNode>
+                <OrbitalInclination>0.0898</OrbitalInclination>
+                <OrbitalEccentricity>0.0549</OrbitalEccentricity>
+                <DayNumberAtEpoch>2451545</DayNumberAtEpoch>
+                <SiderealTimeAtEpoch>4.889488</SiderealTimeAtEpoch>
+                <SiderealTimePerDay>0.228027</SiderealTimePerDay>
+                <EpochDate>{epoch}</EpochDate>
+        </Orbital>
+                <Illumination>
+                                <PeakIllumination>1.0</PeakIllumination>
+                                <FullMoonReferenceDay>0</FullMoonReferenceDay>
+                </Illumination>
+                <Triggers>
+                  <Trigger angle=""-0.015184"" direction=""Ascending""><![CDATA[The moon rises above the horizon.]]></Trigger>
+                  <Trigger angle=""-0.015184"" direction=""Descending""><![CDATA[The moon sets on the horizon.]]></Trigger>
+                </Triggers>
 </PlanetaryMoon>"
-		});
-	}
+               };
+
+               context.Celestials.Add(moonCelestial);
+               context.SaveChanges();
+
+               var sun = context.Celestials.FirstOrDefault(x => x.CelestialType == "Sun");
+               if (sun != null)
+               {
+                       var sunXml = XElement.Parse(sun.Definition);
+                       var illumination = sunXml.Element("Illumination")?.ToString() ?? string.Empty;
+
+                       context.Celestials.Add(new Celestial
+                       {
+                               CelestialType = "PlanetFromMoon",
+                               CelestialYear = 0,
+                               LastYearBump = 0,
+                               Minutes = 0,
+                               FeedClockId = calendar.FeedClockId,
+                               Definition = @$"<PlanetFromMoon>
+        <Name>Earth</Name>
+        <Moon>{moonCelestial.Id}</Moon>
+        <Sun>{sun.Id}</Sun>
+        <PeakIllumination>1.0</PeakIllumination>
+        <AngularRadius>0.0165</AngularRadius>
+</PlanetFromMoon>"
+                       });
+
+                       context.Celestials.Add(new Celestial
+                       {
+                               CelestialType = "SunFromPlanetaryMoon",
+                               CelestialYear = 0,
+                               LastYearBump = 0,
+                               Minutes = 0,
+                               FeedClockId = calendar.FeedClockId,
+                               Definition = @$"<SunFromPlanetaryMoon>
+        <Name>The Sun</Name>
+        <Moon>{moonCelestial.Id}</Moon>
+        <Sun>{sun.Id}</Sun>
+        {illumination}
+</SunFromPlanetaryMoon>"
+                       });
+               }
+       }
 }

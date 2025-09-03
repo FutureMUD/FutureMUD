@@ -186,8 +186,9 @@ public partial class Body
 		}
 
 		// Sum impacts from drugs
-		var magicCapabilities = new DoubleCounter<IMagicCapability>();
-		var damagedOrgans = new DoubleCounter<BodypartTypeEnum>();
+                var magicCapabilities = new DoubleCounter<IMagicCapability>();
+                var damagedOrgans = new DoubleCounter<BodypartTypeEnum>();
+                var organFunctionMods = new DoubleCounter<BodypartTypeEnum>();
 		var specificMerits = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
 		foreach (var (drug, grams) in drugIntensities)
 		{
@@ -230,13 +231,21 @@ public partial class Body
 					healingDifficultyIntensity += split.HealingDifficultyIntensity * (drug.IntensityForType(drugEffect) * adjustedgrams);
 				}
 
-				if (drugEffect == DrugType.BodypartDamage)
-				{
-					foreach (var organ in drug.AdditionalInfoFor<BodypartDamageAdditionalInfo>(DrugType.BodypartDamage).BodypartTypes)
-					{
-						damagedOrgans[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
-					}
-				}
+                                if (drugEffect == DrugType.BodypartDamage)
+                                {
+                                        foreach (var organ in drug.AdditionalInfoFor<BodypartDamageAdditionalInfo>(DrugType.BodypartDamage).BodypartTypes)
+                                        {
+                                                damagedOrgans[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
+                                        }
+                                }
+
+                                if (drugEffect == DrugType.OrganFunction)
+                                {
+                                        foreach (var organ in drug.AdditionalInfoFor<OrganFunctionAdditionalInfo>(DrugType.OrganFunction).OrganTypes)
+                                        {
+                                                organFunctionMods[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
+                                        }
+                                }
 
 				effectIntensities[drugEffect] += drug.IntensityForType(drugEffect) * adjustedgrams;
 			}
@@ -373,11 +382,11 @@ public partial class Body
 
 					magicEffect.NewCapabilities(applicableCapabilities.Select(x => x.Key).ToArray());
 					break;
-				case DrugType.BodypartDamage:
-				{
-					var wounds = new List<IWound>();
-					foreach (var organ in damagedOrgans)
-					{
+                                case DrugType.BodypartDamage:
+                                {
+                                        var wounds = new List<IWound>();
+                                        foreach (var organ in damagedOrgans)
+                                        {
 						var damage = (organ.Value - neutralisingEffects.ValueOrDefault(effect.Key)) *
 						             Gameworld.GetStaticDouble("OrganDamagePerDrugIntensity");
 						var floor = Gameworld.GetStaticDouble(
@@ -405,11 +414,50 @@ public partial class Body
 						}
 					}
 
-					wounds.ProcessPassiveWounds();
-					break;
-				}
-			}
-		}
+                                        wounds.ProcessPassiveWounds();
+                                        break;
+                                }
+                                case DrugType.OrganFunction:
+                                {
+                                        var organEffect = EffectsOfType<OrganFunctionDrugEffect>().FirstOrDefault();
+                                        if (organEffect == null)
+                                        {
+                                                organEffect = new OrganFunctionDrugEffect(this);
+                                                EffectHandler.AddEffect(organEffect);
+                                        }
+                                        var map = organFunctionMods.ToDictionary(x => x.Key,
+                                                x => (x.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+                                                     (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001));
+                                        organEffect.SetBonuses(map);
+                                        break;
+                                }
+                                case DrugType.VisionImpairment:
+                                {
+                                        var visionEffect = EffectsOfType<VisionImpairmentDrugEffect>().FirstOrDefault();
+                                        if (visionEffect == null)
+                                        {
+                                                visionEffect = new VisionImpairmentDrugEffect(this);
+                                                EffectHandler.AddEffect(visionEffect);
+                                        }
+                                        var intensity = (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+                                                        (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
+                                        visionEffect.VisionMultiplier = Math.Max(0.0, 1.0 - intensity);
+                                        break;
+                                }
+                                case DrugType.ThermalImbalance:
+                                {
+                                        var thermal = EffectsOfType<DrugThermalImbalance>().FirstOrDefault();
+                                        if (thermal == null)
+                                        {
+                                                thermal = new DrugThermalImbalance(this);
+                                                EffectHandler.AddEffect(thermal);
+                                        }
+                                        thermal.ImbalanceProgress += (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+                                                                    (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
+                                        break;
+                                }
+                        }
+                }
 
 		// Tidy up Effects that have worn off
 		if (effectIntensities.ValueOrDefault(DrugType.Analgesic) -
@@ -458,12 +506,31 @@ public partial class Body
 			EffectHandler.RemoveAllEffects(x => x.IsEffectType<Nausea>(), true);
 		}
 
-		if (effectIntensities.ValueOrDefault(DrugType.HealingRate) -
-		    neutralisingEffects.ValueOrDefault(DrugType.HealingRate) <=
-		    0.0)
-		{
-			EffectHandler.RemoveAllEffects(x => x.IsEffectType<HealingRateDrug>(), true);
-		}
+                if (effectIntensities.ValueOrDefault(DrugType.HealingRate) -
+                    neutralisingEffects.ValueOrDefault(DrugType.HealingRate) <=
+                    0.0)
+                {
+                        EffectHandler.RemoveAllEffects(x => x.IsEffectType<HealingRateDrug>(), true);
+                }
+
+                if (effectIntensities.ValueOrDefault(DrugType.OrganFunction) -
+                    neutralisingEffects.ValueOrDefault(DrugType.OrganFunction) <=
+                    0.0)
+                {
+                        EffectHandler.RemoveAllEffects<OrganFunctionDrugEffect>(fireRemovalAction: true);
+                }
+
+                if (effectIntensities.ValueOrDefault(DrugType.VisionImpairment) -
+                    neutralisingEffects.ValueOrDefault(DrugType.VisionImpairment) <= 0.0)
+                {
+                        EffectHandler.RemoveAllEffects<VisionImpairmentDrugEffect>(fireRemovalAction: true);
+                }
+
+                if (effectIntensities.ValueOrDefault(DrugType.ThermalImbalance) -
+                    neutralisingEffects.ValueOrDefault(DrugType.ThermalImbalance) <= 0.0)
+                {
+                        EffectHandler.RemoveAllEffects<DrugThermalImbalance>(fireRemovalAction: true);
+                }
 
 		if (!applicableCapabilities.Any())
 		{

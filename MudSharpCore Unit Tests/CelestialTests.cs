@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Celestial;
@@ -187,14 +188,41 @@ public class CelestialTests
 		var dn5 = _newSun.CurrentDayNumber;
 		var ha5 = _newSun.HourAngle(dn5, geography);
 		var st5 = _newSun.SiderealTime(dn5, geography);
-		var ra5 = _newSun.RightAscension(dn5);
-		var aa5 = _newSun.Altitude(dn5, geography);
+                var ra5 = _newSun.RightAscension(dn5);
+                var aa5 = _newSun.Altitude(dn5, geography);
 
-		_testClock.CurrentTime.SetTime(19, 4, 0);
-		var dn6 = _newSun.CurrentDayNumber;
-		var ha6 = _newSun.HourAngle(dn6, geography);
-		var st6 = _newSun.SiderealTime(dn6, geography);
-		var ra6 = _newSun.RightAscension(dn6);
-		var aa6 = _newSun.Altitude(dn6, geography);
-	}
+                _testClock.CurrentTime.SetTime(19, 4, 0);
+                var dn6 = _newSun.CurrentDayNumber;
+                var ha6 = _newSun.HourAngle(dn6, geography);
+                var st6 = _newSun.SiderealTime(dn6, geography);
+                var ra6 = _newSun.RightAscension(dn6);
+                var aa6 = _newSun.Altitude(dn6, geography);
+        }
+
+        [TestMethod]
+        public void TestMeanAnomalyContinuous()
+        {
+                var dn = _newSun.CurrentDayNumber;
+                var m1 = _newSun.MeanAnomaly(dn);
+                var m2 = _newSun.MeanAnomaly(dn + 0.5);
+                var expected = (m1 + _newSun.AnomalyChangeAnglePerDay * 0.5).Modulus(2 * Math.PI);
+                Assert.AreEqual(expected, m2, 1e-9, "Mean anomaly should change with fractional day");
+        }
+
+        [TestMethod]
+        public void TestSunTriggerEchoSelection()
+        {
+                _newSun.Triggers.Clear();
+                _newSun.Triggers.Add(new CelestialTrigger(-0.015184, CelestialMoveDirection.Ascending, "rise"));
+                _newSun.Triggers.Add(new CelestialTrigger(-0.015184, CelestialMoveDirection.Descending, "set"));
+
+                var oldStatus = new CelestialInformation(_newSun, 0.0, -0.03, CelestialMoveDirection.Ascending);
+                var newStatus = new CelestialInformation(_newSun, 0.0, 0.0, CelestialMoveDirection.Ascending);
+
+                Assert.IsTrue(_newSun.ShouldEcho(oldStatus, newStatus));
+
+                var method = typeof(NewSun).GetMethod("GetZoneDisplayTrigger", BindingFlags.NonPublic | BindingFlags.Instance);
+                var trigger = (CelestialTrigger)method.Invoke(_newSun, new object[] { oldStatus, newStatus });
+                Assert.AreEqual("rise", trigger.Echo);
+        }
 }

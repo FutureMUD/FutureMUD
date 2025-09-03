@@ -15,7 +15,8 @@ namespace MudSharp.GameItems.Inventory.Plans {
         WieldedOneHandedOnly,
         WieldedTwoHandedOnly,
         Unknown,
-        ConsumeCommodity
+        ConsumeCommodity,
+        Apply
     }
 
     public interface IInventoryPlanAction : IXmlSavable {

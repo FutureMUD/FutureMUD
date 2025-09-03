@@ -136,10 +136,11 @@ public class WeatherController : SaveableItem, IWeatherController
 
         public void SetWeather(IWeatherEvent newEvent)
         {
-		var oldEvent = CurrentWeatherEvent;
-		CurrentWeatherEvent = newEvent;
-		Changed = true;
-		var echo = newEvent.DescribeTransitionTo(oldEvent)?.SubstituteANSIColour();
+                var oldEvent = CurrentWeatherEvent;
+                CurrentWeatherEvent = newEvent;
+                ConsecutiveUnchangedPeriods = 0;
+                Changed = true;
+                var echo = newEvent.DescribeTransitionTo(oldEvent)?.SubstituteANSIColour();
 		if (!string.IsNullOrEmpty(echo))
 		{
 			WeatherEcho?.Invoke(this, echo);
@@ -210,6 +211,7 @@ public class WeatherController : SaveableItem, IWeatherController
                                         var echo = weather.DescribeTransitionTo(CurrentWeatherEvent)?.SubstituteANSIColour();
                                         var oldWeather = CurrentWeatherEvent;
                                         CurrentWeatherEvent = weather;
+                                        ConsecutiveUnchangedPeriods = 0;
                                         if (!string.IsNullOrEmpty(echo))
                                         {
                                                 WeatherEcho?.Invoke(this, echo);

@@ -46,10 +46,15 @@ internal class ManipulationModule : Module<ICharacter>
 			@"^(?<target>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[\w]{0,}[a-z0-9.\- ]{1,}?)[ ]{0,1}){0,1}(?: on (?<table>[a-z0-9.]+))*(?: \\((?<emote>.+)\\))*$",
 			RegexOptions.IgnoreCase);
 
-	private static readonly Regex FillCommandRegex =
-		new(
-			@"^(?<target>[\w]{0,}[a-z.-@]{1,}) (?<from>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
-			RegexOptions.IgnoreCase);
+        private static readonly Regex FillCommandRegex =
+                new(
+                        @"^(?<target>[\w]{0,}[a-z.-@]{1,}) (?<from>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
+                        RegexOptions.IgnoreCase);
+
+        public const string FillGasHelpText =
+                "The #3fillgas#0 command allows you transfer gas from one container to another.\n\n" +
+                "#3fillgas <vessel> <from vessel>#0 - fills as much gas as possible from one container to another\n" +
+                "#3fillgas <vessel> <from vessel> <amount>#0 - fills a specific amount of gas";
 
 	private static readonly Regex PourCommandRegex =
 		new(
@@ -1022,12 +1027,171 @@ There are a couple of ways you can use this command:
 			return;
 		}
 
-		turnable.Turn(actor, dvalue, emote);
-	}
+                turnable.Turn(actor, dvalue, emote);
+        }
 
-	[PlayerCommand("Inject", "inject")]
-	[RequiredCharacterState(CharacterState.Able)]
-	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [PlayerCommand("Apply", "apply")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [HelpInfo("apply", @"The #3apply#0 command is used to apply creams or similar items to a target bodypart.
+
+You must be holding a suitable item and the bodypart you're trying to apply it to must be accessible. The target must be helpless or consent to the application.
+
+If you don't specify an amount, you will use the whole amount of the cream.", AutoHelp.HelpArgOrNoArg)]
+        protected static void Apply(ICharacter character, string command)
+        {
+                var ss = new StringStack(command.RemoveFirstWord());
+                if (ss.IsFinished)
+                {
+                        character.Send("Who or what do you want to apply?");
+                        return;
+                }
+
+                var item = character.TargetHeldItem(ss.PopSpeech());
+                if (item == null)
+                {
+                        character.Send("You are not holding anything like that to apply.");
+                        return;
+                }
+
+                var applicable = item.GetItemType<IApply>();
+                if (applicable == null)
+                {
+                        character.Send($"{item.HowSeen(character, true)} is not something that can be applied.");
+                        return;
+                }
+
+                var targetCharacter = character.TargetActor(ss.PopSpeech());
+                if (targetCharacter == null)
+                {
+                        character.Send($"There is nobody like that for you to apply {item.HowSeen(character)} to.");
+                        return;
+                }
+
+                if (ss.IsFinished)
+                {
+                        character.Send($"Which bodypart of {targetCharacter.HowSeen(character, type: DescriptionType.Possessive)} do you want to apply {item.HowSeen(character)} to?");
+                        return;
+                }
+
+                var bodypart = targetCharacter.Body.GetTargetBodypart(ss.PopSpeech());
+                if (bodypart == null)
+                {
+                        character.Send($"{targetCharacter.HowSeen(character)} does not have any such bodypart for you to apply {item.HowSeen(character)} to.");
+                        return;
+                }
+
+                var emote = ss.PopParentheses();
+                var amount = 0.0;
+                if (!ss.IsFinished)
+                {
+                        amount = character.Gameworld.UnitManager.GetBaseUnits(ss.SafeRemainingArgument, UnitType.Mass, out var success);
+                        if (!success)
+                        {
+                                character.OutputHandler.Send("That is not a valid amount to apply.");
+                                return;
+                        }
+                        if (string.IsNullOrWhiteSpace(emote))
+                        {
+                                emote = ss.PopParentheses();
+                        }
+                }
+
+                PlayerEmote pemote = null;
+                if (!string.IsNullOrWhiteSpace(emote))
+                {
+                        pemote = new PlayerEmote(emote, character);
+                        if (!pemote.Valid)
+                        {
+                                character.Send(pemote.ErrorMessage);
+                                return;
+                        }
+                }
+
+                switch (applicable.CanApply(targetCharacter.Body, bodypart))
+                {
+                        case WhyCannotApply.CannotApplyEmpty:
+                                character.Send($"You cannot apply {item.HowSeen(character)} because it is empty.");
+                                return;
+                        case WhyCannotApply.CannotApplyNoAccessToPart:
+                                character.Send($"You cannot apply {item.HowSeen(character)} to {targetCharacter.HowSeen(character, type: DescriptionType.Possessive)} {bodypart.FullDescription()} because the bodypart is obstructed by items.");
+                                return;
+                }
+
+                if (character != targetCharacter && !targetCharacter.WillingToPermitMedicalIntervention(character))
+                {
+                        targetCharacter.AddEffect(new Accept(targetCharacter, new GenericProposal(
+                                text =>
+                                {
+                                        if (targetCharacter.Location != character.Location)
+                                        {
+                                                targetCharacter.Send("You are no longer in the same location as the person who wanted to apply something to you.");
+                                                return;
+                                        }
+
+                                        if (targetCharacter.Combat != null && targetCharacter.MeleeRange)
+                                        {
+                                                targetCharacter.Send("You can't be willingly applied while you are in melee combat!");
+                                                return;
+                                        }
+
+                                        if (character.Combat != null && character.MeleeRange)
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer capable of applying that as they are in melee combat.");
+                                                return;
+                                        }
+
+                                        if (!CharacterState.Able.HasFlag(character.State))
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer capable of applying that as they are {character.State.Describe()}.");
+                                                return;
+                                        }
+
+                                        if (targetCharacter.Location != character.Location)
+                                        {
+                                                targetCharacter.Send("You are no longer in the same location as the person who wanted to apply something to you.");
+                                                return;
+                                        }
+
+                                        if (!character.Body.HeldItems.Contains(item))
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer holding the item they wanted to apply to you.");
+                                                return;
+                                        }
+
+                                        if (applicable.CanApply(targetCharacter.Body, bodypart) != WhyCannotApply.CanApply)
+                                        {
+                                                targetCharacter.Send($"{character.HowSeen(targetCharacter, true)} is no longer capable of applying that item to you.");
+                                                return;
+                                        }
+
+                                        character.OutputHandler.Handle(character == targetCharacter
+                                                ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
+                                                : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
+                                        applicable.Apply(targetCharacter.Body, bodypart, amount, character);
+                                },
+                                text =>
+                                {
+                                        targetCharacter.OutputHandler.Send(new EmoteOutput(new Emote("@ decline|declines to allow $1 to apply &0.", targetCharacter, targetCharacter, character)));
+                                },
+                                () =>
+                                {
+                                        targetCharacter.OutputHandler.Send(new EmoteOutput(new Emote("@ decline|declines to allow $1 to apply &0.", targetCharacter, targetCharacter, character)));
+                                },
+                                "proposing to be applied", "apply")), TimeSpan.FromSeconds(120));
+                        character.OutputHandler.Handle(new EmoteOutput(new Emote($"@ are|is proposing to apply $1 to &0's {bodypart.FullDescription()}.", character, targetCharacter, item)));
+                        return;
+                }
+
+                character.OutputHandler.Handle(character == targetCharacter
+                        ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
+                        : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
+                applicable.Apply(targetCharacter.Body, bodypart, amount, character);
+        }
+
+        [PlayerCommand("Inject", "inject")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[HelpInfo("inject", @"The #3inject#0 command is used to inject liquids into a person or thing using a syringe or similar. 
 
 You must be holding a syringe full of liquid and the bodypart you're trying to inject into must be accessible. The target must be helpless or consent to the injection.
@@ -2006,8 +2170,8 @@ The syntax to use this command is as follows:
 	[NoHideCommand]
 	[NoCombatCommand]
 	[HelpInfo("fill", FillHelpText, AutoHelp.HelpArgOrNoArg)]
-	protected static void Fill(ICharacter character, string command)
-	{
+        protected static void Fill(ICharacter character, string command)
+        {
 		var text = command.RemoveFirstWord();
 		if (string.IsNullOrEmpty(text))
 		{
@@ -2170,9 +2334,112 @@ The syntax to use this command is as follows:
 				style: OutputStyle.IgnoreLiquidsAndFlags).Append(emote));
 		}
 
-		targetAsContainer.MergeLiquid(containerAsContainer.RemoveLiquidAmount(amount, character, "fill"), character,
-			"fill");
-	}
+                targetAsContainer.MergeLiquid(containerAsContainer.RemoveLiquidAmount(amount, character, "fill"), character,
+                        "fill");
+        }
+
+        [PlayerCommand("FillGas", "fillgas")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [NoHideCommand]
+        [NoCombatCommand]
+        [HelpInfo("fillgas", FillGasHelpText, AutoHelp.HelpArgOrNoArg)]
+        protected static void FillGas(ICharacter character, string command)
+        {
+                var text = command.RemoveFirstWord();
+                if (string.IsNullOrEmpty(text))
+                {
+                        character.Send("What vessel do you want to fill?");
+                        return;
+                }
+
+                var match = FillCommandRegex.Match(text);
+                if (!match.Success)
+                {
+                        character.OutputHandler.Send(FillGasHelpText.SubstituteANSIColour());
+                        return;
+                }
+
+                var target = character.TargetHeldItem(match.Groups["target"].Value);
+                if (target == null)
+                {
+                        character.Send("You do not have anything like that to fill.");
+                        return;
+                }
+
+                var targetContainer = target.GetItemType<IGasContainer>();
+                if (targetContainer == null)
+                {
+                        character.Send("{0} is not a gas container.", target.HowSeen(character, true));
+                        return;
+                }
+
+                var source = character.TargetItem(match.Groups["from"].Value);
+                if (source == null)
+                {
+                        character.Send("There is nothing like that from which to fill {0}.", target.HowSeen(character));
+                        return;
+                }
+
+                var sourceContainer = source.GetItemType<IGasContainer>();
+                if (sourceContainer == null)
+                {
+                        character.Send("{0} is not a gas container.", source.HowSeen(character, true));
+                        return;
+                }
+
+                if (sourceContainer.Gas == null || sourceContainer.GasVolumeAtOneAtmosphere <= 0)
+                {
+                        character.Send("{0} is empty.", source.HowSeen(character, true));
+                        return;
+                }
+
+                if (targetContainer.Gas != null && !targetContainer.Gas.GasCountAs(sourceContainer.Gas))
+                {
+                        character.Send("{0} already contains a different gas.", target.HowSeen(character, true));
+                        return;
+                }
+
+                var amount = Math.Min(targetContainer.GasCapacityAtOneAtmosphere - targetContainer.GasVolumeAtOneAtmosphere,
+                        sourceContainer.GasVolumeAtOneAtmosphere);
+                if (match.Groups["amount"].Length > 0)
+                {
+                        amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value, UnitType.FluidVolume,
+                                out var success);
+                        if (!success)
+                        {
+                                character.Send("That is not a valid amount of gas.");
+                                return;
+                        }
+
+                        amount = Math.Min(amount,
+                                Math.Min(targetContainer.GasCapacityAtOneAtmosphere - targetContainer.GasVolumeAtOneAtmosphere,
+                                        sourceContainer.GasVolumeAtOneAtmosphere));
+                }
+
+                if (amount <= 0.0)
+                {
+                        character.Send("There is not room for any gas to transfer.");
+                        return;
+                }
+
+                var (truth, error) = character.CanManipulateItem(target);
+                if (!truth)
+                {
+                        character.Send(error);
+                        return;
+                }
+
+                if (targetContainer.Gas == null)
+                {
+                        targetContainer.Gas = sourceContainer.Gas;
+                }
+
+                sourceContainer.GasVolumeAtOneAtmosphere -= amount;
+                targetContainer.GasVolumeAtOneAtmosphere += amount;
+
+                character.OutputHandler.Handle(new EmoteOutput(new Emote("@ fill|fills $0 from $1", character, target, source)));
+        }
 
 	[PlayerCommand("Empty", "empty")]
 	[RequiredCharacterState(CharacterState.Able)]
@@ -2622,11 +2889,11 @@ The syntax is as follows:
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoHideCommand]
-	protected static void Smoke(ICharacter character, string command)
-	{
-		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
+        protected static void Smoke(ICharacter character, string command)
+        {
+                var ss = new StringStack(command.RemoveFirstWord());
+                if (ss.IsFinished)
+                {
 			character.Send("What is it that you want to smoke?");
 			return;
 		}
@@ -2656,8 +2923,50 @@ The syntax is as follows:
 			}
 		}
 
-		target.GetItemType<ISmokeable>().Smoke(character, emote);
-	}
+                target.GetItemType<ISmokeable>().Smoke(character, emote);
+        }
+
+        [PlayerCommand("Puff", "puff")]
+        [RequiredCharacterState(CharacterState.Able)]
+        [DelayBlock("general", "You must first stop {0} before you can do that.")]
+        [NoHideCommand]
+        protected static void Puff(ICharacter character, string command)
+        {
+                var ss = new StringStack(command.RemoveFirstWord());
+                if (ss.IsFinished)
+                {
+                        character.Send("What is it that you want to puff?");
+                        return;
+                }
+
+                var target = character.TargetHeldItem(ss.Pop());
+                if (target == null)
+                {
+                        character.Send("You do not see anything like that to puff.");
+                        return;
+                }
+
+                var puffable = target.GetItemType<IPuffable>();
+                if (puffable == null)
+                {
+                        character.Send("{0} is not something that can be puffed.", target.HowSeen(character, true));
+                        return;
+                }
+
+                var emoteText = ss.PopParentheses();
+                PlayerEmote emote = null;
+                if (!string.IsNullOrEmpty(emoteText))
+                {
+                        emote = new PlayerEmote(emoteText, character);
+                        if (!emote.Valid)
+                        {
+                                character.Send(emote.ErrorMessage);
+                                return;
+                        }
+                }
+
+                puffable.Puff(character, emote);
+        }
 
 	[PlayerCommand("Light", "light")]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]

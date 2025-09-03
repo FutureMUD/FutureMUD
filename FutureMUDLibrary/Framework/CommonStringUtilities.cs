@@ -384,19 +384,23 @@ namespace MudSharp.Framework
 						sb.Append(' ');
 					}
 				}
-				if (options == StringListToCSVOptions.RFC4180Compliant)
-				{
-					if (item.Contains('"') || item.Contains(separator) || item.Contains('\n'))
-					{
-						sb.Append('"');
-						sb.Append(item.Replace("\"", "\"\""));
-						sb.Append('"');
-					}
-				}
-				else
-				{
-					sb.Append(item);
-				}
+                               if (options == StringListToCSVOptions.RFC4180Compliant)
+                               {
+                                       if (item.Contains('"') || item.Contains(separator) || item.Contains('\n'))
+                                       {
+                                               sb.Append('"');
+                                               sb.Append(item.Replace("\"", "\"\""));
+                                               sb.Append('"');
+                                       }
+                                       else
+                                       {
+                                               sb.Append(item);
+                                       }
+                               }
+                               else
+                               {
+                                       sb.Append(item);
+                               }
 			}
 			return sb.ToString();
 		}
@@ -466,8 +470,8 @@ namespace MudSharp.Framework
 		public static string ListToColouredStringOr(this IEnumerable<string> items, ANSIColour colour = null)
 		{
 			colour ??= Telnet.Green;
-			return items.Select(x => x.Colour(colour)).ListToString(conjunction: " or");
-		}
+                       return items.Select(x => x.Colour(colour)).ListToString(conjunction: "or ");
+               }
 
 		/// <summary>
 		/// This is a shortcut for doing .Select(x => x.Colour()).ListToString()
@@ -507,33 +511,57 @@ namespace MudSharp.Framework
 			return number.ToString("N0", format);
 		}
 
-		/// <summary>
-		/// An alias for .ToString("N2", format).Colour(colour)
-		/// </summary>
-		/// <typeparam name="T">Any numeric type</typeparam>
-		/// <param name="number">The number to format</param>
-		/// <param name="format">The IFormatProvider to format the string</param>
-		/// <param name="colour">The colour - default Telnet.Green if not provided</param>
-		/// <returns>The number as a string</returns>
-		public static string ToStringN2Colour<T>(this T number, IFormatProvider format = null, ANSIColour colour = null) where T : INumber<T>
-		{
-			colour ??= Telnet.Green;
-			return number.ToString("N2", format).Colour(colour);
-		}
+                /// <summary>
+                /// An alias for .ToString("N2", format)
+                /// </summary>
+                /// <typeparam name="T">Any numeric type</typeparam>
+                /// <param name="number">The number to format</param>
+                /// <param name="format">The IFormatProvider to format the string</param>
+                /// <returns>The number as a string</returns>
+                public static string ToStringN2<T>(this T number, IFormatProvider format = null) where T : INumber<T>
+                {
+                        return number.ToString("N2", format);
+                }
 
-		/// <summary>
-		/// An alias for .ToString("P2", format).Colour(colour)
-		/// </summary>
-		/// <typeparam name="T">Any numeric type</typeparam>
-		/// <param name="number">The number to format</param>
-		/// <param name="format">The IFormatProvider to format the string</param>
-		/// <param name="colour">The colour - default Telnet.Green if not provided</param>
-		/// <returns>The number as a string</returns>
-		public static string ToStringP2Colour<T>(this T number, IFormatProvider format = null, ANSIColour colour = null) where T : INumber<T>
-		{
-			colour ??= Telnet.Green;
-			return number.ToString("P2", format).Colour(colour);
-		}
+                /// <summary>
+                /// An alias for .ToString("N2", format).Colour(colour)
+                /// </summary>
+                /// <typeparam name="T">Any numeric type</typeparam>
+                /// <param name="number">The number to format</param>
+                /// <param name="format">The IFormatProvider to format the string</param>
+                /// <param name="colour">The colour - default Telnet.Green if not provided</param>
+                /// <returns>The number as a string</returns>
+                public static string ToStringN2Colour<T>(this T number, IFormatProvider format = null, ANSIColour colour = null) where T : INumber<T>
+                {
+                        colour ??= Telnet.Green;
+                        return number.ToString("N2", format).Colour(colour);
+                }
+
+                /// <summary>
+                /// An alias for .ToString("P2", format)
+                /// </summary>
+                /// <typeparam name="T">Any numeric type</typeparam>
+                /// <param name="number">The number to format</param>
+                /// <param name="format">The IFormatProvider to format the string</param>
+                /// <returns>The number as a string</returns>
+                public static string ToStringP2<T>(this T number, IFormatProvider format = null) where T : INumber<T>
+                {
+                        return number.ToString("P2", format);
+                }
+
+                /// <summary>
+                /// An alias for .ToString("P2", format).Colour(colour)
+                /// </summary>
+                /// <typeparam name="T">Any numeric type</typeparam>
+                /// <param name="number">The number to format</param>
+                /// <param name="format">The IFormatProvider to format the string</param>
+                /// <param name="colour">The colour - default Telnet.Green if not provided</param>
+                /// <returns>The number as a string</returns>
+                public static string ToStringP2Colour<T>(this T number, IFormatProvider format = null, ANSIColour colour = null) where T : INumber<T>
+                {
+                        colour ??= Telnet.Green;
+                        return number.ToString("P2", format).Colour(colour);
+                }
 
 		public static string WindowsLineEndings(this string input)
 		{

@@ -89,7 +89,7 @@ public class StaggeringBlowMove : MeleeWeaponAttack
 				{
 					Target.OutputHandler.Handle(
 						new EmoteOutput(new Emote("@ are|is knocked to the ground by the force of the blow!", Target)));
-					Target.SetPosition(PositionSprawled.Instance, PositionModifier.None, Target.PositionTarget, null);
+					Target.DoCombatKnockdown();
 				}
 				else
 				{

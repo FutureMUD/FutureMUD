@@ -410,6 +410,9 @@ namespace MudSharp.Character {
 #nullable enable
 		ICharacter? RidingMount { get; set; }
 #nullable restore
+
+		void DoCombatKnockdown();
+		void DoFallOffHorse();
 	}
 
 	public interface IHavePersonalProjects

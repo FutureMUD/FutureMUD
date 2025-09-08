@@ -90,7 +90,7 @@ public class UnbalancingBlowMove : MeleeWeaponAttack
 				{
 					Target.OutputHandler.Handle(
 						new EmoteOutput(new Emote("@ are|is sent sprawling to the ground by the attack!", Target)));
-					Target.SetPosition(PositionSprawled.Instance, PositionModifier.None, Target.PositionTarget, null);
+					Target.DoCombatKnockdown();
 					Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 						TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("UnbalancingBlowReelTimeFailure")));
 					Target.AddEffect(new Staggered(Target),
@@ -104,7 +104,7 @@ public class UnbalancingBlowMove : MeleeWeaponAttack
 				{
 					Target.OutputHandler.Handle(
 						new EmoteOutput(new Emote("@ are|is sent sprawling to the ground by the attack!", Target)));
-					Target.SetPosition(PositionSprawled.Instance, PositionModifier.None, Target.PositionTarget, null);
+					Target.DoCombatKnockdown();
 					Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 						TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("UnbalancingBlowReelTimeMajorFailure")));
 					Target.AddEffect(new Staggered(Target),

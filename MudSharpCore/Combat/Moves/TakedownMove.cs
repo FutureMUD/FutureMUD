@@ -123,8 +123,8 @@ public class TakedownMove : WeaponAttackMove
 		var painResult =
 			Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.UnarmedDamageCalculation);
 
-		CharacterTarget.SetPosition(PositionSprawled.Instance, PositionModifier.None, Assailant, null);
-		Assailant.SetPosition(PositionProne.Instance, PositionModifier.None, CharacterTarget, null);
+		CharacterTarget.DoCombatKnockdown();
+		Assailant.DoCombatKnockdown();
 		Gameworld.Scheduler.DelayScheduleType(CharacterTarget, ScheduleType.Combat,
 			TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("TakedownReelTime")));
 		CharacterTarget.AddEffect(new Staggered(CharacterTarget),

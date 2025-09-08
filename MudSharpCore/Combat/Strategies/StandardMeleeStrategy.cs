@@ -51,6 +51,17 @@ public class StandardMeleeStrategy : StrategyBase
 	protected virtual ICombatMove ResponseToStartClinch(StartClinchMove move, ICharacter defender,
 		IPerceiver assailant)
 	{
+		// TODO - Specific mounted version of avoid clinch
+		if (defender.RidingMount is not null)
+		{
+			return new HelplessDefenseMove
+			{
+				Assailant = defender,
+				PrimaryTarget = assailant
+			};
+		}
+
+		// Can't defend against clinch if you're not standing or can't afford the stamina
 		if (defender.PositionState.CompareTo(PositionStanding.Instance) != PositionHeightComparison.Equivalent ||
 			defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)))
 		{
@@ -60,7 +71,6 @@ public class StandardMeleeStrategy : StrategyBase
 				PrimaryTarget = assailant
 			};
 		}
-
 
 		return new DodgeMove { Assailant = defender };
 	}
@@ -104,7 +114,7 @@ public class StandardMeleeStrategy : StrategyBase
 	protected virtual ICombatMove ResponseToRangedAttack(IRangedWeaponAttackMove move, ICharacter defender,
 		IPerceiver assailant)
 	{
-		if (defender.Cover != null)
+		if (defender.Cover is not null)
 		{
 			return new HelplessDefenseMove { Assailant = defender, PrimaryTarget = assailant };
 		}
@@ -132,6 +142,16 @@ public class StandardMeleeStrategy : StrategyBase
 
 					break;
 			}
+		}
+
+		// You can't dodge if you're mounted
+		if (defender.RidingMount is not null)
+		{
+			return new HelplessDefenseMove
+			{
+				Assailant = defender,
+				PrimaryTarget = assailant
+			};
 		}
 
 		if (defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender)))
@@ -173,7 +193,7 @@ public class StandardMeleeStrategy : StrategyBase
 
 		var canBlock = shield is not null && !clinching && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
 		var canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));
-		var canDodge = move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
+		var canDodge = defender.RidingMount is null && move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
 
 		// If they have a preference for a defense type, use that if possible
 		switch (defender.PreferredDefenseType)
@@ -298,7 +318,7 @@ public class StandardMeleeStrategy : StrategyBase
 
 		var canBlock = shield is not null && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Block) && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
 		var canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Parry) && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));
-		var canDodge = move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge) && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
+		var canDodge = defender.RidingMount is not null && move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge) && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
 		
 		// If they have a preference for a defense type, use that if possible
 		switch (defender.PreferredDefenseType)
@@ -446,7 +466,7 @@ public class StandardMeleeStrategy : StrategyBase
 
 		if (move is ClinchAttackMove || move is ClinchNaturalAttackMove)
 		{
-			return defenseCharacter.CanSpendStamina(DodgeMove.MoveStaminaCost(defenseCharacter))
+			return defenseCharacter.CanSpendStamina(DodgeMove.MoveStaminaCost(defenseCharacter)) && defenseCharacter.RidingMount is null
 				? (ICombatMove)new DodgeMove { Assailant = defenseCharacter }
 				: new HelplessDefenseMove { Assailant = defenseCharacter };
 		}

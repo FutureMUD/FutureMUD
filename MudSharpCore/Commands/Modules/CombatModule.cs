@@ -206,6 +206,13 @@ You can use the command in one of three ways:
 				actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} does not have a physiology capable of kneeling.");
 				return;
 			}
+
+			if (target.RidingMount is null)
+			{
+				actor.OutputHandler.Send("You can't force a target that is mounted onto their knees.");
+				return;
+			}
+
 			actor.OutputHandler.Handle(
 				new MixedEmoteOutput(
 					new Emote("@ push|pushes $1 down onto &1's knees and release|releases &1 from &0's grip", actor,
@@ -221,7 +228,7 @@ You can use the command in one of three ways:
 				new MixedEmoteOutput(
 					new Emote("@ release|releases &1 from &0's grip and send|sends &1 sprawling", actor, actor, target),
 					flags: OutputFlags.InnerWrap).Append(emote));
-			target.SetPosition(PositionSprawled.Instance, PositionModifier.None, actor, null);
+			target.DoCombatKnockdown();
 			actor.RemoveEffect(effect, true);
 			return;
 		}
@@ -247,6 +254,8 @@ You can use the command in one of three ways:
 					new Emote(
 						$"@ release|releases &1 from &0's grip push|pushes &1 to {targetExit.OutboundDirectionDescription}, sending &1 sprawling",
 						actor, actor, target), flags: OutputFlags.InnerWrap).Append(emote));
+			target.RidingMount?.RemoveRider(target);
+			target.RidingMount = null;
 			actor.Location.Leave(target);
 			targetExit.Destination.Enter(target);
 			target.OutputHandler.Handle(new EmoteOutput(
@@ -262,6 +271,8 @@ You can use the command in one of three ways:
 				new Emote(
 					$"@ release|releases &1 from &0's grip push|pushes &1 to {targetExit.OutboundDirectionDescription}",
 					actor, actor, target), flags: OutputFlags.InnerWrap).Append(emote));
+		target.RidingMount?.RemoveRider(target);
+		target.RidingMount = null;
 		actor.Location.Leave(target);
 		targetExit.Destination.Enter(target);
 		target.OutputHandler.Handle(new EmoteOutput(

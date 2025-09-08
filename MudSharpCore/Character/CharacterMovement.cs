@@ -466,6 +466,30 @@ public partial class Character
 		}
 	}
 
+	public void DoCombatKnockdown()
+	{
+		if (RidingMount is not null)
+		{
+			DoFallOffHorse();
+		}
+
+		// TODO - check sprawled is a valid position and maybe give a chance (skill based?) to land in another position
+		SetPosition(PositionSprawled.Instance, PositionModifier.None, PositionTarget, null);
+	}
+
+	public void DoFallOffHorse()
+	{
+		if (RidingMount is null)
+		{
+			return;
+		}
+
+		OutputHandler.Handle(new EmoteOutput(new Emote("@ fall|falls off $1!", this, this, RidingMount)));
+		RidingMount.RemoveRider(this);
+		RidingMount = null;
+		DoFallDamage(0.5);
+	}
+
 	public bool Move(ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false)
 	{
 		if (Movement != null)

@@ -60,7 +60,7 @@ public abstract class StrategyBase : ICombatStrategy
 
 		if (combatant is ICharacter ch)
 		{
-			if (ch.Movement != null)
+			if (ch.Movement != null || ch.RidingMount?.Movement is not null)
 			{
 				return true;
 			}
@@ -81,16 +81,27 @@ public abstract class StrategyBase : ICombatStrategy
 
 	protected virtual bool ShouldCharacterStand(ICharacter ch)
 	{
-		if (!ch.PositionState.In(PositionFlying.Instance, PositionSwimming.Instance, PositionClimbing.Instance,
-			    PositionStanding.Instance) &&
-		    ch.CanMovePosition(PositionStanding.Instance, PositionModifier.None, null, false) &&
-		    ch.CanSpendStamina(StandMove.StandStaminaCost(ch.Gameworld))
-		   )
+		if (ch.RidingMount is not null)
 		{
-			return true;
+			return false;
 		}
 
-		return false;
+		if (ch.PositionState.In(PositionFlying.Instance, PositionSwimming.Instance, PositionClimbing.Instance, PositionStanding.Instance))
+		{
+			return false;
+		}
+
+		if (!ch.CanMovePosition(PositionStanding.Instance, PositionModifier.None, null, false))
+		{
+			return false;
+		}
+
+		if (!ch.CanSpendStamina(StandMove.StandStaminaCost(ch.Gameworld)))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public virtual bool WillAttack(ICharacter ch, ICharacter tch)

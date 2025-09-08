@@ -39,15 +39,21 @@ public class StandardRangeStrategy : CoverSeekingRangedStrategy
 
 	protected override bool ShouldCharacterStand(ICharacter ch)
 	{
+		if (!base.ShouldCharacterStand(ch))
+		{
+			return false;
+		}
+
 		if (ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
 		      .Any(rw =>
 			      (rw.ReadyToFire || (!rw.IsLoaded && rw.CanLoad(ch, true)) || (!rw.IsReadied && rw.CanReady(ch))) &&
 			      rw.WeaponType.RangedWeaponType.MinimumFiringPosition().CompareTo(ch.PositionState)
-			        .In(PositionHeightComparison.Higher, PositionHeightComparison.Undefined)))
+			        .In(PositionHeightComparison.Lower, PositionHeightComparison.Equivalent, PositionHeightComparison.Undefined)))
 		{
+			return false;
 		}
 
-		return base.ShouldCharacterStand(ch);
+		return true;
 	}
 
 	#endregion

@@ -83,7 +83,7 @@ public abstract class RangeBaseStrategy : StrategyBase
 		var finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
 
 		var canBlock = shield is not null && move.Weapon.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
-		var canDodge = move.Weapon.BaseDodgeDifficulty != Difficulty.Impossible && defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender));
+		var canDodge = defender.RidingMount is null && move.Weapon.BaseDodgeDifficulty != Difficulty.Impossible && defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender));
 
 		switch (defender.PreferredDefenseType)
 		{

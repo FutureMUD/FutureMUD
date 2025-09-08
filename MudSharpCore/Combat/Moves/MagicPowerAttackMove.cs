@@ -1,23 +1,24 @@
-﻿using MudSharp.Magic.Powers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Framework;
-using MudSharp.Character;
-using MudSharp.Form.Shape;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
-using MudSharp.RPG.Checks;
-using MudSharp.Health;
-using MudSharp.PerceptionEngine.Parsers;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine;
+using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
+using MudSharp.Health;
+using MudSharp.Magic.Powers;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Checks;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MudSharp.Combat.Moves;
 
@@ -527,8 +528,7 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 				    defenderMove.Assailant.PositionState.Upright)
 				{
 					echoSlipped = true;
-					defenderMove.Assailant.SetPosition(PositionSprawled.Instance, PositionModifier.None,
-						defenderMove.Assailant.PositionTarget, null);
+					defenderMove.Assailant.DoCombatKnockdown();
 				}
 
 				var result = new OpposedOutcome(attackRoll, dodgeCheck);

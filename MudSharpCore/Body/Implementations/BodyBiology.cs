@@ -316,16 +316,16 @@ public partial class Body
 							.OfType<IOrganImplant>()
 							.Select(x => (Organ: x.TargetOrgan, Factor: x.FunctionFactor))
 							.ToCollectionDictionary();
-                var external = Implants
-                                           .SelectNotNull(x => x.Parent.GetItemType<ICannula>())
-                                           .SelectMany(x =>
-                                                   x.ConnectedItems.SelectNotNull(y => y.Item2.Parent.GetItemType<IExternalOrganFunction>()))
-                                           .Distinct()
-                                           .SelectMany(x => x.OrganFunctions.Select(y => (Organ: y.Organ, Factor: y.Function)))
-                                           .ToCollectionDictionary();
-                var effectBonuses = CombinedEffectsOfType<IOrganFunctionEffect>()
-                                         .SelectMany(x => x.OrganFunctionBonuses(this))
-                                         .ToCollectionDictionary();
+				var external = Implants
+										   .SelectNotNull(x => x.Parent.GetItemType<ICannula>())
+										   .SelectMany(x =>
+												   x.ConnectedItems.SelectNotNull(y => y.Item2.Parent.GetItemType<IExternalOrganFunction>()))
+										   .Distinct()
+										   .SelectMany(x => x.OrganFunctions.Select(y => (Organ: y.Organ, Factor: y.Function)))
+										   .ToCollectionDictionary();
+				var effectBonuses = CombinedEffectsOfType<IOrganFunctionEffect>()
+										 .SelectMany(x => x.OrganFunctionBonuses(this))
+										 .ToCollectionDictionary();
 
 		// Pre-calculate spinal organs because other organs will depend on it
 		foreach (var organ in Organs.OrderByDescending(x => x is SpineProto))
@@ -345,12 +345,12 @@ public partial class Body
 				}
 			}
 
-                        var bonus =
-                                merits[organ].Sum() +
-                                organs[organ].Sum() +
-                                implantOrgans[organ].Sum() +
-                                external[organ].Sum() +
-                                effectBonuses[organ].Sum();
+						var bonus =
+								merits[organ].Sum() +
+								organs[organ].Sum() +
+								implantOrgans[organ].Sum() +
+								external[organ].Sum() +
+								effectBonuses[organ].Sum();
 			_cachedOrganFunctionsByOrgan[organ] = bonus;
 			_cachedOrganFunctionsByType[organ.GetType()] += bonus;
 			if (!initialCalculation)
@@ -874,7 +874,7 @@ public partial class Body
 		}
 
 		if (!Bodyparts.Contains(damage.Bodypart) && !Organs.Contains(damage.Bodypart) &&
-		    !Bones.Contains(damage.Bodypart))
+			!Bones.Contains(damage.Bodypart))
 		{
 			return Enumerable.Empty<IWound>();
 		}
@@ -1019,7 +1019,7 @@ public partial class Body
 
 
 			if (damage.Bodypart.CanSever && damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&
-			    damage.DamageType.CanSever())
+				damage.DamageType.CanSever())
 			{
 				severedPart = damage.Bodypart;
 				damage = new Damage(damage) { Bodypart = damage.Bodypart.UpstreamConnection };
@@ -1611,6 +1611,7 @@ public partial class Body
 					Actor)));
 				if (Actor.PositionState.Upright)
 				{
+					Actor.DoFallOffHorse();
 					Actor.SetPosition(PositionSprawled.Instance, Actor.PositionModifier, Actor.PositionTarget, null);
 				}
 
@@ -1653,7 +1654,10 @@ public partial class Body
 				Actor.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("PassOutEcho"), Actor)));
 				if (Actor.PositionState.Upright)
 				{
-					Actor.SetPosition(PositionSprawled.Instance, Actor.PositionModifier, Actor.PositionTarget, null);
+					if (Actor.RidingMount is null)
+					{
+						Actor.SetPosition(PositionSprawled.Instance, Actor.PositionModifier, Actor.PositionTarget, null);
+					}
 				}
 
 				HandleTargetEvent(EventType.TargetIncapacitated);

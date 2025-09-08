@@ -594,8 +594,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 					defenderMove.Assailant.PositionState.Upright)
 				{
 					echoSlipped = true;
-						defenderMove.Assailant.SetPosition(PositionSprawled.Instance, PositionModifier.None,
-								defenderMove.Assailant.PositionTarget, null);
+					defenderMove.Assailant.DoCombatKnockdown();
 				}
 				var result = new OpposedOutcome(attackRoll, dodgeCheck, CheckDifficulty, defenderDifficulty);
 #if DEBUG

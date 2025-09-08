@@ -512,7 +512,7 @@ public partial class Character
 			return
 				FlyStaminaMultiplier() *
 				staminaMultiplier *
-				speed.StaminaMultiplier *
+				speed?.StaminaMultiplier ?? 1.0 *
 				(1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage"));
 		}
 
@@ -520,7 +520,7 @@ public partial class Character
 			(1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")) *
 			(ignoreTerrainStamina ? 1.0 : Location.Terrain(this)?.StaminaCost ?? 0) *
 			staminaMultiplier *
-			speed.StaminaMultiplier;
+			speed?.StaminaMultiplier ?? 1.0;
 	}
 
 

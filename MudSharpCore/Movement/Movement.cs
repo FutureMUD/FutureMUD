@@ -544,10 +544,20 @@ public class Movement : IMovement
 
 		if (seenMovers.Count > 0)
 		{
-			foreach (var group in seenMovers.GroupBy(x => (Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => y.Subtle))))
+			foreach (var group in seenMovers.GroupBy(x => (Riding: x.RidingMount is not null, Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => !y.Subtle))))
 			{
-
-				sb.AppendLine($"{group.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.ThirdPersonVerb} {suffix}.".Proper());
+				// Show riders individually
+				if (group.Key.Riding)
+				{
+					foreach (var item in group.GroupBy(x => x.RidingMount))
+					{
+						sb.AppendLine($"{item.Key.HowSeen(voyeur)}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {(item.Key == voyeur ? item.Key.CurrentSpeed.FirstPersonVerb : item.Key.CurrentSpeed.ThirdPersonVerb)} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
+					}
+				}
+				else
+				{
+					sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? group.Key.Speed.ThirdPersonVerb : group.Key.Speed.FirstPersonVerb)} {(group.Key.Sneaking ? "sneakily " : "")}{suffix}.".Proper());
+				}
 			}
 		}
 
@@ -571,16 +581,26 @@ public class Movement : IMovement
 				continue;
 			}
 
-			sb.AppendLine($"{draggers.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(draggers.Count == 1 ? "begins" : "begin")} dragging {effect.Target.HowSeen(voyeur)} {suffix}.".Proper());
+			sb.AppendLine($"{draggers.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(draggers.Count == 1 && !draggers.First().IsSelf(voyeur) ? "begins" : "begin")} dragging {effect.Target.HowSeen(voyeur)} {suffix}.".Proper());
 			seenMovers.RemoveAll(x => draggers.Contains(x));
 		}
 
 		if (seenMovers.Count > 0)
 		{
-			foreach (var group in seenMovers.GroupBy(x => (Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => y.Subtle))))
+			foreach (var group in seenMovers.GroupBy(x => (Riding: x.RidingMount is not null, Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => !y.Subtle))))
 			{
-
-				sb.AppendLine($"{group.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 ? "begins" : "begin")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.PresentParticiple} {suffix}.".Proper());
+				// Show riders individually
+				if (group.Key.Riding)
+				{
+					foreach (var item in group.GroupBy(x => x.RidingMount))
+					{
+						sb.AppendLine($"{item.Key.HowSeen(voyeur)} {(voyeur == item.Key ? "begin" : "begins")}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {item.Key.CurrentSpeed.PresentParticiple} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
+					}
+				}
+				else
+				{
+					sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? "begins" : "begin")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.PresentParticiple} {suffix}.".Proper());
+				}
 			}
 		}
 
@@ -611,10 +631,20 @@ public class Movement : IMovement
 
 		if (seenMovers.Count > 0)
 		{
-			foreach (var group in seenMovers.GroupBy(x => (Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => y.Subtle))))
+			foreach (var group in seenMovers.GroupBy(x => (Riding: x.RidingMount is not null, Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => !y.Subtle))))
 			{
-
-				sb.AppendLine($"{group.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 ? "is" : "are")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.PresentParticiple} {suffix}.".Proper());
+				// Show riders individually
+				if (group.Key.Riding)
+				{
+					foreach (var item in group.GroupBy(x => x.RidingMount))
+					{
+						sb.AppendLine($"{item.Key.HowSeen(voyeur)} {(item.Key == voyeur ? "are" : "is")} {(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? "sneakily " : "")}{item.Key.CurrentSpeed.PresentParticiple} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
+					}
+				}
+				else
+				{
+					sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? "is" : "are")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.PresentParticiple} {suffix}.".Proper());
+				}
 			}
 		}
 

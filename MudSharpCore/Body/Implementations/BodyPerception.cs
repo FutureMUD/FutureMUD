@@ -52,15 +52,15 @@ public partial class Body
 			return true;
 		}
 
-				if (AffectedBy<IDeafnessEffect>())
-				{
-						return false;
-				}
+		if (AffectedBy<IDeafnessEffect>())
+		{
+			return false;
+		}
 
-				if (OrganFunction<EarProto>() <= 0.0)
-				{
-						return false;
-				}
+		if (OrganFunction<EarProto>() <= 0.0)
+		{
+			return false;
+		}
 
 		return !Actor.State.HasFlag(CharacterState.Unconscious);
 	}
@@ -104,11 +104,11 @@ public partial class Body
 				numberOfEyes /= 2.0;
 			}
 
-                        var multiplier = CombinedEffectsOfType<IVisionLimitEffect>()
-                            .Aggregate(1.0, (sum, x) => sum * x.VisionMultiplier);
+			var multiplier = CombinedEffectsOfType<IVisionLimitEffect>()
+				.Aggregate(1.0, (sum, x) => sum * x.VisionMultiplier);
 
-                        return multiplier * (numberOfEyes >= 2.0 ? 1.0 : numberOfEyes / 2.0);
-                }
+			return multiplier * (numberOfEyes >= 2.0 ? 1.0 : numberOfEyes / 2.0);
+		}
 	}
 
 	public override bool CanSee(IPerceivable thing, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
@@ -142,30 +142,30 @@ public partial class Body
 		var perceiverThing = thing as IPerceiver;
 
 		// Require at least 1 eye to see unless things are in your inventory or are cell exits
-				var eyes = Bodyparts.OfType<EyeProto>().ToList();
-				if (!visionExemptThing)
-				{
-						if (AffectedBy<IBlindnessEffect>())
-						{
-								return false;
-						}
+		var eyes = Bodyparts.OfType<EyeProto>().ToList();
+		if (!visionExemptThing)
+		{
+			if (AffectedBy<IBlindnessEffect>())
+			{
+				return false;
+			}
 
-						if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
-																			   eyes.All(
-	   AffectedBy<IBodypartIneffectiveEffect>) ||
-																			   eyes.All(x => Prosthetics.Any(
-	   y => x.DownstreamOfPart(
-					y.TargetBodypart) &&
-			!y.Functional)) ||
-																			   eyes.All(x => WornItemsFor(x)
-	   .Any(
-			   y => y
-					   .IsItemType<IBlindfold>())))
-						   )
-						{
-								return false;
-						}
-				}
+			if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
+																   eyes.All(
+AffectedBy<IBodypartIneffectiveEffect>) ||
+																   eyes.All(x => Prosthetics.Any(
+y => x.DownstreamOfPart(
+		y.TargetBodypart) &&
+!y.Functional)) ||
+																   eyes.All(x => WornItemsFor(x)
+.Any(
+   y => y
+		   .IsItemType<IBlindfold>())))
+			   )
+			{
+				return false;
+			}
+		}
 
 		if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreConsciousness) && Actor.State.IsUnconscious())
 		{
@@ -377,14 +377,14 @@ public partial class Body
 		}
 
 		var ldescEffect = Actor.CombinedEffectsOfType<ILDescSuffixEffect>()
-		                       .FirstOrDefault(x => x.Applies() && x.SuffixApplies());
+							   .FirstOrDefault(x => x.Applies() && x.SuffixApplies());
 		if (ldescEffect != null)
 		{
 			parts.Add(ldescEffect.SuffixFor(voyeur));
 		}
 
 		var usePlural = voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) || !IsSingleEntity;
-		return $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} {(usePlural ? "are" : "is")} {parts.ListToCommaSeparatedValues(", ")} here";
+		return $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} {(usePlural ? "are" : "is")} {parts.ListToCommaSeparatedValues(", ")}";
 	}
 
 	public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short,
@@ -579,7 +579,7 @@ public partial class Body
 					items = items.Except(residues.Select(x => x.Parent)).ToList();
 				}
 			}
-			
+
 			// Then display everything else
 			foreach (var group in items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).OrderBy(x => x.Key == null))
 			{

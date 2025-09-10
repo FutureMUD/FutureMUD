@@ -669,7 +669,7 @@ Enter your text below:");
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		if (
 			actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay)
-				 .Any(x => x.OutboundDirection == direction))
+				.Any(x => x.OutboundDirection == direction))
 		{
 			actor.OutputHandler.Send("This Cell Overlay already contains an exit in that direction.");
 			return;
@@ -710,8 +710,8 @@ Enter your text below:");
 		if (!match.Success)
 		{
 			actor.OutputHandler.Send("You must supply an argument in this form: " +
-									 "cell ndig <template> <outbound keyword> <inbound keyword> \"<outbound name>\" \"<inbound name>\""
-										 .Colour(Telnet.Yellow));
+									"cell ndig <template> <outbound keyword> <inbound keyword> \"<outbound name>\" \"<inbound name>\""
+										.Colour(Telnet.Yellow));
 			return;
 		}
 
@@ -998,7 +998,7 @@ Possible filter options include:
 					rooms = rooms.Where(x =>
 						x.HowSeen(actor, colour: false).Contains(arg1, StringComparison.InvariantCultureIgnoreCase) ||
 						x.HowSeen(actor, colour: false, type: DescriptionType.Full)
-						 .Contains(arg1, StringComparison.InvariantCultureIgnoreCase)
+						.Contains(arg1, StringComparison.InvariantCultureIgnoreCase)
 					);
 					filterDescs.Add($"containing keyword {arg1.ColourCommand()}");
 					continue;
@@ -1012,7 +1012,7 @@ Possible filter options include:
 					rooms = rooms.Where(x =>
 						!x.HowSeen(actor, colour: false).Contains(arg1, StringComparison.InvariantCultureIgnoreCase) &&
 						!x.HowSeen(actor, colour: false, type: DescriptionType.Full)
-						  .Contains(arg1, StringComparison.InvariantCultureIgnoreCase)
+						.Contains(arg1, StringComparison.InvariantCultureIgnoreCase)
 					);
 					filterDescs.Add($"excluding keyword {arg1.ColourCommand()}");
 					continue;
@@ -1286,9 +1286,9 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 		var clock = long.TryParse(clockText, out var value)
 			? actor.Gameworld.Clocks.Get(value)
 			: actor.Gameworld.Clocks.FirstOrDefault(
-				  x => x.Alias.Equals(clockText, StringComparison.InvariantCultureIgnoreCase)) ??
-			  actor.Gameworld.Clocks.FirstOrDefault(
-				  x => x.Description.Equals(clockText, StringComparison.InvariantCultureIgnoreCase));
+				x => x.Alias.Equals(clockText, StringComparison.InvariantCultureIgnoreCase)) ??
+			actor.Gameworld.Clocks.FirstOrDefault(
+				x => x.Description.Equals(clockText, StringComparison.InvariantCultureIgnoreCase));
 		if (clock == null)
 		{
 			actor.Send("There is no such clock.");
@@ -1626,7 +1626,27 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
 
 
-	public const string TimeZoneHelp = @"This command is used to create and edit in-game timezones for a particular clock. Timezones are relative to a standard default timezone for that clock - a real world example would be UTC.
+	public const string ClockHelpText = @"This command is used to create and edit in-game clocks.
+
+The syntax for this command is as follows:
+
+#3clock list#0 - lists all of the clocks
+#3clock new <alias> ""<name>""#0 - creates a new clock
+#3clock edit <which>#0 - begins editing a clock
+#3clock clone <old> <alias> ""<name>""#0 - clones a clock
+#3clock close#0 - stops editing a clock
+#3clock show <which>#0 - shows information about a clock
+#3clock show#0 - shows information about the currently edited clock";
+
+       [PlayerCommand("Clock", "clock")]
+       [CommandPermission(PermissionLevel.HighAdmin)]
+       [HelpInfo("clock", ClockHelpText, AutoHelp.HelpArgOrNoArg)]
+       protected static void Clock(ICharacter actor, string input)
+       {
+BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ClockHelper);
+}
+
+public const string TimeZoneHelp = @"This command is used to create and edit in-game timezones for a particular clock. Timezones are relative to a standard default timezone for that clock - a real world example would be UTC.
 
 The syntax for this command is as follows:
 
@@ -1965,7 +1985,7 @@ You can use the following subcommands:
 				break;
 			default:
 				actor.OutputHandler.Send("That is not a valid option for the " + "cell edit".Colour(Telnet.Cyan) +
-										 " command.");
+										" command.");
 				return;
 		}
 	}
@@ -2294,11 +2314,11 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 			var existingNonDoorExit =
 				actor.Gameworld.ExitManager.GetAllExits(actor.Location)
-					 .FirstOrDefault(
-						 x =>
-							 x.Origin == exit.Origin && x.Destination == exit.Destination &&
-							 x.InboundDirection == exit.InboundDirection &&
-							 x.OutboundDirection == exit.OutboundDirection && !x.Exit.AcceptsDoor);
+					.FirstOrDefault(
+						x =>
+							x.Origin == exit.Origin && x.Destination == exit.Destination &&
+							x.InboundDirection == exit.InboundDirection &&
+							x.OutboundDirection == exit.OutboundDirection && !x.Exit.AcceptsDoor);
 			if (existingNonDoorExit != null)
 			{
 				newExit = existingNonDoorExit.Exit;
@@ -2536,7 +2556,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		actor.OutputHandler.Send("You set the Terrain for this cell to \"" +
-								 terrain.Name.TitleCase().Colour(Telnet.Green) + "\"");
+								terrain.Name.TitleCase().Colour(Telnet.Green) + "\"");
 	}
 
 	private static void CellEditHearingProfile(ICharacter actor, StringStack input)
@@ -2558,7 +2578,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		overlay.HearingProfile = profile;
 		actor.OutputHandler.Send("You set the Hearing Profile for this cell to \"" +
-								 profile.Name.TitleCase().Colour(Telnet.Green) + "\"");
+								profile.Name.TitleCase().Colour(Telnet.Green) + "\"");
 	}
 
 	private static void CellExit(ICharacter actor, StringStack input)
@@ -2573,7 +2593,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 				: "")}:
 
 {(from exit in exits
-							 select exit.BuilderInformationString(actor)
+							select exit.BuilderInformationString(actor)
 									+
 									(overlay != null && overlay.ExitIDs.Contains(exit.Exit.Id)
 										? "[x]"
@@ -2737,7 +2757,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			otherOverlay.RemoveExit(texit);
 
 			actor.OutputHandler.Send("You remove the Exit with ID " + texit.Id +
-									 " from this Location's Cell Overlay.");
+									" from this Location's Cell Overlay.");
 		}
 	}
 
@@ -3155,7 +3175,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		if (
 			actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay)
-				 .Any(x => x.OutboundDirection == direction))
+				.Any(x => x.OutboundDirection == direction))
 		{
 			actor.OutputHandler.Send("This Cell Overlay already contains an exit in that direction.");
 			return;
@@ -3171,7 +3191,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		var oppositeDirection = direction.Opposite();
 		if (
 			actor.Gameworld.ExitManager.GetExitsFor(cell, otherOverlay)
-				 .Any(x => x.OutboundDirection == oppositeDirection))
+				.Any(x => x.OutboundDirection == oppositeDirection))
 		{
 			actor.OutputHandler.Send("The target cell already has an exit in the opposite direction.");
 			return;
@@ -3184,7 +3204,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
 		actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
 		actor.OutputHandler.Send("You create a two-way exit to the " + direction.Describe() + " to cell \"" +
-								 cell.HowSeen(actor) + "\"");
+								cell.HowSeen(actor) + "\"");
 	}
 
 	private static readonly Regex CellEditNLinkRegex =
@@ -3199,8 +3219,8 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		if (!match.Success)
 		{
 			actor.OutputHandler.Send("You must supply an argument in this form: " +
-									 "cell nlink <template> <cellid> <outbound keyword> <inbound keyword> \"<outbound description>\" \"<inbound description>\""
-										 .Colour(Telnet.Yellow));
+									"cell nlink <template> <cellid> <outbound keyword> <inbound keyword> \"<outbound description>\" \"<inbound description>\""
+										.Colour(Telnet.Yellow));
 			return;
 		}
 
@@ -3277,7 +3297,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		overlay.CellDescription = description;
 		handler.Send("You set the Cell Description to:\n\n" +
-					 overlay.CellDescription.Wrap(actor.InnerLineFormatLength));
+					overlay.CellDescription.Wrap(actor.InnerLineFormatLength));
 	}
 
 	private static void DoCellDescCancel(IOutputHandler handler, object[] arguments)
@@ -3673,14 +3693,14 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
 		{
 			actor.OutputHandler.Send("Your Cell Overlay Package is not in the " +
-									 "Under Design".Colour(Telnet.Yellow) + " status.");
+									"Under Design".Colour(Telnet.Yellow) + " status.");
 			return;
 		}
 
 		actor.CurrentOverlayPackage.ChangeStatus(RevisionStatus.PendingRevision, input.SafeRemainingArgument,
 			actor.Account);
 		actor.OutputHandler.Send("You submit the Cell Overlay Package \"" + actor.CurrentOverlayPackage.Name +
-								 "\" for review.");
+								"\" for review.");
 		actor.CurrentOverlayPackage = null;
 	}
 
@@ -3863,7 +3883,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		actor.OutputHandler.Send(
 			("You are reviewing " + packages.Count() + " Cell Overlay Package" + (packages.Count() == 1 ? "" : "s"))
 			.Colour(Telnet.Red) + "\n\nTo approve these Cell Overlay Package" +
-			(packages.Count() == 1 ? "" : "s") + ",  type " + "accept edit <your comments>".Colour(Telnet.Yellow) +
+			(packages.Count() == 1 ? "" : "s") + ",	 type " + "accept edit <your comments>".Colour(Telnet.Yellow) +
 			" or " + "decline edit <your comments>".Colour(Telnet.Yellow) +
 			" to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
 		actor.AddEffect(
@@ -3910,10 +3930,10 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		actor.OutputHandler.Send(("You are reviewing " + package.EditHeader()).Colour(Telnet.Red) + "\n\n" +
-								 package.Show(actor) + "\n\nTo approve this Cell Overlay Package, type " +
-								 "accept edit <your comments>".Colour(Telnet.Yellow) + " or " +
-								 "decline edit <your comments>".Colour(Telnet.Yellow) +
-								 " to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
+								package.Show(actor) + "\n\nTo approve this Cell Overlay Package, type " +
+								"accept edit <your comments>".Colour(Telnet.Yellow) + " or " +
+								"decline edit <your comments>".Colour(Telnet.Yellow) +
+								" to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
 		actor.AddEffect(
 			new Accept(actor,
 				new EditableItemReviewProposal<ICellOverlayPackage>(actor, new List<ICellOverlayPackage> { package })),
@@ -3939,10 +3959,10 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			actor.Gameworld.SaveManager.Flush();
 			// We must first delete all of the CellOverlays linked to this CellOverlayPackage, because the Overlays have a foreign key constraint of the Package ID.
 			var dboverlayproto = FMDB.Context.CellOverlays
-									 .Where(x => x.CellOverlayPackageId == actor.CurrentOverlayPackage.Id)
-									 .Where(x => x.CellOverlayPackageRevisionNumber ==
-												 actor.CurrentOverlayPackage.RevisionNumber)
-									 .ToList();
+									.Where(x => x.CellOverlayPackageId == actor.CurrentOverlayPackage.Id)
+									.Where(x => x.CellOverlayPackageRevisionNumber ==
+												actor.CurrentOverlayPackage.RevisionNumber)
+									.ToList();
 
 			foreach (var overlay in dboverlayproto)
 			{
@@ -3953,7 +3973,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			}
 
 			var dbpackageproto = FMDB.Context.CellOverlayPackages
-									 .Find(actor.CurrentOverlayPackage.Id, actor.CurrentOverlayPackage.RevisionNumber);
+									.Find(actor.CurrentOverlayPackage.Id, actor.CurrentOverlayPackage.RevisionNumber);
 			if (dbpackageproto != null)
 			{
 				FMDB.Context.CellOverlayPackages.Remove(dbpackageproto);
@@ -3982,7 +4002,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		actor.CurrentOverlayPackage.ChangeStatus(RevisionStatus.Obsolete, input.SafeRemainingArgument, actor.Account);
 		actor.OutputHandler.Send("You mark " + actor.CurrentOverlayPackage.EditHeader() +
-								 " as an obsolete prototype.");
+								" as an obsolete prototype.");
 		actor.CurrentOverlayPackage = null;
 	}
 
@@ -4049,9 +4069,9 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			var clock = long.TryParse(input.PopSpeech(), out var value)
 				? actor.Gameworld.Clocks.Get(value)
 				: actor.Gameworld.Clocks.FirstOrDefault(
-					  x => x.Name.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase)) ??
-				  actor.Gameworld.Clocks.FirstOrDefault(
-					  x => x.Alias.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase));
+					x => x.Name.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase)) ??
+				actor.Gameworld.Clocks.FirstOrDefault(
+					x => x.Alias.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase));
 			if (clock == null)
 			{
 				actor.Send("There is no clock identified by {0}.", input.Last);
@@ -4070,7 +4090,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		actor.Send(
 			"The shard now has the following clocks:\n{0}Note: Don't forget to set up timezones for the new clocks in any zones in this shard.",
 			clocks.Select(x => "\t" + x.Name.TitleCase().ColourValue())
-				  .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
+				.ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
 	}
 
 	private static void ShardEditCalendars(ICharacter actor, StringStack input, IShard shard)
@@ -4088,9 +4108,9 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			var calendar = long.TryParse(input.PopSpeech(), out var value)
 				? actor.Gameworld.Calendars.Get(value)
 				: actor.Gameworld.Calendars.FirstOrDefault(
-					  x => x.ShortName.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase)) ??
-				  actor.Gameworld.Calendars.FirstOrDefault(
-					  x => x.Alias.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase));
+					x => x.ShortName.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase)) ??
+				actor.Gameworld.Calendars.FirstOrDefault(
+					x => x.Alias.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase));
 			if (calendar == null)
 			{
 				actor.Send("There is no calendar identified by {0}.", input.Last);
@@ -4109,7 +4129,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		actor.Send(
 			"The shard now has the following calendars:\n{0}",
 			calendars.Select(x => "\t" + x.ShortName.TitleCase().ColourValue())
-					 .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
+					.ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
 	}
 
 	private static void ShardEditCelestials(ICharacter actor, StringStack input, IShard shard)
@@ -4155,7 +4175,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		shard.Changed = true;
 		actor.Send("The shard now has the following celestials:\n{0}",
 			celestials.Select(x => "\t" + x.Name.TitleCase())
-					  .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
+					.ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
 	}
 
 	private static void ShardEditLux(ICharacter actor, StringStack input, IShard shard)
@@ -4280,15 +4300,15 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		actor.OutputHandler.Send(
 			StringUtilities.GetTextTable(from area in areas
-										 select new[]
-										 {
-											 area.Id.ToString("N0", actor),
-											 area.Name,
-											 area.WeatherController?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
-											 area.Zones.Select(x => x.Name)
-												 .ListToString(conjunction: "", twoItemJoiner: ", "),
-											 area.Cells.Count().ToString("N0", actor)
-										 },
+										select new[]
+										{
+											area.Id.ToString("N0", actor),
+											area.Name,
+											area.WeatherController?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
+											area.Zones.Select(x => x.Name)
+												.ListToString(conjunction: "", twoItemJoiner: ", "),
+											area.Cells.Count().ToString("N0", actor)
+										},
 				new[] { "Id", "Name", "Weather", "Zones", "Cells" },
 				actor.LineFormatLength,
 				colour: Telnet.Green,
@@ -4549,7 +4569,7 @@ The syntax for working with areas is as follows:
 		var area = long.TryParse(ss.PopSpeech(), out var value)
 			? actor.Gameworld.Areas.Get(value)
 			: actor.Gameworld.Areas.GetByName(ss.Last) ??
-			  actor.Gameworld.Areas.FirstOrDefault(x => x.Name.StartsWith(ss.Last, StringComparison.OrdinalIgnoreCase));
+			actor.Gameworld.Areas.FirstOrDefault(x => x.Name.StartsWith(ss.Last, StringComparison.OrdinalIgnoreCase));
 
 		if (area == null)
 		{

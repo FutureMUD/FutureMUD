@@ -1064,1750 +1064,293 @@ return @bmi > 24 and @bmi < 35"
 		var nextId = _context.CharacteristicValues.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
 		AddCharacteristicValue(nextId++, eyeShapeDef, "round", "", "");
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "almond", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "slanted", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "beady", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "narrow", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "teardrop", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "sunken", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "droopy", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "hooded", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "close-set", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "deep-set", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "hollow", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "puffy", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "doe-like", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "small", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "protruding", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "monolid", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "heavy-lidded", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "prominent", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "upturned", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "asymmetrical", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "downturned", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "wide-set", Value = "", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "wide",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "large",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "big",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "small",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "tiny",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "rheumy",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = eyeShapeDef,
-			Name = "watery",
-			Value = "",
-			AdditionalValue = "",
-			Default = false,
-			Pluralisation = 0
-		});
+		AddCharacteristicValue(nextId++, eyeShapeDef, "almond", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "slanted", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "beady", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "narrow", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "teardrop", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "sunken", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "droopy", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "hooded", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "close-set", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "deep-set", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "hollow", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "puffy", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "doe-like", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "small", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "protruding", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "monolid", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "heavy-lidded", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "prominent", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "upturned", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "asymmetrical", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "downturned", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "wide-set", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "wide", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "large", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "big", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "small", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "tiny", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "rheumy", "", "");
+		AddCharacteristicValue(nextId++, eyeShapeDef, "watery", "", "");
 		_context.SaveChanges();
 
 		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "clean shave", "clean-shaven", "a clean chin with no hair at all", 0, Difficulty.Automatic, 0, true, 0);
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "handlebar moustache",
-			Value = "handlebar-moustached",
-			AdditionalValue = "3 2 0 a moustache with lengthy and upwardly curved extremities", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "moustache", Value = "moustached",
-			AdditionalValue = "2 0 0 a naturally-styled moustache", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "goatee", Value = "goateed",
-			AdditionalValue = "3 1 0 a naturally-styled moustache and adjoining chin beard", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "beard", Value = "bearded",
-			AdditionalValue = "4 0 0 a full face beard", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "muttonchops", Value = "muttonchopped",
-			AdditionalValue = "3 0 0 sideburns extending well onto the jawline", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "sideburns", Value = "sideburned",
-			AdditionalValue = "2 0 0 twin patches of natural hair from the scalp to below the ear, with a clean chin",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "curly sideburns", Value = "curly-sideburned",
-			AdditionalValue =
-				"2 0 0 twin patches of mid-length curly hair, from the scalp to below the ear, with a clean chin",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "full beard", Value = "full-bearded",
-			AdditionalValue =
-				"4 0 0 a full, thick beard displaying unmodified growth on the face, neck, chin, cheeks and sideburns.",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "chin curtain", Value = "curtain-bearded",
-			AdditionalValue =
-				"3 0 0 a short beard running along the jaw line, visibly hanging below the jaw as a curtain hangs from a rod",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "chinstrap", Value = "chinstrapped",
-			AdditionalValue =
-				"4 0 0 a pair of sideburns, connected by a short, narrow beard along the bottom of the jaw",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "friendly muttonchops", Value = "muttonchopped",
-			AdditionalValue =
-				"4 0 0 a pair of naturally styled muttonchops, connected by a moustache but with a clean chin",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "fu manchu", Value = "fu-manchued",
-			AdditionalValue =
-				"3 2 0 a thin, very narrow moustache that grows downward in two very long tendrils from the upper lip.",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "goat patch", Value = "goat-patched",
-			AdditionalValue = "3 0 0 a narrow strip of hair growing only on the chin, resembling the beard of a goat",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "german goatee", Value = "goateed",
-			AdditionalValue =
-				"3 1 0 a neatly trimmed goatee which wraps around the mouth, but whose moustache flares outward past the connecting chin lines",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "horseshoe moustache",
-			Value = "horseshoe-moustached",
-			AdditionalValue =
-				"3 2 0 a full moustache with ends that extend down in parallel straight lines, with a clean shaven chin",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "sidewhiskers", Value = "sidewhiskered",
-			AdditionalValue =
-				"4 0 0 a pair of muttonchops and connecting moustache, where the portions connecting the sideburns and moustache hang several inches below the chin",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "neckbeard", Value = "neckbearded",
-			AdditionalValue = "4 0 0 a beard that grows only on the neck and under the jaw", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "pencil moustache", Value = "pencil-moustached",
-			AdditionalValue = "2 0 0 a very thin, very short moustache sitting just above the lip", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "shenandoah", Value = "shenandoahed",
-			AdditionalValue =
-				"4 0 0 a combination of a chin curtain and neckbeard, with full, unmodified growth on the neck, lower jawline, sideburns, but a notably hair free lip",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "soul patch", Value = "soul-patched",
-			AdditionalValue = "2 0 0 a small, single patch of hair just below the lip", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "stubble", Value = "stubbly",
-			AdditionalValue = "1 0 0 a short growth of stubble all over &his jaw", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "coarse stubble", Value = "coarse-stubbled",
-			AdditionalValue = "2 0 0 a coarse, prickly growth of stubble all over &his jaw", Default = false,
-			Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "toothbrush moustache",
-			Value = "toothbrush-moustached",
-			AdditionalValue = "2 0 0 a narrow but tall moustache that does not extend beyond the side of the nose",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "french beard", Value = "french-bearded",
-			AdditionalValue = "3 1 0 a long, pointy goatee where the chin beard and moustache do not touch",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "walrus moustache", Value = "walrus-moustached",
-			AdditionalValue = "3 1 0 a thick, bushy growth of whiskers on the lip like the moustache of a walrus",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "beard", Value = "barbate",
-			AdditionalValue = "4 0 0 a thick and full beard", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "long beard", Value = "long-bearded",
-			AdditionalValue = "5 0 0 a very long, very thick full face beard", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "patchy beard", Value = "patchy-bearded",
-			AdditionalValue = "3 0 0 a thin, patchy beard", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "ducktail beard", Value = "ducktail-bearded",
-			AdditionalValue =
-				"5 2 0 a full-faced beard and moustache, with a mid-length portion hanging below the chin and tapering to a point",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "french fork", Value = "french-forked",
-			AdditionalValue =
-				"5 2 0 a full-faced beard and moustache, with a mid-length portion hanging down over the chin and styled into two distinct forks",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "chevron moustache", Value = "chevron-moustached",
-			AdditionalValue =
-				"3 1 0 a neatly trimmed moustache extending little beyond the edges of the nose and cleanly tapered into thick points",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "lampshade moustache",
-			Value = "lampshade-moustached",
-			AdditionalValue =
-				"3 2 0 a short, trimmed moustache extending only to the edges of the nose and forming a trapezoidal shape, like the profile view of a lampshade",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "petite handlebar", Value = "petite-handlebared",
-			AdditionalValue =
-				"2 2 0 a short, sharp moustache which curves up at the edges, just past the edge of the nostrils",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "short beard", Value = "short-bearded",
-			AdditionalValue =
-				"3 0 0 a short full-face beard, in a transitional period between stubble and a real beard",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "pube beard", Value = "pube-bearded",
-			AdditionalValue = "2 0 0 a nasty, patchy short beard that looks like pubic hair growing on &his chin",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "mange beard", Value = "mangey-bearded",
-			AdditionalValue =
-				"3 0 0 a pathetic bit of facial hair growth. &his beard has bare patches that sort of resemble the early onset of mange",
-			Default = false, Pluralisation = 0
-		});
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "handlebar moustache", "handlebar-moustached", "a moustache with lengthy and upwardly curved extremities", 3, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "moustache", "moustached", "a naturally-styled moustache", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "goatee", "goateed", "a naturally-styled moustache and adjoining chin beard", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "beard", "bearded", "a full face beard", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "muttonchops", "muttonchopped", "sideburns extending well onto the jawline", 3, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "sideburns", "sideburned", "twin patches of natural hair from the scalp to below the ear, with a clean chin", 2, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "curly sideburns", "curly-sideburned", "twin patches of mid-length curly hair, from the scalp to below the ear, with a clean chin", 2, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "full beard", "full-bearded", "a full, thick beard displaying unmodified growth on the face, neck, chin, cheeks and sideburns.", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "chin curtain", "curtain-bearded", "a short beard running along the jaw line, visibly hanging below the jaw as a curtain hangs from a rod", 3, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "chinstrap", "chinstrapped", "a pair of sideburns, connected by a short, narrow beard along the bottom of the jaw", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "friendly muttonchops", "muttonchopped", "a pair of naturally styled muttonchops, connected by a moustache but with a clean chin", 4, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "fu manchu", "fu-manchued", "a thin, very narrow moustache that grows downward in two very long tendrils from the upper lip.", 3, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "goat patch", "goat-patched", "a narrow strip of hair growing only on the chin, resembling the beard of a goat", 3, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "german goatee", "goateed", "a neatly trimmed goatee which wraps around the mouth, but whose moustache flares outward past the connecting chin lines", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "horseshoe moustache", "horseshoe-moustached", "a full moustache with ends that extend down in parallel straight lines, with a clean shaven chin", 3, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "sidewhiskers", "sidewhiskered", "a pair of muttonchops and connecting moustache, where the portions connecting the sideburns and moustache hang several inches below the chin", 4, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "neckbeard", "neckbearded", "a beard that grows only on the neck and under the jaw", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "pencil moustache", "pencil-moustached", "a very thin, very short moustache sitting just above the lip", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "shenandoah", "shenandoahed", "a combination of a chin curtain and neckbeard, with full, unmodified growth on the neck, lower jawline, sideburns, but a notably hair free lip", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "soul patch", "soul-patched", "a small, single patch of hair just below the lip", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "stubble", "stubbly", "a short growth of stubble all over &his jaw", 1, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "coarse stubble", "coarse-stubbled", "a coarse, prickly growth of stubble all over &his jaw", 2, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "toothbrush moustache", "toothbrush-moustached", "a narrow but tall moustache that does not extend beyond the side of the nose", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "french beard", "french-bearded", "a long, pointy goatee where the chin beard and moustache do not touch", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "walrus moustache", "walrus-moustached", "a thick, bushy growth of whiskers on the lip like the moustache of a walrus", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "beard", "barbate", "a thick and full beard", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "long beard", "long-bearded", "a very long, very thick full face beard", 5, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "patchy beard", "patchy-bearded", "a thin, patchy beard", 3, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "ducktail beard", "ducktail-bearded", "a full-faced beard and moustache, with a mid-length portion hanging below the chin and tapering to a point", 5, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "french fork", "french-forked", "a full-faced beard and moustache, with a mid-length portion hanging down over the chin and styled into two distinct forks", 5, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "chevron moustache", "chevron-moustached", "a neatly trimmed moustache extending little beyond the edges of the nose and cleanly tapered into thick points", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "lampshade moustache", "lampshade-moustached", "a short, trimmed moustache extending only to the edges of the nose and forming a trapezoidal shape, like the profile view of a lampshade", 3, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "petite handlebar", "petite-handlebared", "a short, sharp moustache which curves up at the edges, just past the edge of the nostrils", 2, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "short beard", "short-bearded", "a short full-face beard, in a transitional period between stubble and a real beard", 3, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "pube beard", "pube-bearded", "a nasty, patchy short beard that looks like pubic hair growing on &his chin", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "mange beard", "mangey-bearded", "a pathetic bit of facial hair growth. &his beard has bare patches that sort of resemble the early onset of mange", 3, Difficulty.Automatic, 0);
 		_context.SaveChanges();
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "emaciated", Value = "emaciated",
-			AdditionalValue = "abnormally thin and emaciated", Default = false, Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "gaunt", Value = "emaciated",
-			AdditionalValue = "lean and haggard, looking gaunt", Default = false, Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "lean", Value = "thin",
-			AdditionalValue = "of a lean, thin build", Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "very thin", Value = "emaciated",
-			AdditionalValue = "very thin frame, with not an ounce of fat", Default = false, Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "thin", Value = "thin",
-			AdditionalValue = "tends towards the thin side of a healthy frame", Default = false, Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "skinny", Value = "thin",
-			AdditionalValue = "of a very skinny build", Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "well-proportioned", Value = "normal",
-			AdditionalValue = "of an extremely fit and healthy build, being well proportioned in all respects",
-			Default = false, Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "muscular", Value = "muscular",
-			AdditionalValue = "extremely fit looking, with well defined musculature", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "ripped", Value = "muscular",
-			AdditionalValue = "in every respect ripped, with showy, well-developed muscles", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "bulky", Value = "muscular",
-			AdditionalValue = "bulky but muscular looking", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "normal", Value = "normal",
-			AdditionalValue =
-				"of a perfectly ordinary build, with little excess fat or muscle and ordinary proportions",
-			Default = false, Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "flabby", Value = "fat",
-			AdditionalValue = "flabby, with various pockets of loose, dangling skin", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "chubby", Value = "fat",
-			AdditionalValue = "a little heavier than normal, with chubby features and a small amount of excess fat",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "voluptuous", Value = "fat",
-			AdditionalValue = "large, but well proportioned", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "curvaceous", Value = "fat",
-			AdditionalValue = "shapely and of ample proportion, with well defined curves", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "curvy", Value = "fat",
-			AdditionalValue = "shapely and of ample proportion, with well defined curves", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "fat", Value = "fat",
-			AdditionalValue = "unambiguously fat, being too heavy for their frame", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "overweight", Value = "fat",
-			AdditionalValue = "a little overweight, with plenty of excess body fat", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "pudgy", Value = "fat",
-			AdditionalValue = "fat in the face, or pudgy", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "obese", Value = "obese",
-			AdditionalValue = "grossly overweight, with significant extra fat all over the body", Default = false,
-			Pluralisation = 0, FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "very fat", Value = "obese",
-			AdditionalValue = "very fat, in the obese range", Default = false, Pluralisation = 0, FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "morbidly obese", Value = "obese",
-			AdditionalValue = "belarded by great, hanging sacks of fat", Default = false, Pluralisation = 0,
-			FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "pot bellied", Value = "obese",
-			AdditionalValue = "in possession of an enormous, round pot belly", Default = false, Pluralisation = 0,
-			FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "barrel chested", Value = "fat",
-			AdditionalValue = "in possession of a huge barrel chest, on an otherwise large but muscular frame",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "skeletal", Value = "emaciated",
-			AdditionalValue = "nothing more than skin and bones - at least by appearances, a walking skeleton",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "ropy", Value = "thin",
-			AdditionalValue =
-				"whipcord thin, with all the appearance of knotted rope where muscle meets joint and bone",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "rawboned", Value = "thin",
-			AdditionalValue =
-				"gaunt enough that &his bones are painfully obvious, jutting in sharp angles beneath the skin",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "lanky", Value = "thin",
-			AdditionalValue = "lean enough to appear long-limbed, with an ungraceful, stork-like appearance",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "bony", Value = "emaciated",
-			AdditionalValue =
-				"bony, with &his skin stretched tightly over &his ribcage, possessing a jutting collarbone and pronounced cheekbones",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "bantam", Value = "thin",
-			AdditionalValue = "small, though with a certain chaotic vigor that belies that tiny frame", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "little", Value = "thin",
-			AdditionalValue = "undersized and of below average frame", Default = false, Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "petite", Value = "thin",
-			AdditionalValue = "rather small, with a thin enough build to be considered dainty", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "scrawny", Value = "emaciated",
-			AdditionalValue = "thinly-framed enough that &his ribs are clearly defined beneath the skin of &his chest",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "sinewy", Value = "thin",
-			AdditionalValue =
-				"thin and lean, with sinewy muscle that is sharply pronounced beneath their skin, wound tightly around their bird-like bones",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "slender", Value = "thin",
-			AdditionalValue = "as slim and thin as a tree sapling, with longish limbs and little body fat",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "scrappy", Value = "thin",
-			AdditionalValue = "rough and scrawny, with an underfed appearance, bony hands, and knobby knees",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "slim", Value = "thin",
-			AdditionalValue = "slimly built, with little to no excess fat on &his frame", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "willowy", Value = "thin",
-			AdditionalValue = "in possession of a willowy frame that carries no unnecessary fat", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "gangly", Value = "emaciated",
-			AdditionalValue =
-				"gaunt and underfed, with &his bones protruding from beneath &his skin, all joints and odd angles",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "lithe", Value = "thin",
-			AdditionalValue = "sleek and slim, with a graceful, cat-like appearance to &his frame", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "delicate", Value = "thin",
-			AdditionalValue =
-				"of a seemingly fragile frame: thin, undersized, and delicately boned, with many fine features",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "lissome", Value = "thin",
-			AdditionalValue = "slim and soft-fleshed, with no hard muscle definition, but no sharp gauntness either",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "spry", Value = "thin",
-			AdditionalValue = "small and thin, but with a startling vitality to the remaining fleshiness of &his frame",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "supple", Value = "thin",
-			AdditionalValue = "slim and soft - thin without being gaunt, while retaining no unnecessary body fat",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "lithesome", Value = "thin",
-			AdditionalValue = "slim and soft-fleshed, with no hard muscle definition, but no sharp gauntness either",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "average", Value = "normal",
-			AdditionalValue = "of an ordinary build - not particularly muscular, but not overly gaunt", Default = false,
-			Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "athletic", Value = "normal",
-			AdditionalValue = "fit and trim, with an athletic build, toned calves, and a flat abdomen", Default = false,
-			Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "fit", Value = "normal",
-			AdditionalValue = "fit and trim, with toned muscles and a flat abdomen", Default = false, Pluralisation = 0,
-			FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "strapping", Value = "normal",
-			AdditionalValue =
-				"quite healthy by all appearances, displaying some muscle definition - but not enough to be classified as 'bulky'",
-			Default = false, Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "vigorous", Value = "normal",
-			AdditionalValue =
-				"quite healthy by all appearances, with a fit build and a frame that carries no unnecessary body fat",
-			Default = false, Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "typical", Value = "normal",
-			AdditionalValue = "of a fairly typical build for one of &his race", Default = false, Pluralisation = 0,
-			FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "rugged", Value = "muscular",
-			AdditionalValue = "quite muscular and fit, with a hard ruggedness to &his frame", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "burly", Value = "muscular",
-			AdditionalValue =
-				"broad and squat, with a thickly muscular frame that pays special mind to &his arms and shoulders",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "stout", Value = "muscular",
-			AdditionalValue = "squat but muscular, with very little in the way of curves or softness", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "heavyset", Value = "muscular",
-			AdditionalValue = "squat but muscular, wearing &his bulkiness well on &his heavyset frame", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "thick-limbed", Value = "muscular",
-			AdditionalValue = "in possession of limbs that are thickly corded with muscle, skin and some fat",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "beefy", Value = "fat",
-			AdditionalValue = "large, muscular and broad, with wide shoulders and a barrel chest", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "broad-shouldered", Value = "muscular",
-			AdditionalValue = "in possession of wide shoulders that are thickly corded with muscle", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "bull-necked", Value = "muscular",
-			AdditionalValue =
-				"muscular and hefty, with a thickly-muscled neck disappearing between &his broad shoulders",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "robust", Value = "muscular",
-			AdditionalValue = "healthy and vigorous, with a richly muscular frame", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "brawny", Value = "muscular",
-			AdditionalValue =
-				"built like a brick shithouse, with very little body fat - mostly muscle over a broad frame",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "big", Value = "fat",
-			AdditionalValue = "large and thick-framed, with a build that has gone largely to fat", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "sturdy", Value = "muscular",
-			AdditionalValue =
-				"sturdily built, with some muscle, some fat, and some solid bones, sinew and joints holding it all together",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "well-built", Value = "normal",
-			AdditionalValue = "well-built, with a fit frame and well-proportioned arms and legs", Default = false,
-			Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "thickset", Value = "fat",
-			AdditionalValue = "thickly-built and possessing a squat, sturdy frame on which sits a good amount of flesh",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "hardy", Value = "muscular",
-			AdditionalValue = "muscular and squat, with a hardy, fit frame", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "solid", Value = "muscular",
-			AdditionalValue = "solidly-built, with a compact frame corded with muscle and padded with fat",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "wide-hipped", Value = "fat",
-			AdditionalValue = "in possession of wide hips that are amply padded with soft fat", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "corpulent", Value = "obese",
-			AdditionalValue =
-				"unmistakeably large and obese, with an excess of body fat hanging in rolls and fleshy ribbons",
-			Default = false, Pluralisation = 0, FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "hefty", Value = "fat",
-			AdditionalValue =
-				"in possession of a large frame that carries a fair amount of muscle and fat on it, though there's more fat than muscle",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "heavy", Value = "fat",
-			AdditionalValue = "carrying a good deal of body fat, muscle and other weight on &his heavyset frame",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "big-boned", Value = "fat",
-			AdditionalValue =
-				"large, with broad shoulders and a solid amount of fat and some muscle cording their big-boned frame",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "husky", Value = "fat",
-			AdditionalValue =
-				"rather plump, though the broadness of &his frame hides the full extent of &his fleshiness",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "stocky", Value = "fat",
-			AdditionalValue = "squat and compact, with a frame that carries its excess fat well enough",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "plump", Value = "fat",
-			AdditionalValue = "rather plump - not exactly fat, but soft and at least moderately overweight",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "meaty", Value = "fat",
-			AdditionalValue = "large and chunky, with a frame that is a meaty, marbled mix of fat and muscle",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "dumpy", Value = "obese",
-			AdditionalValue =
-				"horrifically large and utterly fat, with all &his excess fat hanging off &his dumpy frame",
-			Default = false, Pluralisation = 0, FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "chunky", Value = "fat",
-			AdditionalValue = "rather chunky, with some excess fat on &his frame", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "paunchy", Value = "fat",
-			AdditionalValue = "in possession of a large, protruding abdomen", Default = false, Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "ample", Value = "fat",
-			AdditionalValue = "quite large and impressive - impressively chubby, at least", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "beer-bellied", Value = "fat",
-			AdditionalValue =
-				"in possession of a large, prominent abdomen that balloons out - commonly referred to a 'beer belly'",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "podgy", Value = "fat",
-			AdditionalValue =
-				"soft and fat, with a short frame that encourages loose folds of chunky skin to wrinkle and roll over on themselves",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "portly", Value = "fat",
-			AdditionalValue = "squat and round, carrying their excess weight awkwardly on their frame", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "rotund", Value = "fat",
-			AdditionalValue = "quite rotund in frame and build, with a large gut and rounded shoulders",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "muffin-topped", Value = "fat",
-			AdditionalValue =
-				"shaped like a muffin - with the excess fat spilling out in rolls around the abdomen, much like a muffin's top",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "badonkadonked", Value = "obese",
-			AdditionalValue = "in possession of a large, round, firm posterior that watermelons out from the back",
-			Default = false, Pluralisation = 0, FutureProg = obeseProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "waifish", Value = "emaciated",
-			AdditionalValue = "built waifishly - &he is very thin and fragile seeming, with delicate features",
-			Default = false, Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "brutish", Value = "fat",
-			AdditionalValue = "hulking and large, with a hefty, stooped frame corded thickly with muscle and flesh",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "thick-shouldered", Value = "muscular",
-			AdditionalValue = "in possession of meaty shoulders that are thickly corded with muscle", Default = false,
-			Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "monstrous", Value = "monstrous",
-			AdditionalValue =
-				"a monstrously large lump of humanity, of bizarre, malformed proportions, with an oversized head, a barrel of a torso, and stumpy limbs ending in even more oversized hands and somewhat stubby feet, &his massive frame laden thickly with strong muscle and rolls of fat",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "compact", Value = "normal",
-			AdditionalValue = "a neat, spare look to &his body, compact and well put-together", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "statuesque", Value = "muscular",
-			AdditionalValue =
-				"in possession of a sculpted, aesthetic look about &his form, as though designed by an artist",
-			Default = false, Pluralisation = 0, FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "coltish", Value = "thin",
-			AdditionalValue = "a lanky look to &him, limbs awkwardly long and gangly", Default = false,
-			Pluralisation = 0, FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = frameDef, Name = "hulking", Value = "fat",
-			AdditionalValue =
-				"a ponderous person of substantial width and volume principally caused by &his excessively robust bone structure and supplemented by ample softer tissues",
-			Default = false, Pluralisation = 0, FutureProg = overweightProg
-		});
+		AddCharacteristicValue(nextId++, frameDef, "emaciated", "emaciated", "abnormally thin and emaciated", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "gaunt", "emaciated", "lean and haggard, looking gaunt", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "lean", "thin", "of a lean, thin build", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "very thin", "emaciated", "very thin frame, with not an ounce of fat", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "thin", "thin", "tends towards the thin side of a healthy frame", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "skinny", "thin", "of a very skinny build", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "well-proportioned", "normal", "of an extremely fit and healthy build, being well proportioned in all respects", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "muscular", "muscular", "extremely fit looking, with well defined musculature", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "ripped", "muscular", "in every respect ripped, with showy, well-developed muscles", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "bulky", "muscular", "bulky but muscular looking", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "normal", "normal", "of a perfectly ordinary build, with little excess fat or muscle and ordinary proportions", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "flabby", "fat", "flabby, with various pockets of loose, dangling skin", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "chubby", "fat", "a little heavier than normal, with chubby features and a small amount of excess fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "voluptuous", "fat", "large, but well proportioned", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "curvaceous", "fat", "shapely and of ample proportion, with well defined curves", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "curvy", "fat", "shapely and of ample proportion, with well defined curves", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "fat", "fat", "unambiguously fat, being too heavy for their frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "overweight", "fat", "a little overweight, with plenty of excess body fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "pudgy", "fat", "fat in the face, or pudgy", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "obese", "obese", "grossly overweight, with significant extra fat all over the body", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "very fat", "obese", "very fat, in the obese range", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "morbidly obese", "obese", "belarded by great, hanging sacks of fat", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "pot bellied", "obese", "in possession of an enormous, round pot belly", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "barrel chested", "fat", "in possession of a huge barrel chest, on an otherwise large but muscular frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "skeletal", "emaciated", "nothing more than skin and bones - at least by appearances, a walking skeleton", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "ropy", "thin", "whipcord thin, with all the appearance of knotted rope where muscle meets joint and bone", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "rawboned", "thin", "gaunt enough that &his bones are painfully obvious, jutting in sharp angles beneath the skin", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "lanky", "thin", "lean enough to appear long-limbed, with an ungraceful, stork-like appearance", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "bony", "emaciated", "bony, with &his skin stretched tightly over &his ribcage, possessing a jutting collarbone and pronounced cheekbones", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "bantam", "thin", "small, though with a certain chaotic vigor that belies that tiny frame", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "little", "thin", "undersized and of below average frame", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "petite", "thin", "rather small, with a thin enough build to be considered dainty", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "scrawny", "emaciated", "thinly-framed enough that &his ribs are clearly defined beneath the skin of &his chest", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "sinewy", "thin", "thin and lean, with sinewy muscle that is sharply pronounced beneath their skin, wound tightly around their bird-like bones", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "slender", "thin", "as slim and thin as a tree sapling, with longish limbs and little body fat", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "scrappy", "thin", "rough and scrawny, with an underfed appearance, bony hands, and knobby knees", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "slim", "thin", "slimly built, with little to no excess fat on &his frame", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "willowy", "thin", "in possession of a willowy frame that carries no unnecessary fat", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "gangly", "emaciated", "gaunt and underfed, with &his bones protruding from beneath &his skin, all joints and odd angles", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "lithe", "thin", "sleek and slim, with a graceful, cat-like appearance to &his frame", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "delicate", "thin", "of a seemingly fragile frame: thin, undersized, and delicately boned, with many fine features", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "lissome", "thin", "slim and soft-fleshed, with no hard muscle definition, but no sharp gauntness either", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "spry", "thin", "small and thin, but with a startling vitality to the remaining fleshiness of &his frame", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "supple", "thin", "slim and soft - thin without being gaunt, while retaining no unnecessary body fat", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "lithesome", "thin", "slim and soft-fleshed, with no hard muscle definition, but no sharp gauntness either", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "average", "normal", "of an ordinary build - not particularly muscular, but not overly gaunt", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "athletic", "normal", "fit and trim, with an athletic build, toned calves, and a flat abdomen", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "fit", "normal", "fit and trim, with toned muscles and a flat abdomen", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "strapping", "normal", "quite healthy by all appearances, displaying some muscle definition - but not enough to be classified as 'bulky'", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "vigorous", "normal", "quite healthy by all appearances, with a fit build and a frame that carries no unnecessary body fat", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "typical", "normal", "of a fairly typical build for one of &his race", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "rugged", "muscular", "quite muscular and fit, with a hard ruggedness to &his frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "burly", "muscular", "broad and squat, with a thickly muscular frame that pays special mind to &his arms and shoulders", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "stout", "muscular", "squat but muscular, with very little in the way of curves or softness", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "heavyset", "muscular", "squat but muscular, wearing &his bulkiness well on &his heavyset frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "thick-limbed", "muscular", "in possession of limbs that are thickly corded with muscle, skin and some fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "beefy", "fat", "large, muscular and broad, with wide shoulders and a barrel chest", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "broad-shouldered", "muscular", "in possession of wide shoulders that are thickly corded with muscle", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "bull-necked", "muscular", "muscular and hefty, with a thickly-muscled neck disappearing between &his broad shoulders", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "robust", "muscular", "healthy and vigorous, with a richly muscular frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "brawny", "muscular", "built like a brick shithouse, with very little body fat - mostly muscle over a broad frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "big", "fat", "large and thick-framed, with a build that has gone largely to fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "sturdy", "muscular", "sturdily built, with some muscle, some fat, and some solid bones, sinew and joints holding it all together", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "well-built", "normal", "well-built, with a fit frame and well-proportioned arms and legs", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "thickset", "fat", "thickly-built and possessing a squat, sturdy frame on which sits a good amount of flesh", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "hardy", "muscular", "muscular and squat, with a hardy, fit frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "solid", "muscular", "solidly-built, with a compact frame corded with muscle and padded with fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "wide-hipped", "fat", "in possession of wide hips that are amply padded with soft fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "corpulent", "obese", "unmistakeably large and obese, with an excess of body fat hanging in rolls and fleshy ribbons", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "hefty", "fat", "in possession of a large frame that carries a fair amount of muscle and fat on it, though there's more fat than muscle", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "heavy", "fat", "carrying a good deal of body fat, muscle and other weight on &his heavyset frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "big-boned", "fat", "large, with broad shoulders and a solid amount of fat and some muscle cording their big-boned frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "husky", "fat", "rather plump, though the broadness of &his frame hides the full extent of &his fleshiness", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "stocky", "fat", "squat and compact, with a frame that carries its excess fat well enough", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "plump", "fat", "rather plump - not exactly fat, but soft and at least moderately overweight", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "meaty", "fat", "large and chunky, with a frame that is a meaty, marbled mix of fat and muscle", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "dumpy", "obese", "horrifically large and utterly fat, with all &his excess fat hanging off &his dumpy frame", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "chunky", "fat", "rather chunky, with some excess fat on &his frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "paunchy", "fat", "in possession of a large, protruding abdomen", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "ample", "fat", "quite large and impressive - impressively chubby, at least", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "beer-bellied", "fat", "in possession of a large, prominent abdomen that balloons out - commonly referred to a 'beer belly'", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "podgy", "fat", "soft and fat, with a short frame that encourages loose folds of chunky skin to wrinkle and roll over on themselves", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "portly", "fat", "squat and round, carrying their excess weight awkwardly on their frame", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "rotund", "fat", "quite rotund in frame and build, with a large gut and rounded shoulders", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "muffin-topped", "fat", "shaped like a muffin - with the excess fat spilling out in rolls around the abdomen, much like a muffin's top", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "badonkadonked", "obese", "in possession of a large, round, firm posterior that watermelons out from the back", obeseProg);
+		AddCharacteristicValue(nextId++, frameDef, "waifish", "emaciated", "built waifishly - &he is very thin and fragile seeming, with delicate features", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "brutish", "fat", "hulking and large, with a hefty, stooped frame corded thickly with muscle and flesh", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "thick-shouldered", "muscular", "in possession of meaty shoulders that are thickly corded with muscle", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "monstrous", "monstrous", "a monstrously large lump of humanity, of bizarre, malformed proportions, with an oversized head, a barrel of a torso, and stumpy limbs ending in even more oversized hands and somewhat stubby feet, &his massive frame laden thickly with strong muscle and rolls of fat", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "compact", "normal", "a neat, spare look to &his body, compact and well put-together", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "statuesque", "muscular", "in possession of a sculpted, aesthetic look about &his form, as though designed by an artist", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "coltish", "thin", "a lanky look to &him, limbs awkwardly long and gangly", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "hulking", "fat", "a ponderous person of substantial width and volume principally caused by &his excessively robust bone structure and supplemented by ample softer tissues", overweightProg);
 
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "wiry",
-			Value = "lean",
-			AdditionalValue = "in possession of a wiry, sinewy frame, built for agility",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = normalWeightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "spindly",
-			Value = "thin",
-			AdditionalValue = "spindly and lanky, with elongated, fragile limbs",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "imposing",
-			Value = "fat",
-			AdditionalValue =
-				"an imposing, almost unbelievably large figure, built to intimidate",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = overweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "rangy",
-			Value = "thin",
-			AdditionalValue = "rangy and long-limbed, with a rugged build",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "stooped",
-			Value = "thin",
-			AdditionalValue = "a thin, stooped posture that lends an air of frailty",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "reed-thin",
-			Value = "thin",
-			AdditionalValue = "reed-thin, with an elongated and delicate appearance",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "trim",
-			Value = "thin",
-			AdditionalValue = "trim and sleek, with a fit and elegant figure",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = underweightProg
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++,
-			Definition = frameDef,
-			Name = "chiseled",
-			Value = "muscular",
-			AdditionalValue =
-				"chiseled and sharply defined, like &he has been carved out of stone",
-			Default = false,
-			Pluralisation = 0,
-			FutureProg = overweightProg
-		});
+		AddCharacteristicValue(nextId++, frameDef, "wiry", "lean", "in possession of a wiry, sinewy frame, built for agility", normalWeightProg);
+		AddCharacteristicValue(nextId++, frameDef, "spindly", "thin", "spindly and lanky, with elongated, fragile limbs", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "imposing", "fat", "an imposing, almost unbelievably large figure, built to intimidate", overweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "rangy", "thin", "rangy and long-limbed, with a rugged build", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "stooped", "thin", "a thin, stooped posture that lends an air of frailty", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "reed-thin", "thin", "reed-thin, with an elongated and delicate appearance", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "trim", "thin", "trim and sleek, with a fit and elegant figure", underweightProg);
+		AddCharacteristicValue(nextId++, frameDef, "chiseled", "muscular", "chiseled and sharply defined, like &he has been carved out of stone", overweightProg);
 
 		_context.SaveChanges();
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "blonde", Value = "201", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "dirty blonde", Value = "202", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "silver blonde", Value = "203", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "ash blonde", Value = "204", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "strawberry blonde", Value = "205", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "platinum blonde", Value = "206", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "light blonde", Value = "207", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "salt-and-pepper", Value = "208", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairColourDef, Name = "dark", Value = "221", AdditionalValue = "",
-			Default = false, Pluralisation = 0
-		});
+		AddCharacteristicValue(nextId++, hairColourDef, "blonde", "201", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "dirty blonde", "202", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "silver blonde", "203", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "ash blonde", "204", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "strawberry blonde", "205", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "platinum blonde", "206", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "light blonde", "207", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "salt-and-pepper", "208", "");
+		AddCharacteristicValue(nextId++, hairColourDef, "dark", "221", "");
 		_context.SaveChanges();
 
 		AddStyleableCharacteristic(nextId++, hairStyleDef, "afro", "afro-haired", "a frizzy halo of natural hair", 4, Difficulty.VeryEasy, 0, false, 0);
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "beehive", Value = "beehive-haired",
-			AdditionalValue = "5 3 0 a conical pile of hair in the shape of a beehive", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bob cut", Value = "bob-cut",
-			AdditionalValue = "3 1 0 bangs and an even bob cut", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bouffant", Value = "bouffant-styled",
-			AdditionalValue = "4 2 0 a puffed out, raised section of hair atop the head which hangs down on the sides",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bowl cut", Value = "bowl-cut",
-			AdditionalValue = "2 1 0 an all-around even haircut", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "braid", Value = "braided",
-			AdditionalValue = "4 1 0 hair woven into a tight braid", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bun", Value = "bun-haired",
-			AdditionalValue = "4 2 0 hair tied up into a bun atop the head", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "buzz cut", Value = "buzz-cut",
-			AdditionalValue = "1 0 7 closely cropped hair", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "chignon", Value = "chignon-haired",
-			AdditionalValue = "4 2 0 hair tied into a chingon bun", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "chonmage", Value = "chonmage-haired",
-			AdditionalValue = "4 1 0 a shaved pate, with longer back and sides", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "combover", Value = "comb-overed",
-			AdditionalValue = "2 1 0 thin hair combed over a bald spot", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "cornrows", Value = "corn-rowed",
-			AdditionalValue = "4 2 0 hair tied into thin, parallel rows of braids", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "crew cut", Value = "crew-cut",
-			AdditionalValue = "1 0 7 hair closely cropped but tapering longest to shortest from front to back",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "cropped cut", Value = "crop-haired",
-			AdditionalValue = "2 1 0 an all-around even haircut", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "curtain cut", Value = "curtain-haired",
-			AdditionalValue = "3 1 0 hair parted neatly in the center", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "dreadlocks", Value = "dreadlocked",
-			AdditionalValue = "4 2 0 combed into locked dreads", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "liberty spikes", Value = "liberty-spiked",
-			AdditionalValue = "4 2 0 clean, distinct spikes of hair", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bald", Value = "bald",
-			AdditionalValue = "0 0 6 no hair at all", Default = true, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "emo cut", Value = "emo-fringed",
-			AdditionalValue = "3 1 0 medium-length, straight hair combed over one eye", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "fauxhawk", Value = "fauxhawked",
-			AdditionalValue = "2 1 0 short hair style toward a center spike", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "feathered hair", Value = "feathery-haired",
-			AdditionalValue = "4 1 0 long, unlayered hair with a center part, brushed back at the sides",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "fishtail hair", Value = "fishtail-haired",
-			AdditionalValue = "4 1 0 long hair braided into the shape of a fish's tail", Default = false,
-			Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "flattop", Value = "crewcut",
-			AdditionalValue = "1 0 7 a short, level-topped crewcut", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "layered hair", Value = "layered-haired",
-			AdditionalValue = "4 2 0 long hair cut unevenly to form layers", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long hair", Value = "long-haired",
-			AdditionalValue = "5 0 0 hair that is cut long and flows freely", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "mop top", Value = "mop-topped",
-			AdditionalValue =
-				"3 1 0 a mid-length haircut extending to the collar with fringe bangs that brush the forehead",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "mullet", Value = "mulleted",
-			AdditionalValue = "4 0 0 hair that is short at the front, but long at the back", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "double buns", Value = "double-bunned",
-			AdditionalValue = "4 2 0 a pair of buns that jut up like ox-tails from the top of the head",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "sidelocks", Value = "sidelocked",
-			AdditionalValue = "4 2 0 twin locks of curly hair that hang from both sides of the face", Default = false,
-			Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "pigtails", Value = "pigtailed",
-			AdditionalValue = "4 1 0 hair that parts down the middle and is tied into two pony tails on either side",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "pixie cut", Value = "pixie-haired",
-			AdditionalValue = "2 1 0 a short wispy hairstyle with a shaggy fringe", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "pompadour", Value = "pompadoured",
-			AdditionalValue =
-				"4 2 0 hair swept upwards from the face and worn high over the forehead, upswept at the back and sides",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "ponytail", Value = "ponytailed",
-			AdditionalValue = "4 0 0 medium-length hair pulled back behind the head and tied in place", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long ponytail", Value = "long-ponytailed",
-			AdditionalValue = "5 0 0 long hair pulled back behind the head and tied in place", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "rattail", Value = "rattailed",
-			AdditionalValue = "3 1 0 hair that has been shaved short except for a long braid at the back of the neck",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "ringlets", Value = "ringletted",
-			AdditionalValue = "4 2 4 hair worn in tight curls", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "shag hair", Value = "shag-haired",
-			AdditionalValue =
-				"3 0 0 a choppy, layered hairstyle with fullness at the crown and fringes around the edges",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "short hair", Value = "short-haired",
-			AdditionalValue = "2 1 0 hair that is cut short", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "spiky hair", Value = "spike-haired",
-			AdditionalValue = "2 1 0 hair that sticks up in spikes on top of the head", Default = false,
-			Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "tonsure", Value = "tonsured",
-			AdditionalValue = "1 0 6 a narrow ring of short hair surrounding a bald dome", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "shoulder-length hair", Value = "shoulder-length-haired",
-			AdditionalValue = "4 0 0 medium-length hair that falls to the shoulders", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "undercut", Value = "undercut-styled",
-			AdditionalValue = "3 1 0 hair that is longer directly on top of the head, but shorter everywhere else",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "weaves", Value = "weave-styled",
-			AdditionalValue = "4 3 0 artificial hair extensions woven into the natural hair to lengthen it",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "taper cut hair", Value = "taper-cut-styled",
-			AdditionalValue = "2 2 0 hair of a combable length on the top, a side part, and semi-short back and sides",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "frizzy hair", Value = "frizzy-haired",
-			AdditionalValue = "3 1 0 medium-length, unmanageable hair with a tendency to frizz", Default = false,
-			Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "wavy hair", Value = "wavy-haired",
-			AdditionalValue = "3 1 0 thick hair with a natural wave to it", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "thin hair", Value = "thin-haired",
-			AdditionalValue = "3 1 0 naturally straight, thin hair", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "thick hair", Value = "thick-haired",
-			AdditionalValue = "3 1 0 naturally full-bodied, thick hair", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "curly hair", Value = "curly-haired",
-			AdditionalValue = "3 1 0 hair with natural curls", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "norman cut", Value = "norman-cut",
-			AdditionalValue =
-				"3 1 0 hair that has been shaved at the back of the head and the neck, but allowed to grow on the top front of the head",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "mop hair", Value = "mop-haired",
-			AdditionalValue =
-				"3 1 0 a mid-length haircut extending to the collar with fringe bangs that brush the forehead",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "stubble hair", Value = "stubble-haired",
-			AdditionalValue = "1 0 0 a thin, even covering of stubble and regrowth atop &his head", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "short ponytail", Value = "short-ponytailed",
-			AdditionalValue =
-				"3 0 0 short hair pulled back behind the head into a small ponytail, with barely enough hair to make it work",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "balding", Value = "balding",
-			AdditionalValue =
-				"1 0 0 a short shaved hairStyleDef with a bald dome, evidently suffering from pattern baldness",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "balding crop", Value = "balding crop-haired",
-			AdditionalValue =
-				"2 0 0 a mid-length cropped hairstyle with a bald dome, evidently suffering from pattern baldness",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "short afro", Value = "short-afroed",
-			AdditionalValue = "3 2 0 a short, frizzy halo of hair", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "huge afro", Value = "huge-afroed",
-			AdditionalValue = "5 2 0 an enormous, frizzy halo of hair, very impractical looking", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "fade cut", Value = "fade-haired",
-			AdditionalValue =
-				"3 2 7 a short, neatly maintained hairstyle where the hair goes from a combed style on top to a short shave on the back and sides with a seamless transition",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "mid fade cut", Value = "mid-fade-haired",
-			AdditionalValue =
-				"3 2 7 a mid-length hairstyle with a wavy combed style on top to a short shaved back and sides in a seamless transition",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "skin fade", Value = "skin-fade-haired",
-			AdditionalValue =
-				"2 2 7 a short, neatly maintained hairstyle where the hair goes from a combed style on top to a bare back and sides by way of a seamless transition through a shaved style",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "short curls", Value = "short-curly-haired",
-			AdditionalValue = "2 0 0 short hair with natural curls", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "quiff", Value = "quiff-haired",
-			AdditionalValue =
-				"3 1 0 hair swept forwards from the face, similar to a pompodour but jutting forward from the head",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "pompadour mullet", Value = "pompadour-mulleted",
-			AdditionalValue =
-				"4 2 0 hair that is swept upwards at the front of the face into a pompadour, but long and loose at the back",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "dreadhawk", Value = "dreadhawked",
-			AdditionalValue =
-				"4 2 0 dreadlocked hair swept back over &his head, and short, shaved hair along the sides",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "fanhawk", Value = "mohawked",
-			AdditionalValue =
-				"4 2 0 a hairstyle in which both sides of &his head are shaven, leaving a strip of long hair fanned out in the center",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "warhawk", Value = "warhawked",
-			AdditionalValue = "4 2 0 hair style in a very short mohawk, and shaved along the sides of the skull",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "frohawk", Value = "frohawked",
-			AdditionalValue = "4 2 0 hair style like a typical afro, only the sides of the skull have been shaved",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "reverse mohawk", Value = "reverse-mohawked",
-			AdditionalValue =
-				"4 2 0 really, really stupid looking hair: a single strip has been shaved down the middle of &his skull",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "deathhawk", Value = "deathhawked",
-			AdditionalValue =
-				"4 2 0 voluminous, backcombed hair style into a loose mohawk, with shaved hair along the sides of the skull",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "rathawk", Value = "rathawked",
-			AdditionalValue = "4 2 0 a typical, fan-style mohawk that ends in a grungy little rattail", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "mohawk", Value = "mohawked",
-			AdditionalValue =
-				"4 2 0 a hairstyle where only the central strip of hair remains, the sides having been shaved",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "crochet twists", Value = "crochet-twisted",
-			AdditionalValue = "4 3 0 long coils of hair twisted in rope-like braids", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "micro braids", Value = "micro-braided",
-			AdditionalValue = "4 3 0 dozens of uniformly tiny braids covering &his whole head", Default = false,
-			Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "corkscrew twist curls", Value = "corkscrew-curled",
-			AdditionalValue = "4 3 0 shoulder length hair which is extremely curly, forming tight corkscrew twists",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bantu knots", Value = "bantu-knotted",
-			AdditionalValue = "4 3 0 hair which has been twisted and wrapped to form numerous knobs atop &his head",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "wedge cut", Value = "wedge-styled",
-			AdditionalValue =
-				"2 0 0 hair cut short at the nape, layering gradually upward to become longer on top and in the front, creating a wedge-like look",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "pixie wedge", Value = "pixie-wedge-cut",
-			AdditionalValue =
-				"2 0 0 very short hair, shaven at the nape and longer on the top and sides, somewhere between a pixie cut and a wedge",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "pixie bob", Value = "pixie-bob-cut",
-			AdditionalValue =
-				"2 0 0 hair that is very short in the back, but nearly chin-length in the front, angling to match &his jawline",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "varsity style", Value = "varsity-styled",
-			AdditionalValue =
-				"2 0 0 vintage style hair that is side-parted and slicked, shorter on the sides and in the back",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "cowlick", Value = "cowlicked",
-			AdditionalValue = "2 0 0 short, undercut hair slicked into a prominent curl at &his forehead",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "slick  hair", Value = "slick-haired",
-			AdditionalValue = "2 0 0 short hair that has been slicked back away from &his face", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "side part", Value = "side-parted",
-			AdditionalValue = "2 0 0 short hair parted along one side and combed sideways across &his head",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "high ponytail", Value = "high-ponytailed",
-			AdditionalValue = "4 0 0 long hair pulled into a ponytail high on &his head", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "devilock", Value = "devilocked",
-			AdditionalValue =
-				"2 1 0 a long forelock of hair that rigidly sticks down the front of &his face, sides and back otherwise fairly short",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "wings", Value = "wing-haired",
-			AdditionalValue = "2 0 0 short, fluffy hair that's been combed to either side of &his face",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "bunches", Value = "bunch-haired",
-			AdditionalValue = "3 0 0 mid-length hair that's been bunched up into several uneven portions",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "jheri curls", Value = "jheri-curled",
-			AdditionalValue = "3 2 0 a mid-length, dense hairstyle consisting of loose curls, with longer fore-curls",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long jheri curls", Value = "jheri-curled",
-			AdditionalValue =
-				"4 2 0 a long, dense hairstyle consisting of loose curls, with slightly longer forecurls framing the face",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "finger wave", Value = "finger-waved",
-			AdditionalValue = "3 2 0 a short, feminine haircut that has been set in a wedged, wavy style",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "hat hair", Value = "hat-haired",
-			AdditionalValue =
-				"2 0 0 short, messy hair that looks like &he has had a cap or hat on for an extended period of time",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long braid", Value = "long-braided",
-			AdditionalValue = "5 1 0 hair woven into a long, tight braid", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "large bun", Value = "large-bunned",
-			AdditionalValue = "5 2 0 hair that has been wrapped up into a large bun", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "twisted bun", Value = "twist-bunned",
-			AdditionalValue = "5 2 0 hair that has been twisted around into a large bun", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "rope braid", Value = "rope-braided",
-			AdditionalValue = "5 2 0 a twisted braid that has been styled to look like coiled rope", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "french braid", Value = "french-braided",
-			AdditionalValue =
-				"5 3 0 a large, thick braid that starts near the hairline, with a simple alternating overlap pattern",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "herringbone", Value = "herringbone-braided",
-			AdditionalValue =
-				"5 3 0 a large, thick braid that starts near the back of the neck and comes together at the back of the head with two flat zones of hair tying it all in",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "crown braid", Value = "crown-braided",
-			AdditionalValue =
-				"5 4 0 a large, thick braid with a simple alternating overlapping pattern which has been wrapped around &his head like a crown",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "basket weave", Value = "basket-woven",
-			AdditionalValue =
-				"4 4 0 long hair, natural at the back but woven into a criss-cross basketweave like pattern on top of &his head",
-			Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long wavy hair", Value = "long-wavy-haired",
-			AdditionalValue = "4 1 0 thick, long hair with a natural wave to it", Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long mullet", Value = "long-mulleted",
-			AdditionalValue = "5 0 0 hair that is short at the front, but very long at the back", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "long feathered", Value = "long-feathery-haired",
-			AdditionalValue = "5 1 0 very long, unlayered hair with a center part, brushed back at the sides",
-			Default = false, Pluralisation = 1
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "viking braid", Value = "viking-braided",
-			AdditionalValue =
-				"5 2 0 a tri-line of braids across &his dome, flowing back to the middle twist intertwined in a low ponytail",
-			Default = false, Pluralisation = 0
-		});
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "beehive", "beehive-haired", "a conical pile of hair in the shape of a beehive", 5, Difficulty.VeryEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bob cut", "bob-cut", "bangs and an even bob cut", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bouffant", "bouffant-styled", "a puffed out, raised section of hair atop the head which hangs down on the sides", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bowl cut", "bowl-cut", "an all-around even haircut", 2, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "braid", "braided", "hair woven into a tight braid", 4, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bun", "bun-haired", "hair tied up into a bun atop the head", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "buzz cut", "buzz-cut", "closely cropped hair", 1, Difficulty.Automatic, 7);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "chignon", "chignon-haired", "hair tied into a chingon bun", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "chonmage", "chonmage-haired", "a shaved pate, with longer back and sides", 4, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "combover", "comb-overed", "thin hair combed over a bald spot", 2, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "cornrows", "corn-rowed", "hair tied into thin, parallel rows of braids", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "crew cut", "crew-cut", "hair closely cropped but tapering longest to shortest from front to back", 1, Difficulty.Automatic, 7);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "cropped cut", "crop-haired", "an all-around even haircut", 2, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "curtain cut", "curtain-haired", "hair parted neatly in the center", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "dreadlocks", "dreadlocked", "combed into locked dreads", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "liberty spikes", "liberty-spiked", "clean, distinct spikes of hair", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bald", "bald", "no hair at all", 0, Difficulty.Automatic, 6, isDefault: true);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "emo cut", "emo-fringed", "medium-length, straight hair combed over one eye", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "fauxhawk", "fauxhawked", "short hair style toward a center spike", 2, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "feathered hair", "feathery-haired", "long, unlayered hair with a center part, brushed back at the sides", 4, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "fishtail hair", "fishtail-haired", "long hair braided into the shape of a fish's tail", 4, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "flattop", "crewcut", "a short, level-topped crewcut", 1, Difficulty.Automatic, 7);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "layered hair", "layered-haired", "long hair cut unevenly to form layers", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long hair", "long-haired", "hair that is cut long and flows freely", 5, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "mop top", "mop-topped", "a mid-length haircut extending to the collar with fringe bangs that brush the forehead", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "mullet", "mulleted", "hair that is short at the front, but long at the back", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "double buns", "double-bunned", "a pair of buns that jut up like ox-tails from the top of the head", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "sidelocks", "sidelocked", "twin locks of curly hair that hang from both sides of the face", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "pigtails", "pigtailed", "hair that parts down the middle and is tied into two pony tails on either side", 4, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "pixie cut", "pixie-haired", "a short wispy hairstyle with a shaggy fringe", 2, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "pompadour", "pompadoured", "hair swept upwards from the face and worn high over the forehead, upswept at the back and sides", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "ponytail", "ponytailed", "medium-length hair pulled back behind the head and tied in place", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long ponytail", "long-ponytailed", "long hair pulled back behind the head and tied in place", 5, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "rattail", "rattailed", "hair that has been shaved short except for a long braid at the back of the neck", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "ringlets", "ringletted", "hair worn in tight curls", 4, Difficulty.ExtremelyEasy, 4, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "shag hair", "shag-haired", "a choppy, layered hairstyle with fullness at the crown and fringes around the edges", 3, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "short hair", "short-haired", "hair that is cut short", 2, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "spiky hair", "spike-haired", "hair that sticks up in spikes on top of the head", 2, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "tonsure", "tonsured", "a narrow ring of short hair surrounding a bald dome", 1, Difficulty.Automatic, 6);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "shoulder-length hair", "shoulder-length-haired", "medium-length hair that falls to the shoulders", 4, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "undercut", "undercut-styled", "hair that is longer directly on top of the head, but shorter everywhere else", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "weaves", "weave-styled", "artificial hair extensions woven into the natural hair to lengthen it", 4, Difficulty.VeryEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "taper cut hair", "taper-cut-styled", "hair of a combable length on the top, a side part, and semi-short back and sides", 2, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "frizzy hair", "frizzy-haired", "medium-length, unmanageable hair with a tendency to frizz", 3, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "wavy hair", "wavy-haired", "thick hair with a natural wave to it", 3, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "thin hair", "thin-haired", "naturally straight, thin hair", 3, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "thick hair", "thick-haired", "naturally full-bodied, thick hair", 3, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "curly hair", "curly-haired", "hair with natural curls", 3, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "norman cut", "norman-cut", "hair that has been shaved at the back of the head and the neck, but allowed to grow on the top front of the head", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "mop hair", "mop-haired", "a mid-length haircut extending to the collar with fringe bangs that brush the forehead", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "stubble hair", "stubble-haired", "a thin, even covering of stubble and regrowth atop &his head", 1, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "short ponytail", "short-ponytailed", "short hair pulled back behind the head into a small ponytail, with barely enough hair to make it work", 3, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "balding", "balding", "a short shaved hairStyleDef with a bald dome, evidently suffering from pattern baldness", 1, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "balding crop", "balding crop-haired", "a mid-length cropped hairstyle with a bald dome, evidently suffering from pattern baldness", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "short afro", "short-afroed", "a short, frizzy halo of hair", 3, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "huge afro", "huge-afroed", "an enormous, frizzy halo of hair, very impractical looking", 5, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "fade cut", "fade-haired", "a short, neatly maintained hairstyle where the hair goes from a combed style on top to a short shave on the back and sides with a seamless transition", 3, Difficulty.ExtremelyEasy, 7);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "mid fade cut", "mid-fade-haired", "a mid-length hairstyle with a wavy combed style on top to a short shaved back and sides in a seamless transition", 3, Difficulty.ExtremelyEasy, 7);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "skin fade", "skin-fade-haired", "a short, neatly maintained hairstyle where the hair goes from a combed style on top to a bare back and sides by way of a seamless transition through a shaved style", 2, Difficulty.ExtremelyEasy, 7);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "short curls", "short-curly-haired", "short hair with natural curls", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "quiff", "quiff-haired", "hair swept forwards from the face, similar to a pompodour but jutting forward from the head", 3, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "pompadour mullet", "pompadour-mulleted", "hair that is swept upwards at the front of the face into a pompadour, but long and loose at the back", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "dreadhawk", "dreadhawked", "dreadlocked hair swept back over &his head, and short, shaved hair along the sides", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "fanhawk", "mohawked", "a hairstyle in which both sides of &his head are shaven, leaving a strip of long hair fanned out in the center", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "warhawk", "warhawked", "hair style in a very short mohawk, and shaved along the sides of the skull", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "frohawk", "frohawked", "hair style like a typical afro, only the sides of the skull have been shaved", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "reverse mohawk", "reverse-mohawked", "really, really stupid looking hair: a single strip has been shaved down the middle of &his skull", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "deathhawk", "deathhawked", "voluminous, backcombed hair style into a loose mohawk, with shaved hair along the sides of the skull", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "rathawk", "rathawked", "a typical, fan-style mohawk that ends in a grungy little rattail", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "mohawk", "mohawked", "a hairstyle where only the central strip of hair remains, the sides having been shaved", 4, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "crochet twists", "crochet-twisted", "long coils of hair twisted in rope-like braids", 4, Difficulty.VeryEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "micro braids", "micro-braided", "dozens of uniformly tiny braids covering &his whole head", 4, Difficulty.VeryEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "corkscrew twist curls", "corkscrew-curled", "shoulder length hair which is extremely curly, forming tight corkscrew twists", 4, Difficulty.VeryEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bantu knots", "bantu-knotted", "hair which has been twisted and wrapped to form numerous knobs atop &his head", 4, Difficulty.VeryEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "wedge cut", "wedge-styled", "hair cut short at the nape, layering gradually upward to become longer on top and in the front, creating a wedge-like look", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "pixie wedge", "pixie-wedge-cut", "very short hair, shaven at the nape and longer on the top and sides, somewhere between a pixie cut and a wedge", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "pixie bob", "pixie-bob-cut", "hair that is very short in the back, but nearly chin-length in the front, angling to match &his jawline", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "varsity style", "varsity-styled", "vintage style hair that is side-parted and slicked, shorter on the sides and in the back", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "cowlick", "cowlicked", "short, undercut hair slicked into a prominent curl at &his forehead", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "slick  hair", "slick-haired", "short hair that has been slicked back away from &his face", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "side part", "side-parted", "short hair parted along one side and combed sideways across &his head", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "high ponytail", "high-ponytailed", "long hair pulled into a ponytail high on &his head", 4, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "devilock", "devilocked", "a long forelock of hair that rigidly sticks down the front of &his face, sides and back otherwise fairly short", 2, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "wings", "wing-haired", "short, fluffy hair that's been combed to either side of &his face", 2, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "bunches", "bunch-haired", "mid-length hair that's been bunched up into several uneven portions", 3, Difficulty.Automatic, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "jheri curls", "jheri-curled", "a mid-length, dense hairstyle consisting of loose curls, with longer fore-curls", 3, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long jheri curls", "jheri-curled", "a long, dense hairstyle consisting of loose curls, with slightly longer forecurls framing the face", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "finger wave", "finger-waved", "a short, feminine haircut that has been set in a wedged, wavy style", 3, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "hat hair", "hat-haired", "short, messy hair that looks like &he has had a cap or hat on for an extended period of time", 2, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long braid", "long-braided", "hair woven into a long, tight braid", 5, Difficulty.Trivial, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "large bun", "large-bunned", "hair that has been wrapped up into a large bun", 5, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "twisted bun", "twist-bunned", "hair that has been twisted around into a large bun", 5, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "rope braid", "rope-braided", "a twisted braid that has been styled to look like coiled rope", 5, Difficulty.ExtremelyEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "french braid", "french-braided", "a large, thick braid that starts near the hairline, with a simple alternating overlap pattern", 5, Difficulty.VeryEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "herringbone", "herringbone-braided", "a large, thick braid that starts near the back of the neck and comes together at the back of the head with two flat zones of hair tying it all in", 5, Difficulty.VeryEasy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "crown braid", "crown-braided", "a large, thick braid with a simple alternating overlapping pattern which has been wrapped around &his head like a crown", 5, Difficulty.Easy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "basket weave", "basket-woven", "long hair, natural at the back but woven into a criss-cross basketweave like pattern on top of &his head", 4, Difficulty.Easy, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long wavy hair", "long-wavy-haired", "thick, long hair with a natural wave to it", 4, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long mullet", "long-mulleted", "hair that is short at the front, but very long at the back", 5, Difficulty.Automatic, 0);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "long feathered", "long-feathery-haired", "very long, unlayered hair with a center part, brushed back at the sides", 5, Difficulty.Trivial, 0, pluralisation: 1);
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "viking braid", "viking-braided", "a tri-line of braids across &his dome, flowing back to the middle twist intertwined in a low ponytail", 5, Difficulty.ExtremelyEasy, 0);
 		_context.SaveChanges();
 
 		var personValues = new List<(CharacteristicValue Value, double Weight)>();
@@ -2924,435 +1467,131 @@ return @bmi > 24 and @bmi < 35"
 		});
 		_context.SaveChanges();
 
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "white", Value = "fair",
-			AdditionalValue = "of light, caucasian tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "milky-white", Value = "fair",
-			AdditionalValue = "of milky, pale white tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "pale-white", Value = "fair",
-			AdditionalValue = "of pale white tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "pasty-white", Value = "fair",
-			AdditionalValue = "of a pasty, pale white tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "tanned", Value = "fair",
-			AdditionalValue = "tanned a healthy brown colour", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "olive", Value = "olive",
-			AdditionalValue = "of an olive complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "oriental", Value = "golden",
-			AdditionalValue = "of an oriental complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "bronzed", Value = "fair",
-			AdditionalValue = "of a deep, bronze tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "dark-olive", Value = "olive",
-			AdditionalValue = "of a dark olive complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "light-brown", Value = "brown",
-			AdditionalValue = "of a light brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "brown", Value = "brown",
-			AdditionalValue = "of a brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "dark-brown", Value = "brown",
-			AdditionalValue = "of a dark brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "ebony", Value = "black",
-			AdditionalValue = "of a deep, ebony complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "black", Value = "black",
-			AdditionalValue = "of a deep, black complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "pale-olive", Value = "golden",
-			AdditionalValue = "of a pale olive complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "ruddy", Value = "fair",
-			AdditionalValue = "of generally white complexion with areas of a ruddy red", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "golden", Value = "golden",
-			AdditionalValue = "of a golden complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "sallow", Value = "fair",
-			AdditionalValue = "of an unhealthy pale yellowed complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "copper", Value = "red-brown",
-			AdditionalValue = "of a coppery brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "caramel", Value = "brown",
-			AdditionalValue = "of a rich, caramel brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "light-copper", Value = "red-brown",
-			AdditionalValue = "of a light, coppery brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "dark-copper", Value = "red-brown",
-			AdditionalValue = "of a dark, coppery brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "light golden", Value = "golden",
-			AdditionalValue = "of a light golden complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "russet", Value = "red-brown",
-			AdditionalValue = "of a red-tinged brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "pale", Value = "fair",
-			AdditionalValue = "that is as pale as milk", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "translucent", Value = "fair",
-			AdditionalValue = "so pale it's translucent, with a frosted purplish tone", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "dusky", Value = "olive",
-			AdditionalValue = "that is dark-toned and shaded", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "cinnamon", Value = "red-brown",
-			AdditionalValue = "that is a warm reddish-brown colour", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "pallid", Value = "fair",
-			AdditionalValue = "of a pale, unhealthy-looking tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "swarthy", Value = "brown",
-			AdditionalValue = "of a particularly dark hue, with shadowed tones", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "tawny", Value = "golden",
-			AdditionalValue = "of a deep golden-brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "mahogany", Value = "red-brown",
-			AdditionalValue = "of a rich red-brown complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "chestnut", Value = "brown",
-			AdditionalValue = "that is a golden nut-brown colour", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "ashen", Value = "fair",
-			AdditionalValue = "of a pale ashen-grey complexion", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "obsidian", Value = "black",
-			AdditionalValue = "that is a deep, rich black in tone", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "jet", Value = "black",
-			AdditionalValue = "that is a nearly iridescent blue-black colour", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "buttermilk", Value = "golden",
-			AdditionalValue = "that is a light, delicately yellow-toned shade of pale", Default = false,
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "mocha", Value = "brown",
-			AdditionalValue = "of a cool-toned brown", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "cocoa", Value = "black",
-			AdditionalValue = "the rich brown of dark chocolate", Default = false, Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = skinColourDef, Name = "snow white", Value = "fair",
-			AdditionalValue = "the colour of white driven snow", Default = false, Pluralisation = 0
-		});
+		AddCharacteristicValue(nextId++, skinColourDef, "white", "fair", "of light, caucasian tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "milky-white", "fair", "of milky, pale white tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "pale-white", "fair", "of pale white tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "pasty-white", "fair", "of a pasty, pale white tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "tanned", "fair", "tanned a healthy brown colour");
+		AddCharacteristicValue(nextId++, skinColourDef, "olive", "olive", "of an olive complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "oriental", "golden", "of an oriental complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "bronzed", "fair", "of a deep, bronze tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "dark-olive", "olive", "of a dark olive complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "light-brown", "brown", "of a light brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "brown", "brown", "of a brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "dark-brown", "brown", "of a dark brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "ebony", "black", "of a deep, ebony complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "black", "black", "of a deep, black complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "pale-olive", "golden", "of a pale olive complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "ruddy", "fair", "of generally white complexion with areas of a ruddy red");
+		AddCharacteristicValue(nextId++, skinColourDef, "golden", "golden", "of a golden complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "sallow", "fair", "of an unhealthy pale yellowed complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "copper", "red-brown", "of a coppery brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "caramel", "brown", "of a rich, caramel brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "light-copper", "red-brown", "of a light, coppery brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "dark-copper", "red-brown", "of a dark, coppery brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "light golden", "golden", "of a light golden complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "russet", "red-brown", "of a red-tinged brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "pale", "fair", "that is as pale as milk");
+		AddCharacteristicValue(nextId++, skinColourDef, "translucent", "fair", "so pale it's translucent, with a frosted purplish tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "dusky", "olive", "that is dark-toned and shaded");
+		AddCharacteristicValue(nextId++, skinColourDef, "cinnamon", "red-brown", "that is a warm reddish-brown colour");
+		AddCharacteristicValue(nextId++, skinColourDef, "pallid", "fair", "of a pale, unhealthy-looking tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "swarthy", "brown", "of a particularly dark hue, with shadowed tones");
+		AddCharacteristicValue(nextId++, skinColourDef, "tawny", "golden", "of a deep golden-brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "mahogany", "red-brown", "of a rich red-brown complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "chestnut", "brown", "that is a golden nut-brown colour");
+		AddCharacteristicValue(nextId++, skinColourDef, "ashen", "fair", "of a pale ashen-grey complexion");
+		AddCharacteristicValue(nextId++, skinColourDef, "obsidian", "black", "that is a deep, rich black in tone");
+		AddCharacteristicValue(nextId++, skinColourDef, "jet", "black", "that is a nearly iridescent blue-black colour");
+		AddCharacteristicValue(nextId++, skinColourDef, "buttermilk", "golden", "that is a light, delicately yellow-toned shade of pale");
+		AddCharacteristicValue(nextId++, skinColourDef, "mocha", "brown", "of a cool-toned brown");
+		AddCharacteristicValue(nextId++, skinColourDef, "cocoa", "black", "the rich brown of dark chocolate");
+		AddCharacteristicValue(nextId++, skinColourDef, "snow white", "fair", "the colour of white driven snow");
 		_context.SaveChanges();
 
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "small nose", Value = "small-nosed",
-			AdditionalValue = "a small, refined nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "hook nose", Value = "hook-nosed",
-			AdditionalValue = "a large, protruding nose that hooks downwards towards the end", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "straight nose", Value = "straight-nosed",
-			AdditionalValue = "a medium-sized, straight and symmetrical nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "crooked nose", Value = "crooked-nosed",
-			AdditionalValue = "a crooked nose that looks like it has been repeatedly broken", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "button nose", Value = "button-nosed",
-			AdditionalValue = "a small, cute button nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "aquiline nose", Value = "aquiline-nosed",
-			AdditionalValue = "a nose with a subtle downwards bend like the beak of an eagle", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "round nose", Value = "round-nosed",
-			AdditionalValue = "a medium-sized round nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "large nose", Value = "large-nosed",
-			AdditionalValue = "a noticably large nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "beak nose", Value = "beak-nosed",
-			AdditionalValue = "a downward-sloped nose like the beak of a bird", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "wide nose", Value = "wide-nosed",
-			AdditionalValue = "a nose with notably wide nostrils", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "upturned nose", Value = "upturned-nosed",
-			AdditionalValue = "a nose with a gentle upwards curve", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "flat nose", Value = "flat-nosed",
-			AdditionalValue = "a large, flat nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "big nose", Value = "big-nosed",
-			AdditionalValue = "a very big nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "bent nose", Value = "bent-nosed",
-			AdditionalValue = "a nose with a notable bend near the top", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "narrow nose", Value = "narrow-nosed",
-			AdditionalValue = "a nose with a notably narrow bridge and nostrils", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "bulbous nose", Value = "bulbous-nosed",
-			AdditionalValue = "a large, ruddy, bulbous nose", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "acromegalic nose", Value = "acromegalic-nosed",
-			AdditionalValue = "a massive lumpy nose resembling a person's fist in proportion", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "roman nose", Value = "roman-nosed",
-			AdditionalValue = "a nose with a prominent bridge, slightly convex in profile", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "snub nose", Value = "snub-nosed",
-			AdditionalValue = "a nose with a narrow, low bridge, widening and sweeping upward to the tip",
-			Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "long nose", Value = "long-nosed",
-			AdditionalValue = "a nose which is noticeably long in proportion to &his face", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "short nose", Value = "short-nosed",
-			AdditionalValue = "a nose which is noticeably short in proportion to &his face", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = noseDef, Name = "pig nose", Value = "pig-nosed",
-			AdditionalValue = "a flattened, up-turned nose with very visible nostrils from any angle", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "pointed nose", Value = "pointed-nosed", AdditionalValue = "a sharply pointed nose that tapers to a fine tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "hawk nose", Value = "hawk-nosed", AdditionalValue = "a sharply curved, angular nose like the beak of a hawk", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "broad nose", Value = "broad-nosed", AdditionalValue = "a wide and flat nose with prominent nostrils", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "dainty nose", Value = "dainty-nosed", AdditionalValue = "a small, delicate, and finely shaped nose", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "flared nose", Value = "flared-nosed", AdditionalValue = "a nose with prominently flared nostrils", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "recessed nose", Value = "recessed-nosed", AdditionalValue = "a nose that appears slightly set back into the face", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "chiseled nose", Value = "chiseled-nosed", AdditionalValue = "a nose with sharp and well-defined features", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "asymmetrical nose", Value = "asymmetrical-nosed", AdditionalValue = "a nose that is noticeably uneven or irregular in shape", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "stubby nose", Value = "stubby-nosed", AdditionalValue = "a short, broad nose with a blunt tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "angular nose", Value = "angular-nosed", AdditionalValue = "a nose with sharp, distinct angles and planes", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "flattened nose", Value = "flattened-nosed", AdditionalValue = "a nose that appears pressed down with a broad bridge", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "drooping nose", Value = "drooping-nosed", AdditionalValue = "a nose with a tip that droops downwards noticeably", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "petite nose", Value = "petite-nosed", AdditionalValue = "a very small and delicate nose, almost doll-like", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "thick nose", Value = "thick-nosed", AdditionalValue = "a wide, thickly set nose with a strong presence", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "ridge nose", Value = "ridge-nosed", AdditionalValue = "a nose with a pronounced ridge running down its length", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "cleft nose", Value = "cleft-nosed", AdditionalValue = "a nose with a distinct groove or indentation down its tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "petite button nose", Value = "petite-button-nosed", AdditionalValue = "a tiny, delicate, and perfectly round button nose", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "blunt nose", Value = "blunt-nosed", AdditionalValue = "a nose with a flat, wide tip that lacks sharp definition", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "sunken nose", Value = "sunken-nosed", AdditionalValue = "a nose that appears slightly concave along its bridge", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "ridge-tipped nose", Value = "ridge-tipped-nosed", AdditionalValue = "a nose with a slight bump or ridge near its tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "uneven nose", Value = "uneven-nosed", AdditionalValue = "a nose with subtle irregularities in its shape or symmetry", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "tapering nose", Value = "tapering-nosed", AdditionalValue = "a nose that gradually narrows towards its tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "fleshy nose", Value = "fleshy-nosed", AdditionalValue = "a nose with soft, rounded features and a prominent tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "fine-bridged nose", Value = "fine-bridged-nosed", AdditionalValue = "a nose with an especially thin and delicate bridge", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "pronounced-tip nose", Value = "pronounced-tip-nosed", AdditionalValue = "a nose with a very prominent and distinct tip", Pluralisation = 0 });
+		AddCharacteristicValue(nextId++, noseDef, "small nose", "small-nosed", "a small, refined nose");
+		AddCharacteristicValue(nextId++, noseDef, "hook nose", "hook-nosed", "a large, protruding nose that hooks downwards towards the end");
+		AddCharacteristicValue(nextId++, noseDef, "straight nose", "straight-nosed", "a medium-sized, straight and symmetrical nose");
+		AddCharacteristicValue(nextId++, noseDef, "crooked nose", "crooked-nosed", "a crooked nose that looks like it has been repeatedly broken");
+		AddCharacteristicValue(nextId++, noseDef, "button nose", "button-nosed", "a small, cute button nose");
+		AddCharacteristicValue(nextId++, noseDef, "aquiline nose", "aquiline-nosed", "a nose with a subtle downwards bend like the beak of an eagle");
+		AddCharacteristicValue(nextId++, noseDef, "round nose", "round-nosed", "a medium-sized round nose");
+		AddCharacteristicValue(nextId++, noseDef, "large nose", "large-nosed", "a noticably large nose");
+		AddCharacteristicValue(nextId++, noseDef, "beak nose", "beak-nosed", "a downward-sloped nose like the beak of a bird");
+		AddCharacteristicValue(nextId++, noseDef, "wide nose", "wide-nosed", "a nose with notably wide nostrils");
+		AddCharacteristicValue(nextId++, noseDef, "upturned nose", "upturned-nosed", "a nose with a gentle upwards curve");
+		AddCharacteristicValue(nextId++, noseDef, "flat nose", "flat-nosed", "a large, flat nose");
+		AddCharacteristicValue(nextId++, noseDef, "big nose", "big-nosed", "a very big nose");
+		AddCharacteristicValue(nextId++, noseDef, "bent nose", "bent-nosed", "a nose with a notable bend near the top");
+		AddCharacteristicValue(nextId++, noseDef, "narrow nose", "narrow-nosed", "a nose with a notably narrow bridge and nostrils");
+		AddCharacteristicValue(nextId++, noseDef, "bulbous nose", "bulbous-nosed", "a large, ruddy, bulbous nose");
+		AddCharacteristicValue(nextId++, noseDef, "acromegalic nose", "acromegalic-nosed", "a massive lumpy nose resembling a person's fist in proportion");
+		AddCharacteristicValue(nextId++, noseDef, "roman nose", "roman-nosed", "a nose with a prominent bridge, slightly convex in profile");
+		AddCharacteristicValue(nextId++, noseDef, "snub nose", "snub-nosed", "a nose with a narrow, low bridge, widening and sweeping upward to the tip");
+		AddCharacteristicValue(nextId++, noseDef, "long nose", "long-nosed", "a nose which is noticeably long in proportion to &his face");
+		AddCharacteristicValue(nextId++, noseDef, "short nose", "short-nosed", "a nose which is noticeably short in proportion to &his face");
+		AddCharacteristicValue(nextId++, noseDef, "pig nose", "pig-nosed", "a flattened, up-turned nose with very visible nostrils from any angle");
+		AddCharacteristicValue(nextId++, noseDef, "pointed nose", "pointed-nosed", "a sharply pointed nose that tapers to a fine tip");
+		AddCharacteristicValue(nextId++, noseDef, "hawk nose", "hawk-nosed", "a sharply curved, angular nose like the beak of a hawk");
+		AddCharacteristicValue(nextId++, noseDef, "broad nose", "broad-nosed", "a wide and flat nose with prominent nostrils");
+		AddCharacteristicValue(nextId++, noseDef, "dainty nose", "dainty-nosed", "a small, delicate, and finely shaped nose");
+		AddCharacteristicValue(nextId++, noseDef, "flared nose", "flared-nosed", "a nose with prominently flared nostrils");
+		AddCharacteristicValue(nextId++, noseDef, "recessed nose", "recessed-nosed", "a nose that appears slightly set back into the face");
+		AddCharacteristicValue(nextId++, noseDef, "chiseled nose", "chiseled-nosed", "a nose with sharp and well-defined features");
+		AddCharacteristicValue(nextId++, noseDef, "asymmetrical nose", "asymmetrical-nosed", "a nose that is noticeably uneven or irregular in shape");
+		AddCharacteristicValue(nextId++, noseDef, "stubby nose", "stubby-nosed", "a short, broad nose with a blunt tip");
+		AddCharacteristicValue(nextId++, noseDef, "angular nose", "angular-nosed", "a nose with sharp, distinct angles and planes");
+		AddCharacteristicValue(nextId++, noseDef, "flattened nose", "flattened-nosed", "a nose that appears pressed down with a broad bridge");
+		AddCharacteristicValue(nextId++, noseDef, "drooping nose", "drooping-nosed", "a nose with a tip that droops downwards noticeably");
+		AddCharacteristicValue(nextId++, noseDef, "petite nose", "petite-nosed", "a very small and delicate nose, almost doll-like");
+		AddCharacteristicValue(nextId++, noseDef, "thick nose", "thick-nosed", "a wide, thickly set nose with a strong presence");
+		AddCharacteristicValue(nextId++, noseDef, "ridge nose", "ridge-nosed", "a nose with a pronounced ridge running down its length");
+		AddCharacteristicValue(nextId++, noseDef, "cleft nose", "cleft-nosed", "a nose with a distinct groove or indentation down its tip");
+		AddCharacteristicValue(nextId++, noseDef, "petite button nose", "petite-button-nosed", "a tiny, delicate, and perfectly round button nose");
+		AddCharacteristicValue(nextId++, noseDef, "blunt nose", "blunt-nosed", "a nose with a flat, wide tip that lacks sharp definition");
+		AddCharacteristicValue(nextId++, noseDef, "sunken nose", "sunken-nosed", "a nose that appears slightly concave along its bridge");
+		AddCharacteristicValue(nextId++, noseDef, "ridge-tipped nose", "ridge-tipped-nosed", "a nose with a slight bump or ridge near its tip");
+		AddCharacteristicValue(nextId++, noseDef, "uneven nose", "uneven-nosed", "a nose with subtle irregularities in its shape or symmetry");
+		AddCharacteristicValue(nextId++, noseDef, "tapering nose", "tapering-nosed", "a nose that gradually narrows towards its tip");
+		AddCharacteristicValue(nextId++, noseDef, "fleshy nose", "fleshy-nosed", "a nose with soft, rounded features and a prominent tip");
+		AddCharacteristicValue(nextId++, noseDef, "fine-bridged nose", "fine-bridged-nosed", "a nose with an especially thin and delicate bridge");
+		AddCharacteristicValue(nextId++, noseDef, "pronounced-tip nose", "pronounced-tip-nosed", "a nose with a very prominent and distinct tip");
 
 		_context.SaveChanges();
 
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "round", Value = "round-eared",
-			AdditionalValue = "decidedly round at the top", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "big", Value = "big-eared",
-			AdditionalValue = "a little bigger than normal", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "small", Value = "small-eared",
-			AdditionalValue = "a little smaller than normal", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "pointy", Value = "pointy-eared",
-			AdditionalValue = "shaped like a bit of a point at the top", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "pinched", Value = "pinch-eared",
-			AdditionalValue = "shaped like something has pinched in the top of the helix", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "cauliflower", Value = "cauliflower-eared",
-			AdditionalValue = "permanently swollen and engorged from past trauma", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "square", Value = "square-eared",
-			AdditionalValue = "almost square, with a distinct angular shape", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "long", Value = "long-eared",
-			AdditionalValue = "a little longer than normal", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "narrow", Value = "narrow-eared",
-			AdditionalValue = "a little narrower than normal", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "protruding", Value = "protruding-eared",
-			AdditionalValue = "sticking out from &his head", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "prominent", Value = "prominent-eared",
-			AdditionalValue = "prominent, sticking out from &his head", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "long-lobed", Value = "long-lobed",
-			AdditionalValue = "most notable for the long earlobes", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = earDef, Name = "malformed", Value = "malformed-eared",
-			AdditionalValue = "malformed, most likely from a birth or childhood defect", Pluralisation = 0
-		});
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "pointed", Value = "pointed-eared", AdditionalValue = "ending in a sharper, more pronounced point", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "droopy", Value = "droopy-eared", AdditionalValue = "hanging downwards slightly from the base", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "curled", Value = "curled-eared", AdditionalValue = "with the edges of the helix curling inward", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "wide", Value = "wide-eared", AdditionalValue = "unusually wide, spanning a greater area from base to top", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "asymmetrical", Value = "asymmetrical-eared", AdditionalValue = "noticeably mismatched in size or shape", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "flat", Value = "flat-eared", AdditionalValue = "lying unusually close to &his head, with minimal curvature", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "folded", Value = "folded-eared", AdditionalValue = "folded slightly over at the top", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "flared", Value = "flared-eared", AdditionalValue = "flaring outward dramatically from &his head", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "thick-lobed", Value = "thick-lobed", AdditionalValue = "featuring particularly thick and rounded earlobes", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "thin-lobed", Value = "thin-lobed", AdditionalValue = "with delicate, thin earlobes", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "jagged", Value = "jagged-eared", AdditionalValue = "with irregular, jagged edges", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "torn", Value = "torn-eared", AdditionalValue = "showing signs of past damage or tearing", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "clipped", Value = "clipped-eared", AdditionalValue = "appearing as if the tops have been clipped off", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "folded-lobed", Value = "folded-lobed", AdditionalValue = "with the lobes folded up towards the ear", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "shell-shaped", Value = "shell-shaped-eared", AdditionalValue = "resembling the rounded curves of a shell", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "elongated", Value = "elongated-eared", AdditionalValue = "stretched and elongated further than average", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "angled", Value = "angled-eared", AdditionalValue = "with a distinctive angle or tilt outward", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "tapered", Value = "tapered-eared", AdditionalValue = "gradually narrowing towards the tip", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "cupped", Value = "cupped-eared", AdditionalValue = "deeply curved inward, as if to catch sound", Pluralisation = 0 });
-		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "uneven", Value = "uneven-eared", AdditionalValue = "one ear visibly higher or lower than the other", Pluralisation = 0 });
+		AddCharacteristicValue(nextId++, earDef, "round", "round-eared", "decidedly round at the top");
+		AddCharacteristicValue(nextId++, earDef, "big", "big-eared", "a little bigger than normal");
+		AddCharacteristicValue(nextId++, earDef, "small", "small-eared", "a little smaller than normal");
+		AddCharacteristicValue(nextId++, earDef, "pointy", "pointy-eared", "shaped like a bit of a point at the top");
+		AddCharacteristicValue(nextId++, earDef, "pinched", "pinch-eared", "shaped like something has pinched in the top of the helix");
+		AddCharacteristicValue(nextId++, earDef, "cauliflower", "cauliflower-eared", "permanently swollen and engorged from past trauma");
+		AddCharacteristicValue(nextId++, earDef, "square", "square-eared", "almost square, with a distinct angular shape");
+		AddCharacteristicValue(nextId++, earDef, "long", "long-eared", "a little longer than normal");
+		AddCharacteristicValue(nextId++, earDef, "narrow", "narrow-eared", "a little narrower than normal");
+		AddCharacteristicValue(nextId++, earDef, "protruding", "protruding-eared", "sticking out from &his head");
+		AddCharacteristicValue(nextId++, earDef, "prominent", "prominent-eared", "prominent, sticking out from &his head");
+		AddCharacteristicValue(nextId++, earDef, "long-lobed", "long-lobed", "most notable for the long earlobes");
+		AddCharacteristicValue(nextId++, earDef, "malformed", "malformed-eared", "malformed, most likely from a birth or childhood defect");
+		AddCharacteristicValue(nextId++, earDef, "pointed", "pointed-eared", "ending in a sharper, more pronounced point");
+		AddCharacteristicValue(nextId++, earDef, "droopy", "droopy-eared", "hanging downwards slightly from the base");
+		AddCharacteristicValue(nextId++, earDef, "curled", "curled-eared", "with the edges of the helix curling inward");
+		AddCharacteristicValue(nextId++, earDef, "wide", "wide-eared", "unusually wide, spanning a greater area from base to top");
+		AddCharacteristicValue(nextId++, earDef, "asymmetrical", "asymmetrical-eared", "noticeably mismatched in size or shape");
+		AddCharacteristicValue(nextId++, earDef, "flat", "flat-eared", "lying unusually close to &his head, with minimal curvature");
+		AddCharacteristicValue(nextId++, earDef, "folded", "folded-eared", "folded slightly over at the top");
+		AddCharacteristicValue(nextId++, earDef, "flared", "flared-eared", "flaring outward dramatically from &his head");
+		AddCharacteristicValue(nextId++, earDef, "thick-lobed", "thick-lobed", "featuring particularly thick and rounded earlobes");
+		AddCharacteristicValue(nextId++, earDef, "thin-lobed", "thin-lobed", "with delicate, thin earlobes");
+		AddCharacteristicValue(nextId++, earDef, "jagged", "jagged-eared", "with irregular, jagged edges");
+		AddCharacteristicValue(nextId++, earDef, "torn", "torn-eared", "showing signs of past damage or tearing");
+		AddCharacteristicValue(nextId++, earDef, "clipped", "clipped-eared", "appearing as if the tops have been clipped off");
+		AddCharacteristicValue(nextId++, earDef, "folded-lobed", "folded-lobed", "with the lobes folded up towards the ear");
+		AddCharacteristicValue(nextId++, earDef, "shell-shaped", "shell-shaped-eared", "resembling the rounded curves of a shell");
+		AddCharacteristicValue(nextId++, earDef, "elongated", "elongated-eared", "stretched and elongated further than average");
+		AddCharacteristicValue(nextId++, earDef, "angled", "angled-eared", "with a distinctive angle or tilt outward");
+		AddCharacteristicValue(nextId++, earDef, "tapered", "tapered-eared", "gradually narrowing towards the tip");
+		AddCharacteristicValue(nextId++, earDef, "cupped", "cupped-eared", "deeply curved inward, as if to catch sound");
+		AddCharacteristicValue(nextId++, earDef, "uneven", "uneven-eared", "one ear visibly higher or lower than the other");
 
 		_context.SaveChanges();
 
@@ -3386,710 +1625,124 @@ return @bmi > 24 and @bmi < 35"
 				Definition = "<Definition/>"
 			});
 
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "no lips", Value = "lipless",
-				AdditionalValue = "no lips at all, only scar tissue and melted skin where lips should be",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "missing left eyebrow", Value = "one-eyebrowed",
-				AdditionalValue = "only &his left eyebrow remaining", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "missing right eyebrow", Value = "one-eyebrowed",
-				AdditionalValue = "only &his right eyebrow remaining", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "no eyebrows", Value = "eyebrowless",
-				AdditionalValue = "no eyebrows at all, which is kinda bizarre", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "monobrow", Value = "monobrowed",
-				AdditionalValue = "a single, thick and bushy monobrow knitting their brows together", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "beauty mark", Value = "beauty-marked",
-				AdditionalValue = "a dark beauty spot marring the corner of &his mouth, just below &his nose",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "hunchback", Value = "hunchbacked",
-				AdditionalValue = "a hump between &his shoulders hinting at a misshapen spine", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "clubfoot", Value = "clubfooted",
-				AdditionalValue = "a deformed foot that appears to have been rotated at the ankle", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "butt chin", Value = "butt-chinned",
-				AdditionalValue =
-					"a chin that is so pronounced and jutting that its similarities to a butt cannot be avoided",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "goiter", Value = "goitered",
-				AdditionalValue = "an unsightly lump growing on &his neck", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "buck teeth", Value = "buck-toothed",
-				AdditionalValue = "two large front teeth that jut out", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "shattered teeth", Value = "shatter-toothed",
-				AdditionalValue = "a mouth full of broken, chipped and shattered teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "unblemished complexion", Value = "unblemished",
-				AdditionalValue = "a body that is seemingly free from blemish or scars", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "stretch marks", Value = "stretch-marked",
-				AdditionalValue = "a series of light, off-colour scars that suggest skin that has been stretched",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "pock marks", Value = "pockmarked",
-				AdditionalValue = "a number of small, textured scars from a pox of some kind", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "acne scars", Value = "acne-scarred",
-				AdditionalValue = "a number of small, textured scars around the face suggesting a history of acne",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "lantern jaw", Value = "lantern-jawed",
-				AdditionalValue = "a jutting, strong lower jawline", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "rough skin", Value = "rough-skinned",
-				AdditionalValue = "rough, craggy skin", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "smooth skin", Value = "smooth-skinned",
-				AdditionalValue = "extraordinarily smooth, wrinkle free skin", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "loose skin", Value = "loose-skinned",
-				AdditionalValue =
-					"loose skin with little elasticity, prone to hanging off &his flesh at the mercy of gravity",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "perfect teeth", Value = "perfect-toothed",
-				AdditionalValue = "perfect, straight white teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "sausage fingers", Value = "sausage-fingered",
-				AdditionalValue = "short, fat, chubby little fingers like miniature sausages", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "fat fingers", Value = "fat-fingered",
-				AdditionalValue = "short, fat fingers", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "thin fingers", Value = "thin-fingered",
-				AdditionalValue = "noticeably gaunt, thin fingers", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "long fingers", Value = "long-fingered",
-				AdditionalValue = "especially long, skeletally thin fingers", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "harelip", Value = "harelipped",
-				AdditionalValue = "a cleft lip and palate, leaving a gap at the top of the mouth", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "unremarkable appearance", Value = "unremarkable",
-				AdditionalValue =
-					"a distinctly unremarkable appearance, in a way that would be hard to describe and hard to remember",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "bland appearance", Value = "bland",
-				AdditionalValue =
-					"a distinctly bland appearance, in a way that would be hard to describe and hard to remember",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "angular features", Value = "angular-featured",
-				AdditionalValue = "jutting, angular facial features with high cheekbones and well defined facial lines",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "double chins", Value = "double-chinned",
-				AdditionalValue = "two chins, one after the other", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "thin eyebrows", Value = "thin-browed",
-				AdditionalValue = "decidedly thin eyebrows", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "cock eyes", Value = "cockeyed",
-				AdditionalValue =
-					"a cockeyed gaze, with one of the two eyes never quite focusing in the same direction as the other",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "crossed eyes", Value = "cross-eyed",
-				AdditionalValue = "a gaze that generally causes the eyes to cross over one another", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "facial wrinkles", Value = "wrinkled",
-				AdditionalValue = "extensive wrinkles in the corners of the eyes and lips", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "crooked teeth", Value = "crooked-toothed",
-				AdditionalValue = "crooked, uneven teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "no teeth", Value = "toothless",
-				AdditionalValue = "no teeth at all, just gums", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "rotten teeth", Value = "rotten-toothed",
-				AdditionalValue = "horrid-looking rotten black teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "yellow teeth", Value = "yellow-toothed",
-				AdditionalValue = "extensively stained yellow teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "gold tooth", Value = "gold-toothed",
-				AdditionalValue = "a tooth made out of gold", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "jowls", Value = "jowly",
-				AdditionalValue = "drooping, jowly cheeks", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "weak chin", Value = "weak-chinned",
-				AdditionalValue = "a weak chin that recedes into the neckline", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "straight teeth", Value = "straight-teethed",
-				AdditionalValue = "a set of good, straight teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "saw teeth", Value = "saw-toothed",
-				AdditionalValue = "a set of angular, jagged teeth like the blades of a saw", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "jagged teeth", Value = "jagged-toothed",
-				AdditionalValue = "a set of uneven, jagged-looking teeth", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "missing tooth", Value = "missing-toothed",
-				AdditionalValue = "a noticeable gap in &his teeth, where one is missing", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "chipped tooth", Value = "chip-toothed",
-				AdditionalValue = "a prominently chipped tooth", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "off white teeth", Value = "off-white-toothed",
-				AdditionalValue = "a set of teeth which are decidedly off-white in colour", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "thick eyebrows", Value = "thick-browed",
-				AdditionalValue = "a pair of large, thick eyebrows", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "pointy eyebrows", Value = "pointy-browed",
-				AdditionalValue =
-					"a pair of pointy eyebrows that almost always look surprised or curious, no matter &his expression",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "chapped lips", Value = "chap-lipped",
-				AdditionalValue = "lips that are chapped and dry, with noticeable breaks in the skin", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "thick lips", Value = "thick-lipped",
-				AdditionalValue = "a thick, prominent pair of lips", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "pale lips", Value = "pale-lipped",
-				AdditionalValue = "a pair of pale lips", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "dark lips", Value = "dark-lipped",
-				AdditionalValue = "a pair of lips with a decidedly darker hue than &his skin tone would suggest",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "small lips", Value = "small-lipped",
-				AdditionalValue =
-					"a pair of small lips, not quite in keeping with the size of &his other facial features",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "thin lips", Value = "thin-lipped",
-				AdditionalValue = "a long pair of thin lips", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "chiseled jaw", Value = "chisel-jawed",
-				AdditionalValue = "a strong jaw, as if chiseled out of a block of granite", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "sultry eyes", Value = "sultry-eyed",
-				AdditionalValue = "an innately suggestive, sultry look in &his eyes", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "smoldering eyes", Value = "smoldering-eyed",
-				AdditionalValue = "eyes that smolder with an inner fire and intensity", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "intense gaze", Value = "intense",
-				AdditionalValue = "a raw intensity that radiates from &his gaze", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "handsome appearance", Value = "handsome",
-				AdditionalValue =
-					"an innate attractiveness - all &his features just seem to mesh in such a way as to be ridiculously good-looking",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "attractive features", Value = "attractive",
-				AdditionalValue = "an overall, undeniable attractiveness to their appearance; an indefinable something",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "pouty lips", Value = "pouty-lipped",
-				AdditionalValue = "full, lusciously plump lips shaped like a heart", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "rosy cheeks", Value = "rosy-cheeked",
-				AdditionalValue = "small, cherubic cheeks with a noticeable rosy glow", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "palsy", Value = "palsied",
-				AdditionalValue = "a face paralyzed on one side, complete with drooping eyelid and slack mouth",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "cataracts", Value = "cloudy-lensed",
-				AdditionalValue = "one eye blinded by milky white cataracts", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "wall eye", Value = "wall-eyed",
-				AdditionalValue = "misaligned eyes, one drifting outward, seeming to be watching that side",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "bull neck", Value = "bull-necked",
-				AdditionalValue = "an exceedingly thick and muscular neck", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "no neck", Value = "no-necked",
-				AdditionalValue = "almost no neck at all, &his head seeming to meld straight into &his shoulders",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "underbite", Value = "underbiting",
-				AdditionalValue = "a severe underbite, &his lower jaw outthrust beyond the upper", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "overbite", Value = "parrot-mouthed",
-				AdditionalValue = "a really noticeable overbite, &his lower jaw set well back from the upper",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "bushy eyebrows", Value = "bushy-browed",
-				AdditionalValue = "extremely prominent, bushy eyebrows like two caterpillars sitting above &his eyes",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "resting bitch face", Value = "sneering",
-				AdditionalValue = "a seemingly permanent sneer, &his upper lip drawn back and brows lowered",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "haggard appearance", Value = "haggard",
-				AdditionalValue = "a worn, world-weary look to &him that suggests a life of hardship and deprivation",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "freckles", Value = "freckled",
-				AdditionalValue = "a smattering of freckles across &his nose and cheekbones", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "extreme freckles", Value = "heavily-freckled",
-				AdditionalValue = "copious amounts of freckles over &his whole body", Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "chin beauty mark", Value = "beauty-marked",
-				AdditionalValue = "a prominent mole located on &his chin", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "gold teeth", Value = "golden-toothed",
-				AdditionalValue =
-					"several golden teeth, obviously having been replaced at some point, giving &him a shiny smile",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "large forehead", Value = "large-foreheaded",
-				AdditionalValue = "an unusually large expanse of forehead between &his hairline and brows",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "cheek beauty mark", Value = "beauty-marked",
-				AdditionalValue = "a prominent mole located on &his cheek", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "malformed face", Value = "malformed-faced",
-				AdditionalValue =
-					"a craggy, bumpy face, a bulging chin and jaw, gapped teeth, and almost no neck, &his head seeming to meld straight into &his shoulders",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "regal bearing", Value = "regal",
-				AdditionalValue =
-					"an aura of authority about &him, excellent posture and a lofty gaze contributing to a decidedly regal look",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "imposing presence", Value = "imposing",
-				AdditionalValue =
-					"a posture and bearing that suggests power ready to be wielded, imposing and perhaps unnerving",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "air of elegance", Value = "elegant",
-				AdditionalValue =
-					"a classically elegant appearance and features combining to impart a sense of refinement and grace",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "refined features", Value = "refined",
-				AdditionalValue = "refined, delicately sculpted features", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "august presence", Value = "august",
-				AdditionalValue = "a naturally composed, dignified aura about &his bearing and features",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "striking appearance", Value = "striking",
-				AdditionalValue = "an intangible something that draws the gaze to &him, unusual and compelling",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "hawkish look", Value = "hawkish",
-				AdditionalValue = "a singularly intense look about &him, attention nearly always sharply focused",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "face like a toad", Value = "toad-faced",
-				AdditionalValue =
-					"a face that resembles nothing so much as a toad, broad and flat, eyes widely spaced and almost facing opposite directions",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "pug face", Value = "pug-faced",
-				AdditionalValue = "a round, heavily flattened face, with bulging eyes and a wide mouth",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "swan neck", Value = "swan-necked",
-				AdditionalValue = "a long, graceful neck", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "face like a hatchet", Value = "hatchet-faced",
-				AdditionalValue = "a thin, sharp-edged face, angular and protruding like a hatchet", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "owlish gaze", Value = "owlish",
-				AdditionalValue =
-					"a wide-eyed appearance, as though &he just woke up from a nap, or needs to open &his eyes extra-wide to take in what &he can see",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "wolfish look", Value = "wolfish",
-				AdditionalValue = "something predatory about &him, hungry and feral", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "austere mein", Value = "austere",
-				AdditionalValue = "a cold, stern look about &his features", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "horse face", Value = "horse-faced",
-				AdditionalValue = "a long, narrow face that evokes the image of a horse", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "hamburger face", Value = "hamburger-faced",
-				AdditionalValue =
-					"a face that has suffered a heck of a lot of abuse, and now resembles a bunch of ground up raw meat mashed into a vaguely human shape through all the scars and badly reset bones",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "low brow", Value = "low-browed",
-				AdditionalValue = "a low set brow with a noticeable bone ridge reminsicent of a neanderthal",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "winsome appearance", Value = "winsome",
-				AdditionalValue = "an undeniably innocent aura of attractiveness about &his person", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "pretty appearance", Value = "pretty",
-				AdditionalValue =
-					"a better than average but not world-beating level of attractiveness; &he is definitely pretty",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "comely appearance", Value = "comely",
-				AdditionalValue = "an agreeable, pleasant to look upon overall appearance", Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "good appearance", Value = "good-looking",
-				AdditionalValue =
-					"an overall appearance that is objectively good looking; better than average at least",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++, Definition = distinctiveDef, Name = "extensive stretchmarks", Value = "stretchmarked",
-				AdditionalValue =
-					"has countless light, off-colour scars that suggest skin that has been stretched like it were a size too small for &his body",
-				Pluralisation = 1
-			});
+			AddCharacteristicValue(nextId++, distinctiveDef, "no lips", "lipless", "no lips at all, only scar tissue and melted skin where lips should be", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "missing left eyebrow", "one-eyebrowed", "only &his left eyebrow remaining");
+			AddCharacteristicValue(nextId++, distinctiveDef, "missing right eyebrow", "one-eyebrowed", "only &his right eyebrow remaining");
+			AddCharacteristicValue(nextId++, distinctiveDef, "no eyebrows", "eyebrowless", "no eyebrows at all, which is kinda bizarre", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "monobrow", "monobrowed", "a single, thick and bushy monobrow knitting their brows together");
+			AddCharacteristicValue(nextId++, distinctiveDef, "beauty mark", "beauty-marked", "a dark beauty spot marring the corner of &his mouth, just below &his nose");
+			AddCharacteristicValue(nextId++, distinctiveDef, "hunchback", "hunchbacked", "a hump between &his shoulders hinting at a misshapen spine");
+			AddCharacteristicValue(nextId++, distinctiveDef, "clubfoot", "clubfooted", "a deformed foot that appears to have been rotated at the ankle");
+			AddCharacteristicValue(nextId++, distinctiveDef, "butt chin", "butt-chinned", "a chin that is so pronounced and jutting that its similarities to a butt cannot be avoided");
+			AddCharacteristicValue(nextId++, distinctiveDef, "goiter", "goitered", "an unsightly lump growing on &his neck");
+			AddCharacteristicValue(nextId++, distinctiveDef, "buck teeth", "buck-toothed", "two large front teeth that jut out");
+			AddCharacteristicValue(nextId++, distinctiveDef, "shattered teeth", "shatter-toothed", "a mouth full of broken, chipped and shattered teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "unblemished complexion", "unblemished", "a body that is seemingly free from blemish or scars");
+			AddCharacteristicValue(nextId++, distinctiveDef, "stretch marks", "stretch-marked", "a series of light, off-colour scars that suggest skin that has been stretched", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "pock marks", "pockmarked", "a number of small, textured scars from a pox of some kind", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "acne scars", "acne-scarred", "a number of small, textured scars around the face suggesting a history of acne", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "lantern jaw", "lantern-jawed", "a jutting, strong lower jawline");
+			AddCharacteristicValue(nextId++, distinctiveDef, "rough skin", "rough-skinned", "rough, craggy skin", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "smooth skin", "smooth-skinned", "extraordinarily smooth, wrinkle free skin", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "loose skin", "loose-skinned", "loose skin with little elasticity, prone to hanging off &his flesh at the mercy of gravity", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "perfect teeth", "perfect-toothed", "perfect, straight white teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "sausage fingers", "sausage-fingered", "short, fat, chubby little fingers like miniature sausages", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "fat fingers", "fat-fingered", "short, fat fingers", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "thin fingers", "thin-fingered", "noticeably gaunt, thin fingers", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "long fingers", "long-fingered", "especially long, skeletally thin fingers", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "harelip", "harelipped", "a cleft lip and palate, leaving a gap at the top of the mouth");
+			AddCharacteristicValue(nextId++, distinctiveDef, "unremarkable appearance", "unremarkable", "a distinctly unremarkable appearance, in a way that would be hard to describe and hard to remember");
+			AddCharacteristicValue(nextId++, distinctiveDef, "bland appearance", "bland", "a distinctly bland appearance, in a way that would be hard to describe and hard to remember");
+			AddCharacteristicValue(nextId++, distinctiveDef, "angular features", "angular-featured", "jutting, angular facial features with high cheekbones and well defined facial lines", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "double chins", "double-chinned", "two chins, one after the other", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "thin eyebrows", "thin-browed", "decidedly thin eyebrows", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "cock eyes", "cockeyed", "a cockeyed gaze, with one of the two eyes never quite focusing in the same direction as the other", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "crossed eyes", "cross-eyed", "a gaze that generally causes the eyes to cross over one another", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "facial wrinkles", "wrinkled", "extensive wrinkles in the corners of the eyes and lips", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "crooked teeth", "crooked-toothed", "crooked, uneven teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "no teeth", "toothless", "no teeth at all, just gums", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "rotten teeth", "rotten-toothed", "horrid-looking rotten black teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "yellow teeth", "yellow-toothed", "extensively stained yellow teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "gold tooth", "gold-toothed", "a tooth made out of gold");
+			AddCharacteristicValue(nextId++, distinctiveDef, "jowls", "jowly", "drooping, jowly cheeks", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "weak chin", "weak-chinned", "a weak chin that recedes into the neckline");
+			AddCharacteristicValue(nextId++, distinctiveDef, "straight teeth", "straight-teethed", "a set of good, straight teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "saw teeth", "saw-toothed", "a set of angular, jagged teeth like the blades of a saw", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "jagged teeth", "jagged-toothed", "a set of uneven, jagged-looking teeth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "missing tooth", "missing-toothed", "a noticeable gap in &his teeth, where one is missing");
+			AddCharacteristicValue(nextId++, distinctiveDef, "chipped tooth", "chip-toothed", "a prominently chipped tooth");
+			AddCharacteristicValue(nextId++, distinctiveDef, "off white teeth", "off-white-toothed", "a set of teeth which are decidedly off-white in colour", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "thick eyebrows", "thick-browed", "a pair of large, thick eyebrows", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "pointy eyebrows", "pointy-browed", "a pair of pointy eyebrows that almost always look surprised or curious, no matter &his expression", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "chapped lips", "chap-lipped", "lips that are chapped and dry, with noticeable breaks in the skin", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "thick lips", "thick-lipped", "a thick, prominent pair of lips", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "pale lips", "pale-lipped", "a pair of pale lips", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "dark lips", "dark-lipped", "a pair of lips with a decidedly darker hue than &his skin tone would suggest", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "small lips", "small-lipped", "a pair of small lips, not quite in keeping with the size of &his other facial features", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "thin lips", "thin-lipped", "a long pair of thin lips", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "chiseled jaw", "chisel-jawed", "a strong jaw, as if chiseled out of a block of granite");
+			AddCharacteristicValue(nextId++, distinctiveDef, "sultry eyes", "sultry-eyed", "an innately suggestive, sultry look in &his eyes", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "smoldering eyes", "smoldering-eyed", "eyes that smolder with an inner fire and intensity", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "intense gaze", "intense", "a raw intensity that radiates from &his gaze", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "handsome appearance", "handsome", "an innate attractiveness - all &his features just seem to mesh in such a way as to be ridiculously good-looking");
+			AddCharacteristicValue(nextId++, distinctiveDef, "attractive features", "attractive", "an overall, undeniable attractiveness to their appearance; an indefinable something", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "pouty lips", "pouty-lipped", "full, lusciously plump lips shaped like a heart", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "rosy cheeks", "rosy-cheeked", "small, cherubic cheeks with a noticeable rosy glow", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "palsy", "palsied", "a face paralyzed on one side, complete with drooping eyelid and slack mouth", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "cataracts", "cloudy-lensed", "one eye blinded by milky white cataracts", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "wall eye", "wall-eyed", "misaligned eyes, one drifting outward, seeming to be watching that side");
+			AddCharacteristicValue(nextId++, distinctiveDef, "bull neck", "bull-necked", "an exceedingly thick and muscular neck");
+			AddCharacteristicValue(nextId++, distinctiveDef, "no neck", "no-necked", "almost no neck at all, &his head seeming to meld straight into &his shoulders", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "underbite", "underbiting", "a severe underbite, &his lower jaw outthrust beyond the upper");
+			AddCharacteristicValue(nextId++, distinctiveDef, "overbite", "parrot-mouthed", "a really noticeable overbite, &his lower jaw set well back from the upper");
+			AddCharacteristicValue(nextId++, distinctiveDef, "bushy eyebrows", "bushy-browed", "extremely prominent, bushy eyebrows like two caterpillars sitting above &his eyes", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "resting bitch face", "sneering", "a seemingly permanent sneer, &his upper lip drawn back and brows lowered");
+			AddCharacteristicValue(nextId++, distinctiveDef, "haggard appearance", "haggard", "a worn, world-weary look to &him that suggests a life of hardship and deprivation");
+			AddCharacteristicValue(nextId++, distinctiveDef, "freckles", "freckled", "a smattering of freckles across &his nose and cheekbones", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "extreme freckles", "heavily-freckled", "copious amounts of freckles over &his whole body", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "chin beauty mark", "beauty-marked", "a prominent mole located on &his chin");
+			AddCharacteristicValue(nextId++, distinctiveDef, "gold teeth", "golden-toothed", "several golden teeth, obviously having been replaced at some point, giving &him a shiny smile", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "large forehead", "large-foreheaded", "an unusually large expanse of forehead between &his hairline and brows");
+			AddCharacteristicValue(nextId++, distinctiveDef, "cheek beauty mark", "beauty-marked", "a prominent mole located on &his cheek");
+			AddCharacteristicValue(nextId++, distinctiveDef, "malformed face", "malformed-faced", "a craggy, bumpy face, a bulging chin and jaw, gapped teeth, and almost no neck, &his head seeming to meld straight into &his shoulders");
+			AddCharacteristicValue(nextId++, distinctiveDef, "regal bearing", "regal", "an aura of authority about &him, excellent posture and a lofty gaze contributing to a decidedly regal look");
+			AddCharacteristicValue(nextId++, distinctiveDef, "imposing presence", "imposing", "a posture and bearing that suggests power ready to be wielded, imposing and perhaps unnerving");
+			AddCharacteristicValue(nextId++, distinctiveDef, "air of elegance", "elegant", "a classically elegant appearance and features combining to impart a sense of refinement and grace");
+			AddCharacteristicValue(nextId++, distinctiveDef, "refined features", "refined", "refined, delicately sculpted features");
+			AddCharacteristicValue(nextId++, distinctiveDef, "august presence", "august", "a naturally composed, dignified aura about &his bearing and features");
+			AddCharacteristicValue(nextId++, distinctiveDef, "striking appearance", "striking", "an intangible something that draws the gaze to &him, unusual and compelling");
+			AddCharacteristicValue(nextId++, distinctiveDef, "hawkish look", "hawkish", "a singularly intense look about &him, attention nearly always sharply focused");
+			AddCharacteristicValue(nextId++, distinctiveDef, "face like a toad", "toad-faced", "a face that resembles nothing so much as a toad, broad and flat, eyes widely spaced and almost facing opposite directions");
+			AddCharacteristicValue(nextId++, distinctiveDef, "pug face", "pug-faced", "a round, heavily flattened face, with bulging eyes and a wide mouth");
+			AddCharacteristicValue(nextId++, distinctiveDef, "swan neck", "swan-necked", "a long, graceful neck");
+			AddCharacteristicValue(nextId++, distinctiveDef, "face like a hatchet", "hatchet-faced", "a thin, sharp-edged face, angular and protruding like a hatchet");
+			AddCharacteristicValue(nextId++, distinctiveDef, "owlish gaze", "owlish", "a wide-eyed appearance, as though &he just woke up from a nap, or needs to open &his eyes extra-wide to take in what &he can see");
+			AddCharacteristicValue(nextId++, distinctiveDef, "wolfish look", "wolfish", "something predatory about &him, hungry and feral");
+			AddCharacteristicValue(nextId++, distinctiveDef, "austere mein", "austere", "a cold, stern look about &his features");
+			AddCharacteristicValue(nextId++, distinctiveDef, "horse face", "horse-faced", "a long, narrow face that evokes the image of a horse");
+			AddCharacteristicValue(nextId++, distinctiveDef, "hamburger face", "hamburger-faced", "a face that has suffered a heck of a lot of abuse, and now resembles a bunch of ground up raw meat mashed into a vaguely human shape through all the scars and badly reset bones");
+			AddCharacteristicValue(nextId++, distinctiveDef, "low brow", "low-browed", "a low set brow with a noticeable bone ridge reminsicent of a neanderthal");
+			AddCharacteristicValue(nextId++, distinctiveDef, "winsome appearance", "winsome", "an undeniably innocent aura of attractiveness about &his person");
+			AddCharacteristicValue(nextId++, distinctiveDef, "pretty appearance", "pretty", "a better than average but not world-beating level of attractiveness; &he is definitely pretty");
+			AddCharacteristicValue(nextId++, distinctiveDef, "comely appearance", "comely", "an agreeable, pleasant to look upon overall appearance");
+			AddCharacteristicValue(nextId++, distinctiveDef, "good appearance", "good-looking", "an overall appearance that is objectively good looking; better than average at least");
+			AddCharacteristicValue(nextId++, distinctiveDef, "extensive stretchmarks", "stretchmarked", "has countless light, off-colour scars that suggest skin that has been stretched like it were a size too small for &his body", pluralisation: 1);
 
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "broad jaw",
-				Value = "broad-jawed",
-				AdditionalValue = "a strong and broad jawline",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "birthmarked",
-				Value = "birthmarked",
-				AdditionalValue = "a striking and obvious birthmark",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "calloused hands",
-				Value = "calloused-handed",
-				AdditionalValue = "heavily calloused hands, evidence of a lifetime of manual labour",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "dimples",
-				Value = "dimpled",
-				AdditionalValue = "prominent dimples when &he smiles",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "elegant fingers",
-				Value = "elegant fingered",
-				AdditionalValue = "long and finely shaped fingers, elegant in appearance",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "light freckles",
-				Value = "lightly-freckled",
-				AdditionalValue = "a scattering of light freckles, just enough to cover &his cheeks",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "full lips",
-				Value = "full-lipped",
-				AdditionalValue = "full and striking lips",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "thin lips",
-				Value = "thin-lipped",
-				AdditionalValue = "a mouth delicately framed with thin lips",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "gaunt cheeks",
-				Value = "gaunt-cheeked",
-				AdditionalValue = "cheeks sunken and gaunt, hinting at hardship",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "high cheekbones",
-				Value = "high-cheekboned",
-				AdditionalValue = "sharply defined by high and prominent cheekbones",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "knobby knuckles",
-				Value = "knobby-knuckled",
-				AdditionalValue = "hands defined by prominently knobby knuckles",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "square chin",
-				Value = "square-chinned",
-				AdditionalValue = "an emphatically square chin, prominently jutting out of &his jaw",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "square jaw",
-				Value = "square-jawed",
-				AdditionalValue = "a square jaw, giving &his face a wide appearance",
-				Pluralisation = 0
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "strong hands",
-				Value = "strong-handed",
-				AdditionalValue = "large and powerful-looking hands, suggesting strength",
-				Pluralisation = 1
-			});
-			_context.CharacteristicValues.Add(new CharacteristicValue
-			{
-				Id = nextId++,
-				Definition = distinctiveDef,
-				Name = "sun weathered",
-				Value = "sun-weathered",
-				AdditionalValue = "skin toughened and weathered by long days under the sun",
-				Pluralisation = 0
-			});
+			AddCharacteristicValue(nextId++, distinctiveDef, "broad jaw", "broad-jawed", "a strong and broad jawline");
+			AddCharacteristicValue(nextId++, distinctiveDef, "birthmarked", "birthmarked", "a striking and obvious birthmark");
+			AddCharacteristicValue(nextId++, distinctiveDef, "calloused hands", "calloused-handed", "heavily calloused hands, evidence of a lifetime of manual labour", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "dimples", "dimpled", "prominent dimples when &he smiles", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "elegant fingers", "elegant fingered", "long and finely shaped fingers, elegant in appearance", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "light freckles", "lightly-freckled", "a scattering of light freckles, just enough to cover &his cheeks", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "full lips", "full-lipped", "full and striking lips", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "thin lips", "thin-lipped", "a mouth delicately framed with thin lips", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "gaunt cheeks", "gaunt-cheeked", "cheeks sunken and gaunt, hinting at hardship", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "high cheekbones", "high-cheekboned", "sharply defined by high and prominent cheekbones", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "knobby knuckles", "knobby-knuckled", "hands defined by prominently knobby knuckles", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "square chin", "square-chinned", "an emphatically square chin, prominently jutting out of &his jaw");
+			AddCharacteristicValue(nextId++, distinctiveDef, "square jaw", "square-jawed", "a square jaw, giving &his face a wide appearance");
+			AddCharacteristicValue(nextId++, distinctiveDef, "strong hands", "strong-handed", "large and powerful-looking hands, suggesting strength", pluralisation: 1);
+			AddCharacteristicValue(nextId++, distinctiveDef, "sun weathered", "sun-weathered", "skin toughened and weathered by long days under the sun");
 		}
 
 		#endregion

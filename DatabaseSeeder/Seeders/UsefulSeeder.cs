@@ -141,14 +141,14 @@ public class UsefulSeeder : IDatabaseSeeder
 
 		if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
 
-				if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
+		if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
 
-				if (questionAnswers["covers"].EqualToAny("yes", "y")) SeedRangedCovers(context, errors);
+		if (questionAnswers["covers"].EqualToAny("yes", "y")) SeedRangedCovers(context, errors);
 
-				if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
-				{
-						SeedTerrainAutobuilder(context, questionAnswers, errors);
-				}
+		if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
+		{
+			SeedTerrainAutobuilder(context, questionAnswers, errors);
+		}
 
 		context.Database.CommitTransaction();
 
@@ -262,8 +262,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 				TerrainEditorColour = $"#{editorColour.R:X2}{editorColour.G:X2}{editorColour.B:X2}",
 				TerrainEditorText = editorText,
 				DefaultCellOutdoorsType = (int)outdoorsType,
-				TagInformation = tags is not null ? 
-					tags.SelectNotNull(x => _tags[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() : 
+				TagInformation = tags is not null ?
+					tags.SelectNotNull(x => _tags[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() :
 					""
 			});
 			context.SaveChanges();
@@ -279,135 +279,135 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 		#region Urban
 
-				AddTerrain("Residence", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsWithWindows, Color.CornflowerBlue, "Re", true,
-						tags: ["Urban", "Residential", "Private"]);
-				AddTerrain("Bedroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsWithWindows, Color.MediumPurple, "Br",
-						tags: ["Urban", "Residential", "Private"]);
-				AddTerrain("Kitchen", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsWithWindows, Color.Orange, "Ki",
-						tags: ["Urban", "Residential", "Private"]);
-				AddTerrain("Bathroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsWithWindows, Color.SkyBlue, "To",
-						tags: ["Urban", "Residential", "Private"]);
-				AddTerrain("Living Room", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsWithWindows, Color.SeaGreen, "LR",
-						tags: ["Urban", "Residential", "Private"]);
-				AddTerrain("Hallway", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Indoors, Color.CadetBlue, "Hw",
-						tags: ["Urban", "Residential", "Private"]);
-			   AddTerrain("Hall", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.Indoors, Color.Teal, "Ha", tags: ["Urban", "Administrative", "Public"]);
-			   AddTerrain("Barracks", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.Indoors, Color.OliveDrab, "Bk", tags: ["Urban", "Residential", "Private"]);
-			   AddTerrain("Gymnasium", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.Indoors, Color.Goldenrod, "Gy", tags: ["Urban", "Commercial", "Public"]);
-			   AddTerrain("Shopfront", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsWithWindows, Color.SandyBrown, "Sf",
-					   tags: ["Urban", "Commercial", "Public"]);
-			   AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsWithWindows, Color.SaddleBrown, "Ws",
-					   tags: ["Urban", "Industrial", "Private"]);
-			   AddTerrain("Office", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "Of",
-					   tags: ["Urban", "Administrative", "Private"]);
-			   AddTerrain("Factory", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsWithWindows, Color.Silver, "Fa",
-					   tags: ["Urban", "Industrial", "Private"]);
-			   AddTerrain("Warehouse", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsWithWindows, Color.DarkGray, "Wh",
-					   tags: ["Urban", "Industrial", "Private"]);
-			   AddTerrain("Indoor Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-					   "Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.Plum, "Im",
-					   tags: ["Urban", "Commercial", "Public"]);
-			   AddTerrain("Underground Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-					   "Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkOrchid, "Um",
-					   tags: ["Urban", "Commercial", "Public"]);
-			   AddTerrain("Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsWithWindows, Color.DimGray, "Ga",
-					   tags: ["Urban", "Industrial", "Private"]);
-			   AddTerrain("Underground Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-					   "Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, "Ug",
-					   tags: ["Urban", "Industrial", "Private"]);
-				AddTerrain("Barn", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Indoors, Color.Brown, "Bn", tags: ["Rural"]);
-				AddTerrain("Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsNoLight, Color.LightSlateGray, "Ce",
-						tags: ["Urban", "Administrative", "Private"]);
-				AddTerrain("Dank Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsNoLight, Color.Gray, "Dc",
-						tags: ["Urban", "Administrative", "Private"]);
-			   AddTerrain("Dungeon", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsNoLight, Color.Indigo, "Du",
-					   tags: ["Urban", "Administrative", "Private"]);
-			   AddTerrain("Grotto", "cave", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-					   CellOutdoorsType.IndoorsNoLight, Color.DarkSlateBlue, "Gr", tags: ["Rural"]);
-			   AddTerrain("Cellar", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsNoLight, Color.BurlyWood, "Cl",
-						tags: ["Urban", "Residential", "Private"]);
-			   AddTerrain("Baths", "indoors", 0.5, 3.0, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
-						"Breathable Atmosphere", CellOutdoorsType.Indoors, Color.LightBlue, "Bt",
-						tags: ["Urban", "Aquatic", "Commercial", "Public"]);
-			   AddTerrain("Indoor Pool", $"shallowwater {poolwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-						Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DeepSkyBlue, "IP",
-						tags: ["Urban", "Aquatic", "Private"]);
-			   AddTerrain("Indoor Spring", $"shallowwater {springwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-						Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MediumAquamarine, "IS", tags: ["Rural", "Aquatic"]);
+		AddTerrain("Residence", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.CornflowerBlue, "Re", true,
+				tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Bedroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.MediumPurple, "Br",
+				tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Kitchen", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.Orange, "Ki",
+				tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Bathroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.SkyBlue, "To",
+				tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Living Room", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.SeaGreen, "LR",
+				tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Hallway", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Indoors, Color.CadetBlue, "Hw",
+				tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Hall", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Indoors, Color.Teal, "Ha", tags: ["Urban", "Administrative", "Public"]);
+		AddTerrain("Barracks", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Indoors, Color.OliveDrab, "Bk", tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Gymnasium", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Indoors, Color.Goldenrod, "Gy", tags: ["Urban", "Commercial", "Public"]);
+		AddTerrain("Shopfront", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.SandyBrown, "Sf",
+				tags: ["Urban", "Commercial", "Public"]);
+		AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.SaddleBrown, "Ws",
+				tags: ["Urban", "Industrial", "Private"]);
+		AddTerrain("Office", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "Of",
+				tags: ["Urban", "Administrative", "Private"]);
+		AddTerrain("Factory", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.Silver, "Fa",
+				tags: ["Urban", "Industrial", "Private"]);
+		AddTerrain("Warehouse", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.DarkGray, "Wh",
+				tags: ["Urban", "Industrial", "Private"]);
+		AddTerrain("Indoor Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
+				"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.Plum, "Im",
+				tags: ["Urban", "Commercial", "Public"]);
+		AddTerrain("Underground Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
+				"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkOrchid, "Um",
+				tags: ["Urban", "Commercial", "Public"]);
+		AddTerrain("Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsWithWindows, Color.DimGray, "Ga",
+				tags: ["Urban", "Industrial", "Private"]);
+		AddTerrain("Underground Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
+				"Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, "Ug",
+				tags: ["Urban", "Industrial", "Private"]);
+		AddTerrain("Barn", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Indoors, Color.Brown, "Bn", tags: ["Rural"]);
+		AddTerrain("Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsNoLight, Color.LightSlateGray, "Ce",
+				tags: ["Urban", "Administrative", "Private"]);
+		AddTerrain("Dank Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsNoLight, Color.Gray, "Dc",
+				tags: ["Urban", "Administrative", "Private"]);
+		AddTerrain("Dungeon", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsNoLight, Color.Indigo, "Du",
+				tags: ["Urban", "Administrative", "Private"]);
+		AddTerrain("Grotto", "cave", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsNoLight, Color.DarkSlateBlue, "Gr", tags: ["Rural"]);
+		AddTerrain("Cellar", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
+				 CellOutdoorsType.IndoorsNoLight, Color.BurlyWood, "Cl",
+				 tags: ["Urban", "Residential", "Private"]);
+		AddTerrain("Baths", "indoors", 0.5, 3.0, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+				 "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.LightBlue, "Bt",
+				 tags: ["Urban", "Aquatic", "Commercial", "Public"]);
+		AddTerrain("Indoor Pool", $"shallowwater {poolwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
+				 Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DeepSkyBlue, "IP",
+				 tags: ["Urban", "Aquatic", "Private"]);
+		AddTerrain("Indoor Spring", $"shallowwater {springwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
+				 Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MediumAquamarine, "IS", tags: ["Rural", "Aquatic"]);
 
-				AddTerrain("Rooftop", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban", "Private"]);
-				AddTerrain("Ghetto Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban", "Public"]);
-				AddTerrain("Slum Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.Gray, tags: ["Urban", "Public"]);
-				AddTerrain("Poor Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
-				AddTerrain("Urban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGray, tags: ["Urban", "Public"]);
-				AddTerrain("Suburban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Urban", "Public"]);
-				AddTerrain("Wealthy Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Urban", "Public"]);
-				AddTerrain("Village Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGray, tags: ["Urban", "Public"]);
-				AddTerrain("Rural Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Urban", "Public"]);
+		AddTerrain("Rooftop", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban", "Private"]);
+		AddTerrain("Ghetto Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban", "Public"]);
+		AddTerrain("Slum Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.Gray, tags: ["Urban", "Public"]);
+		AddTerrain("Poor Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
+		AddTerrain("Urban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGray, tags: ["Urban", "Public"]);
+		AddTerrain("Suburban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Urban", "Public"]);
+		AddTerrain("Wealthy Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Urban", "Public"]);
+		AddTerrain("Village Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGray, tags: ["Urban", "Public"]);
+		AddTerrain("Rural Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Urban", "Public"]);
 
-				AddTerrain("Marketplace", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.VeryEasy, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Commercial", "Public"]);
-				AddTerrain("Courtyard", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Private"]);
-				AddTerrain("Park", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Public", "Diggable Soil"]);
-				AddTerrain("Garden", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
-				AddTerrain("Lawn", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
-				AddTerrain("Showground", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Automatic,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen,
-						tags: ["Urban", "Commercial", "Public", "Diggable Soil"]);
-				AddTerrain("Forum", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Public"]);
-				AddTerrain("Public Square", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
-						tags: ["Urban", "Administrative", "Public"]);
-				AddTerrain("Outdoor Mall", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
-						tags: ["Urban", "Commercial", "Public"]);
-				AddTerrain("Alleyway", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
-				AddTerrain("Garbage Dump", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
-						tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
-				AddTerrain("Midden Heap", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-						"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
-						tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
-				AddTerrain("Gatehouse", "indoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Trivial, "Breathable Atmosphere",
-						CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray,
-						tags: ["Urban", "Administrative", "Private"]);
-				AddTerrain("Battlement", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Trivial, "Breathable Atmosphere",
-						CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Private"]);
+		AddTerrain("Marketplace", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.VeryEasy, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Commercial", "Public"]);
+		AddTerrain("Courtyard", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Private"]);
+		AddTerrain("Park", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Public", "Diggable Soil"]);
+		AddTerrain("Garden", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
+		AddTerrain("Lawn", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
+		AddTerrain("Showground", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Automatic,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen,
+				tags: ["Urban", "Commercial", "Public", "Diggable Soil"]);
+		AddTerrain("Forum", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Public"]);
+		AddTerrain("Public Square", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+				tags: ["Urban", "Administrative", "Public"]);
+		AddTerrain("Outdoor Mall", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+				tags: ["Urban", "Commercial", "Public"]);
+		AddTerrain("Alleyway", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
+		AddTerrain("Garbage Dump", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+				tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
+		AddTerrain("Midden Heap", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
+				"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+				tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
+		AddTerrain("Gatehouse", "indoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Trivial, "Breathable Atmosphere",
+				CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray,
+				tags: ["Urban", "Administrative", "Private"]);
+		AddTerrain("Battlement", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Trivial, "Breathable Atmosphere",
+				CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Private"]);
 
 		#endregion
 
@@ -696,47 +696,47 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		#endregion
 	}
 
-        private void SeedModernItems(FuturemudDatabaseContext context, ICollection<string> errors)
-        {
-                // Not yet implemented
-        }
+	private void SeedModernItems(FuturemudDatabaseContext context, ICollection<string> errors)
+	{
+		// Not yet implemented
+	}
 
-       private GameItemComponentProto CreateComponent(FuturemudDatabaseContext context,
-               ref long nextId, Account account, DateTime now, string type, string name,
-               string description, string definition)
-       {
-               var component = new GameItemComponentProto
-               {
-                       Id = nextId++,
-                       RevisionNumber = 0,
-                       EditableItem = new EditableItem
-                       {
-                               RevisionNumber = 0,
-                               RevisionStatus = 4,
-                               BuilderAccountId = account.Id,
-                               BuilderDate = now,
-                               BuilderComment = "Auto-generated by the system",
-                               ReviewerAccountId = account.Id,
-                               ReviewerComment = "Auto-generated by the system",
-                               ReviewerDate = now
-                       },
-                       Type = type,
-                       Name = name,
-                       Description = description,
-                       Definition = definition
-               };
+	private GameItemComponentProto CreateComponent(FuturemudDatabaseContext context,
+			ref long nextId, Account account, DateTime now, string type, string name,
+			string description, string definition)
+	{
+		var component = new GameItemComponentProto
+		{
+			Id = nextId++,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = account.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = account.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = type,
+			Name = name,
+			Description = description,
+			Definition = definition
+		};
 
-               context.GameItemComponentProtos.Add(component);
-               return component;
-       }
+		context.GameItemComponentProtos.Add(component);
+		return component;
+	}
 
-private GameItemComponentProto CreateTorchComponent(FuturemudDatabaseContext context,
-ref long nextId, Account account, DateTime now, string name, string description,
-int illuminationProvided, int secondsOfFuel, bool requiresIgnitionSource,
-string lightEmote, string extinguishEmote, string tenPercentFuelEcho,
-string fuelExpendedEcho)
-{
-var definition = @$"<Definition>
+	private GameItemComponentProto CreateTorchComponent(FuturemudDatabaseContext context,
+	ref long nextId, Account account, DateTime now, string name, string description,
+	int illuminationProvided, int secondsOfFuel, bool requiresIgnitionSource,
+	string lightEmote, string extinguishEmote, string tenPercentFuelEcho,
+	string fuelExpendedEcho)
+	{
+		var definition = @$"<Definition>
 <IlluminationProvided>{illuminationProvided}</IlluminationProvided>
 <SecondsOfFuel>{secondsOfFuel}</SecondsOfFuel>
 <RequiresIgnitionSource>{requiresIgnitionSource.ToString().ToLower()}</RequiresIgnitionSource>
@@ -745,17 +745,17 @@ var definition = @$"<Definition>
 <TenPercentFuelEcho><![CDATA[{tenPercentFuelEcho}]]></TenPercentFuelEcho>
 <FuelExpendedEcho><![CDATA[{fuelExpendedEcho}]]></FuelExpendedEcho>
 </Definition>";
-return CreateComponent(context, ref nextId, account, now, "Torch", name, description,
-definition);
-}
+		return CreateComponent(context, ref nextId, account, now, "Torch", name, description,
+		definition);
+	}
 
-private GameItemComponentProto CreateLanternComponent(FuturemudDatabaseContext context,
-ref long nextId, Account account, DateTime now, string name, string description,
-int illuminationProvided, double fuelCapacity, bool requiresIgnitionSource,
-string lightEmote, string extinguishEmote, string tenPercentFuelEcho,
-string fuelExpendedEcho, long liquidFuelId, double fuelPerSecond)
-{
-var definition = @$"<Definition>
+	private GameItemComponentProto CreateLanternComponent(FuturemudDatabaseContext context,
+	ref long nextId, Account account, DateTime now, string name, string description,
+	int illuminationProvided, double fuelCapacity, bool requiresIgnitionSource,
+	string lightEmote, string extinguishEmote, string tenPercentFuelEcho,
+	string fuelExpendedEcho, long liquidFuelId, double fuelPerSecond)
+	{
+		var definition = @$"<Definition>
 <IlluminationProvided>{illuminationProvided}</IlluminationProvided>
 <FuelCapacity>{fuelCapacity}</FuelCapacity>
 <RequiresIgnitionSource>{requiresIgnitionSource.ToString().ToLower()}</RequiresIgnitionSource>
@@ -766,24 +766,24 @@ var definition = @$"<Definition>
 <LiquidFuel>{liquidFuelId}</LiquidFuel>
 <FuelPerSecond>{fuelPerSecond}</FuelPerSecond>
 </Definition>";
-return CreateComponent(context, ref nextId, account, now, "Lantern", name, description,
-definition);
-}
+		return CreateComponent(context, ref nextId, account, now, "Lantern", name, description,
+		definition);
+	}
 
-private GameItemComponentProto CreateWaterSourceComponent(FuturemudDatabaseContext context,
-ref long nextId, Account account, DateTime now, string name, string description,
-double liquidCapacity, long defaultLiquidId, double refillRate, bool useOnOffForRefill)
-{
-var definition = @$"<Definition LiquidCapacity=\"{liquidCapacity}\" Closable=\"false\" Transparent=\"false\" OnceOnly=\"false\" DefaultLiquid=\"{defaultLiquidId}\" RefillRate=\"{refillRate}\" UseOnOffForRefill=\"{useOnOffForRefill.ToString().ToLower()}\" RefillingProg=\"0\" CanBeEmptiedWhenInRoom=\"false\" />";
-return CreateComponent(context, ref nextId, account, now, "WaterSource", name, description,
-definition);
-}
+	private GameItemComponentProto CreateWaterSourceComponent(FuturemudDatabaseContext context,
+	ref long nextId, Account account, DateTime now, string name, string description,
+	double liquidCapacity, long defaultLiquidId, double refillRate, bool useOnOffForRefill)
+	{
+		var definition = $"<Definition LiquidCapacity=\"{liquidCapacity}\" Closable=\"false\" Transparent=\"false\" OnceOnly=\"false\" DefaultLiquid=\"{defaultLiquidId}\" RefillRate=\"{refillRate}\" UseOnOffForRefill=\"{useOnOffForRefill.ToString().ToLower()}\" RefillingProg=\"0\" CanBeEmptiedWhenInRoom=\"false\" />";
+		return CreateComponent(context, ref nextId, account, now, "WaterSource", name, description,
+		definition);
+	}
 
-        private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
-                ICollection<string> errors)
-        {
-                if (context.GameItemComponentProtos.Any(x => x.Name == "Container_Table"))
-                {
+	private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
+			ICollection<string> errors)
+	{
+		if (context.GameItemComponentProtos.Any(x => x.Name == "Container_Table"))
+		{
 			errors.Add("Detected that items were already installed. Did not seed any items.");
 			return;
 		}
@@ -791,111 +791,112 @@ definition);
 		var now = DateTime.UtcNow;
 		var dbaccount = context.Accounts.First();
 		var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
-_context = context;
+		_context = context;
 
-		
-#region Containers
 
-GameItemComponentProto CreateContainer(string name, string description, double weight, SizeCategory maxSize, bool closable, bool transparent, string preposition, bool onceOnly = false)
-{
-        var once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
-        return CreateItemProto(nextId++, now, "Container", name, description,
-                $"<Definition Weight=\"{weight}\" MaxSize=\"{(int)maxSize}\" Preposition=\"{preposition}\" Closable=\"{closable}\" Transparent=\"{transparent}\"{once} />");
-}
+		#region Containers
 
-CreateContainer("Container_Table", "Allows a table to have items 'on' it", 200000, SizeCategory.Large, false, true, "on");
-CreateContainer("Container_Large_Table", "Allows a large table to have items 'on' it", 500000, SizeCategory.VeryLarge, false, true, "on");
-CreateContainer("Container_Small_Table", "Allows a small table to have items 'on' it", 50000, SizeCategory.Normal, false, true, "on");
-CreateContainer("Container_Carton", "A container for cartons of cigarettes, matches etc", 250, SizeCategory.Tiny, true, false, "in");
-CreateContainer("Container_Pocket", "A container for pockets in clothes", 500, SizeCategory.VerySmall, false, false, "in");
-CreateContainer("Container_Pouch", "A container for pouches", 1000, SizeCategory.VerySmall, true, false, "in");
-CreateContainer("Container_Baggie", "A container for see-through baggies", 1000, SizeCategory.VerySmall, true, true, "in");
-CreateContainer("Container_Sachet", "A container for single-use sachets", 1000, SizeCategory.VerySmall, true, false, "in", true);
-CreateContainer("Container_Purse", "A container for purses or handbags", 7000, SizeCategory.Small, true, false, "in");
-CreateContainer("Container_Plate", "A container for plates and similar", 1500, SizeCategory.VerySmall, false, false, "on");
-CreateContainer("Container_Tray", "A container for trays, platters, etc", 7000, SizeCategory.Small, false, false, "on");
-CreateContainer("Container_Tote", "A container for tote bags or shoulder bags", 20000, SizeCategory.Normal, true, false, "in");
-CreateContainer("Container_PlasticBag", "A container for transparent plastic shopping bags", 10000, SizeCategory.Normal, false, true, "in");
-CreateContainer("Container_Sack", "A container for sturdy closable sacks and other similarly sized containers", 75000, SizeCategory.Normal, true, false, "in");
-CreateContainer("Container_Pack", "A container for backpacks and similar", 75000, SizeCategory.Normal, true, false, "in");
-CreateContainer("Container_Drum", "A container for standard sized drums (~55 Gal)", 250000, SizeCategory.Normal, true, false, "in");
-CreateContainer("Container_Small_Drum", "A container for small sized drums (~25 Gal)", 100000, SizeCategory.Normal, true, false, "in");
-CreateContainer("Container_Quiver", "A container for quivers", 10000, SizeCategory.Normal, true, false, "in");
-CreateContainer("Container_Hole", "A container for holes in the ground", 2000000, SizeCategory.VeryLarge, false, false, "in");
-CreateContainer("Container_Large_Hole", "A container for large holes in the ground", 5000000, SizeCategory.Huge, false, false, "in");
-CreateContainer("Container_Shipping_Container", "A container for standard 20ft shipping containers", 50000000, SizeCategory.Enormous, true, false, "in");
-CreateContainer("Container_Shipping_Container_Long", "A container for standard 40ft shipping containers", 100000000, SizeCategory.Enormous, true, false, "in");
-CreateContainer("Container_Shipping_Container_Large", "A container for larger shipping containers", 200000000, SizeCategory.Gigantic, true, false, "in");
-CreateContainer("Container_Shipping_Container_Small", "A container for small 10ft shipping containers", 25000000, SizeCategory.Huge, true, false, "in");
-CreateContainer("Container_Colossal", "A container with unthinkably large capacity", 1000000000, SizeCategory.Titanic, false, false, "in");
-CreateContainer("Container_Coffin", "A container for coffins designed to hold a human body", 250000, SizeCategory.Large, true, false, "in");
-CreateContainer("Container_Glass_Casket", "A container for see-through glass caskets designed to display a human body", 200000, SizeCategory.Large, true, true, "in");
+		GameItemComponentProto CreateContainer(string name, string description, double weight, SizeCategory maxSize, bool closable, bool transparent, string preposition, bool onceOnly = false)
+		{
+			var once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
+			return CreateItemProto(nextId++, now, "Container", name, description,
+					$"<Definition Weight=\"{weight}\" MaxSize=\"{(int)maxSize}\" Preposition=\"{preposition}\" Closable=\"{closable}\" Transparent=\"{transparent}\"{once} />");
+		}
 
-context.SaveChanges();
+		CreateContainer("Container_Table", "Allows a table to have items 'on' it", 200000, SizeCategory.Large, false, true, "on");
+		CreateContainer("Container_Large_Table", "Allows a large table to have items 'on' it", 500000, SizeCategory.VeryLarge, false, true, "on");
+		CreateContainer("Container_Small_Table", "Allows a small table to have items 'on' it", 50000, SizeCategory.Normal, false, true, "on");
+		CreateContainer("Container_Carton", "A container for cartons of cigarettes, matches etc", 250, SizeCategory.Tiny, true, false, "in");
+		CreateContainer("Container_Pocket", "A container for pockets in clothes", 500, SizeCategory.VerySmall, false, false, "in");
+		CreateContainer("Container_Pouch", "A container for pouches", 1000, SizeCategory.VerySmall, true, false, "in");
+		CreateContainer("Container_Baggie", "A container for see-through baggies", 1000, SizeCategory.VerySmall, true, true, "in");
+		CreateContainer("Container_Sachet", "A container for single-use sachets", 1000, SizeCategory.VerySmall, true, false, "in", true);
+		CreateContainer("Container_Purse", "A container for purses or handbags", 7000, SizeCategory.Small, true, false, "in");
+		CreateContainer("Container_Plate", "A container for plates and similar", 1500, SizeCategory.VerySmall, false, false, "on");
+		CreateContainer("Container_Tray", "A container for trays, platters, etc", 7000, SizeCategory.Small, false, false, "on");
+		CreateContainer("Container_Tote", "A container for tote bags or shoulder bags", 20000, SizeCategory.Normal, true, false, "in");
+		CreateContainer("Container_PlasticBag", "A container for transparent plastic shopping bags", 10000, SizeCategory.Normal, false, true, "in");
+		CreateContainer("Container_Sack", "A container for sturdy closable sacks and other similarly sized containers", 75000, SizeCategory.Normal, true, false, "in");
+		CreateContainer("Container_Pack", "A container for backpacks and similar", 75000, SizeCategory.Normal, true, false, "in");
+		CreateContainer("Container_Drum", "A container for standard sized drums (~55 Gal)", 250000, SizeCategory.Normal, true, false, "in");
+		CreateContainer("Container_Small_Drum", "A container for small sized drums (~25 Gal)", 100000, SizeCategory.Normal, true, false, "in");
+		CreateContainer("Container_Quiver", "A container for quivers", 10000, SizeCategory.Normal, true, false, "in");
+		CreateContainer("Container_Hole", "A container for holes in the ground", 2000000, SizeCategory.VeryLarge, false, false, "in");
+		CreateContainer("Container_Large_Hole", "A container for large holes in the ground", 5000000, SizeCategory.Huge, false, false, "in");
+		CreateContainer("Container_Shipping_Container", "A container for standard 20ft shipping containers", 50000000, SizeCategory.Enormous, true, false, "in");
+		CreateContainer("Container_Shipping_Container_Long", "A container for standard 40ft shipping containers", 100000000, SizeCategory.Enormous, true, false, "in");
+		CreateContainer("Container_Shipping_Container_Large", "A container for larger shipping containers", 200000000, SizeCategory.Gigantic, true, false, "in");
+		CreateContainer("Container_Shipping_Container_Small", "A container for small 10ft shipping containers", 25000000, SizeCategory.Huge, true, false, "in");
+		CreateContainer("Container_Colossal", "A container with unthinkably large capacity", 1000000000, SizeCategory.Titanic, false, false, "in");
+		CreateContainer("Container_Coffin", "A container for coffins designed to hold a human body", 250000, SizeCategory.Large, true, false, "in");
+		CreateContainer("Container_Glass_Casket", "A container for see-through glass caskets designed to display a human body", 200000, SizeCategory.Large, true, true, "in");
 
-#endregion
+		context.SaveChanges();
 
-#region Liquid Containers
+		#endregion
 
-GameItemComponentProto CreateLiquidContainer(string name, string description, double capacity, bool closable, bool transparent, double weightLimit, bool onceOnly = false)
-{
-        var once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
-        return CreateItemProto(nextId++, now, "Liquid Container", name, description,
-                $"<Definition LiquidCapacity=\"{capacity}\" Closable=\"{closable}\" Transparent=\"{transparent}\" WeightLimit=\"{weightLimit}\"{once} />");
-}
+		#region Liquid Containers
 
-CreateLiquidContainer("LContainer_ShotGlass", "A liquid container for a shot glass", 0.12, false, true, 1000);
-CreateLiquidContainer("LContainer_WhiskeyGlass", "A liquid container for a whiskey glass (or other small glass)", 0.25, false, true, 2000);
-CreateLiquidContainer("LContainer_DrinkingGlass", "A liquid container for a drinking glass (or other normal table glass)", 0.450, false, true, 4000);
-CreateLiquidContainer("LContainer_Pony", "A liquid container for a pony (1/4 pint glass)", 0.142, false, true, 4000);
-CreateLiquidContainer("LContainer_HalfPint", "A liquid container for a half pint glass", 0.284, false, true, 4000);
-CreateLiquidContainer("LContainer_Pint", "A liquid container for a US pint", 0.473, false, true, 6000);
-CreateLiquidContainer("LContainer_UKPint", "A liquid container for a UK pint", 0.568, false, true, 6000);
-CreateLiquidContainer("LContainer_Weizen", "A liquid container for a weizen glass (european 500ml glass)", 0.5, false, true, 7000);
-CreateLiquidContainer("LContainer_Stein", "A liquid container for a stein glass (european 1000ml glass)", 1.0, false, true, 14000);
-CreateLiquidContainer("LContainer_Yard", "A liquid container for a yard glass (2.5 imperial pints)", 1.4, false, true, 7000);
-CreateLiquidContainer("LContainer_Jug", "A liquid container for a glass jug, generally 40oz", 1.14, false, true, 7000);
-CreateLiquidContainer("LContainer_Flute", "A liquid container for a flute (champagne glass)", 0.180, false, true, 2000);
-CreateLiquidContainer("LContainer_Liqueur", "A liquid container for a small liqueur glass", 0.06, false, true, 2000);
-CreateLiquidContainer("LContainer_SherryGlass", "A liquid container for a copita, or a glass for drinking sherry", 0.180, false, true, 2000);
-CreateLiquidContainer("LContainer_SmallWineGlass", "A liquid container for a small wine glass, such as would typically be used for a white wine", 0.240, false, true, 2000);
-CreateLiquidContainer("LContainer_WineGlass", "A liquid container for a standard sized wine glass, such as would be typically used for red wine", 0.415, false, true, 4000);
-CreateLiquidContainer("LContainer_BeerBottle", "A liquid container for a single-use beer bottle (can't be re-sealed)", 0.375, true, true, 6000, true);
-CreateLiquidContainer("LContainer_SodaCan", "A liquid container for a single-use soda can (can't be re-sealed and isn't transparent)", 0.375, true, false, 6000, true);
-CreateLiquidContainer("LContainer_WineBottle", "A liquid container for a single-use wine bottle (can't be re-corked)", 0.75, true, true, 6000, true);
-CreateLiquidContainer("LContainer_Decanter", "A liquid container for a decanter for a bottle of wine", 0.75, true, true, 6000);
-CreateLiquidContainer("LContainer_Flask", "A liquid container for a typical hip flask", 0.236, true, false, 6000);
-CreateLiquidContainer("LContainer_Canteen", "A liquid container for a typical canteen", 1.0, true, false, 10000);
-CreateLiquidContainer("LContainer_Cask", "A liquid container for a typical wine cask ", 0.236, true, false, 6000);
-CreateLiquidContainer("LContainer_Tun", "A liquid container for a tun (252 US Gallon Barrel)", 960, true, false, 9600000);
-CreateLiquidContainer("LContainer_Butt", "A liquid container for a butt (126 US Gallon Barrel)", 480, true, false, 4800000);
-CreateLiquidContainer("LContainer_Puncheon", "A liquid container for a puncheon (84 US Gallon Barrel)", 320, true, false, 3200000);
-CreateLiquidContainer("LContainer_Hogshead", "A liquid container for a hogshead (63 US Gallon Barrel)", 240, true, false, 2400000);
-CreateLiquidContainer("LContainer_Tierce", "A liquid container for a tierce (42 US Gallon Barrel)", 160, true, false, 1600000);
-CreateLiquidContainer("LContainer_Barrel", "A liquid container for an English barrel (31.5 US Gallon Barrel)", 120, true, false, 1200000);
-CreateLiquidContainer("LContainer_Rundlet", "A liquid container for a rundlet (18 US Gallon Barrel)", 69, true, false, 690000);
-CreateLiquidContainer("LContainer_GallonCask", "A liquid container for a non-see through gallon-sized cask", 3.7, true, false, 37000);
-CreateLiquidContainer("LContainer_GallonBottle", "A liquid container for a gallon bottle like a milk bottle", 3.7, true, true, 37000);
-CreateLiquidContainer("LContainer_HalfGallonBottle", "A liquid container for a half gallon bottle like a milk bottle", 1.85, true, true, 18500);
-CreateLiquidContainer("LContainer_QuartBottle", "A liquid container for a one quart bottle like a milk bottle", 0.946, true, true, 18500);
-CreateLiquidContainer("LContainer_PintBottle", "A liquid container for a one pint bottle like a milk bottle", 0.473, true, true, 47300);
-CreateLiquidContainer("LContainer_20ozBottle", "A liquid container for a 20oz bottle", 0.591, true, true, 59100);
-CreateLiquidContainer("LContainer_40ozBottle", "A liquid container for a 40oz bottle", 1.182, true, true, 118200);
-CreateLiquidContainer("LContainer_QuartCarton", "A liquid container for a one quart carton", 0.946, true, false, 94600);
-CreateLiquidContainer("LContainer_PintCarton", "A liquid container for a one pint carton", 0.471, true, false, 47100);
-CreateLiquidContainer("LContainer_HalfPintCarton", "A liquid container for a one quart carton", 0.237, true, false, 23700);
-CreateLiquidContainer("LContainer_Waterskin", "A liquid container for a standard sized waterskin", 1.892, true, false, 189200);
-CreateLiquidContainer("LContainer_Amphora_Sextarius", "A liquid container for an amphora in the roman sextarius (~0.96 pint)", 0.546, true, false, 5460);
-CreateLiquidContainer("LContainer_Amphora_Congius", "A liquid container for an amphora in the roman congius (~0.72 gallon)", 3.27, true, false, 32700);
-CreateLiquidContainer("LContainer_Amphora_Urna", "A liquid container for an amphora in the roman urna (~2.88 gallon)", 13.1, true, false, 131000);
-CreateLiquidContainer("LContainer_Amphora_Quadrantal", "A liquid container for an amphora in the roman quadrantal (~5.76 gallon)", 26.2, true, false, 262000);
-CreateLiquidContainer("LContainer_Amphora_Culeus", "A liquid container for an amphora in the roman culeus (~115 gallon)", 524, true, false, 524000);
+		GameItemComponentProto CreateLiquidContainer(string name, string description, double capacity, bool closable, bool transparent, double weightLimit, bool onceOnly = false)
+		{
+			var once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
+			return CreateItemProto(nextId++, now, "Liquid Container", name, description,
+					$"<Definition LiquidCapacity=\"{capacity}\" Closable=\"{closable}\" Transparent=\"{transparent}\" WeightLimit=\"{weightLimit}\"{once} />");
+		}
 
-context.SaveChanges();
+		CreateLiquidContainer("LContainer_ShotGlass", "A liquid container for a shot glass", 0.12, false, true, 1000);
+		CreateLiquidContainer("LContainer_WhiskeyGlass", "A liquid container for a whiskey glass (or other small glass)", 0.25, false, true, 2000);
+		CreateLiquidContainer("LContainer_DrinkingGlass", "A liquid container for a drinking glass (or other normal table glass)", 0.450, false, true, 4000);
+		CreateLiquidContainer("LContainer_Pony", "A liquid container for a pony (1/4 pint glass)", 0.142, false, true, 4000);
+		CreateLiquidContainer("LContainer_HalfPint", "A liquid container for a half pint glass", 0.284, false, true, 4000);
+		CreateLiquidContainer("LContainer_Pint", "A liquid container for a US pint", 0.473, false, true, 6000);
+		CreateLiquidContainer("LContainer_UKPint", "A liquid container for a UK pint", 0.568, false, true, 6000);
+		CreateLiquidContainer("LContainer_Weizen", "A liquid container for a weizen glass (european 500ml glass)", 0.5, false, true, 7000);
+		CreateLiquidContainer("LContainer_Stein", "A liquid container for a stein glass (european 1000ml glass)", 1.0, false, true, 14000);
+		CreateLiquidContainer("LContainer_Yard", "A liquid container for a yard glass (2.5 imperial pints)", 1.4, false, true, 7000);
+		CreateLiquidContainer("LContainer_Jug", "A liquid container for a glass jug, generally 40oz", 1.14, false, true, 7000);
+		CreateLiquidContainer("LContainer_Flute", "A liquid container for a flute (champagne glass)", 0.180, false, true, 2000);
+		CreateLiquidContainer("LContainer_Liqueur", "A liquid container for a small liqueur glass", 0.06, false, true, 2000);
+		CreateLiquidContainer("LContainer_SherryGlass", "A liquid container for a copita, or a glass for drinking sherry", 0.180, false, true, 2000);
+		CreateLiquidContainer("LContainer_SmallWineGlass", "A liquid container for a small wine glass, such as would typically be used for a white wine", 0.240, false, true, 2000);
+		CreateLiquidContainer("LContainer_WineGlass", "A liquid container for a standard sized wine glass, such as would be typically used for red wine", 0.415, false, true, 4000);
+		CreateLiquidContainer("LContainer_BeerBottle", "A liquid container for a single-use beer bottle (can't be re-sealed)", 0.375, true, true, 6000, true);
+		CreateLiquidContainer("LContainer_SodaCan", "A liquid container for a single-use soda can (can't be re-sealed and isn't transparent)", 0.375, true, false, 6000, true);
+		CreateLiquidContainer("LContainer_WineBottle", "A liquid container for a single-use wine bottle (can't be re-corked)", 0.75, true, true, 6000, true);
+		CreateLiquidContainer("LContainer_Decanter", "A liquid container for a decanter for a bottle of wine", 0.75, true, true, 6000);
+		CreateLiquidContainer("LContainer_Flask", "A liquid container for a typical hip flask", 0.236, true, false, 6000);
+		CreateLiquidContainer("LContainer_Canteen", "A liquid container for a typical canteen", 1.0, true, false, 10000);
+		CreateLiquidContainer("LContainer_Cask", "A liquid container for a typical wine cask ", 0.236, true, false, 6000);
+		CreateLiquidContainer("LContainer_Tun", "A liquid container for a tun (252 US Gallon Barrel)", 960, true, false, 9600000);
+		CreateLiquidContainer("LContainer_Butt", "A liquid container for a butt (126 US Gallon Barrel)", 480, true, false, 4800000);
+		CreateLiquidContainer("LContainer_Puncheon", "A liquid container for a puncheon (84 US Gallon Barrel)", 320, true, false, 3200000);
+		CreateLiquidContainer("LContainer_Hogshead", "A liquid container for a hogshead (63 US Gallon Barrel)", 240, true, false, 2400000);
+		CreateLiquidContainer("LContainer_Tierce", "A liquid container for a tierce (42 US Gallon Barrel)", 160, true, false, 1600000);
+		CreateLiquidContainer("LContainer_Barrel", "A liquid container for an English barrel (31.5 US Gallon Barrel)", 120, true, false, 1200000);
+		CreateLiquidContainer("LContainer_Rundlet", "A liquid container for a rundlet (18 US Gallon Barrel)", 69, true, false, 690000);
+		CreateLiquidContainer("LContainer_GallonCask", "A liquid container for a non-see through gallon-sized cask", 3.7, true, false, 37000);
+		CreateLiquidContainer("LContainer_GallonBottle", "A liquid container for a gallon bottle like a milk bottle", 3.7, true, true, 37000);
+		CreateLiquidContainer("LContainer_HalfGallonBottle", "A liquid container for a half gallon bottle like a milk bottle", 1.85, true, true, 18500);
+		CreateLiquidContainer("LContainer_QuartBottle", "A liquid container for a one quart bottle like a milk bottle", 0.946, true, true, 18500);
+		CreateLiquidContainer("LContainer_PintBottle", "A liquid container for a one pint bottle like a milk bottle", 0.473, true, true, 47300);
+		CreateLiquidContainer("LContainer_20ozBottle", "A liquid container for a 20oz bottle", 0.591, true, true, 59100);
+		CreateLiquidContainer("LContainer_40ozBottle", "A liquid container for a 40oz bottle", 1.182, true, true, 118200);
+		CreateLiquidContainer("LContainer_QuartCarton", "A liquid container for a one quart carton", 0.946, true, false, 94600);
+		CreateLiquidContainer("LContainer_PintCarton", "A liquid container for a one pint carton", 0.471, true, false, 47100);
+		CreateLiquidContainer("LContainer_HalfPintCarton", "A liquid container for a one quart carton", 0.237, true, false, 23700);
+		CreateLiquidContainer("LContainer_Waterskin", "A liquid container for a standard sized waterskin", 1.892, true, false, 189200);
+		CreateLiquidContainer("LContainer_Amphora_Sextarius", "A liquid container for an amphora in the roman sextarius (~0.96 pint)", 0.546, true, false, 5460);
+		CreateLiquidContainer("LContainer_Amphora_Congius", "A liquid container for an amphora in the roman congius (~0.72 gallon)", 3.27, true, false, 32700);
+		CreateLiquidContainer("LContainer_Amphora_Urna", "A liquid container for an amphora in the roman urna (~2.88 gallon)", 13.1, true, false, 131000);
+		CreateLiquidContainer("LContainer_Amphora_Quadrantal", "A liquid container for an amphora in the roman quadrantal (~5.76 gallon)", 26.2, true, false, 262000);
+		CreateLiquidContainer("LContainer_Amphora_Culeus", "A liquid container for an amphora in the roman culeus (~115 gallon)", 524, true, false, 524000);
 
-#region Doors
+		context.SaveChanges();
+		#endregion
 
-		TraitDefinition? doorTrait = 
+		#region Doors
+
+		TraitDefinition? doorTrait =
 			context.TraitDefinitions.FirstOrDefault(x => x.Name == "Constructing" || x.Name == "Construction") ??
 			context.TraitDefinitions.FirstOrDefault(x => x.Name == "Labouring" || x.Name == "Labourer") ??
 			context.TraitDefinitions.FirstOrDefault(x => x.Name == "Carpentry" || x.Name == "Carpenter");
@@ -934,46 +935,44 @@ context.SaveChanges();
 			}
 		}
 
-		
-if (doorTrait != null)
-{
-        GameItemComponentProto CreateDoor(string name, string description, bool seeThrough, bool canFireThrough, bool canUninstall, Difficulty uninstallHinge, Difficulty uninstallNotHinge, bool canSmash, Difficulty smashDifficulty, string exitDescription)
-        {
-                return CreateItemProto(nextId++, now, "Door", name, description,
-                        $"<Definition SeeThrough=\"{seeThrough}\" CanFireThrough=\"{canFireThrough}\"><InstalledExitDescription>{exitDescription}</InstalledExitDescription><Uninstall CanPlayersUninstall=\"{canUninstall}\" UninstallDifficultyHingeSide=\"{(int)uninstallHinge}\" UninstallDifficultyNotHingeSide=\"{(int)uninstallNotHinge}\" UninstallTrait=\"{doorTrait.Id}\" /><Smash CanPlayersSmash=\"{canSmash}\" SmashDifficulty=\"{(int)smashDifficulty}\" /></Definition>");
-        }
 
-        CreateDoor("Door_Normal", "This is an ordinary door that can be smashed and uninstalled", false, false, true, Difficulty.Easy, Difficulty.Insane, true, Difficulty.Normal, "door");
-        CreateDoor("Door_Tough", "This is a tough door that can be smashed and uninstalled", false, false, true, Difficulty.Normal, Difficulty.Insane, true, Difficulty.ExtremelyHard, "door");
-        CreateDoor("Door_Secure", "This is a door that can be smashed and uninstalled only from the hinge side", false, false, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.ExtremelyHard, "door");
-        CreateDoor("Door_Admin", "This is a door that cannot be removed or smashed by players", false, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door");
-        CreateDoor("Door_Bad", "This is a bad door that can be smashed and uninstalled", false, false, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "door");
-        CreateDoor("Gate_Normal", "This is an ordinary gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Easy, Difficulty.Insane, true, Difficulty.Normal, "gate");
-        CreateDoor("Gate_Tough", "This is a tough gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Normal, Difficulty.Insane, true, Difficulty.ExtremelyHard, "gate");
-        CreateDoor("Gate_Secure", "This is a tough gate that can be seen and fired through, smashed and uninstalled from the hinge side only", true, true, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.ExtremelyHard, "gate");
-        CreateDoor("Gate_Admin", "This is a gate that cannot be smashed or uninstalled by players", true, true, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "gate");
-        CreateDoor("Gate_Bad", "This is a bad gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "gate");
-        CreateDoor("Door_Glass", "This is a door that can be seen through, smashed and uninstalled", true, false, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "door");
-        CreateDoor("Door_Glass_Secure", "This is a door that can be seen through, smashed and uninstalled from hinge side only", true, false, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.VeryEasy, "door");
-        CreateDoor("Door_Glass_Admin", "This is a door that can be seen through, but not smashed or uninstalled", true, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door");
+		if (doorTrait != null)
+		{
+			GameItemComponentProto CreateDoor(string name, string description, bool seeThrough, bool canFireThrough, bool canUninstall, Difficulty uninstallHinge, Difficulty uninstallNotHinge, bool canSmash, Difficulty smashDifficulty, string exitDescription)
+			{
+				return CreateItemProto(nextId++, now, "Door", name, description,
+						$"<Definition SeeThrough=\"{seeThrough}\" CanFireThrough=\"{canFireThrough}\"><InstalledExitDescription>{exitDescription}</InstalledExitDescription><Uninstall CanPlayersUninstall=\"{canUninstall}\" UninstallDifficultyHingeSide=\"{(int)uninstallHinge}\" UninstallDifficultyNotHingeSide=\"{(int)uninstallNotHinge}\" UninstallTrait=\"{doorTrait.Id}\" /><Smash CanPlayersSmash=\"{canSmash}\" SmashDifficulty=\"{(int)smashDifficulty}\" /></Definition>");
+			}
 
-        context.SaveChanges();
-}
-else
-{
-        errors.Add("There was no valid trait supplied for door installation so no door components were created.");
-}
+			CreateDoor("Door_Normal", "This is an ordinary door that can be smashed and uninstalled", false, false, true, Difficulty.Easy, Difficulty.Insane, true, Difficulty.Normal, "door");
+			CreateDoor("Door_Tough", "This is a tough door that can be smashed and uninstalled", false, false, true, Difficulty.Normal, Difficulty.Insane, true, Difficulty.ExtremelyHard, "door");
+			CreateDoor("Door_Secure", "This is a door that can be smashed and uninstalled only from the hinge side", false, false, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.ExtremelyHard, "door");
+			CreateDoor("Door_Admin", "This is a door that cannot be removed or smashed by players", false, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door");
+			CreateDoor("Door_Bad", "This is a bad door that can be smashed and uninstalled", false, false, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "door");
+			CreateDoor("Gate_Normal", "This is an ordinary gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Easy, Difficulty.Insane, true, Difficulty.Normal, "gate");
+			CreateDoor("Gate_Tough", "This is a tough gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Normal, Difficulty.Insane, true, Difficulty.ExtremelyHard, "gate");
+			CreateDoor("Gate_Secure", "This is a tough gate that can be seen and fired through, smashed and uninstalled from the hinge side only", true, true, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.ExtremelyHard, "gate");
+			CreateDoor("Gate_Admin", "This is a gate that cannot be smashed or uninstalled by players", true, true, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "gate");
+			CreateDoor("Gate_Bad", "This is a bad gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "gate");
+			CreateDoor("Door_Glass", "This is a door that can be seen through, smashed and uninstalled", true, false, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "door");
+			CreateDoor("Door_Glass_Secure", "This is a door that can be seen through, smashed and uninstalled from hinge side only", true, false, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.VeryEasy, "door");
+			CreateDoor("Door_Glass_Admin", "This is a door that can be seen through, but not smashed or uninstalled", true, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door");
 
-#endregion
+			context.SaveChanges();
+		}
+		else
+		{
+			errors.Add("There was no valid trait supplied for door installation so no door components were created.");
+		}
 
+		#endregion
 
-		
-#region Locks
+		#region Locks
 
-GameItemComponentProto CreateWardedLock(string name, string description, Difficulty force, Difficulty pick)
-{
-        return CreateItemProto(nextId++, now, "Simple Lock", name, description,
-                $@"<Definition>
+		GameItemComponentProto CreateWardedLock(string name, string description, Difficulty force, Difficulty pick)
+		{
+			return CreateItemProto(nextId++, now, "Simple Lock", name, description,
+					$@"<Definition>
   <ForceDifficulty>{(int)force}</ForceDifficulty>
   <PickDifficulty>{(int)pick}</PickDifficulty>
   <LockEmote><![CDATA[@ lock|locks $1$?3| on $3||$$?2| with $2||$]]></LockEmote>
@@ -984,12 +983,12 @@ GameItemComponentProto CreateWardedLock(string name, string description, Difficu
   <UnlockEmoteOtherSide><![CDATA[$0$?1| on $1||$ is unlocked from the other side.]]></UnlockEmoteOtherSide>
   <LockType>Warded Lock</LockType>
 </Definition>");
-}
+		}
 
-GameItemComponentProto CreateLatch(string name, string description, Difficulty force, Difficulty pick)
-{
-        return CreateItemProto(nextId++, now, "Latch", name, description,
-                $@"<Definition>
+		GameItemComponentProto CreateLatch(string name, string description, Difficulty force, Difficulty pick)
+		{
+			return CreateItemProto(nextId++, now, "Latch", name, description,
+					$@"<Definition>
   <ForceDifficulty>{(int)force}</ForceDifficulty>
   <PickDifficulty>{(int)pick}</PickDifficulty>
   <LockEmote><![CDATA[@ latch|latches $1$?2| on $2||$]]></LockEmote>
@@ -999,147 +998,147 @@ GameItemComponentProto CreateLatch(string name, string description, Difficulty f
   <LockEmoteOtherSide><![CDATA[$0$?1| on $1||$ is latched from the other side.]]></LockEmoteOtherSide>
   <UnlockEmoteOtherSide><![CDATA[$0$?1| on $1||$ is unlatched from the other side.]]></UnlockEmoteOtherSide>
 </Definition>");
-}
+		}
 
-GameItemComponentProto CreateSimpleKey(string name, string description, string lockType)
-{
-        return CreateItemProto(nextId++, now, "Simple Key", name, description,
-                @$"<Definition>
+		GameItemComponentProto CreateSimpleKey(string name, string description, string lockType)
+		{
+			return CreateItemProto(nextId++, now, "Simple Key", name, description,
+					@$"<Definition>
   <LockType>{lockType}</LockType>
 </Definition>");
-}
+		}
 
-CreateWardedLock("Warded_Lock_Terrible", "This is a terrible simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Normal, Difficulty.VeryEasy);
-CreateWardedLock("Warded_Lock_Bad", "This is a bad simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Easy, Difficulty.Easy);
-CreateWardedLock("Warded_Lock_Normal", "This is a normal simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Hard, Difficulty.Normal);
-CreateWardedLock("Warded_Lock_Good", "This is a good simple lock in the 'warded' type (most pre-modern systems)", Difficulty.VeryHard, Difficulty.Hard);
-CreateWardedLock("Warded_Lock_Excellent", "This is an excellent simple lock in the 'warded' type (most pre-modern systems)", Difficulty.ExtremelyHard, Difficulty.VeryHard);
-CreateWardedLock("Warded_Lock_Master", "This is a masterful simple lock in the 'warded' type (most pre-modern systems)", Difficulty.ExtremelyHard, Difficulty.ExtremelyHard);
-CreateWardedLock("Warded_Lock_Legendary", "This is a legendary simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Insane, Difficulty.Insane);
-CreateSimpleKey("Warded_Key", "This is a key for locks in the 'warded' type (most pre-modern systems)", "Warded Lock");
-CreateLatch("Latch_Terrible", "This is a terrible quality simple latch (one-sided lock)", Difficulty.ExtremelyEasy, Difficulty.Easy);
-CreateLatch("Latch_Bad", "This is a bad quality simple latch (one-sided lock)", Difficulty.VeryEasy, Difficulty.Normal);
-CreateLatch("Latch_Normal", "This is a normal quality simple latch (one-sided lock)", Difficulty.Easy, Difficulty.Hard);
-CreateLatch("Latch_Good", "This is a good quality simple latch (one-sided lock)", Difficulty.Hard, Difficulty.Hard);
-CreateLatch("Latch_Excellent", "This is an excellent quality simple latch (one-sided lock)", Difficulty.VeryHard, Difficulty.VeryHard);
-CreateLatch("Latch_Master", "This is a masterful quality simple latch (one-sided lock)", Difficulty.ExtremelyHard, Difficulty.VeryHard);
-CreateLatch("Latch_Legendary", "This is a legendary quality simple latch (one-sided lock)", Difficulty.Insane, Difficulty.ExtremelyHard);
-CreateLatch("Latch_Admin", "This is a simple latch (one-sided lock) that cannot be picked or forced", Difficulty.Impossible, Difficulty.Impossible);
+		CreateWardedLock("Warded_Lock_Terrible", "This is a terrible simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Normal, Difficulty.VeryEasy);
+		CreateWardedLock("Warded_Lock_Bad", "This is a bad simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Easy, Difficulty.Easy);
+		CreateWardedLock("Warded_Lock_Normal", "This is a normal simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Hard, Difficulty.Normal);
+		CreateWardedLock("Warded_Lock_Good", "This is a good simple lock in the 'warded' type (most pre-modern systems)", Difficulty.VeryHard, Difficulty.Hard);
+		CreateWardedLock("Warded_Lock_Excellent", "This is an excellent simple lock in the 'warded' type (most pre-modern systems)", Difficulty.ExtremelyHard, Difficulty.VeryHard);
+		CreateWardedLock("Warded_Lock_Master", "This is a masterful simple lock in the 'warded' type (most pre-modern systems)", Difficulty.ExtremelyHard, Difficulty.ExtremelyHard);
+		CreateWardedLock("Warded_Lock_Legendary", "This is a legendary simple lock in the 'warded' type (most pre-modern systems)", Difficulty.Insane, Difficulty.Insane);
+		CreateSimpleKey("Warded_Key", "This is a key for locks in the 'warded' type (most pre-modern systems)", "Warded Lock");
+		CreateLatch("Latch_Terrible", "This is a terrible quality simple latch (one-sided lock)", Difficulty.ExtremelyEasy, Difficulty.Easy);
+		CreateLatch("Latch_Bad", "This is a bad quality simple latch (one-sided lock)", Difficulty.VeryEasy, Difficulty.Normal);
+		CreateLatch("Latch_Normal", "This is a normal quality simple latch (one-sided lock)", Difficulty.Easy, Difficulty.Hard);
+		CreateLatch("Latch_Good", "This is a good quality simple latch (one-sided lock)", Difficulty.Hard, Difficulty.Hard);
+		CreateLatch("Latch_Excellent", "This is an excellent quality simple latch (one-sided lock)", Difficulty.VeryHard, Difficulty.VeryHard);
+		CreateLatch("Latch_Master", "This is a masterful quality simple latch (one-sided lock)", Difficulty.ExtremelyHard, Difficulty.VeryHard);
+		CreateLatch("Latch_Legendary", "This is a legendary quality simple latch (one-sided lock)", Difficulty.Insane, Difficulty.ExtremelyHard);
+		CreateLatch("Latch_Admin", "This is a simple latch (one-sided lock) that cannot be picked or forced", Difficulty.Impossible, Difficulty.Impossible);
 
-context.SaveChanges();
+		context.SaveChanges();
 
+		#endregion
+		#region Writing Implements
 
-#region Writing Implements
+		var holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
+		var stack = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
+		var paperMaterial = context.Materials.First(x => x.Name == "Paper");
 
-var holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
-var stack = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
-var paperMaterial = context.Materials.First(x => x.Name == "Paper");
-
-GameItemComponentProto CreatePaperSheet(string name, string description, int maxCharacters)
-{
-        return CreateItemProto(nextId++, now, "PaperSheet", name, description,
-                @$"<Definition>
+		GameItemComponentProto CreatePaperSheet(string name, string description, int maxCharacters)
+		{
+			return CreateItemProto(nextId++, now, "PaperSheet", name, description,
+					@$"<Definition>
    <MaximumCharacterLengthOfText>{maxCharacters}</MaximumCharacterLengthOfText>
  </Definition>");
-}
+		}
 
-GameItemComponentProto CreateBiro(string name, string description, long colourId, int totalUses)
-{
-        return CreateItemProto(nextId++, now, "Biro", name, description,
-                @$"<Definition>
+		GameItemComponentProto CreateBiro(string name, string description, long colourId, int totalUses)
+		{
+			return CreateItemProto(nextId++, now, "Biro", name, description,
+					@$"<Definition>
    <Colour>{colourId}</Colour>
    <TotalUses>{totalUses}</TotalUses>
  </Definition>");
-}
+		}
 
-GameItemComponentProto CreatePencil(string name, string description, long colourId, int usesBeforeSharpening, int totalUses)
-{
-        return CreateItemProto(nextId++, now, "Pencil", name, description,
-                @$"<Definition>
+		GameItemComponentProto CreatePencil(string name, string description, long colourId, int usesBeforeSharpening, int totalUses)
+		{
+			return CreateItemProto(nextId++, now, "Pencil", name, description,
+					@$"<Definition>
    <Colour>{colourId}</Colour>
    <UsesBeforeSharpening>{usesBeforeSharpening}</UsesBeforeSharpening>
    <TotalUses>{totalUses}</TotalUses>
  </Definition>");
-}
+		}
 
-var paperA4 = CreatePaperSheet("Paper_A4", "This is a sheet of paper in A4 size (~ US Letter size)", 4160);
+		var paperA4 = CreatePaperSheet("Paper_A4", "This is a sheet of paper in A4 size (~ US Letter size)", 4160);
 
-var nextItemId = context.GameItemProtos.Max(x => x.Id) + 1;
+		var nextItemId = context.GameItemProtos.Max(x => x.Id) + 1;
 
-var a4paper = new GameItemProto
-{
-        Id = nextItemId++,
-        RevisionNumber = 0,
-        Name = "sheet",
-        Keywords = "sheet paper",
-        MaterialId = paperMaterial.Id,
-        EditableItem = new EditableItem
-        {
-                RevisionNumber = 0,
-                RevisionStatus = 4,
-                BuilderAccountId = dbaccount.Id,
-                BuilderDate = now,
-                BuilderComment = "Auto-generated by the system",
-                ReviewerAccountId = dbaccount.Id,
-                ReviewerComment = "Auto-generated by the system",
-                ReviewerDate = now
-        },
-        Size = (int)SizeCategory.Tiny,
-        Weight = 1,
-        ReadOnly = false,
-        BaseItemQuality = 5,
-        HighPriority = false,
-        ShortDescription = "a sheet of paper",
-        FullDescription = "This is a sheet of plain, unlined paper approximately 8 inches by 12 inches in size."
-};
-a4paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a4paper, GameItemComponent = holdable });
-a4paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a4paper, GameItemComponent = stack });
-a4paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a4paper, GameItemComponent = paperA4 });
-context.GameItemProtos.Add(a4paper);
-context.SaveChanges();
+		var a4paper = new GameItemProto
+		{
+			Id = nextItemId++,
+			RevisionNumber = 0,
+			Name = "sheet",
+			Keywords = "sheet paper",
+			MaterialId = paperMaterial.Id,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Size = (int)SizeCategory.Tiny,
+			Weight = 1,
+			ReadOnly = false,
+			BaseItemQuality = 5,
+			HighPriority = false,
+			ShortDescription = "a sheet of paper",
+			FullDescription = "This is a sheet of plain, unlined paper approximately 8 inches by 12 inches in size."
+		};
+		a4paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a4paper, GameItemComponent = holdable });
+		a4paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a4paper, GameItemComponent = stack });
+		a4paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a4paper, GameItemComponent = paperA4 });
+		context.GameItemProtos.Add(a4paper);
+		context.SaveChanges();
 
-var paperA3 = CreatePaperSheet("Paper_A3", "This is a sheet of paper in A3 size (~ US Ledger size)", 8320);
+		var paperA3 = CreatePaperSheet("Paper_A3", "This is a sheet of paper in A3 size (~ US Ledger size)", 8320);
 
-var a3paper = new GameItemProto
-{
-        Id = nextItemId++,
-        RevisionNumber = 0,
-        Name = "sheet",
-        Keywords = "large sheet paper",
-        MaterialId = paperMaterial.Id,
-        EditableItem = new EditableItem
-        {
-                RevisionNumber = 0,
-                RevisionStatus = 4,
-                BuilderAccountId = dbaccount.Id,
-                BuilderDate = now,
-                BuilderComment = "Auto-generated by the system",
-                ReviewerAccountId = dbaccount.Id,
-                ReviewerComment = "Auto-generated by the system",
-                ReviewerDate = now
-        },
-        Size = (int)SizeCategory.VerySmall,
-        Weight = 2,
-        ReadOnly = false,
-        BaseItemQuality = 5,
-        HighPriority = false,
-        ShortDescription = "a large sheet of paper",
-        FullDescription = "This is a large sheet of plain, unlined paper approximately 12 inches by 16 inches in size."
-};
-a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = holdable });
-a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = stack });
-a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = paperA3 });
-context.GameItemProtos.Add(a3paper);
-context.SaveChanges();
+		var a3paper = new GameItemProto
+		{
+			Id = nextItemId++,
+			RevisionNumber = 0,
+			Name = "sheet",
+			Keywords = "large sheet paper",
+			MaterialId = paperMaterial.Id,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Size = (int)SizeCategory.VerySmall,
+			Weight = 2,
+			ReadOnly = false,
+			BaseItemQuality = 5,
+			HighPriority = false,
+			ShortDescription = "a large sheet of paper",
+			FullDescription = "This is a large sheet of plain, unlined paper approximately 12 inches by 16 inches in size."
+		};
+		a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = holdable });
+		a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = stack });
+		a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = paperA3 });
+		context.GameItemProtos.Add(a3paper);
+		context.SaveChanges();
 
-CreateBiro("Biro_Black", "This is a standard black biro pen", context.Colours.First(x => x.Name == "black").Id, 110000);
-CreateBiro("Biro_Blue", "This is a standard blue biro pen", context.Colours.First(x => x.Name == "blue").Id, 110000);
-CreateBiro("Biro_Red", "This is a standard red biro pen", context.Colours.First(x => x.Name == "red").Id, 110000);
-CreatePencil("Pencil_Black", "This is a standard black pencil", context.Colours.First(x => x.Name == "black").Id, 11000, 220000);
+		CreateBiro("Biro_Black", "This is a standard black biro pen", context.Colours.First(x => x.Name == "black").Id, 110000);
+		CreateBiro("Biro_Blue", "This is a standard blue biro pen", context.Colours.First(x => x.Name == "blue").Id, 110000);
+		CreateBiro("Biro_Red", "This is a standard red biro pen", context.Colours.First(x => x.Name == "red").Id, 110000);
+		CreatePencil("Pencil_Black", "This is a standard black pencil", context.Colours.First(x => x.Name == "black").Id, 11000, 220000);
 
-context.SaveChanges();
+		context.SaveChanges();
 
-#endregion
+		#endregion
 
 	}
 
@@ -5165,31 +5164,31 @@ context.SaveChanges();
 		var dbaccount = context.Accounts.First();
 		var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
-               #region Lighting
-               CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_Infinite",
-                       "Turns an item into an ever-burning torch.", 25, -1, false,
-                       "@ turn|turns on $1", "@ turn|turns off $1",
-                       "$0 begin|begins to flicker", "$0 have|has completely burned out");
+		#region Lighting
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_Infinite",
+				"Turns an item into an ever-burning torch.", 25, -1, false,
+				"@ turn|turns on $1", "@ turn|turns off $1",
+				"$0 begin|begins to flicker", "$0 have|has completely burned out");
 
-               CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_1Hour",
-                       "Turns an item into a torch that burns for an hour.", 25, 3600, false,
-                       "@ turn|turns on $1", "@ turn|turns off $1",
-                       "$0 begin|begins to flicker", "$0 have|has completely burned out");
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_1Hour",
+				"Turns an item into a torch that burns for an hour.", 25, 3600, false,
+				"@ turn|turns on $1", "@ turn|turns off $1",
+				"$0 begin|begins to flicker", "$0 have|has completely burned out");
 
-               CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_2Hour",
-                       "Turns an item into a torch that burns for two hours.", 25, 7200, false,
-                       "@ turn|turns on $1", "@ turn|turns off $1",
-                       "$0 begin|begins to flicker", "$0 have|has completely burned out");
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_2Hour",
+				"Turns an item into a torch that burns for two hours.", 25, 7200, false,
+				"@ turn|turns on $1", "@ turn|turns off $1",
+				"$0 begin|begins to flicker", "$0 have|has completely burned out");
 
-               CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_3Hour",
-                       "Turns an item into a torch that burns for 3 hours.", 25, 10800, false,
-                       "@ turn|turns on $1", "@ turn|turns off $1",
-                       "$0 begin|begins to flicker", "$0 have|has completely burned out");
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_3Hour",
+				"Turns an item into a torch that burns for 3 hours.", 25, 10800, false,
+				"@ turn|turns on $1", "@ turn|turns off $1",
+				"$0 begin|begins to flicker", "$0 have|has completely burned out");
 
-               var component = new GameItemComponentProto
-               {
-                       Id = nextId++,
-                       RevisionNumber = 0,
+		var component = new GameItemComponentProto
+		{
+			Id = nextId++,
+			RevisionNumber = 0,
 			EditableItem = new EditableItem
 			{
 				RevisionNumber = 0,
@@ -5720,7 +5719,7 @@ context.SaveChanges();
 
 		void AddRepairKitType(string name, string description, WoundSeverity maximumSeverity, double repairPoints, long? traitId, double checkBonus, string[] materialBehaviourTypes, string[] requiredTags)
 		{
-			
+
 
 			var repairMaterials = materials.Values.Where(x => materialBehaviourTypes.Any(y => y.Equals(((MaterialBehaviourType)(x.BehaviourType ?? 0)).DescribeEnum(), StringComparison.OrdinalIgnoreCase))).ToList();
 
@@ -5750,7 +5749,7 @@ context.SaveChanges();
 						new XElement("Echoes",
 							new XElement("Echo", new XCData("$0 take|takes up $2, rifling through it for the necessary tools to fix $1")),
 							new XElement("Echo", new XCData("$0 begin|begins repairing $1 with $")),
-							new XElement("Echo", new XCData("$0 continue|continues repairing $1 with $2")), 
+							new XElement("Echo", new XCData("$0 continue|continues repairing $1 with $2")),
 							new XElement("Echo", new XCData("$0 finish|finishes repairing $1, then place|places the tools back within $2 and pack|packs it away."))
 						),
 						new XElement("DamageTypes",
@@ -5868,21 +5867,21 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 		context.SaveChanges();
 	}
 
-		private void SeedTerrainAutobuilder(FuturemudDatabaseContext context,
-				IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
-		{
+	private void SeedTerrainAutobuilder(FuturemudDatabaseContext context,
+			IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
+	{
 
+	}
+
+	private void SeedRangedCovers(FuturemudDatabaseContext context, ICollection<string> errors)
+	{
+		if (context.RangedCovers.Any())
+		{
+			errors.Add("Detected that ranged covers were already installed. Did not seed any covers.");
+			return;
 		}
 
-		private void SeedRangedCovers(FuturemudDatabaseContext context, ICollection<string> errors)
-		{
-				if (context.RangedCovers.Any())
-				{
-						errors.Add("Detected that ranged covers were already installed. Did not seed any covers.");
-						return;
-				}
-
-				var covers = new List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)>
+		var covers = new List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)>
 				{
 						("Uneven Ground", 0, 0, 6, "prone, using the uneven ground as cover", "$0 go|goes prone and begin|begins to use the uneven ground as cover", 0, true),
 						("Corridor Doorway", 0, 0, 1, "using a doorway as cover", "$0 duck|ducks into a doorway and begin|begins to use it as cover", 0, false),
@@ -5941,86 +5940,86 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 						("Corner", 1, 2, 1, "using $?0|$0|a corner|$ as cover", "$0 press|presses into $?1|$1|a corner|$", 0, false)
 				};
 
-				foreach (var item in covers)
-				{
-						context.RangedCovers.Add(new RangedCover
-						{
-								Name = item.Name,
-								CoverType = item.Type,
-								CoverExtent = item.Extent,
-								HighestPositionState = item.Position,
-								DescriptionString = item.Desc,
-								ActionDescriptionString = item.Action,
-								MaximumSimultaneousCovers = item.Max,
-								CoverStaysWhileMoving = item.Moving
-						});
-				}
-				context.SaveChanges();
+		foreach (var item in covers)
+		{
+			context.RangedCovers.Add(new RangedCover
+			{
+				Name = item.Name,
+				CoverType = item.Type,
+				CoverExtent = item.Extent,
+				HighestPositionState = item.Position,
+				DescriptionString = item.Desc,
+				ActionDescriptionString = item.Action,
+				MaximumSimultaneousCovers = item.Max,
+				CoverStaysWhileMoving = item.Moving
+			});
+		}
+		context.SaveChanges();
 
-				var coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
-				var tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
+		var coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
+		var tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
 
-				var coversForTags = new Dictionary<string, string[]>
+		var coversForTags = new Dictionary<string, string[]>
+		{
+			["Urban"] = new[]
 				{
-						["Urban"] = new[]
-						{
 								"Corridor Doorway", "Window Frame",
 								"Corner", "Street Corner", "Alley Trash Bin"
 						},
-						["Rural"] = new[]
-						{
+			["Rural"] = new[]
+				{
 								"Tree", "Bush", "Bushy Tree", "Shrubbery", "Fallen Log", "Fallen Tree",
 								"Old Well"
 						},
-						["Terrestrial"] = new[]
-						{
+			["Terrestrial"] = new[]
+				{
 								"Uneven Ground", "Large Crater", "Stone Wall", "Rubble Wall", "Small Rock",
 								"Large Rock", "Boulder Cluster", "Rock Outcropping", "Sand Dune", "Snow Drift",
 								"Low Hedge", "Thick Hedge", "Tall Grass", "Shrubs", "Fallen Pillar"
 						},
-						["Aquatic"] = new[] { "Thick Seaweed"},
-						["Littoral"] = new[] { "Sand Dune", "Tall Reeds" },
-						["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
-				};
+			["Aquatic"] = new[] { "Thick Seaweed" },
+			["Littoral"] = new[] { "Sand Dune", "Tall Reeds" },
+			["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
+		};
 
-				foreach (var terrain in context.Terrains.ToList())
+		foreach (var terrain in context.Terrains.ToList())
+		{
+			var tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+					.Select(x => long.TryParse(x, out var val) && tagsById.ContainsKey(val)
+							? tagsById[val]
+							: null)
+					.Where(x => x != null)
+					.ToList() ?? new List<string>();
+
+			var coverIds = new HashSet<long>();
+			foreach (var tag in tagNames)
+			{
+				if (!coversForTags.TryGetValue(tag!, out var names))
 				{
-						var tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-								.Select(x => long.TryParse(x, out var val) && tagsById.ContainsKey(val)
-										? tagsById[val]
-										: null)
-								.Where(x => x != null)
-								.ToList() ?? new List<string>();
-
-						var coverIds = new HashSet<long>();
-						foreach (var tag in tagNames)
-						{
-								if (!coversForTags.TryGetValue(tag!, out var names))
-								{
-										continue;
-								}
-
-								foreach (var name in names)
-								{
-										if (coversByName.TryGetValue(name, out var cover))
-										{
-												coverIds.Add(cover.Id);
-										}
-								}
-						}
-
-						foreach (var id in coverIds)
-						{
-								context.TerrainsRangedCovers.Add(new TerrainsRangedCovers
-								{
-										TerrainId = terrain.Id,
-										RangedCoverId = id
-								});
-						}
+					continue;
 				}
 
-				context.SaveChanges();
+				foreach (var name in names)
+				{
+					if (coversByName.TryGetValue(name, out var cover))
+					{
+						coverIds.Add(cover.Id);
+					}
+				}
+			}
+
+			foreach (var id in coverIds)
+			{
+				context.TerrainsRangedCovers.Add(new TerrainsRangedCovers
+				{
+					TerrainId = terrain.Id,
+					RangedCoverId = id
+				});
+			}
 		}
+
+		context.SaveChanges();
+	}
 
 	private void SeedAIPart1(FuturemudDatabaseContext context, ICollection<string> errors)
 	{
@@ -6773,16 +6772,16 @@ end if",
 		AddTag(context, "Terrain", "");
 		AddTag(context, "Wild", "Terrain");
 		AddTag(context, "Human Influenced", "Terrain");
-				AddTag(context, "Urban", "Human Influenced");
-				AddTag(context, "Rural", "Human Influenced");
-				AddTag(context, "Public", "Urban");
-				AddTag(context, "Private", "Urban");
-				AddTag(context, "Commercial", "Urban");
-				AddTag(context, "Residential", "Urban");
-				AddTag(context, "Administrative", "Urban");
-				AddTag(context, "Industrial", "Urban");
-				AddTag(context, "Natural", "Urban");
-				AddTag(context, "Diggable Soil", "Terrain");
+		AddTag(context, "Urban", "Human Influenced");
+		AddTag(context, "Rural", "Human Influenced");
+		AddTag(context, "Public", "Urban");
+		AddTag(context, "Private", "Urban");
+		AddTag(context, "Commercial", "Urban");
+		AddTag(context, "Residential", "Urban");
+		AddTag(context, "Administrative", "Urban");
+		AddTag(context, "Industrial", "Urban");
+		AddTag(context, "Natural", "Urban");
+		AddTag(context, "Diggable Soil", "Terrain");
 		AddTag(context, "Foragable Clay", "Terrain");
 		AddTag(context, "Foragable Sand", "Terrain");
 		AddTag(context, "Terrestrial", "Wild");
@@ -7319,7 +7318,7 @@ end if",
 		AddTag(context, "Height Measuring Scale", "Medical Tools");
 		AddTag(context, "Tendon Hammer", "Medical Tools");
 		AddTag(context, "Human Blood Typing", "Medical Tools");
-		
+
 		// Surgical Tools
 		AddTag(context, "Surgical Tools", "Tools");
 		AddTag(context, "Scalpel", "Surgical Tools");
@@ -7353,7 +7352,7 @@ end if",
 		AddTag(context, "Surgical Steel Suture", "Non-Absorbable Suture");
 		AddTag(context, "Surgical Stapler", "Surgical Tools");
 		AddTag(context, "Surgical Staples", "Surgical Tools");
-		
+
 		// Science Tools
 		AddTag(context, "Scientific Tools", "Tools");
 

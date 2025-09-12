@@ -37,14 +37,17 @@ With all that in mind, what whole number of in-game seconds should be added for 
 			("mode",
 				@"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not one of the ones listed below, I suggest that you use the latin-ancient calendar and modify the generated file as that calendar makes the most use of advanced features for examples.
 
-Broadly speaking, there are three calendars for you to choose from:
+Broadly speaking, there are seven calendars for you to choose from:
 
 #AGregorian#F - which is the calendar most of the world uses in the modern era
 #AJulian#F - which is very similar to the Gregorian calendar but with different leap year rules
 #ARoman#F - which was a calendar used in the Roman republic before the Julian reforms
 #AMiddle-Earth#F - various calendars described by J.R.R. Tolkien for Middle-Earth
+#ATranquility#F: The 13-month, 28 day Tranquility calendar, commencing at the Moon Landing
+#ACalendare Republicain#F: The French Republican calendar (including decimal clock) from the French Revolution
+#AMission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
 
-The available calendars are as follows:
+The specific available calendars are as follows:
 
 	#Bgregorian-us#F: Gregorian with US-style dates (e.g. month/day/year)
 	#Bgregorian-uk#F: Gregorian with UK-style dates (e.g. day/month/year)
@@ -55,6 +58,9 @@ The available calendars are as follows:
 	#Blatin-8day#F: Julian with Latin day and month names, year from Rome's founding, and an 8 day week
 	#Blatin-ancient#F: The pre-reform Roman calendar with all names in Latin
 	#Bmiddle-earth#F: Includes various middle-earth calendars
+	#Btranquility#F: The 13-month, 28 day Tranquility calendar, commencing at the Moon Landing
+	#Brepublicain#F: The French Republican calendar (including decimal clock) from the French Revolution
+	#Bmission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
 ", (context, answers) => true, (answer, context) =>
 				{
 					switch (answer.ToLowerInvariant())
@@ -68,6 +74,9 @@ The available calendars are as follows:
 						case "latin-8day":
 						case "latin-ancient":
 						case "middle-earth":
+						case "republicain":
+						case "tranquility":
+						case "mission":
 							return (true, string.Empty);
 					}
 
@@ -150,6 +159,64 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 			case "middle-earth":
 				SetupMiddleEarth(context, clock, questionAnswers);
 				break;
+			case "tranquility":
+				SetupTranquility(context, clock, questionAnswers);
+				break;
+			case "mission":
+				SetupMissionCalendar(context, clock, questionAnswers);
+				break;
+			case "republicain":
+				clock = new Clock
+				{
+					Definition =
+						@$"<Clock>  
+	<Alias>Decimal</Alias>
+	<Description>Decimal Clock</Description>
+	<ShortDisplayString>$jh$mm$ss</ShortDisplayString>
+	<SuperDisplayString>$jh$mm$ss $t</SuperDisplayString>
+	<LongDisplayString>$c</LongDisplayString>
+	<SecondsPerMinute>100</SecondsPerMinute>
+	<MinutesPerHour>100</MinutesPerHour>
+	<HoursPerDay>10</HoursPerDay>
+	<InGameSecondsPerRealSecond>{int.Parse(questionAnswers["secondsmultiplier"])}</InGameSecondsPerRealSecond>
+	<SecondFixedDigits>2</SecondFixedDigits>
+	<MinuteFixedDigits>2</MinuteFixedDigits>
+	<HourFixedDigits>0</HourFixedDigits>
+	<NoZeroHour>true</NoZeroHour>	
+	<NumberOfHourIntervals>1</NumberOfHourIntervals>
+	<HourIntervalNames>
+		<HourIntervalName>o'clock</HourIntervalName>
+	</HourIntervalNames>
+	<HourIntervalLongNames>
+		<HourIntervalLongName>of the clock</HourIntervalLongName>
+	</HourIntervalLongNames>
+	<CrudeTimeIntervals>
+		<CrudeTimeInterval text=""night"" Lower=""-1"" Upper=""2""/>
+		<CrudeTimeInterval text=""morning"" Lower=""2"" Upper=""5""/>\
+		<CrudeTimeInterval text=""afternoon"" Lower=""5"" Upper=""7""/>
+		<CrudeTimeInterval text=""evening"" Lower=""7"" Upper=""9""/>
+	</CrudeTimeIntervals>
+</Clock>",
+					Seconds = 0,
+					Minutes = 0,
+					Hours = 0
+				};
+				context.Clocks.Add(clock);
+				context.SaveChanges();
+
+				utc = new Timezone
+				{
+					Name = "PMT",
+					Description = "Paris Mean Time (PMT)",
+					Clock = clock,
+					OffsetHours = 0,
+					OffsetMinutes = 0
+				};
+				context.Timezones.Add(utc);
+				context.SaveChanges();
+				clock.PrimaryTimezoneId = utc.Id;
+				SetupFrenchRepublican(context, clock, questionAnswers);
+				break;
 			default:
 				throw new InvalidOperationException(@"Invalid selection for ""mode"" in TimeSeeder.");
 		}
@@ -196,6 +263,603 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 
 	public string FullDescription =>
 		"This seeder will set up a clock, timezones and a calendar. It is necessary to have at least one calendar before you can make any cultures, which is a pre-requisite for having characters in game. If you want to do a custom calendar that is not listed in the options that are presented to you, I recommend you choose one anyway and then modify the XML yourself. It should be fairly straightforward but feel free to hit me up for any help.";
+	
+	private void SetupMissionCalendar(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		var calendar = new Calendar
+		{
+			FeedClockId = clock.Id,
+			Date = $"01/ignis/{questionAnswers["startyear"]}",
+			Definition = @"<calendar>
+  <alias>mission</alias>
+  <shortname>The Mission Calendar</shortname>
+  <fullname>The Mission Calendar</fullname>
+  <description><![CDATA[The Mission Calendar is the standard timekeeping system used aboard the generation ship and by its descendants. It begins at the moment of launch, known as Mission Year 0, Day 0, which serves as the epoch for all recorded history and official documentation. Designed to be entirely independent of any planetary cycle, the calendar is a rational, closed system intended to maintain social cohesion, regulate work and rest, and structure the crew’s multigenerational journey.
+
+The Mission Calendar divides each year into ten months of thirty-six days, for a total of 360 days per year. Each month is named for a concept or element central to shipboard life, such as Ignis, Ventus, and Umbra. Months are further divided into sixty six-day weeks, with five days devoted to work and one reserved for rest, reflection, or recreation. This regular rhythm is supported by a controlled, ship-wide 24-hour light cycle to maintain circadian health and consistent scheduling.
+
+Several cultural and operational observances are tied to the Mission Calendar, the most significant of which is Founders’ Day, celebrated on the final day of each year to commemorate the ship’s departure. Other traditions include periodic Quiet Cycles, when nonessential systems are powered down for maintenance and contemplation, and Crew Reassignment Day, a midyear event marking the rotation of shifts, apprenticeships, and training programs. Together, these features make the Mission Calendar both a practical tool and a symbolic reminder of the crew’s shared purpose.]]></description>
+  <shortstring>$yy.$mo.$dd</shortstring>
+  <longstring>$nz$ww the $dt of $mf, year $yy $EE</longstring>
+  <wordystring>$nz$ww the $dt of $mf, year $yy $EE</wordystring>
+  <plane>earth</plane>
+  <feedclock>0</feedclock>
+  <epochyear>0</epochyear>
+  <weekdayatepoch>1</weekdayatepoch>
+  <ancienterashortstring>b.m</ancienterashortstring>
+  <ancienteralongstring>before the mission</ancienteralongstring>
+  <modernerashortstring>y.m</modernerashortstring>
+  <moderneralongstring>of the mission</moderneralongstring>
+  <weekdays>
+	<weekday>Axis</weekday>
+	<weekday>Core</weekday>
+	<weekday>Drift</weekday>
+	<weekday>Flux</weekday>
+	<weekday>Pulse</weekday>
+	<weekday>Rest</weekday>
+  </weekdays>
+  <months>
+	<month>
+	  <alias>ignis</alias>
+	  <shortname>ign</shortname>
+	  <fullname>Ignis</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>ventus</alias>
+	  <shortname>ven</shortname>
+	  <fullname>Ventus</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays/>
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>aqua</alias>
+	  <shortname>aqu</shortname>
+	  <fullname>Aqua</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>terra</alias>
+	  <shortname>ter</shortname>
+	  <fullname>Terra</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lux</alias>
+	  <shortname>lux</shortname>
+	  <fullname>Lux</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""18"" short=""Reassignment Day"" long=""Reassignment Day"" weekday=""true"" />
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>umbra</alias>
+	  <shortname>umb</shortname>
+	  <fullname>Umbra</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>ferrum</alias>
+	  <shortname>fer</shortname>
+	  <fullname>Ferrum</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>silica</alias>
+	  <shortname>sil</shortname>
+	  <fullname>Silica</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>36</normaldays>
+	  <specialdays />
+	  <intercalarydays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>Vita</alias>
+	  <shortname>vit</shortname>
+	  <fullname>Vita</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>nexus</alias>
+	  <shortname>nex</shortname>
+	  <fullname>Nexus</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>36</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""36"" short=""Founder's Day"" long=""Founder's Day"" weekday=""true"" />
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+  </months>
+  <intercalarymonths/>
+</calendar>"
+		};
+		context.Calendars.Add(calendar);
+		context.SaveChanges();
+	}
+
+	private void SetupFrenchRepublican(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		var calendar = new Calendar
+		{
+			FeedClockId = clock.Id,
+			Date = $"01/vendemiaire/{questionAnswers["startyear"]}",
+			Definition = @"<calendar>
+  <alias>republicain</alias>
+  <shortname>The Calendrier Républicain</shortname>
+  <fullname>The Calendrier Républicain</fullname>
+  <description><![CDATA[The Calendrier Républicain was a calendar created and implemented during the French Revolution and used by the French government for about 12 years from late 1793 to 1805, and for 18 days by the Paris Commune in 1871.
+
+The calendar consisted of twelve 30-day months, each divided into three 10-day cycles similar to weeks, plus five or six intercalary days at the end to fill out the balance of a solar year.
+
+It was designed in part to remove all religious and royalist influences from the calendar, and it was part of a larger attempt at dechristianisation and decimalisation in France (which also included decimal time of day, decimalisation of currency, and metrication)]]></description>
+  <shortstring>$dd/$mo/$yy</shortstring>
+  <longstring>$nz$ww the $dt of $mf, an $yy $EE</longstring>
+  <wordystring>$nz$ww the $dt of $mf, an $yy $EE</wordystring>
+  <plane>earth</plane>
+  <feedclock>0</feedclock>
+  <epochyear>1</epochyear>
+  <weekdayatepoch>1</weekdayatepoch>
+  <ancienterashortstring>a.l.R</ancienterashortstring>
+  <ancienteralongstring>avant la République</ancienteralongstring>
+  <modernerashortstring>d.l.R</modernerashortstring>
+  <moderneralongstring>de la République</moderneralongstring>
+  <weekdays>
+	<weekday>Primidi</weekday>
+	<weekday>Duodi</weekday>
+	<weekday>Tridi</weekday>
+	<weekday>Quartidi</weekday>
+	<weekday>Quintidi</weekday>
+	<weekday>Sextidi</weekday>
+	<weekday>Septidi</weekday>
+	<weekday>Octidi</weekday>
+	<weekday>Nonidi</weekday>
+	<weekday>Décadi</weekday>
+  </weekdays>
+  <months>
+	<month>
+	  <alias>vendemiaire</alias>
+	  <shortname>vend</shortname>
+	  <fullname>Vendémiaire</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>brumaire</alias>
+	  <shortname>bru</shortname>
+	  <fullname>Brumaire</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays/>
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>frimaire</alias>
+	  <shortname>fri</shortname>
+	  <fullname>Frimaire</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>nivose</alias>
+	  <shortname>niv</shortname>
+	  <fullname>Nivôse</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>pluviose</alias>
+	  <shortname>plu</shortname>
+	  <fullname>Pluviôse</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>ventose</alias>
+	  <shortname>vent</shortname>
+	  <fullname>Ventôse</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>germinal</alias>
+	  <shortname>ger</shortname>
+	  <fullname>Germinal</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>floreal</alias>
+	  <shortname>flo</shortname>
+	  <fullname>Floréal</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>30</normaldays>
+	  <specialdays />
+	  <intercalarydays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>prairial</alias>
+	  <shortname>pra</shortname>
+	  <fullname>Prairial</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>messidor</alias>
+	  <shortname>mes</shortname>
+	  <fullname>Messidor</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>thermidor</alias>
+	  <shortname>the</shortname>
+	  <fullname>Thermidor</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>fructidor</alias>
+	  <shortname>fru</shortname>
+	  <fullname>Fructidor</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+  </months>
+  <intercalarymonths>
+	<intercalarymonth>
+	  <position>13</position>
+	  <month>
+		<alias>complementaires</alias>
+		<shortname>comp</shortname>
+		<fullname>Les Jours Complémentaires</fullname>
+		<nominalorder>13</nominalorder>
+		<normaldays>5</normaldays>
+		<intercalarydays>
+		<intercalaryday>
+		  <insertdays>1</insertdays>
+		  <nonweekdays />
+		  <removenonweekdays />
+		  <specialdays/>
+		  <removespecialdays />
+		  <intercalaryrule>
+			<offset>0</offset>
+			<divisor>4</divisor>
+			<exceptions/>
+			<ands />
+			<ors />
+		  </intercalaryrule>
+		</intercalaryday>
+	  </intercalarydays>
+		<specialdays>
+		  <specialday day=""1"" short=""La Fête de la Vertu"" long=""La Fête de la Vertu"" weekday=""true"" />
+		  <specialday day=""2"" short=""La Fête du Génie"" long=""La Fête du Génie"" weekday=""true"" />
+		  <specialday day=""3"" short=""La Fête du Travail"" long=""La Fête du Travail"" weekday=""true"" />
+		  <specialday day=""4"" short=""La Fête de l'Opinion"" long=""La Fête de l'Opinion"" weekday=""true"" />
+		  <specialday day=""5"" short=""La Fête des Récompense"" long=""La Fête des Récompense"" weekday=""true"" />
+		  <specialday day=""6"" short=""La Fête de la Révolution"" long=""La Fête de la Révolution"" weekday=""true"" />
+		</specialdays>
+		<nonweekdays>
+		  <nonweekday>1</nonweekday>
+		</nonweekdays>
+	  </month>
+	  <intercalaryrule>
+		<offset>0</offset>
+		<divisor>1</divisor>
+		<exceptions/>
+		<ands />
+		<ors />
+	  </intercalaryrule>
+	</intercalarymonth>
+  </intercalarymonths>
+</calendar>"
+		};
+		context.Calendars.Add(calendar);
+		context.SaveChanges();
+	}
+
+	private void SetupTranquility(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		var calendar = new Calendar
+		{
+			FeedClockId = clock.Id,
+			Date = $"01/archimedes/{questionAnswers["startyear"]}",
+			Definition = @"<calendar>
+  <alias>tranquility</alias>
+  <shortname>The Tranquility Calendar</shortname>
+  <fullname>The Tranquility Calendar</fullname>
+  <description><![CDATA[The Tranquility Calendar is a calendar that has its roots in science. Its center date in history is called Moon Landing Day. The actual center point in time is the exact moment the word tranquility is mentioned in this somewhat famous quote - Houston, Tranquility Base Here. The Eagle Has Landed. Moon Landing Day has 20 hours, 18 minutes, and 1.2 seconds Before Tranquility and 3 hours, 41 minutes, 58.8 seconds After Tranquility.
+
+The Tranquility Calendar is logically structured so that days of the week do not vary from month to month, and there are no changes in calendar structure based on year (e.g., there is no change from Julian to Gregorian calendars in the past).
+
+The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) issue of Omni Magazine in an article written by Jeff Siggins]]></description>
+  <shortstring>$dd/$mo/$yy</shortstring>
+  <longstring>$nz$ww the $dt of $mf, year $yy $EE</longstring>
+  <wordystring>$nz$ww the $dt of $mf, year $yy $EE</wordystring>
+  <plane>earth</plane>
+  <feedclock>0</feedclock>
+  <epochyear>1</epochyear>
+  <weekdayatepoch>5</weekdayatepoch>
+  <ancienterashortstring>B.T</ancienterashortstring>
+  <ancienteralongstring>before Tranquility</ancienteralongstring>
+  <modernerashortstring>A.T</modernerashortstring>
+  <moderneralongstring>after Tranquility</moderneralongstring>
+  <weekdays>
+	<weekday>Friday</weekday>
+	<weekday>Saturday</weekday>
+	<weekday>Sunday</weekday>
+	<weekday>Monday</weekday>
+	<weekday>Tuesday</weekday>
+	<weekday>Wednesday</weekday>
+	<weekday>Thursday</weekday>
+  </weekdays>
+  <months>
+	<month>
+	  <alias>archimedes</alias>
+	  <shortname>arc</shortname>
+	  <fullname>Archimedes</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>brahe</alias>
+	  <shortname>bra</shortname>
+	  <fullname>Brahe</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays/>
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>copernicus</alias>
+	  <shortname>cop</shortname>
+	  <fullname>Copernicus</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>darwin</alias>
+	  <shortname>dar</shortname>
+	  <fullname>Darwin</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>einstein</alias>
+	  <shortname>ein</shortname>
+	  <fullname>Einstein</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>faraday</alias>
+	  <shortname>far</shortname>
+	  <fullname>Faraday</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>galileo</alias>
+	  <shortname>gal</shortname>
+	  <fullname>Galileo</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>hippocrates</alias>
+	  <shortname>hip</shortname>
+	  <fullname>Hippocrates</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>28</normaldays>
+	  <specialdays />
+	  <intercalarydays>
+		<intercalary>
+		  <insertdays>1</insertdays>
+		  <specialdays>
+			  <specialday day=""29"" short=""Aldrin Day"" long=""Aldrin Day"" weekday=""false""/>
+		  </specialdays>
+		  <nonweekdays>
+			  <nonweekday>29</nonweekday>
+			</nonweekdays>
+			<removenonweekdays />
+			<removespecialdays />
+			<intercalaryrule>
+			  <offset>-31</offset>
+			  <divisor>4</divisor>
+			  <exceptions>
+				<intercalaryrule>
+				  <offset>-31</offset>
+				  <divisor>100</divisor>
+				  <exceptions>
+					<intercalaryrule>
+					  <offset>-31</offset>
+					  <divisor>400</divisor>
+					  <exceptions />
+					  <ands />
+					  <ors />
+					</intercalaryrule>
+				  </exceptions>
+				  <ands />
+				  <ors />
+				</intercalaryrule>
+			  </exceptions>
+			  <ands />
+			  <ors />
+			</intercalaryrule>
+		</intercalary>
+	  </intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>imhotep</alias>
+	  <shortname>imh</shortname>
+	  <fullname>Imhotep</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>jung</alias>
+	  <shortname>jun</shortname>
+	  <fullname>Jung</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>kepler</alias>
+	  <shortname>kep</shortname>
+	  <fullname>Kepler</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lavoisier</alias>
+	  <shortname>lav</shortname>
+	  <fullname>Lavoisier</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mendel</alias>
+	  <shortname>men</shortname>
+	  <fullname>Mendel</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays>
+	  </intercalarydays>
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+  </months>
+  <intercalarymonths>
+	<intercalarymonth>
+	  <position>14</position>
+	  <month>
+		<alias>tranquility</alias>
+		<shortname>tra</shortname>
+		<fullname>Tranquility</fullname>
+		<nominalorder>14</nominalorder>
+		<normaldays>1</normaldays>
+		<intercalarydays/>
+		<specialdays>
+		  <specialday day=""1"" short=""Armstrong Day"" long=""Armstrong Day"" weekday=""false"" />
+		</specialdays>
+		<nonweekdays>
+		  <nonweekday>1</nonweekday>
+		</nonweekdays>
+	  </month>
+	  <intercalaryrule>
+		<offset>0</offset>
+		<divisor>1</divisor>
+		<exceptions/>
+		<ands />
+		<ors />
+	  </intercalaryrule>
+	</intercalarymonth>
+  </intercalarymonths>
+</calendar>"
+		};
+		context.Calendars.Add(calendar);
+		context.SaveChanges();
+	}
 
 	private void SetupMiddleEarth(FuturemudDatabaseContext context, Clock clock,
 		IReadOnlyDictionary<string, string> questionAnswers)

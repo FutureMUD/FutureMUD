@@ -251,15 +251,15 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		context.Cultures.Add(animalCulture);
 		var simpleNC = context.NameCultures.First(x => x.Name == "Simple");
 		animalCulture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Male });
+		{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Male });
 		animalCulture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Female });
+		{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Female });
 		animalCulture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Neuter });
+		{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Neuter });
 		animalCulture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.NonBinary });
+		{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.NonBinary });
 		animalCulture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Indeterminate });
+		{ Culture = animalCulture, NameCulture = simpleNC, Gender = (short)Gender.Indeterminate });
 
 		context.SaveChanges();
 
@@ -501,53 +501,53 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 			LegDescriptionSingular = "leg",
 			WearSizeParameter = wearSize
 		};
-				context.BodyProtos.Add(cetacean);
-				context.SaveChanges();
+		context.BodyProtos.Add(cetacean);
+		context.SaveChanges();
 
-				SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
+		SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
 
-				Console.WriteLine("Installing insectoids...");
-				var insectBody = new BodyProto
-				{
-						Id = nextId++,
-						Name = "Insectoid",
-						ConsiderString = "",
-						WielderDescriptionSingle = "mandible",
-						WielderDescriptionPlural = "mandibles",
-						StaminaRecoveryProgId = staminaRecoveryProg.Id,
-						MinimumLegsToStand = 6,
-						MinimumWingsToFly = 2,
-						LegDescriptionPlural = "legs",
-						LegDescriptionSingular = "leg",
-						WearSizeParameter = wearSize
-				};
-				context.BodyProtos.Add(insectBody);
-				context.SaveChanges();
+		Console.WriteLine("Installing insectoids...");
+		var insectBody = new BodyProto
+		{
+			Id = nextId++,
+			Name = "Insectoid",
+			ConsiderString = "",
+			WielderDescriptionSingle = "mandible",
+			WielderDescriptionPlural = "mandibles",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 6,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(insectBody);
+		context.SaveChanges();
 
-				var wingedInsectBody = new BodyProto
-				{
-						Id = nextId++,
-						Name = "Winged Insectoid",
-						ConsiderString = "",
-						WielderDescriptionSingle = "mandible",
-						WielderDescriptionPlural = "mandibles",
-						StaminaRecoveryProgId = staminaRecoveryProg.Id,
-						MinimumLegsToStand = 6,
-						MinimumWingsToFly = 2,
-						LegDescriptionPlural = "legs",
-						LegDescriptionSingular = "leg",
-						WearSizeParameter = wearSize
-				};
-				context.BodyProtos.Add(wingedInsectBody);
-				context.SaveChanges();
+		var wingedInsectBody = new BodyProto
+		{
+			Id = nextId++,
+			Name = "Winged Insectoid",
+			ConsiderString = "",
+			WielderDescriptionSingle = "mandible",
+			WielderDescriptionPlural = "mandibles",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 6,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(wingedInsectBody);
+		context.SaveChanges();
 
-				SeedInsectoid(insectBody);
-				SeedWingedInsectoid(wingedInsectBody);
+		SeedInsectoid(insectBody);
+		SeedWingedInsectoid(wingedInsectBody);
 
-				SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
-						cetacean, wormBody, insectBody, wingedInsectBody);
-				SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
-						cetacean, wormBody, insectBody, wingedInsectBody);
+		SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
+				cetacean, wormBody, insectBody, wingedInsectBody);
+		SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
+				cetacean, wormBody, insectBody, wingedInsectBody);
 
 		context.Database.CommitTransaction();
 
@@ -753,7 +753,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 	public bool Enabled => true;
 
-	
+
 
 	private void SetupCorpseModel()
 	{
@@ -1071,12 +1071,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddHWModel("Seal Baby", 40, 2, 125, 0);
 		AddHWModel("Walrus Male", 300, 15, 144.444444444444, 0);
 		AddHWModel("Walrus Female", 200, 10, 125, 0);
-				AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
-				AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
-				AddHWModel("Small Insect", 5, 0.25, 20, 2);
-				AddHWModel("Medium Insect", 15, 0.75, 18, 1.8);
-				AddHWModel("Large Insect", 30, 1.5, 17, 1.7);
-		}
+		AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
+		AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
+		AddHWModel("Small Insect", 5, 0.25, 20, 2);
+		AddHWModel("Medium Insect", 15, 0.75, 18, 1.8);
+		AddHWModel("Large Insect", 30, 1.5, 17, 1.7);
+	}
 
 	private void AddHWModel(string name, double meanHeight, double stddevheight, double meanbmi, double stddevbmi)
 	{
@@ -1234,7 +1234,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FailureMessage = attackMessage
 		};
 		message.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
-			{ CombatMessage = message, WeaponAttack = attack });
+		{ CombatMessage = message, WeaponAttack = attack });
 		_context.CombatMessages.Add(message);
 		_context.SaveChanges();
 		return attack;
@@ -2156,7 +2156,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			};
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
+				FutureProg = prog,
+				ParameterIndex = 0,
+				ParameterName = "ch",
 				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
@@ -2624,10 +2626,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				TargetDefinition = definition,
 				Type = "Standard"
 			};
-_context.CharacteristicProfiles.Add(profile);
-}
+			_context.CharacteristicProfiles.Add(profile);
+		}
 
-var extraAdultDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		var extraAdultDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 {
 {"Coyote", "A rangy canine with tawny fur and sharp features. Its wary eyes and lean frame speak of a life spent hunting small game and scavenging."},
 {"Hyena", "This hyena has a powerful frame with a sloping back and mottled fur. Its muzzle ends in strong jaws capable of crushing bone."},
@@ -2705,14 +2707,14 @@ var extraAdultDescriptions = new Dictionary<string, string>(StringComparer.Ordin
 	{"Owl", "A nocturnal hunter with a rounded face and silent wings, staring from huge eyes."}
 };
 
-void AddExtraAdultDescription()
-{
-if (extraAdultDescriptions.TryGetValue(race.Name, out var text))
-{
-CreateDescription(EntityDescriptionType.FullDescription, text, isAdultMaleRaceProg);
-CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRaceProg);
-}
-}
+		void AddExtraAdultDescription()
+		{
+			if (extraAdultDescriptions.TryGetValue(race.Name, out var text))
+			{
+				CreateDescription(EntityDescriptionType.FullDescription, text, isAdultMaleRaceProg);
+				CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRaceProg);
+			}
+		}
 
 		switch (race.Name)
 		{
@@ -2763,30 +2765,30 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 					"This is &a_an[&age] &male wolf. &he is slender and powerfully built with a deeply descending rib cage, a sloping back and a heavily muscled neck. &he has small, triangular ears and long legs that signal swift movement. &he has large, heavy teeth and a powerful jaw adapted to crushing bone.",
 					isAdultFemaleRaceProg);
 				break;
-						case "Coyote":
-								DoLazyDescriptions("coyote pup", "coyote whelp", "male coyote", "female coyote");
-								AddExtraAdultDescription();
-								break;
-						case "Hyena":
-								DoLazyDescriptions("hyena pup", "hyena whelp", "male hyena", "female hyena");
-								AddExtraAdultDescription();
-								break;
-						case "Rabbit":
-								DoLazyDescriptions("bunny", "young rabbit", "buck rabbit", "doe rabbit");
-								AddExtraAdultDescription();
-								break;
-						case "Hare":
-								DoLazyDescriptions("hare bunny", "young hare", "buck hare", "doe hare");
-								AddExtraAdultDescription();
-								break;
-						case "Beaver":
-								DoLazyDescriptions("beaver cub", "young beaver", "male beaver", "female beaver");
-								AddExtraAdultDescription();
-								break;
-						case "Otter":
-								DoLazyDescriptions("otter cub", "young otter", "male otter", "female otter");
-								AddExtraAdultDescription();
-								break;
+			case "Coyote":
+				DoLazyDescriptions("coyote pup", "coyote whelp", "male coyote", "female coyote");
+				AddExtraAdultDescription();
+				break;
+			case "Hyena":
+				DoLazyDescriptions("hyena pup", "hyena whelp", "male hyena", "female hyena");
+				AddExtraAdultDescription();
+				break;
+			case "Rabbit":
+				DoLazyDescriptions("bunny", "young rabbit", "buck rabbit", "doe rabbit");
+				AddExtraAdultDescription();
+				break;
+			case "Hare":
+				DoLazyDescriptions("hare bunny", "young hare", "buck hare", "doe hare");
+				AddExtraAdultDescription();
+				break;
+			case "Beaver":
+				DoLazyDescriptions("beaver cub", "young beaver", "male beaver", "female beaver");
+				AddExtraAdultDescription();
+				break;
+			case "Otter":
+				DoLazyDescriptions("otter cub", "young otter", "male otter", "female otter");
+				AddExtraAdultDescription();
+				break;
 			case "Cat":
 				CreateDescription(EntityDescriptionType.ShortDescription, "&a_an[$catcoat] kitten",
 					isBabyMaleRaceProg);
@@ -2813,46 +2815,46 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 				CreateDescription(EntityDescriptionType.FullDescription,
 					"This is &a_an[&age] &male common domestic cat. $catcoatfancy", isAdultFemaleRaceProg);
 				break;
-						case "Lion":
-								DoLazyDescriptionsWithMultipleJuvenile("lion cub", "juvenile lion", "juvenile lioness", "lion",
-										"lioness");
-								AddExtraAdultDescription();
-								break;
-						case "Cheetah":
-								DoLazyDescriptions("cheetah cub", "juvenile cheetah", "cheetah", "she-cheetah");
-								AddExtraAdultDescription();
-								break;
-						case "Leopard":
-								DoLazyDescriptionsWithMultipleJuvenile("leopard cub", "juvenile leopard", "juvenile leopardess",
-										"leopard", "leopardess");
-								AddExtraAdultDescription();
-								break;
-						case "Tiger":
-								DoLazyDescriptionsWithMultipleJuvenile("tiger cub", "juvenile tiger", "juvenile tigress", "tiger",
-										"tigress");
-								AddExtraAdultDescription();
-								break;
-						case "Panther":
-								DoLazyDescriptions("panther cub", "juvenile panther", "male panther", "female panther");
-								AddExtraAdultDescription();
-								break;
-						case "Jaguar":
-								DoLazyDescriptions("jaguar cub", "juvenile jaguar", "male jaguar", "female jaguar");
-								AddExtraAdultDescription();
-								break;
-						case "Jackal":
-								DoLazyDescriptions("jackal cub", "juvenile jackal", "male jackal", "female jackal");
-								AddExtraAdultDescription();
-								break;
-						case "Deer":
-								DoLazyDescriptionsWithMultipleJuvenile("fawn", "juvenile stag", "juvenile doe", "stag", "doe");
-								AddExtraAdultDescription();
-								break;
-						case "Moose":
-								DoLazyDescriptionsWithMultipleJuvenile("moose calf", "young bull moose", "moose heifer",
-										"bull moose", "moose cow");
-								AddExtraAdultDescription();
-								break;
+			case "Lion":
+				DoLazyDescriptionsWithMultipleJuvenile("lion cub", "juvenile lion", "juvenile lioness", "lion",
+						"lioness");
+				AddExtraAdultDescription();
+				break;
+			case "Cheetah":
+				DoLazyDescriptions("cheetah cub", "juvenile cheetah", "cheetah", "she-cheetah");
+				AddExtraAdultDescription();
+				break;
+			case "Leopard":
+				DoLazyDescriptionsWithMultipleJuvenile("leopard cub", "juvenile leopard", "juvenile leopardess",
+						"leopard", "leopardess");
+				AddExtraAdultDescription();
+				break;
+			case "Tiger":
+				DoLazyDescriptionsWithMultipleJuvenile("tiger cub", "juvenile tiger", "juvenile tigress", "tiger",
+						"tigress");
+				AddExtraAdultDescription();
+				break;
+			case "Panther":
+				DoLazyDescriptions("panther cub", "juvenile panther", "male panther", "female panther");
+				AddExtraAdultDescription();
+				break;
+			case "Jaguar":
+				DoLazyDescriptions("jaguar cub", "juvenile jaguar", "male jaguar", "female jaguar");
+				AddExtraAdultDescription();
+				break;
+			case "Jackal":
+				DoLazyDescriptions("jackal cub", "juvenile jackal", "male jackal", "female jackal");
+				AddExtraAdultDescription();
+				break;
+			case "Deer":
+				DoLazyDescriptionsWithMultipleJuvenile("fawn", "juvenile stag", "juvenile doe", "stag", "doe");
+				AddExtraAdultDescription();
+				break;
+			case "Moose":
+				DoLazyDescriptionsWithMultipleJuvenile("moose calf", "young bull moose", "moose heifer",
+						"bull moose", "moose cow");
+				AddExtraAdultDescription();
+				break;
 			case "Pig":
 				CreateDescription(EntityDescriptionType.ShortDescription, "a &male piglet", isBabyMaleRaceProg);
 				CreateDescription(EntityDescriptionType.ShortDescription, "a &male piglet", isBabyFemaleRaceProg);
@@ -2902,111 +2904,111 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 				CreateDescription(EntityDescriptionType.FullDescription, "This is &a_an[&age] &male sheep, or ewe.",
 					isAdultFemaleRaceProg);
 				break;
-						case "Boar":
-								DoLazyDescriptionsWithMultipleJuvenile("boar piglet", "young wild boar", "young wild sow",
-										"wild boar", "wild sow");
-								AddExtraAdultDescription();
-								break;
-						case "Warthog":
-								DoLazyDescriptionsWithMultipleJuvenile("warthog piglet", "young warthog boar", "young warthog sow",
-										"warthog boar", "warthog sow");
-								AddExtraAdultDescription();
-								break;
-						case "Cow":
-								DoLazyDescriptionsWithMultipleJuvenile("calf", "young bull", "heifer", "bull", "cow");
-								AddExtraAdultDescription();
-								break;
-						case "Ox":
-								DoLazyDescriptionsWithMultipleJuvenile("ox calf", "young ox bull", "ox heifer", "ox bull",
-										"ox cow");
-								AddExtraAdultDescription();
-								break;
-						case "Buffalo":
-								DoLazyDescriptionsWithMultipleJuvenile("buffalo calf", "young buffalo bull", "buffalo heifer",
-										"buffalo bull", "buffalo cow");
-								AddExtraAdultDescription();
-								break;
-						case "Bison":
-								DoLazyDescriptionsWithMultipleJuvenile("bison calf", "young bison bull", "bison heifer",
-										"bison bull", "bison cow");
-								AddExtraAdultDescription();
-								break;
-						case "Hippopotamus":
-								DoLazyDescriptionsWithMultipleJuvenile("hippo calf", "young hippo bull", "young hippo cow",
-										"hippo bull", "hippo cow");
-								AddExtraAdultDescription();
-								break;
-						case "Horse":
-								DoLazyDescriptionsWithMultipleJuvenile("foal", "colt", "filly", "stallion", "mare");
-								AddExtraAdultDescription();
-								break;
-						case "Bear":
-								DoLazyDescriptions("&ethnicity cub", "young &ethnicity", "male &ethnicity", "female &ethnicity");
-								AddExtraAdultDescription();
-								break;
-						case "Rhinocerous":
-								DoLazyDescriptions("rhino calf", "young rhino", "rhino bull", "rhino cow");
-								AddExtraAdultDescription();
-								break;
-						case "Giraffe":
-								DoLazyDescriptions("giraffe calf", "young giraffe", "male giraffe", "female giraffe");
-								AddExtraAdultDescription();
-								break;
-						case "Elephant":
-								DoLazyDescriptionsWithMultipleJuvenile("elephant calf", "juvenile bull elephant",
-										"juvenile elephant", "bull elephant", "elephant");
-								AddExtraAdultDescription();
-								break;
-						case "Fox":
-								DoLazyDescriptionsWithMultipleJuvenile("fox kit", "juvenile male fox", "juvenile fox vixen",
-										"male fox", "fox vixen");
-								AddExtraAdultDescription();
-								break;
-						case "Rat":
-								DoLazyDescriptions("rat pup", "young rat", "buck rat", "doe rat");
-								AddExtraAdultDescription();
-								break;
-						case "Mouse":
-								DoLazyDescriptions("mouse pup", "mouse rat", "buck mouse", "doe mouse");
-								AddExtraAdultDescription();
-								break;
-						case "Hamster":
-								DoLazyDescriptions("hamster pup", "young hamster", "buck hamster", "doe hamster");
-								AddExtraAdultDescription();
-								break;
-						case "Ferret":
-								DoLazyDescriptions("ferret kit", "young ferret", "jack ferret", "jill ferret");
-								AddExtraAdultDescription();
-								break;
-						case "Weasel":
-								DoLazyDescriptions("weasel kit", "young weasel", "jack weasel", "jill weasel");
-								AddExtraAdultDescription();
-								break;
-						case "Guinea Pig":
-								DoLazyDescriptions("guinea pig pup", "young guinea pig", "guinea pig boar", "guinea pig sow");
-								AddExtraAdultDescription();
-								break;
-						case "Badger":
-								DoLazyDescriptions("badger kit", "young badger", "boar badger", "sow badger");
-								AddExtraAdultDescription();
-								break;
-						case "Wolverine":
-								DoLazyDescriptions("wolverine kit", "young wolverine", "boar wolverine", "sow wolverine");
-								AddExtraAdultDescription();
-								break;
-						case "Goat":
-								DoLazyDescriptionsWithMultipleJuvenile("kid goat", "buckling goat",
-										"doeling goat", "billy goat", "nanny goat");
-								AddExtraAdultDescription();
-								break;
-						case "Llama":
-								DoLazyDescriptions("llama cria", "young llama", "llama macho", "llama hembra");
-								AddExtraAdultDescription();
-								break;
-						case "Alpaca":
-								DoLazyDescriptions("alpaca cria", "young alpaca", "alpaca macho", "alpaca hembra");
-								AddExtraAdultDescription();
-								break;
+			case "Boar":
+				DoLazyDescriptionsWithMultipleJuvenile("boar piglet", "young wild boar", "young wild sow",
+						"wild boar", "wild sow");
+				AddExtraAdultDescription();
+				break;
+			case "Warthog":
+				DoLazyDescriptionsWithMultipleJuvenile("warthog piglet", "young warthog boar", "young warthog sow",
+						"warthog boar", "warthog sow");
+				AddExtraAdultDescription();
+				break;
+			case "Cow":
+				DoLazyDescriptionsWithMultipleJuvenile("calf", "young bull", "heifer", "bull", "cow");
+				AddExtraAdultDescription();
+				break;
+			case "Ox":
+				DoLazyDescriptionsWithMultipleJuvenile("ox calf", "young ox bull", "ox heifer", "ox bull",
+						"ox cow");
+				AddExtraAdultDescription();
+				break;
+			case "Buffalo":
+				DoLazyDescriptionsWithMultipleJuvenile("buffalo calf", "young buffalo bull", "buffalo heifer",
+						"buffalo bull", "buffalo cow");
+				AddExtraAdultDescription();
+				break;
+			case "Bison":
+				DoLazyDescriptionsWithMultipleJuvenile("bison calf", "young bison bull", "bison heifer",
+						"bison bull", "bison cow");
+				AddExtraAdultDescription();
+				break;
+			case "Hippopotamus":
+				DoLazyDescriptionsWithMultipleJuvenile("hippo calf", "young hippo bull", "young hippo cow",
+						"hippo bull", "hippo cow");
+				AddExtraAdultDescription();
+				break;
+			case "Horse":
+				DoLazyDescriptionsWithMultipleJuvenile("foal", "colt", "filly", "stallion", "mare");
+				AddExtraAdultDescription();
+				break;
+			case "Bear":
+				DoLazyDescriptions("&ethnicity cub", "young &ethnicity", "male &ethnicity", "female &ethnicity");
+				AddExtraAdultDescription();
+				break;
+			case "Rhinocerous":
+				DoLazyDescriptions("rhino calf", "young rhino", "rhino bull", "rhino cow");
+				AddExtraAdultDescription();
+				break;
+			case "Giraffe":
+				DoLazyDescriptions("giraffe calf", "young giraffe", "male giraffe", "female giraffe");
+				AddExtraAdultDescription();
+				break;
+			case "Elephant":
+				DoLazyDescriptionsWithMultipleJuvenile("elephant calf", "juvenile bull elephant",
+						"juvenile elephant", "bull elephant", "elephant");
+				AddExtraAdultDescription();
+				break;
+			case "Fox":
+				DoLazyDescriptionsWithMultipleJuvenile("fox kit", "juvenile male fox", "juvenile fox vixen",
+						"male fox", "fox vixen");
+				AddExtraAdultDescription();
+				break;
+			case "Rat":
+				DoLazyDescriptions("rat pup", "young rat", "buck rat", "doe rat");
+				AddExtraAdultDescription();
+				break;
+			case "Mouse":
+				DoLazyDescriptions("mouse pup", "mouse rat", "buck mouse", "doe mouse");
+				AddExtraAdultDescription();
+				break;
+			case "Hamster":
+				DoLazyDescriptions("hamster pup", "young hamster", "buck hamster", "doe hamster");
+				AddExtraAdultDescription();
+				break;
+			case "Ferret":
+				DoLazyDescriptions("ferret kit", "young ferret", "jack ferret", "jill ferret");
+				AddExtraAdultDescription();
+				break;
+			case "Weasel":
+				DoLazyDescriptions("weasel kit", "young weasel", "jack weasel", "jill weasel");
+				AddExtraAdultDescription();
+				break;
+			case "Guinea Pig":
+				DoLazyDescriptions("guinea pig pup", "young guinea pig", "guinea pig boar", "guinea pig sow");
+				AddExtraAdultDescription();
+				break;
+			case "Badger":
+				DoLazyDescriptions("badger kit", "young badger", "boar badger", "sow badger");
+				AddExtraAdultDescription();
+				break;
+			case "Wolverine":
+				DoLazyDescriptions("wolverine kit", "young wolverine", "boar wolverine", "sow wolverine");
+				AddExtraAdultDescription();
+				break;
+			case "Goat":
+				DoLazyDescriptionsWithMultipleJuvenile("kid goat", "buckling goat",
+						"doeling goat", "billy goat", "nanny goat");
+				AddExtraAdultDescription();
+				break;
+			case "Llama":
+				DoLazyDescriptions("llama cria", "young llama", "llama macho", "llama hembra");
+				AddExtraAdultDescription();
+				break;
+			case "Alpaca":
+				DoLazyDescriptions("alpaca cria", "young alpaca", "alpaca macho", "alpaca hembra");
+				AddExtraAdultDescription();
+				break;
 			case "Pigeon":
 			case "Swallow":
 			case "Sparrow":
@@ -3031,54 +3033,54 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			case "Woodpecker":
 			case "Kingfisher":
 			case "Stork":
-						case "Penguin":
-								DoLazyDescriptions($"{race.Name.ToLowerInvariant()} chick",
-										$" fledgling {race.Name.ToLowerInvariant()}", $"male {race.Name.ToLowerInvariant()}",
-										$"female {race.Name.ToLowerInvariant()}");
-								AddExtraAdultDescription();
-								break;
+			case "Penguin":
+				DoLazyDescriptions($"{race.Name.ToLowerInvariant()} chick",
+						$" fledgling {race.Name.ToLowerInvariant()}", $"male {race.Name.ToLowerInvariant()}",
+						$"female {race.Name.ToLowerInvariant()}");
+				AddExtraAdultDescription();
+				break;
 
-						case "Duck":
-								DoLazyDescriptionsWithMultipleJuvenile("duckling", "fledgling drake", "fledgling duck", "drake",
-										"duck");
-								AddExtraAdultDescription();
-								break;
-						case "Goose":
-								DoLazyDescriptionsWithMultipleJuvenile("gosling", "fledgling gander", "fledgling goose", "gander",
-										"goose");
-								AddExtraAdultDescription();
-								break;
-						case "Swan":
-								DoLazyDescriptionsWithMultipleJuvenile("cygnet", "fledgling swan cob", "fledgling swan pen",
-										"swan cob", "swan pen");
-								AddExtraAdultDescription();
-								break;
-						case "Chicken":
-								DoLazyDescriptionsWithMultipleJuvenile("chicklet", "fledgling rooster", "fledgling hen", "rooster",
-										"hen");
-								AddExtraAdultDescription();
-								break;
-						case "Turkey":
-								DoLazyDescriptionsWithMultipleJuvenile("poult", "fledgling turkey gobbler", "fledgling turkey hen",
-										"turkey gobbler", "turkey hen");
-								AddExtraAdultDescription();
-								break;
-						case "Hawk":
-								DoLazyDescriptions("hawk chick", "fledgling hawk", "male hawk", "female hawk");
-								AddExtraAdultDescription();
-								break;
-						case "Eagle":
-								DoLazyDescriptions("eaglet", "fledgling eagle", "male eagle", "female eagle");
-								AddExtraAdultDescription();
-								break;
-						case "Falcon":
-								DoLazyDescriptions("falcon chick", "fledgling falcon", "male falcon", "female falcon");
-								AddExtraAdultDescription();
-								break;
-						case "Owl":
-								DoLazyDescriptions("owlet", "fledgling owl", "male owl", "female owl");
-								AddExtraAdultDescription();
-								break;
+			case "Duck":
+				DoLazyDescriptionsWithMultipleJuvenile("duckling", "fledgling drake", "fledgling duck", "drake",
+						"duck");
+				AddExtraAdultDescription();
+				break;
+			case "Goose":
+				DoLazyDescriptionsWithMultipleJuvenile("gosling", "fledgling gander", "fledgling goose", "gander",
+						"goose");
+				AddExtraAdultDescription();
+				break;
+			case "Swan":
+				DoLazyDescriptionsWithMultipleJuvenile("cygnet", "fledgling swan cob", "fledgling swan pen",
+						"swan cob", "swan pen");
+				AddExtraAdultDescription();
+				break;
+			case "Chicken":
+				DoLazyDescriptionsWithMultipleJuvenile("chicklet", "fledgling rooster", "fledgling hen", "rooster",
+						"hen");
+				AddExtraAdultDescription();
+				break;
+			case "Turkey":
+				DoLazyDescriptionsWithMultipleJuvenile("poult", "fledgling turkey gobbler", "fledgling turkey hen",
+						"turkey gobbler", "turkey hen");
+				AddExtraAdultDescription();
+				break;
+			case "Hawk":
+				DoLazyDescriptions("hawk chick", "fledgling hawk", "male hawk", "female hawk");
+				AddExtraAdultDescription();
+				break;
+			case "Eagle":
+				DoLazyDescriptions("eaglet", "fledgling eagle", "male eagle", "female eagle");
+				AddExtraAdultDescription();
+				break;
+			case "Falcon":
+				DoLazyDescriptions("falcon chick", "fledgling falcon", "male falcon", "female falcon");
+				AddExtraAdultDescription();
+				break;
+			case "Owl":
+				DoLazyDescriptions("owlet", "fledgling owl", "male owl", "female owl");
+				AddExtraAdultDescription();
+				break;
 			default:
 				DoLazyDescriptions($"baby {race.Name.ToLowerInvariant()}",
 					$"juvenile {race.Name.ToLowerInvariant()}", race.Name.ToLowerInvariant(),
@@ -3745,7 +3747,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		var race = new Race
 		{
 			Name = name,
-						Description = string.IsNullOrWhiteSpace(description)
+			Description = string.IsNullOrWhiteSpace(description)
 								? $"{name}s are {adjective.ToLowerInvariant()} creatures"
 								: description,
 			BaseBody = body,
@@ -3804,7 +3806,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 
 		foreach (var attribute in _attributes)
 			_context.RacesAttributes.Add(new RacesAttributes
-				{ Race = race, Attribute = attribute, IsHealthAttribute = attribute.TraitGroup == "Physical" });
+			{ Race = race, Attribute = attribute, IsHealthAttribute = attribute.TraitGroup == "Physical" });
 
 		CreateEthnicitiesForRace(race);
 		CreateDescriptionsForRace(race);
@@ -3944,7 +3946,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		}
 	}
 
-	
+
 	private void SetupArmourTypes()
 	{
 		_naturalArmour = new ArmourType
@@ -4600,12 +4602,12 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		AddShape("Head");
 		AddShape("Front Flipper");
 		AddShape("Hind Flipper");
-				AddShape("Blowhole");
-				AddShape("Insect Thorax");
-				AddShape("Insect Abdomen");
-				AddShape("Antenna");
-				AddShape("Mandible");
-				AddShape("Compound Eye");
+		AddShape("Blowhole");
+		AddShape("Insect Thorax");
+		AddShape("Insect Abdomen");
+		AddShape("Antenna");
+		AddShape("Mandible");
+		AddShape("Compound Eye");
 
 		_context.SaveChanges();
 
@@ -4613,7 +4615,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 
 		foreach (var material in _context.Materials) _cachedMaterials[material.Name] = material;
 	}
-	
+
 	#region Different Body Types
 
 	private void SeedSerpents(BodyProto wormProto, BodyProto serpentProto)
@@ -4773,7 +4775,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			{
 				case "Torso":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["spinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["spinalcord"] });
 					break;
 			}
 		}
@@ -4918,8 +4920,8 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 
 		#region Tail
 
-				AddBodypart(fishProto, "peduncle", "peduncle", "Peduncle", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
-			Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
+		AddBodypart(fishProto, "peduncle", "peduncle", "Peduncle", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
+	Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
 		AddBodypart(fishProto, "caudalfin", "caudal fin", "fin", BodypartTypeEnum.Fin, "peduncle", Alignment.Rear,
 			Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Tail");
 
@@ -5034,13 +5036,13 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			{
 				case "Torso":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
 					break;
 				case "Tail":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
 					break;
 			}
 		}
@@ -5248,8 +5250,8 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		_context.SaveChanges();
 
 		foreach (var limb in limbs.Values)
-		foreach (var part in _cachedLimbs[limb.Name])
-			_context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+			foreach (var part in _cachedLimbs[limb.Name])
+				_context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
 
 		#endregion
 
@@ -5325,8 +5327,8 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		_context.SaveChanges();
 
 		foreach (var limb in limbs.Values)
-		foreach (var part in _cachedLimbs[limb.Name])
-			_context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
+			foreach (var part in _cachedLimbs[limb.Name])
+				_context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
 
 		#endregion
 
@@ -5904,19 +5906,19 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			{
 				case "Torso":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
 					break;
 				case "Genitals":
 				case "Right Foreleg":
 				case "Left Foreleg":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
 					break;
 				case "Leg Hindleg":
 				case "Right Hindleg":
 				case "Tail":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
 					break;
 			}
 		}
@@ -6186,13 +6188,13 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			{
 				case "Torso":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
 					break;
 				case "Tail":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
 					break;
 			}
 		}
@@ -7053,19 +7055,19 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 				case "Right Wing":
 				case "Left Wing":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
 					break;
 				case "Genitals":
 				case "Right Foreleg":
 				case "Left Foreleg":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
 					break;
 				case "Leg Hindleg":
 				case "Right Hindleg":
 				case "Tail":
 					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
+					{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
 					break;
 			}
 		}
@@ -7292,7 +7294,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		#endregion
 	}
 	#endregion
-	
+
 	private (BloodModel BloodModel, PopulationBloodModel PopulationBloodModel) SetupBloodModel(string race,
 		IEnumerable<string> antigens,
 		IEnumerable<(string Name, IEnumerable<string> Antigens, double weight)> types)
@@ -7559,7 +7561,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			});
 
 		describer.BodypartGroupDescribersBodyProtos.Add(new BodypartGroupDescribersBodyProtos
-			{ BodypartGroupDescriber = describer, BodyProto = body });
+		{ BodypartGroupDescriber = describer, BodyProto = body });
 	}
 
 	private void AddBodypartGroupDescriberDirect(BodyProto body, string describedAs, string comment,
@@ -7581,16 +7583,16 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			});
 
 		describer.BodypartGroupDescribersBodyProtos.Add(new BodypartGroupDescribersBodyProtos
-			{ BodypartGroupDescriber = describer, BodyProto = body });
+		{ BodypartGroupDescriber = describer, BodyProto = body });
 	}
 
 	#endregion
 
 	#region Speeds and Positions
-		private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
-				BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
-				BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody, BodyProto insectBody,
-				BodyProto wingedInsectBody)
+	private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
+			BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
+			BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody, BodyProto insectBody,
+			BodyProto wingedInsectBody)
 	{
 		Console.WriteLine($"[{_stopwatch.Elapsed.TotalSeconds:N1}s] Setting up Speeds");
 		var nextId = _context.MoveSpeeds.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
@@ -7599,473 +7601,1033 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 1, Alias = "stalk", FirstPersonVerb = "stalk",
-			ThirdPersonVerb = "stalks", PresentParticiple = "stalking", Multiplier = 2, StaminaMultiplier = 0.4
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 1,
+			Alias = "stalk",
+			FirstPersonVerb = "stalk",
+			ThirdPersonVerb = "stalks",
+			PresentParticiple = "stalking",
+			Multiplier = 2,
+			StaminaMultiplier = 0.4
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-			ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 1,
+			StaminaMultiplier = 0.8
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 1, Alias = "amble", FirstPersonVerb = "amble",
-			ThirdPersonVerb = "ambles", PresentParticiple = "ambling", Multiplier = 0.8, StaminaMultiplier = 1.2
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 1,
+			Alias = "amble",
+			FirstPersonVerb = "amble",
+			ThirdPersonVerb = "ambles",
+			PresentParticiple = "ambling",
+			Multiplier = 0.8,
+			StaminaMultiplier = 1.2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 1, Alias = "pace", FirstPersonVerb = "pace",
-			ThirdPersonVerb = "paces", PresentParticiple = "pacing", Multiplier = 0.6, StaminaMultiplier = 1.9
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 1,
+			Alias = "pace",
+			FirstPersonVerb = "pace",
+			ThirdPersonVerb = "paces",
+			PresentParticiple = "pacing",
+			Multiplier = 0.6,
+			StaminaMultiplier = 1.9
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 1, Alias = "trot", FirstPersonVerb = "trot",
-			ThirdPersonVerb = "trots", PresentParticiple = "troting", Multiplier = 0.4, StaminaMultiplier = 2.4
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 1,
+			Alias = "trot",
+			FirstPersonVerb = "trot",
+			ThirdPersonVerb = "trots",
+			PresentParticiple = "troting",
+			Multiplier = 0.4,
+			StaminaMultiplier = 2.4
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 1, Alias = "gallop", FirstPersonVerb = "gallop",
-			ThirdPersonVerb = "gallops", PresentParticiple = "galloping", Multiplier = 0.2, StaminaMultiplier = 4.0
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 1,
+			Alias = "gallop",
+			FirstPersonVerb = "gallop",
+			ThirdPersonVerb = "gallops",
+			PresentParticiple = "galloping",
+			Multiplier = 0.2,
+			StaminaMultiplier = 4.0
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-			ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 5, StaminaMultiplier = 1.25
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 5,
+			StaminaMultiplier = 1.25
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 7, Alias = "shuffle",
-			FirstPersonVerb = "shuffle", ThirdPersonVerb = "shuffles", PresentParticiple = "shuffling",
-			Multiplier = 7, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 2, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = quadrupedBody, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 1, Alias = "hop", FirstPersonVerb = "hop",
-			ThirdPersonVerb = "hops", PresentParticiple = "hopping", Multiplier = 1, StaminaMultiplier = 0.8
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-			ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 5, StaminaMultiplier = 1.25
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 7, Alias = "shuffle", FirstPersonVerb = "shuffle",
-			ThirdPersonVerb = "shuffles", PresentParticiple = "shuffling", Multiplier = 7, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 2, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 18, Alias = "slowfly",
-			FirstPersonVerb = "slowly fly", ThirdPersonVerb = "slowly flies", PresentParticiple = "slowly flying",
-			Multiplier = 2.7, StaminaMultiplier = 8
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = avianBody, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = fishProto, PositionId = 6, Alias = "flop", FirstPersonVerb = "flop",
-			ThirdPersonVerb = "flops", PresentParticiple = "flopping", Multiplier = 6, StaminaMultiplier = 3.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = fishProto, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = fishProto, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 2, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = fishProto, PositionId = 16, Alias = "quickswim",
-			FirstPersonVerb = "swim quickly",
-			ThirdPersonVerb = "swims quickly", PresentParticiple = "swimming quickly", Multiplier = 1.0,
-			StaminaMultiplier = 2
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = jellyfishProto, PositionId = 16, Alias = "float", FirstPersonVerb = "float",
-			ThirdPersonVerb = "floats", PresentParticiple = "floating", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 6, Alias = "slither", FirstPersonVerb = "slither",
-			ThirdPersonVerb = "slithers", PresentParticiple = "slithering", Multiplier = 1.5, StaminaMultiplier = 1.25
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 6, Alias = "slowslither",
-			FirstPersonVerb = "slither slowly",
-			ThirdPersonVerb = "slithers slowly", PresentParticiple = "slowly slithering", Multiplier = 2.5,
-			StaminaMultiplier = 0.75
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 6, Alias = "quickslither",
-			FirstPersonVerb = "slither quickly",
-			ThirdPersonVerb = "slithers quickly", PresentParticiple = "quickly slithering", Multiplier = 1.0,
-			StaminaMultiplier = 2.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 2, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = serpentBody, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 6, Alias = "slither", FirstPersonVerb = "slither",
-			ThirdPersonVerb = "slithers", PresentParticiple = "slithering", Multiplier = 1.5, StaminaMultiplier = 1.25
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 6, Alias = "slowslither",
-			FirstPersonVerb = "slither slowly",
-			ThirdPersonVerb = "slithers slowly", PresentParticiple = "slowly slithering", Multiplier = 2.5,
-			StaminaMultiplier = 0.75
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 6, Alias = "quickslither",
-			FirstPersonVerb = "slither quickly",
-			ThirdPersonVerb = "slithers quickly", PresentParticiple = "quickly slithering", Multiplier = 1.0,
-			StaminaMultiplier = 2.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 2, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
-		});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "franticfly",
-						FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-						PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-				});
-
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-						ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-						ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = insectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-						ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = insectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-						ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = insectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-						ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
-				});
-
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-						ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-						ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-						ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-						ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
-				});
-				_context.MoveSpeeds.Add(new MoveSpeed
-				{
-						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-						ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
-				});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-			ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 3, StaminaMultiplier = 3.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-			ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 1.75, StaminaMultiplier = 5.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-			ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 5, StaminaMultiplier = 3.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 7, Alias = "shuffle",
-			FirstPersonVerb = "shuffle", ThirdPersonVerb = "shuffles", PresentParticiple = "shuffling",
-			Multiplier = 7, StaminaMultiplier = 5.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 16, Alias = "slowswim",
-			FirstPersonVerb = "swim slowly",
-			ThirdPersonVerb = "swims slowly", PresentParticiple = "slowly swimming", Multiplier = 2,
-			StaminaMultiplier = 1.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 16, Alias = "quickswim",
-			FirstPersonVerb = "swim quickly",
-			ThirdPersonVerb = "swims quickly", PresentParticiple = "swimming quickly", Multiplier = 1.0,
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 7,
+			Alias = "shuffle",
+			FirstPersonVerb = "shuffle",
+			ThirdPersonVerb = "shuffles",
+			PresentParticiple = "shuffling",
+			Multiplier = 7,
 			StaminaMultiplier = 2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = pinnipedProto, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-			ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1.5, StaminaMultiplier = 1.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 1, Alias = "skitter", FirstPersonVerb = "skitter",
-			ThirdPersonVerb = "skitters", PresentParticiple = "skittering", Multiplier = 1.0, StaminaMultiplier = 2.25
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-			ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 5, StaminaMultiplier = 3.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim slowly",
-			ThirdPersonVerb = "swims slowly", PresentParticiple = "slowly swimming", Multiplier = 2,
-			StaminaMultiplier = 1.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 16, Alias = "quickswim",
-			FirstPersonVerb = "swim quickly",
-			ThirdPersonVerb = "swims quickly", PresentParticiple = "swimming quickly", Multiplier = 1.0,
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
 			StaminaMultiplier = 2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = crabProto, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-			ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1.5, StaminaMultiplier = 1.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-			ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 1.0, StaminaMultiplier = 2.25
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-			ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 5, StaminaMultiplier = 3.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 1.5
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 16, Alias = "slowswim",
-			FirstPersonVerb = "swim slowly",
-			ThirdPersonVerb = "swims slowly", PresentParticiple = "slowly swimming", Multiplier = 2,
-			StaminaMultiplier = 1.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 16, Alias = "quickswim",
-			FirstPersonVerb = "swim quickly",
-			ThirdPersonVerb = "swims quickly", PresentParticiple = "swimming quickly", Multiplier = 1.0,
-			StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = octopusProto, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
-
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = cetaceanProto, PositionId = 6, Alias = "flop", FirstPersonVerb = "flop",
-			ThirdPersonVerb = "flops", PresentParticiple = "flopping", Multiplier = 6, StaminaMultiplier = 3.0
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = cetaceanProto, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
-		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = cetaceanProto, PositionId = 16, Alias = "slowswim",
-			FirstPersonVerb = "swim slowly",
-			ThirdPersonVerb = "swims slowly", PresentParticiple = "swimming slowly", Multiplier = 2,
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 2,
 			StaminaMultiplier = 1.5
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = cetaceanProto, PositionId = 16, Alias = "quickswim",
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = quadrupedBody,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 1,
+			Alias = "hop",
+			FirstPersonVerb = "hop",
+			ThirdPersonVerb = "hops",
+			PresentParticiple = "hopping",
+			Multiplier = 1,
+			StaminaMultiplier = 0.8
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 5,
+			StaminaMultiplier = 1.25
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 7,
+			Alias = "shuffle",
+			FirstPersonVerb = "shuffle",
+			ThirdPersonVerb = "shuffles",
+			PresentParticiple = "shuffling",
+			Multiplier = 7,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 18,
+			Alias = "slowfly",
+			FirstPersonVerb = "slowly fly",
+			ThirdPersonVerb = "slowly flies",
+			PresentParticiple = "slowly flying",
+			Multiplier = 2.7,
+			StaminaMultiplier = 8
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = avianBody,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = fishProto,
+			PositionId = 6,
+			Alias = "flop",
+			FirstPersonVerb = "flop",
+			ThirdPersonVerb = "flops",
+			PresentParticiple = "flopping",
+			Multiplier = 6,
+			StaminaMultiplier = 3.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = fishProto,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = fishProto,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = fishProto,
+			PositionId = 16,
+			Alias = "quickswim",
 			FirstPersonVerb = "swim quickly",
-			ThirdPersonVerb = "swims quickly", PresentParticiple = "swimming quickly", Multiplier = 1.0,
+			ThirdPersonVerb = "swims quickly",
+			PresentParticiple = "swimming quickly",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = jellyfishProto,
+			PositionId = 16,
+			Alias = "float",
+			FirstPersonVerb = "float",
+			ThirdPersonVerb = "floats",
+			PresentParticiple = "floating",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 6,
+			Alias = "slither",
+			FirstPersonVerb = "slither",
+			ThirdPersonVerb = "slithers",
+			PresentParticiple = "slithering",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.25
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 6,
+			Alias = "slowslither",
+			FirstPersonVerb = "slither slowly",
+			ThirdPersonVerb = "slithers slowly",
+			PresentParticiple = "slowly slithering",
+			Multiplier = 2.5,
+			StaminaMultiplier = 0.75
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 6,
+			Alias = "quickslither",
+			FirstPersonVerb = "slither quickly",
+			ThirdPersonVerb = "slithers quickly",
+			PresentParticiple = "quickly slithering",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = serpentBody,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 6,
+			Alias = "slither",
+			FirstPersonVerb = "slither",
+			ThirdPersonVerb = "slithers",
+			PresentParticiple = "slithering",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.25
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 6,
+			Alias = "slowslither",
+			FirstPersonVerb = "slither slowly",
+			ThirdPersonVerb = "slithers slowly",
+			PresentParticiple = "slowly slithering",
+			Multiplier = 2.5,
+			StaminaMultiplier = 0.75
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 6,
+			Alias = "quickslither",
+			FirstPersonVerb = "slither quickly",
+			ThirdPersonVerb = "slithers quickly",
+			PresentParticiple = "quickly slithering",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wormBody,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = insectBody,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 1,
+			StaminaMultiplier = 0.8
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = insectBody,
+			PositionId = 1,
+			Alias = "run",
+			FirstPersonVerb = "run",
+			ThirdPersonVerb = "runs",
+			PresentParticiple = "running",
+			Multiplier = 0.5,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = insectBody,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = insectBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 2,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = insectBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.5,
+			StaminaMultiplier = 10
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wingedInsectBody,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 1,
+			StaminaMultiplier = 0.8
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wingedInsectBody,
+			PositionId = 1,
+			Alias = "run",
+			FirstPersonVerb = "run",
+			ThirdPersonVerb = "runs",
+			PresentParticiple = "running",
+			Multiplier = 0.5,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wingedInsectBody,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wingedInsectBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 2,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = wingedInsectBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.5,
+			StaminaMultiplier = 10
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 3,
+			StaminaMultiplier = 3.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 1,
+			Alias = "run",
+			FirstPersonVerb = "run",
+			ThirdPersonVerb = "runs",
+			PresentParticiple = "running",
+			Multiplier = 1.75,
+			StaminaMultiplier = 5.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 5,
+			StaminaMultiplier = 3.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 7,
+			Alias = "shuffle",
+			FirstPersonVerb = "shuffle",
+			ThirdPersonVerb = "shuffles",
+			PresentParticiple = "shuffling",
+			Multiplier = 7,
+			StaminaMultiplier = 5.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim slowly",
+			ThirdPersonVerb = "swims slowly",
+			PresentParticiple = "slowly swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 16,
+			Alias = "quickswim",
+			FirstPersonVerb = "swim quickly",
+			ThirdPersonVerb = "swims quickly",
+			PresentParticiple = "swimming quickly",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = pinnipedProto,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 1,
+			Alias = "skitter",
+			FirstPersonVerb = "skitter",
+			ThirdPersonVerb = "skitters",
+			PresentParticiple = "skittering",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2.25
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 5,
+			StaminaMultiplier = 3.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim slowly",
+			ThirdPersonVerb = "swims slowly",
+			PresentParticiple = "slowly swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 16,
+			Alias = "quickswim",
+			FirstPersonVerb = "swim quickly",
+			ThirdPersonVerb = "swims quickly",
+			PresentParticiple = "swimming quickly",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = crabProto,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 1,
+			Alias = "run",
+			FirstPersonVerb = "run",
+			ThirdPersonVerb = "runs",
+			PresentParticiple = "running",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2.25
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 5,
+			StaminaMultiplier = 3.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim slowly",
+			ThirdPersonVerb = "swims slowly",
+			PresentParticiple = "slowly swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 1.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 16,
+			Alias = "quickswim",
+			FirstPersonVerb = "swim quickly",
+			ThirdPersonVerb = "swims quickly",
+			PresentParticiple = "swimming quickly",
+			Multiplier = 1.0,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = octopusProto,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "franticly fly",
+			ThirdPersonVerb = "franticly flies",
+			PresentParticiple = "franticly flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
+
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = cetaceanProto,
+			PositionId = 6,
+			Alias = "flop",
+			FirstPersonVerb = "flop",
+			ThirdPersonVerb = "flops",
+			PresentParticiple = "flopping",
+			Multiplier = 6,
+			StaminaMultiplier = 3.0
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = cetaceanProto,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = cetaceanProto,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim slowly",
+			ThirdPersonVerb = "swims slowly",
+			PresentParticiple = "swimming slowly",
+			Multiplier = 2,
+			StaminaMultiplier = 1.5
+		});
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = cetaceanProto,
+			PositionId = 16,
+			Alias = "quickswim",
+			FirstPersonVerb = "swim quickly",
+			ThirdPersonVerb = "swims quickly",
+			PresentParticiple = "swimming quickly",
+			Multiplier = 1.0,
 			StaminaMultiplier = 2
 		});
 		_context.SaveChanges();
@@ -8073,55 +8635,55 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		#endregion
 	}
 
-		private void SetupPositions(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
-				BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
-				BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormProto, BodyProto insectBody,
-				BodyProto wingedInsectBody)
+	private void SetupPositions(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
+			BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
+			BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormProto, BodyProto insectBody,
+			BodyProto wingedInsectBody)
 	{
 		Console.WriteLine($"[{_stopwatch.Elapsed.TotalSeconds:N1}s] Setting up Positions");
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 1 }); // Standing
+		{ BodyProto = quadrupedBody, Position = 1 }); // Standing
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 2 }); // Sitting
+		{ BodyProto = quadrupedBody, Position = 2 }); // Sitting
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 3 }); // Kneeling
+		{ BodyProto = quadrupedBody, Position = 3 }); // Kneeling
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 4 }); // Lounging
+		{ BodyProto = quadrupedBody, Position = 4 }); // Lounging
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 5 }); // Lying Down
+		{ BodyProto = quadrupedBody, Position = 5 }); // Lying Down
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 8 }); // Sprawled
+		{ BodyProto = quadrupedBody, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = quadrupedBody, Position = 6 }); // Prone
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 7 }); // Prostrate
+		{ BodyProto = quadrupedBody, Position = 7 }); // Prostrate
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 11 }); // Leaning
+		{ BodyProto = quadrupedBody, Position = 11 }); // Leaning
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 18 }); // Flying
+		{ BodyProto = quadrupedBody, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 16 }); // Swimming
+		{ BodyProto = quadrupedBody, Position = 16 }); // Swimming
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = quadrupedBody, Position = 15 }); // Climbing
+		{ BodyProto = quadrupedBody, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 1 }); // Standing
+		{ BodyProto = pinnipedProto, Position = 1 }); // Standing
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 2 }); // Sitting
+		{ BodyProto = pinnipedProto, Position = 2 }); // Sitting
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 4 }); // Lounging
+		{ BodyProto = pinnipedProto, Position = 4 }); // Lounging
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 5 }); // Lying Down
+		{ BodyProto = pinnipedProto, Position = 5 }); // Lying Down
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 8 }); // Sprawled
+		{ BodyProto = pinnipedProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = pinnipedProto, Position = 6 }); // Prone
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 11 }); // Leaning
+		{ BodyProto = pinnipedProto, Position = 11 }); // Leaning
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 18 }); // Flying
+		{ BodyProto = pinnipedProto, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 16 }); // Swimming
+		{ BodyProto = pinnipedProto, Position = 16 }); // Swimming
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = pinnipedProto, Position = 15 }); // Climbing
+		{ BodyProto = pinnipedProto, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = crabProto, Position = 1 }); // Standing
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = crabProto, Position = 2 }); // Sitting
@@ -8135,17 +8697,17 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = crabProto, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = octopusProto, Position = 1 }); // Standing
+		{ BodyProto = octopusProto, Position = 1 }); // Standing
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = octopusProto, Position = 5 }); // Lying Down
+		{ BodyProto = octopusProto, Position = 5 }); // Lying Down
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = octopusProto, Position = 8 }); // Sprawled
+		{ BodyProto = octopusProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = octopusProto, Position = 6 }); // Prone
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = octopusProto, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = octopusProto, Position = 16 }); // Swimming
+		{ BodyProto = octopusProto, Position = 16 }); // Swimming
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = octopusProto, Position = 15 }); // Climbing
+		{ BodyProto = octopusProto, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = avianBody, Position = 1 }); // Standing
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = avianBody, Position = 2 }); // Sitting
@@ -8160,27 +8722,27 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = serpentBody, Position = 6 }); // Prone
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = serpentBody, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = serpentBody, Position = 16 }); // Swimming
+		{ BodyProto = serpentBody, Position = 16 }); // Swimming
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = serpentBody, Position = 15 }); // Climbing
+		{ BodyProto = serpentBody, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 6 }); // Prone
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 18 }); // Flying
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 16 }); // Swimming
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 15 }); // Climbing
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 18 }); // Flying
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 16 }); // Swimming
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 15 }); // Climbing
 
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 1 }); // Standing
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 8 }); // Sprawled
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 6 }); // Prone
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 18 }); // Flying
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 15 }); // Climbing
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 1 }); // Standing
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 8 }); // Sprawled
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 6 }); // Prone
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 18 }); // Flying
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 15 }); // Climbing
 
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 1 }); // Standing
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 8 }); // Sprawled
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 6 }); // Prone
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 18 }); // Flying
-				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 15 }); // Climbing
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 1 }); // Standing
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 8 }); // Sprawled
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 6 }); // Prone
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 18 }); // Flying
+		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 6 }); // Prone
@@ -8189,21 +8751,21 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = cetaceanProto, Position = 8 }); // Sprawled
+		{ BodyProto = cetaceanProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = cetaceanProto, Position = 6 }); // Prone
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = cetaceanProto, Position = 18 }); // Flying
+		{ BodyProto = cetaceanProto, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = cetaceanProto, Position = 16 }); // Swimming
+		{ BodyProto = cetaceanProto, Position = 16 }); // Swimming
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = cetaceanProto, Position = 15 }); // Climbing
+		{ BodyProto = cetaceanProto, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = jellyfishProto, Position = 8 }); // Sprawled
+		{ BodyProto = jellyfishProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = jellyfishProto, Position = 18 }); // Flying
+		{ BodyProto = jellyfishProto, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
-			{ BodyProto = jellyfishProto, Position = 16 }); // Swimming
+		{ BodyProto = jellyfishProto, Position = 16 }); // Swimming
 		_context.SaveChanges();
 	}
 	#endregion

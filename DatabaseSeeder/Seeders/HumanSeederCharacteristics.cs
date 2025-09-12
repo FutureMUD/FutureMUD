@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Framework;
 using MudSharp.Models;
+using MudSharp.RPG.Checks;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -1031,12 +1032,38 @@ return @bmi > 24 and @bmi < 35"
 
 		#region Values
 
-		var nextId = _context.CharacteristicValues.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
-		_context.CharacteristicValues.Add(new CharacteristicValue
+		void AddStyleableCharacteristic(long id, CharacteristicDefinition definition, string name, string value, string additionalValue, int growthStage, Difficulty styleDifficulty, long styleToolTag, bool isDefault = false, int pluralisation = 0)
 		{
-			Id = nextId++, Definition = eyeShapeDef, Name = "round", Value = "", AdditionalValue = "", Default = false,
-			Pluralisation = 0
-		});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = id,
+				Definition = definition,
+				Name = name,
+				Value = value,
+				AdditionalValue = $"{growthStage} {(int)styleDifficulty} {styleToolTag} {additionalValue}",
+				Default = isDefault,
+				Pluralisation = pluralisation
+			});
+		}
+
+		void AddCharacteristicValue(long id, CharacteristicDefinition definition, string name, string value, string additionalValue, FutureProg prog = null, bool isDefault = false, int pluralisation = 0)
+		{
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = id,
+				Definition = definition,
+				Name = name,
+				Value = value,
+				AdditionalValue = additionalValue,
+				Default = isDefault,
+				Pluralisation = pluralisation,
+				FutureProg = prog
+			});
+		}
+
+		var nextId = _context.CharacteristicValues.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
+
+		AddCharacteristicValue(nextId++, eyeShapeDef, "round", "", "");
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = eyeShapeDef, Name = "almond", Value = "", AdditionalValue = "", Default = false,
@@ -1218,11 +1245,8 @@ return @bmi > 24 and @bmi < 35"
 			Pluralisation = 0
 		});
 		_context.SaveChanges();
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = facialHairStyleDef, Name = "clean shave", Value = "clean-shaven",
-			AdditionalValue = "0 0 6 a clean chin with no hair at all", Default = true, Pluralisation = 0
-		});
+
+		AddStyleableCharacteristic(nextId++, facialHairStyleDef, "clean shave", "clean-shaven", "a clean chin with no hair at all", 0, Difficulty.Automatic, 0, true, 0);
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = facialHairStyleDef, Name = "handlebar moustache",
@@ -2178,11 +2202,8 @@ return @bmi > 24 and @bmi < 35"
 			Default = false, Pluralisation = 0
 		});
 		_context.SaveChanges();
-		_context.CharacteristicValues.Add(new CharacteristicValue
-		{
-			Id = nextId++, Definition = hairStyleDef, Name = "afro", Value = "afro-haired",
-			AdditionalValue = "4 3 0 a frizzy halo of hair", Default = false, Pluralisation = 0
-		});
+
+		AddStyleableCharacteristic(nextId++, hairStyleDef, "afro", "afro-haired", "a frizzy halo of natural hair", 4, Difficulty.VeryEasy, 0, false, 0);
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = hairStyleDef, Name = "beehive", Value = "beehive-haired",

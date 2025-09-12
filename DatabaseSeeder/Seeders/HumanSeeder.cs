@@ -214,11 +214,11 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 			.Where(x => x.Type == 1)
 			.AsEnumerable()
 			.First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
-                _context.StaticConfigurations.Find("DefaultDragWeightExpression").Definition =
-                        $"str:{strengthTrait.Id} * 2500000";
-                _context.StaticConfigurations.Find("DefaultLiftWeightExpression").Definition =
-                        $"str:{strengthTrait.Id} * 1000000";
-                _context.SaveChanges();
+		_context.StaticConfigurations.Find("DefaultDragWeightExpression").Definition =
+				$"str:{strengthTrait.Id} * 2500000";
+		_context.StaticConfigurations.Find("DefaultLiftWeightExpression").Definition =
+				$"str:{strengthTrait.Id} * 1000000";
+		_context.SaveChanges();
 
 		var hpStrategy = new HealthStrategy
 		{
@@ -433,12 +433,14 @@ end if"
 
 		_context.VariableDefinitions.Add(new VariableDefinition
 		{
-			OwnerType = (long)ProgVariableTypes.Race, ContainedType = (long)ProgVariableTypes.Boolean,
+			OwnerType = (long)ProgVariableTypes.Race,
+			ContainedType = (long)ProgVariableTypes.Boolean,
 			Property = "useactiveneeds"
 		});
 		_context.VariableDefaults.Add(new VariableDefault
 		{
-			OwnerType = (long)ProgVariableTypes.Race, Property = "useactiveneeds",
+			OwnerType = (long)ProgVariableTypes.Race,
+			Property = "useactiveneeds",
 			DefaultValue = "<var>False</var>"
 		});
 
@@ -448,7 +450,7 @@ end if"
 		_context.StaticConfigurations.Find("TotalBloodVolumeProg").Definition = bloodVolumeProg.Id.ToString();
 		_context.StaticConfigurations.Find("LiverFunctionProg").Definition = liverFunctionProg.Id.ToString();
 		_context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "ChargenNeedsModelProg", Definition = chargenNeedsProg.Id.ToString() });
+		{ SettingName = "ChargenNeedsModelProg", Definition = chargenNeedsProg.Id.ToString() });
 
 
 		var wearSize = new WearableSizeParameterRule
@@ -847,77 +849,172 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		var nextId = _context.MoveSpeeds.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 1, Alias = "stroll", FirstPersonVerb = "stroll",
-			ThirdPersonVerb = "strolls", PresentParticiple = "strolling", Multiplier = 2, StaminaMultiplier = 0.4
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 1,
+			Alias = "stroll",
+			FirstPersonVerb = "stroll",
+			ThirdPersonVerb = "strolls",
+			PresentParticiple = "strolling",
+			Multiplier = 2,
+			StaminaMultiplier = 0.4
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-			ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 1,
+			Alias = "walk",
+			FirstPersonVerb = "walk",
+			ThirdPersonVerb = "walks",
+			PresentParticiple = "walking",
+			Multiplier = 1,
+			StaminaMultiplier = 0.8
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 1, Alias = "jog", FirstPersonVerb = "jog",
-			ThirdPersonVerb = "jogs", PresentParticiple = "jogging", Multiplier = 0.75, StaminaMultiplier = 1.2
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 1,
+			Alias = "jog",
+			FirstPersonVerb = "jog",
+			ThirdPersonVerb = "jogs",
+			PresentParticiple = "jogging",
+			Multiplier = 0.75,
+			StaminaMultiplier = 1.2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-			ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.9
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 1,
+			Alias = "run",
+			FirstPersonVerb = "run",
+			ThirdPersonVerb = "runs",
+			PresentParticiple = "running",
+			Multiplier = 0.5,
+			StaminaMultiplier = 1.9
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 1, Alias = "sprint", FirstPersonVerb = "sprint",
-			ThirdPersonVerb = "sprints", PresentParticiple = "sprinting", Multiplier = 0.33, StaminaMultiplier = 2.4
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 1,
+			Alias = "sprint",
+			FirstPersonVerb = "sprint",
+			ThirdPersonVerb = "sprints",
+			PresentParticiple = "sprinting",
+			Multiplier = 0.33,
+			StaminaMultiplier = 2.4
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 6, Alias = "slowcrawl",
-			FirstPersonVerb = "crawl slowly", ThirdPersonVerb = "crawls slowly", PresentParticiple = "crawling slowly",
-			Multiplier = 7, StaminaMultiplier = 0.6
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 6,
+			Alias = "slowcrawl",
+			FirstPersonVerb = "crawl slowly",
+			ThirdPersonVerb = "crawls slowly",
+			PresentParticiple = "crawling slowly",
+			Multiplier = 7,
+			StaminaMultiplier = 0.6
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-			ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 5, StaminaMultiplier = 1.25
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 6,
+			Alias = "crawl",
+			FirstPersonVerb = "crawl",
+			ThirdPersonVerb = "crawls",
+			PresentParticiple = "crawling",
+			Multiplier = 5,
+			StaminaMultiplier = 1.25
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 6, Alias = "fastcrawl",
-			FirstPersonVerb = "crawl quickly", ThirdPersonVerb = "crawls quickly",
-			PresentParticiple = "crawling quickly", Multiplier = 3, StaminaMultiplier = 2
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 6,
+			Alias = "fastcrawl",
+			FirstPersonVerb = "crawl quickly",
+			ThirdPersonVerb = "crawls quickly",
+			PresentParticiple = "crawling quickly",
+			Multiplier = 3,
+			StaminaMultiplier = 2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 7, Alias = "shuffle", FirstPersonVerb = "shuffle",
-			ThirdPersonVerb = "shuffles", PresentParticiple = "shuffling", Multiplier = 7, StaminaMultiplier = 2
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 7,
+			Alias = "shuffle",
+			FirstPersonVerb = "shuffle",
+			ThirdPersonVerb = "shuffles",
+			PresentParticiple = "shuffling",
+			Multiplier = 7,
+			StaminaMultiplier = 2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-			ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 3, StaminaMultiplier = 3
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 15,
+			Alias = "climb",
+			FirstPersonVerb = "climb",
+			ThirdPersonVerb = "climbs",
+			PresentParticiple = "climbing",
+			Multiplier = 3,
+			StaminaMultiplier = 3
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 16, Alias = "swim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 1.5, StaminaMultiplier = 2
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 16,
+			Alias = "swim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 1.5,
+			StaminaMultiplier = 2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 16, Alias = "slowswim", FirstPersonVerb = "swim",
-			ThirdPersonVerb = "swims", PresentParticiple = "swimming", Multiplier = 2, StaminaMultiplier = 2
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 16,
+			Alias = "slowswim",
+			FirstPersonVerb = "swim",
+			ThirdPersonVerb = "swims",
+			PresentParticiple = "swimming",
+			Multiplier = 2,
+			StaminaMultiplier = 2
 		});
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 18,
+			Alias = "fly",
+			FirstPersonVerb = "fly",
+			ThirdPersonVerb = "flies",
+			PresentParticiple = "flying",
+			Multiplier = 1.8,
+			StaminaMultiplier = 15
 		});
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = humanoidBody, PositionId = 18, Alias = "franticfly",
-                        FirstPersonVerb = "frantically fly", ThirdPersonVerb = "frantically flies",
-                        PresentParticiple = "frantically flying", Multiplier = 1.4, StaminaMultiplier = 25
-                });
+		_context.MoveSpeeds.Add(new MoveSpeed
+		{
+			Id = nextId++,
+			BodyProto = humanoidBody,
+			PositionId = 18,
+			Alias = "franticfly",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
+			Multiplier = 1.4,
+			StaminaMultiplier = 25
+		});
 		_context.SaveChanges();
 	}
 
@@ -1249,73 +1346,73 @@ return 0"
 		nextId = _context.Bloodtypes.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 		var bloodType = new Bloodtype { Id = nextId++, Name = "O+" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "O-" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "A+" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "A-" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "B+" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "B-" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "AB+" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 
 		bloodType = new Bloodtype { Id = nextId++, Name = "AB-" };
 		bloodModel.BloodModelsBloodtypes.Add(new BloodModelsBloodtypes
-			{ BloodModel = bloodModel, Bloodtype = bloodType });
+		{ BloodModel = bloodModel, Bloodtype = bloodType });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = bAntigen });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = aAntigen });
 		bloodType.BloodtypesBloodtypeAntigens.Add(new BloodtypesBloodtypeAntigens
-			{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
+		{ Bloodtype = bloodType, BloodtypeAntigen = rhAntigen });
 		bloodTypes[bloodType.Name] = bloodType;
 		_context.Bloodtypes.Add(bloodType);
 		_context.SaveChanges();
@@ -1323,116 +1420,116 @@ return 0"
 		nextId = _context.PopulationBloodModels.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 		var popModel = new PopulationBloodModel { Id = nextId++, Name = "Overwhelmingly O" };
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 70 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 70 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 1.5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 1.5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 15 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 15 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 0.5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 0.5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 7 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 7 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.3 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.3 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 1 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 1 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.02 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.02 });
 		_context.PopulationBloodModels.Add(popModel);
 
 		popModel = new PopulationBloodModel { Id = nextId++, Name = "Majority O" };
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 60 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 60 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 3 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 3 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 15 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 15 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 1.3 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 1.3 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 12 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 12 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.7 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.7 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 2 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 2 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.2 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.2 });
 		_context.PopulationBloodModels.Add(popModel);
 
 		popModel = new PopulationBloodModel { Id = nextId++, Name = "Majority O Minor A" };
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 60 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 60 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 3 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 3 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 25 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 25 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 1.5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 1.5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.4 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.4 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 2 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 2 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.2 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.2 });
 		_context.PopulationBloodModels.Add(popModel);
 
 		popModel = new PopulationBloodModel { Id = nextId++, Name = "B Dominant" };
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 30 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 30 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 2.5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 2.5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 20 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 20 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 2.7 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 2.7 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 35 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 35 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 7 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 7 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 6 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 6 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.6 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.6 });
 		_context.PopulationBloodModels.Add(popModel);
 
 		popModel = new PopulationBloodModel { Id = nextId++, Name = "A Dominant" };
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 30 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 30 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 35 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 35 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 7 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 7 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 15 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 15 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 1.5 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 1.5 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 2 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 2 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.4 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.4 });
 		_context.PopulationBloodModels.Add(popModel);
 
 		popModel = new PopulationBloodModel { Id = nextId++, Name = "O-A High Negative" };
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 50 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O+"], Weight = 50 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 10 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["O-"], Weight = 10 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 25 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A+"], Weight = 25 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 7 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["A-"], Weight = 7 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 9 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B+"], Weight = 9 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.1 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["B-"], Weight = 0.1 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 1 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB+"], Weight = 1 });
 		popModel.PopulationBloodModelsBloodtypes.Add(new PopulationBloodModelsBloodtype
-			{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.2 });
+		{ PopulationBloodModel = popModel, Bloodtype = bloodTypes["AB-"], Weight = 0.2 });
 		_context.PopulationBloodModels.Add(popModel);
 
 		#endregion
@@ -1581,10 +1678,20 @@ return 0"
 
 		var air = new Gas
 		{
-			Id = 1, Name = "Breathable Atmosphere", Description = "Breathable Air", Density = 0.001205,
-			ThermalConductivity = 0.0257, ElectricalConductivity = 0.000005, Organic = false,
-			SpecificHeatCapacity = 1.005, BoilingPoint = -200, DisplayColour = "blue", Viscosity = 15,
-			SmellIntensity = 0, SmellText = "It has no smell", VagueSmellText = "It has no smell"
+			Id = 1,
+			Name = "Breathable Atmosphere",
+			Description = "Breathable Air",
+			Density = 0.001205,
+			ThermalConductivity = 0.0257,
+			ElectricalConductivity = 0.000005,
+			Organic = false,
+			SpecificHeatCapacity = 1.005,
+			BoilingPoint = -200,
+			DisplayColour = "blue",
+			Viscosity = 15,
+			SmellIntensity = 0,
+			SmellText = "It has no smell",
+			VagueSmellText = "It has no smell"
 		};
 		_context.Gases.Add(air);
 		_context.SaveChanges();
@@ -1785,11 +1892,12 @@ return 0"
 		_context.SaveChanges();
 
 		_context.RacesBreathableGases.Add(new RacesBreathableGases
-			{ Race = organicHumanoidRace, Gas = air, Multiplier = 1.0 });
+		{ Race = organicHumanoidRace, Gas = air, Multiplier = 1.0 });
 		foreach (var attribute in _context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3))
 			_context.RacesAttributes.Add(new RacesAttributes
 			{
-				Race = organicHumanoidRace, Attribute = attribute,
+				Race = organicHumanoidRace,
+				Attribute = attribute,
 				IsHealthAttribute = attribute.TraitGroup == "Physical"
 			});
 		_context.SaveChanges();
@@ -1806,821 +1914,1124 @@ return 0"
 
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$frame[@ ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$distinctivefeaturebasic[@ ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$haircolourbasic[@-haired ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$hairstylebasic[@ ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$facialhairstylebasic[@ ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$skincolour[@-skinned ][]$person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[&tattoos $person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[&scars $person] with $eyecolour[%eyecolour[$eyecolour eyes][1:one $eyecolour eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$frame[@ ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$distinctivefeaturebasic[@ ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$haircolourbasic[@-haired ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$hairstylebasic[@ ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$facialhairstylebasic[@ ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$skincolour[@-skinned ][]$person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[&tattoos $person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[&scars $person] with $eyeshape[%eyeshape[$eyeshape eyes][1:one $eyeshape eye][0:no eyes]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$person] of $frame build"
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
+			Pattern = "&a_an[$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] of $frame build"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with &?a_an[$distinctivefeature]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$distinctivefeaturebasic[@ ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$haircolourbasic[@-haired ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$facialhairstylebasic[@ ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$skincolour[@-skinned ][]$person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with $ears[%ears[$ears ears][1:one $ears ear][0:no ears]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with $nose[%nose[&a_an[$nose]][0:no nose]][$]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$distinctivefeaturebasic[@ ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$facialhairstylebasic[@ ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$skincolour[@-skinned ][]$person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with $?hairstyle[$haircolour[$haircolour hair][$]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$distinctivefeaturebasic[@ ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$haircolourbasic[@-haired ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$skincolour[@-skinned ][]$person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with $?facialhairstyle[&?a_an[$facialhairstyle]][no beard]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with $?hairstyle[&?a_an[$hairstyle]][no hair]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
-			{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$person] &withtattoos" });
+		{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$person] &withtattoos" });
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] &withtattoos"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern =
 				"&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&scars $person] with $skincolour skin"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
-			{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$frame[@ ][]$person]" });
+		{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$frame[@ ][]$person]" });
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person]"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
-			{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[&tattoos $person]" });
+		{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[&tattoos $person]" });
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$eyecolour[%eyecolour[$eyecolourbasic-eyed][1:one-eyed][0:eyeless] ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$eyeshape[%eyeshape[$eyeshape-eyed][1:one-eyed][0:eyeless] ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$frame[@ ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$distinctivefeaturebasic[@ ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$ears[%ears[$earsbasic][1:one-eared][0:earless] ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$nose[%nose[$nosebasic][0:noseless] ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
-			{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$person] &withscars" });
+		{ Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100, Pattern = "&a_an[$person] &withscars" });
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$haircolourbasic[@-haired ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$hairstylebasic[@ ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = nonFemaleProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = nonFemaleProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$facialhairstylebasic[@ ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[$skincolour[@-skinned ][]$person] &withscars"
 		});
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
 		{
-			Type = 0, ApplicabilityProg = humanProg, RelativeWeight = 100,
+			Type = 0,
+			ApplicabilityProg = humanProg,
+			RelativeWeight = 100,
 			Pattern = "&a_an[&tattoos $person] &withscars"
 		});
 

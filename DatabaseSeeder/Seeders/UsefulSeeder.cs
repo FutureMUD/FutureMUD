@@ -959,6 +959,50 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			CreateDoor("Door_Glass_Admin", "This is a door that can be seen through, but not smashed or uninstalled", true, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door");
 
 			context.SaveChanges();
+
+			GameItemComponentProto CreateLockableDoor(
+				string name, 
+				string description, 
+				bool seeThrough, 
+				bool canFireThrough, 
+				bool canUninstall, 
+				Difficulty uninstallHinge, 
+				Difficulty uninstallNotHinge, 
+				bool canSmash, 
+				Difficulty smashDifficulty, 
+				string exitDescription, 
+				Difficulty force, 
+				Difficulty pick,
+				string lockType
+				)
+			{
+				return CreateItemProto(nextId++, now, "LockingDoor", name, description,
+					$@"<Definition SeeThrough=""{seeThrough}"" CanFireThrough=""{canFireThrough}"">
+  <ForceDifficulty>{(int)force}</ForceDifficulty>
+  <PickDifficulty>{(int)pick}</PickDifficulty>
+  <LockEmote><![CDATA[@ lock|locks $1$?2| with $2||$]]></LockEmote>
+  <UnlockEmote><![CDATA[@ unlock|unlocks $1$?2| with $2||$]]></UnlockEmote>
+  <LockEmoteNoActor><![CDATA[@ lock|locks]]></LockEmoteNoActor>
+  <UnlockEmoteNoActor><![CDATA[@ unlock|unlocks]]></UnlockEmoteNoActor>
+  <LockEmoteOtherSide><![CDATA[$0 is locked from the other side.]]></LockEmoteOtherSide>
+  <UnlockEmoteOtherSide><![CDATA[$0 is unlocked from the other side.]]></UnlockEmoteOtherSide>
+  <LockType>{lockType}</LockType>
+  <InstalledExitDescription>{exitDescription}</InstalledExitDescription><Uninstall CanPlayersUninstall=""{canUninstall}"" UninstallDifficultyHingeSide=""{(int)uninstallHinge}"" UninstallDifficultyNotHingeSide=""{(int)uninstallNotHinge}"" UninstallTrait=""{doorTrait.Id}"" /><Smash CanPlayersSmash=""{canSmash}"" SmashDifficulty=""{(int)smashDifficulty}"" /></Definition>");
+			}
+
+			CreateLockableDoor("Door_Lockable_Normal", "This is an ordinary door that can be smashed and uninstalled", false, false, true, Difficulty.Easy, Difficulty.Insane, true, Difficulty.Normal, "door", Difficulty.Hard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Tough", "This is a tough door that can be smashed and uninstalled", false, false, true, Difficulty.Normal, Difficulty.Insane, true, Difficulty.ExtremelyHard, "door", Difficulty.VeryHard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Secure", "This is a door that can be smashed and uninstalled only from the hinge side", false, false, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.ExtremelyHard, "door", Difficulty.ExtremelyHard, Difficulty.VeryHard, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Admin", "This is a door that cannot be removed or smashed by players", false, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door", Difficulty.Hard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Bad", "This is a bad door that can be smashed and uninstalled", false, false, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "door", Difficulty.Normal, Difficulty.Easy, "Warded_Lock");
+			CreateLockableDoor("Gate_Lockable_Normal", "This is an ordinary gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Easy, Difficulty.Insane, true, Difficulty.Normal, "gate", Difficulty.Hard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Gate_Lockable_Tough", "This is a tough gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Normal, Difficulty.Insane, true, Difficulty.ExtremelyHard, "gate", Difficulty.ExtremelyHard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Gate_Lockable_Secure", "This is a tough gate that can be seen and fired through, smashed and uninstalled from the hinge side only", true, true, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.ExtremelyHard, "gate", Difficulty.ExtremelyHard, Difficulty.Hard, "Warded_Lock");
+			CreateLockableDoor("Gate_Lockable_Admin", "This is a gate that cannot be smashed or uninstalled by players", true, true, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "gate", Difficulty.Hard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Gate_Lockable_Bad", "This is a bad gate that can be seen and fired through, smashed and uninstalled", true, true, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "gate", Difficulty.Normal, Difficulty.Easy, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Glass", "This is a door that can be seen through, smashed and uninstalled", true, false, true, Difficulty.Normal, Difficulty.VeryHard, true, Difficulty.VeryEasy, "door", Difficulty.Hard, Difficulty.Normal, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Glass_Secure", "This is a door that can be seen through, smashed and uninstalled from hinge side only", true, false, true, Difficulty.Normal, Difficulty.Impossible, true, Difficulty.VeryEasy, "door", Difficulty.ExtremelyHard, Difficulty.Hard, "Warded_Lock");
+			CreateLockableDoor("Door_Lockable_Glass_Admin", "This is a door that can be seen through, but not smashed or uninstalled", true, false, false, Difficulty.Impossible, Difficulty.Impossible, false, Difficulty.Impossible, "door", Difficulty.Hard, Difficulty.Normal, "Warded_Lock");
 		}
 		else
 		{
@@ -1061,6 +1105,36 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
  </Definition>");
 		}
 
+		GameItemComponentProto CreateBook(string name, string description, int pages, GameItemProto page)
+		{
+			var component = new GameItemComponentProto
+			{
+				Id = nextId++,
+				RevisionNumber = 0,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Type = "Book",
+				Name = name,
+				Description = description,
+				Definition =
+					$@"<Definition>
+   <PaperProto>{page.Id}</PaperProto>
+   <PageCount>{pages}</PageCount>
+ </Definition>"
+			};
+			context.GameItemComponentProtos.Add(component);
+			return component;
+		}
+
 		var paperA4 = CreatePaperSheet("Paper_A4", "This is a sheet of paper in A4 size (~ US Letter size)", 4160);
 
 		var nextItemId = context.GameItemProtos.Max(x => x.Id) + 1;
@@ -1130,6 +1204,59 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		a3paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a3paper, GameItemComponent = paperA3 });
 		context.GameItemProtos.Add(a3paper);
 		context.SaveChanges();
+
+		var paperA5 = CreatePaperSheet("Paper_A5", "This is a sheet of paper in A5 size (~ US Half Letter size)", 8320);
+
+		var a5paper = new GameItemProto
+		{
+			Id = nextItemId++,
+			RevisionNumber = 0,
+			Name = "sheet",
+			Keywords = "small sheet paper",
+			MaterialId = paperMaterial.Id,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Size = (int)SizeCategory.VerySmall,
+			Weight = 0.5,
+			ReadOnly = false,
+			BaseItemQuality = 5,
+			HighPriority = false,
+			ShortDescription = "a small sheet of paper",
+			FullDescription = "This is a small sheet of plain, unlined paper approximately 5 inches by 8 inches in size."
+		};
+		a5paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a5paper, GameItemComponent = holdable });
+		a5paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a5paper, GameItemComponent = stack });
+		a5paper.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos { GameItemProto = a5paper, GameItemComponent = paperA5 });
+		context.GameItemProtos.Add(a5paper);
+		context.SaveChanges();
+
+		CreateBook("Book_20_Page", "This is a 20 page book of A4 pages", 20, a4paper);
+		CreateBook("Book_40_Page", "This is a 40 page book of A4 pages", 40, a4paper);
+		CreateBook("Book_90_Page", "This is a 90 page book of A4 pages", 90, a4paper);
+		CreateBook("Book_200_Page", "This is a 200 page book of A4 pages", 200, a4paper);
+		CreateBook("Book_500_Page", "This is a 500 page book of A4 pages", 500, a4paper);
+		CreateBook("Book_1000_Page", "This is a 1000 page book of A4 pages", 1000, a4paper);
+		CreateBook("Book_Small_20_Page", "This is a 20 page book of A5 pages", 20, a5paper);
+		CreateBook("Book_Small_40_Page", "This is a 40 page book of A5 pages", 40, a5paper);
+		CreateBook("Book_Small_90_Page", "This is a 90 page book of A5 pages", 90, a5paper);
+		CreateBook("Book_Small_200_Page", "This is a 200 page book of A5 pages", 200, a5paper);
+		CreateBook("Book_Small_500_Page", "This is a 500 page book of A5 pages", 500, a5paper);
+		CreateBook("Book_Small_1000_Page", "This is a 1000 page book of A5 pages", 1000, a5paper);
+		CreateBook("Book_Large_20_Page", "This is a 20 page book of A3 pages", 20, a3paper);
+		CreateBook("Book_Large_40_Page", "This is a 40 page book of A3 pages", 40, a3paper);
+		CreateBook("Book_Large_90_Page", "This is a 90 page book of A3 pages", 90, a3paper);
+		CreateBook("Book_Large_200_Page", "This is a 200 page book of A3 pages", 200, a3paper);
+		CreateBook("Book_Large_500_Page", "This is a 500 page book of A3 pages", 500, a3paper);
+		CreateBook("Book_Large_1000_Page", "This is a 1000 page book of A3 pages", 1000, a3paper);
 
 		CreateBiro("Biro_Black", "This is a standard black biro pen", context.Colours.First(x => x.Name == "black").Id, 110000);
 		CreateBiro("Biro_Blue", "This is a standard blue biro pen", context.Colours.First(x => x.Name == "blue").Id, 110000);

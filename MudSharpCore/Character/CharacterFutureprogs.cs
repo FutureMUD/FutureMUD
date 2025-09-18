@@ -101,8 +101,8 @@ public partial class Character
 				returnVar =
 					new CollectionVariable(
 						Body.WornItems.Where(
-							    x => Body.CoverInformation(x).All(y => y.Item1 != WearableItemCoverStatus.Covered))
-						    .ToList(), ProgVariableTypes.Item);
+								x => Body.CoverInformation(x).All(y => y.Item1 != WearableItemCoverStatus.Covered))
+							.ToList(), ProgVariableTypes.Item);
 				break;
 			case "clans":
 				returnVar = new CollectionVariable(ClanMemberships.Select(x => x.Clan).ToList(),
@@ -122,17 +122,17 @@ public partial class Character
 				returnVar =
 					new TextVariable(
 						Roles.Where(x => x.RoleType == ChargenRoleType.Class)
-						     .Select(x => x.Name)
-						     .DefaultIfEmpty("None")
-						     .First());
+							 .Select(x => x.Name)
+							 .DefaultIfEmpty("None")
+							 .First());
 				break;
 			case "subclass":
 				returnVar =
 					new TextVariable(
 						Roles.Where(x => x.RoleType == ChargenRoleType.Subclass)
-						     .Select(x => x.Name)
-						     .DefaultIfEmpty("None")
-						     .First());
+							 .Select(x => x.Name)
+							 .DefaultIfEmpty("None")
+							 .First());
 				break;
 			case "ingroup":
 				returnVar = new BooleanVariable(Party != null);
@@ -181,17 +181,17 @@ public partial class Character
 			case "preferredintentions":
 				return new CollectionVariable(
 					new List<TextVariable>(CombatSettings.PreferredIntentions.GetFlags().OfType<CombatMoveIntentions>()
-					                                     .Select(x => new TextVariable(x.Describe()))),
+														 .Select(x => new TextVariable(x.Describe()))),
 					ProgVariableTypes.Text);
 			case "requiredintentions":
 				return new CollectionVariable(
 					new List<TextVariable>(CombatSettings.RequiredIntentions.GetFlags().OfType<CombatMoveIntentions>()
-					                                     .Select(x => new TextVariable(x.Describe()))),
+														 .Select(x => new TextVariable(x.Describe()))),
 					ProgVariableTypes.Text);
 			case "forbiddenintentions":
 				return new CollectionVariable(
 					new List<TextVariable>(CombatSettings.ForbiddenIntentions.GetFlags().OfType<CombatMoveIntentions>()
-					                                     .Select(x => new TextVariable(x.Describe()))),
+														 .Select(x => new TextVariable(x.Describe()))),
 					ProgVariableTypes.Text);
 			case "drugs":
 				return new CollectionVariable(Body.ActiveDrugDosages.Select(x => x.Drug).Distinct().ToList(),
@@ -223,6 +223,10 @@ public partial class Character
 				return new CollectionVariable(Scripts.ToList(), ProgVariableTypes.Script);
 			case "writings":
 				return new CollectionVariable(Gameworld.Writings.Where(x => x.Author == this || x.TrueAuthor == this).ToList(), ProgVariableTypes.Writing);
+			case "mount":
+				return RidingMount;
+			case "riders":
+				return new CollectionVariable(Riders.ToList(), ProgVariableTypes.Character);
 			default:
 				return base.GetProperty(property);
 		}
@@ -300,7 +304,9 @@ public partial class Character
 			{ "knowledges", ProgVariableTypes.Knowledge | ProgVariableTypes.Collection},
 			{ "scripts", ProgVariableTypes.Script | ProgVariableTypes.Collection},
 			{ "script", ProgVariableTypes.Script },
-			{ "writings", ProgVariableTypes.Writing | ProgVariableTypes.Collection }
+			{ "writings", ProgVariableTypes.Writing | ProgVariableTypes.Collection },
+			{ "mount", ProgVariableTypes.Character },
+			{ "riders", ProgVariableTypes.Character | ProgVariableTypes.Collection },
 		};
 	}
 
@@ -372,6 +378,8 @@ public partial class Character
 			{ "script", "The script they are currently writing with (can be null)" },
 			{ "writings", "A collection of all writings this character is the author or true author of" },
 			{ "possessednpc", "Returns true if this character is an NPC and has an admin possessing / switched into them"},
+			{ "mount", "returns the mount this character is riding, if any (can be null)" },
+			{ "riders", "returns a collection of all characters currently riding this character" },
 		};
 	}
 

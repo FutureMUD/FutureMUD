@@ -20,6 +20,21 @@ public class StartClinchMove : WeaponAttackMove
 		CharacterTarget = target;
 	}
 
+	public static bool CanClinchWhileMounted(ICharacter assailant, ICharacter target)
+	{
+		if (assailant.RidingMount is null)
+		{
+			return true;
+		}
+
+		if (target.RidingMount is not null)
+		{
+			return true;
+		}
+
+		return target.SizeStanding > assailant.SizeStanding;
+	}
+
 	public override BuiltInCombatMoveType MoveType => BuiltInCombatMoveType.StartClinch;
 
 	public override string Description => "Attempting to begin a clinch";
@@ -71,8 +86,18 @@ public class StartClinchMove : WeaponAttackMove
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
-		defenderMove = defenderMove ?? new HelplessDefenseMove() { Assailant = CharacterTarget };
-		WorsenCombatPosition(defenderMove.Assailant, Assailant);
+	if (!CanClinchWhileMounted(Assailant, CharacterTarget))
+	{
+		Assailant.OutputHandler.Send(
+				$"You cannot reach {CharacterTarget.HowSeen(Assailant)} to clinch while you are mounted.");
+		return new CombatMoveResult
+		{
+			RecoveryDifficulty = RecoveryDifficultyFailure
+		};
+	}
+
+	defenderMove = defenderMove ?? new HelplessDefenseMove() { Assailant = CharacterTarget };
+	WorsenCombatPosition(defenderMove.Assailant, Assailant);
 		var attackRoll = Gameworld.GetCheck(Check)
 		                          .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, defenderMove.Assailant,
 			                          Assailant.OffensiveAdvantage);

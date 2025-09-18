@@ -1,2 +1,0 @@
-ALTER TABLE `dbo`.`Bodies` 
-ADD COLUMN `Scars` MEDIUMTEXT NULL AFTER `EffectData`;

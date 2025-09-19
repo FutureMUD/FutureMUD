@@ -210,10 +210,23 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
                 throw new NotImplementedException("Unknown target type in Fire.");
         }
 
+        private void HandleBeamScatterToCell(RangedScatterResult scatterResult)
+        {
+                var dummy = new DummyPerceiver(location: scatterResult.Cell)
+                {
+                        RoomLayer = scatterResult.RoomLayer
+                };
+
+                var directionText = ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget);
+                var emote = new Emote($"A stray beam of energy flashes{directionText} and scorches the surroundings.", dummy);
+                scatterResult.Cell.Handle(new EmoteOutput(emote, style: OutputStyle.CombatMessage,
+                        flags: OutputFlags.InnerWrap));
+        }
+
         public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
                 OpposedOutcome defenseOutcome, IBodypart bodypart, IRangedWeaponType weaponType, double painMultiplier,
                 double stunMultiplier, IEmoteOutput defenseEmote)
-	{
+        {
 		// Fired at sky
 		if (target == null)
 		{
@@ -289,14 +302,21 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
                         var mult = actor.Merits.OfType<IScatterChanceMerit>().Aggregate(1.0, (x, y) => x * y.ScatterMultiplier);
                         if (Dice.Roll(1, 100) <= chance * mult)
                         {
-                                var scatterTarget = RangedScatterStrategyFactory.GetStrategy(weaponType)
+                                var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
                                         .GetScatterTarget(actor, target, path);
-                                if (scatterTarget != null)
+                                if (scatterResult != null)
                                 {
-                                        Hit(actor, scatterTarget,
-                                                (scatterTarget as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front),
-                                                weaponType, new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal),
-                                                painMultiplier, stunMultiplier, null);
+                                        if (scatterResult.Target != null)
+                                        {
+                                                Hit(actor, scatterResult.Target,
+                                                        (scatterResult.Target as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front),
+                                                        weaponType, new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal),
+                                                        painMultiplier, stunMultiplier, null);
+                                                return;
+                                        }
+
+                                        HandleBeamScatterToCell(scatterResult);
+                                        return;
                                 }
                         }
 

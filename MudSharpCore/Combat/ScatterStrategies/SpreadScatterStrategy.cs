@@ -24,20 +24,36 @@ public class SpreadScatterStrategy : IRangedScatterStrategy
         return expr.EvaluateDouble();
     }
 
-    public IPerceiver? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
+    public RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
         IEnumerable<ICellExit> path)
     {
-        var cell = originalTarget.Location;
-        if (cell == null)
+        if (originalTarget.Location == null)
         {
             return null;
         }
 
-        var candidates = cell.Characters.Cast<IPerceiver>()
-            .Concat(cell.GameItems)
+        var cells = ScatterStrategyUtilities.GetCellInfos(originalTarget, 0, true)
+            .Select(info => (Info: info, Weight: info.Distance == 0 ? 1.0 : 0.0))
+            .Where(x => x.Weight > 0)
+            .ToList();
+
+        if (!cells.Any())
+        {
+            return null;
+        }
+
+        var chosen = cells.GetWeightedRandom(x => x.Weight);
+        var chosenCell = chosen.Info.Cell;
+        var candidates = chosenCell.Characters.Cast<IPerceiver>()
+            .Concat(chosenCell.GameItems)
             .Where(x => !x.Equals(shooter) && !x.Equals(originalTarget))
             .ToList();
 
-        return candidates.GetWeightedRandom(x => Weight(x, originalTarget));
+        var target = candidates.GetWeightedRandom(x => Weight(x, originalTarget));
+        return target != null
+            ? new RangedScatterResult(chosenCell, target.RoomLayer, chosen.Info.DirectionFromOrigin, chosen.Info.Distance,
+                target)
+            : new RangedScatterResult(chosenCell, originalTarget.RoomLayer, chosen.Info.DirectionFromOrigin,
+                chosen.Info.Distance, null);
     }
 }

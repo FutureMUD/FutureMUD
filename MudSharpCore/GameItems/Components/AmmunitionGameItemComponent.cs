@@ -98,8 +98,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         private void HandleAmmunitionAftermath(ICharacter actor, IPerceiver target, IGameItem ammo, bool hit = false,
                 IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
         {
-		if (target == null)
-		{
+                if (target == null)
+                {
 			return;
 		}
 
@@ -137,6 +137,46 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
 
 		// The call to insert the item into the location can result in a stack merge, in which case the ammo item is deleted and we should not further alter it
+                if (actor.Combat != null && !ammo.Deleted)
+                {
+                        ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
+                }
+        }
+
+        private void HandleAmmunitionScatterToCell(ICharacter actor, ICell cell, RoomLayer roomLayer, IGameItem ammo,
+                IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
+        {
+                ammo.RoomLayer = roomLayer;
+
+                if (RandomUtilities.Roll(1.0, AmmoType.BreakChanceOnMiss))
+                {
+                        cell.Insert(ammo, true);
+                        if (emoteOnBreak != null)
+                        {
+                                cell.Handle(emoteOnBreak);
+                        }
+
+                        var result = ammo.Die();
+                        if (result != null)
+                        {
+                                result.RoomLayer = roomLayer;
+                                cell.Insert(result);
+                                if (!result.Deleted && actor.Combat != null)
+                                {
+                                        result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
+                                }
+                        }
+
+                        return;
+                }
+
+                cell.Insert(ammo);
+                ammo.PositionTarget = null;
+                if (emoteOnFallToGround != null)
+                {
+                        cell.Handle(emoteOnFallToGround);
+                }
+
                 if (actor.Combat != null && !ammo.Deleted)
                 {
                         ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
@@ -374,14 +414,34 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                                 var mult = actor.Merits.OfType<IScatterChanceMerit>().Aggregate(1.0, (x, y) => x * y.ScatterMultiplier);
                                 if (Dice.Roll(1, 100) <= chance * mult)
                                 {
-                                        var scatterTarget = RangedScatterStrategyFactory.GetStrategy(weaponType)
+                                        var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
                                                 .GetScatterTarget(actor, target, path);
-                                        if (scatterTarget != null)
+                                        if (scatterResult != null)
                                         {
-                                                Hit(actor, scatterTarget, Outcome.Pass, Outcome.Pass,
-                                                        new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal),
-                                                        (scatterTarget as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front),
-                                                        ammo, weaponType, null);
+                                                if (scatterResult.Target != null)
+                                                {
+                                                        Hit(actor, scatterResult.Target, Outcome.Pass, Outcome.Pass,
+                                                                new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal),
+                                                                (scatterResult.Target as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front),
+                                                                ammo, weaponType, null);
+                                                        return;
+                                                }
+
+                                                var dummy = new DummyPerceiver(location: scatterResult.Cell)
+                                                {
+                                                        RoomLayer = scatterResult.RoomLayer
+                                                };
+                                                var directionText = ScatterStrategyUtilities
+                                                        .DescribeFromDirection(scatterResult.DirectionFromTarget);
+                                                var breakOutput = new EmoteOutput(
+                                                        new Emote($"$0 ricochets{directionText} and shatters!", dummy, ammo),
+                                                        style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
+                                                var fallOutput = new EmoteOutput(
+                                                        new Emote($"$0 ricochets{directionText} and falls to the ground.", dummy,
+                                                                ammo),
+                                                        style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
+                                                HandleAmmunitionScatterToCell(actor, scatterResult.Cell,
+                                                        scatterResult.RoomLayer, ammo, breakOutput, fallOutput);
                                                 return;
                                         }
                                 }

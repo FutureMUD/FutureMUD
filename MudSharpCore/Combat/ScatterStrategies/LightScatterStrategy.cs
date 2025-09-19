@@ -24,49 +24,81 @@ public class LightScatterStrategy : IRangedScatterStrategy
         return expr.EvaluateDouble();
     }
 
-    public IPerceiver? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
+    public RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
         IEnumerable<ICellExit> path)
     {
         // Up to 5 cells away
-        var cell = originalTarget.Location;
-        if (cell == null)
+        if (originalTarget.Location == null)
         {
             return null;
         }
 
-        var counts = path.CountDirections();
-        var directions = (counts.Northness, counts.Southness, counts.Westness, counts.Eastness,
-                counts.Upness, counts.Downness).ContainedDirections();
-
-        foreach (var dir in directions)
+        var pathList = path?.ToList() ?? new List<ICellExit>();
+        var counts = pathList.CountDirections();
+        var directionSet = new HashSet<CardinalDirection>(
+            (counts.Northness, counts.Southness, counts.Westness, counts.Eastness, counts.Upness, counts.Downness)
+            .ContainedDirections()
+            .Where(x => x != CardinalDirection.Unknown));
+        var lastDirection = pathList.LastOrDefault()?.OutboundDirection ?? CardinalDirection.Unknown;
+        if (lastDirection != CardinalDirection.Unknown)
         {
-            var current = cell;
-            for (var i = 0; i < 5 && current != null; i++)
-            {
-                var exit = current.GetExit(dir, shooter);
-                if (exit == null || (!(exit.Exit.Door?.IsOpen ?? true) && !exit.Exit.Door.CanFireThrough))
-                {
-                    break;
-                }
-
-                current = exit.Destination;
-                var candidates = current.Characters.Cast<IPerceiver>()
-                    .Concat(current.GameItems)
-                    .Where(x => !x.Equals(shooter) && x.RoomLayer == originalTarget.RoomLayer)
-                    .ToList();
-                if (!candidates.Any())
-                {
-                    continue;
-                }
-
-                var result = candidates.GetWeightedRandom(x => Weight(x, originalTarget));
-                if (result != null)
-                {
-                    return result;
-                }
-            }
+            directionSet.Add(lastDirection);
         }
 
-        return null;
+        var cells = ScatterStrategyUtilities.GetCellInfos(originalTarget, 5, true)
+            .Select(info => (Info: info, Weight: CellWeight(info, directionSet, lastDirection)))
+            .Where(x => x.Weight > 0)
+            .ToList();
+
+        if (!cells.Any())
+        {
+            return null;
+        }
+
+        var chosen = cells.GetWeightedRandom(x => x.Weight);
+        var chosenCell = chosen.Info.Cell;
+        var candidates = chosenCell.Characters.Cast<IPerceiver>()
+            .Concat(chosenCell.GameItems)
+            .Where(x => !x.Equals(shooter) && !x.Equals(originalTarget) && x.RoomLayer == originalTarget.RoomLayer)
+            .ToList();
+
+        var target = candidates.GetWeightedRandom(x => Weight(x, originalTarget));
+        return target != null
+            ? new RangedScatterResult(chosenCell, target.RoomLayer, chosen.Info.DirectionFromOrigin, chosen.Info.Distance,
+                target)
+            : new RangedScatterResult(chosenCell, originalTarget.RoomLayer, chosen.Info.DirectionFromOrigin,
+                chosen.Info.Distance, null);
+    }
+
+    private static double CellWeight(CellScatterInfo info, HashSet<CardinalDirection> preferredDirections,
+        CardinalDirection lastDirection)
+    {
+        var weight = 1.0 / (info.Distance + 0.5);
+        if (info.Distance == 0)
+        {
+            weight *= 0.25;
+            return weight;
+        }
+
+        var direction = info.DirectionFromOrigin;
+        if (direction == CardinalDirection.Unknown)
+        {
+            return weight;
+        }
+
+        if (preferredDirections.Contains(direction) || direction == lastDirection)
+        {
+            weight *= 4.0 + (info.Distance * 0.75);
+        }
+        else if (preferredDirections.Contains(direction.Opposite()))
+        {
+            weight *= 0.6;
+        }
+        else
+        {
+            weight *= 0.85;
+        }
+
+        return weight;
     }
 }

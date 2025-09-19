@@ -1263,6 +1263,11 @@ public partial class Body
 			return false;
 		}
 
+		if (!Actor.MountedCanRetrieve(item, out _))
+		{
+			return false;
+		}
+
 		if (item.Location?.CanGet(item, Actor) == false)
 		{
 			return false;
@@ -1340,6 +1345,10 @@ public partial class Body
 		}
 
 		var tcontainer = container.GetItemType<IContainer>();
+		if (!Actor.MountedCanManipulate(container, out _))
+		{
+			return false;
+		}
 		if (container.Location?.CanGetAccess(container, Actor) == false)
 		{
 			return false;
@@ -1366,6 +1375,11 @@ public partial class Body
 		if (item.GetItemType<IDoor>()?.InstalledExit != null)
 		{
 			return "You cannot get installed doors directly. You must uninstall them first.";
+		}
+
+		if (!Actor.MountedCanRetrieve(item, out var mountMessage))
+		{
+			return mountMessage;
 		}
 
 		if (item.Location?.CanGet(item, Actor) == false)
@@ -1472,6 +1486,11 @@ public partial class Body
 		if (tcontainer == null)
 		{
 			return container.HowSeen(this, true) + " is not a container.";
+		}
+
+		if (!Actor.MountedCanManipulate(container, out var mountMessage))
+		{
+			return mountMessage;
 		}
 
 		if (!(container.Location?.CanGetAccess(container, Actor) ?? true))
@@ -1709,6 +1728,11 @@ public partial class Body
 	public bool CanPut(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity,
 		bool allowLesserAmounts)
 	{
+		if (Actor.RidingMount != null)
+		{
+			return false;
+		}
+
 		var tcontainer = container.GetItemType<IContainer>();
 		return
 			(container.Location?.CanGetAccess(container, Actor) ?? true) &&
@@ -1723,6 +1747,11 @@ public partial class Body
 	public string WhyCannotPut(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity,
 		bool allowLesserAmounts)
 	{
+		if (Actor.RidingMount != null)
+		{
+			return new QuickEmote("@ cannot put items into containers while riding $0.", Actor, Actor.RidingMount);
+		}
+
 		var tcontainer = container.GetItemType<IContainer>();
 		if (tcontainer == null)
 		{

@@ -612,9 +612,9 @@ public partial class Character
 
 		var staminaCost = StaminaForMovement(movingPosition, CurrentSpeeds[movingPosition], staminaMultiplier,
 			ignoreTerrainStamina);
-		if (!EffectHandler.AffectedBy<IImmwalkEffect>() &&
-			Race.RaceUsesStamina &&
-			!CanSpendStamina(staminaCost))
+		if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>() &&
+		Race.RaceUsesStamina &&
+		!CanSpendStamina(staminaCost))
 		{
 			return new CanMoveResponse
 			{
@@ -1252,7 +1252,7 @@ public partial class Character
 
 	public void ExecuteMove(IMovement movement, IMoveSpeed speedOverride = null)
 	{
-		if (!EffectHandler.AffectedBy<IImmwalkEffect>())
+		if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>())
 		{
 			SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier, PositionState.IgnoreTerrainStaminaCostsForMovement));
 		}

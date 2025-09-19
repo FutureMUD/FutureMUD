@@ -40,10 +40,10 @@ public class ClinchStrategy : StandardMeleeStrategy
 	}
 
 	protected override ICombatMove ResponseToBreakClinch(BreakClinchMove move, ICharacter defender,
-		IPerceiver assailant)
+	        IPerceiver assailant)
 	{
 		if (defender.PositionState.CompareTo(PositionStanding.Instance) != PositionHeightComparison.Equivalent ||
-		    !defender.CanSpendStamina(StartClinchMove.MoveStaminaCost(defender)))
+	            !defender.CanSpendStamina(StartClinchMove.MoveStaminaCost(defender)))
 		{
 			return new HelplessDefenseMove
 			{
@@ -51,7 +51,16 @@ public class ClinchStrategy : StandardMeleeStrategy
 			};
 		}
 
-		return new StartClinchMove(move.Assailant) { Assailant = defender };
+		if (move.Assailant is not ICharacter target ||
+	            !StartClinchMove.CanClinchWhileMounted(defender, target))
+		{
+			return new HelplessDefenseMove
+			{
+				Assailant = defender
+			};
+		}
+
+		return new StartClinchMove(target) { Assailant = defender };
 	}
 
 	#endregion
@@ -295,27 +304,41 @@ public class ClinchStrategy : StandardMeleeStrategy
 	private ICombatMove CheckClinching(ICharacter ch)
 	{
 		if (ch.PositionState.Upright &&
-		    !ch.EffectsOfType<ClinchEffect>().Any() &&
-		    ch.CombatTarget.EffectsOfType<ClinchEffect>().All(x => x.Target != ch) &&
-		    !ch.EffectsOfType<ClinchCooldown>().Any() &&
-		    ch.CombatTarget is ICharacter &&
-		    ch.CanSpendStamina(StartClinchMove.MoveStaminaCost(ch)))
+	            !ch.EffectsOfType<ClinchEffect>().Any() &&
+	            !ch.EffectsOfType<ClinchCooldown>().Any() &&
+	            ch.CombatTarget is ICharacter charTarget &&
+	            charTarget.EffectsOfType<ClinchEffect>().All(x => x.Target != ch))
 		{
-			return new StartClinchMove((ICharacter)ch.CombatTarget) { Assailant = ch };
+			if (!StartClinchMove.CanClinchWhileMounted(ch, charTarget))
+			{
+				if (ch.CombatStrategyMode == CombatStrategyMode.Clinch && HasViableMeleeAttack(ch))
+				{
+					ch.Send($"You cannot reach {charTarget.HowSeen(ch)} well enough to clinch while you are mounted, so you fight normally.");
+					ch.CombatStrategyMode = CombatStrategyMode.StandardMelee;
+					return CombatStrategyFactory.GetStrategy(CombatStrategyMode.StandardMelee).ChooseMove(ch);
+				}
+
+				return null;
+			}
+
+			if (ch.CanSpendStamina(StartClinchMove.MoveStaminaCost(ch)))
+			{
+				return new StartClinchMove(charTarget) { Assailant = ch };
+			}
 		}
 
 		if (ch.EffectsOfType<ClinchEffect>().Any(x => x.Target == ch.CombatTarget))
 		{
 			var roll = Constants.Random.NextDouble();
 			if (ch.CombatSettings.WeaponUsePercentage > 0 &&
-			    roll <= ch.CombatSettings.WeaponUsePercentage)
+	                    roll <= ch.CombatSettings.WeaponUsePercentage)
 			{
 				return AttemptClinchAttack(ch);
 			}
 
 			roll -= ch.CombatSettings.WeaponUsePercentage;
 			if (ch.CombatSettings.NaturalWeaponPercentage > 0.0 &&
-			    roll <= ch.CombatSettings.NaturalWeaponPercentage)
+	                    roll <= ch.CombatSettings.NaturalWeaponPercentage)
 			{
 				return AttemptUnarmedClinchAttack(ch);
 			}

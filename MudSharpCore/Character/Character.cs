@@ -2572,32 +2572,124 @@ public partial class Character : PerceiverItem, ICharacter
 			   State.HasFlag(CharacterState.Dead);
 	}
 
-	public (bool Truth, string Message) CanManipulateItem(IGameItem item)
-	{
-		if (item.InInventoryOf != null && item.InInventoryOf != Body)
-		{
-			if (!item.InInventoryOf.Actor.WillingToPermitInventoryManipulation(this))
-			{
-				return (false,
-					new QuickEmote("$0 &0|is|are not willing to permit you to manipulate things in &0's possession.",
-						this, item.InInventoryOf.Actor));
-			}
+private enum MountedItemInteraction
+{
+Manipulate,
+Retrieve
+}
 
-			return (true, string.Empty);
-		}
+internal bool MountedCanManipulate(IGameItem item, out string message)
+{
+return MountedCanInteractWith(item, MountedItemInteraction.Manipulate, out message);
+}
 
-		if (item.ContainedIn != null && !Location.CanGetAccess(item.ContainedIn, this))
-		{
-			return (false, Location.WhyCannotGetAccess(item.ContainedIn, this));
-		}
+internal bool MountedCanRetrieve(IGameItem item, out string message)
+{
+return MountedCanInteractWith(item, MountedItemInteraction.Retrieve, out message);
+}
 
-		if (!Location.CanGetAccess(item, this))
-		{
-			return (false, Location.WhyCannotGetAccess(item, this));
-		}
+private bool MountedCanInteractWith(IGameItem item, MountedItemInteraction interaction, out string message)
+{
+message = string.Empty;
+if (RidingMount is null || item is null)
+{
+return true;
+}
 
-		return (true, string.Empty);
-	}
+var mount = RidingMount;
+if (item.InInventoryOf == Body || item.InInventoryOf == mount.Body)
+{
+return true;
+}
+
+var current = item;
+while (current.ContainedIn is not null)
+{
+current = current.ContainedIn;
+if (current.InInventoryOf == Body || current.InInventoryOf == mount.Body)
+{
+return true;
+}
+
+if (current.InInventoryOf != null && current.InInventoryOf != Body && current.InInventoryOf != mount.Body)
+{
+return true;
+}
+
+if (current.Location != Location)
+{
+return true;
+}
+}
+
+if (current.InInventoryOf == Body || current.InInventoryOf == mount.Body)
+{
+return true;
+}
+
+if (current.InInventoryOf != null)
+{
+return true;
+}
+
+if (current.Location != Location)
+{
+return true;
+}
+
+switch (interaction)
+{
+case MountedItemInteraction.Retrieve:
+message = new QuickEmote("@ cannot reach $0 to pick it up while riding $1.", this, current, mount);
+return false;
+case MountedItemInteraction.Manipulate:
+var mountSize = mount.CurrentContextualSize(SizeContext.BeingRiddenAsMount);
+var container = current.GetItemType<IContainer>();
+if (container != null && current.Size >= mountSize)
+{
+return true;
+}
+
+message = current == item
+? new QuickEmote("@ cannot manipulate $0 while riding $1.", this, current, mount)
+: new QuickEmote("@ cannot reach into $0 while riding $1.", this, current, mount);
+return false;
+default:
+return true;
+}
+}
+
+public (bool Truth, string Message) CanManipulateItem(IGameItem item)
+{
+if (item.InInventoryOf != null && item.InInventoryOf != Body)
+{
+if (!item.InInventoryOf.Actor.WillingToPermitInventoryManipulation(this))
+{
+return (false,
+        new QuickEmote("$0 &0|is|are not willing to permit you to manipulate things in &0's possession.",
+                this, item.InInventoryOf.Actor));
+}
+
+return (true, string.Empty);
+}
+
+if (item.ContainedIn != null && !Location.CanGetAccess(item.ContainedIn, this))
+{
+return (false, Location.WhyCannotGetAccess(item.ContainedIn, this));
+}
+
+if (!Location.CanGetAccess(item, this))
+{
+return (false, Location.WhyCannotGetAccess(item, this));
+}
+
+if (!MountedCanManipulate(item, out var mountMessage))
+{
+return (false, mountMessage);
+}
+
+return (true, string.Empty);
+}
 
 	public ICharacterTemplate GetCharacterTemplate()
 	{
@@ -3578,4 +3670,28 @@ public partial class Character : PerceiverItem, ICharacter
 	}
 
 	#endregion
+}
+internal static class CharacterMountedExtensions
+{
+	internal static bool MountedCanManipulate(this ICharacter character, IGameItem item, out string message)
+	{
+		if (character is Character concrete)
+		{
+			return concrete.MountedCanManipulate(item, out message);
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	internal static bool MountedCanRetrieve(this ICharacter character, IGameItem item, out string message)
+	{
+		if (character is Character concrete)
+		{
+			return concrete.MountedCanRetrieve(item, out message);
+		}
+
+		message = string.Empty;
+		return true;
+	}
 }

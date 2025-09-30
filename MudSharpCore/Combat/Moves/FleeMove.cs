@@ -142,23 +142,43 @@ public class FleeMove : CombatMoveBase
 			};
 		}
 
-		if (!Assailant.EffectsOfType<PreFleeSpeed>().Any())
-		{
-			Assailant.AddEffect(new PreFleeSpeed(Assailant, Assailant.CurrentSpeeds.Values));
-		}
+	        var assailantMover = Assailant.GetCombatMover();
+	        if (!Assailant.EffectsOfType<PreFleeSpeed>().Any())
+	        {
+	                Assailant.AddEffect(new PreFleeSpeed(Assailant, Assailant.CurrentSpeeds.Values));
+	        }
 
-		Assailant.CurrentSpeeds[Assailant.PositionState] = Assailant.Speeds.Where(x => x.Position == Assailant.PositionState).FirstMin(x => x.Multiplier);
-		foreach (var pursuer in pursuers)
-		{
-			if (!pursuer.EffectsOfType<PreFleeSpeed>().Any())
-			{
-				pursuer.AddEffect(new PreFleeSpeed(pursuer, pursuer.CurrentSpeeds.Values));
-			}
-			pursuer.CurrentSpeeds[pursuer.PositionState] = pursuer.Speeds.Where(x => x.Position == pursuer.PositionState).FirstMin(x => x.Multiplier);
-		}
+	        if (assailantMover != Assailant && !assailantMover.EffectsOfType<PreFleeSpeed>().Any())
+	        {
+	                assailantMover.AddEffect(new PreFleeSpeed(assailantMover, assailantMover.CurrentSpeeds.Values));
+	        }
 
-		var assailantSpeed = Assailant.MoveSpeed(null);
-		var speeds = pursuers.Select(x => Tuple.Create(x, x.MoveSpeed(null))).ToList();
+	        assailantMover.CurrentSpeeds[assailantMover.PositionState] =
+	                assailantMover.Speeds.Where(x => x.Position == assailantMover.PositionState).FirstMin(x => x.Multiplier);
+	        foreach (var pursuer in pursuers)
+	        {
+	                var pursuerMover = pursuer.GetCombatMover();
+	                if (!pursuer.EffectsOfType<PreFleeSpeed>().Any())
+	                {
+	                        pursuer.AddEffect(new PreFleeSpeed(pursuer, pursuer.CurrentSpeeds.Values));
+	                }
+
+	                if (pursuerMover != pursuer && !pursuerMover.EffectsOfType<PreFleeSpeed>().Any())
+	                {
+	                        pursuerMover.AddEffect(new PreFleeSpeed(pursuerMover, pursuerMover.CurrentSpeeds.Values));
+	                }
+
+	                pursuerMover.CurrentSpeeds[pursuerMover.PositionState] =
+	                        pursuerMover.Speeds.Where(x => x.Position == pursuerMover.PositionState)
+	                                         .FirstMin(x => x.Multiplier);
+	        }
+
+	        var assailantSpeed = assailantMover.MoveSpeed(null);
+	        var speeds = pursuers.Select(x =>
+	        {
+	                var mover = x.GetCombatMover();
+	                return Tuple.Create(x, mover.MoveSpeed(null));
+	        }).ToList();
 
 		var fleeCheck = Gameworld.GetCheck(CheckType.FleeMeleeCheck);
 		var fleeDifficulty = Difficulty.Easy.StageUp(speeds.Count(x => x.Item2 <= assailantSpeed));

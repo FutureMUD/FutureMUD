@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Character;
 using MudSharp.Framework;
 
 namespace MudSharp.Combat;
@@ -14,10 +15,15 @@ public static class CombatExtensions
 	/// </summary>
 	public static BuiltInCombatMoveType[] StandardMeleeWeaponAttacks =
 	{
-		BuiltInCombatMoveType.UseWeaponAttack,
-		BuiltInCombatMoveType.StaggeringBlow,
-		BuiltInCombatMoveType.UnbalancingBlow
+	        BuiltInCombatMoveType.UseWeaponAttack,
+	        BuiltInCombatMoveType.StaggeringBlow,
+	        BuiltInCombatMoveType.UnbalancingBlow
 	};
+
+	public static ICharacter GetCombatMover(this ICharacter character)
+	{
+	        return character.RidingMount ?? character;
+	}
 
 	public static string Describe(this AttackHandednessOptions option)
 	{

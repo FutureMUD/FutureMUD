@@ -7895,15 +7895,26 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 								$"running:{(skills.GetValueOrDefault("Running") ?? skills.GetValueOrDefault("Run") ?? skills["Athletics"]).Id} + (0.5 * {skills["Veterancy"].Id})"
 						}, template.Id, Difficulty.Impossible);
 					continue;
-				case CheckType.OpposeFleeMeleeCheck:
+			case CheckType.OpposeFleeMeleeCheck:
 					AddCheck(check,
 						new TraitExpression
-						{
+					{
 							Expression =
 								$"running:{(skills.GetValueOrDefault("Running") ?? skills.GetValueOrDefault("Run") ?? skills["Athletics"]).Id} + (0.5 * {skills["Veterancy"].Id})"
 						}, template.Id, Difficulty.Impossible);
-					continue;
-				case CheckType.Ward:
+				continue;
+				case CheckType.FleeMovementUnmountedCheck:
+				case CheckType.FleeMovementMountedCheck:
+				case CheckType.PursuitMovementUnmountedCheck:
+				case CheckType.PursuitMovementMountedCheck:
+					AddCheck(check,
+						new TraitExpression
+					{
+							Expression =
+								$"running:{(skills.GetValueOrDefault("Running") ?? skills.GetValueOrDefault("Run") ?? skills["Athletics"]).Id} + (0.5 * {skills["Veterancy"].Id})"
+						}, template.Id, Difficulty.Impossible);
+				continue;
+			case CheckType.Ward:
 					AddCheck(check,
 						new TraitExpression
 							{ Expression = $"ward:{(skills.GetValueOrDefault("Warding") ?? skills["Ward"]).Id}" },

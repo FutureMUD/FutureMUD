@@ -174,9 +174,13 @@ namespace MudSharp.RPG.Checks {
 		CheatAtCoinFlip = 168,
 		SearchForTracksCheck = 169,
 		SearchForTracksByScentScheck = 170,
-		LoadMusket = 171,
-		UnjamGun = 172,
-	}
+                LoadMusket = 171,
+                UnjamGun = 172,
+                FleeMovementUnmountedCheck = 173, // Applied to determine speed bonuses when fleeing on foot
+                FleeMovementMountedCheck = 174, // Applied to determine speed bonuses when fleeing while mounted
+                PursuitMovementUnmountedCheck = 175, // Applied to determine speed bonuses when chasing on foot
+                PursuitMovementMountedCheck = 176, // Applied to determine speed bonuses when chasing while mounted
+        }
 
 	public enum FailIfTraitMissingType {
 		DoNotFail = 0,

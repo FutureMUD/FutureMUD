@@ -125,7 +125,7 @@ public class MoveToMeleeMove : CombatMoveBase
 	                assailantMover.CurrentSpeeds[assailantPosition] = assailantTempSpeed;
 	        }
 
-	        var speed = assailantMover.MoveSpeed(null);
+                var speed = Assailant.ApplyMovementSpeedCheck(assailantMover.MoveSpeed(null), false);
 
 	        if (assailantTempSpeed != null)
 	        {
@@ -170,7 +170,8 @@ public class MoveToMeleeMove : CombatMoveBase
 				break;
 		}
 
-	        var targetspeed = targetMover.MoveSpeed(null) * moveTypeMultiplier * locationMultiplier;
+                var targetBaseSpeed = target.ApplyMovementSpeedCheck(targetMover.MoveSpeed(null), true);
+                var targetspeed = targetBaseSpeed * moveTypeMultiplier * locationMultiplier;
 
 	        if (targetTempSpeed != null)
 	        {

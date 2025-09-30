@@ -173,12 +173,13 @@ public class FleeMove : CombatMoveBase
 	                                         .FirstMin(x => x.Multiplier);
 	        }
 
-	        var assailantSpeed = assailantMover.MoveSpeed(null);
-	        var speeds = pursuers.Select(x =>
-	        {
-	                var mover = x.GetCombatMover();
-	                return Tuple.Create(x, mover.MoveSpeed(null));
-	        }).ToList();
+                var assailantSpeed = Assailant.ApplyMovementSpeedCheck(assailantMover.MoveSpeed(null), true);
+                var speeds = pursuers.Select(x =>
+                {
+                        var mover = x.GetCombatMover();
+                        var baseSpeed = mover.MoveSpeed(null);
+                        return Tuple.Create(x, x.ApplyMovementSpeedCheck(baseSpeed, false));
+                }).ToList();
 
 		var fleeCheck = Gameworld.GetCheck(CheckType.FleeMeleeCheck);
 		var fleeDifficulty = Difficulty.Easy.StageUp(speeds.Count(x => x.Item2 <= assailantSpeed));

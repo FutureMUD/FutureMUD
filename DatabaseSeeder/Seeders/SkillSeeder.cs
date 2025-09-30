@@ -274,6 +274,10 @@ Again, the choices you make here can be fixed later so don't stress it too great
 				case CheckType.BlockCheck:
 				case CheckType.FleeMeleeCheck:
 				case CheckType.OpposeFleeMeleeCheck:
+				case CheckType.FleeMovementUnmountedCheck:
+				case CheckType.FleeMovementMountedCheck:
+				case CheckType.PursuitMovementUnmountedCheck:
+				case CheckType.PursuitMovementMountedCheck:
 				case CheckType.Ward:
 				case CheckType.WardDefense:
 				case CheckType.WardIgnore:

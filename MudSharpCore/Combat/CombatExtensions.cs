@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body.Position;
+using ExpressionEngine;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat;
 
@@ -20,10 +22,63 @@ public static class CombatExtensions
 	        BuiltInCombatMoveType.UnbalancingBlow
 	};
 
-	public static ICharacter GetCombatMover(this ICharacter character)
-	{
-	        return character.RidingMount ?? character;
-	}
+        private const string MovementSpeedExpressionConfig = "CombatMovementSpeedExpression";
+
+        public static ICharacter GetCombatMover(this ICharacter character)
+        {
+                return character.RidingMount ?? character;
+        }
+
+        public static double ApplyMovementSpeedCheck(this ICharacter character, double baseSpeed, bool isFleeingRole)
+        {
+                if (character == null || baseSpeed <= 0.0)
+                {
+                        return baseSpeed;
+                }
+
+                var mover = character.GetCombatMover();
+                var checkType = DetermineMovementCheckType(isFleeingRole, mover != character);
+                if (checkType == CheckType.None)
+                {
+                        return baseSpeed;
+                }
+
+                var check = character.Gameworld.GetCheck(checkType);
+                if (check.Type == CheckType.None)
+                {
+                        return baseSpeed;
+                }
+
+                var outcome = check.Check(character, Difficulty.Normal);
+                var degrees = outcome.CheckDegrees();
+
+                var expressionText = character.Gameworld.GetStaticConfiguration(MovementSpeedExpressionConfig);
+                var expression = new Expression(expressionText);
+                expression.Parameters["baseSpeed"] = baseSpeed;
+                expression.Parameters["degree"] = degrees;
+
+                double modifiedSpeed;
+                try
+                {
+                        modifiedSpeed = Convert.ToDouble(expression.Evaluate());
+                }
+                catch
+                {
+                        modifiedSpeed = baseSpeed;
+                }
+
+                return Math.Max(0.0, modifiedSpeed);
+        }
+
+        private static CheckType DetermineMovementCheckType(bool isFleeingRole, bool isMounted)
+        {
+                if (isFleeingRole)
+                {
+                        return isMounted ? CheckType.FleeMovementMountedCheck : CheckType.FleeMovementUnmountedCheck;
+                }
+
+                return isMounted ? CheckType.PursuitMovementMountedCheck : CheckType.PursuitMovementUnmountedCheck;
+        }
 
 	public static string Describe(this AttackHandednessOptions option)
 	{

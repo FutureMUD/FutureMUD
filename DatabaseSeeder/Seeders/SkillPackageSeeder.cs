@@ -769,6 +769,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 				case CheckType.BlockCheck:
 				case CheckType.FleeMeleeCheck:
 				case CheckType.OpposeFleeMeleeCheck:
+				case CheckType.FleeMovementUnmountedCheck:
+				case CheckType.FleeMovementMountedCheck:
+				case CheckType.PursuitMovementUnmountedCheck:
+				case CheckType.PursuitMovementMountedCheck:
 				case CheckType.Ward:
 				case CheckType.WardDefense:
 				case CheckType.WardIgnore:

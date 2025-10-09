@@ -142,60 +142,106 @@ public class FleeMove : CombatMoveBase
 			};
 		}
 
-		if (!Assailant.EffectsOfType<PreFleeSpeed>().Any())
-		{
-			Assailant.AddEffect(new PreFleeSpeed(Assailant, Assailant.CurrentSpeeds.Values));
-		}
+		var assailantMover = Assailant.GetCombatMover();
+		var temporaryMoverEffects = new List<(ICharacter Mover, PreFleeSpeed Effect)>();
 
-		Assailant.CurrentSpeeds[Assailant.PositionState] = Assailant.Speeds.Where(x => x.Position == Assailant.PositionState).FirstMin(x => x.Multiplier);
-		foreach (var pursuer in pursuers)
+		PreFleeSpeed? AddTemporaryMoverEffect(ICharacter mover)
 		{
-			if (!pursuer.EffectsOfType<PreFleeSpeed>().Any())
+			if (mover.EffectsOfType<PreFleeSpeed>().Any())
 			{
-				pursuer.AddEffect(new PreFleeSpeed(pursuer, pursuer.CurrentSpeeds.Values));
+				return null;
 			}
-			pursuer.CurrentSpeeds[pursuer.PositionState] = pursuer.Speeds.Where(x => x.Position == pursuer.PositionState).FirstMin(x => x.Multiplier);
+
+			var effect = new PreFleeSpeed(mover, mover.CurrentSpeeds.Values.ToList());
+			mover.AddEffect(effect);
+			temporaryMoverEffects.Add((mover, effect));
+			return effect;
 		}
 
-		var assailantSpeed = Assailant.MoveSpeed(null);
-		var speeds = pursuers.Select(x => Tuple.Create(x, x.MoveSpeed(null))).ToList();
-
-		var fleeCheck = Gameworld.GetCheck(CheckType.FleeMeleeCheck);
-		var fleeDifficulty = Difficulty.Easy.StageUp(speeds.Count(x => x.Item2 <= assailantSpeed));
-		var fleeResult = fleeCheck.Check(Assailant, fleeDifficulty);
-		var opposedFleeCheck = Gameworld.GetCheck(CheckType.OpposeFleeMeleeCheck);
-
-		if (Assailant.MeleeRange)
+		try
 		{
-			var successfulOpponents = new Dictionary<ICharacter, OpposedOutcomeDegree>();
+			if (!Assailant.EffectsOfType<PreFleeSpeed>().Any())
+			{
+				Assailant.AddEffect(new PreFleeSpeed(Assailant, Assailant.CurrentSpeeds.Values.ToList()));
+			}
+
+			if (assailantMover != Assailant)
+			{
+				AddTemporaryMoverEffect(assailantMover);
+			}
+
+			assailantMover.CurrentSpeeds[assailantMover.PositionState] =
+				assailantMover.Speeds.Where(x => x.Position == assailantMover.PositionState).FirstMin(x => x.Multiplier);
 			foreach (var pursuer in pursuers)
 			{
-				var outcome = new OpposedOutcome(fleeResult,
-					opposedFleeCheck.Check(pursuer,
-						speeds.First(x => x.Item1 == pursuer).Item2 >= assailantSpeed
+				var pursuerMover = pursuer.GetCombatMover();
+				if (!pursuer.EffectsOfType<PreFleeSpeed>().Any())
+				{
+					pursuer.AddEffect(new PreFleeSpeed(pursuer, pursuer.CurrentSpeeds.Values.ToList()));
+				}
+
+				if (pursuerMover != pursuer)
+				{
+					AddTemporaryMoverEffect(pursuerMover);
+				}
+
+				pursuerMover.CurrentSpeeds[pursuerMover.PositionState] =
+					pursuerMover.Speeds.Where(x => x.Position == pursuerMover.PositionState)
+						.FirstMin(x => x.Multiplier);
+			}
+
+			var assailantSpeed = Assailant.ApplyMovementSpeedCheck(assailantMover.MoveSpeed(null), true);
+			var speeds = pursuers.Select(x =>
+			{
+				var mover = x.GetCombatMover();
+				var baseSpeed = mover.MoveSpeed(null);
+				return Tuple.Create(x, x.ApplyMovementSpeedCheck(baseSpeed, false));
+			}).ToList();
+
+			var fleeCheck = Gameworld.GetCheck(CheckType.FleeMeleeCheck);
+			var fleeDifficulty = Difficulty.Easy.StageUp(speeds.Count(x => x.Item2 <= assailantSpeed));
+			var fleeResult = fleeCheck.Check(Assailant, fleeDifficulty);
+			var opposedFleeCheck = Gameworld.GetCheck(CheckType.OpposeFleeMeleeCheck);
+
+			if (Assailant.MeleeRange)
+			{
+				var successfulOpponents = new Dictionary<ICharacter, OpposedOutcomeDegree>();
+				foreach (var pursuer in pursuers)
+				{
+					var outcome = new OpposedOutcome(fleeResult,
+						opposedFleeCheck.Check(pursuer,
+							speeds.First(x => x.Item1 == pursuer).Item2 >= assailantSpeed
 							? Difficulty.Normal
 							: Difficulty.VeryHard, Assailant));
-				if (outcome.Outcome == OpposedOutcomeDirection.Opponent)
+					if (outcome.Outcome == OpposedOutcomeDirection.Opponent)
+					{
+						successfulOpponents[pursuer] = outcome.Degree;
+					}
+				}
+
+				if (successfulOpponents.Any())
 				{
-					successfulOpponents[pursuer] = outcome.Degree;
+					DoFailFlee(pursuers.ToList(), successfulOpponents.WhereMax(x => x.Value).GetRandomElement().Key);
+					return new CombatMoveResult { RecoveryDifficulty = Difficulty.Normal };
 				}
 			}
 
-			if (successfulOpponents.Any())
+			if (speeds.All(x => x.Item2 > assailantSpeed))
 			{
-				DoFailFlee(pursuers.ToList(), successfulOpponents.WhereMax(x => x.Value).GetRandomElement().Key);
-				return new CombatMoveResult { RecoveryDifficulty = Difficulty.Normal };
+				DoFlee(pursuers);
+				return new CombatMoveResult { RecoveryDifficulty = Difficulty.Easy, MoveWasSuccessful = true };
+			}
+
+			DoFlee(pursuers);
+			return new CombatMoveResult { RecoveryDifficulty = Difficulty.Normal, MoveWasSuccessful = true };
+		}
+		finally
+		{
+			foreach (var (mover, effect) in temporaryMoverEffects)
+			{
+				mover.RemoveEffect(effect, true);
 			}
 		}
-
-		if (speeds.All(x => x.Item2 > assailantSpeed))
-		{
-			DoFlee(pursuers);
-			return new CombatMoveResult { RecoveryDifficulty = Difficulty.Easy, MoveWasSuccessful = true };
-		}
-
-		DoFlee(pursuers);
-		return new CombatMoveResult { RecoveryDifficulty = Difficulty.Normal, MoveWasSuccessful = true };
 	}
 
 	private void DoFlee(IEnumerable<ICharacter> pursuers)

@@ -139,21 +139,46 @@ public class ChargeToMeleeMove : CombatMoveBase
 			};
 		}
 
-		var oldSpeed = Assailant.CurrentSpeeds[Assailant.PositionState];
-		Assailant.CurrentSpeeds[Assailant.PositionState] =
-			Assailant.Speeds.Where(x => x.Position == Assailant.PositionState).FirstMin(x => x.Multiplier);
-		var speed = Assailant.MoveSpeed(null);
-		Assailant.CurrentSpeeds[Assailant.PositionState] = oldSpeed;
+	        var assailantMover = Assailant.GetCombatMover();
+	        var assailantPosition = assailantMover.PositionState;
+	        var assailantHadSpeed = assailantMover.CurrentSpeeds.TryGetValue(assailantPosition, out var oldAssailantSpeed);
+	        var assailantTempSpeed =
+	                assailantMover.Speeds.Where(x => x.Position == assailantPosition).FirstMin(x => x.Multiplier);
+	        if (assailantTempSpeed != null)
+	        {
+	                assailantMover.CurrentSpeeds[assailantPosition] = assailantTempSpeed;
+	        }
 
-		oldSpeed = target.CurrentSpeeds[target.PositionState];
-		target.CurrentSpeeds[target.PositionState] =
-			target.Speeds.Where(x => x.Position == target.PositionState).FirstMin(x => x.Multiplier);
-		double moveTypeMultiplier;
-		var locationMultiplier = target.CombatSettings.SkirmishToOtherLocations && target.Movement == null
-			? 1.0
-			: 1.25;
-		switch (target.CombatSettings.PreferredMeleeMode)
-		{
+                var speed = Assailant.ApplyMovementSpeedCheck(assailantMover.MoveSpeed(null), false);
+
+	        if (assailantTempSpeed != null)
+	        {
+	                if (assailantHadSpeed)
+	                {
+	                        assailantMover.CurrentSpeeds[assailantPosition] = oldAssailantSpeed;
+	                }
+	                else
+	                {
+	                        assailantMover.CurrentSpeeds.Remove(assailantPosition);
+	                }
+	        }
+
+	        var targetMover = target.GetCombatMover();
+	        var targetPosition = targetMover.PositionState;
+	        var targetHadSpeed = targetMover.CurrentSpeeds.TryGetValue(targetPosition, out var oldTargetSpeed);
+	        var targetTempSpeed =
+	                targetMover.Speeds.Where(x => x.Position == targetPosition).FirstMin(x => x.Multiplier);
+	        if (targetTempSpeed != null)
+	        {
+	                targetMover.CurrentSpeeds[targetPosition] = targetTempSpeed;
+	        }
+	        double moveTypeMultiplier;
+	        var locationMultiplier = target.CombatSettings.SkirmishToOtherLocations && target.Movement == null &&
+	                targetMover.Movement == null
+	                ? 1.0
+	                : 1.25;
+	        switch (target.CombatSettings.PreferredMeleeMode)
+	        {
 			case CombatStrategyMode.Skirmish:
 			case CombatStrategyMode.Swooper:
 				moveTypeMultiplier = 1.3;
@@ -169,8 +194,20 @@ public class ChargeToMeleeMove : CombatMoveBase
 				break;
 		}
 
-		var targetspeed = target.MoveSpeed(null) * moveTypeMultiplier * locationMultiplier;
-		target.CurrentSpeeds[target.PositionState] = oldSpeed;
+                var targetBaseSpeed = target.ApplyMovementSpeedCheck(targetMover.MoveSpeed(null), true);
+                var targetspeed = targetBaseSpeed * moveTypeMultiplier * locationMultiplier;
+
+	        if (targetTempSpeed != null)
+	        {
+	                if (targetHadSpeed)
+	                {
+	                        targetMover.CurrentSpeeds[targetPosition] = oldTargetSpeed;
+	                }
+	                else
+	                {
+	                        targetMover.CurrentSpeeds.Remove(targetPosition);
+	                }
+	        }
 
 		if (speed <= targetspeed)
 		{
@@ -200,8 +237,8 @@ public class ChargeToMeleeMove : CombatMoveBase
 					Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
 						BuiltInCombatMoveType.ChargeToMelee, Outcome.MajorFail, null), Assailant, Assailant, target),
 				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-		if (target.CombatSettings.SkirmishToOtherLocations && target.Movement == null &&
-		    speed <= targetspeed * 1.25)
+	        if (target.CombatSettings.SkirmishToOtherLocations && target.Movement == null && targetMover.Movement == null &&
+	            speed <= targetspeed * 1.25)
 		{
 			var exit = target.Location.ExitsFor(target).Where(x => target.CanCross(x).Success).GetRandomElement();
 			if (exit != null)

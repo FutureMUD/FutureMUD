@@ -23,6 +23,7 @@ public static class DefaultStaticSettings
 			{ "RangeCountingMode", "pythagoreanround"},
 			{ "PlayersCanJunk", "true" },
 			{ "FleeMoveBaseDelay", "1.0"},
+			{ "CombatMovementSpeedExpression", "baseSpeed * (1 + (0.1 * degree))" },
 			{ "WrittenItemSDescStyle", "desc+title" },
 			{ "LogNPCCommands", "false" },
 			{ "PrependEmotes", "false" },

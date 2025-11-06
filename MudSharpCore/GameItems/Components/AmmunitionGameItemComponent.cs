@@ -6,6 +6,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -95,11 +96,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 		}
 	}
 
-        private void HandleAmmunitionAftermath(ICharacter actor, IPerceiver target, IGameItem ammo, bool hit = false,
-                IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
-        {
-                if (target == null)
-                {
+	private void HandleAmmunitionAftermath(ICharacter actor, IPerceiver target, IGameItem ammo, bool hit = false,
+			IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
+	{
+		if (target == null)
+		{
 			return;
 		}
 
@@ -137,215 +138,65 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
 
 		// The call to insert the item into the location can result in a stack merge, in which case the ammo item is deleted and we should not further alter it
-                if (actor.Combat != null && !ammo.Deleted)
-                {
-                        ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
-                }
-        }
-
-        private void HandleAmmunitionScatterToCell(ICharacter actor, ICell cell, RoomLayer roomLayer, IGameItem ammo,
-                IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
-        {
-                ammo.RoomLayer = roomLayer;
-
-                if (RandomUtilities.Roll(1.0, AmmoType.BreakChanceOnMiss))
-                {
-                        cell.Insert(ammo, true);
-                        if (emoteOnBreak != null)
-                        {
-                                cell.Handle(emoteOnBreak);
-                        }
-
-                        var result = ammo.Die();
-                        if (result != null)
-                        {
-                                result.RoomLayer = roomLayer;
-                                cell.Insert(result);
-                                if (!result.Deleted && actor.Combat != null)
-                                {
-                                        result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
-                                }
-                        }
-
-                        return;
-                }
-
-                cell.Insert(ammo);
-                ammo.PositionTarget = null;
-                if (emoteOnFallToGround != null)
-                {
-                        cell.Handle(emoteOnFallToGround);
-                }
-
-                if (actor.Combat != null && !ammo.Deleted)
-                {
-                        ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
-                }
-        }
-
-        private Damage BuildDamage(ICharacter actor, IPerceiver target, IBodypart bodypart,
-                IGameItem ammo, IRangedWeaponType weaponType, OpposedOutcome defenseOutcome)
-        {
-                AmmoType.DamageProfile.DamageExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
-                AmmoType.DamageProfile.DamageExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-                AmmoType.DamageProfile.DamageExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-                AmmoType.DamageProfile.DamageExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-                AmmoType.DamageProfile.DamageExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-                AmmoType.DamageProfile.PainExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
-                AmmoType.DamageProfile.PainExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-                AmmoType.DamageProfile.PainExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-                AmmoType.DamageProfile.PainExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-                AmmoType.DamageProfile.PainExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-                AmmoType.DamageProfile.StunExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
-                AmmoType.DamageProfile.StunExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-                AmmoType.DamageProfile.StunExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-                AmmoType.DamageProfile.StunExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-                AmmoType.DamageProfile.StunExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-
-                weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-                weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
-                weaponType.DamageBonusExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
-                weaponType.DamageBonusExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
-                weaponType.DamageBonusExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
-
-                var finalDamage = AmmoType.DamageProfile.DamageExpression.Evaluate(actor) +
-                                  weaponType.DamageBonusExpression.Evaluate(actor, weaponType.FireTrait);
-                var finalPain = AmmoType.DamageProfile.PainExpression.Evaluate(actor);
-                var finalStun = AmmoType.DamageProfile.StunExpression.Evaluate(actor);
-                return new Damage
-                {
-                        ActorOrigin = actor,
-                        ToolOrigin = Parent,
-                        Bodypart = bodypart,
-                        DamageAmount = finalDamage,
-                        DamageType = AmmoType.DamageProfile.DamageType,
-                        PainAmount = finalPain,
-                        StunAmount = finalStun,
-                        LodgableItem = ammo
-                };
-        }
-
-        protected virtual void Hit(ICharacter actor, IPerceiver target, Outcome shotOutcome,
-                Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
-                IRangedWeaponType weaponType, IEmoteOutput defenseEmote)
-        {
-                var damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
-                var wounds = new List<IWound>();
-
-                if (defenseEmote != null)
-                {
-                        target.OutputHandler.Handle(defenseEmote);
-                }
-
-                if (!target.ColocatedWith(actor))
-                {
-                        actor.Send("You hit your target.".Colour(Telnet.BoldGreen));
-                }
-
-                var targetHB = target as IHaveABody;
-                if (targetHB?.Body != null)
-                {
-                        wounds.AddRange(targetHB.Body.PassiveSufferDamage(damage));
-                        if (!wounds.Any())
-                        {
-                                HandleAmmunitionAftermath(actor, target, ammo, true,
-                                        new EmoteOutput(new Emote($"$1 hits $0 on &0's {bodypart.FullDescription()} and breaks!",
-                                                target, target, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap),
-                                        new EmoteOutput(new Emote($"$1 hits $0 on &0's {bodypart.FullDescription()} but ricochets off without causing any damage!",
-                                                target, target, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap)
-                                );
-                                return;
-                        }
-
-                        if (wounds.Any(x => x.Lodged == ammo))
-                        {
-                                var lodgedWound = wounds.First(x => x.Lodged == ammo);
-                                if (lodgedWound.Parent == target)
-                                {
-                                        target.OutputHandler.Handle(
-                                                new EmoteOutput(new Emote($"$0 lodges in $1's {lodgedWound.Bodypart.FullDescription()}!",
-                                                        target, ammo, target)));
-                                }
-                                else
-                                {
-                                        target.OutputHandler.Handle(
-                                                new EmoteOutput(new Emote($"$0 lodges in $1's !2!", target, ammo, target,
-                                                        lodgedWound.Parent)));
-                                }
-
-                                wounds.ProcessPassiveWounds();
-                                return;
-                        }
-
-                        HandleAmmunitionAftermath(actor, target, ammo, true,
-                                new EmoteOutput(new Emote($"$0 strikes $1's {bodypart.FullDescription()}, and then breaks!",
-                                        target, ammo, target)),
-                                new EmoteOutput(new Emote($"$0 strikes $1's {bodypart.FullDescription()}, but falls to the ground!",
-                                        target, ammo, target)));
-                        wounds.ProcessPassiveWounds();
-                        return;
-                }
-
-                if (target is IGameItem targetItem)
-                {
-                        wounds.AddRange(targetItem.PassiveSufferDamage(damage));
-                        if (!wounds.Any())
-                        {
-                                HandleAmmunitionAftermath(actor, target, ammo, true,
-                                        new EmoteOutput(new Emote(
-                                                "$1 hit|hits $0 but ricochets off without causing any damage and shatters!",
-                                                targetItem, targetItem, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap),
-                                        new EmoteOutput(new Emote("$1 hit|hits $0 but ricochets off without causing any damage!",
-                                                targetItem, targetItem, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-                                return;
-                        }
-
-                        if (wounds.Any(x => x.Lodged == ammo))
-                        {
-                                target.OutputHandler.Handle(
-                                        new EmoteOutput(new Emote($"$0 lodges in $1!", actor, ammo, targetItem)));
-                                wounds.ProcessPassiveWounds();
-                                return;
-                        }
-
-                        HandleAmmunitionAftermath(actor, target, ammo, true,
-                                new EmoteOutput(new Emote($"$0 strikes $1, and then breaks!",
-                                        target, ammo, target)),
-                                new EmoteOutput(new Emote($"$0 strikes $1, but falls to the ground!",
-                                        target, ammo, target)));
-                        wounds.ProcessPassiveWounds();
-                        return;
-                }
-
-                throw new NotImplementedException("Unknown target type in Fire.");
-        }
-
-	public virtual void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
-		OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
-		IEmoteOutput defenseEmote)
-	{
-		// Ammunition that is just created and lodges can cause a crash if we don't flush now
-		Gameworld.SaveManager.Flush();
-
-		if (target == null)
+		if (actor.Combat != null && !ammo.Deleted)
 		{
-			// Fired at sky
-			if (actor.Location.CurrentOverlay.OutdoorsType != CellOutdoorsType.Outdoors)
+			ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
+		}
+	}
+
+	private void HandleAmmunitionScatterToCell(ICharacter actor, ICell cell, RoomLayer roomLayer, IGameItem ammo,
+		IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
+	{
+		ammo.RoomLayer = roomLayer;
+
+		if (RandomUtilities.Roll(1.0, AmmoType.BreakChanceOnMiss))
+		{
+			cell.Insert(ammo, true);
+			if (emoteOnBreak != null)
 			{
-				HandleAmmunitionAftermath(actor, actor, ammo, true,
-					new EmoteOutput(new Emote("$1 $1|hit|hits the ceiling and shatters!", actor, actor, ammo)),
-					new EmoteOutput(
-						new Emote("$1 $1|hit|hits the ceiling and drops to the ground!", actor, actor, ammo))
-				);
+				cell.Handle(emoteOnBreak);
 			}
 
-			// Do nothing
+			var result = ammo.Die();
+			if (result != null)
+			{
+				result.RoomLayer = roomLayer;
+				cell.Insert(result);
+				if (!result.Deleted && actor.Combat != null)
+				{
+					result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
+				}
+			}
+
 			return;
 		}
 
-		var path = actor.PathBetween(target, 10, false, false, true);
-		var dirDesc = path.Select(x => x.OutboundDirection).DescribeDirection();
-		var oppDirDesc = path.Select(x => x.OutboundDirection).DescribeOppositeDirection();
+		cell.Insert(ammo);
+		ammo.PositionTarget = null;
+		if (emoteOnFallToGround != null)
+		{
+			cell.Handle(emoteOnFallToGround);
+		}
+
+		if (actor.Combat != null && !ammo.Deleted)
+		{
+			ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
+		}
+	}
+
+	private void BroadcastProjectileFlight(ICharacter actor, IPerceivable destination, IGameItem ammo,
+		IReadOnlyList<ICellExit> precomputedPath = null)
+	{
+		if (actor?.Location == null || destination?.Location == null)
+		{
+			return;
+		}
+
+		var path = precomputedPath ?? actor.PathBetween(destination, 10, false, false, true)?.ToList() ??
+				   new List<ICellExit>();
+		var directions = path.Select(x => x.OutboundDirection).ToList();
+		var dirDesc = directions.DescribeDirection();
+		var oppDirDesc = directions.DescribeOppositeDirection();
 		var actionDescription = "fly|flies overhead";
 		var actionDescriptionTargetRoom = "fly|flies in";
 		var flags = OutputFlags.InnerWrap;
@@ -368,150 +219,426 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 				break;
 		}
 
-		foreach (var cell in actor.CellsUnderneathFlight(target, 10))
+		foreach (var cell in actor.CellsUnderneathFlight(destination, 10))
 		{
 			cell.Handle(
-				new EmoteOutput(new Emote($"@ {actionDescription} from the {oppDirDesc} towards the {dirDesc}", ammo),
-					style: OutputStyle.CombatMessage, flags: flags) { NoticeCheckDifficulty = Difficulty.VeryHard });
-		}
-
-		if (actor.Location != target.Location)
-		{
-			target.OutputHandler.Handle(new EmoteOutput(
-				new Emote($"$0 {actionDescriptionTargetRoom} from the {oppDirDesc}.", target, ammo),
-				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-		}
-		else if (actor.RoomLayer != target.RoomLayer)
-		{
-			target.OutputHandler.Handle(new EmoteOutput(
-				new Emote(
-					$"$0 {actionDescriptionTargetRoom} from {(target.RoomLayer.IsHigherThan(actor.RoomLayer) ? "below" : "above")}.",
-					target, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-		}
-
-                var damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
-
-		var wounds = new List<IWound>();
-		if (shotOutcome.IsPass() && coverOutcome.IsFail() && target.Cover != null)
-		{
-			// Shot would've hit if it wasn't for cover
-			var strikeCover = target.Cover.Cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
-			                  coverOutcome == Outcome.MinorFail;
-			if (strikeCover)
-			{
-				target.OutputHandler.Handle(
-					new EmoteOutput(new Emote($"The {ammo.Name.ToLowerInvariant()} strikes $?1|$1, ||$$0's cover!",
-							target, target,
-							target.Cover.CoverItem?.Parent), style: OutputStyle.CombatMessage,
-						flags: OutputFlags.InnerWrap));
-				actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
-				wounds.AddRange(target.Cover?.CoverItem?.Parent.PassiveSufferDamage(damage) ??
-				                Enumerable.Empty<IWound>());
-                        wounds.ProcessPassiveWounds();
-                        if (wounds.All(x => x.Lodged != ammo))
-                        {
-                                var chance = 10 * (8 - (int)shotOutcome);
-                                var mult = actor.Merits.OfType<IScatterChanceMerit>().Aggregate(1.0, (x, y) => x * y.ScatterMultiplier);
-                                if (Dice.Roll(1, 100) <= chance * mult)
-                                {
-                                        var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
-                                                .GetScatterTarget(actor, target, path);
-                                        if (scatterResult != null)
-                                        {
-                                                if (scatterResult.Target != null)
-                                                {
-                                                        Hit(actor, scatterResult.Target, Outcome.Pass, Outcome.Pass,
-                                                                new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal),
-                                                                (scatterResult.Target as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front),
-                                                                ammo, weaponType, null);
-                                                        return;
-                                                }
-
-                                                var dummy = new DummyPerceiver(location: scatterResult.Cell)
-                                                {
-                                                        RoomLayer = scatterResult.RoomLayer
-                                                };
-                                                var directionText = ScatterStrategyUtilities
-                                                        .DescribeFromDirection(scatterResult.DirectionFromTarget);
-                                                var breakOutput = new EmoteOutput(
-                                                        new Emote($"$0 ricochets{directionText} and shatters!", dummy, ammo),
-                                                        style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
-                                                var fallOutput = new EmoteOutput(
-                                                        new Emote($"$0 ricochets{directionText} and falls to the ground.", dummy,
-                                                                ammo),
-                                                        style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
-                                                HandleAmmunitionScatterToCell(actor, scatterResult.Cell,
-                                                        scatterResult.RoomLayer, ammo, breakOutput, fallOutput);
-                                                return;
-                                        }
-                                }
-
-                                HandleAmmunitionAftermath(actor, target, ammo);
-                        }
-
-                        return;
-                }
-		}
-
-		if (defenseOutcome.Outcome == OpposedOutcomeDirection.Opponent)
-		{
-			if (defenseEmote != null)
-			{
-				target.OutputHandler.Handle(defenseEmote);
-			}
-
-			target.OutputHandler.Handle(
 				new EmoteOutput(
-					new Emote($"$0 {(shotOutcome.IsPass() ? "narrowly misses @!" : "misses @ by a wide margin.")}",
-						target, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-			if (!actor.ColocatedWith(target))
-			{
-				actor.Send("You missed your target.".Colour(Telnet.Red));
-			}
+					new Emote($"@ {actionDescription} from the {oppDirDesc} towards the {dirDesc}", ammo),
+					style: OutputStyle.CombatMessage, flags: flags)
+				{ NoticeCheckDifficulty = Difficulty.VeryHard });
+		}
 
-			if (wounds.All(x => x.Lodged != ammo))
-			{
-				HandleAmmunitionAftermath(actor, target, ammo);
-			}
-
+		if (destination is not IPerceiver destinationPerceiver)
+		{
 			return;
 		}
 
-		foreach (var effect in target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle())
+		if (!Equals(actor.Location, destinationPerceiver.Location))
 		{
-			target.OutputHandler.Handle(
-				new EmoteOutput(
-					new Emote($"The {ammo.Name.ToLowerInvariant()} strikes $1 instead of $0!", target, target,
-						effect.Obstruction), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-			actor.Send($"You hit {effect.Obstruction.HowSeen(actor)} instead!");
-			if (effect.Obstruction is IHaveWounds ihw)
+			destinationPerceiver.OutputHandler.Handle(new EmoteOutput(
+				new Emote($"$0 {actionDescriptionTargetRoom} from the {oppDirDesc}.", destinationPerceiver, ammo),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			return;
+		}
+
+		if (actor.RoomLayer == destinationPerceiver.RoomLayer)
+		{
+			return;
+		}
+
+		var relativeDirection = destinationPerceiver.RoomLayer.IsHigherThan(actor.RoomLayer) ? "below" : "above";
+		destinationPerceiver.OutputHandler.Handle(new EmoteOutput(
+			new Emote($"$0 {actionDescriptionTargetRoom} from {relativeDirection}.", destinationPerceiver, ammo),
+			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+	}
+
+	private static bool ShouldAttemptScatter(Outcome shotOutcome, ICharacter actor)
+	{
+		var chance = 10 * (8 - (int)shotOutcome);
+		if (chance <= 0)
+		{
+			return false;
+		}
+
+		var multiplier = actor.Merits.OfType<IScatterChanceMerit>()
+							 .Aggregate(1.0, (current, merit) => current * merit.ScatterMultiplier);
+		return Dice.Roll(1, 100) <= chance * multiplier;
+	}
+
+	private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
+		IGameItem ammo, IReadOnlyList<ICellExit> path)
+	{
+		var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
+			.GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
+
+		if (scatterResult == null)
+		{
+			return false;
+		}
+
+		ResolveScatterResult(actor, weaponType, ammo, scatterResult);
+		return true;
+	}
+
+	private void ResolveScatterResult(ICharacter actor, IRangedWeaponType weaponType, IGameItem ammo,
+		RangedScatterResult scatterResult)
+	{
+		if (scatterResult.Target != null)
+		{
+			var scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
+							  new List<ICellExit>();
+			BroadcastProjectileFlight(actor, scatterResult.Target, ammo, scatterPath);
+			var bodypart = (scatterResult.Target as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre,
+				Alignment.Front, Facing.Front);
+			Hit(actor, scatterResult.Target, Outcome.Pass, Outcome.Pass,
+				new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal), bodypart, ammo,
+				weaponType, null);
+			return;
+		}
+
+		var dummy = new DummyPerceiver(location: scatterResult.Cell)
+		{
+			RoomLayer = scatterResult.RoomLayer
+		};
+		var scatterCellPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
+		BroadcastProjectileFlight(actor, dummy, ammo, scatterCellPath);
+		var directionText = ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget);
+		var breakOutput = new EmoteOutput(
+			new Emote($"$0 ricochets{directionText} and shatters!", dummy, ammo),
+			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
+		var fallOutput = new EmoteOutput(
+			new Emote($"$0 ricochets{directionText} and falls to the ground.", dummy, ammo),
+			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
+		HandleAmmunitionScatterToCell(actor, scatterResult.Cell, scatterResult.RoomLayer, ammo, breakOutput,
+			fallOutput);
+	}
+
+	private bool TryResolveCoverInterception(ICharacter actor, IPerceiver target, Outcome shotOutcome,
+		Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
+		IRangedWeaponType weaponType, IReadOnlyList<ICellExit> path)
+	{
+		if (!shotOutcome.IsPass() || coverOutcome.IsPass() || target?.Cover == null)
+		{
+			return false;
+		}
+
+		var strikeCover = target.Cover.Cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
+						  coverOutcome == Outcome.MinorFail;
+		if (!strikeCover)
+		{
+			return false;
+		}
+
+		BroadcastProjectileFlight(actor, target, ammo, path);
+		var coverItem = target.Cover.CoverItem?.Parent;
+		target.OutputHandler.Handle(
+			new EmoteOutput(
+				new Emote($"The {ammo.Name.ToLowerInvariant()} strikes $?1|$1, ||$$0's cover!", target, target,
+					coverItem), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
+
+		var damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
+		var wounds = new List<IWound>();
+		wounds.AddRange(coverItem?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+		wounds.ProcessPassiveWounds();
+
+		if (wounds.Any(x => x.Lodged == ammo))
+		{
+			return true;
+		}
+
+		if (ShouldAttemptScatter(shotOutcome, actor) && TryResolveScatter(actor, target, weaponType, ammo, path))
+		{
+			return true;
+		}
+
+		HandleAmmunitionAftermath(actor, target, ammo);
+		return true;
+	}
+
+	private bool TryResolveMiss(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
+		OpposedOutcome defenseOutcome, IGameItem ammo, IRangedWeaponType weaponType, IEmoteOutput defenseEmote,
+		IReadOnlyList<ICellExit> path)
+	{
+		if (shotOutcome.IsPass() && defenseOutcome.Outcome != OpposedOutcomeDirection.Opponent)
+		{
+			return false;
+		}
+
+		BroadcastProjectileFlight(actor, target, ammo, path);
+
+		if (defenseEmote != null)
+		{
+			target.OutputHandler.Handle(defenseEmote);
+		}
+
+		target.OutputHandler.Handle(
+			new EmoteOutput(
+				new Emote($"$0 {(shotOutcome.IsPass() ? "narrowly misses @!" : "misses @ by a wide margin.")}", target,
+					ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+
+		if (!actor.ColocatedWith(target))
+		{
+			actor.Send("You missed your target.".Colour(Telnet.Red));
+		}
+
+		if (!shotOutcome.IsPass() && !coverOutcome.IsPass() && ShouldAttemptScatter(shotOutcome, actor) &&
+			TryResolveScatter(actor, target, weaponType, ammo, path))
+		{
+			return true;
+		}
+
+		HandleAmmunitionAftermath(actor, target, ammo);
+		return true;
+	}
+
+	private bool TryResolveObstruction(ICharacter actor, IPerceiver target, IGameItem ammo,
+		IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, IBodypart bodypart, IReadOnlyList<ICellExit> path)
+	{
+		var obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle()
+										 .FirstOrDefault();
+		if (obstructionEffect == null)
+		{
+			return false;
+		}
+
+		var obstruction = obstructionEffect.Obstruction;
+		var obstructionPerceiver = obstruction as IPerceiver;
+		if (obstructionPerceiver != null)
+		{
+			var obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
+								  new List<ICellExit>();
+			BroadcastProjectileFlight(actor, obstructionPerceiver, ammo, obstructionPath);
+		}
+		else
+		{
+			BroadcastProjectileFlight(actor, target, ammo, path);
+		}
+
+		target.OutputHandler.Handle(
+			new EmoteOutput(
+				new Emote($"The {ammo.Name.ToLowerInvariant()} strikes $1 instead of $0!", target, target, obstruction),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		actor.Send($"You hit {obstruction.HowSeen(actor)} instead!");
+
+		var damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
+		var wounds = new List<IWound>();
+
+		if (obstruction is IHaveWounds ihw)
+		{
+			if (obstruction is IHaveABody ihab)
 			{
-				if (ihw is IHaveABody ihab)
+				var oldTarget = damage.Bodypart;
+				damage = new Damage(damage)
 				{
-					var oldTarget = damage.Bodypart;
-					damage = new Damage(damage)
-					{
-						Bodypart = ihab.Body.RandomBodyPartGeometry(oldTarget?.Orientation ?? Orientation.Centre,
-							Alignment.Front, Facing.Front, true)
-					};
+					Bodypart = ihab.Body.RandomBodyPartGeometry(oldTarget?.Orientation ?? Orientation.Centre,
+						Alignment.Front, Facing.Front, true)
+				};
+			}
+
+			wounds.AddRange(ihw.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+			wounds.ProcessPassiveWounds();
+		}
+
+		if (wounds.All(x => x.Lodged != ammo))
+		{
+			if (obstructionPerceiver != null)
+			{
+				HandleAmmunitionAftermath(actor, obstructionPerceiver, ammo);
+			}
+			else
+			{
+				HandleAmmunitionAftermath(actor, target, ammo);
+			}
+		}
+
+		return true;
+	}
+
+	private Damage BuildDamage(ICharacter actor, IPerceiver target, IBodypart bodypart,
+		IGameItem ammo, IRangedWeaponType weaponType, OpposedOutcome defenseOutcome)
+	{
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
+
+		weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
+		weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
+		weaponType.DamageBonusExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
+		weaponType.DamageBonusExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		weaponType.DamageBonusExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+
+		var finalDamage = AmmoType.DamageProfile.DamageExpression.Evaluate(actor) +
+						  weaponType.DamageBonusExpression.Evaluate(actor, weaponType.FireTrait);
+		var finalPain = AmmoType.DamageProfile.PainExpression.Evaluate(actor);
+		var finalStun = AmmoType.DamageProfile.StunExpression.Evaluate(actor);
+		return new Damage
+		{
+			ActorOrigin = actor,
+			ToolOrigin = Parent,
+			Bodypart = bodypart,
+			DamageAmount = finalDamage,
+			DamageType = AmmoType.DamageProfile.DamageType,
+			PainAmount = finalPain,
+			StunAmount = finalStun,
+			LodgableItem = ammo
+		};
+	}
+
+	protected virtual void Hit(ICharacter actor, IPerceiver target, Outcome shotOutcome,
+			Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
+			IRangedWeaponType weaponType, IEmoteOutput defenseEmote)
+	{
+		var damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
+		var wounds = new List<IWound>();
+
+		if (defenseEmote != null)
+		{
+			target.OutputHandler.Handle(defenseEmote);
+		}
+
+		if (!target.ColocatedWith(actor))
+		{
+			actor.Send("You hit your target.".Colour(Telnet.BoldGreen));
+		}
+
+		var targetHB = target as IHaveABody;
+		if (targetHB?.Body != null)
+		{
+			wounds.AddRange(targetHB.Body.PassiveSufferDamage(damage));
+			if (!wounds.Any())
+			{
+				HandleAmmunitionAftermath(actor, target, ammo, true,
+						new EmoteOutput(new Emote($"$1 hits $0 on &0's {bodypart.FullDescription()} and breaks!",
+								target, target, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap),
+						new EmoteOutput(new Emote($"$1 hits $0 on &0's {bodypart.FullDescription()} but ricochets off without causing any damage!",
+								target, target, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap)
+				);
+				return;
+			}
+
+			if (wounds.Any(x => x.Lodged == ammo))
+			{
+				var lodgedWound = wounds.First(x => x.Lodged == ammo);
+				if (lodgedWound.Parent == target)
+				{
+					target.OutputHandler.Handle(
+							new EmoteOutput(new Emote($"$0 lodges in $1's {lodgedWound.Bodypart.FullDescription()}!",
+									target, ammo, target)));
+				}
+				else
+				{
+					target.OutputHandler.Handle(
+							new EmoteOutput(new Emote($"$0 lodges in $1's !2!", target, ammo, target,
+									lodgedWound.Parent)));
 				}
 
-				wounds.AddRange(ihw.PassiveSufferDamage(damage) ??
-				                Enumerable.Empty<IWound>());
 				wounds.ProcessPassiveWounds();
+				return;
 			}
 
-			if (wounds.All(x => x.Lodged != ammo))
+			HandleAmmunitionAftermath(actor, target, ammo, true,
+					new EmoteOutput(new Emote($"$0 strikes $1's {bodypart.FullDescription()}, and then breaks!",
+							target, ammo, target)),
+					new EmoteOutput(new Emote($"$0 strikes $1's {bodypart.FullDescription()}, but falls to the ground!",
+							target, ammo, target)));
+			wounds.ProcessPassiveWounds();
+			return;
+		}
+
+		if (target is IGameItem targetItem)
+		{
+			wounds.AddRange(targetItem.PassiveSufferDamage(damage));
+			if (!wounds.Any())
 			{
-				HandleAmmunitionAftermath(actor, target, ammo);
+				HandleAmmunitionAftermath(actor, target, ammo, true,
+						new EmoteOutput(new Emote(
+								"$1 hit|hits $0 but ricochets off without causing any damage and shatters!",
+								targetItem, targetItem, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap),
+						new EmoteOutput(new Emote("$1 hit|hits $0 but ricochets off without causing any damage!",
+								targetItem, targetItem, ammo), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+				return;
+			}
+
+			if (wounds.Any(x => x.Lodged == ammo))
+			{
+				target.OutputHandler.Handle(
+						new EmoteOutput(new Emote($"$0 lodges in $1!", actor, ammo, targetItem)));
+				wounds.ProcessPassiveWounds();
+				return;
+			}
+
+			HandleAmmunitionAftermath(actor, target, ammo, true,
+					new EmoteOutput(new Emote($"$0 strikes $1, and then breaks!",
+							target, ammo, target)),
+					new EmoteOutput(new Emote($"$0 strikes $1, but falls to the ground!",
+							target, ammo, target)));
+			wounds.ProcessPassiveWounds();
+			return;
+		}
+
+		throw new NotImplementedException("Unknown target type in Fire.");
+	}
+
+	public virtual void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
+		OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
+		IEmoteOutput defenseEmote)
+	{
+		// Ammunition that is just created and lodges can cause a crash if we don't flush now
+		Gameworld.SaveManager.Flush();
+
+		if (target == null)
+		{
+			// Fired at sky
+			if (actor.Location.CurrentOverlay.OutdoorsType != CellOutdoorsType.Outdoors)
+			{
+				HandleAmmunitionAftermath(actor, actor, ammo, true,
+					new EmoteOutput(new Emote("$1 $1|hit|hits the ceiling and shatters!", actor, actor, ammo)),
+					new EmoteOutput(
+						new Emote("$1 $1|hit|hits the ceiling and drops to the ground!", actor, actor, ammo))
+				);
 			}
 
 			return;
 		}
 
-            Hit(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote);
-            return;
-        }
+		var pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
+
+		// Cover checks run first – they may absorb the shot or trigger a ricochet.
+		if (TryResolveCoverInterception(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo,
+				weaponType, pathToTarget))
+		{
+			return;
+		}
+
+		// Handle outright misses (bad shot or a successful defense), including scatter fall-through.
+		if (TryResolveMiss(actor, target, shotOutcome, coverOutcome, defenseOutcome, ammo, weaponType, defenseEmote,
+				pathToTarget))
+		{
+			return;
+		}
+
+		// Interposing effects redirect successful shots before they land on the original target.
+		if (TryResolveObstruction(actor, target, ammo, weaponType, defenseOutcome, bodypart, pathToTarget))
+		{
+			return;
+		}
+
+		BroadcastProjectileFlight(actor, target, ammo, pathToTarget);
+		Hit(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote);
+	}
 
 	#endregion
 }

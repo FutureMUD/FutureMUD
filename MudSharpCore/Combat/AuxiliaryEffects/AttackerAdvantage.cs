@@ -7,7 +7,6 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
-using OpenAI_API.Moderation;
 
 namespace MudSharp.Combat.AuxiliaryEffects;
 #nullable enable

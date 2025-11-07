@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character.Name;
 using MudSharp.Database;
-using OpenAI_API;
-using OpenAI_API.Chat;
 
 namespace MudSharp.FutureProg.Functions.OpenAI;
 #nullable enable

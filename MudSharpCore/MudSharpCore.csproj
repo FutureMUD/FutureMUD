@@ -20,11 +20,11 @@
 	</PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Anthropic.SDK" Version="4.4.1" />
+	<PackageReference Include="Anthropic.SDK" Version="5.8.0" />
 	<PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3601" />
 	<PackageReference Include="Google.Apis.Oauth2.v2" Version="1.68.0.1869" />
 	<PackageReference Include="Humanizer" Version="3.0.0-beta.54" />
-	<PackageReference Include="MailKit" Version="4.8.0" />
+	<PackageReference Include="MailKit" Version="4.14.1" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,12 +34,14 @@
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>
+	<PackageReference Include="Microsoft.Extensions.AI" Version="9.10.2" />
+	<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.10.2-preview.1.25552.1" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 	<PackageReference Include="Mscc.GenerativeAI" Version="1.5.1" />
 	<PackageReference Include="Mscc.GenerativeAI.Google" Version="1.5.1" />
 	<PackageReference Include="MySqlBackup.NET" Version="2.3.8" />
 	<PackageReference Include="NCalcSync" Version="5.3.0" />
-	<PackageReference Include="OpenAI" Version="1.11.0" />
+	<PackageReference Include="OpenAI" Version="2.6.0" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Design" Version="1.1.2" />
 	<PackageReference Include="C5">

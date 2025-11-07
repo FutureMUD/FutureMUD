@@ -10,7 +10,6 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
-using OpenAI_API.Embedding;
 
 namespace MudSharp.RPG.Merits;
 

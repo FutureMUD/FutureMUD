@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.SDK;
 using Anthropic.SDK.Messaging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Mscc.GenerativeAI;
 using Mscc.GenerativeAI.Google;
 using MudSharp.Character;
@@ -16,9 +18,8 @@ using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
-using OpenAI_API;
-using OpenAI_API.Chat;
-using APIAuthentication = OpenAI_API.APIAuthentication;
+using OpenAI;
+
 
 namespace MudSharp.OpenAI;
 
@@ -32,9 +33,12 @@ internal static class OpenAIHandler
 			return Enumerable.Empty<string>();
 		}
 
-		var api = new OpenAIAPI(new APIAuthentication(apiKey));
-		var models = await api.Models.GetModelsAsync();
-		return models.Select(x => x.ModelID).ToArray();
+		var client = new OpenAIClient(apiKey);
+		var models = await client.GetOpenAIModelClient().GetModelsAsync();
+		return models.Value
+		             .OrderByDescending(x => x.CreatedAt)
+		             .Select(x => x.Id)
+		             .ToArray();
 	}
 
 	public static bool MakeGeminiRequest(string context, string requestText, Action<string> callback, string model, double temperature = 0.7)
@@ -140,23 +144,23 @@ internal static class OpenAIHandler
 			return false;
 		}
 
-		var api = new OpenAIAPI(new APIAuthentication(apiKey));
-		var chat = api.Chat.CreateConversation(new ChatRequest
+		var client = new OpenAIClient(apiKey);
+		var chatClient = client.GetChatClient(model).AsIChatClient();
+		var chatHistory = new List<ChatMessage>
 		{
-			Model = model,
-			Temperature = temperature,
-		});
-		chat.AppendSystemMessage(context);
-		chat.AppendUserInput(requestText);
+			new ChatMessage(ChatRole.System, context),
+			new ChatMessage(ChatRole.User, requestText)
+		};
+		
 #if DEBUG
 		Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
 #endif
 		$"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
 		var task = Task.Run(async () =>
 		{
-			var result = await chat.GetResponseFromChatbotAsync();
+			var result = await chatClient.GetResponseAsync(chatHistory);
 			$"#CGPT Response#0\n\n{result}".WriteLineConsole();
-			callback(result);
+			callback(result.Text);
 		});
 		return true;
 	}
@@ -170,18 +174,19 @@ internal static class OpenAIHandler
 			return false;
 		}
 
-		var api = new OpenAIAPI(new APIAuthentication(apiKey));
-		var chat = api.Chat.CreateConversation(new ChatRequest
-		{
-			Model = thread.Model,
-			Temperature = thread.Temperature,
-		});
-		string prompt = thread.Prompt;
+		var client = new OpenAIClient(apiKey);
+		var chatClient = client.GetChatClient(thread.Model).AsIChatClient();
+
+		var prompt = thread.Prompt;
 		if (includeExtraContext && character is not null)
 		{
 			prompt = $"{thread.Prompt}. The time is {character.Location.DateTime().ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Immortal)}. The person you are talking to is called {character.PersonalName.GetName(NameStyle.FullName)} and they are described as {character.HowSeen(character, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}. They are at a location called {character.Location.HowSeen(character, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}.";
 		}
-		chat.AppendSystemMessage(prompt);
+		var chatHistory = new List<ChatMessage>
+		{
+			new ChatMessage(ChatRole.System, prompt),
+		};
+		
 		var messages = maximumHistory == -1
 			? thread.Messages.ToArray()
 			: thread.Messages.TakeLast(maximumHistory).ToArray();
@@ -192,26 +197,28 @@ internal static class OpenAIHandler
 				continue;
 			}
 
-			chat.AppendUserInput(message.Message);
-			chat.AppendExampleChatbotOutput(message.Response);
+			chatHistory.Add(new ChatMessage(ChatRole.User, message.Message));
+			chatHistory.Add(new ChatMessage(ChatRole.Assistant, message.Response));
 		}
-		chat.AppendMessage(ChatMessageRole.User, messageText);
+
+		chatHistory.Add(new ChatMessage(ChatRole.User, messageText));
+
 		var task = Task.Run(async () =>
 		{
-			var result = await chat.GetResponseFromChatbotAsync();
+			var result = await chatClient.GetResponseAsync(chatHistory);
 			using (new FMDB())
 			{
 				FMDB.Context.GPTMessages.Add(new GPTMessage
 				{
 					GPTThreadId = thread.Id,
 					Message = messageText,
-					Response = result,
+					Response = result.Text,
 					CharacterId = character?.Id
 				});
 				FMDB.Context.SaveChanges();
 			}
 				
-			callback(result);
+			callback(result.Text);
 		});
 		return true;
 	}

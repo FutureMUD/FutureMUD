@@ -41,6 +41,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Logging;
@@ -2087,7 +2088,8 @@ The following options are available:
 	#3debug scheduler#0 - shows all things in the scheduler
 	#3debug listeners#0 - shows all listeners
 	#3debug fixmorph#0 - resets all morph timers of shop stocked items
-	#3debug fixbites#0 - resets all bite counts of shop stocked items", AutoHelp.HelpArgOrNoArg)]
+	#3debug fixbites#0 - resets all bite counts of shop stocked items
+	#3debug evaporate#0 - evaporate all puddles in the gameworld", AutoHelp.HelpArgOrNoArg)]
 	protected static void Debug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -2147,6 +2149,9 @@ The following options are available:
 			case "hitchance":
 				DebugHitChance(actor, ss);
 				return;
+			case "evaporate":
+				DebugEvaporate(actor);
+				return;
 			default:
 				actor.Send("That's not a known debug routine.");
 				return;
@@ -2154,7 +2159,18 @@ The following options are available:
 	}
 
 	#region Debug Sub-Routines
-	
+
+	private static void DebugEvaporate(ICharacter actor)
+	{
+		var puddles = actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>()).ToList();
+		foreach (var puddle in puddles)
+		{
+			puddle.ReduceLiquidQuantity(puddle.LiquidVolume, null, "debug");
+		}
+
+		actor.OutputHandler.Send("Evaporated all puddles.");
+	}
+
 	private static void DebugFixBites(ICharacter actor)
 	{
 		var count = 0;

@@ -252,47 +252,58 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 	}
 
-	private static bool ShouldAttemptScatter(Outcome shotOutcome, ICharacter actor)
+	private bool ShouldAttemptScatter(Outcome shotOutcome, ICharacter actor, string context)
 	{
-		var chance = 10 * (8 - (int)shotOutcome);
-		if (chance <= 0)
+		var baseChance = Math.Max(0, 10 * (8 - (int)shotOutcome));
+		var multiplier = actor.Merits.OfType<IScatterChanceMerit>()
+		                     .Aggregate(1.0, (current, merit) => current * merit.ScatterMultiplier);
+		var finalChance = baseChance * multiplier;
+		if (finalChance <= 0)
 		{
+			Gameworld.DebugMessage(
+				$"[Scatter:{context}] No scatter possible for {actor.HowSeen(actor)} - final chance {finalChance:F2}% (base {baseChance}% * mult {multiplier:F2}).");
 			return false;
 		}
 
-		var multiplier = actor.Merits.OfType<IScatterChanceMerit>()
-							 .Aggregate(1.0, (current, merit) => current * merit.ScatterMultiplier);
-		return Dice.Roll(1, 100) <= chance * multiplier;
+		var roll = Dice.Roll(1, 100);
+		var success = roll <= finalChance;
+		Gameworld.DebugMessage(
+			$"[Scatter:{context}] {actor.HowSeen(actor)} rolled {roll:N0} vs {finalChance:F2}% (base {baseChance}% * mult {multiplier:F2}) -> {(success ? "scatter triggered" : "no scatter")}.");
+		return success;
 	}
 
 	private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
-		IGameItem ammo, IReadOnlyList<ICellExit> path)
+		IGameItem ammo, IReadOnlyList<ICellExit> path, string context)
 	{
 		var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
 			.GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
 
 		if (scatterResult == null)
 		{
+			Gameworld.DebugMessage(
+				$"[Scatter:{context}] {actor.HowSeen(actor)} had no valid ricochet destinations from {originalTarget?.HowSeen(actor) ?? "unknown target"}.");
 			return false;
 		}
 
-		ResolveScatterResult(actor, weaponType, ammo, scatterResult);
+		ResolveScatterResult(actor, weaponType, ammo, scatterResult, context);
 		return true;
 	}
 
 	private void ResolveScatterResult(ICharacter actor, IRangedWeaponType weaponType, IGameItem ammo,
-		RangedScatterResult scatterResult)
+		RangedScatterResult scatterResult, string context)
 	{
 		if (scatterResult.Target != null)
 		{
 			var scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
-							  new List<ICellExit>();
+			                  new List<ICellExit>();
 			BroadcastProjectileFlight(actor, scatterResult.Target, ammo, scatterPath);
-			var bodypart = (scatterResult.Target as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre,
+			var bodypart = (scatterResult.Target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre,
 				Alignment.Front, Facing.Front);
 			Hit(actor, scatterResult.Target, Outcome.Pass, Outcome.Pass,
 				new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal), bodypart, ammo,
 				weaponType, null);
+			Gameworld.DebugMessage(
+				$"[Scatter:{context}] Ricochet struck {scatterResult.Target.HowSeen(actor)} in {scatterResult.Cell.HowSeen(actor)} after deviating{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} (distance {scatterResult.DistanceFromTarget:N0}).");
 			return;
 		}
 
@@ -311,6 +322,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
 		HandleAmmunitionScatterToCell(actor, scatterResult.Cell, scatterResult.RoomLayer, ammo, breakOutput,
 			fallOutput);
+		Gameworld.DebugMessage(
+			$"[Scatter:{context}] Ricochet landed in {scatterResult.Cell.HowSeen(actor)}{directionText} without hitting a new target.");
 	}
 
 	private bool TryResolveCoverInterception(ICharacter actor, IPerceiver target, Outcome shotOutcome,
@@ -331,6 +344,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
 		BroadcastProjectileFlight(actor, target, ammo, path);
 		var coverItem = target.Cover.CoverItem?.Parent;
+		var actorText = actor.HowSeen(actor);
+		var targetText = target.HowSeen(actor);
+		var coverText = coverItem?.HowSeen(actor) ?? "environmental cover";
+		Gameworld.DebugMessage(
+			$"[Ranged] Cover interception: {actorText} vs {targetText} (shot {shotOutcome}, cover {coverOutcome}) stopped by {coverText}.");
 		target.OutputHandler.Handle(
 			new EmoteOutput(
 				new Emote($"The {ammo.Name.ToLowerInvariant()} strikes $?1|$1, ||$$0's cover!", target, target,
@@ -347,12 +365,16 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 			return true;
 		}
 
-		if (ShouldAttemptScatter(shotOutcome, actor) && TryResolveScatter(actor, target, weaponType, ammo, path))
+		var scatterContext = $"cover {actorText}->{targetText}";
+		if (ShouldAttemptScatter(shotOutcome, actor, scatterContext) &&
+		    TryResolveScatter(actor, target, weaponType, ammo, path, scatterContext))
 		{
 			return true;
 		}
 
 		HandleAmmunitionAftermath(actor, target, ammo);
+		Gameworld.DebugMessage(
+			$"[Ranged] Cover fully absorbed the shot from {actorText} to {targetText}; ammunition resolved at the target.");
 		return true;
 	}
 
@@ -382,13 +404,25 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 			actor.Send("You missed your target.".Colour(Telnet.Red));
 		}
 
-		if (!shotOutcome.IsPass() && !coverOutcome.IsPass() && ShouldAttemptScatter(shotOutcome, actor) &&
-			TryResolveScatter(actor, target, weaponType, ammo, path))
+		var actorText = actor.HowSeen(actor);
+		var targetText = target.HowSeen(actor);
+		var missReason = shotOutcome.IsPass()
+			? $"defended ({defenseOutcome.Outcome}:{defenseOutcome.Degree})"
+			: "wild shot";
+		Gameworld.DebugMessage($"[Ranged] Miss: {actorText} vs {targetText} - {missReason} (shot {shotOutcome}, cover {coverOutcome}).");
+
+		if (!shotOutcome.IsPass() && !coverOutcome.IsPass())
 		{
-			return true;
+			var scatterContext = $"miss {actorText}->{targetText}";
+			if (ShouldAttemptScatter(shotOutcome, actor, scatterContext) &&
+			    TryResolveScatter(actor, target, weaponType, ammo, path, scatterContext))
+			{
+				return true;
+			}
 		}
 
 		HandleAmmunitionAftermath(actor, target, ammo);
+		Gameworld.DebugMessage($"[Ranged] Miss resolved with ammunition falling near {targetText}.");
 		return true;
 	}
 
@@ -404,6 +438,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
 		var obstruction = obstructionEffect.Obstruction;
 		var obstructionPerceiver = obstruction as IPerceiver;
+		var actorText = actor.HowSeen(actor);
+		var targetText = target.HowSeen(actor);
+		var obstructionText = obstruction.HowSeen(actor);
+		Gameworld.DebugMessage(
+			$"[Ranged] Obstruction: {actorText}'s shot at {targetText} intercepted by {obstructionText}.");
 		if (obstructionPerceiver != null)
 		{
 			var obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
@@ -450,6 +489,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 			{
 				HandleAmmunitionAftermath(actor, target, ammo);
 			}
+			Gameworld.DebugMessage(
+				$"[Ranged] Obstruction aftermath: ammunition resolved at {(obstructionPerceiver != null ? obstructionText : targetText)}.");
 		}
 
 		return true;
@@ -498,11 +539,16 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 	}
 
 	protected virtual void Hit(ICharacter actor, IPerceiver target, Outcome shotOutcome,
-			Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
-			IRangedWeaponType weaponType, IEmoteOutput defenseEmote)
+		Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
+		IRangedWeaponType weaponType, IEmoteOutput defenseEmote)
 	{
 		var damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
 		var wounds = new List<IWound>();
+		var actorText = actor.HowSeen(actor);
+		var targetText = target.HowSeen(actor);
+		var locationText = target.Location?.HowSeen(actor) ?? "unknown location";
+		Gameworld.DebugMessage(
+			$"[Ranged] Hit resolved: {actorText} struck {targetText} at {locationText} (shot {shotOutcome}, cover {coverOutcome}, defense {defenseOutcome.Outcome}:{defenseOutcome.Degree}).");
 
 		if (defenseEmote != null)
 		{

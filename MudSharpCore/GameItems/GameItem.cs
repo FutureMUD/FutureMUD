@@ -1633,6 +1633,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public bool Deleted { get; private set; }
 
+
 	public void Delete()
 	{
 		Changed = false;

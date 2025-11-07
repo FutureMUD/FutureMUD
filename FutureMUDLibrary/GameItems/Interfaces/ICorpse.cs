@@ -11,7 +11,8 @@ namespace MudSharp.GameItems.Interfaces {
         Skeletal
     }
 
-    public interface ICorpse : IButcherable, IOverrideItemWoundBehaviour {
+    public interface ICorpse : IButcherable, IOverrideItemWoundBehaviour, IHaveABody
+    {
         double DecayPoints { get; set; }
 
         DateTime TimeOfDeath { get; }

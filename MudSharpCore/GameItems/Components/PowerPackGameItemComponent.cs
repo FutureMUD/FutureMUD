@@ -170,6 +170,11 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 		{
 				var damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
 				var wounds = new List<IWound>();
+				var actorText = actor.HowSeen(actor);
+				var targetText = target.HowSeen(actor);
+				var locationText = target.Location?.HowSeen(actor) ?? "unknown location";
+				Gameworld.DebugMessage(
+						$"[Ranged] Beam hit resolved: {actorText} struck {targetText} at {locationText} (defense {defenseOutcome.Outcome}:{defenseOutcome.Degree}).");
 
 				if (defenseEmote != null)
 				{
@@ -265,58 +270,71 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 	}
 
-	private static bool ShouldAttemptScatter(Outcome shotOutcome, ICharacter actor)
+private bool ShouldAttemptScatter(Outcome shotOutcome, ICharacter actor, string context)
+{
+	var baseChance = Math.Max(0, 10 * (8 - (int)shotOutcome));
+	var multiplier = actor.Merits.OfType<IScatterChanceMerit>()
+	                     .Aggregate(1.0, (current, merit) => current * merit.ScatterMultiplier);
+	var finalChance = baseChance * multiplier;
+	if (finalChance <= 0)
 	{
-		var chance = 10 * (8 - (int)shotOutcome);
-		if (chance <= 0)
-		{
-			return false;
-		}
-
-		var multiplier = actor.Merits.OfType<IScatterChanceMerit>()
-							 .Aggregate(1.0, (current, merit) => current * merit.ScatterMultiplier);
-		return Dice.Roll(1, 100) <= chance * multiplier;
+		Gameworld.DebugMessage(
+			$"[Scatter:{context}] No scatter possible for {actor.HowSeen(actor)} - final chance {finalChance:F2}% (base {baseChance}% * mult {multiplier:F2}).");
+		return false;
 	}
 
-	private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
-		double painMultiplier, double stunMultiplier, IReadOnlyList<ICellExit> path)
+	var roll = Dice.Roll(1, 100);
+	var success = roll <= finalChance;
+	Gameworld.DebugMessage(
+		$"[Scatter:{context}] {actor.HowSeen(actor)} rolled {roll:N0} vs {finalChance:F2}% (base {baseChance}% * mult {multiplier:F2}) -> {(success ? "scatter triggered" : "no scatter")}.");
+	return success;
+}
+
+private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
+	double painMultiplier, double stunMultiplier, IReadOnlyList<ICellExit> path, string context)
+{
+	var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
+		.GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
+
+	if (scatterResult == null)
 	{
-		var scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
-			.GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
-
-		if (scatterResult == null)
-		{
-			return false;
-		}
-
-		ResolveScatterResult(actor, weaponType, painMultiplier, stunMultiplier, scatterResult);
-		return true;
+		Gameworld.DebugMessage(
+			$"[Scatter:{context}] {actor.HowSeen(actor)} had no valid ricochet destinations from {originalTarget?.HowSeen(actor) ?? "unknown target"}.");
+		return false;
 	}
 
-	private void ResolveScatterResult(ICharacter actor, IRangedWeaponType weaponType, double painMultiplier,
-		double stunMultiplier, RangedScatterResult scatterResult)
+	ResolveScatterResult(actor, weaponType, painMultiplier, stunMultiplier, scatterResult, context);
+	return true;
+}
+
+private void ResolveScatterResult(ICharacter actor, IRangedWeaponType weaponType, double painMultiplier,
+	double stunMultiplier, RangedScatterResult scatterResult, string context)
+{
+	if (scatterResult.Target != null)
 	{
-		if (scatterResult.Target != null)
-		{
-			var scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
-							  new List<ICellExit>();
+		var scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
+		                  new List<ICellExit>();
 			BroadcastBeamFlight(actor, scatterResult.Target, scatterPath);
-			var bodypart = (scatterResult.Target as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre,
-				Alignment.Front, Facing.Front);
-			Hit(actor, scatterResult.Target, bodypart, weaponType,
-				new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal), painMultiplier,
-				stunMultiplier, null);
-			return;
-		}
+		var bodypart = (scatterResult.Target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre,
+			Alignment.Front, Facing.Front);
+		Hit(actor, scatterResult.Target, bodypart, weaponType,
+			new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal), painMultiplier,
+			stunMultiplier, null);
+		Gameworld.DebugMessage(
+			$"[Scatter:{context}] Ricochet beam struck {scatterResult.Target.HowSeen(actor)} in {scatterResult.Cell.HowSeen(actor)} after deviating{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} (distance {scatterResult.DistanceFromTarget:N0}).");
+		return;
+	}
 
-		var dummy = new DummyPerceiver(location: scatterResult.Cell)
-		{
+	var dummy = new DummyPerceiver(location: scatterResult.Cell)
+	{
 			RoomLayer = scatterResult.RoomLayer
 		};
-		var scatterCellPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
-		BroadcastBeamFlight(actor, dummy, scatterCellPath);
-		HandleBeamScatterToCell(scatterResult);
-	}
+	var scatterCellPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
+	BroadcastBeamFlight(actor, dummy, scatterCellPath);
+	HandleBeamScatterToCell(scatterResult);
+	Gameworld.DebugMessage(
+		$"[Scatter:{context}] Ricochet beam impacted {scatterResult.Cell.HowSeen(actor)}{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} without striking a new target.");
+}
 
 	private bool TryResolveCoverInterception(ICharacter actor, IPerceiver target, Outcome shotOutcome,
 		Outcome coverOutcome, IRangedWeaponType weaponType, IBodypart bodypart, OpposedOutcome defenseOutcome,
@@ -334,24 +352,33 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 			return false;
 		}
 
-		BroadcastBeamFlight(actor, target, path);
-		target.OutputHandler.Handle(
-			new EmoteOutput(new Emote($"The beam strikes $?1|$1, ||$$0's cover!", target, target,
-				target.Cover.CoverItem?.Parent)));
-		actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
+	BroadcastBeamFlight(actor, target, path);
+	var coverItem = target.Cover.CoverItem?.Parent;
+	var actorText = actor.HowSeen(actor);
+	var targetText = target.HowSeen(actor);
+	var coverText = coverItem?.HowSeen(actor) ?? "environmental cover";
+	Gameworld.DebugMessage(
+		$"[Ranged] Cover interception: {actorText} vs {targetText} (shot {shotOutcome}, cover {coverOutcome}) stopped by {coverText}.");
+	target.OutputHandler.Handle(
+		new EmoteOutput(new Emote($"The beam strikes $?1|$1, ||$$0's cover!", target, target,
+			coverItem)));
+	actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
 
-		var damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
-		var coverWounds = target.Cover?.CoverItem?.Parent.PassiveSufferDamage(damage)?.ToList() ?? new List<IWound>();
-		coverWounds.ProcessPassiveWounds();
+	var damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
+	var coverWounds = coverItem?.PassiveSufferDamage(damage)?.ToList() ?? new List<IWound>();
+	coverWounds.ProcessPassiveWounds();
 
-		if (ShouldAttemptScatter(shotOutcome, actor) &&
-			TryResolveScatter(actor, target, weaponType, painMultiplier, stunMultiplier, path))
-		{
-			return true;
-		}
-
+	var scatterContext = $"cover {actorText}->{targetText}";
+	if (ShouldAttemptScatter(shotOutcome, actor, scatterContext) &&
+	    TryResolveScatter(actor, target, weaponType, painMultiplier, stunMultiplier, path, scatterContext))
+	{
 		return true;
 	}
+
+	Gameworld.DebugMessage(
+		$"[Ranged] Cover fully absorbed the beam from {actorText} to {targetText}; no scatter occurred.");
+	return true;
+}
 
 	private bool TryResolveMiss(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
 		OpposedOutcome defenseOutcome, IRangedWeaponType weaponType, double painMultiplier, double stunMultiplier,
@@ -372,19 +399,31 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 		target.OutputHandler.Handle(new EmoteOutput(new Emote(
 			$"The beam {(shotOutcome.IsPass() ? "narrowly misses @!" : "misses @ by a wide margin.")}", target)));
 
-		if (!actor.ColocatedWith(target))
-		{
-			actor.Send("You missed your target.".Colour(Telnet.Red));
-		}
+	if (!actor.ColocatedWith(target))
+	{
+		actor.Send("You missed your target.".Colour(Telnet.Red));
+	}
 
-		if (!shotOutcome.IsPass() && !coverOutcome.IsPass() && ShouldAttemptScatter(shotOutcome, actor) &&
-			TryResolveScatter(actor, target, weaponType, painMultiplier, stunMultiplier, path))
+	var actorText = actor.HowSeen(actor);
+	var targetText = target.HowSeen(actor);
+	var missReason = shotOutcome.IsPass()
+		? $"defended ({defenseOutcome.Outcome}:{defenseOutcome.Degree})"
+		: "wild shot";
+	Gameworld.DebugMessage($"[Ranged] Miss: {actorText} vs {targetText} - {missReason} (shot {shotOutcome}, cover {coverOutcome}).");
+
+	if (!shotOutcome.IsPass() && !coverOutcome.IsPass())
+	{
+		var scatterContext = $"miss {actorText}->{targetText}";
+		if (ShouldAttemptScatter(shotOutcome, actor, scatterContext) &&
+		    TryResolveScatter(actor, target, weaponType, painMultiplier, stunMultiplier, path, scatterContext))
 		{
 			return true;
 		}
-
-		return true;
 	}
+
+	Gameworld.DebugMessage($"[Ranged] Miss resolved with no scatter for beam from {actorText} to {targetText}.");
+	return true;
+}
 
 	private bool TryResolveObstruction(ICharacter actor, IPerceiver target, IRangedWeaponType weaponType,
 		OpposedOutcome defenseOutcome, IBodypart bodypart, double painMultiplier, double stunMultiplier,
@@ -397,13 +436,18 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 			return false;
 		}
 
-		var obstruction = obstructionEffect.Obstruction;
-		var obstructionPerceiver = obstruction as IPerceiver;
-		if (obstructionPerceiver != null)
-		{
-			var obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
-								  new List<ICellExit>();
-			BroadcastBeamFlight(actor, obstructionPerceiver, obstructionPath);
+	var obstruction = obstructionEffect.Obstruction;
+	var obstructionPerceiver = obstruction as IPerceiver;
+	var actorText = actor.HowSeen(actor);
+	var targetText = target.HowSeen(actor);
+	var obstructionText = obstruction.HowSeen(actor);
+	Gameworld.DebugMessage(
+		$"[Ranged] Obstruction: {actorText}'s beam at {targetText} intercepted by {obstructionText}.");
+	if (obstructionPerceiver != null)
+	{
+		var obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
+							  new List<ICellExit>();
+		BroadcastBeamFlight(actor, obstructionPerceiver, obstructionPath);
 		}
 		else
 		{
@@ -416,11 +460,11 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 		actor.Send($"You hit {obstruction.HowSeen(actor)} instead!");
 
 		var damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
-		if (obstruction is IHaveWounds ihw)
+	if (obstruction is IHaveWounds ihw)
+	{
+		if (obstruction is IHaveABody ihab)
 		{
-			if (obstruction is IHaveABody ihab)
-			{
-				var oldTarget = damage.Bodypart;
+			var oldTarget = damage.Bodypart;
 				damage = new Damage(damage)
 				{
 					Bodypart = ihab.Body.RandomBodyPartGeometry(oldTarget?.Orientation ?? Orientation.Centre,
@@ -428,12 +472,14 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 				};
 			}
 
-			var obstructionWounds = ihw.PassiveSufferDamage(damage)?.ToList() ?? new List<IWound>();
-			obstructionWounds.ProcessPassiveWounds();
-		}
-
-		return true;
+		var obstructionWounds = ihw.PassiveSufferDamage(damage)?.ToList() ?? new List<IWound>();
+		obstructionWounds.ProcessPassiveWounds();
 	}
+
+	Gameworld.DebugMessage(
+		$"[Ranged] Obstruction aftermath: beam concluded at {(obstructionPerceiver != null ? obstructionText : targetText)}.");
+	return true;
+}
 
 		public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
 				OpposedOutcome defenseOutcome, IBodypart bodypart, IRangedWeaponType weaponType, double painMultiplier,

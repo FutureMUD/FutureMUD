@@ -214,8 +214,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		using (new FMDB())
 		{
 			var accountLookup = (from dbAccount in FMDB.Context.Accounts
-			                     where dbAccount.Name == nameLower
-			                     select dbAccount).FirstOrDefault();
+								 where dbAccount.Name == nameLower
+								 select dbAccount).FirstOrDefault();
 #if DEBUG
 			if (accountLookup == null)
 			{
@@ -223,7 +223,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			}
 #else
 				if ((accountLookup == null) ||
-				    !SecurityUtilities.VerifyPassword(password, accountLookup.Password, accountLookup.Salt))
+					!SecurityUtilities.VerifyPassword(password, accountLookup.Password, accountLookup.Salt))
 				{
 					return null;
 				}
@@ -550,9 +550,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			var PCsToLoad =
 				FMDB.Context.Characters.Where(
 						x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id))
-				    .OrderBy(x => x.Id)
-				    .Select(x => x.Id)
-				    .ToList();
+					.OrderBy(x => x.Id)
+					.Select(x => x.Id)
+					.ToList();
 			foreach (var pc in PCsToLoad)
 			{
 				var character = TryGetCharacter(pc, true); // This will add to the cache
@@ -1086,20 +1086,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_weaponTypes.Add(type);
 	}
 
-        public void Add(IRangedWeaponType type)
-        {
-                _rangedWeaponTypes.Add(type);
-        }
+		public void Add(IRangedWeaponType type)
+		{
+				_rangedWeaponTypes.Add(type);
+		}
 
-        public void Add(IRangedCover cover)
-        {
-                _rangedCovers.Add(cover);
-        }
+		public void Add(IRangedCover cover)
+		{
+				_rangedCovers.Add(cover);
+		}
 
-        public void Add(IAmmunitionType type)
-        {
-                _ammunitionTypes.Add(type);
-        }
+		public void Add(IAmmunitionType type)
+		{
+				_ammunitionTypes.Add(type);
+		}
 
 	public void Add(IWearableSize size)
 	{
@@ -1390,15 +1390,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_marketPopulations.Add(item);
 	}
 
-        public void Add(IHeightWeightModel model)
-        {
-                _heightWeightModels.Add(model);
-        }
+		public void Add(IHeightWeightModel model)
+		{
+				_heightWeightModels.Add(model);
+		}
 
-        public void Add(IHearingProfile profile)
-        {
-                _hearingProfiles.Add(profile);
-        }
+		public void Add(IHearingProfile profile)
+		{
+				_hearingProfiles.Add(profile);
+		}
 
 	public void Add(IShieldType shield)
 	{
@@ -1472,39 +1472,39 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		using (new FMDB())
 		{
 			var dbchar = (from ch in FMDB.Context.Characters
-			              /*
-			                        .Include(x => x.Body.BodiesGameItems)
-			                        .ThenInclude(x => x.GameItem.GameItemComponents)
-			                        .Include(x => x.Body.BodiesGameItems)
-			                        .ThenInclude(x => x.GameItem.GameItemsMagicResources)
-			                        .Include(x => x.Body.BodiesGameItems)
-			                        .ThenInclude(x => x.GameItem.HooksPerceivables)
-			                        .Include(x => x.Body.BodiesGameItems)
-			                        .ThenInclude(x => x.GameItem.WoundsGameItem)
-			                        .Include(x => x.CharactersAccents)
-			                        .Include(x => x.CharactersLanguages)
-			                        .Include(x => x.Body.BodiesSeveredParts)
-			                        .Include(x => x.Body.Characteristics)
-			                        .Include(x => x.AlliesCharacter)
-			                        .Include(x => x.Body.Traits)
-			                        .ThenInclude(x => x.TraitDefinition)
-			                        .Include(x => x.PerceiverMerits)
-			                        .Include(x => x.Body.PerceiverMerits)
-			                        .Include(x => x.Body.BodiesDrugDoses)
-			                        .Include(x => x.Body.BodiesProsthetics)
-			                        .Include(x => x.Body.BodiesImplants)
-			                        .Include(x => x.HooksPerceivables)
-			                        .Include(x => x.CharactersChargenRoles)
-			                        .Include(x => x.Dubs)
-			                        .Include(x => x.CharactersScripts)
-			                        .Include(x => x.ActiveProjects)
-			                        .Include(x => x.CharacterKnowledges)
-			                        .Include(x => x.Body.Wounds)
-			                        .Include(x => x.NpcsCharacter)
-			                        .Include(x => x.Guest)
-			              */
-			              where ch.Id == id
-			              select ch).FirstOrDefault();
+						  /*
+									.Include(x => x.Body.BodiesGameItems)
+									.ThenInclude(x => x.GameItem.GameItemComponents)
+									.Include(x => x.Body.BodiesGameItems)
+									.ThenInclude(x => x.GameItem.GameItemsMagicResources)
+									.Include(x => x.Body.BodiesGameItems)
+									.ThenInclude(x => x.GameItem.HooksPerceivables)
+									.Include(x => x.Body.BodiesGameItems)
+									.ThenInclude(x => x.GameItem.WoundsGameItem)
+									.Include(x => x.CharactersAccents)
+									.Include(x => x.CharactersLanguages)
+									.Include(x => x.Body.BodiesSeveredParts)
+									.Include(x => x.Body.Characteristics)
+									.Include(x => x.AlliesCharacter)
+									.Include(x => x.Body.Traits)
+									.ThenInclude(x => x.TraitDefinition)
+									.Include(x => x.PerceiverMerits)
+									.Include(x => x.Body.PerceiverMerits)
+									.Include(x => x.Body.BodiesDrugDoses)
+									.Include(x => x.Body.BodiesProsthetics)
+									.Include(x => x.Body.BodiesImplants)
+									.Include(x => x.HooksPerceivables)
+									.Include(x => x.CharactersChargenRoles)
+									.Include(x => x.Dubs)
+									.Include(x => x.CharactersScripts)
+									.Include(x => x.ActiveProjects)
+									.Include(x => x.CharacterKnowledges)
+									.Include(x => x.Body.Wounds)
+									.Include(x => x.NpcsCharacter)
+									.Include(x => x.Guest)
+						  */
+						  where ch.Id == id
+						  select ch).FirstOrDefault();
 			if (dbchar == null)
 			{
 				return null;
@@ -1623,15 +1623,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	{
 		_shoppers.Remove(shopper);
 	}
-        public void Destroy(IHeightWeightModel model)
-        {
-                _heightWeightModels.Remove(model);
-        }
+		public void Destroy(IHeightWeightModel model)
+		{
+				_heightWeightModels.Remove(model);
+		}
 
-        public void Destroy(IHearingProfile profile)
-        {
-                _hearingProfiles.Remove(profile);
-        }
+		public void Destroy(IHearingProfile profile)
+		{
+				_hearingProfiles.Remove(profile);
+		}
 
 	public void Destroy(ITrack track)
 	{
@@ -1876,20 +1876,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_limbs.Remove(limb);
 	}
 
-        public void Destroy(IRangedWeaponType type)
-        {
-                _rangedWeaponTypes.Remove(type);
-        }
+		public void Destroy(IRangedWeaponType type)
+		{
+				_rangedWeaponTypes.Remove(type);
+		}
 
-        public void Destroy(IRangedCover cover)
-        {
-                _rangedCovers.Remove(cover);
-        }
+		public void Destroy(IRangedCover cover)
+		{
+				_rangedCovers.Remove(cover);
+		}
 
-        public void Destroy(IAmmunitionType type)
-        {
-                _ammunitionTypes.Remove(type);
-        }
+		public void Destroy(IAmmunitionType type)
+		{
+				_ammunitionTypes.Remove(type);
+		}
 
 	public void Destroy(IWearableSize size)
 	{
@@ -2257,8 +2257,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			foreach (
 				var player in
 				_connections.Where(
-					            player => player.HasIncomingCommands && player.State == ConnectionState.Open)
-				            .Shuffle())
+								player => player.HasIncomingCommands && player.State == ConnectionState.Open)
+							.Shuffle())
 			{
 				player?.AttemptCommand();
 			}

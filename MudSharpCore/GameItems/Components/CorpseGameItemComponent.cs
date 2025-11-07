@@ -48,7 +48,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 	public override bool DescriptionDecorator(DescriptionType type)
 	{
 		return type == DescriptionType.Short || type == DescriptionType.Full ||
-		       type == DescriptionType.Contents;
+			   type == DescriptionType.Contents;
 	}
 
 	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
@@ -60,8 +60,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 		}
 
 		return Model.Describe(type, Decay, OriginalCharacter, voyeur,
-			       EatenWeight / (Model.EdiblePercentage * OriginalCharacter.Weight)) +
-		       (Skinned && type == DescriptionType.Short ? " (Skinned)".Colour(Telnet.Red) : "");
+				   EatenWeight / (Model.EdiblePercentage * OriginalCharacter.Weight)) +
+			   (Skinned && type == DescriptionType.Short ? " (Skinned)".Colour(Telnet.Red) : "");
 	}
 
 	public override double ComponentWeight
@@ -77,7 +77,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 	public override double ComponentBuoyancy(double fluidDensity)
 	{
 		return (fluidDensity - 1.01) * (OriginalCharacter.Weight - EatenWeight) +
-		       OriginalCharacter.Body.AllItems.Sum(x => x.Buoyancy(fluidDensity));
+			   OriginalCharacter.Body.AllItems.Sum(x => x.Buoyancy(fluidDensity));
 	}
 
 	public override bool OverridesMaterial => OverridenMaterial != null;
@@ -354,8 +354,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 		var check = Gameworld.GetCheck(CheckType.ButcheryCheck);
 		var effect = butcher.EffectsOfType<Butchering>().First();
 		foreach (var product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
-			         !x.IsPelt && x.CanProduce(butcher, Parent) &&
-			         (string.IsNullOrEmpty(subcategory) || x.Subcategory.EqualTo(subcategory))))
+					 !x.IsPelt && x.CanProduce(butcher, Parent) &&
+					 (string.IsNullOrEmpty(subcategory) || x.Subcategory.EqualTo(subcategory))))
 		{
 			var damageRatio =
 				Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
@@ -439,7 +439,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 		var check = Gameworld.GetCheck(CheckType.SkinningCheck);
 		var effect = skinner.EffectsOfType<Skinning>().First();
 		foreach (var product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
-			         x.IsPelt && x.CanProduce(skinner, Parent)))
+					 x.IsPelt && x.CanProduce(skinner, Parent)))
 		{
 			var damageRatio =
 				Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
@@ -476,6 +476,21 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 		LoadOriginalCharacter(true);
 	}
 
+	IBody IHaveABody.Body => OriginalCharacter.Body;
+
+	double IHaveWeight.Weight
+	{
+		set => OriginalCharacter.Body.Weight = value;
+		get => OriginalCharacter.Body.Weight;
+	}
+
+	double IHaveHeight.Height
+	{
+		set => OriginalCharacter.Body.Height = value;
+		get => OriginalCharacter.Body.Height;
+	}
+
+	Alignment IHaveABody.Handedness => OriginalCharacter.Handedness;
 	#endregion
 
 	#region IOverrideItemWoundBehaviour Implementation

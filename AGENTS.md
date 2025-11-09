@@ -113,6 +113,29 @@ The discord bot is a bot designed to run alongside the engine to provide some di
 - Interface-first design - if you're introducing a new feature get the interface first, implement the logic to work with the interface and then do the implementation last.
 - Use design patterns where they make sense. Not everything needs the maximum level of abstraction but we should prefer to follow common C# design patterns where we can.
 
+## Key Internal Concepts
+- The interface IFrameworkItem is the base interface for most things in the engine. It provides a 64 bit integer ID, string Name and a string representing the type. Nearly anything that gets saved in the database will implement this interface.
+- The interface IPerceivable is the base interface for anything that physically exists somewhere in the game and should interact with the perception system - characters, items, rooms, exits, etc. It extends IFrameworkItem. Broadly speaking, a perceivable is a good way to represent "things that can be seen or interacted with".
+- The interface IPerceiver is used as a base for a small number of things that can see echoes and perceive things around them, such as characters and items. It extends IPerceivable.
+
+## Style Preferences and Internal Helper Conventions
+- Always prefer to present numbers, times, dates and the like using localised formatting where you know the IPerceiver the message is being presented to. Conventionally an IPerceiver passed to a method for this reason is called a `voyeur`. 
+- IPerceivers are IFormatProviders and so can be passed into functions like ToString in the same way as CultureInfo objects.
+- When presenting an enum value to a player, prefer to use the extension method `.DescribeEnum()` rather than `.ToString()`. This provides a more user-friendly string.
+- When presenting a TimeSpan to a player, prefer to use the extension method `.Describe(voyeur)` rather than `.ToString()`. This provides a more user-friendly string.
+- When presenting a boolean to a player, prefer to use the extension method `ToColouredString()` rather than `.ToString()`. This provides a green "true" or red "false".
+- Consider colouring certain text using the ANSI colour helpers where appropriate. There is a method `Colour(ANSIColour colour)` on strings that helps with this. Values for ANSIColour are in the MudSharp.Framework.Telnet class as constants.
+- Numbers, dates, times, currencies, "values" in general are presented with ANSIColour.Green, often best done through the extension method `ColourValue(this string str)`.
+- Errors, warnings and certain negative values are presented with ANSIColour.Red, often best done through the extension method `ColourError(this string str)`.
+- Command syntax, user input, template emote text and the like are usually presented with ANSIColour.Yellow, often best done through the extension method `ColourCommand(this string str)`.
+- Names of things, locations, people, as well as text representations of enum values are usually presented with ANSIColour.Cyan, often best done through the extension method `ColourName(this string str)`.
+- When building up large strings for presentation to players, prefer to use StringBuilder rather than concatenating strings together. If you must concatenate strings, prefer string interpolation over String.Format or concatenation operators.
+- When chopping up user input one argument at a time, prefer to use the StringStack class rather than splitting strings manually. It provides a lot of helper methods for this purpose.
+- Prefer to use LINQ methods like .Any(), .FirstOrDefault(), .Where() and the like over manual loops where possible for clarity. When stacking multiple LINQ methods, put each method on its own line for clarity.
+- Use LINQ query syntax only when it makes the code significantly clearer than method syntax. A common place this is done is when presenting tabular data to players.
+- Use the method `StringUtilities.GetTextTable()` to present tabular data to players rather than building tables manually.
+- Use the extension method `ListToString()` on IEnumerable collections to present lists of things to players rather than building lists manually. Similarly, you can use `ListToCommaSeparatedValues()` to get a comma-separated string.
+
 ## Emote Markup
 The `Emote` class in `MudSharp.PerceptionEngine` provides a lightweight markup language for
 dynamically tailored messages. Emotes substitute placeholders at parse time so each viewer sees

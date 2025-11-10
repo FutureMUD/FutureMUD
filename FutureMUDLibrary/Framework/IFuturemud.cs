@@ -300,6 +300,7 @@ namespace MudSharp.Framework
 		IScheduler Scheduler { get; }
 		IArenaLifecycleService ArenaLifecycleService { get; }
 		IArenaScheduler ArenaScheduler { get; }
+		IArenaObservationService ArenaObservationService { get; }
 		IEffectScheduler EffectScheduler { get; }
 		ISaveManager SaveManager { get; }
 		IGameItemComponentManager GameItemComponentManager { get; }

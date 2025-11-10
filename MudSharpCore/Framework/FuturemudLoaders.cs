@@ -142,6 +142,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 	public IScheduler Scheduler { get; protected set; }
 	public IArenaLifecycleService ArenaLifecycleService { get; protected set; }
 	public IArenaScheduler ArenaScheduler { get; protected set; }
+	public IArenaObservationService ArenaObservationService { get; protected set; }
 	public IEffectScheduler EffectScheduler { get; protected set; }
 	public ISaveManager SaveManager { get; protected set; }
 	public IGameItemComponentManager GameItemComponentManager { get; protected set; }

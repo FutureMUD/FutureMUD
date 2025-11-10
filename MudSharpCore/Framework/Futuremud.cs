@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using MudSharp.Accounts;
+using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Celestial;
 using MudSharp.Character;
@@ -129,6 +130,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		ClockManager = new ClockManager(this);
 		GameItemComponentManager = new GameItemComponentManager();
 		Scheduler = new Scheduler();
+		ArenaLifecycleService = new ArenaLifecycleService(this);
+		ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
 		SaveManager = new SaveManager();
 		HeartbeatManager = new HeartbeatManager(this);
 

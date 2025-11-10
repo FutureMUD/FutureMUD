@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MudSharp.Accounts;
+using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Traits;
@@ -297,6 +298,8 @@ namespace MudSharp.Framework
 
 		IServer Server { get; }
 		IScheduler Scheduler { get; }
+		IArenaLifecycleService ArenaLifecycleService { get; }
+		IArenaScheduler ArenaScheduler { get; }
 		IEffectScheduler EffectScheduler { get; }
 		ISaveManager SaveManager { get; }
 		IGameItemComponentManager GameItemComponentManager { get; }

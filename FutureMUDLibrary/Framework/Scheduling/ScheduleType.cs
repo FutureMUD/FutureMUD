@@ -13,6 +13,7 @@
         Morph = 7,
         MorphSaving = 8,
         CharacterIntro = 9,
-        CrimeReport = 10
+        CrimeReport = 10,
+        ArenaEvent = 11
     }
 }

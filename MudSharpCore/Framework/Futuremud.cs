@@ -132,6 +132,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		Scheduler = new Scheduler();
 		ArenaLifecycleService = new ArenaLifecycleService(this);
 		ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
+		ArenaObservationService = new ArenaObservationService(this);
 		SaveManager = new SaveManager();
 		HeartbeatManager = new HeartbeatManager(this);
 

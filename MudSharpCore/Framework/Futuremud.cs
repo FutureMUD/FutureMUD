@@ -726,11 +726,6 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	{
 		_coins.Add(coin);
 	}
-
-	public void Add(ICombatArena arena)
-	{
-		_combatArenas.Add(arena);
-	}
 	public void Add(IChannel channel)
 	{
 		_channels.Add(channel);
@@ -1646,10 +1641,6 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(ICoin coin)
 	{
 		_coins.Remove(coin);
-	}
-	public void Destroy(ICombatArena arena)
-	{
-		_combatArenas.Remove(arena);
 	}
 	public void Destroy(ICrime crime)
 	{

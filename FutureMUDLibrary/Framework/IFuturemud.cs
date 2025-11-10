@@ -77,7 +77,8 @@ using MudSharp.Work.Projects;
 namespace MudSharp.Framework
 {
 	[Flags]
-	public enum MaintenanceModeSetting {
+	public enum MaintenanceModeSetting
+	{
 		None = 0,
 		NoLogin = 1 << 0,
 		NoChargen = 1 << 1,
@@ -134,7 +135,6 @@ namespace MudSharp.Framework
 		IUneditableAll<ICharacteristicValue> CharacteristicValues { get; }
 		IUneditableAll<IChargenAdvice> ChargenAdvices { get; }
 		IUneditableAll<ICoin> Coins { get; }
-		IUneditableAll<ICombatArena> CombatArenas { get; }
 		IUneditableRevisableAll<ICraft> Crafts { get; }
 		IUneditableAll<IDrug> Drugs { get; }
 		IUneditableAll<ICharacter> Guests { get; }
@@ -367,16 +367,15 @@ namespace MudSharp.Framework
 		void Add(IDrug drug);
 		void Add(IShopper shopper);
 		void Add(IColour colour);
-                void Add(IChargenResource resource);
-                void Add(IShieldType shield);
-                void Add(IHeightWeightModel model);
-                void Add(IHearingProfile profile);
-                void Add(ITrack track);
+		void Add(IChargenResource resource);
+		void Add(IShieldType shield);
+		void Add(IHeightWeightModel model);
+		void Add(IHearingProfile profile);
+		void Add(ITrack track);
 		void Add(IMoveSpeed speed);
 		void Add(IImprovementModel model);
 		void Add(ICurrency currency);
 		void Add(ICoin coin);
-		void Add(ICombatArena arena);
 		void Add(IChannel channel);
 		void Add(IAuxiliaryCombatAction action);
 		void Add(IBoard board);
@@ -448,9 +447,9 @@ namespace MudSharp.Framework
 		void Add(IWearProfile profile);
 		void Add(ILimb limb);
 		void Add(IWeaponType type);
-                void Add(IRangedWeaponType type);
-                void Add(IRangedCover cover);
-                void Add(IAmmunitionType type);
+		void Add(IRangedWeaponType type);
+		void Add(IRangedCover cover);
+		void Add(IAmmunitionType type);
 		void Add(IWearableSize size);
 		void Add(ICharacterCombatSettings setting);
 		void Add(IProgSchedule schedule);
@@ -528,10 +527,9 @@ namespace MudSharp.Framework
 
 		void Destroy(object obj);
 		void Destroy(IShopper shopper);
-                void Destroy(IHeightWeightModel model);
-                void Destroy(IHearingProfile profile);
-                void Destroy(ITrack track);
-		void Destroy(ICombatArena arena);
+		void Destroy(IHeightWeightModel model);
+		void Destroy(IHearingProfile profile);
+		void Destroy(ITrack track);
 		void Destroy(ICurrency currency);
 		void Destroy(ICoin coin);
 		void Destroy(ICrime crime);
@@ -575,9 +573,9 @@ namespace MudSharp.Framework
 		void Destroy(IWearProfile profile);
 		void Destroy(IWeaponType type);
 		void Destroy(ILimb limb);
-                void Destroy(IRangedWeaponType type);
-                void Destroy(IRangedCover cover);
-                void Destroy(IAmmunitionType type);
+		void Destroy(IRangedWeaponType type);
+		void Destroy(IRangedCover cover);
+		void Destroy(IAmmunitionType type);
 		void Destroy(IWearableSize size);
 		void Destroy(ICharacterCombatSettings setting);
 		void Destroy(IProgSchedule schedule);

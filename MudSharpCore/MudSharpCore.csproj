@@ -99,6 +99,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Folder Include="Combat\Arenas\" />
 	<Folder Include="Editor\" />
 	<Folder Include="FutureProg\Variables\" />
   </ItemGroup>

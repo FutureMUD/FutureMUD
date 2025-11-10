@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using MudSharp.Models;
 using MudSharp.Accounts;
+using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Implementations;
@@ -139,6 +140,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 	protected List<IPlayerConnection> _connections = new();
 	public IServer Server { get; protected set; }
 	public IScheduler Scheduler { get; protected set; }
+	public IArenaLifecycleService ArenaLifecycleService { get; protected set; }
+	public IArenaScheduler ArenaScheduler { get; protected set; }
 	public IEffectScheduler EffectScheduler { get; protected set; }
 	public ISaveManager SaveManager { get; protected set; }
 	public IGameItemComponentManager GameItemComponentManager { get; protected set; }
@@ -403,7 +406,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		ConsoleUtilities.WriteLine("#C========================================#0");
 		ConsoleUtilities.WriteLine("\n#EScheduling core system tasks...#0");
 		ClockManager.Initialise();
-		// Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => fm.SaveManager.Flush(), ScheduleType.System, new TimeSpan(0, 0, 10), "Main Save Loop"));
+		ArenaLifecycleService.RebootRecovery();
+                // Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => fm.SaveManager.Flush(), ScheduleType.System, new TimeSpan(0, 0, 10), "Main Save Loop"));
 		//Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => new Monitoring.DuplicationMonitor(this).AuditCharacters(), ScheduleType.System, TimeSpan.FromHours(1)));
 		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm =>
 			{

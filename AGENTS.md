@@ -135,6 +135,7 @@ The discord bot is a bot designed to run alongside the engine to provide some di
 - Use LINQ query syntax only when it makes the code significantly clearer than method syntax. A common place this is done is when presenting tabular data to players.
 - Use the method `StringUtilities.GetTextTable()` to present tabular data to players rather than building tables manually.
 - Use the extension method `ListToString()` on IEnumerable collections to present lists of things to players rather than building lists manually. Similarly, you can use `ListToCommaSeparatedValues()` to get a comma-separated string.
+- Rooms vs Cells: the legacy distinction is being removed; wherever possible prefer targeting `ICell`/`Cell` rather than `IRoom`/`Room` (and treat "room" mentions in designs as meaning cell) so future merges are simpler.
 
 ## Emote Markup
 The `Emote` class in `MudSharp.PerceptionEngine` provides a lightweight markup language for

@@ -1,0 +1,49 @@
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Economy;
+using MudSharp.Economy.Currency;
+using MudSharp.Framework;
+using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+
+namespace MudSharp.Arenas;
+
+/// <summary>
+/// Represents a combat arena business that can host structured combat events.
+/// </summary>
+public interface ICombatArena : IFrameworkItem, ISaveable, IProgVariable {
+	IEconomicZone EconomicZone { get; }
+	ICurrency Currency { get; }
+	IBankAccount? BankAccount { get; set; }
+	IEnumerable<ICharacter> Managers { get; }
+
+	IEnumerable<ICell> WaitingCells { get; }
+	IEnumerable<ICell> ArenaCells { get; }
+	IEnumerable<ICell> ObservationCells { get; }
+	IEnumerable<ICell> InfirmaryCells { get; }
+	IEnumerable<ICell> NpcStablesCells { get; }
+	IEnumerable<ICell> AfterFightCells { get; }
+
+	IEnumerable<IArenaEventType> EventTypes { get; }
+	IEnumerable<IArenaEvent> ActiveEvents { get; }
+
+	bool IsManager(ICharacter actor);
+	void AddManager(ICharacter actor);
+	void RemoveManager(ICharacter actor);
+
+	(bool Truth, string Reason) IsReadyToHost(IArenaEventType eventType);
+	IArenaEvent CreateEvent(IArenaEventType eventType, DateTime scheduledFor, IEnumerable<IArenaReservation>? reservations = null);
+	void AbortEvent(IArenaEvent arenaEvent, string reason, ICharacter? byManager = null);
+
+	decimal AvailableFunds();
+	(bool Truth, string Reason) EnsureFunds(decimal amount);
+	void Credit(decimal amount, string reference);
+	void Debit(decimal amount, string reference);
+
+	string ShowToManager(ICharacter actor);
+	bool BuildingCommand(ICharacter actor, StringStack command);
+}

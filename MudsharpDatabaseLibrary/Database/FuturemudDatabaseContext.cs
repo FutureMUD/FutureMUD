@@ -45,6 +45,23 @@ namespace MudSharp.Database
 		public virtual DbSet<AppointmentsTitles> AppointmentsTitles { get; set; }
 		public virtual DbSet<Areas> Areas { get; set; }
 		public virtual DbSet<AreasRooms> AreasRooms { get; set; }
+		public virtual DbSet<Arena> Arenas { get; set; }
+		public virtual DbSet<ArenaManager> ArenaManagers { get; set; }
+		public virtual DbSet<ArenaCell> ArenaCells { get; set; }
+		public virtual DbSet<ArenaCombatantClass> ArenaCombatantClasses { get; set; }
+		public virtual DbSet<ArenaEventType> ArenaEventTypes { get; set; }
+		public virtual DbSet<ArenaEventTypeSide> ArenaEventTypeSides { get; set; }
+		public virtual DbSet<ArenaEventTypeSideAllowedClass> ArenaEventTypeSideAllowedClasses { get; set; }
+		public virtual DbSet<ArenaEvent> ArenaEvents { get; set; }
+		public virtual DbSet<ArenaEventSide> ArenaEventSides { get; set; }
+		public virtual DbSet<ArenaReservation> ArenaReservations { get; set; }
+		public virtual DbSet<ArenaSignup> ArenaSignups { get; set; }
+		public virtual DbSet<ArenaElimination> ArenaEliminations { get; set; }
+		public virtual DbSet<ArenaRating> ArenaRatings { get; set; }
+		public virtual DbSet<ArenaBet> ArenaBets { get; set; }
+		public virtual DbSet<ArenaBetPool> ArenaBetPools { get; set; }
+		public virtual DbSet<ArenaBetPayout> ArenaBetPayouts { get; set; }
+		public virtual DbSet<ArenaFinanceSnapshot> ArenaFinanceSnapshots { get; set; }
 		public virtual DbSet<ArmourType> ArmourTypes { get; set; }
 		public virtual DbSet<ArtificialIntelligence> ArtificialIntelligences { get; set; }
 		public virtual DbSet<AuctionHouse> AuctionHouses { get; set; }

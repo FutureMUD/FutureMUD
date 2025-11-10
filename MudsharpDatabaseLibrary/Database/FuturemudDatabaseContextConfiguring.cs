@@ -8,7 +8,7 @@ namespace MudSharp.Database
 {
     public partial class FuturemudDatabaseContext
     {
-	    protected override void OnModelCreating(ModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Split the OnModelCreating into multiple functions for editor performance reasons
             OnModelCreatingOne(modelBuilder);
@@ -16,6 +16,7 @@ namespace MudSharp.Database
             OnModelCreatingThree(modelBuilder);
             OnModelCreatingFour(modelBuilder);
             OnModelCreatingFive(modelBuilder);
+            OnModelCreatingSix(modelBuilder);
             
             OnModelCreatingPartial(modelBuilder);
         }

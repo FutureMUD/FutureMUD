@@ -306,6 +306,7 @@ namespace MudSharp.Framework
                 IArenaBettingService ArenaBettingService { get; }
                 IArenaRatingsService ArenaRatingsService { get; }
                 IArenaNpcService ArenaNpcService { get; }
+                IArenaParticipationService ArenaParticipationService { get; }
                 IArenaCommandService ArenaCommandService { get; }
                 IEffectScheduler EffectScheduler { get; }
 		ISaveManager SaveManager { get; }

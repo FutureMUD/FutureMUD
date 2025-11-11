@@ -263,7 +263,8 @@ namespace MudSharp.Framework
 		IUneditableAll<IEconomicZone> EconomicZones { get; }
 		IUneditableAll<IGroupAITemplate> GroupAITemplates { get; }
 		IUneditableAll<IGroupAI> GroupAIs { get; }
-		IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts { get; }
+                IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts { get; }
+                IUneditableAll<ICombatArena> CombatArenas { get; }
 		IChargenStoryboard ChargenStoryboard { get; }
 		RankedRange<ICharacteristicValue> RelativeHeightDescriptors { get; }
 		ILanguageScrambler LanguageScrambler { get; }
@@ -297,11 +298,16 @@ namespace MudSharp.Framework
 		MaintenanceModeSetting MaintenanceMode { get; set; }
 
 		IServer Server { get; }
-		IScheduler Scheduler { get; }
-		IArenaLifecycleService ArenaLifecycleService { get; }
-		IArenaScheduler ArenaScheduler { get; }
-		IArenaObservationService ArenaObservationService { get; }
-		IEffectScheduler EffectScheduler { get; }
+                IScheduler Scheduler { get; }
+                IArenaLifecycleService ArenaLifecycleService { get; }
+                IArenaScheduler ArenaScheduler { get; }
+                IArenaObservationService ArenaObservationService { get; }
+                IArenaFinanceService ArenaFinanceService { get; }
+                IArenaBettingService ArenaBettingService { get; }
+                IArenaRatingsService ArenaRatingsService { get; }
+                IArenaNpcService ArenaNpcService { get; }
+                IArenaCommandService ArenaCommandService { get; }
+                IEffectScheduler EffectScheduler { get; }
 		ISaveManager SaveManager { get; }
 		IGameItemComponentManager GameItemComponentManager { get; }
 		IClockManager ClockManager { get; }

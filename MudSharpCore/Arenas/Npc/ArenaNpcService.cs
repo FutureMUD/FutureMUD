@@ -66,9 +66,9 @@ public class ArenaNpcService : IArenaNpcService
 
 		var effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
 		                .FirstOrDefault(x => x.EventId == arenaEvent.Id);
-		if (effect is null)
-		{
-			effect = new ArenaNpcPreparationEffect(npc, arenaEvent.Id, combatantClass.ResurrectOnReturn);
+                if (effect is null)
+                {
+                        effect = new ArenaNpcPreparationEffect(npc, arenaEvent.Id, combatantClass.ResurrectNpcOnDeath);
 			npc.AddEffect(effect);
 		}
 		else

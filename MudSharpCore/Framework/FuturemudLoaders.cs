@@ -140,9 +140,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 	protected List<IPlayerConnection> _connections = new();
 	public IServer Server { get; protected set; }
 	public IScheduler Scheduler { get; protected set; }
-	public IArenaLifecycleService ArenaLifecycleService { get; protected set; }
-	public IArenaScheduler ArenaScheduler { get; protected set; }
-	public IArenaObservationService ArenaObservationService { get; protected set; }
+        public IArenaLifecycleService ArenaLifecycleService { get; protected set; }
+        public IArenaScheduler ArenaScheduler { get; protected set; }
+        public IArenaObservationService ArenaObservationService { get; protected set; }
+        public IArenaFinanceService ArenaFinanceService { get; protected set; }
+        public IArenaBettingService ArenaBettingService { get; protected set; }
+        public IArenaRatingsService ArenaRatingsService { get; protected set; }
+        public IArenaNpcService ArenaNpcService { get; protected set; }
+        public IArenaCommandService ArenaCommandService { get; protected set; }
 	public IEffectScheduler EffectScheduler { get; protected set; }
 	public ISaveManager SaveManager { get; protected set; }
 	public IGameItemComponentManager GameItemComponentManager { get; protected set; }

@@ -1,11 +1,13 @@
 #nullable enable
 
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -28,7 +30,7 @@ public class ArenaWatcherEffectTests
                 _gameworld = new Mock<IFuturemud>();
                 _arenaCell = new Mock<ICell>();
                 _arenaCell.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-                _arenaCell.Setup(x => x.RemoveEffect(It.IsAny<IEffect>()));
+                _arenaCell.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()));
                 _arenaCell.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
                         It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("the arena floor");
 
@@ -74,7 +76,8 @@ public class ArenaWatcherEffectTests
                 watcherLocation = observationCell2.Object;
                 _effect.HandleOutput(_output.Object, _arenaCell.Object);
 
-                outputHandler.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once());
+                Assert.AreEqual(1, outputHandler.Invocations.Count);
+                Assert.AreEqual("Send", outputHandler.Invocations.Single().Method.Name);
         }
 
         [TestMethod]
@@ -98,7 +101,7 @@ public class ArenaWatcherEffectTests
                 watcherLocation = otherCell.Object;
                 _effect.HandleOutput(_output.Object, _arenaCell.Object);
 
-                outputHandler.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never());
-                _arenaCell.Verify(x => x.RemoveEffect(_effect), Times.Once());
+                Assert.AreEqual(0, outputHandler.Invocations.Count);
+                _arenaCell.Verify(x => x.RemoveEffect(_effect, It.IsAny<bool>()), Times.Once());
         }
 }

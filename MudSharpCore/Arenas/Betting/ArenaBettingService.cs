@@ -353,8 +353,14 @@ public class ArenaBettingService : IArenaBettingService
 				return 0.0m;
 			}
 
-			var netPool = pool.TotalStake * (1.0m - pool.TakeRate);
-			return bet.Stake / pool.TotalStake * netPool;
+                        var totalPool = pools.Sum(x => x.TotalStake);
+                        if (totalPool <= 0.0m)
+                        {
+                                return 0.0m;
+                        }
+
+                        var netPool = totalPool * (1.0m - pool.TakeRate);
+                        return bet.Stake / pool.TotalStake * netPool;
 			default:
 			return 0.0m;
 		}

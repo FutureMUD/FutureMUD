@@ -43,9 +43,10 @@ internal class ActorCommandTree : ICharacterCommandTree
 		Commands.AddFrom(MovementModule.Instance.Commands);
 		Commands.AddFrom(CharacterInformationModule.Instance.Commands);
 		Commands.AddFrom(CommunicationsModule.Instance.Commands);
-		Commands.AddFrom(CombatModule.Instance.Commands);
-		Commands.AddFrom(GameModule.Instance.Commands);
-		Commands.AddFrom(InventoryModule.Instance.Commands);
+                Commands.AddFrom(CombatModule.Instance.Commands);
+                Commands.AddFrom(GameModule.Instance.Commands);
+                Commands.AddFrom(ArenaModule.Instance.Commands);
+                Commands.AddFrom(InventoryModule.Instance.Commands);
 		Commands.AddFrom(PerceptionModule.Instance.Commands);
 		Commands.AddFrom(PositionModule.Instance.Commands);
 		Commands.AddFrom(TimeModule.Instance.Commands);

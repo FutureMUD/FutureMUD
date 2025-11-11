@@ -401,7 +401,7 @@ public class ArenaBettingService : IArenaBettingService
 	private static (decimal Pool, decimal TakeRate)? GetPoolQuote(FuturemudDatabaseContext context, long eventId, int? sideIndex)
 	{
 		var pool = context.ArenaBetPools.FirstOrDefault(x => x.ArenaEventId == eventId && x.SideIndex == sideIndex);
-		return pool is null ? (decimal Pool, decimal TakeRate)?null : (pool.TotalStake, pool.TakeRate);
+                return pool is null ? null : (pool.TotalStake, pool.TakeRate);
 	}
 
 	private ArenaBetPool GetOrCreatePool(FuturemudDatabaseContext context, long eventId, int? sideIndex)

@@ -129,12 +129,17 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 		ClockManager = new ClockManager(this);
 		GameItemComponentManager = new GameItemComponentManager();
-		Scheduler = new Scheduler();
-		ArenaLifecycleService = new ArenaLifecycleService(this);
-		ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
-		ArenaObservationService = new ArenaObservationService(this);
-		SaveManager = new SaveManager();
-		HeartbeatManager = new HeartbeatManager(this);
+                Scheduler = new Scheduler();
+                ArenaLifecycleService = new ArenaLifecycleService(this);
+                ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
+                ArenaObservationService = new ArenaObservationService(this);
+                ArenaFinanceService = new ArenaFinanceService();
+                ArenaBettingService = new ArenaBettingService(this, ArenaFinanceService);
+                ArenaRatingsService = new ArenaRatingsService(this);
+                ArenaNpcService = new ArenaNpcService(this);
+                ArenaCommandService = new ArenaCommandService(this);
+                SaveManager = new SaveManager();
+                HeartbeatManager = new HeartbeatManager(this);
 
 		server?.Bind(_connections, AddConnection);
 
@@ -835,10 +840,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_randomNameProfiles.Add(profile);
 	}
 
-	public void Add(ILineOfCreditAccount account)
-	{
-		_lineOfCreditAccounts.Add(account);
-	}
+       public void Add(ILineOfCreditAccount account)
+       {
+               _lineOfCreditAccounts.Add(account);
+       }
+
+       public void Add(ICombatArena arena)
+       {
+               _combatArenas.Add(arena);
+       }
 
 	public void Add(IElection election)
 	{
@@ -1691,10 +1701,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_magicSpells.Remove(spell);
 	}
 
-	public void Destroy(ILineOfCreditAccount account)
-	{
-		_lineOfCreditAccounts.Remove(account);
-	}
+       public void Destroy(ILineOfCreditAccount account)
+       {
+               _lineOfCreditAccounts.Remove(account);
+       }
+
+       public void Destroy(ICombatArena arena)
+       {
+               _combatArenas.Remove(arena);
+       }
 
 	public void Destroy(IElection election)
 	{

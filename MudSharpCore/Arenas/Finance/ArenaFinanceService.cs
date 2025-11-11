@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Arenas;
+using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Framework;

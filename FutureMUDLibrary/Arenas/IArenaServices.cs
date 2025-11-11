@@ -68,16 +68,27 @@ public interface IArenaFinanceService {
 /// Provides NPC auto-fill, outfitting, and restoration flows.
 /// </summary>
 public interface IArenaNpcService {
-	IEnumerable<ICharacter> AutoFill(IArenaEvent arenaEvent, int sideIndex, int slotsNeeded);
-	void PrepareNpc(ICharacter npc, IArenaEvent arenaEvent, int sideIndex, ICombatantClass combatantClass);
-	void ReturnNpc(ICharacter npc, IArenaEvent arenaEvent, bool resurrect);
+        IEnumerable<ICharacter> AutoFill(IArenaEvent arenaEvent, int sideIndex, int slotsNeeded);
+        void PrepareNpc(ICharacter npc, IArenaEvent arenaEvent, int sideIndex, ICombatantClass combatantClass);
+        void ReturnNpc(ICharacter npc, IArenaEvent arenaEvent, bool resurrect);
+}
+
+/// <summary>
+/// Applies participation locks that keep players in the arena until the event concludes.
+/// </summary>
+public interface IArenaParticipationService {
+        void EnsureParticipation(ICharacter participant, IArenaEvent arenaEvent);
+        void EnsureParticipation(IArenaEvent arenaEvent);
+        bool HasParticipation(ICharacter participant, IArenaEvent arenaEvent);
+        void ClearParticipation(ICharacter participant, IArenaEvent arenaEvent);
+        void ClearParticipation(IArenaEvent arenaEvent);
 }
 
 /// <summary>
 /// Centralises arena-related output helpers for commands and builders.
 /// </summary>
 public interface IArenaCommandService {
-	void ShowArena(ICharacter actor, ICombatArena arena);
+        void ShowArena(ICharacter actor, ICombatArena arena);
 	void ShowEvent(ICharacter actor, IArenaEvent arenaEvent);
 	void ShowEventType(ICharacter actor, IArenaEventType eventType);
 }

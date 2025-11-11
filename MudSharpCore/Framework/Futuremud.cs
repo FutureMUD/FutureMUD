@@ -137,6 +137,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                 ArenaBettingService = new ArenaBettingService(this, ArenaFinanceService);
                 ArenaRatingsService = new ArenaRatingsService(this);
                 ArenaNpcService = new ArenaNpcService(this);
+                ArenaParticipationService = new ArenaParticipationService(this);
                 ArenaCommandService = new ArenaCommandService(this);
                 SaveManager = new SaveManager();
                 HeartbeatManager = new HeartbeatManager(this);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using MudSharp.Accounts;
+using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
@@ -114,19 +116,40 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 		_connection.State = ConnectionState.Closing;
 		_connection = null;
 		Account?.Gameworld.SystemMessage($"Account {Account.Name.Proper()} has disconnected.", true);
-		var characterContext = _context as ICharacter;
-		if (characterContext?.IsGuest ?? false)
-		{
-			characterContext.AddEffect(new LinkdeadLogout(characterContext), TimeSpan.FromSeconds(1));
-		}
-		else
-		{
-			characterContext?.OutputHandler.Handle(
-				new EmoteOutput(new Emote("@ have|has gone linkdead.", characterContext),
-					flags: OutputFlags.SuppressObscured));
-			characterContext?.AddEffect(new LinkdeadLogout(characterContext), TimeSpan.FromMinutes(10));
-		}
-	}
+                var characterContext = _context as ICharacter;
+                var isParticipating = characterContext?.CombinedEffectsOfType<ArenaParticipationEffect>()
+                        .Any(x => x.Applies()) ?? false;
+                if (characterContext?.IsGuest ?? false)
+                {
+                        if (!isParticipating)
+                        {
+                                characterContext.AddEffect(new LinkdeadLogout(characterContext),
+                                        TimeSpan.FromSeconds(1));
+                        }
+                        else
+                        {
+                                characterContext.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+                        }
+                }
+                else
+                {
+                        characterContext?.OutputHandler.Handle(
+                                new EmoteOutput(new Emote("@ have|has gone linkdead.", characterContext),
+                                        flags: OutputFlags.SuppressObscured));
+                        if (characterContext is not null)
+                        {
+                                if (!isParticipating)
+                                {
+                                        characterContext.AddEffect(new LinkdeadLogout(characterContext),
+                                                TimeSpan.FromMinutes(10));
+                                }
+                                else
+                                {
+                                        characterContext.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+                                }
+                        }
+                }
+        }
 
 	public void AddObservee(IMonitorable observee)
 	{

@@ -147,6 +147,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
         public IArenaBettingService ArenaBettingService { get; protected set; }
         public IArenaRatingsService ArenaRatingsService { get; protected set; }
         public IArenaNpcService ArenaNpcService { get; protected set; }
+        public IArenaParticipationService ArenaParticipationService { get; protected set; }
         public IArenaCommandService ArenaCommandService { get; protected set; }
 	public IEffectScheduler EffectScheduler { get; protected set; }
 	public ISaveManager SaveManager { get; protected set; }

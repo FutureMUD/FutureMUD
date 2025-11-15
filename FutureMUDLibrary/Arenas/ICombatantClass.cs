@@ -9,7 +9,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Defines a combatant archetype that governs eligibility, NPC loading, and identity metadata.
 /// </summary>
-public interface ICombatantClass : IFrameworkItem, ISaveable, IProgVariable {
+public interface ICombatantClass : IFrameworkItem, ISaveable {
 	/// <summary>Eligibility prog returns bool and accepts the candidate character.</summary>
 	IFutureProg EligibilityProg { get; }
 	/// <summary>Optional admin NPC loader prog; accepts slots needed and returns characters.</summary>

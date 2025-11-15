@@ -8,14 +8,13 @@ using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 
 namespace MudSharp.Arenas;
 
 /// <summary>
 /// Represents a combat arena business that can host structured combat events.
 /// </summary>
-public interface ICombatArena : IFrameworkItem, ISaveable, IProgVariable {
+public interface ICombatArena : IFrameworkItem, ISaveable {
 	IEconomicZone EconomicZone { get; }
 	ICurrency Currency { get; }
 	IBankAccount? BankAccount { get; set; }

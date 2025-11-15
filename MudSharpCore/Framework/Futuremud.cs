@@ -134,7 +134,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                 ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
                 ArenaObservationService = new ArenaObservationService(this);
                 ArenaFinanceService = new ArenaFinanceService();
-                ArenaBettingService = new ArenaBettingService(this, ArenaFinanceService);
+                ArenaBettingService = new ArenaBettingService(this, ArenaFinanceService, new ArenaBetPaymentService());
                 ArenaRatingsService = new ArenaRatingsService(this);
                 ArenaNpcService = new ArenaNpcService(this);
                 ArenaParticipationService = new ArenaParticipationService(this);

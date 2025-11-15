@@ -86,10 +86,10 @@ public class ArenaRatingsServiceTests
 		evt.SetupGet(x => x.Arena).Returns(arena.Object);
 		evt.SetupGet(x => x.Participants)
 		   .Returns(new[] { winningParticipant.Participant.Object, losingParticipant.Participant.Object });
-		evt.Setup(x => x.GetProperty("Outcome"))
-		   .Returns(new TestProgVariable(ArenaOutcome.Win, ProgVariableTypes.Text));
-		evt.Setup(x => x.GetProperty("WinningSides"))
-		   .Returns(new TestProgVariable(new[] { 0 }, ProgVariableTypes.Collection | ProgVariableTypes.Number));
+		evt.Setup(x => x.Outcome)
+		   .Returns(ArenaOutcome.Win);
+		evt.Setup(x => x.WinningSides)
+		   .Returns([0]);
 
 		service.ApplyDefaultElo(evt.Object);
 

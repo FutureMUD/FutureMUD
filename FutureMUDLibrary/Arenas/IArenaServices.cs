@@ -65,6 +65,14 @@ public interface IArenaFinanceService {
 }
 
 /// <summary>
+/// Handles taking stakes from bettors and disbursing winnings/refunds.
+/// </summary>
+public interface IArenaBetPaymentService {
+	(bool Success, string Error) CollectStake(ICharacter bettor, IArenaEvent arenaEvent, decimal amount);
+	bool TryDisburse(ICharacter bettor, IArenaEvent arenaEvent, decimal amount);
+}
+
+/// <summary>
 /// Provides NPC auto-fill, outfitting, and restoration flows.
 /// </summary>
 public interface IArenaNpcService {

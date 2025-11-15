@@ -22,13 +22,16 @@ public class ArenaBettingServiceTests
 		return new FuturemudDatabaseContext(options);
 	}
 
-	private static ArenaBettingService CreateService(FuturemudDatabaseContext context, Mock<IArenaFinanceService> financeMock, Dictionary<long, ICharacter> characters)
+	private static ArenaBettingService CreateService(FuturemudDatabaseContext context, Mock<IArenaFinanceService> financeMock, Mock<IArenaBetPaymentService> paymentMock, Dictionary<long, ICharacter> characters)
 	{
 		var charactersSet = new Mock<IUneditableAll<ICharacter>>();
 		charactersSet.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => characters.TryGetValue(id, out var value) ? value : null);
+		charactersSet.Setup(x => x.Has(It.IsAny<ICharacter>())).Returns<ICharacter>(c => characters.Values.Contains(c));
+		charactersSet.Setup(x => x.Has(It.IsAny<long>())).Returns<long>(id => characters.ContainsKey(id));
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.Characters).Returns(charactersSet.Object);
-		return new ArenaBettingService(gameworld.Object, financeMock.Object, () => context);
+		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>())).Returns<long, bool>((id, _) => characters.TryGetValue(id, out var value) ? value : null);
+		return new ArenaBettingService(gameworld.Object, financeMock.Object, paymentMock.Object, () => context);
 	}
 
 	private static IArenaEvent BuildEvent(Mock<ICombatArena> arena, BettingModel model, ArenaEventState state, IEnumerable<IArenaParticipant>? participants = null)
@@ -52,8 +55,9 @@ public class ArenaBettingServiceTests
 	{
 		using var context = BuildContext();
 		var financeMock = new Mock<IArenaFinanceService>();
+		var paymentMock = new Mock<IArenaBetPaymentService>();
 		var characters = new Dictionary<long, ICharacter>();
-		var service = CreateService(context, financeMock, characters);
+		var service = CreateService(context, financeMock, paymentMock, characters);
 		var arena = new Mock<ICombatArena>();
 		var evt = new Mock<IArenaEvent>();
 		evt.Setup(x => x.State).Returns(ArenaEventState.Completed);
@@ -70,18 +74,22 @@ public class ArenaBettingServiceTests
 	{
 		using var context = BuildContext();
 		var financeMock = new Mock<IArenaFinanceService>();
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+		           .Returns((true, string.Empty));
 		var actor = new Mock<ICharacter>();
 		actor.Setup(x => x.Id).Returns(10L);
 		var characters = new Dictionary<long, ICharacter> { { 10L, actor.Object } };
 		var arena = new Mock<ICombatArena>();
 		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
-		var service = CreateService(context, financeMock, characters);
+		var service = CreateService(context, financeMock, paymentMock, characters);
 		service.PlaceBet(actor.Object, evt, 0, 100m);
 		var bet = context.ArenaBets.Single();
 		Assert.AreEqual(100m, bet.Stake);
 		Assert.AreEqual(0, bet.SideIndex);
 		Assert.IsTrue(bet.FixedDecimalOdds.HasValue);
 		arena.Verify(x => x.Credit(100m, It.Is<string>(s => s.Contains("stake"))), Times.Once);
+		paymentMock.Verify(x => x.CollectStake(actor.Object, evt, 100m), Times.Once);
 	}
 
 	[TestMethod]
@@ -94,8 +102,13 @@ public class ArenaBettingServiceTests
 		arena.Setup(x => x.EnsureFunds(It.IsAny<decimal>())).Returns((true, string.Empty));
 		var actor = new Mock<ICharacter>();
 		actor.Setup(x => x.Id).Returns(5L);
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+		           .Returns((true, string.Empty));
+		paymentMock.Setup(x => x.TryDisburse(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+		           .Returns(true);
 		var characters = new Dictionary<long, ICharacter> { { 5L, actor.Object } };
-		var service = CreateService(context, financeMock, characters);
+		var service = CreateService(context, financeMock, paymentMock, characters);
 		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
 		var bettor = new Mock<ICharacter>();
 		bettor.Setup(x => x.Id).Returns(5L);
@@ -114,11 +127,14 @@ public class ArenaBettingServiceTests
 		using var context = BuildContext();
 		var financeMock = new Mock<IArenaFinanceService>();
 		financeMock.Setup(x => x.IsSolvent(It.IsAny<ICombatArena>(), It.IsAny<decimal>())).Returns((false, "insolvent"));
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+		           .Returns((true, string.Empty));
 		var arena = new Mock<ICombatArena>();
 		var actor = new Mock<ICharacter>();
 		actor.Setup(x => x.Id).Returns(7L);
 		var characters = new Dictionary<long, ICharacter> { { 7L, actor.Object } };
-		var service = CreateService(context, financeMock, characters);
+		var service = CreateService(context, financeMock, paymentMock, characters);
 		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
 		var bettor = new Mock<ICharacter>();
 		bettor.Setup(x => x.Id).Returns(7L);
@@ -133,11 +149,16 @@ public class ArenaBettingServiceTests
 	{
 		using var context = BuildContext();
 		var financeMock = new Mock<IArenaFinanceService>();
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+		           .Returns((true, string.Empty));
+		paymentMock.Setup(x => x.TryDisburse(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+		           .Returns(true);
 		var arena = new Mock<ICombatArena>();
 		var actor = new Mock<ICharacter>();
 		actor.Setup(x => x.Id).Returns(9L);
 		var characters = new Dictionary<long, ICharacter> { { 9L, actor.Object } };
-		var service = CreateService(context, financeMock, characters);
+		var service = CreateService(context, financeMock, paymentMock, characters);
 		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
 		service.PlaceBet(actor.Object, evt, 0, 10m);
 		service.RefundAll(evt, "cancelled");

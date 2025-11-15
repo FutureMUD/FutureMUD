@@ -6,6 +6,7 @@ using System.Text.Json;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Models;
 
@@ -18,13 +19,15 @@ public class ArenaBettingService : IArenaBettingService
 {
 	private readonly IFuturemud _gameworld;
 	private readonly IArenaFinanceService _financeService;
+	private readonly IArenaBetPaymentService _paymentService;
 	private readonly Func<FuturemudDatabaseContext>? _contextFactory;
 
 	public ArenaBettingService(IFuturemud gameworld, IArenaFinanceService financeService,
-	Func<FuturemudDatabaseContext>? contextFactory = null)
+	IArenaBetPaymentService? paymentService = null, Func<FuturemudDatabaseContext>? contextFactory = null)
 	{
 		_gameworld = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
 		_financeService = financeService ?? throw new ArgumentNullException(nameof(financeService));
+		_paymentService = paymentService ?? new ArenaBetPaymentService();
 		_contextFactory = contextFactory;
 	}
 
@@ -83,6 +86,12 @@ public class ArenaBettingService : IArenaBettingService
 		if (!allowed)
 		{
 			throw new InvalidOperationException(reason);
+		}
+
+		var stakeResult = _paymentService.CollectStake(actor, arenaEvent, stake);
+		if (!stakeResult.Success)
+		{
+			throw new InvalidOperationException(stakeResult.Error);
 		}
 
 		var bettingModel = arenaEvent.EventType.BettingModel;
@@ -177,6 +186,15 @@ public class ArenaBettingService : IArenaBettingService
 
 		context.SaveChanges();
 		arenaEvent.Arena.Debit(bet.Stake, $"Arena bet refund for event #{arenaEvent.Id}");
+		if (!_paymentService.TryDisburse(actor, arenaEvent, bet.Stake))
+		{
+			RecordOutstandingPayout(context, arenaEvent, bet.CharacterId, bet.Stake);
+			var owedText = arenaEvent.Arena.Currency.Describe(bet.Stake, CurrencyDescriptionPatternType.ShortDecimal)
+			                         .ColourValue();
+			actor.OutputHandler.Send(
+				$"The arena owes you {owedText} from your cancelled wager. A payout has been recorded for later collection."
+					.Colour(Telnet.Yellow));
+		}
 	}
 
 	/// <inheritdoc />
@@ -187,6 +205,9 @@ public class ArenaBettingService : IArenaBettingService
 			throw new ArgumentNullException(nameof(arenaEvent));
 		}
 
+		var winningList = winningSides?.ToList();
+		arenaEvent.RecordOutcome(outcome, winningList);
+
 		using var scope = BeginContext(out var context);
 		var activeBets = context.ArenaBets.Where(x => x.ArenaEventId == arenaEvent.Id && !x.IsCancelled).ToList();
 		if (!activeBets.Any())
@@ -194,9 +215,9 @@ public class ArenaBettingService : IArenaBettingService
 			return;
 		}
 
-		var winningSet = winningSides?.ToHashSet() ?? new HashSet<int>();
+		var winningSet = winningList?.ToHashSet() ?? new HashSet<int>();
 		var pools = context.ArenaBetPools.Where(x => x.ArenaEventId == arenaEvent.Id).ToList();
-		var payouts = new List<(ICharacter Winner, decimal Amount)>();
+		var payouts = new List<(ICharacter Winner, decimal Amount, bool Online)>();
 
 		foreach (var bet in activeBets)
 		{
@@ -205,7 +226,7 @@ public class ArenaBettingService : IArenaBettingService
 				continue;
 			}
 
-			var winner = _gameworld.Characters.Get(bet.CharacterId);
+			var winner = _gameworld.TryGetCharacter(bet.CharacterId, true);
 			if (winner is null)
 			{
 				continue;
@@ -217,7 +238,8 @@ public class ArenaBettingService : IArenaBettingService
 				continue;
 			}
 
-			payouts.Add((winner, payout));
+			var isOnline = _gameworld.Characters.Has(winner);
+			payouts.Add((winner, payout, isOnline));
 		}
 
 		if (!payouts.Any())
@@ -225,34 +247,55 @@ public class ArenaBettingService : IArenaBettingService
 			return;
 		}
 
-		var totalPayout = payouts.Sum(x => x.Amount);
+		var financePayouts = payouts.Select(x => (x.Winner, x.Amount)).ToList();
+		var totalPayout = financePayouts.Sum(x => x.Amount);
 		var solvency = _financeService.IsSolvent(arenaEvent.Arena, totalPayout);
 		if (!solvency.Truth)
 		{
-			_financeService.BlockPayout(arenaEvent.Arena, arenaEvent, payouts);
+			_financeService.BlockPayout(arenaEvent.Arena, arenaEvent, financePayouts);
 			return;
 		}
 
 		var ensure = arenaEvent.Arena.EnsureFunds(totalPayout);
 		if (!ensure.Truth)
 		{
-			_financeService.BlockPayout(arenaEvent.Arena, arenaEvent, payouts);
+			_financeService.BlockPayout(arenaEvent.Arena, arenaEvent, financePayouts);
 			return;
 		}
 
 		foreach (var payout in payouts)
 		{
 			arenaEvent.Arena.Debit(payout.Amount, $"Arena payout for event #{arenaEvent.Id}");
-			var record = new ArenaBetPayout
+			if (payout.Online && _paymentService.TryDisburse(payout.Winner, arenaEvent, payout.Amount))
 			{
-				ArenaEventId = arenaEvent.Id,
-				CharacterId = payout.Winner.Id,
-				Amount = payout.Amount,
-				IsBlocked = false,
-				CreatedAt = DateTime.UtcNow,
-				CollectedAt = DateTime.UtcNow
-			};
-			context.ArenaBetPayouts.Add(record);
+				var payoutText = arenaEvent.Arena.Currency
+				                          .Describe(payout.Amount, CurrencyDescriptionPatternType.ShortDecimal)
+				                          .ColourValue();
+				payout.Winner.OutputHandler.Send(
+					$"You receive {payoutText} from betting on {arenaEvent.Name.ColourName()}.".Colour(Telnet.Green));
+				var record = new ArenaBetPayout
+				{
+					ArenaEventId = arenaEvent.Id,
+					CharacterId = payout.Winner.Id,
+					Amount = payout.Amount,
+					IsBlocked = false,
+					CreatedAt = DateTime.UtcNow,
+					CollectedAt = DateTime.UtcNow
+				};
+				context.ArenaBetPayouts.Add(record);
+				continue;
+			}
+
+			RecordOutstandingPayout(context, arenaEvent, payout.Winner.Id, payout.Amount);
+			if (payout.Online)
+			{
+				var owedText = arenaEvent.Arena.Currency
+				                         .Describe(payout.Amount, CurrencyDescriptionPatternType.ShortDecimal)
+				                         .ColourValue();
+				payout.Winner.OutputHandler.Send(
+					$"The arena owes you {owedText} from betting on {arenaEvent.Name.ColourName()}. A payout has been recorded for later collection."
+						.Colour(Telnet.Yellow));
+			}
 		}
 
 		foreach (var pool in pools)
@@ -283,6 +326,27 @@ public class ArenaBettingService : IArenaBettingService
 			bet.IsCancelled = true;
 			bet.CancelledAt = DateTime.UtcNow;
 			arenaEvent.Arena.Debit(bet.Stake, $"Arena bet refund ({reason}) for event #{arenaEvent.Id}");
+			var bettor = _gameworld.Characters.Get(bet.CharacterId);
+			if (bettor is not null && _paymentService.TryDisburse(bettor, arenaEvent, bet.Stake))
+			{
+				var refundText = arenaEvent.Arena.Currency
+				                           .Describe(bet.Stake, CurrencyDescriptionPatternType.ShortDecimal)
+				                           .ColourValue();
+				bettor.OutputHandler.Send(
+					$"Your stake of {refundText} has been refunded because {reason.Colour(Telnet.Yellow)} for {arenaEvent.Name.ColourName()}.");
+				continue;
+			}
+
+			RecordOutstandingPayout(context, arenaEvent, bet.CharacterId, bet.Stake);
+			if (bettor is not null)
+			{
+				var owedText = arenaEvent.Arena.Currency
+				                         .Describe(bet.Stake, CurrencyDescriptionPatternType.ShortDecimal)
+				                         .ColourValue();
+				bettor.OutputHandler.Send(
+					$"The arena owes you {owedText} from {arenaEvent.Name.ColourName()} due to {reason.Colour(Telnet.Yellow)}. You can collect it later."
+						.Colour(Telnet.Yellow));
+			}
 		}
 
 		var pools = context.ArenaBetPools.Where(x => x.ArenaEventId == arenaEvent.Id).ToList();
@@ -314,6 +378,32 @@ public class ArenaBettingService : IArenaBettingService
 			BettingModel.PariMutuel => (null, GetPoolQuote(context, arenaEvent.Id, sideIndex)),
 			_ => throw new ArgumentOutOfRangeException()
 		};
+	}
+
+	private void RecordOutstandingPayout(FuturemudDatabaseContext context, IArenaEvent arenaEvent, long characterId, decimal amount)
+	{
+		if (amount <= 0)
+		{
+			return;
+		}
+
+		var existing = context.ArenaBetPayouts.FirstOrDefault(x =>
+			x.ArenaEventId == arenaEvent.Id && x.CharacterId == characterId && !x.IsBlocked && x.CollectedAt == null);
+		if (existing is null)
+		{
+			context.ArenaBetPayouts.Add(new ArenaBetPayout
+			{
+				ArenaEventId = arenaEvent.Id,
+				CharacterId = characterId,
+				Amount = amount,
+				IsBlocked = false,
+				CreatedAt = DateTime.UtcNow
+			});
+		}
+		else
+		{
+			existing.Amount += amount;
+		}
 	}
 
 	private IDisposable? BeginContext(out FuturemudDatabaseContext context)

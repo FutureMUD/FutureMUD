@@ -210,58 +210,12 @@ public class ArenaRatingsService : IArenaRatingsService
 
 	private static ArenaOutcome? TryExtractOutcome(IArenaEvent arenaEvent)
 	{
-		var property = arenaEvent.GetType().GetProperty("Outcome");
-		if (property is not null)
-		{
-			var value = property.GetValue(arenaEvent);
-			if (TryConvertOutcome(value, out var outcomeFromProperty))
-			{
-				return outcomeFromProperty;
-			}
-		}
-
-		try
-		{
-			var variable = arenaEvent.GetProperty("Outcome");
-			if (variable is not null && TryConvertOutcome(variable.GetObject, out var outcomeFromVariable))
-			{
-				return outcomeFromVariable;
-			}
-		}
-		catch
-		{
-			// ignored -- if the event does not expose an outcome we skip rating adjustments.
-		}
-
-		return null;
+		return arenaEvent.Outcome;
 	}
 
 	private static IReadOnlyCollection<int>? TryExtractWinningSides(IArenaEvent arenaEvent)
 	{
-		var property = arenaEvent.GetType().GetProperty("WinningSides");
-		if (property is not null)
-		{
-			var value = property.GetValue(arenaEvent);
-			if (TryConvertWinningSides(value, out var sidesFromProperty))
-			{
-				return sidesFromProperty;
-			}
-		}
-
-		try
-		{
-			var variable = arenaEvent.GetProperty("WinningSides");
-			if (variable is not null && TryConvertWinningSides(variable.GetObject, out var sidesFromVariable))
-			{
-				return sidesFromVariable;
-			}
-		}
-		catch
-		{
-			// ignored -- optional metadata.
-		}
-
-		return null;
+		return arenaEvent.WinningSides;
 	}
 
 	private static bool TryConvertOutcome(object? value, out ArenaOutcome outcome)

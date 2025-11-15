@@ -12,7 +12,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Immutable template describing the structure of a combat event.
 /// </summary>
-public interface IArenaEventType : IFrameworkItem, ISaveable, IProgVariable {
+public interface IArenaEventType : IFrameworkItem, ISaveable {
 	ICombatArena Arena { get; }
 	IEnumerable<IArenaEventTypeSide> Sides { get; }
 	bool BringYourOwn { get; }
@@ -25,6 +25,7 @@ public interface IArenaEventType : IFrameworkItem, ISaveable, IProgVariable {
 	IFutureProg? IntroProg { get; }
 	IFutureProg? ScoringProg { get; }
 	IFutureProg? ResolutionOverrideProg { get; }
+	IArenaEliminationStrategy? EliminationStrategy { get; }
 
 	IArenaEvent CreateInstance(DateTime scheduledTime, IEnumerable<IArenaReservation>? reservations = null);
 	IArenaEventType Clone(string newName, ICharacter originator);

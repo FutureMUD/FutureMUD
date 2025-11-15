@@ -9,6 +9,7 @@ using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Framework;
 using MudSharp.Models;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests.Arenas;
 
@@ -27,7 +28,7 @@ public class ArenaFinanceServiceTests
 	public void IsSolvent_AccountsForBlockedPayouts()
 	{
 		using var context = BuildContext();
-		context.ArenaEvents.Add(new ArenaEvent
+		context.ArenaEvents.Add(new MudSharp.Models.ArenaEvent
 		{
 			Id = 1,
 			ArenaId = 5,
@@ -64,7 +65,7 @@ public class ArenaFinanceServiceTests
 	public void UnblockPayouts_PaysWhenFundsAvailable()
 	{
 		using var context = BuildContext();
-		context.ArenaEvents.Add(new ArenaEvent
+		context.ArenaEvents.Add(new MudSharp.Models.ArenaEvent
 		{
 			Id = 2,
 			ArenaId = 8,

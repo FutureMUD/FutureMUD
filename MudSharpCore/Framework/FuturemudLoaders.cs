@@ -864,6 +864,36 @@ For information on the syntax to use in emotes (such as those included in bracke
 		count = banks.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Bank" : "Banks");
 
+		ConsoleUtilities.WriteLine("\nLoading #5Combat Arenas#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+		var combatArenas = FMDB.Context.Arenas
+		                             .Include(x => x.ArenaManagers)
+		                             .Include(x => x.ArenaCells)
+		                             .Include(x => x.ArenaCombatantClasses)
+		                             .Include(x => x.ArenaEventTypes)
+		                             .ThenInclude(x => x.ArenaEventTypeSides)
+		                             .ThenInclude(x => x.ArenaEventTypeSideAllowedClasses)
+		                             .Include(x => x.ArenaEvents)
+		                             .ThenInclude(x => x.ArenaSignups)
+		                             .Include(x => x.ArenaEvents)
+		                             .ThenInclude(x => x.ArenaReservations)
+		                             .AsSplitQuery()
+		                             .AsNoTracking()
+		                             .ToList();
+		foreach (var arena in combatArenas)
+		{
+			_combatArenas.Add(new CombatArena(arena, this));
+		}
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		count = combatArenas.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
+			count == 1 ? "Combat Arena" : "Combat Arenas");
+
 		ConsoleUtilities.WriteLine("\nLoading #5Properties#0...");
 #if DEBUG
 		sw.Restart();

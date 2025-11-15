@@ -9,7 +9,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Represents a configured participant slot in an arena event.
 /// </summary>
-public interface IArenaParticipant : IProgVariable {
+public interface IArenaParticipant {
 	/// <summary>Character occupying the slot, null if pending NPC fill.</summary>
 	ICharacter? Character { get; }
 	/// <summary>Combatant class chosen for the participant.</summary>
@@ -29,7 +29,7 @@ public interface IArenaParticipant : IProgVariable {
 /// <summary>
 /// Defines per-side capacity and policy for an event type.
 /// </summary>
-public interface IArenaEventTypeSide : IProgVariable {
+public interface IArenaEventTypeSide {
 	int Index { get; }
 	int Capacity { get; }
 	ArenaSidePolicy Policy { get; }

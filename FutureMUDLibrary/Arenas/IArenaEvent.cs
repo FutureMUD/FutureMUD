@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
 
 namespace MudSharp.Arenas;
 
 /// <summary>
 /// Reservation for a particular side or entity during registration.
 /// </summary>
-public interface IArenaReservation : IProgVariable {
+public interface IArenaReservation {
 	int SideIndex { get; }
 	long? CharacterId { get; }
 	long? ClanId { get; }
@@ -22,7 +21,7 @@ public interface IArenaReservation : IProgVariable {
 /// <summary>
 /// Represents a scheduled combat event instance.
 /// </summary>
-public interface IArenaEvent : IFrameworkItem, ISaveable, IProgVariable {
+public interface IArenaEvent : IFrameworkItem, ISaveable {
 	ICombatArena Arena { get; }
 	IArenaEventType EventType { get; }
 	ArenaEventState State { get; }
@@ -32,6 +31,8 @@ public interface IArenaEvent : IFrameworkItem, ISaveable, IProgVariable {
 	DateTime? StartedAt { get; }
 	DateTime? ResolvedAt { get; }
 	DateTime? CompletedAt { get; }
+	ArenaOutcome? Outcome { get; }
+	IReadOnlyCollection<int>? WinningSides { get; }
 
 	IEnumerable<IArenaParticipant> Participants { get; }
 	IEnumerable<IArenaReservation> Reservations { get; }
@@ -54,5 +55,6 @@ public interface IArenaEvent : IFrameworkItem, ISaveable, IProgVariable {
 	void AddReservation(IArenaReservation reservation);
 	void RemoveReservation(IArenaReservation reservation);
 
+	void RecordOutcome(ArenaOutcome outcome, IEnumerable<int>? winningSides);
 	void EnforceState(ArenaEventState state);
 }

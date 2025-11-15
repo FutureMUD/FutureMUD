@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Arenas;
@@ -75,7 +76,8 @@ public class ArenaWatcherEffectTests
                 watcherLocation = observationCell2.Object;
                 _effect.HandleOutput(_output.Object, _arenaCell.Object);
 
-                outputHandler.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once());
+                Assert.AreEqual(1, outputHandler.Invocations.Count);
+                Assert.AreEqual("Send", outputHandler.Invocations.Single().Method.Name);
         }
 
         [TestMethod]

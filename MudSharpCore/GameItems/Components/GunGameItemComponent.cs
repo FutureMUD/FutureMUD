@@ -334,8 +334,7 @@ public class GunGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchabl
 		ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
 		if (shell != null)
 		{
-			originalLocation.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell),
-				flags: OutputFlags.Insigificant));
+			originalLocation.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
 			shell.RoomLayer = actor.RoomLayer;
 			originalLocation.Insert(shell);
 		}

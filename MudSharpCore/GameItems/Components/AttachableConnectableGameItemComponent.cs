@@ -26,6 +26,11 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 
 	public override bool Take(IGameItem item)
 	{
+		if (item is null)
+		{
+			return false;
+		}
+
 		if (_connectedItem?.Parent == item)
 		{
 			_connectedItem.RawDisconnect(this, true);
@@ -37,13 +42,13 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 		return false;
 	}
 
-	public IEnumerable<ConnectorType> Connections => new[] { _prototype.Connector };
+	public IEnumerable<ConnectorType> Connections => [_prototype.Connector];
 
 	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems
-		=> new[] { Tuple.Create(_prototype.Connector, _connectedItem) };
+		=> _connectedItem is not null ? [Tuple.Create(_prototype.Connector, _connectedItem)] : [];
 
 	public IEnumerable<ConnectorType> FreeConnections
-		=> _connectedItem != null ? Enumerable.Empty<ConnectorType>() : Connections;
+		=> _connectedItem != null ? [] : Connections;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{

@@ -301,8 +301,9 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 				if (location.Characters.Any() || location.GameItems.Any())
 				{
 					var directions = location.ExitsBetween(actor.Location, 10).ToList();
-					location.Handle(new EmoteOutput(
+					location.Handle(new AudioOutput(
 						new Emote($"A laser blast can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
+						_prototype.FireVolume.StageDown((uint)Math.Max(0, directions.Count - 1)),
 						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
 				}
 			}
@@ -312,13 +313,15 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 				if (layer.IsLowerThan(actor.RoomLayer))
 				{
 					actor.Location.Handle(layer,
-						new EmoteOutput(new Emote($"A laser blast can be heard from above.", Parent),
+						new AudioOutput(new Emote($"A laser blast can be heard from above.", Parent),
+							_prototype.FireVolume,
 							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
 				}
 				else
 				{
 					actor.Location.Handle(layer,
-						new EmoteOutput(new Emote($"A laser blast can be heard from below.", Parent),
+						new AudioOutput(new Emote($"A laser blast can be heard from below.", Parent),
+							_prototype.FireVolume,
 							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
 				}
 			}

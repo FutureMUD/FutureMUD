@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 
@@ -12,7 +13,8 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Immutable template describing the structure of a combat event.
 /// </summary>
-public interface IArenaEventType : IFrameworkItem, ISaveable {
+public interface IArenaEventType : IEditableItem
+{
 	ICombatArena Arena { get; }
 	IEnumerable<IArenaEventTypeSide> Sides { get; }
 	bool BringYourOwn { get; }

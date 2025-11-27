@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 
 namespace MudSharp.Arenas;
@@ -21,7 +22,7 @@ public interface IArenaReservation {
 /// <summary>
 /// Represents a scheduled combat event instance.
 /// </summary>
-public interface IArenaEvent : IFrameworkItem, ISaveable {
+public interface IArenaEvent : IEditableItem, ISaveable {
 	ICombatArena Arena { get; }
 	IArenaEventType EventType { get; }
 	ArenaEventState State { get; }

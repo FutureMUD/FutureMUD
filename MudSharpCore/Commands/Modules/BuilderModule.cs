@@ -45,7 +45,7 @@ internal class BuilderModule : BaseBuilderModule
 	}
 
 	public static BuilderModule Instance { get; } = new();
-	
+
 	#region Characteristics
 
 	private const string CharacteristicHelp =
@@ -510,7 +510,7 @@ You must use one of the following subcommands of this command:
 					},
 				new[] { "ID#", "Name", "Value", "Basic Value", "Chargen", "Ongoing", "Default?" },
 				actor.Account.LineFormatLength,
-				colour: Telnet.Green, 
+				colour: Telnet.Green,
 				unicodeTable: actor.Account.UseUnicode
 			)
 		);
@@ -543,18 +543,18 @@ You must use one of the following subcommands of this command:
 		switch (definition.Type)
 		{
 			case CharacteristicType.Coloured:
-			{
-				IColour colour = null;
-				colour = actor.Gameworld.Colours.GetByIdOrName(basic);
-
-				if (colour == null)
 				{
-					actor.OutputHandler.Send("There is no such colour for you to use.");
-					return;
-				}
+					IColour colour = null;
+					colour = actor.Gameworld.Colours.GetByIdOrName(basic);
 
-				newvalue = new ColourCharacteristicValue(name, definition, colour);
-			}
+					if (colour == null)
+					{
+						actor.OutputHandler.Send("There is no such colour for you to use.");
+						return;
+					}
+
+					newvalue = new ColourCharacteristicValue(name, definition, colour);
+				}
 				break;
 			case CharacteristicType.RelativeHeight:
 				actor.OutputHandler.Send("This kind of Characteristic cannot have explicitly created values.");
@@ -868,7 +868,7 @@ You must use one of the following subcommands of this command:
 	}
 
 	#endregion
-	
+
 	#region Dreams
 
 	public const string DreamHelpText =
@@ -1742,10 +1742,10 @@ You can use the following filters with #3wearprofile list#0:
 		}
 	}
 
-	
+
 
 	#endregion
-	
+
 	#region Trait Expressions
 
 	public const string TraitExpressionHelp = @"The Trait Expression command is used to work with Trait Expressions, which are used in numerous points of the code to do mathematical formulas that can also parse the traits (i.e. skills and attributes) of a character. 
@@ -2009,7 +2009,7 @@ Here are some examples of plausible trait expressions applying the above:
 			{
 				case '+':
 					expressions = expressions
-								  .Where(x => 
+								  .Where(x =>
 									  x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
 									  x.OriginalFormulaText.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
 									  x.Parameters.Any(y => y.Key.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
@@ -3677,7 +3677,7 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 				switch (cmd[0])
 				{
 					case '+':
-						parts = parts.Where(x => 
+						parts = parts.Where(x =>
 							x.ShortDescription().Contains(cmd1, StringComparison.InvariantCultureIgnoreCase) ||
 							x.FullDescription().Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)
 							);
@@ -4089,7 +4089,7 @@ You can also edit the following specific properties:
 		if (!ss.IsFinished)
 		{
 			prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
-				ProgVariableTypes.Boolean, 
+				ProgVariableTypes.Boolean,
 				new List<IEnumerable<ProgVariableTypes>>
 				{
 					new ProgVariableTypes[] { },
@@ -4113,12 +4113,14 @@ You can also edit the following specific properties:
 		var terrains = JsonSerializer.Serialize(actor.Gameworld.Terrains.Select(x =>
 			new
 			{
-				Id = x.Id, Name = x.Name, TerrainEditorColour = x.TerrainEditorColour,
+				Id = x.Id,
+				Name = x.Name,
+				TerrainEditorColour = x.TerrainEditorColour,
 				TerrainEditorText = x.TerrainEditorText
 			}).ToList(), new JsonSerializerOptions
-		{
-			WriteIndented = true
-		});
+			{
+				WriteIndented = true
+			});
 		actor.OutputHandler.Send($"Terrain file for terrain builder:\n\n{terrains}\n\n", false, true);
 	}
 
@@ -4338,35 +4340,35 @@ You can use the following syntax with this command:
 	[PlayerCommand("Improver", "improver")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("Improver", ImproverHelpText, AutoHelp.HelpArgOrNoArg)]
-        protected static void Improver(ICharacter actor, string input)
-        {
-                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ImproverHelper);
-        }
-        #endregion
+	protected static void Improver(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ImproverHelper);
+	}
+	#endregion
 
-        #region Hearing Profiles
+	#region Hearing Profiles
 
-        public const string HearingProfileHelpText = @"The #3hearprof#0 command is used to edit hearing profiles used by the perception system.
+	public const string HearingProfileHelpText = @"The #3hearprof#0 command is used to edit hearing profiles used by the perception system.
 
 You can use the following syntax with this command:
 
-        #3hearprof list#0 - lists all hearing profiles
-        #3hearprof edit <which>#0 - begins editing a profile
-        #3hearprof edit new <type> <name>#0 - creates a new profile
-        #3hearprof close#0 - stops editing a profile
-        #3hearprof show <which>#0 - views a profile
-        #3hearprof show#0 - views your currently editing profile
-        #3hearprof set ...#0 - edits the profile";
+		#3hearprof list#0 - lists all hearing profiles
+		#3hearprof edit <which>#0 - begins editing a profile
+		#3hearprof edit new <type> <name>#0 - creates a new profile
+		#3hearprof close#0 - stops editing a profile
+		#3hearprof show <which>#0 - views a profile
+		#3hearprof show#0 - views your currently editing profile
+		#3hearprof set ...#0 - edits the profile";
 
-        [PlayerCommand("HearProf", "hearprof", "hprof")]
-        [CommandPermission(PermissionLevel.Admin)]
-        [HelpInfo("HearProf", HearingProfileHelpText, AutoHelp.HelpArgOrNoArg)]
-        protected static void HearProf(ICharacter actor, string input)
-        {
-                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.HearingProfileHelper);
-        }
+	[PlayerCommand("HearProf", "hearprof", "hprof")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("HearProf", HearingProfileHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void HearProf(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.HearingProfileHelper);
+	}
 
-        #endregion
+	#endregion
 
 	#region Height Weight Models
 
@@ -4602,9 +4604,73 @@ The syntax is as follows:
 	}
 	#endregion
 
-        #region Blood Types
+	#region Arenas
 
-        public const string BloodAntigenHelpText = @"The #3bloodantigen#0 command is used to view, edit and create blood antigens.
+	private const string CombatArenaHelp = @"The #3combatarena#0 command is used to view, edit and create combat arenas.
+
+You can use the following syntax:
+
+#3combatarena list#0 - lists all combat arenas
+#3combatarena edit <which>#0 - begins editing a combat arena
+#3combatarena edit new <name> <zone> <currency>#0 - creates a new combat arena
+#3combatarena close#0 - stops editing a combat arena
+#3combatarena show <which>#0 - views information about a combat arena
+#3combatarena show#0 - views information about your currently editing combat arena
+#3combatarena set <...>#0 - issues a building command to the open combat arena";
+
+	[PlayerCommand("CombatArena", "combatarena", "arenabuild")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("CombatArena", CombatArenaHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void CombatArena(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.CombatArenaHelper);
+	}
+
+	private const string CombatantClassHelp = @"The #3combatantclass#0 command is used to view, edit and create combatant classes.
+
+You can use the following syntax:
+
+#3combatantclass list#0 - lists all combatant classes
+#3combatantclass edit <which>#0 - begins editing a combatant class
+#3combatantclass edit new <arena> <name> <eligibility prog>#0 - creates a new combatant class
+#3combatantclass close#0 - stops editing a combatant class
+#3combatantclass show <which>#0 - views information about a combatant class
+#3combatantclass show#0 - views information about your currently editing combatant class
+#3combatantclass set <...>#0 - issues a building command to the open combatant class";
+
+	[PlayerCommand("CombatantClass", "combatantclass", "cbtclass")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("CombatantClass", CombatantClassHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void CombatantClass(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.CombatantClassHelper);
+	}
+
+	private const string ArenaEventHelp = @"The #3arenaevent#0 command is used to view, edit and create arena events.
+
+You can use the following syntax:
+
+#3arenaevent list#0 - lists arena events
+#3arenaevent edit <which>#0 - begins editing an arena event
+#3arenaevent edit new <arena> <eventtype> <datetime>#0 - creates a new arena event
+#3arenaevent close#0 - stops editing an arena event
+#3arenaevent show <which>#0 - views information about an arena event
+#3arenaevent show#0 - views information about your currently editing arena event
+#3arenaevent set <...>#0 - issues a building command to the open arena event";
+
+	[PlayerCommand("ArenaEvent", "arenaevent", "eventbuild")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("ArenaEvent", ArenaEventHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void ArenaEvent(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ArenaEventHelper);
+	}
+
+	#endregion
+
+	#region Blood Types
+
+	public const string BloodAntigenHelpText = @"The #3bloodantigen#0 command is used to view, edit and create blood antigens.
 
 You can use the following syntax:
 
@@ -4616,15 +4682,15 @@ You can use the following syntax:
 #3bloodantigen show#0 - views information about your currently editing blood antigen
 #3bloodantigen set name <name>#0 - renames this blood antigen";
 
-        [PlayerCommand("BloodAntigen", "bloodantigen", "bantigen")]
-        [CommandPermission(PermissionLevel.Admin)]
-        [HelpInfo("BloodAntigen", BloodAntigenHelpText, AutoHelp.HelpArgOrNoArg)]
-        protected static void BloodAntigen(ICharacter actor, string input)
-        {
-                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.BloodtypeAntigenHelper);
-        }
+	[PlayerCommand("BloodAntigen", "bloodantigen", "bantigen")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("BloodAntigen", BloodAntigenHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void BloodAntigen(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.BloodtypeAntigenHelper);
+	}
 
-        public const string BloodTypeHelpText = @"The #3bloodtype#0 command is used to view, edit and create blood types.
+	public const string BloodTypeHelpText = @"The #3bloodtype#0 command is used to view, edit and create blood types.
 
 The syntax is as follows:
 
@@ -4637,15 +4703,15 @@ The syntax is as follows:
 #3bloodtype set name <name>#0 - renames this blood type
 #3bloodtype set antigen <antigen>#0 - toggles an antigen for this blood type";
 
-        [PlayerCommand("BloodType", "bloodtype")]
-        [CommandPermission(PermissionLevel.Admin)]
-        [HelpInfo("BloodType", BloodTypeHelpText, AutoHelp.HelpArgOrNoArg)]
-        protected static void BloodType(ICharacter actor, string input)
-        {
-                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.BloodtypeHelper);
-        }
+	[PlayerCommand("BloodType", "bloodtype")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("BloodType", BloodTypeHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void BloodType(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.BloodtypeHelper);
+	}
 
-        public const string PopulationBloodModelHelpText = @"The #3popbloodmodel#0 command is used to view, edit and create population blood models.
+	public const string PopulationBloodModelHelpText = @"The #3popbloodmodel#0 command is used to view, edit and create population blood models.
 
 The syntax is as follows:
 
@@ -4659,17 +4725,17 @@ The syntax is as follows:
 #3popbloodmodel set type <bloodtype> <weight>#0 - adds or sets a blood type with a weight
 #3popbloodmodel set remove <bloodtype>#0 - removes a blood type from this model";
 
-        [PlayerCommand("PopBloodModel", "popbloodmodel", "pbloodmodel")]
-        [CommandPermission(PermissionLevel.Admin)]
-        [HelpInfo("PopBloodModel", PopulationBloodModelHelpText, AutoHelp.HelpArgOrNoArg)]
-        protected static void PopBloodModel(ICharacter actor, string input)
-        {
-                GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.PopulationBloodModelHelper);
-        }
+	[PlayerCommand("PopBloodModel", "popbloodmodel", "pbloodmodel")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("PopBloodModel", PopulationBloodModelHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void PopBloodModel(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.PopulationBloodModelHelper);
+	}
 
-        #endregion
+	#endregion
 
-        #region Drugs
+	#region Drugs
 
 	public const string DrugsHelp = @"The #3drug#0 command is used to view, edit and create drugs. Drugs can be added to food, liquid and attacks.
 

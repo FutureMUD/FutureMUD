@@ -51,6 +51,27 @@ internal class RoomBuilderModule : Module<ICharacter>
 	public static List<ICell> BuiltCells { get; } = new();
 
 #nullable enable
+	public static ICell? LookupCell(ICharacter builder, string cellText)
+	{
+		if (string.IsNullOrEmpty(cellText))
+		{
+			return null;
+		}
+
+		if (cellText.EqualTo("here"))
+		{
+			return builder.Location;
+		}
+
+		if (cellText[0] == '@' && cellText.Length > 1 && int.TryParse(cellText[1..], out var index) &&
+			BuiltCells.Count >= index && index > 0)
+		{
+			return BuiltCells[Index.FromEnd(index)];
+		}
+
+		return builder.Gameworld.Cells.GetByIdOrName(cellText);
+	}
+
 	public static ICell? LookupCell(IFuturemud gameworld, string cellText)
 	{
 		if (string.IsNullOrEmpty(cellText))
@@ -1638,11 +1659,11 @@ The syntax for this command is as follows:
 #3clock show <which>#0 - shows information about a clock
 #3clock show#0 - shows information about the currently edited clock";
 
-       [PlayerCommand("Clock", "clock")]
-       [CommandPermission(PermissionLevel.HighAdmin)]
-       [HelpInfo("clock", ClockHelpText, AutoHelp.HelpArgOrNoArg)]
-       protected static void Clock(ICharacter actor, string input)
-       {
+	   [PlayerCommand("Clock", "clock")]
+	   [CommandPermission(PermissionLevel.HighAdmin)]
+	   [HelpInfo("clock", ClockHelpText, AutoHelp.HelpArgOrNoArg)]
+	   protected static void Clock(ICharacter actor, string input)
+	   {
 BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ClockHelper);
 }
 

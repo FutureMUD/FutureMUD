@@ -94,7 +94,7 @@ Players:
 
         private static void ShowGeneralHelp(ICharacter actor)
         {
-                actor.OutputHandler.Send(ArenaHelp.Wrap(actor.InnerLineFormatLength));
+                actor.OutputHandler.Send(ArenaHelp.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
         }
 
         private static void ArenaList(ICharacter actor)
@@ -175,7 +175,7 @@ Players:
         {
                 if (ss.IsFinished)
                 {
-                        actor.OutputHandler.Send("Do you want to #3list#0, #3enter#0, or #3leave#0 observation?".ColourCommand());
+                        actor.OutputHandler.Send("Do you want to #3list#0, #3enter#0, or #3leave#0 observation?".SubstituteANSIColour());
                         return;
                 }
 
@@ -192,7 +192,7 @@ Players:
                                 ArenaObserveLeave(actor, ss);
                                 return;
                         default:
-                                actor.OutputHandler.Send("Valid options are #3list#0, #3enter#0, or #3leave#0.".ColourError());
+                                actor.OutputHandler.Send("Valid options are #3list#0, #3enter#0, or #3leave#0.".SubstituteANSIColour());
                                 return;
                 }
         }
@@ -392,7 +392,7 @@ Players:
         {
                 if (ss.IsFinished)
                 {
-                        actor.OutputHandler.Send("Do you want to #3odds#0, #3place#0, #3cancel#0, or #3pools#0?".ColourCommand());
+                        actor.OutputHandler.Send("Do you want to #3odds#0, #3place#0, #3cancel#0, or #3pools#0?".SubstituteANSIColour());
                         return;
                 }
 
@@ -411,7 +411,7 @@ Players:
                                 ArenaBetPools(actor, ss);
                                 return;
                         default:
-                                actor.OutputHandler.Send("Valid options are #3odds#0, #3place#0, #3cancel#0, or #3pools#0.".ColourError());
+                                actor.OutputHandler.Send("Valid options are #3odds#0, #3place#0, #3cancel#0, or #3pools#0.".SubstituteANSIColour());
                                 return;
                 }
         }

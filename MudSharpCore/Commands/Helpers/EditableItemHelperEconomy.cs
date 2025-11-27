@@ -345,7 +345,8 @@ public partial class EditableItemHelper
 			"Id",
 			"Name",
 			"Zone",
-			"# Accounts"
+			"# Accounts",
+			"Locations"
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IBank>()
@@ -354,7 +355,8 @@ public partial class EditableItemHelper
 			                                                  proto.Id.ToString("N0", character),
 			                                                  proto.Name,
 			                                                  proto.EconomicZone.Name,
-			                                                  proto.BankAccounts.Count().ToString("N0", character)
+			                                                  proto.BankAccounts.Count().ToString("N0", character),
+															  proto.BranchLocations.Select(x => x.GetFriendlyReference(character)).ListToCommaSeparatedValues(", ")
 		                                                  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,

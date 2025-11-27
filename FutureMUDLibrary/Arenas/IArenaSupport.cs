@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using MudSharp.Character;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Arenas;
@@ -9,7 +10,8 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Represents a configured participant slot in an arena event.
 /// </summary>
-public interface IArenaParticipant {
+public interface IArenaParticipant : IEditableItem
+{
 	/// <summary>Character occupying the slot, null if pending NPC fill.</summary>
 	ICharacter? Character { get; }
 	/// <summary>Combatant class chosen for the participant.</summary>
@@ -29,7 +31,8 @@ public interface IArenaParticipant {
 /// <summary>
 /// Defines per-side capacity and policy for an event type.
 /// </summary>
-public interface IArenaEventTypeSide {
+public interface IArenaEventTypeSide : IEditableItem
+{
 	int Index { get; }
 	int Capacity { get; }
 	ArenaSidePolicy Policy { get; }

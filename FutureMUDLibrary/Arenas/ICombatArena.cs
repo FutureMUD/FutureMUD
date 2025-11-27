@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 
 namespace MudSharp.Arenas;
@@ -14,7 +15,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Represents a combat arena business that can host structured combat events.
 /// </summary>
-public interface ICombatArena : IFrameworkItem, ISaveable {
+public interface ICombatArena : IEditableItem {
 	IEconomicZone EconomicZone { get; }
 	ICurrency Currency { get; }
 	IBankAccount? BankAccount { get; set; }
@@ -27,6 +28,7 @@ public interface ICombatArena : IFrameworkItem, ISaveable {
 	IEnumerable<ICell> NpcStablesCells { get; }
 	IEnumerable<ICell> AfterFightCells { get; }
 
+	IEnumerable<ICombatantClass> CombatantClasses { get; }
 	IEnumerable<IArenaEventType> EventTypes { get; }
 	IEnumerable<IArenaEvent> ActiveEvents { get; }
 

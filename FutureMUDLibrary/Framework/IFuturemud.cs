@@ -387,6 +387,7 @@ namespace MudSharp.Framework
 		void Add(IImprovementModel model);
 		void Add(ICurrency currency);
 		void Add(ICoin coin);
+		void Add(ICombatArena arena);
 		void Add(IChannel channel);
 		void Add(IAuxiliaryCombatAction action);
 		void Add(IBoard board);
@@ -562,6 +563,7 @@ namespace MudSharp.Framework
 		void Destroy(IDisfigurementTemplate template);
 		void Destroy(IActiveProject project);
 		void Destroy(IShop shop);
+		void Destroy(ICombatArena arena);
 		void Destroy(IEconomicZone zone);
 		void Destroy(IArea area);
 		void Destroy(IClimateModel model);

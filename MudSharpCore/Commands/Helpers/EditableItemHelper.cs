@@ -363,7 +363,7 @@ public partial class EditableItemHelper
 
 			var name = input.SafeRemainingArgument.TitleCase();
 
-			var shape = direct ? 
+			var shape = direct ?
 				(IBodypartGroupDescriber)new BodypartGroupIDDescriber(actor.Gameworld, name, body) :
 				(IBodypartGroupDescriber)new BodypartGroupShapeDescriber(actor.Gameworld, name, body);
 			actor.Gameworld.Add(shape);
@@ -847,8 +847,8 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = CombatBuilderModule.WeaponTypeHelp
 	};
 
-        public static EditableItemHelper AmmunitionTypeHelper { get; } = new()
-        {
+	public static EditableItemHelper AmmunitionTypeHelper { get; } = new()
+	{
 		ItemName = "Ammunition Type",
 		ItemNamePlural = "Ammunition Types",
 		SetEditableItemAction = (actor, item) =>
@@ -1018,111 +1018,111 @@ public partial class EditableItemHelper
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Ammunition Type #{item.Id:N0} ({item.Name})",
-                DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
-        };
+		DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
+	};
 
-        public static EditableItemHelper RangedCoverHelper { get; } = new()
-        {
-                ItemName = "Ranged Cover",
-                ItemNamePlural = "Ranged Covers",
-                SetEditableItemAction = (actor, item) =>
-                {
-                        actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
-                        if (item == null)
-                        {
-                                return;
-                        }
+	public static EditableItemHelper RangedCoverHelper { get; } = new()
+	{
+		ItemName = "Ranged Cover",
+		ItemNamePlural = "Ranged Covers",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
+			if (item == null)
+			{
+				return;
+			}
 
-                        actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = (IRangedCover)item });
-                },
-                GetEditableItemFunc = actor =>
-                        actor.CombinedEffectsOfType<BuilderEditingEffect<IRangedCover>>().FirstOrDefault()?.EditingItem,
-                GetAllEditableItems = actor => actor.Gameworld.RangedCovers.ToList(),
-                GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.RangedCovers.Get(id),
-                GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.RangedCovers.GetByIdOrName(input),
-                AddItemToGameWorldAction = item => item.Gameworld.Add((IRangedCover)item),
-                CastToType = typeof(IRangedCover),
-                EditableNewAction = (actor, input) =>
-                {
-                        if (input.IsFinished)
-                        {
-                                actor.OutputHandler.Send("You must specify a name for your ranged cover.");
-                                return;
-                        }
+			actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = (IRangedCover)item });
+		},
+		GetEditableItemFunc = actor =>
+				actor.CombinedEffectsOfType<BuilderEditingEffect<IRangedCover>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.RangedCovers.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.RangedCovers.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.RangedCovers.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IRangedCover)item),
+		CastToType = typeof(IRangedCover),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your ranged cover.");
+				return;
+			}
 
-                        var name = input.PopSpeech().TitleCase();
-                        if (actor.Gameworld.RangedCovers.Any(x => x.Name.EqualTo(name)))
-                        {
-                                actor.OutputHandler.Send($"There is already a ranged cover called {name.ColourName()}. Names must be unique.");
-                                return;
-                        }
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.RangedCovers.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a ranged cover called {name.ColourName()}. Names must be unique.");
+				return;
+			}
 
-                        var cover = new RangedCover(actor.Gameworld, name);
-                        actor.Gameworld.Add(cover);
-                        actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
-                        actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = cover });
-                        actor.OutputHandler.Send($"You create a new ranged cover called {name.ColourName()}, which you are now editing.");
-                },
-                EditableCloneAction = (actor, input) =>
-                {
-                        if (input.IsFinished)
-                        {
-                                actor.OutputHandler.Send("Which cover do you want to clone?");
-                                return;
-                        }
+			var cover = new RangedCover(actor.Gameworld, name);
+			actor.Gameworld.Add(cover);
+			actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
+			actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = cover });
+			actor.OutputHandler.Send($"You create a new ranged cover called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which cover do you want to clone?");
+				return;
+			}
 
-                        var template = actor.Gameworld.RangedCovers.GetByIdOrName(input.PopSpeech());
-                        if (template is null)
-                        {
-                                actor.OutputHandler.Send("There is no such ranged cover.");
-                                return;
-                        }
+			var template = actor.Gameworld.RangedCovers.GetByIdOrName(input.PopSpeech());
+			if (template is null)
+			{
+				actor.OutputHandler.Send("There is no such ranged cover.");
+				return;
+			}
 
-                        if (input.IsFinished)
-                        {
-                                actor.OutputHandler.Send("What name will the new cover have?");
-                                return;
-                        }
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name will the new cover have?");
+				return;
+			}
 
-                        var name = input.SafeRemainingArgument.TitleCase();
-                        if (actor.Gameworld.RangedCovers.Any(x => x.Name.EqualTo(name)))
-                        {
-                                actor.OutputHandler.Send($"There is already a ranged cover called {name.ColourName()}. Names must be unique.");
-                                return;
-                        }
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.RangedCovers.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a ranged cover called {name.ColourName()}. Names must be unique.");
+				return;
+			}
 
-                        var cover = new RangedCover((RangedCover)template, name);
-                        actor.Gameworld.Add(cover);
-                        actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
-                        actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = cover });
-                        actor.OutputHandler.Send($"You clone a new ranged cover called {name.ColourName()} from {template.Name.ColourName()}, which you are now editing.");
-                },
+			var cover = new RangedCover((RangedCover)template, name);
+			actor.Gameworld.Add(cover);
+			actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
+			actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = cover });
+			actor.OutputHandler.Send($"You clone a new ranged cover called {name.ColourName()} from {template.Name.ColourName()}, which you are now editing.");
+		},
 
-                GetListTableHeaderFunc = character => new List<string>
-                {
-                        "Id",
-                        "Name",
-                        "Type",
-                        "Extent",
-                        "Max#",
-                        "Message"
-                },
+		GetListTableHeaderFunc = character => new List<string>
+				{
+						"Id",
+						"Name",
+						"Type",
+						"Extent",
+						"Max#",
+						"Message"
+				},
 
-                GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IRangedCover>()
-                        select new List<string>
-                        {
-                                proto.Id.ToString("N0", character),
-                                proto.Name,
-                                proto.CoverType.Describe(),
-                                proto.CoverExtent.Describe(),
-                                proto.MaximumSimultaneousCovers.ToString("N0", character),
-                                proto.DescriptionString
-                        },
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IRangedCover>()
+														  select new List<string>
+						{
+								proto.Id.ToString("N0", character),
+								proto.Name,
+								proto.CoverType.Describe(),
+								proto.CoverExtent.Describe(),
+								proto.MaximumSimultaneousCovers.ToString("N0", character),
+								proto.DescriptionString
+						},
 
-                CustomSearch = (protos, keyword, gameworld) => protos,
-                GetEditHeader = item => $"Ranged Cover #{item.Id:N0} ({item.Name})",
-                DefaultCommandHelp = CombatBuilderModule.RangedCoverHelp
-        };
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Ranged Cover #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = CombatBuilderModule.RangedCoverHelp
+	};
 
 	public static EditableItemHelper ArmourTypeHelper { get; } = new()
 	{
@@ -1410,16 +1410,16 @@ public partial class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IAttributeDefinition>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
 															  proto.Alias,
 															  proto.Group,
 															  proto.DisplayAsSubAttribute.ToColouredString(),
 															  proto.ShowInScoreCommand.ToColouredString(),
 															  proto.ShowInAttributeCommand.ToColouredString()
-		                                                  },
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Attribute #{item.Id:N0} ({item.Name})",
@@ -2199,10 +2199,10 @@ public partial class EditableItemHelper
 				{
 					case '*':
 						return protos
-						       .OfType<IDrug>()
-						       .Where(x => x.DrugTypes.Any(x => x.DescribeEnum().EqualTo(key1)))
-						       .Cast<IEditableItem>()
-						       .ToList();
+							   .OfType<IDrug>()
+							   .Where(x => x.DrugTypes.Any(x => x.DescribeEnum().EqualTo(key1)))
+							   .Cast<IEditableItem>()
+							   .ToList();
 				}
 			}
 			return protos;
@@ -2616,10 +2616,10 @@ public partial class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IUnit>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
 															  proto.PrimaryAbbreviation,
 															  proto.Type.DescribeEnum(),
 															  proto.System,
@@ -2628,7 +2628,7 @@ public partial class EditableItemHelper
 															  proto.PostMultiplierOffsetFrombase.ToString("N", character),
 															  proto.DescriberUnit.ToColouredString(),
 															  proto.LastDescriber.ToColouredString()
-		                                                  },
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
@@ -2637,8 +2637,8 @@ public partial class EditableItemHelper
 		GetEditHeader = item => $"Unit #{item.Id:N0} ({item.Name})"
 	};
 
-        public static EditableItemHelper HeightWeightModelHelper = new()
-        {
+	public static EditableItemHelper HeightWeightModelHelper = new()
+	{
 		ItemName = "Height/Weight Model",
 		ItemNamePlural = "Height/Weight Models",
 		SetEditableItemAction = (actor, item) =>
@@ -2735,16 +2735,16 @@ public partial class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IHeightWeightModel>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  character.Gameworld.UnitManager.DescribeBrief(proto.MeanHeight, UnitType.Length, character),
-			                                                  character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationHeight, UnitType.Length, character),
-			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? "" : character.Gameworld.UnitManager.DescribeBrief(proto.MeanBMI, UnitType.BMI, character),
-			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? "" : character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationBMI, UnitType.BMI, character),
-			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.MeanWeight.Value, UnitType.Mass, character) : "",
-			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationWeight.Value, UnitType.Mass, character)  : ""
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  character.Gameworld.UnitManager.DescribeBrief(proto.MeanHeight, UnitType.Length, character),
+															  character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationHeight, UnitType.Length, character),
+															  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? "" : character.Gameworld.UnitManager.DescribeBrief(proto.MeanBMI, UnitType.BMI, character),
+															  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? "" : character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationBMI, UnitType.BMI, character),
+															  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.MeanWeight.Value, UnitType.Mass, character) : "",
+															  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationWeight.Value, UnitType.Mass, character)  : ""
 														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
@@ -2752,69 +2752,69 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = BuilderModule.HeightWeightModelHelp,
 
 		GetEditHeader = item => $"Height/Weight Model #{item.Id:N0} ({item.Name})"
-        };
+	};
 
-        public static EditableItemHelper HearingProfileHelper { get; } = new()
-        {
-                ItemName = "Hearing Profile",
-                ItemNamePlural = "Hearing Profiles",
-                SetEditableItemAction = (actor, item) =>
-                {
-                        actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
-                        if (item == null)
-                        {
-                                return;
-                        }
+	public static EditableItemHelper HearingProfileHelper { get; } = new()
+	{
+		ItemName = "Hearing Profile",
+		ItemNamePlural = "Hearing Profiles",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
+			if (item == null)
+			{
+				return;
+			}
 
-                        actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = (IHearingProfile)item });
-                },
-                GetEditableItemFunc = actor => actor.CombinedEffectsOfType<BuilderEditingEffect<IHearingProfile>>().FirstOrDefault()?.EditingItem,
-                GetAllEditableItems = actor => actor.Gameworld.HearingProfiles.ToList(),
-                GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.HearingProfiles.Get(id),
-                GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.HearingProfiles.GetByIdOrName(input),
-                AddItemToGameWorldAction = item => item.Gameworld.Add((IHearingProfile)item),
-                CastToType = typeof(IHearingProfile),
-                EditableNewAction = (actor, input) =>
-                {
-                        if (input.CountRemainingArguments() < 2)
-                        {
-                                actor.OutputHandler.Send("You must specify a type (simple|temporal|weekday) and a name.");
-                                return;
-                        }
+			actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = (IHearingProfile)item });
+		},
+		GetEditableItemFunc = actor => actor.CombinedEffectsOfType<BuilderEditingEffect<IHearingProfile>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.HearingProfiles.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.HearingProfiles.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.HearingProfiles.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IHearingProfile)item),
+		CastToType = typeof(IHearingProfile),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.CountRemainingArguments() < 2)
+			{
+				actor.OutputHandler.Send("You must specify a type (simple|temporal|weekday) and a name.");
+				return;
+			}
 
-                        var type = input.PopSpeech().ToLowerInvariant();
-                        var name = input.SafeRemainingArgument.TitleCase();
-                        if (actor.Gameworld.HearingProfiles.Any(x => x.Name.EqualTo(name)))
-                        {
-                                actor.OutputHandler.Send($"There is already a hearing profile called {name.ColourName()}.");
-                                return;
-                        }
+			var type = input.PopSpeech().ToLowerInvariant();
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.HearingProfiles.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a hearing profile called {name.ColourName()}.");
+				return;
+			}
 
-                        HearingProfile profile = type switch
-                        {
-                                "simple" => new SimpleHearingProfile(actor.Gameworld, name),
-                                "temporal" => new TemporalHearingProfile(actor.Gameworld, name),
-                                "weekday" => new WeekdayHearingProfile(actor.Gameworld, name),
-                                _ => null
-                        };
+			HearingProfile profile = type switch
+			{
+				"simple" => new SimpleHearingProfile(actor.Gameworld, name),
+				"temporal" => new TemporalHearingProfile(actor.Gameworld, name),
+				"weekday" => new WeekdayHearingProfile(actor.Gameworld, name),
+				_ => null
+			};
 
-                        if (profile == null)
-                        {
-                                actor.OutputHandler.Send("The type must be simple, temporal or weekday.");
-                                return;
-                        }
+			if (profile == null)
+			{
+				actor.OutputHandler.Send("The type must be simple, temporal or weekday.");
+				return;
+			}
 
-                        actor.Gameworld.Add(profile);
-                        actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
-                        actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = profile });
-                        actor.OutputHandler.Send($"You create a new {type} hearing profile called {name.ColourValue()}, which you are now editing.");
-                },
-                GetListTableHeaderFunc = character => new List<string> { "Id", "Name", "Type" },
-                GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IHearingProfile>()
-                                                                  select new List<string> { proto.Id.ToString("N0", character), proto.Name, (proto as HearingProfile)?.Type ?? "" },
-                DefaultCommandHelp = BuilderModule.HearingProfileHelpText,
-                GetEditHeader = item => $"Hearing Profile #{item.Id:N0} ({item.Name})"
-        };
+			actor.Gameworld.Add(profile);
+			actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
+			actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = profile });
+			actor.OutputHandler.Send($"You create a new {type} hearing profile called {name.ColourValue()}, which you are now editing.");
+		},
+		GetListTableHeaderFunc = character => new List<string> { "Id", "Name", "Type" },
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IHearingProfile>()
+														  select new List<string> { proto.Id.ToString("N0", character), proto.Name, (proto as HearingProfile)?.Type ?? "" },
+		DefaultCommandHelp = BuilderModule.HearingProfileHelpText,
+		GetEditHeader = item => $"Hearing Profile #{item.Id:N0} ({item.Name})"
+	};
 
 	public string ItemName { get; private set; }
 	public string ItemNamePlural { get; private set; }

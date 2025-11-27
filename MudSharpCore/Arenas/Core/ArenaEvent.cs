@@ -5,7 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
 using MudSharp.Database;
+using System.Text;
+using MudSharp.Community;
+using System.Globalization;
+using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Arenas;
 
@@ -129,6 +135,88 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	public IEnumerable<IArenaParticipant> Participants => _participants;
 	public IEnumerable<IArenaReservation> Reservations => _reservations;
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine(
+			$"Arena Event #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Arena: {Arena.Name.ColourName()}");
+		sb.AppendLine($"Event Type: {EventType.Name.ColourName()}");
+		sb.AppendLine($"State: {State.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Created: {CreatedAt.ToString("g", actor).ColourValue()}");
+		sb.AppendLine($"Scheduled: {ScheduledAt.ToString("g", actor).ColourValue()}");
+		sb.AppendLine($"Registration Opens: {(RegistrationOpensAt?.ToString("g", actor) ?? "Not Set").ColourValue()}");
+		sb.AppendLine($"Started: {(StartedAt?.ToString("g", actor) ?? "Not Started").ColourValue()}");
+		sb.AppendLine($"Resolved: {(ResolvedAt?.ToString("g", actor) ?? "Not Resolved").ColourValue()}");
+		sb.AppendLine($"Completed: {(CompletedAt?.ToString("g", actor) ?? "Not Completed").ColourValue()}");
+		sb.AppendLine($"Outcome: {(Outcome?.DescribeEnum() ?? "Unknown").ColourName()}");
+		if (WinningSides != null)
+		{
+			sb.AppendLine($"Winning Sides: {WinningSides.Select(x => x.ToString(actor)).ListToCommaSeparatedValues(", ").ColourValue()}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Participants:");
+		var grouped = Participants.GroupBy(x => x.SideIndex).OrderBy(x => x.Key);
+		foreach (var group in grouped)
+		{
+			sb.AppendLine($"\tSide {group.Key.ToString(actor).ColourValue()}");
+			foreach (var participant in group)
+			{
+				var who = participant.Character?.HowSeen(actor) ?? participant.StageName ?? "NPC";
+				sb.AppendLine($"\t\t{who.ColourName()} ({participant.CombatantClass.Name.ColourName()})" +
+				              (participant.IsNpc ? " [NPC]".Colour(Telnet.Yellow) : string.Empty));
+			}
+		}
+
+		if (Reservations.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Reservations:");
+			foreach (var reservation in Reservations)
+			{
+				var who = reservation.CharacterId.HasValue
+					? Gameworld.TryGetCharacter(reservation.CharacterId.Value, true)?.HowSeen(actor) ?? $"Character #{reservation.CharacterId.Value}"
+					: reservation.ClanId.HasValue
+						? Gameworld.Clans.Get(reservation.ClanId.Value)?.FullName ?? $"Clan #{reservation.ClanId.Value}"
+						: "Unknown";
+				sb.AppendLine(
+					$"\tSide {reservation.SideIndex.ToString(actor).ColourValue()} - {who.ColourName()} (expires {reservation.ExpiresAt.ToString("g", actor).ColourValue()})");
+			}
+		}
+
+		return sb.ToString();
+	}
+
+	public const string BuildingHelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames this arena event
+	#3schedule <datetime>#0 - sets the scheduled start time
+	#3registration <datetime|none>#0 - sets or clears the registration open time
+	#3state <state>#0 - forcibly sets the state
+	#3abort <reason>#0 - aborts the event with a reason";
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "schedule":
+			case "time":
+				return BuildingCommandSchedule(actor, command);
+			case "registration":
+			case "reg":
+				return BuildingCommandRegistration(actor, command);
+			case "state":
+				return BuildingCommandState(actor, command);
+			case "abort":
+				return BuildingCommandAbort(actor, command);
+			default:
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
 
 	public void OpenRegistration()
 	{
@@ -494,6 +582,111 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return true;
 		}
 	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name should this arena event have?".SubstituteANSIColour());
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		_name = name;
+		Changed = true;
+		actor.OutputHandler.Send($"This arena event is now called {name.ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSchedule(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("When should this event be scheduled for?".SubstituteANSIColour());
+			return false;
+		}
+
+		if (!DateTime.TryParse(command.SafeRemainingArgument, actor.Account.Culture, DateTimeStyles.None, out var when))
+		{
+			actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
+			return false;
+		}
+
+		ScheduledAt = when.ToUniversalTime();
+		var regOpens = ScheduledAt - PreparationDuration - RegistrationDuration;
+		if (regOpens > CreatedAt)
+		{
+			RegistrationOpensAt = regOpens;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"This event is now scheduled for {ScheduledAt.ToString("f", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRegistration(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("When should registration open? Use #3none#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+		{
+			RegistrationOpensAt = null;
+			Changed = true;
+			actor.OutputHandler.Send("Registration open time cleared.".SubstituteANSIColour());
+			return true;
+		}
+
+		if (!DateTime.TryParse(command.SafeRemainingArgument, actor.Account.Culture, DateTimeStyles.None, out var when))
+		{
+			actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
+			return false;
+		}
+
+		RegistrationOpensAt = when.ToUniversalTime();
+		Changed = true;
+		actor.OutputHandler.Send($"Registration will open at {RegistrationOpensAt.Value.ToString("f", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandState(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Which state should this event be forced into? Valid options are {Enum.GetValues<ArenaEventState>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<ArenaEventState>(out var state))
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid state. Valid options are {Enum.GetValues<ArenaEventState>().ListToColouredString()}.");
+			return false;
+		}
+
+		EnforceState(state);
+		Changed = true;
+		actor.OutputHandler.Send($"State set to {State.DescribeEnum().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandAbort(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What reason do you want to give for aborting this event?".SubstituteANSIColour());
+			return false;
+		}
+
+		var reason = command.SafeRemainingArgument;
+		Abort(reason);
+		actor.OutputHandler.Send($"You abort this event: {reason.ColourError()}");
+		return true;
+	}
 }
 
 internal sealed class ArenaParticipant : IArenaParticipant
@@ -523,6 +716,35 @@ internal sealed class ArenaParticipant : IArenaParticipant
 	public string? StageName { get; }
 	public string? SignatureColour { get; }
 	public decimal? StartingRating { get; }
+	public IFuturemud Gameworld => _event.Gameworld;
+	public string Name => StageName ?? Character?.Name ?? $"Participant {SignupId:N0}";
+	public long Id => SignupId;
+	public string FrameworkItemType => "ArenaParticipant";
+
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine(
+			$"Arena Participant #{SignupId.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Character: {(Character?.HowSeen(actor) ?? "NPC".Colour(Telnet.Yellow))}");
+		sb.AppendLine($"Combatant Class: {CombatantClass.Name.ColourName()}");
+		sb.AppendLine($"Side: {SideIndex.ToString(actor).ColourValue()}");
+		sb.AppendLine($"NPC Signup: {IsNpc.ToColouredString()}");
+		sb.AppendLine($"Stage Name: {(string.IsNullOrWhiteSpace(StageName) ? "None".ColourError() : StageName.ColourName())}");
+		sb.AppendLine($"Signature Colour: {(string.IsNullOrWhiteSpace(SignatureColour) ? "None".ColourError() : SignatureColour.ColourValue())}");
+		if (StartingRating.HasValue)
+		{
+			sb.AppendLine($"Starting Rating: {StartingRating.Value.ToString("N2", actor).ColourValue()}");
+		}
+
+		return sb.ToString();
+	}
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		actor.OutputHandler.Send("Arena participants are informational only and cannot be edited directly.");
+		return false;
+	}
 
 }
 

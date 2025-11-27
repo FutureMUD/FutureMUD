@@ -23,6 +23,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.Construction;
+using MudSharp.Form.Audio;
 
 namespace MudSharp.GameItems.Components;
 
@@ -376,32 +377,35 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 			}
 		}
 
-		var vicinity = originalLocation.CellsInVicinity((uint)ammo.AmmoType.Loudness, false, false)
-		                               .Except(originalLocation);
-		foreach (var location in vicinity)
+		if (ammo.AmmoType.Loudness > AudioVolume.Silent)
 		{
-			if (location.Characters.Any() || location.GameItems.Any())
+			var vicinity = originalLocation.CellsInVicinity((uint)ammo.AmmoType.Loudness, false, false)
+			                               .Except(originalLocation);
+			foreach (var location in vicinity)
 			{
-				var directions = location.ExitsBetween(originalLocation, 10).ToList();
-				location.Handle(new EmoteOutput(
-					new Emote($"A gun shot can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
-					flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				if (location.Characters.Any() || location.GameItems.Any())
+				{
+					var directions = location.ExitsBetween(originalLocation, 10).ToList();
+					location.Handle(new EmoteOutput(
+						new Emote($"A gun shot can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
+						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				}
 			}
-		}
 
-		foreach (var layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
-		{
-			if (layer.IsLowerThan(actor.RoomLayer))
+			foreach (var layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
 			{
-				actor.Location.Handle(layer,
-					new EmoteOutput(new Emote($"A gun shot can be heard from above.", Parent),
-						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-			}
-			else
-			{
-				actor.Location.Handle(layer,
-					new EmoteOutput(new Emote($"A gun shot can be heard from below.", Parent),
-						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				if (layer.IsLowerThan(actor.RoomLayer))
+				{
+					actor.Location.Handle(layer,
+						new EmoteOutput(new Emote($"A gun shot can be heard from above.", Parent),
+							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				}
+				else
+				{
+					actor.Location.Handle(layer,
+						new EmoteOutput(new Emote($"A gun shot can be heard from below.", Parent),
+							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				}
 			}
 		}
 	}

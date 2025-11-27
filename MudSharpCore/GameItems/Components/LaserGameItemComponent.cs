@@ -306,6 +306,22 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
 				}
 			}
+
+			foreach (var layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
+			{
+				if (layer.IsLowerThan(actor.RoomLayer))
+				{
+					actor.Location.Handle(layer,
+						new EmoteOutput(new Emote($"A laser blast can be heard from above.", Parent),
+							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				}
+				else
+				{
+					actor.Location.Handle(layer,
+						new EmoteOutput(new Emote($"A laser blast can be heard from below.", Parent),
+							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				}
+			}
 		}
 	}
 

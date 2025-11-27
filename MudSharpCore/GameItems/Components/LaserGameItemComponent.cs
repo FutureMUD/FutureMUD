@@ -294,37 +294,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
 		if (_prototype.FireVolume > AudioVolume.Silent)
 		{
-			var vicinity = actor.CellsInVicinity((uint)_prototype.FireVolume, false, false)
-			                    .Except(actor.Location);
-			foreach (var location in vicinity)
-			{
-				if (location.Characters.Any() || location.GameItems.Any())
-				{
-					var directions = location.ExitsBetween(actor.Location, 10).ToList();
-					location.Handle(new AudioOutput(
-						new Emote($"A laser blast can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
-						_prototype.FireVolume.StageDown((uint)Math.Max(0, directions.Count - 1)),
-						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-				}
-			}
-
-			foreach (var layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
-			{
-				if (layer.IsLowerThan(actor.RoomLayer))
-				{
-					actor.Location.Handle(layer,
-						new AudioOutput(new Emote($"A laser blast can be heard from above.", Parent),
-							_prototype.FireVolume,
-							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-				}
-				else
-				{
-					actor.Location.Handle(layer,
-						new AudioOutput(new Emote($"A laser blast can be heard from below.", Parent),
-							_prototype.FireVolume,
-							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-				}
-			}
+			actor.Location.HandleAudioEcho(Gameworld.GetStaticString("LaserHeardEcho"), _prototype.FireVolume, Parent, actor.RoomLayer);
 		}
 	}
 

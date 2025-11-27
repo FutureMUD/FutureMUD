@@ -379,38 +379,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 
 		if (ammo.AmmoType.Loudness > AudioVolume.Silent)
 		{
-			var vicinity = originalLocation.CellsInVicinity((uint)ammo.AmmoType.Loudness, false, false)
-			                               .Except(originalLocation);
-			foreach (var location in vicinity)
-			{
-				if (location.Characters.Any() || location.GameItems.Any())
-				{
-					var directions = location.ExitsBetween(originalLocation, 10).ToList();
-					location.Handle(new AudioOutput(
-						new Emote($"A gun shot can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
-						ammo.AmmoType.Loudness.StageDown((uint)Math.Max(0, directions.Count - 1)),
-						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-				}
-			}
-
-			foreach (var layer in actor.Location.Terrain(null).TerrainLayers.Except(actor.RoomLayer))
-			{
-				if (layer.IsLowerThan(actor.RoomLayer))
-				{
-					actor.Location.Handle(layer,
-							new AudioOutput(new Emote($"A gun shot can be heard from above.", Parent),
-								ammo.AmmoType.Loudness,
-								flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers))
-						;
-				}
-				else
-				{
-					actor.Location.Handle(layer,
-						new AudioOutput(new Emote($"A gun shot can be heard from below.", Parent),
-							ammo.AmmoType.Loudness,
-							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-				}
-			}
+			actor.Location.HandleAudioEcho(Gameworld.GetStaticString("GunshotHeardEcho"), ammo.AmmoType.Loudness, Parent, actor.RoomLayer);
 		}
 	}
 

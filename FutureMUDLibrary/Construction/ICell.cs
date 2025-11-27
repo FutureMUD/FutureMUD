@@ -127,5 +127,15 @@ namespace MudSharp.Construction
 		void AddTrack(ITrack track);
 		void RemoveTrack(ITrack track);
 		void InitialiseTracks(IReadOnlyCollectionDictionary<ICell, ITrack> tracks);
+
+		/// <summary>
+		/// Use this to send an AudioOutput to all perceivers in the same cell, adjacent layers, and surrounding cells with an audio volume drop off
+		/// </summary>
+		/// <param name="audioText">The text to echo. Use {0} for the direction ("from above", "far to the east", etc) and {1} for the volume ("very loud", "quiet", etc)</param>
+		/// <param name="volume">The volume to echo. Drops off one per room</param>
+		/// <param name="source">The source for the emote</param>
+		/// <param name="originalLayer">The original layer that the sound emanates from</param>
+		/// <param name="ignoreOriginLayer">If true, doesn't echo the original layer/room combo. Otherwise includes this location as well</param>
+		void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true);
 	}
 }

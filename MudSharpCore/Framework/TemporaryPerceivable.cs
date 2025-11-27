@@ -37,7 +37,7 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 	/// <inheritdoc />
 	public SizeCategory Size => SizeCategory.Normal;
 
-	public RoomLayer RoomLayer { get; set; } = RoomLayer.GroundLevel;
+	public virtual RoomLayer RoomLayer { get; set; } = RoomLayer.GroundLevel;
 
 	public XElement SaveEffects()
 	{
@@ -87,6 +87,9 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 
 	public event LocatableEvent OnLocationChanged;
 	public event LocatableEvent OnLocationChangedIntentionally;
+
+	public abstract bool ColocatedWith(IPerceivable otherThing);
+	
 	public virtual IEnumerable<string> Keywords => Enumerable.Empty<string>();
 
 	public virtual IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)

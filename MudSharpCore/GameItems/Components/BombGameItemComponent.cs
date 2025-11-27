@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Construction;
+using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -95,18 +97,11 @@ public class BombGameItemComponent : GameItemComponent, IDetonatable
 		// Echoes
 		proximitything.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ExplosionEmoteText, Parent, Parent),
 			style: OutputStyle.Explosion));
-		var vicinity = proximitything.CellsInVicinity((uint)_prototype.ExplosionVolume, false, false)
-		                             .Except(proximitything.Location);
-		foreach (var location in vicinity)
+		if (_prototype.ExplosionVolume > AudioVolume.Silent)
 		{
-			if (location.Characters.Any() || location.GameItems.Any())
-			{
-				var directions = location.ExitsBetween(proximitything.Location, 10).ToList();
-				location.Handle(new EmoteOutput(
-					new Emote($"An explosion can be heard {directions.DescribeDirectionsToFrom()}.", Parent),
-					flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
-			}
+			proximitything.Location.HandleAudioEcho(Gameworld.GetStaticString("ExplosionHeardEcho"), _prototype.ExplosionVolume, Parent, proximitything.RoomLayer);
 		}
+
 
 		// Damage Dealing
 		var wounds = new List<IWound>();

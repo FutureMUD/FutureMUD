@@ -74,5 +74,16 @@ public class DummyPerceivable : TemporaryPerceivable
 
 	private ICell _location;
 	public override ICell Location => _location;
+
+	#region Overrides of TemporaryPerceivable
+
+	/// <inheritdoc />
+	public override bool ColocatedWith(IPerceivable otherThing)
+	{
+		return Location == otherThing?.Location && RoomLayer == otherThing?.RoomLayer;
+	}
+
+	#endregion
+
 	public override string FrameworkItemType => "DummyPerceivable";
 }

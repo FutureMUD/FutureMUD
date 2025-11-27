@@ -48,20 +48,14 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 	public abstract bool CanSmell(IPerceivable thing);
 	public virtual double VisionPercentage => 1.0;
 
-	public RoomLayer RoomLayer
+	public override RoomLayer RoomLayer
 	{
 		get => _roomLayer;
 		set
 		{
-			_roomLayer = value;
-			Changed = true;
+			base.RoomLayer = value;
 			Combat?.ReevaluateMeleeRange(this);
 		}
-	}
-
-	public bool ColocatedWith(IPerceiver otherThing)
-	{
-		return Location == otherThing.Location && RoomLayer == otherThing.RoomLayer;
 	}
 
 	public override void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
@@ -177,7 +171,6 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 	public virtual double OffensiveAdvantage { get; set; }
 
 	private IAimInformation _aim;
-	protected RoomLayer _roomLayer;
 
 	public IAimInformation Aim
 	{

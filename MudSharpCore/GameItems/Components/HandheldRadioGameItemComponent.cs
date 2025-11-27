@@ -76,8 +76,7 @@ public class HandheldRadioGameItemComponent : GameItemComponent, ITransmit, IRec
 		if (Volume == AudioVolume.Quiet)
 		{
 			var wornEars = new List<EarProto>();
-			foreach (var wear in Parent.InInventoryOf?.WornItemsFullInfo.Where(x => x.Item1 == Parent) ??
-			                     Enumerable.Empty<(IGameItem, IWear, IWearlocProfile)>())
+			foreach (var wear in Parent.InInventoryOf?.WornItemsFullInfo.Where(x => x.Item1 == Parent) ?? [])
 			foreach (var organ in wear.Item2.Organs.OfType<EarProto>())
 			{
 				wornEars.Add(organ);

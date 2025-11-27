@@ -1,5 +1,4 @@
-﻿using MudSharp.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +9,11 @@ using MudSharp.Effects;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
 using MudSharp.Form.Shape;
+using MudSharp.Framework;
 using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.FutureProg.Functions.Location;
 using MudSharp.GameItems;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.PerceptionEngine.Lists;
 
@@ -83,6 +84,23 @@ public class PerceivableGroup : TemporaryPerceivable, IPerceivableGroup
 	}
 
 	public override ICell Location => _members.First().Location;
+
+	#region Implementation of ILocateable
+
+	/// <inheritdoc />
+	public override RoomLayer RoomLayer => _members.First().RoomLayer;
+
+	#region Overrides of TemporaryPerceivable
+
+	/// <inheritdoc />
+	public override bool ColocatedWith(IPerceivable otherThing)
+	{
+		return Location == otherThing?.Location && RoomLayer == otherThing?.RoomLayer;
+	}
+
+	#endregion
+
+	#endregion
 
 	/// <inheritdoc />
 	public override IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities()

@@ -1623,6 +1623,66 @@ public partial class Cell : Location, IDisposable, ICell
 		throw new NotImplementedException();
 	}
 
+	public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true)
+	{
+		if (volume == AudioVolume.Silent)
+		{
+			return;
+		}
+
+		var vicinity = this.CellsInVicinity((uint)volume, false, false)
+		                               .Except(this)
+		                               .ToList();
+
+		foreach (var location in vicinity)
+		{
+			if (!location.Characters.Any() && !location.GameItems.Any())
+			{
+				continue;
+			}
+
+			var directions = location.ExitsBetween(this, 10).ToList();
+			var adjustedVolume = volume.StageDown((uint)Math.Max(0, directions.Count - 1));
+			location.Handle(new AudioOutput(
+				new Emote(string.Format(audioText, directions.DescribeDirectionsToFrom(), adjustedVolume.DescribeEnum(true)), source),
+				adjustedVolume,
+				flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+		}
+
+		foreach (var layer in Terrain(null).TerrainLayers)
+		{
+			if (layer == originalLayer)
+			{
+				if (ignoreOriginLayer)
+				{
+					continue;
+				}
+
+				this.Handle(layer,
+					new AudioOutput(new Emote(string.Format(audioText, "here", volume.DescribeEnum(true)), source),
+						volume,
+						flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+				continue;
+			}
+
+			if (layer.IsLowerThan(originalLayer))
+			{
+				this.Handle(layer,
+						new AudioOutput(new Emote(string.Format(audioText, "from above", volume.DescribeEnum(true)), source),
+							volume,
+							flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers))
+					;
+				continue;
+			}
+
+			this.Handle(layer,
+				new AudioOutput(new Emote(string.Format(audioText, "from below", volume.DescribeEnum(true)), source),
+					volume,
+					flags: OutputFlags.PurelyAudible | OutputFlags.IgnoreWatchers));
+		}
+	}
+
+
 	private long _foragableProfileId;
 	private IForagableProfile _foragableProfile;
 

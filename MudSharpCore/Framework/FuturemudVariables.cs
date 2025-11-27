@@ -248,8 +248,8 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IGroupAITemplate> _groupAITemplates = new();
 	private readonly All<IGroupAI> _groupAIs = new();
 
-        private readonly All<ILineOfCreditAccount> _lineOfCreditAccounts = new();
-        private readonly All<ICombatArena> _combatArenas = new();
+		private readonly All<ILineOfCreditAccount> _lineOfCreditAccounts = new();
+		private readonly All<ICombatArena> _combatArenas = new();
 
 	#endregion All<T> Declarations
 
@@ -539,8 +539,8 @@ public sealed partial class Futuremud : IDisposable
 
 	public IUneditableAll<IGroupAI> GroupAIs => _groupAIs;
 
-        public IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts => _lineOfCreditAccounts;
-        public IUneditableAll<ICombatArena> CombatArenas => _combatArenas;
+		public IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts => _lineOfCreditAccounts;
+		public IUneditableAll<ICombatArena> CombatArenas => _combatArenas;
 
 	#endregion IUneditableAll<T> Declarations
 

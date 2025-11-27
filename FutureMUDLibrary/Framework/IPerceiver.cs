@@ -18,14 +18,6 @@ namespace MudSharp.Framework {
 		/// </summary>
 		ICellOverlayPackage CurrentOverlayPackage { get; set; }
 
-		RoomLayer RoomLayer { get; set; }
-
-		InRoomLocation InRoomLocation => new()
-		{
-			Location = Location,
-			RoomLayer = RoomLayer
-		};
-
 		PerceptionTypes NaturalPerceptionTypes { get; }
 
 		bool BriefCombatMode { get; set; }
@@ -38,7 +30,6 @@ namespace MudSharp.Framework {
 		bool ShouldFall();
 		void FallToGround();
 		bool FallOneLayer(ref double fallDistance);
-		bool ColocatedWith(IPerceiver otherThing);
 		bool CouldTransitionToLayer(RoomLayer otherLayer);
 	}
 }

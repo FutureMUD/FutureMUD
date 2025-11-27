@@ -65,6 +65,21 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 	}
 
 	public virtual ICell Location { get; protected set; }
+	protected RoomLayer _roomLayer = RoomLayer.GroundLevel;
+	public virtual RoomLayer RoomLayer
+	{
+		get => _roomLayer;
+		set
+		{
+			_roomLayer = value;
+			Changed = true;
+		}
+	}
+
+	public bool ColocatedWith(IPerceivable otherThing)
+	{
+		return Location == otherThing.Location && RoomLayer == otherThing.RoomLayer;
+	}
 
 	public virtual event LocatableEvent OnLocationChanged;
 	public virtual event LocatableEvent OnLocationChangedIntentionally;

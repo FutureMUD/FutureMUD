@@ -18,7 +18,7 @@ namespace MudSharp.GameItems.Interfaces {
         }
     }
 
-    public interface IMeleeWeapon : IWieldable, IDamageSource, IUseTrait {
+    public interface IMeleeWeapon : IWieldable, IUseTrait {
         IWeaponType WeaponType { get; }
         WeaponClassification Classification { get; }
     }

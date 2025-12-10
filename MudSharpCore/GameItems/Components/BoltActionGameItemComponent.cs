@@ -27,7 +27,7 @@ using MudSharp.Form.Audio;
 
 namespace MudSharp.GameItems.Components;
 
-public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon
+public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon
 {
 	protected BoltActionGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -40,14 +40,14 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 	#region Constructors
 
 	public BoltActionGameItemComponent(BoltActionGameItemComponentProto proto, IGameItem parent,
-		bool temporary = false) : base(parent, proto, temporary)
+		bool temporary = false) : base(proto, parent, temporary)
 	{
 		_prototype = proto;
 	}
 
 	public BoltActionGameItemComponent(MudSharp.Models.GameItemComponent component,
 		BoltActionGameItemComponentProto proto,
-		IGameItem parent) : base(component, parent)
+		IGameItem parent) : base(component, proto, parent)
 	{
 		_prototype = proto;
 		_noSave = true;
@@ -62,21 +62,13 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		_prototype = rhs._prototype;
 	}
 
-	protected void LoadFromXml(XElement root)
+	protected override void LoadFromXml(XElement root)
 	{
+		base.LoadFromXml(root);
 		Magazine = Gameworld.TryGetItem(long.Parse(root.Element("Magazine").Value), true)
 		                    ?.GetItemType<IContainer>();
-		ChamberedRound = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedRound").Value), true)
-		                          ?.GetItemType<IAmmo>();
-		PrimaryWieldedLocation = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
 
 		ChamberedCasing = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedCasing")?.Value ?? "0"), true);
-
-		var element = root.Element("Safety");
-		if (element != null)
-		{
-			Safety = element.Value == "true";
-		}
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -103,66 +95,18 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 
 	#region IRangedWeapon Implementation
 
-	public string FireVerbForEchoes => "fire|fires";
-	public bool CanBeAimedAtSelf => true;
-	public IRangedWeaponType WeaponType => _prototype.RangedWeaponType;
-
-	public bool ReadyToFire => ChamberedRound != null && !Safety;
-
-	public int LoadStage => 0;
-
-	public IAmmo ChamberedRound { get; set; }
-
 	public IGameItem ChamberedCasing { get; set; } //The casing waiting to be ejected for when you ready
 
 	public IContainer Magazine { get; set; }
 
-	public IEnumerable<IGameItem> MagazineContents => Magazine?.Contents ?? Enumerable.Empty<IGameItem>();
+	public override IEnumerable<IGameItem> MagazineContents => Magazine?.Contents ?? Enumerable.Empty<IGameItem>();
 
-	public IEnumerable<IGameItem> AllContainedItems => MagazineContents.Concat([ChamberedCasing, ChamberedRound?.Parent, Magazine?.Parent]).SelectNotNull(x => x);
-
-	public string SpecificAmmoGrade => _prototype.RangedWeaponType.SpecificAmmunitionGrade;
-
-	public Difficulty AimDifficulty => WeaponType.BaseAimDifficulty;
-
-	public Difficulty BaseBlockDifficulty
-		=> ChamberedRound?.AmmoType.DamageProfile.BaseBlockDifficulty ?? Difficulty.Automatic;
-
-	public Difficulty BaseDodgeDifficulty
-		=> ChamberedRound?.AmmoType.DamageProfile.BaseDodgeDifficulty ?? Difficulty.Automatic;
-
-	private IWield _primaryWieldedLocation;
-
-	public IWield PrimaryWieldedLocation
-	{
-		get => _primaryWieldedLocation;
-		set
-		{
-			_primaryWieldedLocation = value;
-			Changed = true;
-		}
-	}
-
-	public bool AlwaysRequiresTwoHandsToWield => WeaponType.AlwaysRequiresTwoHandsToWield;
-
-	/// <inheritdoc />
-	public bool CanWield(ICharacter actor)
-	{
-		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
-	}
-
-	/// <inheritdoc />
-	public string WhyCannotWield(ICharacter actor)
-	{
-		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
-	}
-
-	public ITraitDefinition Trait => WeaponType.FireTrait;
+	public override IEnumerable<IGameItem> AllContainedItems => MagazineContents.Concat([ChamberedCasing, ChamberedRound?.Parent, Magazine?.Parent]).SelectNotNull(x => x);
 
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
 	WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
+	public override bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (Magazine != null)
 		{
@@ -180,7 +124,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		return true;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
+	public override string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (Magazine != null)
 		{
@@ -209,7 +153,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		throw new ApplicationException("Unknown WhyCannotLoad reason in PistolGameItemComponent.WhyCannotLoad");
 	}
 
-	private void ChamberRound(ICharacter loader)
+	protected override void ChamberRound(ICharacter loader)
 	{
 		if (ChamberedRound != null)
 		{
@@ -248,7 +192,9 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		Changed = true;
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
+	protected override bool SemiAutomaticCycleOnFire => false;
+
+	public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (!CanLoad(loader))
 		{
@@ -277,12 +223,12 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		Changed = true;
 	}
 
-	public bool CanUnload(ICharacter loader)
+	public override bool CanUnload(ICharacter loader)
 	{
 		return Magazine != null;
 	}
 
-	public string WhyCannotUnload(ICharacter loader)
+	public override string WhyCannotUnload(ICharacter loader)
 	{
 		if (Magazine == null)
 		{
@@ -292,7 +238,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		throw new ApplicationException("Unknown reason in GunGameItemComponent.WhyCannotUnload");
 	}
 
-	public IEnumerable<IGameItem> Unload(ICharacter loader)
+	public override IEnumerable<IGameItem> Unload(ICharacter loader)
 	{
 		if (!CanUnload(loader))
 		{
@@ -318,49 +264,21 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		return new[] { mag.Parent };
 	}
 
-	public bool CanFire(ICharacter actor, IPerceivable target)
+	public override bool CanFire(ICharacter actor, IPerceivable target)
 	{
 		return true;
 	}
 
-	public string WhyCannotFire(ICharacter actor, IPerceivable target)
+	public override string WhyCannotFire(ICharacter actor, IPerceivable target)
 	{
 		throw new ApplicationException("Guns should always be able to fire.");
 	}
 
-	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
-		OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
+	#region Overrides of FirearmBaseGameItemComponent
+
+	/// <inheritdoc />
+	protected override void HandleShellCasingOnFire(ICharacter actor, ICell originalLocation, IGameItem casing)
 	{
-		if (!ReadyToFire)
-		{
-			actor.OutputHandler.Handle(new EmoteOutput(
-				new Emote(_prototype.FireEmoteNoChamberedRound, actor, actor,
-					target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage,
-				flags: OutputFlags.InnerWrap));
-			actor.HandleEvent(EventType.FireGunEmpty, actor, target, Parent);
-			return;
-		}
-
-		actor.OutputHandler.Handle(new EmoteOutput(
-			new Emote(_prototype.FireEmote, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"),
-				Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-
-		var ammo = ChamberedRound;
-		ChamberedRound = null;
-
-		var bullet = ammo.GetFiredItem ?? ammo.Parent;
-		var casing = ammo.GetFiredWasteItem;
-
-		if (bullet != ammo.Parent)
-		{
-			ammo.Parent.Delete();
-		}
-
-		Changed = true;
-
-		var originalLocation =
-			actor.Location; // If the character is firing at themselves, their location can be changed by the ammo.Fire call.
-		ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
 		if (casing != null)
 		{
 			if (_prototype.EjectOnFire)
@@ -376,64 +294,13 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 				casing.ContainedIn = Parent;
 			}
 		}
-
-		if (ammo.AmmoType.Loudness > AudioVolume.Silent)
-		{
-			actor.Location.HandleAudioEcho(Gameworld.GetStaticString("GunshotHeardEcho"), ammo.AmmoType.Loudness, Parent, actor.RoomLayer);
-		}
 	}
 
-	public bool IsLoaded => Magazine != null;
-	public bool IsReadied => ChamberedRound != null;
+	#endregion
 
-	public bool CanReady(ICharacter readier)
-	{
-		if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-		    readier.Body.WieldedHandCount(Parent) < 2)
-		{
-			return false;
-		}
+	public override bool IsLoaded => Magazine != null;
 
-		return true;
-	}
-
-	public string WhyCannotReady(ICharacter readier)
-	{
-		if (WeaponType.RequiresFreeHandToReady && !readier.Body.FunctioningFreeHands.Any() &&
-		    readier.Body.WieldedHandCount(Parent) < 2)
-		{
-			return
-				$"You need at least one free {readier.Body.WielderDescriptionSingular} to ready {Parent.HowSeen(readier)}.";
-		}
-
-		throw new ApplicationException("Unknown WhyCannotReady reason in ready BoltActionGameItemComponent.");
-	}
-
-	public bool Ready(ICharacter readier)
-	{
-		if (!CanReady(readier))
-		{
-			readier.Send(WhyCannotReady(readier));
-			return false;
-		}
-
-		readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ReadyEmote, readier, readier, Parent),
-			flags: OutputFlags.InnerWrap));
-		ChamberRound(readier);
-		return true;
-	}
-
-	public bool CanUnready(ICharacter readier)
-	{
-		return true;
-	}
-
-	public string WhyCannotUnready(ICharacter readier)
-	{
-		throw new ApplicationException("Should always be able to unready GunGameItemComponent");
-	}
-
-	public bool Unready(ICharacter readier)
+	public override bool Unready(ICharacter readier)
 	{
 		if (!CanUnready(readier))
 		{
@@ -485,77 +352,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 
 		return true;
 	}
-
-	public IDamage GetDamage(IPerceiver perceiverSource, OpposedOutcome opposedOutcome)
-	{
-		throw new NotImplementedException();
-	}
-
 	#endregion
-
-	#region ISwitchable Implementation
-
-	public bool Safety { get; set; }
-
-	public bool CanSwitch(ICharacter actor, string setting)
-	{
-		switch (setting.ToLowerInvariant())
-		{
-			case "safe":
-			case "safety":
-				return !Safety;
-			case "fire":
-			case "unsafe":
-				return Safety;
-		}
-
-		return false;
-	}
-
-	public string WhyCannotSwitch(ICharacter actor, string setting)
-	{
-		switch (setting.ToLowerInvariant())
-		{
-			case "safe":
-			case "safety":
-				return $"{Parent.HowSeen(actor, true)} already has its safety switched on.";
-			case "fire":
-			case "unsafe":
-				return $"{Parent.HowSeen(actor, true)} is already in fire mode.";
-		}
-
-		return
-			$"That is not a valid option for switching in {Parent.HowSeen(actor)}. Valid options are safe, or unsafe.";
-	}
-
-	public bool Switch(ICharacter actor, string setting)
-	{
-		if (!CanSwitch(actor, setting))
-		{
-			actor.Send(WhyCannotSwitch(actor, setting));
-			return false;
-		}
-
-		if (setting.EqualTo("fire") || setting.EqualTo("unsafe"))
-		{
-			Safety = false;
-		}
-		else
-		{
-			Safety = true;
-		}
-
-		Changed = true;
-		actor.OutputHandler.Handle(new EmoteOutput(
-			new Emote($"@ switch|switches the safety on $0 {(Safety ? "on" : "off")}.",
-				actor, Parent)));
-		return true;
-	}
-
-	public IEnumerable<string> SwitchSettings => new[] { "safe", "unsafe" };
-
-	#endregion
-
 	#region IGameItemComponent Overrides
 
 	public override double ComponentWeight
@@ -643,12 +440,6 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		ChamberedCasing?.Login();
 		Magazine?.Parent.Login();
 	}
-
-	#endregion
-
-	#region Implementation of IMeleeWeapon
-
-	IWeaponType IMeleeWeapon.WeaponType => _prototype.MeleeWeaponType;
 
 	#endregion
 }

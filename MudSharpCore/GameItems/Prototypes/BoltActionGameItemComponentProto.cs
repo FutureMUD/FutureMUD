@@ -71,8 +71,8 @@ public class BoltActionGameItemComponentProto : FirearmBaseGameItemComponentProt
 			new XElement("FireEmote", new XCData(FireEmote)),
 			new XElement("FireEmoteNoChamberedRound", new XCData(FireEmoteNoChamberedRound)),
 			new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
-			new XElement("ClipType", new XCData(ClipType),
-				new XElement("EjectOnFire", EjectOnFire)),
+			new XElement("ClipType", new XCData(ClipType)),
+			new XElement("EjectOnFire", EjectOnFire),
 			new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
 			new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
 			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
@@ -121,7 +121,8 @@ public class BoltActionGameItemComponentProto : FirearmBaseGameItemComponentProt
 	#endregion
 
 	public override string ShowBuildingHelp => $@"{BuildingHelpText}
-#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready";
+	#3clip <type>#0 - sets the type of clip that fits in this gun
+	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready";
 
 	#region Building Commands
 
@@ -236,7 +237,8 @@ Load: {8}
 Unload: {9}
 Ready: {10}
 Unready: {11}
-UnreadyEmpty: {12}",
+UnreadyEmpty: {12}
+Clip Type: {16}",
 			"Bolt Action Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
@@ -252,7 +254,8 @@ UnreadyEmpty: {12}",
 			UnreadyEmoteNoChamberedRound.Colour(Telnet.Cyan),
 			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
 			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			ClipType.Colour(Telnet.Green)
 		);
 	}
 }

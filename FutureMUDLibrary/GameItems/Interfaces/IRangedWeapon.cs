@@ -19,7 +19,7 @@ public enum LoadMode
 	TapNoClean
 }
 
-public interface IRangedWeapon : IWieldable, IDamageSource, IUseTrait {
+public interface IRangedWeapon : IWieldable, IUseTrait {
 	string FireVerbForEchoes { get; }
 	bool CanBeAimedAtSelf { get; }
 	WeaponClassification Classification { get; }

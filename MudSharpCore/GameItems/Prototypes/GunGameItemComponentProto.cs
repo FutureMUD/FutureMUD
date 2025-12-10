@@ -94,7 +94,8 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"Gun",
 			$"Makes an item a {"[ranged weapon]".Colour(Telnet.BoldCyan)} with removable-magazine semi-automatic gun mechanics",
-			BuildingHelpText
+			$@"{BuildingHelpText}
+	#3clip <type>#0 - sets the type of clip that fits in this gun"
 		);
 	}
 
@@ -106,23 +107,8 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto
 	#endregion
 
 	public override string ShowBuildingHelp =>
-		$@"You can use the following options:
-
-	#3name <name>#0 - sets the name of the component
-	#3desc <desc>#0 - sets the description of the component
-	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.
-	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
-	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
-	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
-	#3unready <emote>#0 - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.
-	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
-	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
-	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.
-	#3clip <type>#0 - sets the type of clip that fits in this gun
-	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
-	#3canwield none#0 - removes a canwield prog
-	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+		$@"{BuildingHelpText}
+	#3clip <type>#0 - sets the type of clip that fits in this gun";
 
 	#region Building Commands
 

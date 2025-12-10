@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,9 @@ using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Events;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -23,8 +26,6 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using MudSharp.Construction;
-using MudSharp.Form.Audio;
 
 namespace MudSharp.GameItems.Components;
 
@@ -38,7 +39,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 
 	#region Constructors
 
-	public FirearmBaseGameItemComponent(BoltActionGameItemComponentProto proto, IGameItem parent,
+	public FirearmBaseGameItemComponent(FirearmBaseGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false) : base(parent, proto, temporary)
 	{
 		_prototype = proto;
@@ -144,11 +145,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 	#endregion
 
 	#region IRangedWeapon Implementation
-	public string FireVerbForEchoes => "fire|fires";
-	public bool CanBeAimedAtSelf => true;
+	public virtual string FireVerbForEchoes => "fire|fires";
+	public virtual bool CanBeAimedAtSelf => true;
 	public IRangedWeaponType WeaponType => _prototype.RangedWeaponType;
 
-	public bool ReadyToFire => ChamberedRound != null && !Safety;
+	public virtual bool ReadyToFire => ChamberedRound != null && !Safety;
 
 	public int LoadStage => 0;
 
@@ -224,6 +225,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 
 	protected abstract void ChamberRound(ICharacter readier);
 
+	protected abstract bool SemiAutomaticCycleOnFire { get; }
+
 	/// <inheritdoc />
 	public bool CanUnready(ICharacter readier)
 	{
@@ -235,7 +238,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 		throw new ApplicationException($"Should always be able to unready a {GetType().FullName}.");
 	}
 
-	public bool Unready(ICharacter readier)
+	public virtual bool Unready(ICharacter readier)
 	{
 		if (!CanUnready(readier))
 		{
@@ -302,8 +305,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 
 		var ammo = ChamberedRound;
 		ChamberedRound = null;
-		ChamberRound(actor);
-
+		if (SemiAutomaticCycleOnFire)
+		{
+			ChamberRound(actor);
+		}
+		
 		var bullet = ammo.GetFiredItem ?? ammo.Parent;
 		var shell = ammo.GetFiredWasteItem;
 
@@ -317,12 +323,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 		var originalLocation =
 			actor.Location; // If the character is firing at themselves, their location can be changed by the ammo.Fire call.
 		ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
-		if (shell != null)
-		{
-			originalLocation.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
-			shell.RoomLayer = actor.RoomLayer;
-			originalLocation.Insert(shell);
-		}
+		
+		HandleShellCasingOnFire(actor, originalLocation, shell);
 
 		if (ammo.AmmoType.Loudness > AudioVolume.Silent)
 		{
@@ -330,7 +332,17 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 		}
 	}
 
-	private IWield _primaryWieldedLocation;
+	protected virtual void HandleShellCasingOnFire(ICharacter actor, ICell originalLocation, IGameItem shell)
+	{
+		if (shell != null)
+		{
+			originalLocation.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
+			shell.RoomLayer = actor.RoomLayer;
+			originalLocation.Insert(shell);
+		}
+	}
+
+	protected IWield _primaryWieldedLocation;
 
 	public IWield PrimaryWieldedLocation
 	{
@@ -360,13 +372,6 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
 	WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
-
-	#endregion
-
-	#region Implementation of IDamageSource
-
-	/// <inheritdoc />
-	public abstract IDamage GetDamage(IPerceiver perceiverSource, OpposedOutcome opposedOutcome);
 
 	#endregion
 }

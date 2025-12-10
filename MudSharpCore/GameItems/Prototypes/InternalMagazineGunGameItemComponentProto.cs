@@ -20,95 +20,13 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
+public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComponentProto
 {
 	public override string TypeDescription => "InternalMagazineGun";
-
-	public string LoadEmote { get; set; }
-
-	public string ReadyEmote { get; set; }
-
-	public string UnloadEmote { get; set; }
-
-	public string UnreadyEmote { get; set; }
-
-	public string UnreadyEmoteNoChamberedRound { get; set; }
-
-	public string FireEmote { get; set; }
-	public string FireEmoteNoChamberedRound { get; set; }
 
 	public bool EjectOnFire { get; set; }
 
 	public int InternalMagazineCapacity { get; set; }
-
-	private IRangedWeaponType _rangedWeaponType;
-
-	public IRangedWeaponType RangedWeaponType
-	{
-		get => _rangedWeaponType;
-		set
-		{
-			_rangedWeaponType = value;
-			LoadTemplate = new InventoryPlanTemplate(Gameworld, new[]
-			{
-				new InventoryPlanPhaseTemplate(1, new[]
-				{
-					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
-					{
-						var ammo = item.GetItemType<IAmmo>();
-						if (ammo == null)
-						{
-							return false;
-						}
-
-						if (ammo.AmmoType.SpecificType != _rangedWeaponType.SpecificAmmunitionGrade)
-						{
-							return false;
-						}
-
-						return true;
-					}, null, 1, originalReference: "loaditem"),
-					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-						item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null)
-				})
-			});
-
-			LoadTemplateIgnoreEmpty = new InventoryPlanTemplate(Gameworld, new[]
-			{
-				new InventoryPlanPhaseTemplate(1, new[]
-				{
-					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
-					{
-						var ammo = item.GetItemType<IAmmo>();
-						if (ammo == null)
-						{
-							return false;
-						}
-
-						if (ammo.AmmoType.SpecificType != _rangedWeaponType.SpecificAmmunitionGrade)
-						{
-							return false;
-						}
-
-						return true;
-					}, null, 1, originalReference: "loaditem"),
-					InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
-						item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null)
-				})
-			});
-		}
-	}
-
-	public IWeaponType MeleeWeaponType { get; set; }
-
-#nullable enable
-	public IFutureProg? CanWieldProg { get; private set; }
-	public IFutureProg? WhyCannotWieldProg { get; private set; }
-#nullable restore
-
-	public IInventoryPlanTemplate LoadTemplate { get; set; }
-
-	public IInventoryPlanTemplate LoadTemplateIgnoreEmpty { get; set; }
 
 	#region Constructors
 
@@ -134,19 +52,7 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 
 	protected override void LoadFromXml(XElement root)
 	{
-		LoadEmote = root.Element("LoadEmote").Value;
-		ReadyEmote = root.Element("ReadyEmote").Value;
-		UnloadEmote = root.Element("UnloadEmote").Value;
-		UnreadyEmote = root.Element("UnreadyEmote").Value;
-		UnreadyEmoteNoChamberedRound = root.Element("UnreadyEmoteNoChamberedRound").Value;
-		FireEmote = root.Element("FireEmote").Value;
-		FireEmoteNoChamberedRound = root.Element("FireEmoteNoChamberedRound").Value;
-		RangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
-		EjectOnFire = root.Element("EjectOnFire")?.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase) ??
-		              false;
-		InternalMagazineCapacity = int.Parse(root.Element("InternalMagazineCapacity").Value); 
-		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
-		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+		base.LoadFromXml(root);
 		var element = root.Element("MeleeWeaponType");
 		if (element != null)
 		{
@@ -156,6 +62,9 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 		{
 			MeleeWeaponType = Gameworld.WeaponTypes.Get(Gameworld.GetStaticLong("DefaultGunMeleeWeaponType"));
 		}
+
+		InternalMagazineCapacity = int.Parse(root.Element("InternalMagazineCapacity").Value);
+		RecalculateInventoryPlans();
 	}
 
 	#endregion
@@ -219,7 +128,9 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"InternalMagazineGun",
 			$"Makes an item a {"[ranged weapon]".Colour(Telnet.BoldCyan)} with internal-magazine semi-automatic gun mechanics",
-			$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tranged <ranged type> - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.\n\tcapacity <number> - sets the internal magazine capacity\n\tejectonfire - toggles whether casings are ejected on fire or on ready\n\tload <emote> - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.\n\tunload <emote> - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.\n\tready <emote> - sets the emote for readying this gun. $0 is the loader, $1 is the gun.\n\tunready <emote> - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.\n\tunreadyempty <emote> - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.\n\tfire <emote> - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.\n\tfireempty <emote> - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun."
+			$@"{BuildingHelpText}
+	capacity <number> - sets the internal magazine capacity
+	ejectonfire - toggles whether casings are ejected on fire or on ready"
 		);
 	}
 
@@ -232,24 +143,9 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 	#endregion
 
 	public override string ShowBuildingHelp =>
-		$@"You can use the following options:
-
-	#3name <name>#0 - sets the name of the component
-	#3desc <desc>#0 - sets the description of the component
-	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.
+		$@"{BuildingHelpText}
 	#3capacity <number>#0 - sets the internal magazine capacity
-	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready
-	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
-	#3canwield none#0 - removes a canwield prog
-	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog
-	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
-	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
-	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
-	#3unready <emote>#0 - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.
-	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
-	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
-	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.";
+	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready";
 
 	#region Building Commands
 
@@ -257,119 +153,15 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
-			case "ranged":
-			case "ranged type":
-			case "rangedtype":
-			case "type":
-				return BuildingCommandType(actor, command);
-			case "load":
-				return BuildingCommandLoadEmote(actor, command);
-			case "unload":
-				return BuildingCommandUnloadEmote(actor, command);
-			case "ready":
-				return BuildingCommandReadyEmote(actor, command);
-			case "unready":
-				return BuildingCommandUnreadyEmote(actor, command);
-			case "unreadynoround":
-			case "unreadynochamberedround":
-			case "unreadynochambered":
-			case "unreadyempty":
-				return BuildingCommandUnreadyEmoteNoChamberedRound(actor, command);
-			case "fire":
-				return BuildingCommandFireEmote(actor, command);
-			case "firenoround":
-			case "firenochamberedround":
-			case "firenochambered":
-			case "fireempty":
-				return BuildingCommandFireEmoteNoChamberedRound(actor, command);
 			case "ejectonfire":
 				return BuildingCommandEjectOnFire(actor, command);
-			case "melee":
-			case "meleetype":
-			case "melee type":
-			case "melee_type":
-				return BuildingCommand_Melee(actor, command);
 			case "capacity":
 			case "quantity":
 			case "amount":
 				return BuildingCommandCapacity(actor, command);
-			case "canwield":
-			case "canwieldprog":
-				return BuildingCommandCanWieldProg(actor, command);
-			case "whycantwield":
-			case "whycantwieldprog":
-			case "whycannotwield":
-			case "whycannotwieldprog":
-				return BuildingCommandWhyCannotWieldProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
-	}
-
-	private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
-			return false;
-		}
-
-		if (command.SafeRemainingArgument.EqualTo("none"))
-		{
-			CanWieldProg = null;
-			Changed = true;
-			actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
-			return true;
-		}
-
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
-			[
-				[ProgVariableTypes.Character],
-				[ProgVariableTypes.Character, ProgVariableTypes.Item]
-			]
-		).LookupProg();
-		if (prog is null)
-		{
-			return false;
-		}
-
-		CanWieldProg = prog;
-		Changed = true;
-		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to determine if it can be wielded.");
-		return true;
-	}
-
-	private bool BuildingCommandWhyCannotWieldProg(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
-			return false;
-		}
-
-		if (command.SafeRemainingArgument.EqualTo("none"))
-		{
-			CanWieldProg = null;
-			Changed = true;
-			actor.OutputHandler.Send($"This item will no longer use a prog to generate an error message if it cannot be wielded.");
-			return true;
-		}
-
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
-			[
-				[ProgVariableTypes.Character],
-				[ProgVariableTypes.Character, ProgVariableTypes.Item]
-			]
-		).LookupProg();
-		if (prog is null)
-		{
-			return false;
-		}
-
-		WhyCannotWieldProg = prog;
-		Changed = true;
-		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to generate an error message if it cannot be wielded.");
-		return true;
 	}
 
 	private bool BuildingCommandCapacity(ICharacter actor, StringStack command)
@@ -391,170 +183,6 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This gun now has an internal magazine capacity of {InternalMagazineCapacity.ToString("N0", actor).ColourValue()}.");
-		return true;
-	}
-
-	private bool BuildingCommand_Melee(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("Which melee weapon type do you want to set for this component?");
-			return false;
-		}
-
-		var type = long.TryParse(command.PopSpeech(), out var value)
-			? actor.Gameworld.WeaponTypes.Get(value)
-			: actor.Gameworld.WeaponTypes.GetByName(command.Last);
-		if (type == null)
-		{
-			actor.Send("There is no such melee weapon type.");
-			return false;
-		}
-
-		MeleeWeaponType = type;
-		Changed = true;
-		actor.Send(
-			$"This component will now use the melee weapon type {MeleeWeaponType.Name.TitleCase().Colour(Telnet.Green)}.");
-		return true;
-	}
-
-	private bool BuildingCommandLoadEmote(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What emote do you want to set for when people load a clip into this gun?");
-			actor.Send("Hint: $0 is the loader, $1 is the gun, $2 is the clip.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		LoadEmote = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send($"The following emote will now be used when this gun is loaded:\n\n{LoadEmote}\n");
-		return true;
-	}
-
-	private bool BuildingCommandReadyEmote(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What emote do you want to set for when people ready this gun?");
-			actor.Send("Hint: $0 is the loader, $1 is the gun.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		ReadyEmote = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send($"The following emote will now be used when this gun is readied:\n\n{ReadyEmote}\n");
-		return true;
-	}
-
-	private bool BuildingCommandUnloadEmote(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What emote do you want to set for when people unload a clip from this gun?");
-			actor.Send("Hint: $0 is the loader, $1 is the gun, $2 is the clip.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		UnloadEmote = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send($"The following emote will now be used when this gun is unloaded:\n\n{UnloadEmote}\n");
-		return true;
-	}
-
-	private bool BuildingCommandUnreadyEmote(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What emote do you want to set for when people empty the chamber on this gun?");
-			actor.Send("Hint: $0 is the loader, $1 is the gun, $2 is the round in the chamber.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		UnreadyEmote = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send(
-			$"The following emote will now be used when the chamber of this gun is emptied:\n\n{UnreadyEmote}\n");
-		return true;
-	}
-
-	private bool BuildingCommandUnreadyEmoteNoChamberedRound(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send(
-				"What emote do you want to set for when people empty the chamber, but there is no chambered round?");
-			actor.Send("Hint: $0 is the loader, $1 is the gun.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		UnreadyEmoteNoChamberedRound = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send(
-			$"The following emote will now be used when the chambered of this gun is emptied when already empty:\n\n{UnreadyEmoteNoChamberedRound}\n");
-		return true;
-	}
-
-	private bool BuildingCommandFireEmote(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What emote do you want to set for when people fire this gun?");
-			actor.Send("Hint: $0 is the loader, $1 is the target, $2 is the gun.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		FireEmote = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send($"The following emote will now be used when this gun is fired:\n\n{FireEmote}\n");
-		return true;
-	}
-
-	private bool BuildingCommandFireEmoteNoChamberedRound(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("What emote do you want to set for when people fire the gun while the chamber is empty?");
-			actor.Send("Hint: $0 is the loader, $1 is the target, $2 is the gun.".Colour(Telnet.Yellow));
-			return false;
-		}
-
-		FireEmoteNoChamberedRound = command.RemainingArgument.Fullstop();
-		Changed = true;
-		actor.Send(
-			$"The following emote will now be used when this gun is fired while empty:\n\n{FireEmoteNoChamberedRound}\n");
-		return true;
-	}
-
-	private bool BuildingCommandType(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send(
-				$"What Ranged Weapon Type do you want to use for this gun? See {"show ranged".Colour(Telnet.Yellow)} for a list of ranged weapon types.");
-			return false;
-		}
-
-		var type = long.TryParse(command.PopSpeech(), out var value)
-			? actor.Gameworld.RangedWeaponTypes.Get(value)
-			: actor.Gameworld.RangedWeaponTypes.GetByName(command.Last);
-		if (type == null)
-		{
-			actor.Send("There is no such ranged weapon type.");
-			return false;
-		}
-
-		if (type.RangedWeaponType != Combat.RangedWeaponType.ModernFirearm)
-		{
-			actor.Send("You can only give modern firearms a ranged weapon type that is suitable for them.");
-			return false;
-		}
-
-		RangedWeaponType = type;
-		actor.Send(
-			$"This gun will now be of type {RangedWeaponType.Name.TitleCase().Colour(Telnet.Green)}.");
-		Changed = true;
 		return true;
 	}
 
@@ -601,33 +229,54 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 		);
 	}
 
-	public override bool CanSubmit()
+	protected override void RecalculateInventoryPlans()
 	{
-		if (MeleeWeaponType == null)
+		LoadTemplate = new InventoryPlanTemplate(Gameworld, new[]
 		{
-			return false;
-		}
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
+				{
+					var ammo = item.GetItemType<IAmmo>();
+					if (ammo == null)
+					{
+						return false;
+					}
 
-		if (RangedWeaponType == null)
+					if (ammo.AmmoType.SpecificType != RangedWeaponType.SpecificAmmunitionGrade)
+					{
+						return false;
+					}
+
+					return true;
+				}, null, 1, originalReference: "loaditem"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null)
+			})
+		});
+
+		LoadTemplateIgnoreEmpty = new InventoryPlanTemplate(Gameworld, new[]
 		{
-			return false;
-		}
+			new InventoryPlanPhaseTemplate(1, new[]
+			{
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0, item =>
+				{
+					var ammo = item.GetItemType<IAmmo>();
+					if (ammo == null)
+					{
+						return false;
+					}
 
-		return base.CanSubmit();
-	}
+					if (ammo.AmmoType.SpecificType != RangedWeaponType.SpecificAmmunitionGrade)
+					{
+						return false;
+					}
 
-	public override string WhyCannotSubmit()
-	{
-		if (MeleeWeaponType == null)
-		{
-			return "You must give this component a melee weapon type.";
-		}
-
-		if (RangedWeaponType == null)
-		{
-			return "You must give this component a ranged weapon type.";
-		}
-
-		return base.WhyCannotSubmit();
+					return true;
+				}, null, 1, originalReference: "loaditem"),
+				InventoryPlanAction.LoadAction(Gameworld, DesiredItemState.Held, 0, 0,
+					item => item.GetItemType<IRangedWeapon>()?.Prototype == this, null)
+			})
+		});
 	}
 }

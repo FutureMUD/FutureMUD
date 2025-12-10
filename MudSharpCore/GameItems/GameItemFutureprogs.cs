@@ -67,7 +67,8 @@ public partial class GameItem
 			{ "layer", ProgVariableTypes.Text },
 			{ "isfood", ProgVariableTypes.Boolean },
 			{ "isliquidcontainer", ProgVariableTypes.Boolean },
-			{ "variables", ProgVariableTypes.Dictionary | ProgVariableTypes.Text}
+			{ "variables", ProgVariableTypes.Dictionary | ProgVariableTypes.Text},
+			{ "condition", ProgVariableTypes.Number }
 		};
 	}
 
@@ -121,7 +122,8 @@ public partial class GameItem
 			{ "layer", "A text description of the layer this item is currently in" },
 			{ "isfood", "True if the item is food" },
 			{ "isliquidcontainer", "True if the item is a liquid container" },
-			{ "variables", "Returns a dictionary of variable names and variable values"}
+			{ "variables", "Returns a dictionary of variable names and variable values"},
+			{ "condition", "A value from 0.0 to 1.0 representing the current condition percentage of the item" }
 		};
 	}
 
@@ -300,6 +302,8 @@ public partial class GameItem
 					}
 				}
 				return new DictionaryVariable(dict, ProgVariableTypes.Text);
+			case "condition":
+				return new NumberVariable(Condition);
 			default:
 				return base.GetProperty(property);
 		}

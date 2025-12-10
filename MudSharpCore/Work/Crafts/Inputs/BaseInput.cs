@@ -246,6 +246,7 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 
 				cumulativeQuantity += target.Quantity;
 				ConsumedItems.Add(target);
+				target.Quit();
 			}
 
 			ConsumedGroup = new PerceivableGroup(ConsumedItems);

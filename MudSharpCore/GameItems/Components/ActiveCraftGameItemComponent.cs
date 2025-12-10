@@ -30,7 +30,7 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
 	public Dictionary<ICraftProduct, ICraftProductData> ProducedProducts { get; } = new();
 	public Dictionary<ICraftTool, (ItemQuality Quality, double Weight)> UsedToolQualities { get; } = new();
 
-	public Outcome QualityCheckOutcome { get; set; } = Outcome.NotTested;
+    public Outcome QualityCheckOutcome { get; set; } = Outcome.NotTested;
 
 	public ICraft Craft { get; set; }
 	private int _phase = 1;
@@ -234,6 +234,14 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
 		foreach (var item in ProducedProducts.ToList())
 		{
 			item.Value.ReleaseProducts(location, layer);
+		}
+
+		foreach (var item in ConsumedInputs.ToList())
+		{
+			if (item.Value.Data is ICraftInputDataWithItems icidwi)
+			{
+				icidwi.ReleaseItemsAtCraftCompletion(location, layer);
+			}
 		}
 
 		ProducedProducts.Clear();

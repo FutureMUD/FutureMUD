@@ -182,7 +182,8 @@ public class BloodTypingProduct : BaseProduct
 	#region Building Commands
 
 	protected override string BuildingHelpText =>
-		"You can use the following options with this product:\n\tinput <#> - specifies that the target input which contains the blood tested";
+		@"You can use the following options with this product:
+	input <#> - specifies that the target input which contains the blood tested";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

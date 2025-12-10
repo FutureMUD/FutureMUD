@@ -68,6 +68,27 @@ public class HandToolGameItemComponent : GameItemComponent, IToolItem
 
 	#region IToolItem Implementation
 
+	private TimeSpan MaximumDuration()
+	{
+        var maximum = _prototype.ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
+        if (maximum <= 0.0)
+        {
+            return TimeSpan.Zero;
+        }
+		return TimeSpan.FromSeconds(maximum);
+    }
+
+	private TimeSpan EffectiveDurationAvailable()
+	{
+		var maximum = _prototype.ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
+		if (maximum <= 0.0)
+		{
+			return TimeSpan.Zero;
+		}
+		var remaining = Parent.Condition / maximum;
+		return TimeSpan.FromSeconds(remaining);
+	}
+
 	public bool CountAsTool(ITag toolTag)
 	{
 		return Parent.Tags.Any(x => x.IsA(toolTag));
@@ -75,7 +96,16 @@ public class HandToolGameItemComponent : GameItemComponent, IToolItem
 
 	public bool CanUseTool(ITag toolTag, TimeSpan baseUsage)
 	{
-		// TODO - condition based reasons why this might not be true
+		if (!CountAsTool(toolTag))
+		{
+			return false;
+		}
+
+		if (EffectiveDurationAvailable() < baseUsage)
+		{
+			return false;
+		}
+		
 		return true;
 	}
 
@@ -86,7 +116,13 @@ public class HandToolGameItemComponent : GameItemComponent, IToolItem
 
 	public void UseTool(ITag toolTag, TimeSpan usage)
 	{
-		// Do nothing - TODO - use up condition
+		var max = MaximumDuration();
+		if (max <= TimeSpan.Zero || usage <= TimeSpan.Zero)
+		{
+			return;
+		}
+
+		Parent.Condition -= (usage.TotalSeconds / MaximumDuration().TotalSeconds);
 	}
 
 	#endregion

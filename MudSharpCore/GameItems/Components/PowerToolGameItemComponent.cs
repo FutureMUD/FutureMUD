@@ -65,20 +65,58 @@ public class PowerToolGameItemComponent : GameItemComponent, IToolItem, IConsume
 		return new XElement("Definition").ToString();
 	}
 
-	#endregion
+    #endregion
 
-	#region IToolItem Implementation
+    #region IToolItem Implementation
+    private TimeSpan MaximumDuration()
+    {
+        var maximum = _prototype.ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
+        if (maximum <= 0.0)
+        {
+            return TimeSpan.Zero;
+        }
+        return TimeSpan.FromSeconds(maximum);
+    }
 
-	public bool CountAsTool(ITag toolTag)
+    private TimeSpan EffectiveDurationAvailable()
+    {
+        var maximum = _prototype.ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
+        if (maximum <= 0.0)
+        {
+            return TimeSpan.Zero;
+        }
+        var remaining = Parent.Condition / maximum;
+        return TimeSpan.FromSeconds(remaining);
+    }
+
+    public bool CountAsTool(ITag toolTag)
 	{
 		return Parent.Tags.Any(x => x.IsA(toolTag));
 	}
 
 	public bool CanUseTool(ITag toolTag, TimeSpan baseUsage)
 	{
-		return CountAsTool(toolTag) && _powered && (Parent.GetItemType<IProducePower>()
-		                                                  ?.CanDrawdownSpike(
-			                                                  _prototype.Wattage * baseUsage.TotalSeconds) ?? false);
+        if (!CountAsTool(toolTag))
+        {
+            return false;
+        }
+
+        if (EffectiveDurationAvailable() < baseUsage)
+        {
+            return false;
+        }
+
+		if (!_powered)
+		{
+			return false;
+		}
+
+		if (Parent.GetItemType<IProducePower>()?.CanDrawdownSpike(_prototype.Wattage * baseUsage.TotalSeconds) != true)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public double ToolTimeMultiplier(ITag toolTag)
@@ -89,7 +127,14 @@ public class PowerToolGameItemComponent : GameItemComponent, IToolItem, IConsume
 	public void UseTool(ITag toolTag, TimeSpan usage)
 	{
 		Parent.GetItemType<IProducePower>()?.DrawdownSpike(_prototype.Wattage * usage.TotalSeconds);
-	}
+        var max = MaximumDuration();
+        if (max <= TimeSpan.Zero || usage <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        Parent.Condition -= (usage.TotalSeconds / MaximumDuration().TotalSeconds);
+    }
 
 	#endregion
 

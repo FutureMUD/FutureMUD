@@ -68,8 +68,12 @@ public partial class GameItem
 			{ "isfood", ProgVariableTypes.Boolean },
 			{ "isliquidcontainer", ProgVariableTypes.Boolean },
 			{ "variables", ProgVariableTypes.Dictionary | ProgVariableTypes.Text},
-			{ "condition", ProgVariableTypes.Number }
-		};
+			{ "condition", ProgVariableTypes.Number },
+			{ "quality", ProgVariableTypes.Number },
+			{ "qualityname", ProgVariableTypes.Text  },
+            { "rawquality", ProgVariableTypes.Number },
+            { "rawqualityname", ProgVariableTypes.Text  }
+        };
 	}
 
 	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
@@ -123,8 +127,12 @@ public partial class GameItem
 			{ "isfood", "True if the item is food" },
 			{ "isliquidcontainer", "True if the item is a liquid container" },
 			{ "variables", "Returns a dictionary of variable names and variable values"},
-			{ "condition", "A value from 0.0 to 1.0 representing the current condition percentage of the item" }
-		};
+			{ "condition", "A value from 0.0 to 1.0 representing the current condition percentage of the item" },
+			{ "quality", "The quality of the item as a number between 0 (terrible) and 11 (legendary)" },
+			{ "qualityname", "The name of the quality level of the item (e.g. Terrible, ExtremelyBad, Bad, Poor, Substandard, Standard, Good, Very Good, Great, Excellent, Heroic, Legendary)" },
+            { "rawquality", "The raw (base) quality of the item as a number between 0 (terrible) and 11 (legendary)" },
+            { "rawqualityname", "The name of the raw (base) quality level of the item (e.g. Terrible, ExtremelyBad, Bad, Poor, Substandard, Standard, Good, Very Good, Great, Excellent, Heroic, Legendary)" }
+        };
 	}
 
 	private static IReadOnlyDictionary<string, ProgVariableTypes> TaggedDotReferenceHandler()
@@ -304,7 +312,15 @@ public partial class GameItem
 				return new DictionaryVariable(dict, ProgVariableTypes.Text);
 			case "condition":
 				return new NumberVariable(Condition);
-			default:
+			case "quality":
+				return new NumberVariable((int)Quality);
+			case "qualityname":
+				return new TextVariable(RawQuality.DescribeEnum());
+            case "rawquality":
+                return new NumberVariable((int)Quality);
+            case "rawqualityname":
+                return new TextVariable(RawQuality.DescribeEnum());
+            default:
 				return base.GetProperty(property);
 		}
 	}

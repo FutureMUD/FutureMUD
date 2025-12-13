@@ -85,7 +85,7 @@ public class HandToolGameItemComponent : GameItemComponent, IToolItem
 		{
 			return TimeSpan.Zero;
 		}
-		var remaining = Parent.Condition / maximum;
+		var remaining = Parent.Condition * maximum;
 		return TimeSpan.FromSeconds(remaining);
 	}
 
@@ -122,7 +122,7 @@ public class HandToolGameItemComponent : GameItemComponent, IToolItem
 			return;
 		}
 
-		Parent.Condition -= (usage.TotalSeconds / MaximumDuration().TotalSeconds);
+		Parent.Condition -= usage.TotalSeconds / max.TotalSeconds;
 	}
 
 	#endregion

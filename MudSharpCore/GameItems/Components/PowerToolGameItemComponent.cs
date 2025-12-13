@@ -85,7 +85,7 @@ public class PowerToolGameItemComponent : GameItemComponent, IToolItem, IConsume
         {
             return TimeSpan.Zero;
         }
-        var remaining = Parent.Condition / maximum;
+        var remaining = Parent.Condition * maximum;
         return TimeSpan.FromSeconds(remaining);
     }
 
@@ -133,7 +133,7 @@ public class PowerToolGameItemComponent : GameItemComponent, IToolItem, IConsume
             return;
         }
 
-        Parent.Condition -= (usage.TotalSeconds / MaximumDuration().TotalSeconds);
+        Parent.Condition -= usage.TotalSeconds / max.TotalSeconds;
     }
 
 	#endregion

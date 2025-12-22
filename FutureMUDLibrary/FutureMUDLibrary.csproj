@@ -10,7 +10,6 @@
   <ItemGroup>
     <PackageReference Include="Humanizer" Version="3.0.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="NCalcSync" Version="5.11.0" />
     <PackageReference Include="TimeSpanParserUtil" Version="1.2.0" />

@@ -18,8 +18,8 @@
 	<PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.0" />
 	<PackageReference Include="DSharpPlus.Interactivity" Version="4.5.0" />
 	<PackageReference Include="DSharpPlus.Rest" Version="4.5.0" />
-	<PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
-	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+	<PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
 	<PackageReference Include="Serilog" Version="4.1.0" />
 	<PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
 	<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />

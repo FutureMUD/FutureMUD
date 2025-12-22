@@ -76,3 +76,26 @@ public class MxpBenchmarks
 	[Benchmark]
 	public string SanitiseMxp() => DirtyString.SanitiseMXP(MxpSupport);
 }
+
+[MemoryDiagnoser]
+public class ShuffleBenchmarks
+{
+	public class Tag
+	{
+		public required string Text { get; init; }
+	}
+	    
+    public IEnumerable<int> Values { get; } = Enumerable.Range(0, 1000).ToList();
+
+    
+    public IEnumerable<Tag> ObjectCollection { get; } = Enumerable.Range(0, 1000).Select(x => new Tag { Text = $"Tag{x}" }).ToList();
+
+	[Benchmark]
+	public List<int> ShuffleValues() => Values.Shuffle().ToList();
+    [Benchmark]
+    public List<int> OldShuffleValues() => Values.OldShuffle().ToList();
+    [Benchmark]
+    public List<Tag> ShuffleObjects() => ObjectCollection.Shuffle().ToList();
+    [Benchmark]
+    public List<Tag> OldShuffleObjects() => ObjectCollection.OldShuffle().ToList();
+}

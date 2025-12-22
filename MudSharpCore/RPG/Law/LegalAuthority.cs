@@ -848,7 +848,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		{
 			var failures = RandomUtilities.ConsecutiveRoll(1.0, 1.0 - reliability,
 				crime.Criminal.CharacteristicDefinitions.Count());
-			var flubbedDetails = RandomUtilities.Shuffle(crime.Criminal.CharacteristicDefinitions).Take(failures)
+			var flubbedDetails = RandomUtilities.OldShuffle(crime.Criminal.CharacteristicDefinitions).Take(failures)
 												.ToList();
 			var actualDetails =
 				crime.Criminal.CharacteristicDefinitions.Select(x => crime.Criminal.GetCharacteristic(x, witness));

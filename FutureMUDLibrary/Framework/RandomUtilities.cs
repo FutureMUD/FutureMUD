@@ -33,7 +33,7 @@ namespace MudSharp.Framework {
 			return Constants.Random.Next(min, max + 1);
 		}
 
-		private static void Shuffle<T>(this T[] array) {
+		private static void OldShuffle<T>(this T[] array) {
 			for (var i = array.Length; i > 1; i--) {
 				// Pick random element to swap.
 				var j = Constants.Random.Next(i); // 0 <= j <= i-1
@@ -42,9 +42,9 @@ namespace MudSharp.Framework {
 			}
 		}
 
-		public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> enumerable) {
+		public static IEnumerable<T> OldShuffle<T>(this IEnumerable<T> enumerable) {
 			var array = enumerable.ToArray();
-			array.Shuffle();
+			array.OldShuffle();
 			return array;
 		}
 

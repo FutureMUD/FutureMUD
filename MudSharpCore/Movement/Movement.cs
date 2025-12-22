@@ -61,8 +61,9 @@ public class Movement : IMovement
 	/// <inheritdoc />
 	public MovementPhase Phase { get; private set; }
 
+	private List<ICharacter> _characterMovers = new();
 	/// <inheritdoc />
-	public IEnumerable<ICharacter> CharacterMovers { get; }
+	public IEnumerable<ICharacter> CharacterMovers => _characterMovers.ToArray();
 
 	public IParty Party { get; }
 	public List<Dragging> DragEffects { get; } = new();
@@ -279,7 +280,7 @@ public class Movement : IMovement
 		Mounts.AddRange(mounts);
 		Targets.AddRange(targets);
 		DragEffects.AddRange(dragEffects);
-		CharacterMovers = [
+		_characterMovers = [
 			..Draggers,
 			..Helpers,
 			..NonDraggers,
@@ -380,8 +381,9 @@ public class Movement : IMovement
 		Targets.Remove(mover);
 		Helpers.Remove(mover);
 		NonConsensualMovers.Remove(mover);
+		_characterMovers.Remove(mover);
 
-		mover.StopMovement(this);
+        mover.StopMovement(this);
 		mover.Movement = null;
 	}
 

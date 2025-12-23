@@ -98,7 +98,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database Scripts", "Databas
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzers", "Analyzers", "{EC75D277-E25F-4978-B153-195DDB185097}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FutureMUD_Analyzers", "FutureMUD Analyzers\FutureMUD_Analyzers\FutureMUD_Analyzers.csproj", "{5C727653-AE8C-468A-AFED-99E2CA615B31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FutureMUD_Analyzers", "FutureMUD Analyzers\FutureMUD_Analyzers\FutureMUD_Analyzers.csproj", "{5C727653-AE8C-468A-AFED-99E2CA615B31}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FutureMUD_Analyzers.CodeFixes", "FutureMUD Analyzers\FutureMUD_Analyzers.CodeFixes\FutureMUD_Analyzers.CodeFixes.csproj", "{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FutureMUD_Analyzers.Vsix", "FutureMUD Analyzers\FutureMUD_Analyzers.Vsix\FutureMUD_Analyzers.Vsix.csproj", "{6CC81E07-F4B8-405A-854C-D460A89B18D5}"
 EndProject
@@ -184,6 +186,38 @@ Global
 		{5C727653-AE8C-468A-AFED-99E2CA615B31}.Release|Win32.Build.0 = Release|Any CPU
 		{5C727653-AE8C-468A-AFED-99E2CA615B31}.Release|x86.ActiveCfg = Release|Any CPU
 		{5C727653-AE8C-468A-AFED-99E2CA615B31}.Release|x86.Build.0 = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|Any CPU.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|Win32.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|Win32.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|x86.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (LabMUD)|x86.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|Any CPU.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|Win32.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|Win32.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|x86.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug (MySQL)|x86.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|Win32.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Debug|x86.Build.0 = Debug|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|Win32.ActiveCfg = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|Win32.Build.0 = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|x86.ActiveCfg = Release|Any CPU
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06}.Release|x86.Build.0 = Release|Any CPU
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5}.Debug (LabMUD)|Any CPU.Build.0 = Debug|Any CPU
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -702,6 +736,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5C727653-AE8C-468A-AFED-99E2CA615B31} = {EC75D277-E25F-4978-B153-195DDB185097}
+		{5A6E9FA5-59DB-44DA-AFE2-BE9131FD8B06} = {EC75D277-E25F-4978-B153-195DDB185097}
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5} = {EC75D277-E25F-4978-B153-195DDB185097}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

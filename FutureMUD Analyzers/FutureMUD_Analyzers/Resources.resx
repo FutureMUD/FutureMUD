@@ -127,7 +127,7 @@
     <value>ICollection on EF POCO should not use .Clear()</value>
   </data>
   <data name="EffectSavingAnalyzerDescription" xml:space="preserve">
-    <value>Ensure that all Effect types that are marked as saving effects have an associated method to register a loader for it</value>
+    <value>Ensure that all Effect types that are marked as saving effects have an associated method to register a loader for it.</value>
   </data>
   <data name="EffectSavingAnalyzerMessageFormat" xml:space="preserve">
     <value>Effect type '{0}' is set to be a saving effect type but does not contain a static void method with no parameters called InitialiseEffectType</value>
@@ -136,7 +136,7 @@
     <value>Effect type is set to be a saving effect type but does not contain a static void method with no parameters called InitialiseEffectType</value>
   </data>
   <data name="FutureProgStatementAnalyzerDescription" xml:space="preserve">
-    <value>Ensure that all FutureProg Statements register themselves with the FutureProg compiler</value>
+    <value>Ensure that all FutureProg Statements register themselves with the FutureProg compiler.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="FutureProgStatementAnalyzerMessageFormat" xml:space="preserve">
@@ -148,7 +148,7 @@
     <comment>The title of the diagnostic.</comment>
   </data>
   <data name="GameItemComponentProtoAnalyzerDescription" xml:space="preserve">
-    <value>Ensure that all concrete GameItemComponentProtos register a loader and builder loader</value>
+    <value>Ensure that all concrete GameItemComponentProtos register a loader and builder loader.</value>
   </data>
   <data name="GameItemComponentProtoAnalyzerMessageFormat" xml:space="preserve">
     <value>GameItemComponentProto type '{0}' does not contain a static method with a GameItemComponentManager parameter called RegisterComponentInitialiser, which will be invoked to register a method to load items components of its type</value>

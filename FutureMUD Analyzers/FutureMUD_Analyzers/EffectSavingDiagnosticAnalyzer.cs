@@ -1,84 +1,158 @@
-﻿using System;
-using System.Collections.Generic;
+#nullable enable
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.VisualBasic;
 
-namespace FutureMUD_Analyzers
+namespace FutureMUD_Analyzers;
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class EffectSavingDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    class EffectSavingDiagnosticAnalyzer : DiagnosticAnalyzer
-    {
-        public const string DiagnosticId = "FutureMUD_Analyzers_Effect_Saving";
+	public const string DiagnosticId = "FutureMUD_Analyzers_Effect_Saving";
 
-        private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.EffectSavingAnalyzerTitle), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.EffectSavingAnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
-        private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.EffectSavingAnalyzerDescription), Resources.ResourceManager, typeof(Resources));
-        private const string Category = "FutureMUD Effects";
+	private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.EffectSavingAnalyzerTitle), Resources.ResourceManager, typeof(Resources));
+	private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.EffectSavingAnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
+	private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.EffectSavingAnalyzerDescription), Resources.ResourceManager, typeof(Resources));
+	private const string Category = "FutureMUD Effects";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
+	private static readonly DiagnosticDescriptor Rule = new(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
-        public override void Initialize(AnalysisContext context)
-        {
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
-        }
+	public override void Initialize(AnalysisContext context)
+	{
+		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+		context.EnableConcurrentExecution();
+		context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+	}
 
-        private static void AnalyzeSymbol(SymbolAnalysisContext context)
-        {
-            var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
+	private static void AnalyzeSymbol(SymbolAnalysisContext context)
+	{
+		if (context.Symbol is not INamedTypeSymbol namedTypeSymbol)
+		{
+			return;
+		}
 
-            // Only examine concrete types
-            if (namedTypeSymbol.IsAbstract)
-            {
-                return;
-            }
+		if (namedTypeSymbol.TypeKind != TypeKind.Class || namedTypeSymbol.IsAbstract || namedTypeSymbol.IsImplicitlyDeclared)
+		{
+			return;
+		}
 
-            // Find all named type symbols that implement the IEffect interface in MudSharp.Effects
-            if (namedTypeSymbol.AllInterfaces.Any(x => x.MetadataName.Equals("IEffect")))
-            {
-                foreach (var item in namedTypeSymbol.GetMembers("SavingEffect")) {
-                    if (item.Kind != SymbolKind.Property || !(item is IPropertySymbol ps) || !ps.GetMethod.IsOverride) {
-                        continue;
-                    }
+		if (!ImplementsInterface(namedTypeSymbol, "IEffect", "MudSharp.Effects"))
+		{
+			return;
+		}
 
-                    var syntaxTree = ps.GetMethod.DeclaringSyntaxReferences.First().SyntaxTree;
-                    var semanticModel = context.Compilation.GetSemanticModel(syntaxTree);
-                    var root = syntaxTree.GetRoot();
-                    var getFunctionNode = (PropertyDeclarationSyntax) root.FindNode(ps.Locations.First().SourceSpan);
+		var savingProperty = namedTypeSymbol.GetMembers("SavingEffect")
+			.OfType<IPropertySymbol>()
+			.FirstOrDefault(property => property.GetMethod is { IsOverride: true });
 
-                    bool IsOrContainsLiteralTrueReturnExpression(SyntaxNode node) {
-                        if (node is ReturnStatementSyntax rss && rss.Expression is LiteralExpressionSyntax les &&
-                            semanticModel.GetConstantValue(les).Value is bool bv && bv) {
-                            return true;
-                        }
+		if (savingProperty is null)
+		{
+			return;
+		}
 
-                        if (node is LiteralExpressionSyntax tles &&
-                            semanticModel.GetConstantValue(tles).Value is bool tbv && tbv) {
-                            return true;
-                        }
+		if (!PropertyAlwaysReturnsTrue(savingProperty))
+		{
+			return;
+		}
 
-                        return false;
-                    }
+		if (namedTypeSymbol.GetMembers("InitialiseEffectType")
+			.OfType<IMethodSymbol>()
+			.Any(IsInitialiseEffectTypeMethod))
+		{
+			return;
+		}
 
-                    if (getFunctionNode.ExpressionBody?.Expression?.DescendantNodesAndSelf().Any(IsOrContainsLiteralTrueReturnExpression) == true) {
-                        if (namedTypeSymbol.GetMembers("InitialiseEffectType").Any(
-                            x => x.IsStatic && x.Kind == SymbolKind.Method && x is IMethodSymbol ms && ms.ReturnsVoid &&
-                                 !ms.Parameters.Any())) {
-                            // Nothing to see here, go home
-                            return;
-                        }
-                        var diagnostic = Diagnostic.Create(Rule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                }
-            }
-        }
-    }
+		var location = namedTypeSymbol.Locations.FirstOrDefault(l => l.IsInSource);
+		if (location is null)
+		{
+			return;
+		}
+
+		context.ReportDiagnostic(Diagnostic.Create(Rule, location, namedTypeSymbol.Name));
+	}
+
+	private static bool ImplementsInterface(INamedTypeSymbol symbol, string interfaceName, string interfaceNamespace)
+	{
+		return symbol.AllInterfaces.Any(interfaceSymbol =>
+			interfaceSymbol.Name == interfaceName &&
+			interfaceSymbol.ContainingNamespace.ToDisplayString() == interfaceNamespace);
+	}
+
+	private static bool IsInitialiseEffectTypeMethod(IMethodSymbol method)
+	{
+		return method.IsStatic &&
+			method.DeclaredAccessibility == Accessibility.Public &&
+			method.ReturnsVoid &&
+			method.Parameters.Length == 0;
+	}
+
+	private static bool PropertyAlwaysReturnsTrue(IPropertySymbol propertySymbol)
+	{
+		foreach (var syntaxReference in propertySymbol.DeclaringSyntaxReferences)
+		{
+			if (syntaxReference.GetSyntax() is not PropertyDeclarationSyntax propertyDeclaration)
+			{
+				continue;
+			}
+
+			if (IsTrueLiteral(propertyDeclaration.ExpressionBody?.Expression))
+			{
+				return true;
+			}
+
+			if (IsTrueLiteral(propertyDeclaration.Initializer?.Value))
+			{
+				return true;
+			}
+
+			var getter = propertyDeclaration.AccessorList?.Accessors
+				.FirstOrDefault(accessor => accessor.IsKind(SyntaxKind.GetAccessorDeclaration));
+
+			if (IsTrueLiteral(getter?.ExpressionBody?.Expression))
+			{
+				return true;
+			}
+
+			if (getter?.Body is null)
+			{
+				continue;
+			}
+
+			var returnStatements = getter.Body.DescendantNodes()
+				.OfType<ReturnStatementSyntax>()
+				.ToList();
+
+			if (returnStatements.Count == 0)
+			{
+				continue;
+			}
+
+			if (returnStatements.All(statement => IsTrueLiteral(statement.Expression)))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static bool IsTrueLiteral(ExpressionSyntax? expression)
+	{
+		if (expression is null)
+		{
+			return false;
+		}
+
+		while (expression is ParenthesizedExpressionSyntax parenthesized)
+		{
+			expression = parenthesized.Expression;
+		}
+
+		return expression.IsKind(SyntaxKind.TrueLiteralExpression);
+	}
 }

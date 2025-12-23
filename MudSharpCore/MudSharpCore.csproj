@@ -60,6 +60,7 @@
   <ItemGroup>
 	<ProjectReference Include="..\ExpressionEngine\ExpressionEngine.csproj" />
 	<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+	<ProjectReference Include="..\FutureMUD Analyzers\FutureMUD_Analyzers\FutureMUD_Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
   </ItemGroup>
 

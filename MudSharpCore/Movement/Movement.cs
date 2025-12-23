@@ -232,7 +232,19 @@ public class Movement : IMovement
 
 		if (failedMovers.Contains(originalMover))
 		{
-			originalMover.OutputHandler.Send(originalMover.WhyCannotMove());
+			var response = originalMover.CanMove(exit, CanMoveFlags.None);
+			var message = response.ErrorMessage;
+			if (string.IsNullOrEmpty(message))
+			{
+				message = originalMover.WhyCannotMove();
+			}
+
+			if (string.IsNullOrEmpty(message))
+			{
+				message = "You cannot move.";
+			}
+
+			originalMover.OutputHandler.Send(message);
 			return null;
 		}
 
@@ -927,7 +939,7 @@ public class Movement : IMovement
 		}
 
 		Exit.Destination.ResolveMovement(this);
-		if (Party?.Leader.QueuedMoveCommands.Count > 0)
+		if (Party?.Leader?.QueuedMoveCommands.Count > 0)
 		{
 			Party.Leader.Move(Party.Leader.QueuedMoveCommands.Dequeue());
 		}

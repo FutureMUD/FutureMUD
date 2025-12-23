@@ -420,6 +420,16 @@ public partial class Character
 			SetState(PositionState.TransitionOnMovement);
 		}
 
+		var requiredPosition = GetRequiredMovementPosition(movement?.Exit);
+		if (requiredPosition is not null && PositionState != requiredPosition)
+		{
+			SetState(requiredPosition);
+			if (requiredPosition == PositionFlying.Instance)
+			{
+				RemoveAllEffects<HideInvis>(fireRemovalAction: true);
+			}
+		}
+
 		SetModifier(PositionModifier.None);
 		SetTarget(null);
 	}
@@ -505,7 +515,7 @@ public partial class Character
 			flags |= CanMoveFlags.IgnoreSafeMovement;
 		}
 
-		var response = CanMove(flags);
+		var response = CanMove(exit, flags);
 		if (!response.Result)
 		{
 			OutputHandler.Send(response.ErrorMessage);
@@ -549,7 +559,33 @@ public partial class Character
 
 
 
-	public CanMoveResponse CanMove(CanMoveFlags flags)
+	private IPositionState GetRequiredMovementPosition(ICellExit exit)
+	{
+		if (exit is null)
+		{
+			return null;
+		}
+
+		if (exit.IsClimbExit)
+		{
+			return PositionClimbing.Instance;
+		}
+
+		if (exit.IsFlyExit)
+		{
+			return PositionFlying.Instance;
+		}
+
+		var (transition, _) = exit.MovementTransition(this);
+		return transition switch
+		{
+			CellMovementTransition.SwimOnly or CellMovementTransition.SwimToLand => PositionSwimming.Instance,
+			CellMovementTransition.FlyOnly => PositionFlying.Instance,
+			_ => null
+		};
+	}
+
+	private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride)
 	{
 		if (EffectsOfType<IImmwalkEffect>().Any())
 		{
@@ -581,24 +617,35 @@ public partial class Character
 		var ignoreTerrainStamina = false;
 
 		IPositionState movingPosition;
-		switch (PositionState)
+		if (movingPositionOverride is not null)
 		{
-			case PositionSwimming _:
-				movingPosition = PositionSwimming.Instance;
-				staminaMultiplier = dragging ? 2.5 : 1.5;
-				break;
-			case PositionClimbing _:
-				movingPosition = PositionClimbing.Instance;
-				staminaMultiplier = dragging ? 2.5 : 1.5;
-				break;
-			case PositionFlying _:
-				movingPosition = PositionFlying.Instance;
-				ignoreTerrainStamina = true;
-				goto default;
-			default:
-				movingPosition = PositionState.TransitionOnMovement ?? PositionState;
-				staminaMultiplier = dragging ? 2.0 : 1.0;
-				break;
+			movingPosition = movingPositionOverride;
+			staminaMultiplier = movingPositionOverride is PositionSwimming or PositionClimbing
+				? dragging ? 2.5 : 1.5
+				: dragging ? 2.0 : 1.0;
+			ignoreTerrainStamina = movingPositionOverride == PositionFlying.Instance;
+		}
+		else
+		{
+			switch (PositionState)
+			{
+				case PositionSwimming _:
+					movingPosition = PositionSwimming.Instance;
+					staminaMultiplier = dragging ? 2.5 : 1.5;
+					break;
+				case PositionClimbing _:
+					movingPosition = PositionClimbing.Instance;
+					staminaMultiplier = dragging ? 2.5 : 1.5;
+					break;
+				case PositionFlying _:
+					movingPosition = PositionFlying.Instance;
+					ignoreTerrainStamina = true;
+					goto default;
+				default:
+					movingPosition = PositionState.TransitionOnMovement ?? PositionState;
+					staminaMultiplier = dragging ? 2.0 : 1.0;
+					break;
+			}
 		}
 
 		if (!CurrentSpeeds.ContainsKey(movingPosition))
@@ -687,9 +734,15 @@ public partial class Character
 		return CanMoveResponse.True;
 	}
 
+	public CanMoveResponse CanMove(CanMoveFlags flags)
+	{
+		return CanMoveInternal(flags, null);
+	}
+
 	public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags)
 	{
-		var response = CanMove(flags);
+		var requiredPosition = GetRequiredMovementPosition(exit);
+		var response = CanMoveInternal(flags, requiredPosition);
 		if (!response.Result)
 		{
 			return response;
@@ -715,7 +768,7 @@ public partial class Character
 			};
 		}
 
-		if (exit.IsFlyExit && PositionState != PositionFlying.Instance)
+		if (exit.IsFlyExit && PositionState != PositionFlying.Instance && requiredPosition != PositionFlying.Instance)
 		{
 			return new CanMoveResponse
 			{
@@ -733,6 +786,19 @@ public partial class Character
 			};
 		}
 
+		if (requiredPosition == PositionFlying.Instance && PositionState != PositionFlying.Instance)
+		{
+			var (truth, error) = CanFly();
+			if (!truth)
+			{
+				return new CanMoveResponse
+				{
+					Result = false,
+					ErrorMessage = error
+				};
+			}
+		}
+
 		if (!flags.HasFlag(CanMoveFlags.IgnoreSafeMovement))
 		{
 			switch (exit.MovementTransition(this).TransitionType)
@@ -740,29 +806,7 @@ public partial class Character
 				case CellMovementTransition.TreesToTrees:
 					break;
 				case CellMovementTransition.FlyOnly:
-					if (PositionState == PositionFlying.Instance)
-					{
-						break;
-					}
-
-					if (exit.IsClimbExit)
-					{
-						if (PositionState == PositionClimbing.Instance)
-						{
-							break;
-						}
-						return new CanMoveResponse
-						{
-							Result = false,
-							ErrorMessage = "You must climb to use that exit."
-						};
-					}
-
-					return new CanMoveResponse
-					{
-						Result = false,
-						ErrorMessage = "You must be able to fly to move in that direction."
-					};
+					break;
 
 				case CellMovementTransition.SwimOnly:
 					if (PositionState != PositionSwimming.Instance)
@@ -969,23 +1013,21 @@ public partial class Character
 
 	public double MoveSpeed(ICellExit exit)
 	{
-		var (transition, _) = exit?.MovementTransition(this) ??
-							  (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+		var requiredPosition = GetRequiredMovementPosition(exit);
 		IMoveSpeed speed;
-		switch (transition)
+		if (requiredPosition is not null)
 		{
-			case CellMovementTransition.SwimOnly:
-			case CellMovementTransition.SwimToLand:
-				speed = Body.CurrentSpeeds[PositionSwimming.Instance];
-				break;
-			default:
-				if (!Body.CurrentSpeeds.ContainsKey(PositionState))
-				{
-					return -1;
-				}
-
-				speed = Body.CurrentSpeeds[PositionState];
-				break;
+			if (!Body.CurrentSpeeds.TryGetValue(requiredPosition, out speed))
+			{
+				return -1;
+			}
+		}
+		else
+		{
+			if (!Body.CurrentSpeeds.TryGetValue(PositionState, out speed))
+			{
+				return -1;
+			}
 		}
 
 		if (speed == null)
@@ -1093,22 +1135,36 @@ public partial class Character
 		}
 
 		// Check non-cardinal exits.
-		if (Move(direction, target, emote, force))
+		var exitFound = false;
+		if (TryMove(direction, target, emote, force, out exitFound))
 		{
 			return true;
 		}
 
 		// Check cardinal exits next
-		if (Constants.CardinalDirectionStringToDirection.ContainsKey(direction))
+		if (!exitFound && Constants.CardinalDirectionStringToDirection.ContainsKey(direction))
 		{
 			var targetDirection = Constants.CardinalDirectionStringToDirection[direction];
-			if (Move(targetDirection, emote, force))
+			var exit = Location.GetExit(targetDirection, this);
+			if (exit != null && Body.CanSee(Location, exit))
 			{
-				return true;
+				exitFound = true;
+				if (Move(exit, emote, force))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				_cannotMoveReason = "You cannot move in that direction.";
 			}
 		}
 
-		OutputHandler.Send(WhyCannotMove());
+		if (!exitFound)
+		{
+			OutputHandler.Send(WhyCannotMove());
+		}
+
 		QueuedMoveCommands.Clear();
 		return false;
 	}
@@ -1127,13 +1183,20 @@ public partial class Character
 
 	public bool Move(string cmd, string target, IEmote emote = null, bool ignoreSafeMovement = false)
 	{
+		return TryMove(cmd, target, emote, ignoreSafeMovement, out _);
+	}
+
+	private bool TryMove(string cmd, string target, IEmote emote, bool ignoreSafeMovement, out bool exitFound)
+	{
 		var exit = Location.GetExit(cmd, target, this);
 		if (exit == null || !Body.CanSee(Location, exit))
 		{
 			_cannotMoveReason = "You cannot move in that direction.";
+			exitFound = false;
 			return false;
 		}
 
+		exitFound = true;
 		return Move(exit, emote, ignoreSafeMovement);
 	}
 

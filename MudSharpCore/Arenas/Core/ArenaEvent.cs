@@ -7,11 +7,14 @@ using MudSharp.Character;
 using MudSharp.Database;
 using System.Text;
 using MudSharp.Community;
+using MudSharp.Construction;
 using System.Globalization;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.TimeAndDate;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.Arenas;
 
@@ -413,6 +416,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			FMDB.Context.SaveChanges();
 			_participants.Add(new ArenaParticipant(signup, this));
 		}
+
+		HandleSignupStaging(character, sideIndex);
 	}
 
 	public void Withdraw(ICharacter character)
@@ -444,6 +449,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		}
 
 		_participants.Remove(participant);
+		ClearStagingEffect(character);
 	}
 
 	public void AddReservation(IArenaReservation reservation)
@@ -621,6 +627,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		Changed = true;
 		actor.OutputHandler.Send($"This event is now scheduled for {ScheduledAt.ToString("f", actor).ColourValue()}.");
+		RescheduleTransitions();
 		return true;
 	}
 
@@ -637,6 +644,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			RegistrationOpensAt = null;
 			Changed = true;
 			actor.OutputHandler.Send("Registration open time cleared.".SubstituteANSIColour());
+			RescheduleTransitions();
 			return true;
 		}
 
@@ -649,6 +657,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		RegistrationOpensAt = when.ToUniversalTime();
 		Changed = true;
 		actor.OutputHandler.Send($"Registration will open at {RegistrationOpensAt.Value.ToString("f", actor).ColourValue()}.");
+		RescheduleTransitions();
 		return true;
 	}
 
@@ -668,9 +677,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return false;
 		}
 
-		EnforceState(state);
+		ApplyForcedState(state);
 		Changed = true;
 		actor.OutputHandler.Send($"State set to {State.DescribeEnum().ColourValue()}.");
+		RescheduleTransitions();
 		return true;
 	}
 
@@ -685,7 +695,100 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		var reason = command.SafeRemainingArgument;
 		Abort(reason);
 		actor.OutputHandler.Send($"You abort this event: {reason.ColourError()}");
+		RescheduleTransitions();
 		return true;
+	}
+
+	private void RescheduleTransitions()
+	{
+		Gameworld.ArenaScheduler.Schedule(this);
+	}
+
+	private void ApplyForcedState(ArenaEventState state)
+	{
+		switch (state)
+		{
+			case ArenaEventState.RegistrationOpen:
+				OpenRegistration();
+				break;
+			case ArenaEventState.Preparing:
+				StartPreparation();
+				break;
+			case ArenaEventState.Staged:
+				Stage();
+				break;
+			case ArenaEventState.Live:
+				StartLive();
+				break;
+			case ArenaEventState.Resolving:
+				Resolve();
+				break;
+			case ArenaEventState.Cleanup:
+				Cleanup();
+				break;
+			case ArenaEventState.Completed:
+				Complete();
+				break;
+			case ArenaEventState.Aborted:
+				Abort("Event aborted.");
+				break;
+			default:
+				EnforceState(state);
+				break;
+		}
+	}
+
+	private void HandleSignupStaging(ICharacter character, int sideIndex)
+	{
+		if (character is null)
+		{
+			return;
+		}
+
+		var waitingCell = Arena.GetWaitingCell(sideIndex);
+		if (waitingCell is null)
+		{
+			return;
+		}
+
+		character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+
+		if (!string.IsNullOrWhiteSpace(Arena.SignupEcho))
+		{
+			waitingCell.Handle(new EmoteOutput(new Emote(Arena.SignupEcho, character)));
+		}
+
+		if (!character.IsPlayerCharacter)
+		{
+			return;
+		}
+
+		var existing = character.CombinedEffectsOfType<ArenaStagingEffect>()
+			.FirstOrDefault(x => x.Matches(this));
+		if (existing is not null)
+		{
+			existing.AttachToEvent(this);
+			return;
+		}
+
+		character.AddEffect(new ArenaStagingEffect(character, this));
+	}
+
+	private void ClearStagingEffect(ICharacter character)
+	{
+		if (character is null || !character.IsPlayerCharacter)
+		{
+			return;
+		}
+
+		var effect = character.CombinedEffectsOfType<ArenaStagingEffect>()
+			.FirstOrDefault(x => x.Matches(this));
+		if (effect is null)
+		{
+			return;
+		}
+
+		character.RemoveEffect(effect, true);
 	}
 }
 

@@ -20,6 +20,7 @@ public interface ICombatArena : IEditableItem {
 	ICurrency Currency { get; }
 	IBankAccount? BankAccount { get; set; }
 	IEnumerable<ICharacter> Managers { get; }
+	string SignupEcho { get; }
 
 	IEnumerable<ICell> WaitingCells { get; }
 	IEnumerable<ICell> ArenaCells { get; }

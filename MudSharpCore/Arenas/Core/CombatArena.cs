@@ -14,6 +14,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.Arenas;
 
@@ -37,6 +38,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 	private bool _managersDirty;
 	private bool _cellsDirty;
 	private decimal _virtualBalance;
+	private string _signupEcho = DefaultSignupEcho;
 
 	public CombatArena(Arena arena, IFuturemud gameworld)
 	{
@@ -47,6 +49,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		Currency = Gameworld.Currencies.Get(arena.CurrencyId);
 		_virtualBalance = arena.VirtualBalance;
 		BankAccount = arena.BankAccountId.HasValue ? Gameworld.BankAccounts.Get(arena.BankAccountId.Value) : null;
+		_signupEcho = arena.SignupEcho ?? DefaultSignupEcho;
 
 		foreach (var manager in arena.ArenaManagers)
 		{
@@ -112,6 +115,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		EconomicZone = zone;
 		Currency = currency;
 		_virtualBalance = 0.0m;
+		_signupEcho = DefaultSignupEcho;
 
 		using (new FMDB())
 		{
@@ -122,6 +126,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 				CurrencyId = currency.Id,
 				CreatedAt = DateTime.UtcNow,
 				VirtualBalance = 0.0m,
+				SignupEcho = _signupEcho,
 				IsDeleted = false
 			};
 			FMDB.Context.Arenas.Add(record);
@@ -135,6 +140,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 	public IEconomicZone EconomicZone { get; private set; }
 	public ICurrency Currency { get; private set; }
 	public IBankAccount? BankAccount { get; private set; }
+	public string SignupEcho => _signupEcho;
 	IBankAccount? ICombatArena.BankAccount
 	{
 		get => BankAccount;
@@ -289,6 +295,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 			$"Combat Arena #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
+		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
 		sb.AppendLine($"Bank Account: {(BankAccount != null ? BankAccount.AccountReference.ColourValue() : "None".ColourError())}");
 		sb.AppendLine($"Funds: {AvailableFunds().ToString("N2", actor).ColourValue()}");
 		sb.AppendLine();
@@ -354,6 +361,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		sb.AppendLine($"Arena {Name.ColourName()}");
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
+		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
 		sb.AppendLine($"Funds: {AvailableFunds().ToString("N2", actor).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
@@ -385,6 +393,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 	#3zone <economic zone>#0 - changes the economic zone for this arena
 	#3currency <currency>#0 - sets the accounting currency for this arena
 	#3bank <account>|none#0 - sets or clears the bank account for this arena
+	#3signupecho <emote>|none#0 - sets or clears the signup staging echo
 	#3manager add <character id>#0 - adds a manager by character id
 	#3manager remove <character id>#0 - removes a manager by character id
 	#3cell <role> add <cell id>#0 - adds a cell in a particular role
@@ -402,6 +411,8 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 				return BuildingCommandCurrency(actor, command);
 			case "bank":
 				return BuildingCommandBank(actor, command);
+			case "signupecho":
+				return BuildingCommandSignupEcho(actor, command);
 			case "manager":
 			case "managers":
 				return BuildingCommandManager(actor, command);
@@ -504,6 +515,36 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		BankAccount = account;
 		Changed = true;
 		actor.OutputHandler.Send($"This arena will now use the bank account {account.AccountReference.ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSignupEcho(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What signup echo do you want to use? Use #3none#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+		{
+			_signupEcho = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("This arena will no longer echo when participants sign up.");
+			return true;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, actor);
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage.ColourError());
+			return false;
+		}
+
+		_signupEcho = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"Signup echo set to {emoteText.ColourCommand()}.");
 		return true;
 	}
 
@@ -663,6 +704,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 			dbArena.EconomicZoneId = EconomicZone.Id;
 			dbArena.CurrencyId = Currency.Id;
 			dbArena.Name = Name;
+			dbArena.SignupEcho = _signupEcho;
 			if (_cellsDirty)
 			{
 				FMDB.Context.ArenaCells.RemoveRange(FMDB.Context.ArenaCells.Where(x => x.ArenaId == dbArena.Id));
@@ -703,7 +745,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		Changed = false;
 	}
 
-internal ICombatantClass? GetCombatantClass(long id)
+	internal ICombatantClass? GetCombatantClass(long id)
 	{
 		return _combatantClasses.FirstOrDefault(x => x.Id == id);
 	}
@@ -725,4 +767,17 @@ internal ICombatantClass? GetCombatantClass(long id)
 	{
 		_events.Remove(arenaEvent);
 	}
+
+	internal ICell? GetWaitingCell(int sideIndex)
+	{
+		var waiting = WaitingCells?.ToList() ?? [];
+		if (!waiting.Any())
+		{
+			return null;
+		}
+
+		return waiting.ElementAtOrDefault(sideIndex) ?? waiting.FirstOrDefault();
+	}
+
+	public const string DefaultSignupEcho = "@ sign|signs up for the upcoming bout.";
 }

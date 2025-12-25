@@ -34,6 +34,10 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.IsDeleted)
 				.HasColumnType("bit(1)")
 				.HasDefaultValueSql("b'0'");
+			entity.Property(e => e.SignupEcho)
+				.HasColumnType("varchar(4000)")
+				.HasCharSet("utf8")
+				.UseCollation("utf8_general_ci");
 
 			entity.HasOne(d => d.EconomicZone)
 				.WithMany()

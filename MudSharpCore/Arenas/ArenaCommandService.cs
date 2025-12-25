@@ -129,7 +129,7 @@ public class ArenaCommandService : IArenaCommandService
                 sb.AppendLine("Sides:".Colour(Telnet.Cyan));
                 foreach (var side in eventType.Sides.OrderBy(x => x.Index))
                 {
-                        sb.AppendLine($"Side {side.Index.ToString(actor).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
+                        sb.AppendLine($"\nSide {side.Index.ToString(actor).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
                         sb.AppendLine($"\tPolicy: {side.Policy.DescribeEnum().ColourValue()}");
                         sb.AppendLine($"\tAllow NPC Signup: {side.AllowNpcSignup.ToColouredString()}");
                         sb.AppendLine($"\tAuto Fill NPC: {side.AutoFillNpc.ToColouredString()}");

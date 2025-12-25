@@ -5,6 +5,7 @@ using System.Globalization;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -229,6 +230,208 @@ public partial class EditableItemHelper
 	#3combatantclass set <...>#0 - issues a building command to the open class
 	#3combatantclass close#0 - closes the current class
 	#3combatantclass new <arena> <name> <eligibility prog>#0 - creates a new class".SubstituteANSIColour()
+	};
+
+	public static EditableItemHelper ArenaEventTypeHelper { get; } = new()
+	{
+		ItemName = "Arena Event Type",
+		ItemNamePlural = "Arena Event Types",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IArenaEventType>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IArenaEventType>(actor) { EditingItem = (IArenaEventType)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IArenaEventType>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.CombatArenas.SelectMany(x => x.EventTypes).ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.CombatArenas.SelectMany(x => x.EventTypes)
+			.FirstOrDefault(x => x.Id == id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.CombatArenas.SelectMany(x => x.EventTypes)
+			.FirstOrDefault(x => x.Id.ToString("N0").EqualTo(input) || x.Name.EqualTo(input)),
+		AddItemToGameWorldAction = _ => { },
+		CastToType = typeof(IArenaEventType),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which arena is this event type for?");
+				return;
+			}
+
+			var arena = actor.Gameworld.CombatArenas.GetByIdOrName(input.PopSpeech());
+			if (arena == null)
+			{
+				actor.OutputHandler.Send("There is no such combat arena.");
+				return;
+			}
+
+			if (arena is not CombatArena concreteArena)
+			{
+				actor.OutputHandler.Send("That arena type does not support editing event types.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name should this event type have?");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (arena.EventTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send("That arena already has an event type with that name.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("How many sides should this event type have?");
+				return;
+			}
+
+			if (!int.TryParse(input.SafeRemainingArgument, out var sideCount) || sideCount <= 0)
+			{
+				actor.OutputHandler.Send("You must specify a positive whole number of sides.");
+				return;
+			}
+
+			var registrationDuration = TimeSpan.FromMinutes(10);
+			var preparationDuration = TimeSpan.FromMinutes(2);
+			var timeLimit = TimeSpan.FromMinutes(15);
+			const int defaultCapacity = 1;
+
+			ArenaEventType eventType;
+			using (new FMDB())
+			{
+				var dbType = new MudSharp.Models.ArenaEventType
+				{
+					ArenaId = arena.Id,
+					Name = name,
+					BringYourOwn = true,
+					RegistrationDurationSeconds = (int)registrationDuration.TotalSeconds,
+					PreparationDurationSeconds = (int)preparationDuration.TotalSeconds,
+					TimeLimitSeconds = (int)timeLimit.TotalSeconds,
+					BettingModel = (int)BettingModel.FixedOdds,
+					AppearanceFee = 0.0m,
+					VictoryFee = 0.0m,
+					IntroProgId = null,
+					ScoringProgId = null,
+					ResolutionOverrideProgId = null
+				};
+
+				for (var index = 0; index < sideCount; index++)
+				{
+					var dbSide = new MudSharp.Models.ArenaEventTypeSide
+					{
+						Index = index,
+						Capacity = defaultCapacity,
+						Policy = (int)ArenaSidePolicy.Open,
+						AllowNpcSignup = true,
+						AutoFillNpc = false,
+						OutfitProgId = null,
+						NpcLoaderProgId = null
+					};
+
+					foreach (var cls in arena.CombatantClasses)
+					{
+						dbSide.ArenaEventTypeSideAllowedClasses.Add(new MudSharp.Models.ArenaEventTypeSideAllowedClass
+						{
+							ArenaCombatantClassId = cls.Id
+						});
+					}
+
+					dbType.ArenaEventTypeSides.Add(dbSide);
+				}
+
+				FMDB.Context.ArenaEventTypes.Add(dbType);
+				FMDB.Context.SaveChanges();
+				eventType = new ArenaEventType(dbType, concreteArena, concreteArena.GetCombatantClass);
+			}
+
+			concreteArena.AddEventType(eventType);
+			actor.RemoveAllEffects<BuilderEditingEffect<IArenaEventType>>();
+			actor.AddEffect(new BuilderEditingEffect<IArenaEventType>(actor) { EditingItem = eventType });
+			actor.OutputHandler.Send(
+				$"You create arena event type #{eventType.Id.ToStringN0(actor)} ({eventType.Name.ColourName()}), which you are now editing.");
+
+			if (!arena.CombatantClasses.Any())
+			{
+				actor.OutputHandler.Send("Warning: this arena has no combatant classes. Add classes and mark them eligible before signups will work."
+					.ColourError());
+			}
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which arena event type do you want to clone?");
+				return;
+			}
+
+			var which = input.PopSpeech();
+			var template = actor.Gameworld.CombatArenas.SelectMany(x => x.EventTypes)
+				.FirstOrDefault(x => x.Id.ToString("N0").EqualTo(which) || x.Name.EqualTo(which));
+			if (template == null)
+			{
+				actor.OutputHandler.Send("There is no such arena event type.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name should the new event type have?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (template.Arena.EventTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send("That arena already has an event type with that name.");
+				return;
+			}
+
+			var clone = template.Clone(name, actor);
+			actor.RemoveAllEffects<BuilderEditingEffect<IArenaEventType>>();
+			actor.AddEffect(new BuilderEditingEffect<IArenaEventType>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send(
+				$"You clone arena event type {template.Name.ColourName()} into #{clone.Id.ToStringN0(actor)} ({clone.Name.ColourName()}), which you are now editing.");
+		},
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Arena",
+			"Sides",
+			"BYO",
+			"Betting"
+		},
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IArenaEventType>()
+			select new List<string>
+			{
+				proto.Id.ToString("N0", character),
+				proto.Name,
+				proto.Arena.Name,
+				proto.Sides.Count().ToString("N0", character),
+				proto.BringYourOwn.ToColouredString(),
+				proto.BettingModel.DescribeEnum()
+			},
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Arena Event Type #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = @"You can use the arena event type builder with the following syntax:
+
+	#3arenaeventtype list#0 - lists arena event types
+	#3arenaeventtype show <which>#0 - shows an arena event type
+	#3arenaeventtype edit <which>#0 - opens an arena event type for editing
+	#3arenaeventtype edit new <arena> <name> <sides>#0 - creates a new arena event type
+	#3arenaeventtype clone <which> <name>#0 - clones an arena event type
+	#3arenaeventtype set <...>#0 - issues a building command to the open event type
+	#3arenaeventtype close#0 - closes the current arena event type".SubstituteANSIColour()
 	};
 
 	public static EditableItemHelper ArenaEventHelper { get; } = new()

@@ -28,13 +28,13 @@ public class ArenaSchedulerTests
                 _service = new ArenaScheduler(_gameworld.Object, _lifecycle.Object);
         }
 
-        [TestMethod]
-        public void Schedule_DraftState_QueuesTransitionToScheduled()
-        {
-                var now = DateTime.UtcNow;
-                var scheduledAt = now.AddMinutes(10);
-                var eventType = BuildEventType();
-                var arenaEvent = new Mock<IArenaEvent>();
+	[TestMethod]
+	public void Schedule_DraftState_TransitionsImmediately()
+	{
+		var now = DateTime.UtcNow;
+		var scheduledAt = now.AddMinutes(10);
+		var eventType = BuildEventType();
+		var arenaEvent = new Mock<IArenaEvent>();
                 arenaEvent.SetupGet(x => x.State).Returns(ArenaEventState.Draft);
                 arenaEvent.SetupGet(x => x.ScheduledAt).Returns(scheduledAt);
                 arenaEvent.SetupGet(x => x.CreatedAt).Returns(now);
@@ -42,29 +42,12 @@ public class ArenaSchedulerTests
                 arenaEvent.SetupGet(x => x.EventType).Returns(eventType.Object);
                 arenaEvent.SetupGet(x => x.Id).Returns(5L);
 
-                ISchedule? captured = null;
-                _scheduler.Setup(x => x.AddSchedule(It.IsAny<ISchedule>()))
-                        .Callback<ISchedule>(schedule => captured = schedule);
+		_service.Schedule(arenaEvent.Object);
 
-                _service.Schedule(arenaEvent.Object);
-
-                _scheduler.Verify(x => x.Destroy(arenaEvent.Object, ScheduleType.ArenaEvent), Times.Once);
-                Assert.IsNotNull(captured, "Expected a schedule to be created for the next transition.");
-                var typed = captured as Schedule<IArenaEvent>;
-                Assert.IsNotNull(typed, "Expected an ArenaEvent schedule instance.");
-                Assert.AreSame(arenaEvent.Object, typed!.Parameter1);
-                Assert.AreEqual(ScheduleType.ArenaEvent, typed.Type);
-                Assert.IsTrue(Math.Abs((typed.TriggerETA - scheduledAt).TotalSeconds) < 0.5,
-                        $"Trigger should align with the scheduled start. Expected {scheduledAt:o}, got {typed.TriggerETA:o}.");
-                Assert.AreEqual(0, _lifecycle.Invocations.Count);
-
-                typed.Action(typed.Parameter1);
-
-                var invocation = _lifecycle.Invocations.Single();
-                Assert.AreEqual("Transition", invocation.Method.Name);
-                Assert.AreSame(arenaEvent.Object, invocation.Arguments[0]);
-                Assert.AreEqual(ArenaEventState.Scheduled, invocation.Arguments[1]);
-        }
+		_scheduler.Verify(x => x.Destroy(arenaEvent.Object, ScheduleType.ArenaEvent), Times.Once);
+		_scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
+		_lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.Scheduled), Times.Once);
+	}
 
         [TestMethod]
         public void Schedule_ScheduledPastRegistration_TransitionsImmediately()

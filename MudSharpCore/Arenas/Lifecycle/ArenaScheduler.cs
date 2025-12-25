@@ -82,7 +82,7 @@ public class ArenaScheduler : IArenaScheduler
 		{
 			case ArenaEventState.Draft:
 				nextState = ArenaEventState.Scheduled;
-				trigger = arenaEvent.ScheduledAt;
+				trigger = now;
 				break;
 			case ArenaEventState.Scheduled:
 				nextState = ArenaEventState.RegistrationOpen;
@@ -101,10 +101,16 @@ public class ArenaScheduler : IArenaScheduler
 				trigger = arenaEvent.ScheduledAt;
 				break;
 			case ArenaEventState.Live:
-				if (arenaEvent.EventType.TimeLimit is { } limit && arenaEvent.StartedAt.HasValue)
+				if (arenaEvent.EventType.TimeLimit is { } limit)
 				{
 					nextState = ArenaEventState.Resolving;
-					trigger = arenaEvent.StartedAt.Value + limit;
+					var startedAt = arenaEvent.StartedAt ?? arenaEvent.ScheduledAt;
+					if (startedAt == DateTime.MinValue)
+					{
+						startedAt = now;
+					}
+
+					trigger = startedAt + limit;
 					break;
 				}
 				return false;

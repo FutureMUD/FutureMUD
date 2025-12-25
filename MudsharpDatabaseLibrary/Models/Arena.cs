@@ -24,6 +24,7 @@ public class Arena
 	public decimal VirtualBalance { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public bool IsDeleted { get; set; }
+	public string SignupEcho { get; set; }
 
 	public virtual EconomicZone EconomicZone { get; set; }
 	public virtual Currency Currency { get; set; }

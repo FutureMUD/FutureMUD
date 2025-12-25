@@ -24,52 +24,53 @@ public class ArenaLifecycleServiceTests
                 _service.AttachScheduler(_scheduler.Object);
         }
 
-        [TestMethod]
-        public void Transition_ForwardState_EnforcesAndSchedules()
-        {
-                var arenaEvent = BuildEvent(ArenaEventState.Scheduled);
+	[TestMethod]
+	public void Transition_ForwardState_EnforcesAndSchedules()
+	{
+		var arenaEvent = BuildEvent(ArenaEventState.Scheduled);
 
-                _service.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen);
+		_service.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen);
 
-                arenaEvent.Verify(x => x.EnforceState(ArenaEventState.RegistrationOpen), Times.Once);
-                _scheduler.Verify(x => x.Schedule(arenaEvent.Object), Times.Once);
-        }
+		arenaEvent.Verify(x => x.OpenRegistration(), Times.Once);
+		_scheduler.Verify(x => x.Schedule(arenaEvent.Object), Times.Once);
+	}
 
         [TestMethod]
         public void Transition_BackwardOrSameState_NoAction()
         {
                 var arenaEvent = BuildEvent(ArenaEventState.Preparing);
 
-                _service.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen);
-                _service.Transition(arenaEvent.Object, ArenaEventState.Preparing);
+		_service.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen);
+		_service.Transition(arenaEvent.Object, ArenaEventState.Preparing);
 
-                arenaEvent.Verify(x => x.EnforceState(It.IsAny<ArenaEventState>()), Times.Never);
-                _scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
-        }
+		arenaEvent.Verify(x => x.OpenRegistration(), Times.Never);
+		arenaEvent.Verify(x => x.StartPreparation(), Times.Never);
+		_scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
+	}
 
         [TestMethod]
         public void Transition_FinalStates_CancelsScheduling()
         {
-                var arenaEvent = BuildEvent(ArenaEventState.Cleanup);
+		var arenaEvent = BuildEvent(ArenaEventState.Cleanup);
 
-                _service.Transition(arenaEvent.Object, ArenaEventState.Completed);
+		_service.Transition(arenaEvent.Object, ArenaEventState.Completed);
 
-                arenaEvent.Verify(x => x.EnforceState(ArenaEventState.Completed), Times.Once);
-                _scheduler.Verify(x => x.Cancel(arenaEvent.Object), Times.Once);
-                _scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
-        }
+		arenaEvent.Verify(x => x.Complete(), Times.Once);
+		_scheduler.Verify(x => x.Cancel(arenaEvent.Object), Times.Once);
+		_scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
+	}
 
         [TestMethod]
         public void Transition_Abort_CancelsScheduling()
         {
-                var arenaEvent = BuildEvent(ArenaEventState.Live);
+		var arenaEvent = BuildEvent(ArenaEventState.Live);
 
-                _service.Transition(arenaEvent.Object, ArenaEventState.Aborted);
+		_service.Transition(arenaEvent.Object, ArenaEventState.Aborted);
 
-                arenaEvent.Verify(x => x.EnforceState(ArenaEventState.Aborted), Times.Once);
-                _scheduler.Verify(x => x.Cancel(arenaEvent.Object), Times.Once);
-                _scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
-        }
+		arenaEvent.Verify(x => x.Abort(It.IsAny<string>()), Times.Once);
+		_scheduler.Verify(x => x.Cancel(arenaEvent.Object), Times.Once);
+		_scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
+	}
 
         [TestMethod]
         public void RebootRecovery_InvokesSchedulerRecovery()

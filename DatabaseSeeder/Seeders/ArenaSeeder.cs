@@ -92,6 +92,7 @@ builders can expand upon. Physical rooms for the arena still need to be construc
 				CurrencyId = zone.CurrencyId,
 				BankAccountId = null,
 				VirtualBalance = 0.0m,
+				SignupEcho = "@ sign|signs up for the upcoming bout.",
 				CreatedAt = now,
 				IsDeleted = false
 			};

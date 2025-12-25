@@ -34,7 +34,7 @@ public class ArenaObservationService : IArenaObservationService
 			return (false, "There is no such arena event to observe.");
 		}
 
-		if (!observer.State.HasFlag(CharacterState.Conscious))
+		if (!observer.State.IsConscious())
 		{
 			return (false, "You must be conscious to observe the arena.");
 		}

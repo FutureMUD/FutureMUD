@@ -4646,6 +4646,27 @@ You can use the following syntax:
 		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.CombatantClassHelper);
 	}
 
+	private const string ArenaEventTypeHelp = @"The #3arenaeventtype#0 command is used to view, edit and create arena event types.
+
+You can use the following syntax:
+
+#3arenaeventtype list#0 - lists arena event types
+#3arenaeventtype edit <which>#0 - begins editing an arena event type
+#3arenaeventtype edit new <arena> <name> <sides>#0 - creates a new arena event type
+#3arenaeventtype clone <which> <name>#0 - clones an arena event type
+#3arenaeventtype close#0 - stops editing an arena event type
+#3arenaeventtype show <which>#0 - views information about an arena event type
+#3arenaeventtype show#0 - views information about your currently editing arena event type
+#3arenaeventtype set <...>#0 - issues a building command to the open arena event type";
+
+	[PlayerCommand("ArenaEventType", "arenaeventtype", "aetype")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("ArenaEventType", ArenaEventTypeHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void ArenaEventType(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ArenaEventTypeHelper);
+	}
+
 	private const string ArenaEventHelp = @"The #3arenaevent#0 command is used to view, edit and create arena events.
 
 You can use the following syntax:

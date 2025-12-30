@@ -265,7 +265,7 @@ Players:
 
                 actor.Gameworld.ArenaObservationService.StartObserving(actor, arenaEvent, cell);
                 actor.OutputHandler.Handle(new EmoteOutput(new Emote(
-                        $"@ begin|begins observing the {arenaEvent.Name.ColourName()} event.", actor)));
+                        $"@ begin|begins observing the $1 event.", actor, actor, new DummyPerceivable(arenaEvent.Name.ColourName()))));
         }
 
         private static void ArenaObserveLeave(ICharacter actor, StringStack ss)

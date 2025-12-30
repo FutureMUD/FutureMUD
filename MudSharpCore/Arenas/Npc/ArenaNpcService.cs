@@ -40,7 +40,8 @@ public class ArenaNpcService : IArenaNpcService
 			return Enumerable.Empty<ICharacter>();
 		}
 
-		return side.NpcLoaderProg.ExecuteCollection<ICharacter>(arenaEvent, sideIndex, slotsNeeded)
+		return side.NpcLoaderProg.ExecuteCollection<ICharacter>(
+				ArenaProgParameters.BuildNpcLoaderArguments(arenaEvent, sideIndex, slotsNeeded))
 		                     .OfType<INPC>()
 		                     .Cast<ICharacter>()
 		                     .Take(slotsNeeded)

@@ -341,10 +341,10 @@ ICombatArena IArenaEventType.Arena => Arena;
 			return true;
 		}
 
-		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
+			ArenaProgParameters.EventProgParameterSets).LookupProg();
 		if (prog == null)
 		{
-			actor.OutputHandler.Send("There is no such prog.".ColourError());
 			return false;
 		}
 
@@ -370,10 +370,10 @@ ICombatArena IArenaEventType.Arena => Arena;
 			return true;
 		}
 
-		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
+			ArenaProgParameters.EventProgParameterSets).LookupProg();
 		if (prog == null)
 		{
-			actor.OutputHandler.Send("There is no such prog.".ColourError());
 			return false;
 		}
 
@@ -400,10 +400,10 @@ ICombatArena IArenaEventType.Arena => Arena;
 			return true;
 		}
 
-		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Number | ProgVariableTypes.Collection, ArenaProgParameters.EventProgParameterSets).LookupProg();
 		if (prog == null)
 		{
-			actor.OutputHandler.Send("There is no such prog.".ColourError());
 			return false;
 		}
 
@@ -700,10 +700,10 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 			return true;
 		}
 
-		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
+			ArenaProgParameters.SideOutfitParameterSets).LookupProg();
 		if (prog == null)
 		{
-			actor.OutputHandler.Send("There is no such prog.".ColourError());
 			return false;
 		}
 
@@ -729,10 +729,11 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 			return true;
 		}
 
-		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Character | ProgVariableTypes.Collection, ArenaProgParameters.NpcLoaderParameterSets)
+			.LookupProg();
 		if (prog == null)
 		{
-			actor.OutputHandler.Send("There is no such prog.".ColourError());
 			return false;
 		}
 

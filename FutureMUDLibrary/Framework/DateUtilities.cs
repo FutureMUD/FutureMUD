@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.TimeAndDate;
+using TimeSpanParserUtil;
 
 namespace MudSharp.Framework;
 
@@ -267,6 +268,36 @@ public static partial class DateUtilities {
 			date = date.ToUniversalTime();
 		}
 		return date.GetLocalDate(account).ToString(shortForm ? "g" : "G", account);
+	}
+
+	public static bool TryParseDateTimeOrRelative(string text, IAccount account, bool allowRelative, out DateTime utcDateTime)
+	{
+		utcDateTime = default;
+		if (string.IsNullOrWhiteSpace(text) || account is null)
+		{
+			return false;
+		}
+
+		if (DateTime.TryParse(text, account.Culture, DateTimeStyles.None, out var parsed))
+		{
+			utcDateTime = parsed.Kind == DateTimeKind.Unspecified
+				? TimeZoneInfo.ConvertTimeToUtc(parsed, account.TimeZone)
+				: parsed.ToUniversalTime();
+			return true;
+		}
+
+		if (!allowRelative)
+		{
+			return false;
+		}
+
+		if (!TimeSpanParser.TryParse(text, TimeSpanParserUtil.Units.Seconds, TimeSpanParserUtil.Units.Weeks, out var timespan))
+		{
+			return false;
+		}
+
+		utcDateTime = DateTime.UtcNow + timespan;
+		return true;
 	}
 
 	/// <summary>

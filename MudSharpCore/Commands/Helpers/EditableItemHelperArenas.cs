@@ -493,13 +493,13 @@ public partial class EditableItemHelper
 				return;
 			}
 
-			if (!DateTime.TryParse(input.SafeRemainingArgument, actor.Account.Culture, DateTimeStyles.None, out var when))
+			if (!DateUtilities.TryParseDateTimeOrRelative(input.SafeRemainingArgument, actor.Account, true, out var when))
 			{
 				actor.OutputHandler.Send("That is not a valid date/time.");
 				return;
 			}
 
-			var evt = arena.CreateEvent(eventType, when.ToUniversalTime());
+			var evt = arena.CreateEvent(eventType, when);
 			actor.RemoveAllEffects<BuilderEditingEffect<IArenaEvent>>();
 			actor.AddEffect(new BuilderEditingEffect<IArenaEvent>(actor) { EditingItem = evt });
 			actor.OutputHandler.Send(

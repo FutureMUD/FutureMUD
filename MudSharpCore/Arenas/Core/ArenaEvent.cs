@@ -230,27 +230,56 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	public void CloseRegistration()
 	{
-		EnforceState(ArenaEventState.Preparing);
-		Changed = true;
+		StartPreparation();
 	}
 
 	public void StartPreparation()
 	{
+		if (_state >= ArenaEventState.Preparing)
+		{
+			EnforceState(ArenaEventState.Preparing);
+			Changed = true;
+			return;
+		}
+
+		if (_state == ArenaEventState.RegistrationOpen)
+		{
+			AutoFillNpcParticipants();
+		}
+
 		EnforceState(ArenaEventState.Preparing);
 		Changed = true;
+		PrepareNpcParticipants();
+		ExecuteOutfitProgs();
 	}
 
 	public void Stage()
 	{
+		if (_state >= ArenaEventState.Staged)
+		{
+			EnforceState(ArenaEventState.Staged);
+			Changed = true;
+			return;
+		}
+
 		EnforceState(ArenaEventState.Staged);
 		Changed = true;
+		ExecuteIntroProg();
 	}
 
 	public void StartLive()
 	{
 		StartedAt ??= DateTime.UtcNow;
+		if (_state >= ArenaEventState.Live)
+		{
+			EnforceState(ArenaEventState.Live);
+			Changed = true;
+			return;
+		}
+
 		EnforceState(ArenaEventState.Live);
 		Changed = true;
+		ExecuteScoringProg();
 	}
 
 	public void MercyStop()
@@ -303,6 +332,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		ResolvedAt = DateTime.UtcNow;
 		EnforceState(ArenaEventState.Resolving);
 		Changed = true;
+		ExecuteResolutionOverrideProg();
 	}
 
 	public void Cleanup()
@@ -589,6 +619,139 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		}
 	}
 
+	private void ExecuteIntroProg()
+	{
+		EventType.IntroProg?.Execute(ArenaProgParameters.BuildEventProgArguments(this));
+	}
+
+	private void ExecuteScoringProg()
+	{
+		EventType.ScoringProg?.Execute(ArenaProgParameters.BuildEventProgArguments(this));
+	}
+
+	private void ExecuteOutfitProgs()
+	{
+		foreach (var side in EventType.Sides)
+		{
+			var prog = side.OutfitProg;
+			if (prog is null)
+			{
+				continue;
+			}
+
+			var participants = _participants
+				.Where(x => x.SideIndex == side.Index)
+				.Select(x => x.Character)
+				.OfType<ICharacter>()
+				.ToList();
+
+			prog.Execute(ArenaProgParameters.BuildSideOutfitArguments(this, side.Index, participants));
+		}
+	}
+
+	private void ExecuteResolutionOverrideProg()
+	{
+		var prog = EventType.ResolutionOverrideProg;
+		if (prog is null)
+		{
+			return;
+		}
+
+		var values = prog.ExecuteCollection<decimal>(ArenaProgParameters.BuildEventProgArguments(this)).ToList();
+		if (values.Count == 0)
+		{
+			return;
+		}
+
+		var firstValue = Convert.ToInt32(values[0]);
+		var usesOutcome = Enum.IsDefined(typeof(ArenaOutcome), firstValue);
+		var outcome = usesOutcome ? (ArenaOutcome)firstValue : ArenaOutcome.Win;
+		var winningSides = usesOutcome
+			? values.Skip(1).Select(Convert.ToInt32).ToList()
+			: values.Select(Convert.ToInt32).ToList();
+
+		if (outcome == ArenaOutcome.Win && winningSides.Count == 0)
+		{
+			return;
+		}
+
+		RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
+	}
+
+	private void AutoFillNpcParticipants()
+	{
+		if (_state != ArenaEventState.RegistrationOpen)
+		{
+			return;
+		}
+
+		var existingIds = _participants
+			.Select(x => x.Character?.Id)
+			.Where(x => x.HasValue)
+			.Select(x => x.Value)
+			.ToHashSet();
+
+		foreach (var side in EventType.Sides)
+		{
+			if (!side.AllowNpcSignup || !side.AutoFillNpc)
+			{
+				continue;
+			}
+
+			var slotsNeeded = side.Capacity - _participants.Count(x => x.SideIndex == side.Index);
+			if (slotsNeeded <= 0)
+			{
+				continue;
+			}
+
+			var npcs = Gameworld.ArenaNpcService.AutoFill(this, side.Index, slotsNeeded);
+			foreach (var npc in npcs)
+			{
+				if (npc is null)
+				{
+					continue;
+				}
+
+				if (!existingIds.Add(npc.Id))
+				{
+					continue;
+				}
+
+				var combatantClass = side.EligibleClasses.FirstOrDefault(x => !EligibilityFailed(x, npc));
+				if (combatantClass is null)
+				{
+					continue;
+				}
+
+				var signUpCheck = CanSignUp(npc, side.Index, combatantClass);
+				if (!signUpCheck.Truth)
+				{
+					continue;
+				}
+
+				SignUp(npc, side.Index, combatantClass);
+				slotsNeeded--;
+				if (slotsNeeded <= 0)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	private void PrepareNpcParticipants()
+	{
+		foreach (var participant in _participants.Where(x => x.IsNpc))
+		{
+			if (participant.Character is not ICharacter npc)
+			{
+				continue;
+			}
+
+			Gameworld.ArenaNpcService.PrepareNpc(npc, this, participant.SideIndex, participant.CombatantClass);
+		}
+	}
+
 	private bool BuildingCommandName(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -612,13 +775,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return false;
 		}
 
-		if (!DateTime.TryParse(command.SafeRemainingArgument, actor.Account.Culture, DateTimeStyles.None, out var when))
+		if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false, out var when))
 		{
 			actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
 			return false;
 		}
 
-		ScheduledAt = when.ToUniversalTime();
+		ScheduledAt = when;
 		var regOpens = ScheduledAt - PreparationDuration - RegistrationDuration;
 		if (regOpens > CreatedAt)
 		{
@@ -648,13 +811,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return true;
 		}
 
-		if (!DateTime.TryParse(command.SafeRemainingArgument, actor.Account.Culture, DateTimeStyles.None, out var when))
+		if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false, out var when))
 		{
 			actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
 			return false;
 		}
 
-		RegistrationOpensAt = when.ToUniversalTime();
+		RegistrationOpensAt = when;
 		Changed = true;
 		actor.OutputHandler.Send($"Registration will open at {RegistrationOpensAt.Value.ToString("f", actor).ColourValue()}.");
 		RescheduleTransitions();

@@ -31,9 +31,9 @@ internal class ArenaModule : Module<ICharacter>
                 @"The #3arena#0 command provides access to combat arena features.
 
 Managers:
-        #3arena list#0 - lists known arenas
-        #3arena show <arena>#0 - shows detailed arena information
-        #3arena events <arena>#0 - lists scheduled and live events for an arena
+	#3arena list#0 - lists known arenas
+	#3arena show [<arena>]#0 - shows detailed arena information
+	#3arena events [<arena>]#0 - lists scheduled and live events for an arena
 
 Players:
         #3arena observe list#0 - shows events observable from your location
@@ -118,38 +118,42 @@ Players:
                 actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, header, actor, Telnet.Yellow));
         }
 
-        private static void ArenaShow(ICharacter actor, StringStack ss)
-        {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which arena do you want to view?".ColourCommand());
-                        return;
-                }
+	private static void ArenaShow(ICharacter actor, StringStack ss)
+	{
+		var hasArgument = !ss.IsFinished;
+		var arena = GetArena(actor, hasArgument ? ss.PopSpeech() : null);
+		if (arena is null)
+		{
+			if (hasArgument)
+			{
+				actor.OutputHandler.Send("There is no arena matching that description.".ColourError());
+			}
+			else
+			{
+				actor.OutputHandler.Send("Which arena do you want to view? You can omit this if you're in an arena room.".ColourCommand());
+			}
+			return;
+		}
 
-                var arena = GetArena(actor, ss.PopSpeech());
-                if (arena is null)
-                {
-                        actor.OutputHandler.Send("There is no arena matching that description.".ColourError());
-                        return;
-                }
+		actor.Gameworld.ArenaCommandService.ShowArena(actor, arena);
+	}
 
-                actor.Gameworld.ArenaCommandService.ShowArena(actor, arena);
-        }
-
-        private static void ArenaEvents(ICharacter actor, StringStack ss)
-        {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which arena's events do you want to view?".ColourCommand());
-                        return;
-                }
-
-                var arena = GetArena(actor, ss.PopSpeech());
-                if (arena is null)
-                {
-                        actor.OutputHandler.Send("There is no arena matching that description.".ColourError());
-                        return;
-                }
+	private static void ArenaEvents(ICharacter actor, StringStack ss)
+	{
+		var hasArgument = !ss.IsFinished;
+		var arena = GetArena(actor, hasArgument ? ss.PopSpeech() : null);
+		if (arena is null)
+		{
+			if (hasArgument)
+			{
+				actor.OutputHandler.Send("There is no arena matching that description.".ColourError());
+			}
+			else
+			{
+				actor.OutputHandler.Send("Which arena's events do you want to view? You can omit this if you're in an arena room.".ColourCommand());
+			}
+			return;
+		}
 
                 var events = arena.ActiveEvents.ToList();
                 if (!events.Any())
@@ -619,33 +623,67 @@ Players:
                 actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, header, actor, Telnet.Cyan));
         }
 
-        private static ICombatArena? GetArena(ICharacter actor, string text)
-        {
-                if (string.IsNullOrWhiteSpace(text))
-                {
-                        return null;
-                }
+	private static ICombatArena? GetArena(ICharacter actor, string? text)
+	{
+		if (!string.IsNullOrWhiteSpace(text))
+		{
+			return actor.Gameworld.CombatArenas.GetByIdOrName(text);
+		}
 
-                return actor.Gameworld.CombatArenas.GetByIdOrName(text);
-        }
+		return GetArenaFromLocation(actor);
+	}
 
-        private static IArenaEvent? GetArenaEvent(ICharacter actor, string text)
-        {
-                if (string.IsNullOrWhiteSpace(text))
-                {
-                        return null;
-                }
+	private static ICombatArena? GetArenaFromLocation(ICharacter actor)
+	{
+		if (actor.Location is not ICell cell)
+		{
+			return null;
+		}
 
-                if (long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
-                {
-                        return actor.Gameworld.CombatArenas.SelectMany(x => x.ActiveEvents).FirstOrDefault(x => x.Id == id);
-                }
+		var arenas = actor.Gameworld.CombatArenas
+			.Where(arena =>
+				arena.WaitingCells.Contains(cell) ||
+				arena.ArenaCells.Contains(cell) ||
+				arena.ObservationCells.Contains(cell) ||
+				arena.InfirmaryCells.Contains(cell) ||
+				arena.AfterFightCells.Contains(cell) ||
+				arena.NpcStablesCells.Contains(cell))
+			.ToList();
 
-                return actor.Gameworld.CombatArenas.SelectMany(x => x.ActiveEvents)
-                        .FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)) ??
-                       actor.Gameworld.CombatArenas.SelectMany(x => x.ActiveEvents)
-                               .FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
-        }
+		return arenas.Count == 1 ? arenas[0] : null;
+	}
+
+	private static IArenaEvent? GetArenaEvent(ICharacter actor, string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return null;
+		}
+
+		var localArena = GetArenaFromLocation(actor);
+		var allEvents = actor.Gameworld.CombatArenas.SelectMany(x => x.ActiveEvents).ToList();
+		var localEvents = localArena is null ? allEvents : localArena.ActiveEvents.ToList();
+		var isIdSearch = long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id);
+
+		IArenaEvent? FindEvent(IEnumerable<IArenaEvent> events)
+		{
+			if (isIdSearch)
+			{
+				return events.FirstOrDefault(x => x.Id == id);
+			}
+
+			return events.FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)) ??
+			       events.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+		}
+
+		var localMatch = FindEvent(localEvents);
+		if (localMatch != null || localArena is null)
+		{
+			return localMatch;
+		}
+
+		return FindEvent(allEvents);
+	}
 
         private static (int? Value, bool Invalid, string Error) ParseSideIndex(IArenaEvent arenaEvent, string? text,
                 ICharacter actor)

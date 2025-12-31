@@ -553,6 +553,52 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		_state = state;
 		Changed = true;
+		AnnounceStateChange(state);
+	}
+
+	private void AnnounceStateChange(ArenaEventState currentState)
+	{
+		var message = BuildStateChangeMessage(currentState);
+		if (string.IsNullOrWhiteSpace(message))
+		{
+			return;
+		}
+
+		foreach (var cell in GetAnnouncementCells())
+		{
+			cell.Handle(message);
+		}
+	}
+
+	private IEnumerable<ICell> GetAnnouncementCells()
+	{
+		return Arena.WaitingCells
+		            .Concat(Arena.ArenaCells)
+		            .Concat(Arena.ObservationCells)
+		            .Concat(Arena.InfirmaryCells)
+		            .Concat(Arena.AfterFightCells)
+		            .Concat(Arena.NpcStablesCells)
+		            .Where(cell => cell != null)
+		            .Distinct();
+	}
+
+	private string? BuildStateChangeMessage(ArenaEventState state)
+	{
+		var eventName = EventType.Name.ColourName();
+		var arenaName = Arena.Name.ColourName();
+
+		return state switch
+		{
+			ArenaEventState.RegistrationOpen => $"Registration is now open for the {eventName} event in {arenaName}.",
+			ArenaEventState.Preparing => $"Registration is now closed for the {eventName} event in {arenaName}.",
+			ArenaEventState.Staged => $"Combatants are taking their places for the {eventName} event in {arenaName}.",
+			ArenaEventState.Live => $"The {eventName} event is now underway in {arenaName}.",
+			ArenaEventState.Resolving => $"The {eventName} event has concluded in {arenaName}.",
+			ArenaEventState.Cleanup => $"Cleanup has begun after the {eventName} event in {arenaName}.",
+			ArenaEventState.Completed => $"The {eventName} event is complete in {arenaName}.",
+			ArenaEventState.Aborted => $"The {eventName} event in {arenaName} has been aborted.",
+			_ => null
+		};
 	}
 
 	public override string FrameworkItemType => "ArenaEvent";

@@ -35,17 +35,81 @@ public class ArenaNpcService : IArenaNpcService
 		}
 
 		var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == sideIndex);
-		if (side?.NpcLoaderProg is null)
+		if (side is null)
 		{
 			return Enumerable.Empty<ICharacter>();
 		}
 
-		return side.NpcLoaderProg.ExecuteCollection<ICharacter>(
-				ArenaProgParameters.BuildNpcLoaderArguments(arenaEvent, sideIndex, slotsNeeded))
-		                     .OfType<INPC>()
-		                     .Cast<ICharacter>()
-		                     .Take(slotsNeeded)
-		                     .ToList();
+		var candidates = new List<ICharacter>();
+		var activeNpcIds = arenaEvent.Arena.ActiveEvents
+			.SelectMany(x => x.Participants)
+			.Select(x => x.Character?.Id)
+			.Where(x => x.HasValue)
+			.Select(x => x.Value)
+			.ToHashSet();
+
+		var stableCells = arenaEvent.Arena.NpcStablesCells?.ToList() ?? [];
+		if (stableCells.Count > 0)
+		{
+			var stableNpcs = stableCells
+				.SelectMany(cell => cell.Characters)
+				.OfType<ICharacter>()
+				.Where(npc => !npc.IsPlayerCharacter)
+				.Where(npc => npc is INPC)
+				.Where(npc => npc.State.IsAble())
+				.Where(npc => !activeNpcIds.Contains(npc.Id))
+				.Where(npc => IsEligibleForSide(npc, side));
+
+			foreach (var npc in stableNpcs)
+			{
+				candidates.Add(npc);
+				if (candidates.Count >= slotsNeeded)
+				{
+					return candidates;
+				}
+			}
+		}
+
+		if (side.NpcLoaderProg is null)
+		{
+			return candidates;
+		}
+
+		var remaining = slotsNeeded - candidates.Count;
+		if (remaining <= 0)
+		{
+			return candidates;
+		}
+
+		var generated = side.NpcLoaderProg.ExecuteCollection<ICharacter>(
+				ArenaProgParameters.BuildNpcLoaderArguments(arenaEvent, sideIndex, remaining))
+			.OfType<INPC>()
+			.Cast<ICharacter>()
+			.Where(npc => npc.State.IsAble())
+			.Where(npc => !activeNpcIds.Contains(npc.Id))
+			.Where(npc => IsEligibleForSide(npc, side))
+			.ToList();
+
+		foreach (var npc in generated)
+		{
+			if (candidates.Count >= slotsNeeded)
+			{
+				break;
+			}
+
+			if (stableCells.Count > 0)
+			{
+				var stableCell = SelectArenaCell(stableCells, sideIndex);
+				if (stableCell is not null)
+				{
+					npc.Teleport(stableCell, RoomLayer.GroundLevel, false, false);
+				}
+			}
+
+			candidates.Add(npc);
+		}
+
+		return candidates;
 	}
 
 	public void PrepareNpc(ICharacter npc, IArenaEvent arenaEvent, int sideIndex, ICombatantClass combatantClass)
@@ -264,5 +328,24 @@ public class ArenaNpcService : IArenaNpcService
 	private static ICell? SelectArenaCell(IEnumerable<ICell> cells, int sideIndex)
 	{
 		return cells?.ElementAtOrDefault(sideIndex) ?? cells?.FirstOrDefault();
+	}
+
+	private static bool IsEligibleForSide(ICharacter npc, IArenaEventTypeSide side)
+	{
+		foreach (var combatantClass in side.EligibleClasses)
+		{
+			try
+			{
+				if (combatantClass.EligibilityProg.Execute<bool?>(npc) != false)
+				{
+					return true;
+				}
+			}
+			catch
+			{
+			}
+		}
+
+		return false;
 	}
 }

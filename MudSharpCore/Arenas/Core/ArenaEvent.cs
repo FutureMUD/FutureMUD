@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Database;
 using System.Text;
@@ -11,6 +12,8 @@ using MudSharp.Construction;
 using System.Globalization;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.TimeAndDate;
@@ -242,14 +245,12 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return;
 		}
 
-		if (_state == ArenaEventState.RegistrationOpen)
-		{
-			AutoFillNpcParticipants();
-		}
+		AutoFillNpcParticipants();
 
 		EnforceState(ArenaEventState.Preparing);
 		Changed = true;
 		PrepareNpcParticipants();
+		PreparePlayerParticipants();
 		ExecuteOutfitProgs();
 	}
 
@@ -264,6 +265,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		EnforceState(ArenaEventState.Staged);
 		Changed = true;
+		MoveParticipantsToArena();
 		ExecuteIntroProg();
 	}
 
@@ -279,6 +281,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		EnforceState(ArenaEventState.Live);
 		Changed = true;
+		MoveParticipantsToArena();
 		ExecuteScoringProg();
 	}
 
@@ -339,6 +342,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	{
 		EnforceState(ArenaEventState.Cleanup);
 		Changed = true;
+		FinalizeParticipants();
 	}
 
 	public void Complete()
@@ -346,6 +350,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		CompletedAt = DateTime.UtcNow;
 		EnforceState(ArenaEventState.Completed);
 		Changed = true;
+		FinalizeParticipants();
 	}
 
 	public void Abort(string reason)
@@ -354,6 +359,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		CompletedAt = DateTime.UtcNow;
 		EnforceState(ArenaEventState.Aborted);
 		Changed = true;
+		FinalizeParticipants();
 	}
 
 	public (bool Truth, string Reason) CanSignUp(ICharacter character, int sideIndex,
@@ -726,7 +732,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private void AutoFillNpcParticipants()
 	{
-		if (_state != ArenaEventState.RegistrationOpen)
+		if (_state >= ArenaEventState.Preparing)
 		{
 			return;
 		}
@@ -796,6 +802,314 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 			Gameworld.ArenaNpcService.PrepareNpc(npc, this, participant.SideIndex, participant.CombatantClass);
 		}
+	}
+
+	private void PreparePlayerParticipants()
+	{
+		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			var waitingCell = Arena.GetWaitingCell(participant.SideIndex);
+			if (waitingCell is not null && !ReferenceEquals(character.Location, waitingCell))
+			{
+				character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+			}
+
+			if (BringYourOwn || character.Body is null)
+			{
+				continue;
+			}
+
+			var effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
+				.FirstOrDefault(x => x.EventId == Id);
+			if (effect is null)
+			{
+				effect = new ArenaParticipantPreparationEffect(character, Id);
+				character.AddEffect(effect);
+			}
+			else
+			{
+				effect.ClearCapturedItems();
+			}
+
+			StripParticipantLoadout(character.Body, effect);
+		}
+	}
+
+	private void FinalizeParticipants()
+	{
+		ReturnNpcParticipants();
+		MovePlayerParticipantsToAfterFight();
+		RestorePlayerParticipants();
+	}
+
+	private void ReturnNpcParticipants()
+	{
+		var stableCells = Arena.NpcStablesCells.ToList();
+		var afterFightCells = Arena.AfterFightCells.ToList();
+
+		foreach (var participant in _participants.Where(x => x.IsNpc))
+		{
+			var npc = participant.Character;
+			if (npc is null)
+			{
+				continue;
+			}
+
+			var effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
+				.FirstOrDefault(x => x.EventId == Id);
+			if (effect is not null)
+			{
+				Gameworld.ArenaNpcService.ReturnNpc(npc, this, participant.CombatantClass.ResurrectNpcOnDeath);
+				continue;
+			}
+
+			var destination = stableCells.Count > 0
+				? SelectIndexedCell(stableCells, participant.SideIndex)
+				: SelectIndexedCell(afterFightCells, participant.SideIndex);
+			if (destination is null)
+			{
+				continue;
+			}
+
+			npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
+		}
+	}
+
+	private void RestorePlayerParticipants()
+	{
+		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			var effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
+				.FirstOrDefault(x => x.EventId == Id);
+			if (effect is null)
+			{
+				continue;
+			}
+
+			RestoreParticipantInventory(character, effect);
+			character.RemoveEffect(effect, true);
+		}
+	}
+
+	private void MovePlayerParticipantsToAfterFight()
+	{
+		var afterFightCells = Arena.AfterFightCells.ToList();
+		if (afterFightCells.Count == 0)
+		{
+			afterFightCells = Arena.WaitingCells.ToList();
+		}
+
+		if (afterFightCells.Count == 0)
+		{
+			afterFightCells = Arena.ArenaCells.ToList();
+		}
+
+		if (afterFightCells.Count == 0)
+		{
+			return;
+		}
+
+		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			if (character.Location is not null &&
+			    !Arena.ArenaCells.Contains(character.Location) &&
+			    !Arena.WaitingCells.Contains(character.Location))
+			{
+				continue;
+			}
+
+			var destination = SelectIndexedCell(afterFightCells, participant.SideIndex);
+			if (destination is null)
+			{
+				continue;
+			}
+
+			character.Teleport(destination, RoomLayer.GroundLevel, false, false);
+		}
+	}
+
+	private void MoveParticipantsToArena()
+	{
+		var arenaCells = Arena.ArenaCells.ToList();
+		if (arenaCells.Count == 0)
+		{
+			return;
+		}
+
+		var sideOffsets = new Dictionary<int, int>();
+		foreach (var participant in _participants)
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			if (character.Location is not null && arenaCells.Contains(character.Location))
+			{
+				continue;
+			}
+
+			var offset = sideOffsets.TryGetValue(participant.SideIndex, out var value) ? value : 0;
+			var index = (participant.SideIndex + offset) % arenaCells.Count;
+			sideOffsets[participant.SideIndex] = offset + 1;
+
+			character.Teleport(arenaCells[index], RoomLayer.GroundLevel, false, false);
+		}
+	}
+
+	private static void StripParticipantLoadout(IBody body, ArenaParticipantPreparationEffect effect)
+	{
+		var directItems = body.DirectItems?.OfType<IGameItem>().ToList();
+		if (directItems is null || directItems.Count == 0)
+		{
+			return;
+		}
+
+		foreach (var item in directItems)
+		{
+			var state = DetermineState(body, item);
+			var wearProfileId = item.GetItemType<IWearable>()?.CurrentProfile?.Id;
+			var bodypartId = body.BodypartLocationOfInventoryItem(item)?.Id;
+			effect.CaptureItem(item, state, wearProfileId, bodypartId);
+			body.Take(item);
+		}
+	}
+
+	private static void RestoreParticipantInventory(ICharacter participant, ArenaParticipantPreparationEffect effect)
+	{
+		if (participant.Body is null)
+		{
+			DropCapturedItems(participant, effect);
+			return;
+		}
+
+		foreach (var snapshot in effect.Items)
+		{
+			var item = snapshot.Item;
+			if (item is null || item.Deleted)
+			{
+				continue;
+			}
+
+			participant.Body.Get(item, silent: true,
+				ignoreFlags: ItemCanGetIgnore.IgnoreWeight | ItemCanGetIgnore.IgnoreFreeHands);
+
+			switch (snapshot.State)
+			{
+				case InventoryState.Worn:
+					TryWearItem(participant.Body, item, snapshot.WearProfileId);
+					break;
+				case InventoryState.Wielded:
+					TryWieldItem(participant.Body, item, snapshot.BodypartId);
+					break;
+			}
+		}
+	}
+
+	private static void DropCapturedItems(ICharacter participant, ArenaParticipantPreparationEffect effect)
+	{
+		var location = participant.Location;
+		if (location is null)
+		{
+			return;
+		}
+
+		foreach (var snapshot in effect.Items)
+		{
+			var item = snapshot.Item;
+			if (item is null || item.Deleted)
+			{
+				continue;
+			}
+
+			if (item.InInventoryOf is not null || item.Location is not null || item.ContainedIn is not null)
+			{
+				continue;
+			}
+
+			item.RoomLayer = participant.RoomLayer;
+			location.Insert(item, true);
+		}
+	}
+
+	private static void TryWearItem(IBody body, IGameItem item, long? wearProfileId)
+	{
+		var wearable = item.GetItemType<IWearable>();
+		if (wearable is null)
+		{
+			return;
+		}
+
+		var profile = wearProfileId.HasValue
+			? wearable.Profiles.FirstOrDefault(x => x.Id == wearProfileId.Value)
+			: wearable.CurrentProfile;
+
+		if (profile is not null)
+		{
+			body.Wear(item, profile, null, true);
+		}
+		else
+		{
+			body.Wear(item, null, true);
+		}
+	}
+
+	private static void TryWieldItem(IBody body, IGameItem item, long? bodypartId)
+	{
+		var hand = bodypartId.HasValue
+			? body.Bodyparts.FirstOrDefault(x => x.Id == bodypartId.Value) as IWield
+			: null;
+
+		body.Wield(item, hand, null, true, ItemCanWieldFlags.IgnoreFreeHands);
+	}
+
+	private static InventoryState DetermineState(IBody body, IGameItem item)
+	{
+		if (body.WornItems.Contains(item))
+		{
+			return InventoryState.Worn;
+		}
+
+		if (body.WieldedItems.Contains(item))
+		{
+			return InventoryState.Wielded;
+		}
+
+		return InventoryState.Held;
+	}
+
+	private static ICell? SelectIndexedCell(IReadOnlyList<ICell> cells, int index)
+	{
+		if (cells.Count == 0)
+		{
+			return null;
+		}
+
+		if (index >= 0 && index < cells.Count)
+		{
+			return cells[index];
+		}
+
+		return cells[0];
 	}
 
 	private bool BuildingCommandName(ICharacter actor, StringStack command)

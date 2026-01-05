@@ -11,7 +11,7 @@ namespace MudSharp.FutureProg.Statements;
 
 internal class ForLoop : Statement
 {
-	private static readonly Regex ForLoopCompileRegex = new(@"^\s*for \((.+) : (\d+)\)\s*$",
+	private static readonly Regex ForLoopCompileRegex = new(@"^\s*for\s*\((.+) : (\d+)\)\s*$",
 		RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	private static readonly Regex ForLoopEndCompileRegex = new(@"^\s*end for\s*$",

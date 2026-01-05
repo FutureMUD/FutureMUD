@@ -10,7 +10,7 @@ namespace MudSharp.FutureProg.Statements;
 
 internal class Switch : Statement
 {
-	private static readonly Regex SwitchCompileRegex = new(@"^\s*switch \((.+)\)\s*$",
+	private static readonly Regex SwitchCompileRegex = new(@"^\s*switch\s*\((.+)\)\s*$",
 		RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	private static readonly Regex SwitchEndCompileRegex = new(@"^\s*end switch\s*$",

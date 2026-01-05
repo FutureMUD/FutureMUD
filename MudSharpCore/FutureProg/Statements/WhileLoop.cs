@@ -11,7 +11,7 @@ namespace MudSharp.FutureProg.Statements;
 
 internal class WhileLoop : Statement
 {
-	private static readonly Regex WhileLoopCompileRegex = new(@"^\s*while \((.+)\)\s*$",
+	private static readonly Regex WhileLoopCompileRegex = new(@"^\s*while\s*\((.+)\)\s*$",
 		RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	private static readonly Regex WhileLoopEndCompileRegex = new(@"^\s*end while\s*$",

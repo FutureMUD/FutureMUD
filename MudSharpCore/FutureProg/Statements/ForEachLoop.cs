@@ -11,7 +11,7 @@ namespace MudSharp.FutureProg.Statements;
 
 internal class ForEachLoop : Statement
 {
-	private static readonly Regex ForEachLoopCompileRegex = new(@"^\s*foreach \((.+) in (.+)\)\s*$");
+	private static readonly Regex ForEachLoopCompileRegex = new(@"^\s*foreach\s*\((.+) in (.+)\)\s*$");
 	private static readonly Regex ForEachLoopEndCompileRegex = new(@"^\s*end for(?:each)?\s*$");
 
 	protected IFunction CollectionFunction;

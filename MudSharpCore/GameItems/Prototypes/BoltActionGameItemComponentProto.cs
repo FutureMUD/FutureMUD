@@ -130,15 +130,45 @@ public class BoltActionGameItemComponentProto : FirearmBaseGameItemComponentProt
 	{
 		switch (command.PopForSwitch())
 		{
-			case "ejectonfire":
+			case "clip":
+				return BuildingCommandClip(actor, command);
+            case "ejectonfire":
 				return BuildingCommandEjectOnFire(actor, command);
 			
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
+    private bool BuildingCommandClip(ICharacter actor, StringStack command)
+    {
+        var types = Gameworld.ItemProtos.SelectNotNull(x => x.GetItemType<AmmoClipGameItemComponentProto>())
+                             .Where(x => x.Status == RevisionStatus.Current).Select(x => x.ClipType).Distinct()
+                             .OrderBy(x => x).ToList();
+        if (command.IsFinished)
+        {
+            actor.Send("What clip type (form factor) should this ammo holder have?");
+            if (types.Any())
+            {
+                actor.OutputHandler.Send(
+                    $"Hint: the following form factors exist currently:\n{types.Select(x => x.ColourValue()).ListToString("\t", "\n", twoItemJoiner: "\n", conjunction: "")}");
+            }
 
-	private bool BuildingCommandEjectOnFire(ICharacter actor, StringStack command)
+            return false;
+        }
+
+        var type = command.SafeRemainingArgument;
+        ClipType = types.FirstOrDefault(x => x.EqualTo(type)) ?? type;
+        Changed = true;
+        actor.Send($"This gun will now take a clip type (form factor) of {ClipType.ColourValue()}.");
+        if (types.All(x => !x.EqualTo(ClipType)))
+        {
+            actor.OutputHandler.Send("Warning: There have not been any clips of this type before. Check to see if the name is a typo.".ColourError());
+        }
+
+        return true;
+    }
+
+    private bool BuildingCommandEjectOnFire(ICharacter actor, StringStack command)
 	{
 		if (EjectOnFire)
 		{

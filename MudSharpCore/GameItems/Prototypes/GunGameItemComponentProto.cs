@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -116,17 +117,48 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto
 	{
 		switch (command.PopForSwitch())
 		{
+			case "clip":
+				return BuildingCommandClip(actor, command);
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
-	#endregion
+    private bool BuildingCommandClip(ICharacter actor, StringStack command)
+	{
+        var types = Gameworld.ItemProtos.SelectNotNull(x => x.GetItemType<AmmoClipGameItemComponentProto>())
+                             .Where(x => x.Status == RevisionStatus.Current).Select(x => x.ClipType).Distinct()
+                             .OrderBy(x => x).ToList();
+        if (command.IsFinished)
+        {
+            actor.Send("What clip type (form factor) should this ammo holder have?");
+            if (types.Any())
+            {
+                actor.OutputHandler.Send(
+                    $"Hint: the following form factors exist currently:\n{types.Select(x => x.ColourValue()).ListToString("\t", "\n", twoItemJoiner: "\n", conjunction: "")}");
+            }
 
-	#region Overrides of FirearmBaseGameItemComponentProto
+            return false;
+        }
 
-	/// <inheritdoc />
-	protected override void RecalculateInventoryPlans()
+        var type = command.SafeRemainingArgument;
+        ClipType = types.FirstOrDefault(x => x.EqualTo(type)) ?? type;
+        Changed = true;
+        actor.Send($"This gun will now take a clip type (form factor) of {ClipType.ColourValue()}.");
+        if (types.All(x => !x.EqualTo(ClipType)))
+        {
+            actor.OutputHandler.Send("Warning: There have not been any clips of this type before. Check to see if the name is a typo.".ColourError());
+        }
+
+        return true;
+    }
+
+    #endregion
+
+    #region Overrides of FirearmBaseGameItemComponentProto
+
+    /// <inheritdoc />
+    protected override void RecalculateInventoryPlans()
 	{
 		LoadTemplate = new InventoryPlanTemplate(Gameworld, new[]
 		{

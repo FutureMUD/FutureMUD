@@ -380,6 +380,163 @@ public class ArenaBettingService : IArenaBettingService
 		};
 	}
 
+	/// <inheritdoc />
+	public IReadOnlyCollection<ArenaBetSummary> GetActiveBets(ICharacter actor)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
+
+		using var scope = BeginContext(out var context);
+		var payoutTotals = GetPayoutTotals(context, actor.Id);
+		var bets = context.ArenaBets
+		                  .Where(x => x.CharacterId == actor.Id)
+		                  .Where(x => !x.IsCancelled)
+		                  .Where(x => x.ArenaEvent.State < (int)ArenaEventState.Resolving)
+		                  .OrderByDescending(x => x.PlacedAt)
+		                  .Select(x => new
+		                  {
+			                  Bet = x,
+			                  ArenaEvent = x.ArenaEvent,
+			                  ArenaName = x.ArenaEvent.Arena.Name,
+			                  EventTypeName = x.ArenaEvent.ArenaEventType.Name
+		                  })
+		                  .ToList();
+
+		return bets.Select(x => BuildSummary(x.Bet, x.ArenaEvent, x.ArenaName, x.EventTypeName, payoutTotals)).ToList();
+	}
+
+	/// <inheritdoc />
+	public IReadOnlyCollection<ArenaBetSummary> GetBetHistory(ICharacter actor, int count)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
+
+		if (count <= 0)
+		{
+			return Array.Empty<ArenaBetSummary>();
+		}
+
+		using var scope = BeginContext(out var context);
+		var payoutTotals = GetPayoutTotals(context, actor.Id);
+		var bets = context.ArenaBets
+		                  .Where(x => x.CharacterId == actor.Id)
+		                  .OrderByDescending(x => x.PlacedAt)
+		                  .Take(count)
+		                  .Select(x => new
+		                  {
+			                  Bet = x,
+			                  ArenaEvent = x.ArenaEvent,
+			                  ArenaName = x.ArenaEvent.Arena.Name,
+			                  EventTypeName = x.ArenaEvent.ArenaEventType.Name
+		                  })
+		                  .ToList();
+
+		return bets.Select(x => BuildSummary(x.Bet, x.ArenaEvent, x.ArenaName, x.EventTypeName, payoutTotals)).ToList();
+	}
+
+	/// <inheritdoc />
+	public IReadOnlyCollection<ArenaBetPayoutSummary> GetOutstandingPayouts(ICharacter actor)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
+
+		using var scope = BeginContext(out var context);
+		var payouts = context.ArenaBetPayouts
+		                     .Where(x => x.CharacterId == actor.Id && x.CollectedAt == null)
+		                     .OrderBy(x => x.CreatedAt)
+		                     .Select(x => new
+		                     {
+			                     x.ArenaEventId,
+			                     ArenaId = x.ArenaEvent.ArenaId,
+			                     ArenaName = x.ArenaEvent.Arena.Name,
+			                     EventTypeName = x.ArenaEvent.ArenaEventType.Name,
+			                     x.Amount,
+			                     x.IsBlocked,
+			                     x.CreatedAt
+		                     })
+		                     .ToList();
+
+		return payouts.Select(x => new ArenaBetPayoutSummary(x.ArenaEventId, x.ArenaId, x.ArenaName, x.EventTypeName, x.Amount, x.IsBlocked, x.CreatedAt))
+		              .ToList();
+	}
+
+	/// <inheritdoc />
+	public ArenaBetCollectionSummary CollectOutstandingPayouts(ICharacter actor, long? arenaEventId = null)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
+
+		using var scope = BeginContext(out var context);
+		var query = context.ArenaBetPayouts
+		                   .Where(x => x.CharacterId == actor.Id && x.CollectedAt == null);
+		if (arenaEventId.HasValue)
+		{
+			query = query.Where(x => x.ArenaEventId == arenaEventId.Value);
+		}
+
+		var payouts = query
+		              .Select(x => new
+		              {
+			              Payout = x,
+			              ArenaId = x.ArenaEvent.ArenaId
+		              })
+		              .ToList();
+
+		if (!payouts.Any())
+		{
+			return new ArenaBetCollectionSummary(0, 0, 0, 0.0m, 0.0m, 0.0m);
+		}
+
+		var collectedCount = 0;
+		var failedCount = 0;
+		var blockedCount = 0;
+		var collectedAmount = 0.0m;
+		var failedAmount = 0.0m;
+		var blockedAmount = 0.0m;
+
+		foreach (var entry in payouts)
+		{
+			var payout = entry.Payout;
+			if (payout.IsBlocked)
+			{
+				blockedCount++;
+				blockedAmount += payout.Amount;
+				continue;
+			}
+
+			var arena = _gameworld.CombatArenas.Get(entry.ArenaId);
+			if (arena is null)
+			{
+				failedCount++;
+				failedAmount += payout.Amount;
+				continue;
+			}
+
+			if (!_paymentService.TryDisburse(actor, arena, payout.Amount))
+			{
+				failedCount++;
+				failedAmount += payout.Amount;
+				continue;
+			}
+
+			payout.CollectedAt = DateTime.UtcNow;
+			collectedCount++;
+			collectedAmount += payout.Amount;
+		}
+
+		context.SaveChanges();
+
+		return new ArenaBetCollectionSummary(collectedCount, failedCount, blockedCount, collectedAmount, failedAmount, blockedAmount);
+	}
+
 	private void RecordOutstandingPayout(FuturemudDatabaseContext context, IArenaEvent arenaEvent, long characterId, decimal amount)
 	{
 		if (amount <= 0)
@@ -527,4 +684,48 @@ public class ArenaBettingService : IArenaBettingService
 
 		return value > max ? max : value;
 	}
+
+	private static Dictionary<long, PayoutTotals> GetPayoutTotals(FuturemudDatabaseContext context, long characterId)
+	{
+		return context.ArenaBetPayouts
+		              .Where(x => x.CharacterId == characterId)
+		              .GroupBy(x => x.ArenaEventId)
+		              .Select(group => new
+		              {
+			              EventId = group.Key,
+			              Collected = group.Where(x => x.CollectedAt != null).Sum(x => (decimal?)x.Amount) ?? 0.0m,
+			              Outstanding = group.Where(x => !x.IsBlocked && x.CollectedAt == null).Sum(x => (decimal?)x.Amount) ?? 0.0m,
+			              Blocked = group.Where(x => x.IsBlocked && x.CollectedAt == null).Sum(x => (decimal?)x.Amount) ?? 0.0m
+		              })
+		              .ToDictionary(x => x.EventId, x => new PayoutTotals(x.Collected, x.Outstanding, x.Blocked));
+	}
+
+	private static ArenaBetSummary BuildSummary(ArenaBet bet, MudSharp.Models.ArenaEvent arenaEvent, string arenaName,
+		string eventTypeName, IReadOnlyDictionary<long, PayoutTotals> payoutTotals)
+	{
+		var totals = payoutTotals.TryGetValue(bet.ArenaEventId, out var value)
+			? value
+			: new PayoutTotals(0.0m, 0.0m, 0.0m);
+
+		return new ArenaBetSummary(
+			bet.Id,
+			bet.ArenaEventId,
+			arenaEvent.ArenaId,
+			arenaName,
+			eventTypeName,
+			arenaEvent.ScheduledAt,
+			bet.SideIndex,
+			bet.Stake,
+			bet.FixedDecimalOdds,
+			(BettingModel)arenaEvent.BettingModel,
+			bet.PlacedAt,
+			bet.IsCancelled,
+			bet.CancelledAt,
+			(ArenaEventState)arenaEvent.State,
+			totals.Collected,
+			totals.Outstanding,
+			totals.Blocked);
+	}
+
+	private sealed record PayoutTotals(decimal Collected, decimal Outstanding, decimal Blocked);
 }

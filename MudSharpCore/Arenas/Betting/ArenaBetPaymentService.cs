@@ -43,12 +43,22 @@ public class ArenaBetPaymentService : IArenaBetPaymentService
 
 	public bool TryDisburse(ICharacter bettor, IArenaEvent arenaEvent, decimal amount)
 	{
-		if (bettor is null || amount <= 0)
+		if (arenaEvent is null)
 		{
 			return false;
 		}
 
-		var currency = arenaEvent.Arena.Currency;
+		return TryDisburse(bettor, arenaEvent.Arena, amount);
+	}
+
+	public bool TryDisburse(ICharacter bettor, ICombatArena arena, decimal amount)
+	{
+		if (bettor is null || arena is null || amount <= 0)
+		{
+			return false;
+		}
+
+		var currency = arena.Currency;
 		var coins = currency.FindCoinsForAmount(amount, out _);
 		if (!coins.Any())
 		{

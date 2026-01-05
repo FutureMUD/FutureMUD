@@ -45,6 +45,9 @@ Players:
         #3arena bet place <event> <side|draw> <amount>#0 - place a wager
         #3arena bet cancel <event>#0 - cancel your wager
         #3arena bet pools <event>#0 - view pari-mutuel pools
+        #3arena bet list#0 - view your current wagers and payouts
+        #3arena bet history [<count>]#0 - view recent wagers
+        #3arena bet collect [<event>]#0 - collect outstanding payouts
         #3arena ratings show [<class>]#0 - view your arena ratings";
 
         [PlayerCommand("Arena", "arena")]
@@ -396,7 +399,7 @@ Players:
         {
                 if (ss.IsFinished)
                 {
-                        actor.OutputHandler.Send("Do you want to #3odds#0, #3place#0, #3cancel#0, or #3pools#0?".SubstituteANSIColour());
+                        actor.OutputHandler.Send("Do you want to #3odds#0, #3place#0, #3cancel#0, #3pools#0, #3list#0, #3history#0, or #3collect#0?".SubstituteANSIColour());
                         return;
                 }
 
@@ -414,8 +417,17 @@ Players:
                         case "pools":
                                 ArenaBetPools(actor, ss);
                                 return;
+                        case "list":
+                                ArenaBetList(actor, ss);
+                                return;
+                        case "history":
+                                ArenaBetHistory(actor, ss);
+                                return;
+                        case "collect":
+                                ArenaBetCollect(actor, ss);
+                                return;
                         default:
-                                actor.OutputHandler.Send("Valid options are #3odds#0, #3place#0, #3cancel#0, or #3pools#0.".SubstituteANSIColour());
+                                actor.OutputHandler.Send("Valid options are #3odds#0, #3place#0, #3cancel#0, #3pools#0, #3list#0, #3history#0, or #3collect#0.".SubstituteANSIColour());
                                 return;
                 }
         }
@@ -585,6 +597,165 @@ Players:
                 }
         }
 
+        private static void ArenaBetList(ICharacter actor, StringStack ss)
+        {
+                if (!ss.IsFinished)
+                {
+                        actor.OutputHandler.Send("The #3arena bet list#0 command does not take any additional arguments.".SubstituteANSIColour());
+                        return;
+                }
+
+                var bets = actor.Gameworld.ArenaBettingService.GetActiveBets(actor).ToList();
+                var payouts = actor.Gameworld.ArenaBettingService.GetOutstandingPayouts(actor).ToList();
+
+                if (!bets.Any() && !payouts.Any())
+                {
+                        actor.OutputHandler.Send("You have no active wagers or outstanding payouts.".ColourError());
+                        return;
+                }
+
+                var sb = new StringBuilder();
+                if (bets.Any())
+                {
+                        sb.AppendLine("Active Wagers:");
+                        var header = new[] { "Event", "Arena", "Side", "Stake", "State", "Placed" };
+                        var rows = bets.Select(bet => new[]
+                        {
+                                DescribeEvent(bet.EventTypeName, bet.ArenaEventId, actor),
+                                bet.ArenaName.ColourName(),
+                                DescribeBetSide(bet.SideIndex, actor),
+                                DescribeCurrency(actor, bet.ArenaId, bet.Stake),
+                                bet.EventState.DescribeEnum().ColourValue(),
+                                bet.PlacedAt.ToString("g", actor).ColourValue()
+                        }).ToList();
+
+                        sb.AppendLine(StringUtilities.GetTextTable(rows, header, actor, Telnet.Yellow));
+                }
+
+                if (payouts.Any())
+                {
+                        if (sb.Length > 0)
+                        {
+                                sb.AppendLine();
+                        }
+
+                        sb.AppendLine("Outstanding Payouts:");
+                        var header = new[] { "Event", "Arena", "Amount", "Status", "Recorded" };
+                        var rows = payouts.Select(payout => new[]
+                        {
+                                DescribeEvent(payout.EventTypeName, payout.ArenaEventId, actor),
+                                payout.ArenaName.ColourName(),
+                                DescribeCurrency(actor, payout.ArenaId, payout.Amount),
+                                DescribePayoutStatus(payout),
+                                payout.CreatedAt.ToString("g", actor).ColourValue()
+                        }).ToList();
+
+                        sb.AppendLine(StringUtilities.GetTextTable(rows, header, actor, Telnet.Green));
+                }
+
+                actor.OutputHandler.Send(sb.ToString());
+        }
+
+        private static void ArenaBetHistory(ICharacter actor, StringStack ss)
+        {
+                var count = 20;
+                if (!ss.IsFinished)
+                {
+                        if (!int.TryParse(ss.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out count) || count <= 0)
+                        {
+                                actor.OutputHandler.Send("You must specify a positive number of wagers to show.".ColourError());
+                                return;
+                        }
+                }
+
+                var bets = actor.Gameworld.ArenaBettingService.GetBetHistory(actor, count).ToList();
+                if (!bets.Any())
+                {
+                        actor.OutputHandler.Send("You have no betting history to display.".ColourError());
+                        return;
+                }
+
+                var header = new[] { "Event", "Arena", "Side", "Stake", "Result", "Placed" };
+                var rows = bets.Select(bet => new[]
+                {
+                        DescribeEvent(bet.EventTypeName, bet.ArenaEventId, actor),
+                        bet.ArenaName.ColourName(),
+                        DescribeBetSide(bet.SideIndex, actor),
+                        DescribeCurrency(actor, bet.ArenaId, bet.Stake),
+                        DescribeBetResult(actor, bet),
+                        bet.PlacedAt.ToString("g", actor).ColourValue()
+                }).ToList();
+
+                actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, header, actor, Telnet.Cyan));
+        }
+
+        private static void ArenaBetCollect(ICharacter actor, StringStack ss)
+        {
+                long? eventId = null;
+                if (!ss.IsFinished)
+                {
+                        var eventText = ss.PopSpeech();
+                        if (!long.TryParse(eventText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+                        {
+                                var arenaEvent = GetArenaEvent(actor, eventText);
+                                if (arenaEvent is null)
+                                {
+                                        actor.OutputHandler.Send("That is not a valid event identifier.".ColourError());
+                                        return;
+                                }
+
+                                parsed = arenaEvent.Id;
+                        }
+
+                        eventId = parsed;
+                }
+
+                ICombatArena? arena = null;
+                if (eventId.HasValue)
+                {
+                        var payout = actor.Gameworld.ArenaBettingService.GetOutstandingPayouts(actor)
+                                .FirstOrDefault(x => x.ArenaEventId == eventId.Value);
+                        arena = payout is null ? null : actor.Gameworld.CombatArenas.Get(payout.ArenaId);
+                }
+
+                var result = actor.Gameworld.ArenaBettingService.CollectOutstandingPayouts(actor, eventId);
+                if (result.CollectedCount == 0 && result.FailedCount == 0 && result.BlockedCount == 0)
+                {
+                        var message = eventId.HasValue
+                                ? $"You have no outstanding payouts for event #{eventId.Value.ToString("N0", actor)}."
+                                : "You have no outstanding payouts to collect.";
+                        actor.OutputHandler.Send(message.ColourError());
+                        return;
+                }
+
+                var sb = new StringBuilder();
+                if (result.CollectedCount > 0)
+                {
+                        var collectedText = eventId.HasValue && arena is not null
+                                ? $"You collect {DescribeCurrency(arena, result.CollectedAmount)} from {result.CollectedCount.ToString("N0", actor).ColourValue()} payout(s)."
+                                : $"You collect {result.CollectedCount.ToString("N0", actor).ColourValue()} payout(s).";
+                        sb.AppendLine(collectedText.Colour(Telnet.Green));
+                }
+
+                if (result.FailedCount > 0)
+                {
+                        var failedText = eventId.HasValue && arena is not null
+                                ? $"{result.FailedCount.ToString("N0", actor).ColourValue()} payout(s) totaling {DescribeCurrency(arena, result.FailedAmount)} could not be disbursed."
+                                : $"{result.FailedCount.ToString("N0", actor).ColourValue()} payout(s) could not be disbursed.";
+                        sb.AppendLine(failedText.ColourError());
+                }
+
+                if (result.BlockedCount > 0)
+                {
+                        var blockedText = eventId.HasValue && arena is not null
+                                ? $"{result.BlockedCount.ToString("N0", actor).ColourValue()} payout(s) totaling {DescribeCurrency(arena, result.BlockedAmount)} are still blocked pending arena funds."
+                                : $"{result.BlockedCount.ToString("N0", actor).ColourValue()} payout(s) are still blocked pending arena funds.";
+                        sb.AppendLine(blockedText.Colour(Telnet.Yellow));
+                }
+
+                actor.OutputHandler.Send(sb.ToString());
+        }
+
         private static void ArenaRatings(ICharacter actor, StringStack ss)
         {
                 var filter = ss.IsFinished ? null : ss.PopSpeech();
@@ -720,6 +891,64 @@ Players:
 
                 return classes.FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)) ??
                        classes.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private static string DescribeEvent(string eventTypeName, long eventId, ICharacter actor)
+        {
+                var idText = eventId.ToString("N0", actor).ColourValue();
+                return $"{eventTypeName.ColourName()} #{idText}";
+        }
+
+        private static string DescribeBetSide(int? sideIndex, ICharacter actor)
+        {
+                return sideIndex.HasValue
+                        ? $"Side {sideIndex.Value.ToString(actor).ColourValue()}"
+                        : "Draw".ColourValue();
+        }
+
+        private static string DescribeBetResult(ICharacter actor, ArenaBetSummary bet)
+        {
+                if (bet.IsCancelled)
+                {
+                        return "Cancelled".Colour(Telnet.Yellow);
+                }
+
+                if (bet.BlockedPayout > 0.0m)
+                {
+                        var amountText = DescribeCurrency(actor, bet.ArenaId, bet.BlockedPayout);
+                        return $"{"Blocked".ColourError()} ({amountText})";
+                }
+
+                if (bet.OutstandingPayout > 0.0m)
+                {
+                        var amountText = DescribeCurrency(actor, bet.ArenaId, bet.OutstandingPayout);
+                        return $"{"Owed".Colour(Telnet.Yellow)} ({amountText})";
+                }
+
+                if (bet.CollectedPayout > 0.0m)
+                {
+                        var amountText = DescribeCurrency(actor, bet.ArenaId, bet.CollectedPayout);
+                        return $"{"Paid".Colour(Telnet.Green)} ({amountText})";
+                }
+
+                return bet.EventState >= ArenaEventState.Resolving
+                        ? "Lost".ColourError()
+                        : "Open".ColourValue();
+        }
+
+        private static string DescribePayoutStatus(ArenaBetPayoutSummary payout)
+        {
+                return payout.IsBlocked
+                        ? "Blocked".ColourError()
+                        : "Owed".Colour(Telnet.Yellow);
+        }
+
+        private static string DescribeCurrency(ICharacter actor, long arenaId, decimal amount)
+        {
+                var arena = actor.Gameworld.CombatArenas.Get(arenaId);
+                return arena is null
+                        ? amount.ToString("N2", actor).ColourValue()
+                        : DescribeCurrency(arena, amount);
         }
 
         private static string DescribeCurrency(ICombatArena arena, decimal amount)

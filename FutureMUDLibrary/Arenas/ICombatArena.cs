@@ -47,5 +47,4 @@ public interface ICombatArena : IEditableItem {
 	void Debit(decimal amount, string reference);
 
 	string ShowToManager(ICharacter actor);
-	bool BuildingCommand(ICharacter actor, StringStack command);
 }

@@ -42,6 +42,10 @@ public interface IArenaBettingService {
 	void Settle(IArenaEvent arenaEvent, ArenaOutcome outcome, IEnumerable<int> winningSides);
 	void RefundAll(IArenaEvent arenaEvent, string reason);
 	(decimal? FixedOdds, (decimal Pool, decimal TakeRate)? PariMutuel) GetQuote(IArenaEvent arenaEvent, int? sideIndex);
+	IReadOnlyCollection<ArenaBetSummary> GetActiveBets(ICharacter actor);
+	IReadOnlyCollection<ArenaBetSummary> GetBetHistory(ICharacter actor, int count);
+	IReadOnlyCollection<ArenaBetPayoutSummary> GetOutstandingPayouts(ICharacter actor);
+	ArenaBetCollectionSummary CollectOutstandingPayouts(ICharacter actor, long? arenaEventId = null);
 }
 
 /// <summary>
@@ -70,6 +74,7 @@ public interface IArenaFinanceService {
 public interface IArenaBetPaymentService {
 	(bool Success, string Error) CollectStake(ICharacter bettor, IArenaEvent arenaEvent, decimal amount);
 	bool TryDisburse(ICharacter bettor, IArenaEvent arenaEvent, decimal amount);
+	bool TryDisburse(ICharacter bettor, ICombatArena arena, decimal amount);
 }
 
 /// <summary>

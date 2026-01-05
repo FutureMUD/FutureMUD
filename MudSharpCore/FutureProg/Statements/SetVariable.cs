@@ -10,7 +10,7 @@ namespace MudSharp.FutureProg.Statements;
 
 internal class SetVariable : Statement
 {
-	private static readonly Regex SetVariableCompileRegex = new(@"^\s*(\w+?)\s*=\s*(.+)\s*$",
+	private static readonly Regex SetVariableCompileRegex = new(@"^\s*([a-z0-9_]+?)\s*=\s*(.+)\s*$",
 		RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	protected string NameToSet;
@@ -33,7 +33,7 @@ internal class SetVariable : Statement
 		{
 			return
 				CompileInfo.GetFactory()
-				           .CreateError($"Variable {match.Groups[1].Value} has not been declared.", lineNumber);
+						   .CreateError($"Variable {match.Groups[1].Value} has not been declared.", lineNumber);
 		}
 
 		var rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
@@ -41,8 +41,8 @@ internal class SetVariable : Statement
 		{
 			return
 				CompileInfo.GetFactory()
-				           .CreateError($"Error with RHS of set variable statement: {rhsInfo.ErrorMessage}",
-					           lineNumber);
+						   .CreateError($"Error with RHS of set variable statement: {rhsInfo.ErrorMessage}",
+							   lineNumber);
 		}
 
 		var function = (IFunction)rhsInfo.CompiledStatement;
@@ -55,9 +55,9 @@ internal class SetVariable : Statement
 
 		return
 			CompileInfo.GetFactory()
-			           .CreateNew(
-				           new SetVariable(match.Groups[1].Value.ToLowerInvariant(), function.ReturnType, function),
-				           variableSpace, lines.Skip(1), lineNumber, lineNumber);
+					   .CreateNew(
+						   new SetVariable(match.Groups[1].Value.ToLowerInvariant(), function.ReturnType, function),
+						   variableSpace, lines.Skip(1), lineNumber, lineNumber);
 	}
 
 	private static string ColouriseStatement(string line)
@@ -89,7 +89,20 @@ internal class SetVariable : Statement
 		FutureProg.RegisterStatementColouriser(
 			new Tuple<Regex, Func<string, string>>(SetVariableCompileRegex, ColouriseStatementDarkMode), true
 		);
-	}
+
+        FutureProg.RegisterStatementHelp("=", @"The = statement is used to assign a value to a variable that has already been declared.
+
+The core syntax is as follows:
+
+	name = #J<new value>#0
+
+For example:
+
+	number = #242#0
+	ch = #M@room#0.#MCharacters#0.#MFirst#0
+
+See also #3+=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assigning values combined with an operation.");
+    }
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{

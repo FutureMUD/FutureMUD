@@ -267,7 +267,13 @@ namespace MudSharp.Framework {
 			"bold white".Colour(BoldWhite),
 			"bold black".Colour(BoldBlack),
 			"bold pink".Colour(BoldPink),
-		};
+			"function yellow".Colour(FunctionYellow),
+			"variable cyan".Colour(VariableCyan),
+			"text red".Colour(TextRed),
+			"variable green".Colour(VariableGreen),
+			"keyword blue".Colour(KeywordBlue),
+			"keyword pink".Colour(KeywordPink),
+        };
 
 		public static ANSIColour GetColour(string name) {
 			if (name == null) {
@@ -313,8 +319,20 @@ namespace MudSharp.Framework {
 				case "boldblack":
 					return BoldBlack;
 				case "boldpink":
-					return BoldPink;
-			}
+                    return BoldPink;
+                case "functionyellow":
+                    return FunctionYellow;
+                case "variablecyan":
+                    return VariableCyan;
+                case "textred":
+                    return TextRed;
+                case "variablegreen":
+                    return VariableGreen;
+                case "keywordblue":
+                    return KeywordBlue;
+                case "keywordpink":
+                    return KeywordPink;
+            }
 
 			if (name.Length == 2 && name[0] == '#')
 			{
@@ -356,7 +374,19 @@ namespace MudSharp.Framework {
 						return BoldPink;
 					case "i":
 						return Pink;
-				}
+                    case "j":
+                        return FunctionYellow;
+                    case "k":
+                        return VariableGreen;
+                    case "l":
+                        return KeywordBlue;
+                    case "m":
+                        return VariableCyan;
+                    case "n":
+                        return TextRed;
+                    case "o":
+                        return KeywordPink;
+                }
 			}
 
 			return null;

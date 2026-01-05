@@ -9,23 +9,23 @@ public class MultiformCharacteristicValue : CharacteristicValue
 	public MultiformCharacteristicValue(string name, ICharacteristicDefinition type, string basic, string fancy)
 		: base(name, type, basic, fancy)
 	{
-		Basic = basic;
-		Fancy = fancy;
+		Basic = basic ?? "";
+		Fancy = fancy ?? "";
 		Changed = true;
 	}
 
 	public MultiformCharacteristicValue(MudSharp.Models.CharacteristicValue value, IFuturemud gameworld)
 		: base(value, gameworld)
 	{
-		Basic = value.Value;
-		Fancy = value.AdditionalValue;
+		Basic = value.Value ?? "";
+		Fancy = value.AdditionalValue ?? "";
 	}
 
 	protected MultiformCharacteristicValue(MultiformCharacteristicValue rhs, string newName) : base(rhs, newName,
 		rhs.Basic, rhs.Fancy)
 	{
-		Basic = rhs.Basic;
-		Fancy = rhs.Fancy;
+		Basic = rhs.Basic ?? "";
+		Fancy = rhs.Fancy ?? "";
 	}
 
 	public override ICharacteristicValue Clone(string newName)

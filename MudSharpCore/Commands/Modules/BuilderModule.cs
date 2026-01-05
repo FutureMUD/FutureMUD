@@ -444,6 +444,10 @@ You must use one of the following subcommands of this command:
 		while (!command.IsFinished)
 		{
 			var cmd = command.PopSpeech();
+			if (cmd.Length == 0)
+			{
+				continue;
+			}
 			if (cmd[0] == '*' && cmd.Length > 1)
 			{
 				cmd = cmd.Substring(1);

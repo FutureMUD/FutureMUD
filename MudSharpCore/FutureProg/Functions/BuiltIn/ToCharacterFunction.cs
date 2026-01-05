@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using MudSharp.Character;
+using MudSharp.Framework;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
 internal class ToCharacterFunction : BuiltInFunction
 {
-	protected ToCharacterFunction(IList<IFunction> parameters)
+	public IFuturemud Gameworld { get; }
+	protected ToCharacterFunction(IList<IFunction> parameters, IFuturemud gameworld)
 		: base(parameters)
 	{
-	}
+		Gameworld = gameworld;
+    }
 
 	public override ProgVariableTypes ReturnType
 	{
@@ -23,34 +26,24 @@ internal class ToCharacterFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].Result as ICharacter;
+		var characterid = (long?)(decimal?)ParameterFunctions[0].Result?.GetObject ?? 0L;
+		var character = Gameworld.TryGetCharacter(characterid, true);
+
+		Result = character;
 		return StatementResult.Normal;
 	}
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"tocharacter",
-			new[] { ProgVariableTypes.Perceiver },
-			(pars, gameworld) => new ToCharacterFunction(pars)
-		));
-
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"tocharacter",
-			new[] { ProgVariableTypes.Perceivable },
-			(pars, gameworld) => new ToCharacterFunction(pars)
-		));
-
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"tocharacter",
-			new[] { ProgVariableTypes.Toon },
-			(pars, gameworld) => new ToCharacterFunction(pars)
-		));
-
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"tocharacter",
-			new[] { ProgVariableTypes.CollectionItem },
-			(pars, gameworld) => new ToCharacterFunction(pars)
-		));
-	}
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "tocharacter",
+            [ProgVariableTypes.Number],
+            (pars, gameworld) => new ToCharacterFunction(pars, gameworld),
+			["id"],
+			["The id of the character to retrieve or load"],
+			"Retrieves or loads a character by their ID. Does not add them to the gameworld if it does load them. Can return null if no character with that ID is found.",
+			"Lookup",
+			ProgVariableTypes.Character
+        ));
+    }
 }

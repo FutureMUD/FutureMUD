@@ -35,7 +35,12 @@ public static class PathSearch
 		return true;
 	}
 
-	public static Func<ICellExit, bool> PathRespectClosedDoors(ICharacter who)
+	public static Func<ICellExit, bool> PathIgnoreDoors(ICharacter who)
+	{
+		return exit => who.CurrentContextualSize(SizeContext.CellExit) <= exit.Exit.MaximumSizeToEnter;
+    }
+
+    public static Func<ICellExit, bool> PathRespectClosedDoors(ICharacter who)
 	{
 		return exit => exit.Exit.Door?.IsOpen != false &&
 		               who.CurrentContextualSize(SizeContext.CellExit) <= exit.Exit.MaximumSizeToEnter;

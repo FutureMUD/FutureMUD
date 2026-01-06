@@ -109,8 +109,8 @@ public abstract class AutobuilderAreaBase : SaveableItem, IAutobuilderArea, IHav
 			default:
 				actor.OutputHandler.Send($@"You can use the following options with this autobuilder area template:
 
-	name <name> - renames the template
-	summary <text> - edits the summary byline for LIST and SHOW{SubtypeHelpText}");
+	#3name <name>#0 - renames the template
+	#3summary <text>#0 - edits the summary byline for LIST and SHOW{SubtypeHelpText}".SubstituteANSIColour());
 				return false;
 		}
 	}

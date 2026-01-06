@@ -313,7 +313,7 @@ namespace MudSharp.Construction
 			return downness > 0 ? "Down" : "Unknown";
 		}
 
-		
+
 
 		public static (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness)
 			CountDirections(this IEnumerable<CardinalDirection> directions)
@@ -418,8 +418,8 @@ namespace MudSharp.Construction
 			var directions = exits.Select(x => x.OutboundDirection);
 			var counts = directions.CountDirections();
 			var distance = Math.Sqrt(Math.Pow(Math.Sqrt(Math.Pow(counts.Northness - counts.Southness, 2) +
-			                                            Math.Pow(counts.Eastness - counts.Westness, 2)), 2) +
-			                         Math.Pow(counts.Upness - counts.Downness, 2)) + counts.Unknownness;
+														Math.Pow(counts.Eastness - counts.Westness, 2)), 2) +
+									 Math.Pow(counts.Upness - counts.Downness, 2)) + counts.Unknownness;
 			switch (rounding)
 			{
 				case RoundingMode.NoRounding:
@@ -530,13 +530,13 @@ namespace MudSharp.Construction
 				case CardinalDirection.SouthWest:
 				case CardinalDirection.NorthWest:
 					return 2;
-				
+
 				case CardinalDirection.Unknown:
 					return 3;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
 			}
-		} 
+		}
 
 		public static CardinalDirection Opposite(this CardinalDirection direction)
 		{
@@ -564,6 +564,56 @@ namespace MudSharp.Construction
 					return CardinalDirection.Down;
 				case CardinalDirection.West:
 					return CardinalDirection.East;
+				default:
+					throw new NotSupportedException();
+			}
+		}
+
+		public static CardinalDirection Rotate90Clockwise(this CardinalDirection direction)
+		{
+			switch (direction)
+			{
+				case CardinalDirection.East:
+					return CardinalDirection.South;
+				case CardinalDirection.North:
+					return CardinalDirection.East;
+				case CardinalDirection.NorthEast:
+					return CardinalDirection.SouthEast;
+				case CardinalDirection.NorthWest:
+					return CardinalDirection.NorthEast;
+				case CardinalDirection.South:
+					return CardinalDirection.West;
+				case CardinalDirection.SouthEast:
+					return CardinalDirection.SouthWest;
+				case CardinalDirection.SouthWest:
+					return CardinalDirection.NorthWest;
+				case CardinalDirection.West:
+					return CardinalDirection.North;
+				default:
+					throw new NotSupportedException();
+			}
+		}
+
+		public static CardinalDirection Rotate90CounterClockwise(this CardinalDirection direction)
+		{
+			switch (direction)
+			{
+				case CardinalDirection.East:
+					return CardinalDirection.North;
+				case CardinalDirection.North:
+					return CardinalDirection.West;
+				case CardinalDirection.NorthEast:
+					return CardinalDirection.NorthWest;
+				case CardinalDirection.NorthWest:
+					return CardinalDirection.SouthWest;
+				case CardinalDirection.South:
+					return CardinalDirection.East;
+				case CardinalDirection.SouthEast:
+					return CardinalDirection.NorthEast;
+				case CardinalDirection.SouthWest:
+					return CardinalDirection.SouthEast;
+				case CardinalDirection.West:
+					return CardinalDirection.South;
 				default:
 					throw new NotSupportedException();
 			}

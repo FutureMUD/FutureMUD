@@ -4205,6 +4205,7 @@ You can also edit the following specific properties:
 			return;
 		}
 
+		actor.RemoveAllEffects<BuilderEditingEffect<ITerrain>>();
 		effect = new BuilderEditingEffect<ITerrain>(actor) { EditingItem = terrain };
 		actor.AddEffect(effect);
 		actor.OutputHandler.Send($"You are now editing the {terrain.Name.Colour(Telnet.Cyan)} terrain.");

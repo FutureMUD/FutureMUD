@@ -293,6 +293,11 @@ namespace MudSharp.Framework {
 			return reader.ReadInnerXml();
 		}
 
+		/// <summary>
+		/// This is simply a convenience method to convert a boolean to "now" or "no longer", avoiding a ternary operator in string interpolations
+		/// </summary>
+		/// <param name="item">The boolean to use for Now/No Longer</param>
+		/// <returns>true = now, false = no longer</returns>
 		public static string NowNoLonger(this bool item)
 		{
 			return item ? "now" : "no longer";

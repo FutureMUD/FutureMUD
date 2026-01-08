@@ -1223,6 +1223,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			}
 
 			sb.AppendLine("You should use each variable at least once in the description.");
+			sb.AppendLine("Your response should only use characters from the ISO-8859-1 page (i.e. Latin1).");
 		}
 
 		if (!command.IsFinished)

@@ -2039,7 +2039,7 @@ You can use the following subcommands:
 		sb.AppendLine();
 		sb.AppendLine("You may refer to these other locations if it adds interesting detail, but do not spend more than a sentence or two on it, and none unless it's to add an interesting detail.");
 		sb.AppendLine();
-		sb.AppendLine($"The engine uses a few special markup formats that you can employ if you choose, which help it dynamically parse for the situation at the time like current weather, literacy of the viewer etc. They are listed below.");
+		sb.AppendLine($"Your response should only use characters from the ISO-8859-1 page (i.e. Latin1). The engine uses a few special markup formats that you can employ if you choose, which help it dynamically parse for the situation at the time like current weather, literacy of the viewer etc. They are listed below.");
 		sb.AppendLine();
 		sb.AppendLine(@$"Written Text: writing{{language,script,style=...,colour=...,minskill}}{{text if you understand}}{{text if you cant}}
 {(actor.Location.Shop is not null ? "Name of the Shop at this location: @shop\n" : "")}Weather/Light/Time: environment{{conditions=text}}{{optional more conditions up to 8 times=text}}{{fallback if none triggered}}

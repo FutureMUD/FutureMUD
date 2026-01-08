@@ -158,9 +158,17 @@ internal static class OpenAIHandler
 		$"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
 		var task = Task.Run(async () =>
 		{
-			var result = await chatClient.GetResponseAsync(chatHistory);
-			$"#CGPT Response#0\n\n{result}".WriteLineConsole();
-			callback(result.Text);
+			try
+			{
+				var result = await chatClient.GetResponseAsync(chatHistory);
+				$"#CGPT Response#0\n\n{result}".WriteLineConsole();
+				callback(result.Text);
+			}
+			catch (Exception e)
+			{
+				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
+				Futuremud.Games.First().DiscordConnection.NotifyAdmins($"**GPT Error**\n\n```\n{e.ToString()}```");
+			}
 		});
 		return true;
 	}

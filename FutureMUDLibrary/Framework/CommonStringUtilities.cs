@@ -182,7 +182,7 @@ namespace MudSharp.Framework
 						sb.Append(thisLine.RawTextPadRight((int)lineWidthPerColumn));
 					}
 
-					if (j == (linesPerColumn - 1) && columnBufferSpaces > 0)
+					if (j < columns - 1 && columnBufferSpaces > 0)
 					{
 						sb.Append(new string(' ', (int)columnBufferSpaces));
 					}
@@ -264,7 +264,7 @@ namespace MudSharp.Framework
 						sb.Append(thisLine.RawTextPadRight((int)lineWidthPerColumn));
 					}
 
-					if (j == (linesPerColumn - 1) && columnBufferSpaces > 0)
+					if (j < columns - 1 && columnBufferSpaces > 0)
 					{
 						sb.Append(new string(' ', (int)columnBufferSpaces));
 					}
@@ -341,9 +341,15 @@ namespace MudSharp.Framework
 					return article + itemList[0] + twoItemJoiner + conjunction + article + itemList[1];
 			}
 
+			var conjunctionText = conjunction;
+			if (!oxfordComma && !string.IsNullOrEmpty(conjunction) && !char.IsWhiteSpace(conjunction[0]))
+			{
+				conjunctionText = $" {conjunction}";
+			}
+
 			return
 				string.Join(separator, itemList.GetRange(0, itemList.Count - 1).ConvertAll(x => x.Insert(0, article))) +
-				(oxfordComma ? separator : "") + conjunction + article + itemList[^1];
+				(oxfordComma ? separator : "") + conjunctionText + article + itemList[^1];
 		}
 
 		/// <summary>
@@ -565,7 +571,7 @@ namespace MudSharp.Framework
 
 		public static string WindowsLineEndings(this string input)
 		{
-			return WindowsLineEndingRegex.Replace(input, m => "\n");
+			return WindowsLineEndingRegex.Replace(input, m => "\r\n");
 		}
 
 		public static bool Contains(this string source, string toCheck, StringComparison comp)

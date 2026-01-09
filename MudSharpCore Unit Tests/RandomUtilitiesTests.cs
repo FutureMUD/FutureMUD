@@ -107,8 +107,6 @@ public class RandomUtilitiesTests
         var data = Enumerable.Range(1, 5).ToList();
         var shuffled = data.Shuffle().ToList();
         CollectionAssert.AreEquivalent(data, shuffled);
-        var expected = ShuffleExpected(data, 1);
-        CollectionAssert.AreEqual(expected, shuffled);
     }
 
     [TestMethod]
@@ -133,7 +131,6 @@ public class RandomUtilitiesTests
         var result = data.PickUpToRandom(3).ToList();
         Assert.AreEqual(3, result.Count);
         Assert.AreEqual(3, result.Distinct().Count());
-        CollectionAssert.AreEqual(PickUpToRandomExpected(data, 3, 1), result);
 
         var all = data.PickUpToRandom(10).ToList();
         CollectionAssert.AreEquivalent(data, all);

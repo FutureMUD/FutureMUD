@@ -347,27 +347,48 @@ namespace MudSharp.Framework {
 
 		public static string RawTextSubstring(this string input, int startIndex)
 		{
-			return input.RawTextSubstring(startIndex, input.Length - startIndex);
+			return input.RawTextSubstring(startIndex, input.RawTextLength() - startIndex);
 		}
 
 		public static string RawTextSubstring(this string input, int startIndex, int characters)
 		{
+			if (string.IsNullOrEmpty(input) || characters <= 0)
+			{
+				return string.Empty;
+			}
+
 			var count = 0;
+			var start = startIndex == 0 ? 0 : -1;
 			bool colour = false, mxp = false;
 			for (var i = 0; i < input.Length; i++)
 			{
 				colour = colour || (input[i] == '\x1B');
 				mxp = mxp || (input[i] == MXP.BeginMXPChar);
-				count += (i > startIndex) && (colour || mxp) ? 0 : 1;
-				if (count == characters)
+
+				if (!colour && !mxp)
 				{
-					return input.Substring(startIndex, i - startIndex);
+					if (count == startIndex && start == -1)
+					{
+						start = i;
+					}
+
+					count++;
+					if (start != -1 && count == startIndex + characters)
+					{
+						return input.Substring(start, i - start + 1);
+					}
 				}
+
 				colour = (!colour || (input[i] != 'm')) && colour;
 				mxp = (!mxp || (input[i] != MXP.EndMXPChar)) && mxp;
 			}
 
-			return input.Substring(startIndex);
+			if (start == -1)
+			{
+				return string.Empty;
+			}
+
+			return input.Substring(start);
 		}
 
 		public static int RawTextLength(this string input)
@@ -467,7 +488,7 @@ namespace MudSharp.Framework {
 		}
 
 
-		private static Regex IncrementRegex = new("(?<pre>.+)(?<number>[0-9]+)$");
+		private static Regex IncrementRegex = new("(?<pre>.*?)(?<number>[0-9]+)$");
 
 		/// <summary>
 		/// This function takes a string, and checks to see if it ends in a number. If it ends in a number, it will increment that number by 1. Otherwise, it will add the number 1 to the end of the string.
@@ -483,7 +504,7 @@ namespace MudSharp.Framework {
 				return $"{str}1";
 			}
 
-			return $"{match.Groups["pre"].Value}{int.Parse(match.Groups["number"].Value) + 1:N0}";
+			return $"{match.Groups["pre"].Value}{(int.Parse(match.Groups["number"].Value) + 1).ToString(CultureInfo.InvariantCulture)}";
 		}
 
 		/// <summary>
@@ -1048,6 +1069,7 @@ namespace MudSharp.Framework {
 			var distanceFromNewline = 0;
 			var sbLine = new StringBuilder();
 			var foundNonSpaceCharacters = false;
+			var appendedLonelyNewline = false;
 			bool inAnsi = false;
 			foreach (var c in text)
 			{
@@ -1055,7 +1077,11 @@ namespace MudSharp.Framework {
 				{
 					if (distanceFromNewline == 0 && leaveLonelyNewlines)
 					{
-						sb.Append('\n');
+						if (!appendedLonelyNewline)
+						{
+							sb.Append('\n');
+							appendedLonelyNewline = true;
+						}
 						continue;
 					}
 
@@ -1066,6 +1092,7 @@ namespace MudSharp.Framework {
 						sbLine.Clear();
 						foundNonSpaceCharacters = false;
 						distanceFromNewline = 0;
+						appendedLonelyNewline = false;
 						inAnsi = false;
 						continue;
 					}
@@ -1091,6 +1118,7 @@ namespace MudSharp.Framework {
 				if (!foundNonSpaceCharacters && !inAnsi && !char.IsWhiteSpace(c) && c != Telnet.NoWordWrapChar)
 				{
 					foundNonSpaceCharacters = true;
+					appendedLonelyNewline = false;
 				}
 
 				if (inAnsi && c == 'm')

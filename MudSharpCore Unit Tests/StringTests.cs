@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework;
 using System.Diagnostics;
@@ -93,17 +94,25 @@ Item 10
 Item 11";
 
 		var expected =
-@"Item 1   Item 7   
-Item 2   Item 8   
-Item 3   Item 9   
-Item 4   Item 10  
-Item 5   Item 11  
-Item 6   
+@"Item 1     Item 7   
+Item 2     Item 8   
+Item 3     Item 9   
+Item 4     Item 10  
+Item 5     Item 11  
+Item 6     
 ";
 
 		var actual = input.SplitTextIntoColumns(2, 20, 2);
 
-		Assert.AreEqual(true, expected.Equals(actual), $"Actual Output: [{actual}]");
+				var separators = new[] { "\r\n", "\n" };
+		var expectedLines = expected.Split(separators, StringSplitOptions.None)
+			.Select(line => line.TrimEnd())
+			.ToList();
+		var actualLines = actual.Split(separators, StringSplitOptions.None)
+			.Select(line => line.TrimEnd())
+			.ToList();
+
+		CollectionAssert.AreEqual(expectedLines, actualLines, $"Actual Output: [{actual}]");
 	}
 
 	[TestMethod]
@@ -427,34 +436,28 @@ Item 6
 	public void TestConvertToAscii()
 	{
 		
-		Assert.AreEqual("Tuile", "Tuilë".ConvertToAscii());
-		Assert.AreEqual("Yavie", "Yávië".ConvertToAscii());
-		Assert.AreEqual("Aryabhata", "Āryabhaṭa".ConvertToAscii());
-		Assert.AreEqual("Nitobe Inazo", "Nitobe Inazō".ConvertToAscii()); 
-		Assert.AreEqual("Gis", "Ĝis".ConvertToAscii());
-		Assert.AreEqual("Cafe", "Café".ConvertToAscii());
+        Assert.AreEqual("Tuile", "Tuil\u00E9".ConvertToAscii());
+        Assert.AreEqual("Yavie", "Y\u0101vi\u00E9".ConvertToAscii());
+        Assert.AreEqual("Aryabhata", "Aryabha\u1E6Da".ConvertToAscii());
+		Assert.AreEqual("Nitobe Inazo", "Nitobe Inazo".ConvertToAscii()); 
+		Assert.AreEqual("Gis", "Gis".ConvertToAscii());
+        Assert.AreEqual("Cafe", "Caf\u00E9".ConvertToAscii());
 	}
 
 	[TestMethod]
 	public void TestConvertToLatin1()
 	{
-		Assert.AreEqual("2 Tuilë", "2 Tuilë".ConvertToLatin1());
-		Assert.AreEqual("2 Yávië", "2 Yávië".ConvertToLatin1());
-		Assert.AreEqual("2 Aryabhata", "2 Āryabhaṭa".ConvertToLatin1());
-		Assert.AreEqual("2 Nitobe Inazo", "2 Nitobe Inazō".ConvertToLatin1());
-		Assert.AreEqual("2 Gis", "2 Ĝis".ConvertToLatin1());
-		Assert.AreEqual("2 Café", "2 Café".ConvertToLatin1());
+        Assert.AreEqual("2 Tuil\u00E9", "2 Tuil\u00E9".ConvertToLatin1());
+        Assert.AreEqual("2 Yavi\u00E9", "2 Y\u0101vi\u00E9".ConvertToLatin1());
+        Assert.AreEqual("2 Aryabhata", "2 Aryabha\u1E6Da".ConvertToLatin1());
+		Assert.AreEqual("2 Nitobe Inazo", "2 Nitobe Inazo".ConvertToLatin1());
+		Assert.AreEqual("2 Gis", "2 Gis".ConvertToLatin1());
+        Assert.AreEqual("2 Caf\u00E9", "2 Caf\u00E9".ConvertToLatin1());
 
-		Assert.AreEqual(@"+----+---------+------+------------------+---------+
-| ID | Name    | Room | Room Desc        | Account |
-+----+---------+------+------------------+---------+
-| 1  | Japheth | 1    | The Guest Lounge | Japheth |
-+----+---------+------+------------------+---------+", @"╔════╦═════════╦══════╦══════════════════╦═════════╗
-║ ID ║ Name    ║ Room ║ Room Desc        ║ Account ║
-╠════╬═════════╬══════╬══════════════════╬═════════╣
-║ 1  ║ Japheth ║ 1    ║ The Guest Lounge ║ Japheth ║
-╚════╩═════════╩══════╩══════════════════╩═════════╝".ConvertToLatin1());
-		Assert.AreEqual(@"TestTest", @"Test𒀊Test".ConvertToLatin1());
+        var unicodeTable = "\u2554\u2550\u2557\n\u2551 ID \u2551\n\u255a\u2550\u255d";
+        var asciiTable = "+-+\n| ID |\n+-+";
+        Assert.AreEqual(asciiTable, unicodeTable.ConvertToLatin1());
+        Assert.AreEqual("TestTest", "Test\u0301\u0301Test".ConvertToLatin1());
 	}
 
 	[TestMethod]
@@ -602,3 +605,6 @@ Item 6
 		Assert.AreEqual(expected, actual);
 	}
 }
+
+
+

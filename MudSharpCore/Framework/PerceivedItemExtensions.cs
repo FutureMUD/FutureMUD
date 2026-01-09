@@ -661,7 +661,7 @@ public static class PerceivedItemExtensions
 			generationExits.Clear();
 			foreach (var exit in thisGeneration)
 			{
-				if (locationsConsidered.Any(x => x.Item1.Equals(exit.Value.Exit.Destination)))
+				if (locationsConsidered.Any(x => x.Item1.Id == exit.Value.Exit.Destination.Id))
 				{
 					if (generationDictionary.ContainsKey(exit.Value.Exit.Destination))
 					{
@@ -753,7 +753,7 @@ public static class PerceivedItemExtensions
 			generationExits.Clear();
 			foreach (var exit in thisGeneration)
 			{
-				if (locationsConsidered.Any(x => x.Item1.Equals(exit.Value.Exit.Destination)))
+				if (locationsConsidered.Any(x => x.Item1.Id == exit.Value.Exit.Destination.Id))
 				{
 					if (generationDictionary.ContainsKey(exit.Value.Exit.Destination))
 					{

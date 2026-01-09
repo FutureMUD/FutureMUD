@@ -12,6 +12,14 @@ internal readonly record struct CellScatterInfo(ICell Cell, int Distance, Cardin
 
 internal static class ScatterStrategyUtilities
 {
+    /// <summary>
+    /// Returns each reachable cell once within range using the shortest distance from the origin. If multiple paths
+    /// exist, the cell is still returned once and the direction reflects the first step of that shortest path.
+    /// </summary>
+    /// <param name="originalTarget">The perceiver used as the origin.</param>
+    /// <param name="range">The maximum range to search.</param>
+    /// <param name="respectDoors">Whether closed doors block traversal.</param>
+    /// <returns>A list of unique reachable cells with distance and direction.</returns>
     public static IReadOnlyList<CellScatterInfo> GetCellInfos(IPerceiver originalTarget, uint range, bool respectDoors)
     {
         if (originalTarget.Location is null)

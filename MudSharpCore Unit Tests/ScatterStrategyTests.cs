@@ -302,6 +302,7 @@ internal static class ScatterTestHelpers
 
 		private readonly Dictionary<string, CellData> _cells = new();
 		private readonly Dictionary<Mock<ICell>, List<ICellExit>> _exits = new();
+		private long _nextCellId = 1;
 
 		internal CellData AddCell(string name, (int X, int Y, int Z) coordinates)
 		{
@@ -311,11 +312,15 @@ internal static class ScatterTestHelpers
 			room.SetupGet(x => x.Z).Returns(coordinates.Z);
 
 			var cell = new Mock<ICell>();
+			var cellId = _nextCellId++;
 			cell.SetupGet(x => x.Name).Returns(name);
-			cell.SetupGet(x => x.Id).Returns(0L);
+			cell.SetupGet(x => x.Id).Returns(cellId);
 			cell.SetupGet(x => x.Room).Returns(room.Object);
 			cell.SetupGet(x => x.EventHandlers).Returns(Array.Empty<IHandleEvents>());
 			cell.SetupGet(x => x.Cells).Returns(Array.Empty<ICell>());
+			cell.Setup(x => x.Equals(It.IsAny<object>())).Returns<object>(obj =>
+				obj is ICell other ? other.Id == cellId : ReferenceEquals(obj, cell.Object));
+			cell.Setup(x => x.GetHashCode()).Returns(cellId.GetHashCode());
 
 			var characters = new List<ICharacter>();
 			cell.SetupGet(x => x.Characters).Returns(characters);

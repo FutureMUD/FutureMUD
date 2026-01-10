@@ -80,9 +80,10 @@ public class ArenaCommandService : IArenaCommandService
                 foreach (var group in grouped)
                 {
                         var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == group.Key);
+			var displayIndex = ArenaSideIndexUtilities.ToDisplayString(actor, group.Key);
                         var title = side is null
-                                ? $"Side {group.Key}".Colour(Telnet.Yellow)
-                                : side.Index.ToString(actor).ColourValue() + $" - {side.Policy.DescribeEnum().ColourValue()}";
+				? $"Side {displayIndex}".Colour(Telnet.Yellow)
+				: displayIndex.ColourValue() + $" - {side.Policy.DescribeEnum().ColourValue()}";
                         sb.AppendLine(title);
                         foreach (var participant in group)
                         {
@@ -129,7 +130,7 @@ public class ArenaCommandService : IArenaCommandService
                 sb.AppendLine("Sides:".Colour(Telnet.Cyan));
                 foreach (var side in eventType.Sides.OrderBy(x => x.Index))
                 {
-                        sb.AppendLine($"\nSide {side.Index.ToString(actor).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
+			sb.AppendLine($"\nSide {ArenaSideIndexUtilities.ToDisplayString(actor, side.Index).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
                         sb.AppendLine($"\tPolicy: {side.Policy.DescribeEnum().ColourValue()}");
                         sb.AppendLine($"\tAllow NPC Signup: {side.AllowNpcSignup.ToColouredString()}");
                         sb.AppendLine($"\tAuto Fill NPC: {side.AutoFillNpc.ToColouredString()}");

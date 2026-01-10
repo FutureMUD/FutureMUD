@@ -421,9 +421,9 @@ ICombatArena IArenaEventType.Arena => Arena;
 			return false;
 		}
 
-		if (!int.TryParse(command.PopSpeech(), out var index))
+		if (!ArenaSideIndexUtilities.TryParseDisplayIndex(command.PopSpeech(), out var index))
 		{
-			actor.OutputHandler.Send("You must specify the numeric index of the side.");
+			actor.OutputHandler.Send("You must specify the numeric index of the side starting at 1.");
 			return false;
 		}
 
@@ -545,7 +545,7 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 		Gameworld = parent.Gameworld;
 		EventType = parent;
 		_id = model.Id;
-		_name = $"Side {model.Index}";
+		_name = $"Side {ArenaSideIndexUtilities.ToDisplayIndex(model.Index)}";
 		Index = model.Index;
 		Capacity = model.Capacity;
 		Policy = (ArenaSidePolicy)model.Policy;
@@ -563,7 +563,7 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 
 	public IArenaEventType EventType { get; }
 	public override string FrameworkItemType => "ArenaEventTypeSide";
-	public override string Name => $"Side {Index}";
+	public override string Name => $"Side {ArenaSideIndexUtilities.ToDisplayIndex(Index)}";
 	public int Index { get; private set; }
 	public int Capacity { get; private set; }
 	public ArenaSidePolicy Policy { get; private set; }
@@ -577,7 +577,7 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine(
-			$"Side {Index.ToString(actor).ColourValue()} - Capacity {Capacity.ToString(actor).ColourValue()} ({Policy.DescribeEnum().ColourValue()})");
+			$"Side {ArenaSideIndexUtilities.ToDisplayString(actor, Index).ColourValue()} - Capacity {Capacity.ToString(actor).ColourValue()} ({Policy.DescribeEnum().ColourValue()})");
 		sb.AppendLine($"\tAllow NPC Signup: {AllowNpcSignup.ToColouredString()}");
 		sb.AppendLine($"\tAuto Fill NPC: {AutoFillNpc.ToColouredString()}");
 		sb.AppendLine($"\tOutfit Prog: {OutfitProg?.MXPClickableFunctionName() ?? "None".ColourError()}");

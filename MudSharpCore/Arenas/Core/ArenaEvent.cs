@@ -158,7 +158,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		sb.AppendLine($"Outcome: {(Outcome?.DescribeEnum() ?? "Unknown").ColourName()}");
 		if (WinningSides != null)
 		{
-			sb.AppendLine($"Winning Sides: {WinningSides.Select(x => x.ToString(actor)).ListToCommaSeparatedValues(", ").ColourValue()}");
+			sb.AppendLine($"Winning Sides: {WinningSides.Select(x => ArenaSideIndexUtilities.ToDisplayString(actor, x)).ListToCommaSeparatedValues(", ").ColourValue()}");
 		}
 
 		sb.AppendLine();
@@ -166,7 +166,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		var grouped = Participants.GroupBy(x => x.SideIndex).OrderBy(x => x.Key);
 		foreach (var group in grouped)
 		{
-			sb.AppendLine($"\tSide {group.Key.ToString(actor).ColourValue()}");
+			sb.AppendLine($"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, group.Key).ColourValue()}");
 			foreach (var participant in group)
 			{
 				var who = participant.Character?.HowSeen(actor) ?? participant.StageName ?? "NPC";
@@ -187,7 +187,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 						? Gameworld.Clans.Get(reservation.ClanId.Value)?.FullName ?? $"Clan #{reservation.ClanId.Value}"
 						: "Unknown";
 				sb.AppendLine(
-					$"\tSide {reservation.SideIndex.ToString(actor).ColourValue()} - {who.ColourName()} (expires {reservation.ExpiresAt.ToString("g", actor).ColourValue()})");
+					$"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, reservation.SideIndex).ColourValue()} - {who.ColourName()} (expires {reservation.ExpiresAt.ToString("g", actor).ColourValue()})");
 			}
 		}
 
@@ -1354,7 +1354,7 @@ internal sealed class ArenaParticipant : IArenaParticipant
 			$"Arena Participant #{SignupId.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Character: {(Character?.HowSeen(actor) ?? "NPC".Colour(Telnet.Yellow))}");
 		sb.AppendLine($"Combatant Class: {CombatantClass.Name.ColourName()}");
-		sb.AppendLine($"Side: {SideIndex.ToString(actor).ColourValue()}");
+		sb.AppendLine($"Side: {ArenaSideIndexUtilities.ToDisplayString(actor, SideIndex).ColourValue()}");
 		sb.AppendLine($"NPC Signup: {IsNpc.ToColouredString()}");
 		sb.AppendLine($"Stage Name: {(string.IsNullOrWhiteSpace(StageName) ? "None".ColourError() : StageName.ColourName())}");
 		sb.AppendLine($"Signature Colour: {(string.IsNullOrWhiteSpace(SignatureColour) ? "None".ColourError() : SignatureColour.ColourValue())}");

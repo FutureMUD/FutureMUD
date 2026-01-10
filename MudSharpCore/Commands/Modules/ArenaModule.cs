@@ -323,11 +323,11 @@ Players:
                         return;
                 }
 
-                if (!int.TryParse(ss.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var sideIndex))
-                {
-                        actor.OutputHandler.Send("You must specify the numeric side index.".ColourError());
-                        return;
-                }
+		if (!ArenaSideIndexUtilities.TryParseDisplayIndex(ss.PopSpeech(), out var sideIndex))
+		{
+			actor.OutputHandler.Send("You must specify the numeric side index starting at 1.".ColourError());
+			return;
+		}
 
                 var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == sideIndex);
                 if (side is null)
@@ -360,8 +360,8 @@ Players:
                         }
 
                         arenaEvent.SignUp(actor, sideIndex, combatantClass);
-                        actor.OutputHandler.Send(
-                                $"You sign up for {arenaEvent.Name.ColourName()} on side {sideIndex.ToString(actor).ColourValue()} as {combatantClass.Name.ColourName()}".Colour(Telnet.Green));
+			actor.OutputHandler.Send(
+				$"You sign up for {arenaEvent.Name.ColourName()} on side {ArenaSideIndexUtilities.ToDisplayString(actor, sideIndex).ColourValue()} as {combatantClass.Name.ColourName()}".Colour(Telnet.Green));
                 }
                 catch (Exception ex)
                 {
@@ -516,15 +516,15 @@ Players:
                         return;
                 }
 
-                try
-                {
-                        actor.Gameworld.ArenaBettingService.PlaceBet(actor, arenaEvent, sideIndex.Value, amount);
-                        actor.OutputHandler.Send(
-                                $"You stake {DescribeCurrency(arenaEvent.Arena, amount)} on {DescribeSide(arenaEvent, sideIndex.Value)}.".Colour(Telnet.Green));
-                }
-                catch (Exception ex)
-                {
-                        actor.OutputHandler.Send(ex.Message.ColourError());
+		try
+		{
+			actor.Gameworld.ArenaBettingService.PlaceBet(actor, arenaEvent, sideIndex.Value, amount);
+			actor.OutputHandler.Send(
+				$"You stake {DescribeCurrency(arenaEvent.Arena, amount)} on {DescribeSide(arenaEvent, sideIndex.Value, actor)}.".Colour(Telnet.Green));
+		}
+		catch (Exception ex)
+		{
+			actor.OutputHandler.Send(ex.Message.ColourError());
                 }
         }
 
@@ -589,7 +589,7 @@ Players:
                         var header = new[] { "Side", "Pool" };
                         var rows = pools.Select(pool => new[]
                         {
-                                pool.SideIndex?.ToString(actor) ?? "Draw",
+				pool.SideIndex.HasValue ? ArenaSideIndexUtilities.ToDisplayString(actor, pool.SideIndex.Value) : "Draw",
                                 DescribeCurrency(arenaEvent.Arena, pool.TotalStake)
                         }).ToList();
 
@@ -864,10 +864,10 @@ Players:
                         return (null, false, string.Empty);
                 }
 
-                if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
-                {
-                        return (null, true, "You must specify a numeric side or the word draw.");
-                }
+		if (!ArenaSideIndexUtilities.TryParseDisplayIndex(text, out var value))
+		{
+			return (null, true, "You must specify a side number starting at 1 or the word draw.");
+		}
 
                 if (arenaEvent.EventType.Sides.All(x => x.Index != value))
                 {
@@ -902,7 +902,7 @@ Players:
         private static string DescribeBetSide(int? sideIndex, ICharacter actor)
         {
                 return sideIndex.HasValue
-                        ? $"Side {sideIndex.Value.ToString(actor).ColourValue()}"
+			? $"Side {ArenaSideIndexUtilities.ToDisplayString(actor, sideIndex.Value).ColourValue()}"
                         : "Draw".ColourValue();
         }
 
@@ -956,7 +956,7 @@ Players:
                 return arena.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
         }
 
-        private static string DescribeSide(IArenaEvent arenaEvent, int? sideIndex)
+        private static string DescribeSide(IArenaEvent arenaEvent, int? sideIndex, ICharacter actor)
         {
                 if (!sideIndex.HasValue)
                 {
@@ -964,8 +964,9 @@ Players:
                 }
 
                 var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == sideIndex.Value);
-                return side is null
-                        ? sideIndex.Value.ToString(CultureInfo.InvariantCulture).ColourValue()
-                        : $"{sideIndex.Value.ToString(CultureInfo.InvariantCulture).ColourValue()} ({side.Policy.DescribeEnum().ColourValue()})";
+		var displayIndex = ArenaSideIndexUtilities.ToDisplayString(actor, sideIndex.Value).ColourValue();
+		return side is null
+			? $"Side {displayIndex}"
+			: $"Side {displayIndex} ({side.Policy.DescribeEnum().ColourValue()})";
         }
 }

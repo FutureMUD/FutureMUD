@@ -365,6 +365,23 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	public (bool Truth, string Reason) CanSignUp(ICharacter character, int sideIndex,
 		ICombatantClass combatantClass)
 	{
+		return CanSignUpInternal(character, sideIndex, combatantClass, false, false);
+	}
+
+	public void SignUp(ICharacter character, int sideIndex, ICombatantClass combatantClass)
+	{
+		var result = CanSignUpInternal(character, sideIndex, combatantClass, false, false);
+		if (!result.Truth)
+		{
+			throw new InvalidOperationException(result.Reason);
+		}
+
+		CompleteSignup(character, sideIndex, combatantClass, true);
+	}
+
+	private (bool Truth, string Reason) CanSignUpInternal(ICharacter character, int sideIndex,
+		ICombatantClass combatantClass, bool ignoreNpcRestriction, bool ignoreSidePolicy)
+	{
 		if (character == null)
 		{
 			return (false, "You cannot sign up without a character.");
@@ -386,7 +403,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return (false, "That combatant class is not eligible for this side.");
 		}
 
-		if (!character.IsPlayerCharacter && !side.AllowNpcSignup)
+		if (!ignoreNpcRestriction && !character.IsPlayerCharacter && !side.AllowNpcSignup)
 		{
 			return (false, "NPC signups are not allowed for that side.");
 		}
@@ -406,25 +423,25 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return (false, "That side is already full.");
 		}
 
+		if (ignoreSidePolicy)
+		{
+			return (true, string.Empty);
+		}
+
 		return side.Policy switch
 		{
 			ArenaSidePolicy.Closed => (false, "That side is closed to new participants."),
-			   ArenaSidePolicy.ManagersOnly when !Arena.IsManager(character) =>
-				   (false, "Only arena managers may sign up for that side."),
-			   ArenaSidePolicy.ReservedOnly when !HasReservation(character) =>
-				   (false, "Only reserved participants may sign up for that side."),
+			ArenaSidePolicy.ManagersOnly when !Arena.IsManager(character) =>
+				(false, "Only arena managers may sign up for that side."),
+			ArenaSidePolicy.ReservedOnly when !HasReservation(character) =>
+				(false, "Only reserved participants may sign up for that side."),
 			_ => (true, string.Empty)
 		};
 	}
 
-	public void SignUp(ICharacter character, int sideIndex, ICombatantClass combatantClass)
+	private void CompleteSignup(ICharacter character, int sideIndex, ICombatantClass combatantClass,
+		bool checkForEarlyPreparation)
 	{
-		var result = CanSignUp(character, sideIndex, combatantClass);
-		if (!result.Truth)
-		{
-			throw new InvalidOperationException(result.Reason);
-		}
-
 		var startingRating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
 		using (new FMDB())
 		{
@@ -454,6 +471,42 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		}
 
 		HandleSignupStaging(character, sideIndex);
+		if (checkForEarlyPreparation)
+		{
+			TryAdvanceToPreparation();
+		}
+	}
+
+	private void TryAdvanceToPreparation()
+	{
+		if (_state != ArenaEventState.RegistrationOpen)
+		{
+			return;
+		}
+
+		if (!IsEventFull())
+		{
+			return;
+		}
+
+		Gameworld.ArenaLifecycleService.Transition(this, ArenaEventState.Preparing);
+	}
+
+	private bool IsEventFull()
+	{
+		var sides = EventType.Sides.ToList();
+		if (sides.Count == 0)
+		{
+			return false;
+		}
+
+		var sideCounts = _participants
+			.GroupBy(x => x.SideIndex)
+			.ToDictionary(x => x.Key, x => x.Count());
+
+		return sides.All(side =>
+			sideCounts.TryGetValue(side.Index, out var count) &&
+			count >= side.Capacity);
 	}
 
 	public void Withdraw(ICharacter character)
@@ -745,7 +798,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		foreach (var side in EventType.Sides)
 		{
-			if (!side.AllowNpcSignup || !side.AutoFillNpc)
+			if (!side.AutoFillNpc)
 			{
 				continue;
 			}
@@ -775,13 +828,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 					continue;
 				}
 
-				var signUpCheck = CanSignUp(npc, side.Index, combatantClass);
+				var signUpCheck = CanSignUpInternal(npc, side.Index, combatantClass, true, true);
 				if (!signUpCheck.Truth)
 				{
 					continue;
 				}
 
-				SignUp(npc, side.Index, combatantClass);
+				CompleteSignup(npc, side.Index, combatantClass, false);
 				slotsNeeded--;
 				if (slotsNeeded <= 0)
 				{

@@ -297,7 +297,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
 		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
 		sb.AppendLine($"Bank Account: {(BankAccount != null ? BankAccount.AccountReference.ColourValue() : "None".ColourError())}");
-		sb.AppendLine($"Funds: {AvailableFunds().ToString("N2", actor).ColourValue()}");
+		sb.AppendLine($"Funds: {Currency.Describe(AvailableFunds(), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
 		if (!Managers.Any())
@@ -362,7 +362,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
 		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
-		sb.AppendLine($"Funds: {AvailableFunds().ToString("N2", actor).ColourValue()}");
+		sb.AppendLine($"Funds: {Currency.Describe(AvailableFunds(), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
 		if (!Managers.Any())

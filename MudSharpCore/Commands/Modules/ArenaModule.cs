@@ -36,15 +36,16 @@ Managers:
 	#3arena events [<arena>]#0 - lists scheduled and live events for an arena
 
 Players:
+        If only one event is active, the <event> argument is optional in the commands below.
         #3arena observe list#0 - shows events observable from your location
-        #3arena observe enter <event>#0 - begin observing an event
+        #3arena observe enter [<event>]#0 - begin observing an event
         #3arena observe leave [<event>]#0 - stop observing events
-        #3arena signup <event> <side> <class>#0 - sign up for an event
-        #3arena withdraw <event>#0 - withdraw from an event
-        #3arena bet odds <event> [<side>|draw]#0 - see betting quote
-        #3arena bet place <event> <side|draw> <amount>#0 - place a wager
-        #3arena bet cancel <event>#0 - cancel your wager
-        #3arena bet pools <event>#0 - view pari-mutuel pools
+        #3arena signup <side> <class> [<event>]#0 - sign up for an event
+        #3arena withdraw [<event>]#0 - withdraw from an event
+        #3arena bet odds [<side>|draw] [<event>]#0 - see betting quote
+        #3arena bet place <side|draw> <amount> [<event>]#0 - place a wager
+        #3arena bet cancel [<event>]#0 - cancel your wager
+        #3arena bet pools [<event>]#0 - view pari-mutuel pools
         #3arena bet list#0 - view your current wagers and payouts
         #3arena bet history [<count>]#0 - view recent wagers
         #3arena bet collect [<event>]#0 - collect outstanding payouts
@@ -250,15 +251,16 @@ Players:
                         return;
                 }
 
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which event do you want to observe?".ColourCommand());
-                        return;
-                }
-
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
+                var eventText = ss.IsFinished ? null : ss.PopSpeech();
+                var arenaEvent = GetArenaEvent(actor, eventText);
                 if (arenaEvent is null)
                 {
+                        if (string.IsNullOrWhiteSpace(eventText))
+                        {
+                                actor.OutputHandler.Send("Which event do you want to observe? You can omit this if only one event is active.".ColourCommand());
+                                return;
+                        }
+
                         actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
                         return;
                 }
@@ -306,26 +308,103 @@ Players:
         {
                 if (ss.IsFinished)
                 {
-                        actor.OutputHandler.Send("Which event do you want to sign up for?".ColourCommand());
-                        return;
-                }
-
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
-                if (arenaEvent is null)
-                {
-                        actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
-                        return;
-                }
-
-                if (ss.IsFinished)
-                {
                         actor.OutputHandler.Send("Which side do you want to sign up for?".ColourCommand());
                         return;
                 }
 
-		if (!ArenaSideIndexUtilities.TryParseDisplayIndex(ss.PopSpeech(), out var sideIndex))
+		var originalArguments = ss.SafeRemainingArgument;
+		var argumentCount = ss.CountRemainingArguments();
+		var firstArg = ss.PopSpeech();
+		IArenaEvent? arenaEvent = null;
+		var classArg = string.Empty;
+		var sideIndex = 0;
+
+		if (ArenaSideIndexUtilities.TryParseDisplayIndex(firstArg, out sideIndex))
 		{
-			actor.OutputHandler.Send("You must specify the numeric side index starting at 1.".ColourError());
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
+				return;
+			}
+
+			classArg = ss.PopSpeech();
+			var eventText = ss.IsFinished ? null : ss.SafeRemainingArgument;
+			arenaEvent = GetArenaEvent(actor, eventText);
+			if (arenaEvent is null && !string.IsNullOrWhiteSpace(eventText) && argumentCount >= 3)
+			{
+				var fallback = new StringStack(originalArguments);
+				arenaEvent = GetArenaEvent(actor, fallback.PopSpeech());
+				if (arenaEvent is null)
+				{
+					actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+					return;
+				}
+
+				if (fallback.IsFinished)
+				{
+					actor.OutputHandler.Send("Which side do you want to sign up for?".ColourCommand());
+					return;
+				}
+
+				if (!ArenaSideIndexUtilities.TryParseDisplayIndex(fallback.PopSpeech(), out sideIndex))
+				{
+					actor.OutputHandler.Send("You must specify the numeric side index starting at 1.".ColourError());
+					return;
+				}
+
+				if (fallback.IsFinished)
+				{
+					actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
+					return;
+				}
+
+				classArg = fallback.PopSpeech();
+			}
+			else if (arenaEvent is null)
+			{
+				if (string.IsNullOrWhiteSpace(eventText))
+				{
+					actor.OutputHandler.Send("Which event do you want to sign up for? You can omit this if only one event is active.".ColourCommand());
+					return;
+				}
+
+				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+				return;
+			}
+		}
+		else
+		{
+			arenaEvent = GetArenaEvent(actor, firstArg);
+			if (arenaEvent is null)
+			{
+				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which side do you want to sign up for?".ColourCommand());
+				return;
+			}
+
+			if (!ArenaSideIndexUtilities.TryParseDisplayIndex(ss.PopSpeech(), out sideIndex))
+			{
+				actor.OutputHandler.Send("You must specify the numeric side index starting at 1.".ColourError());
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
+				return;
+			}
+
+			classArg = ss.PopSpeech();
+		}
+
+		if (arenaEvent is null)
+		{
+			actor.OutputHandler.Send("Which event do you want to sign up for? You can omit this if only one event is active.".ColourCommand());
 			return;
 		}
 
@@ -336,13 +415,6 @@ Players:
                         return;
                 }
 
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
-                        return;
-                }
-
-                var classArg = ss.PopSpeech();
                 var combatantClass = FindCombatantClass(side.EligibleClasses, classArg);
                 if (combatantClass is null)
                 {
@@ -371,15 +443,16 @@ Players:
 
         private static void ArenaWithdraw(ICharacter actor, StringStack ss)
         {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which event do you want to withdraw from?".ColourCommand());
-                        return;
-                }
-
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
+                var eventText = ss.IsFinished ? null : ss.PopSpeech();
+                var arenaEvent = GetArenaEvent(actor, eventText);
                 if (arenaEvent is null)
                 {
+                        if (string.IsNullOrWhiteSpace(eventText))
+                        {
+                                actor.OutputHandler.Send("Which event do you want to withdraw from? You can omit this if only one event is active.".ColourCommand());
+                                return;
+                        }
+
                         actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
                         return;
                 }
@@ -434,20 +507,64 @@ Players:
 
         private static void ArenaBetOdds(ICharacter actor, StringStack ss)
         {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which event do you want to get odds for?".ColourCommand());
-                        return;
-                }
+		string? sideText = null;
+		IArenaEvent? arenaEvent = null;
+		if (ss.IsFinished)
+		{
+			arenaEvent = GetArenaEvent(actor, null);
+			if (arenaEvent is null)
+			{
+				actor.OutputHandler.Send("Which event do you want to get odds for? You can omit this if only one event is active.".ColourCommand());
+				return;
+			}
+		}
+		else
+		{
+			var firstArg = ss.PopSpeech();
+			if (TryParseSideSpecifier(firstArg, out _))
+			{
+				sideText = firstArg;
+				var eventText = ss.IsFinished ? null : ss.SafeRemainingArgument;
+				arenaEvent = GetArenaEvent(actor, eventText);
+				if (arenaEvent is null)
+				{
+					if (string.IsNullOrWhiteSpace(eventText) || TryParseSideSpecifier(eventText, out _))
+					{
+						var explicitEvent = GetArenaEvent(actor, firstArg);
+						if (explicitEvent is not null)
+						{
+							arenaEvent = explicitEvent;
+							sideText = string.IsNullOrWhiteSpace(eventText) ? null : eventText;
+						}
+					}
 
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
-                if (arenaEvent is null)
-                {
-                        actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
-                        return;
-                }
+					if (arenaEvent is null)
+					{
+						if (string.IsNullOrWhiteSpace(eventText))
+						{
+							actor.OutputHandler.Send("Which event do you want to get odds for? You can omit this if only one event is active.".ColourCommand());
+							return;
+						}
 
-                var sideIndex = ParseSideIndex(arenaEvent, ss.IsFinished ? null : ss.PopSpeech(), actor);
+						actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+						return;
+					}
+				}
+			}
+			else
+			{
+				arenaEvent = GetArenaEvent(actor, firstArg);
+				if (arenaEvent is null)
+				{
+					actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+					return;
+				}
+
+				sideText = ss.IsFinished ? null : ss.SafeRemainingArgument;
+			}
+		}
+
+                var sideIndex = ParseSideIndex(arenaEvent, sideText, actor);
                 if (sideIndex.Invalid)
                 {
                         actor.OutputHandler.Send(sideIndex.Error.ColourError());
@@ -479,37 +596,104 @@ Players:
         {
                 if (ss.IsFinished)
                 {
-                        actor.OutputHandler.Send("Which event do you want to bet on?".ColourCommand());
-                        return;
-                }
-
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
-                if (arenaEvent is null)
-                {
-                        actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
-                        return;
-                }
-
-                if (ss.IsFinished)
-                {
                         actor.OutputHandler.Send("Which side (or draw) do you want to bet on?".ColourCommand());
                         return;
                 }
 
-                var sideIndex = ParseSideIndex(arenaEvent, ss.PopSpeech(), actor);
+		var originalArguments = ss.SafeRemainingArgument;
+		var argumentCount = ss.CountRemainingArguments();
+		var firstArg = ss.PopSpeech();
+		IArenaEvent? arenaEvent = null;
+		var sideText = string.Empty;
+		var amountText = string.Empty;
+
+		if (TryParseSideSpecifier(firstArg, out _))
+		{
+			sideText = firstArg;
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("How much do you want to stake?".ColourCommand());
+				return;
+			}
+
+			amountText = ss.PopSpeech();
+			var eventText = ss.IsFinished ? null : ss.SafeRemainingArgument;
+			arenaEvent = GetArenaEvent(actor, eventText);
+			if (arenaEvent is null && !string.IsNullOrWhiteSpace(eventText) && argumentCount >= 3)
+			{
+				var fallback = new StringStack(originalArguments);
+				arenaEvent = GetArenaEvent(actor, fallback.PopSpeech());
+				if (arenaEvent is null)
+				{
+					actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+					return;
+				}
+
+				if (fallback.IsFinished)
+				{
+					actor.OutputHandler.Send("Which side (or draw) do you want to bet on?".ColourCommand());
+					return;
+				}
+
+				sideText = fallback.PopSpeech();
+				if (fallback.IsFinished)
+				{
+					actor.OutputHandler.Send("How much do you want to stake?".ColourCommand());
+					return;
+				}
+
+				amountText = fallback.PopSpeech();
+			}
+			else if (arenaEvent is null)
+			{
+				if (string.IsNullOrWhiteSpace(eventText))
+				{
+					actor.OutputHandler.Send("Which event do you want to bet on? You can omit this if only one event is active.".ColourCommand());
+					return;
+				}
+
+				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+				return;
+			}
+		}
+		else
+		{
+			arenaEvent = GetArenaEvent(actor, firstArg);
+			if (arenaEvent is null)
+			{
+				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which side (or draw) do you want to bet on?".ColourCommand());
+				return;
+			}
+
+			sideText = ss.PopSpeech();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("How much do you want to stake?".ColourCommand());
+				return;
+			}
+
+			amountText = ss.PopSpeech();
+		}
+
+		if (arenaEvent is null)
+		{
+			actor.OutputHandler.Send("Which event do you want to bet on? You can omit this if only one event is active.".ColourCommand());
+			return;
+		}
+
+                var sideIndex = ParseSideIndex(arenaEvent, sideText, actor);
                 if (sideIndex.Invalid)
                 {
                         actor.OutputHandler.Send(sideIndex.Error.ColourError());
                         return;
                 }
 
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("How much do you want to stake?".ColourCommand());
-                        return;
-                }
-
-                var amountText = ss.PopSpeech();
                 if (!arenaEvent.Arena.Currency.TryGetBaseCurrency(amountText, out var amount) || amount <= 0)
                 {
                         actor.OutputHandler.Send("That is not a valid stake amount.".ColourError());
@@ -530,15 +714,16 @@ Players:
 
         private static void ArenaBetCancel(ICharacter actor, StringStack ss)
         {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which event do you want to cancel your bet for?".ColourCommand());
-                        return;
-                }
-
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
+                var eventText = ss.IsFinished ? null : ss.PopSpeech();
+                var arenaEvent = GetArenaEvent(actor, eventText);
                 if (arenaEvent is null)
                 {
+                        if (string.IsNullOrWhiteSpace(eventText))
+                        {
+                                actor.OutputHandler.Send("Which event do you want to cancel your bet for? You can omit this if only one event is active.".ColourCommand());
+                                return;
+                        }
+
                         actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
                         return;
                 }
@@ -557,15 +742,16 @@ Players:
 
         private static void ArenaBetPools(ICharacter actor, StringStack ss)
         {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which event's pools do you want to view?".ColourCommand());
-                        return;
-                }
-
-                var arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
+                var eventText = ss.IsFinished ? null : ss.PopSpeech();
+                var arenaEvent = GetArenaEvent(actor, eventText);
                 if (arenaEvent is null)
                 {
+                        if (string.IsNullOrWhiteSpace(eventText))
+                        {
+                                actor.OutputHandler.Send("Which event's pools do you want to view? You can omit this if only one event is active.".ColourCommand());
+                                return;
+                        }
+
                         actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
                         return;
                 }
@@ -811,29 +997,31 @@ Players:
 			return null;
 		}
 
-		var arenas = actor.Gameworld.CombatArenas
-			.Where(arena =>
+		return actor.Gameworld.CombatArenas
+			.FirstOrDefault(arena =>
 				arena.WaitingCells.Contains(cell) ||
 				arena.ArenaCells.Contains(cell) ||
 				arena.ObservationCells.Contains(cell) ||
 				arena.InfirmaryCells.Contains(cell) ||
 				arena.AfterFightCells.Contains(cell) ||
-				arena.NpcStablesCells.Contains(cell))
-			.ToList();
-
-		return arenas.Count == 1 ? arenas[0] : null;
+				arena.NpcStablesCells.Contains(cell));
 	}
 
-	private static IArenaEvent? GetArenaEvent(ICharacter actor, string text)
+	private static IArenaEvent? GetArenaEvent(ICharacter actor, string? text)
 	{
-		if (string.IsNullOrWhiteSpace(text))
-		{
-			return null;
-		}
-
 		var localArena = GetArenaFromLocation(actor);
 		var allEvents = actor.Gameworld.CombatArenas.SelectMany(x => x.ActiveEvents).ToList();
 		var localEvents = localArena is null ? allEvents : localArena.ActiveEvents.ToList();
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			if (localEvents.Count == 1)
+			{
+				return localEvents[0];
+			}
+
+			return localArena is not null && allEvents.Count == 1 ? allEvents[0] : null;
+		}
+
 		var isIdSearch = long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id);
 
 		IArenaEvent? FindEvent(IEnumerable<IArenaEvent> events)
@@ -854,6 +1042,28 @@ Players:
 		}
 
 		return FindEvent(allEvents);
+	}
+
+	private static bool TryParseSideSpecifier(string? text, out int? sideIndex)
+	{
+		sideIndex = null;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return false;
+		}
+
+		if (text.Equals("draw", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return true;
+		}
+
+		if (ArenaSideIndexUtilities.TryParseDisplayIndex(text, out var value))
+		{
+			sideIndex = value;
+			return true;
+		}
+
+		return false;
 	}
 
         private static (int? Value, bool Invalid, string Error) ParseSideIndex(IArenaEvent arenaEvent, string? text,

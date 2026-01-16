@@ -10,11 +10,13 @@ using System.Text;
 using MudSharp.Community;
 using MudSharp.Construction;
 using System.Globalization;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.TimeAndDate;
 using MudSharp.PerceptionEngine.Parsers;
@@ -242,6 +244,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		{
 			EnforceState(ArenaEventState.Preparing);
 			Changed = true;
+			ApplyPreparationPhaseEffects();
 			return;
 		}
 
@@ -249,6 +252,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		EnforceState(ArenaEventState.Preparing);
 		Changed = true;
+		ApplyPreparationPhaseEffects();
 		PrepareNpcParticipants();
 		PreparePlayerParticipants();
 		ExecuteOutfitProgs();
@@ -260,11 +264,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		{
 			EnforceState(ArenaEventState.Staged);
 			Changed = true;
+			ApplyCombatPhaseEffects();
 			return;
 		}
 
 		EnforceState(ArenaEventState.Staged);
 		Changed = true;
+		ApplyCombatPhaseEffects();
 		MoveParticipantsToArena();
 		ExecuteIntroProg();
 	}
@@ -276,11 +282,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		{
 			EnforceState(ArenaEventState.Live);
 			Changed = true;
+			ApplyCombatPhaseEffects();
 			return;
 		}
 
 		EnforceState(ArenaEventState.Live);
 		Changed = true;
+		ApplyCombatPhaseEffects();
 		MoveParticipantsToArena();
 		ExecuteScoringProg();
 	}
@@ -859,7 +867,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private void PreparePlayerParticipants()
 	{
-		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		foreach (var participant in _participants)
 		{
 			var character = participant.Character;
 			if (character is null)
@@ -867,6 +875,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			EnsureParticipantOutputHandler(character);
 			var waitingCell = Arena.GetWaitingCell(participant.SideIndex);
 			if (waitingCell is not null && !ReferenceEquals(character.Location, waitingCell))
 			{
@@ -899,6 +908,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		ReturnNpcParticipants();
 		MovePlayerParticipantsToAfterFight();
 		RestorePlayerParticipants();
+		ClearParticipantPhaseEffects();
+		ClearObservationEffects();
 	}
 
 	private void ReturnNpcParticipants()
@@ -936,7 +947,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private void RestorePlayerParticipants()
 	{
-		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		foreach (var participant in _participants)
 		{
 			var character = participant.Character;
 			if (character is null)
@@ -944,6 +955,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			EnsureParticipantOutputHandler(character);
 			var effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
 				.FirstOrDefault(x => x.EventId == Id);
 			if (effect is null)
@@ -982,6 +994,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			EnsureParticipantOutputHandler(character);
 			if (character.Location is not null &&
 			    !Arena.ArenaCells.Contains(character.Location) &&
 			    !Arena.WaitingCells.Contains(character.Location))
@@ -1016,6 +1029,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			EnsureParticipantOutputHandler(character);
 			if (character.Location is not null && arenaCells.Contains(character.Location))
 			{
 				continue;
@@ -1327,11 +1341,18 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return;
 		}
 
+		var signupEcho = Arena.SignupEcho;
+		var originCell = character.Location;
+		if (!string.IsNullOrWhiteSpace(signupEcho) && originCell is not null)
+		{
+			originCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
+		}
+
 		character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
 
-		if (!string.IsNullOrWhiteSpace(Arena.SignupEcho))
+		if (!string.IsNullOrWhiteSpace(signupEcho) && !ReferenceEquals(originCell, waitingCell))
 		{
-			waitingCell.Handle(new EmoteOutput(new Emote(Arena.SignupEcho, character)));
+			waitingCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
 		}
 
 		if (!character.IsPlayerCharacter)
@@ -1365,6 +1386,148 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		}
 
 		character.RemoveEffect(effect, true);
+	}
+
+	private void ClearStagingEffects()
+	{
+		foreach (var participant in _participants)
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			ClearStagingEffect(character);
+		}
+	}
+
+	private void ApplyPreparationPhaseEffects()
+	{
+		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			EnsureParticipantOutputHandler(character);
+			EnsurePreparingEffect(character);
+			ClearCombatantEffect(character);
+		}
+
+		ClearStagingEffects();
+	}
+
+	private void ApplyCombatPhaseEffects()
+	{
+		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			EnsureParticipantOutputHandler(character);
+			ClearPreparingEffect(character);
+			EnsureCombatantEffect(character);
+		}
+
+		ClearStagingEffects();
+	}
+
+	private void EnsurePreparingEffect(ICharacter character)
+	{
+		if (!character.IsPlayerCharacter)
+		{
+			return;
+		}
+
+		character.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+		var existing = character.CombinedEffectsOfType<ArenaPreparingEffect>()
+			.FirstOrDefault(x => x.Matches(this));
+		if (existing is not null)
+		{
+			existing.AttachToEvent(this);
+			return;
+		}
+
+		character.AddEffect(new ArenaPreparingEffect(character, this));
+	}
+
+	private void ClearPreparingEffect(ICharacter character)
+	{
+		if (!character.IsPlayerCharacter)
+		{
+			return;
+		}
+
+		var effect = character.CombinedEffectsOfType<ArenaPreparingEffect>()
+			.FirstOrDefault(x => x.Matches(this));
+		if (effect is null)
+		{
+			return;
+		}
+
+		character.RemoveEffect(effect, true);
+	}
+
+	private void ClearPreparationEffects()
+	{
+		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		{
+			var character = participant.Character;
+			if (character is null)
+			{
+				continue;
+			}
+
+			ClearPreparingEffect(character);
+		}
+	}
+
+	private void EnsureCombatantEffect(ICharacter character)
+	{
+		Gameworld.ArenaParticipationService.EnsureParticipation(character, this);
+	}
+
+	private void ClearCombatantEffect(ICharacter character)
+	{
+		Gameworld.ArenaParticipationService.ClearParticipation(character, this);
+	}
+
+	private void ClearParticipantPhaseEffects()
+	{
+		ClearPreparationEffects();
+		Gameworld.ArenaParticipationService.ClearParticipation(this);
+		ClearStagingEffects();
+	}
+
+	private void ClearObservationEffects()
+	{
+		foreach (var cell in Arena.ArenaCells)
+		{
+			var effects = cell.EffectsOfType<ArenaWatcherEffect>()
+				.Where(x => ReferenceEquals(x.ArenaEvent, this))
+				.ToList();
+
+			foreach (var effect in effects)
+			{
+				cell.RemoveEffect(effect, true);
+			}
+		}
+	}
+
+	private static void EnsureParticipantOutputHandler(ICharacter character)
+	{
+		if (character.OutputHandler is not null)
+		{
+			return;
+		}
+
+		character.Register(new NonPlayerOutputHandler());
 	}
 }
 

@@ -15,6 +15,7 @@ namespace MudSharp.Arenas;
 public sealed class ArenaParticipantPreparationEffect : Effect
 {
 	private readonly List<ArenaParticipantItemSnapshot> _items = new();
+	private IArenaEvent? _arenaEvent;
 
 	public ArenaParticipantPreparationEffect(ICharacter owner, long eventId)
 		: base(owner)
@@ -62,7 +63,8 @@ public sealed class ArenaParticipantPreparationEffect : Effect
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return "Arena participant preparation";
+		var eventName = DescribeEventName();
+		return $"Arena participant inventory snapshot for {eventName}.";
 	}
 
 	public void CaptureItem(IGameItem item, InventoryState state, long? wearProfileId, long? bodypartId)
@@ -96,6 +98,29 @@ public sealed class ArenaParticipantPreparationEffect : Effect
 					new XAttribute("State", (int)item.State),
 					new XAttribute("WearProfileId", item.WearProfileId ?? 0),
 					new XAttribute("BodypartId", item.BodypartId ?? 0))));
+	}
+
+	private IArenaEvent? ResolveEvent()
+	{
+		if (_arenaEvent is not null)
+		{
+			return _arenaEvent;
+		}
+
+		_arenaEvent = Gameworld?.CombatArenas.SelectMany(x => x.ActiveEvents)
+			.FirstOrDefault(x => x.Id == EventId);
+		return _arenaEvent;
+	}
+
+	private string DescribeEventName()
+	{
+		var arenaEvent = ResolveEvent();
+		if (arenaEvent is null)
+		{
+			return $"arena event #{EventId}";
+		}
+
+		return arenaEvent.Name;
 	}
 
 	public readonly record struct ArenaParticipantItemSnapshot(

@@ -31,11 +31,6 @@ public class ArenaParticipationService : IArenaParticipationService
                         throw new ArgumentNullException(nameof(arenaEvent));
                 }
 
-                if (!participant.IsPlayerCharacter)
-                {
-                        return;
-                }
-
                 var existing = participant.CombinedEffectsOfType<ArenaParticipationEffect>()
                         .FirstOrDefault(x => x.Matches(arenaEvent));
                 if (existing is not null)
@@ -78,11 +73,6 @@ public class ArenaParticipationService : IArenaParticipationService
         public void ClearParticipation(ICharacter participant, IArenaEvent arenaEvent)
         {
                 if (participant is null || arenaEvent is null)
-                {
-                        return;
-                }
-
-                if (!participant.IsPlayerCharacter)
                 {
                         return;
                 }

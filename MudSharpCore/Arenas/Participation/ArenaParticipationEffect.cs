@@ -12,7 +12,7 @@ using MudSharp.Framework;
 namespace MudSharp.Arenas;
 
 /// <summary>
-///     Marks a player as an active arena participant, preventing logout until the event ends.
+///     Marks a player as an active arena combatant, preventing logout until the event ends.
 /// </summary>
 public sealed class ArenaParticipationEffect : Effect, INoQuitEffect
 {
@@ -61,7 +61,7 @@ public sealed class ArenaParticipationEffect : Effect, INoQuitEffect
 
         public override string Describe(IPerceiver voyeur)
         {
-                return $"Participating in {DescribeEventName()}.";
+                return $"Arena combat participant in {DescribeEventName()}.";
         }
 
         internal bool Matches(IArenaEvent arenaEvent)

@@ -116,39 +116,42 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 		_connection.State = ConnectionState.Closing;
 		_connection = null;
 		Account?.Gameworld.SystemMessage($"Account {Account.Name.Proper()} has disconnected.", true);
-                var characterContext = _context as ICharacter;
-                var isParticipating = characterContext?.CombinedEffectsOfType<ArenaParticipationEffect>()
-                        .Any(x => x.Applies()) ?? false;
-                if (characterContext?.IsGuest ?? false)
-                {
-                        if (!isParticipating)
-                        {
-                                characterContext.AddEffect(new LinkdeadLogout(characterContext),
-                                        TimeSpan.FromSeconds(1));
-                        }
-                        else
-                        {
-                                characterContext.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
-                        }
-                }
-                else
-                {
-                        characterContext?.OutputHandler.Handle(
-                                new EmoteOutput(new Emote("@ have|has gone linkdead.", characterContext),
-                                        flags: OutputFlags.SuppressObscured));
-                        if (characterContext is not null)
-                        {
-                                if (!isParticipating)
-                                {
-                                        characterContext.AddEffect(new LinkdeadLogout(characterContext),
-                                                TimeSpan.FromMinutes(10));
-                                }
-                                else
-                                {
-                                        characterContext.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
-                                }
-                        }
-                }
+		var characterContext = _context as ICharacter;
+		var isParticipating = characterContext?.CombinedEffectsOfType<ArenaParticipationEffect>()
+			.Any(x => x.Applies()) ?? false;
+		var isPreparing = characterContext?.CombinedEffectsOfType<ArenaPreparingEffect>()
+			.Any(x => x.Applies()) ?? false;
+		var isArenaLocked = isParticipating || isPreparing;
+		if (characterContext?.IsGuest ?? false)
+		{
+			if (!isArenaLocked)
+			{
+				characterContext.AddEffect(new LinkdeadLogout(characterContext),
+					TimeSpan.FromSeconds(1));
+			}
+			else
+			{
+				characterContext.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+			}
+		}
+		else
+		{
+			characterContext?.OutputHandler.Handle(
+				new EmoteOutput(new Emote("@ have|has gone linkdead.", characterContext),
+					flags: OutputFlags.SuppressObscured));
+			if (characterContext is not null)
+			{
+				if (!isArenaLocked)
+				{
+					characterContext.AddEffect(new LinkdeadLogout(characterContext),
+						TimeSpan.FromMinutes(10));
+				}
+				else
+				{
+					characterContext.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+				}
+			}
+		}
         }
 
 	public void AddObservee(IMonitorable observee)

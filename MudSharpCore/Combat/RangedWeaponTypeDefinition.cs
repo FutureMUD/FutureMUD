@@ -228,7 +228,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 	public WeaponClassification Classification { get; set; }
 
 	public double CoverBonus { get; set; }
-
+	 
 	public ITraitExpression DamageBonusExpression { get; set; }
 
 	public uint DefaultRangeInRooms { get; set; }

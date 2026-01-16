@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Linq;
 using MudSharp.Framework;
 
 namespace MudSharp.Arenas;
@@ -9,12 +10,12 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaLifecycleService : IArenaLifecycleService
 {
+	private readonly IFuturemud _gameworld;
 	private IArenaScheduler? _scheduler;
 
 	public ArenaLifecycleService(IFuturemud gameworld)
 	{
-		// Retained for future integrations requiring the game context.
-		_ = gameworld;
+		_gameworld = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
 	}
 
 	/// <summary>
@@ -54,6 +55,25 @@ public class ArenaLifecycleService : IArenaLifecycleService
 	public void RebootRecovery()
 	{
 		_scheduler?.RecoverAfterReboot();
+		CleanupInterruptedEvents();
+	}
+
+	private void CleanupInterruptedEvents()
+	{
+		var interruptedEvents = _gameworld.CombatArenas
+			.SelectMany(x => x.ActiveEvents)
+			.Where(x => x.State is ArenaEventState.Preparing
+				or ArenaEventState.Staged
+				or ArenaEventState.Live
+				or ArenaEventState.Resolving
+				or ArenaEventState.Cleanup)
+			.ToList();
+
+		foreach (var arenaEvent in interruptedEvents)
+		{
+			arenaEvent.Abort("Event cancelled due to server restart.");
+			_scheduler?.Cancel(arenaEvent);
+		}
 	}
 
 	private static bool IsForwardTransition(ArenaEventState current, ArenaEventState target)

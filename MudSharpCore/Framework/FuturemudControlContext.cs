@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MudSharp.Accounts;
-using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.GameItems;
 using MudSharp.Menus;
 using MudSharp.Network;
@@ -117,14 +117,11 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 		_connection = null;
 		Account?.Gameworld.SystemMessage($"Account {Account.Name.Proper()} has disconnected.", true);
 		var characterContext = _context as ICharacter;
-		var isParticipating = characterContext?.CombinedEffectsOfType<ArenaParticipationEffect>()
+		var hasNoTimeOutEffect = characterContext?.CombinedEffectsOfType<INoTimeOutEffect>()
 			.Any(x => x.Applies()) ?? false;
-		var isPreparing = characterContext?.CombinedEffectsOfType<ArenaPreparingEffect>()
-			.Any(x => x.Applies()) ?? false;
-		var isArenaLocked = isParticipating || isPreparing;
 		if (characterContext?.IsGuest ?? false)
 		{
-			if (!isArenaLocked)
+			if (!hasNoTimeOutEffect)
 			{
 				characterContext.AddEffect(new LinkdeadLogout(characterContext),
 					TimeSpan.FromSeconds(1));
@@ -141,7 +138,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 					flags: OutputFlags.SuppressObscured));
 			if (characterContext is not null)
 			{
-				if (!isArenaLocked)
+				if (!hasNoTimeOutEffect)
 				{
 					characterContext.AddEffect(new LinkdeadLogout(characterContext),
 						TimeSpan.FromMinutes(10));
@@ -152,7 +149,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 				}
 			}
 		}
-        }
+	}
 
 	public void AddObservee(IMonitorable observee)
 	{

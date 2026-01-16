@@ -10,6 +10,7 @@ using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
@@ -88,6 +89,10 @@ public class ClassicImprovement : ImprovementModel
 
 	public TraitExpression ImprovementExpression { get; set; }
 
+#nullable enable
+	public IFutureProg? ImprovementProg { get; set; }
+#nullable restore
+
 	public string NoGainSecondsDiceExpression { get; set; }
 
 	public bool ImproveOnFail { get; set; }
@@ -151,6 +156,7 @@ public class ClassicImprovement : ImprovementModel
 	protected override string SubtypeHelpText => @"
 	#3chance <%>#0 - sets the chance to get an improvement
 	#3amount <expression>#0 - how much to gain when you get an improvement
+	#3prog <which>#0 - sets a prog to determine how much gain you get (instead of an expression)
 	#3fail#0 - toggles improving on failed rolls
 	#3success#0 - toggles improving on successful rolls
 	#3interval <##>#0 - sets the minimum difficulty interval per existing trait point
@@ -177,9 +183,36 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 			case "success":
 			case "succeed":
 				return BuildingCommandSuccess(actor);
+			case "prog":
+				return BuildingCommandProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
+	}
+
+	private bool BuildingCommandProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a prog. To clear an existing prog, use the #3amount#0 subcommand to set an improvement amount instead.");
+			return false;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Number,
+			[
+				[ ProgVariableTypes.Character],
+				[ ProgVariableTypes.Character, ProgVariableTypes.Trait]
+			])
+			.LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ImprovementProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This improver will now use the prog {prog.MXPClickableFunctionName()} to determine how much the skill improves.");
+		return true;
 	}
 
 	private bool BuildingCommandSuccess(ICharacter actor)
@@ -315,7 +348,14 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 		sb.AppendLine();
 		sb.AppendLine($"Type: {ImproverType.TitleCase().ColourValue()}");
 		sb.AppendLine($"Improvement Chance: {ImprovementChance.ToString("P2", actor).ColourValue()}");
-		sb.AppendLine($"Improvement Amount: {ImprovementExpression.OriginalFormulaText.ColourCommand()}");
+		if (ImprovementProg is not null)
+		{
+			sb.AppendLine($"Improvement Prog: {ImprovementProg.MXPClickableFunctionName()}");
+		}
+		else
+		{
+			sb.AppendLine($"Improvement Amount: {ImprovementExpression.OriginalFormulaText.ColourCommand()}");
+		}
 		sb.AppendLine($"Improve On Fail: {ImproveOnFail.ToColouredString()}");
 		sb.AppendLine($"Improve On Success: {ImproveOnSuccess.ToColouredString()}");
 		sb.AppendLine($"Difficulty Interval: {DifficultyThresholdInterval.ToString("N2", actor).ColourValue()}");
@@ -379,13 +419,21 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 			return 0.0;
 		}
 
+		var gain =
+			ImprovementProg is not null && person is ICharacter ch ?
+			ImprovementProg.ExecuteDouble(ch, trait.Definition) :
+			ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", trait.RawValue));
+		if (gain <= 0.0)
+		{
+			trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- NoGain [Gain amount was {gain:N2}]");
+			return 0.0;
+		}
 		var noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
 		if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
 		{
 			phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
 		}
-
-		var gain = ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", trait.RawValue));
+				
 		trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- Skill Gain of {gain:N4}");
 		return gain;
 	}
@@ -393,9 +441,10 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 	protected virtual void LoadFromXml(XElement root)
 	{
 		ImprovementChance = Convert.ToDouble(root.Attribute("Chance").Value);
-		ImprovementExpression =
-			new TraitExpression(new Expression(root.Attribute("Expression").Value),
-				new Dictionary<string, ITraitDefinition>());
+		ImprovementExpression = new TraitExpression(new Expression(root.Attribute("Expression").Value), new Dictionary<string, ITraitDefinition>());
+		ImprovementProg = root.Attribute("ImprovementProg") != null
+			? Gameworld.FutureProgs.Get(long.Parse(root.Attribute("ImprovementProg").Value))
+			: null;
 		ImproveOnFail = root.Attribute("ImproveOnFail") != null
 			? bool.Parse(root.Attribute("ImproveOnFail").Value)
 			: true;
@@ -416,6 +465,7 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 		return new XElement("Definition",
 			new XAttribute("Chance", ImprovementChance),
 			new XAttribute("Expression", ImprovementExpression.OriginalFormulaText),
+			new XAttribute("ImprovementProg", ImprovementProg?.Id ?? 0),
 			new XAttribute("ImproveOnFail", ImproveOnFail),
 			new XAttribute("ImproveOnSuccess", ImproveOnSuccess),
 			new XAttribute("DifficultyThresholdInterval", DifficultyThresholdInterval),

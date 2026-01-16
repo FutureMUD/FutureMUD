@@ -14,7 +14,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 ///     Marks a player as preparing for an arena event.
 /// </summary>
-public sealed class ArenaPreparingEffect : Effect, INoQuitEffect
+public sealed class ArenaPreparingEffect : Effect, INoQuitEffect, INoTimeOutEffect
 {
 	private readonly long _arenaEventId;
 	private IArenaEvent? _arenaEvent;
@@ -57,6 +57,9 @@ public sealed class ArenaPreparingEffect : Effect, INoQuitEffect
 
 	public string NoQuitReason =>
 		$"You cannot quit while you are preparing for {DescribeEventName()}.";
+
+	public string NoTimeOutReason =>
+		$"You cannot time out while you are preparing for {DescribeEventName()}.";
 
 	public override string Describe(IPerceiver voyeur)
 	{

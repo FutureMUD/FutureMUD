@@ -14,7 +14,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 ///     Marks a player as an active arena combatant, preventing logout until the event ends.
 /// </summary>
-public sealed class ArenaParticipationEffect : Effect, INoQuitEffect
+public sealed class ArenaParticipationEffect : Effect, INoQuitEffect, INoTimeOutEffect
 {
         private readonly long _arenaEventId;
         private IArenaEvent? _arenaEvent;
@@ -58,6 +58,9 @@ public sealed class ArenaParticipationEffect : Effect, INoQuitEffect
 
         public string NoQuitReason =>
                 $"You cannot quit while you are participating in {DescribeEventName()}.";
+
+        public string NoTimeOutReason =>
+                $"You cannot time out while you are participating in {DescribeEventName()}.";
 
         public override string Describe(IPerceiver voyeur)
         {

@@ -9,6 +9,15 @@ using MudSharp.Framework.Revision;
 namespace MudSharp.Framework {
 	public static class CollectionExtensions {
 
+		/// <summary>
+		/// Removes all entries from the dictionary whose keys match the predicate.
+		/// </summary>
+		/// <typeparam name="T">The dictionary type.</typeparam>
+		/// <typeparam name="TKey">The key type.</typeparam>
+		/// <typeparam name="TValue">The value type.</typeparam>
+		/// <param name="dictionary">The dictionary to modify.</param>
+		/// <param name="predicate">A predicate that selects keys to remove.</param>
+		/// <returns>This method does not return a value.</returns>
 		public static void RemoveAllKeys<T, TKey, TValue>(this T dictionary, Predicate<TKey> predicate) where T : IDictionary<TKey, TValue>
 		{
 			foreach (var key in dictionary.Keys.ToArray())
@@ -20,6 +29,14 @@ namespace MudSharp.Framework {
 			}
 		}
 
+		/// <summary>
+		/// Calculates two integer sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <returns>A tuple containing Sum1 and Sum2.</returns>
 		public static (int Sum1, int Sum2) Sum2<T>(this IEnumerable<T> collection, Func<T,int> func1, Func<T,int> func2)
 		{
 			int sum1 = 0, sum2 = 0;
@@ -32,6 +49,15 @@ namespace MudSharp.Framework {
 			return (sum1, sum2);
 		}
 
+		/// <summary>
+		/// Calculates three integer sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <param name="func3">The selector for the third sum.</param>
+		/// <returns>A tuple containing Sum1, Sum2, and Sum3.</returns>
 		public static (int Sum1, int Sum2, int Sum3) Sum3<T>(this IEnumerable<T> collection, Func<T, int> func1, Func<T, int> func2, Func<T, int> func3)
 		{
 			int sum1 = 0, sum2 = 0, sum3 = 0;
@@ -45,6 +71,14 @@ namespace MudSharp.Framework {
 			return (sum1, sum2, sum3);
 		}
 
+		/// <summary>
+		/// Calculates two double sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <returns>A tuple containing Sum1 and Sum2.</returns>
 		public static (double Sum1, double Sum2) Sum2<T>(this IEnumerable<T> collection, Func<T, double> func1, Func<T, double> func2)
 		{
 			double sum1 = 0, sum2 = 0;
@@ -57,6 +91,15 @@ namespace MudSharp.Framework {
 			return (sum1, sum2);
 		}
 
+		/// <summary>
+		/// Calculates three double sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <param name="func3">The selector for the third sum.</param>
+		/// <returns>A tuple containing Sum1, Sum2, and Sum3.</returns>
 		public static (double Sum1, double Sum2, double Sum3) Sum3<T>(this IEnumerable<T> collection, Func<T, double> func1, Func<T, double> func2, Func<T, double> func3)
 		{
 			double sum1 = 0, sum2 = 0, sum3 = 0;
@@ -70,6 +113,14 @@ namespace MudSharp.Framework {
 			return (sum1, sum2, sum3);
 		}
 
+		/// <summary>
+		/// Calculates two decimal sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <returns>A tuple containing Sum1 and Sum2.</returns>
 		public static (decimal Sum1, decimal Sum2) Sum2<T>(this IEnumerable<T> collection, Func<T, decimal> func1, Func<T, decimal> func2)
 		{
 			decimal sum1 = 0, sum2 = 0;
@@ -82,6 +133,15 @@ namespace MudSharp.Framework {
 			return (sum1, sum2);
 		}
 
+		/// <summary>
+		/// Calculates three decimal sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <param name="func3">The selector for the third sum.</param>
+		/// <returns>A tuple containing Sum1, Sum2, and Sum3.</returns>
 		public static (decimal Sum1, decimal Sum2, decimal Sum3) Sum3<T>(this IEnumerable<T> collection, Func<T, decimal> func1, Func<T, decimal> func2, Func<T, decimal> func3)
 		{
 			decimal sum1 = 0, sum2 = 0, sum3 = 0;
@@ -95,6 +155,14 @@ namespace MudSharp.Framework {
 			return (sum1, sum2, sum3);
 		}
 
+		/// <summary>
+		/// Calculates two long sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <returns>A tuple containing Sum1 and Sum2.</returns>
 		public static (long Sum1, long Sum2) Sum2<T>(this IEnumerable<T> collection, Func<T, long> func1, Func<T, long> func2)
 		{
 			long sum1 = 0, sum2 = 0;
@@ -107,6 +175,15 @@ namespace MudSharp.Framework {
 			return (sum1, sum2);
 		}
 
+		/// <summary>
+		/// Calculates three long sums in a single pass over the collection.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="func1">The selector for the first sum.</param>
+		/// <param name="func2">The selector for the second sum.</param>
+		/// <param name="func3">The selector for the third sum.</param>
+		/// <returns>A tuple containing Sum1, Sum2, and Sum3.</returns>
 		public static (long Sum1, long Sum2, long Sum3) Sum3<T>(this IEnumerable<T> collection, Func<T, long> func1, Func<T, long> func2, Func<T, long> func3)
 		{
 			long sum1 = 0, sum2 = 0, sum3 = 0;
@@ -120,12 +197,26 @@ namespace MudSharp.Framework {
 			return (sum1, sum2, sum3);
 		}
 
+		/// <summary>
+		/// Returns the minimum and maximum values in the collection.
+		/// </summary>
+		/// <param name="collection">The source collection.</param>
+		/// <returns>A tuple containing the minimum and maximum values, or (0, 0) if the collection is empty.</returns>
 		public static (int Min, int Max) MinMax(this IEnumerable<int> collection)
 		{
+			var hasValue = false;
 			var min = 0;
 			var max = 0;
 			foreach (var item in collection)
 			{
+				if (!hasValue)
+				{
+					min = item;
+					max = item;
+					hasValue = true;
+					continue;
+				}
+
 				if (item < min)
 				{
 					min = item;
@@ -140,8 +231,15 @@ namespace MudSharp.Framework {
 			return (min, max);
 		}
 
+		/// <summary>
+		/// Returns the minimum and maximum values in the collection that match the predicate.
+		/// </summary>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="predicate">The predicate used to filter elements.</param>
+		/// <returns>A tuple containing the minimum and maximum values among matches, or (0, 0) if none match.</returns>
 		public static (int Min, int Max) MinMax(this IEnumerable<int> collection, Predicate<int> predicate)
 		{
+			var hasValue = false;
 			var min = 0;
 			var max = 0;
 			foreach (var item in collection)
@@ -151,6 +249,14 @@ namespace MudSharp.Framework {
 					continue;
 				}
 
+				if (!hasValue)
+				{
+					min = item;
+					max = item;
+					hasValue = true;
+					continue;
+				}
+
 				if (item < min)
 				{
 					min = item;
@@ -165,12 +271,26 @@ namespace MudSharp.Framework {
 			return (min, max);
 		}
 
+		/// <summary>
+		/// Returns the minimum and maximum values in the collection.
+		/// </summary>
+		/// <param name="collection">The source collection.</param>
+		/// <returns>A tuple containing the minimum and maximum values, or (0.0, 0.0) if the collection is empty.</returns>
 		public static (double Min, double Max) MinMax(this IEnumerable<double> collection)
 		{
+			var hasValue = false;
 			var min = 0.0;
 			var max = 0.0;
 			foreach (var item in collection)
 			{
+				if (!hasValue)
+				{
+					min = item;
+					max = item;
+					hasValue = true;
+					continue;
+				}
+
 				if (item < min)
 				{
 					min = item;
@@ -185,8 +305,15 @@ namespace MudSharp.Framework {
 			return (min, max);
 		}
 
+		/// <summary>
+		/// Returns the minimum and maximum values in the collection that match the predicate.
+		/// </summary>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="predicate">The predicate used to filter elements.</param>
+		/// <returns>A tuple containing the minimum and maximum values among matches, or (0.0, 0.0) if none match.</returns>
 		public static (double Min, double Max) MinMax(this IEnumerable<double> collection, Predicate<double> predicate)
 		{
+			var hasValue = false;
 			var min = 0.0;
 			var max = 0.0;
 			foreach (var item in collection)
@@ -196,48 +323,11 @@ namespace MudSharp.Framework {
 					continue;
 				}
 
-				if (item < min)
+				if (!hasValue)
 				{
 					min = item;
-				}
-
-				if (item > max)
-				{
 					max = item;
-				}
-			}
-
-			return (min, max);
-		}
-
-		public static (decimal Min, decimal Max) MinMax(this IEnumerable<decimal> collection)
-		{
-			var min = 0.0M;
-			var max = 0.0M;
-			foreach (var item in collection)
-			{
-				if (item < min)
-				{
-					min = item;
-				}
-
-				if (item > max)
-				{
-					max = item;
-				}
-			}
-
-			return (min, max);
-		}
-
-		public static (decimal Min, decimal Max) MinMax(this IEnumerable<decimal> collection, Predicate<decimal> predicate)
-		{
-			var min = 0.0M;
-			var max = 0.0M;
-			foreach (var item in collection)
-			{
-				if (!predicate(item))
-				{
+					hasValue = true;
 					continue;
 				}
 
@@ -255,6 +345,87 @@ namespace MudSharp.Framework {
 			return (min, max);
 		}
 
+		/// <summary>
+		/// Returns the minimum and maximum values in the collection.
+		/// </summary>
+		/// <param name="collection">The source collection.</param>
+		/// <returns>A tuple containing the minimum and maximum values, or (0.0M, 0.0M) if the collection is empty.</returns>
+		public static (decimal Min, decimal Max) MinMax(this IEnumerable<decimal> collection)
+		{
+			var hasValue = false;
+			var min = 0.0M;
+			var max = 0.0M;
+			foreach (var item in collection)
+			{
+				if (!hasValue)
+				{
+					min = item;
+					max = item;
+					hasValue = true;
+					continue;
+				}
+
+				if (item < min)
+				{
+					min = item;
+				}
+
+				if (item > max)
+				{
+					max = item;
+				}
+			}
+
+			return (min, max);
+		}
+
+		/// <summary>
+		/// Returns the minimum and maximum values in the collection that match the predicate.
+		/// </summary>
+		/// <param name="collection">The source collection.</param>
+		/// <param name="predicate">The predicate used to filter elements.</param>
+		/// <returns>A tuple containing the minimum and maximum values among matches, or (0.0M, 0.0M) if none match.</returns>
+		public static (decimal Min, decimal Max) MinMax(this IEnumerable<decimal> collection, Predicate<decimal> predicate)
+		{
+			var hasValue = false;
+			var min = 0.0M;
+			var max = 0.0M;
+			foreach (var item in collection)
+			{
+				if (!predicate(item))
+				{
+					continue;
+				}
+
+				if (!hasValue)
+				{
+					min = item;
+					max = item;
+					hasValue = true;
+					continue;
+				}
+
+				if (item < min)
+				{
+					min = item;
+				}
+
+				if (item > max)
+				{
+					max = item;
+				}
+			}
+
+			return (min, max);
+		}
+
+		/// <summary>
+		/// Appends an item to the sequence when the item is not null.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="item">The item to append if it is not null.</param>
+		/// <returns>The original sequence if item is null; otherwise the sequence with item appended.</returns>
 		public static IEnumerable<T> ConcatIfNotNull<T>(this IEnumerable<T> source, T? item) {
 			if (item == null) {
 				return source;
@@ -262,13 +433,14 @@ namespace MudSharp.Framework {
 
 			return source.Append(item);
 		}
+
 		/// <summary>
-		///     This function exludes a specified T from the source collection and returns the result
+		/// Excludes a specified value from the source collection.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <param name="source">The source collection</param>
-		/// <param name="except">The value which is to be excluded from the collection</param>
-		/// <returns>Returns all values in the IEnumerable that are not the specified T</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <param name="source">The source collection.</param>
+		/// <param name="except">The value to exclude from the collection.</param>
+		/// <returns>All values in the sequence that are not the excluded value.</returns>
 		public static IEnumerable<T> Except<T>(this IEnumerable<T> source, T except) where T : notnull {
 			foreach (var item in source)
 			{
@@ -282,13 +454,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     This function exludes a specified U from the source collection of T and returns the result. Use this version when the collection is of a derived type of U.
+		/// Excludes a specified value from a covariant sequence, skipping null elements.
 		/// </summary>
-		/// <typeparam name="T">Any type that is also Type U</typeparam>
-		/// <typeparam name="U">Any type</typeparam>
-		/// <param name="source">The source collection</param>
-		/// <param name="except">The value which is to be excluded from the collection</param>
-		/// <returns>Returns all values in the IEnumerable that are not the specified T</returns>
+		/// <typeparam name="T">Any type that is also type U.</typeparam>
+		/// <typeparam name="U">Any type.</typeparam>
+		/// <param name="source">The source collection.</param>
+		/// <param name="except">The value to exclude from the collection.</param>
+		/// <returns>All values in the sequence that are not the excluded value.</returns>
 		public static IEnumerable<T> ExceptCovariant<T, U>(this IEnumerable<T> source, U except) where T : U
 		{
 			foreach (var item in source)
@@ -308,27 +480,26 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     Returns the original IEnumerable with the additional object appended to the end
+		/// Returns the sequence with an additional item appended to the end.
 		/// </summary>
-		/// <typeparam name="T">Any object</typeparam>
-		/// <param name="source">An Ienumerable of type T</param>
-		/// <param name="plus">An object of type T to append to the list</param>
-		/// <returns>The original list plus the new object</returns>
+		/// <typeparam name="T">Any object.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="plus">The item to append to the sequence.</param>
+		/// <returns>The original sequence plus the new item.</returns>
 		public static IEnumerable<T> Plus<T>(this IEnumerable<T> source, T plus) {
 			return source.Append(plus);
 		}
 
 		/// <summary>
-		///     This method is the same as access the dictionary's index method, except that it returns the default value if none
-		///     is found
+		/// Returns the value for a dictionary key, or a supplied default when the key is missing or null.
 		/// </summary>
-		/// <typeparam name="TKey">The Key type of the dictionary</typeparam>
-		/// <typeparam name="TValue">The Value type of the dictionary</typeparam>
-		/// <typeparam name="U">Any type that is a Tkey</typeparam>
-		/// <param name="source">The source dictionary</param>
-		/// <param name="key">The key to retrieve</param>
-		/// <param name="defaultVal">The default value to use if a key is not found</param>
-		/// <returns>The matched value for the supplied key, or the default value for the TValue type</returns>
+		/// <typeparam name="TKey">The key type of the dictionary.</typeparam>
+		/// <typeparam name="TValue">The value type of the dictionary.</typeparam>
+		/// <typeparam name="U">Any type that is a TKey.</typeparam>
+		/// <param name="source">The source dictionary.</param>
+		/// <param name="key">The key to retrieve.</param>
+		/// <param name="defaultVal">The default value to use if a key is not found.</param>
+		/// <returns>The matched value for the supplied key, or the provided default value.</returns>
 		public static TValue? ValueOrDefault<TKey, TValue, U>(this Dictionary<TKey, TValue> source, U key,
 			TValue? defaultVal) where U : TKey where TKey : notnull {
 			if (key is null)
@@ -339,17 +510,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method designed to find the first element where the supplied function yields a value identical to the
-		///     maximum for the whole collection
+		/// Returns the first element whose selector value equals the maximum for the collection.
 		/// </summary>
-		/// <typeparam name="T">Any Type</typeparam>
-		/// <typeparam name="U">Any IComparable</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="maxfunc">
-		///     A Function taking a parameter of T and returning a U, to be applied to the source to get the
-		///     maximum U
-		/// </param>
-		/// <returns>The first element where the supplied function yields a value identical to the maximum for the whole collection</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any IComparable type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="maxfunc">A selector used to compute the maximum value.</param>
+		/// <returns>The first element with the maximum selector value, or default if the sequence is empty.</returns>
 		public static T? FirstMax<T, U>(this IEnumerable<T> source, Func<T, U> maxfunc) where U : IComparable {
 			var sourceList = source.ToList();
 			if (!sourceList.Any()) {
@@ -360,17 +527,14 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method designed to find the first element where the supplied function yields a value identical to the
-		///     maximum for the whole collection
+		/// Returns the first element whose selector value equals the maximum for the collection, using a fallback value for comparison.
 		/// </summary>
-		/// <typeparam name="T">Any Type</typeparam>
-		/// <typeparam name="U">Any IComparable</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="maxfunc">
-		///     A Function taking a parameter of T and returning a U, to be applied to the source to get the
-		///     maximum U
-		/// </param>
-		/// <returns>The first element where the supplied function yields a value identical to the maximum for the whole collection</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any IComparable type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="maxfunc">A selector used to compute the maximum value.</param>
+		/// <param name="defaultvalue">A fallback value used when computing the maximum.</param>
+		/// <returns>The first element with the maximum selector value, or default if the sequence is empty.</returns>
 		public static T? FirstMax<T, U>(this IEnumerable<T> source, Func<T, U> maxfunc, U? defaultvalue)
 			where U : IComparable {
 			var sourceList = source.ToList();
@@ -382,17 +546,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method designed to find the first element where the supplied function yields a value identical to the
-		///     minimum for the whole collection
+		/// Returns the first element whose selector value equals the minimum for the collection.
 		/// </summary>
-		/// <typeparam name="T">Any Type</typeparam>
-		/// <typeparam name="U">Any IComparable</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="minfunc">
-		///     A Function taking a parameter of T and returning a U, to be applied to the source to get the
-		///     minimum U
-		/// </param>
-		/// <returns>The first element where the supplied function yields a value identical to the minimum for the whole collection</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any IComparable type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="minfunc">A selector used to compute the minimum value.</param>
+		/// <returns>The first element with the minimum selector value, or default if the sequence is empty.</returns>
 		public static T? FirstMin<T, U>(this IEnumerable<T> source, Func<T, U> minfunc) where U : IComparable {
 			var sourceList = source.ToList();
 			if (!sourceList.Any()) {
@@ -403,17 +563,14 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method designed to find the first element where the supplied function yields a value identical to the
-		///     minimum for the whole collection
+		/// Returns the first element whose selector value equals the minimum for the collection, using a fallback value for comparison.
 		/// </summary>
-		/// <typeparam name="T">Any Type</typeparam>
-		/// <typeparam name="U">Any IComparable</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="minfunc">
-		///     A Function taking a parameter of T and returning a U, to be applied to the source to get the
-		///     minimum U
-		/// </param>
-		/// <returns>The first element where the supplied function yields a value identical to the minimum for the whole collection</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any IComparable type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="minfunc">A selector used to compute the minimum value.</param>
+		/// <param name="defaultvalue">A fallback value used when computing the minimum.</param>
+		/// <returns>The first element with the minimum selector value, or default if the sequence is empty.</returns>
 		public static T? FirstMin<T, U>(this IEnumerable<T> source, Func<T, U> minfunc, U? defaultvalue)
 			where U : IComparable {
 			var sourceList = source.ToList();
@@ -425,20 +582,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method designed to return all values of an IEnumerable where the result of the supplied function is
-		///     the maximum for the whole collection
+		/// Returns all elements whose selector value equals the maximum for the collection.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <typeparam name="U">Any IComparable</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="maxfunc">
-		///     A Function taking a parameter of T and returning a U, to be applied to the source to get the
-		///     maximum U
-		/// </param>
-		/// <returns>
-		///     An IEnumerable of Ts containing all elements whose result of maxfunc is equal to the maximum value of maxfunc
-		///     for the whole collection
-		/// </returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any IComparable type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="maxfunc">A selector used to compute the maximum value.</param>
+		/// <returns>All elements that share the maximum selector value, or an empty sequence if the source is empty.</returns>
 		public static IEnumerable<T> WhereMax<T, U>(this IEnumerable<T> source, Func<T, U> maxfunc)
 			where U : IComparable {
 			var sourceList = source.ToList();
@@ -450,20 +600,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method designed to return all values of an IEnumerable where the result of the supplied function is
-		///     the minimum for the whole collection
+		/// Returns all elements whose selector value equals the minimum for the collection.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <typeparam name="U">Any IComparable</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="minfunc">
-		///     A Function taking a parameter of T and returning a U, to be applied to the source to get the
-		///     minimum U
-		/// </param>
-		/// <returns>
-		///     An IEnumerable of Ts containing all elements whose result of minfunc is equal to the minimum value of minfunc
-		///     for the whole collection
-		/// </returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any IComparable type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="minfunc">A selector used to compute the minimum value.</param>
+		/// <returns>All elements that share the minimum selector value, or an empty sequence if the source is empty.</returns>
 		public static IEnumerable<T> WhereMin<T, U>(this IEnumerable<T> source, Func<T, U> minfunc)
 			where U : IComparable {
 			var sourceList = source.ToList();
@@ -475,17 +618,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method that evaluates a function and returns an IEnumerable containing all Ts that did not evaluate
-		///     that function to null
+		/// Returns all elements where the selector result is non-null.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <typeparam name="U">Any Class</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="selectfunc">
-		///     A function taking a parameter of T and returning a U, the result of which will be compared to
-		///     null
-		/// </param>
-		/// <returns>An IEnumerable of Ts containing all elements that did not return null from selectfunc</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any class type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="selectfunc">A selector that returns a value tested for null.</param>
+		/// <returns>An IEnumerable of elements whose selector result is non-null.</returns>
 		public static IEnumerable<T> WhereNotNull<T, U>(this IEnumerable<T?> source, Func<T?, U?> selectfunc)
 			where U : class {
 			foreach (var item in source)
@@ -499,13 +638,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		/// Applies a filter function across an enumerable and counts true results. Returns true if either the specified count is reached or all elements return true
+		/// Counts elements matching the filter and returns true when the minimum count is reached or when all elements match.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <param name="source">The enumerable to evaluate</param>
-		/// <param name="filter">The filter function to apply to elements</param>
-		/// <param name="minCount">The minimum count being targeted</param>
-		/// <returns>True if either the minimum count is met or all elements meet the filter</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <param name="source">The enumerable to evaluate.</param>
+		/// <param name="filter">The filter function to apply to elements.</param>
+		/// <param name="minCount">The minimum count being targeted.</param>
+		/// <returns>True if either the minimum count is met or all elements meet the filter.</returns>
 		public static bool MinCountOrAll<T>(this IEnumerable<T> source, Func<T, bool> filter, int minCount)
 		{
 			var anyMisses = false;
@@ -528,11 +667,11 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     Determines whether the value type is the default value for its type
+		/// Determines whether the value equals the default for its type.
 		/// </summary>
-		/// <typeparam name="T">Any struct</typeparam>
-		/// <param name="value">The value to test</param>
-		/// <returns>True if value is the default for type</returns>
+		/// <typeparam name="T">Any struct.</typeparam>
+		/// <param name="value">The value to test.</param>
+		/// <returns>True if value is the default for the type.</returns>
 		public static bool IsDefault<T>(this T value) where T : struct {
 			var isDefault = value.Equals(default(T));
 
@@ -540,14 +679,13 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     An extension method that evaluates a function in a LINQ select query and returns all elements that did not return
-		///     null
+		/// Returns all non-null selector results from the source sequence.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <typeparam name="U">Any Class</typeparam>
-		/// <param name="source">An IEnumerable of Ts on which to perform the operation</param>
-		/// <param name="selectfunc">A function taking a parameter of T and returning a U, the result of which will be selected</param>
-		/// <returns>An IEnumerable of Us containing the results of all non-null evaluations of selectfunc</returns>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <typeparam name="U">Any class type.</typeparam>
+		/// <param name="source">The source sequence.</param>
+		/// <param name="selectfunc">A selector that returns a value tested for null.</param>
+		/// <returns>An IEnumerable of selector results that are not null.</returns>
 		public static IEnumerable<U> SelectNotNull<T, U>(this IEnumerable<T?> source, Func<T?, U?> selectfunc) {
 			foreach (var item in source)
 			{
@@ -560,26 +698,26 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     Swaps two elements in a list. While it supports fluent syntax use, it has side effects for the source list.
+		/// Swaps two elements in a list by index and returns the list.
 		/// </summary>
-		/// <typeparam name="T">The type of the parameters</typeparam>
-		/// <param name="list">The list containing the items to swap</param>
-		/// <param name="indexA">The index of the first item to swap</param>
-		/// <param name="indexB">The index of the second item to swap</param>
-		/// <returns>A reference to the list</returns>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="list">The list containing the items to swap.</param>
+		/// <param name="indexA">The index of the first item to swap.</param>
+		/// <param name="indexB">The index of the second item to swap.</param>
+		/// <returns>A reference to the list.</returns>
 		public static IList<T> SwapByIndex<T>(this IList<T> list, int indexA, int indexB) {
 			(list[indexA], list[indexB]) = (list[indexB], list[indexA]);
 			return list;
 		}
 
 		/// <summary>
-		///     Swaps two elements in a list
+		/// Swaps two elements in a list by value and returns the list.
 		/// </summary>
-		/// <typeparam name="T">Any reference type</typeparam>
-		/// <param name="list">The list containing the items to swap</param>
-		/// <param name="itemA">The first item to swap</param>
-		/// <param name="itemB">The second item to swap</param>
-		/// <returns>A reference to the list</returns>
+		/// <typeparam name="T">Any reference type.</typeparam>
+		/// <param name="list">The list containing the items to swap.</param>
+		/// <param name="itemA">The first item to swap.</param>
+		/// <param name="itemB">The second item to swap.</param>
+		/// <returns>A reference to the list.</returns>
 		public static IList<T> Swap<T>(this IList<T> list, T itemA, T itemB) {
 			var indexA = list.IndexOf(itemA);
 			var indexB = list.IndexOf(itemB);
@@ -588,6 +726,14 @@ namespace MudSharp.Framework {
 			return list;
 		}
 
+		/// <summary>
+		/// Finds contiguous subsequences of a fixed size where all elements match the predicate.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="sequence">The source sequence.</param>
+		/// <param name="predicate">The predicate used to test each element.</param>
+		/// <param name="sequenceSize">The size of each contiguous sequence to return.</param>
+		/// <returns>All matching contiguous subsequences of the requested size.</returns>
 		public static IEnumerable<IEnumerable<T>> FindSequenceConsecutive<T>(this IEnumerable<T> sequence,
 			Predicate<T> predicate, int sequenceSize) {
 			var list = sequence.ToList();
@@ -607,11 +753,12 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		/// Given a list of type T and an item of type T, adds the item to the list if it is not null (otherwise noop).
+		/// Adds an item to the list when it is not null.
 		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <param name="list">A list of type T</param>
-		/// <param name="item">Any item of type T</param>
+		/// <typeparam name="T">Any type.</typeparam>
+		/// <param name="list">The list to modify.</param>
+		/// <param name="item">The item to add if not null.</param>
+		/// <returns>This method does not return a value.</returns>
 		public static void AddNotNull<T>(this List<T> list, T item)
 		{
 			if (item != null)
@@ -620,6 +767,15 @@ namespace MudSharp.Framework {
 			}
 		}
 
+		/// <summary>
+		/// Applies an action to all adjacent cells (including diagonals) around the specified coordinates.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="array">The 2D array to inspect.</param>
+		/// <param name="xCoord">The X coordinate of the center cell.</param>
+		/// <param name="yCoord">The Y coordinate of the center cell.</param>
+		/// <param name="action">The action to apply to each adjacent element.</param>
+		/// <returns>This method does not return a value.</returns>
 		public static void ApplyActionToAdjacents<T>(this T[,] array, int xCoord, int yCoord, Action<T> action)
 		{
 			var width = array.GetLength(0);
@@ -662,6 +818,15 @@ namespace MudSharp.Framework {
 			}
 		}
 
+		/// <summary>
+		/// Applies an action to all adjacent cells (including diagonals) around the specified coordinates, supplying direction and coordinates.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="array">The 2D array to inspect.</param>
+		/// <param name="xCoord">The X coordinate of the center cell.</param>
+		/// <param name="yCoord">The Y coordinate of the center cell.</param>
+		/// <param name="action">The action to apply to each adjacent element with direction and coordinates.</param>
+		/// <returns>This method does not return a value.</returns>
 		public static void ApplyActionToAdjacentsWithInfo<T>(this T[,] array, int xCoord, int yCoord, Action<T, CardinalDirection, int, int> action)
 		{
 			var width = array.GetLength(0);
@@ -704,6 +869,15 @@ namespace MudSharp.Framework {
 			}
 		}
 
+		/// <summary>
+		/// Applies an action to all adjacent cells (including diagonals) around the specified coordinates, supplying direction.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="array">The 2D array to inspect.</param>
+		/// <param name="xCoord">The X coordinate of the center cell.</param>
+		/// <param name="yCoord">The Y coordinate of the center cell.</param>
+		/// <param name="action">The action to apply to each adjacent element with direction.</param>
+		/// <returns>This method does not return a value.</returns>
 		public static void ApplyActionToAdjacentsWithDirection<T>(this T[,] array, int xCoord, int yCoord, Action<T, CardinalDirection> action)
 		{
 			var width = array.GetLength(0);
@@ -746,6 +920,15 @@ namespace MudSharp.Framework {
 			}
 		}
 
+		/// <summary>
+		/// Applies a function to all adjacent cells (including diagonals) and returns the count of true results.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="array">The 2D array to inspect.</param>
+		/// <param name="xCoord">The X coordinate of the center cell.</param>
+		/// <param name="yCoord">The Y coordinate of the center cell.</param>
+		/// <param name="func">The function to evaluate on each adjacent element.</param>
+		/// <returns>The count of adjacent elements for which the function returned true.</returns>
 		public static int ApplyFunctionToAdjacentsReturnCount<T>(this T[,] array, int xCoord, int yCoord, Func<T,bool> func)
 		{
 			var width = array.GetLength(0);
@@ -791,6 +974,15 @@ namespace MudSharp.Framework {
 			return count;
 		}
 
+		/// <summary>
+		/// Applies a function to all adjacent cells (including diagonals) with direction and returns the count of true results.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="array">The 2D array to inspect.</param>
+		/// <param name="xCoord">The X coordinate of the center cell.</param>
+		/// <param name="yCoord">The Y coordinate of the center cell.</param>
+		/// <param name="func">The function to evaluate on each adjacent element with direction.</param>
+		/// <returns>The count of adjacent elements for which the function returned true.</returns>
 		public static int ApplyFunctionToAdjacentsReturnCountWithDirection<T>(this T[,] array, int xCoord, int yCoord, Func<T, CardinalDirection, bool> func)
 		{
 			var width = array.GetLength(0);
@@ -836,6 +1028,14 @@ namespace MudSharp.Framework {
 			return count;
 		}
 
+		/// <summary>
+		/// Returns the coordinates of the first matching element in a 2D array.
+		/// </summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="array">The 2D array to search.</param>
+		/// <param name="element">The element to locate.</param>
+		/// <returns>A tuple containing the X and Y coordinates of the element.</returns>
+		/// <exception cref="InvalidOperationException">Thrown when the element is not found.</exception>
 		public static (int X, int Y) GetCoordsOfElement<T>(this T[,] array, T element)
 		{
 			for (int i = 0; i < array.GetLength(0); i++)
@@ -855,6 +1055,13 @@ namespace MudSharp.Framework {
 		}
 
 #nullable enable
+		/// <summary>
+		/// Gets an item by exact name match or by a name prefix match.
+		/// </summary>
+		/// <typeparam name="T">Any framework item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="targetText">The name or prefix to match.</param>
+		/// <returns>The first matching item, or null if none match.</returns>
 		public static T? GetByNameOrAbbreviation<T>(this IEnumerable<T> items, string targetText) where T : IFrameworkItem
 		{
 			var itemList = items.ToList();
@@ -862,11 +1069,25 @@ namespace MudSharp.Framework {
 				   itemList.FirstOrDefault(x => x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase));
 		}
 
+		/// <summary>
+		/// Gets the first item with the specified id.
+		/// </summary>
+		/// <typeparam name="T">Any framework item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="id">The id to match.</param>
+		/// <returns>The first matching item, or null if none match.</returns>
 		public static T? Get<T>(this IEnumerable<T> items, long id) where T : IFrameworkItem
 		{
 			return items.FirstOrDefault(x => x.Id == id);
 		}
 
+		/// <summary>
+		/// Gets an item by numeric id or by exact name match or name prefix match.
+		/// </summary>
+		/// <typeparam name="T">Any framework item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="text">The id or name text to match.</param>
+		/// <returns>The first matching item, or null if none match.</returns>
 		public static T? GetByIdOrName<T>(this IEnumerable<T> items, string text) where T : IFrameworkItem
 		{
 			if (long.TryParse(text, out var id))
@@ -879,6 +1100,15 @@ namespace MudSharp.Framework {
 				   itemList.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		}
 
+		/// <summary>
+		/// Gets a revisable item by id or name with editing-friendly priority rules.
+		/// </summary>
+		/// <typeparam name="T">Any revisable item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="text">The id or name text to match.</param>
+		/// <returns>
+		/// The matching item, preferring pending or under-design revisions, then current, then highest revision number.
+		/// </returns>
 		public static T? GetByIdOrNameRevisableForEditing<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
 		{
 			List<T> filteredItems;
@@ -911,6 +1141,15 @@ namespace MudSharp.Framework {
 				filteredItems.FirstMax(x => x.RevisionNumber);
 		}
 
+		/// <summary>
+		/// Gets a revisable item by id or name with current-first priority rules.
+		/// </summary>
+		/// <typeparam name="T">Any revisable item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="text">The id or name text to match.</param>
+		/// <returns>
+		/// The matching item, preferring current revisions, then pending or under-design, then highest revision number.
+		/// </returns>
 		public static T? GetByIdOrNameRevisable<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
 		{
 			List<T> filteredItems;
@@ -943,6 +1182,13 @@ namespace MudSharp.Framework {
 				filteredItems.FirstMax(x => x.RevisionNumber);
 		}
 
+		/// <summary>
+		/// Gets a revisable item by numeric id with current-first priority rules.
+		/// </summary>
+		/// <typeparam name="T">Any revisable item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="text">The id text to match.</param>
+		/// <returns>The matching item, or null if the id is invalid or no items match.</returns>
 		public static T? GetByRevisableId<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
 		{
 			if (long.TryParse(text, out var id))
@@ -957,6 +1203,13 @@ namespace MudSharp.Framework {
 			return default;
 		}
 
+		/// <summary>
+		/// Gets an item by numeric id.
+		/// </summary>
+		/// <typeparam name="T">Any framework item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="text">The id text to match.</param>
+		/// <returns>The matching item, or null if the id is invalid or no items match.</returns>
 		public static T? GetById<T>(this IEnumerable<T> items, string text) where T : IFrameworkItem
 		{
 			if (long.TryParse(text, out var id))
@@ -967,6 +1220,13 @@ namespace MudSharp.Framework {
 			return default;
 		}
 
+		/// <summary>
+		/// Gets an item by numeric id or by ordinal order specified as #n (1-based).
+		/// </summary>
+		/// <typeparam name="T">Any framework item type.</typeparam>
+		/// <param name="items">The collection to search.</param>
+		/// <param name="text">The id text or ordinal order text to match.</param>
+		/// <returns>The matching item, or null if the text is invalid or no items match.</returns>
 		public static T? GetByIdOrOrder<T>(this IEnumerable<T> items, string text) where T : IFrameworkItem
 		{
 			if (long.TryParse(text, out var id))
@@ -974,7 +1234,7 @@ namespace MudSharp.Framework {
 				return items.FirstOrDefault(x => x.Id == id);
 			}
 
-			if (text.Length > 1 && text[0] == '#' && int.TryParse(text.Substring(1), out var index))
+			if (text.Length > 1 && text[0] == '#' && int.TryParse(text.Substring(1), out var index) && index > 0)
 			{
 				return items.ElementAtOrDefault(index - 1);
 			}

@@ -80,7 +80,7 @@ public class CollectionExtensionsTests
 	{
 		var data = new[] { -5, 3, 10, -2 };
 		var (min, max) = data.MinMax(x => x > 0);
-		Assert.AreEqual(0, min, "Min incorrect");
+		Assert.AreEqual(3, min, "Min incorrect");
 		Assert.AreEqual(10, max, "Max incorrect");
 	}
 
@@ -98,7 +98,7 @@ public class CollectionExtensionsTests
         {
                 var data = new[] { -1.5, 0.5, 2.5 };
                 var (min, max) = data.MinMax(x => x >= 0);
-                Assert.AreEqual(0.0, min, 1e-6, "Min incorrect");
+                Assert.AreEqual(0.5, min, 1e-6, "Min incorrect");
                 Assert.AreEqual(2.5, max, 1e-6, "Max incorrect");
         }
 

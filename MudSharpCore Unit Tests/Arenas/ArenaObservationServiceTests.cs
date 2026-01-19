@@ -43,7 +43,7 @@ public class ArenaObservationServiceTests
 	}
 
 	[TestMethod]
-	public void CanObserve_WhenEventNotStaged_ReturnsFalse()
+	public void CanObserve_WhenRegistrationNotOpen_ReturnsFalse()
 	{
 		var observer = new Mock<ICharacter>();
 		observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
@@ -57,7 +57,7 @@ public class ArenaObservationServiceTests
 		arenaEvent.Setup(x => x.Participants).Returns(Array.Empty<IArenaParticipant>());
 		var result = _service.CanObserve(observer.Object, arenaEvent.Object);
 		Assert.IsFalse(result.Truth);
-		StringAssert.Contains(result.Reason, "not been staged");
+		StringAssert.Contains(result.Reason, "Registration has not opened");
 	}
 
 	[TestMethod]
@@ -110,7 +110,25 @@ public class ArenaObservationServiceTests
 		arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
 		var arenaEvent = new Mock<IArenaEvent>();
 		arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
-		arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Live);
+		arenaEvent.Setup(x => x.State).Returns(ArenaEventState.RegistrationOpen);
+		arenaEvent.Setup(x => x.Participants).Returns(Array.Empty<IArenaParticipant>());
+		var result = _service.CanObserve(observer.Object, arenaEvent.Object);
+		Assert.IsTrue(result.Truth);
+		Assert.AreEqual(string.Empty, result.Reason);
+	}
+
+	[TestMethod]
+	public void CanObserve_WhenPreparingAndInObservationCell_ReturnsTrue()
+	{
+		var observer = new Mock<ICharacter>();
+		observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
+		var observationCell = new Mock<ICell>();
+		observer.SetupGet(x => x.Location).Returns(observationCell.Object);
+		var arena = new Mock<ICombatArena>();
+		arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+		var arenaEvent = new Mock<IArenaEvent>();
+		arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
+		arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Preparing);
 		arenaEvent.Setup(x => x.Participants).Returns(Array.Empty<IArenaParticipant>());
 		var result = _service.CanObserve(observer.Object, arenaEvent.Object);
 		Assert.IsTrue(result.Truth);

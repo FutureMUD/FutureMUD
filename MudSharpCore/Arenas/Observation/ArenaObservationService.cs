@@ -44,9 +44,9 @@ public class ArenaObservationService : IArenaObservationService
 			return (false, "That arena event is no longer running.");
 		}
 
-		if (arenaEvent.State < ArenaEventState.Staged)
+		if (arenaEvent.State < ArenaEventState.RegistrationOpen)
 		{
-			return (false, "The event has not been staged for observation yet.");
+			return (false, "Registration has not opened for that event yet.");
 		}
 
 		if (arenaEvent.Participants.Any(x => x.Character == observer))

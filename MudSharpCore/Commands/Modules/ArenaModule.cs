@@ -221,7 +221,7 @@ Players:
                 }
 
                 var events = arenas.SelectMany(x => x.ActiveEvents)
-                        .Where(x => x.State >= ArenaEventState.Staged && x.State < ArenaEventState.Completed)
+                        .Where(x => x.State >= ArenaEventState.RegistrationOpen && x.State < ArenaEventState.Completed)
                         .Distinct()
                         .ToList();
 

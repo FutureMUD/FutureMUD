@@ -98,7 +98,7 @@
 		void LoadNewPlayerHints();
 		void LoadMarkets();
 		void LoadTracks();
-
+		void LoadAIStorytellers();
 		public string GetStaticConfiguration(string whichConfiguration);
 	}
 }

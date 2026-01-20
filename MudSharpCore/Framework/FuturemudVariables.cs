@@ -56,6 +56,7 @@ using MudSharp.NPC.AI;
 using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Light;
+using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Hints;
@@ -82,6 +83,8 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IAccount> _accounts = new();
 	private readonly All<ICharacter> _actors = new();
 	private readonly All<ICharacter> _cachedActors = new();
+	private readonly All<IAIStoryteller> _aiStorytellers = new();
+	private readonly All<IAIStorytellerReferenceDocument> _aiStorytellerReferenceDocuments = new();
 	private readonly All<IAmmunitionType> _ammunitionTypes = new();
 	private readonly All<IArea> _areas = new();
 	private readonly All<IArmourType> _armourTypes = new();
@@ -265,6 +268,9 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<ICharacter> Actors => _actors;
 
 	public IUneditableAll<ICharacter> CachedActors => _cachedActors;
+
+	public IUneditableAll<IAIStoryteller> AIStorytellers => _aiStorytellers;
+	public IUneditableAll<IAIStorytellerReferenceDocument> AIStorytellerReferenceDocuments => _aiStorytellerReferenceDocuments;
 
 	public IUneditableAll<IAmmunitionType> AmmunitionTypes => _ammunitionTypes;
 

@@ -359,6 +359,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 			game.LoadTemporalListeners(); // Should come after everything else is loaded
 			game.LoadProgSchedules(); // Should come after everything else is loaded
+			game.LoadAIStorytellers(); // Should come after everything else is loaded
 
 			SaveManager.MudBootingMode = false;
 
@@ -560,6 +561,34 @@ For information on the syntax to use in emotes (such as those included in bracke
 		var count = _newPlayerHints.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Hint" : "Hints");
 
+	}
+
+	void IFuturemudLoader.LoadAIStorytellers()
+	{
+		ConsoleUtilities.WriteLine("\nLoading #5AI Storyteller Reference Documents#0...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
+
+		// TODO - load
+
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+
+		ConsoleUtilities.WriteLine("\nLoading #5AI Storytellers#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+
+		// TODO - load
+
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
 	}
 
 	void IFuturemudLoader.LoadTracks()

@@ -1,84 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Threading;
+using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
+using MudSharp.Body.Disfigurements;
+using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Decorators;
+using MudSharp.Body.Traits.Improvement;
 using MudSharp.Celestial;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
+using MudSharp.Character.Name;
+using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation.Resources;
 using MudSharp.CharacterCreation.Roles;
+using MudSharp.Climate;
 using MudSharp.Combat;
 using MudSharp.Commands.Trees;
+using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Communication.Language.Scramblers;
 using MudSharp.Community;
+using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Construction.Autobuilder;
 using MudSharp.Construction.Boundary;
+using MudSharp.Construction.Grids;
 using MudSharp.Database;
-using MudSharp.Form.Audio;
+using MudSharp.Economy;
+using MudSharp.Economy.Currency;
+using MudSharp.Economy.Property;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Email;
 using MudSharp.Events.Hooks;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
+using MudSharp.Framework.Save;
+using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Health;
 using MudSharp.Help;
+using MudSharp.Magic;
+using MudSharp.Movement;
 using MudSharp.Network;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Dreams;
+using MudSharp.RPG.Hints;
 using MudSharp.RPG.Knowledge;
+using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
+using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
-using System.Diagnostics;
-using MudSharp.Body.Disfigurements;
-using MudSharp.CharacterCreation;
-using MudSharp.Climate;
-using MudSharp.Magic;
-using MudSharp.Economy;
-using MudSharp.Construction.Grids;
-using MudSharp.NPC.AI.Groups;
-using MudSharp.RPG.Law;
-using MudSharp.Communication;
-using MudSharp.Effects;
-using Microsoft.EntityFrameworkCore;
-using MudSharp.Body.Traits;
-using MudSharp.Body.Traits.Decorators;
-using MudSharp.Character.Heritage;
-using MudSharp.Character.Name;
-using MudSharp.Community.Boards;
-using MudSharp.Economy.Property;
-using MudSharp.Framework.Save;
-using MudSharp.Framework.Scheduling;
-using MudSharp.PerceptionEngine;
-using MudSharp.RPG.Dreams;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
-using MudSharp.RPG.ScriptedEvents;
-using System.Xml.Linq;
-using MudSharp.RPG.Hints;
-using MudSharp.Effects.Concrete;
-using MudSharp.PerceptionEngine.Handlers;
-using System.Numerics;
-using MudSharp.Body.Traits.Improvement;
-using MudSharp.Economy.Currency;
-using MudSharp.Movement;
-using MudSharp.CharacterCreation.Resources;
 
 namespace MudSharp.Framework;
 
@@ -1430,6 +1431,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_drugs.Add(drug);
 	}
 
+	public void Add(IAIStoryteller item)
+	{
+		_aiStorytellers.Add(item);
+	}
+	public void Add(IAIStorytellerReferenceDocument item)
+	{
+		_aiStorytellerReferenceDocuments.Add(item);
+	}
+
 	public void Add(IShopper shopper)
 	{
 		_shoppers.Add(shopper);
@@ -1629,19 +1639,29 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		throw new ApplicationException("No game level destroy implemented for this type.");
 	}
 
+	public void Destroy(IAIStoryteller item)
+	{
+		_aiStorytellers.Remove(item);
+	}
+
+	public void Destroy(IAIStorytellerReferenceDocument item)
+	{
+		_aiStorytellerReferenceDocuments.Remove(item);
+	}
+
 	public void Destroy(IShopper shopper)
 	{
 		_shoppers.Remove(shopper);
 	}
-		public void Destroy(IHeightWeightModel model)
-		{
-				_heightWeightModels.Remove(model);
-		}
+	public void Destroy(IHeightWeightModel model)
+	{
+		_heightWeightModels.Remove(model);
+	}
 
-		public void Destroy(IHearingProfile profile)
-		{
-				_hearingProfiles.Remove(profile);
-		}
+	public void Destroy(IHearingProfile profile)
+	{
+		_hearingProfiles.Remove(profile);
+	}
 
 	public void Destroy(ITrack track)
 	{

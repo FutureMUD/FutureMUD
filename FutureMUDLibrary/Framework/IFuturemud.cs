@@ -60,6 +60,7 @@ using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Light;
+using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Hints;
@@ -103,7 +104,8 @@ namespace MudSharp.Framework
 		/// This collection contains all Actor (NPCs and Characters) that have been loaded into the game
 		/// </summary>
 		IUneditableAll<ICharacter> Actors { get; }
-
+		IUneditableAll<IAIStoryteller> AIStorytellers { get; }
+		IUneditableAll<IAIStorytellerReferenceDocument> AIStorytellerReferenceDocuments { get; }
 		IUneditableAll<ICharacter> CachedActors { get; }
 		IUneditableAll<IAmmunitionType> AmmunitionTypes { get; }
 		IUneditableAll<IArea> Areas { get; }
@@ -375,6 +377,8 @@ namespace MudSharp.Framework
 		void DebugMessage(string message);
 
 		void AddGuest(ICharacter character);
+		void Add(IAIStoryteller item);
+		void Add(IAIStorytellerReferenceDocument item);
 		void Add(IDrug drug);
 		void Add(IShopper shopper);
 		void Add(IColour colour);
@@ -538,6 +542,8 @@ namespace MudSharp.Framework
 		IGameItem TryGetItem(long id, bool addToGameworld = false);
 
 		void Destroy(object obj);
+		void Destroy(IAIStoryteller item);
+		void Destroy(IAIStorytellerReferenceDocument item);
 		void Destroy(IShopper shopper);
 		void Destroy(IHeightWeightModel model);
 		void Destroy(IHearingProfile profile);

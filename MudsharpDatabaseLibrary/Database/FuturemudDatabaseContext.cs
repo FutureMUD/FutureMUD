@@ -38,6 +38,8 @@ namespace MudSharp.Database
 		public virtual DbSet<ActiveProjectLabour> ActiveProjectLabours { get; set; }
 		public virtual DbSet<ActiveProjectMaterial> ActiveProjectMaterials { get; set; }
 		public virtual DbSet<ActiveProject> ActiveProjects { get; set; }
+		public virtual DbSet<AIStoryteller> AIStorytellers { get; set; }
+		public virtual DbSet<AIStorytellerReferenceDocument> AIStorytellerReferenceDocuments { get; set; }
 		public virtual DbSet<Ally> Allies { get; set; }
 		public virtual DbSet<AmmunitionTypes> AmmunitionTypes { get; set; }
 		public virtual DbSet<Appointment> Appointments { get; set; }

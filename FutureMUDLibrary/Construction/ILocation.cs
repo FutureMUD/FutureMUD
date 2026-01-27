@@ -8,6 +8,7 @@ using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
@@ -58,4 +59,5 @@ namespace MudSharp.Construction {
 	}
 
 	public delegate void CharacterMovementEvent(ICharacter character, ILocation location);
+	public delegate void RoomEchoEvent(ICell location, IEmoteOutput emote);
 }

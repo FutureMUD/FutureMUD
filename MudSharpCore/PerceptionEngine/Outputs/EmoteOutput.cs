@@ -110,6 +110,11 @@ public class EmoteOutput : Output, IEmoteOutput
 			flags = PerceiveIgnoreFlags.IgnoreLiquidsAndFlags;
 		}
 
+		if (perceiver is null)
+		{
+			flags = PerceiveIgnoreFlags.TrueDescription | PerceiveIgnoreFlags.IgnoreLiquidsAndFlags;
+		}
+
 		if (_assignedEmotes.IsValueCreated && _assignedEmotes.Value.ContainsKey(perceiver))
 		{
 			returnText = _assignedEmotes.Value[perceiver].ParseFor(perceiver, flags);

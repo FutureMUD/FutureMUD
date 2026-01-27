@@ -122,6 +122,7 @@ namespace MudSharp.Construction
 		(bool Truth, IEnumerable<string> Errors) ProposeDelete();
 		event CellProposedForDeletionDelegate CellProposedForDeletion;
 		event EventHandler CellRequestsDeletion;
+		event RoomEchoEvent OnRoomEcho;
 		void CheckFallExitStatus();
 		IEnumerable<ITrack> Tracks { get; }
 		void AddTrack(ITrack track);

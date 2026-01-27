@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.SDK;
 using Anthropic.SDK.Messaging;
+using Google.Protobuf;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.AI;
 using Mscc.GenerativeAI;
 using Mscc.GenerativeAI.Google;
 using MudSharp.Character;
@@ -19,6 +19,7 @@ using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using OpenAI;
+using OpenAI.Chat;
 
 
 namespace MudSharp.OpenAI;
@@ -144,32 +145,37 @@ internal static class OpenAIHandler
 			return false;
 		}
 
-		var client = new OpenAIClient(apiKey);
-		var chatClient = client.GetChatClient(model).AsIChatClient();
-		var chatHistory = new List<ChatMessage>
+		try
 		{
-			new ChatMessage(ChatRole.System, context),
-			new ChatMessage(ChatRole.User, requestText)
-		};
-		
+			var client = new ChatClient(model, apiKey);
+			var task = Task.Run(async () =>
+			{
 #if DEBUG
-		Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
+				Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
 #endif
-		$"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
-		var task = Task.Run(async () =>
-		{
-			try
-			{
-				var result = await chatClient.GetResponseAsync(chatHistory);
+				$"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
+				var result = await client.CompleteChatAsync(
+					[
+						ChatMessage.CreateSystemMessage(context),
+						ChatMessage.CreateUserMessage(requestText)
+					], new ChatCompletionOptions
+					{
+						Temperature = (float)temperature
+					});
 				$"#CGPT Response#0\n\n{result}".WriteLineConsole();
-				callback(result.Text);
-			}
-			catch (Exception e)
-			{
-				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
-				Futuremud.Games.First().DiscordConnection.NotifyAdmins($"**GPT Error**\n\n```\n{e.ToString()}```");
-			}
+
+				callback(result.Value.Content[0].Text);
 		});
+
+
+		}
+		catch (Exception e)
+		{
+			e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
+			Futuremud.Games.First().DiscordConnection.NotifyAdmins($"**GPT Error**\n\n```\n{e.ToString()}```");
+		}
+
+		$"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
 		return true;
 	}
 
@@ -182,17 +188,17 @@ internal static class OpenAIHandler
 			return false;
 		}
 
-		var client = new OpenAIClient(apiKey);
-		var chatClient = client.GetChatClient(thread.Model).AsIChatClient();
+		var client = new ChatClient(thread.Model, apiKey);
 
 		var prompt = thread.Prompt;
 		if (includeExtraContext && character is not null)
 		{
 			prompt = $"{thread.Prompt}. The time is {character.Location.DateTime().ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Immortal)}. The person you are talking to is called {character.PersonalName.GetName(NameStyle.FullName)} and they are described as {character.HowSeen(character, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}. They are at a location called {character.Location.HowSeen(character, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}.";
 		}
+
 		var chatHistory = new List<ChatMessage>
 		{
-			new ChatMessage(ChatRole.System, prompt),
+			ChatMessage.CreateSystemMessage(prompt)
 		};
 		
 		var messages = maximumHistory == -1
@@ -205,28 +211,41 @@ internal static class OpenAIHandler
 				continue;
 			}
 
-			chatHistory.Add(new ChatMessage(ChatRole.User, message.Message));
-			chatHistory.Add(new ChatMessage(ChatRole.Assistant, message.Response));
+			chatHistory.Add(ChatMessage.CreateUserMessage(message.Message));
+			chatHistory.Add(ChatMessage.CreateAssistantMessage(message.Response));
 		}
 
-		chatHistory.Add(new ChatMessage(ChatRole.User, messageText));
+		chatHistory.Add(ChatMessage.CreateUserMessage(messageText));
 
 		var task = Task.Run(async () =>
 		{
-			var result = await chatClient.GetResponseAsync(chatHistory);
-			using (new FMDB())
+			try
 			{
-				FMDB.Context.GPTMessages.Add(new GPTMessage
+				var result = await client.CompleteChatAsync(chatHistory, new ChatCompletionOptions
 				{
-					GPTThreadId = thread.Id,
-					Message = messageText,
-					Response = result.Text,
-					CharacterId = character?.Id
+					Temperature = (float)thread.Temperature
 				});
-				FMDB.Context.SaveChanges();
+
+				using (new FMDB())
+				{
+					FMDB.Context.GPTMessages.Add(new GPTMessage
+					{
+						GPTThreadId = thread.Id,
+						Message = messageText,
+						Response = result.Value.Content[0].Text,
+						CharacterId = character?.Id
+					});
+					FMDB.Context.SaveChanges();
+				}
+
+				callback(result.Value.Content[0].Text);
 			}
-				
-			callback(result.Text);
+			catch (Exception e)
+			{
+				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
+				Futuremud.Games.First().DiscordConnection.NotifyAdmins($"**GPT Error**\n\n```\n{e.ToString()}```");
+			}
+			
 		});
 		return true;
 	}

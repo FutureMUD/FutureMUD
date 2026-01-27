@@ -1623,6 +1623,8 @@ public partial class Cell : Location, IDisposable, ICell
 		throw new NotImplementedException();
 	}
 
+	public event RoomEchoEvent OnRoomEcho;
+
 	public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true)
 	{
 		if (volume == AudioVolume.Silent)

@@ -24,26 +24,35 @@ public static class OutputExtensions
 {
 	public static void Send<T>(this T target, string text, params object[] parameters) where T : IHandleOutput
 	{
-		if (parameters.Any())
+		if (!text.IsValidFormatString(parameters?.Length ?? 0))
+		{
+			target.OutputHandler?.Send(text);
+			return;
+		}
+
+		if (parameters.Length != 0)
 		{
 			if (target is IFormatProvider tfp)
 			{
 				target.OutputHandler?.Send(string.Format(tfp, text, parameters));
+				return;
 			}
-			else
-			{
-				target.OutputHandler?.Send(string.Format(text, parameters));
-			}
+
+			target.OutputHandler?.Send(string.Format(text, parameters));
+			return;
 		}
-		else
-		{
-			target.OutputHandler?.Send(text);
-		}
+		target.OutputHandler?.Send(text);
 	}
 
 	public static void SendNoNewLine<T>(this T target, string text, params object[] parameters)
 		where T : IHandleOutput
 	{
+		if (!text.IsValidFormatString(parameters?.Length ?? 0))
+		{
+			target.OutputHandler?.Send(text, false);
+			return;
+		}
+
 		if (parameters.Any())
 		{
 			if (target is IFormatProvider tfp)
@@ -63,6 +72,12 @@ public static class OutputExtensions
 
 	public static void SendNoPage<T>(this T target, string text, params object[] parameters) where T : IHandleOutput
 	{
+		if (!text.IsValidFormatString(parameters?.Length ?? 0))
+		{
+			target.OutputHandler?.Send(text, nopage: true);
+			return;
+		}
+
 		if (parameters.Any())
 		{
 			if (target is IFormatProvider tfp)
@@ -76,7 +91,7 @@ public static class OutputExtensions
 		}
 		else
 		{
-			target.OutputHandler?.Send(text);
+			target.OutputHandler?.Send(text, nopage: true);
 		}
 	}
 
@@ -99,15 +114,23 @@ public static class OutputExtensions
 
 	public static void Handle(this ILocation location, string text)
 	{
-		foreach (var ch in location?.Characters ?? Enumerable.Empty<ICharacter>())
+		foreach (var ch in location?.Characters ?? [])
 		{
 			ch.OutputHandler?.Send(text);
 		}
+
+		foreach (var effect in location?.Cells.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()).ToList() ??
+								   Enumerable.Empty<IRemoteObservationEffect>())
+		{
+			effect.HandleOutput(text, location);
+		}
+
+		location.HandleRoomEcho(text);
 	}
 
 	public static void Handle(this ILocation location, IOutput output)
 	{
-		foreach (var ch in location?.Characters ?? Enumerable.Empty<ICharacter>())
+		foreach (var ch in location?.Characters ?? [])
 		{
 			ch.OutputHandler?.Send(output, !output.Style.HasFlag(OutputStyle.NoNewLine),
 				!output.Style.HasFlag(OutputStyle.NoPage));
@@ -121,19 +144,29 @@ public static class OutputExtensions
 				effect.HandleOutput(output, location);
 			}
 		}
+
+		location.HandleRoomEcho(output.ParseFor(null));
 	}
 
 	public static void Handle(this ILocation location, RoomLayer layer, string text)
 	{
-		foreach (var ch in location?.LayerCharacters(layer) ?? Enumerable.Empty<ICharacter>())
+		foreach (var ch in location?.LayerCharacters(layer) ?? [])
 		{
 			ch.OutputHandler?.Send(text);
 		}
+
+		foreach (var effect in location?.Cells.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()).ToList() ??
+								   Enumerable.Empty<IRemoteObservationEffect>())
+		{
+			effect.HandleOutput(text, location);
+		}
+
+		location.HandleRoomEcho(text, layer);
 	}
 
 	public static void Handle(this ILocation location, RoomLayer layer, IOutput output)
 	{
-		foreach (var ch in location?.LayerCharacters(layer) ?? Enumerable.Empty<ICharacter>())
+		foreach (var ch in location?.LayerCharacters(layer) ?? [])
 		{
 			ch.OutputHandler?.Send(output, !output.Style.HasFlag(OutputStyle.NoNewLine),
 				!output.Style.HasFlag(OutputStyle.NoPage));
@@ -148,6 +181,8 @@ public static class OutputExtensions
 				effect.HandleOutput(output, location);
 			}
 		}
+
+		location.HandleRoomEcho(output.ParseFor(null), layer);
 	}
 
 	public static void Handle(this IOutputHandler handler, string text, OutputRange range = OutputRange.Personal)
@@ -163,44 +198,34 @@ public static class OutputExtensions
 				break;
 
 			case OutputRange.Local:
-				foreach (var character in location?.Characters.Where(x => x.RoomLayer == handler.Perceiver.RoomLayer) ??
-				                          Enumerable.Empty<ICharacter>())
-				{
-					character.OutputHandler?.Send(text);
-				}
-
+				location?.Handle(handler.Perceiver.RoomLayer, text);
 				break;
 
 			case OutputRange.Surrounds:
 				foreach (
-					var character in
-					location?.Surrounds.SelectMany(x => x.Characters) ?? Enumerable.Empty<ICharacter>())
+					var room in location?.Surrounds ?? [])
 				{
-					character.OutputHandler?.Send(text);
+					room.Handle(text);
 				}
 
 				break;
 
 			case OutputRange.Room:
-				foreach (var character in location?.Characters ?? Enumerable.Empty<ICharacter>())
-				{
-					character.OutputHandler?.Send(text);
-				}
-
+				location?.Handle(text);
 				break;
 
 			case OutputRange.Zone:
-				foreach (var character in location?.Zone.Characters ?? Enumerable.Empty<ICharacter>())
+				foreach (var room in location?.Zone.Cells ?? [])
 				{
-					character.OutputHandler?.Send(text);
+					room.Handle(text);
 				}
 
 				break;
 
 			case OutputRange.Shard:
-				foreach (var character in location?.Shard.Characters ?? Enumerable.Empty<ICharacter>())
+				foreach (var room in location?.Shard.Cells ?? [])
 				{
-					character.OutputHandler?.Send(text);
+					room.Handle(text);
 				}
 
 				break;
@@ -236,22 +261,10 @@ public static class OutputExtensions
 		var location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
 		               handler.Perceiver?.Location ??
 		               (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault();
-		var vicinity = location?.CellsInVicinity(maxRange, false, false).Except(location) ?? Enumerable.Empty<ICell>();
+		var vicinity = location?.CellsInVicinity(maxRange, false, false).Except(location) ?? [];
 		foreach (var loc in vicinity)
 		{
-			foreach (var character in loc?.Characters ?? Enumerable.Empty<ICharacter>())
-			{
-				character.OutputHandler?.Send(output, newline, nopage);
-			}
-
-			if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
-			{
-				foreach (var effect in loc?.EffectsOfType<IRemoteObservationEffect>().ToList() ??
-				                       Enumerable.Empty<IRemoteObservationEffect>())
-				{
-					effect.HandleOutput(output, loc);
-				}
-			}
+			loc.Handle(output);
 		}
 	}
 
@@ -278,107 +291,45 @@ public static class OutputExtensions
 				break;
 
 			case OutputRange.Local:
-				var locations = (handler.Perceiver as IGameItem)?.TrueLocations ?? new[] { location };
+				var locations = (handler.Perceiver as IGameItem)?.TrueLocations ?? [location];
 				foreach (var loc in locations)
 				{
-					foreach (var character in loc?.Characters.Where(x => x.RoomLayer == handler.Perceiver.RoomLayer) ??
-					                          Enumerable.Empty<ICharacter>())
-					{
-						character.OutputHandler?.Send(output, newline, nopage);
-					}
-
-					if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
-					{
-						foreach (var effect in loc?.EffectsOfType<IRemoteObservationEffect>().ToList() ??
-						                       Enumerable.Empty<IRemoteObservationEffect>())
-						{
-							effect.HandleOutput(output, loc);
-						}
-					}
+					loc.Handle(handler.Perceiver.RoomLayer, output);
 				}
 
 				break;
 
 			case OutputRange.Surrounds:
-				foreach (var loc in location?.Surrounds ?? Enumerable.Empty<ICell>())
+				foreach (var loc in location?.Surrounds ?? [])
 				{
-					foreach (var character in loc?.Characters ?? Enumerable.Empty<ICharacter>())
-					{
-						character.OutputHandler?.Send(output, newline, nopage);
-					}
-
-					if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
-					{
-						foreach (var effect in loc?.EffectsOfType<IRemoteObservationEffect>().ToList() ??
-						                       Enumerable.Empty<IRemoteObservationEffect>())
-						{
-							effect.HandleOutput(output, loc);
-						}
-					}
+					loc.Handle(output);
 				}
 
 				break;
 
-                        case OutputRange.Room:
-                                foreach (var character in location?.Characters ?? Enumerable.Empty<ICharacter>())
-                                {
-                                        character.OutputHandler?.Send(output, newline, nopage);
-                                }
-
-                                if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
-                                {
-                                        foreach (var cell in location?.Room.Cells ?? Enumerable.Empty<ICell>())
-                                        {
-                                                foreach (var effect in cell.EffectsOfType<IRemoteObservationEffect>().ToList())
-                                                {
-                                                        effect.HandleOutput(output, cell);
-                                                }
-                                        }
-                                }
-
+			case OutputRange.Room:
+				location?.Handle(output);
 				break;
 
 			case OutputRange.Zone:
-				foreach (var character in location?.Zone.Characters ?? Enumerable.Empty<ICharacter>())
+				foreach (var cell in location?.Zone.Cells ?? [])
 				{
-					character.OutputHandler?.Send(output, newline, nopage);
-				}
-
-				foreach (var cell in location?.Zone.Cells ?? Enumerable.Empty<ICell>())
-				{
-					if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
-					{
-						foreach (var effect in cell.EffectsOfType<IRemoteObservationEffect>().ToList())
-						{
-							effect.HandleOutput(output, cell);
-						}
-					}
+					cell.Handle(output);
 				}
 
 				break;
 
 			case OutputRange.Shard:
-				foreach (var character in location?.Shard.Characters ?? Enumerable.Empty<ICharacter>())
+				foreach (var cell in location?.Shard.Cells ?? [])
 				{
-					character.OutputHandler?.Send(output, newline, nopage);
-				}
-
-				foreach (var cell in location?.Shard.Cells ?? Enumerable.Empty<ICell>())
-				{
-					if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
-					{
-						foreach (var effect in cell.EffectsOfType<IRemoteObservationEffect>().ToList())
-						{
-							effect.HandleOutput(output, cell);
-						}
-					}
+					cell.Handle(output);
 				}
 
 				break;
 
 			case OutputRange.All:
 				foreach (var character in handler.Perceiver?.Gameworld.Characters ?? Enumerable.Empty<ICharacter>()
-				        )
+						)
 				{
 					character.OutputHandler?.Send(output, newline, nopage);
 				}

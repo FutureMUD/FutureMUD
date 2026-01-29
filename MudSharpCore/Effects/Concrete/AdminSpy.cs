@@ -30,12 +30,20 @@ public class AdminSpy : Effect, IRemoteObservationEffect
 		return $"{AdminOwner.HowSeen(voyeur, true)} is spying on this location.";
 	}
 
+	public void HandleOutput(string text, ILocation location)
+	{
+		if (location != AdminOwner.Location)
+		{
+			AdminOwner.OutputHandler.Send($"@[{location.HowSeen(AdminOwner)} ({location.Id.ToStringN0(AdminOwner)})]\r\n{text}");
+		}
+	}
+
 	public void HandleOutput(IOutput output, ILocation location)
 	{
 		if (location != AdminOwner.Location)
 		{
 			AdminOwner.OutputHandler.Send(new PrependOutputWrapper(output,
-				$"@[{location.HowSeen(AdminOwner)} ({location.Id:N0})]\r\n"));
+				$"@[{location.HowSeen(AdminOwner)} ({location.Id.ToStringN0(AdminOwner)})]\r\n"));
 		}
 	}
 

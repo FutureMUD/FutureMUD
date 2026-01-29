@@ -87,7 +87,7 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
 	}
 
-	private void Cell_OnRoomEcho(ICell location, PerceptionEngine.IEmoteOutput emote)
+	private void Cell_OnRoomEcho(ICell location, RoomLayer layer, PerceptionEngine.IEmoteOutput emote)
 	{
 		var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
 		if (string.IsNullOrEmpty(apiKey))

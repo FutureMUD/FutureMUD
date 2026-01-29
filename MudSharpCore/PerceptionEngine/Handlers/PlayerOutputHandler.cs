@@ -52,7 +52,7 @@ public class PlayerOutputHandler : IOutputHandler
 
 		if (CharacterPerceiver?.Account?.AppendNewlinesBetweenMultipleEchoesPerPrompt == true && Outgoing.Length > 0)
 		{
-			Outgoing.Append("\n");
+			Outgoing.Append('\n');
 		}
 
 		if (!nopage && Perceiver != null && text.Count(x => x == '\n') > Perceiver.Account.PageLength * 1.25)

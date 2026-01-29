@@ -161,5 +161,10 @@ public abstract class Location : PerceivedItem, ILocation
 	public event CharacterMovementEvent OnCharacterEnters;
 	public event CharacterMovementEvent OnCharacterLeaves;
 
+	public virtual void HandleRoomEcho(string echo, RoomLayer? layer = null)
+	{
+		// NOOP
+	}
+
 	#endregion
 }

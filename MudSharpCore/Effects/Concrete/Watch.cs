@@ -111,6 +111,22 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
 		ReleaseEvents();
 	}
 
+	public void HandleOutput(string text, ILocation location)
+	{
+		if (CharacterOwner.EffectsOfType<WatchMaster>().All(x => x.WatchEffects.Contains(this)))
+		{
+			Owner.RemoveEffect(this);
+			return;
+		}
+
+		if (Door?.IsOpen == false && !Door.CanSeeThrough(CharacterOwner.Body))
+		{
+			return;
+		}
+
+		CharacterOwner.OutputHandler.Send($"[{location.HowSeen(CharacterOwner)} ({$"to {ExitDescription}".Colour(Telnet.Green)})]\r\n{text}");
+	}
+
 	public void HandleOutput(IOutput output, ILocation location)
 	{
 		if (CharacterOwner.EffectsOfType<WatchMaster>().All(x => x.WatchEffects.Contains(this)))

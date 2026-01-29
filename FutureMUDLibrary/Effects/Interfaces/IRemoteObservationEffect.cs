@@ -11,5 +11,6 @@ namespace MudSharp.Effects.Interfaces
     public interface IRemoteObservationEffect : IEffectSubtype
     {
         void HandleOutput(IOutput output, ILocation location);
+        void HandleOutput(string text, ILocation location);
     }
 }

@@ -40,34 +40,34 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 		return $"Mirroring arena event {_arenaEvent.Name.ColourName()} to observation rooms.";
 	}
 
-        public void AddWatcher(ICharacter watcher, ICell observationCell)
-        {
-                if (watcher is null)
-                {
-                        return;
-                }
+	public void AddWatcher(ICharacter watcher, ICell observationCell)
+	{
+		if (watcher is null)
+		{
+			return;
+		}
 
-                if (observationCell is null)
-                {
-                        throw new ArgumentNullException(nameof(observationCell));
-                }
+		if (observationCell is null)
+		{
+			throw new ArgumentNullException(nameof(observationCell));
+		}
 
-                var effectiveCell = observationCell;
-                if (watcher.Location is ICell currentCell &&
-                        _arenaEvent.Arena.ObservationCells.Contains(currentCell))
-                {
-                        effectiveCell = currentCell;
-                }
+		var effectiveCell = observationCell;
+		if (watcher.Location is ICell currentCell &&
+				_arenaEvent.Arena.ObservationCells.Contains(currentCell))
+		{
+			effectiveCell = currentCell;
+		}
 
-                if (_watchers.ContainsKey(watcher))
-                {
-                        _watchers[watcher] = effectiveCell;
-                        return;
-                }
+		if (_watchers.ContainsKey(watcher))
+		{
+			_watchers[watcher] = effectiveCell;
+			return;
+		}
 
-                _watchers.Add(watcher, effectiveCell);
-                RegisterWatcher(watcher);
-        }
+		_watchers.Add(watcher, effectiveCell);
+		RegisterWatcher(watcher);
+	}
 
 	public void RemoveWatcher(ICharacter watcher)
 	{
@@ -93,6 +93,11 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 		}
 
 		_watchers.Clear();
+	}
+
+	public void HandleOutput(string text, ILocation location)
+	{
+		// TODO
 	}
 
 	public void HandleOutput(IOutput output, ILocation location)
@@ -154,30 +159,30 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 		}
 	}
 
-        private bool IsWatcherValid(ICharacter watcher, ICell observationCell)
-        {
-                if (!watcher.State.HasFlag(CharacterState.Conscious))
-                {
-                        return false;
-                }
+	private bool IsWatcherValid(ICharacter watcher, ICell observationCell)
+	{
+		if (!watcher.State.HasFlag(CharacterState.Conscious))
+		{
+			return false;
+		}
 
-                if (watcher.Location is not ICell currentCell)
-                {
-                        return false;
-                }
+		if (watcher.Location is not ICell currentCell)
+		{
+			return false;
+		}
 
-                if (!_arenaEvent.Arena.ObservationCells.Contains(currentCell))
-                {
-                        return false;
-                }
+		if (!_arenaEvent.Arena.ObservationCells.Contains(currentCell))
+		{
+			return false;
+		}
 
-                if (!ReferenceEquals(currentCell, observationCell))
-                {
-                        _watchers[watcher] = currentCell;
-                }
+		if (!ReferenceEquals(currentCell, observationCell))
+		{
+			_watchers[watcher] = currentCell;
+		}
 
-                return true;
-        }
+		return true;
+	}
 
 	private void RegisterWatcher(ICharacter watcher)
 	{
@@ -219,27 +224,27 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 		}
 	}
 
-        private void WatcherMoved(object? sender, MoveEventArgs e)
-        {
-                if (sender is not ICharacter watcher)
-                {
-                        return;
-                }
+	private void WatcherMoved(object? sender, MoveEventArgs e)
+	{
+		if (sender is not ICharacter watcher)
+		{
+			return;
+		}
 
-                if (!_watchers.ContainsKey(watcher))
-                {
-                        return;
-                }
+		if (!_watchers.ContainsKey(watcher))
+		{
+			return;
+		}
 
-                if (watcher.Location is ICell currentCell &&
-                        _arenaEvent.Arena.ObservationCells.Contains(currentCell))
-                {
-                        _watchers[watcher] = currentCell;
-                        return;
-                }
+		if (watcher.Location is ICell currentCell &&
+				_arenaEvent.Arena.ObservationCells.Contains(currentCell))
+		{
+			_watchers[watcher] = currentCell;
+			return;
+		}
 
-                RemoveWatcher(watcher);
-        }
+		RemoveWatcher(watcher);
+	}
 
 	private IOutput PrepareForwardedOutput(IOutput original)
 	{

@@ -77,12 +77,12 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			var winningBid = CurrentAuctionBid(item);
 			if (winningBid == null)
 			{
-				AuctionHouseCell.Characters.Handle(new EmoteOutput(new Emote(
+				AuctionHouseCell.Handle(new EmoteOutput(new Emote(
 					$"The auction for $0 has ended. There were no bids placed on the item.", item.Item, item.Item)));
 			}
 			else
 			{
-				AuctionHouseCell.Characters.Handle(new EmoteOutput(new Emote(
+				AuctionHouseCell.Handle(new EmoteOutput(new Emote(
 					$"The auction for $0 has ended. The winning bid was $1.", item.Item, item.Item,
 					new DummyPerceivable(EconomicZone.Currency.Describe(CurrentBid(item),
 						CurrencyDescriptionPatternType.ShortDecimal)))));

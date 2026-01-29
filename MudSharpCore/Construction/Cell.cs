@@ -1625,6 +1625,11 @@ public partial class Cell : Location, IDisposable, ICell
 
 	public event RoomEchoEvent OnRoomEcho;
 
+	public override void HandleRoomEcho(string echo, RoomLayer? layer = null)
+	{
+		OnRoomEcho?.Invoke(this, layer, echo);
+	}
+
 	public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true)
 	{
 		if (volume == AudioVolume.Silent)

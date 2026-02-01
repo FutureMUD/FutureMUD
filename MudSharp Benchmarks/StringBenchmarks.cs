@@ -9,6 +9,18 @@ using MudSharp.Framework;
 namespace MudSharp_Benchmarks;
 
 [MemoryDiagnoser]
+public class JsonEscapeBenchmarks
+{
+	public string SampleText => "This is a sample text with \"quotes\", new lines\r\nand other special characters like \\ and \t tabs.";
+
+	[Benchmark]
+	public string Naive() => SampleText.EscapeForJsonNaive();
+
+	[Benchmark]
+	public string Efficient() => SampleText.EscapeForJson();
+}
+
+[MemoryDiagnoser]
 public class Latin1Benchmarks
 {
 	public IEnumerable<string> SantiseTexts => 

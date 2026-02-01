@@ -11,4 +11,5 @@ public interface IAIStorytellerSituation : IFrameworkItem, ISaveable
 	DateTime CreatedOn { get; }
 	bool IsResolved { get; }
 	void Resolve();
+	void UpdateSituation(string newTitle, string newSituationText);
 }

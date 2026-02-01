@@ -8,7 +8,8 @@ namespace MudSharp_Benchmarks
 		{
 			//BenchmarkRunner.Run<Latin1Benchmarks>();
 			//BenchmarkRunner.Run<StringBenchmarks>();
-			BenchmarkRunner.Run<ShuffleBenchmarks>();
+			//BenchmarkRunner.Run<ShuffleBenchmarks>();
+			BenchmarkRunner.Run<JsonEscapeBenchmarks>();
 			Console.ReadLine();
 		}
 	}

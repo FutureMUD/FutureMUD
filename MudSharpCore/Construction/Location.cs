@@ -166,5 +166,10 @@ public abstract class Location : PerceivedItem, ILocation
 		// NOOP
 	}
 
+	public virtual void HandleRoomEcho(IEmoteOutput emote, RoomLayer? layer = null)
+	{
+		// NOOP
+	}
+
 	#endregion
 }

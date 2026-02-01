@@ -52,10 +52,34 @@
         /// </summary>
         event HeartbeatManagerDelegate FuzzyMinuteHeartbeat;
 
-        /// <summary>
-        /// The FuzzyHourHeartbeat fires every 3600 seconds but splits up subscribers into different generations so that they are approximately "load balanced" and not all fire at the same 3600 second intervals
-        /// </summary>
-        event HeartbeatManagerDelegate FuzzyHourHeartbeat;
+		/// <summary>
+		/// The event fires every 300 seconds but splits up subscribers into different generations so that they are approximately "load balanced" and not all fire at the same 60 second intervals
+		/// </summary>
+		/// <remarks>The timing of this event is not guaranteed to be exactly five minutes; it may vary
+		/// slightly due to system scheduling or other factors. Subscribers should not rely on precise intervals for
+		/// time-sensitive operations.</remarks>
+		event HeartbeatManagerDelegate FuzzyFiveMinuteHeartbeat;
+
+		/// <summary>
+		/// The event fires every 600 seconds but splits up subscribers into different generations so that they are approximately "load balanced" and not all fire at the same 60 second intervals
+		/// </summary>
+		/// <remarks>The timing of this event is not guaranteed to be exactly ten minutes; it may vary
+		/// slightly due to system scheduling or other factors. Subscribers should not rely on precise intervals for
+		/// time-sensitive operations.</remarks>
+		event HeartbeatManagerDelegate FuzzyTenMinuteHeartbeat;
+
+		/// <summary>
+		/// The event fires every 1800 seconds but splits up subscribers into different generations so that they are approximately "load balanced" and not all fire at the same 60 second intervals
+		/// </summary>
+		/// <remarks>The timing of this event is not guaranteed to be exactly thirty minutes; it may vary
+		/// slightly due to system scheduling or other factors. Subscribers should not rely on precise intervals for
+		/// time-sensitive operations.</remarks>
+		event HeartbeatManagerDelegate FuzzyThirtyMinuteHeartbeat;
+
+		/// <summary>
+		/// The FuzzyHourHeartbeat fires every 3600 seconds but splits up subscribers into different generations so that they are approximately "load balanced" and not all fire at the same 3600 second intervals
+		/// </summary>
+		event HeartbeatManagerDelegate FuzzyHourHeartbeat;
 
         void ManuallyFireHeartbeatHour();
         void ManuallyFireHeartbeatMinute();

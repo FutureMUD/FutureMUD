@@ -27,7 +27,7 @@
 	<PackageReference Include="MailKit" Version="4.14.1" />
 	<PackageReference Include="Microsoft.Extensions.AI" Version="10.1.1" />
 	<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.10.2-preview.1.25552.1" />
-	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
 	<PackageReference Include="Mscc.GenerativeAI" Version="1.5.1" />
 	<PackageReference Include="Mscc.GenerativeAI.Google" Version="1.5.1" />
 	<PackageReference Include="MySqlBackup.NET" Version="2.6.5" />

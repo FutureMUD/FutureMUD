@@ -356,6 +356,145 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
 		}
 	}
 
+	#region 5 Minute Heartbeat
+	private event HeartbeatManagerDelegate _Fuzzy5mGeneration1;
+	private event HeartbeatManagerDelegate _Fuzzy5mGeneration2;
+	private event HeartbeatManagerDelegate _Fuzzy5mGeneration3;
+	private event HeartbeatManagerDelegate _Fuzzy5mGeneration4;
+	private event HeartbeatManagerDelegate _Fuzzy5mGeneration5;
+	private int _last5mGeneration = 1;
+	public event HeartbeatManagerDelegate FuzzyFiveMinuteHeartbeat
+	{
+		add
+		{
+			switch (_last5mGeneration++)
+			{
+				case 1:
+					_Fuzzy5mGeneration1 += value;
+					break;
+				case 2:
+					_Fuzzy5mGeneration2 += value;
+					break;
+				case 3:
+					_Fuzzy5mGeneration3 += value;
+					break;
+				case 4:
+					_Fuzzy5mGeneration4 += value;
+					break;
+				case 5:
+					_Fuzzy5mGeneration5 += value;
+					break;
+			}
+
+			if (_last5mGeneration > 5)
+			{
+				_last5mGeneration = 1;
+			}
+		}
+		remove
+		{
+			_Fuzzy5mGeneration1 -= value;
+			_Fuzzy5mGeneration2 -= value;
+			_Fuzzy5mGeneration3 -= value;
+			_Fuzzy5mGeneration4 -= value;
+			_Fuzzy5mGeneration5 -= value;
+		}
+	}
+	#endregion
+
+	#region 10 Minute Heartbeat
+	private event HeartbeatManagerDelegate _Fuzzy10mGeneration1;
+	private event HeartbeatManagerDelegate _Fuzzy10mGeneration2;
+	private event HeartbeatManagerDelegate _Fuzzy10mGeneration3;
+	private event HeartbeatManagerDelegate _Fuzzy10mGeneration4;
+	private event HeartbeatManagerDelegate _Fuzzy10mGeneration5;
+	private int _last10mGeneration = 1;
+	public event HeartbeatManagerDelegate FuzzyTenMinuteHeartbeat
+	{
+		add
+		{
+			switch (_last10mGeneration++)
+			{
+				case 1:
+					_Fuzzy10mGeneration1 += value;
+					break;
+				case 2:
+					_Fuzzy10mGeneration2 += value;
+					break;
+				case 3:
+					_Fuzzy10mGeneration3 += value;
+					break;
+				case 4:
+					_Fuzzy10mGeneration4 += value;
+					break;
+				case 5:
+					_Fuzzy10mGeneration5 += value;
+					break;
+			}
+
+			if (_last10mGeneration > 5)
+			{
+				_last10mGeneration = 1;
+			}
+		}
+		remove
+		{
+			_Fuzzy10mGeneration1 -= value;
+			_Fuzzy10mGeneration2 -= value;
+			_Fuzzy10mGeneration3 -= value;
+			_Fuzzy10mGeneration4 -= value;
+			_Fuzzy10mGeneration5 -= value;
+		}
+	}
+	#endregion
+
+	#region 30 Minute Heartbeat
+	private event HeartbeatManagerDelegate _Fuzzy30mGeneration1;
+	private event HeartbeatManagerDelegate _Fuzzy30mGeneration2;
+	private event HeartbeatManagerDelegate _Fuzzy30mGeneration3;
+	private event HeartbeatManagerDelegate _Fuzzy30mGeneration4;
+	private event HeartbeatManagerDelegate _Fuzzy30mGeneration5;
+	private int _last30mGeneration = 1;
+	public event HeartbeatManagerDelegate FuzzyThirtyMinuteHeartbeat
+	{
+		add
+		{
+			switch (_last30mGeneration++)
+			{
+				case 1:
+					_Fuzzy30mGeneration1 += value;
+					break;
+				case 2:
+					_Fuzzy30mGeneration2 += value;
+					break;
+				case 3:
+					_Fuzzy30mGeneration3 += value;
+					break;
+				case 4:
+					_Fuzzy30mGeneration4 += value;
+					break;
+				case 5:
+					_Fuzzy30mGeneration5 += value;
+					break;
+			}
+
+			if (_last30mGeneration > 5)
+			{
+				_last30mGeneration = 1;
+			}
+		}
+		remove
+		{
+			_Fuzzy30mGeneration1 -= value;
+			_Fuzzy30mGeneration2 -= value;
+			_Fuzzy30mGeneration3 -= value;
+			_Fuzzy30mGeneration4 -= value;
+			_Fuzzy30mGeneration5 -= value;
+		}
+	}
+	#endregion
+
+	#region Hour Heartbeat
 	private event HeartbeatManagerDelegate _FuzzyHourGeneration1;
 	private event HeartbeatManagerDelegate _FuzzyHourGeneration2;
 	private event HeartbeatManagerDelegate _FuzzyHourGeneration3;
@@ -403,6 +542,7 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
 			_FuzzyHourGeneration5 -= value;
 		}
 	}
+	#endregion
 
 	private void Heartbeat()
 	{
@@ -505,6 +645,63 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
 				break;
 			case 48:
 				_FuzzyMinuteGeneration5?.Invoke();
+				break;
+		}
+
+		switch (heartbeatCount % 300)
+		{
+			case 0:
+				_Fuzzy5mGeneration1?.Invoke();
+				break;
+			case 60:
+				_Fuzzy5mGeneration2?.Invoke();
+				break;
+			case 120:
+				_Fuzzy5mGeneration3?.Invoke();
+				break;
+			case 180:
+				_Fuzzy5mGeneration4?.Invoke();
+				break;
+			case 240:
+				_Fuzzy5mGeneration5?.Invoke();
+				break;
+		}
+
+		switch (heartbeatCount % 600)
+		{
+			case 0:
+				_Fuzzy10mGeneration1?.Invoke();
+				break;
+			case 120:
+				_Fuzzy10mGeneration2?.Invoke();
+				break;
+			case 240:
+				_Fuzzy10mGeneration3?.Invoke();
+				break;
+			case 360:
+				_Fuzzy10mGeneration4?.Invoke();
+				break;
+			case 480:
+				_Fuzzy10mGeneration5?.Invoke();
+				break;
+		}
+
+		switch (heartbeatCount % 1800)
+		{
+			case 0:
+				_Fuzzy30mGeneration1?.Invoke();
+				break;
+			case 360:
+				_Fuzzy30mGeneration2?.Invoke();
+				break;
+			case 720:
+				_Fuzzy30mGeneration3?.Invoke();
+				break;
+			case 1080:
+				_Fuzzy30mGeneration4?.Invoke();
+				break;
+			case 1440:
+				_Fuzzy30mGeneration5?.Invoke();
 				break;
 		}
 

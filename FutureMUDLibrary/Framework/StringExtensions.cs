@@ -7,7 +7,8 @@ using System.Text.RegularExpressions;
 using MudSharp.Accounts;
 
 namespace MudSharp.Framework {
-	public static partial class StringExtensions {
+	public static partial class StringExtensions
+	{
 		private static readonly Regex SpecialCharacterRegex = new(@"(\\""|\\n|\\t|\\\\)",
 			RegexOptions.IgnoreCase);
 
@@ -24,42 +25,48 @@ namespace MudSharp.Framework {
 		/// <summary>
 		///     Surrounds the input with "[" and "]"
 		/// </summary>
-		public static string SquareBrackets(this string input) {
+		public static string SquareBrackets(this string input)
+		{
 			return "[" + input + "]";
 		}
 
 		/// <summary>
 		///     Pads the input with specified "*" and " ", and then surrounds with "[" and "]"
 		/// </summary>
-		public static string StarRectangle(this string input, int stars, int length) {
+		public static string StarRectangle(this string input, int stars, int length)
+		{
 			return input.PadRight(stars, '*').PadRight(length - stars, ' ').SquareBrackets();
 		}
 
 		/// <summary>
 		///     Surrounds the input with "[" and "] "
 		/// </summary>
-		public static string SquareBracketsSpace(this string input) {
+		public static string SquareBracketsSpace(this string input)
+		{
 			return "[" + input + "] ";
 		}
 
 		/// <summary>
 		///     Surrounds the input with "{" and "}"
 		/// </summary>
-		public static string CurlyBrackets(this string input) {
+		public static string CurlyBrackets(this string input)
+		{
 			return "{" + input + "}";
 		}
 
 		/// <summary>
 		///     Surrounds the input with "{" and "} "
 		/// </summary>
-		public static string CurlyBracketsSpace(this string input) {
+		public static string CurlyBracketsSpace(this string input)
+		{
 			return "{" + input + "} ";
 		}
 
 		/// <summary>
 		///     Fluent method to surround the input with "(" and ")" if truth is true
 		/// </summary>
-		public static string Parentheses(this string input, bool truth = true) {
+		public static string Parentheses(this string input, bool truth = true)
+		{
 			return truth ? "(" + input + ")" : input;
 		}
 
@@ -93,7 +100,8 @@ namespace MudSharp.Framework {
 		/// <summary>
 		///     Surrounds the input with "(" and ") "
 		/// </summary>
-		public static string ParenthesesSpace(this string input) {
+		public static string ParenthesesSpace(this string input)
+		{
 			return "(" + input + ") ";
 		}
 
@@ -112,14 +120,17 @@ namespace MudSharp.Framework {
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public static string DoubleQuotes(this string input, bool truth = true) {
-			if (!truth) {
+		public static string DoubleQuotes(this string input, bool truth = true)
+		{
+			if (!truth)
+			{
 				return input;
 			}
 			return "\"" + input + "\"";
 		}
 
-		public static string RemoveFirstCharacter(this string input) {
+		public static string RemoveFirstCharacter(this string input)
+		{
 			return input.Length > 1 ? input.Substring(1).TrimStart() : "";
 		}
 
@@ -128,18 +139,23 @@ namespace MudSharp.Framework {
 			return input.Length > 1 ? input.Substring(0, input.Length - 1) : "";
 		}
 
-		public static string RemoveFirstWord(this string input) {
+		public static string RemoveFirstWord(this string input)
+		{
 			var firstSpace = input.IndexOf(' ');
 			return firstSpace != -1 ? input.Remove(0, firstSpace + 1).TrimStart() : "";
 		}
 
-		public static string ParseSpecialCharacters(this string input) {
-			if (string.IsNullOrEmpty(input)) {
+		public static string ParseSpecialCharacters(this string input)
+		{
+			if (string.IsNullOrEmpty(input))
+			{
 				return string.Empty;
 			}
 
-			return SpecialCharacterRegex.Replace(input, m => {
-				switch (m.Groups[1].Value.ToLowerInvariant()) {
+			return SpecialCharacterRegex.Replace(input, m =>
+			{
+				switch (m.Groups[1].Value.ToLowerInvariant())
+				{
 					case "\\\"":
 						return "\"";
 					case "\\n":
@@ -162,7 +178,8 @@ namespace MudSharp.Framework {
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public static string Fullstop(this string input) {
+		public static string Fullstop(this string input)
+		{
 			if (FullstopRegex.IsMatch(input))
 			{
 				return input;
@@ -174,35 +191,43 @@ namespace MudSharp.Framework {
 		/// <summary>
 		///     Capitalises the first character of the string
 		/// </summary>
-		public static string Proper(this string input) {
+		public static string Proper(this string input)
+		{
 			return string.IsNullOrEmpty(input) ? "" : ProperCaseRegex.Replace(input, m => char.ToUpper(m.Groups[1].Value[0]).ToString(), 1);
 		}
 
-		public static string ReplaceFirst(this string text, string search, string replace) {
-			if (string.IsNullOrEmpty(text)) {
+		public static string ReplaceFirst(this string text, string search, string replace)
+		{
+			if (string.IsNullOrEmpty(text))
+			{
 				return string.Empty;
 			}
 
 			var pos = text.IndexOf(search, StringComparison.Ordinal);
-			if (pos < 0) {
+			if (pos < 0)
+			{
 				return text;
 			}
 			return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
 		}
 
-		public static string ReplaceFirst(this string text, char search, char replace) {
-			if (string.IsNullOrEmpty(text)) {
+		public static string ReplaceFirst(this string text, char search, char replace)
+		{
+			if (string.IsNullOrEmpty(text))
+			{
 				return string.Empty;
 			}
 
 			var pos = text.IndexOf(search);
-			if (pos < 0) {
+			if (pos < 0)
+			{
 				return text;
 			}
 			return text.Substring(0, pos) + replace + text.Substring(pos + 1);
 		}
 
-		public static string TitleCase(this string input) {
+		public static string TitleCase(this string input)
+		{
 			return TitleCaseRegex.Replace(input, m => char.ToUpper(m.Groups[1].Value[0]).ToString());
 		}
 
@@ -212,11 +237,13 @@ namespace MudSharp.Framework {
 		/// <param name="input"></param>
 		/// <param name="proper"></param>
 		/// <returns></returns>
-		public static string FluentProper(this string input, bool proper) {
+		public static string FluentProper(this string input, bool proper)
+		{
 			return proper ? input.Proper() : input;
 		}
 
-		public static bool IsInteger(this string input) {
+		public static bool IsInteger(this string input)
+		{
 			return long.TryParse(input, out _);
 		}
 
@@ -227,7 +254,8 @@ namespace MudSharp.Framework {
 		/// <param name="targetWord">The word that is being searched for</param>
 		/// <param name="abbreviated">Whether or not abbreviations are acceptable</param>
 		/// <returns>True if the target word is in the collection, with the specified options</returns>
-		public static bool HasWord(this List<string> input, string targetWord, bool abbreviated = true) {
+		public static bool HasWord(this List<string> input, string targetWord, bool abbreviated = true)
+		{
 			return abbreviated
 				? input.Any(x => x.StartsWith(targetWord, StringComparison.InvariantCultureIgnoreCase))
 				: input.Any(x => x.Equals(targetWord, StringComparison.InvariantCultureIgnoreCase));
@@ -240,54 +268,66 @@ namespace MudSharp.Framework {
 		/// <param name="targetWords">The words that are being searched for</param>
 		/// <param name="abbreviated">Whether or not abbreviations are acceptable</param>
 		/// <returns>True if the target words are all in the collection, with the specified options</returns>
-		public static bool HasWord(this List<string> input, IEnumerable<string> targetWords, bool abbreviated = true) {
+		public static bool HasWord(this List<string> input, IEnumerable<string> targetWords, bool abbreviated = true)
+		{
 			return abbreviated
 				? targetWords.All(x => input.Any(y => y.StartsWith(x, StringComparison.InvariantCultureIgnoreCase)))
 				: targetWords.All(x => input.Any(y => y.Equals(x, StringComparison.InvariantCultureIgnoreCase)));
 		}
 
-		public static string IfEmpty(this string text, string emptytext) {
+		public static string IfEmpty(this string text, string emptytext)
+		{
 			return text.Length > 0 ? text : emptytext;
 		}
 
-		public static string SpaceIfNotEmpty(this string text) {
+		public static string SpaceIfNotEmpty(this string text)
+		{
 			return text.ConcatIfNotEmpty(" ");
 		}
 
-		public static string LeadingSpaceIfNotEmpty(this string text) {
+		public static string LeadingSpaceIfNotEmpty(this string text)
+		{
 			return text.LeadingConcatIfNotEmpty(" ");
 		}
 
-		public static string ConcatIfNotEmpty(this string text, string concat) {
+		public static string ConcatIfNotEmpty(this string text, string concat)
+		{
 			return string.IsNullOrEmpty(text) ? text : text + concat;
 		}
 
-		public static string LeadingConcatIfNotEmpty(this string text, string concat) {
+		public static string LeadingConcatIfNotEmpty(this string text, string concat)
+		{
 			return string.IsNullOrEmpty(text) ? text : concat + text;
 		}
 
-		public static bool EqualTo(this string text, string compareText, bool caseInsensitive = true) {
+		public static bool EqualTo(this string text, string compareText, bool caseInsensitive = true)
+		{
 			return string.Equals(text, compareText,
 				caseInsensitive ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
 		}
 
-		public static bool EqualToAny(this string text, params string[] compareTexts) {
+		public static bool EqualToAny(this string text, params string[] compareTexts)
+		{
 			return compareTexts.Any(x => string.Equals(text, x, StringComparison.InvariantCultureIgnoreCase));
 		}
 
-		public static string Strip(this string source, Func<char, bool> charsToStrip) {
+		public static string Strip(this string source, Func<char, bool> charsToStrip)
+		{
 			return new string(source.Where(x => !charsToStrip(x)).ToArray());
 		}
 
-		public static string Append(this string source, string suffix) {
+		public static string Append(this string source, string suffix)
+		{
 			return source + suffix;
 		}
 
-		public static string Prepend(this string source, string prefix) {
+		public static string Prepend(this string source, string prefix)
+		{
 			return prefix + source;
 		}
 
-		public static string NormaliseSpacing(this string text, bool ignorePunctuation = false) {
+		public static string NormaliseSpacing(this string text, bool ignorePunctuation = false)
+		{
 			return ignorePunctuation
 				? NormaliseSpacingRegex1St.Replace(text, m => " ")
 				: NormaliseSpacingRegex3Rd.Replace(
@@ -295,7 +335,8 @@ namespace MudSharp.Framework {
 						m => m.Groups[1].Value), m => m.Groups[1].Value + " " + m.Groups[2].Value);
 		}
 
-		public static string IfNullOrWhiteSpace(this string text, string fallback) {
+		public static string IfNullOrWhiteSpace(this string text, string fallback)
+		{
 			return string.IsNullOrWhiteSpace(text) ? fallback : text;
 		}
 
@@ -304,14 +345,16 @@ namespace MudSharp.Framework {
 		/// </summary>
 		/// <param name="text"></param>
 		/// <returns></returns>
-		public static string RawText(this string text) {
+		public static string RawText(this string text)
+		{
 			var sb = new StringBuilder();
 			bool colour = false, mxp = false;
 			foreach (var t in text)
 			{
 				colour = colour || (t == '\x1B');
 				mxp = mxp || (t == MXP.BeginMXPChar);
-				if (!mxp && !colour) {
+				if (!mxp && !colour)
+				{
 					sb.Append(t);
 				}
 				colour = (!colour || (t != 'm')) && colour;
@@ -430,9 +473,12 @@ namespace MudSharp.Framework {
 		/// </summary>
 		/// <param name="input">The player input</param>
 		/// <returns>A sanitised input that does not contain any {n} references</returns>
-		public static string Sanitise(this string input) {
-			return StringSanitisingRegex.Replace(input, m => {
-				switch (m.Value) {
+		public static string Sanitise(this string input)
+		{
+			return StringSanitisingRegex.Replace(input, m =>
+			{
+				switch (m.Value)
+				{
 					case "{":
 						return "{{";
 					case "}":
@@ -446,7 +492,8 @@ namespace MudSharp.Framework {
 		public static Regex StringSanitisingFilteredRegex = new(@"\{(?<index>\d+)[^\}]*\}");
 		public static string SanitiseExceptNumbered(this string input, int maximumIndex)
 		{
-			return StringSanitisingFilteredRegex.Replace(input, m => {
+			return StringSanitisingFilteredRegex.Replace(input, m =>
+			{
 				if (int.Parse(m.Groups["index"].Value) <= maximumIndex)
 				{
 					return m.Value;
@@ -518,13 +565,15 @@ namespace MudSharp.Framework {
 		/// <param name="names">A collection of strings in which the name must be unique</param>
 		/// <param name="name">The proposed name</param>
 		/// <returns>The unique string</returns>
-		public static string NameOrAppendNumberToName<T>(this T names, string name) where T : IEnumerable<string> {
+		public static string NameOrAppendNumberToName<T>(this T names, string name) where T : IEnumerable<string>
+		{
 			var regex = new Regex($"{name}(?<number>[0-9]+)?$", RegexOptions.IgnoreCase);
 			var matches = names
 				.Select(x => regex.Match(x))
 				.Where(x => x.Success)
 				.ToList();
-			if (!matches.Any()) {
+			if (!matches.Any())
+			{
 				return name;
 			}
 
@@ -993,7 +1042,8 @@ namespace MudSharp.Framework {
 		public static string GetLineWithTitle(this string text, int linelength, bool useUnicode, ANSIColour rulerColour, ANSIColour titleColour)
 		{
 			var sb = new StringBuilder();
-			if (rulerColour != null) {
+			if (rulerColour != null)
+			{
 				sb.Append(rulerColour.Colour);
 			}
 			sb.Append(useUnicode ? '═' : '=', 7);
@@ -1003,7 +1053,8 @@ namespace MudSharp.Framework {
 				sb.Append(rulerColour.Reset());
 			}
 
-			if (titleColour != null) {
+			if (titleColour != null)
+			{
 				sb.Append(titleColour.Colour);
 			}
 
@@ -1011,7 +1062,8 @@ namespace MudSharp.Framework {
 			sb.Append(text);
 			sb.Append(' ');
 
-			if (titleColour != null) {
+			if (titleColour != null)
+			{
 				sb.Append(titleColour.Reset());
 			}
 
@@ -1021,7 +1073,7 @@ namespace MudSharp.Framework {
 			}
 			sb.Append(useUnicode ? "╠" : "]");
 			sb.Append(useUnicode ? '═' : '=', Math.Max(linelength - 11 - text.RawTextLength(), 1));
-			
+
 			if (rulerColour != null)
 			{
 				sb.Append(rulerColour.Reset());
@@ -1112,7 +1164,7 @@ namespace MudSharp.Framework {
 				{
 					continue;
 				}
-				
+
 				distanceFromNewline += 1;
 				sbLine.Append(c);
 				if (!foundNonSpaceCharacters && !inAnsi && !char.IsWhiteSpace(c) && c != Telnet.NoWordWrapChar)
@@ -1205,7 +1257,7 @@ namespace MudSharp.Framework {
 						_encoded.Add(c);
 						continue;
 					}
-					
+
 					// Check if the Unicode category of the character is not NonSpacingMark
 					// This filters out diacritic marks
 					if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
@@ -1390,5 +1442,200 @@ namespace MudSharp.Framework {
 
 			return char.ToUpper(word[0]) + word.Substring(1).ToLower();
 		}
+
+		public static string EscapeForJsonNaive(this string input)
+		{
+			if (string.IsNullOrEmpty(input))
+				return input;
+			return input
+				.Replace("\\", "\\\\")
+				.Replace("\"", "\\\"")
+				.Replace("\b", "\\b")
+				.Replace("\f", "\\f")
+				.Replace("\n", "\\n")
+				.Replace("\r", "\\r")
+				.Replace("\t", "\\t");
+		}
+
+#nullable enable
+		public static string? EscapeForJson(this string? input)
+		{
+			if (string.IsNullOrEmpty(input))
+				return input;
+
+			ReadOnlySpan<char> src = input.AsSpan();
+
+			int first = FindFirstCharToEscape(src);
+			if (first < 0)
+				return input; // hot path: nothing to escape
+
+			int newLength = src.Length + CountExtraEscapeChars(src, first);
+
+			return string.Create(newLength, (input, first), static (dest, state) =>
+			{
+				ReadOnlySpan<char> s = state.input.AsSpan();
+				int firstIdx = state.first;
+
+				// Copy prefix that needs no escaping
+				s.Slice(0, firstIdx).CopyTo(dest);
+
+				int di = firstIdx;
+				for (int i = firstIdx; i < s.Length; i++)
+				{
+					char c = s[i];
+
+					// Preserve valid surrogate pairs as-is (JSON is Unicode; UTF-16 is fine here)
+					if (char.IsHighSurrogate(c))
+					{
+						if (i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+						{
+							dest[di++] = c;
+							dest[di++] = s[++i];
+							continue;
+						}
+
+						// Lone high surrogate -> escape
+						WriteUnicodeEscape(dest, ref di, c);
+						continue;
+					}
+
+					if (char.IsLowSurrogate(c))
+					{
+						// Lone low surrogate -> escape
+						WriteUnicodeEscape(dest, ref di, c);
+						continue;
+					}
+
+					switch (c)
+					{
+						case '"':
+							dest[di++] = '\\';
+							dest[di++] = '"';
+							break;
+						case '\\':
+							dest[di++] = '\\';
+							dest[di++] = '\\';
+							break;
+						case '\b':
+							dest[di++] = '\\';
+							dest[di++] = 'b';
+							break;
+						case '\f':
+							dest[di++] = '\\';
+							dest[di++] = 'f';
+							break;
+						case '\n':
+							dest[di++] = '\\';
+							dest[di++] = 'n';
+							break;
+						case '\r':
+							dest[di++] = '\\';
+							dest[di++] = 'r';
+							break;
+						case '\t':
+							dest[di++] = '\\';
+							dest[di++] = 't';
+							break;
+						default:
+							if (c < 0x20)
+							{
+								// Other control chars must be escaped in JSON
+								WriteUnicodeEscape(dest, ref di, c);
+							}
+							else
+							{
+								dest[di++] = c;
+							}
+							break;
+					}
+				}
+			});
+		}
+
+		private static int FindFirstCharToEscape(ReadOnlySpan<char> s)
+		{
+			for (int i = 0; i < s.Length; i++)
+			{
+				char c = s[i];
+
+				if (c == '"' || c == '\\' || c < 0x20)
+					return i;
+
+				if (char.IsHighSurrogate(c))
+				{
+					if (i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+					{
+						i++; // valid pair, skip the low surrogate
+						continue;
+					}
+					return i; // lone high surrogate
+				}
+
+				if (char.IsLowSurrogate(c))
+					return i; // lone low surrogate
+			}
+
+			return -1;
+		}
+
+		private static int CountExtraEscapeChars(ReadOnlySpan<char> s, int start)
+		{
+			int extra = 0;
+
+			for (int i = start; i < s.Length; i++)
+			{
+				char c = s[i];
+
+				if (char.IsHighSurrogate(c))
+				{
+					if (i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+					{
+						i++; // valid pair, no escaping
+						continue;
+					}
+					extra += 5; // \uXXXX replaces 1 char => +5
+					continue;
+				}
+
+				if (char.IsLowSurrogate(c))
+				{
+					extra += 5; // \uXXXX => +5
+					continue;
+				}
+
+				switch (c)
+				{
+					case '"':
+					case '\\':
+					case '\b':
+					case '\f':
+					case '\n':
+					case '\r':
+					case '\t':
+						extra += 1; // becomes 2 chars => +1
+						break;
+					default:
+						if (c < 0x20)
+							extra += 5; // \uXXXX => +5
+						break;
+				}
+			}
+
+			return extra;
+		}
+
+		private static void WriteUnicodeEscape(Span<char> dest, ref int di, char c)
+		{
+			dest[di++] = '\\';
+			dest[di++] = 'u';
+
+			int v = c;
+			dest[di++] = ToHex((v >> 12) & 0xF);
+			dest[di++] = ToHex((v >> 8) & 0xF);
+			dest[di++] = ToHex((v >> 4) & 0xF);
+			dest[di++] = ToHex(v & 0xF);
+		}
+
+		private static char ToHex(int value) => (char)(value < 10 ? ('0' + value) : ('A' + (value - 10)));
 	}
 }

@@ -145,7 +145,14 @@ public static class OutputExtensions
 			}
 		}
 
-		location.HandleRoomEcho(output.ParseFor(null));
+		if (output is IEmoteOutput emoteOutput)
+		{
+			location.HandleRoomEcho(emoteOutput);
+		}
+		else
+		{
+			location.HandleRoomEcho(output.ParseFor(null));
+		}
 	}
 
 	public static void Handle(this ILocation location, RoomLayer layer, string text)
@@ -182,7 +189,14 @@ public static class OutputExtensions
 			}
 		}
 
-		location.HandleRoomEcho(output.ParseFor(null), layer);
+		if (output is IEmoteOutput emoteOutput)
+		{
+			location.HandleRoomEcho(emoteOutput, layer);
+		}
+		else
+		{
+			location.HandleRoomEcho(output.ParseFor(null), layer);
+		}
 	}
 
 	public static void Handle(this IOutputHandler handler, string text, OutputRange range = OutputRange.Personal)

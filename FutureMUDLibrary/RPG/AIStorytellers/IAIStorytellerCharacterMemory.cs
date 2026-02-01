@@ -9,7 +9,6 @@ public interface IAIStorytellerCharacterMemory : IFrameworkItem, ISaveable
 {
 	IAIStoryteller AIStoryteller { get; }
 	ICharacter Character { get; }
-	string CharacterName { get; }
 	string MemoryTitle { get; }
 	string MemoryText { get; }
 	DateTime CreatedOn { get; }

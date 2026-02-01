@@ -1624,10 +1624,25 @@ public partial class Cell : Location, IDisposable, ICell
 	}
 
 	public event RoomEchoEvent OnRoomEcho;
+	public event RoomEmoteEchoEvent OnRoomEmoteEcho;
 
 	public override void HandleRoomEcho(string echo, RoomLayer? layer = null)
 	{
 		OnRoomEcho?.Invoke(this, layer, echo);
+	}
+
+	public override void HandleRoomEcho(IEmoteOutput emote, RoomLayer? layer = null)
+	{
+		if (emote is null)
+		{
+			return;
+		}
+
+		OnRoomEmoteEcho?.Invoke(this, layer, emote);
+		if (OnRoomEcho != null)
+		{
+			OnRoomEcho(this, layer, emote.ParseFor(null));
+		}
 	}
 
 	public void HandleAudioEcho(string audioText, AudioVolume volume, IPerceiver source, RoomLayer originalLayer, bool ignoreOriginLayer = true)

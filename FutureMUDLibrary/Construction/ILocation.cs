@@ -58,8 +58,10 @@ namespace MudSharp.Construction {
 		event CharacterMovementEvent OnCharacterLeaves;
 
 		void HandleRoomEcho(string echo, RoomLayer? layer = null);
+		void HandleRoomEcho(IEmoteOutput emote, RoomLayer? layer = null);
 	}
 
 	public delegate void CharacterMovementEvent(ICharacter character, ILocation location);
 	public delegate void RoomEchoEvent(ICell location, RoomLayer? layer, string emote);
+	public delegate void RoomEmoteEchoEvent(ICell location, RoomLayer? layer, IEmoteOutput emote);
 }

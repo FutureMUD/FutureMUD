@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using Microsoft.Extensions.Options;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
@@ -28,6 +30,260 @@ using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 
 namespace MudSharp.RPG.AIStorytellers;
 
+public class AIStorytellerCustomToolCall
+{
+	public bool IsValid
+	{
+		get
+		{
+			if (Prog is null)
+			{
+				return false;
+			}
+
+			if (!string.IsNullOrEmpty(Prog.CompileError))
+			{
+				return false;
+			}
+
+			RecheckFunctionParameters();
+
+			if (!Prog.NamedParameters.Select(x => x.Item2).SequenceEqual(ParameterDescriptions.Keys))
+			{
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	private void RecheckFunctionParameters()
+	{
+		foreach (var parameter in Prog?.NamedParameters ?? [])
+		{
+			if (!ParameterDescriptions.ContainsKey(parameter.Item2))
+			{
+				_parameterDescriptions[parameter.Item2] = "";
+			}
+		}
+	}
+
+	public string Name { get; init; }
+	public string Description { get; init; }
+	public IFutureProg Prog { get; init; }
+	private Dictionary<string, string> _parameterDescriptions;
+	public IReadOnlyDictionary<string, string> ParameterDescriptions => _parameterDescriptions;
+
+	public XElement SaveToXml(bool includeWithEcho)
+	{
+		return new XElement("ToolCall",
+			new XElement("Name", new XCData(Name)),
+			new XElement("Description", new XCData(Description)),
+			new XElement("Prog", Prog.Id),
+			new XElement("IncludeWithEcho", includeWithEcho),
+			new XElement("ParameterDescriptions",
+				from item in ParameterDescriptions
+				select new XElement("Description", new XAttribute("name", item.Key), new XCData(item.Value))
+			)
+		);
+	}
+
+	public AIStorytellerCustomToolCall(XElement root, IFuturemud gameworld)
+	{
+		Name = root.Element("Name").Value;
+		Description = root.Element("Description").Value;
+		Prog = gameworld.FutureProgs.Get(long.Parse(root.Element("Prog").Value));
+		var dictionary = new Dictionary<string, string>();
+		foreach (var description in root.Element("ParameterDescriptions").Elements("Description"))
+		{
+			dictionary[description.Attribute("name").Value] = description.Value;
+		}
+		_parameterDescriptions = dictionary;
+		RecheckFunctionParameters();
+	}
+}
+
+public record AIStorytellerCustomToolCallParameterDefinition
+{
+	public string Name { get; }
+	public string Type { get; }
+	public string Description { get; }
+
+	public string ToJSONElement()
+	{
+		return $$"""
+	"{{Name.EscapeForJson()}}": {
+		"type": "{{Type}}",
+		"description": "{{Description.EscapeForJson()}}"
+	}
+""";
+	}
+
+	public AIStorytellerCustomToolCallParameterDefinition(string name, string description, ProgVariableTypes type)
+	{
+		Name = name;
+		switch (type)
+		{
+			case ProgVariableTypes.Text:
+				Type = "string";
+				Description = description;
+				break;
+			case ProgVariableTypes.Number:
+				Type = "double";
+				Description = description;
+				break;
+			case ProgVariableTypes.Boolean:
+				Type = "boolean";
+				Description = description;
+				break;
+			case ProgVariableTypes.Character:
+				Type = "int64";
+				Description = $"The ID number of a character. {description}";
+				break;
+			case ProgVariableTypes.Location:
+				Type = "int64";
+				Description = $"The ID number of a room location. {description}";
+				break;
+			case ProgVariableTypes.Item:
+				break;
+			case ProgVariableTypes.Shard:
+				break;
+			case ProgVariableTypes.Error:
+				break;
+			case ProgVariableTypes.Gender:
+				break;
+			case ProgVariableTypes.Zone:
+				break;
+			case ProgVariableTypes.Collection:
+				break;
+			case ProgVariableTypes.Race:
+				break;
+			case ProgVariableTypes.Culture:
+				break;
+			case ProgVariableTypes.Chargen:
+				break;
+			case ProgVariableTypes.Trait:
+				break;
+			case ProgVariableTypes.Clan:
+				break;
+			case ProgVariableTypes.ClanRank:
+				break;
+			case ProgVariableTypes.ClanAppointment:
+				break;
+			case ProgVariableTypes.ClanPaygrade:
+				break;
+			case ProgVariableTypes.Currency:
+				break;
+			case ProgVariableTypes.Exit:
+				break;
+			case ProgVariableTypes.Literal:
+				break;
+			case ProgVariableTypes.DateTime:
+				break;
+			case ProgVariableTypes.TimeSpan:
+				break;
+			case ProgVariableTypes.Language:
+				break;
+			case ProgVariableTypes.Accent:
+				break;
+			case ProgVariableTypes.Merit:
+				break;
+			case ProgVariableTypes.MudDateTime:
+				break;
+			case ProgVariableTypes.Calendar:
+				break;
+			case ProgVariableTypes.Clock:
+				break;
+			case ProgVariableTypes.Effect:
+				break;
+			case ProgVariableTypes.Knowledge:
+				break;
+			case ProgVariableTypes.Role:
+				break;
+			case ProgVariableTypes.Ethnicity:
+				break;
+			case ProgVariableTypes.Drug:
+				break;
+			case ProgVariableTypes.WeatherEvent:
+				break;
+			case ProgVariableTypes.Shop:
+				break;
+			case ProgVariableTypes.Merchandise:
+				break;
+			case ProgVariableTypes.Outfit:
+				break;
+			case ProgVariableTypes.OutfitItem:
+				break;
+			case ProgVariableTypes.Project:
+				break;
+			case ProgVariableTypes.OverlayPackage:
+				break;
+			case ProgVariableTypes.Terrain:
+				break;
+			case ProgVariableTypes.Solid:
+				break;
+			case ProgVariableTypes.Liquid:
+				break;
+			case ProgVariableTypes.Gas:
+				break;
+			case ProgVariableTypes.Dictionary:
+				break;
+			case ProgVariableTypes.CollectionDictionary:
+				break;
+			case ProgVariableTypes.MagicSpell:
+				break;
+			case ProgVariableTypes.MagicSchool:
+				break;
+			case ProgVariableTypes.MagicCapability:
+				break;
+			case ProgVariableTypes.Bank:
+				break;
+			case ProgVariableTypes.BankAccount:
+				break;
+			case ProgVariableTypes.BankAccountType:
+				break;
+			case ProgVariableTypes.LegalAuthority:
+				break;
+			case ProgVariableTypes.Law:
+				break;
+			case ProgVariableTypes.Crime:
+				break;
+			case ProgVariableTypes.Market:
+				break;
+			case ProgVariableTypes.MarketCategory:
+				break;
+			case ProgVariableTypes.LiquidMixture:
+				break;
+			case ProgVariableTypes.Script:
+				break;
+			case ProgVariableTypes.Writing:
+				break;
+			case ProgVariableTypes.Area:
+				break;
+			case ProgVariableTypes.CollectionItem:
+				break;
+			case ProgVariableTypes.Perceivable:
+				break;
+			case ProgVariableTypes.Perceiver:
+				break;
+			case ProgVariableTypes.MagicResourceHaver:
+				break;
+			case ProgVariableTypes.ReferenceType:
+				break;
+			case ProgVariableTypes.ValueType:
+				break;
+			case ProgVariableTypes.Anything:
+				break;
+			case ProgVariableTypes.Toon:
+				break;
+			case ProgVariableTypes.Tagged:
+				break;
+			case ProgVariableTypes.Material:
+				break;
+		}
+	}
+}
+
 public class AIStoryteller : SaveableItem, IAIStoryteller
 {
 	public override string FrameworkItemType => "AIStoryteller";
@@ -43,6 +299,27 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		AttentionAgentPrompt = storyteller.AttentionAgentPrompt;
 		ReasoningEffort = (ResponseReasoningEffortLevel)storyteller.ReasoningEffort;
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld, storyteller.SurveillanceStrategyDefinition);
+		SubscribeToRoomEvents = storyteller.SubscribeToRoomEvents;
+		SubscribeTo10mHeartbeat = storyteller.SubscribeTo10mHeartbeat;
+		SubscribeTo30mHeartbeat = storyteller.SubscribeTo30mHeartbeat;
+		SubscribeTo5mHeartbeat = storyteller.SubscribeTo5mHeartbeat;
+		SubscribeToHourHeartbeat = storyteller.SubscribeToHourHeartbeat;
+		HeartbeatStatus5mProg = gameworld.FutureProgs.Get(storyteller.HeartbeatStatus5mProgId ?? 0L);
+		HeartbeatStatus10mProg = gameworld.FutureProgs.Get(storyteller.HeartbeatStatus10mProgId ?? 0L);
+		HeartbeatStatus30mProg = gameworld.FutureProgs.Get(storyteller.HeartbeatStatus30mProgId ?? 0L);
+		HeartbeatStatus1hProg = gameworld.FutureProgs.Get(storyteller.HeartbeatStatus1hProgId ?? 0L);
+		IsPaused = storyteller.IsPaused;
+		var root = XElement.Parse(storyteller.CustomToolCallsDefinition);
+		foreach (var element in root.Elements("ToolCall"))
+		{
+			var toolCall = new AIStorytellerCustomToolCall(element, Gameworld);
+			if (bool.Parse(element.Element("IncludeWithEcho").Value))
+			{
+				CustomToolCallsEchoOnly.Add(toolCall);
+				continue;
+			}
+			CustomToolCalls.Add(toolCall);
+		}
 	}
 
 	public string Description { get; private set; }
@@ -51,16 +328,22 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 	public string AttentionAgentPrompt { get; private set; }
 	public bool SubscribeToRoomEvents { get; private set; }
 	public bool SubscribeTo5mHeartbeat { get; private set; }
+	public bool SubscribeTo10mHeartbeat { get; private set; }
+	public bool SubscribeTo30mHeartbeat { get; private set; }
 	public bool SubscribeToHourHeartbeat { get; private set; }
 	public IFutureProg HeartbeatStatus5mProg { get; private set; }
+	public IFutureProg HeartbeatStatus10mProg { get; private set; }
+	public IFutureProg HeartbeatStatus30mProg { get; private set; }
 	public IFutureProg HeartbeatStatus1hProg { get; private set; }
+	public List<AIStorytellerCustomToolCall> CustomToolCalls { get; } = [];
+	public List<AIStorytellerCustomToolCall> CustomToolCallsEchoOnly { get; } = [];
 	public bool IsPaused { get; private set; }
 
 	public ResponseReasoningEffortLevel ReasoningEffort { get; private set; }
 	public IAIStorytellerSurveillanceStrategy SurveillanceStrategy { get; private set; }
 	public IFutureProg CustomPlayerInformationProg { get; private set; }
 
-	private readonly List<ICell> _subscribedCells = new();
+	private readonly List<ICell> _subscribedCells = [];
 
 	public void SubscribeEvents()
 	{
@@ -73,6 +356,16 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		if (SubscribeTo5mHeartbeat)
 		{
 			Gameworld.HeartbeatManager.FuzzyFiveMinuteHeartbeat += HeartbeatManager_FiveMinuteHeartbeat;
+		}
+
+		if (SubscribeTo10mHeartbeat)
+		{
+			Gameworld.HeartbeatManager.FuzzyTenMinuteHeartbeat += HeartbeatManager_TenMinuteHeartbeat;
+		}
+
+		if (SubscribeTo30mHeartbeat)
+		{
+			Gameworld.HeartbeatManager.FuzzyThirtyMinuteHeartbeat += HeartbeatManager_ThirtyMinuteHeartbeat;
 		}
 
 		if (SubscribeToRoomEvents)
@@ -278,6 +571,83 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 			));
 	}
 
+	private void AddCustomToolCallsToResponseOptions(CreateResponseOptions options, bool includeEchoes)
+	{
+		
+		foreach (var toolCall in CustomToolCalls)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine(
+				$$"""
+				{
+				"type": "object",
+				  "properties": {
+				""");
+			var addedAny = false;
+			foreach (var parameter in toolCall.Prog.NamedParameters)
+			{
+				sb.Append(new AIStorytellerCustomToolCallParameterDefinition(parameter.Item2, toolCall.ParameterDescriptions[parameter.Item2], parameter.Item1).ToJSONElement());
+				if (addedAny)
+				{
+					sb.Append(',');
+				}
+				addedAny = true;
+				sb.AppendLine();
+			}
+			sb.AppendLine(@"},
+""required"": [");
+			sb.AppendLine(toolCall.Prog.NamedParameters.Select(x => x.Item2).ListToCommaSeparatedValues());
+			sb.AppendLine(@"]
+}");
+			options.Tools.Add(ResponseTool.CreateFunctionTool(
+				functionName: toolCall.Name,
+				functionDescription: toolCall.Description,
+				functionParameters: BinaryData.FromBytes(Encoding.UTF8.GetBytes(sb.ToString())
+				),
+				strictModeEnabled: true
+			));
+		}
+
+		if (!includeEchoes)
+		{
+			return;
+		}
+
+		foreach (var toolCall in CustomToolCallsEchoOnly)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine(
+				$$"""
+				{
+				"type": "object",
+				  "properties": {
+				""");
+			var addedAny = false;
+			foreach (var parameter in toolCall.Prog.NamedParameters)
+			{
+				sb.Append(new AIStorytellerCustomToolCallParameterDefinition(parameter.Item2, toolCall.ParameterDescriptions[parameter.Item2], parameter.Item1).ToJSONElement());
+				if (addedAny)
+				{
+					sb.Append(',');
+				}
+				addedAny = true;
+				sb.AppendLine();
+			}
+			sb.AppendLine(@"},
+""required"": [");
+			sb.AppendLine(toolCall.Prog.NamedParameters.Select(x => x.Item2).ListToCommaSeparatedValues());
+			sb.AppendLine(@"]
+}");
+			options.Tools.Add(ResponseTool.CreateFunctionTool(
+				functionName: toolCall.Name,
+				functionDescription: toolCall.Description,
+				functionParameters: BinaryData.FromBytes(Encoding.UTF8.GetBytes(sb.ToString())
+				),
+				strictModeEnabled: true
+			));
+		}
+	}
+
 	private void PassHeartbeatEventToAIStoryteller(string heartbeatType)
 	{
 		var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
@@ -287,7 +657,41 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine("Your attention subroutine has flagged something that has happened as relevant to you.");
+		switch (heartbeatType)
+		{
+			case "5m":
+				sb.AppendLine("Your five minute heartbeat has triggered.");
+				var text = HeartbeatStatus5mProg?.ExecuteString(this);
+				if (!string.IsNullOrWhiteSpace(text)) 
+				{ 
+					sb.AppendLine(text); 
+				}
+				break;
+			case "10m":
+				sb.AppendLine("Your ten minute heartbeat has triggered.");
+				text = HeartbeatStatus10mProg?.ExecuteString(this);
+				if (!string.IsNullOrWhiteSpace(text))
+				{
+					sb.AppendLine(text);
+				}
+				break;
+			case "30m":
+				sb.AppendLine("Your thirty minute heartbeat has triggered.");
+				text = HeartbeatStatus30mProg?.ExecuteString(this);
+				if (!string.IsNullOrWhiteSpace(text))
+				{
+					sb.AppendLine(text);
+				}
+				break;
+			case "1h":
+				sb.AppendLine("Your one hour heartbeat has triggered.");
+				text = HeartbeatStatus1hProg?.ExecuteString(this);
+				if (!string.IsNullOrWhiteSpace(text))
+				{
+					sb.AppendLine(text);
+				}
+				break;
+		}
 
 		ResponsesClient client = new(Model, apiKey);
 		List<ResponseItem> messages = [
@@ -298,6 +702,8 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
 
 		AddUniversalToolsToResponseOptions(options);
+		AddCustomToolCallsToResponseOptions(options, false);
+		ExecuteToolCall(client, messages, options);
 	}
 
 	private void PassSituationToAIStoryteller(ICell location, PerceptionEngine.IEmoteOutput emote, string echo, string attentionReason)
@@ -329,7 +735,12 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
 
 		AddUniversalToolsToResponseOptions(options);
+		AddCustomToolCallsToResponseOptions(options, true);
+		ExecuteToolCall(client, messages, options);
+	}
 
+	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, CreateResponseOptions options)
+	{
 		var requiresAction = false;
 		do
 		{
@@ -633,14 +1044,30 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 			}
 		});
 	}
-	private void HeartbeatManager_FiveMinuteHeartbeat() => throw new NotImplementedException();
+	private void HeartbeatManager_FiveMinuteHeartbeat() { 
+		PassHeartbeatEventToAIStoryteller("5m");
+	}
+
+	private void HeartbeatManager_TenMinuteHeartbeat()
+	{
+		PassHeartbeatEventToAIStoryteller("10m");
+	}
+
+	private void HeartbeatManager_ThirtyMinuteHeartbeat()
+	{
+		PassHeartbeatEventToAIStoryteller("30m");
+	}
+
 	private void HeartbeatManager_FuzzyHourHeartbeat()
 	{
-
+		PassHeartbeatEventToAIStoryteller("1h");
 	}
 
 	public void UnsubscribeEvents()
 	{
+		Gameworld.HeartbeatManager.FuzzyFiveMinuteHeartbeat -= HeartbeatManager_FiveMinuteHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyTenMinuteHeartbeat -= HeartbeatManager_TenMinuteHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyThirtyMinuteHeartbeat -= HeartbeatManager_ThirtyMinuteHeartbeat;
 		Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HeartbeatManager_FuzzyHourHeartbeat;
 		foreach (var cell in _subscribedCells)
 		{
@@ -677,18 +1104,45 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 	private readonly List<IAIStorytellerSituation> _situations = new();
 	public IEnumerable<IAIStorytellerSituation> Situations => _situations;
 
-	public bool BuildingCommand(ICharacter actor, StringStack command) => throw new NotImplementedException();
+	private const string HelpText = @"";
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			default:
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command) => throw new NotImplementedException();
+
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"AI Storyteller #{Id} - {Name.Colour(Telnet.Cyan)}");
 		sb.AppendLine($"Model: {Model.ColourValue()}");
+		sb.AppendLine($"Reasoning Effort: {ReasoningEffort.Describe().ColourValue()}");
+		sb.AppendLine($"Is Paused: {IsPaused.ToColouredString()}");
 		sb.AppendLine($"");
 		sb.AppendLine("Description".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine($"");
 		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
 		sb.AppendLine($"");
-		sb.AppendLine("Surveillance Strategy".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Surveillance and Events".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine($"");
+		sb.AppendLine($"Subscribe To Room Events: {SubscribeToRoomEvents.ToColouredString()}");
+		sb.AppendLine($"Subscribe To 5m Tick: {SubscribeTo5mHeartbeat.ToColouredString()}");
+		sb.AppendLine($"Subscribe To 10m Tick: {SubscribeTo10mHeartbeat.ToColouredString()}");
+		sb.AppendLine($"Subscribe To 30m Tick: {SubscribeTo30mHeartbeat.ToColouredString()}");
+		sb.AppendLine($"Subscribe To 1h Tick: {SubscribeToHourHeartbeat.ToColouredString()}");
+		sb.AppendLine($"Status Prog for 5m: {HeartbeatStatus5mProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Status Prog for 10m: {HeartbeatStatus10mProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Status Prog for 30m: {HeartbeatStatus30mProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Status Prog for 1h: {HeartbeatStatus1hProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"");
 		sb.AppendLine(SurveillanceStrategy.Show(actor));
 		sb.AppendLine($"");
@@ -700,6 +1154,53 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		sb.AppendLine($"");
 		sb.AppendLine(SystemPrompt.Wrap(actor.InnerLineFormatLength, "\t"));
 		sb.AppendLine($"");
+		sb.AppendLine("Custom Tool Calls".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+		if (CustomToolCalls.Count == 0 && CustomToolCallsEchoOnly.Count == 0)
+		{
+			sb.AppendLine();
+			sb.AppendLine("None");
+		}
+		else
+		{
+			foreach (var item in CustomToolCalls)
+			{
+				var valid = item.IsValid; // This call has side effects and so needs to happen before the foreach loop below to guarantee the keys all exist
+				sb.AppendLine();
+				sb.AppendLine($"\tFunction Name: {item.Name.ColourValue()}");
+				sb.AppendLine($"\tFunction Description: {item.Description.ColourValue()}");
+				sb.AppendLine($"\tFunction Prog: {item.Prog?.MXPClickableFunctionName() ?? "None".ColourError()}");
+				sb.AppendLine($"\tAvailable Context: {"Always".ColourValue()}");
+				sb.AppendLine($"\tFunction Parameters:");
+				foreach (var par in item.Prog?.NamedParameters ?? [])
+				{
+					sb.AppendLine($"\t\t{par.Item1.Describe().Colour(Telnet.VariableGreen)} {par.Item2}: {item.ParameterDescriptions[par.Item2]}");
+				}
+				if (!valid)
+				{
+					sb.AppendLine("\t\tWarning - this tool call is not valid due to errors.".ColourError());
+				}
+			}
+
+			foreach (var item in CustomToolCallsEchoOnly)
+			{
+				var valid = item.IsValid; // This call has side effects and so needs to happen before the foreach loop below to guarantee the keys all exist
+				sb.AppendLine();
+				sb.AppendLine($"\tFunction Name: {item.Name.ColourValue()}");
+				sb.AppendLine($"\tFunction Description: {item.Description.ColourValue()}");
+				sb.AppendLine($"\tFunction Prog: {item.Prog?.MXPClickableFunctionName() ?? "None".ColourError()}");
+				sb.AppendLine($"\tAvailable Context: {"Echoes Only".ColourValue()}");
+				sb.AppendLine($"\tFunction Parameters:");
+				foreach (var par in item.Prog?.NamedParameters ?? [])
+				{
+					sb.AppendLine($"\t\t{par.Item1.Describe().Colour(Telnet.VariableGreen)} {par.Item2}: {item.ParameterDescriptions[par.Item2]}");
+				}
+				if (!valid)
+				{
+					sb.AppendLine("\t\tWarning - this tool call is not valid due to errors.".ColourError());
+				}
+			}
+		}
+			sb.AppendLine($"");
 		sb.AppendLine("Current Situations".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine($"");
 		sb.AppendLine(StringUtilities.GetTextTable(
@@ -734,5 +1235,44 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		dbitem.AttentionAgentPrompt = AttentionAgentPrompt;
 		dbitem.SystemPrompt = SystemPrompt;
 		dbitem.SurveillanceStrategyDefinition = SurveillanceStrategy.SaveDefinition();
+		dbitem.HeartbeatStatus10mProgId = HeartbeatStatus10mProg?.Id;
+		dbitem.HeartbeatStatus1hProgId = HeartbeatStatus1hProg?.Id;
+		dbitem.HeartbeatStatus30mProgId = HeartbeatStatus30mProg?.Id;
+		dbitem.HeartbeatStatus5mProgId = HeartbeatStatus5mProg?.Id;
+		dbitem.SubscribeToHourHeartbeat = SubscribeToHourHeartbeat;
+		dbitem.SubscribeTo30mHeartbeat = SubscribeTo30mHeartbeat;
+		dbitem.SubscribeTo5mHeartbeat = SubscribeTo5mHeartbeat;
+		dbitem.SubscribeTo10mHeartbeat = SubscribeTo10mHeartbeat;
+		dbitem.SubscribeToRoomEvents = SubscribeToRoomEvents;
+		dbitem.IsPaused = IsPaused;
+		dbitem.CustomToolCallsDefinition = new XElement("ToolCalls",
+				from item in CustomToolCalls select item.SaveToXml(false),
+				from item in CustomToolCallsEchoOnly select item.SaveToXml(true)
+			).ToString();
 	}
 }
+
+public static class ReasoningExtensions
+{
+	public static string Describe(this ResponseReasoningEffortLevel level)
+	{
+		if (level == ResponseReasoningEffortLevel.Minimal)
+		{
+			return "Minimal";
+		}
+		if (level == ResponseReasoningEffortLevel.Low)
+		{
+			return "Low";
+		}
+		if (level == ResponseReasoningEffortLevel.Medium)
+		{
+			return "Medium";
+		}
+		if (level == ResponseReasoningEffortLevel.High)
+		{
+			return "High";
+		}
+		return "Unknown";
+	}
+}
+

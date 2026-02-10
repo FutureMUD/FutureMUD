@@ -9,4 +9,5 @@ public class AIStorytellerReferenceDocument
 	public string DocumentType { get; set; }
 	public string Keywords { get; set; }
 	public string DocumentContents { get; set; }
+	public string RestrictedStorytellerIds { get; set; }
 }

@@ -13,4 +13,5 @@ public interface IAIStorytellerReferenceDocument : IFrameworkItem, ISaveable, IE
 	public string Keywords { get; }
 	public string DocumentContents { get; }
 	public bool ReturnForSearch(string searchterm);
+	public bool IsVisibleTo(IAIStoryteller storyteller);
 }

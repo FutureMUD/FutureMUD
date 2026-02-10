@@ -46,6 +46,7 @@ using MudSharp.Magic.Resources;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Light;
+using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using AmmunitionType = MudSharp.Combat.AmmunitionType;
@@ -571,24 +572,83 @@ For information on the syntax to use in emotes (such as those included in bracke
 		sw.Start();
 #endif
 
-		// TODO - load
+		var referenceDocuments = FMDB.Context.AIStorytellerReferenceDocuments
+			.AsNoTracking()
+			.ToList();
+		foreach (var item in referenceDocuments)
+		{
+			_aiStorytellerReferenceDocuments.Add(
+				new MudSharp.RPG.AIStorytellers.AIStorytellerReferenceDocument(item, this));
+		}
 
 #if DEBUG
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
+		var referenceCount = _aiStorytellerReferenceDocuments.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 AI Storyteller Reference {1}.", referenceCount,
+			referenceCount == 1 ? "Document" : "Documents");
 
 		ConsoleUtilities.WriteLine("\nLoading #5AI Storytellers#0...");
 #if DEBUG
 		sw.Restart();
 #endif
 
-		// TODO - load
+		var storytellers = FMDB.Context.AIStorytellers
+			.AsNoTracking()
+			.ToList();
+		foreach (var item in storytellers)
+		{
+			_aiStorytellers.Add(new MudSharp.RPG.AIStorytellers.AIStoryteller(item, this));
+		}
+
+		var situations = FMDB.Context.AIStorytellerSituations
+			.AsNoTracking()
+			.ToList();
+		foreach (var item in situations)
+		{
+			var storyteller = _aiStorytellers.Get(item.AIStorytellerId) as MudSharp.RPG.AIStorytellers.AIStoryteller;
+			if (storyteller is null)
+			{
+				continue;
+			}
+
+			var situation = new MudSharp.RPG.AIStorytellers.AIStorytellerSituation(item, storyteller);
+			storyteller.RegisterLoadedSituation(situation);
+		}
+
+		var memories = FMDB.Context.AIStorytellerCharacterMemories
+			.AsNoTracking()
+			.ToList();
+		foreach (var item in memories)
+		{
+			var storyteller = _aiStorytellers.Get(item.AIStorytellerId) as MudSharp.RPG.AIStorytellers.AIStoryteller;
+			if (storyteller is null)
+			{
+				continue;
+			}
+
+			var memory = new MudSharp.RPG.AIStorytellers.AIStorytellerCharacterMemory(item, storyteller);
+			if (memory.Character is null)
+			{
+				continue;
+			}
+
+			storyteller.RegisterLoadedMemory(memory);
+		}
+
+		foreach (var storyteller in _aiStorytellers.OfType<MudSharp.RPG.AIStorytellers.AIStoryteller>())
+		{
+			storyteller.SubscribeEvents();
+		}
 
 #if DEBUG
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
+		var storytellerCount = _aiStorytellers.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 AI Storyteller{1}.", storytellerCount,
+			storytellerCount == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadTracks()

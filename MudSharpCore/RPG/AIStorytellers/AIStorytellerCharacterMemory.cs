@@ -15,7 +15,7 @@ public class AIStorytellerCharacterMemory : SaveableItem, IAIStorytellerCharacte
 		Gameworld = aiStoryteller.Gameworld;
 		_id = dbitem.Id;
 		AIStoryteller = aiStoryteller;
-		Character = Gameworld.Characters.Get(dbitem.CharacterId);
+		Character = Gameworld.TryGetCharacter(dbitem.CharacterId, true);
 		MemoryTitle = dbitem.MemoryTitle;
 		MemoryText = dbitem.MemoryText;
 		CreatedOn = dbitem.CreatedOn;

@@ -33,6 +33,7 @@ internal class AdminCommandTree : GuideCommandTree
 	{
 		base.ProcessCommands();
 		Commands.AddFrom(StorytellerModule.Instance.Commands);
+		Commands.AddFrom(AIStorytellerModule.Instance.Commands);
 		Commands.AddFrom(RoomBuilderModule.Instance.Commands);
 		Commands.AddFrom(StaffModule.Instance.Commands);
 		Commands.AddFrom(ProgModule.Instance.Commands);

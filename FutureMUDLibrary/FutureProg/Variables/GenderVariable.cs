@@ -22,6 +22,7 @@ namespace MudSharp.FutureProg.Variables {
                 {"him", ProgVariableTypes.Text},
                 {"his", ProgVariableTypes.Text},
                 {"himself", ProgVariableTypes.Text},
+                {"class", ProgVariableTypes.Text }
             };
         }
 
@@ -33,6 +34,7 @@ namespace MudSharp.FutureProg.Variables {
                 {"him", "returns him, her, it or them as appropriate"},
                 {"his", "returns his, her, its or theirs as appropriate"},
                 {"himself", "returns himself, herself, itself or theirself as appropriate"},
+                { "class", "returns male, female, neuter, indeterminate as appropriate" }
             };
         }
 
@@ -51,6 +53,8 @@ namespace MudSharp.FutureProg.Variables {
                     return new TextVariable(gender.Possessive());
                 case "himself":
                     return new TextVariable(gender.Reflexive());
+                case "class":
+                    return new TextVariable(gender.GenderClass());
             }
             throw new NotSupportedException();
         }

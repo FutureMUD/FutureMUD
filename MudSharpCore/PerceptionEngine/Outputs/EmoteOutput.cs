@@ -142,8 +142,8 @@ public class EmoteOutput : Output, IEmoteOutput
 		}
 
 		return Flags.HasFlag(OutputFlags.WideWrap)
-			? returnText.Wrap(perceiver.LineFormatLength)
-			: returnText.Wrap(perceiver.InnerLineFormatLength);
+			? returnText.Wrap(perceiver?.LineFormatLength ?? 120)
+			: returnText.Wrap(perceiver?.InnerLineFormatLength ?? 80);
 	}
 
 	public Difficulty NoticeCheckDifficulty { get; set; } = Difficulty.Normal;

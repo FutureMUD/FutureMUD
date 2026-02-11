@@ -6,17 +6,32 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Character.Name;
+using MudSharp.CharacterCreation.Roles;
+using MudSharp.Communication.Language;
+using MudSharp.Community;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
+using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.Form.Shape;
+using MudSharp.GameItems;
+using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.AIStorytellers;
+using MudSharp.RPG.Knowledge;
+using MudSharp.RPG.Merits;
+using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 using OpenAI.Responses;
 using ModelStoryteller = MudSharp.Models.AIStoryteller;
 
@@ -229,6 +244,337 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
+	public void ExecuteFunctionCall_CustomToolOutfitConversion_ParsesAndExecutes()
+	{
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(200L);
+
+		var outfit = new Mock<IOutfit>();
+		outfit.SetupGet(x => x.Name).Returns("Guard Uniform");
+		character.SetupGet(x => x.Outfits).Returns([outfit.Object]);
+
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+		object[]? capturedArgs = null;
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.NamedParameters)
+			.Returns(new List<Tuple<ProgVariableTypes, string>>
+			{
+				Tuple.Create(ProgVariableTypes.Outfit, "Wardrobe")
+			});
+		prog.SetupGet(x => x.CompileError).Returns(string.Empty);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.Setup(x => x.ExecuteWithRecursionProtection(It.IsAny<object[]>()))
+			.Callback((object[] args) => capturedArgs = args)
+			.Returns(true);
+		storyteller.CustomToolCalls.Add(new AIStorytellerCustomToolCall("CustomOutfitTool", "desc", prog.Object));
+
+		var result = storyteller.ExecuteFunctionCall("CustomOutfitTool",
+			"""{"Wardrobe":{"OwnerCharacterId":200,"OutfitName":"Guard Uniform"}}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsNotNull(capturedArgs);
+		Assert.AreEqual(1, capturedArgs!.Length);
+		Assert.AreSame(outfit.Object, capturedArgs[0]);
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_CustomToolOutfitItemConversion_ParsesAndExecutes()
+	{
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(201L);
+
+		var outfitItem = new Mock<IOutfitItem>();
+		outfitItem.SetupGet(x => x.Id).Returns(999L);
+
+		var outfit = new Mock<IOutfit>();
+		outfit.SetupGet(x => x.Name).Returns("Harbour Kit");
+		outfit.SetupGet(x => x.Items).Returns([outfitItem.Object]);
+		character.SetupGet(x => x.Outfits).Returns([outfit.Object]);
+
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+		object[]? capturedArgs = null;
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.NamedParameters)
+			.Returns(new List<Tuple<ProgVariableTypes, string>>
+			{
+				Tuple.Create(ProgVariableTypes.OutfitItem, "LoadoutItem")
+			});
+		prog.SetupGet(x => x.CompileError).Returns(string.Empty);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.Setup(x => x.ExecuteWithRecursionProtection(It.IsAny<object[]>()))
+			.Callback((object[] args) => capturedArgs = args)
+			.Returns(true);
+		storyteller.CustomToolCalls.Add(new AIStorytellerCustomToolCall("CustomOutfitItemTool", "desc", prog.Object));
+
+		var result = storyteller.ExecuteFunctionCall("CustomOutfitItemTool",
+			"""{"LoadoutItem":{"OwnerCharacterId":201,"OutfitName":"Harbour Kit","ItemId":999}}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsNotNull(capturedArgs);
+		Assert.AreEqual(1, capturedArgs!.Length);
+		Assert.AreSame(outfitItem.Object, capturedArgs[0]);
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_CustomToolEffectConversion_ParsesAndExecutes()
+	{
+		var effect = new Mock<IEffect>();
+		effect.SetupGet(x => x.Id).Returns(777L);
+
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(202L);
+		character.SetupGet(x => x.Effects).Returns([effect.Object]);
+
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+		object[]? capturedArgs = null;
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.NamedParameters)
+			.Returns(new List<Tuple<ProgVariableTypes, string>>
+			{
+				Tuple.Create(ProgVariableTypes.Effect, "AppliedEffect")
+			});
+		prog.SetupGet(x => x.CompileError).Returns(string.Empty);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.Setup(x => x.ExecuteWithRecursionProtection(It.IsAny<object[]>()))
+			.Callback((object[] args) => capturedArgs = args)
+			.Returns(true);
+		storyteller.CustomToolCalls.Add(new AIStorytellerCustomToolCall("CustomEffectTool", "desc", prog.Object));
+
+		var result = storyteller.ExecuteFunctionCall("CustomEffectTool",
+			"""{"AppliedEffect":{"EffectId":777,"OwnerType":"character","OwnerId":202}}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsNotNull(capturedArgs);
+		Assert.AreEqual(1, capturedArgs!.Length);
+		Assert.AreSame(effect.Object, capturedArgs[0]);
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_CustomToolExpandedTypeParsers_ParsesAndExecutes()
+	{
+		var shard = new Mock<IShard>();
+		shard.SetupGet(x => x.Id).Returns(11L);
+		shard.SetupGet(x => x.Name).Returns("Shard Alpha");
+
+		var zone = new Mock<IZone>();
+		zone.SetupGet(x => x.Id).Returns(12L);
+		zone.SetupGet(x => x.Name).Returns("Harbour Zone");
+
+		var race = new Mock<IRace>();
+		race.SetupGet(x => x.Id).Returns(13L);
+		race.SetupGet(x => x.Name).Returns("Human");
+
+		var culture = new Mock<ICulture>();
+		culture.SetupGet(x => x.Id).Returns(14L);
+		culture.SetupGet(x => x.Name).Returns("Imperial");
+
+		var trait = new Mock<ITraitDefinition>();
+		trait.SetupGet(x => x.Id).Returns(15L);
+		trait.SetupGet(x => x.Name).Returns("Swordsmanship");
+
+		var ethnicity = new Mock<IEthnicity>();
+		ethnicity.SetupGet(x => x.Id).Returns(16L);
+		ethnicity.SetupGet(x => x.Name).Returns("Coastal");
+
+		var clan = new Mock<IClan>();
+		clan.SetupGet(x => x.Id).Returns(17L);
+		clan.SetupGet(x => x.Name).Returns("Wardens");
+		clan.SetupGet(x => x.Names).Returns(["Wardens"]);
+
+		var rank = new Mock<IRank>();
+		rank.SetupGet(x => x.Id).Returns(18L);
+		rank.SetupGet(x => x.Name).Returns("Captain");
+
+		var appointment = new Mock<IAppointment>();
+		appointment.SetupGet(x => x.Id).Returns(19L);
+		appointment.SetupGet(x => x.Name).Returns("Marshal");
+
+		var paygrade = new Mock<IPaygrade>();
+		paygrade.SetupGet(x => x.Id).Returns(20L);
+		paygrade.SetupGet(x => x.Name).Returns("Grade-3");
+		paygrade.SetupGet(x => x.Abbreviation).Returns("G3");
+
+		clan.SetupGet(x => x.Ranks).Returns([rank.Object]);
+		clan.SetupGet(x => x.Appointments).Returns([appointment.Object]);
+		clan.SetupGet(x => x.Paygrades).Returns([paygrade.Object]);
+
+		var currency = new Mock<ICurrency>();
+		currency.SetupGet(x => x.Id).Returns(21L);
+		currency.SetupGet(x => x.Name).Returns("Sovereign");
+
+		var exit = new Mock<IExit>();
+		var exitManager = new Mock<IExitManager>();
+		exitManager.Setup(x => x.GetExitByID(22L)).Returns(exit.Object);
+
+		var language = new Mock<ILanguage>();
+		language.SetupGet(x => x.Id).Returns(23L);
+		language.SetupGet(x => x.Name).Returns("Anglic");
+
+		var accent = new Mock<IAccent>();
+		accent.SetupGet(x => x.Id).Returns(24L);
+		accent.SetupGet(x => x.Name).Returns("Harbour Drawl");
+
+		var merit = new Mock<IMerit>();
+		merit.SetupGet(x => x.Id).Returns(25L);
+		merit.SetupGet(x => x.Name).Returns("Quick Learner");
+
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.Id).Returns(26L);
+		calendar.SetupGet(x => x.Name).Returns("Solar Calendar");
+		calendar.SetupGet(x => x.Names).Returns(["Solar Calendar", "solar"]);
+
+		var clock = new Mock<IClock>();
+		clock.SetupGet(x => x.Id).Returns(27L);
+		clock.SetupGet(x => x.Name).Returns("City Clock");
+		clock.SetupGet(x => x.Names).Returns(["City Clock", "city"]);
+
+		var knowledge = new Mock<IKnowledge>();
+		knowledge.SetupGet(x => x.Id).Returns(28L);
+		knowledge.SetupGet(x => x.Name).Returns("Lore of Ports");
+
+		var role = new Mock<IChargenRole>();
+		role.SetupGet(x => x.Id).Returns(29L);
+		role.SetupGet(x => x.Name).Returns("Dockmaster");
+
+		var drug = new Mock<IDrug>();
+		drug.SetupGet(x => x.Id).Returns(30L);
+		drug.SetupGet(x => x.Name).Returns("Blackleaf");
+
+		var shop = new Mock<IShop>();
+		shop.SetupGet(x => x.Id).Returns(31L);
+		shop.SetupGet(x => x.Name).Returns("Harbour Outfitters");
+
+		var gameworld = CreateGameworld(Array.Empty<IFutureProg>(), Array.Empty<ICharacter>());
+		gameworld.SetupGet(x => x.Shards).Returns(BuildRepository([shard.Object]).Object);
+		gameworld.SetupGet(x => x.Zones).Returns(BuildRepository([zone.Object]).Object);
+		gameworld.SetupGet(x => x.Races).Returns(BuildRepository([race.Object]).Object);
+		gameworld.SetupGet(x => x.Cultures).Returns(BuildRepository([culture.Object]).Object);
+		gameworld.SetupGet(x => x.Traits).Returns(BuildRepository([trait.Object]).Object);
+		gameworld.SetupGet(x => x.Clans).Returns(BuildRepository([clan.Object]).Object);
+		gameworld.SetupGet(x => x.Ethnicities).Returns(BuildRepository([ethnicity.Object]).Object);
+		gameworld.SetupGet(x => x.Currencies).Returns(BuildRepository([currency.Object]).Object);
+		gameworld.SetupGet(x => x.Languages).Returns(BuildRepository([language.Object]).Object);
+		gameworld.SetupGet(x => x.Accents).Returns(BuildRepository([accent.Object]).Object);
+		gameworld.SetupGet(x => x.Merits).Returns(BuildRepository([merit.Object]).Object);
+		gameworld.SetupGet(x => x.Calendars).Returns(BuildRepository([calendar.Object]).Object);
+		gameworld.SetupGet(x => x.Clocks).Returns(BuildRepository([clock.Object]).Object);
+		gameworld.SetupGet(x => x.Knowledges).Returns(BuildRepository([knowledge.Object]).Object);
+		gameworld.SetupGet(x => x.Roles).Returns(BuildRepository([role.Object]).Object);
+		gameworld.SetupGet(x => x.Drugs).Returns(BuildRepository([drug.Object]).Object);
+		gameworld.SetupGet(x => x.Shops).Returns(BuildRepository([shop.Object]).Object);
+		gameworld.SetupGet(x => x.ExitManager).Returns(exitManager.Object);
+
+		var storyteller = new AIStoryteller(CreateModel(), gameworld.Object);
+		object[]? capturedArgs = null;
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.NamedParameters)
+			.Returns(new List<Tuple<ProgVariableTypes, string>>
+			{
+				Tuple.Create(ProgVariableTypes.Shard, "ShardArg"),
+				Tuple.Create(ProgVariableTypes.Zone, "ZoneArg"),
+				Tuple.Create(ProgVariableTypes.Gender, "GenderArg"),
+				Tuple.Create(ProgVariableTypes.Race, "RaceArg"),
+				Tuple.Create(ProgVariableTypes.Culture, "CultureArg"),
+				Tuple.Create(ProgVariableTypes.Trait, "TraitArg"),
+				Tuple.Create(ProgVariableTypes.Clan, "ClanArg"),
+				Tuple.Create(ProgVariableTypes.Ethnicity, "EthnicityArg"),
+				Tuple.Create(ProgVariableTypes.ClanRank, "ClanRankArg"),
+				Tuple.Create(ProgVariableTypes.ClanAppointment, "ClanAppointmentArg"),
+				Tuple.Create(ProgVariableTypes.ClanPaygrade, "ClanPaygradeArg"),
+				Tuple.Create(ProgVariableTypes.Currency, "CurrencyArg"),
+				Tuple.Create(ProgVariableTypes.Exit, "ExitArg"),
+				Tuple.Create(ProgVariableTypes.DateTime, "DateTimeArg"),
+				Tuple.Create(ProgVariableTypes.TimeSpan, "TimeSpanArg"),
+				Tuple.Create(ProgVariableTypes.Language, "LanguageArg"),
+				Tuple.Create(ProgVariableTypes.Accent, "AccentArg"),
+				Tuple.Create(ProgVariableTypes.Merit, "MeritArg"),
+				Tuple.Create(ProgVariableTypes.MudDateTime, "MudDateTimeArg"),
+				Tuple.Create(ProgVariableTypes.Calendar, "CalendarArg"),
+				Tuple.Create(ProgVariableTypes.Clock, "ClockArg"),
+				Tuple.Create(ProgVariableTypes.Knowledge, "KnowledgeArg"),
+				Tuple.Create(ProgVariableTypes.Role, "RoleArg"),
+				Tuple.Create(ProgVariableTypes.Drug, "DrugArg"),
+				Tuple.Create(ProgVariableTypes.Shop, "ShopArg")
+			});
+		prog.SetupGet(x => x.CompileError).Returns(string.Empty);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.Setup(x => x.ExecuteWithRecursionProtection(It.IsAny<object[]>()))
+			.Callback((object[] args) => capturedArgs = args)
+			.Returns(true);
+		storyteller.CustomToolCalls.Add(new AIStorytellerCustomToolCall("CustomExpandedTool", "desc", prog.Object));
+
+		var result = storyteller.ExecuteFunctionCall("CustomExpandedTool",
+			"""
+			{
+			  "ShardArg": {"ShardName":"Shard Alpha"},
+			  "ZoneArg": "Harbour Zone",
+			  "GenderArg": {"Gender":"female"},
+			  "RaceArg": {"RaceName":"Human"},
+			  "CultureArg": {"CultureName":"Imperial"},
+			  "TraitArg": {"TraitName":"Swordsmanship"},
+			  "ClanArg": {"ClanName":"Wardens"},
+			  "EthnicityArg": {"EthnicityName":"Coastal"},
+			  "ClanRankArg": {"Clan":"Wardens","RankName":"Captain"},
+			  "ClanAppointmentArg": {"ClanName":"Wardens","AppointmentName":"Marshal"},
+			  "ClanPaygradeArg": {"Clan":"Wardens","PaygradeAbbreviation":"G3"},
+			  "CurrencyArg": {"CurrencyName":"Sovereign"},
+			  "ExitArg": {"ExitId":22},
+			  "DateTimeArg": {"Value":"2026-02-11T12:34:56Z"},
+			  "TimeSpanArg": {"TotalSeconds":90},
+			  "LanguageArg": {"LanguageName":"Anglic"},
+			  "AccentArg": {"AccentName":"Harbour Drawl"},
+			  "MeritArg": {"MeritName":"Quick Learner"},
+			  "MudDateTimeArg": {"Value":"never"},
+			  "CalendarArg": {"Alias":"solar"},
+			  "ClockArg": {"Alias":"city"},
+			  "KnowledgeArg": {"KnowledgeName":"Lore of Ports"},
+			  "RoleArg": {"RoleName":"Dockmaster"},
+			  "DrugArg": {"DrugName":"Blackleaf"},
+			  "ShopArg": {"ShopName":"Harbour Outfitters"}
+			}
+			""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsNotNull(capturedArgs);
+		Assert.AreEqual(25, capturedArgs!.Length);
+		Assert.AreSame(shard.Object, capturedArgs[0]);
+		Assert.AreSame(zone.Object, capturedArgs[1]);
+		Assert.AreEqual(Gender.Female, capturedArgs[2]);
+		Assert.AreSame(race.Object, capturedArgs[3]);
+		Assert.AreSame(culture.Object, capturedArgs[4]);
+		Assert.AreSame(trait.Object, capturedArgs[5]);
+		Assert.AreSame(clan.Object, capturedArgs[6]);
+		Assert.AreSame(ethnicity.Object, capturedArgs[7]);
+		Assert.AreSame(rank.Object, capturedArgs[8]);
+		Assert.AreSame(appointment.Object, capturedArgs[9]);
+		Assert.AreSame(paygrade.Object, capturedArgs[10]);
+		Assert.AreSame(currency.Object, capturedArgs[11]);
+		Assert.AreSame(exit.Object, capturedArgs[12]);
+		Assert.AreEqual(DateTime.Parse("2026-02-11T12:34:56Z").ToUniversalTime(),
+			((DateTime)capturedArgs[13]).ToUniversalTime());
+		Assert.AreEqual(TimeSpan.FromSeconds(90), (TimeSpan)capturedArgs[14]);
+		Assert.AreSame(language.Object, capturedArgs[15]);
+		Assert.AreSame(accent.Object, capturedArgs[16]);
+		Assert.AreSame(merit.Object, capturedArgs[17]);
+		Assert.IsInstanceOfType(capturedArgs[18], typeof(MudDateTime));
+		Assert.IsNull(((MudDateTime)capturedArgs[18]).Date);
+		Assert.AreSame(calendar.Object, capturedArgs[19]);
+		Assert.AreSame(clock.Object, capturedArgs[20]);
+		Assert.AreSame(knowledge.Object, capturedArgs[21]);
+		Assert.AreSame(role.Object, capturedArgs[22]);
+		Assert.AreSame(drug.Object, capturedArgs[23]);
+		Assert.AreSame(shop.Object, capturedArgs[24]);
+	}
+
+	[TestMethod]
 	public void ExecuteFunctionCall_PathBetweenRooms_ReturnsDirectionsPayload()
 	{
 		var room = new Mock<ICell>();
@@ -398,6 +744,55 @@ public class AIStorytellerToolExecutionTests
 				runtimeGame.Dispose();
 			}
 		}
+	}
+
+	[TestMethod]
+	public void TryParseAttentionClassifierOutput_ValidInterestedJson_ParsesReason()
+	{
+		var parsed = AIStoryteller.TryParseAttentionClassifierOutput(
+			"""{"Decision":"interested","Reason":"world-impacting event"}""",
+			out var interested,
+			out var reason,
+			out var error);
+
+		Assert.IsTrue(parsed);
+		Assert.IsTrue(interested);
+		Assert.AreEqual("world-impacting event", reason);
+		Assert.AreEqual(string.Empty, error);
+	}
+
+	[TestMethod]
+	public void TryParseAttentionClassifierOutput_InvalidText_ReturnsContractError()
+	{
+		var parsed = AIStoryteller.TryParseAttentionClassifierOutput(
+			"interested because this matters",
+			out var interested,
+			out var reason,
+			out var error);
+
+		Assert.IsFalse(parsed);
+		Assert.IsFalse(interested);
+		Assert.AreEqual(string.Empty, reason);
+		StringAssert.Contains(error, "not valid JSON");
+	}
+
+	[TestMethod]
+	public void TryInterpretAttentionClassifierOutputForTesting_InvalidText_LogsError()
+	{
+		var storyteller = CreateStoryteller();
+		string? loggedMessage = null;
+		storyteller.ErrorLoggerOverride = message => loggedMessage = message;
+
+		var parsed = storyteller.TryInterpretAttentionClassifierOutputForTesting(
+			"interested because this matters",
+			out var interested,
+			out var reason);
+
+		Assert.IsFalse(parsed);
+		Assert.IsFalse(interested);
+		Assert.AreEqual(string.Empty, reason);
+		Assert.IsFalse(string.IsNullOrWhiteSpace(loggedMessage));
+		StringAssert.Contains(loggedMessage, "Attention classifier contract violation");
 	}
 
 	private static AIStoryteller CreateStoryteller(IEnumerable<IFutureProg>? progs = null,

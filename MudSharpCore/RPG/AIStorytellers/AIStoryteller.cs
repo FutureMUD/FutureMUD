@@ -60,6 +60,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld,
 			storyteller.SurveillanceStrategyDefinition ?? string.Empty);
 		SubscribeToRoomEvents = storyteller.SubscribeToRoomEvents;
+		SubscribeToSpeechEvents = storyteller.SubscribeToSpeechEvents;
+		SubscribeToCrimeEvents = storyteller.SubscribeToCrimeEvents;
+		SubscribeToStateEvents = storyteller.SubscribeToStateEvents;
 		SubscribeTo10mHeartbeat = storyteller.SubscribeTo10mHeartbeat;
 		SubscribeTo30mHeartbeat = storyteller.SubscribeTo30mHeartbeat;
 		SubscribeTo5mHeartbeat = storyteller.SubscribeTo5mHeartbeat;
@@ -108,6 +111,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		ReasoningEffort = ResponseReasoningEffortLevel.Medium;
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld, string.Empty);
 		SubscribeToRoomEvents = true;
+		SubscribeToSpeechEvents = false;
+		SubscribeToCrimeEvents = false;
+		SubscribeToStateEvents = false;
 		IsPaused = true;
 
 		using (new FMDB())
@@ -123,6 +129,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 				ReasoningEffort = SerializeReasoningEffort(ReasoningEffort),
 				CustomToolCallsDefinition = new XElement("ToolCalls").ToString(),
 				SubscribeToRoomEvents = SubscribeToRoomEvents,
+				SubscribeToSpeechEvents = SubscribeToSpeechEvents,
+				SubscribeToCrimeEvents = SubscribeToCrimeEvents,
+				SubscribeToStateEvents = SubscribeToStateEvents,
 				SubscribeTo5mHeartbeat = false,
 				SubscribeTo10mHeartbeat = false,
 				SubscribeTo30mHeartbeat = false,
@@ -140,6 +149,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	public string SystemPrompt { get; private set; }
 	public string AttentionAgentPrompt { get; private set; }
 	public bool SubscribeToRoomEvents { get; private set; }
+	public bool SubscribeToSpeechEvents { get; private set; }
+	public bool SubscribeToCrimeEvents { get; private set; }
+	public bool SubscribeToStateEvents { get; private set; }
 	public bool SubscribeTo5mHeartbeat { get; private set; }
 	public bool SubscribeTo10mHeartbeat { get; private set; }
 	public bool SubscribeTo30mHeartbeat { get; private set; }
@@ -210,11 +222,11 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 			Gameworld.HeartbeatManager.FuzzyThirtyMinuteHeartbeat += HeartbeatManager_ThirtyMinuteHeartbeat;
 		}
 
+		var cells = SurveillanceStrategy.GetCells(Gameworld).ToList();
+		_subscribedCells.Clear();
+		_subscribedCells.AddRange(cells);
 		if (SubscribeToRoomEvents)
 		{
-			var cells = SurveillanceStrategy.GetCells(Gameworld).ToList();
-			_subscribedCells.Clear();
-			_subscribedCells.AddRange(cells);
 			foreach (var cell in cells)
 			{
 				cell.OnRoomEmoteEcho += Cell_OnRoomEcho;
@@ -406,26 +418,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		AppendOpenSituationTitles(sb);
-		var userPrompt = TrimPromptText(sb.ToString());
-		DebugAIMessaging("Engine -> Storyteller Request",
-			$"""
-Model: {Model}
-Reasoning: {ReasoningEffort.Describe()}
-Trigger: Heartbeat {heartbeatType}
-System Prompt:
-{SystemPrompt}
-
-User Prompt:
-{userPrompt}
-""");
-
-		ResponsesClient client = new(Model, apiKey);
-		List<ResponseItem> messages =
-		[
-			ResponseItem.CreateDeveloperMessageItem(SystemPrompt),
-			ResponseItem.CreateUserMessageItem(userPrompt)
-		];
-		ExecuteToolCall(client, messages, includeEchoTools: false);
+		ExecuteStorytellerPrompt(apiKey, $"Heartbeat {heartbeatType}", sb.ToString(), includeEchoTools: false);
 	}
 
 	internal void PassHeartbeatEventToAIStorytellerForTesting(string heartbeatType)
@@ -457,26 +450,7 @@ User Prompt:
 		sb.AppendLine(echo.StripANSIColour().StripMXP());
 		sb.AppendLine("Attention Reason:");
 		sb.AppendLine(attentionReason?.IfNullOrWhiteSpace("No reason provided"));
-		var userPrompt = TrimPromptText(sb.ToString());
-		DebugAIMessaging("Engine -> Storyteller Request",
-			$"""
-Model: {Model}
-Reasoning: {ReasoningEffort.Describe()}
-Trigger: Room Echo
-System Prompt:
-{SystemPrompt}
-
-User Prompt:
-{userPrompt}
-""");
-
-		ResponsesClient client = new(Model, apiKey);
-		List<ResponseItem> messages =
-		[
-			ResponseItem.CreateDeveloperMessageItem(SystemPrompt),
-			ResponseItem.CreateUserMessageItem(userPrompt)
-		];
-		ExecuteToolCall(client, messages, includeEchoTools: true);
+		ExecuteStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true);
 	}
 
 	private void AppendOpenSituationTitles(StringBuilder sb)
@@ -662,6 +636,9 @@ Echo:
 		dbitem.SubscribeTo5mHeartbeat = SubscribeTo5mHeartbeat;
 		dbitem.SubscribeTo10mHeartbeat = SubscribeTo10mHeartbeat;
 		dbitem.SubscribeToRoomEvents = SubscribeToRoomEvents;
+		dbitem.SubscribeToSpeechEvents = SubscribeToSpeechEvents;
+		dbitem.SubscribeToCrimeEvents = SubscribeToCrimeEvents;
+		dbitem.SubscribeToStateEvents = SubscribeToStateEvents;
 		dbitem.IsPaused = IsPaused;
 		dbitem.CustomToolCallsDefinition = BuildCustomToolRoot().ToString();
 	}

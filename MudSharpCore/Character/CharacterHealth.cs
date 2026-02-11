@@ -90,6 +90,8 @@ public partial class Character
 
 		State = CharacterState.Dead;
 		_status = CharacterStatus.Deceased;
+		MudSharp.RPG.AIStorytellers.AIStoryteller.HandleCharacterStateInRoomEvent(this,
+			MudSharp.RPG.AIStorytellers.AIStorytellerStateTriggerType.Dead);
 
 		if (!IsGuest && IsPlayerCharacter)
 		{

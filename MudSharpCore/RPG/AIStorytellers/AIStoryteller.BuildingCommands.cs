@@ -21,7 +21,7 @@ public partial class AIStoryteller
 	#3system#0 - edits the system prompt in an editor
 	#3pause#0 - pauses all storyteller triggers
 	#3unpause#0 - unpauses all storyteller triggers
-	#3subscribe room|5m|10m|30m|1h#0 - toggles trigger subscriptions
+	#3subscribe room|speech|crime|state|5m|10m|30m|1h#0 - toggles trigger subscriptions
 	#3statusprog <5m|10m|30m|1h> <prog|none>#0 - sets a heartbeat status prog
 	#3customplayerprog <prog|none>#0 - sets an optional custom player info prog
 	#3surveillance <...>#0 - edits surveillance strategy details
@@ -219,7 +219,7 @@ public partial class AIStoryteller
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"You must specify one of {"room".ColourCommand()}, {"5m".ColourCommand()}, {"10m".ColourCommand()}, {"30m".ColourCommand()} or {"1h".ColourCommand()}.");
+				$"You must specify one of {"room".ColourCommand()}, {"speech".ColourCommand()}, {"crime".ColourCommand()}, {"state".ColourCommand()}, {"5m".ColourCommand()}, {"10m".ColourCommand()}, {"30m".ColourCommand()} or {"1h".ColourCommand()}.");
 			return false;
 		}
 
@@ -232,6 +232,34 @@ public partial class AIStoryteller
 				Changed = true;
 				SubscribeEvents();
 				actor.OutputHandler.Send($"Subscribe To Room Events is now {SubscribeToRoomEvents.ToColouredString()}.");
+				return true;
+			case "speech":
+			case "speaks":
+			case "speak":
+			case "say":
+				SubscribeToSpeechEvents = !SubscribeToSpeechEvents;
+				Changed = true;
+				SubscribeEvents();
+				actor.OutputHandler.Send(
+					$"Subscribe To Character Speech Events is now {SubscribeToSpeechEvents.ToColouredString()}.");
+				return true;
+			case "crime":
+			case "crimes":
+				SubscribeToCrimeEvents = !SubscribeToCrimeEvents;
+				Changed = true;
+				SubscribeEvents();
+				actor.OutputHandler.Send(
+					$"Subscribe To Character Crime Events is now {SubscribeToCrimeEvents.ToColouredString()}.");
+				return true;
+			case "state":
+			case "states":
+			case "status":
+			case "health":
+				SubscribeToStateEvents = !SubscribeToStateEvents;
+				Changed = true;
+				SubscribeEvents();
+				actor.OutputHandler.Send(
+					$"Subscribe To Character State Events is now {SubscribeToStateEvents.ToColouredString()}.");
 				return true;
 			case "5m":
 			case "5":
@@ -266,7 +294,7 @@ public partial class AIStoryteller
 				return true;
 			default:
 				actor.OutputHandler.Send(
-					$"You must specify one of {"room".ColourCommand()}, {"5m".ColourCommand()}, {"10m".ColourCommand()}, {"30m".ColourCommand()} or {"1h".ColourCommand()}.");
+					$"You must specify one of {"room".ColourCommand()}, {"speech".ColourCommand()}, {"crime".ColourCommand()}, {"state".ColourCommand()}, {"5m".ColourCommand()}, {"10m".ColourCommand()}, {"30m".ColourCommand()} or {"1h".ColourCommand()}.");
 				return false;
 		}
 	}
@@ -678,6 +706,9 @@ public partial class AIStoryteller
 		sb.AppendLine("Surveillance and Events".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine($"");
 		sb.AppendLine($"Subscribe To Room Events: {SubscribeToRoomEvents.ToColouredString()}");
+		sb.AppendLine($"Subscribe To Character Speech Events: {SubscribeToSpeechEvents.ToColouredString()}");
+		sb.AppendLine($"Subscribe To Character Crime Events: {SubscribeToCrimeEvents.ToColouredString()}");
+		sb.AppendLine($"Subscribe To Character State Events: {SubscribeToStateEvents.ToColouredString()}");
 		sb.AppendLine($"Subscribe To 5m Tick: {SubscribeTo5mHeartbeat.ToColouredString()}");
 		sb.AppendLine($"Subscribe To 10m Tick: {SubscribeTo10mHeartbeat.ToColouredString()}");
 		sb.AppendLine($"Subscribe To 30m Tick: {SubscribeTo30mHeartbeat.ToColouredString()}");

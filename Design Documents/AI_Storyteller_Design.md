@@ -11,7 +11,11 @@ It is an engine capability for RPI world management, not a player-facing chat fe
 - OpenAI Responses API integration (`OpenAI.Responses.ResponsesClient`).
 - Event-driven triggers from:
 	- room echo events (`OnRoomEmoteEcho`) based on surveillance scope
+	- character speech events in surveilled rooms (covers SAY/TELL and speech tokens in emotes)
+	- crime creation events in surveilled rooms
+	- character state transitions (unconscious, pass out, dead) in surveilled rooms
 	- fuzzy heartbeats (5m, 10m, 30m, 1h)
+	- direct invocation via FutureProg function
 - Persistent storyteller state:
 	- situations
 	- character memories
@@ -51,6 +55,7 @@ It is an engine capability for RPI world management, not a player-facing chat fe
 	- reasoning effort as numeric enum string
 	- surveillance strategy XML
 	- heartbeat subscription flags
+	- event subscription flags (room/speech/crime/state)
 	- heartbeat status prog ids
 	- paused state
 	- custom tool XML (including optional custom player info prog id)
@@ -81,7 +86,7 @@ It is an engine capability for RPI world management, not a player-facing chat fe
 - `AIStoryteller.BuildingCommand` supports editing:
 	- identity, model, prompts, reasoning
 	- pause/unpause
-	- subscriptions and heartbeat status progs
+	- subscriptions (room/speech/crime/state + heartbeat) and heartbeat status progs
 	- custom player info prog
 	- surveillance strategy
 	- custom tools (add/remove/description/parameter/prog/echo-only toggle)
@@ -105,6 +110,40 @@ It is an engine capability for RPI world management, not a player-facing chat fe
 	- attention reason
 7. Tool loop executes until completion or safety limits are hit.
 
+### Character Speech Path (Surveilled Room)
+
+1. A character speech event fires (`HandleSpeechEvents`), including SAY/TELL and speech embedded in emotes.
+2. Storytellers with `SubscribeToSpeechEvents` enabled are filtered by surveillance coverage for the speaker location.
+3. If paused or API key is missing, the trigger exits.
+4. A direct storyteller prompt is assembled with speaker/target/language/accent/message context.
+5. Main model call enters tool loop (echo-only tools available).
+
+### Character Crime Path (Surveilled Room)
+
+1. A crime is created in legal processing (`LegalAuthority.CheckPossibleCrime`).
+2. Storytellers with `SubscribeToCrimeEvents` enabled are filtered by surveillance coverage for crime location.
+3. If paused or API key is missing, the trigger exits.
+4. Crime metadata (type, authority, criminal/victim context, witness count, timestamps) is passed to the storyteller.
+5. Main model call enters tool loop (non-echo tool set).
+
+### Character State Path (Surveilled Room)
+
+1. Character state transitions occur in health processing:
+	- unconscious
+	- pass out
+	- dead
+2. Storytellers with `SubscribeToStateEvents` enabled are filtered by surveillance coverage for location.
+3. If paused or API key is missing, the trigger exits.
+4. State-change context is passed directly to the storyteller.
+5. Main model call enters tool loop (non-echo tool set).
+
+### Direct FutureProg Invocation Path
+
+1. Builder-authored FutureProg calls `InvokeStorytellerAttention` / `AIStorytellerAttention` (by id or name).
+2. Runtime resolves the storyteller and calls `IAIStoryteller.InvokeDirectAttention`.
+3. If paused, target not found, or API key is missing, invocation returns false.
+4. Otherwise, direct attention text is passed to the storyteller and tool loop executes.
+
 ### Heartbeat Path
 
 1. Configured heartbeat event fires.
@@ -114,7 +153,7 @@ It is an engine capability for RPI world management, not a player-facing chat fe
 5. Unresolved situation title list is appended.
 6. Main model call enters tool loop (without echo-only tools).
 
-Pause semantics are a master off-switch for both echo and heartbeat triggers.
+Pause semantics are a master off-switch for room, speech, crime, state, heartbeat, and direct FutureProg triggers.
 
 ## Tool Execution Model
 

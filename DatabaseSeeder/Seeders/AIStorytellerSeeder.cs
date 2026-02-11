@@ -147,6 +147,9 @@ Reply with "ignore" otherwise.
 			storyteller.ReasoningEffort = "2";
 			storyteller.CustomToolCallsDefinition = BuildCustomToolDefinition(safeCustomToolProg.Id);
 			storyteller.SubscribeToRoomEvents = false;
+			storyteller.SubscribeToSpeechEvents = false;
+			storyteller.SubscribeToCrimeEvents = false;
+			storyteller.SubscribeToStateEvents = false;
 			storyteller.SubscribeTo5mHeartbeat = true;
 			storyteller.SubscribeTo10mHeartbeat = false;
 			storyteller.SubscribeTo30mHeartbeat = false;

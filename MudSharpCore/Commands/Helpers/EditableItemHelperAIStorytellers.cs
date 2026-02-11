@@ -67,6 +67,9 @@ public partial class EditableItemHelper
 			"Model",
 			"Paused",
 			"Room",
+			"Speech",
+			"Crime",
+			"State",
 			"5m",
 			"10m",
 			"30m",
@@ -81,6 +84,12 @@ public partial class EditableItemHelper
 			                                                 concrete?.Model ?? string.Empty,
 			                                                 concrete?.IsPaused.ToColouredString() ?? string.Empty,
 			                                                 concrete?.SubscribeToRoomEvents.ToColouredString() ??
+			                                                 string.Empty,
+			                                                 concrete?.SubscribeToSpeechEvents.ToColouredString() ??
+			                                                 string.Empty,
+			                                                 concrete?.SubscribeToCrimeEvents.ToColouredString() ??
+			                                                 string.Empty,
+			                                                 concrete?.SubscribeToStateEvents.ToColouredString() ??
 			                                                 string.Empty,
 			                                                 concrete?.SubscribeTo5mHeartbeat.ToColouredString() ??
 			                                                 string.Empty,

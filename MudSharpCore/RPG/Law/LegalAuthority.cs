@@ -742,6 +742,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			_unknownCrimes.Add(newCrime);
 			_unknownCrimesLookup.Add(criminal.Id, newCrime);
 			Gameworld.Add(newCrime);
+			MudSharp.RPG.AIStorytellers.AIStoryteller.HandleCrimeCommittedInRoomEvent(newCrime);
 			foreach (var witness in witnesses)
 			{
 				witness.HandleEvent(Events.EventType.WitnessedCrime, criminal, victim, witness, newCrime);

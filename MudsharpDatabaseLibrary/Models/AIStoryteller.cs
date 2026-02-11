@@ -25,6 +25,9 @@ public class AIStoryteller
 	public bool SubscribeTo10mHeartbeat { get; set; }
 	public bool SubscribeTo30mHeartbeat { get; set; }
 	public bool SubscribeToHourHeartbeat { get; set; }
+	public bool SubscribeToSpeechEvents { get; set; }
+	public bool SubscribeToCrimeEvents { get; set; }
+	public bool SubscribeToStateEvents { get; set; }
 	public long? HeartbeatStatus5mProgId { get; set; }
 	public long? HeartbeatStatus10mProgId { get; set; }
 	public long? HeartbeatStatus30mProgId { get; set; }

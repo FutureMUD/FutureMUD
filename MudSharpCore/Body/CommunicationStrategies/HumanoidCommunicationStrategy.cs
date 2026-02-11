@@ -14,6 +14,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Strategies.BodyStratagies;
 
@@ -722,5 +723,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 					message);
 			}
 		}
+
+		AIStoryteller.HandleCharacterSpeechInRoomEvent(body.Actor, target, message, volume, language, accent);
 	}
 }

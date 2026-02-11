@@ -24,6 +24,7 @@ using MudSharp.Health.Wounds;
 using MudSharp.Health.Breathing;
 using MudSharp.Logging;
 using MudSharp.Work.Projects.Impacts;
+using MudSharp.RPG.AIStorytellers;
 
 namespace MudSharp.Body.Implementations;
 
@@ -1636,6 +1637,7 @@ public partial class Body
 				}
 
 				Actor.Stop(true);
+				AIStoryteller.HandleCharacterStateInRoomEvent(Actor, AIStorytellerStateTriggerType.Unconscious);
 				break;
 			case HealthTickResult.PassOut:
 				var pt = EffectHandler.EffectsOfType<PainTolerance>().FirstOrDefault();
@@ -1671,6 +1673,7 @@ public partial class Body
 
 				Actor.Stop(true);
 				EffectHandler.AddEffect(new PassOutFromPain(this), TimeSpan.FromMinutes(5.0));
+				AIStoryteller.HandleCharacterStateInRoomEvent(Actor, AIStorytellerStateTriggerType.PassOut);
 				break;
 			case HealthTickResult.None:
 				if (Actor.State.HasFlag(CharacterState.Paralysed))

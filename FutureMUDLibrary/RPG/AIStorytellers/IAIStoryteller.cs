@@ -20,6 +20,7 @@ public interface IAIStoryteller : IFrameworkItem, ISaveable, IEditableItem
 	void Delete();
 	void Pause();
 	void Unpause();
+	bool InvokeDirectAttention(string attentionText);
 	IAIStorytellerSurveillanceStrategy SurveillanceStrategy { get; }
 	IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories { get; }
 	IEnumerable<IAIStorytellerSituation> Situations { get; }

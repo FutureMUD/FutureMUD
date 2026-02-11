@@ -747,6 +747,25 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
+	public void InvokeDirectAttention_MissingApiKey_ReturnsFalse()
+	{
+		var (runtimeGame, disposeRuntimeGame) = EnsureRuntimeGameWithMissingApiKey();
+		try
+		{
+			var storyteller = CreateStoryteller();
+			var result = storyteller.InvokeDirectAttention("Direct invocation from FutureProg.");
+			Assert.IsFalse(result);
+		}
+		finally
+		{
+			if (disposeRuntimeGame)
+			{
+				runtimeGame.Dispose();
+			}
+		}
+	}
+
+	[TestMethod]
 	public void TryParseAttentionClassifierOutput_ValidInterestedJson_ParsesReason()
 	{
 		var parsed = AIStoryteller.TryParseAttentionClassifierOutput(

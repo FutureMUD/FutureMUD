@@ -255,6 +255,40 @@ public partial class AIStoryteller
 			  "properties": {
 			    "Id": { "type": "integer", "description": "The id of the character." }
 			  },
+			"required": ["Id"]
+			}
+			""");
+
+		AddFunctionTool(options, "CurrentDateTime",
+			"Returns the current in-game date, time and timezone for a default monitored context when only one calendar/clock/timezone is in active use.",
+			null);
+
+		AddFunctionTool(
+			options,
+			"DateTimeForTarget",
+			"Returns the current in-game date and time for a specific character or room (or defaults when only one context exists).",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "CharacterId": { "type": "integer", "description": "Optional character id to resolve date and time for." },
+			    "RoomId": { "type": "integer", "description": "Optional room id to resolve date and time for." }
+			  },
+			  "required": []
+			}
+			""");
+
+		AddFunctionTool(
+			options,
+			"CalendarDefinition",
+			"Returns detailed definition information for a calendar, including months and intercalary months.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "Id": { "type": "string", "description": "The calendar id, alias or name." },
+			    "Year": { "type": "integer", "description": "Optional year number to expand year-specific month data." }
+			  },
 			  "required": ["Id"]
 			}
 			""");
@@ -492,6 +526,9 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 				"PathBetweenCharacters" => HandlePathBetweenCharacters(arguments),
 				"RecentCharacterPlans" => HandleRecentCharacterPlans(),
 				"CharacterPlans" => HandleCharacterPlans(arguments),
+				"CurrentDateTime" => HandleCurrentDateTime(),
+				"DateTimeForTarget" => HandleDateTimeForTarget(arguments),
+				"CalendarDefinition" => HandleCalendarDefinition(arguments),
 				_ => HandleCustomFunctionCall(functionName, arguments, includeEchoTools)
 			};
 		}
@@ -1233,6 +1270,261 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			["UpdatedAgo"] = recentPlanEffect is not null ? updatedAgo.ToString("c") : null,
 			["WindowRemaining"] = recentPlanEffect is not null ? windowRemaining.ToString("c") : null
 		});
+	}
+
+	private List<ICell> GetStorytellerMonitoredCells()
+	{
+		var monitoredCells = SurveillanceStrategy.GetCells(Gameworld)
+			.Distinct()
+			.ToList();
+		return monitoredCells.Any() ? monitoredCells : Gameworld.Cells.ToList();
+	}
+
+	private List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell? ContextCell)> GetDateTimeContexts()
+	{
+		return GetStorytellerMonitoredCells()
+			.SelectMany(cell =>
+				cell.Calendars.Select(calendar =>
+					(Calendar: calendar, Clock: calendar.FeedClock, TimeZone: cell.TimeZone(calendar.FeedClock), ContextCell: cell)))
+			.GroupBy(x => (x.Calendar.Id, x.Clock.Id, x.TimeZone.Id))
+			.Select(x => x.First())
+			.ToList();
+	}
+
+	private static Dictionary<string, object?> BuildDateTimeResult(ILocation location, ICalendar calendar)
+	{
+		var clock = calendar.FeedClock;
+		var timeZone = location.TimeZone(clock);
+		var date = location.Date(calendar);
+		var time = location.Time(clock);
+
+		return new Dictionary<string, object?>
+		{
+			["CalendarId"] = calendar.Id,
+			["CalendarName"] = calendar.FullName,
+			["ClockId"] = clock.Id,
+			["ClockName"] = clock.Name,
+			["TimeZoneId"] = timeZone.Id,
+			["TimeZoneName"] = timeZone.Name,
+			["DateLong"] = calendar.DisplayDate(date, CalendarDisplayMode.Long),
+			["DateShort"] = calendar.DisplayDate(date, CalendarDisplayMode.Short),
+			["TimeLong"] = clock.DisplayTime(time, TimeDisplayTypes.Long),
+			["TimeShort"] = clock.DisplayTime(time, TimeDisplayTypes.Short),
+			["TimeVague"] = clock.DisplayTime(time, TimeDisplayTypes.Vague),
+			["DateTime"] = $"{clock.DisplayTime(time, TimeDisplayTypes.Long)} on {calendar.DisplayDate(date, CalendarDisplayMode.Long)}"
+		};
+	}
+
+	private ToolExecutionResult HandleCurrentDateTime()
+	{
+		var contexts = GetDateTimeContexts();
+		if (!contexts.Any())
+		{
+			return ErrorResult("There are no monitored rooms to evaluate date and time for.");
+		}
+
+		if (contexts.Count > 1)
+		{
+			return ErrorResult(
+				"Multiple calendar/clock/timezone contexts are in use. Use DateTimeForTarget with CharacterId or RoomId.");
+		}
+
+		var context = contexts[0];
+		if (context.ContextCell is null)
+		{
+			return ErrorResult("Unable to resolve a monitored room context for current date and time.");
+		}
+
+		return SuccessResult(BuildDateTimeResult(context.ContextCell, context.Calendar));
+	}
+
+	private ToolExecutionResult HandleDateTimeForTarget(JsonElement arguments)
+	{
+		var hasCharacter = TryGetOptionalLong(arguments, "CharacterId", out var characterId);
+		var hasRoom = TryGetOptionalLong(arguments, "RoomId", out var roomId);
+		if (hasCharacter && hasRoom)
+		{
+			return ErrorResult("Specify either CharacterId or RoomId, but not both.");
+		}
+
+		if (!hasCharacter && !hasRoom)
+		{
+			return HandleCurrentDateTime();
+		}
+
+		if (hasCharacter)
+		{
+			var character = Gameworld.TryGetCharacter(characterId, true);
+			if (character is null)
+			{
+				return ErrorResult($"No character with id {characterId:N0} exists.");
+			}
+
+			if (character.Location is null)
+			{
+				return ErrorResult($"Character {characterId:N0} has no location.");
+			}
+
+			var calendar = character.Location.Calendars.FirstOrDefault();
+			if (calendar is null)
+			{
+				return ErrorResult($"Character {characterId:N0} location has no calendar.");
+			}
+
+			var result = BuildDateTimeResult(character.Location, calendar);
+			result["CharacterId"] = character.Id;
+			result["CharacterName"] = character.PersonalName.GetName(NameStyle.FullName);
+			result["RoomId"] = character.Location.Id;
+			result["RoomName"] = character.Location.HowSeen(null, colour: false);
+			return SuccessResult(result);
+		}
+
+		var room = Gameworld.Cells.Get(roomId);
+		if (room is null)
+		{
+			return ErrorResult($"No room with id {roomId:N0} exists.");
+		}
+
+		var roomCalendar = room.Calendars.FirstOrDefault();
+		if (roomCalendar is null)
+		{
+			return ErrorResult($"Room {roomId:N0} has no calendar.");
+		}
+
+		var roomResult = BuildDateTimeResult(room, roomCalendar);
+		roomResult["RoomId"] = room.Id;
+		roomResult["RoomName"] = room.HowSeen(null, colour: false);
+		return SuccessResult(roomResult);
+	}
+
+	private ToolExecutionResult HandleCalendarDefinition(JsonElement arguments)
+	{
+		if (!TryGetRequiredString(arguments, "Id", out var calendarId, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		var calendar = Gameworld.Calendars.GetByIdOrNames(calendarId);
+		if (calendar is null)
+		{
+			return ErrorResult($"No calendar identified by '{calendarId}' exists.");
+		}
+
+		var hasYear = TryGetOptionalInt(arguments, "Year", out var yearNumber);
+		var result = new Dictionary<string, object?>
+		{
+			["Id"] = calendar.Id,
+			["Name"] = calendar.FullName,
+			["ShortName"] = calendar.ShortName,
+			["Alias"] = calendar.Alias,
+			["Description"] = calendar.Description,
+			["AncientEpoch"] = calendar.AncientEraLongString,
+			["ModernEpoch"] = calendar.ModernEraLongString,
+			["Weekdays"] = calendar.Weekdays.ToList(),
+			["DaysInNormalYear"] =
+				calendar.Months.Sum(x => x.NormalDays) +
+				calendar.Intercalaries.Where(x => x.Rule.DivisibleBy == 1).Sum(x => x.Month.NormalDays)
+		};
+
+		if (hasYear)
+		{
+			var year = calendar.CreateYear(yearNumber);
+			result["Year"] = year.YearName;
+			result["DaysInYear"] = year.Months.Sum(x => x.Days);
+			result["Months"] = year.Months.Select(month => new Dictionary<string, object?>
+			{
+				["Order"] = month.NominalOrder,
+				["Name"] = month.FullName,
+				["ShortName"] = month.ShortName,
+				["Days"] = month.Days,
+				["SpecialDays"] = month.DayNames
+					.Select(x => new Dictionary<string, object?>
+					{
+						["Day"] = x.Key,
+						["Name"] = x.Value.FullName
+					})
+					.ToList()
+			}).ToList();
+		}
+		else
+		{
+			result["Months"] = calendar.Months.Select(month => new Dictionary<string, object?>
+			{
+				["Order"] = month.NominalOrder,
+				["Name"] = month.FullName,
+				["ShortName"] = month.ShortName,
+				["Days"] = month.NormalDays,
+				["SpecialDays"] = month.SpecialDayNames
+					.Select(x => new Dictionary<string, object?>
+					{
+						["Day"] = x.Key,
+						["Name"] = x.Value.FullName
+					})
+					.ToList()
+			}).ToList();
+
+			result["IntercalaryMonths"] = calendar.Intercalaries.Select(intercalary => new Dictionary<string, object?>
+			{
+				["Name"] = intercalary.Month.FullName,
+				["ShortName"] = intercalary.Month.ShortName,
+				["Days"] = intercalary.Month.NormalDays,
+				["After"] =
+					calendar.Months.FirstOrDefault(x => x.NominalOrder == intercalary.Month.NominalOrder - 1)?.FullName ??
+					"None",
+				["SpecialDays"] = intercalary.Month.SpecialDayNames
+					.Select(x => new Dictionary<string, object?>
+					{
+						["Day"] = x.Key,
+						["Name"] = x.Value.FullName
+					})
+					.ToList(),
+				["Rule"] = intercalary.Rule.ToString()
+			}).ToList();
+		}
+
+		return SuccessResult(result);
+	}
+
+	private static bool TryGetOptionalLong(JsonElement arguments, string propertyName, out long value)
+	{
+		value = 0;
+		if (!arguments.TryGetProperty(propertyName, out var element))
+		{
+			return false;
+		}
+
+		if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out value))
+		{
+			return true;
+		}
+
+		if (element.ValueKind == JsonValueKind.String && long.TryParse(element.GetString(), out value))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private static bool TryGetOptionalInt(JsonElement arguments, string propertyName, out int value)
+	{
+		value = 0;
+		if (!arguments.TryGetProperty(propertyName, out var element))
+		{
+			return false;
+		}
+
+		if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out value))
+		{
+			return true;
+		}
+
+		if (element.ValueKind == JsonValueKind.String && int.TryParse(element.GetString(), out value))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	private ToolExecutionResult HandleCustomFunctionCall(string functionName, JsonElement arguments,

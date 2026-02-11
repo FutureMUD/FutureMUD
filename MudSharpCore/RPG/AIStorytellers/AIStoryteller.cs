@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
@@ -388,6 +389,7 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		ReasoningEffort = ResponseReasoningEffortLevel.Medium;
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld, string.Empty);
 		SubscribeToRoomEvents = true;
+		IsPaused = true;
 
 		using (new FMDB())
 		{
@@ -406,7 +408,7 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 				SubscribeTo10mHeartbeat = false,
 				SubscribeTo30mHeartbeat = false,
 				SubscribeToHourHeartbeat = false,
-				IsPaused = false
+				IsPaused = true
 			};
 			FMDB.Context.AIStorytellers.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -654,6 +656,71 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 			  "type": "object",
 			  "properties": {
 			    "Id": { "type": "integer", "description": "The id of the reference document." }
+			  },
+			  "required": ["Id"]
+			}
+			""");
+
+		AddFunctionTool(
+			options,
+			"PathBetweenRooms",
+			"Returns a list of movement commands to path between two rooms.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "OriginRoomId": { "type": "integer", "description": "The id of the origin room." },
+			    "DestinationRoomId": { "type": "integer", "description": "The id of the destination room." },
+			    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors, IgnorePresenceOfDoors, PathIgnoreDoors, PathRespectClosedDoors and PathIncludeUnlockedDoors." }
+			  },
+			  "required": ["OriginRoomId", "DestinationRoomId", "PathSearchFunction"]
+			}
+			""");
+
+		AddFunctionTool(
+			options,
+			"PathFromCharacterToRoom",
+			"Returns a list of movement commands to path from a character's current room to a destination room.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "OriginCharacterId": { "type": "integer", "description": "The id of the origin character." },
+			    "DestinationRoomId": { "type": "integer", "description": "The id of the destination room." },
+			    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include IncludeUnlockableDoors, PathIncludeUnlockableDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors, RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors and IgnorePresenceOfDoors." }
+			  },
+			  "required": ["OriginCharacterId", "DestinationRoomId", "PathSearchFunction"]
+			}
+			""");
+
+		AddFunctionTool(
+			options,
+			"PathBetweenCharacters",
+			"Returns a list of movement commands to path between two characters using their current rooms.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "OriginCharacterId": { "type": "integer", "description": "The id of the origin character." },
+			    "DestinationCharacterId": { "type": "integer", "description": "The id of the destination character." },
+			    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include IncludeUnlockableDoors, PathIncludeUnlockableDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors, RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors and IgnorePresenceOfDoors." }
+			  },
+			  "required": ["OriginCharacterId", "DestinationCharacterId", "PathSearchFunction"]
+			}
+			""");
+
+		AddFunctionTool(options, "RecentCharacterPlans",
+			"Returns plans for online characters who recently updated plans (90 day window semantics).", null);
+
+		AddFunctionTool(
+			options,
+			"CharacterPlans",
+			"Returns plans for a specific character by id.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "Id": { "type": "integer", "description": "The id of the character." }
 			  },
 			  "required": ["Id"]
 			}
@@ -1144,6 +1211,11 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 				"ShowLandmark" => HandleShowLandmark(arguments),
 				"SearchReferenceDocuments" => HandleSearchReferenceDocuments(arguments),
 				"ShowReferenceDocument" => HandleShowReferenceDocument(arguments),
+				"PathBetweenRooms" => HandlePathBetweenRooms(arguments),
+				"PathFromCharacterToRoom" => HandlePathFromCharacterToRoom(arguments),
+				"PathBetweenCharacters" => HandlePathBetweenCharacters(arguments),
+				"RecentCharacterPlans" => HandleRecentCharacterPlans(),
+				"CharacterPlans" => HandleCharacterPlans(arguments),
 				_ => HandleCustomFunctionCall(functionName, arguments, includeEchoTools)
 			};
 		}
@@ -1641,6 +1713,323 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 			["Keywords"] = concrete?.Keywords ?? string.Empty,
 			["Description"] = concrete?.Description ?? string.Empty,
 			["Contents"] = concrete?.DocumentContents ?? string.Empty
+		});
+	}
+
+	private static bool TryResolvePathSearchFunction(string pathSearchFunction, ICharacter? contextCharacter,
+		out Func<ICellExit, bool> function, out string resolvedFunctionName, out string error)
+	{
+		function = PathSearch.IgnorePresenceOfDoors;
+		resolvedFunctionName = pathSearchFunction;
+		error = string.Empty;
+
+		switch ((pathSearchFunction ?? string.Empty).Trim().ToLowerInvariant())
+		{
+			case "respectcloseddoors":
+				function = PathSearch.RespectClosedDoors;
+				resolvedFunctionName = nameof(PathSearch.RespectClosedDoors);
+				return true;
+			case "pathrespectcloseddoors":
+				if (contextCharacter is null)
+				{
+					function = PathSearch.RespectClosedDoors;
+					resolvedFunctionName = nameof(PathSearch.RespectClosedDoors);
+				}
+				else
+				{
+					function = PathSearch.PathRespectClosedDoors(contextCharacter);
+					resolvedFunctionName = nameof(PathSearch.PathRespectClosedDoors);
+				}
+
+				return true;
+			case "includeunlockeddoors":
+				function = PathSearch.IncludeUnlockedDoors;
+				resolvedFunctionName = nameof(PathSearch.IncludeUnlockedDoors);
+				return true;
+			case "pathincludeunlockeddoors":
+				if (contextCharacter is null)
+				{
+					function = PathSearch.IncludeUnlockedDoors;
+					resolvedFunctionName = nameof(PathSearch.IncludeUnlockedDoors);
+				}
+				else
+				{
+					function = PathSearch.PathIncludeUnlockedDoors(contextCharacter);
+					resolvedFunctionName = nameof(PathSearch.PathIncludeUnlockedDoors);
+				}
+
+				return true;
+			case "includefireabledoors":
+				function = PathSearch.IncludeFireableDoors;
+				resolvedFunctionName = nameof(PathSearch.IncludeFireableDoors);
+				return true;
+			case "ignorepresenceofdoors":
+				function = PathSearch.IgnorePresenceOfDoors;
+				resolvedFunctionName = nameof(PathSearch.IgnorePresenceOfDoors);
+				return true;
+			case "ignoredoors":
+			case "pathignoredoors":
+				if (contextCharacter is null)
+				{
+					function = PathSearch.IgnorePresenceOfDoors;
+					resolvedFunctionName = nameof(PathSearch.IgnorePresenceOfDoors);
+				}
+				else
+				{
+					function = PathSearch.PathIgnoreDoors(contextCharacter);
+					resolvedFunctionName = nameof(PathSearch.PathIgnoreDoors);
+				}
+
+				return true;
+			case "includeunlockabledoors":
+			case "pathincludeunlockabledoors":
+				if (contextCharacter is null)
+				{
+					error =
+						$"PathSearchFunction '{pathSearchFunction}' requires a character context. Use one of RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors or IgnorePresenceOfDoors.";
+					return false;
+				}
+
+				function = PathSearch.PathIncludeUnlockableDoors(contextCharacter);
+				resolvedFunctionName = nameof(PathSearch.PathIncludeUnlockableDoors);
+				return true;
+		}
+
+		error =
+			$"Unknown PathSearchFunction '{pathSearchFunction}'. Valid values are RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors, IgnorePresenceOfDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors and PathIncludeUnlockableDoors.";
+		return false;
+	}
+
+	private static List<string> ConvertPathToDirectionCommands(IEnumerable<ICellExit> path)
+	{
+		return path.Select(x =>
+			x is NonCardinalCellExit nonCardinalExit
+				? $"{nonCardinalExit.Verb} {nonCardinalExit.PrimaryKeyword}".ToLowerInvariant()
+				: x.OutboundDirection.DescribeBrief()).ToList();
+	}
+
+	private ToolExecutionResult HandlePathBetweenRooms(JsonElement arguments)
+	{
+		if (!TryGetRequiredLong(arguments, "OriginRoomId", out var originRoomId, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		if (!TryGetRequiredLong(arguments, "DestinationRoomId", out var destinationRoomId, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		if (!TryGetRequiredString(arguments, "PathSearchFunction", out var pathSearchFunction, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var origin = Gameworld.Cells.Get(originRoomId);
+		if (origin is null)
+		{
+			return ErrorResult($"No room with id {originRoomId:N0} exists.");
+		}
+
+		var destination = Gameworld.Cells.Get(destinationRoomId);
+		if (destination is null)
+		{
+			return ErrorResult($"No room with id {destinationRoomId:N0} exists.");
+		}
+
+		if (!TryResolvePathSearchFunction(pathSearchFunction, null, out var pathFunction, out var resolvedPathFunction,
+			    out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var path = origin.PathBetween(destination, 50, pathFunction).ToList();
+		var sameRoom = origin == destination;
+
+		return SuccessResult(new Dictionary<string, object>
+		{
+			["OriginRoomId"] = origin.Id,
+			["DestinationRoomId"] = destination.Id,
+			["PathSearchFunction"] = resolvedPathFunction,
+			["HasPath"] = sameRoom || path.Any(),
+			["Directions"] = ConvertPathToDirectionCommands(path)
+		});
+	}
+
+	private ToolExecutionResult HandlePathFromCharacterToRoom(JsonElement arguments)
+	{
+		if (!TryGetRequiredLong(arguments, "OriginCharacterId", out var originCharacterId, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		if (!TryGetRequiredLong(arguments, "DestinationRoomId", out var destinationRoomId, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		if (!TryGetRequiredString(arguments, "PathSearchFunction", out var pathSearchFunction, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var originCharacter = Gameworld.TryGetCharacter(originCharacterId, true);
+		if (originCharacter is null)
+		{
+			return ErrorResult($"No character with id {originCharacterId:N0} exists.");
+		}
+
+		if (originCharacter.Location is null)
+		{
+			return ErrorResult($"Character {originCharacterId:N0} has no location.");
+		}
+
+		var destination = Gameworld.Cells.Get(destinationRoomId);
+		if (destination is null)
+		{
+			return ErrorResult($"No room with id {destinationRoomId:N0} exists.");
+		}
+
+		if (!TryResolvePathSearchFunction(pathSearchFunction, originCharacter, out var pathFunction,
+			    out var resolvedPathFunction, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var path = originCharacter.PathBetween(destination, 50, pathFunction).ToList();
+		var sameRoom = originCharacter.Location == destination;
+
+		return SuccessResult(new Dictionary<string, object>
+		{
+			["OriginCharacterId"] = originCharacter.Id,
+			["OriginRoomId"] = originCharacter.Location.Id,
+			["DestinationRoomId"] = destination.Id,
+			["PathSearchFunction"] = resolvedPathFunction,
+			["HasPath"] = sameRoom || path.Any(),
+			["Directions"] = ConvertPathToDirectionCommands(path)
+		});
+	}
+
+	private ToolExecutionResult HandlePathBetweenCharacters(JsonElement arguments)
+	{
+		if (!TryGetRequiredLong(arguments, "OriginCharacterId", out var originCharacterId, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		if (!TryGetRequiredLong(arguments, "DestinationCharacterId", out var destinationCharacterId, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		if (!TryGetRequiredString(arguments, "PathSearchFunction", out var pathSearchFunction, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var originCharacter = Gameworld.TryGetCharacter(originCharacterId, true);
+		if (originCharacter is null)
+		{
+			return ErrorResult($"No character with id {originCharacterId:N0} exists.");
+		}
+
+		if (originCharacter.Location is null)
+		{
+			return ErrorResult($"Character {originCharacterId:N0} has no location.");
+		}
+
+		var destinationCharacter = Gameworld.TryGetCharacter(destinationCharacterId, true);
+		if (destinationCharacter is null)
+		{
+			return ErrorResult($"No character with id {destinationCharacterId:N0} exists.");
+		}
+
+		if (destinationCharacter.Location is null)
+		{
+			return ErrorResult($"Character {destinationCharacterId:N0} has no location.");
+		}
+
+		if (!TryResolvePathSearchFunction(pathSearchFunction, originCharacter, out var pathFunction,
+			    out var resolvedPathFunction, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var path = originCharacter.PathBetween(destinationCharacter, 50, pathFunction).ToList();
+		var sameRoom = originCharacter.Location == destinationCharacter.Location;
+
+		return SuccessResult(new Dictionary<string, object>
+		{
+			["OriginCharacterId"] = originCharacter.Id,
+			["OriginRoomId"] = originCharacter.Location.Id,
+			["DestinationCharacterId"] = destinationCharacter.Id,
+			["DestinationRoomId"] = destinationCharacter.Location.Id,
+			["PathSearchFunction"] = resolvedPathFunction,
+			["HasPath"] = sameRoom || path.Any(),
+			["Directions"] = ConvertPathToDirectionCommands(path)
+		});
+	}
+
+	private ToolExecutionResult HandleRecentCharacterPlans()
+	{
+		var plans = Gameworld.Characters
+			.Where(x => x.AffectedBy<RecentlyUpdatedPlan>())
+			.Select(x => (Character: x, Effect: x.EffectsOfType<RecentlyUpdatedPlan>().FirstOrDefault()))
+			.Where(x => x.Effect is not null)
+			.Select(x =>
+			{
+				var updatedAgo = x.Character.ScheduledDuration(x.Effect);
+				var windowRemaining = TimeSpan.FromDays(90) - updatedAgo;
+				return (x.Character, UpdatedAgo: updatedAgo, WindowRemaining: windowRemaining);
+			})
+			.OrderBy(x => x.WindowRemaining)
+			.Select(x => new Dictionary<string, object>
+			{
+				["Id"] = x.Character.Id,
+				["Name"] = x.Character.PersonalName.GetName(NameStyle.FullName),
+				["ShortDescription"] =
+					x.Character.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription),
+				["ShortTermPlan"] = x.Character.ShortTermPlan ?? string.Empty,
+				["LongTermPlan"] = x.Character.LongTermPlan ?? string.Empty,
+				["UpdatedAgo"] = x.UpdatedAgo.ToString("c"),
+				["WindowRemaining"] = x.WindowRemaining.ToString("c")
+			})
+			.ToList();
+
+		return SuccessResult(new Dictionary<string, object>
+		{
+			["WindowDays"] = 90,
+			["Plans"] = plans
+		});
+	}
+
+	private ToolExecutionResult HandleCharacterPlans(JsonElement arguments)
+	{
+		if (!TryGetRequiredLong(arguments, "Id", out var id, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		var target = Gameworld.TryGetCharacter(id, true);
+		if (target is null)
+		{
+			return ErrorResult($"No character with id {id:N0} exists.");
+		}
+
+		var recentPlanEffect = target.EffectsOfType<RecentlyUpdatedPlan>().FirstOrDefault();
+		var updatedAgo = recentPlanEffect is not null ? target.ScheduledDuration(recentPlanEffect) : TimeSpan.Zero;
+		var windowRemaining = recentPlanEffect is not null ? TimeSpan.FromDays(90) - updatedAgo : TimeSpan.Zero;
+
+		return SuccessResult(new Dictionary<string, object?>
+		{
+			["Id"] = target.Id,
+			["Name"] = target.PersonalName.GetName(NameStyle.FullName),
+			["ShortDescription"] = target.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription),
+			["ShortTermPlan"] = target.ShortTermPlan ?? string.Empty,
+			["LongTermPlan"] = target.LongTermPlan ?? string.Empty,
+			["RecentlyUpdated"] = recentPlanEffect is not null,
+			["UpdatedAgo"] = recentPlanEffect is not null ? updatedAgo.ToString("c") : null,
+			["WindowRemaining"] = recentPlanEffect is not null ? windowRemaining.ToString("c") : null
 		});
 	}
 

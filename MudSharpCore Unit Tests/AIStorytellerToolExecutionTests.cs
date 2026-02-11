@@ -7,7 +7,10 @@ using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Character.Name;
 using MudSharp.Construction;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -226,6 +229,122 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
+	public void ExecuteFunctionCall_PathBetweenRooms_ReturnsDirectionsPayload()
+	{
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(100L);
+		var storyteller = CreateStoryteller(cells: [room.Object]);
+
+		var result = storyteller.ExecuteFunctionCall("PathBetweenRooms",
+			"""{"OriginRoomId":100,"DestinationRoomId":100,"PathSearchFunction":"IgnorePresenceOfDoors"}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var directions = payload.GetProperty("result").GetProperty("Directions");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsTrue(payload.GetProperty("result").GetProperty("HasPath").GetBoolean());
+		Assert.AreEqual(0, directions.GetArrayLength());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_PathFromCharacterToRoom_ReturnsDirectionsPayload()
+	{
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(101L);
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(1L);
+		character.SetupGet(x => x.Location).Returns(room.Object);
+		var storyteller = CreateStoryteller(characters: [character.Object], cells: [room.Object]);
+
+		var result = storyteller.ExecuteFunctionCall("PathFromCharacterToRoom",
+			"""{"OriginCharacterId":1,"DestinationRoomId":101,"PathSearchFunction":"PathIncludeUnlockableDoors"}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var directions = payload.GetProperty("result").GetProperty("Directions");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsTrue(payload.GetProperty("result").GetProperty("HasPath").GetBoolean());
+		Assert.AreEqual(0, directions.GetArrayLength());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_PathBetweenCharacters_ReturnsDirectionsPayload()
+	{
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(102L);
+		var origin = new Mock<ICharacter>();
+		origin.SetupGet(x => x.Id).Returns(11L);
+		origin.SetupGet(x => x.Location).Returns(room.Object);
+		var destination = new Mock<ICharacter>();
+		destination.SetupGet(x => x.Id).Returns(12L);
+		destination.SetupGet(x => x.Location).Returns(room.Object);
+		var storyteller = CreateStoryteller(characters: [origin.Object, destination.Object], cells: [room.Object]);
+
+		var result = storyteller.ExecuteFunctionCall("PathBetweenCharacters",
+			"""{"OriginCharacterId":11,"DestinationCharacterId":12,"PathSearchFunction":"PathIgnoreDoors"}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var directions = payload.GetProperty("result").GetProperty("Directions");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsTrue(payload.GetProperty("result").GetProperty("HasPath").GetBoolean());
+		Assert.AreEqual(0, directions.GetArrayLength());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_RecentCharacterPlans_ReturnsRecentPlans()
+	{
+		var character = BuildCharacterWithPlans(
+			id: 300L,
+			name: "Alice Example",
+			shortDescription: "a focused planner",
+			shortPlan: "Secure dock contracts.",
+			longPlan: "Expand guild influence.");
+		var recentEffect = new RecentlyUpdatedPlan(character.Object);
+		character.Setup(x => x.AffectedBy<RecentlyUpdatedPlan>()).Returns(true);
+		character.Setup(x => x.EffectsOfType<RecentlyUpdatedPlan>(It.IsAny<Predicate<RecentlyUpdatedPlan>>()))
+			.Returns([recentEffect]);
+		character.Setup(x => x.ScheduledDuration(It.IsAny<IEffect>())).Returns(TimeSpan.FromDays(3));
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+
+		var result = storyteller.ExecuteFunctionCall("RecentCharacterPlans", "{}", includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var plans = payload.GetProperty("result").GetProperty("Plans");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(1, plans.GetArrayLength());
+		Assert.AreEqual(300L, plans[0].GetProperty("Id").GetInt64());
+		Assert.AreEqual("Secure dock contracts.", plans[0].GetProperty("ShortTermPlan").GetString());
+		Assert.AreEqual("Expand guild influence.", plans[0].GetProperty("LongTermPlan").GetString());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_CharacterPlans_ReturnsSpecificCharacterPlans()
+	{
+		var character = BuildCharacterWithPlans(
+			id: 301L,
+			name: "Basil Planner",
+			shortDescription: "a thoughtful strategist",
+			shortPlan: "Recruit allies.",
+			longPlan: "Stabilize trade routes.");
+		var recentEffect = new RecentlyUpdatedPlan(character.Object);
+		character.Setup(x => x.EffectsOfType<RecentlyUpdatedPlan>(It.IsAny<Predicate<RecentlyUpdatedPlan>>()))
+			.Returns([recentEffect]);
+		character.Setup(x => x.ScheduledDuration(It.IsAny<IEffect>())).Returns(TimeSpan.FromDays(1));
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+
+		var result = storyteller.ExecuteFunctionCall("CharacterPlans", """{"Id":301}""", includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var details = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(301L, details.GetProperty("Id").GetInt64());
+		Assert.AreEqual("Recruit allies.", details.GetProperty("ShortTermPlan").GetString());
+		Assert.AreEqual("Stabilize trade routes.", details.GetProperty("LongTermPlan").GetString());
+		Assert.IsTrue(details.GetProperty("RecentlyUpdated").GetBoolean());
+	}
+
+	[TestMethod]
 	public void PassHeartbeatEventToAIStorytellerForTesting_MissingApiKey_DoesNotExecuteStatusProg()
 	{
 		var (runtimeGame, disposeRuntimeGame) = EnsureRuntimeGameWithMissingApiKey();
@@ -281,9 +400,11 @@ public class AIStorytellerToolExecutionTests
 		}
 	}
 
-	private static AIStoryteller CreateStoryteller()
+	private static AIStoryteller CreateStoryteller(IEnumerable<IFutureProg>? progs = null,
+		IEnumerable<ICharacter>? characters = null, IEnumerable<ICell>? cells = null)
 	{
-		var gameworld = CreateGameworld(Array.Empty<IFutureProg>(), Array.Empty<ICharacter>());
+		var gameworld = CreateGameworld(progs ?? Array.Empty<IFutureProg>(), characters ?? Array.Empty<ICharacter>(),
+			cells ?? Array.Empty<ICell>());
 		return new AIStoryteller(CreateModel(), gameworld.Object);
 	}
 
@@ -309,22 +430,43 @@ public class AIStorytellerToolExecutionTests
 		};
 	}
 
-	private static Mock<IFuturemud> CreateGameworld(IEnumerable<IFutureProg> progs, IEnumerable<ICharacter> characters)
+	private static Mock<IFuturemud> CreateGameworld(IEnumerable<IFutureProg> progs, IEnumerable<ICharacter> characters,
+		IEnumerable<ICell>? cells = null)
 	{
 		var progList = progs.ToList();
 		var characterList = characters.ToList();
+		var cellList = (cells ?? Array.Empty<ICell>()).ToList();
 
 		var progRepo = BuildRepository(progList);
 		var characterRepo = BuildRepository(characterList);
+		var cellRepo = BuildRepository(cellList);
 		var saveManager = new Mock<ISaveManager>();
 
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.FutureProgs).Returns(progRepo.Object);
 		gameworld.SetupGet(x => x.Characters).Returns(characterRepo.Object);
+		gameworld.SetupGet(x => x.Cells).Returns(cellRepo.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
 			.Returns((long id, bool _) => characterList.FirstOrDefault(x => x.Id == id));
 		return gameworld;
+	}
+
+	private static Mock<ICharacter> BuildCharacterWithPlans(long id, string name, string shortDescription,
+		string shortPlan, string longPlan)
+	{
+		var character = new Mock<ICharacter>();
+		var personalName = new Mock<IPersonalName>();
+		personalName.Setup(x => x.GetName(NameStyle.FullName)).Returns(name);
+
+		character.SetupGet(x => x.Id).Returns(id);
+		character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
+		character.SetupGet(x => x.ShortTermPlan).Returns(shortPlan);
+		character.SetupGet(x => x.LongTermPlan).Returns(longPlan);
+		character.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+			.Returns(shortDescription);
+		return character;
 	}
 
 	private static (Futuremud RuntimeGame, bool DisposeRuntimeGame) EnsureRuntimeGameWithMissingApiKey()

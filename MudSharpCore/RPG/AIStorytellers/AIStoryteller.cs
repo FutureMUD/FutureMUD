@@ -327,6 +327,7 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 	private static readonly TimeSpan MaxToolExecutionDuration = TimeSpan.FromSeconds(30);
 	private const int MaxSituationTitlesInPrompt = 25;
 	private const int MaxPromptCharacters = 24_000;
+	private const int MaxDebugMessageCharacters = 32_000;
 
 	public AIStoryteller(Models.AIStoryteller storyteller, IFuturemud gameworld)
 	{
@@ -452,6 +453,20 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 	public void RegisterLoadedMemory(IAIStorytellerCharacterMemory memory)
 	{
 		_characterMemories.Add(memory);
+	}
+
+	private void DebugAIMessaging(string stage, string payload)
+	{
+		if (string.IsNullOrWhiteSpace(payload))
+		{
+			payload = "(empty)";
+		}
+		else if (payload.Length > MaxDebugMessageCharacters)
+		{
+			payload = $"{payload[..MaxDebugMessageCharacters]}\n[Debug payload truncated.]";
+		}
+
+		Gameworld.DebugMessage($"[AI Storyteller #{Id:N0} - {Name}] {stage}\n{payload}");
 	}
 
 	public void SubscribeEvents()
@@ -1016,12 +1031,24 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		AppendOpenSituationTitles(sb);
+		var userPrompt = TrimPromptText(sb.ToString());
+		DebugAIMessaging("Engine -> Storyteller Request",
+			$"""
+Model: {Model}
+Reasoning: {ReasoningEffort.Describe()}
+Trigger: Heartbeat {heartbeatType}
+System Prompt:
+{SystemPrompt}
+
+User Prompt:
+{userPrompt}
+""");
 
 		ResponsesClient client = new(Model, apiKey);
 		List<ResponseItem> messages =
 		[
 			ResponseItem.CreateDeveloperMessageItem(SystemPrompt),
-			ResponseItem.CreateUserMessageItem(TrimPromptText(sb.ToString()))
+			ResponseItem.CreateUserMessageItem(userPrompt)
 		];
 		ExecuteToolCall(client, messages, includeEchoTools: false);
 	}
@@ -1055,12 +1082,24 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		sb.AppendLine(echo.StripANSIColour().StripMXP());
 		sb.AppendLine("Attention Reason:");
 		sb.AppendLine(attentionReason?.IfNullOrWhiteSpace("No reason provided"));
+		var userPrompt = TrimPromptText(sb.ToString());
+		DebugAIMessaging("Engine -> Storyteller Request",
+			$"""
+Model: {Model}
+Reasoning: {ReasoningEffort.Describe()}
+Trigger: Room Echo
+System Prompt:
+{SystemPrompt}
+
+User Prompt:
+{userPrompt}
+""");
 
 		ResponsesClient client = new(Model, apiKey);
 		List<ResponseItem> messages =
 		[
 			ResponseItem.CreateDeveloperMessageItem(SystemPrompt),
-			ResponseItem.CreateUserMessageItem(TrimPromptText(sb.ToString()))
+			ResponseItem.CreateUserMessageItem(userPrompt)
 		];
 		ExecuteToolCall(client, messages, includeEchoTools: true);
 	}
@@ -1090,12 +1129,30 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 				options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
 				AddUniversalToolsToResponseOptions(options);
 				AddCustomToolCallsToResponseOptions(options, includeEchoTools);
+				DebugAIMessaging("Engine -> Storyteller Continuation Request",
+					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Context Messages: {messages.Count:N0}");
 
 				var response = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
 				messages.AddRange(response.OutputItems);
+				DebugAIMessaging("Storyteller -> Engine Response", response.GetOutputText());
 				var functionCalls = response.OutputItems.OfType<FunctionCallResponseItem>().ToList();
+				if (functionCalls.Any())
+				{
+					DebugAIMessaging("Storyteller -> Engine Tool Requests",
+						string.Join(
+							"\n\n",
+							functionCalls.Select(x =>
+								$"""
+Function: {x.FunctionName}
+Call Id: {x.Id.IfNullOrWhiteSpace("(none)")}
+Arguments:
+{x.FunctionArguments.ToString().IfNullOrWhiteSpace("{}")}
+""")));
+				}
 				if (!functionCalls.Any())
 				{
+					DebugAIMessaging("Storyteller Tool Loop Complete",
+						$"Round {depth + 1:N0} returned no function calls.");
 					return;
 				}
 				var (shouldContinue, retries) = ProcessFunctionCallBatch(
@@ -1122,6 +1179,7 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 	private void LogStorytellerError(string message)
 	{
 		ErrorLoggerOverride?.Invoke(message);
+		DebugAIMessaging("Storyteller Error", message);
 		var formattedMessage = $"Storyteller {Id:N0}: {message}";
 		formattedMessage.Prepend("#2GPT Error#0\n").WriteLineConsole();
 		try
@@ -1138,6 +1196,7 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 	private void LogStorytellerException(Exception e)
 	{
 		ExceptionLoggerOverride?.Invoke(e);
+		DebugAIMessaging("Storyteller Exception", e.ToString());
 		e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
 		try
 		{
@@ -1158,10 +1217,27 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		var malformedThisRound = false;
 		foreach (var functionCall in functionCalls)
 		{
+			var callId = string.IsNullOrWhiteSpace(functionCall.CallId)
+				? Guid.NewGuid().ToString("N")
+				: functionCall.CallId;
+			DebugAIMessaging("Engine Executing Tool Call",
+				$"""
+Function: {functionCall.FunctionName}
+Call Id: {callId}
+Arguments:
+{functionCall.ArgumentsJson.IfNullOrWhiteSpace("{}")}
+""");
 			var result = ExecuteFunctionCall(functionCall.FunctionName, functionCall.ArgumentsJson, includeEchoTools);
 			malformedThisRound |= result.MalformedJson;
-			var callId = string.IsNullOrWhiteSpace(functionCall.CallId) ? Guid.NewGuid().ToString("N") : functionCall.CallId;
 			messages.Add(ResponseItem.CreateFunctionCallOutputItem(callId, result.OutputJson));
+			DebugAIMessaging("Engine -> Storyteller Tool Output",
+				$"""
+Function: {functionCall.FunctionName}
+Call Id: {callId}
+Malformed Json: {result.MalformedJson}
+Output:
+{result.OutputJson}
+""");
 		}
 
 		if (!malformedThisRound)
@@ -1177,6 +1253,11 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		messages.Add(ResponseItem.CreateUserMessageItem(MalformedToolCallFeedbackMessage));
+		DebugAIMessaging("Engine -> Storyteller Retry Feedback",
+			$"""
+Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
+{MalformedToolCallFeedbackMessage}
+""");
 		return (true, malformedRetries);
 	}
 
@@ -2442,22 +2523,38 @@ public class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		var echo = emote.ParseFor(null);
+		var attentionPrompt = TrimPromptText(echo);
 
 		try
 		{
+			DebugAIMessaging("Engine -> Attention Classifier Request",
+				$"""
+Model: {Model}
+Reasoning: {ResponseReasoningEffortLevel.Minimal.Describe()}
+Prompt:
+{AttentionAgentPrompt}
+
+Echo:
+{attentionPrompt}
+""");
 			ResponsesClient client = new(Model, apiKey);
 			var options = new CreateResponseOptions([
 				ResponseItem.CreateDeveloperMessageItem(AttentionAgentPrompt),
-				ResponseItem.CreateUserMessageItem(TrimPromptText(echo))
+				ResponseItem.CreateUserMessageItem(attentionPrompt)
 			]);
 			options.ReasoningOptions.ReasoningEffortLevel = ResponseReasoningEffortLevel.Minimal;
 			ResponseResult attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
-			var ss = new StringStack(attention.GetOutputText());
+			var attentionResponse = attention.GetOutputText();
+			DebugAIMessaging("Attention Classifier -> Engine Response", attentionResponse);
+			var ss = new StringStack(attentionResponse);
 			if (!ss.Pop().EqualTo("interested"))
 			{
+				DebugAIMessaging("Attention Classifier Decision", "Ignored event.");
 				return;
 			}
 
+			DebugAIMessaging("Attention Classifier Decision",
+				$"Interested. Reason: {ss.SafeRemainingArgument.IfNullOrWhiteSpace("No reason provided")}");
 			PassSituationToAIStoryteller(location, emote, echo, ss.SafeRemainingArgument);
 		}
 		catch (Exception e)

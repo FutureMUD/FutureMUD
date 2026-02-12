@@ -690,6 +690,118 @@ public class AIStorytellerToolExecutionTests
 		Assert.IsTrue(details.GetProperty("RecentlyUpdated").GetBoolean());
 	}
 
+
+	[TestMethod]
+	public void ExecuteFunctionCall_CurrentDateTime_MultipleContexts_ReturnsError()
+	{
+		var clock = new Mock<IClock>();
+		clock.SetupGet(x => x.Id).Returns(51L);
+		var timezoneOne = new Mock<IMudTimeZone>();
+		timezoneOne.SetupGet(x => x.Id).Returns(1L);
+		var timezoneTwo = new Mock<IMudTimeZone>();
+		timezoneTwo.SetupGet(x => x.Id).Returns(2L);
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.Id).Returns(41L);
+		calendar.SetupGet(x => x.FeedClock).Returns(clock.Object);
+
+		var roomOne = new Mock<ICell>();
+		roomOne.SetupGet(x => x.Id).Returns(401L);
+		roomOne.SetupGet(x => x.Calendars).Returns([calendar.Object]);
+		roomOne.Setup(x => x.TimeZone(clock.Object)).Returns(timezoneOne.Object);
+		var roomTwo = new Mock<ICell>();
+		roomTwo.SetupGet(x => x.Id).Returns(402L);
+		roomTwo.SetupGet(x => x.Calendars).Returns([calendar.Object]);
+		roomTwo.Setup(x => x.TimeZone(clock.Object)).Returns(timezoneTwo.Object);
+
+		var storyteller = CreateStoryteller(cells: [roomOne.Object, roomTwo.Object]);
+		var result = storyteller.ExecuteFunctionCall("CurrentDateTime", "{}", includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
+		StringAssert.Contains(payload.GetProperty("error").GetString() ?? string.Empty,
+			"Multiple calendar/clock/timezone contexts are in use");
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_DateTimeForTarget_Character_ReturnsDateTimePayload()
+	{
+		var clock = new Mock<IClock>();
+		clock.SetupGet(x => x.Id).Returns(52L);
+		clock.SetupGet(x => x.Name).Returns("City Clock");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Long)).Returns("High Sun");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Short)).Returns("Noon");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Vague)).Returns("Around Noon");
+
+		var timezone = new Mock<IMudTimeZone>();
+		timezone.SetupGet(x => x.Id).Returns(5L);
+		timezone.SetupGet(x => x.Name).Returns("City Standard");
+
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.Id).Returns(42L);
+		calendar.SetupGet(x => x.FullName).Returns("Civic Calendar");
+		calendar.SetupGet(x => x.FeedClock).Returns(clock.Object);
+		calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Long)).Returns("3rd Rainfall 1200");
+		calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Short)).Returns("3-RF-1200");
+
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(403L);
+		room.SetupGet(x => x.Calendars).Returns([calendar.Object]);
+		room.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
+		room.Setup(x => x.Date(calendar.Object)).Returns((MudDate)null!);
+		room.Setup(x => x.Time(clock.Object)).Returns((MudTime)null!);
+		room.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+			.Returns("Market Square");
+
+		var personalName = new Mock<IPersonalName>();
+		personalName.Setup(x => x.GetName(NameStyle.FullName)).Returns("Alyx Ward");
+
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(501L);
+		character.SetupGet(x => x.Location).Returns(room.Object);
+		character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
+
+		var storyteller = CreateStoryteller(characters: [character.Object], cells: [room.Object]);
+		var result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":501}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual("High Sun on 3rd Rainfall 1200", resultPayload.GetProperty("DateTime").GetString());
+		Assert.AreEqual(501L, resultPayload.GetProperty("CharacterId").GetInt64());
+		Assert.AreEqual("Market Square", resultPayload.GetProperty("RoomName").GetString());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_CalendarDefinition_ReturnsCalendarMetadata()
+	{
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.Id).Returns(77L);
+		calendar.SetupGet(x => x.Name).Returns("Harvest Calendar");
+		calendar.SetupGet(x => x.FullName).Returns("Harvest Calendar");
+		calendar.SetupGet(x => x.ShortName).Returns("Harvest");
+		calendar.SetupGet(x => x.Alias).Returns("harvest");
+		calendar.SetupGet(x => x.Description).Returns("Tracks agrarian seasons.");
+		calendar.SetupGet(x => x.AncientEraLongString).Returns("Before Founding");
+		calendar.SetupGet(x => x.ModernEraLongString).Returns("After Founding");
+		calendar.SetupGet(x => x.Weekdays).Returns(["Primeday", "Dualday"]);
+		calendar.SetupGet(x => x.Months).Returns([]);
+		calendar.SetupGet(x => x.Intercalaries).Returns([]);
+		calendar.SetupGet(x => x.Names).Returns(["Harvest Calendar", "harvest"]);
+
+		var storyteller = CreateStoryteller(calendars: [calendar.Object]);
+		var result = storyteller.ExecuteFunctionCall("CalendarDefinition", """{"Id":"harvest"}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(77L, resultPayload.GetProperty("Id").GetInt64());
+		Assert.AreEqual("Harvest Calendar", resultPayload.GetProperty("Name").GetString());
+		Assert.AreEqual("Tracks agrarian seasons.", resultPayload.GetProperty("Description").GetString());
+	}
+
 	[TestMethod]
 	public void PassHeartbeatEventToAIStorytellerForTesting_MissingApiKey_DoesNotExecuteStatusProg()
 	{
@@ -815,10 +927,11 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	private static AIStoryteller CreateStoryteller(IEnumerable<IFutureProg>? progs = null,
-		IEnumerable<ICharacter>? characters = null, IEnumerable<ICell>? cells = null)
+		IEnumerable<ICharacter>? characters = null, IEnumerable<ICell>? cells = null,
+		IEnumerable<ICalendar>? calendars = null)
 	{
 		var gameworld = CreateGameworld(progs ?? Array.Empty<IFutureProg>(), characters ?? Array.Empty<ICharacter>(),
-			cells ?? Array.Empty<ICell>());
+			cells ?? Array.Empty<ICell>(), calendars ?? Array.Empty<ICalendar>());
 		return new AIStoryteller(CreateModel(), gameworld.Object);
 	}
 
@@ -845,21 +958,24 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	private static Mock<IFuturemud> CreateGameworld(IEnumerable<IFutureProg> progs, IEnumerable<ICharacter> characters,
-		IEnumerable<ICell>? cells = null)
+		IEnumerable<ICell>? cells = null, IEnumerable<ICalendar>? calendars = null)
 	{
 		var progList = progs.ToList();
 		var characterList = characters.ToList();
 		var cellList = (cells ?? Array.Empty<ICell>()).ToList();
+		var calendarList = (calendars ?? Array.Empty<ICalendar>()).ToList();
 
 		var progRepo = BuildRepository(progList);
 		var characterRepo = BuildRepository(characterList);
 		var cellRepo = BuildRepository(cellList);
+		var calendarRepo = BuildRepository(calendarList);
 		var saveManager = new Mock<ISaveManager>();
 
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.FutureProgs).Returns(progRepo.Object);
 		gameworld.SetupGet(x => x.Characters).Returns(characterRepo.Object);
 		gameworld.SetupGet(x => x.Cells).Returns(cellRepo.Object);
+		gameworld.SetupGet(x => x.Calendars).Returns(calendarRepo.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
 			.Returns((long id, bool _) => characterList.FirstOrDefault(x => x.Id == id));

@@ -117,6 +117,42 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
+	public void ConfigureToolLoopResponseOptions_RequiredChoice_SetsToolChoiceAndTokenBudget()
+	{
+		var storyteller = CreateStoryteller();
+		var options = new CreateResponseOptions(new List<ResponseItem>());
+
+		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true);
+
+		Assert.IsNotNull(options.ToolChoice);
+		Assert.AreEqual(ResponseToolChoiceKind.Required, options.ToolChoice.Kind);
+		Assert.AreEqual(true, options.ParallelToolCallsEnabled);
+		Assert.AreEqual(1200, options.MaxOutputTokenCount);
+		Assert.IsTrue(options.Tools.Count > 0);
+	}
+
+	[TestMethod]
+	public void ConfigureToolLoopResponseOptions_AutoChoiceWhenNotRequired_SetsAutoChoice()
+	{
+		var storyteller = CreateStoryteller();
+		var options = new CreateResponseOptions(new List<ResponseItem>());
+
+		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false);
+
+		Assert.IsNotNull(options.ToolChoice);
+		Assert.AreEqual(ResponseToolChoiceKind.Auto, options.ToolChoice.Kind);
+	}
+
+	[TestMethod]
+	public void IsNoopOnlyFunctionCallBatch_DetectsOnlyNoop()
+	{
+		Assert.IsTrue(AIStoryteller.IsNoopOnlyFunctionCallBatch(["Noop"]));
+		Assert.IsTrue(AIStoryteller.IsNoopOnlyFunctionCallBatch(["Noop", "noop"]));
+		Assert.IsFalse(AIStoryteller.IsNoopOnlyFunctionCallBatch(Array.Empty<string>()));
+		Assert.IsFalse(AIStoryteller.IsNoopOnlyFunctionCallBatch(["Noop", "CreateSituation"]));
+	}
+
+	[TestMethod]
 	public void ExecuteFunctionCall_MalformedJson_ReturnsMalformedError()
 	{
 		var storyteller = CreateStoryteller();

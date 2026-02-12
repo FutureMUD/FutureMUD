@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Communication.Language;
@@ -134,7 +136,7 @@ public partial class AIStoryteller
 
 		sb.AppendLine("Spoken Text:");
 		sb.AppendLine(message.StripANSIColour().StripMXP());
-		ExecuteStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true);
+		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true);
 	}
 
 	private void PassCrimeToAIStoryteller(ICell location, ICrime crime)
@@ -170,7 +172,7 @@ public partial class AIStoryteller
 
 		sb.AppendLine($"Witness Count: {crime.WitnessIds.Count():N0}");
 		sb.AppendLine($"Real-Time Stamp (UTC): {crime.RealTimeOfCrime:O}");
-		ExecuteStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false);
+		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false);
 	}
 
 	private void PassCharacterStateToAIStoryteller(ICell location, ICharacter character, AIStorytellerStateTriggerType stateType)
@@ -199,7 +201,110 @@ public partial class AIStoryteller
 		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false);
 	}
 
+	private static string AppendAttentionReasonToPrompt(string prompt, string attentionReason)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine(prompt.TrimEnd());
+		sb.AppendLine();
+		sb.AppendLine("Attention Reason:");
+		sb.AppendLine(attentionReason.IfNullOrWhiteSpace("No reason provided"));
+		return sb.ToString();
+	}
+
+	private bool TryRunAttentionClassifier(string apiKey, string attentionPrompt, out string attentionReason)
+	{
+		attentionReason = string.Empty;
+		var classifierPrompt =
+			$"{AttentionAgentPrompt.IfNullOrWhiteSpace(string.Empty).Trim()}\n\n{AttentionContractInstruction}";
+		var trimmedPrompt = TrimPromptText(attentionPrompt);
+		DebugAIMessaging("Engine -> Attention Classifier Request",
+			$"""
+Model: {Model}
+Reasoning: {ResponseReasoningEffortLevel.Low.Describe()}
+Prompt:
+{classifierPrompt}
+
+Echo:
+{trimmedPrompt}
+""");
+
+		ResponsesClient client = new(Model, apiKey);
+		var options = new CreateResponseOptions([
+			ResponseItem.CreateDeveloperMessageItem(classifierPrompt),
+			ResponseItem.CreateUserMessageItem(trimmedPrompt)
+		]);
+		options.ReasoningOptions ??= new();
+		options.ReasoningOptions.ReasoningEffortLevel = ResponseReasoningEffortLevel.Low;
+		options.MaxOutputTokenCount = MaxAttentionClassifierOutputTokens;
+		var attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
+		var attentionResponse = attention.GetOutputText();
+		DebugAIMessaging("Attention Classifier -> Engine Response", attentionResponse);
+		if (!TryInterpretAttentionClassifierOutput(attentionResponse, out var interested, out var reason))
+		{
+			DebugAIMessaging("Attention Classifier Decision",
+				"Invalid response ignored due to contract violation.");
+			return false;
+		}
+
+		if (!interested)
+		{
+			DebugAIMessaging("Attention Classifier Decision", "Ignored event.");
+			return false;
+		}
+
+		attentionReason = reason.IfNullOrWhiteSpace("No reason provided");
+		DebugAIMessaging("Attention Classifier Decision",
+			$"Interested. Reason: {attentionReason}");
+		return true;
+	}
+
+	private void QueueStorytellerWork(Func<Task> work)
+	{
+		_ = Task.Run(async () =>
+		{
+			await _storytellerWorkerSemaphore.WaitAsync().ConfigureAwait(false);
+			try
+			{
+				await work().ConfigureAwait(false);
+			}
+			catch (Exception e)
+			{
+				LogStorytellerException(e);
+			}
+			finally
+			{
+				_storytellerWorkerSemaphore.Release();
+			}
+		});
+	}
+
+	private void ExecuteAttentionFilteredStorytellerPrompt(string apiKey, string trigger, string userPrompt,
+		bool includeEchoTools, string? attentionPromptOverride = null)
+	{
+		QueueStorytellerWork(() =>
+		{
+			if (!TryRunAttentionClassifier(apiKey, attentionPromptOverride ?? userPrompt, out var attentionReason))
+			{
+				return Task.CompletedTask;
+			}
+
+			var finalPrompt = AppendAttentionReasonToPrompt(userPrompt, attentionReason);
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools);
+			return Task.CompletedTask;
+		});
+	}
+
 	private void ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools)
+	{
+		QueueStorytellerWork(() =>
+		{
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools);
+			return Task.CompletedTask;
+		});
+	}
+
+	private void ExecuteStorytellerPromptImmediate(string apiKey, string trigger, string userPrompt,
+		bool includeEchoTools)
 	{
 		var prompt = TrimPromptText(userPrompt);
 		DebugAIMessaging("Engine -> Storyteller Request",

@@ -561,10 +561,32 @@ public partial class AIStoryteller
 	private const string MalformedToolCallFeedbackMessage =
 		"One or more tool calls used malformed JSON. Retry with valid JSON arguments that exactly match the declared tool schemas.";
 
+	internal void ConfigureToolLoopResponseOptions(CreateResponseOptions options, bool includeEchoTools,
+		bool requireToolCall)
+	{
+		options.ReasoningOptions ??= new();
+		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
+		options.MaxOutputTokenCount = MaxStorytellerOutputTokens;
+		options.ParallelToolCallsEnabled = true;
+		options.ToolChoice = requireToolCall
+			? ResponseToolChoice.CreateRequiredChoice()
+			: ResponseToolChoice.CreateAutoChoice();
+		AddUniversalToolsToResponseOptions(options);
+		AddCustomToolCallsToResponseOptions(options, includeEchoTools);
+	}
+
+	internal static bool IsNoopOnlyFunctionCallBatch(IEnumerable<string?> functionNames)
+	{
+		var names = functionNames.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+		return names.Any() && names.All(x => x!.EqualTo("Noop"));
+	}
+
 	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools)
 	{
 		var started = DateTime.UtcNow;
 		var malformedRetries = 0;
+		var missingToolCallRetries = 0;
+		var hasObservedToolCall = false;
 
 		for (var depth = 0; depth < MaxToolCallDepth; depth++)
 		{
@@ -577,19 +599,17 @@ public partial class AIStoryteller
 			try
 			{
 				var options = new CreateResponseOptions(messages);
-				options.ReasoningOptions ??= new();
-				options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
-				AddUniversalToolsToResponseOptions(options);
-				AddCustomToolCallsToResponseOptions(options, includeEchoTools);
+				var requireToolCall = !hasObservedToolCall;
+				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall);
 				DebugAIMessaging("Engine -> Storyteller Continuation Request",
-					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Context Messages: {messages.Count:N0}");
+					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Require Tool Call: {requireToolCall}, Context Messages: {messages.Count:N0}");
 
 				var response = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
-				messages.AddRange(response.OutputItems);
 				DebugAIMessaging("Storyteller -> Engine Response", response.GetOutputText());
 				var functionCalls = response.OutputItems.OfType<FunctionCallResponseItem>().ToList();
 				if (functionCalls.Any())
 				{
+					messages.AddRange(response.OutputItems);
 					DebugAIMessaging("Storyteller -> Engine Tool Requests",
 						string.Join(
 							"\n\n",
@@ -603,10 +623,33 @@ Arguments:
 				}
 				if (!functionCalls.Any())
 				{
+					if (!hasObservedToolCall)
+					{
+						missingToolCallRetries++;
+						if (missingToolCallRetries > MaxMissingToolCallRetries)
+						{
+							LogStorytellerError(
+								$"Storyteller failed to produce a required tool call after {MaxMissingToolCallRetries:N0} retries.");
+							return;
+						}
+
+						messages.Add(ResponseItem.CreateUserMessageItem(MissingToolCallFeedbackMessage));
+						DebugAIMessaging("Engine -> Storyteller Retry Feedback",
+							$"""
+Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N0}
+{MissingToolCallFeedbackMessage}
+""");
+						continue;
+					}
+
 					DebugAIMessaging("Storyteller Tool Loop Complete",
 						$"Round {depth + 1:N0} returned no function calls.");
 					return;
 				}
+
+				hasObservedToolCall = true;
+				missingToolCallRetries = 0;
+				var noopOnlyBatch = IsNoopOnlyFunctionCallBatch(functionCalls.Select(x => x.FunctionName));
 				var (shouldContinue, retries) = ProcessFunctionCallBatch(
 					functionCalls.Select(x => (
 						x.CallId.IfNullOrWhiteSpace(x.Id),
@@ -618,6 +661,13 @@ Arguments:
 				malformedRetries = retries;
 				if (!shouldContinue)
 				{
+					return;
+				}
+
+				if (noopOnlyBatch)
+				{
+					DebugAIMessaging("Storyteller Tool Loop Complete",
+						$"Round {depth + 1:N0} completed via Noop tool call.");
 					return;
 				}
 			}

@@ -40,12 +40,17 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	public override string FrameworkItemType => "AIStoryteller";
 	private const int MaxToolCallDepth = 16;
 	private const int MaxMalformedToolCallRetries = 3;
+	private const int MaxMissingToolCallRetries = 2;
+	private const int MaxStorytellerOutputTokens = 1200;
+	private const int MaxAttentionClassifierOutputTokens = 120;
 	private static readonly TimeSpan MaxToolExecutionDuration = TimeSpan.FromSeconds(30);
 	private const int MaxSituationTitlesInPrompt = 25;
 	private const int MaxPromptCharacters = 24_000;
 	private const int MaxDebugMessageCharacters = 32_000;
 	private const string AttentionContractInstruction =
 		"""Return only strict JSON in this shape: {"Decision":"interested","Reason":"optional short reason"} or {"Decision":"ignore"}. Do not include any additional text.""";
+	private const string MissingToolCallFeedbackMessage =
+		"You must respond with at least one tool call. If no world change is needed, call Noop.";
 
 	public AIStoryteller(Models.AIStoryteller storyteller, IFuturemud gameworld)
 	{
@@ -171,6 +176,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	private readonly List<ICell> _subscribedCells = [];
 	private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
 	public IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories => _characterMemories;
+	private readonly SemaphoreSlim _storytellerWorkerSemaphore = new(1, 1);
 
 	private readonly List<IAIStorytellerSituation> _situations = [];
 	public IEnumerable<IAIStorytellerSituation> Situations => _situations;
@@ -426,33 +432,6 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		PassHeartbeatEventToAIStoryteller(heartbeatType);
 	}
 
-	private void PassSituationToAIStoryteller(ICell location, PerceptionEngine.IEmoteOutput emote, string echo,
-		string attentionReason)
-	{
-		var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
-		if (string.IsNullOrEmpty(apiKey))
-		{
-			return;
-		}
-
-		var sb = new StringBuilder();
-		AppendOpenSituationTitles(sb);
-		sb.AppendLine("Your attention classifier flagged a world event as relevant.");
-		sb.AppendLine($"Location: {location.HowSeen(null)}");
-		if (emote?.DefaultSource is ICharacter ch)
-		{
-			sb.AppendLine($"Source Character: {ch.PersonalName.GetName(NameStyle.FullName)}");
-			sb.AppendLine(
-				$"Source Description: {ch.HowSeen(ch, flags: PerceiveIgnoreFlags.TrueDescription)}");
-		}
-
-		sb.AppendLine("Event Text:");
-		sb.AppendLine(echo.StripANSIColour().StripMXP());
-		sb.AppendLine("Attention Reason:");
-		sb.AppendLine(attentionReason?.IfNullOrWhiteSpace("No reason provided"));
-		ExecuteStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true);
-	}
-
 	private void AppendOpenSituationTitles(StringBuilder sb)
 	{
 		var openSituations = _situations
@@ -507,53 +486,21 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		var echo = emote.ParseFor(null);
-		var attentionPrompt = TrimPromptText(echo);
-		var classifierPrompt =
-			$"{AttentionAgentPrompt.IfNullOrWhiteSpace(string.Empty).Trim()}\n\n{AttentionContractInstruction}";
-
-		try
+		var sb = new StringBuilder();
+		AppendOpenSituationTitles(sb);
+		sb.AppendLine("Your attention classifier flagged a world event as relevant.");
+		sb.AppendLine($"Location: {location.HowSeen(null)}");
+		if (emote?.DefaultSource is ICharacter ch)
 		{
-			DebugAIMessaging("Engine -> Attention Classifier Request",
-				$"""
-Model: {Model}
-Reasoning: {ResponseReasoningEffortLevel.Minimal.Describe()}
-Prompt:
-{classifierPrompt}
-
-Echo:
-{attentionPrompt}
-""");
-			ResponsesClient client = new(Model, apiKey);
-			var options = new CreateResponseOptions([
-				ResponseItem.CreateDeveloperMessageItem(classifierPrompt),
-				ResponseItem.CreateUserMessageItem(attentionPrompt)
-			]);
-			options.ReasoningOptions ??= new();
-			options.ReasoningOptions.ReasoningEffortLevel = ResponseReasoningEffortLevel.Minimal;
-			ResponseResult attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
-			var attentionResponse = attention.GetOutputText();
-			DebugAIMessaging("Attention Classifier -> Engine Response", attentionResponse);
-			if (!TryInterpretAttentionClassifierOutput(attentionResponse, out var interested, out var reason))
-			{
-				DebugAIMessaging("Attention Classifier Decision",
-					"Invalid response ignored due to contract violation.");
-				return;
-			}
-
-			if (!interested)
-			{
-				DebugAIMessaging("Attention Classifier Decision", "Ignored event.");
-				return;
-			}
-
-			DebugAIMessaging("Attention Classifier Decision",
-				$"Interested. Reason: {reason.IfNullOrWhiteSpace("No reason provided")}");
-			PassSituationToAIStoryteller(location, emote, echo, reason);
+			sb.AppendLine($"Source Character: {ch.PersonalName.GetName(NameStyle.FullName)}");
+			sb.AppendLine(
+				$"Source Description: {ch.HowSeen(ch, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		}
-		catch (Exception e)
-		{
-			LogStorytellerException(e);
-		}
+
+		sb.AppendLine("Event Text:");
+		sb.AppendLine(echo.StripANSIColour().StripMXP());
+		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true,
+			attentionPromptOverride: echo);
 	}
 	private void HeartbeatManager_FiveMinuteHeartbeat() { 
 		PassHeartbeatEventToAIStoryteller("5m");

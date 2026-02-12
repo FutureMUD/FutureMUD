@@ -300,7 +300,8 @@ public partial class Cell
 		});
 	}
 
-	public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short,
+#nullable enable
+	public override string HowSeen(IPerceiver? voyeur, bool proper = false, DescriptionType type = DescriptionType.Short,
 		bool colour = true, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
 	{
 		var sb = new StringBuilder();
@@ -312,7 +313,7 @@ public partial class Cell
 					? overlay.CellName
 					: "Somewhere";
 				output = overlay.Terrain.RoomNameForLayer(output,
-					flags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers) ? RoomLayer.GroundLevel : voyeur.RoomLayer);
+					flags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers) ? RoomLayer.GroundLevel : voyeur?.RoomLayer ?? RoomLayer.GroundLevel);
 				output = SubstituteDescriptionVariables(output, voyeur, flags);
 				return colour ? output.ColourRoom() : output;
 			case DescriptionType.Long:
@@ -345,7 +346,7 @@ public partial class Cell
 				return HowSeen(voyeur, proper);
 		}
 	}
-
+#nullable restore
 	private string SubstituteDescriptionVariables(string description, IPerceiver voyeur, PerceiveIgnoreFlags flags)
 	{
 		description = SubstituteWeatherAndLightText(description, voyeur);

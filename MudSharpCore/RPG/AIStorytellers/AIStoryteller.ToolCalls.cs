@@ -15,6 +15,8 @@ using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate;
 using OpenAI.Responses;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 

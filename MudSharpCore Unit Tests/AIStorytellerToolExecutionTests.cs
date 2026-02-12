@@ -41,6 +41,51 @@ namespace MudSharp_Unit_Tests;
 public class AIStorytellerToolExecutionTests
 {
 	[TestMethod]
+	public void NormalizeFunctionToolSchema_NullSchema_ReturnsClosedEmptyObjectSchema()
+	{
+		var normalized = AIStoryteller.NormalizeFunctionToolSchema(null!);
+		var payload = JsonDocument.Parse(normalized).RootElement;
+
+		Assert.AreEqual("object", payload.GetProperty("type").GetString());
+		Assert.IsFalse(payload.GetProperty("additionalProperties").GetBoolean());
+		Assert.AreEqual(0, payload.GetProperty("properties").EnumerateObject().Count());
+		Assert.AreEqual(0, payload.GetProperty("required").GetArrayLength());
+	}
+
+	[TestMethod]
+	public void NormalizeFunctionToolSchema_ObjectSchemasAreClosedForStrictMode()
+	{
+		var normalized = AIStoryteller.NormalizeFunctionToolSchema(
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "Title": {
+			      "type": "string"
+			    },
+			    "Effect": {
+			      "type": "object",
+			      "properties": {
+			        "EffectId": {
+			          "type": "integer"
+			        }
+			      },
+			      "required": ["EffectId"],
+			      "additionalProperties": true
+			    }
+			  },
+			  "required": ["Title", "Effect"]
+			}
+			""");
+
+		var payload = JsonDocument.Parse(normalized).RootElement;
+		var effect = payload.GetProperty("properties").GetProperty("Effect");
+
+		Assert.IsFalse(payload.GetProperty("additionalProperties").GetBoolean());
+		Assert.IsFalse(effect.GetProperty("additionalProperties").GetBoolean());
+	}
+
+	[TestMethod]
 	public void ExecuteFunctionCall_MalformedJson_ReturnsMalformedError()
 	{
 		var storyteller = CreateStoryteller();

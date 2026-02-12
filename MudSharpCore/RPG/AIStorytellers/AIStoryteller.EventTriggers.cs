@@ -120,16 +120,16 @@ public partial class AIStoryteller
 		var sb = new StringBuilder();
 		AppendOpenSituationTitles(sb);
 		sb.AppendLine("A character has spoken in a surveilled room.");
-		sb.AppendLine($"Location: {location.HowSeen(null)}");
+		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"Speaker: {speaker.PersonalName.GetName(NameStyle.FullName)}");
 		sb.AppendLine(
-			$"Speaker Description: {speaker.HowSeen(null, flags: PerceiveIgnoreFlags.TrueDescription)}");
+			$"Speaker Description: {speaker.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		sb.AppendLine($"Volume: {volume.Describe()}");
 		sb.AppendLine($"Language: {language.Name}");
 		sb.AppendLine($"Accent: {accent.Name}");
 		if (target is not null)
 		{
-			sb.AppendLine($"Target: {target.HowSeen(null)}");
+			sb.AppendLine($"Target: {target.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		}
 
 		sb.AppendLine("Spoken Text:");
@@ -148,18 +148,18 @@ public partial class AIStoryteller
 		var sb = new StringBuilder();
 		AppendOpenSituationTitles(sb);
 		sb.AppendLine("A character has committed a crime in a surveilled room.");
-		sb.AppendLine($"Location: {location.HowSeen(null)}");
+		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"Crime Id: {crime.Id:N0}");
 		sb.AppendLine($"Crime Type: {crime.Law.CrimeType.DescribeEnum(true)}");
 		sb.AppendLine($"Legal Authority: {crime.LegalAuthority.Name}");
 		sb.AppendLine($"Criminal: {crime.Criminal.PersonalName.GetName(NameStyle.FullName)}");
 		sb.AppendLine(
-			$"Criminal Description: {crime.Criminal.HowSeen(null, flags: PerceiveIgnoreFlags.TrueDescription)}");
+			$"Criminal Description: {crime.Criminal.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		if (crime.Victim is not null)
 		{
 			sb.AppendLine($"Victim: {crime.Victim.PersonalName.GetName(NameStyle.FullName)}");
 			sb.AppendLine(
-				$"Victim Description: {crime.Victim.HowSeen(null, flags: PerceiveIgnoreFlags.TrueDescription)}");
+				$"Victim Description: {crime.Victim.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		}
 
 		if (crime.ThirdPartyId is not null)
@@ -191,11 +191,11 @@ public partial class AIStoryteller
 		var sb = new StringBuilder();
 		AppendOpenSituationTitles(sb);
 		sb.AppendLine("A character changed state in a surveilled room.");
-		sb.AppendLine($"Location: {location.HowSeen(null)}");
+		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"State Change: {stateText}");
 		sb.AppendLine($"Character: {character.PersonalName.GetName(NameStyle.FullName)}");
 		sb.AppendLine(
-			$"Character Description: {character.HowSeen(null, flags: PerceiveIgnoreFlags.TrueDescription)}");
+			$"Character Description: {character.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false);
 	}
 

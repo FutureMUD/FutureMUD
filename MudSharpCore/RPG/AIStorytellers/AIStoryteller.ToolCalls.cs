@@ -2,7 +2,9 @@
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -302,11 +304,97 @@ public partial class AIStoryteller
 		options.Tools.Add(ResponseTool.CreateFunctionTool(
 			functionName: functionName,
 			functionDescription: functionDescription,
-			functionParameters: string.IsNullOrWhiteSpace(functionParametersJson)
-				? null
-				: BinaryData.FromString(functionParametersJson),
+			functionParameters: BinaryData.FromString(
+				NormalizeFunctionToolSchema(functionParametersJson)),
 			strictModeEnabled: true
 		));
+	}
+
+	private const string EmptyStrictSchema = """
+		{
+		  "type": "object",
+		  "properties": {},
+		  "required": [],
+		  "additionalProperties": false
+		}
+		""";
+
+	internal static string NormalizeFunctionToolSchema(string functionParametersJson)
+	{
+		if (string.IsNullOrWhiteSpace(functionParametersJson))
+		{
+			return EmptyStrictSchema;
+		}
+
+		using var document = JsonDocument.Parse(functionParametersJson);
+		using var stream = new MemoryStream();
+		using (var writer = new Utf8JsonWriter(stream))
+		{
+			WriteStrictSchemaElement(document.RootElement, writer);
+		}
+
+		return Encoding.UTF8.GetString(stream.ToArray());
+	}
+
+	private static void WriteStrictSchemaElement(JsonElement element, Utf8JsonWriter writer)
+	{
+		switch (element.ValueKind)
+		{
+			case JsonValueKind.Object:
+			{
+				var properties = element.EnumerateObject().ToList();
+				var isObjectSchema = properties.Any(x =>
+					x.NameEquals("properties") ||
+					(x.NameEquals("type") && JsonTypeRepresentsObject(x.Value)));
+
+				writer.WriteStartObject();
+				foreach (var property in properties)
+				{
+					if (isObjectSchema && property.NameEquals("additionalProperties"))
+					{
+						continue;
+					}
+
+					writer.WritePropertyName(property.Name);
+					WriteStrictSchemaElement(property.Value, writer);
+				}
+
+				if (isObjectSchema)
+				{
+					writer.WriteBoolean("additionalProperties", false);
+				}
+
+				writer.WriteEndObject();
+				return;
+			}
+			case JsonValueKind.Array:
+				writer.WriteStartArray();
+				foreach (var item in element.EnumerateArray())
+				{
+					WriteStrictSchemaElement(item, writer);
+				}
+
+				writer.WriteEndArray();
+				return;
+			default:
+				element.WriteTo(writer);
+				return;
+		}
+	}
+
+	private static bool JsonTypeRepresentsObject(JsonElement typeElement)
+	{
+		switch (typeElement.ValueKind)
+		{
+			case JsonValueKind.String:
+				return string.Equals(typeElement.GetString(), "object", StringComparison.OrdinalIgnoreCase);
+			case JsonValueKind.Array:
+				return typeElement.EnumerateArray().Any(x =>
+					x.ValueKind == JsonValueKind.String &&
+					string.Equals(x.GetString(), "object", StringComparison.OrdinalIgnoreCase));
+			default:
+				return false;
+		}
 	}
 
 	private void AddCustomToolCallsToResponseOptions(CreateResponseOptions options, bool includeEchoes)

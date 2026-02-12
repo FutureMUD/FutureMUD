@@ -336,22 +336,61 @@ public partial class AIStoryteller
 		return Encoding.UTF8.GetString(stream.ToArray());
 	}
 
-	private static void WriteStrictSchemaElement(JsonElement element, Utf8JsonWriter writer)
+	private static void WriteStrictSchemaElement(JsonElement element, Utf8JsonWriter writer,
+		bool forceNullable = false)
 	{
 		switch (element.ValueKind)
 		{
 			case JsonValueKind.Object:
 			{
-				var properties = element.EnumerateObject().ToList();
-				var isObjectSchema = properties.Any(x =>
+				var schemaProperties = element.EnumerateObject().ToList();
+				var isObjectSchema = schemaProperties.Any(x =>
 					x.NameEquals("properties") ||
 					(x.NameEquals("type") && JsonTypeRepresentsObject(x.Value)));
+				var requiredPropertyNames = isObjectSchema
+					? GetRequiredSchemaPropertyNames(schemaProperties)
+					: [];
+				var declaredPropertyNames = isObjectSchema
+					? GetDeclaredSchemaPropertyNames(schemaProperties)
+					: [];
+				var typeWritten = false;
 
 				writer.WriteStartObject();
-				foreach (var property in properties)
+				foreach (var property in schemaProperties)
 				{
 					if (isObjectSchema && property.NameEquals("additionalProperties"))
 					{
+						continue;
+					}
+
+					if (isObjectSchema && property.NameEquals("required"))
+					{
+						continue;
+					}
+
+					if (forceNullable && property.NameEquals("type"))
+					{
+						writer.WritePropertyName("type");
+						WriteTypeWithNull(property.Value, writer);
+						typeWritten = true;
+						continue;
+					}
+
+					if (isObjectSchema && property.NameEquals("properties") &&
+					    property.Value.ValueKind == JsonValueKind.Object)
+					{
+						writer.WritePropertyName("properties");
+						writer.WriteStartObject();
+						foreach (var declaredProperty in property.Value.EnumerateObject())
+						{
+							writer.WritePropertyName(declaredProperty.Name);
+							WriteStrictSchemaElement(
+								declaredProperty.Value,
+								writer,
+								forceNullable: !requiredPropertyNames.Contains(declaredProperty.Name));
+						}
+
+						writer.WriteEndObject();
 						continue;
 					}
 
@@ -359,8 +398,25 @@ public partial class AIStoryteller
 					WriteStrictSchemaElement(property.Value, writer);
 				}
 
+				if (forceNullable && !typeWritten && isObjectSchema)
+				{
+					writer.WritePropertyName("type");
+					writer.WriteStartArray();
+					writer.WriteStringValue("object");
+					writer.WriteStringValue("null");
+					writer.WriteEndArray();
+				}
+
 				if (isObjectSchema)
 				{
+					writer.WritePropertyName("required");
+					writer.WriteStartArray();
+					foreach (var propertyName in declaredPropertyNames)
+					{
+						writer.WriteStringValue(propertyName);
+					}
+
+					writer.WriteEndArray();
 					writer.WriteBoolean("additionalProperties", false);
 				}
 
@@ -378,6 +434,83 @@ public partial class AIStoryteller
 				return;
 			default:
 				element.WriteTo(writer);
+				return;
+		}
+	}
+
+	private static List<string> GetDeclaredSchemaPropertyNames(IEnumerable<JsonProperty> schemaProperties)
+	{
+		var propertiesProperty = schemaProperties.FirstOrDefault(x => x.NameEquals("properties"));
+		if (propertiesProperty.Value.ValueKind != JsonValueKind.Object)
+		{
+			return [];
+		}
+
+		return propertiesProperty.Value.EnumerateObject().Select(x => x.Name).ToList();
+	}
+
+	private static HashSet<string> GetRequiredSchemaPropertyNames(IEnumerable<JsonProperty> schemaProperties)
+	{
+		var requiredProperty = schemaProperties.FirstOrDefault(x => x.NameEquals("required"));
+		if (requiredProperty.Value.ValueKind != JsonValueKind.Array)
+		{
+			return [];
+		}
+
+		return requiredProperty.Value
+			.EnumerateArray()
+			.Where(x => x.ValueKind == JsonValueKind.String)
+			.Select(x => x.GetString())
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Cast<string>()
+			.ToHashSet(StringComparer.Ordinal);
+	}
+
+	private static void WriteTypeWithNull(JsonElement typeElement, Utf8JsonWriter writer)
+	{
+		switch (typeElement.ValueKind)
+		{
+			case JsonValueKind.String:
+			{
+				var schemaType = typeElement.GetString() ?? string.Empty;
+				writer.WriteStartArray();
+				if (!string.IsNullOrWhiteSpace(schemaType))
+				{
+					writer.WriteStringValue(schemaType);
+				}
+
+				if (!schemaType.EqualTo("null"))
+				{
+					writer.WriteStringValue("null");
+				}
+
+				writer.WriteEndArray();
+				return;
+			}
+			case JsonValueKind.Array:
+			{
+				var hasNull = false;
+				writer.WriteStartArray();
+				foreach (var typeOption in typeElement.EnumerateArray())
+				{
+					if (typeOption.ValueKind == JsonValueKind.String && typeOption.GetString().EqualTo("null"))
+					{
+						hasNull = true;
+					}
+
+					typeOption.WriteTo(writer);
+				}
+
+				if (!hasNull)
+				{
+					writer.WriteStringValue("null");
+				}
+
+				writer.WriteEndArray();
+				return;
+			}
+			default:
+				typeElement.WriteTo(writer);
 				return;
 		}
 	}
@@ -463,7 +596,7 @@ public partial class AIStoryteller
 							functionCalls.Select(x =>
 								$"""
 Function: {x.FunctionName}
-Call Id: {x.Id.IfNullOrWhiteSpace("(none)")}
+Call Id: {x.CallId.IfNullOrWhiteSpace(x.Id).IfNullOrWhiteSpace("(none)")}
 Arguments:
 {x.FunctionArguments.ToString().IfNullOrWhiteSpace("{}")}
 """)));
@@ -475,7 +608,10 @@ Arguments:
 					return;
 				}
 				var (shouldContinue, retries) = ProcessFunctionCallBatch(
-					functionCalls.Select(x => (x.Id, x.FunctionName, x.FunctionArguments.ToString())),
+					functionCalls.Select(x => (
+						x.CallId.IfNullOrWhiteSpace(x.Id),
+						x.FunctionName,
+						x.FunctionArguments.ToString())),
 					includeEchoTools,
 					messages,
 					malformedRetries);

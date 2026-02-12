@@ -243,6 +243,11 @@ public partial class AIStoryteller
 			return null;
 		}
 
+		if (property.ValueKind == JsonValueKind.Null || property.ValueKind == JsonValueKind.Undefined)
+		{
+			return null;
+		}
+
 		if (property.ValueKind == JsonValueKind.String)
 		{
 			return property.GetString() ?? string.Empty;

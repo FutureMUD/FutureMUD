@@ -86,6 +86,37 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
+	public void NormalizeFunctionToolSchema_OptionalProperty_BecomesNullableAndRequired()
+	{
+		var normalized = AIStoryteller.NormalizeFunctionToolSchema(
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "Query": {
+			      "type": "string"
+			    }
+			  },
+			  "required": []
+			}
+			""");
+
+		var payload = JsonDocument.Parse(normalized).RootElement;
+		var required = payload.GetProperty("required").EnumerateArray().Select(x => x.GetString()).ToList();
+		var queryTypes = payload.GetProperty("properties")
+			.GetProperty("Query")
+			.GetProperty("type")
+			.EnumerateArray()
+			.Select(x => x.GetString())
+			.ToList();
+
+		Assert.AreEqual(1, required.Count);
+		Assert.AreEqual("Query", required[0]);
+		CollectionAssert.Contains(queryTypes, "string");
+		CollectionAssert.Contains(queryTypes, "null");
+	}
+
+	[TestMethod]
 	public void ExecuteFunctionCall_MalformedJson_ReturnsMalformedError()
 	{
 		var storyteller = CreateStoryteller();

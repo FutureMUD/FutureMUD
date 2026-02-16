@@ -205,6 +205,17 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		Gameworld.DebugMessage($"[AI Storyteller #{Id:N0} - {Name}] {stage}\n{payload}");
 	}
 
+	private static string DescribeTokenUsage(ResponseResult response)
+	{
+		var usage = response.Usage;
+		if (usage is null)
+		{
+			return "Token usage not returned by provider.";
+		}
+
+		return $"Input: {usage.InputTokenCount:N0}, Cached Input: {usage.InputTokenDetails?.CachedTokenCount ?? 0:N0}, Output: {usage.OutputTokenCount:N0}, Total: {usage.TotalTokenCount:N0}";
+	}
+
 	public void SubscribeEvents()
 	{
 		UnsubscribeEvents();

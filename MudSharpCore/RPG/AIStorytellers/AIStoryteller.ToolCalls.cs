@@ -562,8 +562,11 @@ public partial class AIStoryteller
 		"One or more tool calls used malformed JSON. Retry with valid JSON arguments that exactly match the declared tool schemas.";
 
 	internal void ConfigureToolLoopResponseOptions(CreateResponseOptions options, bool includeEchoTools,
-		bool requireToolCall)
+		bool requireToolCall, string instructions)
 	{
+		options.Instructions = instructions;
+		options.StoredOutputEnabled = true;
+		options.TruncationMode = ResponseTruncationMode.Auto;
 		options.ReasoningOptions ??= new();
 		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
 		options.MaxOutputTokenCount = MaxStorytellerOutputTokens;
@@ -581,12 +584,15 @@ public partial class AIStoryteller
 		return names.Any() && names.All(x => x!.EqualTo("Noop"));
 	}
 
-	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools)
+	private void ExecuteToolCall(ResponsesClient client, string instructions, List<ResponseItem> messages,
+		bool includeEchoTools)
 	{
 		var started = DateTime.UtcNow;
 		var malformedRetries = 0;
 		var missingToolCallRetries = 0;
 		var hasObservedToolCall = false;
+		var previousResponseId = string.Empty;
+		var pendingInputs = new List<ResponseItem>(messages);
 
 		for (var depth = 0; depth < MaxToolCallDepth; depth++)
 		{
@@ -598,18 +604,24 @@ public partial class AIStoryteller
 
 			try
 			{
-				var options = new CreateResponseOptions(messages);
+				var options = new CreateResponseOptions(pendingInputs);
+				if (!string.IsNullOrWhiteSpace(previousResponseId))
+				{
+					options.PreviousResponseId = previousResponseId;
+				}
+
 				var requireToolCall = !hasObservedToolCall;
-				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall);
+				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, instructions);
 				DebugAIMessaging("Engine -> Storyteller Continuation Request",
-					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Require Tool Call: {requireToolCall}, Context Messages: {messages.Count:N0}");
+					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Require Tool Call: {requireToolCall}, Context Messages: {pendingInputs.Count:N0}, Previous Response Id: {previousResponseId.IfNullOrWhiteSpace("(none)")}");
 
 				var response = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
+				previousResponseId = response.Id;
+				DebugAIMessaging("Storyteller Token Usage", DescribeTokenUsage(response));
 				DebugAIMessaging("Storyteller -> Engine Response", response.GetOutputText());
 				var functionCalls = response.OutputItems.OfType<FunctionCallResponseItem>().ToList();
 				if (functionCalls.Any())
 				{
-					messages.AddRange(response.OutputItems);
 					DebugAIMessaging("Storyteller -> Engine Tool Requests",
 						string.Join(
 							"\n\n",
@@ -633,7 +645,10 @@ Arguments:
 							return;
 						}
 
-						messages.Add(ResponseItem.CreateUserMessageItem(MissingToolCallFeedbackMessage));
+						pendingInputs =
+						[
+							ResponseItem.CreateUserMessageItem(MissingToolCallFeedbackMessage)
+						];
 						DebugAIMessaging("Engine -> Storyteller Retry Feedback",
 							$"""
 Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N0}
@@ -656,7 +671,7 @@ Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N
 						x.FunctionName,
 						x.FunctionArguments.ToString())),
 					includeEchoTools,
-					messages,
+					pendingInputs,
 					malformedRetries);
 				malformedRetries = retries;
 				if (!shouldContinue)

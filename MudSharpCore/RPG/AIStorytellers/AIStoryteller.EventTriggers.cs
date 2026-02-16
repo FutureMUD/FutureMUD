@@ -230,13 +230,16 @@ Echo:
 
 		ResponsesClient client = new(Model, apiKey);
 		var options = new CreateResponseOptions([
-			ResponseItem.CreateDeveloperMessageItem(classifierPrompt),
 			ResponseItem.CreateUserMessageItem(trimmedPrompt)
 		]);
+		options.Instructions = classifierPrompt;
+		options.StoredOutputEnabled = true;
+		options.TruncationMode = ResponseTruncationMode.Auto;
 		options.ReasoningOptions ??= new();
 		options.ReasoningOptions.ReasoningEffortLevel = ResponseReasoningEffortLevel.Low;
 		options.MaxOutputTokenCount = MaxAttentionClassifierOutputTokens;
 		var attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
+		DebugAIMessaging("Attention Classifier Token Usage", DescribeTokenUsage(attention));
 		var attentionResponse = attention.GetOutputText();
 		DebugAIMessaging("Attention Classifier -> Engine Response", attentionResponse);
 		if (!TryInterpretAttentionClassifierOutput(attentionResponse, out var interested, out var reason))
@@ -322,9 +325,8 @@ User Prompt:
 		ResponsesClient client = new(Model, apiKey);
 		List<ResponseItem> messages =
 		[
-			ResponseItem.CreateDeveloperMessageItem(SystemPrompt),
 			ResponseItem.CreateUserMessageItem(prompt)
 		];
-		ExecuteToolCall(client, messages, includeEchoTools);
+		ExecuteToolCall(client, SystemPrompt, messages, includeEchoTools);
 	}
 }

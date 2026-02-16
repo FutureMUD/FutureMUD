@@ -33,7 +33,7 @@ public partial class AIStoryteller
 		AddFunctionTool(
 			options,
 			"CreateSituation",
-			"Creates a new situation for the AI storyteller to manage.",
+			"Creates a new situation for the AI storyteller to manage. The titles of these will be shared with you in all future prompts, so they keep situations front of mind",
 			"""
 			{
 			  "type": "object",

@@ -210,12 +210,12 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		Gameworld.DebugMessage($"[AI Storyteller #{Id:N0} - {Name}] {stage}\n{payload}");
 	}
 
-	private void DebugResponseUsage(string stage, ResponseResult response)
+	private static string DescribeTokenUsage(ResponseResult response)
 	{
 		var usage = response.Usage;
 		if (usage is null)
 		{
-			return;
+			return "Token usage not returned by provider.";
 		}
 
 		var cachedInputTokens = usage.InputTokenDetails?.CachedTokenCount ?? 0;
@@ -223,14 +223,19 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		var cacheRatio = usage.InputTokenCount > 0
 			? cachedInputTokens * 100.0 / usage.InputTokenCount
 			: 0.0;
-		DebugAIMessaging(stage,
+		return
 			$"""
 Input Tokens: {usage.InputTokenCount:N0}
 Cached Input Tokens: {cachedInputTokens:N0} ({cacheRatio:N1}%)
 Output Tokens: {usage.OutputTokenCount:N0}
 Reasoning Tokens: {reasoningTokens:N0}
 Total Tokens: {usage.TotalTokenCount:N0}
-""");
+""";
+	}
+
+	private void DebugResponseUsage(string stage, ResponseResult response)
+	{
+		DebugAIMessaging(stage, DescribeTokenUsage(response));
 	}
 
 	public void SubscribeEvents()

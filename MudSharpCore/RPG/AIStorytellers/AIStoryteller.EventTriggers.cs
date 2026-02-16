@@ -125,9 +125,6 @@ public partial class AIStoryteller
 		sb.AppendLine("A character has spoken in a surveilled room.");
 		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"Speaker: {speaker.PersonalName.GetName(NameStyle.FullName)}");
-		sb.AppendLine(
-			$"Speaker Description: {speaker.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
-		sb.AppendLine($"Volume: {volume.Describe()}");
 		sb.AppendLine($"Language: {language.Name}");
 		sb.AppendLine($"Accent: {accent.Name}");
 		if (target is not null)

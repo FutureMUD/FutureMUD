@@ -122,7 +122,8 @@ public class AIStorytellerToolExecutionTests
 		var storyteller = CreateStoryteller();
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
-		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true);
+		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Required, options.ToolChoice.Kind);
@@ -137,10 +138,33 @@ public class AIStorytellerToolExecutionTests
 		var storyteller = CreateStoryteller();
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
-		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false);
+		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false,
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Auto, options.ToolChoice.Kind);
+	}
+
+	[TestMethod]
+	public void ConfigureToolLoopResponseOptions_EventFocusedProfile_ExcludesHeavyWorldTools()
+	{
+		var storyteller = CreateStoryteller();
+		var options = new CreateResponseOptions(new List<ResponseItem>());
+
+		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
+			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused);
+
+		var toolNames = options.Tools
+			.OfType<FunctionTool>()
+			.Select(x => x.FunctionName)
+			.ToList();
+		CollectionAssert.Contains(toolNames, "Noop");
+		CollectionAssert.Contains(toolNames, "CurrentDateTime");
+		CollectionAssert.Contains(toolNames, "DateTimeForTarget");
+		CollectionAssert.DoesNotContain(toolNames, "PathBetweenRooms");
+		CollectionAssert.DoesNotContain(toolNames, "Landmarks");
+		CollectionAssert.DoesNotContain(toolNames, "CharacterPlans");
+		CollectionAssert.DoesNotContain(toolNames, "CalendarDefinition");
 	}
 
 	[TestMethod]

@@ -45,7 +45,8 @@ public partial class AIStoryteller
 		sb.AppendLine("A direct storyteller attention event was invoked via FutureProg.");
 		sb.AppendLine("Event Text:");
 		sb.AppendLine(attentionText.Trim());
-		ExecuteStorytellerPrompt(apiKey, "Direct Invocation", sb.ToString(), includeEchoTools: false);
+		ExecuteStorytellerPrompt(apiKey, "Direct Invocation", sb.ToString(), includeEchoTools: false,
+			toolProfile: StorytellerToolProfile.Full);
 		return true;
 	}
 
@@ -136,7 +137,8 @@ public partial class AIStoryteller
 
 		sb.AppendLine("Spoken Text:");
 		sb.AppendLine(message.StripANSIColour().StripMXP());
-		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true);
+		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true,
+			toolProfile: StorytellerToolProfile.EventFocused);
 	}
 
 	private void PassCrimeToAIStoryteller(ICell location, ICrime crime)
@@ -172,7 +174,8 @@ public partial class AIStoryteller
 
 		sb.AppendLine($"Witness Count: {crime.WitnessIds.Count():N0}");
 		sb.AppendLine($"Real-Time Stamp (UTC): {crime.RealTimeOfCrime:O}");
-		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false);
+		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false,
+			toolProfile: StorytellerToolProfile.EventFocused);
 	}
 
 	private void PassCharacterStateToAIStoryteller(ICell location, ICharacter character, AIStorytellerStateTriggerType stateType)
@@ -198,7 +201,8 @@ public partial class AIStoryteller
 		sb.AppendLine($"Character: {character.PersonalName.GetName(NameStyle.FullName)}");
 		sb.AppendLine(
 			$"Character Description: {character.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
-		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false);
+		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false,
+			toolProfile: StorytellerToolProfile.Full);
 	}
 
 	private static string AppendAttentionReasonToPrompt(string prompt, string attentionReason)
@@ -237,6 +241,7 @@ Echo:
 		options.ReasoningOptions.ReasoningEffortLevel = ResponseReasoningEffortLevel.Low;
 		options.MaxOutputTokenCount = MaxAttentionClassifierOutputTokens;
 		var attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
+		DebugResponseUsage("Attention Classifier -> Engine Usage", attention);
 		var attentionResponse = attention.GetOutputText();
 		DebugAIMessaging("Attention Classifier -> Engine Response", attentionResponse);
 		if (!TryInterpretAttentionClassifierOutput(attentionResponse, out var interested, out var reason))
@@ -279,7 +284,8 @@ Echo:
 	}
 
 	private void ExecuteAttentionFilteredStorytellerPrompt(string apiKey, string trigger, string userPrompt,
-		bool includeEchoTools, string? attentionPromptOverride = null)
+		bool includeEchoTools, StorytellerToolProfile toolProfile = StorytellerToolProfile.Full,
+		string? attentionPromptOverride = null)
 	{
 		QueueStorytellerWork(() =>
 		{
@@ -289,22 +295,23 @@ Echo:
 			}
 
 			var finalPrompt = AppendAttentionReasonToPrompt(userPrompt, attentionReason);
-			ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools);
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools, toolProfile);
 			return Task.CompletedTask;
 		});
 	}
 
-	private void ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools)
+	private void ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools,
+		StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
 	{
 		QueueStorytellerWork(() =>
 		{
-			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools);
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile);
 			return Task.CompletedTask;
 		});
 	}
 
 	private void ExecuteStorytellerPromptImmediate(string apiKey, string trigger, string userPrompt,
-		bool includeEchoTools)
+		bool includeEchoTools, StorytellerToolProfile toolProfile)
 	{
 		var prompt = TrimPromptText(userPrompt);
 		DebugAIMessaging("Engine -> Storyteller Request",
@@ -325,6 +332,6 @@ User Prompt:
 			ResponseItem.CreateDeveloperMessageItem(SystemPrompt),
 			ResponseItem.CreateUserMessageItem(prompt)
 		];
-		ExecuteToolCall(client, messages, includeEchoTools);
+		ExecuteToolCall(client, messages, includeEchoTools, toolProfile);
 	}
 }

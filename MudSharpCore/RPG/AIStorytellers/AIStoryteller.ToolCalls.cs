@@ -26,8 +26,10 @@ namespace MudSharp.RPG.AIStorytellers;
 
 public partial class AIStoryteller
 {
-	private void AddUniversalToolsToResponseOptions(CreateResponseOptions options)
+	private void AddUniversalToolsToResponseOptions(CreateResponseOptions options, StorytellerToolProfile toolProfile)
 	{
+		var includeExtendedWorldTools = toolProfile == StorytellerToolProfile.Full;
+
 		AddFunctionTool(
 			options,
 			"CreateSituation",
@@ -154,21 +156,24 @@ public partial class AIStoryteller
 			}
 			""");
 
-		AddFunctionTool(options, "Landmarks",
-			"Returns summary information about available landmarks.", null);
-		AddFunctionTool(
-			options,
-			"ShowLandmark",
-			"Returns detailed information about a specific landmark.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "Id": { "type": "string", "description": "The name of the landmark." }
-			  },
-			  "required": ["Id"]
-			}
-			""");
+		if (includeExtendedWorldTools)
+		{
+			AddFunctionTool(options, "Landmarks",
+				"Returns summary information about available landmarks.", null);
+			AddFunctionTool(
+				options,
+				"ShowLandmark",
+				"Returns detailed information about a specific landmark.",
+				"""
+				{
+				  "type": "object",
+				  "properties": {
+				    "Id": { "type": "string", "description": "The name of the landmark." }
+				  },
+				  "required": ["Id"]
+				}
+				""");
+		}
 
 		AddFunctionTool(
 			options,
@@ -198,70 +203,73 @@ public partial class AIStoryteller
 			}
 			""");
 
-		AddFunctionTool(
-			options,
-			"PathBetweenRooms",
-			"Returns a list of movement commands to path between two rooms.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "OriginRoomId": { "type": "integer", "description": "The id of the origin room." },
-			    "DestinationRoomId": { "type": "integer", "description": "The id of the destination room." },
-			    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors, IgnorePresenceOfDoors, PathIgnoreDoors, PathRespectClosedDoors and PathIncludeUnlockedDoors." }
-			  },
-			  "required": ["OriginRoomId", "DestinationRoomId", "PathSearchFunction"]
-			}
-			""");
+		if (includeExtendedWorldTools)
+		{
+			AddFunctionTool(
+				options,
+				"PathBetweenRooms",
+				"Returns a list of movement commands to path between two rooms.",
+				"""
+				{
+				  "type": "object",
+				  "properties": {
+				    "OriginRoomId": { "type": "integer", "description": "The id of the origin room." },
+				    "DestinationRoomId": { "type": "integer", "description": "The id of the destination room." },
+				    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors, IgnorePresenceOfDoors, PathIgnoreDoors, PathRespectClosedDoors and PathIncludeUnlockedDoors." }
+				  },
+				  "required": ["OriginRoomId", "DestinationRoomId", "PathSearchFunction"]
+				}
+				""");
 
-		AddFunctionTool(
-			options,
-			"PathFromCharacterToRoom",
-			"Returns a list of movement commands to path from a character's current room to a destination room.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "OriginCharacterId": { "type": "integer", "description": "The id of the origin character." },
-			    "DestinationRoomId": { "type": "integer", "description": "The id of the destination room." },
-			    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include IncludeUnlockableDoors, PathIncludeUnlockableDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors, RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors and IgnorePresenceOfDoors." }
-			  },
-			  "required": ["OriginCharacterId", "DestinationRoomId", "PathSearchFunction"]
-			}
-			""");
+			AddFunctionTool(
+				options,
+				"PathFromCharacterToRoom",
+				"Returns a list of movement commands to path from a character's current room to a destination room.",
+				"""
+				{
+				  "type": "object",
+				  "properties": {
+				    "OriginCharacterId": { "type": "integer", "description": "The id of the origin character." },
+				    "DestinationRoomId": { "type": "integer", "description": "The id of the destination room." },
+				    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include IncludeUnlockableDoors, PathIncludeUnlockableDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors, RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors and IgnorePresenceOfDoors." }
+				  },
+				  "required": ["OriginCharacterId", "DestinationRoomId", "PathSearchFunction"]
+				}
+				""");
 
-		AddFunctionTool(
-			options,
-			"PathBetweenCharacters",
-			"Returns a list of movement commands to path between two characters using their current rooms.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "OriginCharacterId": { "type": "integer", "description": "The id of the origin character." },
-			    "DestinationCharacterId": { "type": "integer", "description": "The id of the destination character." },
-			    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include IncludeUnlockableDoors, PathIncludeUnlockableDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors, RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors and IgnorePresenceOfDoors." }
-			  },
-			  "required": ["OriginCharacterId", "DestinationCharacterId", "PathSearchFunction"]
-			}
-			""");
+			AddFunctionTool(
+				options,
+				"PathBetweenCharacters",
+				"Returns a list of movement commands to path between two characters using their current rooms.",
+				"""
+				{
+				  "type": "object",
+				  "properties": {
+				    "OriginCharacterId": { "type": "integer", "description": "The id of the origin character." },
+				    "DestinationCharacterId": { "type": "integer", "description": "The id of the destination character." },
+				    "PathSearchFunction": { "type": "string", "description": "Path search mode. Valid values include IncludeUnlockableDoors, PathIncludeUnlockableDoors, PathIgnoreDoors, PathRespectClosedDoors, PathIncludeUnlockedDoors, RespectClosedDoors, IncludeUnlockedDoors, IncludeFireableDoors and IgnorePresenceOfDoors." }
+				  },
+				  "required": ["OriginCharacterId", "DestinationCharacterId", "PathSearchFunction"]
+				}
+				""");
 
-		AddFunctionTool(options, "RecentCharacterPlans",
-			"Returns plans for online characters who recently updated plans (90 day window semantics).", null);
+			AddFunctionTool(options, "RecentCharacterPlans",
+				"Returns plans for online characters who recently updated plans (90 day window semantics).", null);
 
-		AddFunctionTool(
-			options,
-			"CharacterPlans",
-			"Returns plans for a specific character by id.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "Id": { "type": "integer", "description": "The id of the character." }
-			  },
-			"required": ["Id"]
-			}
-			""");
+			AddFunctionTool(
+				options,
+				"CharacterPlans",
+				"Returns plans for a specific character by id.",
+				"""
+				{
+				  "type": "object",
+				  "properties": {
+				    "Id": { "type": "integer", "description": "The id of the character." }
+				  },
+				"required": ["Id"]
+				}
+				""");
+		}
 
 		AddFunctionTool(options, "CurrentDateTime",
 			"Returns the current in-game date, time and timezone for a default monitored context when only one calendar/clock/timezone is in active use.",
@@ -282,20 +290,23 @@ public partial class AIStoryteller
 			}
 			""");
 
-		AddFunctionTool(
-			options,
-			"CalendarDefinition",
-			"Returns detailed definition information for a calendar, including months and intercalary months.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "Id": { "type": "string", "description": "The calendar id, alias or name." },
-			    "Year": { "type": "integer", "description": "Optional year number to expand year-specific month data." }
-			  },
-			  "required": ["Id"]
-			}
-			""");
+		if (includeExtendedWorldTools)
+		{
+			AddFunctionTool(
+				options,
+				"CalendarDefinition",
+				"Returns detailed definition information for a calendar, including months and intercalary months.",
+				"""
+				{
+				  "type": "object",
+				  "properties": {
+				    "Id": { "type": "string", "description": "The calendar id, alias or name." },
+				    "Year": { "type": "integer", "description": "Optional year number to expand year-specific month data." }
+				  },
+				  "required": ["Id"]
+				}
+				""");
+		}
 	}
 
 	private void AddFunctionTool(CreateResponseOptions options, string functionName, string functionDescription,
@@ -542,13 +553,10 @@ public partial class AIStoryteller
 	private void AddCustomToolCallsToResponseOptions(CreateResponseOptions options,
 		IEnumerable<AIStorytellerCustomToolCall> toolCalls)
 	{
-		foreach (var toolCall in toolCalls)
+		foreach (var toolCall in toolCalls
+			         .Where(x => x.IsValid)
+			         .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
 		{
-			if (!toolCall.IsValid)
-			{
-				continue;
-			}
-
 			var schema = BuildCustomToolCallSchema(toolCall);
 			AddFunctionTool(options, toolCall.Name, toolCall.Description, schema);
 		}
@@ -562,7 +570,7 @@ public partial class AIStoryteller
 		"One or more tool calls used malformed JSON. Retry with valid JSON arguments that exactly match the declared tool schemas.";
 
 	internal void ConfigureToolLoopResponseOptions(CreateResponseOptions options, bool includeEchoTools,
-		bool requireToolCall)
+		bool requireToolCall, StorytellerToolProfile toolProfile)
 	{
 		options.ReasoningOptions ??= new();
 		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
@@ -571,7 +579,7 @@ public partial class AIStoryteller
 		options.ToolChoice = requireToolCall
 			? ResponseToolChoice.CreateRequiredChoice()
 			: ResponseToolChoice.CreateAutoChoice();
-		AddUniversalToolsToResponseOptions(options);
+		AddUniversalToolsToResponseOptions(options, toolProfile);
 		AddCustomToolCallsToResponseOptions(options, includeEchoTools);
 	}
 
@@ -581,7 +589,8 @@ public partial class AIStoryteller
 		return names.Any() && names.All(x => x!.EqualTo("Noop"));
 	}
 
-	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools)
+	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
+		StorytellerToolProfile toolProfile)
 	{
 		var started = DateTime.UtcNow;
 		var malformedRetries = 0;
@@ -600,11 +609,12 @@ public partial class AIStoryteller
 			{
 				var options = new CreateResponseOptions(messages);
 				var requireToolCall = !hasObservedToolCall;
-				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall);
+				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile);
 				DebugAIMessaging("Engine -> Storyteller Continuation Request",
-					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Require Tool Call: {requireToolCall}, Context Messages: {messages.Count:N0}");
+					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Tool Profile: {toolProfile}, Require Tool Call: {requireToolCall}, Context Messages: {messages.Count:N0}");
 
 				var response = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
+				DebugResponseUsage("Storyteller -> Engine Usage", response);
 				DebugAIMessaging("Storyteller -> Engine Response", response.GetOutputText());
 				var functionCalls = response.OutputItems.OfType<FunctionCallResponseItem>().ToList();
 				if (functionCalls.Any())

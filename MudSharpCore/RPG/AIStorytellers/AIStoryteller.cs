@@ -51,6 +51,11 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		"""Return only strict JSON in this shape: {"Decision":"interested","Reason":"optional short reason"} or {"Decision":"ignore"}. Do not include any additional text.""";
 	private const string MissingToolCallFeedbackMessage =
 		"You must respond with at least one tool call. If no world change is needed, call Noop.";
+	internal enum StorytellerToolProfile
+	{
+		Full,
+		EventFocused
+	}
 
 	public AIStoryteller(Models.AIStoryteller storyteller, IFuturemud gameworld)
 	{
@@ -203,6 +208,29 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		}
 
 		Gameworld.DebugMessage($"[AI Storyteller #{Id:N0} - {Name}] {stage}\n{payload}");
+	}
+
+	private void DebugResponseUsage(string stage, ResponseResult response)
+	{
+		var usage = response.Usage;
+		if (usage is null)
+		{
+			return;
+		}
+
+		var cachedInputTokens = usage.InputTokenDetails?.CachedTokenCount ?? 0;
+		var reasoningTokens = usage.OutputTokenDetails?.ReasoningTokenCount ?? 0;
+		var cacheRatio = usage.InputTokenCount > 0
+			? cachedInputTokens * 100.0 / usage.InputTokenCount
+			: 0.0;
+		DebugAIMessaging(stage,
+			$"""
+Input Tokens: {usage.InputTokenCount:N0}
+Cached Input Tokens: {cachedInputTokens:N0} ({cacheRatio:N1}%)
+Output Tokens: {usage.OutputTokenCount:N0}
+Reasoning Tokens: {reasoningTokens:N0}
+Total Tokens: {usage.TotalTokenCount:N0}
+""");
 	}
 
 	public void SubscribeEvents()
@@ -500,6 +528,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		sb.AppendLine("Event Text:");
 		sb.AppendLine(echo.StripANSIColour().StripMXP());
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true,
+			toolProfile: StorytellerToolProfile.EventFocused,
 			attentionPromptOverride: echo);
 	}
 	private void HeartbeatManager_FiveMinuteHeartbeat() { 

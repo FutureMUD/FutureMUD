@@ -65,6 +65,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		Description = storyteller.Description ?? string.Empty;
 		Model = storyteller.Model ?? "gpt-5";
 		SystemPrompt = storyteller.SystemPrompt ?? string.Empty;
+		TimeSystemPrompt = storyteller.TimeSystemPrompt ?? storyteller.SystemPrompt ?? string.Empty;
 		AttentionAgentPrompt = storyteller.AttentionAgentPrompt ?? string.Empty;
 		ReasoningEffort = ParseReasoningEffort(storyteller.ReasoningEffort);
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld,
@@ -116,6 +117,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		Description = "An AI Storyteller";
 		Model = "gpt-5";
 		SystemPrompt = "You are an AI storyteller for an RPI MUD world.";
+		TimeSystemPrompt = SystemPrompt;
 		AttentionAgentPrompt =
 			"Reply with \"interested\" optionally followed by a short reason only when input matters for your narrative remit. Otherwise reply \"ignore\".";
 		ReasoningEffort = ResponseReasoningEffortLevel.Medium;
@@ -134,6 +136,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 				Description = Description,
 				Model = Model,
 				SystemPrompt = SystemPrompt,
+				TimeSystemPrompt = TimeSystemPrompt,
 				AttentionAgentPrompt = AttentionAgentPrompt,
 				SurveillanceStrategyDefinition = SurveillanceStrategy.SaveDefinition(),
 				ReasoningEffort = SerializeReasoningEffort(ReasoningEffort),
@@ -157,6 +160,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	public string Description { get; private set; }
 	public string Model { get; private set; }
 	public string SystemPrompt { get; private set; }
+	public string TimeSystemPrompt { get; private set; }
 	public string AttentionAgentPrompt { get; private set; }
 	public bool SubscribeToRoomEvents { get; private set; }
 	public bool SubscribeToSpeechEvents { get; private set; }
@@ -182,6 +186,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
 	public IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories => _characterMemories;
 	private readonly SemaphoreSlim _storytellerWorkerSemaphore = new(1, 1);
+	private readonly object _attentionBypassLock = new();
+	private readonly HashSet<long> _bypassAttentionCharacterIds = [];
+	private readonly HashSet<long> _bypassAttentionRoomIds = [];
 
 	private readonly List<IAIStorytellerSituation> _situations = [];
 	public IEnumerable<IAIStorytellerSituation> Situations => _situations;
@@ -457,7 +464,8 @@ Total Tokens: {usage.TotalTokenCount:N0}
 		}
 
 		AppendOpenSituationTitles(sb);
-		ExecuteStorytellerPrompt(apiKey, $"Heartbeat {heartbeatType}", sb.ToString(), includeEchoTools: false);
+		ExecuteStorytellerPrompt(apiKey, $"Heartbeat {heartbeatType}", sb.ToString(), includeEchoTools: false,
+			systemPrompt: TimeSystemPrompt);
 	}
 
 	internal void PassHeartbeatEventToAIStorytellerForTesting(string heartbeatType)
@@ -532,9 +540,15 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
 		sb.AppendLine("Event Text:");
 		sb.AppendLine(echo.StripANSIColour().StripMXP());
+		AppendAttentionBypassToolGuidance(sb);
+		var bypassAttention = TryGetAttentionBypassReason(location, [emote?.DefaultSource as ICharacter],
+			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true,
+			systemPrompt: SystemPrompt,
 			toolProfile: StorytellerToolProfile.EventFocused,
-			attentionPromptOverride: echo);
+			attentionPromptOverride: echo,
+			bypassAttention: bypassAttention,
+			bypassReason: bypassReason);
 	}
 	private void HeartbeatManager_FiveMinuteHeartbeat() { 
 		PassHeartbeatEventToAIStoryteller("5m");
@@ -606,6 +620,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 		dbitem.Model = Model;
 		dbitem.AttentionAgentPrompt = AttentionAgentPrompt;
 		dbitem.SystemPrompt = SystemPrompt;
+		dbitem.TimeSystemPrompt = TimeSystemPrompt;
 		dbitem.SurveillanceStrategyDefinition = SurveillanceStrategy.SaveDefinition();
 		dbitem.ReasoningEffort = SerializeReasoningEffort(ReasoningEffort);
 		dbitem.HeartbeatStatus10mProgId = HeartbeatStatus10mProg?.Id;

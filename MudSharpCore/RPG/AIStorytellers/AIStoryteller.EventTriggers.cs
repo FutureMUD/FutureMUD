@@ -46,6 +46,7 @@ public partial class AIStoryteller
 		sb.AppendLine("Event Text:");
 		sb.AppendLine(attentionText.Trim());
 		ExecuteStorytellerPrompt(apiKey, "Direct Invocation", sb.ToString(), includeEchoTools: false,
+			systemPrompt: SystemPrompt,
 			toolProfile: StorytellerToolProfile.Full);
 		return true;
 	}
@@ -134,8 +135,14 @@ public partial class AIStoryteller
 
 		sb.AppendLine("Spoken Text:");
 		sb.AppendLine(message.StripANSIColour().StripMXP());
+		AppendAttentionBypassToolGuidance(sb);
+		var bypassAttention = TryGetAttentionBypassReason(location, [speaker, target as ICharacter],
+			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true,
-			toolProfile: StorytellerToolProfile.EventFocused);
+			systemPrompt: SystemPrompt,
+			toolProfile: StorytellerToolProfile.EventFocused,
+			bypassAttention: bypassAttention,
+			bypassReason: bypassReason);
 	}
 
 	private void PassCrimeToAIStoryteller(ICell location, ICrime crime)
@@ -171,8 +178,14 @@ public partial class AIStoryteller
 
 		sb.AppendLine($"Witness Count: {crime.WitnessIds.Count():N0}");
 		sb.AppendLine($"Real-Time Stamp (UTC): {crime.RealTimeOfCrime:O}");
+		AppendAttentionBypassToolGuidance(sb);
+		var bypassAttention = TryGetAttentionBypassReason(location, [crime.Criminal, crime.Victim],
+			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false,
-			toolProfile: StorytellerToolProfile.EventFocused);
+			systemPrompt: SystemPrompt,
+			toolProfile: StorytellerToolProfile.EventFocused,
+			bypassAttention: bypassAttention,
+			bypassReason: bypassReason);
 	}
 
 	private void PassCharacterStateToAIStoryteller(ICell location, ICharacter character, AIStorytellerStateTriggerType stateType)
@@ -199,6 +212,7 @@ public partial class AIStoryteller
 		sb.AppendLine(
 			$"Character Description: {character.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false,
+			systemPrompt: SystemPrompt,
 			toolProfile: StorytellerToolProfile.Full);
 	}
 
@@ -210,6 +224,42 @@ public partial class AIStoryteller
 		sb.AppendLine("Attention Reason:");
 		sb.AppendLine(attentionReason.IfNullOrWhiteSpace("No reason provided"));
 		return sb.ToString();
+	}
+
+	private static void AppendAttentionBypassToolGuidance(StringBuilder sb)
+	{
+		sb.AppendLine();
+		sb.AppendLine("Attention Focus Guidance:");
+		sb.AppendLine("If this event should stay in focus, call BypassAttention with either CharacterId or RoomId.");
+		sb.AppendLine("When that focus is no longer needed, call EndBypassAttention for the same target.");
+	}
+
+	private bool TryGetAttentionBypassReason(ICell location, IEnumerable<ICharacter?> involvedCharacters,
+		out string reason)
+	{
+		lock (_attentionBypassLock)
+		{
+			if (_bypassAttentionRoomIds.Contains(location.Id))
+			{
+				reason = $"Bypass attention is active for room #{location.Id:N0}.";
+				return true;
+			}
+
+			foreach (var character in involvedCharacters.Where(x => x is not null))
+			{
+				if (!_bypassAttentionCharacterIds.Contains(character!.Id))
+				{
+					continue;
+				}
+
+				reason =
+					$"Bypass attention is active for character #{character.Id:N0} ({character.PersonalName.GetName(NameStyle.FullName)}).";
+				return true;
+			}
+		}
+
+		reason = string.Empty;
+		return false;
 	}
 
 	private bool TryRunAttentionClassifier(string apiKey, string attentionPrompt, out string attentionReason)
@@ -283,34 +333,45 @@ Echo:
 	}
 
 	private void ExecuteAttentionFilteredStorytellerPrompt(string apiKey, string trigger, string userPrompt,
-		bool includeEchoTools, StorytellerToolProfile toolProfile = StorytellerToolProfile.Full,
-		string? attentionPromptOverride = null)
+		bool includeEchoTools, string systemPrompt,
+		StorytellerToolProfile toolProfile = StorytellerToolProfile.Full,
+		string? attentionPromptOverride = null, bool bypassAttention = false, string? bypassReason = null)
 	{
 		QueueStorytellerWork(() =>
 		{
+			if (bypassAttention)
+			{
+				var bypassPrompt = AppendAttentionReasonToPrompt(userPrompt,
+					bypassReason.IfNullOrWhiteSpace("Bypass attention is active for this event."));
+				ExecuteStorytellerPromptImmediate(apiKey, trigger, bypassPrompt, includeEchoTools, toolProfile,
+					systemPrompt);
+				return Task.CompletedTask;
+			}
+
 			if (!TryRunAttentionClassifier(apiKey, attentionPromptOverride ?? userPrompt, out var attentionReason))
 			{
 				return Task.CompletedTask;
 			}
 
 			var finalPrompt = AppendAttentionReasonToPrompt(userPrompt, attentionReason);
-			ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools, toolProfile);
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools, toolProfile,
+				systemPrompt);
 			return Task.CompletedTask;
 		});
 	}
 
 	private void ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools,
-		StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
+		string systemPrompt, StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
 	{
 		QueueStorytellerWork(() =>
 		{
-			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile);
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile, systemPrompt);
 			return Task.CompletedTask;
 		});
 	}
 
 	private void ExecuteStorytellerPromptImmediate(string apiKey, string trigger, string userPrompt,
-		bool includeEchoTools, StorytellerToolProfile toolProfile)
+		bool includeEchoTools, StorytellerToolProfile toolProfile, string systemPrompt)
 	{
 		var prompt = TrimPromptText(userPrompt);
 		DebugAIMessaging("Engine -> Storyteller Request",
@@ -319,7 +380,7 @@ Model: {Model}
 Reasoning: {ReasoningEffort.Describe()}
 Trigger: {trigger}
 System Prompt:
-{SystemPrompt}
+{systemPrompt}
 
 User Prompt:
 {prompt}
@@ -330,6 +391,6 @@ User Prompt:
 		[
 			ResponseItem.CreateUserMessageItem(prompt)
 		];
-		ExecuteToolCall(client, messages, includeEchoTools, toolProfile);
+		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt);
 	}
 }

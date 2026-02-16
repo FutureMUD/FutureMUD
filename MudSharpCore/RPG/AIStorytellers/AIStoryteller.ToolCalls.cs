@@ -91,6 +91,36 @@ public partial class AIStoryteller
 			}
 			""");
 
+		AddFunctionTool(
+			options,
+			"BypassAttention",
+			"Marks a character or room so future room, speech and crime events bypass the attention classifier. Use this to keep focus on an active event.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "CharacterId": { "type": "integer", "description": "Optional character id to keep in bypass-attention mode." },
+			    "RoomId": { "type": "integer", "description": "Optional room id to keep in bypass-attention mode." }
+			  },
+			  "required": []
+			}
+			""");
+
+		AddFunctionTool(
+			options,
+			"EndBypassAttention",
+			"Removes bypass attention for a character or room so future room, speech and crime events use the attention classifier again.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "CharacterId": { "type": "integer", "description": "Optional character id to remove from bypass-attention mode." },
+			    "RoomId": { "type": "integer", "description": "Optional room id to remove from bypass-attention mode." }
+			  },
+			  "required": []
+			}
+			""");
+
 		AddFunctionTool(options, "Noop",
 			"Use this when no side-effect is required but a tool response is needed.", null);
 		AddFunctionTool(options, "OnlinePlayers",
@@ -570,9 +600,9 @@ public partial class AIStoryteller
 		"One or more tool calls used malformed JSON. Retry with valid JSON arguments that exactly match the declared tool schemas.";
 
 	internal void ConfigureToolLoopResponseOptions(CreateResponseOptions options, bool includeEchoTools,
-		bool requireToolCall, StorytellerToolProfile toolProfile)
+		bool requireToolCall, StorytellerToolProfile toolProfile, string systemPrompt)
 	{
-		options.Instructions = SystemPrompt;
+		options.Instructions = systemPrompt;
 		options.StoredOutputEnabled = true;
 		options.TruncationMode = ResponseTruncationMode.Auto;
 		options.ReasoningOptions ??= new();
@@ -593,7 +623,7 @@ public partial class AIStoryteller
 	}
 
 	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
-		StorytellerToolProfile toolProfile)
+		StorytellerToolProfile toolProfile, string systemPrompt)
 	{
 		var started = DateTime.UtcNow;
 		var malformedRetries = 0;
@@ -619,7 +649,7 @@ public partial class AIStoryteller
 				}
 
 				var requireToolCall = !hasObservedToolCall;
-				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile);
+				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile, systemPrompt);
 				DebugAIMessaging("Engine -> Storyteller Continuation Request",
 					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Tool Profile: {toolProfile}, Require Tool Call: {requireToolCall}, Context Messages: {pendingInputs.Count:N0}, Previous Response Id: {previousResponseId.IfNullOrWhiteSpace("(none)")}");
 
@@ -811,6 +841,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 				"UpdateSituation" => HandleUpdateSituation(arguments),
 				"ResolveSituation" => HandleResolveSituation(arguments),
 				"ShowSituation" => HandleShowSituation(arguments),
+				"BypassAttention" => HandleBypassAttention(arguments),
+				"EndBypassAttention" => HandleEndBypassAttention(arguments),
 				"OnlinePlayers" => HandleOnlinePlayers(),
 				"PlayerInformation" => HandlePlayerInformation(arguments),
 				"CreateMemory" => HandleCreateMemory(arguments),
@@ -972,6 +1004,130 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			["Description"] = situation.SituationText,
 			["CreatedOn"] = situation.CreatedOn.ToString("O"),
 			["Resolved"] = situation.IsResolved
+		});
+	}
+
+	private static bool TryGetOptionalLongBypassParameter(JsonElement arguments, string parameterName,
+		out long? value, out string error)
+	{
+		value = null;
+		error = string.Empty;
+		if (!arguments.TryGetProperty(parameterName, out var element))
+		{
+			return true;
+		}
+
+		switch (element.ValueKind)
+		{
+			case JsonValueKind.Number when element.TryGetInt64(out var numericValue):
+				value = numericValue;
+				break;
+			case JsonValueKind.String when long.TryParse(element.GetString(), out var stringValue):
+				value = stringValue;
+				break;
+			default:
+				error = $"Parameter '{parameterName}' must be an integer.";
+				return false;
+		}
+
+		if (value <= 0)
+		{
+			error = $"Parameter '{parameterName}' must be a positive integer.";
+			return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryGetBypassAttentionTarget(JsonElement arguments, out long? characterId, out long? roomId,
+		out string error)
+	{
+		characterId = null;
+		roomId = null;
+		error = string.Empty;
+
+		if (!TryGetOptionalLongBypassParameter(arguments, "CharacterId", out characterId, out error))
+		{
+			return false;
+		}
+
+		if (!TryGetOptionalLongBypassParameter(arguments, "RoomId", out roomId, out error))
+		{
+			return false;
+		}
+
+		if (characterId is null && roomId is null)
+		{
+			error = "Specify either CharacterId or RoomId.";
+			return false;
+		}
+
+		if (characterId is not null && roomId is not null)
+		{
+			error = "Specify either CharacterId or RoomId, but not both.";
+			return false;
+		}
+
+		return true;
+	}
+
+	private ToolExecutionResult HandleBypassAttention(JsonElement arguments)
+	{
+		if (!TryGetBypassAttentionTarget(arguments, out var characterId, out var roomId, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		bool changed;
+		List<long> bypassCharacterIds;
+		List<long> bypassRoomIds;
+		lock (_attentionBypassLock)
+		{
+			changed = characterId is not null
+				? _bypassAttentionCharacterIds.Add(characterId.Value)
+				: _bypassAttentionRoomIds.Add(roomId!.Value);
+			bypassCharacterIds = _bypassAttentionCharacterIds.OrderBy(x => x).ToList();
+			bypassRoomIds = _bypassAttentionRoomIds.OrderBy(x => x).ToList();
+		}
+
+		return SuccessResult(new Dictionary<string, object?>
+		{
+			["Action"] = "BypassAttention",
+			["Changed"] = changed,
+			["CharacterId"] = characterId,
+			["RoomId"] = roomId,
+			["BypassedCharacterIds"] = bypassCharacterIds,
+			["BypassedRoomIds"] = bypassRoomIds
+		});
+	}
+
+	private ToolExecutionResult HandleEndBypassAttention(JsonElement arguments)
+	{
+		if (!TryGetBypassAttentionTarget(arguments, out var characterId, out var roomId, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		bool changed;
+		List<long> bypassCharacterIds;
+		List<long> bypassRoomIds;
+		lock (_attentionBypassLock)
+		{
+			changed = characterId is not null
+				? _bypassAttentionCharacterIds.Remove(characterId.Value)
+				: _bypassAttentionRoomIds.Remove(roomId!.Value);
+			bypassCharacterIds = _bypassAttentionCharacterIds.OrderBy(x => x).ToList();
+			bypassRoomIds = _bypassAttentionRoomIds.OrderBy(x => x).ToList();
+		}
+
+		return SuccessResult(new Dictionary<string, object?>
+		{
+			["Action"] = "EndBypassAttention",
+			["Changed"] = changed,
+			["CharacterId"] = characterId,
+			["RoomId"] = roomId,
+			["BypassedCharacterIds"] = bypassCharacterIds,
+			["BypassedRoomIds"] = bypassRoomIds
 		});
 	}
 

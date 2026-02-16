@@ -18,7 +18,8 @@ public partial class AIStoryteller
 	#3model <model>#0 - sets the OpenAI model
 	#3reasoning <minimal|low|medium|high>#0 - sets reasoning effort
 	#3attention#0 - edits the attention prompt in an editor
-	#3system#0 - edits the system prompt in an editor
+	#3system#0 - edits the event system prompt in an editor
+	#3timesystem#0 - edits the time status update system prompt in an editor
 	#3pause#0 - pauses all storyteller triggers
 	#3unpause#0 - unpauses all storyteller triggers
 	#3subscribe room|speech|crime|state|5m|10m|30m|1h#0 - toggles trigger subscriptions
@@ -52,7 +53,14 @@ public partial class AIStoryteller
 				return BuildingCommandAttentionPrompt(actor);
 			case "system":
 			case "systemprompt":
-				return BuildingCommandSystemPrompt(actor);
+			case "eventsystem":
+			case "eventprompt":
+				return BuildingCommandEventSystemPrompt(actor);
+			case "timesystem":
+			case "timesystemprompt":
+			case "statussystem":
+			case "statusprompt":
+				return BuildingCommandTimeSystemPrompt(actor);
 			case "pause":
 				if (IsPaused)
 				{
@@ -195,23 +203,44 @@ public partial class AIStoryteller
 		handler.Send("You update the attention prompt.");
 	}
 
-	private bool BuildingCommandSystemPrompt(ICharacter actor)
+	private bool BuildingCommandEventSystemPrompt(ICharacter actor)
 	{
-		actor.OutputHandler.Send("Enter the new system prompt in the editor below.");
-		actor.EditorMode(BuildingCommandSystemPromptPost, BuildingCommandSystemPromptCancel, 1.0, SystemPrompt);
+		actor.OutputHandler.Send("Enter the new event system prompt in the editor below.");
+		actor.EditorMode(BuildingCommandEventSystemPromptPost, BuildingCommandEventSystemPromptCancel, 1.0,
+			SystemPrompt);
 		return true;
 	}
 
-	private void BuildingCommandSystemPromptCancel(IOutputHandler handler, object[] args)
+	private void BuildingCommandEventSystemPromptCancel(IOutputHandler handler, object[] args)
 	{
-		handler.Send("You decide not to change the system prompt.");
+		handler.Send("You decide not to change the event system prompt.");
 	}
 
-	private void BuildingCommandSystemPromptPost(string text, IOutputHandler handler, object[] args)
+	private void BuildingCommandEventSystemPromptPost(string text, IOutputHandler handler, object[] args)
 	{
 		SystemPrompt = text;
 		Changed = true;
-		handler.Send("You update the system prompt.");
+		handler.Send("You update the event system prompt.");
+	}
+
+	private bool BuildingCommandTimeSystemPrompt(ICharacter actor)
+	{
+		actor.OutputHandler.Send("Enter the new time status system prompt in the editor below.");
+		actor.EditorMode(BuildingCommandTimeSystemPromptPost, BuildingCommandTimeSystemPromptCancel, 1.0,
+			TimeSystemPrompt);
+		return true;
+	}
+
+	private void BuildingCommandTimeSystemPromptCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to change the time status system prompt.");
+	}
+
+	private void BuildingCommandTimeSystemPromptPost(string text, IOutputHandler handler, object[] args)
+	{
+		TimeSystemPrompt = text;
+		Changed = true;
+		handler.Send("You update the time status system prompt.");
 	}
 
 	private bool BuildingCommandSubscribe(ICharacter actor, StringStack command)
@@ -726,9 +755,13 @@ public partial class AIStoryteller
 		sb.AppendLine($"");
 		sb.AppendLine(AttentionAgentPrompt.Wrap(actor.InnerLineFormatLength, "\t"));
 		sb.AppendLine($"");
-		sb.AppendLine("System Prompt".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Event System Prompt".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine($"");
 		sb.AppendLine(SystemPrompt.Wrap(actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine($"");
+		sb.AppendLine("Time Status System Prompt".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine($"");
+		sb.AppendLine(TimeSystemPrompt.Wrap(actor.InnerLineFormatLength, "\t"));
 		sb.AppendLine($"");
 		sb.AppendLine("Custom Tool Calls".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		if (CustomToolCalls.Count == 0 && CustomToolCallsEchoOnly.Count == 0)

@@ -44,6 +44,7 @@ public class AIStorytellerPauseTests
 			Description = "Test",
 			Model = "gpt-5",
 			SystemPrompt = "System prompt",
+			TimeSystemPrompt = "Time system prompt",
 			AttentionAgentPrompt = "Attention prompt",
 			SurveillanceStrategyDefinition = string.Empty,
 			ReasoningEffort = "2",

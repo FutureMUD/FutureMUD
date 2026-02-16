@@ -121,14 +121,16 @@ public class AIStorytellerToolExecutionTests
 	{
 		var storyteller = CreateStoryteller();
 		var options = new CreateResponseOptions(new List<ResponseItem>());
+		const string customPrompt = "Custom system prompt for test";
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
-			toolProfile: AIStoryteller.StorytellerToolProfile.Full);
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: customPrompt);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Required, options.ToolChoice.Kind);
 		Assert.AreEqual(true, options.ParallelToolCallsEnabled);
 		Assert.AreEqual(1200, options.MaxOutputTokenCount);
+		Assert.AreEqual(customPrompt, options.Instructions);
 		Assert.IsTrue(options.Tools.Count > 0);
 	}
 
@@ -139,7 +141,7 @@ public class AIStorytellerToolExecutionTests
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false,
-			toolProfile: AIStoryteller.StorytellerToolProfile.Full);
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: storyteller.SystemPrompt);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Auto, options.ToolChoice.Kind);
@@ -152,19 +154,53 @@ public class AIStorytellerToolExecutionTests
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
-			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused);
+			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused, systemPrompt: storyteller.SystemPrompt);
 
 		var toolNames = options.Tools
 			.OfType<FunctionTool>()
 			.Select(x => x.FunctionName)
 			.ToList();
 		CollectionAssert.Contains(toolNames, "Noop");
+		CollectionAssert.Contains(toolNames, "BypassAttention");
+		CollectionAssert.Contains(toolNames, "EndBypassAttention");
 		CollectionAssert.Contains(toolNames, "CurrentDateTime");
 		CollectionAssert.Contains(toolNames, "DateTimeForTarget");
 		CollectionAssert.DoesNotContain(toolNames, "PathBetweenRooms");
 		CollectionAssert.DoesNotContain(toolNames, "Landmarks");
 		CollectionAssert.DoesNotContain(toolNames, "CharacterPlans");
 		CollectionAssert.DoesNotContain(toolNames, "CalendarDefinition");
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_BypassAttentionCharacter_AddsAndRemovesTarget()
+	{
+		var storyteller = CreateStoryteller();
+		var start = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":777}""", includeEchoTools: false);
+		var startPayload = JsonDocument.Parse(start.OutputJson).RootElement;
+
+		Assert.IsTrue(startPayload.GetProperty("ok").GetBoolean());
+		Assert.IsTrue(startPayload.GetProperty("result").GetProperty("Changed").GetBoolean());
+		Assert.AreEqual(1, startPayload.GetProperty("result").GetProperty("BypassedCharacterIds").GetArrayLength());
+
+		var end = storyteller.ExecuteFunctionCall("EndBypassAttention", """{"CharacterId":777}""", includeEchoTools: false);
+		var endPayload = JsonDocument.Parse(end.OutputJson).RootElement;
+
+		Assert.IsTrue(endPayload.GetProperty("ok").GetBoolean());
+		Assert.IsTrue(endPayload.GetProperty("result").GetProperty("Changed").GetBoolean());
+		Assert.AreEqual(0, endPayload.GetProperty("result").GetProperty("BypassedCharacterIds").GetArrayLength());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_BypassAttentionWithMultipleTargets_ReturnsError()
+	{
+		var storyteller = CreateStoryteller();
+		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":1,"RoomId":2}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
+		StringAssert.Contains(payload.GetProperty("error").GetString() ?? string.Empty,
+			"Specify either CharacterId or RoomId");
 	}
 
 	[TestMethod]
@@ -1080,6 +1116,7 @@ public class AIStorytellerToolExecutionTests
 			Description = "Test",
 			Model = "gpt-5",
 			SystemPrompt = "System prompt",
+			TimeSystemPrompt = "Time system prompt",
 			AttentionAgentPrompt = "Attention prompt",
 			SurveillanceStrategyDefinition = string.Empty,
 			ReasoningEffort = "2",

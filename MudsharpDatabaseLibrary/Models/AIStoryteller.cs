@@ -17,6 +17,7 @@ public class AIStoryteller
 	public string Description { get; set; }
 	public string Model { get; set; }
 	public string SystemPrompt { get; set; }
+	public string TimeSystemPrompt { get; set; }
 	public string AttentionAgentPrompt { get; set; }
 	public string SurveillanceStrategyDefinition { get; set; }
 	public string ReasoningEffort { get; set; }

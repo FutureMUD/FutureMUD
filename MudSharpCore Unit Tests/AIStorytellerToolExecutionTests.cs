@@ -41,6 +41,36 @@ namespace MudSharp_Unit_Tests;
 public class AIStorytellerToolExecutionTests
 {
 	[TestMethod]
+	public void Constructor_ScopedModelAndReasoning_LoadsScopedValues()
+	{
+		var storyteller = CreateStoryteller();
+
+		Assert.AreEqual("gpt-5", storyteller.Model);
+		Assert.AreEqual("gpt-5-mini", storyteller.TimeModel);
+		Assert.AreEqual("gpt-5-nano", storyteller.AttentionClassifierModel);
+		Assert.AreEqual(ResponseReasoningEffortLevel.Medium, storyteller.ReasoningEffort);
+		Assert.AreEqual(ResponseReasoningEffortLevel.Low, storyteller.TimeReasoningEffort);
+		Assert.AreEqual(ResponseReasoningEffortLevel.Minimal, storyteller.AttentionClassifierReasoningEffort);
+	}
+
+	[TestMethod]
+	public void Constructor_MissingScopedModelAndReasoning_FallsBackToEventDefaults()
+	{
+		var model = CreateModel();
+		model.TimeModel = null!;
+		model.AttentionClassifierModel = null!;
+		model.TimeReasoningEffort = null!;
+		model.AttentionClassifierReasoningEffort = null!;
+		var gameworld = CreateGameworld(Array.Empty<IFutureProg>(), Array.Empty<ICharacter>());
+		var storyteller = new AIStoryteller(model, gameworld.Object);
+
+		Assert.AreEqual(storyteller.Model, storyteller.TimeModel);
+		Assert.AreEqual(storyteller.Model, storyteller.AttentionClassifierModel);
+		Assert.AreEqual(storyteller.ReasoningEffort, storyteller.TimeReasoningEffort);
+		Assert.AreEqual(ResponseReasoningEffortLevel.Low, storyteller.AttentionClassifierReasoningEffort);
+	}
+
+	[TestMethod]
 	public void NormalizeFunctionToolSchema_NullSchema_ReturnsClosedEmptyObjectSchema()
 	{
 		var normalized = AIStoryteller.NormalizeFunctionToolSchema(null!);
@@ -124,13 +154,15 @@ public class AIStorytellerToolExecutionTests
 		const string customPrompt = "Custom system prompt for test";
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
-			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: customPrompt);
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: customPrompt,
+			reasoningEffort: storyteller.ReasoningEffort);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Required, options.ToolChoice.Kind);
 		Assert.AreEqual(true, options.ParallelToolCallsEnabled);
 		Assert.AreEqual(1200, options.MaxOutputTokenCount);
 		Assert.AreEqual(customPrompt, options.Instructions);
+		Assert.AreEqual(storyteller.ReasoningEffort, options.ReasoningOptions?.ReasoningEffortLevel);
 		Assert.IsTrue(options.Tools.Count > 0);
 	}
 
@@ -141,7 +173,8 @@ public class AIStorytellerToolExecutionTests
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false,
-			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: storyteller.SystemPrompt);
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: storyteller.SystemPrompt,
+			reasoningEffort: storyteller.ReasoningEffort);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Auto, options.ToolChoice.Kind);
@@ -154,7 +187,8 @@ public class AIStorytellerToolExecutionTests
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
-			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused, systemPrompt: storyteller.SystemPrompt);
+			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused, systemPrompt: storyteller.SystemPrompt,
+			reasoningEffort: storyteller.ReasoningEffort);
 
 		var toolNames = options.Tools
 			.OfType<FunctionTool>()
@@ -1115,11 +1149,15 @@ public class AIStorytellerToolExecutionTests
 			Name = "Test Storyteller",
 			Description = "Test",
 			Model = "gpt-5",
+			TimeModel = "gpt-5-mini",
+			AttentionClassifierModel = "gpt-5-nano",
 			SystemPrompt = "System prompt",
 			TimeSystemPrompt = "Time system prompt",
 			AttentionAgentPrompt = "Attention prompt",
 			SurveillanceStrategyDefinition = string.Empty,
 			ReasoningEffort = "2",
+			TimeReasoningEffort = "1",
+			AttentionClassifierReasoningEffort = "0",
 			CustomToolCallsDefinition = "<ToolCalls />",
 			SubscribeToRoomEvents = false,
 			SubscribeTo5mHeartbeat = false,

@@ -16,11 +16,15 @@ public class AIStoryteller
 	public string Name { get; set; }
 	public string Description { get; set; }
 	public string Model { get; set; }
+	public string TimeModel { get; set; }
+	public string AttentionClassifierModel { get; set; }
 	public string SystemPrompt { get; set; }
 	public string TimeSystemPrompt { get; set; }
 	public string AttentionAgentPrompt { get; set; }
 	public string SurveillanceStrategyDefinition { get; set; }
 	public string ReasoningEffort { get; set; }
+	public string TimeReasoningEffort { get; set; }
+	public string AttentionClassifierReasoningEffort { get; set; }
 	public string CustomToolCallsDefinition { get; set; }
 	public bool SubscribeTo5mHeartbeat { get; set; }
 	public bool SubscribeTo10mHeartbeat { get; set; }

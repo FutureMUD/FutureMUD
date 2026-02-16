@@ -46,7 +46,7 @@ public partial class AIStoryteller
 		sb.AppendLine("Event Text:");
 		sb.AppendLine(attentionText.Trim());
 		ExecuteStorytellerPrompt(apiKey, "Direct Invocation", sb.ToString(), includeEchoTools: false,
-			systemPrompt: SystemPrompt,
+			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.Full);
 		return true;
 	}
@@ -139,7 +139,7 @@ public partial class AIStoryteller
 		var bypassAttention = TryGetAttentionBypassReason(location, [speaker, target as ICharacter],
 			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Speaks", sb.ToString(), includeEchoTools: true,
-			systemPrompt: SystemPrompt,
+			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.EventFocused,
 			bypassAttention: bypassAttention,
 			bypassReason: bypassReason);
@@ -182,7 +182,7 @@ public partial class AIStoryteller
 		var bypassAttention = TryGetAttentionBypassReason(location, [crime.Criminal, crime.Victim],
 			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Character Crime", sb.ToString(), includeEchoTools: false,
-			systemPrompt: SystemPrompt,
+			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.EventFocused,
 			bypassAttention: bypassAttention,
 			bypassReason: bypassReason);
@@ -212,7 +212,7 @@ public partial class AIStoryteller
 		sb.AppendLine(
 			$"Character Description: {character.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)}");
 		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false,
-			systemPrompt: SystemPrompt,
+			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.Full);
 	}
 
@@ -270,8 +270,8 @@ public partial class AIStoryteller
 		var trimmedPrompt = TrimPromptText(attentionPrompt);
 		DebugAIMessaging("Engine -> Attention Classifier Request",
 			$"""
-Model: {Model}
-Reasoning: {ResponseReasoningEffortLevel.Low.Describe()}
+Model: {AttentionClassifierModel}
+Reasoning: {AttentionClassifierReasoningEffort.Describe()}
 Prompt:
 {classifierPrompt}
 
@@ -279,7 +279,7 @@ Echo:
 {trimmedPrompt}
 """);
 
-		ResponsesClient client = new(Model, apiKey);
+		ResponsesClient client = new(AttentionClassifierModel, apiKey);
 		var options = new CreateResponseOptions([
 			ResponseItem.CreateUserMessageItem(trimmedPrompt)
 		]);
@@ -287,7 +287,7 @@ Echo:
 		options.StoredOutputEnabled = true;
 		options.TruncationMode = ResponseTruncationMode.Auto;
 		options.ReasoningOptions ??= new();
-		options.ReasoningOptions.ReasoningEffortLevel = ResponseReasoningEffortLevel.Low;
+		options.ReasoningOptions.ReasoningEffortLevel = AttentionClassifierReasoningEffort;
 		options.MaxOutputTokenCount = MaxAttentionClassifierOutputTokens;
 		var attention = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
 		DebugResponseUsage("Attention Classifier -> Engine Usage", attention);
@@ -333,7 +333,7 @@ Echo:
 	}
 
 	private void ExecuteAttentionFilteredStorytellerPrompt(string apiKey, string trigger, string userPrompt,
-		bool includeEchoTools, string systemPrompt,
+		bool includeEchoTools, string systemPrompt, string model, ResponseReasoningEffortLevel reasoningEffort,
 		StorytellerToolProfile toolProfile = StorytellerToolProfile.Full,
 		string? attentionPromptOverride = null, bool bypassAttention = false, string? bypassReason = null)
 	{
@@ -344,7 +344,7 @@ Echo:
 				var bypassPrompt = AppendAttentionReasonToPrompt(userPrompt,
 					bypassReason.IfNullOrWhiteSpace("Bypass attention is active for this event."));
 				ExecuteStorytellerPromptImmediate(apiKey, trigger, bypassPrompt, includeEchoTools, toolProfile,
-					systemPrompt);
+					systemPrompt, model, reasoningEffort);
 				return Task.CompletedTask;
 			}
 
@@ -355,29 +355,32 @@ Echo:
 
 			var finalPrompt = AppendAttentionReasonToPrompt(userPrompt, attentionReason);
 			ExecuteStorytellerPromptImmediate(apiKey, trigger, finalPrompt, includeEchoTools, toolProfile,
-				systemPrompt);
+				systemPrompt, model, reasoningEffort);
 			return Task.CompletedTask;
 		});
 	}
 
 	private void ExecuteStorytellerPrompt(string apiKey, string trigger, string userPrompt, bool includeEchoTools,
-		string systemPrompt, StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
+		string systemPrompt, string model, ResponseReasoningEffortLevel reasoningEffort,
+		StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
 	{
 		QueueStorytellerWork(() =>
 		{
-			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile, systemPrompt);
+			ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile, systemPrompt,
+				model, reasoningEffort);
 			return Task.CompletedTask;
 		});
 	}
 
 	private void ExecuteStorytellerPromptImmediate(string apiKey, string trigger, string userPrompt,
-		bool includeEchoTools, StorytellerToolProfile toolProfile, string systemPrompt)
+		bool includeEchoTools, StorytellerToolProfile toolProfile, string systemPrompt, string model,
+		ResponseReasoningEffortLevel reasoningEffort)
 	{
 		var prompt = TrimPromptText(userPrompt);
 		DebugAIMessaging("Engine -> Storyteller Request",
 			$"""
-Model: {Model}
-Reasoning: {ReasoningEffort.Describe()}
+Model: {model}
+Reasoning: {reasoningEffort.Describe()}
 Trigger: {trigger}
 System Prompt:
 {systemPrompt}
@@ -386,11 +389,11 @@ User Prompt:
 {prompt}
 """);
 
-		ResponsesClient client = new(Model, apiKey);
+		ResponsesClient client = new(model, apiKey);
 		List<ResponseItem> messages =
 		[
 			ResponseItem.CreateUserMessageItem(prompt)
 		];
-		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt);
+		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt, reasoningEffort);
 	}
 }

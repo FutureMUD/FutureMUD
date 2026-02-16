@@ -64,10 +64,15 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		_name = storyteller.Name ?? "Unnamed Storyteller";
 		Description = storyteller.Description ?? string.Empty;
 		Model = storyteller.Model ?? "gpt-5";
+		TimeModel = storyteller.TimeModel ?? storyteller.Model ?? "gpt-5";
+		AttentionClassifierModel = storyteller.AttentionClassifierModel ?? storyteller.Model ?? "gpt-5";
 		SystemPrompt = storyteller.SystemPrompt ?? string.Empty;
 		TimeSystemPrompt = storyteller.TimeSystemPrompt ?? storyteller.SystemPrompt ?? string.Empty;
 		AttentionAgentPrompt = storyteller.AttentionAgentPrompt ?? string.Empty;
 		ReasoningEffort = ParseReasoningEffort(storyteller.ReasoningEffort);
+		TimeReasoningEffort = ParseReasoningEffort(storyteller.TimeReasoningEffort, ReasoningEffort);
+		AttentionClassifierReasoningEffort = ParseReasoningEffort(storyteller.AttentionClassifierReasoningEffort,
+			ResponseReasoningEffortLevel.Low);
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld,
 			storyteller.SurveillanceStrategyDefinition ?? string.Empty);
 		SubscribeToRoomEvents = storyteller.SubscribeToRoomEvents;
@@ -116,11 +121,15 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		_name = name;
 		Description = "An AI Storyteller";
 		Model = "gpt-5";
+		TimeModel = Model;
+		AttentionClassifierModel = Model;
 		SystemPrompt = "You are an AI storyteller for an RPI MUD world.";
 		TimeSystemPrompt = SystemPrompt;
 		AttentionAgentPrompt =
 			"Reply with \"interested\" optionally followed by a short reason only when input matters for your narrative remit. Otherwise reply \"ignore\".";
 		ReasoningEffort = ResponseReasoningEffortLevel.Medium;
+		TimeReasoningEffort = ReasoningEffort;
+		AttentionClassifierReasoningEffort = ResponseReasoningEffortLevel.Low;
 		SurveillanceStrategy = new AIStorytellerSurveillanceStrategy(gameworld, string.Empty);
 		SubscribeToRoomEvents = true;
 		SubscribeToSpeechEvents = false;
@@ -135,11 +144,15 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 				Name = name,
 				Description = Description,
 				Model = Model,
+				TimeModel = TimeModel,
+				AttentionClassifierModel = AttentionClassifierModel,
 				SystemPrompt = SystemPrompt,
 				TimeSystemPrompt = TimeSystemPrompt,
 				AttentionAgentPrompt = AttentionAgentPrompt,
 				SurveillanceStrategyDefinition = SurveillanceStrategy.SaveDefinition(),
 				ReasoningEffort = SerializeReasoningEffort(ReasoningEffort),
+				TimeReasoningEffort = SerializeReasoningEffort(TimeReasoningEffort),
+				AttentionClassifierReasoningEffort = SerializeReasoningEffort(AttentionClassifierReasoningEffort),
 				CustomToolCallsDefinition = new XElement("ToolCalls").ToString(),
 				SubscribeToRoomEvents = SubscribeToRoomEvents,
 				SubscribeToSpeechEvents = SubscribeToSpeechEvents,
@@ -159,6 +172,8 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 
 	public string Description { get; private set; }
 	public string Model { get; private set; }
+	public string TimeModel { get; private set; }
+	public string AttentionClassifierModel { get; private set; }
 	public string SystemPrompt { get; private set; }
 	public string TimeSystemPrompt { get; private set; }
 	public string AttentionAgentPrompt { get; private set; }
@@ -179,6 +194,8 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	public bool IsPaused { get; private set; }
 
 	public ResponseReasoningEffortLevel ReasoningEffort { get; private set; }
+	public ResponseReasoningEffortLevel TimeReasoningEffort { get; private set; }
+	public ResponseReasoningEffortLevel AttentionClassifierReasoningEffort { get; private set; }
 	public IAIStorytellerSurveillanceStrategy SurveillanceStrategy { get; private set; }
 	public IFutureProg CustomPlayerInformationProg { get; private set; }
 
@@ -305,9 +322,15 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
 	private static ResponseReasoningEffortLevel ParseReasoningEffort(string? persistedValue)
 	{
+		return ParseReasoningEffort(persistedValue, ResponseReasoningEffortLevel.Medium);
+	}
+
+	private static ResponseReasoningEffortLevel ParseReasoningEffort(string? persistedValue,
+		ResponseReasoningEffortLevel defaultValue)
+	{
 		if (string.IsNullOrWhiteSpace(persistedValue))
 		{
-			return ResponseReasoningEffortLevel.Medium;
+			return defaultValue;
 		}
 
 		if (int.TryParse(persistedValue, out var numericValue))
@@ -318,7 +341,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 				1 => ResponseReasoningEffortLevel.Low,
 				2 => ResponseReasoningEffortLevel.Medium,
 				3 => ResponseReasoningEffortLevel.High,
-				_ => ResponseReasoningEffortLevel.Medium
+				_ => defaultValue
 			};
 		}
 
@@ -328,7 +351,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 			"low" => ResponseReasoningEffortLevel.Low,
 			"medium" => ResponseReasoningEffortLevel.Medium,
 			"high" => ResponseReasoningEffortLevel.High,
-			_ => ResponseReasoningEffortLevel.Medium
+			_ => defaultValue
 		};
 	}
 
@@ -465,7 +488,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
 		AppendOpenSituationTitles(sb);
 		ExecuteStorytellerPrompt(apiKey, $"Heartbeat {heartbeatType}", sb.ToString(), includeEchoTools: false,
-			systemPrompt: TimeSystemPrompt);
+			systemPrompt: TimeSystemPrompt, model: TimeModel, reasoningEffort: TimeReasoningEffort);
 	}
 
 	internal void PassHeartbeatEventToAIStorytellerForTesting(string heartbeatType)
@@ -545,6 +568,8 @@ Total Tokens: {usage.TotalTokenCount:N0}
 			out var bypassReason);
 		ExecuteAttentionFilteredStorytellerPrompt(apiKey, "Room Echo", sb.ToString(), includeEchoTools: true,
 			systemPrompt: SystemPrompt,
+			model: Model,
+			reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.EventFocused,
 			attentionPromptOverride: echo,
 			bypassAttention: bypassAttention,
@@ -618,11 +643,15 @@ Total Tokens: {usage.TotalTokenCount:N0}
 		dbitem.Name = Name;
 		dbitem.Description = Description;
 		dbitem.Model = Model;
+		dbitem.TimeModel = TimeModel;
+		dbitem.AttentionClassifierModel = AttentionClassifierModel;
 		dbitem.AttentionAgentPrompt = AttentionAgentPrompt;
 		dbitem.SystemPrompt = SystemPrompt;
 		dbitem.TimeSystemPrompt = TimeSystemPrompt;
 		dbitem.SurveillanceStrategyDefinition = SurveillanceStrategy.SaveDefinition();
 		dbitem.ReasoningEffort = SerializeReasoningEffort(ReasoningEffort);
+		dbitem.TimeReasoningEffort = SerializeReasoningEffort(TimeReasoningEffort);
+		dbitem.AttentionClassifierReasoningEffort = SerializeReasoningEffort(AttentionClassifierReasoningEffort);
 		dbitem.HeartbeatStatus10mProgId = HeartbeatStatus10mProg?.Id;
 		dbitem.HeartbeatStatus1hProgId = HeartbeatStatus1hProg?.Id;
 		dbitem.HeartbeatStatus30mProgId = HeartbeatStatus30mProg?.Id;

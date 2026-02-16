@@ -600,13 +600,14 @@ public partial class AIStoryteller
 		"One or more tool calls used malformed JSON. Retry with valid JSON arguments that exactly match the declared tool schemas.";
 
 	internal void ConfigureToolLoopResponseOptions(CreateResponseOptions options, bool includeEchoTools,
-		bool requireToolCall, StorytellerToolProfile toolProfile, string systemPrompt)
+		bool requireToolCall, StorytellerToolProfile toolProfile, string systemPrompt,
+		ResponseReasoningEffortLevel reasoningEffort)
 	{
 		options.Instructions = systemPrompt;
 		options.StoredOutputEnabled = true;
 		options.TruncationMode = ResponseTruncationMode.Auto;
 		options.ReasoningOptions ??= new();
-		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
+		options.ReasoningOptions.ReasoningEffortLevel = reasoningEffort;
 		options.MaxOutputTokenCount = MaxStorytellerOutputTokens;
 		options.ParallelToolCallsEnabled = true;
 		options.ToolChoice = requireToolCall
@@ -623,7 +624,7 @@ public partial class AIStoryteller
 	}
 
 	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
-		StorytellerToolProfile toolProfile, string systemPrompt)
+		StorytellerToolProfile toolProfile, string systemPrompt, ResponseReasoningEffortLevel reasoningEffort)
 	{
 		var started = DateTime.UtcNow;
 		var malformedRetries = 0;
@@ -649,7 +650,8 @@ public partial class AIStoryteller
 				}
 
 				var requireToolCall = !hasObservedToolCall;
-				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile, systemPrompt);
+				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile, systemPrompt,
+					reasoningEffort);
 				DebugAIMessaging("Engine -> Storyteller Continuation Request",
 					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Tool Profile: {toolProfile}, Require Tool Call: {requireToolCall}, Context Messages: {pendingInputs.Count:N0}, Previous Response Id: {previousResponseId.IfNullOrWhiteSpace("(none)")}");
 

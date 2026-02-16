@@ -15,8 +15,10 @@ public partial class AIStoryteller
 
 	#3name <name>#0 - renames this storyteller
 	#3description#0 - edits the description text in an editor
-	#3model <model>#0 - sets the OpenAI model
-	#3reasoning <minimal|low|medium|high>#0 - sets reasoning effort
+	#3model <model>#0 - sets the event OpenAI model
+	#3model <event|time|attention> <model>#0 - sets a scoped OpenAI model
+	#3reasoning <minimal|low|medium|high>#0 - sets event reasoning effort
+	#3reasoning <event|time|attention> <minimal|low|medium|high>#0 - sets scoped reasoning effort
 	#3attention#0 - edits the attention prompt in an editor
 	#3system#0 - edits the event system prompt in an editor
 	#3timesystem#0 - edits the time status update system prompt in an editor
@@ -150,13 +152,44 @@ public partial class AIStoryteller
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which OpenAI model should this storyteller use?");
+			actor.OutputHandler.Send(
+				$"Which OpenAI model should this storyteller use? You can optionally prefix with {"event".ColourCommand()}, {"time".ColourCommand()} or {"attention".ColourCommand()}.");
 			return false;
 		}
 
-		Model = command.SafeRemainingArgument;
+		var scope = AIStorytellerPromptScope.Event;
+		if (command.CountRemainingArguments() > 1 &&
+		    TryParsePromptScope(command.PeekSpeech(), out var parsedScope))
+		{
+			scope = parsedScope;
+			command.PopSpeech();
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which model should {DescribePromptScope(scope).ColourValue()} calls use?");
+			return false;
+		}
+
+		var model = command.SafeRemainingArgument;
+		switch (scope)
+		{
+			case AIStorytellerPromptScope.Event:
+				Model = model;
+				break;
+			case AIStorytellerPromptScope.Time:
+				TimeModel = model;
+				break;
+			case AIStorytellerPromptScope.Attention:
+				AttentionClassifierModel = model;
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(scope), scope, null);
+		}
+
 		Changed = true;
-		actor.OutputHandler.Send($"This storyteller now uses the {Model.ColourValue()} model.");
+		actor.OutputHandler.Send(
+			$"This storyteller now uses the {model.ColourValue()} model for {DescribePromptScope(scope).ColourValue()} calls.");
 		return true;
 	}
 
@@ -165,7 +198,22 @@ public partial class AIStoryteller
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"You must specify one of {"minimal".ColourCommand()}, {"low".ColourCommand()}, {"medium".ColourCommand()} or {"high".ColourCommand()}.");
+				$"You must specify one of {"minimal".ColourCommand()}, {"low".ColourCommand()}, {"medium".ColourCommand()} or {"high".ColourCommand()} and you can optionally prefix with {"event".ColourCommand()}, {"time".ColourCommand()} or {"attention".ColourCommand()}.");
+			return false;
+		}
+
+		var scope = AIStorytellerPromptScope.Event;
+		if (command.CountRemainingArguments() > 1 &&
+		    TryParsePromptScope(command.PeekSpeech(), out var parsedScope))
+		{
+			scope = parsedScope;
+			command.PopSpeech();
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You must specify one of {"minimal".ColourCommand()}, {"low".ColourCommand()}, {"medium".ColourCommand()} or {"high".ColourCommand()} for {DescribePromptScope(scope).ColourValue()} calls.");
 			return false;
 		}
 
@@ -176,11 +224,68 @@ public partial class AIStoryteller
 			return false;
 		}
 
-		ReasoningEffort = effort;
+		switch (scope)
+		{
+			case AIStorytellerPromptScope.Event:
+				ReasoningEffort = effort;
+				break;
+			case AIStorytellerPromptScope.Time:
+				TimeReasoningEffort = effort;
+				break;
+			case AIStorytellerPromptScope.Attention:
+				AttentionClassifierReasoningEffort = effort;
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(scope), scope, null);
+		}
+
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This storyteller now uses {ReasoningEffort.Describe().ColourValue()} reasoning effort.");
+			$"This storyteller now uses {effort.Describe().ColourValue()} reasoning effort for {DescribePromptScope(scope).ColourValue()} calls.");
 		return true;
+	}
+
+	private enum AIStorytellerPromptScope
+	{
+		Event,
+		Time,
+		Attention
+	}
+
+	private static bool TryParsePromptScope(string scopeText, out AIStorytellerPromptScope scope)
+	{
+		scope = AIStorytellerPromptScope.Event;
+		switch (scopeText.ToLowerInvariant())
+		{
+			case "event":
+			case "events":
+				scope = AIStorytellerPromptScope.Event;
+				return true;
+			case "time":
+			case "status":
+			case "heartbeat":
+				scope = AIStorytellerPromptScope.Time;
+				return true;
+			case "attention":
+			case "classifier":
+			case "attentionclassifier":
+			case "attentionclassifer":
+				scope = AIStorytellerPromptScope.Attention;
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	private static string DescribePromptScope(AIStorytellerPromptScope scope)
+	{
+		return scope switch
+		{
+			AIStorytellerPromptScope.Event => "event",
+			AIStorytellerPromptScope.Time => "time",
+			AIStorytellerPromptScope.Attention => "attention classifier",
+			_ => throw new ArgumentOutOfRangeException(nameof(scope), scope, null)
+		};
 	}
 
 	private bool BuildingCommandAttentionPrompt(ICharacter actor)
@@ -724,8 +829,13 @@ public partial class AIStoryteller
 		var sb = new StringBuilder();
 		sb.AppendLine($"AI Storyteller #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan,
 			Telnet.BoldWhite));
-		sb.AppendLine($"Model: {Model.ColourValue()}");
-		sb.AppendLine($"Reasoning Effort: {ReasoningEffort.Describe().ColourValue()}");
+		sb.AppendLine($"Event Model: {Model.ColourValue()}");
+		sb.AppendLine($"Event Reasoning Effort: {ReasoningEffort.Describe().ColourValue()}");
+		sb.AppendLine($"Time Model: {TimeModel.ColourValue()}");
+		sb.AppendLine($"Time Reasoning Effort: {TimeReasoningEffort.Describe().ColourValue()}");
+		sb.AppendLine($"Attention Classifier Model: {AttentionClassifierModel.ColourValue()}");
+		sb.AppendLine(
+			$"Attention Classifier Reasoning Effort: {AttentionClassifierReasoningEffort.Describe().ColourValue()}");
 		sb.AppendLine($"Is Paused: {IsPaused.ToColouredString()}");
 		sb.AppendLine($"");
 		sb.AppendLine("Description".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));

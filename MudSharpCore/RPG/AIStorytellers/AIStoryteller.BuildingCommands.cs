@@ -6,6 +6,7 @@ using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.RPG.AIStorytellers;
 
@@ -25,6 +26,8 @@ public partial class AIStoryteller
 	#3pause#0 - pauses all storyteller triggers
 	#3unpause#0 - unpauses all storyteller triggers
 	#3subscribe room|speech|crime|state|5m|10m|30m|1h#0 - toggles trigger subscriptions
+	#3speechcontext count <number>#0 - sets how many prior speech events are included as context
+	#3speechcontext window <timespan>#0 - sets max real-time separation for prior speech context
 	#3statusprog <5m|10m|30m|1h> <prog|none>#0 - sets a heartbeat status prog
 	#3customplayerprog <prog|none>#0 - sets an optional custom player info prog
 	#3surveillance <...>#0 - edits surveillance strategy details
@@ -86,6 +89,9 @@ public partial class AIStoryteller
 			case "subscribe":
 			case "subscriptions":
 				return BuildingCommandSubscribe(actor, command);
+			case "speechcontext":
+			case "speechhistory":
+				return BuildingCommandSpeechContext(actor, command);
 			case "statusprog":
 			case "heartbeatprog":
 				return BuildingCommandStatusProg(actor, command);
@@ -429,6 +435,77 @@ public partial class AIStoryteller
 			default:
 				actor.OutputHandler.Send(
 					$"You must specify one of {"room".ColourCommand()}, {"speech".ColourCommand()}, {"crime".ColourCommand()}, {"state".ColourCommand()}, {"5m".ColourCommand()}, {"10m".ColourCommand()}, {"30m".ColourCommand()} or {"1h".ColourCommand()}.");
+				return false;
+		}
+	}
+
+	private bool BuildingCommandSpeechContext(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"This storyteller currently includes {SpeechContextEventCount.ToString("N0", actor).ColourValue()} prior speech event{(SpeechContextEventCount == 1 ? string.Empty : "s")} with a maximum separation of {SpeechContextMaximumSeparation.DescribePreciseBrief(actor).ColourValue()}.");
+			actor.OutputHandler.Send(
+				$"Use {"speechcontext count <number>".ColourCommand()} or {"speechcontext window <timespan>".ColourCommand()}.");
+			return false;
+		}
+
+		switch (command.PopForSwitch())
+		{
+			case "count":
+			case "number":
+			case "events":
+			case "lines":
+				if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out var count) || count < 0)
+				{
+					actor.OutputHandler.Send("You must specify a non-negative number of prior events.");
+					return false;
+				}
+
+				if (count > MaximumSpeechContextEventCount)
+				{
+					actor.OutputHandler.Send(
+						$"You may not include more than {MaximumSpeechContextEventCount.ToString("N0", actor).ColourValue()} prior speech events.");
+					return false;
+				}
+
+				SpeechContextEventCount = count;
+				Changed = true;
+				actor.OutputHandler.Send(
+					$"This storyteller will now include {SpeechContextEventCount.ToString("N0", actor).ColourValue()} prior speech event{(SpeechContextEventCount == 1 ? string.Empty : "s")} as context.");
+				return true;
+			case "window":
+			case "time":
+			case "separation":
+			case "maxseparation":
+				if (command.IsFinished)
+				{
+					actor.OutputHandler.Send("How much real time should prior speech context remain valid for?");
+					return false;
+				}
+
+				if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var parsedWindow))
+				{
+					actor.OutputHandler.Send(
+						$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+					return false;
+				}
+
+				var window = parsedWindow.AsTimeSpan();
+				if (window <= TimeSpan.Zero)
+				{
+					actor.OutputHandler.Send("The speech context window must be greater than zero.");
+					return false;
+				}
+
+				SpeechContextMaximumSeparation = window;
+				Changed = true;
+				actor.OutputHandler.Send(
+					$"This storyteller now uses a speech context window of {SpeechContextMaximumSeparation.DescribePreciseBrief(actor).ColourValue()}.");
+				return true;
+			default:
+				actor.OutputHandler.Send(
+					$"Use {"speechcontext count <number>".ColourCommand()} or {"speechcontext window <timespan>".ColourCommand()}.");
 				return false;
 		}
 	}
@@ -846,6 +923,10 @@ public partial class AIStoryteller
 		sb.AppendLine($"");
 		sb.AppendLine($"Subscribe To Room Events: {SubscribeToRoomEvents.ToColouredString()}");
 		sb.AppendLine($"Subscribe To Character Speech Events: {SubscribeToSpeechEvents.ToColouredString()}");
+		sb.AppendLine(
+			$"Speech Context Prior Event Count: {SpeechContextEventCount.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine(
+			$"Speech Context Maximum Separation: {SpeechContextMaximumSeparation.DescribePreciseBrief(actor).ColourValue()}");
 		sb.AppendLine($"Subscribe To Character Crime Events: {SubscribeToCrimeEvents.ToColouredString()}");
 		sb.AppendLine($"Subscribe To Character State Events: {SubscribeToStateEvents.ToColouredString()}");
 		sb.AppendLine($"Subscribe To 5m Tick: {SubscribeTo5mHeartbeat.ToColouredString()}");

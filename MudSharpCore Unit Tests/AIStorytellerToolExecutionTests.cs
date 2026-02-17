@@ -71,6 +71,33 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
+	public void Constructor_SpeechContextSettings_MissingValues_UsesDefaults()
+	{
+		var storyteller = CreateStoryteller();
+
+		Assert.AreEqual(0, storyteller.SpeechContextEventCount);
+		Assert.AreEqual(TimeSpan.FromMinutes(10), storyteller.SpeechContextMaximumSeparation);
+	}
+
+	[TestMethod]
+	public void Constructor_SpeechContextSettings_LoadsConfiguredValues()
+	{
+		var model = CreateModel();
+		model.CustomToolCallsDefinition =
+			"""
+			<ToolCalls>
+			  <SpeechContextEventCount>5</SpeechContextEventCount>
+			  <SpeechContextMaximumSeparationMilliseconds>180000</SpeechContextMaximumSeparationMilliseconds>
+			</ToolCalls>
+			""";
+		var gameworld = CreateGameworld(Array.Empty<IFutureProg>(), Array.Empty<ICharacter>());
+		var storyteller = new AIStoryteller(model, gameworld.Object);
+
+		Assert.AreEqual(5, storyteller.SpeechContextEventCount);
+		Assert.AreEqual(TimeSpan.FromMinutes(3), storyteller.SpeechContextMaximumSeparation);
+	}
+
+	[TestMethod]
 	public void NormalizeFunctionToolSchema_NullSchema_ReturnsClosedEmptyObjectSchema()
 	{
 		var normalized = AIStoryteller.NormalizeFunctionToolSchema(null!);
@@ -225,16 +252,51 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_BypassAttentionWithMultipleTargets_ReturnsError()
+	public void ExecuteFunctionCall_BypassAttentionWithMultipleTargets_PrefersCharacter()
 	{
 		var storyteller = CreateStoryteller();
 		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":1,"RoomId":2}""",
 			includeEchoTools: false);
 		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
 
-		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
-		StringAssert.Contains(payload.GetProperty("error").GetString() ?? string.Empty,
-			"Specify either CharacterId or RoomId");
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(1L, resultPayload.GetProperty("CharacterId").GetInt64());
+		Assert.AreEqual(JsonValueKind.Null, resultPayload.GetProperty("RoomId").ValueKind);
+		Assert.AreEqual(1, resultPayload.GetProperty("BypassedCharacterIds").GetArrayLength());
+		Assert.AreEqual(0, resultPayload.GetProperty("BypassedRoomIds").GetArrayLength());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_BypassAttentionWithNullRoomId_UsesCharacter()
+	{
+		var storyteller = CreateStoryteller();
+		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":1,"RoomId":null}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(1L, resultPayload.GetProperty("CharacterId").GetInt64());
+		Assert.AreEqual(JsonValueKind.Null, resultPayload.GetProperty("RoomId").ValueKind);
+		Assert.AreEqual(1, resultPayload.GetProperty("BypassedCharacterIds").GetArrayLength());
+		Assert.AreEqual(0, resultPayload.GetProperty("BypassedRoomIds").GetArrayLength());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_BypassAttentionWithZeroCharacterId_UsesRoom()
+	{
+		var storyteller = CreateStoryteller();
+		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":0,"RoomId":2}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(JsonValueKind.Null, resultPayload.GetProperty("CharacterId").ValueKind);
+		Assert.AreEqual(2L, resultPayload.GetProperty("RoomId").GetInt64());
+		Assert.AreEqual(0, resultPayload.GetProperty("BypassedCharacterIds").GetArrayLength());
+		Assert.AreEqual(1, resultPayload.GetProperty("BypassedRoomIds").GetArrayLength());
 	}
 
 	[TestMethod]
@@ -977,6 +1039,110 @@ public class AIStorytellerToolExecutionTests
 		Assert.AreEqual("High Sun on 3rd Rainfall 1200", resultPayload.GetProperty("DateTime").GetString());
 		Assert.AreEqual(501L, resultPayload.GetProperty("CharacterId").GetInt64());
 		Assert.AreEqual("Market Square", resultPayload.GetProperty("RoomName").GetString());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_DateTimeForTarget_WithCharacterAndRoom_PrefersCharacter()
+	{
+		var clock = new Mock<IClock>();
+		clock.SetupGet(x => x.Id).Returns(53L);
+		clock.SetupGet(x => x.Name).Returns("City Clock");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Long)).Returns("High Sun");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Short)).Returns("Noon");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Vague)).Returns("Around Noon");
+
+		var timezone = new Mock<IMudTimeZone>();
+		timezone.SetupGet(x => x.Id).Returns(6L);
+		timezone.SetupGet(x => x.Name).Returns("City Standard");
+
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.Id).Returns(43L);
+		calendar.SetupGet(x => x.FullName).Returns("Civic Calendar");
+		calendar.SetupGet(x => x.FeedClock).Returns(clock.Object);
+		calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Long)).Returns("3rd Rainfall 1200");
+		calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Short)).Returns("3-RF-1200");
+
+		var characterRoom = new Mock<ICell>();
+		characterRoom.SetupGet(x => x.Id).Returns(405L);
+		characterRoom.SetupGet(x => x.Calendars).Returns([calendar.Object]);
+		characterRoom.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
+		characterRoom.Setup(x => x.Date(calendar.Object)).Returns((MudDate)null!);
+		characterRoom.Setup(x => x.Time(clock.Object)).Returns((MudTime)null!);
+		characterRoom.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+			.Returns("Market Square");
+
+		var otherRoom = new Mock<ICell>();
+		otherRoom.SetupGet(x => x.Id).Returns(406L);
+		otherRoom.SetupGet(x => x.Calendars).Returns([calendar.Object]);
+		otherRoom.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
+		otherRoom.Setup(x => x.Date(calendar.Object)).Returns((MudDate)null!);
+		otherRoom.Setup(x => x.Time(clock.Object)).Returns((MudTime)null!);
+		otherRoom.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+			.Returns("Docks");
+
+		var personalName = new Mock<IPersonalName>();
+		personalName.Setup(x => x.GetName(NameStyle.FullName)).Returns("Alyx Ward");
+
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(502L);
+		character.SetupGet(x => x.Location).Returns(characterRoom.Object);
+		character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
+
+		var storyteller = CreateStoryteller(characters: [character.Object], cells: [characterRoom.Object, otherRoom.Object]);
+		var result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":502,"RoomId":406}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.AreEqual(502L, resultPayload.GetProperty("CharacterId").GetInt64());
+		Assert.AreEqual(405L, resultPayload.GetProperty("RoomId").GetInt64());
+		Assert.AreEqual("Market Square", resultPayload.GetProperty("RoomName").GetString());
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_DateTimeForTarget_WithZeroCharacterId_UsesRoom()
+	{
+		var clock = new Mock<IClock>();
+		clock.SetupGet(x => x.Id).Returns(54L);
+		clock.SetupGet(x => x.Name).Returns("City Clock");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Long)).Returns("High Sun");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Short)).Returns("Noon");
+		clock.Setup(x => x.DisplayTime(It.IsAny<MudTime>(), TimeDisplayTypes.Vague)).Returns("Around Noon");
+
+		var timezone = new Mock<IMudTimeZone>();
+		timezone.SetupGet(x => x.Id).Returns(7L);
+		timezone.SetupGet(x => x.Name).Returns("City Standard");
+
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.Id).Returns(44L);
+		calendar.SetupGet(x => x.FullName).Returns("Civic Calendar");
+		calendar.SetupGet(x => x.FeedClock).Returns(clock.Object);
+		calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Long)).Returns("3rd Rainfall 1200");
+		calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Short)).Returns("3-RF-1200");
+
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(407L);
+		room.SetupGet(x => x.Calendars).Returns([calendar.Object]);
+		room.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
+		room.Setup(x => x.Date(calendar.Object)).Returns((MudDate)null!);
+		room.Setup(x => x.Time(clock.Object)).Returns((MudTime)null!);
+		room.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+			.Returns("Docks");
+
+		var storyteller = CreateStoryteller(cells: [room.Object]);
+		var result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":0,"RoomId":407}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+		var resultPayload = payload.GetProperty("result");
+
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		Assert.IsFalse(resultPayload.TryGetProperty("CharacterId", out _));
+		Assert.AreEqual(407L, resultPayload.GetProperty("RoomId").GetInt64());
+		Assert.AreEqual("Docks", resultPayload.GetProperty("RoomName").GetString());
 	}
 
 	[TestMethod]

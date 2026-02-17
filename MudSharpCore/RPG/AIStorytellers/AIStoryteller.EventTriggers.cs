@@ -7,6 +7,8 @@ using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
@@ -59,6 +61,9 @@ public partial class AIStoryteller
 			return;
 		}
 
+		var eventTimestampUtc = DateTime.UtcNow;
+		RecordSpeechEventInContext(location, speaker, target, message, volume, language, accent, eventTimestampUtc);
+
 		foreach (var storyteller in speaker.Gameworld.AIStorytellers.OfType<AIStoryteller>())
 		{
 			if (!storyteller.SubscribeToSpeechEvents || storyteller.IsPaused || !storyteller.IsCellSurveilled(location))
@@ -66,7 +71,8 @@ public partial class AIStoryteller
 				continue;
 			}
 
-			storyteller.PassSpeechEventToAIStoryteller(location, speaker, target, message, volume, language, accent);
+			storyteller.PassSpeechEventToAIStoryteller(location, speaker, target, message, volume, language, accent,
+				eventTimestampUtc);
 		}
 	}
 
@@ -107,13 +113,26 @@ public partial class AIStoryteller
 		}
 	}
 
+	private static void RecordSpeechEventInContext(ICell location, ICharacter speaker, IPerceivable? target,
+		string message, AudioVolume volume, ILanguage language, IAccent accent, DateTime eventTimestampUtc)
+	{
+		var contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
+		if (contextEffect is null)
+		{
+			contextEffect = new RecentSpeechContextEffect(location);
+			location.AddEffect(contextEffect);
+		}
+
+		contextEffect.RecordSpeechEvent(speaker, target, message, volume, language, accent, eventTimestampUtc);
+	}
+
 	private bool IsCellSurveilled(ICell location)
 	{
 		return _subscribedCells.Contains(location);
 	}
 
 	private void PassSpeechEventToAIStoryteller(ICell location, ICharacter speaker, IPerceivable? target, string message,
-		AudioVolume volume, ILanguage language, IAccent accent)
+		AudioVolume volume, ILanguage language, IAccent accent, DateTime eventTimestampUtc)
 	{
 		var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
 		if (string.IsNullOrEmpty(apiKey))
@@ -135,6 +154,7 @@ public partial class AIStoryteller
 
 		sb.AppendLine("Spoken Text:");
 		sb.AppendLine(message.StripANSIColour().StripMXP());
+		AppendRecentSpeechContext(sb, location, eventTimestampUtc);
 		AppendAttentionBypassToolGuidance(sb);
 		var bypassAttention = TryGetAttentionBypassReason(location, [speaker, target as ICharacter],
 			out var bypassReason);
@@ -214,6 +234,52 @@ public partial class AIStoryteller
 		ExecuteStorytellerPrompt(apiKey, $"Character State {stateText}", sb.ToString(), includeEchoTools: false,
 			systemPrompt: SystemPrompt, model: Model, reasoningEffort: ReasoningEffort,
 			toolProfile: StorytellerToolProfile.Full);
+	}
+
+	private void AppendRecentSpeechContext(StringBuilder sb, ICell location, DateTime eventTimestampUtc)
+	{
+		var priorEvents = GetPriorSpeechContextEvents(location, eventTimestampUtc);
+		if (priorEvents.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Recent Speech Context (oldest to newest):");
+		foreach (var item in priorEvents)
+		{
+			var targetDescription = item.TargetDescription.IfNullOrWhiteSpace("No direct target");
+			var targetSuffix = item.TargetId.HasValue
+				? $" ({item.TargetFrameworkItemType.IfNullOrWhiteSpace("unknown")} #{item.TargetId.Value:N0})"
+				: string.Empty;
+			sb.AppendLine(
+				$"- [{item.RealTimeTimestampUtc:O}] {item.SpeakerName} -> {targetDescription}{targetSuffix}: \"{item.Message}\" ({item.Volume.DescribeEnum(true)}, {item.LanguageName}, {item.AccentName})");
+		}
+	}
+
+	private IReadOnlyCollection<RecentSpeechContextEvent> GetPriorSpeechContextEvents(ICell location,
+		DateTime eventTimestampUtc)
+	{
+		if (SpeechContextEventCount <= 0)
+		{
+			return [];
+		}
+
+		var contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
+		if (contextEffect is null)
+		{
+			return [];
+		}
+
+		var events = contextEffect.GetRecentSpeechEvents(eventTimestampUtc, SpeechContextEventCount + 1,
+			SpeechContextMaximumSeparation).ToList();
+		if (events.Count <= 1)
+		{
+			return [];
+		}
+
+		events.RemoveAt(events.Count - 1);
+		return events;
 	}
 
 	private static string AppendAttentionReasonToPrompt(string prompt, string attentionReason)

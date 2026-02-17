@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Text;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -14,6 +15,8 @@ public interface IAIStoryteller : IFrameworkItem, ISaveable, IEditableItem
 	/// A description of the purpose and function of this AI Storyteller
 	/// </summary>
 	string Description { get; }
+	int SpeechContextEventCount { get; }
+	TimeSpan SpeechContextMaximumSeparation { get; }
 
 	void SubscribeEvents();
 	void UnsubscribeEvents();

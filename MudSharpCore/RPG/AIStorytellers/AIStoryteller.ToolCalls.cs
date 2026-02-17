@@ -1021,28 +1021,46 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
 		switch (element.ValueKind)
 		{
+			case JsonValueKind.Null:
+			case JsonValueKind.Undefined:
+				return true;
 			case JsonValueKind.Number when element.TryGetInt64(out var numericValue):
-				value = numericValue;
-				break;
-			case JsonValueKind.String when long.TryParse(element.GetString(), out var stringValue):
-				value = stringValue;
-				break;
+				if (numericValue > 0)
+				{
+					value = numericValue;
+				}
+
+				return true;
+			case JsonValueKind.String:
+			{
+				var stringValueText = element.GetString();
+				if (string.IsNullOrWhiteSpace(stringValueText) ||
+				    string.Equals(stringValueText, "null", StringComparison.OrdinalIgnoreCase))
+				{
+					return true;
+				}
+
+				if (!long.TryParse(stringValueText, out var stringValue))
+				{
+					error = $"Parameter '{parameterName}' must be an integer.";
+					return false;
+				}
+
+				if (stringValue > 0)
+				{
+					value = stringValue;
+				}
+
+				return true;
+			}
 			default:
 				error = $"Parameter '{parameterName}' must be an integer.";
 				return false;
 		}
-
-		if (value <= 0)
-		{
-			error = $"Parameter '{parameterName}' must be a positive integer.";
-			return false;
-		}
-
-		return true;
 	}
 
-	private static bool TryGetBypassAttentionTarget(JsonElement arguments, out long? characterId, out long? roomId,
-		out string error)
+	private static bool TryGetCharacterOrRoomTarget(JsonElement arguments, bool requireTarget, out long? characterId,
+		out long? roomId, out string error)
 	{
 		characterId = null;
 		roomId = null;
@@ -1058,15 +1076,20 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return false;
 		}
 
-		if (characterId is null && roomId is null)
+		if (characterId is not null)
 		{
-			error = "Specify either CharacterId or RoomId.";
-			return false;
+			roomId = null;
+			return true;
 		}
 
-		if (characterId is not null && roomId is not null)
+		if (roomId is not null)
 		{
-			error = "Specify either CharacterId or RoomId, but not both.";
+			return true;
+		}
+
+		if (requireTarget)
+		{
+			error = "Specify either CharacterId or RoomId.";
 			return false;
 		}
 
@@ -1075,7 +1098,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
 	private ToolExecutionResult HandleBypassAttention(JsonElement arguments)
 	{
-		if (!TryGetBypassAttentionTarget(arguments, out var characterId, out var roomId, out var error))
+		if (!TryGetCharacterOrRoomTarget(arguments, requireTarget: true, out var characterId, out var roomId,
+			    out var error))
 		{
 			return ErrorResult(error);
 		}
@@ -1105,7 +1129,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
 	private ToolExecutionResult HandleEndBypassAttention(JsonElement arguments)
 	{
-		if (!TryGetBypassAttentionTarget(arguments, out var characterId, out var roomId, out var error))
+		if (!TryGetCharacterOrRoomTarget(arguments, requireTarget: true, out var characterId, out var roomId,
+			    out var error))
 		{
 			return ErrorResult(error);
 		}
@@ -1797,35 +1822,34 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
 	private ToolExecutionResult HandleDateTimeForTarget(JsonElement arguments)
 	{
-		var hasCharacter = TryGetOptionalLong(arguments, "CharacterId", out var characterId);
-		var hasRoom = TryGetOptionalLong(arguments, "RoomId", out var roomId);
-		if (hasCharacter && hasRoom)
+		if (!TryGetCharacterOrRoomTarget(arguments, requireTarget: false, out var characterId, out var roomId,
+			    out var error))
 		{
-			return ErrorResult("Specify either CharacterId or RoomId, but not both.");
+			return ErrorResult(error);
 		}
 
-		if (!hasCharacter && !hasRoom)
+		if (characterId is null && roomId is null)
 		{
 			return HandleCurrentDateTime();
 		}
 
-		if (hasCharacter)
+		if (characterId is not null)
 		{
-			var character = Gameworld.TryGetCharacter(characterId, true);
+			var character = Gameworld.TryGetCharacter(characterId.Value, true);
 			if (character is null)
 			{
-				return ErrorResult($"No character with id {characterId:N0} exists.");
+				return ErrorResult($"No character with id {characterId.Value:N0} exists.");
 			}
 
 			if (character.Location is null)
 			{
-				return ErrorResult($"Character {characterId:N0} has no location.");
+				return ErrorResult($"Character {characterId.Value:N0} has no location.");
 			}
 
 			var calendar = character.Location.Calendars.FirstOrDefault();
 			if (calendar is null)
 			{
-				return ErrorResult($"Character {characterId:N0} location has no calendar.");
+				return ErrorResult($"Character {characterId.Value:N0} location has no calendar.");
 			}
 
 			var result = BuildDateTimeResult(character.Location, calendar);
@@ -1836,16 +1860,16 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return SuccessResult(result);
 		}
 
-		var room = Gameworld.Cells.Get(roomId);
+		var room = Gameworld.Cells.Get(roomId!.Value);
 		if (room is null)
 		{
-			return ErrorResult($"No room with id {roomId:N0} exists.");
+			return ErrorResult($"No room with id {roomId.Value:N0} exists.");
 		}
 
 		var roomCalendar = room.Calendars.FirstOrDefault();
 		if (roomCalendar is null)
 		{
-			return ErrorResult($"Room {roomId:N0} has no calendar.");
+			return ErrorResult($"Room {roomId.Value:N0} has no calendar.");
 		}
 
 		var roomResult = BuildDateTimeResult(room, roomCalendar);
@@ -1940,27 +1964,6 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 		}
 
 		return SuccessResult(result);
-	}
-
-	private static bool TryGetOptionalLong(JsonElement arguments, string propertyName, out long value)
-	{
-		value = 0;
-		if (!arguments.TryGetProperty(propertyName, out var element))
-		{
-			return false;
-		}
-
-		if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out value))
-		{
-			return true;
-		}
-
-		if (element.ValueKind == JsonValueKind.String && long.TryParse(element.GetString(), out value))
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	private static bool TryGetOptionalInt(JsonElement arguments, string propertyName, out int value)

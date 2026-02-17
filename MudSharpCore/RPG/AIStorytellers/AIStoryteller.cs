@@ -47,6 +47,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	private const int MaxSituationTitlesInPrompt = 25;
 	private const int MaxPromptCharacters = 24_000;
 	private const int MaxDebugMessageCharacters = 32_000;
+	private const int DefaultSpeechContextEventCount = 0;
+	private static readonly TimeSpan DefaultSpeechContextMaximumSeparation = TimeSpan.FromMinutes(10);
+	private const int MaximumSpeechContextEventCount = 50;
 	private const string AttentionContractInstruction =
 		"""Return only strict JSON in this shape: {"Decision":"interested","Reason":"optional short reason"} or {"Decision":"ignore"}. Do not include any additional text.""";
 	private const string MissingToolCallFeedbackMessage =
@@ -89,6 +92,9 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		HeartbeatStatus1hProg = gameworld.FutureProgs.Get(storyteller.HeartbeatStatus1hProgId ?? 0L);
 		IsPaused = storyteller.IsPaused;
 		var root = SafeLoadCustomToolRoot(storyteller.CustomToolCallsDefinition);
+		SpeechContextEventCount = ParseSpeechContextEventCount(root.Element("SpeechContextEventCount")?.Value);
+		SpeechContextMaximumSeparation =
+			ParseSpeechContextMaximumSeparation(root.Element("SpeechContextMaximumSeparationMilliseconds")?.Value);
 		foreach (var element in root.Elements("ToolCall"))
 		{
 			AIStorytellerCustomToolCall toolCall;
@@ -135,6 +141,8 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 		SubscribeToSpeechEvents = false;
 		SubscribeToCrimeEvents = false;
 		SubscribeToStateEvents = false;
+		SpeechContextEventCount = DefaultSpeechContextEventCount;
+		SpeechContextMaximumSeparation = DefaultSpeechContextMaximumSeparation;
 		IsPaused = true;
 
 		using (new FMDB())
@@ -153,7 +161,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 				ReasoningEffort = SerializeReasoningEffort(ReasoningEffort),
 				TimeReasoningEffort = SerializeReasoningEffort(TimeReasoningEffort),
 				AttentionClassifierReasoningEffort = SerializeReasoningEffort(AttentionClassifierReasoningEffort),
-				CustomToolCallsDefinition = new XElement("ToolCalls").ToString(),
+				CustomToolCallsDefinition = BuildCustomToolRoot().ToString(),
 				SubscribeToRoomEvents = SubscribeToRoomEvents,
 				SubscribeToSpeechEvents = SubscribeToSpeechEvents,
 				SubscribeToCrimeEvents = SubscribeToCrimeEvents,
@@ -181,6 +189,8 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
 	public bool SubscribeToSpeechEvents { get; private set; }
 	public bool SubscribeToCrimeEvents { get; private set; }
 	public bool SubscribeToStateEvents { get; private set; }
+	public int SpeechContextEventCount { get; private set; }
+	public TimeSpan SpeechContextMaximumSeparation { get; private set; }
 	public bool SubscribeTo5mHeartbeat { get; private set; }
 	public bool SubscribeTo10mHeartbeat { get; private set; }
 	public bool SubscribeTo30mHeartbeat { get; private set; }
@@ -320,6 +330,50 @@ Total Tokens: {usage.TotalTokenCount:N0}
 		}
 	}
 
+	private static int ParseSpeechContextEventCount(string? persistedValue)
+	{
+		if (!int.TryParse(persistedValue, out var parsedValue))
+		{
+			return DefaultSpeechContextEventCount;
+		}
+
+		return parsedValue switch
+		{
+			< 0 => DefaultSpeechContextEventCount,
+			> MaximumSpeechContextEventCount => MaximumSpeechContextEventCount,
+			_ => parsedValue
+		};
+	}
+
+	private static TimeSpan ParseSpeechContextMaximumSeparation(string? persistedValue)
+	{
+		if (string.IsNullOrWhiteSpace(persistedValue))
+		{
+			return DefaultSpeechContextMaximumSeparation;
+		}
+
+		if (double.TryParse(persistedValue, out var milliseconds) && milliseconds > 0.0)
+		{
+			return TimeSpan.FromMilliseconds(milliseconds);
+		}
+
+		if (TimeSpan.TryParse(persistedValue, out var parsedTimeSpan) && parsedTimeSpan > TimeSpan.Zero)
+		{
+			return parsedTimeSpan;
+		}
+
+		if (MudTimeSpan.TryParse(persistedValue, out var mudTimeSpan))
+		{
+			var parsed = mudTimeSpan.AsTimeSpan();
+			if (parsed > TimeSpan.Zero)
+			{
+				return parsed;
+			}
+		}
+
+		return DefaultSpeechContextMaximumSeparation;
+	}
+
 	private static ResponseReasoningEffortLevel ParseReasoningEffort(string? persistedValue)
 	{
 		return ParseReasoningEffort(persistedValue, ResponseReasoningEffortLevel.Medium);
@@ -421,6 +475,9 @@ Total Tokens: {usage.TotalTokenCount:N0}
 	private XElement BuildCustomToolRoot()
 	{
 		return new XElement("ToolCalls",
+			new XElement("SpeechContextEventCount", SpeechContextEventCount),
+			new XElement("SpeechContextMaximumSeparationMilliseconds",
+				(long)SpeechContextMaximumSeparation.TotalMilliseconds),
 			from item in CustomToolCalls
 			select item.SaveToXml(false),
 			from item in CustomToolCallsEchoOnly

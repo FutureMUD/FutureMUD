@@ -158,6 +158,162 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is now tagged as a new player.");
 	}
 
+	[PlayerCommand("RecentSpeech", "recentspeech")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("recentspeech",
+		@"This command shows speech events remembered for your current room by the storyteller recent speech context system.
+
+Syntax:
+	recentspeech
+	recentspeech from <timespan>
+	recentspeech to <timespan>
+	recentspeech from <timespan> to <timespan>
+
+The <timespan> values are relative to now (e.g. 01:00:00 = 1 hour ago).
+With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrNoArg)]
+	protected static void RecentSpeech(ICharacter actor, string input)
+	{
+		if (actor.Location is not ICell location)
+		{
+			actor.OutputHandler.Send("You are not currently in a room.");
+			return;
+		}
+
+		var ss = new StringStack(input.RemoveFirstWord());
+		TimeSpan? from = null;
+		TimeSpan? to = null;
+		while (!ss.IsFinished)
+		{
+			var keyword = ss.PopSpeech().ToLowerInvariant();
+			switch (keyword)
+			{
+				case "from":
+				case "since":
+				{
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("You must supply a timespan after FROM.");
+						return;
+					}
+
+					if (!TimeSpan.TryParse(ss.PopSpeech(), actor, out var parsedFrom))
+					{
+						actor.OutputHandler.Send(
+							$"That is not a valid timespan. Use your account culture format ({actor.Account.Culture.Name.ColourValue()}).");
+						return;
+					}
+
+					if (parsedFrom < TimeSpan.Zero)
+					{
+						actor.OutputHandler.Send("The FROM timespan cannot be negative.");
+						return;
+					}
+
+					from = parsedFrom;
+					break;
+				}
+				case "to":
+				case "until":
+				{
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("You must supply a timespan after TO.");
+						return;
+					}
+
+					if (!TimeSpan.TryParse(ss.PopSpeech(), actor, out var parsedTo))
+					{
+						actor.OutputHandler.Send(
+							$"That is not a valid timespan. Use your account culture format ({actor.Account.Culture.Name.ColourValue()}).");
+						return;
+					}
+
+					if (parsedTo < TimeSpan.Zero)
+					{
+						actor.OutputHandler.Send("The TO timespan cannot be negative.");
+						return;
+					}
+
+					to = parsedTo;
+					break;
+				}
+				default:
+					actor.OutputHandler.Send("Invalid syntax. See #3help recentspeech#0.".SubstituteANSIColour());
+					return;
+			}
+		}
+
+		if (from.HasValue && to.HasValue && from.Value < to.Value)
+		{
+			actor.OutputHandler.Send(
+				"The FROM timespan must be greater than or equal to the TO timespan (e.g. from 01:00:00 to 00:10:00).");
+			return;
+		}
+
+		var contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
+		if (contextEffect is null)
+		{
+			actor.OutputHandler.Send("There is no stored recent speech context for this room.");
+			return;
+		}
+
+		var nowUtc = DateTime.UtcNow;
+		var allEvents = contextEffect.GetRecentSpeechEvents(nowUtc, int.MaxValue, TimeSpan.FromDays(3650));
+		var earliestUtc = from.HasValue ? nowUtc - from.Value : DateTime.MinValue;
+		var latestUtc = to.HasValue ? nowUtc - to.Value : nowUtc;
+		var events = allEvents
+			.Where(x => x.RealTimeTimestampUtc >= earliestUtc)
+			.Where(x => x.RealTimeTimestampUtc <= latestUtc)
+			.OrderBy(x => x.RealTimeTimestampUtc)
+			.ToList();
+
+		var filterDescription = GetRecentSpeechFilterDescription(actor, from, to);
+		if (!events.Any())
+		{
+			actor.OutputHandler.Send(
+				$"No recent speech events were found in {location.HowSeen(actor)} (#{location.Id.ToString("N0", actor)}) with filter {filterDescription.ColourCommand()}.");
+			return;
+		}
+
+		var textTable = StringUtilities.GetTextTable(
+			events.Select(item => new[]
+			{
+				item.RealTimeTimestampUtc.GetLocalDateString(actor, true),
+				item.SpeakerName,
+				GetRecentSpeechTargetDescription(item, actor),
+				item.Message,
+				$"{item.LanguageName}/{item.AccentName}",
+				item.Volume.DescribeEnum(true)
+			}),
+			new[] { "Time", "Speaker", "Target", "Speech", "Language/Accent", "Volume" },
+			actor.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode
+		);
+
+		actor.OutputHandler.Send(
+			$"Recent speech events in {location.HowSeen(actor)} (#{location.Id.ToString("N0", actor).ColourValue()})\nFilter: {filterDescription.ColourCommand()}\nShowing {events.Count.ToString("N0", actor).ColourValue()} event{(events.Count == 1 ? string.Empty : "s")}.\n{textTable}");
+	}
+
+	private static string GetRecentSpeechTargetDescription(RecentSpeechContextEvent item, ICharacter actor)
+	{
+		var target = item.TargetDescription.IfNullOrWhiteSpace("No direct target");
+		if (item.TargetId is null)
+		{
+			return target;
+		}
+
+		return
+			$"{target} ({item.TargetFrameworkItemType.IfNullOrWhiteSpace("unknown")} #{item.TargetId.Value.ToString("N0", actor)})";
+	}
+
+	private static string GetRecentSpeechFilterDescription(ICharacter actor, TimeSpan? from, TimeSpan? to)
+	{
+		var fromText = from.HasValue ? $"{from.Value.Describe(actor)} ago" : "the earliest retained event";
+		var toText = to.HasValue ? $"{to.Value.Describe(actor)} ago" : "now";
+		return $"from {fromText} to {toText}";
+	}
+
 	[PlayerCommand("FullAudit", "fullaudit")]
 	[CommandPermission(PermissionLevel.Admin)]
 	protected static void FullAudit(ICharacter actor, string input)

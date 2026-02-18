@@ -19,6 +19,7 @@ public class ArenaLifecycleServiceTests
         public void Setup()
         {
                 _gameworld = new Mock<IFuturemud>();
+                _gameworld.SetupGet(x => x.CombatArenas).Returns(new All<ICombatArena>());
                 _scheduler = new Mock<IArenaScheduler>();
                 _service = new ArenaLifecycleService(_gameworld.Object);
                 _service.AttachScheduler(_scheduler.Object);
@@ -32,6 +33,19 @@ public class ArenaLifecycleServiceTests
 		_service.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen);
 
 		arenaEvent.Verify(x => x.OpenRegistration(), Times.Once);
+		_scheduler.Verify(x => x.Schedule(arenaEvent.Object), Times.Once);
+	}
+
+	[TestMethod]
+	public void Transition_MultiPhaseTarget_ExecutesIntermediateTransitions()
+	{
+		var arenaEvent = BuildEvent(ArenaEventState.RegistrationOpen);
+
+		_service.Transition(arenaEvent.Object, ArenaEventState.Live);
+
+		arenaEvent.Verify(x => x.StartPreparation(), Times.Once);
+		arenaEvent.Verify(x => x.Stage(), Times.Once);
+		arenaEvent.Verify(x => x.StartLive(), Times.Once);
 		_scheduler.Verify(x => x.Schedule(arenaEvent.Object), Times.Once);
 	}
 

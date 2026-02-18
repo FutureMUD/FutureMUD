@@ -33,6 +33,10 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		TimeLimit = model.TimeLimitSeconds.HasValue
 			? TimeSpan.FromSeconds(model.TimeLimitSeconds.Value)
 			: null;
+		AutoScheduleInterval = model.AutoScheduleIntervalSeconds.HasValue
+			? TimeSpan.FromSeconds(model.AutoScheduleIntervalSeconds.Value)
+			: null;
+		AutoScheduleReferenceTime = model.AutoScheduleReferenceTime;
 		BettingModel = (BettingModel)model.BettingModel;
 		AppearanceFee = model.AppearanceFee;
 		VictoryFee = model.VictoryFee;
@@ -49,14 +53,19 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		}
 	}
 
-public CombatArena Arena { get; }
-ICombatArena IArenaEventType.Arena => Arena;
+	public CombatArena Arena { get; }
+	ICombatArena IArenaEventType.Arena => Arena;
 
 	public IEnumerable<IArenaEventTypeSide> Sides => _sides;
 	public bool BringYourOwn { get; private set; }
 	public TimeSpan RegistrationDuration { get; private set; }
 	public TimeSpan PreparationDuration { get; private set; }
 	public TimeSpan? TimeLimit { get; private set; }
+	public TimeSpan? AutoScheduleInterval { get; private set; }
+	public DateTime? AutoScheduleReferenceTime { get; private set; }
+	public bool AutoScheduleEnabled => AutoScheduleInterval.HasValue &&
+	                                  AutoScheduleInterval.Value > TimeSpan.Zero &&
+	                                  AutoScheduleReferenceTime.HasValue;
 	public BettingModel BettingModel { get; private set; }
 	public decimal AppearanceFee { get; private set; }
 	public decimal VictoryFee { get; private set; }
@@ -80,6 +89,7 @@ ICombatArena IArenaEventType.Arena => Arena;
 		sb.AppendLine($"Betting Model: {BettingModel.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Appearance Fee: {Arena.Currency.Describe(AppearanceFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Victory Fee: {Arena.Currency.Describe(VictoryFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(actor)}");
 		sb.AppendLine($"Intro Prog: {IntroProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Scoring Prog: {ScoringProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Resolution Override Prog: {ResolutionOverrideProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -109,6 +119,7 @@ ICombatArena IArenaEventType.Arena => Arena;
 	#3registration <timespan>#0 - sets the registration duration
 	#3preparation <timespan>#0 - sets the preparation duration
 	#3timelimit <timespan>|none#0 - sets or clears the time limit
+	#3autoschedule <interval> <reference>|off#0 - sets or clears recurring event creation
 	#3betting <fixed|parimutuel>#0 - sets the betting model
 	#3appearance <amount>#0 - sets the appearance fee
 	#3victory <amount>#0 - sets the victory fee
@@ -138,6 +149,10 @@ ICombatArena IArenaEventType.Arena => Arena;
 			case "limit":
 			case "time":
 				return BuildingCommandTimeLimit(actor, command);
+			case "autoschedule":
+			case "schedule":
+			case "repeat":
+				return BuildingCommandAutoSchedule(actor, command);
 			case "betting":
 			case "bet":
 				return BuildingCommandBetting(actor, command);
@@ -261,6 +276,76 @@ ICombatArena IArenaEventType.Arena => Arena;
 		TimeLimit = mts;
 		Changed = true;
 		actor.OutputHandler.Send($"Time limit is now {TimeLimit.Value.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandAutoSchedule(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Current auto-schedule: {DescribeAutoSchedule(actor)}\nUse #3autoschedule every <interval> [from] <reference>#0 or #3autoschedule off#0."
+					.SubstituteANSIColour());
+			return false;
+		}
+
+		var firstToken = command.PopForSwitch();
+		if (firstToken.EqualToAny("none", "off", "clear", "remove", "disable"))
+		{
+			ConfigureAutoSchedule(null, null);
+			actor.OutputHandler.Send("Automatic scheduling is now disabled for this event type.".Colour(Telnet.Green));
+			return true;
+		}
+
+		var intervalText = firstToken;
+		if (firstToken.EqualTo("every"))
+		{
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a recurrence interval.".ColourError());
+				return false;
+			}
+
+			intervalText = command.PopSpeech();
+		}
+
+		if (!MudTimeSpan.TryParse(intervalText, actor, out var intervalMud))
+		{
+			actor.OutputHandler.Send(
+				"That is not a valid interval. Examples: #36h#0, #390m#0, #31d 2h#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		var interval = intervalMud.AsTimeSpan();
+		if (interval <= TimeSpan.Zero)
+		{
+			actor.OutputHandler.Send("The interval must be greater than zero.".ColourError());
+			return false;
+		}
+
+		if (!command.IsFinished && command.PeekSpeech().EqualToAny("from", "at", "start", "starting"))
+		{
+			command.PopSpeech();
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What reference date/time should this recurrence use?".ColourCommand());
+			return false;
+		}
+
+		if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false,
+			    out var referenceUtc))
+		{
+			actor.OutputHandler.Send(
+				"That is not a valid reference date/time. Examples: #310:00#0 or #32026-02-18 10:00#0."
+					.SubstituteANSIColour());
+			return false;
+		}
+
+		ConfigureAutoSchedule(interval, referenceUtc);
+		actor.OutputHandler.Send(
+			$"Automatic scheduling is now {DescribeAutoSchedule(actor)} for this event type.".Colour(Telnet.Green));
 		return true;
 	}
 
@@ -437,9 +522,29 @@ ICombatArena IArenaEventType.Arena => Arena;
 		return side.BuildingCommand(actor, command);
 	}
 
+	private string DescribeAutoSchedule(ICharacter actor)
+	{
+		if (!AutoScheduleEnabled)
+		{
+			return "Disabled".ColourError();
+		}
+
+		return
+			$"Every {AutoScheduleInterval!.Value.Describe(actor).ColourValue()} from {AutoScheduleReferenceTime!.Value.ToString("f", actor).ColourValue()}";
+	}
+
 	public IArenaEvent CreateInstance(DateTime scheduledTime, IEnumerable<IArenaReservation>? reservations = null)
 	{
 		return Arena.CreateEvent(this, scheduledTime, reservations);
+	}
+
+	public void ConfigureAutoSchedule(TimeSpan? interval, DateTime? referenceTime)
+	{
+		var isEnabled = interval.HasValue && interval.Value > TimeSpan.Zero && referenceTime.HasValue;
+		AutoScheduleInterval = isEnabled ? interval : null;
+		AutoScheduleReferenceTime = isEnabled ? referenceTime : null;
+		Changed = true;
+		Gameworld.ArenaScheduler.SyncRecurringSchedule(this);
 	}
 
 	public IArenaEventType Clone(string newName, ICharacter originator)
@@ -461,6 +566,10 @@ ICombatArena IArenaEventType.Arena => Arena;
 				RegistrationDurationSeconds = (int)RegistrationDuration.TotalSeconds,
 				PreparationDurationSeconds = (int)PreparationDuration.TotalSeconds,
 				TimeLimitSeconds = TimeLimit.HasValue ? (int)TimeLimit.Value.TotalSeconds : null,
+				AutoScheduleIntervalSeconds = AutoScheduleInterval.HasValue
+					? (int)AutoScheduleInterval.Value.TotalSeconds
+					: null,
+				AutoScheduleReferenceTime = AutoScheduleReferenceTime,
 				BettingModel = (int)BettingModel,
 				AppearanceFee = AppearanceFee,
 				VictoryFee = VictoryFee,
@@ -521,6 +630,10 @@ ICombatArena IArenaEventType.Arena => Arena;
 			dbType.RegistrationDurationSeconds = (int)RegistrationDuration.TotalSeconds;
 			dbType.PreparationDurationSeconds = (int)PreparationDuration.TotalSeconds;
 			dbType.TimeLimitSeconds = TimeLimit.HasValue ? (int)TimeLimit.Value.TotalSeconds : null;
+			dbType.AutoScheduleIntervalSeconds = AutoScheduleInterval.HasValue
+				? (int)AutoScheduleInterval.Value.TotalSeconds
+				: null;
+			dbType.AutoScheduleReferenceTime = AutoScheduleReferenceTime;
 			dbType.BettingModel = (int)BettingModel;
 			dbType.AppearanceFee = AppearanceFee;
 			dbType.VictoryFee = VictoryFee;

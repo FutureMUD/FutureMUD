@@ -125,6 +125,7 @@ public class ArenaCommandService : IArenaCommandService
                 sb.AppendLine($"Betting: {eventType.BettingModel.DescribeEnum().ColourValue()}");
                 sb.AppendLine($"Appearance Fee: {DescribeCurrency(eventType.Arena, eventType.AppearanceFee)}");
                 sb.AppendLine($"Victory Fee: {DescribeCurrency(eventType.Arena, eventType.VictoryFee)}");
+                sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(eventType, actor)}");
 
                 sb.AppendLine();
                 sb.AppendLine("Sides:".Colour(Telnet.Cyan));
@@ -151,4 +152,16 @@ public class ArenaCommandService : IArenaCommandService
         {
                 return arena.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
         }
+
+	private static string DescribeAutoSchedule(IArenaEventType eventType, ICharacter actor)
+	{
+		if (!eventType.AutoScheduleEnabled || !eventType.AutoScheduleInterval.HasValue ||
+		    !eventType.AutoScheduleReferenceTime.HasValue)
+		{
+			return "Disabled".ColourError();
+		}
+
+		return
+			$"Every {eventType.AutoScheduleInterval.Value.Describe(actor).ColourValue()} from {eventType.AutoScheduleReferenceTime.Value.ToString("f", actor).ColourValue()}";
+	}
 }

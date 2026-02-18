@@ -45,6 +45,8 @@ public class ArenaEventType
 	public int RegistrationDurationSeconds { get; set; }
 	public int PreparationDurationSeconds { get; set; }
 	public int? TimeLimitSeconds { get; set; }
+	public int? AutoScheduleIntervalSeconds { get; set; }
+	public DateTime? AutoScheduleReferenceTime { get; set; }
 	public int BettingModel { get; set; }
 	public decimal AppearanceFee { get; set; }
 	public decimal VictoryFee { get; set; }

@@ -381,7 +381,11 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		sb.AppendLine("Active Event Types:");
 		foreach (var type in EventTypes)
 		{
-			sb.AppendLine($"\t{type.Name.ColourName()}");
+			var autoSchedule = type.AutoScheduleEnabled && type.AutoScheduleInterval.HasValue &&
+			                   type.AutoScheduleReferenceTime.HasValue
+				? $"Every {type.AutoScheduleInterval.Value.Describe(actor).ColourValue()} from {type.AutoScheduleReferenceTime.Value.ToString("g", actor).ColourValue()}"
+				: "Disabled".ColourError();
+			sb.AppendLine($"\t#{type.Id.ToStringN0(actor)} - {type.Name.ColourName()} ({autoSchedule})");
 		}
 
 		return sb.ToString();

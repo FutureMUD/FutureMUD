@@ -231,6 +231,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		EnforceState(ArenaEventState.RegistrationOpen);
 		RegistrationOpensAt ??= DateTime.UtcNow;
 		Changed = true;
+		TryAdvanceToPreparation();
 	}
 
 	public void CloseRegistration()

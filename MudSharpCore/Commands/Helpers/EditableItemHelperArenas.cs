@@ -317,6 +317,8 @@ public partial class EditableItemHelper
 					RegistrationDurationSeconds = (int)registrationDuration.TotalSeconds,
 					PreparationDurationSeconds = (int)preparationDuration.TotalSeconds,
 					TimeLimitSeconds = (int)timeLimit.TotalSeconds,
+					AutoScheduleIntervalSeconds = null,
+					AutoScheduleReferenceTime = null,
 					BettingModel = (int)BettingModel.FixedOdds,
 					AppearanceFee = 0.0m,
 					VictoryFee = 0.0m,

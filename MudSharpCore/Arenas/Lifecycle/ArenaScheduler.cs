@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Linq;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 
@@ -68,9 +69,35 @@ public class ArenaScheduler : IArenaScheduler
 	}
 
 	/// <inheritdoc />
+	public void SyncRecurringSchedule(IArenaEventType eventType)
+	{
+		if (eventType is null)
+		{
+			return;
+		}
+
+		_gameworld.Scheduler.Destroy(eventType, ScheduleType.ArenaRecurringEvent);
+		if (!IsRecurringEnabled(eventType))
+		{
+			return;
+		}
+
+		var now = DateTime.UtcNow;
+		var trigger = ResolveNextRecurringTrigger(eventType, now);
+		var delay = trigger > now ? trigger - now : TimeSpan.Zero;
+		var scheduledFor = trigger;
+		var schedule = new Schedule<IArenaEventType>(eventType, template => HandleRecurringTrigger(template, scheduledFor),
+			ScheduleType.ArenaRecurringEvent, delay, $"ArenaEventType #{eventType.Id} recurring trigger");
+		_gameworld.Scheduler.AddSchedule(schedule);
+	}
+
+	/// <inheritdoc />
 	public void RecoverAfterReboot()
 	{
-		// Concrete arena loading will reschedule active events once they are reconstructed.
+		foreach (var eventType in _gameworld.CombatArenas.SelectMany(x => x.EventTypes))
+		{
+			SyncRecurringSchedule(eventType);
+		}
 	}
 
 	private static bool TryGetNextTransition(IArenaEvent arenaEvent, out ArenaEventState nextState, out DateTime trigger)
@@ -90,7 +117,9 @@ public class ArenaScheduler : IArenaScheduler
 				break;
 			case ArenaEventState.RegistrationOpen:
 				nextState = ArenaEventState.Preparing;
-				trigger = ResolveRegistrationOpen(arenaEvent) + arenaEvent.EventType.RegistrationDuration;
+				trigger = IsEventFull(arenaEvent)
+					? now
+					: ResolveRegistrationOpen(arenaEvent) + arenaEvent.EventType.RegistrationDuration;
 				break;
 			case ArenaEventState.Preparing:
 				nextState = ArenaEventState.Staged;
@@ -143,5 +172,93 @@ public class ArenaScheduler : IArenaScheduler
 
 		var fallback = arenaEvent.ScheduledAt - arenaEvent.EventType.PreparationDuration - arenaEvent.EventType.RegistrationDuration;
 		return fallback > arenaEvent.CreatedAt ? fallback : arenaEvent.CreatedAt;
+	}
+
+	private void HandleRecurringTrigger(IArenaEventType eventType, DateTime scheduledFor)
+	{
+		if (!IsRecurringEnabled(eventType))
+		{
+			return;
+		}
+
+		TryCreateRecurringEvent(eventType, scheduledFor);
+		SyncRecurringSchedule(eventType);
+	}
+
+	private void TryCreateRecurringEvent(IArenaEventType eventType, DateTime scheduledFor)
+	{
+		var arena = eventType.Arena;
+		var (ready, _) = arena.IsReadyToHost(eventType);
+		if (!ready)
+		{
+			return;
+		}
+
+		if (arena.ActiveEvents.Any(evt =>
+			    ReferenceEquals(evt.EventType, eventType) &&
+			    Math.Abs((evt.ScheduledAt - scheduledFor).TotalSeconds) < 1.0))
+		{
+			return;
+		}
+
+		try
+		{
+			eventType.CreateInstance(scheduledFor);
+		}
+		catch
+		{
+			// Keep the recurring schedule running even if one instantiation attempt fails.
+		}
+	}
+
+	private static bool IsRecurringEnabled(IArenaEventType eventType)
+	{
+		return eventType.AutoScheduleEnabled &&
+		       eventType.AutoScheduleInterval.HasValue &&
+		       eventType.AutoScheduleInterval.Value > TimeSpan.Zero &&
+		       eventType.AutoScheduleReferenceTime.HasValue;
+	}
+
+	private static DateTime ResolveNextRecurringTrigger(IArenaEventType eventType, DateTime now)
+	{
+		var reference = eventType.AutoScheduleReferenceTime!.Value;
+		var interval = eventType.AutoScheduleInterval!.Value;
+		if (reference >= now)
+		{
+			return reference;
+		}
+
+		var elapsedTicks = now.Ticks - reference.Ticks;
+		var intervalTicks = interval.Ticks;
+		if (intervalTicks <= 0)
+		{
+			return now;
+		}
+
+		var cycles = elapsedTicks / intervalTicks;
+		var next = reference.AddTicks(cycles * intervalTicks);
+		if (next < now)
+		{
+			next = next.AddTicks(intervalTicks);
+		}
+
+		return next;
+	}
+
+	private static bool IsEventFull(IArenaEvent arenaEvent)
+	{
+		var sides = arenaEvent.EventType.Sides.ToList();
+		if (!sides.Any())
+		{
+			return false;
+		}
+
+		var participantCounts = arenaEvent.Participants
+			.GroupBy(x => x.SideIndex)
+			.ToDictionary(x => x.Key, x => x.Count());
+
+		return sides.All(side =>
+			participantCounts.TryGetValue(side.Index, out var count) &&
+			count >= side.Capacity);
 	}
 }

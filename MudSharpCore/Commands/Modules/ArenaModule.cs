@@ -14,6 +14,7 @@ using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Commands.Modules;
 
@@ -27,29 +28,36 @@ internal class ArenaModule : Module<ICharacter>
 
         public static ArenaModule Instance { get; } = new();
 
-        private const string ArenaHelp =
-                @"The #3arena#0 command provides access to combat arena features.
+	private const string ArenaHelp =
+		@"The #3arena#0 command provides access to combat arena systems.
 
-Managers:
-	#3arena list#0 - lists known arenas
-	#3arena show [<arena>]#0 - shows detailed arena information
-	#3arena events [<arena>]#0 - lists scheduled and live events for an arena
+General:
+	#3arena list#0 - list known arenas
+	#3arena show [<arena>]#0 - show details for an arena
+	#3arena events [<arena>]#0 - list active and scheduled events
 
-Players:
-        If only one event is active, the <event> argument is optional in the commands below.
-        #3arena observe list#0 - shows events observable from your location
-        #3arena observe enter [<event>]#0 - begin observing an event
-        #3arena observe leave [<event>]#0 - stop observing events
-        #3arena signup <side> <class> [<event>]#0 - sign up for an event
-        #3arena withdraw [<event>]#0 - withdraw from an event
-        #3arena bet odds [<side>|draw] [<event>]#0 - see betting quote
-        #3arena bet place <side|draw> <amount> [<event>]#0 - place a wager
-        #3arena bet cancel [<event>]#0 - cancel your wager
-        #3arena bet pools [<event>]#0 - view pari-mutuel pools
-        #3arena bet list#0 - view your current wagers and payouts
-        #3arena bet history [<count>]#0 - view recent wagers
-        #3arena bet collect [<event>]#0 - collect outstanding payouts
-        #3arena ratings show [<class>]#0 - view your arena ratings";
+Participant Commands:
+	If only one event applies, you can omit #6<event>#0.
+	#3arena observe list#0 - show events observable from your location
+	#3arena observe enter [<event>]#0 - begin observing an event
+	#3arena observe leave [<event>]#0 - stop observing an event
+	#3arena signup <side> <class> [<event>]#0 - sign up for an event
+	#3arena withdraw [<event>]#0 - withdraw from an event
+	#3arena bet odds [<side>|draw] [<event>]#0 - view betting quotes
+	#3arena bet place <side|draw> <amount> [<event>]#0 - place a wager
+	#3arena bet cancel [<event>]#0 - cancel your wager
+	#3arena bet pools [<event>]#0 - view pari-mutuel pools
+	#3arena bet list#0 - list active wagers and payouts
+	#3arena bet history [<count>]#0 - show betting history
+	#3arena bet collect [<event>]#0 - collect outstanding payouts
+	#3arena ratings [<class>]#0 - show your arena ratings
+
+Manager Commands:
+	You must be a manager of the arena owning the target event or event type.
+	#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
+	#3arena manager autoschedule <eventtype> show#0 - show recurring settings
+	#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
+	#3arena manager autoschedule <eventtype> every <interval> [from] <reference>#0 - enable recurring creation";
 
         [PlayerCommand("Arena", "arena")]
         [RequiredCharacterState(CharacterState.Conscious)]
@@ -90,6 +98,10 @@ Players:
                         case "ratings":
                                 ArenaRatings(actor, ss);
                                 return;
+			case "manager":
+			case "manage":
+				ArenaManager(actor, ss);
+				return;
                         default:
                                 ShowGeneralHelp(actor);
                                 return;
@@ -142,8 +154,8 @@ Players:
 		actor.Gameworld.ArenaCommandService.ShowArena(actor, arena);
 	}
 
-	private static void ArenaEvents(ICharacter actor, StringStack ss)
-	{
+        private static void ArenaEvents(ICharacter actor, StringStack ss)
+        {
 		var hasArgument = !ss.IsFinished;
 		var arena = GetArena(actor, hasArgument ? ss.PopSpeech() : null);
 		if (arena is null)
@@ -178,6 +190,189 @@ Players:
 
                 actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, header, actor, Telnet.Cyan));
         }
+
+	private static void ArenaManager(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"Do you want to #3phase#0 or #3autoschedule#0? Use #3help arena#0 for syntax.".SubstituteANSIColour());
+			return;
+		}
+
+		switch (ss.PopForSwitch())
+		{
+			case "phase":
+			case "state":
+				ArenaManagerPhase(actor, ss);
+				return;
+			case "autoschedule":
+			case "schedule":
+				ArenaManagerAutoSchedule(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(
+					"Valid options are #3phase#0 and #3autoschedule#0.".SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ArenaManagerPhase(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which event do you want to change the phase for?".ColourCommand());
+			return;
+		}
+
+		var eventText = ss.PopSpeech();
+		var arenaEvent = GetArenaEvent(actor, eventText);
+		if (arenaEvent is null)
+		{
+			actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+			return;
+		}
+
+		if (!arenaEvent.Arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Which state should it move to? Valid options are {Enum.GetValues<ArenaEventState>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return;
+		}
+
+		if (!TryParseArenaState(ss.PopSpeech(), out var targetState))
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid state. Valid options are {Enum.GetValues<ArenaEventState>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}."
+					.ColourError());
+			return;
+		}
+
+		var currentState = arenaEvent.State;
+		if (currentState == targetState)
+		{
+			actor.OutputHandler.Send("That event is already in that state.".ColourError());
+			return;
+		}
+
+		if (targetState != ArenaEventState.Aborted && targetState < currentState)
+		{
+			actor.OutputHandler.Send(
+				$"You can only move forward from {currentState.DescribeEnum().ColourValue()} with this command.".ColourError());
+			return;
+		}
+
+		actor.Gameworld.ArenaLifecycleService.Transition(arenaEvent, targetState);
+		if (arenaEvent.State == currentState)
+		{
+			actor.OutputHandler.Send("That transition was not valid for the event's current state.".ColourError());
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You move {arenaEvent.Name.ColourName()} from {currentState.DescribeEnum().ColourValue()} to {arenaEvent.State.DescribeEnum().ColourValue()}."
+				.Colour(Telnet.Green));
+	}
+
+	private static void ArenaManagerAutoSchedule(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which event type do you want to configure auto scheduling for?".ColourCommand());
+			return;
+		}
+
+		var eventTypeText = ss.PopSpeech();
+		var eventType = GetArenaEventType(actor, eventTypeText);
+		if (eventType is null)
+		{
+			actor.OutputHandler.Send("There is no arena event type matching that description.".ColourError());
+			return;
+		}
+
+		if (!eventType.Arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		if (ss.IsFinished || ss.PeekSpeech().EqualTo("show"))
+		{
+			if (!ss.IsFinished)
+			{
+				ss.PopSpeech();
+			}
+
+			actor.OutputHandler.Send(
+				$"Auto scheduling for {eventType.Name.ColourName()} is {DescribeAutoSchedule(eventType, actor)}.");
+			return;
+		}
+
+		var firstToken = ss.PopForSwitch();
+		if (firstToken.EqualToAny("off", "none", "disable", "clear", "remove"))
+		{
+			eventType.ConfigureAutoSchedule(null, null);
+			actor.OutputHandler.Send(
+				$"Auto scheduling is now disabled for {eventType.Name.ColourName()}.".Colour(Telnet.Green));
+			return;
+		}
+
+		var intervalText = firstToken;
+		if (firstToken.EqualTo("every"))
+		{
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a recurrence interval.".ColourError());
+				return;
+			}
+
+			intervalText = ss.PopSpeech();
+		}
+
+		if (!MudTimeSpan.TryParse(intervalText, actor, out var intervalMud))
+		{
+			actor.OutputHandler.Send(
+				"That is not a valid interval. Examples: #36h#0, #390m#0, #31d 2h#0.".SubstituteANSIColour());
+			return;
+		}
+
+		var interval = intervalMud.AsTimeSpan();
+		if (interval <= TimeSpan.Zero)
+		{
+			actor.OutputHandler.Send("The interval must be greater than zero.".ColourError());
+			return;
+		}
+
+		if (!ss.IsFinished && ss.PeekSpeech().EqualToAny("from", "at", "start", "starting"))
+		{
+			ss.PopSpeech();
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What reference date/time should this recurrence use?".ColourCommand());
+			return;
+		}
+
+		if (!DateUtilities.TryParseDateTimeOrRelative(ss.SafeRemainingArgument, actor.Account, false, out var referenceUtc))
+		{
+			actor.OutputHandler.Send(
+				"That is not a valid reference date/time. Examples: #310:00#0 or #32026-02-18 10:00#0."
+					.SubstituteANSIColour());
+			return;
+		}
+
+		eventType.ConfigureAutoSchedule(interval, referenceUtc);
+		actor.OutputHandler.Send(
+			$"Auto scheduling for {eventType.Name.ColourName()} is now {DescribeAutoSchedule(eventType, actor)}."
+				.Colour(Telnet.Green));
+	}
 
         private static void ArenaObserve(ICharacter actor, StringStack ss)
         {
@@ -944,6 +1139,11 @@ Players:
 
         private static void ArenaRatings(ICharacter actor, StringStack ss)
         {
+                if (!ss.IsFinished && ss.PeekSpeech().EqualTo("show"))
+                {
+                        ss.PopSpeech();
+                }
+
                 var filter = ss.IsFinished ? null : ss.PopSpeech();
                 var classes = actor.Gameworld.CombatArenas
                         .SelectMany(x => x.EventTypes)
@@ -1042,6 +1242,110 @@ Players:
 		}
 
 		return FindEvent(allEvents);
+	}
+
+	private static IArenaEventType? GetArenaEventType(ICharacter actor, string? text)
+	{
+		var localArena = GetArenaFromLocation(actor);
+		var allTypes = actor.Gameworld.CombatArenas.SelectMany(x => x.EventTypes).ToList();
+		var localTypes = localArena is null ? allTypes : localArena.EventTypes.ToList();
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			if (localTypes.Count == 1)
+			{
+				return localTypes[0];
+			}
+
+			return localArena is not null && allTypes.Count == 1 ? allTypes[0] : null;
+		}
+
+		var isIdSearch = long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id);
+
+		IArenaEventType? FindType(IEnumerable<IArenaEventType> types)
+		{
+			if (isIdSearch)
+			{
+				return types.FirstOrDefault(x => x.Id == id);
+			}
+
+			return types.FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)) ??
+			       types.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+		}
+
+		var localMatch = FindType(localTypes);
+		if (localMatch != null || localArena is null)
+		{
+			return localMatch;
+		}
+
+		return FindType(allTypes);
+	}
+
+	private static bool TryParseArenaState(string text, out ArenaEventState state)
+	{
+		state = ArenaEventState.Draft;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return false;
+		}
+
+		if (text.TryParseEnum<ArenaEventState>(out state))
+		{
+			return true;
+		}
+
+		switch (text.CollapseString())
+		{
+			case "registration":
+			case "reg":
+			case "open":
+				state = ArenaEventState.RegistrationOpen;
+				return true;
+			case "prep":
+			case "prepare":
+			case "preparation":
+				state = ArenaEventState.Preparing;
+				return true;
+			case "stage":
+			case "staged":
+				state = ArenaEventState.Staged;
+				return true;
+			case "live":
+			case "fight":
+			case "fighting":
+				state = ArenaEventState.Live;
+				return true;
+			case "resolve":
+			case "resolving":
+				state = ArenaEventState.Resolving;
+				return true;
+			case "cleanup":
+			case "clean":
+				state = ArenaEventState.Cleanup;
+				return true;
+			case "complete":
+			case "completed":
+				state = ArenaEventState.Completed;
+				return true;
+			case "abort":
+			case "aborted":
+				state = ArenaEventState.Aborted;
+				return true;
+		}
+
+		return false;
+	}
+
+	private static string DescribeAutoSchedule(IArenaEventType eventType, ICharacter actor)
+	{
+		if (!eventType.AutoScheduleEnabled || !eventType.AutoScheduleInterval.HasValue ||
+		    !eventType.AutoScheduleReferenceTime.HasValue)
+		{
+			return "disabled".ColourError();
+		}
+
+		return
+			$"every {eventType.AutoScheduleInterval.Value.Describe(actor).ColourValue()} from {eventType.AutoScheduleReferenceTime.Value.ToString("f", actor).ColourValue()}";
 	}
 
 	private static bool TryParseSideSpecifier(string? text, out int? sideIndex)

@@ -21,6 +21,9 @@ public interface IArenaEventType : IEditableItem
 	TimeSpan RegistrationDuration { get; }
 	TimeSpan PreparationDuration { get; }
 	TimeSpan? TimeLimit { get; }
+	TimeSpan? AutoScheduleInterval { get; }
+	DateTime? AutoScheduleReferenceTime { get; }
+	bool AutoScheduleEnabled { get; }
 	BettingModel BettingModel { get; }
 	decimal AppearanceFee { get; }
 	decimal VictoryFee { get; }
@@ -30,5 +33,6 @@ public interface IArenaEventType : IEditableItem
 	IArenaEliminationStrategy? EliminationStrategy { get; }
 
 	IArenaEvent CreateInstance(DateTime scheduledTime, IEnumerable<IArenaReservation>? reservations = null);
+	void ConfigureAutoSchedule(TimeSpan? interval, DateTime? referenceTime);
 	IArenaEventType Clone(string newName, ICharacter originator);
 }

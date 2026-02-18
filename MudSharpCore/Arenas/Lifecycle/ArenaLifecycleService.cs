@@ -41,8 +41,21 @@ public class ArenaLifecycleService : IArenaLifecycleService
 			return;
 		}
 
-		ApplyTransition(arenaEvent, targetState);
-		if (targetState is ArenaEventState.Completed or ArenaEventState.Aborted)
+		if (targetState == ArenaEventState.Aborted)
+		{
+			ApplyTransition(arenaEvent, targetState);
+			_scheduler?.Cancel(arenaEvent);
+			return;
+		}
+
+		for (var state = initialState; state < targetState;)
+		{
+			var nextState = GetNextState(state);
+			ApplyTransition(arenaEvent, nextState);
+			state = nextState;
+		}
+
+		if (targetState == ArenaEventState.Completed)
 		{
 			_scheduler?.Cancel(arenaEvent);
 			return;
@@ -54,8 +67,8 @@ public class ArenaLifecycleService : IArenaLifecycleService
 	/// <inheritdoc />
 	public void RebootRecovery()
 	{
-		_scheduler?.RecoverAfterReboot();
 		CleanupInterruptedEvents();
+		_scheduler?.RecoverAfterReboot();
 	}
 
 	private void CleanupInterruptedEvents()
@@ -89,6 +102,22 @@ public class ArenaLifecycleService : IArenaLifecycleService
 		}
 
 		return current is not (ArenaEventState.Aborted or ArenaEventState.Completed) && target > current;
+	}
+
+	private static ArenaEventState GetNextState(ArenaEventState current)
+	{
+		return current switch
+		{
+			ArenaEventState.Draft => ArenaEventState.Scheduled,
+			ArenaEventState.Scheduled => ArenaEventState.RegistrationOpen,
+			ArenaEventState.RegistrationOpen => ArenaEventState.Preparing,
+			ArenaEventState.Preparing => ArenaEventState.Staged,
+			ArenaEventState.Staged => ArenaEventState.Live,
+			ArenaEventState.Live => ArenaEventState.Resolving,
+			ArenaEventState.Resolving => ArenaEventState.Cleanup,
+			ArenaEventState.Cleanup => ArenaEventState.Completed,
+			_ => current
+		};
 	}
 
 	private static void ApplyTransition(IArenaEvent arenaEvent, ArenaEventState targetState)

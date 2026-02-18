@@ -69,6 +69,33 @@ public class ArenaSchedulerTests
                 _lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen), Times.Once);
         }
 
+	[TestMethod]
+	public void Schedule_RegistrationFull_TransitionsToPreparingImmediately()
+	{
+		var now = DateTime.UtcNow;
+		var side = new Mock<IArenaEventTypeSide>();
+		side.SetupGet(x => x.Index).Returns(0);
+		side.SetupGet(x => x.Capacity).Returns(1);
+		var eventType = BuildEventType();
+		eventType.SetupGet(x => x.Sides).Returns(new[] { side.Object });
+		var participant = new Mock<IArenaParticipant>();
+		participant.SetupGet(x => x.SideIndex).Returns(0);
+		var arenaEvent = new Mock<IArenaEvent>();
+		arenaEvent.SetupGet(x => x.State).Returns(ArenaEventState.RegistrationOpen);
+		arenaEvent.SetupGet(x => x.ScheduledAt).Returns(now.AddMinutes(30));
+		arenaEvent.SetupGet(x => x.CreatedAt).Returns(now.AddHours(-1));
+		arenaEvent.SetupGet(x => x.RegistrationOpensAt).Returns(now.AddMinutes(-5));
+		arenaEvent.SetupGet(x => x.EventType).Returns(eventType.Object);
+		arenaEvent.SetupGet(x => x.Participants).Returns(new[] { participant.Object });
+		arenaEvent.SetupGet(x => x.Id).Returns(601L);
+
+		_service.Schedule(arenaEvent.Object);
+
+		_scheduler.Verify(x => x.Destroy(arenaEvent.Object, ScheduleType.ArenaEvent), Times.Once);
+		_scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
+		_lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.Preparing), Times.Once);
+	}
+
         [TestMethod]
         public void Schedule_LiveWithoutTimeLimit_DoesNotSchedule()
         {
@@ -103,6 +130,33 @@ public class ArenaSchedulerTests
                 _scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
                 _lifecycle.Verify(x => x.Transition(It.IsAny<IArenaEvent>(), It.IsAny<ArenaEventState>()), Times.Never);
         }
+
+	[TestMethod]
+	public void SyncRecurringSchedule_EnabledTemplate_AddsRecurringSchedule()
+	{
+		var eventType = BuildEventType();
+		eventType.SetupGet(x => x.Id).Returns(99L);
+		eventType.SetupGet(x => x.AutoScheduleEnabled).Returns(true);
+		eventType.SetupGet(x => x.AutoScheduleInterval).Returns(TimeSpan.FromHours(6));
+		eventType.SetupGet(x => x.AutoScheduleReferenceTime).Returns(DateTime.UtcNow.AddHours(1));
+
+		_service.SyncRecurringSchedule(eventType.Object);
+
+		_scheduler.Verify(x => x.Destroy(eventType.Object, ScheduleType.ArenaRecurringEvent), Times.Once);
+		_scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void SyncRecurringSchedule_DisabledTemplate_OnlyClearsRecurringSchedule()
+	{
+		var eventType = BuildEventType();
+		eventType.SetupGet(x => x.AutoScheduleEnabled).Returns(false);
+
+		_service.SyncRecurringSchedule(eventType.Object);
+
+		_scheduler.Verify(x => x.Destroy(eventType.Object, ScheduleType.ArenaRecurringEvent), Times.Once);
+		_scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
+	}
 
         private static Mock<IArenaEventType> BuildEventType()
         {

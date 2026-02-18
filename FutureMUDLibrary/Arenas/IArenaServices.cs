@@ -12,6 +12,7 @@ namespace MudSharp.Arenas;
 public interface IArenaScheduler {
 	void Schedule(IArenaEvent arenaEvent);
 	void Cancel(IArenaEvent arenaEvent);
+	void SyncRecurringSchedule(IArenaEventType eventType);
 	void RecoverAfterReboot();
 }
 

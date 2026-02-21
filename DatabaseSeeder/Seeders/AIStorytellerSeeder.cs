@@ -346,6 +346,12 @@ Situation lifecycle:
 4. ShowSituation before major edits if there is any chance your understanding is stale.
 5. Resolve stale situations promptly; only unresolved situation titles are injected into future prompts.
 
+Situation scope guidance:
+- Situations can be universal (no scope), character-scoped (CharacterId), or room-scoped (RoomId).
+- Use scope when the thread is tightly tied to one character or one room so unrelated events receive less noise.
+- Use either CharacterId or RoomId, never both for the same situation.
+- If scope must change, provide the new CharacterId or RoomId in UpdateSituation.
+
 Good situation titles:
 - Short, specific, and stable.
 - Include the core subject and place when relevant.

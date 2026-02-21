@@ -553,10 +553,39 @@ Total Tokens: {usage.TotalTokenCount:N0}
 		PassHeartbeatEventToAIStoryteller(heartbeatType);
 	}
 
-	private void AppendOpenSituationTitles(StringBuilder sb)
+	internal static bool SituationMatchesTriggerScope(IAIStorytellerSituation situation, long? triggerRoomId,
+		IReadOnlyCollection<long> triggerCharacterIds)
 	{
+		if (situation.ScopeCharacterId is null && situation.ScopeRoomId is null)
+		{
+			return true;
+		}
+
+		if (situation.ScopeCharacterId is not null)
+		{
+			return triggerCharacterIds.Contains(situation.ScopeCharacterId.Value);
+		}
+
+		if (situation.ScopeRoomId is not null)
+		{
+			return triggerRoomId == situation.ScopeRoomId.Value;
+		}
+
+		return true;
+	}
+
+	private void AppendOpenSituationTitles(StringBuilder sb, ICell? triggerRoom = null,
+		IEnumerable<ICharacter?>? triggerCharacters = null)
+	{
+		var triggerCharacterIds = triggerCharacters?
+			.Where(x => x is not null)
+			.Select(x => x!.Id)
+			.Distinct()
+			.ToList() ?? [];
+		var hasTriggerScope = triggerRoom is not null || triggerCharacterIds.Any();
 		var openSituations = _situations
 			.Where(x => !x.IsResolved)
+			.Where(x => !hasTriggerScope || SituationMatchesTriggerScope(x, triggerRoom?.Id, triggerCharacterIds))
 			.Take(MaxSituationTitlesInPrompt)
 			.ToList();
 
@@ -608,7 +637,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
 
 		var echo = emote.ParseFor(null);
 		var sb = new StringBuilder();
-		AppendOpenSituationTitles(sb);
+		AppendOpenSituationTitles(sb, location, [emote?.DefaultSource as ICharacter]);
 		sb.AppendLine("Your attention classifier flagged a world event as relevant.");
 		sb.AppendLine($"Location: {location.HowSeen(null)}");
 		if (emote?.DefaultSource is ICharacter ch)

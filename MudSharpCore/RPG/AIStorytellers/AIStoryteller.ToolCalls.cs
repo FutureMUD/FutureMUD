@@ -39,7 +39,9 @@ public partial class AIStoryteller
 			  "type": "object",
 			  "properties": {
 			    "Title": { "type": "string", "description": "The title of the situation." },
-			    "Description": { "type": "string", "description": "The detailed text of the situation." }
+			    "Description": { "type": "string", "description": "The detailed text of the situation." },
+			    "CharacterId": { "type": "integer", "description": "Optional character scope id. Use either CharacterId or RoomId, not both." },
+			    "RoomId": { "type": "integer", "description": "Optional room scope id. Use either CharacterId or RoomId, not both." }
 			  },
 			  "required": ["Title", "Description"]
 			}
@@ -55,7 +57,9 @@ public partial class AIStoryteller
 			  "properties": {
 			    "Id": { "type": "integer", "description": "The id of the situation to update." },
 			    "Title": { "type": "string", "description": "The updated title." },
-			    "Description": { "type": "string", "description": "The updated detailed text." }
+			    "Description": { "type": "string", "description": "The updated detailed text." },
+			    "CharacterId": { "type": "integer", "description": "Optional character scope id. If supplied, updates scope. Use either CharacterId or RoomId." },
+			    "RoomId": { "type": "integer", "description": "Optional room scope id. If supplied, updates scope. Use either CharacterId or RoomId." }
 			  },
 			  "required": ["Id", "Title", "Description"]
 			}
@@ -71,7 +75,9 @@ public partial class AIStoryteller
 			  "properties": {
 			    "Id": { "type": "integer", "description": "The id of the situation to resolve." },
 			    "Title": { "type": "string", "description": "The final title." },
-			    "Description": { "type": "string", "description": "The final detailed text." }
+			    "Description": { "type": "string", "description": "The final detailed text." },
+			    "CharacterId": { "type": "integer", "description": "Optional character scope id. If supplied, updates scope before resolving. Use either CharacterId or RoomId." },
+			    "RoomId": { "type": "integer", "description": "Optional room scope id. If supplied, updates scope before resolving. Use either CharacterId or RoomId." }
 			  },
 			  "required": ["Id", "Title", "Description"]
 			}
@@ -880,6 +886,70 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 		}), malformedJson);
 	}
 
+	private bool TryResolveSituationScope(JsonElement arguments, out bool scopeSpecified, out long? scopeCharacterId,
+		out long? scopeRoomId, out string error)
+	{
+		scopeSpecified = false;
+		scopeCharacterId = null;
+		scopeRoomId = null;
+		error = string.Empty;
+
+		var hasCharacterScope = TryGetOptionalLong(arguments, "CharacterId", out var parsedCharacterId);
+		var hasRoomScope = TryGetOptionalLong(arguments, "RoomId", out var parsedRoomId);
+		if (hasCharacterScope && parsedCharacterId <= 0)
+		{
+			error = "CharacterId must be a positive integer.";
+			return false;
+		}
+
+		if (hasRoomScope && parsedRoomId <= 0)
+		{
+			error = "RoomId must be a positive integer.";
+			return false;
+		}
+
+		if (hasCharacterScope && hasRoomScope)
+		{
+			error = "Specify either CharacterId or RoomId, but not both.";
+			return false;
+		}
+
+		if (hasCharacterScope)
+		{
+			var character = Gameworld.TryGetCharacter(parsedCharacterId, true);
+			if (character is null)
+			{
+				error = $"No character with id {parsedCharacterId:N0} exists.";
+				return false;
+			}
+
+			scopeCharacterId = character.Id;
+			scopeSpecified = true;
+			return true;
+		}
+
+		if (hasRoomScope)
+		{
+			var room = Gameworld.Cells.Get(parsedRoomId);
+			if (room is null)
+			{
+				error = $"No room with id {parsedRoomId:N0} exists.";
+				return false;
+			}
+
+			scopeRoomId = room.Id;
+			scopeSpecified = true;
+		}
+
+		return true;
+	}
+
+	private static void AddSituationScopeToPayload(IDictionary<string, object> payload, IAIStorytellerSituation situation)
+	{
+		payload["CharacterId"] = situation.ScopeCharacterId;
+		payload["RoomId"] = situation.ScopeRoomId;
+	}
+
 
 	private ToolExecutionResult HandleCreateSituation(JsonElement arguments)
 	{
@@ -893,15 +963,22 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return ErrorResult(error);
 		}
 
-		var situation = new AIStorytellerSituation(Gameworld, this, title, description);
+		if (!TryResolveSituationScope(arguments, out _, out var scopeCharacterId, out var scopeRoomId, out error))
+		{
+			return ErrorResult(error);
+		}
+
+		var situation = new AIStorytellerSituation(Gameworld, this, title, description, scopeCharacterId, scopeRoomId);
 		_situations.Add(situation);
-		return SuccessResult(new Dictionary<string, object>
+		var payload = new Dictionary<string, object>
 		{
 			["Id"] = situation.Id,
 			["Title"] = situation.Name,
 			["CreatedOn"] = situation.CreatedOn.ToString("O"),
 			["Resolved"] = situation.IsResolved
-		});
+		};
+		AddSituationScopeToPayload(payload, situation);
+		return SuccessResult(payload);
 	}
 
 	private ToolExecutionResult HandleUpdateSituation(JsonElement arguments)
@@ -927,13 +1004,26 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return ErrorResult($"No situation with id {id:N0} exists.");
 		}
 
+		if (!TryResolveSituationScope(arguments, out var scopeSpecified, out var scopeCharacterId, out var scopeRoomId,
+			    out error))
+		{
+			return ErrorResult(error);
+		}
+
 		situation.UpdateSituation(title, description);
-		return SuccessResult(new Dictionary<string, object>
+		if (scopeSpecified)
+		{
+			situation.SetScope(scopeCharacterId, scopeRoomId);
+		}
+
+		var payload = new Dictionary<string, object>
 		{
 			["Id"] = situation.Id,
 			["Title"] = situation.Name,
 			["Resolved"] = situation.IsResolved
-		});
+		};
+		AddSituationScopeToPayload(payload, situation);
+		return SuccessResult(payload);
 	}
 
 	private ToolExecutionResult HandleResolveSituation(JsonElement arguments)
@@ -959,14 +1049,27 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return ErrorResult($"No situation with id {id:N0} exists.");
 		}
 
+		if (!TryResolveSituationScope(arguments, out var scopeSpecified, out var scopeCharacterId, out var scopeRoomId,
+			    out error))
+		{
+			return ErrorResult(error);
+		}
+
 		situation.UpdateSituation(title, description);
+		if (scopeSpecified)
+		{
+			situation.SetScope(scopeCharacterId, scopeRoomId);
+		}
+
 		situation.Resolve();
-		return SuccessResult(new Dictionary<string, object>
+		var payload = new Dictionary<string, object>
 		{
 			["Id"] = situation.Id,
 			["Title"] = situation.Name,
 			["Resolved"] = situation.IsResolved
-		});
+		};
+		AddSituationScopeToPayload(payload, situation);
+		return SuccessResult(payload);
 	}
 
 	private ToolExecutionResult HandleShowSituation(JsonElement arguments)
@@ -982,14 +1085,16 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return ErrorResult($"No situation with id {id:N0} exists.");
 		}
 
-		return SuccessResult(new Dictionary<string, object>
+		var payload = new Dictionary<string, object>
 		{
 			["Id"] = situation.Id,
 			["Title"] = situation.Name,
 			["Description"] = situation.SituationText,
 			["CreatedOn"] = situation.CreatedOn.ToString("O"),
 			["Resolved"] = situation.IsResolved
-		});
+		};
+		AddSituationScopeToPayload(payload, situation);
+		return SuccessResult(payload);
 	}
 
 	private ToolExecutionResult HandleOnlinePlayers()

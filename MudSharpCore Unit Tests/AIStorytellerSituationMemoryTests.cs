@@ -40,6 +40,37 @@ public class AIStorytellerSituationMemoryTests
 	}
 
 	[TestMethod]
+	public void Situation_SetScope_UpdatesScopeState()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
+		var storyteller = CreateStorytellerWithWorld(gameworld.Object);
+		var situation = new AIStorytellerSituation(
+			new ModelSituation
+			{
+				Id = 3L,
+				AIStorytellerId = storyteller.Id,
+				Name = "Scoped",
+				SituationText = "Scoped details",
+				CreatedOn = new DateTime(2026, 2, 10, 0, 0, 0, DateTimeKind.Utc),
+				IsResolved = false
+			},
+			storyteller);
+
+		situation.SetScope(55L, null);
+		Assert.AreEqual(55L, situation.ScopeCharacterId);
+		Assert.IsNull(situation.ScopeRoomId);
+
+		situation.SetScope(null, 102L);
+		Assert.IsNull(situation.ScopeCharacterId);
+		Assert.AreEqual(102L, situation.ScopeRoomId);
+
+		situation.SetScope(null, null);
+		Assert.IsNull(situation.ScopeCharacterId);
+		Assert.IsNull(situation.ScopeRoomId);
+	}
+
+	[TestMethod]
 	public void Memory_UpdateMemory_UpdatesLifecycleState()
 	{
 		var character = new Mock<ICharacter>();

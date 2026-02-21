@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
@@ -37,7 +38,9 @@ public partial class AIStoryteller
 	#3tool parameter <name> <parameter> <description>#0 - sets a parameter description
 	#3tool prog <name> <prog>#0 - changes the prog bound to a tool
 	#3tool echo <name>#0 - toggles whether a tool is echo-only
-	#3refsearch <query>#0 - searches visible reference documents";
+	#3refsearch <query>#0 - searches visible reference documents
+	#3situation list#0 - lists current situations and their scope
+	#3situation scope <id> <none|character <id>|room <id|here>>#0 - sets a situation scope";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -108,6 +111,9 @@ public partial class AIStoryteller
 			case "reference":
 			case "references":
 				return BuildingCommandReferenceSearch(actor, command);
+			case "situation":
+			case "situations":
+				return BuildingCommandSituation(actor, command);
 			default:
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
@@ -901,6 +907,167 @@ public partial class AIStoryteller
 		return false;
 	}
 
+	private bool BuildingCommandSituation(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(GetSituationTable(actor));
+			return false;
+		}
+
+		switch (command.PopForSwitch())
+		{
+			case "list":
+			case "show":
+				actor.OutputHandler.Send(GetSituationTable(actor));
+				return false;
+			case "scope":
+				return BuildingCommandSituationScope(actor, command);
+			default:
+				actor.OutputHandler.Send(
+					$"You can use {"situation list".ColourCommand()} or {"situation scope <id> <none|character <id>|room <id|here>>".ColourCommand()}.");
+				return false;
+		}
+	}
+
+	private bool BuildingCommandSituationScope(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !long.TryParse(command.PopSpeech(), out var situationId))
+		{
+			actor.OutputHandler.Send("You must specify the numeric id of the situation.");
+			return false;
+		}
+
+		var situation = _situations.FirstOrDefault(x => x.Id == situationId);
+		if (situation is null)
+		{
+			actor.OutputHandler.Send($"There is no situation with id {situationId.ToStringN0(actor)}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You must specify {"none".ColourCommand()}, {"character <id>".ColourCommand()} or {"room <id|here>".ColourCommand()}.");
+			return false;
+		}
+
+		var oldCharacterScopeId = situation.ScopeCharacterId;
+		var oldRoomScopeId = situation.ScopeRoomId;
+		switch (command.PopForSwitch())
+		{
+			case "none":
+			case "universal":
+			case "global":
+				situation.SetScope(null, null);
+				break;
+			case "character":
+			case "char":
+				if (command.IsFinished || !long.TryParse(command.SafeRemainingArgument, out var characterId))
+				{
+					actor.OutputHandler.Send("You must supply a numeric character id.");
+					return false;
+				}
+
+				var character = Gameworld.TryGetCharacter(characterId, true);
+				if (character is null)
+				{
+					actor.OutputHandler.Send($"There is no character with id {characterId.ToStringN0(actor)}.");
+					return false;
+				}
+
+				situation.SetScope(character.Id, null);
+				break;
+			case "room":
+			case "cell":
+			{
+				ICell room;
+				if (!command.IsFinished && command.SafeRemainingArgument.EqualTo("here"))
+				{
+					if (actor.Location is not ICell actorRoom)
+					{
+						actor.OutputHandler.Send("You are not currently in a room.");
+						return false;
+					}
+
+					room = actorRoom;
+				}
+				else
+				{
+					if (command.IsFinished || !long.TryParse(command.SafeRemainingArgument, out var roomId))
+					{
+						actor.OutputHandler.Send("You must supply a numeric room id or use \"here\".");
+						return false;
+					}
+
+					room = Gameworld.Cells.Get(roomId);
+					if (room is null)
+					{
+						actor.OutputHandler.Send($"There is no room with id {roomId.ToStringN0(actor)}.");
+						return false;
+					}
+				}
+
+				situation.SetScope(null, room.Id);
+				break;
+			}
+			default:
+				actor.OutputHandler.Send(
+					$"You must specify {"none".ColourCommand()}, {"character <id>".ColourCommand()} or {"room <id|here>".ColourCommand()}.");
+				return false;
+		}
+
+		if (oldCharacterScopeId == situation.ScopeCharacterId && oldRoomScopeId == situation.ScopeRoomId)
+		{
+			actor.OutputHandler.Send(
+				$"Situation #{situation.Id.ToStringN0(actor)} already has scope {DescribeSituationScope(situation, actor)}.");
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"Situation #{situation.Id.ToStringN0(actor)} scope is now {DescribeSituationScope(situation, actor)}.");
+		return true;
+	}
+
+	private string DescribeSituationScope(IAIStorytellerSituation situation, ICharacter actor)
+	{
+		if (situation.ScopeCharacterId is not null)
+		{
+			return $"Character #{situation.ScopeCharacterId.Value.ToStringN0(actor)}".ColourName();
+		}
+
+		if (situation.ScopeRoomId is not null)
+		{
+			return $"Room #{situation.ScopeRoomId.Value.ToStringN0(actor)}".ColourName();
+		}
+
+		return "Universal".ColourValue();
+	}
+
+	private string GetSituationTable(ICharacter actor)
+	{
+		return StringUtilities.GetTextTable(
+			from item in _situations
+			orderby item.IsResolved, item.CreatedOn
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.IsResolved.ToColouredString(),
+				DescribeSituationScope(item, actor),
+				item.CreatedOn.GetLocalDateString(actor, true)
+			},
+			[
+				"Id",
+				"Title",
+				"Resolved",
+				"Scope",
+				"Created"
+			],
+			actor,
+			Telnet.Green);
+	}
+
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
@@ -1003,21 +1170,7 @@ public partial class AIStoryteller
 		sb.AppendLine($"");
 		sb.AppendLine("Current Situations".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine($"");
-		sb.AppendLine(StringUtilities.GetTextTable(
-			from item in _situations
-			select new List<string> {
-				item.Id.ToStringN0(actor),
-				item.Name,
-				item.CreatedOn.GetLocalDateString(actor, true)
-			},
-			[
-				"Id",
-				"Title",
-				"Created"
-			],
-			actor,
-			Telnet.Green
-		));
+		sb.AppendLine(GetSituationTable(actor));
 
 		return sb.ToString();
 	}

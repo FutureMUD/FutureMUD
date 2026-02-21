@@ -141,7 +141,7 @@ public partial class AIStoryteller
 		}
 
 		var sb = new StringBuilder();
-		AppendOpenSituationTitles(sb);
+		AppendOpenSituationTitles(sb, location, [speaker, target as ICharacter]);
 		sb.AppendLine("A character has spoken in a surveilled room.");
 		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"Speaker: {speaker.PersonalName.GetName(NameStyle.FullName)}");
@@ -174,7 +174,7 @@ public partial class AIStoryteller
 		}
 
 		var sb = new StringBuilder();
-		AppendOpenSituationTitles(sb);
+		AppendOpenSituationTitles(sb, location, [crime.Criminal, crime.Victim]);
 		sb.AppendLine("A character has committed a crime in a surveilled room.");
 		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"Crime Id: {crime.Id:N0}");
@@ -224,7 +224,7 @@ public partial class AIStoryteller
 			_ => "Unknown"
 		};
 		var sb = new StringBuilder();
-		AppendOpenSituationTitles(sb);
+		AppendOpenSituationTitles(sb, location, [character]);
 		sb.AppendLine("A character changed state in a surveilled room.");
 		sb.AppendLine($"Location: {location.GetFriendlyReference(null).StripANSIColour()}");
 		sb.AppendLine($"State Change: {stateText}");

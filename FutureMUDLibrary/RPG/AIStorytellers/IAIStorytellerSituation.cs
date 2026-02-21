@@ -10,6 +10,9 @@ public interface IAIStorytellerSituation : IFrameworkItem, ISaveable
 	string SituationText { get; }
 	DateTime CreatedOn { get; }
 	bool IsResolved { get; }
+	long? ScopeCharacterId { get; }
+	long? ScopeRoomId { get; }
 	void Resolve();
 	void UpdateSituation(string newTitle, string newSituationText);
+	void SetScope(long? scopeCharacterId, long? scopeRoomId);
 }

@@ -177,18 +177,19 @@ public class AIStorytellerToolExecutionTests
 	public void ConfigureToolLoopResponseOptions_RequiredChoice_SetsToolChoiceAndTokenBudget()
 	{
 		var storyteller = CreateStoryteller();
-		var options = new CreateResponseOptions(new List<ResponseItem>());
-		const string customPrompt = "Custom system prompt for test";
+		var options = new CreateResponseOptions(new List<ResponseItem>())
+		{
+			Instructions = "Sentinel instructions"
+		};
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
-			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: customPrompt,
-			reasoningEffort: storyteller.ReasoningEffort);
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Required, options.ToolChoice.Kind);
-		Assert.AreEqual(true, options.ParallelToolCallsEnabled);
+		Assert.IsTrue(options.ParallelToolCallsEnabled);
 		Assert.AreEqual(1200, options.MaxOutputTokenCount);
-		Assert.AreEqual(customPrompt, options.Instructions);
+		Assert.AreEqual("Sentinel instructions", options.Instructions);
 		Assert.AreEqual(storyteller.ReasoningEffort, options.ReasoningOptions?.ReasoningEffortLevel);
 		Assert.IsTrue(options.Tools.Count > 0);
 	}
@@ -200,8 +201,7 @@ public class AIStorytellerToolExecutionTests
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: false,
-			toolProfile: AIStoryteller.StorytellerToolProfile.Full, systemPrompt: storyteller.SystemPrompt,
-			reasoningEffort: storyteller.ReasoningEffort);
+			toolProfile: AIStoryteller.StorytellerToolProfile.Full);
 
 		Assert.IsNotNull(options.ToolChoice);
 		Assert.AreEqual(ResponseToolChoiceKind.Auto, options.ToolChoice.Kind);
@@ -214,16 +214,15 @@ public class AIStorytellerToolExecutionTests
 		var options = new CreateResponseOptions(new List<ResponseItem>());
 
 		storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: false, requireToolCall: true,
-			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused, systemPrompt: storyteller.SystemPrompt,
-			reasoningEffort: storyteller.ReasoningEffort);
+			toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused);
 
 		var toolNames = options.Tools
 			.OfType<FunctionTool>()
 			.Select(x => x.FunctionName)
 			.ToList();
 		CollectionAssert.Contains(toolNames, "Noop");
-		CollectionAssert.Contains(toolNames, "BypassAttention");
-		CollectionAssert.Contains(toolNames, "EndBypassAttention");
+		CollectionAssert.Contains(toolNames, "CreateSituation");
+		CollectionAssert.Contains(toolNames, "ResolveSituation");
 		CollectionAssert.Contains(toolNames, "CurrentDateTime");
 		CollectionAssert.Contains(toolNames, "DateTimeForTarget");
 		CollectionAssert.DoesNotContain(toolNames, "PathBetweenRooms");
@@ -233,70 +232,81 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_BypassAttentionCharacter_AddsAndRemovesTarget()
+	public void ExecuteFunctionCall_UpdateSituation_WithCharacterScope_InvokesScopeUpdate()
 	{
-		var storyteller = CreateStoryteller();
-		var start = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":777}""", includeEchoTools: false);
-		var startPayload = JsonDocument.Parse(start.OutputJson).RootElement;
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(777L);
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+		var situation = new Mock<IAIStorytellerSituation>();
+		situation.SetupGet(x => x.Id).Returns(28L);
+		situation.SetupGet(x => x.Name).Returns("Scope test");
+		situation.SetupGet(x => x.SituationText).Returns("Scope details");
+		situation.SetupGet(x => x.IsResolved).Returns(false);
+		situation.SetupGet(x => x.CreatedOn).Returns(new DateTime(2026, 2, 10, 0, 0, 0, DateTimeKind.Utc));
+		storyteller.RegisterLoadedSituation(situation.Object);
 
-		Assert.IsTrue(startPayload.GetProperty("ok").GetBoolean());
-		Assert.IsTrue(startPayload.GetProperty("result").GetProperty("Changed").GetBoolean());
-		Assert.AreEqual(1, startPayload.GetProperty("result").GetProperty("BypassedCharacterIds").GetArrayLength());
+		var result = storyteller.ExecuteFunctionCall("UpdateSituation",
+			"""{"Id":28,"Title":"Scope updated","Description":"Scoped details","CharacterId":777}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
 
-		var end = storyteller.ExecuteFunctionCall("EndBypassAttention", """{"CharacterId":777}""", includeEchoTools: false);
-		var endPayload = JsonDocument.Parse(end.OutputJson).RootElement;
-
-		Assert.IsTrue(endPayload.GetProperty("ok").GetBoolean());
-		Assert.IsTrue(endPayload.GetProperty("result").GetProperty("Changed").GetBoolean());
-		Assert.AreEqual(0, endPayload.GetProperty("result").GetProperty("BypassedCharacterIds").GetArrayLength());
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		situation.Verify(x => x.UpdateSituation("Scope updated", "Scoped details"), Times.Once);
+		situation.Verify(x => x.SetScope(777L, null), Times.Once);
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_BypassAttentionWithMultipleTargets_PrefersCharacter()
+	public void ExecuteFunctionCall_CreateSituation_WithCharacterAndRoomScope_ReturnsError()
 	{
-		var storyteller = CreateStoryteller();
-		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":1,"RoomId":2}""",
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(1L);
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(2L);
+		var storyteller = CreateStoryteller(characters: [character.Object], cells: [room.Object]);
+		var result = storyteller.ExecuteFunctionCall("CreateSituation",
+			"""{"Title":"Ambush","Description":"Bandits gather at dusk.","CharacterId":1,"RoomId":2}""",
 			includeEchoTools: false);
 		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
-		var resultPayload = payload.GetProperty("result");
 
-		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
-		Assert.AreEqual(1L, resultPayload.GetProperty("CharacterId").GetInt64());
-		Assert.AreEqual(JsonValueKind.Null, resultPayload.GetProperty("RoomId").ValueKind);
-		Assert.AreEqual(1, resultPayload.GetProperty("BypassedCharacterIds").GetArrayLength());
-		Assert.AreEqual(0, resultPayload.GetProperty("BypassedRoomIds").GetArrayLength());
+		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
+		StringAssert.Contains(payload.GetProperty("error").GetString(), "Specify either CharacterId or RoomId");
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_BypassAttentionWithNullRoomId_UsesCharacter()
+	public void ExecuteFunctionCall_UpdateSituation_WithNullRoomId_UsesCharacterScope()
 	{
-		var storyteller = CreateStoryteller();
-		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":1,"RoomId":null}""",
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(1L);
+		var storyteller = CreateStoryteller(characters: [character.Object]);
+		var situation = new Mock<IAIStorytellerSituation>();
+		situation.SetupGet(x => x.Id).Returns(29L);
+		situation.SetupGet(x => x.Name).Returns("Scope test");
+		situation.SetupGet(x => x.SituationText).Returns("Scope details");
+		situation.SetupGet(x => x.IsResolved).Returns(false);
+		situation.SetupGet(x => x.CreatedOn).Returns(new DateTime(2026, 2, 10, 0, 0, 0, DateTimeKind.Utc));
+		storyteller.RegisterLoadedSituation(situation.Object);
+
+		var result = storyteller.ExecuteFunctionCall("UpdateSituation",
+			"""{"Id":29,"Title":"Scope updated","Description":"Scoped details","CharacterId":1,"RoomId":null}""",
 			includeEchoTools: false);
 		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
-		var resultPayload = payload.GetProperty("result");
 
 		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
-		Assert.AreEqual(1L, resultPayload.GetProperty("CharacterId").GetInt64());
-		Assert.AreEqual(JsonValueKind.Null, resultPayload.GetProperty("RoomId").ValueKind);
-		Assert.AreEqual(1, resultPayload.GetProperty("BypassedCharacterIds").GetArrayLength());
-		Assert.AreEqual(0, resultPayload.GetProperty("BypassedRoomIds").GetArrayLength());
+		situation.Verify(x => x.UpdateSituation("Scope updated", "Scoped details"), Times.Once);
+		situation.Verify(x => x.SetScope(1L, null), Times.Once);
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_BypassAttentionWithZeroCharacterId_UsesRoom()
+	public void ExecuteFunctionCall_CreateSituation_WithZeroCharacterId_ReturnsValidationError()
 	{
 		var storyteller = CreateStoryteller();
-		var result = storyteller.ExecuteFunctionCall("BypassAttention", """{"CharacterId":0,"RoomId":2}""",
+		var result = storyteller.ExecuteFunctionCall("CreateSituation",
+			"""{"Title":"Ambush","Description":"Bandits gather at dusk.","CharacterId":0}""",
 			includeEchoTools: false);
 		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
-		var resultPayload = payload.GetProperty("result");
 
-		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
-		Assert.AreEqual(JsonValueKind.Null, resultPayload.GetProperty("CharacterId").ValueKind);
-		Assert.AreEqual(2L, resultPayload.GetProperty("RoomId").GetInt64());
-		Assert.AreEqual(0, resultPayload.GetProperty("BypassedCharacterIds").GetArrayLength());
-		Assert.AreEqual(1, resultPayload.GetProperty("BypassedRoomIds").GetArrayLength());
+		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
+		StringAssert.Contains(payload.GetProperty("error").GetString(), "CharacterId must be a positive integer");
 	}
 
 	[TestMethod]
@@ -395,6 +405,54 @@ public class AIStorytellerToolExecutionTests
 		Assert.IsFalse(result.MalformedJson);
 		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
 		situation.Verify(x => x.UpdateSituation("New title", "Updated details"), Times.Once);
+	}
+
+	[TestMethod]
+	public void ExecuteFunctionCall_UpdateSituation_WithRoomScope_InvokesScopeUpdate()
+	{
+		var room = new Mock<ICell>();
+		room.SetupGet(x => x.Id).Returns(401L);
+
+		var storyteller = CreateStoryteller(cells: [room.Object]);
+		var situation = new Mock<IAIStorytellerSituation>();
+		situation.SetupGet(x => x.Id).Returns(27L);
+		situation.SetupGet(x => x.Name).Returns("Scope test");
+		situation.SetupGet(x => x.SituationText).Returns("Scope details");
+		situation.SetupGet(x => x.IsResolved).Returns(false);
+		situation.SetupGet(x => x.CreatedOn).Returns(new DateTime(2026, 2, 10, 0, 0, 0, DateTimeKind.Utc));
+		storyteller.RegisterLoadedSituation(situation.Object);
+
+		var result = storyteller.ExecuteFunctionCall("UpdateSituation",
+			"""{"Id":27,"Title":"Scope updated","Description":"Scoped details","RoomId":401}""",
+			includeEchoTools: false);
+		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
+
+		Assert.IsFalse(result.MalformedJson);
+		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
+		situation.Verify(x => x.UpdateSituation("Scope updated", "Scoped details"), Times.Once);
+		situation.Verify(x => x.SetScope(null, 401L), Times.Once);
+	}
+
+	[TestMethod]
+	public void SituationMatchesTriggerScope_AppliesCharacterAndRoomScopeRules()
+	{
+		var universal = new Mock<IAIStorytellerSituation>();
+		universal.SetupGet(x => x.ScopeCharacterId).Returns((long?)null);
+		universal.SetupGet(x => x.ScopeRoomId).Returns((long?)null);
+
+		var characterScoped = new Mock<IAIStorytellerSituation>();
+		characterScoped.SetupGet(x => x.ScopeCharacterId).Returns(77L);
+		characterScoped.SetupGet(x => x.ScopeRoomId).Returns((long?)null);
+
+		var roomScoped = new Mock<IAIStorytellerSituation>();
+		roomScoped.SetupGet(x => x.ScopeCharacterId).Returns((long?)null);
+		roomScoped.SetupGet(x => x.ScopeRoomId).Returns(88L);
+
+		Assert.IsTrue(AIStoryteller.SituationMatchesTriggerScope(universal.Object, 1L, new List<long> { 2L }));
+		Assert.IsTrue(AIStoryteller.SituationMatchesTriggerScope(characterScoped.Object, 1L, new List<long> { 77L }));
+		Assert.IsFalse(AIStoryteller.SituationMatchesTriggerScope(characterScoped.Object, 1L, new List<long> { 2L }));
+		Assert.IsTrue(AIStoryteller.SituationMatchesTriggerScope(roomScoped.Object, 88L, new List<long> { 2L }));
+		Assert.IsFalse(AIStoryteller.SituationMatchesTriggerScope(roomScoped.Object, 99L, new List<long> { 2L }));
 	}
 
 	[TestMethod]
@@ -1042,7 +1100,7 @@ public class AIStorytellerToolExecutionTests
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_DateTimeForTarget_WithCharacterAndRoom_PrefersCharacter()
+	public void ExecuteFunctionCall_DateTimeForTarget_WithCharacterAndRoom_ReturnsError()
 	{
 		var clock = new Mock<IClock>();
 		clock.SetupGet(x => x.Id).Returns(53L);
@@ -1094,16 +1152,13 @@ public class AIStorytellerToolExecutionTests
 		var result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":502,"RoomId":406}""",
 			includeEchoTools: false);
 		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
-		var resultPayload = payload.GetProperty("result");
 
-		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
-		Assert.AreEqual(502L, resultPayload.GetProperty("CharacterId").GetInt64());
-		Assert.AreEqual(405L, resultPayload.GetProperty("RoomId").GetInt64());
-		Assert.AreEqual("Market Square", resultPayload.GetProperty("RoomName").GetString());
+		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
+		StringAssert.Contains(payload.GetProperty("error").GetString(), "Specify either CharacterId or RoomId");
 	}
 
 	[TestMethod]
-	public void ExecuteFunctionCall_DateTimeForTarget_WithZeroCharacterId_UsesRoom()
+	public void ExecuteFunctionCall_DateTimeForTarget_WithZeroCharacterIdAndRoom_ReturnsError()
 	{
 		var clock = new Mock<IClock>();
 		clock.SetupGet(x => x.Id).Returns(54L);
@@ -1137,12 +1192,9 @@ public class AIStorytellerToolExecutionTests
 		var result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":0,"RoomId":407}""",
 			includeEchoTools: false);
 		var payload = JsonDocument.Parse(result.OutputJson).RootElement;
-		var resultPayload = payload.GetProperty("result");
 
-		Assert.IsTrue(payload.GetProperty("ok").GetBoolean());
-		Assert.IsFalse(resultPayload.TryGetProperty("CharacterId", out _));
-		Assert.AreEqual(407L, resultPayload.GetProperty("RoomId").GetInt64());
-		Assert.AreEqual("Docks", resultPayload.GetProperty("RoomName").GetString());
+		Assert.IsFalse(payload.GetProperty("ok").GetBoolean());
+		StringAssert.Contains(payload.GetProperty("error").GetString(), "Specify either CharacterId or RoomId");
 	}
 
 	[TestMethod]

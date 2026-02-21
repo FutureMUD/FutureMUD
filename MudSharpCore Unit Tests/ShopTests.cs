@@ -150,11 +150,14 @@ public class ShopTests
         location.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
         var output = new Mock<IOutputHandler>();
         output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+        output.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
         var actor = new Mock<ICharacter>();
         actor.SetupGet(x => x.Body).Returns(body.Object);
         actor.SetupGet(x => x.Location).Returns(location.Object);
+        actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
         actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
         actor.Setup(x => x.HandleEvent(It.IsAny<EventType>(), It.IsAny<object[]>()));
+        output.SetupGet(x => x.Perceiver).Returns(actor.Object);
 
         var payment = new BankPayment(actor.Object, paymentItem.Object, _shop);
         var bought = _shop.Buy(actor.Object, merch, 1, payment).ToList();

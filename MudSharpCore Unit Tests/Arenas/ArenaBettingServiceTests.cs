@@ -7,7 +7,9 @@ using Moq;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp_Unit_Tests.Arenas;
 
@@ -26,7 +28,8 @@ public class ArenaBettingServiceTests
 	{
 		var charactersSet = new Mock<IUneditableAll<ICharacter>>();
 		charactersSet.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => characters.TryGetValue(id, out var value) ? value : null);
-		charactersSet.Setup(x => x.Has(It.IsAny<ICharacter>())).Returns<ICharacter>(c => characters.Values.Contains(c));
+		charactersSet.Setup(x => x.Has(It.IsAny<ICharacter>()))
+			.Returns<ICharacter>(c => c is not null && characters.ContainsKey(c.Id));
 		charactersSet.Setup(x => x.Has(It.IsAny<long>())).Returns<long>(id => characters.ContainsKey(id));
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.Characters).Returns(charactersSet.Object);
@@ -47,6 +50,7 @@ public class ArenaBettingServiceTests
 		evt.Setup(x => x.Arena).Returns(arena.Object);
 		evt.Setup(x => x.EventType).Returns(eventType.Object);
 		evt.Setup(x => x.Participants).Returns(participants ?? new List<IArenaParticipant>());
+		evt.Setup(x => x.Name).Returns("Test Bout");
 		return evt.Object;
 	}
 
@@ -100,8 +104,16 @@ public class ArenaBettingServiceTests
 		financeMock.Setup(x => x.IsSolvent(It.IsAny<ICombatArena>(), It.IsAny<decimal>())).Returns((true, string.Empty));
 		var arena = new Mock<ICombatArena>();
 		arena.Setup(x => x.EnsureFunds(It.IsAny<decimal>())).Returns((true, string.Empty));
+		var currency = new Mock<ICurrency>();
+		currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
+			.Returns<decimal, CurrencyDescriptionPatternType>((amount, _) => amount.ToString("F2"));
+		arena.SetupGet(x => x.Currency).Returns(currency.Object);
 		var actor = new Mock<ICharacter>();
 		actor.Setup(x => x.Id).Returns(5L);
+		var outputHandler = new Mock<IOutputHandler>();
+		outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+		outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+		actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
 		var paymentMock = new Mock<IArenaBetPaymentService>();
 		paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
 		           .Returns((true, string.Empty));
@@ -110,9 +122,7 @@ public class ArenaBettingServiceTests
 		var characters = new Dictionary<long, ICharacter> { { 5L, actor.Object } };
 		var service = CreateService(context, financeMock, paymentMock, characters);
 		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
-		var bettor = new Mock<ICharacter>();
-		bettor.Setup(x => x.Id).Returns(5L);
-		service.PlaceBet(bettor.Object, evt, 0, 50m);
+		service.PlaceBet(actor.Object, evt, 0, 50m);
 		service.Settle(evt, ArenaOutcome.Win, new[] { 0 });
 		Assert.AreEqual(1, context.ArenaBetPayouts.Count());
 		var payout = context.ArenaBetPayouts.Single();
@@ -155,8 +165,16 @@ public class ArenaBettingServiceTests
 		paymentMock.Setup(x => x.TryDisburse(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
 		           .Returns(true);
 		var arena = new Mock<ICombatArena>();
+		var currency = new Mock<ICurrency>();
+		currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
+			.Returns<decimal, CurrencyDescriptionPatternType>((amount, _) => amount.ToString("F2"));
+		arena.SetupGet(x => x.Currency).Returns(currency.Object);
 		var actor = new Mock<ICharacter>();
 		actor.Setup(x => x.Id).Returns(9L);
+		var outputHandler = new Mock<IOutputHandler>();
+		outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+		outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+		actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
 		var characters = new Dictionary<long, ICharacter> { { 9L, actor.Object } };
 		var service = CreateService(context, financeMock, paymentMock, characters);
 		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);

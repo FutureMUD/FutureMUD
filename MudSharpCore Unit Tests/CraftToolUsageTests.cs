@@ -70,7 +70,6 @@ public class CraftToolUsageTests
 		body.SetupGet(x => x.DirectItems).Returns(Array.Empty<IGameItem>());
 
 		var outputHandler = new Mock<IOutputHandler>();
-		outputHandler.SetupGet(x => x.Perceiver).Returns((IPerceiver)null!);
 		outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
 
 		var character = new Mock<ICharacter>();
@@ -83,6 +82,7 @@ public class CraftToolUsageTests
 		character.Setup(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()));
 		character.Setup(x => x.EffectsOfType<IInventoryPlanItemEffect>(It.IsAny<Predicate<IInventoryPlanItemEffect>>()))
 		         .Returns(Array.Empty<IInventoryPlanItemEffect>());
+		outputHandler.SetupGet(x => x.Perceiver).Returns(character.Object);
 
 		var craftModel = new MudSharp.Models.Craft
 		{
@@ -225,7 +225,6 @@ public class CraftToolUsageTests
 		body.SetupGet(x => x.DirectItems).Returns(Array.Empty<IGameItem>());
 
 		var outputHandler = new Mock<IOutputHandler>();
-		outputHandler.SetupGet(x => x.Perceiver).Returns((IPerceiver)null!);
 		outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
 
 		var character = new Mock<ICharacter>();
@@ -238,6 +237,7 @@ public class CraftToolUsageTests
 		character.Setup(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()));
 		character.Setup(x => x.EffectsOfType<IInventoryPlanItemEffect>(It.IsAny<Predicate<IInventoryPlanItemEffect>>()))
 		         .Returns(Array.Empty<IInventoryPlanItemEffect>());
+		outputHandler.SetupGet(x => x.Perceiver).Returns(character.Object);
 
 		var craftModel = new MudSharp.Models.Craft
 		{

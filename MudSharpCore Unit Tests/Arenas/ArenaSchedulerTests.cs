@@ -49,9 +49,9 @@ public class ArenaSchedulerTests
 		_lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.Scheduled), Times.Once);
 	}
 
-        [TestMethod]
-        public void Schedule_ScheduledPastRegistration_TransitionsImmediately()
-        {
+	[TestMethod]
+	public void Schedule_ScheduledPastRegistration_TransitionsImmediately()
+	{
                 var now = DateTime.UtcNow;
                 var eventType = BuildEventType();
                 var arenaEvent = new Mock<IArenaEvent>();
@@ -66,8 +66,34 @@ public class ArenaSchedulerTests
 
                 _scheduler.Verify(x => x.Destroy(arenaEvent.Object, ScheduleType.ArenaEvent), Times.Once);
                 _scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
-                _lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen), Times.Once);
-        }
+		_lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen), Times.Once);
+	}
+
+	[TestMethod]
+	public void Schedule_ScheduledWhileAnotherEventCurrent_DefersRegistrationOpen()
+	{
+		var now = DateTime.UtcNow;
+		var eventType = BuildEventType();
+		var arena = new Mock<ICombatArena>();
+		var liveEvent = new Mock<IArenaEvent>();
+		liveEvent.SetupGet(x => x.Id).Returns(707L);
+		liveEvent.SetupGet(x => x.State).Returns(ArenaEventState.Live);
+		var arenaEvent = new Mock<IArenaEvent>();
+		arenaEvent.SetupGet(x => x.State).Returns(ArenaEventState.Scheduled);
+		arenaEvent.SetupGet(x => x.ScheduledAt).Returns(now.AddMinutes(30));
+		arenaEvent.SetupGet(x => x.CreatedAt).Returns(now.AddHours(-1));
+		arenaEvent.SetupGet(x => x.RegistrationOpensAt).Returns(now.AddMinutes(-5));
+		arenaEvent.SetupGet(x => x.EventType).Returns(eventType.Object);
+		arenaEvent.SetupGet(x => x.Id).Returns(706L);
+		arenaEvent.SetupGet(x => x.Arena).Returns(arena.Object);
+		arena.SetupGet(x => x.ActiveEvents).Returns(new[] { arenaEvent.Object, liveEvent.Object });
+
+		_service.Schedule(arenaEvent.Object);
+
+		_scheduler.Verify(x => x.Destroy(arenaEvent.Object, ScheduleType.ArenaEvent), Times.Once);
+		_scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Once);
+		_lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.RegistrationOpen), Times.Never);
+	}
 
 	[TestMethod]
 	public void Schedule_RegistrationFull_TransitionsToPreparingImmediately()

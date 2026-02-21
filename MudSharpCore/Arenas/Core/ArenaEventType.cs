@@ -105,7 +105,7 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			var sideText = side.Show(actor).TrimEnd().Split('\n');
 			foreach (var line in sideText)
 			{
-				sb.AppendLine($"\t{line}");
+				sb.AppendLine($"\n\t{line}");
 			}
 		}
 

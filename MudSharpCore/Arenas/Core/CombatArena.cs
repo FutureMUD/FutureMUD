@@ -318,7 +318,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		{
 			var cells = _cells.ContainsKey(role) ? _cells[role] : [];
 			var text = cells.Any()
-				? cells.Select(x => x.GetFriendlyReference(actor).ColourName()).ListToCommaSeparatedValues(", ")
+				? cells.Select(x => x.GetFriendlyReference(actor).ColourName()).ListToCommaSeparatedValues("\n")
 				: "None".ColourError();
 			sb.AppendLine($"\t{role.DescribeEnum().ColourName()}: {text}");
 		}

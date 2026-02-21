@@ -60,6 +60,7 @@ public partial class Character
 		string followerEchoArrive = "@ enters the area.",
 		string followerEchoSelf = "")
 	{
+		var sourceLocation = Location;
 		Movement?.CancelForMoverOnly(this);
 		RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
 		RemoveAllEffects<IRemoveOnMovementEffect>(fireRemovalAction: true);
@@ -129,17 +130,20 @@ public partial class Character
 		}
 
 		SetPosition(PositionState, PositionModifier.None, null, null);
-		Location.Leave(this);
+		sourceLocation?.Leave(this);
 		foreach (var item in otherItems)
 		{
-			Location.Extract(item);
+			sourceLocation?.Extract(item);
 		}
 		RoomLayer = layer;
+		var moverOrigins = new Dictionary<ICharacter, ICell?>();
 
 		foreach (var mover in otherMovers)
 		{
 			mover.SetPosition(mover.PositionState, PositionModifier.None, null, null);
-			mover.Location.Leave(mover);
+			var moverSourceLocation = mover.Location;
+			moverOrigins[mover] = moverSourceLocation;
+			moverSourceLocation?.Leave(mover);
 			mover.RoomLayer = layer;
 		}
 
@@ -155,6 +159,12 @@ public partial class Character
 			target.Insert(item, true);
 		}
 
+		ReconcileTeleportCellMembership(this, target, sourceLocation);
+		foreach (var mover in otherMovers)
+		{
+			ReconcileTeleportCellMembership(mover, target, moverOrigins.GetValueOrDefault(mover));
+		}
+
 		if (echo)
 		{
 			OutputHandler.Handle(new EmoteOutput(new Emote(playerEchoArrive, this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
@@ -168,6 +178,32 @@ public partial class Character
 		foreach (var mover in otherMovers)
 		{
 			mover.Body.Look();
+		}
+	}
+
+	private static void ReconcileTeleportCellMembership(ICharacter character, ICell target, ICell source)
+	{
+		var canonicalCell = character.Location ?? target;
+		var zones = new HashSet<IZone>
+		{
+			target.Zone,
+			canonicalCell.Zone
+		};
+		if (source is not null)
+		{
+			zones.Add(source.Zone);
+		}
+
+		var duplicateCells = zones
+			.SelectMany(x => x.Cells)
+			.Distinct()
+			.Where(x => !ReferenceEquals(x, canonicalCell))
+			.Where(x => x.Characters.Contains(character))
+			.ToList();
+
+		foreach (var duplicateCell in duplicateCells)
+		{
+			duplicateCell.Leave(character);
 		}
 	}
 

@@ -24,6 +24,7 @@ public sealed class ArenaNpcPreparationEffect : Effect
 		OriginalLocation = owner.Location;
 		OriginalRoomLayer = owner.RoomLayer;
 		ResurrectOnReturn = resurrectOnReturn;
+		IsParticipating = false;
 	}
 
 	public ArenaNpcPreparationEffect(XElement definition, IPerceivable owner)
@@ -35,6 +36,7 @@ public sealed class ArenaNpcPreparationEffect : Effect
 		OriginalLocation = locationId > 0 ? owner.Gameworld.Cells.Get(locationId) : null;
 		OriginalRoomLayer = (RoomLayer)int.Parse(element.Attribute("RoomLayer")?.Value ?? "0");
 		ResurrectOnReturn = bool.Parse(element.Attribute("ResurrectOnReturn")?.Value ?? bool.FalseString);
+		IsParticipating = bool.Parse(element.Attribute("IsParticipating")?.Value ?? bool.FalseString);
 
 		var items = element.Element("Items");
 		if (items is null)
@@ -64,16 +66,27 @@ public sealed class ArenaNpcPreparationEffect : Effect
 	public ICell? OriginalLocation { get; }
 	public RoomLayer OriginalRoomLayer { get; }
 	public bool ResurrectOnReturn { get; }
+	public bool IsParticipating { get; private set; }
 
 	public IEnumerable<ArenaNpcItemSnapshot> Items => _items;
 
-	protected override string SpecificEffectType => "ArenaNpcPreparation";
+	protected override string SpecificEffectType => IsParticipating ? "ArenaNpcParticipation" : "ArenaNpcPreparation";
 
 	public override bool SavingEffect => true;
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return "Arena NPC Preparation";
+		return IsParticipating ? "Arena NPC Participation" : "Arena NPC Preparation";
+	}
+
+	public void MarkParticipating()
+	{
+		IsParticipating = true;
+	}
+
+	public void MarkPreparing()
+	{
+		IsParticipating = false;
 	}
 
 	public void CaptureItem(IGameItem item, InventoryState state, long? wearProfileId, long? bodypartId)
@@ -94,6 +107,7 @@ public sealed class ArenaNpcPreparationEffect : Effect
 	public static void InitialiseEffectType()
 	{
 		RegisterFactory("ArenaNpcPreparation", (effect, owner) => new ArenaNpcPreparationEffect(effect, owner));
+		RegisterFactory("ArenaNpcParticipation", (effect, owner) => new ArenaNpcPreparationEffect(effect, owner));
 	}
 
 	protected override XElement SaveDefinition()
@@ -103,6 +117,7 @@ public sealed class ArenaNpcPreparationEffect : Effect
 			new XAttribute("LocationId", OriginalLocation?.Id ?? 0),
 			new XAttribute("RoomLayer", (int)OriginalRoomLayer),
 			new XAttribute("ResurrectOnReturn", ResurrectOnReturn),
+			new XAttribute("IsParticipating", IsParticipating),
 			new XElement("Items",
 				from item in _items
 				select new XElement("Item",

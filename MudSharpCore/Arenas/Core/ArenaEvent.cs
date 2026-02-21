@@ -1405,7 +1405,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private void ApplyPreparationPhaseEffects()
 	{
-		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		foreach (var participant in _participants)
 		{
 			var character = participant.Character;
 			if (character is null)
@@ -1414,7 +1414,15 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			}
 
 			EnsureParticipantOutputHandler(character);
-			EnsurePreparingEffect(character);
+			if (participant.IsNpc)
+			{
+				MarkNpcPreparingEffect(character);
+			}
+			else
+			{
+				EnsurePreparingEffect(character);
+			}
+
 			ClearCombatantEffect(character);
 		}
 
@@ -1423,7 +1431,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private void ApplyCombatPhaseEffects()
 	{
-		foreach (var participant in _participants.Where(x => !x.IsNpc))
+		foreach (var participant in _participants)
 		{
 			var character = participant.Character;
 			if (character is null)
@@ -1432,7 +1440,15 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			}
 
 			EnsureParticipantOutputHandler(character);
-			ClearPreparingEffect(character);
+			if (participant.IsNpc)
+			{
+				MarkNpcParticipatingEffect(character);
+			}
+			else
+			{
+				ClearPreparingEffect(character);
+			}
+
 			EnsureCombatantEffect(character);
 		}
 
@@ -1487,6 +1503,30 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 			ClearPreparingEffect(character);
 		}
+	}
+
+	private void MarkNpcParticipatingEffect(ICharacter character)
+	{
+		var effect = character.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
+			.FirstOrDefault(x => x.EventId == Id);
+		if (effect is null)
+		{
+			return;
+		}
+
+		effect.MarkParticipating();
+	}
+
+	private void MarkNpcPreparingEffect(ICharacter character)
+	{
+		var effect = character.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
+			.FirstOrDefault(x => x.EventId == Id);
+		if (effect is null)
+		{
+			return;
+		}
+
+		effect.MarkPreparing();
 	}
 
 	private void EnsureCombatantEffect(ICharacter character)

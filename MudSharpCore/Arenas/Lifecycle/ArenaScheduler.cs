@@ -113,6 +113,13 @@ public class ArenaScheduler : IArenaScheduler
 				break;
 			case ArenaEventState.Scheduled:
 				nextState = ArenaEventState.RegistrationOpen;
+				if (HasConcurrentCurrentEvent(arenaEvent))
+				{
+					// Keep retrying while another event is already in progress in this arena.
+					trigger = now.AddMinutes(1);
+					break;
+				}
+
 				trigger = ResolveRegistrationOpen(arenaEvent);
 				break;
 			case ArenaEventState.RegistrationOpen:
@@ -260,5 +267,13 @@ public class ArenaScheduler : IArenaScheduler
 		return sides.All(side =>
 			participantCounts.TryGetValue(side.Index, out var count) &&
 			count >= side.Capacity);
+	}
+
+	private static bool HasConcurrentCurrentEvent(IArenaEvent arenaEvent)
+	{
+		return arenaEvent.Arena?.ActiveEvents.Any(evt =>
+			evt.Id != arenaEvent.Id &&
+			evt.State > ArenaEventState.Scheduled &&
+			evt.State < ArenaEventState.Completed) == true;
 	}
 }

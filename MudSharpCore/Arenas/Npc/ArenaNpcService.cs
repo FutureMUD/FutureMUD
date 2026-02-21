@@ -131,15 +131,16 @@ public class ArenaNpcService : IArenaNpcService
 
 		var effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
 		                .FirstOrDefault(x => x.EventId == arenaEvent.Id);
-                if (effect is null)
-                {
-                        effect = new ArenaNpcPreparationEffect(npc, arenaEvent.Id, combatantClass.ResurrectNpcOnDeath);
+		if (effect is null)
+		{
+			effect = new ArenaNpcPreparationEffect(npc, arenaEvent.Id, combatantClass.ResurrectNpcOnDeath);
 			npc.AddEffect(effect);
 		}
 		else
 		{
 			effect.ClearCapturedItems();
 		}
+		effect.MarkPreparing();
 
 		if (!arenaEvent.EventType.BringYourOwn && npc.Body is not null)
 		{

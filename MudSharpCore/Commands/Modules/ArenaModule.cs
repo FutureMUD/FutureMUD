@@ -41,7 +41,7 @@ Participant Commands:
 	#3arena observe list#0 - show events observable from your location
 	#3arena observe enter [<event>]#0 - begin observing an event
 	#3arena observe leave [<event>]#0 - stop observing an event
-	#3arena signup <side> <class> [<event>]#0 - sign up for an event
+	#3arena signup [<event>] [<side>] [<class>]#0 - sign up for an event (omitted values auto-select)
 	#3arena withdraw [<event>]#0 - withdraw from an event
 	#3arena bet odds [<side>|draw] [<event>]#0 - view betting quotes
 	#3arena bet place <side|draw> <amount> [<event>]#0 - place a wager
@@ -154,8 +154,8 @@ Manager Commands:
 		actor.Gameworld.ArenaCommandService.ShowArena(actor, arena);
 	}
 
-        private static void ArenaEvents(ICharacter actor, StringStack ss)
-        {
+	private static void ArenaEvents(ICharacter actor, StringStack ss)
+	{
 		var hasArgument = !ss.IsFinished;
 		var arena = GetArena(actor, hasArgument ? ss.PopSpeech() : null);
 		if (arena is null)
@@ -171,25 +171,41 @@ Manager Commands:
 			return;
 		}
 
-                var events = arena.ActiveEvents.ToList();
-                if (!events.Any())
-                {
-                        actor.OutputHandler.Send("There are no active or scheduled events for that arena.".ColourError());
-                        return;
-                }
+		var concreteEvents = arena.ActiveEvents.ToList();
+		var projectedEvents = GetProjectedAutoScheduledEvents(arena, concreteEvents).ToList();
+		if (!concreteEvents.Any() && !projectedEvents.Any())
+		{
+			actor.OutputHandler.Send("There are no active or scheduled events for that arena.".ColourError());
+			return;
+		}
 
-                var header = new[] { "Id", "Name", "Type", "State", "Scheduled" };
-                var rows = events.Select(evt => new[]
-                {
-                        evt.Id.ToString("N0", actor),
-                        evt.Name.ColourName(),
-                        evt.EventType.Name.ColourName(),
-                        evt.State.DescribeEnum().ColourValue(),
-                        evt.ScheduledAt.ToString("f", actor).ColourValue()
-                }).ToList();
+		var header = new[] { "Id", "Name", "Type", "State", "Scheduled" };
+		var rows = concreteEvents
+			.Select(evt => new
+			{
+				evt.ScheduledAt,
+				Id = evt.Id.ToString("N0", actor),
+				Name = evt.Name.ColourName(),
+				Type = evt.EventType.Name.ColourName(),
+				State = evt.State.DescribeEnum().ColourValue(),
+				Scheduled = evt.ScheduledAt.ToString("f", actor).ColourValue()
+			})
+			.Concat(projectedEvents.Select(evt => new
+			{
+				ScheduledAt = evt.ScheduledFor,
+				Id = "Auto".ColourCommand(),
+				Name = $"{evt.EventType.Name} Event".ColourName(),
+				Type = evt.EventType.Name.ColourName(),
+				State = "Scheduled (Auto)".ColourCommand(),
+				Scheduled = evt.ScheduledFor.ToString("f", actor).ColourValue()
+			}))
+			.OrderBy(x => x.ScheduledAt)
+			.ThenBy(x => x.Name)
+			.Select(x => new[] { x.Id, x.Name, x.Type, x.State, x.Scheduled })
+			.ToList();
 
-                actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, header, actor, Telnet.Cyan));
-        }
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, header, actor, Telnet.Cyan));
+	}
 
 	private static void ArenaManager(ICharacter actor, StringStack ss)
 	{
@@ -499,142 +515,127 @@ Manager Commands:
                 actor.OutputHandler.Send($"You stop observing {arenaEvent.Name.ColourName()}.".Colour(Telnet.Green));
         }
 
-        private static void ArenaSignup(ICharacter actor, StringStack ss)
-        {
-                if (ss.IsFinished)
-                {
-                        actor.OutputHandler.Send("Which side do you want to sign up for?".ColourCommand());
-                        return;
-                }
-
-		var originalArguments = ss.SafeRemainingArgument;
-		var argumentCount = ss.CountRemainingArguments();
-		var firstArg = ss.PopSpeech();
+	private static void ArenaSignup(ICharacter actor, StringStack ss)
+	{
 		IArenaEvent? arenaEvent = null;
-		var classArg = string.Empty;
-		var sideIndex = 0;
+		int? requestedSideIndex = null;
+		string? requestedClass = null;
+		var invalidEventReference = false;
 
-		if (ArenaSideIndexUtilities.TryParseDisplayIndex(firstArg, out sideIndex))
+		if (ss.IsFinished)
 		{
-			if (ss.IsFinished)
-			{
-				actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
-				return;
-			}
-
-			classArg = ss.PopSpeech();
-			var eventText = ss.IsFinished ? null : ss.SafeRemainingArgument;
-			arenaEvent = GetArenaEvent(actor, eventText);
-			if (arenaEvent is null && !string.IsNullOrWhiteSpace(eventText) && argumentCount >= 3)
-			{
-				var fallback = new StringStack(originalArguments);
-				arenaEvent = GetArenaEvent(actor, fallback.PopSpeech());
-				if (arenaEvent is null)
-				{
-					actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
-					return;
-				}
-
-				if (fallback.IsFinished)
-				{
-					actor.OutputHandler.Send("Which side do you want to sign up for?".ColourCommand());
-					return;
-				}
-
-				if (!ArenaSideIndexUtilities.TryParseDisplayIndex(fallback.PopSpeech(), out sideIndex))
-				{
-					actor.OutputHandler.Send("You must specify the numeric side index starting at 1.".ColourError());
-					return;
-				}
-
-				if (fallback.IsFinished)
-				{
-					actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
-					return;
-				}
-
-				classArg = fallback.PopSpeech();
-			}
-			else if (arenaEvent is null)
-			{
-				if (string.IsNullOrWhiteSpace(eventText))
-				{
-					actor.OutputHandler.Send("Which event do you want to sign up for? You can omit this if only one event is active.".ColourCommand());
-					return;
-				}
-
-				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
-				return;
-			}
+			arenaEvent = GetArenaEvent(actor, null);
 		}
 		else
 		{
-			arenaEvent = GetArenaEvent(actor, firstArg);
-			if (arenaEvent is null)
+			var originalArguments = ss.SafeRemainingArgument;
+			var argumentCount = ss.CountRemainingArguments();
+			var firstArg = ss.PopSpeech();
+
+			if (ArenaSideIndexUtilities.TryParseDisplayIndex(firstArg, out var parsedSideIndex))
+			{
+				requestedSideIndex = parsedSideIndex;
+				if (!ss.IsFinished)
+				{
+					requestedClass = ss.PopSpeech();
+					if (ss.IsFinished)
+					{
+						var explicitEvent = GetArenaEvent(actor, requestedClass);
+						if (explicitEvent is not null)
+						{
+							arenaEvent = explicitEvent;
+							requestedClass = null;
+						}
+					}
+					else
+					{
+						var eventText = ss.SafeRemainingArgument;
+						arenaEvent = GetArenaEvent(actor, eventText);
+						if (arenaEvent is null && argumentCount >= 3)
+						{
+							var fallback = new StringStack(originalArguments);
+							var fallbackEvent = GetArenaEvent(actor, fallback.PopSpeech());
+							if (fallbackEvent is not null && !fallback.IsFinished &&
+							    ArenaSideIndexUtilities.TryParseDisplayIndex(fallback.PopSpeech(),
+								    out var fallbackSideIndex))
+							{
+								arenaEvent = fallbackEvent;
+								requestedSideIndex = fallbackSideIndex;
+								requestedClass = fallback.IsFinished ? null : fallback.PopSpeech();
+							}
+						}
+
+						if (arenaEvent is null && !string.IsNullOrWhiteSpace(eventText))
+						{
+							invalidEventReference = true;
+						}
+					}
+				}
+			}
+			else
+			{
+				arenaEvent = GetArenaEvent(actor, firstArg);
+				if (arenaEvent is null)
+				{
+					requestedClass = firstArg;
+					var eventText = ss.IsFinished ? null : ss.SafeRemainingArgument;
+					arenaEvent = GetArenaEvent(actor, eventText);
+					if (arenaEvent is null && !string.IsNullOrWhiteSpace(eventText))
+					{
+						invalidEventReference = true;
+					}
+				}
+				else if (!ss.IsFinished)
+				{
+					var secondArg = ss.PopSpeech();
+					if (ArenaSideIndexUtilities.TryParseDisplayIndex(secondArg, out parsedSideIndex))
+					{
+						requestedSideIndex = parsedSideIndex;
+						requestedClass = ss.IsFinished ? null : ss.PopSpeech();
+					}
+					else
+					{
+						requestedClass = secondArg;
+					}
+				}
+			}
+		}
+
+		if (arenaEvent is null && !invalidEventReference)
+		{
+			arenaEvent = GetArenaEvent(actor, null);
+		}
+		if (arenaEvent is null)
+		{
+			if (invalidEventReference)
 			{
 				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
 				return;
 			}
 
-			if (ss.IsFinished)
-			{
-				actor.OutputHandler.Send("Which side do you want to sign up for?".ColourCommand());
-				return;
-			}
-
-			if (!ArenaSideIndexUtilities.TryParseDisplayIndex(ss.PopSpeech(), out sideIndex))
-			{
-				actor.OutputHandler.Send("You must specify the numeric side index starting at 1.".ColourError());
-				return;
-			}
-
-			if (ss.IsFinished)
-			{
-				actor.OutputHandler.Send("Which combatant class do you want to use?".ColourCommand());
-				return;
-			}
-
-			classArg = ss.PopSpeech();
-		}
-
-		if (arenaEvent is null)
-		{
-			actor.OutputHandler.Send("Which event do you want to sign up for? You can omit this if only one event is active.".ColourCommand());
+			actor.OutputHandler.Send(
+				"Which event do you want to sign up for? You can omit this if only one event is active.".ColourCommand());
 			return;
 		}
 
-                var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == sideIndex);
-                if (side is null)
-                {
-                        actor.OutputHandler.Send("That side does not exist for the selected event.".ColourError());
-                        return;
-                }
+		var (sideIndex, combatantClass, error) = ResolveSignupSelection(actor, arenaEvent, requestedSideIndex, requestedClass);
+		if (!sideIndex.HasValue || combatantClass is null)
+		{
+			actor.OutputHandler.Send(error.ColourError());
+			return;
+		}
 
-                var combatantClass = FindCombatantClass(side.EligibleClasses, classArg);
-                if (combatantClass is null)
-                {
-                        actor.OutputHandler.Send("That combatant class is not eligible for this side.".ColourError());
-                        return;
-                }
-
-                try
-                {
-                        var (allowed, reason) = arenaEvent.CanSignUp(actor, sideIndex, combatantClass);
-                        if (!allowed)
-                        {
-                                actor.OutputHandler.Send(reason.ColourError());
-                                return;
-                        }
-
-                        arenaEvent.SignUp(actor, sideIndex, combatantClass);
+		try
+		{
+			arenaEvent.SignUp(actor, sideIndex.Value, combatantClass);
 			actor.OutputHandler.Send(
-				$"You sign up for {arenaEvent.Name.ColourName()} on side {ArenaSideIndexUtilities.ToDisplayString(actor, sideIndex).ColourValue()} as {combatantClass.Name.ColourName()}".Colour(Telnet.Green));
-                }
-                catch (Exception ex)
-                {
-                        actor.OutputHandler.Send(ex.Message.ColourError());
-                }
-        }
+				$"You sign up for {arenaEvent.Name.ColourName()} on side {ArenaSideIndexUtilities.ToDisplayString(actor, sideIndex.Value).ColourValue()} as {combatantClass.Name.ColourName()}".Colour(Telnet.Green));
+		}
+		catch (Exception ex)
+		{
+			actor.OutputHandler.Send(ex.Message.ColourError());
+		}
+	}
 
         private static void ArenaWithdraw(ICharacter actor, StringStack ss)
         {
@@ -1212,14 +1213,33 @@ Manager Commands:
 		var localArena = GetArenaFromLocation(actor);
 		var allEvents = actor.Gameworld.CombatArenas.SelectMany(x => x.ActiveEvents).ToList();
 		var localEvents = localArena is null ? allEvents : localArena.ActiveEvents.ToList();
-		if (string.IsNullOrWhiteSpace(text))
+
+		IArenaEvent? ResolveImplicitEvent(IEnumerable<IArenaEvent> events)
 		{
-			if (localEvents.Count == 1)
+			var eventList = events.ToList();
+			var currentEvents = eventList.Where(IsCurrentArenaEvent).ToList();
+			if (currentEvents.Count == 1)
 			{
-				return localEvents[0];
+				return currentEvents[0];
 			}
 
-			return localArena is not null && allEvents.Count == 1 ? allEvents[0] : null;
+			return eventList.Count == 1 ? eventList[0] : null;
+		}
+
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			var implicitMatch = ResolveImplicitEvent(localEvents);
+			if (implicitMatch is not null)
+			{
+				return implicitMatch;
+			}
+
+			if (localArena is not null)
+			{
+				return ResolveImplicitEvent(allEvents);
+			}
+
+			return null;
 		}
 
 		var isIdSearch = long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id);
@@ -1348,6 +1368,71 @@ Manager Commands:
 			$"every {eventType.AutoScheduleInterval.Value.Describe(actor).ColourValue()} from {eventType.AutoScheduleReferenceTime.Value.ToString("f", actor).ColourValue()}";
 	}
 
+	private static bool IsCurrentArenaEvent(IArenaEvent arenaEvent)
+	{
+		return arenaEvent.State > ArenaEventState.Scheduled &&
+		       arenaEvent.State < ArenaEventState.Completed;
+	}
+
+	private static IEnumerable<(IArenaEventType EventType, DateTime ScheduledFor)> GetProjectedAutoScheduledEvents(
+		ICombatArena arena,
+		IEnumerable<IArenaEvent> existingEvents)
+	{
+		var now = DateTime.UtcNow;
+		var concreteEvents = existingEvents.ToList();
+		foreach (var eventType in arena.EventTypes)
+		{
+			if (!IsRecurringEnabled(eventType))
+			{
+				continue;
+			}
+
+			var scheduledFor = ResolveNextRecurringTrigger(eventType, now);
+			if (concreteEvents.Any(evt =>
+				    ReferenceEquals(evt.EventType, eventType) &&
+				    Math.Abs((evt.ScheduledAt - scheduledFor).TotalSeconds) < 1.0))
+			{
+				continue;
+			}
+
+			yield return (eventType, scheduledFor);
+		}
+	}
+
+	private static bool IsRecurringEnabled(IArenaEventType eventType)
+	{
+		return eventType.AutoScheduleEnabled &&
+		       eventType.AutoScheduleInterval.HasValue &&
+		       eventType.AutoScheduleInterval.Value > TimeSpan.Zero &&
+		       eventType.AutoScheduleReferenceTime.HasValue;
+	}
+
+	private static DateTime ResolveNextRecurringTrigger(IArenaEventType eventType, DateTime now)
+	{
+		var reference = eventType.AutoScheduleReferenceTime!.Value;
+		var interval = eventType.AutoScheduleInterval!.Value;
+		if (reference >= now)
+		{
+			return reference;
+		}
+
+		var elapsedTicks = now.Ticks - reference.Ticks;
+		var intervalTicks = interval.Ticks;
+		if (intervalTicks <= 0)
+		{
+			return now;
+		}
+
+		var cycles = elapsedTicks / intervalTicks;
+		var next = reference.AddTicks(cycles * intervalTicks);
+		if (next < now)
+		{
+			next = next.AddTicks(intervalTicks);
+		}
+
+		return next;
+	}
+
 	private static bool TryParseSideSpecifier(string? text, out int? sideIndex)
 	{
 		sideIndex = null;
@@ -1368,6 +1453,81 @@ Manager Commands:
 		}
 
 		return false;
+	}
+
+	private static (int? SideIndex, ICombatantClass? CombatantClass, string Error) ResolveSignupSelection(
+		ICharacter actor,
+		IArenaEvent arenaEvent,
+		int? requestedSideIndex,
+		string? requestedClass)
+	{
+		var sides = arenaEvent.EventType.Sides
+			.OrderBy(x => x.Index)
+			.ToList();
+		if (requestedSideIndex.HasValue)
+		{
+			sides = sides.Where(x => x.Index == requestedSideIndex.Value).ToList();
+			if (!sides.Any())
+			{
+				return (null, null, "That side does not exist for the selected event.");
+			}
+		}
+
+		var firstFailureReason = string.Empty;
+		var checkedAnyCombination = false;
+		var classMatchedAnySide = false;
+		foreach (var side in sides)
+		{
+			IEnumerable<ICombatantClass> classes;
+			if (!string.IsNullOrWhiteSpace(requestedClass))
+			{
+				var explicitClass = FindCombatantClass(side.EligibleClasses, requestedClass);
+				if (explicitClass is null)
+				{
+					continue;
+				}
+
+				classMatchedAnySide = true;
+				classes = [explicitClass];
+			}
+			else
+			{
+				classes = side.EligibleClasses;
+			}
+
+			foreach (var combatantClass in classes)
+			{
+				checkedAnyCombination = true;
+				var (allowed, reason) = arenaEvent.CanSignUp(actor, side.Index, combatantClass);
+				if (allowed)
+				{
+					return (side.Index, combatantClass, string.Empty);
+				}
+
+				if (string.IsNullOrEmpty(firstFailureReason))
+				{
+					firstFailureReason = reason;
+				}
+			}
+		}
+
+		if (!string.IsNullOrWhiteSpace(requestedClass) && !classMatchedAnySide)
+		{
+			var reason = requestedSideIndex.HasValue
+				? "That combatant class is not eligible for this side."
+				: "That combatant class is not eligible for any side in that event.";
+			return (null, null, reason);
+		}
+
+		if (!checkedAnyCombination)
+		{
+			var reason = requestedSideIndex.HasValue
+				? "There are no eligible combatant classes for that side."
+				: "There are no eligible side and class combinations for that event.";
+			return (null, null, reason);
+		}
+
+		return (null, null, firstFailureReason.IfNullOrWhiteSpace("You cannot sign up for that event."));
 	}
 
         private static (int? Value, bool Invalid, string Error) ParseSideIndex(IArenaEvent arenaEvent, string? text,

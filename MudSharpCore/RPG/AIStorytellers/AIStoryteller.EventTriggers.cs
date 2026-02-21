@@ -460,6 +460,6 @@ User Prompt:
 		[
 			ResponseItem.CreateUserMessageItem(prompt)
 		];
-		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt, reasoningEffort);
+		ExecuteToolCall(client, messages, includeEchoTools, toolProfile);
 	}
 }

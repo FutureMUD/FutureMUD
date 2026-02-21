@@ -33,7 +33,7 @@ public partial class AIStoryteller
 		AddFunctionTool(
 			options,
 			"CreateSituation",
-			"Creates a new situation for the AI storyteller to manage. The titles of these will be shared with you in all future prompts, so they keep situations front of mind",
+			"Creates a new situation for the AI storyteller to manage.",
 			"""
 			{
 			  "type": "object",
@@ -91,36 +91,6 @@ public partial class AIStoryteller
 			}
 			""");
 
-		AddFunctionTool(
-			options,
-			"BypassAttention",
-			"Marks a character or room so future room, speech and crime events bypass the attention classifier. Use this to keep focus on an active event.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "CharacterId": { "type": "integer", "description": "Optional character id to keep in bypass-attention mode." },
-			    "RoomId": { "type": "integer", "description": "Optional room id to keep in bypass-attention mode." }
-			  },
-			  "required": []
-			}
-			""");
-
-		AddFunctionTool(
-			options,
-			"EndBypassAttention",
-			"Removes bypass attention for a character or room so future room, speech and crime events use the attention classifier again.",
-			"""
-			{
-			  "type": "object",
-			  "properties": {
-			    "CharacterId": { "type": "integer", "description": "Optional character id to remove from bypass-attention mode." },
-			    "RoomId": { "type": "integer", "description": "Optional room id to remove from bypass-attention mode." }
-			  },
-			  "required": []
-			}
-			""");
-
 		AddFunctionTool(options, "Noop",
 			"Use this when no side-effect is required but a tool response is needed.", null);
 		AddFunctionTool(options, "OnlinePlayers",
@@ -135,6 +105,34 @@ public partial class AIStoryteller
 			  "type": "object",
 			  "properties": {
 			    "Id": { "type": "integer", "description": "The id of the player character." }
+			  },
+			  "required": ["Id"]
+			}
+			""");
+			
+		AddFunctionTool(
+			options,
+			"ListMemoriesForPlayer",
+			"Returns a list of memories about a specific player character.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "Id": { "type": "integer", "description": "The id of the player character." }
+			  },
+			  "required": ["Id"]
+			}
+			""");
+			
+		AddFunctionTool(
+			options,
+			"ShowMemory",
+			"Shows the full detail of a specific character memory.",
+			"""
+			{
+			  "type": "object",
+			  "properties": {
+			    "Id": { "type": "integer", "description": "The id of the memory to retrieve. Usually known through use of the ListMemoriesForPlayer tool" }
 			  },
 			  "required": ["Id"]
 			}
@@ -600,14 +598,10 @@ public partial class AIStoryteller
 		"One or more tool calls used malformed JSON. Retry with valid JSON arguments that exactly match the declared tool schemas.";
 
 	internal void ConfigureToolLoopResponseOptions(CreateResponseOptions options, bool includeEchoTools,
-		bool requireToolCall, StorytellerToolProfile toolProfile, string systemPrompt,
-		ResponseReasoningEffortLevel reasoningEffort)
+		bool requireToolCall, StorytellerToolProfile toolProfile)
 	{
-		options.Instructions = systemPrompt;
-		options.StoredOutputEnabled = true;
-		options.TruncationMode = ResponseTruncationMode.Auto;
 		options.ReasoningOptions ??= new();
-		options.ReasoningOptions.ReasoningEffortLevel = reasoningEffort;
+		options.ReasoningOptions.ReasoningEffortLevel = ReasoningEffort;
 		options.MaxOutputTokenCount = MaxStorytellerOutputTokens;
 		options.ParallelToolCallsEnabled = true;
 		options.ToolChoice = requireToolCall
@@ -624,14 +618,12 @@ public partial class AIStoryteller
 	}
 
 	private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
-		StorytellerToolProfile toolProfile, string systemPrompt, ResponseReasoningEffortLevel reasoningEffort)
+		StorytellerToolProfile toolProfile)
 	{
 		var started = DateTime.UtcNow;
 		var malformedRetries = 0;
 		var missingToolCallRetries = 0;
 		var hasObservedToolCall = false;
-		var previousResponseId = string.Empty;
-		var pendingInputs = new List<ResponseItem>(messages);
 
 		for (var depth = 0; depth < MaxToolCallDepth; depth++)
 		{
@@ -643,25 +635,19 @@ public partial class AIStoryteller
 
 			try
 			{
-				var options = new CreateResponseOptions(pendingInputs);
-				if (!string.IsNullOrWhiteSpace(previousResponseId))
-				{
-					options.PreviousResponseId = previousResponseId;
-				}
-
+				var options = new CreateResponseOptions(messages);
 				var requireToolCall = !hasObservedToolCall;
-				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile, systemPrompt,
-					reasoningEffort);
+				ConfigureToolLoopResponseOptions(options, includeEchoTools, requireToolCall, toolProfile);
 				DebugAIMessaging("Engine -> Storyteller Continuation Request",
-					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Tool Profile: {toolProfile}, Require Tool Call: {requireToolCall}, Context Messages: {pendingInputs.Count:N0}, Previous Response Id: {previousResponseId.IfNullOrWhiteSpace("(none)")}");
+					$"Round {depth + 1:N0}/{MaxToolCallDepth:N0}, Include Echo Tools: {includeEchoTools}, Tool Profile: {toolProfile}, Require Tool Call: {requireToolCall}, Context Messages: {messages.Count:N0}");
 
 				var response = client.CreateResponseAsync(options).GetAwaiter().GetResult().Value;
-				previousResponseId = response.Id;
 				DebugResponseUsage("Storyteller -> Engine Usage", response);
 				DebugAIMessaging("Storyteller -> Engine Response", response.GetOutputText());
 				var functionCalls = response.OutputItems.OfType<FunctionCallResponseItem>().ToList();
 				if (functionCalls.Any())
 				{
+					messages.AddRange(response.OutputItems);
 					DebugAIMessaging("Storyteller -> Engine Tool Requests",
 						string.Join(
 							"\n\n",
@@ -685,10 +671,7 @@ Arguments:
 							return;
 						}
 
-						pendingInputs =
-						[
-							ResponseItem.CreateUserMessageItem(MissingToolCallFeedbackMessage)
-						];
+						messages.Add(ResponseItem.CreateUserMessageItem(MissingToolCallFeedbackMessage));
 						DebugAIMessaging("Engine -> Storyteller Retry Feedback",
 							$"""
 Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N0}
@@ -711,7 +694,7 @@ Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N
 						x.FunctionName,
 						x.FunctionArguments.ToString())),
 					includeEchoTools,
-					pendingInputs,
+					messages,
 					malformedRetries);
 				malformedRetries = retries;
 				if (!shouldContinue)
@@ -843,12 +826,12 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 				"UpdateSituation" => HandleUpdateSituation(arguments),
 				"ResolveSituation" => HandleResolveSituation(arguments),
 				"ShowSituation" => HandleShowSituation(arguments),
-				"BypassAttention" => HandleBypassAttention(arguments),
-				"EndBypassAttention" => HandleEndBypassAttention(arguments),
 				"OnlinePlayers" => HandleOnlinePlayers(),
 				"PlayerInformation" => HandlePlayerInformation(arguments),
 				"CreateMemory" => HandleCreateMemory(arguments),
 				"UpdateMemory" => HandleUpdateMemory(arguments),
+				"ShowMemory" => HandleShowMemory(arguments),
+				"ListMemoriesForPlayer" => HandleListMemoriesForPlayer(arguments),
 				"ForgetMemory" => HandleForgetMemory(arguments),
 				"Landmarks" => HandleLandmarks(),
 				"ShowLandmark" => HandleShowLandmark(arguments),
@@ -1009,155 +992,6 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 		});
 	}
 
-	private static bool TryGetOptionalLongBypassParameter(JsonElement arguments, string parameterName,
-		out long? value, out string error)
-	{
-		value = null;
-		error = string.Empty;
-		if (!arguments.TryGetProperty(parameterName, out var element))
-		{
-			return true;
-		}
-
-		switch (element.ValueKind)
-		{
-			case JsonValueKind.Null:
-			case JsonValueKind.Undefined:
-				return true;
-			case JsonValueKind.Number when element.TryGetInt64(out var numericValue):
-				if (numericValue > 0)
-				{
-					value = numericValue;
-				}
-
-				return true;
-			case JsonValueKind.String:
-			{
-				var stringValueText = element.GetString();
-				if (string.IsNullOrWhiteSpace(stringValueText) ||
-				    string.Equals(stringValueText, "null", StringComparison.OrdinalIgnoreCase))
-				{
-					return true;
-				}
-
-				if (!long.TryParse(stringValueText, out var stringValue))
-				{
-					error = $"Parameter '{parameterName}' must be an integer.";
-					return false;
-				}
-
-				if (stringValue > 0)
-				{
-					value = stringValue;
-				}
-
-				return true;
-			}
-			default:
-				error = $"Parameter '{parameterName}' must be an integer.";
-				return false;
-		}
-	}
-
-	private static bool TryGetCharacterOrRoomTarget(JsonElement arguments, bool requireTarget, out long? characterId,
-		out long? roomId, out string error)
-	{
-		characterId = null;
-		roomId = null;
-		error = string.Empty;
-
-		if (!TryGetOptionalLongBypassParameter(arguments, "CharacterId", out characterId, out error))
-		{
-			return false;
-		}
-
-		if (!TryGetOptionalLongBypassParameter(arguments, "RoomId", out roomId, out error))
-		{
-			return false;
-		}
-
-		if (characterId is not null)
-		{
-			roomId = null;
-			return true;
-		}
-
-		if (roomId is not null)
-		{
-			return true;
-		}
-
-		if (requireTarget)
-		{
-			error = "Specify either CharacterId or RoomId.";
-			return false;
-		}
-
-		return true;
-	}
-
-	private ToolExecutionResult HandleBypassAttention(JsonElement arguments)
-	{
-		if (!TryGetCharacterOrRoomTarget(arguments, requireTarget: true, out var characterId, out var roomId,
-			    out var error))
-		{
-			return ErrorResult(error);
-		}
-
-		bool changed;
-		List<long> bypassCharacterIds;
-		List<long> bypassRoomIds;
-		lock (_attentionBypassLock)
-		{
-			changed = characterId is not null
-				? _bypassAttentionCharacterIds.Add(characterId.Value)
-				: _bypassAttentionRoomIds.Add(roomId!.Value);
-			bypassCharacterIds = _bypassAttentionCharacterIds.OrderBy(x => x).ToList();
-			bypassRoomIds = _bypassAttentionRoomIds.OrderBy(x => x).ToList();
-		}
-
-		return SuccessResult(new Dictionary<string, object?>
-		{
-			["Action"] = "BypassAttention",
-			["Changed"] = changed,
-			["CharacterId"] = characterId,
-			["RoomId"] = roomId,
-			["BypassedCharacterIds"] = bypassCharacterIds,
-			["BypassedRoomIds"] = bypassRoomIds
-		});
-	}
-
-	private ToolExecutionResult HandleEndBypassAttention(JsonElement arguments)
-	{
-		if (!TryGetCharacterOrRoomTarget(arguments, requireTarget: true, out var characterId, out var roomId,
-			    out var error))
-		{
-			return ErrorResult(error);
-		}
-
-		bool changed;
-		List<long> bypassCharacterIds;
-		List<long> bypassRoomIds;
-		lock (_attentionBypassLock)
-		{
-			changed = characterId is not null
-				? _bypassAttentionCharacterIds.Remove(characterId.Value)
-				: _bypassAttentionRoomIds.Remove(roomId!.Value);
-			bypassCharacterIds = _bypassAttentionCharacterIds.OrderBy(x => x).ToList();
-			bypassRoomIds = _bypassAttentionRoomIds.OrderBy(x => x).ToList();
-		}
-
-		return SuccessResult(new Dictionary<string, object?>
-		{
-			["Action"] = "EndBypassAttention",
-			["Changed"] = changed,
-			["CharacterId"] = characterId,
-			["RoomId"] = roomId,
-			["BypassedCharacterIds"] = bypassCharacterIds,
-			["BypassedRoomIds"] = bypassRoomIds
-		});
-	}
-
 	private ToolExecutionResult HandleOnlinePlayers()
 	{
 		var players = Gameworld.Characters
@@ -1179,6 +1013,56 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			["Players"] = players
 		});
 	}
+	
+	private ToolExecutionResult HandleShowMemory(JsonElement arguments)
+	{
+		if (!TryGetRequiredLong(arguments, "Id", out var id, out var error))
+		{
+			return ErrorResult(error);
+		}
+
+		var memory = _characterMemories.FirstOrDefault(x => x.Id == id);
+		if (memory is null)
+		{
+			return ErrorResult($"No memory with id {id:N0} exists.");
+		}
+
+		return SuccessResult(new Dictionary<string, object>
+		{
+			["Id"] = memory.Id,
+			["Title"] = memory.MemoryTitle,
+			["Description"] = memory.MemoryText,
+			["CreatedOn"] = memory.CreatedOn.ToString("O")
+		});
+	}
+	
+	private ToolExecutionResult HandleListMemoriesForPlayer(JsonElement arguments)
+	{
+		if (!TryGetRequiredLong(arguments, "Id", out var id, out var error))
+		{
+			return ErrorResult(error);
+		}
+		
+		var pc = Gameworld.TryGetCharacter(id, true);
+		if (pc is null)
+		{
+			return ErrorResult($"No player character with id {id:N0} exists.");
+		}
+		
+		var result = new Dictionary<string, object>();
+		result["Memories"] = _characterMemories
+			.Where(x => x.Character.Id == pc.Id)
+			.Select(x => new Dictionary<string, object>
+			{
+				["Id"] = x.Id,
+				["Title"] = x.MemoryTitle,
+				["Details"] = x.MemoryText,
+				["CreatedOn"] = x.CreatedOn.ToString("O")
+			})
+			.ToList();
+
+		return SuccessResult(result);
+	}
 
 	private ToolExecutionResult HandlePlayerInformation(JsonElement arguments)
 	{
@@ -1187,7 +1071,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return ErrorResult(error);
 		}
 
-		var pc = Gameworld.Characters.FirstOrDefault(x => x.IsPlayerCharacter && x.Id == id);
+		var pc = Gameworld.TryGetCharacter(id, true);
 		if (pc is null)
 		{
 			return ErrorResult($"No player character with id {id:N0} exists.");
@@ -1822,34 +1706,35 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
 	private ToolExecutionResult HandleDateTimeForTarget(JsonElement arguments)
 	{
-		if (!TryGetCharacterOrRoomTarget(arguments, requireTarget: false, out var characterId, out var roomId,
-			    out var error))
+		var hasCharacter = TryGetOptionalLong(arguments, "CharacterId", out var characterId);
+		var hasRoom = TryGetOptionalLong(arguments, "RoomId", out var roomId);
+		if (hasCharacter && hasRoom)
 		{
-			return ErrorResult(error);
+			return ErrorResult("Specify either CharacterId or RoomId, but not both.");
 		}
 
-		if (characterId is null && roomId is null)
+		if (!hasCharacter && !hasRoom)
 		{
 			return HandleCurrentDateTime();
 		}
 
-		if (characterId is not null)
+		if (hasCharacter)
 		{
-			var character = Gameworld.TryGetCharacter(characterId.Value, true);
+			var character = Gameworld.TryGetCharacter(characterId, true);
 			if (character is null)
 			{
-				return ErrorResult($"No character with id {characterId.Value:N0} exists.");
+				return ErrorResult($"No character with id {characterId:N0} exists.");
 			}
 
 			if (character.Location is null)
 			{
-				return ErrorResult($"Character {characterId.Value:N0} has no location.");
+				return ErrorResult($"Character {characterId:N0} has no location.");
 			}
 
 			var calendar = character.Location.Calendars.FirstOrDefault();
 			if (calendar is null)
 			{
-				return ErrorResult($"Character {characterId.Value:N0} location has no calendar.");
+				return ErrorResult($"Character {characterId:N0} location has no calendar.");
 			}
 
 			var result = BuildDateTimeResult(character.Location, calendar);
@@ -1860,16 +1745,16 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 			return SuccessResult(result);
 		}
 
-		var room = Gameworld.Cells.Get(roomId!.Value);
+		var room = Gameworld.Cells.Get(roomId);
 		if (room is null)
 		{
-			return ErrorResult($"No room with id {roomId.Value:N0} exists.");
+			return ErrorResult($"No room with id {roomId:N0} exists.");
 		}
 
 		var roomCalendar = room.Calendars.FirstOrDefault();
 		if (roomCalendar is null)
 		{
-			return ErrorResult($"Room {roomId.Value:N0} has no calendar.");
+			return ErrorResult($"Room {roomId:N0} has no calendar.");
 		}
 
 		var roomResult = BuildDateTimeResult(room, roomCalendar);
@@ -1964,6 +1849,27 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 		}
 
 		return SuccessResult(result);
+	}
+
+	private static bool TryGetOptionalLong(JsonElement arguments, string propertyName, out long value)
+	{
+		value = 0;
+		if (!arguments.TryGetProperty(propertyName, out var element))
+		{
+			return false;
+		}
+
+		if (element.ValueKind == JsonValueKind.Number && element.TryGetInt64(out value))
+		{
+			return true;
+		}
+
+		if (element.ValueKind == JsonValueKind.String && long.TryParse(element.GetString(), out value))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	private static bool TryGetOptionalInt(JsonElement arguments, string propertyName, out int value)

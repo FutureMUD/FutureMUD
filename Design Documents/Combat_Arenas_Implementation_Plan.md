@@ -9,6 +9,8 @@ Current Runtime Snapshot (2026-02-22)
 - Event types now include `AllowSurrender`, and surrender is exposed as `arena surrender [<event>]`.
 - Live events now poll for elimination conditions during combat and transition to resolving without waiting only for timeout.
 - NPC cleanup now handles dead participants safely, including corpse relocation to stable/after-fight locations.
+- Combatant classes now expose a separate stable-only full-recovery toggle for post-event NPC reset.
+- Arena lifecycle text announcements now use watcher-suppressed output flags to avoid duplicate mirrored spam to observers.
 - Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
 
 ---
@@ -172,8 +174,10 @@ public interface ICombatantClass : IFrameworkItem, ISaveable, IProgVariable {
 	IFutureProg EligibilityProg { get; }
 	/// <summary>Optional NPC loader prog (admin-configured); params: Number slotsNeeded; returns collection of Characters.</summary>
 	IFutureProg? AdminNpcLoaderProg { get; }
-	/// <summary>If true, resurrect/restore NPCs fully on death/exit (guest-like).</summary>
+	/// <summary>If true, resurrect NPCs immediately when they die in an arena event.</summary>
 	bool ResurrectNpcOnDeath { get; }
+	/// <summary>If true, fully restore NPC health/status after returning to NPC stables at event completion.</summary>
+	bool FullyRestoreNpcOnCompletion { get; }
 	/// <summary>Optional identity metadata defaults (e.g., stage name template, signature colour, signature item set id).</summary>
 	string? DefaultStageNameTemplate { get; }
 	string? DefaultSignatureColour { get; }
@@ -436,7 +440,7 @@ Entities (sketch)
 - `ArenaManager` (ArenaId, CharacterId)
 - `ArenaRoomLink` (ArenaId, RoomId, Role: Waiting|Arena|Observation|Infirmary|Stables|AfterFight)
 - `ArenaCombatantClass`
-  - Id, Name, EligibilityProgId, AdminNpcLoaderProgId (nullable), ResurrectNpcOnDeath (bool), DefaultStageNameTemplate, DefaultSignatureColour
+  - Id, Name, EligibilityProgId, AdminNpcLoaderProgId (nullable), ResurrectNpcOnDeath (bool), FullyRestoreNpcOnCompletion (bool), DefaultStageNameTemplate, DefaultSignatureColour
 - `ArenaEventType`
   - Id, ArenaId, Name, BringYourOwn (bool), RegistrationDuration, PreparationDuration, TimeLimit (nullable)
   - BettingModel, AppearanceFee, VictoryFee
@@ -508,7 +512,7 @@ Owner: Perception/Emote Engineer
 Location: `MudSharpCore/Arenas/Observation/*`
 
 Responsibilities
-- `ArenaWatcherEffect`: applies to observers in Observation rooms; mirrors arena output with hearing/notice rules and noise quietening.
+- `ArenaWatcherEffect`: applies to observers in Observation rooms; mirrors arena output with hearing/notice rules and noise quietening, while honouring output-level ignore-watcher flags for non-mirrored announcements.
 - Ensure no leakage of hidden or subtle actions based on perceiver capabilities.
 
 ---

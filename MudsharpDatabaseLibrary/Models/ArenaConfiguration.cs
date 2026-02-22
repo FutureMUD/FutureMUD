@@ -19,6 +19,7 @@ public class ArenaCombatantClass
 	public long EligibilityProgId { get; set; }
 	public long? AdminNpcLoaderProgId { get; set; }
 	public bool ResurrectNpcOnDeath { get; set; }
+	public bool FullyRestoreNpcOnCompletion { get; set; }
 	public string DefaultStageNameTemplate { get; set; }
 	public string DefaultSignatureColour { get; set; }
 

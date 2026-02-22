@@ -14,12 +14,14 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - Player surrender is implemented as `arena surrender [<event>]`; while in combat, this is the only allowed `arena` subcommand.
 - Live events are monitored on a short scheduler interval and auto-transition to resolving when elimination conditions are met (instead of waiting for timeout only).
 - NPC cleanup now respects dead combatants: dead NPCs are never forced to a non-dead state, and corpses are moved to stable/after-fight locations.
+- Combatant classes now support a separate stable-only recovery toggle for post-event NPC full restoration (guest-like health reset after return).
+- Arena lifecycle text announcements now use watcher-suppressed output flags to prevent duplicated observer spam from per-room broadcasts.
 - Arena no-quit/no-timeout phase effects now self-prune if their referenced event is no longer active, preventing stale saved effects from blocking players after crashes.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
 - **Managers**: configure event types, schedules, fees, funds, NPC policies, launch/abort events, and reserve slots; no admin needed except to wire NPC loader progs.
-- **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; "resurrect NPC on death" flag (**full restoration**, like guest avatars); per-combatant identity metadata (stage name, signature colour/items).
+- **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; independent `resurrect NPC on death` and `fully restore NPC on completion` flags; per-combatant identity metadata (stage name, signature colour/items).
 - **Event Types**: immutable templates (multi-side, multi-room support); define side capacities (fixed at type), eligible classes per side, fees (appearance/victory), BYO toggle, per-side outfit prog, scoring prog, elimination mode, surrender policy, NPC signup/auto-fill flags, and registration/prep/time-limit durations. Managers can **clone** types for quick variants (for example, different capacities).
 - **Elimination Terms**: event types define explicit elimination modes (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`). Higher-severity outcomes still count (for example, death satisfies knockout/knockdown conditions).
 - **Surrender**: event types can explicitly enable/disable surrender. Combatants can surrender with `arena surrender`.
@@ -55,7 +57,7 @@ Draft -> Scheduled -> RegistrationOpen -> Preparing -> Staged -> Live -> Resolvi
 - **Live**: combat proceeds; scoring and elimination receive combat callbacks; observers see mirrored output with hearing/notice rules.
 - **Live (termination)**: scheduler polling checks elimination conditions continuously; time limit remains a fallback/end-cap.
 - **Resolving**: decide win/draw (draws supported on time tie); award victory/appearance fees; settle bets (block payouts if insolvent); update ratings via prog.
-- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; NPCs to stables with full restore if flagged. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states.
+- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy.
 - **Completed**: immutable record.
 - **Aborted**: manual stop or pre-live failure; default: refund wagers, no appearance/victory fees unless arena policy says otherwise.
 
@@ -121,6 +123,7 @@ Minimum strategies:
 ## 9) Visibility (Watcher Effect)
 - Arena‑scoped watcher effect (separate from Admin Spy) mirroring **all** in‑arena outputs to observation rooms.
 - Hearing model reduces audio volume; **notice** checks gate subtle actions (via EmoteOutput flags or equivalent).
+- Outputs intended as broad system announcements should use output flags that bypass watcher forwarding to avoid duplicated observer spam from multi-room broadcasts.
 - Private whispers remain private unless normal audibility would allow overhearing.
 
 
@@ -158,13 +161,14 @@ Minimum strategies:
 
 ### 13.4 Hooks & Effects
 - **FutureProg hooks** at: event creation, registration open, preparing, staged, live, resolve, cleanup; per‑actor elimination/kill/crit‑injury; rating adjust (Δ). 
-- **Watcher effect** scoped to arena; mirrors output respecting hearing/notice rules.
+- **Watcher effect** scoped to arena; mirrors output respecting hearing/notice rules and honours output-level "ignore watchers" flags.
 
 
 ## 14) Persistence & Data Model Outline (repo‑agnostic)
 Treat the following as **storage shape suggestions**; map to existing EF conventions and composed models in the repo. Use compact serialized fields (XML/JSON) for strategy configs and tallies to avoid schema churn.
 
 - **CombatArena**: zone, property/lease, bank account?, use virtual cash, managers, room sets.
+- **CombatantClass Persistence Note**: class definitions persist a second boolean for stable-only full restoration on event completion (`FullyRestoreNpcOnCompletion`) alongside resurrect-on-death.
 - **CombatantClass**: arena, name/description, eligibility prog, NPC loader prog?, resurrect‑on‑death flag.
 - **EventType**: arena, name/description, allow BYO, registration/prep/time‑limit, scoring config, elimination config, hooks, per‑side definitions (name/desc, capacity, appearance/victory fees, eligible classes, allow NPC signup, auto‑fill, outfit prog).
 - **EventInstance**: type, arena, state, timestamps, rosters (incl. reservations), scores, outcome, per‑side data.

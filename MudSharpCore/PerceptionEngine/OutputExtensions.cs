@@ -128,6 +128,17 @@ public static class OutputExtensions
 		location.HandleRoomEcho(text);
 	}
 
+	public static void Handle(this ILocation location, string text, OutputFlags flags)
+	{
+		if (flags == OutputFlags.Normal)
+		{
+			location.Handle(text);
+			return;
+		}
+
+		location.Handle(new RawOutput(text, flags: flags));
+	}
+
 	public static void Handle(this ILocation location, IOutput output)
 	{
 		foreach (var ch in location?.Characters ?? [])
@@ -169,6 +180,17 @@ public static class OutputExtensions
 		}
 
 		location.HandleRoomEcho(text, layer);
+	}
+
+	public static void Handle(this ILocation location, RoomLayer layer, string text, OutputFlags flags)
+	{
+		if (flags == OutputFlags.Normal)
+		{
+			location.Handle(layer, text);
+			return;
+		}
+
+		location.Handle(layer, new RawOutput(text, flags: flags));
 	}
 
 	public static void Handle(this ILocation location, RoomLayer layer, IOutput output)

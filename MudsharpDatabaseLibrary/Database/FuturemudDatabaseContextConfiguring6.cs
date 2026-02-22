@@ -144,6 +144,9 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.ResurrectNpcOnDeath)
 				.HasColumnType("bit(1)")
 				.HasDefaultValueSql("b'0'");
+			entity.Property(e => e.FullyRestoreNpcOnCompletion)
+				.HasColumnType("bit(1)")
+				.HasDefaultValueSql("b'0'");
 			entity.Property(e => e.DefaultStageNameTemplate)
 				.HasColumnType("varchar(200)")
 				.HasCharSet("utf8")

@@ -19,6 +19,8 @@ public interface ICombatantClass : IEditableItem
 	IFutureProg? AdminNpcLoaderProg { get; }
 	/// <summary>Automatically resurrect arena NPCs on death when true.</summary>
 	bool ResurrectNpcOnDeath { get; }
+	/// <summary>Fully restore arena NPC health/status once returned to NPC stables after an event.</summary>
+	bool FullyRestoreNpcOnCompletion { get; }
 	/// <summary>Optional default stage name template for participants.</summary>
 	string? DefaultStageNameTemplate { get; }
 	/// <summary>Optional ANSI colour token applied to participant names.</summary>

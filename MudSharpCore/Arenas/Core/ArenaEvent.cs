@@ -715,7 +715,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		foreach (var cell in GetAnnouncementCells())
 		{
-			cell.Handle(message);
+			cell.Handle(message, OutputFlags.IgnoreWatchers);
 		}
 	}
 
@@ -1115,7 +1115,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			.Where(cell => cell != null)
 			.Distinct())
 		{
-			cell.Handle(announcement);
+			cell.Handle(announcement, OutputFlags.IgnoreWatchers);
 		}
 	}
 
@@ -1342,6 +1342,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				{
 					MoveCorpseToCell(npc, destination);
 				}
+
+				TryApplyNpcStableRecovery(npc, participant, stableCells);
 				continue;
 			}
 
@@ -1353,10 +1355,12 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			if (npc.State.IsDead())
 			{
 				MoveCorpseToCell(npc, destination);
+				TryApplyNpcStableRecovery(npc, participant, stableCells);
 				continue;
 			}
 
 			npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
+			TryApplyNpcStableRecovery(npc, participant, stableCells);
 		}
 	}
 
@@ -1373,6 +1377,43 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		corpse.Location?.Extract(corpse);
 		corpse.RoomLayer = RoomLayer.GroundLevel;
 		destination.Insert(corpse, true);
+	}
+
+	private static void TryApplyNpcStableRecovery(ICharacter npc, ArenaParticipant participant,
+		IReadOnlyCollection<ICell> stableCells)
+	{
+		if (!participant.CombatantClass.FullyRestoreNpcOnCompletion)
+		{
+			return;
+		}
+
+		if (stableCells.Count == 0)
+		{
+			return;
+		}
+
+		if (npc.State.IsDead())
+		{
+			return;
+		}
+
+		if (npc.Location is not ICell location || !stableCells.Contains(location))
+		{
+			return;
+		}
+
+		if (npc.Body is not { } body)
+		{
+			return;
+		}
+
+		body.HeldBreathTime = TimeSpan.Zero;
+		body.RestoreAllBodypartsOrgansAndBones();
+		body.Sober();
+		body.CureAllWounds();
+		body.CurrentStamina = body.MaximumStamina;
+		body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
+		body.EndHealthTick();
 	}
 
 	private void RestorePlayerParticipants()

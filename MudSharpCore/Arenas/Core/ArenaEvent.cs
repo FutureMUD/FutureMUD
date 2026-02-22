@@ -345,6 +345,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		EnforceState(ArenaEventState.Resolving);
 		Changed = true;
 		ExecuteResolutionOverrideProg();
+		EnsureResolvedOutcome();
+		AnnounceArenaOutcome();
 	}
 
 	public void Cleanup()
@@ -790,6 +792,123 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		}
 
 		RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
+	}
+
+	private void EnsureResolvedOutcome()
+	{
+		if (_outcome.HasValue)
+		{
+			return;
+		}
+
+		var activeSides = _participants
+			.GroupBy(x => x.SideIndex)
+			.Where(group => group.Any(IsParticipantActive))
+			.Select(group => group.Key)
+			.OrderBy(x => x)
+			.ToList();
+
+		if (activeSides.Count == 1)
+		{
+			RecordOutcome(ArenaOutcome.Win, activeSides);
+			return;
+		}
+
+		if (activeSides.Count == 0)
+		{
+			RecordOutcome(ArenaOutcome.Draw, null);
+		}
+	}
+
+	private void AnnounceArenaOutcome()
+	{
+		var announcement = BuildOutcomeAnnouncement();
+		if (string.IsNullOrWhiteSpace(announcement))
+		{
+			return;
+		}
+
+		foreach (var cell in Arena.ArenaCells
+			.Where(cell => cell != null)
+			.Distinct())
+		{
+			cell.Handle(announcement);
+		}
+	}
+
+	private string BuildOutcomeAnnouncement()
+	{
+		var eventName = EventType.Name.ColourName();
+		return _outcome switch
+		{
+			ArenaOutcome.Win => BuildVictoryAnnouncement(eventName),
+			ArenaOutcome.Draw => $"The {eventName} event has ended in a draw.",
+			ArenaOutcome.Aborted => $"The {eventName} event has ended without result.",
+			_ => $"The {eventName} event has ended without a declared outcome."
+		};
+	}
+
+	private string BuildVictoryAnnouncement(string eventName)
+	{
+		var winningSides = (_winningSides ?? Array.Empty<int>())
+			.OrderBy(x => x)
+			.ToList();
+		if (!winningSides.Any())
+		{
+			return $"The {eventName} event has ended in victory, but no winning side was recorded.";
+		}
+
+		if (winningSides.Count > 1)
+		{
+			var sideList = winningSides
+				.Select(DescribeSideForAnnouncement)
+				.ListToString();
+			return $"The {eventName} event has ended in shared victory to {sideList}.";
+		}
+
+		var sideIndex = winningSides[0];
+		var sideText = DescribeSideForAnnouncement(sideIndex);
+		var winner = DescribeWinningCombatant(sideIndex);
+		return winner is null
+			? $"The {eventName} event has ended in victory to {sideText}."
+			: $"The {eventName} event has ended in victory to {sideText} ({winner.ColourName()})!";
+	}
+
+	private static string DescribeSideForAnnouncement(int sideIndex)
+	{
+		var sideNumber = ArenaSideIndexUtilities
+			.ToDisplayString(CultureInfo.InvariantCulture, sideIndex)
+			.ColourValue();
+		return $"Side #{sideNumber}";
+	}
+
+	private string? DescribeWinningCombatant(int sideIndex)
+	{
+		var winner = _participants
+			.Where(x => x.SideIndex == sideIndex)
+			.FirstOrDefault(IsParticipantActive);
+		if (winner is null)
+		{
+			winner = _participants.FirstOrDefault(x => x.SideIndex == sideIndex);
+		}
+
+		if (winner is null)
+		{
+			return null;
+		}
+
+		if (!string.IsNullOrWhiteSpace(winner.StageName))
+		{
+			return winner.StageName;
+		}
+
+		if (winner.Character is not ICharacter character)
+		{
+			return null;
+		}
+
+		var voyeur = new DummyPerceiver(location: character.Location);
+		return character.HowSeen(voyeur, true, flags: PerceiveIgnoreFlags.IgnoreCanSee);
 	}
 
 	private void AutoFillNpcParticipants()

@@ -95,4 +95,51 @@ public class ArenaWatcherEffectTests
 
 				_arenaCell.Verify(x => x.RemoveEffect(_effect, false), Times.Once());
 		}
+
+		[TestMethod]
+		public void HandleOutput_AwakeWatcher_StillReceivesMirroredOutput()
+		{
+				var observationCell = new Mock<ICell>();
+				observationCell.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+				_arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+
+				var outputHandler = new Mock<IOutputHandler>();
+				outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+				var watcher = new Mock<ICharacter>();
+				watcher.SetupGet(x => x.State).Returns(CharacterState.Awake);
+				watcher.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+				watcher.SetupGet(x => x.Location).Returns(observationCell.Object);
+				watcher.Setup(x => x.GetHashCode()).Returns(37);
+				watcher.Setup(x => x.Equals(It.IsAny<object>()))
+					.Returns<object>(obj => ReferenceEquals(obj, watcher.Object));
+
+				_effect.AddWatcher(watcher.Object, observationCell.Object);
+				_effect.HandleOutput(_output.Object, _arenaCell.Object);
+
+				outputHandler.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+		}
+
+		[TestMethod]
+		public void HandleOutput_StringEcho_WatcherReceivesPrefixedText()
+		{
+				var observationCell = new Mock<ICell>();
+				observationCell.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+				_arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+
+				var outputHandler = new Mock<IOutputHandler>();
+				outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+				var watcher = new Mock<ICharacter>();
+				watcher.SetupGet(x => x.State).Returns(CharacterState.Awake);
+				watcher.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+				watcher.SetupGet(x => x.Location).Returns(observationCell.Object);
+				watcher.Setup(x => x.GetHashCode()).Returns(57);
+				watcher.Setup(x => x.Equals(It.IsAny<object>()))
+					.Returns<object>(obj => ReferenceEquals(obj, watcher.Object));
+
+				_effect.AddWatcher(watcher.Object, observationCell.Object);
+				_effect.HandleOutput("A final blow lands!", _arenaCell.Object);
+
+				outputHandler.Verify(x => x.Send(It.Is<string>(text => text.Contains("A final blow lands!")),
+					It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+		}
 }

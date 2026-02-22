@@ -142,6 +142,22 @@ public class ArenaSchedulerTests
         }
 
         [TestMethod]
+        public void Schedule_ResolvingState_DefersCleanupTransition()
+        {
+                var eventType = BuildEventType();
+                var arenaEvent = new Mock<IArenaEvent>();
+                arenaEvent.SetupGet(x => x.State).Returns(ArenaEventState.Resolving);
+                arenaEvent.SetupGet(x => x.EventType).Returns(eventType.Object);
+                arenaEvent.SetupGet(x => x.Id).Returns(9L);
+
+                _service.Schedule(arenaEvent.Object);
+
+                _scheduler.Verify(x => x.Destroy(arenaEvent.Object, ScheduleType.ArenaEvent), Times.Once);
+                _scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Once);
+                _lifecycle.Verify(x => x.Transition(It.IsAny<IArenaEvent>(), ArenaEventState.Cleanup), Times.Never);
+        }
+
+        [TestMethod]
         public void Schedule_CompletedState_OnlyCancels()
         {
                 var eventType = BuildEventType();

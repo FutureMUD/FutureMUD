@@ -97,7 +97,29 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 
 	public void HandleOutput(string text, ILocation location)
 	{
-		// TODO
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return;
+		}
+
+		if (_arenaEvent.State is ArenaEventState.Completed or ArenaEventState.Aborted)
+		{
+			Owner.RemoveEffect(this);
+			return;
+		}
+
+		PruneInvalidWatchers();
+		if (_watchers.Count == 0)
+		{
+			TryDeactivate();
+			return;
+		}
+
+		foreach (var watcher in _watchers.Keys.ToList())
+		{
+			var prefix = BuildPrefix(watcher, location);
+			watcher.OutputHandler.Send($"{prefix}{text}");
+		}
 	}
 
 	public void HandleOutput(IOutput output, ILocation location)
@@ -161,7 +183,7 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 
 	private bool IsWatcherValid(ICharacter watcher, ICell observationCell)
 	{
-		if (!watcher.State.HasFlag(CharacterState.Conscious))
+		if (!watcher.State.IsConscious())
 		{
 			return false;
 		}
@@ -218,7 +240,7 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
 	private void WatcherStateChanged(IPerceivable owner)
 	{
 		if (owner is ICharacter watcher && _watchers.ContainsKey(watcher) &&
-			!watcher.State.HasFlag(CharacterState.Conscious))
+			!watcher.State.IsConscious())
 		{
 			RemoveWatcher(watcher);
 		}

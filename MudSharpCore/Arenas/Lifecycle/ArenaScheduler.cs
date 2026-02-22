@@ -11,6 +11,9 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaScheduler : IArenaScheduler
 {
+	private static readonly TimeSpan ResolvingGracePeriod = TimeSpan.FromSeconds(2);
+	private static readonly TimeSpan CleanupGracePeriod = TimeSpan.FromSeconds(1);
+
 	private readonly IFuturemud _gameworld;
 	private readonly IArenaLifecycleService _lifecycleService;
 
@@ -152,11 +155,11 @@ public class ArenaScheduler : IArenaScheduler
 				return false;
 			case ArenaEventState.Resolving:
 				nextState = ArenaEventState.Cleanup;
-				trigger = now;
+				trigger = now + ResolvingGracePeriod;
 				break;
 			case ArenaEventState.Cleanup:
 				nextState = ArenaEventState.Completed;
-				trigger = now;
+				trigger = now + CleanupGracePeriod;
 				break;
 			default:
 				return false;

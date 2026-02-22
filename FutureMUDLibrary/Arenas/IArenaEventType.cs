@@ -31,6 +31,8 @@ public interface IArenaEventType : IEditableItem
 	IFutureProg? ScoringProg { get; }
 	IFutureProg? ResolutionOverrideProg { get; }
 	IArenaEliminationStrategy? EliminationStrategy { get; }
+	ArenaEliminationMode EliminationMode { get; }
+	bool AllowSurrender { get; }
 
 	IArenaEvent CreateInstance(DateTime scheduledTime, IEnumerable<IArenaReservation>? reservations = null);
 	void ConfigureAutoSchedule(TimeSpan? interval, DateTime? referenceTime);

@@ -43,6 +43,7 @@ Participant Commands:
 	#3arena observe leave [<event>]#0 - stop observing an event
 	#3arena signup [<event>] [<side>] [<class>]#0 - sign up for an event (omitted values auto-select)
 	#3arena withdraw [<event>]#0 - withdraw from an event
+	#3arena surrender [<event>]#0 - surrender your current bout
 	#3arena bet odds [<side>|draw] [<event>]#0 - view betting quotes
 	#3arena bet place <side|draw> <amount> [<event>]#0 - place a wager
 	#3arena bet cancel [<event>]#0 - cancel your wager
@@ -64,7 +65,6 @@ Manager Commands:
 
         [PlayerCommand("Arena", "arena")]
         [RequiredCharacterState(CharacterState.Conscious)]
-        [NoCombatCommand]
         [HelpInfo("arena", ArenaHelp, AutoHelp.HelpArg)]
         protected static void Arena(ICharacter actor, string command)
         {
@@ -75,7 +75,15 @@ Manager Commands:
                         return;
                 }
 
-                switch (ss.PopForSwitch())
+                var action = ss.PopForSwitch();
+                if (actor.Combat is not null && !action.EqualTo("surrender"))
+                {
+                        actor.OutputHandler.Send(
+                                "You can only use #3arena surrender#0 while you are already in combat.".SubstituteANSIColour());
+                        return;
+                }
+
+                switch (action)
                 {
                         case "list":
                                 ArenaList(actor);
@@ -94,6 +102,9 @@ Manager Commands:
                                 return;
                         case "withdraw":
                                 ArenaWithdraw(actor, ss);
+                                return;
+                        case "surrender":
+                                ArenaSurrender(actor, ss);
                                 return;
                         case "bet":
                                 ArenaBet(actor, ss);
@@ -666,6 +677,52 @@ Manager Commands:
                         actor.OutputHandler.Send(ex.Message.ColourError());
                 }
         }
+
+	private static void ArenaSurrender(ICharacter actor, StringStack ss)
+	{
+		IArenaEvent? arenaEvent;
+		if (ss.IsFinished)
+		{
+			var matchingEvents = actor.Gameworld.CombatArenas
+				.SelectMany(x => x.ActiveEvents)
+				.Where(x => x.State == ArenaEventState.Live)
+				.Where(x => x.Participants.Any(p => p.Character?.Id == actor.Id))
+				.ToList();
+
+			switch (matchingEvents.Count)
+			{
+				case 0:
+					actor.OutputHandler.Send("You are not currently participating in any live arena event.".ColourError());
+					return;
+				case > 1:
+					actor.OutputHandler.Send("You are participating in multiple live arena events. Which event do you want to surrender from?"
+						.ColourCommand());
+					return;
+				default:
+					arenaEvent = matchingEvents[0];
+					break;
+			}
+		}
+		else
+		{
+			arenaEvent = GetArenaEvent(actor, ss.PopSpeech());
+			if (arenaEvent is null)
+			{
+				actor.OutputHandler.Send("There is no arena event matching that description.".ColourError());
+				return;
+			}
+		}
+
+		var (truth, reason) = arenaEvent.CanSurrender(actor);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(reason.ColourError());
+			return;
+		}
+
+		arenaEvent.Surrender(actor);
+		actor.OutputHandler.Send($"You surrender in {arenaEvent.Name.ColourName()}.".Colour(Telnet.Green));
+	}
 
         private static void ArenaBet(ICharacter actor, StringStack ss)
         {

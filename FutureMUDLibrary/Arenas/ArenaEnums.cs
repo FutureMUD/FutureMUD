@@ -27,6 +27,17 @@ public enum BettingModel {
 }
 
 /// <summary>
+/// Defines which combat state ends a bout.
+/// </summary>
+public enum ArenaEliminationMode {
+	NoElimination,
+	PointsElimination,
+	KnockDown,
+	Knockout,
+	Death
+}
+
+/// <summary>
 /// Reasons why a participant might be eliminated from an event.
 /// </summary>
 public enum EliminationReason {
@@ -34,7 +45,8 @@ public enum EliminationReason {
 	Death,
 	Surrender,
 	Time,
-	Disqualification
+	Disqualification,
+	KnockDown
 }
 
 /// <summary>

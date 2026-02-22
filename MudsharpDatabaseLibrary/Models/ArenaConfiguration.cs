@@ -48,6 +48,8 @@ public class ArenaEventType
 	public int? AutoScheduleIntervalSeconds { get; set; }
 	public DateTime? AutoScheduleReferenceTime { get; set; }
 	public int BettingModel { get; set; }
+	public int EliminationMode { get; set; }
+	public bool AllowSurrender { get; set; }
 	public decimal AppearanceFee { get; set; }
 	public decimal VictoryFee { get; set; }
 	public long? IntroProgId { get; set; }

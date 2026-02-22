@@ -13,6 +13,7 @@ public class ArenaScheduler : IArenaScheduler
 {
 	private static readonly TimeSpan ResolvingGracePeriod = TimeSpan.FromSeconds(2);
 	private static readonly TimeSpan CleanupGracePeriod = TimeSpan.FromSeconds(1);
+	private static readonly TimeSpan LivePollingInterval = TimeSpan.FromSeconds(2);
 
 	private readonly IFuturemud _gameworld;
 	private readonly IArenaLifecycleService _lifecycleService;
@@ -42,6 +43,12 @@ public class ArenaScheduler : IArenaScheduler
 		}
 
 		Cancel(arenaEvent);
+		if (arenaEvent.State == ArenaEventState.Live)
+		{
+			ScheduleLiveMonitoring(arenaEvent);
+			return;
+		}
+
 		if (!TryGetNextTransition(arenaEvent, out var nextState, out var trigger))
 		{
 			return;
@@ -94,6 +101,70 @@ public class ArenaScheduler : IArenaScheduler
 		_gameworld.Scheduler.AddSchedule(schedule);
 	}
 
+	private void ScheduleLiveMonitoring(IArenaEvent arenaEvent)
+	{
+		if (arenaEvent.TryResolveFromElimination())
+		{
+			return;
+		}
+
+		var now = DateTime.UtcNow;
+		var deadline = ResolveLiveDeadline(arenaEvent, now);
+		if (deadline.HasValue && deadline.Value <= now)
+		{
+			_lifecycleService.Transition(arenaEvent, ArenaEventState.Resolving);
+			return;
+		}
+
+		if (!deadline.HasValue && !RequiresLiveMonitoring(arenaEvent))
+		{
+			return;
+		}
+
+		var nextTrigger = now + LivePollingInterval;
+		if (deadline.HasValue && deadline.Value < nextTrigger)
+		{
+			nextTrigger = deadline.Value;
+		}
+
+		var delay = nextTrigger > now ? nextTrigger - now : TimeSpan.Zero;
+		var schedule = new Schedule<IArenaEvent>(arenaEvent, HandleLiveMonitoringTick, ScheduleType.ArenaEvent, delay,
+			$"ArenaEvent #{arenaEvent.Id} live monitor");
+		_gameworld.Scheduler.AddSchedule(schedule);
+	}
+
+	private void HandleLiveMonitoringTick(IArenaEvent arenaEvent)
+	{
+		if (arenaEvent.State != ArenaEventState.Live)
+		{
+			return;
+		}
+
+		Schedule(arenaEvent);
+	}
+
+	private static DateTime? ResolveLiveDeadline(IArenaEvent arenaEvent, DateTime now)
+	{
+		if (arenaEvent.EventType.TimeLimit is not { } limit)
+		{
+			return null;
+		}
+
+		var startedAt = arenaEvent.StartedAt ?? arenaEvent.ScheduledAt;
+		if (startedAt == DateTime.MinValue)
+		{
+			startedAt = now;
+		}
+
+		return startedAt + limit;
+	}
+
+	private static bool RequiresLiveMonitoring(IArenaEvent arenaEvent)
+	{
+		return arenaEvent.EventType.TimeLimit.HasValue ||
+		       arenaEvent.EventType.EliminationMode != ArenaEliminationMode.NoElimination;
+	}
+
 	/// <inheritdoc />
 	public void RecoverAfterReboot()
 	{
@@ -139,20 +210,6 @@ public class ArenaScheduler : IArenaScheduler
 				nextState = ArenaEventState.Live;
 				trigger = arenaEvent.ScheduledAt;
 				break;
-			case ArenaEventState.Live:
-				if (arenaEvent.EventType.TimeLimit is { } limit)
-				{
-					nextState = ArenaEventState.Resolving;
-					var startedAt = arenaEvent.StartedAt ?? arenaEvent.ScheduledAt;
-					if (startedAt == DateTime.MinValue)
-					{
-						startedAt = now;
-					}
-
-					trigger = startedAt + limit;
-					break;
-				}
-				return false;
 			case ArenaEventState.Resolving:
 				nextState = ArenaEventState.Cleanup;
 				trigger = now + ResolvingGracePeriod;

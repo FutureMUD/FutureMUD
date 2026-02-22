@@ -45,6 +45,10 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		ResolutionOverrideProg = model.ResolutionOverrideProgId.HasValue
 			? Gameworld.FutureProgs.Get(model.ResolutionOverrideProgId.Value)
 			: null;
+		EliminationMode = Enum.IsDefined(typeof(ArenaEliminationMode), model.EliminationMode)
+			? (ArenaEliminationMode)model.EliminationMode
+			: ArenaEliminationMode.NoElimination;
+		AllowSurrender = model.AllowSurrender;
 		EliminationStrategy = eliminationStrategy;
 
 		foreach (var side in model.ArenaEventTypeSides)
@@ -72,6 +76,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 	public IFutureProg? IntroProg { get; private set; }
 	public IFutureProg? ScoringProg { get; private set; }
 	public IFutureProg? ResolutionOverrideProg { get; private set; }
+	public ArenaEliminationMode EliminationMode { get; private set; }
+	public bool AllowSurrender { get; private set; }
 	public IArenaEliminationStrategy? EliminationStrategy { get; private set; }
 
 	public string Show(ICharacter actor)
@@ -93,6 +99,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		sb.AppendLine($"Intro Prog: {IntroProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Scoring Prog: {ScoringProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Resolution Override Prog: {ResolutionOverrideProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Elimination Mode: {EliminationMode.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Allow Surrender: {AllowSurrender.ToColouredString()}");
 		if (EliminationStrategy != null)
 		{
 			sb.AppendLine($"Elimination Strategy: {EliminationStrategy.GetType().Name.ColourName()}");
@@ -126,6 +134,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 	#3introprog <prog>|none#0 - sets the intro prog
 	#3scoringprog <prog>|none#0 - sets the scoring prog
 	#3resolutionprog <prog>|none#0 - sets the resolution override prog
+	#3elimination <none|points|knockdown|knockout|death>#0 - sets how bouts end automatically
+	#3surrender#0 - toggles whether combatants can surrender
 	#3side <index> ...#0 - issues a building command to a specific side";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -172,6 +182,11 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			case "resolution":
 			case "resolve":
 				return BuildingCommandResolutionProg(actor, command);
+			case "elimination":
+			case "elim":
+				return BuildingCommandElimination(actor, command);
+			case "surrender":
+				return BuildingCommandSurrender(actor);
 			case "side":
 			case "sides":
 				return BuildingCommandSide(actor, command);
@@ -449,13 +464,24 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 
 		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
 		{
+			if (EliminationMode == ArenaEliminationMode.PointsElimination)
+			{
+				actor.OutputHandler.Send(
+					"You cannot clear the scoring prog while elimination mode is #3Points Elimination#0. Change elimination mode first."
+						.SubstituteANSIColour());
+				return false;
+			}
+
 			ScoringProg = null;
 			Changed = true;
 			actor.OutputHandler.Send("Scoring prog cleared.".SubstituteANSIColour());
 			return true;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
+		var requiredType = EliminationMode == ArenaEliminationMode.PointsElimination
+			? ProgVariableTypes.Number | ProgVariableTypes.Collection
+			: ProgVariableTypes.Void;
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, requiredType,
 			ArenaProgParameters.EventProgParameterSets).LookupProg();
 		if (prog == null)
 		{
@@ -498,6 +524,53 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		return true;
 	}
 
+	private bool BuildingCommandElimination(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"What elimination mode should this event type use? Valid options are {Enum.GetValues<ArenaEliminationMode>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		if (!TryParseEliminationMode(command.SafeRemainingArgument, out var mode))
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid elimination mode. Valid options are {Enum.GetValues<ArenaEliminationMode>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		if (mode == ArenaEliminationMode.PointsElimination && ScoringProg is null)
+		{
+			actor.OutputHandler.Send(
+				"You must set a #3scoringprog#0 before selecting #3Points Elimination#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (mode == ArenaEliminationMode.PointsElimination &&
+		    ScoringProg is not null &&
+		    !ScoringProg.ReturnType.CompatibleWith(ProgVariableTypes.Number | ProgVariableTypes.Collection))
+		{
+			actor.OutputHandler.Send(
+				$"The current scoring prog {ScoringProg.MXPClickableFunctionName()} does not return a collection of numbers, which is required for points elimination.");
+			return false;
+		}
+
+		EliminationMode = mode;
+		Changed = true;
+		actor.OutputHandler.Send($"Elimination mode is now {EliminationMode.DescribeEnum().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSurrender(ICharacter actor)
+	{
+		AllowSurrender = !AllowSurrender;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"Combatant surrender is now {(AllowSurrender ? "enabled" : "disabled")} for this event type.");
+		return true;
+	}
+
 	private bool BuildingCommandSide(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -531,6 +604,52 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 
 		return
 			$"Every {AutoScheduleInterval!.Value.Describe(actor).ColourValue()} from {AutoScheduleReferenceTime!.Value.ToString("f", actor).ColourValue()}";
+	}
+
+	private static bool TryParseEliminationMode(string text, out ArenaEliminationMode mode)
+	{
+		mode = ArenaEliminationMode.NoElimination;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return false;
+		}
+
+		if (text.TryParseEnum<ArenaEliminationMode>(out mode))
+		{
+			return true;
+		}
+
+		switch (text.CollapseString())
+		{
+			case "none":
+			case "off":
+			case "noelim":
+			case "noelimination":
+				mode = ArenaEliminationMode.NoElimination;
+				return true;
+			case "points":
+			case "point":
+			case "score":
+			case "scoring":
+				mode = ArenaEliminationMode.PointsElimination;
+				return true;
+			case "knockdown":
+			case "down":
+			case "kd":
+				mode = ArenaEliminationMode.KnockDown;
+				return true;
+			case "knockout":
+			case "ko":
+				mode = ArenaEliminationMode.Knockout;
+				return true;
+			case "death":
+			case "kill":
+			case "lethal":
+				mode = ArenaEliminationMode.Death;
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	public IArenaEvent CreateInstance(DateTime scheduledTime, IEnumerable<IArenaReservation>? reservations = null)
@@ -571,6 +690,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 					: null,
 				AutoScheduleReferenceTime = AutoScheduleReferenceTime,
 				BettingModel = (int)BettingModel,
+				EliminationMode = (int)EliminationMode,
+				AllowSurrender = AllowSurrender,
 				AppearanceFee = AppearanceFee,
 				VictoryFee = VictoryFee,
 				IntroProgId = IntroProg?.Id,
@@ -635,6 +756,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 				: null;
 			dbType.AutoScheduleReferenceTime = AutoScheduleReferenceTime;
 			dbType.BettingModel = (int)BettingModel;
+			dbType.EliminationMode = (int)EliminationMode;
+			dbType.AllowSurrender = AllowSurrender;
 			dbType.AppearanceFee = AppearanceFee;
 			dbType.VictoryFee = VictoryFee;
 			dbType.IntroProgId = IntroProg?.Id;

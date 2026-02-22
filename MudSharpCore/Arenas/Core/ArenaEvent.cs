@@ -27,6 +27,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 {
 	private readonly List<ArenaParticipant> _participants = new();
 	private readonly List<ArenaReservation> _reservations = new();
+	private readonly HashSet<long> _surrenderedParticipantIds = new();
 	private ArenaEventState _state;
 	private ArenaOutcome? _outcome;
 	private IReadOnlyCollection<int>? _winningSides;
@@ -306,11 +307,19 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return;
 		}
 
-		Resolve();
+		if (!TryResolveFromElimination())
+		{
+			Resolve();
+		}
 	}
 
 	private bool CanMercyStopNow()
 	{
+		if (TryDetermineEliminationOutcome(out _, out _))
+		{
+			return true;
+		}
+
 		if (EventType.EliminationStrategy is { } strategy)
 		{
 			try
@@ -332,6 +341,76 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	{
 		var character = participant.Character;
 		return character != null && character.State.IsAble();
+	}
+
+	public bool TryResolveFromElimination()
+	{
+		if (_state != ArenaEventState.Live)
+		{
+			return false;
+		}
+
+		if (!TryDetermineEliminationOutcome(out var outcome, out var winningSides))
+		{
+			return false;
+		}
+
+		RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
+		Gameworld.ArenaLifecycleService.Transition(this, ArenaEventState.Resolving);
+		return _state >= ArenaEventState.Resolving;
+	}
+
+	public (bool Truth, string Reason) CanSurrender(ICharacter participant)
+	{
+		if (participant is null)
+		{
+			return (false, "You cannot surrender without a character.");
+		}
+
+		if (_state != ArenaEventState.Live)
+		{
+			return (false, "You can only surrender while the event is live.");
+		}
+
+		if (!EventType.AllowSurrender)
+		{
+			return (false, "Surrender is not permitted for this event.");
+		}
+
+		if (_participants.All(x => x.Character?.Id != participant.Id))
+		{
+			return (false, "You are not a participant in this event.");
+		}
+
+		if (_surrenderedParticipantIds.Contains(participant.Id))
+		{
+			return (false, "You have already surrendered this bout.");
+		}
+
+		if (participant.State.IsDead())
+		{
+			return (false, "Dead combatants cannot surrender.");
+		}
+
+		return (true, string.Empty);
+	}
+
+	public void Surrender(ICharacter participant)
+	{
+		var (truth, reason) = CanSurrender(participant);
+		if (!truth)
+		{
+			throw new InvalidOperationException(reason);
+		}
+
+		_surrenderedParticipantIds.Add(participant.Id);
+		participant.Combat?.LeaveCombat(participant);
+		foreach (var cell in Arena.ArenaCells.Where(x => x != null).Distinct())
+		{
+			cell.Handle(new EmoteOutput(new Emote("@ surrender|surrenders the bout!", participant)));
+		}
+
+		TryResolveFromElimination();
 	}
 
 	public void Resolve()
@@ -794,6 +873,213 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
 	}
 
+	private bool TryDetermineEliminationOutcome(out ArenaOutcome outcome, out IReadOnlyCollection<int>? winningSides)
+	{
+		outcome = ArenaOutcome.Draw;
+		winningSides = null;
+
+		if (EventType.EliminationMode == ArenaEliminationMode.PointsElimination)
+		{
+			return TryDeterminePointsOutcome(requireUniqueWinner: true, out outcome, out winningSides);
+		}
+
+		var sideIndices = EventType.Sides
+			.Select(x => x.Index)
+			.Distinct()
+			.OrderBy(x => x)
+			.ToList();
+		if (!sideIndices.Any())
+		{
+			return false;
+		}
+
+		var activeSides = sideIndices
+			.Where(side => _participants
+				.Where(participant => participant.SideIndex == side)
+				.Any(participant => !IsParticipantEliminated(participant, EventType.EliminationMode)))
+			.ToList();
+		if (activeSides.Count == 1)
+		{
+			outcome = ArenaOutcome.Win;
+			winningSides = activeSides;
+			return true;
+		}
+
+		if (activeSides.Count == 0)
+		{
+			outcome = ArenaOutcome.Draw;
+			winningSides = null;
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool TryDeterminePointsOutcome(bool requireUniqueWinner, out ArenaOutcome outcome,
+		out IReadOnlyCollection<int>? winningSides)
+	{
+		outcome = ArenaOutcome.Draw;
+		winningSides = null;
+
+		var prog = EventType.ScoringProg;
+		if (prog is null)
+		{
+			return false;
+		}
+
+		List<decimal> values;
+		try
+		{
+			values = prog.ExecuteCollection<decimal>(ArenaProgParameters.BuildEventProgArguments(this)).ToList();
+		}
+		catch
+		{
+			return false;
+		}
+
+		if (!values.Any())
+		{
+			return false;
+		}
+
+		var sideIndices = EventType.Sides
+			.Select(x => x.Index)
+			.Distinct()
+			.OrderBy(x => x)
+			.ToList();
+		if (!sideIndices.Any())
+		{
+			return false;
+		}
+
+		if (values.Count == sideIndices.Count)
+		{
+			// A score per side (in side index order).
+			var scores = sideIndices
+				.Select((side, index) => new { Side = side, Score = values[index] })
+				.ToList();
+			var bestScore = scores.Max(x => x.Score);
+			var bestSides = scores
+				.Where(x => x.Score == bestScore)
+				.Select(x => x.Side)
+				.OrderBy(x => x)
+				.ToList();
+			if (!bestSides.Any())
+			{
+				return false;
+			}
+
+			if (requireUniqueWinner && bestSides.Count != 1)
+			{
+				return false;
+			}
+
+			if (bestSides.Count == sideIndices.Count)
+			{
+				outcome = ArenaOutcome.Draw;
+				winningSides = null;
+				return !requireUniqueWinner;
+			}
+
+			outcome = ArenaOutcome.Win;
+			winningSides = bestSides;
+			return true;
+		}
+
+		// A list of winning side indexes.
+		var directWinners = values
+			.Select(x => Convert.ToInt32(x))
+			.Select(TryNormaliseSideIndex)
+			.OfType<int>()
+			.Distinct()
+			.OrderBy(x => x)
+			.ToList();
+		if (!directWinners.Any())
+		{
+			return false;
+		}
+
+		if (directWinners.Count == sideIndices.Count)
+		{
+			outcome = ArenaOutcome.Draw;
+			winningSides = null;
+			return !requireUniqueWinner;
+		}
+
+		if (requireUniqueWinner && directWinners.Count != 1)
+		{
+			return false;
+		}
+
+		outcome = ArenaOutcome.Win;
+		winningSides = directWinners;
+		return true;
+	}
+
+	private int? TryNormaliseSideIndex(int candidate)
+	{
+		var validSides = EventType.Sides
+			.Select(x => x.Index)
+			.Distinct()
+			.ToHashSet();
+		if (validSides.Contains(candidate))
+		{
+			return candidate;
+		}
+
+		if (candidate > 0 && validSides.Contains(candidate - 1))
+		{
+			return candidate - 1;
+		}
+
+		return null;
+	}
+
+	private bool IsParticipantEliminated(ArenaParticipant participant, ArenaEliminationMode mode)
+	{
+		var character = participant.Character;
+		if (character is null)
+		{
+			return true;
+		}
+
+		if (_surrenderedParticipantIds.Contains(character.Id))
+		{
+			return true;
+		}
+
+		if (EventType.EliminationStrategy is { } strategy)
+		{
+			try
+			{
+				if (strategy.IsEliminated(this, character))
+				{
+					return true;
+				}
+			}
+			catch
+			{
+			}
+		}
+
+		return mode switch
+		{
+			ArenaEliminationMode.NoElimination => false,
+			ArenaEliminationMode.PointsElimination => false,
+			ArenaEliminationMode.Death => character.State.IsDead(),
+			ArenaEliminationMode.Knockout => character.State.HasFlag(CharacterState.Dead) ||
+			                                 character.State.HasFlag(CharacterState.Unconscious) ||
+			                                 character.State.HasFlag(CharacterState.Sleeping),
+			ArenaEliminationMode.KnockDown => character.State.HasFlag(CharacterState.Dead) ||
+			                                  character.State.HasFlag(CharacterState.Unconscious) ||
+			                                  character.State.HasFlag(CharacterState.Sleeping) ||
+			                                  character.State.HasFlag(CharacterState.Paralysed) ||
+			                                  !character.PositionState.Upright ||
+			                                  character.IsHelpless,
+			_ => false
+		};
+	}
+
 	private void EnsureResolvedOutcome()
 	{
 		if (_outcome.HasValue)
@@ -801,23 +1087,20 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return;
 		}
 
-		var activeSides = _participants
-			.GroupBy(x => x.SideIndex)
-			.Where(group => group.Any(IsParticipantActive))
-			.Select(group => group.Key)
-			.OrderBy(x => x)
-			.ToList();
-
-		if (activeSides.Count == 1)
+		if (TryDetermineEliminationOutcome(out var eliminationOutcome, out var eliminationWinners))
 		{
-			RecordOutcome(ArenaOutcome.Win, activeSides);
+			RecordOutcome(eliminationOutcome, eliminationOutcome == ArenaOutcome.Win ? eliminationWinners : null);
 			return;
 		}
 
-		if (activeSides.Count == 0)
+		if (EventType.EliminationMode == ArenaEliminationMode.PointsElimination &&
+		    TryDeterminePointsOutcome(requireUniqueWinner: false, out var pointsOutcome, out var pointsWinners))
 		{
-			RecordOutcome(ArenaOutcome.Draw, null);
+			RecordOutcome(pointsOutcome, pointsOutcome == ArenaOutcome.Win ? pointsWinners : null);
+			return;
 		}
+
+		RecordOutcome(ArenaOutcome.Draw, null);
 	}
 
 	private void AnnounceArenaOutcome()
@@ -1030,6 +1313,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		RestorePlayerParticipants();
 		ClearParticipantPhaseEffects();
 		ClearObservationEffects();
+		_surrenderedParticipantIds.Clear();
 	}
 
 	private void ReturnNpcParticipants()
@@ -1045,24 +1329,50 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			var destination = stableCells.Count > 0
+				? SelectIndexedCell(stableCells, participant.SideIndex)
+				: SelectIndexedCell(afterFightCells, participant.SideIndex);
+
 			var effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
 				.FirstOrDefault(x => x.EventId == Id);
 			if (effect is not null)
 			{
 				Gameworld.ArenaNpcService.ReturnNpc(npc, this, participant.CombatantClass.ResurrectNpcOnDeath);
+				if (npc.State.IsDead() && destination is not null)
+				{
+					MoveCorpseToCell(npc, destination);
+				}
 				continue;
 			}
 
-			var destination = stableCells.Count > 0
-				? SelectIndexedCell(stableCells, participant.SideIndex)
-				: SelectIndexedCell(afterFightCells, participant.SideIndex);
 			if (destination is null)
 			{
 				continue;
 			}
 
+			if (npc.State.IsDead())
+			{
+				MoveCorpseToCell(npc, destination);
+				continue;
+			}
+
 			npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
 		}
+	}
+
+	private static void MoveCorpseToCell(ICharacter npc, ICell destination)
+	{
+		var corpse = npc.Corpse?.Parent;
+		if (corpse is null || corpse.Deleted)
+		{
+			return;
+		}
+
+		corpse.ContainedIn?.Take(corpse);
+		corpse.InInventoryOf?.Take(corpse);
+		corpse.Location?.Extract(corpse);
+		corpse.RoomLayer = RoomLayer.GroundLevel;
+		destination.Insert(corpse, true);
 	}
 
 	private void RestorePlayerParticipants()

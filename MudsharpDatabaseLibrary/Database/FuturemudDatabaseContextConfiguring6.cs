@@ -204,6 +204,10 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.AutoScheduleIntervalSeconds).HasColumnType("int(11)");
 			entity.Property(e => e.AutoScheduleReferenceTime).HasColumnType("datetime");
 			entity.Property(e => e.BettingModel).HasColumnType("int(11)");
+			entity.Property(e => e.EliminationMode).HasColumnType("int(11)");
+			entity.Property(e => e.AllowSurrender)
+				.HasColumnType("bit(1)")
+				.HasDefaultValueSql("b'1'");
 			entity.Property(e => e.AppearanceFee).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.VictoryFee).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.IntroProgId).HasColumnType("bigint(20)");

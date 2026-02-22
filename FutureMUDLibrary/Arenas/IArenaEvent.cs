@@ -48,6 +48,9 @@ public interface IArenaEvent : IEditableItem, ISaveable {
 	void Cleanup();
 	void Complete();
 	void Abort(string reason);
+	bool TryResolveFromElimination();
+	(bool Truth, string Reason) CanSurrender(ICharacter participant);
+	void Surrender(ICharacter participant);
 
 	(bool Truth, string Reason) CanSignUp(ICharacter character, int sideIndex, ICombatantClass combatantClass);
 	void SignUp(ICharacter character, int sideIndex, ICombatantClass combatantClass);

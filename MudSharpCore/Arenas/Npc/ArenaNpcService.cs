@@ -173,10 +173,16 @@ public class ArenaNpcService : IArenaNpcService
 			return;
 		}
 
+		var returnLocation = effect.OriginalLocation ?? npc.Location ?? npc.Gameworld.Cells.Get(1);
 		if (resurrect && npc.State.HasFlag(CharacterState.Dead))
 		{
-			npc.Body?.Resurrect(effect.OriginalLocation ?? npc.Location ?? npc.Gameworld.Cells.Get(1));
-			npc.State = CharacterState.Awake;
+			npc.Resurrect(returnLocation);
+		}
+
+		if (npc.State.HasFlag(CharacterState.Dead))
+		{
+			npc.RemoveEffect(effect, true);
+			return;
 		}
 
 		RestoreInventory(npc.Body, effect);

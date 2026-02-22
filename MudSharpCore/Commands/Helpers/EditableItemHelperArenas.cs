@@ -320,6 +320,8 @@ public partial class EditableItemHelper
 					AutoScheduleIntervalSeconds = null,
 					AutoScheduleReferenceTime = null,
 					BettingModel = (int)BettingModel.FixedOdds,
+					EliminationMode = (int)ArenaEliminationMode.NoElimination,
+					AllowSurrender = true,
 					AppearanceFee = 0.0m,
 					VictoryFee = 0.0m,
 					IntroProgId = null,

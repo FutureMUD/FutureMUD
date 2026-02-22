@@ -126,6 +126,8 @@ public class ArenaCommandService : IArenaCommandService
                 sb.AppendLine($"Appearance Fee: {DescribeCurrency(eventType.Arena, eventType.AppearanceFee)}");
                 sb.AppendLine($"Victory Fee: {DescribeCurrency(eventType.Arena, eventType.VictoryFee)}");
                 sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(eventType, actor)}");
+                sb.AppendLine($"Elimination: {eventType.EliminationMode.DescribeEnum().ColourValue()}");
+                sb.AppendLine($"Allow Surrender: {eventType.AllowSurrender.ToColouredString()}");
 
                 sb.AppendLine();
                 sb.AppendLine("Sides:".Colour(Telnet.Cyan));

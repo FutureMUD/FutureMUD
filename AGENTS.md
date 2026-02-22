@@ -218,3 +218,9 @@ To compile the project locally or in automated checks:
 2. Use `scripts/test.sh` to build the main engine project.
 
 `test.sh` sets `DOTNET_EnableWindowsTargeting` so the build succeeds on Linux.
+
+When changing a subsystem that has a design document in `Design Documents/`:
+
+1. Update the relevant design document(s) as part of the same task.
+2. Ensure the document reflects the new runtime behavior, command surface, and persistence implications.
+3. Call out the documentation update in your task summary.

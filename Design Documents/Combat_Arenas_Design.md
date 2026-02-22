@@ -1,91 +1,97 @@
-# System Design Document: Combat Arenas (FutureMUD) — **Repository‑Agnostic Revision**
+# System Design Document: Combat Arenas (FutureMUD) - **Repository-Agnostic Revision**
 
-> **Note for Codex Agent**  
-> This document intentionally **omits concrete interface/class definitions and method signatures**. Implementations must align with the existing FutureMUD codebase patterns (projects, namespaces, base interfaces, event/callback mechanisms, EF models, scheduler, finance, prog hooks, combat events). Where this document mentions concepts like “interfaces,” “events,” or “models,” treat them as **contracts and responsibilities**, not prescriptive code.
-
+> **Note for Codex Agent**
+> This document intentionally **omits concrete interface/class definitions and method signatures**. Implementations must align with the existing FutureMUD codebase patterns (projects, namespaces, base interfaces, event/callback mechanisms, EF models, scheduler, finance, prog hooks, combat events). Where this document mentions concepts like "interfaces," "events," or "models," treat them as **contracts and responsibilities**, not prescriptive code.
 
 ## 1) Purpose & Summary
-Arenas are configurable venues that host structured combats—manual or automated—between PCs and/or NPCs, with registration windows, inventory handling, NPC backfill, spectator viewing, betting, ratings, and post‑fight clean‑up. Arenas are businesses tied to Economic Zones (banking, solvency, taxation), can be managed by non‑admins, and integrate with FutureProg hooks at key stages.
+Arenas are configurable venues that host structured combats - manual or automated - between PCs and/or NPCs, with registration windows, inventory handling, NPC backfill, spectator viewing, betting, ratings, and post-fight cleanup. Arenas are businesses tied to Economic Zones (banking, solvency, taxation), can be managed by non-admins, and integrate with FutureProg hooks at key stages.
 
-This feature must remain **data‑driven**, **extensible**, and **safe under failure** (cancel & refund on reboot).
+This feature must remain **data-driven**, **extensible**, and **safe under failure** (cancel and refund on reboot).
 
+### 1.1 Implementation Snapshot (2026-02-22)
+- Event types now expose explicit elimination terms via `ArenaEliminationMode`: `NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`.
+- Event types now include an explicit `AllowSurrender` toggle.
+- Player surrender is implemented as `arena surrender [<event>]`; while in combat, this is the only allowed `arena` subcommand.
+- Live events are monitored on a short scheduler interval and auto-transition to resolving when elimination conditions are met (instead of waiting for timeout only).
+- NPC cleanup now respects dead combatants: dead NPCs are never forced to a non-dead state, and corpses are moved to stable/after-fight locations.
+- Arena no-quit/no-timeout phase effects now self-prune if their referenced event is no longer active, preventing stale saved effects from blocking players after crashes.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
 - **Managers**: configure event types, schedules, fees, funds, NPC policies, launch/abort events, and reserve slots; no admin needed except to wire NPC loader progs.
-- **Combatant Classes**: name/description; eligibility prog; optional admin‑only NPC loader prog; “resurrect NPC on death” flag (**full restoration**, like guest avatars); per‑combatant identity metadata (stage name, signature colour/items).
-- **Event Types**: immutable templates (multi‑side, multi‑room support); define side capacities (fixed at type), eligible classes per side, fees (appearance/victory), BYO toggle, per‑side outfit prog, scoring & elimination strategies, NPC signup/auto‑fill flags, registration/prep/time‑limit durations. Managers can **clone** types for quick variants (e.g., different capacities).
+- **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; "resurrect NPC on death" flag (**full restoration**, like guest avatars); per-combatant identity metadata (stage name, signature colour/items).
+- **Event Types**: immutable templates (multi-side, multi-room support); define side capacities (fixed at type), eligible classes per side, fees (appearance/victory), BYO toggle, per-side outfit prog, scoring prog, elimination mode, surrender policy, NPC signup/auto-fill flags, and registration/prep/time-limit durations. Managers can **clone** types for quick variants (for example, different capacities).
+- **Elimination Terms**: event types define explicit elimination modes (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`). Higher-severity outcomes still count (for example, death satisfies knockout/knockdown conditions).
+- **Surrender**: event types can explicitly enable/disable surrender. Combatants can surrender with `arena surrender`.
 - **Events (instances)**: created from an Event Type, optionally with **reserved slots** for characters/clans when **manually launched**; progress via a lifecycle (below).
-- **Observation**: **remote viewing only**, via an arena‑scoped watcher effect mirroring in‑arena output with appropriate audio “quietening” and notice checks for subtle actions.
-- **Betting**: **custodied** wagers (stake moved immediately). Two selectable models: **Fixed‑Odds** (snapshot at bet time) and **Pari‑Mutuel** (pool). **Draw** outcome supported. If arena lacks payout funds, **payout is blocked** and can be collected later.
-- **Ratings**: Elo‑style per **Combatant Class** (not global), driven by a **prog hook**; supply a default Elo rating prog.
-- **Crash/Reboot**: mid‑match → **cancel event** and **refund wagers** (no state restore).
-- **Disconnects**: PCs cannot quit (effect); no linkdead auto‑logout in an event. If disconnected, they **remain** in the match.
+- **Observation**: **remote viewing only**, via an arena-scoped watcher effect mirroring in-arena output with appropriate audio "quietening" and notice checks for subtle actions.
+- **Betting**: **custodied** wagers (stake moved immediately). Two selectable models: **Fixed-Odds** (snapshot at bet time) and **Pari-Mutuel** (pool). **Draw** outcome supported. If arena lacks payout funds, **payout is blocked** and can be collected later.
+- **Ratings**: Elo-style per **Combatant Class** (not global), driven by a **prog hook**; supply a default Elo rating prog.
+- **Crash/Reboot**: mid-match -> **cancel event** and **refund wagers** (no state restore).
+- **Disconnects**: PCs cannot quit (effect); no linkdead auto-logout in an event. If disconnected, they **remain** in the match.
 - **Mercy Stoppage**: allowed when **all other sides** are incapacitated; managers can always stop a fight manually.
-
 
 ## 3) Spatial Model & Requirements
 Arena configuration must include room sets:
-- **Waiting Rooms** (≥1, ideally per side)
-- **Arena Rooms** (1..N). For multi‑room arenas, different teams **start in different rooms** when available; fights may traverse rooms.
+- **Waiting Rooms** (>=1, ideally per side)
+- **Arena Rooms** (1..N). For multi-room arenas, different teams **start in different rooms** when available; fights may traverse rooms.
 - **Observation Rooms** (remote watcher effect)
 - **Infirmary** (PC destination on elimination)
 - **NPC Stables** (spawn/return/resurrect)
-- **After‑Fight Rooms** (PC dressing/debrief)
+- **After-Fight Rooms** (PC dressing/debrief)
 
 Block event start until the required rooms for the Event Type are present and reachable.
 
-
 ## 4) Event Lifecycle (state machine)
 ```
-Draft → Scheduled → RegistrationOpen → Preparing → Staged → Live → Resolving → Cleanup → Completed
-                          ↘ (Abort) → Aborted
+Draft -> Scheduled -> RegistrationOpen -> Preparing -> Staged -> Live -> Resolving -> Cleanup -> Completed
+                          \-> (Abort) -> Aborted
 ```
 - **Draft**: instance created from type; capacities fixed by type; optional reserved slots configured on manual launch.
 - **Scheduled**: waiting for registration open time.
-- **RegistrationOpen**: PCs/NPCs sign up (per‑side policies). Bets accepted. Reserved slots enforced. If NPC auto‑fill is enabled but the side has **no loader prog**, auto‑fill is **prohibited**.
+- **RegistrationOpen**: PCs/NPCs sign up (per-side policies). Bets accepted. Reserved slots enforced. If NPC auto-fill is enabled but the side has **no loader prog**, auto-fill is prohibited.
 - **Preparing**: close registration; NPC backfill; inventory bundle/strip; outfit progs; signature items/colour; teleport to waiting rooms (per side).
 - **Staged**: intro prog/echoes; teleport to arena rooms (teams start separately when available); countdown.
-- **Live**: combat proceeds; scoring & elimination receive combat callbacks; observers see mirrored output with hearing/notice rules.
-- **Resolving**: decide win/draw (draws supported on time‑tie); award victory/appearance fees; settle bets (block payouts if insolvent); update ratings via prog.
-- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after‑fight/infirmary; NPCs to stables with **full restore** if flag set.
+- **Live**: combat proceeds; scoring and elimination receive combat callbacks; observers see mirrored output with hearing/notice rules.
+- **Live (termination)**: scheduler polling checks elimination conditions continuously; time limit remains a fallback/end-cap.
+- **Resolving**: decide win/draw (draws supported on time tie); award victory/appearance fees; settle bets (block payouts if insolvent); update ratings via prog.
+- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; NPCs to stables with full restore if flagged. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states.
 - **Completed**: immutable record.
-- **Aborted**: manual stop or pre‑Live failure; default: **refund wagers**, no appearance/victory fees unless arena policy says otherwise.
+- **Aborted**: manual stop or pre-live failure; default: refund wagers, no appearance/victory fees unless arena policy says otherwise.
 
-**Timers/Drivers**: use the game scheduler/heartbeat; arenas may attach schedules (e.g., via `IProgSchedule` or equivalent). **No** cross‑reboot restoration.
-
+**Timers/Drivers**: use the game scheduler/heartbeat; arenas may attach schedules (for example via `IProgSchedule` or equivalent). No cross-reboot restoration.
 
 ## 5) Strategies (plugin design; responsibilities only)
 ### 5.1 Elimination
-Minimum strategies:
-1. **Death**
-2. **CriticalInjury** (death | unconscious | sever non‑trivial bodypart)
-3. **FirstInjury(Severity≥X)** (single wound crossing threshold)
-4. **FirstBlood** (any bleeding wound)
-5. **Surrender** (explicit action)
-6. **Points(TargetScore)** (fight ends when a side hits target)
+Current built-in elimination modes:
+1. **NoElimination**
+2. **PointsElimination**
+3. **KnockDown**
+4. **Knockout**
+5. **Death**
 
-- Death satisfies all.
-- Allow simple composition (OR/AND) via a combinator.
-- Mercy stoppage by incapacitation (all other sides eliminated) ends the fight.
+Current behaviour rules:
+- Death satisfies knockout/knockdown conditions.
+- Surrender is treated as elimination only when event type `AllowSurrender` is enabled.
+- Points elimination requires a scoring prog and can resolve via either explicit winning side indexes or by highest side score.
+- Mercy stoppage still applies when only one side remains non-eliminated.
 
 **Responsibilities** (to be mapped to repo constructs):
-- Subscribe to combat events (hit/wound/sever/KO/death/surrender).
-- Maintain per‑combatant elimination state.
-- Expose “terminal condition reached” and, where applicable, “early stop by incapacitation.”
+- Subscribe to combat events (hit/wound/KO/death/surrender).
+- Maintain per-combatant elimination state.
+- Expose terminal-condition and winner-resolution state to lifecycle services.
 
 ### 5.2 Scoring
 Minimum strategies:
 1. **TotalHits** (landed legal strikes; configurable: contact vs damage>0)
-2. **HitsToVitals** (uses “Vital” bodypart flag; counts damaging hits)
-3. **HitsWithSeverity(≥X)**
+2. **HitsToVitals** (uses "Vital" bodypart flag; counts damaging hits)
+3. **HitsWithSeverity(>=X)**
 4. **NoScore**
 
 **Responsibilities**:
 - Subscribe to combat events.
-- Maintain per‑side tallies.
-- Expose score per side and “victory reached?” based on strategy rules.
-
+- Maintain per-side tallies.
+- Expose score per side and "victory reached?" based on strategy rules.
 
 ## 6) Betting & Finance
 **Models**:
@@ -183,6 +189,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 **Players**
 - `arena list` / `arena events <arena>` / `arena view <event>`
 - `arena signup <event> side <n>` / `arena withdraw <event>`
+- `arena surrender [<event>]` (allowed only for current live participants when event type permits surrender)
 - `arena bet <event> <side|draw> <amount> from <cash|account>`
 - `arena collect <event|all>`
 - `arena spectate <arena>`
@@ -199,7 +206,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 1. Define repository‑conformant abstractions for: Arena, Event Type, Event Instance, Combatant Class, Room Set, Scoring/Elimination strategies, Betting Book & Models, Performance Record.  
 2. Wire them into the gameworld registry (`All`/`IUneditableAll` patterns) and loading/saving flow.  
 3. Add persistence models & migrations; serialize strategy configs and tallies.  
-4. Implement **ArenaModule** commands (list/view/status/signup/bet/spectate first; creation/edit next).  
+4. Implement **ArenaModule** commands (list/view/status/signup/surrender/bet/spectate first; creation/edit next).  
 5. Integrate scheduler/heartbeat to drive lifecycle transitions; **no** cross‑reboot restore—cancel & refund instead.  
 6. Hook combat events to strategy engines; enforce elimination/score rules and mercy stoppage by incapacitation.  
 7. Build arena‑scoped watcher effect honoring hearing/notice/privacy rules.  

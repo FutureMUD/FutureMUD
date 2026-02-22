@@ -4,6 +4,13 @@ Status: Draft for implementation handoff
 Audience: Specialized implementers (engine, DB, finance, combat, perception, commands, QA, docs)  
 Source Design: `Design Documents/Combat_Arenas_Design.md`
 
+Current Runtime Snapshot (2026-02-22)
+- Elimination terms are now explicit via `ArenaEliminationMode` (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`).
+- Event types now include `AllowSurrender`, and surrender is exposed as `arena surrender [<event>]`.
+- Live events now poll for elimination conditions during combat and transition to resolving without waiting only for timeout.
+- NPC cleanup now handles dead participants safely, including corpse relocation to stable/after-fight locations.
+- Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
+
 ---
 
 ## 0) Goals, Scope, Assumptions

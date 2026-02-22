@@ -16,97 +16,123 @@ namespace MudSharp.Arenas;
 /// </summary>
 public sealed class ArenaParticipationEffect : Effect, INoQuitEffect, INoTimeOutEffect
 {
-        private readonly long _arenaEventId;
-        private IArenaEvent? _arenaEvent;
+	private readonly long _arenaEventId;
+	private IArenaEvent? _arenaEvent;
 
-        public ArenaParticipationEffect(ICharacter owner, IArenaEvent arenaEvent) : base(owner)
-        {
-                if (owner is null)
-                {
-                        throw new ArgumentNullException(nameof(owner));
-                }
+	public ArenaParticipationEffect(ICharacter owner, IArenaEvent arenaEvent) : base(owner)
+	{
+		if (owner is null)
+		{
+			throw new ArgumentNullException(nameof(owner));
+		}
 
-                _arenaEvent = arenaEvent ?? throw new ArgumentNullException(nameof(arenaEvent));
-                _arenaEventId = arenaEvent.Id;
-        }
+		_arenaEvent = arenaEvent ?? throw new ArgumentNullException(nameof(arenaEvent));
+		_arenaEventId = arenaEvent.Id;
+	}
 
-        private ArenaParticipationEffect(XElement root, IPerceivable owner) : base(root, owner)
-        {
-                if (root is null)
-                {
-                        throw new ArgumentNullException(nameof(root));
-                }
+	private ArenaParticipationEffect(XElement root, IPerceivable owner) : base(root, owner)
+	{
+		if (root is null)
+		{
+			throw new ArgumentNullException(nameof(root));
+		}
 
-                _arenaEventId = long.Parse(root.Element("ArenaEventId")?.Value
-                                          ?? throw new ArgumentException("ArenaEventId element missing."));
-                _arenaEvent = ResolveEvent();
-        }
+		var idText = root.Element("ArenaEventId")?.Value;
+		if (!long.TryParse(idText, out var arenaEventId))
+		{
+			_arenaEventId = 0;
+			LoadErrors = true;
+			return;
+		}
 
-        public static void InitialiseEffectType()
-        {
-                RegisterFactory("ArenaParticipation",
-                        (effect, owner) => new ArenaParticipationEffect(effect, owner));
-        }
+		_arenaEventId = arenaEventId;
+		_arenaEvent = ResolveEvent();
+		if (_arenaEvent is null)
+		{
+			// Event no longer exists in active arena data; drop stale saved effect.
+			LoadErrors = true;
+		}
+	}
 
-        public long ArenaEventId => _arenaEventId;
+	public static void InitialiseEffectType()
+	{
+		RegisterFactory("ArenaParticipation",
+			(effect, owner) => new ArenaParticipationEffect(effect, owner));
+	}
 
-        public IArenaEvent? ArenaEvent => ResolveEvent();
+	public long ArenaEventId => _arenaEventId;
 
-        protected override string SpecificEffectType => "ArenaParticipation";
+	public IArenaEvent? ArenaEvent => ResolveEvent();
 
-        public override bool SavingEffect => true;
+	protected override string SpecificEffectType => "ArenaParticipation";
 
-        public string NoQuitReason =>
-                $"You cannot quit while you are participating in {DescribeEventName()}.";
+	public override bool SavingEffect => true;
 
-        public string NoTimeOutReason =>
-                $"You cannot time out while you are participating in {DescribeEventName()}.";
+	public string NoQuitReason =>
+		$"You cannot quit while you are participating in {DescribeEventName()}.";
 
-        public override string Describe(IPerceiver voyeur)
-        {
-                return $"Arena combat participant in {DescribeEventName()}.";
-        }
+	public string NoTimeOutReason =>
+		$"You cannot time out while you are participating in {DescribeEventName()}.";
 
-        internal bool Matches(IArenaEvent arenaEvent)
-        {
-                return arenaEvent is not null && arenaEvent.Id == _arenaEventId;
-        }
+	public override string Describe(IPerceiver voyeur)
+	{
+		return $"Arena combat participant in {DescribeEventName()}.";
+	}
 
-        internal void AttachToEvent(IArenaEvent arenaEvent)
-        {
-                if (arenaEvent is null || arenaEvent.Id != _arenaEventId)
-                {
-                        return;
-                }
+	public override void Login()
+	{
+		if (Owner is not ICharacter character)
+		{
+			return;
+		}
 
-                _arenaEvent = arenaEvent;
-        }
+		var arenaEvent = ResolveEvent();
+		if (arenaEvent is null || arenaEvent.State is ArenaEventState.Completed or ArenaEventState.Aborted)
+		{
+			character.RemoveEffect(this, true);
+		}
+	}
 
-        protected override XElement SaveDefinition()
-        {
-                return new XElement("Definition", new XElement("ArenaEventId", _arenaEventId));
-        }
+	internal bool Matches(IArenaEvent arenaEvent)
+	{
+		return arenaEvent is not null && arenaEvent.Id == _arenaEventId;
+	}
 
-        private IArenaEvent? ResolveEvent()
-        {
-                if (_arenaEvent is not null)
-                {
-                        return _arenaEvent;
-                }
+	internal void AttachToEvent(IArenaEvent arenaEvent)
+	{
+		if (arenaEvent is null || arenaEvent.Id != _arenaEventId)
+		{
+			return;
+		}
 
-                _arenaEvent = Gameworld?.CombatArenas.SelectMany(x => x.ActiveEvents)
-                        .FirstOrDefault(x => x.Id == _arenaEventId);
-                return _arenaEvent;
-        }
+		_arenaEvent = arenaEvent;
+	}
 
-        private string DescribeEventName()
-        {
-                var arenaEvent = ResolveEvent();
-                if (arenaEvent is null)
-                {
-                        return $"arena event #{_arenaEventId}";
-                }
+	protected override XElement SaveDefinition()
+	{
+		return new XElement("Definition", new XElement("ArenaEventId", _arenaEventId));
+	}
 
-                return arenaEvent.Name;
-        }
+	private IArenaEvent? ResolveEvent()
+	{
+		if (_arenaEvent is not null)
+		{
+			return _arenaEvent;
+		}
+
+		_arenaEvent = Gameworld?.CombatArenas.SelectMany(x => x.ActiveEvents)
+			.FirstOrDefault(x => x.Id == _arenaEventId);
+		return _arenaEvent;
+	}
+
+	private string DescribeEventName()
+	{
+		var arenaEvent = ResolveEvent();
+		if (arenaEvent is null)
+		{
+			return $"arena event #{_arenaEventId}";
+		}
+
+		return arenaEvent.Name;
+	}
 }

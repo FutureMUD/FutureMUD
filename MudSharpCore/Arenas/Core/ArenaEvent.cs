@@ -1830,6 +1830,14 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 			ClearStagingEffect(character);
 		}
+
+		var orphanedStagingEffects = Gameworld.Actors
+			.Where(x => x.CombinedEffectsOfType<ArenaStagingEffect>().Any(effect => effect.Matches(this)))
+			.ToList();
+		foreach (var character in orphanedStagingEffects)
+		{
+			ClearStagingEffect(character);
+		}
 	}
 
 	private void ApplyPreparationPhaseEffects()
@@ -1930,6 +1938,14 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			ClearPreparingEffect(character);
+		}
+
+		var orphanedPreparingEffects = Gameworld.Actors
+			.Where(x => x.CombinedEffectsOfType<ArenaPreparingEffect>().Any(effect => effect.Matches(this)))
+			.ToList();
+		foreach (var character in orphanedPreparingEffects)
+		{
 			ClearPreparingEffect(character);
 		}
 	}

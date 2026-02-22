@@ -14,91 +14,95 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaParticipationService : IArenaParticipationService
 {
-        public ArenaParticipationService(IFuturemud gameworld)
-        {
-                _ = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
-        }
+	private readonly IFuturemud _gameworld;
 
-        public void EnsureParticipation(ICharacter participant, IArenaEvent arenaEvent)
-        {
-                if (participant is null)
-                {
-                        throw new ArgumentNullException(nameof(participant));
-                }
+	public ArenaParticipationService(IFuturemud gameworld)
+	{
+		_gameworld = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
+	}
 
-                if (arenaEvent is null)
-                {
-                        throw new ArgumentNullException(nameof(arenaEvent));
-                }
+	public void EnsureParticipation(ICharacter participant, IArenaEvent arenaEvent)
+	{
+		if (participant is null)
+		{
+			throw new ArgumentNullException(nameof(participant));
+		}
 
-                var existing = participant.CombinedEffectsOfType<ArenaParticipationEffect>()
-                        .FirstOrDefault(x => x.Matches(arenaEvent));
-                if (existing is not null)
-                {
-                        existing.AttachToEvent(arenaEvent);
-                        return;
-                }
+		if (arenaEvent is null)
+		{
+			throw new ArgumentNullException(nameof(arenaEvent));
+		}
 
-                participant.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
-                var effect = new ArenaParticipationEffect(participant, arenaEvent);
-                participant.AddEffect(effect);
-        }
+		var existing = participant.CombinedEffectsOfType<ArenaParticipationEffect>()
+			.FirstOrDefault(x => x.Matches(arenaEvent));
+		if (existing is not null)
+		{
+			existing.AttachToEvent(arenaEvent);
+			return;
+		}
 
-        public void EnsureParticipation(IArenaEvent arenaEvent)
-        {
-                if (arenaEvent is null)
-                {
-                        throw new ArgumentNullException(nameof(arenaEvent));
-                }
+		participant.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+		var effect = new ArenaParticipationEffect(participant, arenaEvent);
+		participant.AddEffect(effect);
+	}
 
-                foreach (var participant in arenaEvent.Participants
-                                 .Select(x => x.Character)
-                                 .OfType<ICharacter>())
-                {
-                        EnsureParticipation(participant, arenaEvent);
-                }
-        }
+	public void EnsureParticipation(IArenaEvent arenaEvent)
+	{
+		if (arenaEvent is null)
+		{
+			throw new ArgumentNullException(nameof(arenaEvent));
+		}
 
-        public bool HasParticipation(ICharacter participant, IArenaEvent arenaEvent)
-        {
-                if (participant is null || arenaEvent is null)
-                {
-                        return false;
-                }
+		foreach (var participant in arenaEvent.Participants
+			         .Select(x => x.Character)
+			         .OfType<ICharacter>())
+		{
+			EnsureParticipation(participant, arenaEvent);
+		}
+	}
 
-                return participant.CombinedEffectsOfType<ArenaParticipationEffect>()
-                        .Any(x => x.Matches(arenaEvent));
-        }
+	public bool HasParticipation(ICharacter participant, IArenaEvent arenaEvent)
+	{
+		if (participant is null || arenaEvent is null)
+		{
+			return false;
+		}
 
-        public void ClearParticipation(ICharacter participant, IArenaEvent arenaEvent)
-        {
-                if (participant is null || arenaEvent is null)
-                {
-                        return;
-                }
+		return participant.CombinedEffectsOfType<ArenaParticipationEffect>()
+			.Any(x => x.Matches(arenaEvent));
+	}
 
-                var effect = participant.CombinedEffectsOfType<ArenaParticipationEffect>()
-                        .FirstOrDefault(x => x.Matches(arenaEvent));
-                if (effect is null)
-                {
-                        return;
-                }
+	public void ClearParticipation(ICharacter participant, IArenaEvent arenaEvent)
+	{
+		if (participant is null || arenaEvent is null)
+		{
+			return;
+		}
 
-                participant.RemoveEffect(effect, true);
-        }
+		var effect = participant.CombinedEffectsOfType<ArenaParticipationEffect>()
+			.FirstOrDefault(x => x.Matches(arenaEvent));
+		if (effect is null)
+		{
+			return;
+		}
 
-        public void ClearParticipation(IArenaEvent arenaEvent)
-        {
-                if (arenaEvent is null)
-                {
-                        throw new ArgumentNullException(nameof(arenaEvent));
-                }
+		participant.RemoveEffect(effect, true);
+	}
 
-                foreach (var participant in arenaEvent.Participants
-                                 .Select(x => x.Character)
-                                 .OfType<ICharacter>())
-                {
-                        ClearParticipation(participant, arenaEvent);
-                }
-        }
+	public void ClearParticipation(IArenaEvent arenaEvent)
+	{
+		if (arenaEvent is null)
+		{
+			throw new ArgumentNullException(nameof(arenaEvent));
+		}
+
+		var affectedParticipants = _gameworld.Actors
+			.Where(x => x.CombinedEffectsOfType<ArenaParticipationEffect>()
+				.Any(effect => effect.Matches(arenaEvent)))
+			.ToList();
+		foreach (var participant in affectedParticipants)
+		{
+			ClearParticipation(participant, arenaEvent);
+		}
+	}
 }

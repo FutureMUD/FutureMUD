@@ -37,9 +37,20 @@ public sealed class ArenaPreparingEffect : Effect, INoQuitEffect, INoTimeOutEffe
 			throw new ArgumentNullException(nameof(root));
 		}
 
-		_arenaEventId = long.Parse(root.Element("ArenaEventId")?.Value
-		                          ?? throw new ArgumentException("ArenaEventId element missing."));
+		var idText = root.Element("ArenaEventId")?.Value;
+		if (!long.TryParse(idText, out var arenaEventId))
+		{
+			_arenaEventId = 0;
+			LoadErrors = true;
+			return;
+		}
+
+		_arenaEventId = arenaEventId;
 		_arenaEvent = ResolveEvent();
+		if (_arenaEvent is null)
+		{
+			LoadErrors = true;
+		}
 	}
 
 	public static void InitialiseEffectType()
@@ -64,6 +75,20 @@ public sealed class ArenaPreparingEffect : Effect, INoQuitEffect, INoTimeOutEffe
 	public override string Describe(IPerceiver voyeur)
 	{
 		return $"Preparing for {DescribeEventName()}.";
+	}
+
+	public override void Login()
+	{
+		if (Owner is not ICharacter character)
+		{
+			return;
+		}
+
+		var arenaEvent = ResolveEvent();
+		if (arenaEvent is null || arenaEvent.State != ArenaEventState.Preparing)
+		{
+			character.RemoveEffect(this, true);
+		}
 	}
 
 	internal bool Matches(IArenaEvent arenaEvent)

@@ -53,7 +53,10 @@ Participant Commands:
 	#3arena ratings [<class>]#0 - show your arena ratings
 
 Manager Commands:
-	You must be a manager of the arena owning the target event or event type.
+
+	#6Note: You must be a manager of the arena owning the target event or event type.#0
+
+
 	#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
 	#3arena manager autoschedule <eventtype> show#0 - show recurring settings
 	#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
@@ -188,7 +191,7 @@ Manager Commands:
 				Name = evt.Name.ColourName(),
 				Type = evt.EventType.Name.ColourName(),
 				State = evt.State.DescribeEnum().ColourValue(),
-				Scheduled = evt.ScheduledAt.ToString("f", actor).ColourValue()
+				Scheduled = evt.ScheduledAt.GetLocalDate(actor).ToString("f", actor).ColourValue()
 			})
 			.Concat(projectedEvents.Select(evt => new
 			{
@@ -197,7 +200,7 @@ Manager Commands:
 				Name = $"{evt.EventType.Name} Event".ColourName(),
 				Type = evt.EventType.Name.ColourName(),
 				State = "Scheduled (Auto)".ColourCommand(),
-				Scheduled = evt.ScheduledFor.ToString("f", actor).ColourValue()
+				Scheduled = evt.ScheduledFor.GetLocalDate(actor).ToString("f", actor).ColourValue()
 			}))
 			.OrderBy(x => x.ScheduledAt)
 			.ThenBy(x => x.Name)

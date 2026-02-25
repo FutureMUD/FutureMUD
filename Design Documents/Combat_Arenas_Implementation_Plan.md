@@ -10,6 +10,8 @@ Current Runtime Snapshot (2026-02-22)
 - Live events now poll for elimination conditions during combat and transition to resolving without waiting only for timeout.
 - NPC cleanup now handles dead participants safely, including corpse relocation to stable/after-fight locations.
 - Combatant classes now expose a separate stable-only full-recovery toggle for post-event NPC reset.
+- BYO events now tag participant direct items with a saveable ownership effect and reclaim those tagged items to the original owner during cleanup.
+- Reclaimed BYO items are repaired when the tagged owner is an NPC participant whose combatant class has full-recovery enabled.
 - Arena lifecycle text announcements now use watcher-suppressed output flags to avoid duplicate mirrored spam to observers.
 - Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
 
@@ -501,7 +503,8 @@ Location: `MudSharpCore/Arenas/Npc/*`
 
 Responsibilities
 - Resolve side loaders; spawn or resurrect NPCs; equip via outfit progs when BYO=false.
-- Snapshot/bundle inventory pre‑fight; strip/equip; restore on cleanup.
+- Snapshot/bundle inventory pre‑fight for BYO=false; for BYO=true, tag participant direct items with owner/event metadata and reclaim tagged items on cleanup.
+- Repair reclaimed BYO items when the tagged owner is an NPC participant with `FullyRestoreNpcOnCompletion`.
 - Teleport to waiting rooms per side; then stage to arena rooms per side; post‑fight to after‑fight rooms; eliminated PCs to infirmary.
 
 ---
@@ -689,6 +692,7 @@ Lifecycle
 
 NPC Backfill
 - Only fills when loaders exist; BYO respected; inventory restored.
+- BYO tagging/reclaim returns pre-event tagged items to owners during cleanup, and applies NPC full-recovery item repair where configured.
 
 Observation
 - Observers see mirrored output with correct gating; no hidden info leak.

@@ -1285,7 +1285,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
 			}
 
-			if (BringYourOwn || character.Body is null)
+			if (BringYourOwn)
+			{
+				TagBringYourOwnEquipment(character);
+				continue;
+			}
+
+			if (character.Body is null)
 			{
 				continue;
 			}
@@ -1310,6 +1316,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	{
 		ReturnNpcParticipants();
 		MovePlayerParticipantsToAfterFight();
+		RestoreBringYourOwnEquipment();
 		RestorePlayerParticipants();
 		ClearParticipantPhaseEffects();
 		ClearObservationEffects();
@@ -1437,6 +1444,141 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			RestoreParticipantInventory(character, effect);
 			character.RemoveEffect(effect, true);
 		}
+	}
+
+	private void TagBringYourOwnEquipment(ICharacter participant)
+	{
+		if (!BringYourOwn || participant.Body is null)
+		{
+			return;
+		}
+
+		var directItems = participant.Body.DirectItems?.OfType<IGameItem>().ToList();
+		if (directItems is null || directItems.Count == 0)
+		{
+			return;
+		}
+
+		foreach (var item in directItems)
+		{
+			var existing = item.EffectsOfType<ArenaByoEquipmentEffect>()
+				.FirstOrDefault(x => x.Matches(this));
+			if (existing is not null && existing.OwnerCharacterId == participant.Id)
+			{
+				continue;
+			}
+
+			if (existing is not null)
+			{
+				item.RemoveEffect(existing, true);
+			}
+
+			item.AddEffect(new ArenaByoEquipmentEffect(item, Id, participant.Id));
+		}
+	}
+
+	private void RestoreBringYourOwnEquipment()
+	{
+		if (!BringYourOwn)
+		{
+			return;
+		}
+
+		var participantsByCharacterId = _participants
+			.Where(x => x.Character is not null)
+			.ToDictionary(x => x.Character!.Id, x => x);
+
+		var taggedItems = Gameworld.Items
+			.SelectMany(item => item.EffectsOfType<ArenaByoEquipmentEffect>()
+				.Where(effect => effect.Matches(this))
+				.Select(effect => (Item: item, Effect: effect)))
+			.ToList();
+
+		foreach (var tagged in taggedItems)
+		{
+			var item = tagged.Item;
+			var effect = tagged.Effect;
+			if (item is null || item.Deleted)
+			{
+				continue;
+			}
+
+			if (!participantsByCharacterId.TryGetValue(effect.OwnerCharacterId, out var participant))
+			{
+				var fallbackOwner = Gameworld.TryGetCharacter(effect.OwnerCharacterId, true);
+				if (fallbackOwner is null)
+				{
+					item.RemoveEffect(effect, true);
+					continue;
+				}
+
+				ReturnBringYourOwnItem(item, fallbackOwner, false);
+				item.RemoveEffect(effect, true);
+				continue;
+			}
+
+			if (participant.Character is not { } owner)
+			{
+				item.RemoveEffect(effect, true);
+				continue;
+			}
+
+			ReturnBringYourOwnItem(item, owner,
+				participant.IsNpc && participant.CombatantClass.FullyRestoreNpcOnCompletion);
+			item.RemoveEffect(effect, true);
+		}
+	}
+
+	private static void ReturnBringYourOwnItem(IGameItem item, ICharacter owner, bool repairItem)
+	{
+		if (owner.Body is null || owner.State.IsDead())
+		{
+			PlaceBringYourOwnItemNearParticipant(item, owner);
+			TryRepairBringYourOwnItem(item, repairItem);
+			return;
+		}
+
+		if (!ReferenceEquals(item.InInventoryOf, owner.Body))
+		{
+			item.ContainedIn?.Take(item);
+			item.InInventoryOf?.Take(item);
+			item.Location?.Extract(item);
+
+			owner.Body.Get(item, silent: true,
+				ignoreFlags: ItemCanGetIgnore.IgnoreWeight | ItemCanGetIgnore.IgnoreFreeHands);
+		}
+
+		if (!ReferenceEquals(item.InInventoryOf, owner.Body))
+		{
+			PlaceBringYourOwnItemNearParticipant(item, owner);
+		}
+
+		TryRepairBringYourOwnItem(item, repairItem);
+	}
+
+	private static void PlaceBringYourOwnItemNearParticipant(IGameItem item, ICharacter participant)
+	{
+		item.ContainedIn?.Take(item);
+		item.InInventoryOf?.Take(item);
+		item.Location?.Extract(item);
+
+		if (participant.Location is not { } location)
+		{
+			return;
+		}
+
+		item.RoomLayer = participant.RoomLayer;
+		location.Insert(item, true);
+	}
+
+	private static void TryRepairBringYourOwnItem(IGameItem item, bool repairItem)
+	{
+		if (!repairItem)
+		{
+			return;
+		}
+
+		item.CureAllWounds();
 	}
 
 	private void MovePlayerParticipantsToAfterFight()

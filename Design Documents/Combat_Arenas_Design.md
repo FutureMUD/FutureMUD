@@ -117,7 +117,9 @@ Minimum strategies:
 
 ## 8) Inventory & Equipment
 - **BYO=false**: bundle/strip to secure bundle (same mechanism as jail); apply outfit prog; assign signature gear; always reclaim signature gear.
-- **BYO=true**: optional screening prog may block contraband; assign signature items (override precedence); reclaim on cleanup for **all** combatants.
+- **BYO=true**: optional screening prog may block contraband; assign signature items (override precedence); tag each participant's direct carried/worn/wielded items with a saveable BYO ownership effect at preparation and reclaim those tagged items to the original owner on cleanup.
+- **BYO tracked item repair (NPC only)**: when the tagged owner is an NPC whose combatant class has `FullyRestoreNpcOnCompletion`, reclaimed BYO items are repaired during cleanup.
+- **BYO tracking limits**: emergent/split descendants are not tracked automatically; only items that were explicitly tagged at preparation are reclaimed.
 
 
 ## 9) Visibility (Watcher Effect)
@@ -169,6 +171,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 
 - **CombatArena**: zone, property/lease, bank account?, use virtual cash, managers, room sets.
 - **CombatantClass Persistence Note**: class definitions persist a second boolean for stable-only full restoration on event completion (`FullyRestoreNpcOnCompletion`) alongside resurrect-on-death.
+- **ArenaByoEquipmentEffect Persistence Note**: tagged BYO items persist an item effect payload containing `EventId` and `OwnerCharacterId` until cleanup resolves and removes it.
 - **CombatantClass**: arena, name/description, eligibility prog, NPC loader prog?, resurrect‑on‑death flag.
 - **EventType**: arena, name/description, allow BYO, registration/prep/time‑limit, scoring config, elimination config, hooks, per‑side definitions (name/desc, capacity, appearance/victory fees, eligible classes, allow NPC signup, auto‑fill, outfit prog).
 - **EventInstance**: type, arena, state, timestamps, rosters (incl. reservations), scores, outcome, per‑side data.

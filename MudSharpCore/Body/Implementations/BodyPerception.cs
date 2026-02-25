@@ -350,11 +350,6 @@ y => x.DownstreamOfPart(
 			parts.Add(Actor.Cover.Cover.Describe(Actor, Actor.Cover.CoverItem?.Parent, voyeur));
 		}
 
-		if (Actor.Combat is not null)
-		{
-			parts.Add(Actor.Combat.LDescAddendumFor(Actor, voyeur));
-		}
-
 		if (Actor.RidingMount is not null)
 		{
 			parts.Add($"riding {Actor.RidingMount.HowSeen(voyeur)}");
@@ -362,6 +357,11 @@ y => x.DownstreamOfPart(
 		else
 		{
 			parts.Add(DescribePosition(voyeur, true));
+		}
+
+		if (Actor.Combat is not null)
+		{
+			parts.Add(Actor.Combat.LDescAddendumFor(Actor, voyeur));
 		}
 
 		switch (Actor.Riders.Count())

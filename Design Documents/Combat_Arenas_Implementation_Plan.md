@@ -4,7 +4,7 @@ Status: Draft for implementation handoff
 Audience: Specialized implementers (engine, DB, finance, combat, perception, commands, QA, docs)  
 Source Design: `Design Documents/Combat_Arenas_Design.md`
 
-Current Runtime Snapshot (2026-02-22)
+Current Runtime Snapshot (2026-02-25)
 - Elimination terms are now explicit via `ArenaEliminationMode` (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`).
 - Event types now include `AllowSurrender`, and surrender is exposed as `arena surrender [<event>]`.
 - Live events now poll for elimination conditions during combat and transition to resolving without waiting only for timeout.
@@ -14,6 +14,7 @@ Current Runtime Snapshot (2026-02-22)
 - Reclaimed BYO items are repaired when the tagged owner is an NPC participant whose combatant class has full-recovery enabled.
 - Arena lifecycle text announcements now use watcher-suppressed output flags to avoid duplicate mirrored spam to observers.
 - Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
+- Auto reacquire target selection now ignores incapacitated combatants, preventing spurious target-switch echoes immediately before knockout-resolved arena conclusions.
 
 ---
 

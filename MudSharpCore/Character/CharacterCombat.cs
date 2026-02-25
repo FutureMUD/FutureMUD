@@ -175,7 +175,10 @@ public partial class Character
 			}
 		}
 
-		var targetingMe = Combat.Combatants.Where(x => x.CombatTarget == this && CanEngage(x)).ToList();
+		var targetingMe = Combat.Combatants
+			.Where(x => x.CombatTarget == this && CanEngage(x))
+			.Where(x => x is not ICharacter ch || ch.State.IsAble())
+			.ToList();
 		if (targetingMe.Any())
 		{
 			if (targetingMe.Any(x => x.ColocatedWith(this)))

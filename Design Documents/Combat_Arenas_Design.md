@@ -8,7 +8,7 @@ Arenas are configurable venues that host structured combats - manual or automate
 
 This feature must remain **data-driven**, **extensible**, and **safe under failure** (cancel and refund on reboot).
 
-### 1.1 Implementation Snapshot (2026-02-22)
+### 1.1 Implementation Snapshot (2026-02-25)
 - Event types now expose explicit elimination terms via `ArenaEliminationMode`: `NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`.
 - Event types now include an explicit `AllowSurrender` toggle.
 - Player surrender is implemented as `arena surrender [<event>]`; while in combat, this is the only allowed `arena` subcommand.
@@ -17,6 +17,7 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - Combatant classes now support a separate stable-only recovery toggle for post-event NPC full restoration (guest-like health reset after return).
 - Arena lifecycle text announcements now use watcher-suppressed output flags to prevent duplicated observer spam from per-room broadcasts.
 - Arena no-quit/no-timeout phase effects now self-prune if their referenced event is no longer active, preventing stale saved effects from blocking players after crashes.
+- Automatic combat retargeting now excludes incapacitated combatants during reacquire, preventing misleading target-switch echoes as knockout eliminations resolve.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).

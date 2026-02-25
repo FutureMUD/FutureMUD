@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Text;
 using MudSharp.Character;
+using MudSharp.Character.Name;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -26,9 +27,9 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 			: null;
 		ResurrectNpcOnDeath = model.ResurrectNpcOnDeath;
 		FullyRestoreNpcOnCompletion = model.FullyRestoreNpcOnCompletion;
-		DefaultStageNameTemplate = string.IsNullOrWhiteSpace(model.DefaultStageNameTemplate)
-			? null
-			: model.DefaultStageNameTemplate;
+		DefaultStageNameProfile = model.DefaultStageNameProfileId.HasValue
+			? Gameworld.RandomNameProfiles.Get(model.DefaultStageNameProfileId.Value)
+			: null;
 		DefaultSignatureColour = string.IsNullOrWhiteSpace(model.DefaultSignatureColour)
 			? null
 			: model.DefaultSignatureColour;
@@ -53,9 +54,9 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 				Description = string.Empty,
 				EligibilityProgId = eligibilityProg.Id,
 				AdminNpcLoaderProgId = null,
+				DefaultStageNameProfileId = null,
 				ResurrectNpcOnDeath = false,
 				FullyRestoreNpcOnCompletion = false,
-				DefaultStageNameTemplate = null,
 				DefaultSignatureColour = null
 			};
 			FMDB.Context.ArenaCombatantClasses.Add(dbItem);
@@ -72,7 +73,7 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 	public IFutureProg? AdminNpcLoaderProg { get; private set; }
 	public bool ResurrectNpcOnDeath { get; private set; }
 	public bool FullyRestoreNpcOnCompletion { get; private set; }
-	public string? DefaultStageNameTemplate { get; private set; }
+	public IRandomNameProfile? DefaultStageNameProfile { get; private set; }
 	public string? DefaultSignatureColour { get; private set; }
 	public string Description { get; private set; } = string.Empty;
 
@@ -89,7 +90,7 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 		sb.AppendLine($"Resurrect NPC On Death: {ResurrectNpcOnDeath.ToColouredString()}");
 		sb.AppendLine($"Fully Restore NPC On Completion: {FullyRestoreNpcOnCompletion.ToColouredString()}");
 		sb.AppendLine(
-			$"Default Stage Name: {(string.IsNullOrWhiteSpace(DefaultStageNameTemplate) ? "None".ColourError() : DefaultStageNameTemplate.ColourName())}");
+			$"Default Stage Name Profile: {DefaultStageNameProfile?.Name.ColourName() ?? "None".ColourError()}");
 		sb.AppendLine(
 			$"Signature Colour: {(string.IsNullOrWhiteSpace(DefaultSignatureColour) ? "None".ColourError() : DefaultSignatureColour.ColourValue())}");
 		if (!string.IsNullOrWhiteSpace(Description))
@@ -109,7 +110,7 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 	#3loader <prog>|none#0 - sets an admin NPC loader prog
 	#3resurrect#0 - toggles whether NPCs are resurrected on death
 	#3fullrestore#0 - toggles whether NPCs are fully restored in stables after events
-	#3stagename <text>|clear#0 - sets a default stage name template
+	#3stagename <profile>|clear#0 - sets a default stage name random profile
 	#3sigcolour <colour>|clear#0 - sets a default signature colour";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -250,21 +251,35 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				"What default stage name template should this class use? Use #3clear#0 to remove.".SubstituteANSIColour());
+				$"Which random name profile should this class use for stage names? See {"randomname list".FluentTagMXP("send", "href='randomname list'")} for options. Use #3clear#0 to remove.".SubstituteANSIColour());
 			return false;
 		}
 
 		if (command.SafeRemainingArgument.EqualToAny("clear", "none", "remove"))
 		{
-			DefaultStageNameTemplate = null;
+			DefaultStageNameProfile = null;
 			Changed = true;
-			actor.OutputHandler.Send("This combatant class no longer has a default stage name template.".SubstituteANSIColour());
+			actor.OutputHandler.Send("This combatant class no longer has a default stage name profile.".SubstituteANSIColour());
 			return true;
 		}
 
-		DefaultStageNameTemplate = command.SafeRemainingArgument;
+		var profile = Gameworld.RandomNameProfiles.GetByIdOrName(command.SafeRemainingArgument);
+		if (profile is null)
+		{
+			actor.OutputHandler.Send("There is no such random name profile.");
+			return false;
+		}
+
+		if (!profile.IsReady)
+		{
+			actor.OutputHandler.Send(
+				$"The {profile.Name.ColourName()} random name profile is not ready and cannot be used for stage names.");
+			return false;
+		}
+
+		DefaultStageNameProfile = profile;
 		Changed = true;
-		actor.OutputHandler.Send($"Default stage name template set to {DefaultStageNameTemplate.ColourName()}.");
+		actor.OutputHandler.Send($"Default stage name profile set to {profile.Name.ColourName()}.");
 		return true;
 	}
 
@@ -305,9 +320,9 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 			dbItem.Description = Description ?? string.Empty;
 			dbItem.EligibilityProgId = EligibilityProg.Id;
 			dbItem.AdminNpcLoaderProgId = AdminNpcLoaderProg?.Id;
+			dbItem.DefaultStageNameProfileId = DefaultStageNameProfile?.Id;
 			dbItem.ResurrectNpcOnDeath = ResurrectNpcOnDeath;
 			dbItem.FullyRestoreNpcOnCompletion = FullyRestoreNpcOnCompletion;
-			dbItem.DefaultStageNameTemplate = DefaultStageNameTemplate;
 			dbItem.DefaultSignatureColour = DefaultSignatureColour;
 			FMDB.Context.SaveChanges();
 		}

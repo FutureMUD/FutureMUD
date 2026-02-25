@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Character.Name;
 using MudSharp.Database;
 using System.Text;
 using MudSharp.Community;
@@ -533,6 +534,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		bool checkForEarlyPreparation)
 	{
 		var startingRating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
+		var stageName = GenerateStageName(combatantClass);
 		using (new FMDB())
 		{
 			var signup = new MudSharp.Models.ArenaSignup
@@ -542,7 +544,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				CombatantClassId = combatantClass.Id,
 				SideIndex = sideIndex,
 				IsNpc = !character.IsPlayerCharacter,
-				StageName = combatantClass.DefaultStageNameTemplate,
+				StageName = stageName,
 				SignatureColour = combatantClass.DefaultSignatureColour,
 				StartingRating = startingRating,
 				SignedUpAt = DateTime.UtcNow
@@ -564,6 +566,31 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		if (checkForEarlyPreparation)
 		{
 			TryAdvanceToPreparation();
+		}
+	}
+
+	private static string? GenerateStageName(ICombatantClass combatantClass)
+	{
+		var profile = combatantClass.DefaultStageNameProfile;
+		if (profile is null || !profile.IsReady)
+		{
+			return null;
+		}
+
+		try
+		{
+			var name = profile.GetRandomPersonalName(nonSaving: true);
+			var stageName = name.GetName(NameStyle.GivenOnly);
+			if (string.IsNullOrWhiteSpace(stageName))
+			{
+				stageName = name.GetName(NameStyle.SimpleFull);
+			}
+
+			return string.IsNullOrWhiteSpace(stageName) ? null : stageName;
+		}
+		catch
+		{
+			return null;
 		}
 	}
 

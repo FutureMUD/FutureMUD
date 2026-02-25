@@ -4,6 +4,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.Character.Name;
 
 namespace MudSharp.Arenas;
 
@@ -21,8 +22,8 @@ public interface ICombatantClass : IEditableItem
 	bool ResurrectNpcOnDeath { get; }
 	/// <summary>Fully restore arena NPC health/status once returned to NPC stables after an event.</summary>
 	bool FullyRestoreNpcOnCompletion { get; }
-	/// <summary>Optional default stage name template for participants.</summary>
-	string? DefaultStageNameTemplate { get; }
+	/// <summary>Optional random name profile used to generate participant stage names.</summary>
+	IRandomNameProfile? DefaultStageNameProfile { get; }
 	/// <summary>Optional ANSI colour token applied to participant names.</summary>
 	string? DefaultSignatureColour { get; }
 }

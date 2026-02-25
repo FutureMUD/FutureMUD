@@ -18,14 +18,15 @@ public class ArenaCombatantClass
 	public string Description { get; set; }
 	public long EligibilityProgId { get; set; }
 	public long? AdminNpcLoaderProgId { get; set; }
+	public long? DefaultStageNameProfileId { get; set; }
 	public bool ResurrectNpcOnDeath { get; set; }
 	public bool FullyRestoreNpcOnCompletion { get; set; }
-	public string DefaultStageNameTemplate { get; set; }
 	public string DefaultSignatureColour { get; set; }
 
 	public virtual Arena Arena { get; set; }
 	public virtual FutureProg EligibilityProg { get; set; }
 	public virtual FutureProg AdminNpcLoaderProg { get; set; }
+	public virtual RandomNameProfile DefaultStageNameProfile { get; set; }
 	public virtual ICollection<ArenaEventTypeSideAllowedClass> ArenaEventTypeSideAllowedClasses { get; set; }
 	public virtual ICollection<ArenaSignup> ArenaSignups { get; set; }
 	public virtual ICollection<ArenaRating> ArenaRatings { get; set; }

@@ -181,8 +181,8 @@ public interface ICombatantClass : IFrameworkItem, ISaveable, IProgVariable {
 	bool ResurrectNpcOnDeath { get; }
 	/// <summary>If true, fully restore NPC health/status after returning to NPC stables at event completion.</summary>
 	bool FullyRestoreNpcOnCompletion { get; }
-	/// <summary>Optional identity metadata defaults (e.g., stage name template, signature colour, signature item set id).</summary>
-	string? DefaultStageNameTemplate { get; }
+	/// <summary>Optional identity metadata defaults (e.g., stage-name random profile, signature colour, signature item set id).</summary>
+	IRandomNameProfile? DefaultStageNameProfile { get; }
 	string? DefaultSignatureColour { get; }
 }
 ```
@@ -367,7 +367,7 @@ public interface IArenaBettingService {
 public interface IArenaRatingsService {
 	decimal GetRating(ICharacter character, ICombatantClass cclass);
 	void UpdateRatings(IArenaEvent evt, IReadOnlyDictionary<ICharacter, decimal> deltas);
-	/// <summary>Invokes default Elo prog; params: participants, outcomes, current ratings.</summary>
+	/// <summary>Invokes default Elo implementation; params: participants, outcomes, current ratings.</summary>
 	void ApplyDefaultElo(IArenaEvent evt);
 }
 
@@ -443,7 +443,7 @@ Entities (sketch)
 - `ArenaManager` (ArenaId, CharacterId)
 - `ArenaRoomLink` (ArenaId, RoomId, Role: Waiting|Arena|Observation|Infirmary|Stables|AfterFight)
 - `ArenaCombatantClass`
-  - Id, Name, EligibilityProgId, AdminNpcLoaderProgId (nullable), ResurrectNpcOnDeath (bool), FullyRestoreNpcOnCompletion (bool), DefaultStageNameTemplate, DefaultSignatureColour
+  - Id, Name, EligibilityProgId, AdminNpcLoaderProgId (nullable), ResurrectNpcOnDeath (bool), FullyRestoreNpcOnCompletion (bool), DefaultStageNameProfileId (nullable FK `RandomNameProfiles.Id`), DefaultSignatureColour
 - `ArenaEventType`
   - Id, ArenaId, Name, BringYourOwn (bool), RegistrationDuration, PreparationDuration, TimeLimit (nullable)
   - BettingModel, AppearanceFee, VictoryFee
@@ -544,8 +544,8 @@ Owner: Ratings/Math Engineer
 Location: `MudSharpCore/Arenas/Ratings/*`
 
 Responsibilities
-- Maintain per‑class ratings; default Elo prog shipped and used when no override.
-- Update ratings only after Completed; Draw outcome handled per Elo policy.
+- Maintain per‑class ratings using default Elo calculations.
+- Apply ratings only after Completed; Draw outcome handled per Elo policy.
 
 ---
 
@@ -702,7 +702,7 @@ Betting & Finance
 - Stakes custodied; settlements correct; insolvency blocks payouts and allows later collection.
 
 Ratings
-- Ratings update on completion using default Elo if no override.
+- Ratings update on completion using the default Elo implementation.
 
 Commands
 - Managers and players can operate end‑to‑end flows with clear feedback.

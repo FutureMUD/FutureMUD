@@ -127,6 +127,9 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => e.AdminNpcLoaderProgId)
 				.HasDatabaseName("FK_ArenaCombatantClasses_AdminNpcLoaderProg");
 
+			entity.HasIndex(e => e.DefaultStageNameProfileId)
+				.HasDatabaseName("FK_ArenaCombatantClasses_DefaultStageNameProfile");
+
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.ArenaId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Name)
@@ -141,16 +144,13 @@ public partial class FuturemudDatabaseContext
 				.UseCollation("utf8_general_ci");
 			entity.Property(e => e.EligibilityProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.AdminNpcLoaderProgId).HasColumnType("bigint(20)");
+			entity.Property(e => e.DefaultStageNameProfileId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ResurrectNpcOnDeath)
 				.HasColumnType("bit(1)")
 				.HasDefaultValueSql("b'0'");
 			entity.Property(e => e.FullyRestoreNpcOnCompletion)
 				.HasColumnType("bit(1)")
 				.HasDefaultValueSql("b'0'");
-			entity.Property(e => e.DefaultStageNameTemplate)
-				.HasColumnType("varchar(200)")
-				.HasCharSet("utf8")
-				.UseCollation("utf8_general_ci");
 			entity.Property(e => e.DefaultSignatureColour)
 				.HasColumnType("varchar(50)")
 				.HasCharSet("utf8")
@@ -173,6 +173,12 @@ public partial class FuturemudDatabaseContext
 				.HasForeignKey(d => d.AdminNpcLoaderProgId)
 				.OnDelete(DeleteBehavior.SetNull)
 				.HasConstraintName("FK_ArenaCombatantClasses_AdminNpcLoaderProg");
+
+			entity.HasOne(d => d.DefaultStageNameProfile)
+				.WithMany()
+				.HasForeignKey(d => d.DefaultStageNameProfileId)
+				.OnDelete(DeleteBehavior.SetNull)
+				.HasConstraintName("FK_ArenaCombatantClasses_DefaultStageNameProfile");
 		});
 
 		modelBuilder.Entity<ArenaEventType>(entity =>

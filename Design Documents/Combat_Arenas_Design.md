@@ -22,14 +22,14 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
 - **Managers**: configure event types, schedules, fees, funds, NPC policies, launch/abort events, and reserve slots; no admin needed except to wire NPC loader progs.
-- **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; independent `resurrect NPC on death` and `fully restore NPC on completion` flags; per-combatant identity metadata (stage name, signature colour/items).
+- **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; independent `resurrect NPC on death` and `fully restore NPC on completion` flags; per-combatant identity metadata (optional stage-name random profile, signature colour/items).
 - **Event Types**: immutable templates (multi-side, multi-room support); define side capacities (fixed at type), eligible classes per side, fees (appearance/victory), BYO toggle, per-side outfit prog, scoring prog, elimination mode, surrender policy, NPC signup/auto-fill flags, and registration/prep/time-limit durations. Managers can **clone** types for quick variants (for example, different capacities).
 - **Elimination Terms**: event types define explicit elimination modes (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`). Higher-severity outcomes still count (for example, death satisfies knockout/knockdown conditions).
 - **Surrender**: event types can explicitly enable/disable surrender. Combatants can surrender with `arena surrender`.
 - **Events (instances)**: created from an Event Type, optionally with **reserved slots** for characters/clans when **manually launched**; progress via a lifecycle (below).
 - **Observation**: **remote viewing only**, via an arena-scoped watcher effect mirroring in-arena output with appropriate audio "quietening" and notice checks for subtle actions.
 - **Betting**: **custodied** wagers (stake moved immediately). Two selectable models: **Fixed-Odds** (snapshot at bet time) and **Pari-Mutuel** (pool). **Draw** outcome supported. If arena lacks payout funds, **payout is blocked** and can be collected later.
-- **Ratings**: Elo-style per **Combatant Class** (not global), driven by a **prog hook**; supply a default Elo rating prog.
+- **Ratings**: Elo-style per **Combatant Class** (not global), applied when events reach **Completed** using the default Elo service implementation.
 - **Crash/Reboot**: mid-match -> **cancel event** and **refund wagers** (no state restore).
 - **Disconnects**: PCs cannot quit (effect); no linkdead auto-logout in an event. If disconnected, they **remain** in the match.
 - **Mercy Stoppage**: allowed when **all other sides** are incapacitated; managers can always stop a fight manually.
@@ -112,7 +112,7 @@ Minimum strategies:
 
 ## 7) Ratings & Records
 - **Per Combatant Class** Elo‑style rating (not global).  
-- Use a **rating‑delta prog hook** with event details; supply a **default Elo prog** configurable for K/decay.  
+- Ratings are applied at event **Completed** by the arena ratings service (`ApplyDefaultElo`).  
 - Performance record fields per combatant (per class, optionally per event type): W/L/D, rating, last N bouts, stage name, signature colour/items.
 
 
@@ -163,7 +163,7 @@ Minimum strategies:
 - **Betting book** with pluggable model (fixed‑odds/pari‑mutuel), solvency checks, custody on placement, settlement on outcome, payout blocking when insolvent, and withheld liabilities ledger. 
 
 ### 13.4 Hooks & Effects
-- **FutureProg hooks** at: event creation, registration open, preparing, staged, live, resolve, cleanup; per‑actor elimination/kill/crit‑injury; rating adjust (Δ). 
+- **FutureProg hooks** at: event creation, registration open, preparing, staged, live, resolve, cleanup; per‑actor elimination/kill/crit‑injury.
 - **Watcher effect** scoped to arena; mirrors output respecting hearing/notice rules and honours output-level "ignore watchers" flags.
 
 
@@ -244,7 +244,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 - On BYO=false, my inventory is bundled, I’m outfitted via `OutfitProg`, and signature items are assigned.  
 - I start in my team’s starting room; observers see the mirrored fight.  
 - On elimination, I’m sent to the infirmary; at Cleanup my inventory is restored.  
-- W/L/D recorded; rating updated via prog; I can collect winnings if any.
+- W/L/D recorded; rating updated by completed-event Elo settlement; I can collect winnings if any.
 
 ### Story B — Manager: Manual Launch with Reserved Slots & NPC Backfill
 **As a** manager  

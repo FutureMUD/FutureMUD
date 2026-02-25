@@ -57,6 +57,7 @@ public class ArenaLifecycleService : IArenaLifecycleService
 
 		if (targetState == ArenaEventState.Completed)
 		{
+			_gameworld.ArenaRatingsService.ApplyDefaultElo(arenaEvent);
 			_scheduler?.Cancel(arenaEvent);
 			return;
 		}

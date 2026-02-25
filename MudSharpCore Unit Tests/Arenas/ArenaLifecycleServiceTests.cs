@@ -14,12 +14,15 @@ public class ArenaLifecycleServiceTests
         private ArenaLifecycleService _service = null!;
         private Mock<IArenaScheduler> _scheduler = null!;
         private Mock<IFuturemud> _gameworld = null!;
+	private Mock<IArenaRatingsService> _ratingsService = null!;
 
         [TestInitialize]
         public void Setup()
         {
                 _gameworld = new Mock<IFuturemud>();
                 _gameworld.SetupGet(x => x.CombatArenas).Returns(new All<ICombatArena>());
+		_ratingsService = new Mock<IArenaRatingsService>();
+		_gameworld.SetupGet(x => x.ArenaRatingsService).Returns(_ratingsService.Object);
                 _scheduler = new Mock<IArenaScheduler>();
                 _service = new ArenaLifecycleService(_gameworld.Object);
                 _service.AttachScheduler(_scheduler.Object);
@@ -70,6 +73,7 @@ public class ArenaLifecycleServiceTests
 		_service.Transition(arenaEvent.Object, ArenaEventState.Completed);
 
 		arenaEvent.Verify(x => x.Complete(), Times.Once);
+		_ratingsService.Verify(x => x.ApplyDefaultElo(arenaEvent.Object), Times.Once);
 		_scheduler.Verify(x => x.Cancel(arenaEvent.Object), Times.Once);
 		_scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
 	}
@@ -82,6 +86,7 @@ public class ArenaLifecycleServiceTests
 		_service.Transition(arenaEvent.Object, ArenaEventState.Aborted);
 
 		arenaEvent.Verify(x => x.Abort(It.IsAny<string>()), Times.Once);
+		_ratingsService.Verify(x => x.ApplyDefaultElo(It.IsAny<IArenaEvent>()), Times.Never);
 		_scheduler.Verify(x => x.Cancel(arenaEvent.Object), Times.Once);
 		_scheduler.Verify(x => x.Schedule(It.IsAny<IArenaEvent>()), Times.Never);
 	}

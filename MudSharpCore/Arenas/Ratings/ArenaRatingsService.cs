@@ -180,7 +180,6 @@ public class ArenaRatingsService : IArenaRatingsService
 	private static List<ArenaRatingParticipant> SelectRateableParticipants(IArenaEvent arenaEvent)
 	{
 		return arenaEvent.Participants
-			.Where(x => !x.IsNpc)
 			.Select(x =>
 			{
 				var characterId = x.CharacterId;

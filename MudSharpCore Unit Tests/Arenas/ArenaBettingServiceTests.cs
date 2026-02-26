@@ -37,13 +37,20 @@ public class ArenaBettingServiceTests
 		return new ArenaBettingService(gameworld.Object, financeMock.Object, paymentMock.Object, () => context);
 	}
 
-	private static IArenaEvent BuildEvent(Mock<ICombatArena> arena, BettingModel model, ArenaEventState state, IEnumerable<IArenaParticipant>? participants = null)
+	private static IArenaEvent BuildEvent(Mock<ICombatArena> arena, BettingModel model, ArenaEventState state,
+		IEnumerable<IArenaParticipant>? participants = null, int sideCount = 1)
 	{
-		var eventTypeSide = new Mock<IArenaEventTypeSide>();
-		eventTypeSide.Setup(x => x.Index).Returns(0);
+		var sides = Enumerable.Range(0, Math.Max(1, sideCount))
+			.Select(index =>
+			{
+				var side = new Mock<IArenaEventTypeSide>();
+				side.Setup(x => x.Index).Returns(index);
+				return side.Object;
+			})
+			.ToList();
 		var eventType = new Mock<IArenaEventType>();
 		eventType.Setup(x => x.BettingModel).Returns(model);
-		eventType.Setup(x => x.Sides).Returns(new[] { eventTypeSide.Object });
+		eventType.Setup(x => x.Sides).Returns(sides);
 		var evt = new Mock<IArenaEvent>();
 		evt.Setup(x => x.Id).Returns(42L);
 		evt.Setup(x => x.State).Returns(state);
@@ -52,6 +59,21 @@ public class ArenaBettingServiceTests
 		evt.Setup(x => x.Participants).Returns(participants ?? new List<IArenaParticipant>());
 		evt.Setup(x => x.Name).Returns("Test Bout");
 		return evt.Object;
+	}
+
+	private static IArenaParticipant BuildParticipant(long characterId, int sideIndex, decimal startingRating)
+	{
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(characterId);
+		var combatantClass = new Mock<ICombatantClass>();
+		combatantClass.SetupGet(x => x.Id).Returns(characterId + 1000L);
+		var participant = new Mock<IArenaParticipant>();
+		participant.SetupGet(x => x.CharacterId).Returns(characterId);
+		participant.SetupGet(x => x.Character).Returns(character.Object);
+		participant.SetupGet(x => x.CombatantClass).Returns(combatantClass.Object);
+		participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
+		participant.SetupGet(x => x.StartingRating).Returns(startingRating);
+		return participant.Object;
 	}
 
 	[TestMethod]
@@ -94,6 +116,32 @@ public class ArenaBettingServiceTests
 		Assert.IsTrue(bet.FixedDecimalOdds.HasValue);
 		arena.Verify(x => x.Credit(100m, It.Is<string>(s => s.Contains("stake"))), Times.Once);
 		paymentMock.Verify(x => x.CollectStake(actor.Object, evt, 100m), Times.Once);
+	}
+
+	[TestMethod]
+	public void GetQuote_FixedOdds_FavoursHigherRatedSide()
+	{
+		using var context = BuildContext();
+		var financeMock = new Mock<IArenaFinanceService>();
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		var service = CreateService(context, financeMock, paymentMock, new Dictionary<long, ICharacter>());
+		var arena = new Mock<ICombatArena>();
+		var participants = new[]
+		{
+			BuildParticipant(1L, 0, 1700.0m),
+			BuildParticipant(2L, 0, 1650.0m),
+			BuildParticipant(3L, 1, 1300.0m),
+			BuildParticipant(4L, 1, 1350.0m)
+		};
+		var evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen, participants, sideCount: 2);
+
+		var side0Quote = service.GetQuote(evt, 0).FixedOdds;
+		var side1Quote = service.GetQuote(evt, 1).FixedOdds;
+
+		Assert.IsTrue(side0Quote.HasValue);
+		Assert.IsTrue(side1Quote.HasValue);
+		Assert.IsTrue(side0Quote.Value < side1Quote.Value,
+			$"Expected side 0 odds ({side0Quote.Value}) to be lower than side 1 odds ({side1Quote.Value}) for higher-rated combatants.");
 	}
 
 	[TestMethod]

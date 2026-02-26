@@ -38,6 +38,8 @@ public interface IArenaEventTypeSide : IEditableItem
 	int Index { get; }
 	int Capacity { get; }
 	ArenaSidePolicy Policy { get; }
+	decimal? MinimumRating { get; }
+	decimal? MaximumRating { get; }
 	IEnumerable<ICombatantClass> EligibleClasses { get; }
 	IFutureProg? OutfitProg { get; }
 	bool AllowNpcSignup { get; }

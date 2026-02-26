@@ -272,6 +272,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.Index).HasColumnType("int(11)");
 			entity.Property(e => e.Capacity).HasColumnType("int(11)");
 			entity.Property(e => e.Policy).HasColumnType("int(11)");
+			entity.Property(e => e.MinimumRating).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.MaximumRating).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.AllowNpcSignup)
 				.HasColumnType("bit(1)")
 				.HasDefaultValueSql("b'0'");

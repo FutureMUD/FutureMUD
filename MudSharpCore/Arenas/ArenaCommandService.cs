@@ -131,21 +131,23 @@ public class ArenaCommandService : IArenaCommandService
 
                 sb.AppendLine();
                 sb.AppendLine("Sides:".Colour(Telnet.Cyan));
-                foreach (var side in eventType.Sides.OrderBy(x => x.Index))
-                {
-			sb.AppendLine($"\nSide {ArenaSideIndexUtilities.ToDisplayString(actor, side.Index).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
-                        sb.AppendLine($"\tPolicy: {side.Policy.DescribeEnum().ColourValue()}");
-                        sb.AppendLine($"\tAllow NPC Signup: {side.AllowNpcSignup.ToColouredString()}");
-                        sb.AppendLine($"\tAuto Fill NPC: {side.AutoFillNpc.ToColouredString()}");
-                        if (side.EligibleClasses.Any())
-                        {
-                                sb.AppendLine($"\tEligible Classes: {side.EligibleClasses.Select(x => x.Name.ColourName()).ListToString()}");
-                        }
-                        else
-                        {
-                                sb.AppendLine("\tEligible Classes: None".Colour(Telnet.Red));
-                        }
-                }
+				foreach (var side in eventType.Sides.OrderBy(x => x.Index))
+				{
+					sb.AppendLine(
+						$"\nSide {ArenaSideIndexUtilities.ToDisplayString(actor, side.Index).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
+					sb.AppendLine($"\tPolicy: {side.Policy.DescribeEnum().ColourValue()}");
+					sb.AppendLine($"\tRating Range: {DescribeRatingRange(side, actor)}");
+					sb.AppendLine($"\tAllow NPC Signup: {side.AllowNpcSignup.ToColouredString()}");
+					sb.AppendLine($"\tAuto Fill NPC: {side.AutoFillNpc.ToColouredString()}");
+					if (side.EligibleClasses.Any())
+					{
+						sb.AppendLine($"\tEligible Classes: {side.EligibleClasses.Select(x => x.Name.ColourName()).ListToString()}");
+					}
+					else
+					{
+						sb.AppendLine("\tEligible Classes: None".Colour(Telnet.Red));
+					}
+				}
 
                 actor.OutputHandler.Send(sb.ToString());
         }
@@ -165,5 +167,16 @@ public class ArenaCommandService : IArenaCommandService
 
 		return
 			$"Every {eventType.AutoScheduleInterval.Value.Describe(actor).ColourValue()} from {eventType.AutoScheduleReferenceTime.Value.ToString("f", actor).ColourValue()}";
+	}
+
+	private static string DescribeRatingRange(IArenaEventTypeSide side, ICharacter actor)
+	{
+		return (side.MinimumRating, side.MaximumRating) switch
+		{
+			({ } min, { } max) => $"{min.ToString("N2", actor).ColourValue()} to {max.ToString("N2", actor).ColourValue()}",
+			({ } min, null) => $"{min.ToString("N2", actor).ColourValue()} and above",
+			(null, { } max) => $"{max.ToString("N2", actor).ColourValue()} and below",
+			_ => "Any".Colour(Telnet.Green)
+		};
 	}
 }

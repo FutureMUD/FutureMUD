@@ -504,6 +504,19 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return (false, "You are not eligible for that combatant class.");
 		}
 
+		var rating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
+		if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
+		{
+			return (false,
+				$"Your arena rating of {rating.ToString("N2", character)} is below the minimum required rating of {side.MinimumRating.Value.ToString("N2", character)} for that side.");
+		}
+
+		if (side.MaximumRating.HasValue && rating > side.MaximumRating.Value)
+		{
+			return (false,
+				$"Your arena rating of {rating.ToString("N2", character)} is above the maximum allowed rating of {side.MaximumRating.Value.ToString("N2", character)} for that side.");
+		}
+
 		if (_participants.Any(x => x.Character?.Id == character.Id))
 		{
 			return (false, "You are already signed up for this event.");
@@ -1247,7 +1260,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
-			var npcs = Gameworld.ArenaNpcService.AutoFill(this, side.Index, slotsNeeded);
+			var targetRating = ResolveAutoFillTargetRating(side);
+			var npcs = Gameworld.ArenaNpcService
+				.AutoFill(this, side.Index, slotsNeeded)
+				.Where(x => x is not null)
+				.OrderBy(x => ResolveAutoFillRatingDistance(x, side, targetRating))
+				.ThenBy(x => x.Id)
+				.ToList();
 			foreach (var npc in npcs)
 			{
 				if (npc is null)
@@ -1255,12 +1274,12 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 					continue;
 				}
 
-				if (!existingIds.Add(npc.Id))
+				if (existingIds.Contains(npc.Id))
 				{
 					continue;
 				}
 
-				var combatantClass = side.EligibleClasses.FirstOrDefault(x => !EligibilityFailed(x, npc));
+				var combatantClass = ResolveAutoFillCombatantClass(npc, side, targetRating);
 				if (combatantClass is null)
 				{
 					continue;
@@ -1273,6 +1292,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				}
 
 				CompleteSignup(npc, side.Index, combatantClass, false);
+				existingIds.Add(npc.Id);
 				slotsNeeded--;
 				if (slotsNeeded <= 0)
 				{
@@ -1280,6 +1300,80 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				}
 			}
 		}
+	}
+
+	private decimal ResolveAutoFillTargetRating(IArenaEventTypeSide side)
+	{
+		if (side.MinimumRating.HasValue && side.MaximumRating.HasValue)
+		{
+			return (side.MinimumRating.Value + side.MaximumRating.Value) / 2.0m;
+		}
+
+		if (side.MinimumRating.HasValue)
+		{
+			return side.MinimumRating.Value;
+		}
+
+		if (side.MaximumRating.HasValue)
+		{
+			return side.MaximumRating.Value;
+		}
+
+		var sideRatings = _participants
+			.Where(x => x.SideIndex == side.Index)
+			.Select(x => x.StartingRating)
+			.Where(x => x.HasValue)
+			.Select(x => x.Value)
+			.ToList();
+		if (sideRatings.Count > 0)
+		{
+			return sideRatings.Average();
+		}
+
+		var eventRatings = _participants
+			.Select(x => x.StartingRating)
+			.Where(x => x.HasValue)
+			.Select(x => x.Value)
+			.ToList();
+		return eventRatings.Count > 0 ? eventRatings.Average() : ArenaRatingsService.DefaultRating;
+	}
+
+	private ICombatantClass? ResolveAutoFillCombatantClass(ICharacter npc, IArenaEventTypeSide side, decimal targetRating)
+	{
+		return side.EligibleClasses
+			.Where(x => !EligibilityFailed(x, npc))
+			.Select(x => new
+			{
+				CombatantClass = x,
+				Rating = Gameworld.ArenaRatingsService.GetRating(npc, x)
+			})
+			.Where(x => IsRatingAllowedForSide(side, x.Rating))
+			.OrderBy(x => Math.Abs(x.Rating - targetRating))
+			.ThenBy(x => x.CombatantClass.Id)
+			.Select(x => x.CombatantClass)
+			.FirstOrDefault();
+	}
+
+	private decimal ResolveAutoFillRatingDistance(ICharacter npc, IArenaEventTypeSide side, decimal targetRating)
+	{
+		var candidateClass = ResolveAutoFillCombatantClass(npc, side, targetRating);
+		if (candidateClass is null)
+		{
+			return decimal.MaxValue;
+		}
+
+		var rating = Gameworld.ArenaRatingsService.GetRating(npc, candidateClass);
+		return Math.Abs(rating - targetRating);
+	}
+
+	private static bool IsRatingAllowedForSide(IArenaEventTypeSide side, decimal rating)
+	{
+		if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
+		{
+			return false;
+		}
+
+		return !side.MaximumRating.HasValue || rating <= side.MaximumRating.Value;
 	}
 
 	private void PrepareNpcParticipants()

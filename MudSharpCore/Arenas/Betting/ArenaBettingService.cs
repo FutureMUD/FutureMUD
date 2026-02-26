@@ -613,7 +613,7 @@ public class ArenaBettingService : IArenaBettingService
 		}
 	}
 
-	private static decimal ComputeFixedOdds(IArenaEvent arenaEvent, int? sideIndex)
+	private decimal ComputeFixedOdds(IArenaEvent arenaEvent, int? sideIndex)
 	{
 		var sides = arenaEvent.EventType.Sides.ToList();
 		if (!sides.Any())
@@ -621,28 +621,98 @@ public class ArenaBettingService : IArenaBettingService
 			return 2.0m;
 		}
 
+		if (sides.Count == 1)
+		{
+			return sideIndex.HasValue ? 1.1m : 3.0m;
+		}
+
+		var sideRatings = sides.ToDictionary(side => side.Index, side => ResolveSideRating(arenaEvent, side.Index));
+		var sideWinProbabilities = ComputeSideWinProbabilities(sideRatings);
+		var drawProbability = ComputeDrawProbability(sideRatings);
+		var sideWinShare = Clamp(1.0m - drawProbability, 0.05m, 0.97m);
+
+		decimal probability;
 		if (!sideIndex.HasValue)
 		{
-			return 3.0m;
+			probability = drawProbability;
 		}
-
-		var sideParticipants = arenaEvent.Participants.Count(x => x.SideIndex == sideIndex.Value);
-		if (sideParticipants <= 0)
+		else if (sideWinProbabilities.TryGetValue(sideIndex.Value, out var sideProbability))
 		{
-			sideParticipants = 1;
+			probability = sideProbability * sideWinShare;
 		}
-
-		var totalParticipants = sides.Sum(x => Math.Max(1, arenaEvent.Participants.Count(y => y.SideIndex == x.Index)));
-		if (totalParticipants <= 0)
+		else
 		{
-			totalParticipants = sides.Count;
+			probability = sideWinShare / Math.Max(1, sides.Count);
 		}
 
-		var probability = (decimal)sideParticipants / totalParticipants;
-		probability = Clamp(probability, 0.05m, 0.95m);
+		probability = Clamp(probability, 0.02m, 0.95m);
 		const decimal houseEdge = 0.05m;
 		var odds = (1.0m - houseEdge) / probability;
-		return Math.Round(Clamp(odds, 1.1m, 10.0m), 2, MidpointRounding.AwayFromZero);
+		return Math.Round(Clamp(odds, 1.1m, 20.0m), 2, MidpointRounding.AwayFromZero);
+	}
+
+	private decimal ResolveSideRating(IArenaEvent arenaEvent, int sideIndex)
+	{
+		var ratings = arenaEvent.Participants
+			.Where(x => x.SideIndex == sideIndex)
+			.Select(ResolveParticipantRating)
+			.Where(x => x.HasValue)
+			.Select(x => x.Value)
+			.ToList();
+		if (ratings.Count == 0)
+		{
+			return ArenaRatingsService.DefaultRating;
+		}
+
+		return ratings.Average();
+	}
+
+	private decimal? ResolveParticipantRating(IArenaParticipant participant)
+	{
+		if (participant.StartingRating.HasValue)
+		{
+			return participant.StartingRating.Value;
+		}
+
+		return participant.Character is null
+			? null
+			: _gameworld.ArenaRatingsService.GetRating(participant.Character, participant.CombatantClass);
+	}
+
+	private static IReadOnlyDictionary<int, decimal> ComputeSideWinProbabilities(
+		IReadOnlyDictionary<int, decimal> sideRatings)
+	{
+		if (sideRatings.Count == 0)
+		{
+			return new Dictionary<int, decimal>();
+		}
+
+		var strengths = sideRatings.ToDictionary(
+			x => x.Key,
+			x => Math.Pow(10.0, (double)(x.Value / 400.0m)));
+		var totalStrength = strengths.Sum(x => x.Value);
+		if (totalStrength <= 0.0)
+		{
+			var equalShare = 1.0m / sideRatings.Count;
+			return sideRatings.Keys.ToDictionary(x => x, _ => equalShare);
+		}
+
+		return strengths.ToDictionary(x => x.Key, x => (decimal)(x.Value / totalStrength));
+	}
+
+	private static decimal ComputeDrawProbability(IReadOnlyDictionary<int, decimal> sideRatings)
+	{
+		if (sideRatings.Count < 2)
+		{
+			return 0.0m;
+		}
+
+		var spread = sideRatings.Values.Max() - sideRatings.Values.Min();
+		var baseline = sideRatings.Count == 2 ? 0.18m : 0.10m;
+		var reduction = spread / 4000.0m;
+		var minimum = sideRatings.Count == 2 ? 0.03m : 0.01m;
+		var maximum = sideRatings.Count == 2 ? 0.25m : 0.15m;
+		return Clamp(baseline - reduction, minimum, maximum);
 	}
 
 	private static (decimal Pool, decimal TakeRate)? GetPoolQuote(FuturemudDatabaseContext context, long eventId, int? sideIndex)

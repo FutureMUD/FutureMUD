@@ -338,6 +338,8 @@ public partial class EditableItemHelper
 						Index = index,
 						Capacity = defaultCapacity,
 						Policy = (int)ArenaSidePolicy.Open,
+						MinimumRating = null,
+						MaximumRating = null,
 						AllowNpcSignup = true,
 						AutoFillNpc = false,
 						OutfitProgId = null,

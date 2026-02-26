@@ -18,6 +18,10 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - NPCs that are auto-resurrected or successfully fully restored during cleanup now have all matching corpses and severed bodyparts purged to prevent arena remains from persisting.
 - Event types now expose configurable rating parameters: `ArenaEloStyle` (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and per-type Elo `K` factor.
 - Ratings settlement now keys participants by persistent character ID snapshots, so rating writes still occur when character objects are not currently loaded at completion.
+- Event type sides now support optional inclusive rating gates (`MinimumRating` / `MaximumRating`) for signup eligibility.
+- Fixed-odds betting now prices sides from side rating strength and adjusts draw probability from rating spread parity.
+- NPC auto-fill signup ordering now favours candidates and combatant classes closest to the target side rating profile.
+- FutureProg now exposes `arenarating(character, combatantClass)` for script-level rating checks and filtering.
 - Arena lifecycle text announcements now use watcher-suppressed output flags to prevent duplicated observer spam from per-room broadcasts.
 - Arena no-quit/no-timeout phase effects now self-prune if their referenced event is no longer active, preventing stale saved effects from blocking players after crashes.
 - Automatic combat retargeting now excludes incapacitated combatants during reacquire, preventing misleading target-switch echoes as knockout eliminations resolve.
@@ -26,7 +30,7 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
 - **Managers**: configure event types, schedules, fees, funds, NPC policies, launch/abort events, and reserve slots; no admin needed except to wire NPC loader progs.
 - **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; independent `resurrect NPC on death` and `fully restore NPC on completion` flags; per-combatant identity metadata (optional stage-name random profile, signature colour/items).
-- **Event Types**: immutable templates (multi-side, multi-room support); define side capacities (fixed at type), eligible classes per side, fees (appearance/victory), BYO toggle, per-side outfit prog, scoring prog, elimination mode, surrender policy, NPC signup/auto-fill flags, and registration/prep/time-limit durations. Managers can **clone** types for quick variants (for example, different capacities).
+- **Event Types**: immutable templates (multi-side, multi-room support); define side capacities (fixed at type), eligible classes per side, optional per-side rating gates, fees (appearance/victory), BYO toggle, per-side outfit prog, scoring prog, elimination mode, surrender policy, NPC signup/auto-fill flags, and registration/prep/time-limit durations. Managers can **clone** types for quick variants (for example, different capacities).
 - **Elimination Terms**: event types define explicit elimination modes (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`). Higher-severity outcomes still count (for example, death satisfies knockout/knockdown conditions).
 - **Surrender**: event types can explicitly enable/disable surrender. Combatants can surrender with `arena surrender`.
 - **Events (instances)**: created from an Event Type, optionally with **reserved slots** for characters/clans when **manually launched**; progress via a lifecycle (below).
@@ -101,6 +105,7 @@ Minimum strategies:
 
 ## 6) Betting & Finance
 **Models**:
+- **Fixed-Odds runtime behavior**: side and draw quotes are rating-aware; side prices derive from side rating strength and draw pricing is adjusted by rating spread parity.
 - **Fixed‑Odds**: odds fixed at bet time from ratings; configurable house edge; stake **custodied** at placement.
 - **Pari‑Mutuel**: pool per outcome; dynamic payouts at close; configurable takeout.
 
@@ -117,6 +122,7 @@ Minimum strategies:
 - **Per Combatant Class** Elo-style rating (not global).  
 - Ratings are applied at event **Completed** by the arena ratings service (`ApplyDefaultElo`) and persisted by `ArenaId + CharacterId + CombatantClassId`.
 - Event types configure Elo variant and pace: `elostyle` (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and `elok` (K-factor > 0).
+- FutureProg can query ratings with `arenarating(character, combatantClass)` for scripted matchmaking and class filtering.
 - Performance record fields per combatant (per class, optionally per event type): W/L/D, rating, last N bouts, stage name, signature colour/items.
 
 
@@ -189,6 +195,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 - `arena create <name>`
 - `arena set <arena> economiczone|property|bank|virtualcash <...>`
 - `arena rooms set <arena> waiting|arena|observe|infirmary|stable|after <room ids...>`
+- `arena eventtype side ... rating <min> <max>|none` and `arena eventtype side ... rating min|max <value>|none` (per-side rating gates)
 - `arena class add|edit|remove …`
 - `arena eventtype add|edit|remove …` (sides, capacities, fees, BYO, outfit prog, scoring, elimination, NPC policies, rating style/K via `elostyle` and `elok`)
 - `arena eventtype clone <arena> <eventtype> as <newname> [mutations…]`

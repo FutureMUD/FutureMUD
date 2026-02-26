@@ -1580,6 +1580,12 @@ namespace MudSharp.Migrations
                     b.Property<int>("Index")
                         .HasColumnType("int(11)");
 
+                    b.Property<decimal?>("MaximumRating")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<decimal?>("MinimumRating")
+                        .HasColumnType("decimal(58,29)");
+
                     b.Property<long?>("NpcLoaderProgId")
                         .HasColumnType("bigint(20)");
 

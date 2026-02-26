@@ -14,6 +14,10 @@ Current Runtime Snapshot (2026-02-25)
 - Reclaimed BYO items are repaired when the tagged owner is an NPC participant whose combatant class has full-recovery enabled.
 - Completed-event rating settlement now keys participant updates by persistent character IDs, so ratings are persisted even when character objects are unloaded at completion.
 - Event types now persist rating strategy controls: `EloStyle` (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and `EloKFactor`.
+- Event type sides now persist optional rating gates (`MinimumRating` / `MaximumRating`) and enforce those bounds during signup checks.
+- Fixed-odds betting now prices sides from side rating strength and adjusts draw pricing from rating spread parity.
+- NPC auto-fill now favors candidates and eligible combatant classes closest to each side's target rating profile.
+- FutureProg now exposes `arenarating(character, combatantClass)` for script-level filtering and matchmaking logic.
 - Arena lifecycle text announcements now use watcher-suppressed output flags to avoid duplicate mirrored spam to observers.
 - Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
 - Auto reacquire target selection now ignores incapacitated combatants, preventing spurious target-switch echoes immediately before knockout-resolved arena conclusions.
@@ -156,6 +160,8 @@ public interface IArenaEventTypeSide : IProgVariable {
 	int Index { get; }
 	int Capacity { get; }
 	ArenaSidePolicy Policy { get; }
+	decimal? MinimumRating { get; }
+	decimal? MaximumRating { get; }
 	IEnumerable<ICombatantClass> EligibleClasses { get; }
 	IFutureProg? OutfitProg { get; }
 	bool AllowNpcSignup { get; }
@@ -454,7 +460,7 @@ Entities (sketch)
   - BettingModel, AppearanceFee, VictoryFee
   - IntroProgId (nullable), ScoringProgId (nullable), ResolutionOverrideProgId (nullable), EloStyle (int), EloKFactor (decimal)
 - `ArenaEventTypeSide`
-  - Id, EventTypeId, Index, Capacity, Policy, OutfitProgId (nullable), AllowNpcSignup (bool), AutoFillNpc (bool), NpcLoaderProgId (nullable)
+  - Id, EventTypeId, Index, Capacity, Policy, MinimumRating (nullable decimal), MaximumRating (nullable decimal), OutfitProgId (nullable), AllowNpcSignup (bool), AutoFillNpc (bool), NpcLoaderProgId (nullable)
 - `ArenaEvent`
   - Id, ArenaId, EventTypeId, State, CreatedAt, ScheduledAt, RegistrationOpensAt (nullable), StartedAt (nullable), ResolvedAt (nullable), CompletedAt (nullable)
   - CancellationReason (nullable)
@@ -511,6 +517,7 @@ Responsibilities
 - Resolve side loaders; spawn or resurrect NPCs; equip via outfit progs when BYO=false.
 - Snapshot/bundle inventory pre‑fight for BYO=false; for BYO=true, tag participant direct items with owner/event metadata and reclaim tagged items on cleanup.
 - Repair reclaimed BYO items when the tagged owner is an NPC participant with `FullyRestoreNpcOnCompletion`.
+- During auto-fill, prefer NPCs and side-eligible combatant classes with ratings closest to the side target rating profile while respecting side rating bounds.
 - Teleport to waiting rooms per side; then stage to arena rooms per side; post‑fight to after‑fight rooms; eliminated PCs to infirmary.
 
 ---
@@ -533,6 +540,7 @@ Location: `MudSharpCore/Arenas/Betting/*`, `MudSharpCore/Arenas/Finance/*`
 
 Betting
 - Custody funds on placement; allow cancel only before close if policy permits.
+- Fixed-odds quote generation uses rating-informed side probabilities with draw-parity adjustment.
 - Fixed‑odds: snapshot odds per bet.
 - Pari‑mutuel: pool stakes per side (incl. Draw); apply take rate at settlement.
 - Payout blocking: if insolvent, create blocked payouts for later collection.
@@ -563,6 +571,7 @@ Location: `MudSharpCore/Commands/Arenas/*`
 Manager Commands
 - `arena create|show|edit|rooms|managers|fund|types|events|abort`
 - `arena type create|clone|edit|sides|fees|durations|policies|betting|outfits`
+- Side editing includes rating-gate controls (`rating <min> <max>`, `rating min|max <value>`, `rating none`) to constrain signup by side.
 - `arenaeventtype set elostyle <TeamAverage|PairwiseIndividual|PairwiseSide>` and `arenaeventtype set elok <value>`
 - `arena event schedule|launch|reserve|close|prepare|stage|start|stop|resolve|cleanup`
 
@@ -710,6 +719,9 @@ Betting & Finance
 
 Ratings
 - Ratings update on completion using the configured event-type Elo style and K-factor.
+- Signup honors per-side minimum/maximum rating bounds.
+- Auto-fill prefers nearest-rating NPC/class matches for side composition targets.
+- FutureProg `arenarating` is available for scripted rating checks.
 
 Commands
 - Managers and players can operate end‑to‑end flows with clear feedback.

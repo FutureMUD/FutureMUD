@@ -769,6 +769,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 					Index = side.Index,
 					Capacity = side.Capacity,
 					Policy = (int)side.Policy,
+					MinimumRating = side.MinimumRating,
+					MaximumRating = side.MaximumRating,
 					AllowNpcSignup = side.AllowNpcSignup,
 					AutoFillNpc = side.AutoFillNpc,
 					OutfitProgId = side.OutfitProg?.Id,
@@ -851,6 +853,8 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 		Index = model.Index;
 		Capacity = model.Capacity;
 		Policy = (ArenaSidePolicy)model.Policy;
+		MinimumRating = model.MinimumRating;
+		MaximumRating = model.MaximumRating;
 		AllowNpcSignup = model.AllowNpcSignup;
 		AutoFillNpc = model.AutoFillNpc;
 		OutfitProg = model.OutfitProgId.HasValue ? parent.Gameworld.FutureProgs.Get(model.OutfitProgId.Value) : null;
@@ -869,6 +873,8 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 	public int Index { get; private set; }
 	public int Capacity { get; private set; }
 	public ArenaSidePolicy Policy { get; private set; }
+	public decimal? MinimumRating { get; private set; }
+	public decimal? MaximumRating { get; private set; }
 	public IEnumerable<ICombatantClass> EligibleClasses => _eligibleClasses;
 	public IFutureProg? OutfitProg { get; private set; }
 	public bool AllowNpcSignup { get; private set; }
@@ -880,6 +886,7 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 		var sb = new StringBuilder();
 		sb.AppendLine(
 			$"Side {ArenaSideIndexUtilities.ToDisplayString(actor, Index).ColourValue()} - Capacity {Capacity.ToString(actor).ColourValue()} ({Policy.DescribeEnum().ColourValue()})");
+		sb.AppendLine($"\tRating Range: {DescribeRatingRange(actor)}");
 		sb.AppendLine($"\tAllow NPC Signup: {AllowNpcSignup.ToColouredString()}");
 		sb.AppendLine($"\tAuto Fill NPC: {AutoFillNpc.ToColouredString()}");
 		sb.AppendLine($"\tOutfit Prog: {OutfitProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -892,6 +899,8 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 
 	#3capacity <number>#0 - sets the capacity for this side
 	#3policy <policy>#0 - sets the signup policy
+	#3rating <min> <max>|none#0 - sets the inclusive rating range for this side
+	#3rating min|max <value>|none#0 - sets or clears one rating bound
 	#3allownpc#0 - toggles whether NPCs may sign up
 	#3autofill#0 - toggles whether NPCs auto-fill empty slots
 	#3outfit <prog>|none#0 - sets an outfit prog
@@ -906,6 +915,9 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 				return BuildingCommandCapacity(actor, command);
 			case "policy":
 				return BuildingCommandPolicy(actor, command);
+			case "rating":
+			case "ratings":
+				return BuildingCommandRating(actor, command);
 			case "npc":
 			case "allownpc":
 				return BuildingCommandAllowNpc(actor);
@@ -965,6 +977,129 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 		Policy = policy;
 		Changed = true;
 		actor.OutputHandler.Send($"Policy is now {Policy.DescribeEnum().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRating(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Current rating range is {DescribeRatingRange(actor)}.\nUse #3rating <min> <max>#0, #3rating min|max <value>#0, or #3rating none#0."
+					.SubstituteANSIColour());
+			return false;
+		}
+
+		var first = command.PopForSwitch();
+		switch (first)
+		{
+			case "none":
+			case "clear":
+			case "off":
+			case "remove":
+				MinimumRating = null;
+				MaximumRating = null;
+				Changed = true;
+				actor.OutputHandler.Send("This side no longer has any arena rating restrictions.".Colour(Telnet.Green));
+				return true;
+			case "min":
+			case "minimum":
+				return BuildingCommandRatingBound(actor, command, true);
+			case "max":
+			case "maximum":
+				return BuildingCommandRatingBound(actor, command, false);
+		}
+
+		if (!decimal.TryParse(first, out var min))
+		{
+			actor.OutputHandler.Send("You must enter numeric minimum and maximum rating values, or use #3rating none#0."
+				.SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.IsFinished || !decimal.TryParse(command.PopSpeech(), out var max))
+		{
+			actor.OutputHandler.Send("You must supply both minimum and maximum rating values.".ColourError());
+			return false;
+		}
+
+		if (min > max)
+		{
+			actor.OutputHandler.Send("Minimum rating cannot be greater than maximum rating.".ColourError());
+			return false;
+		}
+
+		MinimumRating = min;
+		MaximumRating = max;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"Rating range is now {MinimumRating.Value.ToString("N2", actor).ColourValue()} to {MaximumRating.Value.ToString("N2", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRatingBound(ICharacter actor, StringStack command, bool isMinimum)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"What {(isMinimum ? "minimum" : "maximum")} rating should this side require? Use #3none#0 to clear."
+					.SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "off", "remove"))
+		{
+			if (isMinimum)
+			{
+				MinimumRating = null;
+			}
+			else
+			{
+				MaximumRating = null;
+			}
+
+			if (MinimumRating.HasValue && MaximumRating.HasValue && MinimumRating.Value > MaximumRating.Value)
+			{
+				if (isMinimum)
+				{
+					MaximumRating = MinimumRating;
+				}
+				else
+				{
+					MinimumRating = MaximumRating;
+				}
+			}
+
+			Changed = true;
+			actor.OutputHandler.Send($"Rating range is now {DescribeRatingRange(actor)}.");
+			return true;
+		}
+
+		if (!decimal.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid numeric rating.".ColourError());
+			return false;
+		}
+
+		var newMinimum = isMinimum ? value : MinimumRating;
+		var newMaximum = isMinimum ? MaximumRating : value;
+		if (newMinimum.HasValue && newMaximum.HasValue && newMinimum.Value > newMaximum.Value)
+		{
+			actor.OutputHandler.Send("Minimum rating cannot be greater than maximum rating.".ColourError());
+			return false;
+		}
+
+		if (isMinimum)
+		{
+			MinimumRating = value;
+		}
+		else
+		{
+			MaximumRating = value;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"Rating range is now {DescribeRatingRange(actor)}.");
 		return true;
 	}
 
@@ -1099,6 +1234,8 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 			dbSide.Index = Index;
 			dbSide.Capacity = Capacity;
 			dbSide.Policy = (int)Policy;
+			dbSide.MinimumRating = MinimumRating;
+			dbSide.MaximumRating = MaximumRating;
 			dbSide.AllowNpcSignup = AllowNpcSignup;
 			dbSide.AutoFillNpc = AutoFillNpc;
 			dbSide.OutfitProgId = OutfitProg?.Id;
@@ -1119,5 +1256,16 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 		}
 
 		Changed = false;
+	}
+
+	private string DescribeRatingRange(ICharacter actor)
+	{
+		return (MinimumRating, MaximumRating) switch
+		{
+			({ } min, { } max) => $"{min.ToString("N2", actor).ColourValue()} to {max.ToString("N2", actor).ColourValue()}",
+			({ } min, null) => $"{min.ToString("N2", actor).ColourValue()} and above",
+			(null, { } max) => $"{max.ToString("N2", actor).ColourValue()} and below",
+			_ => "Any".Colour(Telnet.Green)
+		};
 	}
 }

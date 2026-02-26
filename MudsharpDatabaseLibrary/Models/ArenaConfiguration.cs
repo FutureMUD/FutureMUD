@@ -80,6 +80,8 @@ public class ArenaEventTypeSide
 	public int Index { get; set; }
 	public int Capacity { get; set; }
 	public int Policy { get; set; }
+	public decimal? MinimumRating { get; set; }
+	public decimal? MaximumRating { get; set; }
 	public bool AllowNpcSignup { get; set; }
 	public bool AutoFillNpc { get; set; }
 	public long? OutfitProgId { get; set; }

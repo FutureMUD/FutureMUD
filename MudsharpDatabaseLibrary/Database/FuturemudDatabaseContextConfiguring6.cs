@@ -222,6 +222,12 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.IntroProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ScoringProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ResolutionOverrideProgId).HasColumnType("bigint(20)");
+			entity.Property(e => e.EloStyle)
+				.HasColumnType("int(11)")
+				.HasDefaultValue(0);
+			entity.Property(e => e.EloKFactor)
+				.HasColumnType("decimal(58,29)")
+				.HasDefaultValue(32.0m);
 
 			entity.HasOne(d => d.Arena)
 				.WithMany(p => p.ArenaEventTypes)

@@ -57,6 +57,8 @@ public class ArenaEventType
 	public long? IntroProgId { get; set; }
 	public long? ScoringProgId { get; set; }
 	public long? ResolutionOverrideProgId { get; set; }
+	public int EloStyle { get; set; }
+	public decimal EloKFactor { get; set; }
 
 	public virtual Arena Arena { get; set; }
 	public virtual FutureProg IntroProg { get; set; }

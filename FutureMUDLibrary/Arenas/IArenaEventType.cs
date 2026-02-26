@@ -30,6 +30,8 @@ public interface IArenaEventType : IEditableItem
 	IFutureProg? IntroProg { get; }
 	IFutureProg? ScoringProg { get; }
 	IFutureProg? ResolutionOverrideProg { get; }
+	ArenaEloStyle EloStyle { get; }
+	decimal EloKFactor { get; }
 	IArenaEliminationStrategy? EliminationStrategy { get; }
 	ArenaEliminationMode EliminationMode { get; }
 	bool AllowSurrender { get; }

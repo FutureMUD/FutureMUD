@@ -19,6 +19,7 @@ namespace MudSharp.Arenas;
 public sealed class ArenaEventType : SaveableItem, IArenaEventType
 {
 	private readonly List<IArenaEventTypeSide> _sides = new();
+	private const decimal DefaultEloKFactor = 32.0m;
 
 	public ArenaEventType(MudSharp.Models.ArenaEventType model, CombatArena arena,
 		Func<long, ICombatantClass?> classLookup, IArenaEliminationStrategy? eliminationStrategy = null)
@@ -45,6 +46,10 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		ResolutionOverrideProg = model.ResolutionOverrideProgId.HasValue
 			? Gameworld.FutureProgs.Get(model.ResolutionOverrideProgId.Value)
 			: null;
+		EloStyle = Enum.IsDefined(typeof(ArenaEloStyle), model.EloStyle)
+			? (ArenaEloStyle)model.EloStyle
+			: ArenaEloStyle.TeamAverage;
+		EloKFactor = model.EloKFactor > 0.0m ? model.EloKFactor : DefaultEloKFactor;
 		EliminationMode = Enum.IsDefined(typeof(ArenaEliminationMode), model.EliminationMode)
 			? (ArenaEliminationMode)model.EliminationMode
 			: ArenaEliminationMode.NoElimination;
@@ -76,6 +81,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 	public IFutureProg? IntroProg { get; private set; }
 	public IFutureProg? ScoringProg { get; private set; }
 	public IFutureProg? ResolutionOverrideProg { get; private set; }
+	public ArenaEloStyle EloStyle { get; private set; }
+	public decimal EloKFactor { get; private set; }
 	public ArenaEliminationMode EliminationMode { get; private set; }
 	public bool AllowSurrender { get; private set; }
 	public IArenaEliminationStrategy? EliminationStrategy { get; private set; }
@@ -99,6 +106,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		sb.AppendLine($"Intro Prog: {IntroProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Scoring Prog: {ScoringProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Resolution Override Prog: {ResolutionOverrideProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Elo Style: {EloStyle.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Elo K-Factor: {EloKFactor.ToString("N2", actor).ColourValue()}");
 		sb.AppendLine($"Elimination Mode: {EliminationMode.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Allow Surrender: {AllowSurrender.ToColouredString()}");
 		if (EliminationStrategy != null)
@@ -134,6 +143,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 	#3introprog <prog>|none#0 - sets the intro prog
 	#3scoringprog <prog>|none#0 - sets the scoring prog
 	#3resolutionprog <prog>|none#0 - sets the resolution override prog
+	#3elostyle <style>#0 - sets which Elo variant is used for rating updates
+	#3elok <value>#0 - sets the Elo K-factor for this event type
 	#3elimination <none|points|knockdown|knockout|death>#0 - sets how bouts end automatically
 	#3surrender#0 - toggles whether combatants can surrender
 	#3side <index> ...#0 - issues a building command to a specific side";
@@ -182,6 +193,14 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			case "resolution":
 			case "resolve":
 				return BuildingCommandResolutionProg(actor, command);
+			case "elostyle":
+			case "ratingstyle":
+			case "ratingmethod":
+				return BuildingCommandEloStyle(actor, command);
+			case "elok":
+			case "kfactor":
+			case "ratingk":
+				return BuildingCommandEloKFactor(actor, command);
 			case "elimination":
 			case "elim":
 				return BuildingCommandElimination(actor, command);
@@ -524,6 +543,49 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		return true;
 	}
 
+	private bool BuildingCommandEloStyle(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Which Elo style should this event type use? Valid options are {Enum.GetValues<ArenaEloStyle>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<ArenaEloStyle>(out var style))
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid Elo style. Valid options are {Enum.GetValues<ArenaEloStyle>().ListToColouredString()}.");
+			return false;
+		}
+
+		EloStyle = style;
+		Changed = true;
+		actor.OutputHandler.Send($"Elo style is now {EloStyle.DescribeEnum().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandEloKFactor(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"What Elo K-factor should this event type use? It must be greater than zero. Current value is {EloKFactor.ToString("N2", actor).ColourValue()}.");
+			return false;
+		}
+
+		if (!decimal.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0m)
+		{
+			actor.OutputHandler.Send("You must enter a number greater than zero for the Elo K-factor.");
+			return false;
+		}
+
+		EloKFactor = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Elo K-factor is now {EloKFactor.ToString("N2", actor).ColourValue()}.");
+		return true;
+	}
+
 	private bool BuildingCommandElimination(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -696,7 +758,9 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 				VictoryFee = VictoryFee,
 				IntroProgId = IntroProg?.Id,
 				ScoringProgId = ScoringProg?.Id,
-				ResolutionOverrideProgId = ResolutionOverrideProg?.Id
+				ResolutionOverrideProgId = ResolutionOverrideProg?.Id,
+				EloStyle = (int)EloStyle,
+				EloKFactor = EloKFactor
 			};
 			foreach (var side in _sides.OfType<ArenaEventTypeSide>())
 			{
@@ -763,6 +827,8 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			dbType.IntroProgId = IntroProg?.Id;
 			dbType.ScoringProgId = ScoringProg?.Id;
 			dbType.ResolutionOverrideProgId = ResolutionOverrideProg?.Id;
+			dbType.EloStyle = (int)EloStyle;
+			dbType.EloKFactor = EloKFactor;
 			FMDB.Context.SaveChanges();
 		}
 

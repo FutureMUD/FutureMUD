@@ -12,6 +12,8 @@ namespace MudSharp.Arenas;
 /// </summary>
 public interface IArenaParticipant : IEditableItem
 {
+	/// <summary>Character identifier for this slot occupant.</summary>
+	long CharacterId { get; }
 	/// <summary>Character occupying the slot, null if pending NPC fill.</summary>
 	ICharacter? Character { get; }
 	/// <summary>Combatant class chosen for the participant.</summary>

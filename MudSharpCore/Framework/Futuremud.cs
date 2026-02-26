@@ -130,18 +130,18 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 		ClockManager = new ClockManager(this);
 		GameItemComponentManager = new GameItemComponentManager();
-                Scheduler = new Scheduler();
-                ArenaLifecycleService = new ArenaLifecycleService(this);
-                ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
-                ArenaObservationService = new ArenaObservationService(this);
-                ArenaFinanceService = new ArenaFinanceService();
-                ArenaBettingService = new ArenaBettingService(this, ArenaFinanceService, new ArenaBetPaymentService());
-                ArenaRatingsService = new ArenaRatingsService(this);
-                ArenaNpcService = new ArenaNpcService(this);
-                ArenaParticipationService = new ArenaParticipationService(this);
-                ArenaCommandService = new ArenaCommandService(this);
-                SaveManager = new SaveManager();
-                HeartbeatManager = new HeartbeatManager(this);
+		Scheduler = new Scheduler();
+		ArenaLifecycleService = new ArenaLifecycleService(this);
+		ArenaScheduler = new ArenaScheduler(this, ArenaLifecycleService);
+		ArenaObservationService = new ArenaObservationService(this);
+		ArenaFinanceService = new ArenaFinanceService();
+		ArenaBettingService = new ArenaBettingService(this, ArenaFinanceService, new ArenaBetPaymentService());
+		ArenaRatingsService = new ArenaRatingsService(this);
+		ArenaNpcService = new ArenaNpcService(this);
+		ArenaParticipationService = new ArenaParticipationService(this);
+		ArenaCommandService = new ArenaCommandService(this);
+		SaveManager = new SaveManager();
+		HeartbeatManager = new HeartbeatManager(this);
 
 		server?.Bind(_connections, AddConnection);
 
@@ -402,8 +402,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 				sw.Stop();
 				totalTime.Stop();
-//#if DEBUG
-//#else
+				//#if DEBUG
+				//#else
 				if (totalTime.ElapsedMilliseconds < 250)
 				{
 					var milliseconds = 250 - totalTime.ElapsedMilliseconds;
@@ -412,7 +412,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 				}
 
 				totalTime.Stop();
-//#endif
+				//#endif
 				Thread.Sleep(Math.Max(1, 250 - (int)totalTime.ElapsedMilliseconds));
 			}
 
@@ -472,7 +472,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 	public ICharacter TryPlayerCharacterByName(string name)
 	{
-		var result = 
+		var result =
 			_cachedPersonalNames.GetByPersonalName(name);
 		if (result is null)
 		{
@@ -525,7 +525,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			{
 				effect.ShownHintIds.Add(hint.Id);
 			}
-			
+
 			effect.LastHintShown = DateTime.UtcNow;
 			character.EffectsChanged = true;
 			continue;
@@ -593,9 +593,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 				.ThenBy(x => x.TotalMinutesPlayed)
 				.ToList())
 			{
-				_cachedPersonalNames.Add(new CharacterPersonalNameLookup { 
-				PersonalName = new PersonalName(XElement.Parse(dbcharacter.NameInfo).Element("PersonalName").Element("Name"), this),
-				Id = dbcharacter.Id
+				_cachedPersonalNames.Add(new CharacterPersonalNameLookup
+				{
+					PersonalName = new PersonalName(XElement.Parse(dbcharacter.NameInfo).Element("PersonalName").Element("Name"), this),
+					Id = dbcharacter.Id
 				});
 			}
 		}
@@ -607,7 +608,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	{
 		connection.Bind(new FuturemudControlContext(connection, this));
 		if (connection.State == ConnectionState.Closed)
-			// If this occurs, there has been an exception while initialising the player connection
+		// If this occurs, there has been an exception while initialising the player connection
 		{
 			return;
 		}
@@ -842,15 +843,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_randomNameProfiles.Add(profile);
 	}
 
-       public void Add(ILineOfCreditAccount account)
-       {
-               _lineOfCreditAccounts.Add(account);
-       }
+	public void Add(ILineOfCreditAccount account)
+	{
+		_lineOfCreditAccounts.Add(account);
+	}
 
-       public void Add(ICombatArena arena)
-       {
-               _combatArenas.Add(arena);
-       }
+	public void Add(ICombatArena arena)
+	{
+		_combatArenas.Add(arena);
+	}
 
 	public void Add(IElection election)
 	{
@@ -1097,20 +1098,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_weaponTypes.Add(type);
 	}
 
-		public void Add(IRangedWeaponType type)
-		{
-				_rangedWeaponTypes.Add(type);
-		}
+	public void Add(IRangedWeaponType type)
+	{
+		_rangedWeaponTypes.Add(type);
+	}
 
-		public void Add(IRangedCover cover)
-		{
-				_rangedCovers.Add(cover);
-		}
+	public void Add(IRangedCover cover)
+	{
+		_rangedCovers.Add(cover);
+	}
 
-		public void Add(IAmmunitionType type)
-		{
-				_ammunitionTypes.Add(type);
-		}
+	public void Add(IAmmunitionType type)
+	{
+		_ammunitionTypes.Add(type);
+	}
 
 	public void Add(IWearableSize size)
 	{
@@ -1401,15 +1402,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_marketPopulations.Add(item);
 	}
 
-		public void Add(IHeightWeightModel model)
-		{
-				_heightWeightModels.Add(model);
-		}
+	public void Add(IHeightWeightModel model)
+	{
+		_heightWeightModels.Add(model);
+	}
 
-		public void Add(IHearingProfile profile)
-		{
-				_hearingProfiles.Add(profile);
-		}
+	public void Add(IHearingProfile profile)
+	{
+		_hearingProfiles.Add(profile);
+	}
 
 	public void Add(IShieldType shield)
 	{
@@ -1722,15 +1723,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_magicSpells.Remove(spell);
 	}
 
-       public void Destroy(ILineOfCreditAccount account)
-       {
-               _lineOfCreditAccounts.Remove(account);
-       }
+	public void Destroy(ILineOfCreditAccount account)
+	{
+		_lineOfCreditAccounts.Remove(account);
+	}
 
-       public void Destroy(ICombatArena arena)
-       {
-               _combatArenas.Remove(arena);
-       }
+	public void Destroy(ICombatArena arena)
+	{
+		_combatArenas.Remove(arena);
+	}
 
 	public void Destroy(IElection election)
 	{
@@ -1907,20 +1908,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_limbs.Remove(limb);
 	}
 
-		public void Destroy(IRangedWeaponType type)
-		{
-				_rangedWeaponTypes.Remove(type);
-		}
+	public void Destroy(IRangedWeaponType type)
+	{
+		_rangedWeaponTypes.Remove(type);
+	}
 
-		public void Destroy(IRangedCover cover)
-		{
-				_rangedCovers.Remove(cover);
-		}
+	public void Destroy(IRangedCover cover)
+	{
+		_rangedCovers.Remove(cover);
+	}
 
-		public void Destroy(IAmmunitionType type)
-		{
-				_ammunitionTypes.Remove(type);
-		}
+	public void Destroy(IAmmunitionType type)
+	{
+		_ammunitionTypes.Remove(type);
+	}
 
 	public void Destroy(IWearableSize size)
 	{

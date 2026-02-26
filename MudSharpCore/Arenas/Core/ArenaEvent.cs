@@ -1354,6 +1354,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	{
 		var stableCells = Arena.NpcStablesCells.ToList();
 		var afterFightCells = Arena.AfterFightCells.ToList();
+		var cleanupNpcIds = new HashSet<long>();
 
 		foreach (var participant in _participants.Where(x => x.IsNpc))
 		{
@@ -1371,13 +1372,22 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				.FirstOrDefault(x => x.EventId == Id);
 			if (effect is not null)
 			{
+				var wasDeadBeforeReturn = npc.State.IsDead();
 				Gameworld.ArenaNpcService.ReturnNpc(npc, this, participant.CombatantClass.ResurrectNpcOnDeath);
+				var wasAutoResurrected = participant.CombatantClass.ResurrectNpcOnDeath &&
+				                         wasDeadBeforeReturn &&
+				                         !npc.State.IsDead();
 				if (npc.State.IsDead() && destination is not null)
 				{
 					MoveCorpseToCell(npc, destination);
 				}
 
-				TryApplyNpcStableRecovery(npc, participant, stableCells);
+				var wasFullyRestored = TryApplyNpcStableRecovery(npc, participant, stableCells);
+				if (wasAutoResurrected || wasFullyRestored)
+				{
+					cleanupNpcIds.Add(npc.Id);
+				}
+
 				continue;
 			}
 
@@ -1389,12 +1399,43 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			if (npc.State.IsDead())
 			{
 				MoveCorpseToCell(npc, destination);
-				TryApplyNpcStableRecovery(npc, participant, stableCells);
 				continue;
 			}
 
 			npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
-			TryApplyNpcStableRecovery(npc, participant, stableCells);
+			if (TryApplyNpcStableRecovery(npc, participant, stableCells))
+			{
+				cleanupNpcIds.Add(npc.Id);
+			}
+		}
+
+		DeleteNpcRemains(cleanupNpcIds);
+	}
+
+	private void DeleteNpcRemains(HashSet<long> npcIds)
+	{
+		if (npcIds.Count == 0)
+		{
+			return;
+		}
+
+		var remains = Gameworld.Items
+			.Where(item => !item.Deleted)
+			.Where(item =>
+			{
+				if (item.GetItemType<ICorpse>() is { } corpse && npcIds.Contains(corpse.OriginalCharacter.Id))
+				{
+					return true;
+				}
+
+				return item.GetItemType<ISeveredBodypart>() is { } bodypart &&
+				       npcIds.Contains(bodypart.OriginalCharacterId);
+			})
+			.ToList();
+
+		foreach (var remain in remains)
+		{
+			remain.Delete();
 		}
 	}
 
@@ -1413,32 +1454,32 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		destination.Insert(corpse, true);
 	}
 
-	private static void TryApplyNpcStableRecovery(ICharacter npc, ArenaParticipant participant,
+	private static bool TryApplyNpcStableRecovery(ICharacter npc, ArenaParticipant participant,
 		IReadOnlyCollection<ICell> stableCells)
 	{
 		if (!participant.CombatantClass.FullyRestoreNpcOnCompletion)
 		{
-			return;
+			return false;
 		}
 
 		if (stableCells.Count == 0)
 		{
-			return;
+			return false;
 		}
 
 		if (npc.State.IsDead())
 		{
-			return;
+			return false;
 		}
 
 		if (npc.Location is not ICell location || !stableCells.Contains(location))
 		{
-			return;
+			return false;
 		}
 
 		if (npc.Body is not { } body)
 		{
-			return;
+			return false;
 		}
 
 		body.HeldBreathTime = TimeSpan.Zero;
@@ -1448,6 +1489,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		body.CurrentStamina = body.MaximumStamina;
 		body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
 		body.EndHealthTick();
+		return true;
 	}
 
 	private void RestorePlayerParticipants()
@@ -2247,6 +2289,7 @@ internal sealed class ArenaParticipant : IArenaParticipant
 	}
 
 	public long SignupId { get; }
+	public long CharacterId => _characterId;
 	public ICharacter? Character => _characterCache ??= _event.Gameworld.TryGetCharacter(_characterId, true);
 	public ICombatantClass CombatantClass { get; }
 	public int SideIndex { get; }

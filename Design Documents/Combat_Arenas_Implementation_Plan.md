@@ -12,6 +12,8 @@ Current Runtime Snapshot (2026-02-25)
 - Combatant classes now expose a separate stable-only full-recovery toggle for post-event NPC reset.
 - BYO events now tag participant direct items with a saveable ownership effect and reclaim those tagged items to the original owner during cleanup.
 - Reclaimed BYO items are repaired when the tagged owner is an NPC participant whose combatant class has full-recovery enabled.
+- Completed-event rating settlement now keys participant updates by persistent character IDs, so ratings are persisted even when character objects are unloaded at completion.
+- Event types now persist rating strategy controls: `EloStyle` (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and `EloKFactor`.
 - Arena lifecycle text announcements now use watcher-suppressed output flags to avoid duplicate mirrored spam to observers.
 - Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
 - Auto reacquire target selection now ignores incapacitated combatants, preventing spurious target-switch echoes immediately before knockout-resolved arena conclusions.
@@ -137,6 +139,7 @@ namespace MudSharp.Arenas;
 /// Represents a slot for either a PC or NPC with a chosen CombatantClass and side assignment.
 /// </summary>
 public interface IArenaParticipant : IProgVariable {
+	long CharacterId { get; }
 	ICharacter Character { get; }
 	ICombatantClass CombatantClass { get; }
 	int SideIndex { get; }
@@ -264,6 +267,8 @@ public interface IArenaEventType : IFrameworkItem, ISaveable, IProgVariable {
 	IFutureProg? ScoringProg { get; }
 	/// <summary>Override resolution; returns (Outcome, WinningSides).</summary>
 	IFutureProg? ResolutionOverrideProg { get; }
+	ArenaEloStyle EloStyle { get; }
+	decimal EloKFactor { get; }
 
 	IArenaEvent CreateInstance(DateTime scheduledTime, IEnumerable<IArenaReservation>? reservations = null);
 	IArenaEventType Clone(string newName, ICharacter originator);
@@ -447,7 +452,7 @@ Entities (sketch)
 - `ArenaEventType`
   - Id, ArenaId, Name, BringYourOwn (bool), RegistrationDuration, PreparationDuration, TimeLimit (nullable)
   - BettingModel, AppearanceFee, VictoryFee
-  - IntroProgId (nullable), ScoringProgId (nullable), ResolutionOverrideProgId (nullable)
+  - IntroProgId (nullable), ScoringProgId (nullable), ResolutionOverrideProgId (nullable), EloStyle (int), EloKFactor (decimal)
 - `ArenaEventTypeSide`
   - Id, EventTypeId, Index, Capacity, Policy, OutfitProgId (nullable), AllowNpcSignup (bool), AutoFillNpc (bool), NpcLoaderProgId (nullable)
 - `ArenaEvent`
@@ -544,8 +549,9 @@ Owner: Ratings/Math Engineer
 Location: `MudSharpCore/Arenas/Ratings/*`
 
 Responsibilities
-- Maintain per‑class ratings using default Elo calculations.
-- Apply ratings only after Completed; Draw outcome handled per Elo policy.
+- Maintain per-class ratings with pluggable built-in Elo strategies (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`).
+- Apply ratings only after Completed; Draw outcome handled per selected Elo strategy policy.
+- Use participant character-ID snapshots so rating settlement works even when participant `ICharacter` objects are not loaded.
 
 ---
 
@@ -557,6 +563,7 @@ Location: `MudSharpCore/Commands/Arenas/*`
 Manager Commands
 - `arena create|show|edit|rooms|managers|fund|types|events|abort`
 - `arena type create|clone|edit|sides|fees|durations|policies|betting|outfits`
+- `arenaeventtype set elostyle <TeamAverage|PairwiseIndividual|PairwiseSide>` and `arenaeventtype set elok <value>`
 - `arena event schedule|launch|reserve|close|prepare|stage|start|stop|resolve|cleanup`
 
 Player Commands
@@ -702,7 +709,7 @@ Betting & Finance
 - Stakes custodied; settlements correct; insolvency blocks payouts and allows later collection.
 
 Ratings
-- Ratings update on completion using the default Elo implementation.
+- Ratings update on completion using the configured event-type Elo style and K-factor.
 
 Commands
 - Managers and players can operate end‑to‑end flows with clear feedback.

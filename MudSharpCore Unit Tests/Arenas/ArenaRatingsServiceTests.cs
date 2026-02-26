@@ -98,6 +98,59 @@ public class ArenaRatingsServiceTests
 		Assert.AreEqual(1484.00m, ratings[40L]);
 	}
 
+	[TestMethod]
+	public void ApplyDefaultElo_UsesCharacterIds_WhenCharactersAreNotLoaded()
+	{
+		using var context = BuildContext();
+		var service = CreateService(context);
+		var arena = new Mock<ICombatArena>();
+		arena.SetupGet(x => x.Id).Returns(9L);
+
+		var winner = BuildParticipant(50L, 500L, 0, 1500.0m, includeCharacter: false);
+		var loser = BuildParticipant(60L, 600L, 1, 1500.0m, includeCharacter: false);
+
+		var evt = new Mock<IArenaEvent>();
+		evt.SetupGet(x => x.Arena).Returns(arena.Object);
+		evt.SetupGet(x => x.Participants)
+			.Returns(new[] { winner.Participant.Object, loser.Participant.Object });
+		evt.SetupGet(x => x.Outcome).Returns(ArenaOutcome.Win);
+		evt.SetupGet(x => x.WinningSides).Returns([0]);
+
+		service.ApplyDefaultElo(evt.Object);
+
+		var ratings = context.ArenaRatings.ToDictionary(x => x.CharacterId, x => x.Rating);
+		Assert.AreEqual(1516.00m, ratings[50L]);
+		Assert.AreEqual(1484.00m, ratings[60L]);
+	}
+
+	[TestMethod]
+	public void ApplyDefaultElo_RespectsEventTypeStyleAndKFactor()
+	{
+		using var context = BuildContext();
+		var service = CreateService(context);
+		var arena = new Mock<ICombatArena>();
+		arena.SetupGet(x => x.Id).Returns(12L);
+		var eventType = new Mock<IArenaEventType>();
+		eventType.SetupGet(x => x.EloStyle).Returns(ArenaEloStyle.PairwiseIndividual);
+		eventType.SetupGet(x => x.EloKFactor).Returns(16.0m);
+
+		var winner = BuildParticipant(70L, 700L, 0, 1500.0m);
+		var loser = BuildParticipant(80L, 800L, 1, 1500.0m);
+
+		var evt = new Mock<IArenaEvent>();
+		evt.SetupGet(x => x.Arena).Returns(arena.Object);
+		evt.SetupGet(x => x.EventType).Returns(eventType.Object);
+		evt.SetupGet(x => x.Participants).Returns(new[] { winner.Participant.Object, loser.Participant.Object });
+		evt.SetupGet(x => x.Outcome).Returns(ArenaOutcome.Win);
+		evt.SetupGet(x => x.WinningSides).Returns([0]);
+
+		service.ApplyDefaultElo(evt.Object);
+
+		var ratings = context.ArenaRatings.ToDictionary(x => x.CharacterId, x => x.Rating);
+		Assert.AreEqual(1508.00m, ratings[70L]);
+		Assert.AreEqual(1492.00m, ratings[80L]);
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -117,14 +170,16 @@ public class ArenaRatingsServiceTests
 		long classId,
 		int sideIndex,
 		decimal? startingRating = null,
-		bool isNpc = false)
+		bool isNpc = false,
+		bool includeCharacter = true)
 	{
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Id).Returns(characterId);
 		var combatantClass = new Mock<ICombatantClass>();
 		combatantClass.SetupGet(x => x.Id).Returns(classId);
 		var participant = new Mock<IArenaParticipant>();
-		participant.SetupGet(x => x.Character).Returns(character.Object);
+		participant.SetupGet(x => x.CharacterId).Returns(characterId);
+		participant.SetupGet(x => x.Character).Returns(includeCharacter ? character.Object : null);
 		participant.SetupGet(x => x.CombatantClass).Returns(combatantClass.Object);
 		participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
 		participant.SetupGet(x => x.IsNpc).Returns(isNpc);

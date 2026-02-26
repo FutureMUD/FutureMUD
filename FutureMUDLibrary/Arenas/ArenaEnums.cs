@@ -75,3 +75,12 @@ public enum ArenaFeeType {
 	Appearance,
 	Victory
 }
+
+/// <summary>
+/// Selects which Elo variant to use when settling arena ratings.
+/// </summary>
+public enum ArenaEloStyle {
+	TeamAverage = 0,
+	PairwiseIndividual = 1,
+	PairwiseSide = 2
+}

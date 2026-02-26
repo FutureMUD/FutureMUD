@@ -326,7 +326,9 @@ public partial class EditableItemHelper
 					VictoryFee = 0.0m,
 					IntroProgId = null,
 					ScoringProgId = null,
-					ResolutionOverrideProgId = null
+					ResolutionOverrideProgId = null,
+					EloStyle = (int)ArenaEloStyle.TeamAverage,
+					EloKFactor = 32.0m
 				};
 
 				for (var index = 0; index < sideCount; index++)

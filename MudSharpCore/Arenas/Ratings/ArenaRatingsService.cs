@@ -15,16 +15,22 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaRatingsService : IArenaRatingsService
 {
-	private const decimal DefaultRating = 1500.0m;
+	internal const decimal DefaultRating = 1500.0m;
 	private const decimal DefaultKFactor = 32.0m;
 
-	private readonly IFuturemud _gameworld;
 	private readonly Func<FuturemudDatabaseContext>? _contextFactory;
+	private readonly IReadOnlyDictionary<ArenaEloStyle, IArenaEloStrategy> _eloStrategies;
 
 	public ArenaRatingsService(IFuturemud gameworld, Func<FuturemudDatabaseContext>? contextFactory = null)
 	{
-		_gameworld = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
+		_ = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
 		_contextFactory = contextFactory;
+		_eloStrategies = new IArenaEloStrategy[]
+		{
+			new TeamAverageEloStrategy(),
+			new PairwiseIndividualEloStrategy(),
+			new PairwiseSideEloStrategy()
+		}.ToDictionary(x => x.Style);
 	}
 
 	/// <inheritdoc />
@@ -40,8 +46,13 @@ public class ArenaRatingsService : IArenaRatingsService
 			throw new ArgumentNullException(nameof(combatantClass));
 		}
 
+		return GetRating(character.Id, combatantClass);
+	}
+
+	private decimal GetRating(long characterId, ICombatantClass combatantClass)
+	{
 		using var scope = BeginContext(out var context);
-		var rating = context.ArenaRatings.FirstOrDefault(x => x.CharacterId == character.Id &&
+		var rating = context.ArenaRatings.FirstOrDefault(x => x.CharacterId == characterId &&
 		                                               x.CombatantClassId == combatantClass.Id);
 		return rating?.Rating ?? DefaultRating;
 	}
@@ -64,10 +75,23 @@ public class ArenaRatingsService : IArenaRatingsService
 			return;
 		}
 
-		var participantsByCharacterId = arenaEvent.Participants
-		                                     .Where(x => x.Character is not null)
-		                                     .GroupBy(x => x.Character.Id)
-		                                     .ToDictionary(x => x.Key, x => x.First());
+		var deltasByCharacterId = deltas
+			.Where(x => x.Key is not null)
+			.GroupBy(x => x.Key.Id)
+			.ToDictionary(x => x.Key, x => x.Sum(y => y.Value));
+		UpdateRatingsByCharacterId(arenaEvent, deltasByCharacterId);
+	}
+
+	private void UpdateRatingsByCharacterId(IArenaEvent arenaEvent, IReadOnlyDictionary<long, decimal> deltasByCharacterId)
+	{
+		if (deltasByCharacterId.Count == 0)
+		{
+			return;
+		}
+
+		var participantsByCharacterId = SelectRateableParticipants(arenaEvent)
+			.GroupBy(x => x.CharacterId)
+			.ToDictionary(x => x.Key, x => x.First());
 
 		if (participantsByCharacterId.Count == 0)
 		{
@@ -76,33 +100,22 @@ public class ArenaRatingsService : IArenaRatingsService
 
 		using var scope = BeginContext(out var context);
 		var now = DateTime.UtcNow;
-		foreach (var (character, delta) in deltas)
+		foreach (var (characterId, delta) in deltasByCharacterId)
 		{
-			if (character is null)
+			if (!participantsByCharacterId.TryGetValue(characterId, out var participant))
 			{
 				continue;
 			}
 
-			if (!participantsByCharacterId.TryGetValue(character.Id, out var participant))
-			{
-				continue;
-			}
-
-			var combatantClass = participant.CombatantClass;
-			if (combatantClass is null)
-			{
-				continue;
-			}
-
-			var rating = context.ArenaRatings.FirstOrDefault(x => x.CharacterId == character.Id &&
-			                                               x.CombatantClassId == combatantClass.Id);
+			var rating = context.ArenaRatings.FirstOrDefault(x => x.CharacterId == characterId &&
+			                                               x.CombatantClassId == participant.CombatantClass.Id);
 			if (rating is null)
 			{
 				rating = new ArenaRating
 				{
 					ArenaId = arenaEvent.Arena.Id,
-					CharacterId = character.Id,
-					CombatantClassId = combatantClass.Id,
+					CharacterId = characterId,
+					CombatantClassId = participant.CombatantClass.Id,
 					Rating = participant.StartingRating ?? DefaultRating,
 					LastUpdatedAt = now
 				};
@@ -124,9 +137,7 @@ public class ArenaRatingsService : IArenaRatingsService
 			throw new ArgumentNullException(nameof(arenaEvent));
 		}
 
-		var participants = arenaEvent.Participants
-		                            .Where(x => x.Character is not null && !x.IsNpc)
-		                            .ToList();
+		var participants = SelectRateableParticipants(arenaEvent);
 		if (participants.Count < 2)
 		{
 			return;
@@ -143,49 +154,45 @@ public class ArenaRatingsService : IArenaRatingsService
 		{
 			return;
 		}
-
-		var sideRatings = sideGroups.ToDictionary(
-		group => group.Key,
-		group => group.Select(p => p.StartingRating ?? GetRating(p.Character, p.CombatantClass))
-		      .DefaultIfEmpty(DefaultRating)
-		      .Average());
-
-		var deltaByCharacter = new Dictionary<ICharacter, decimal>();
 		var winningSet = winningSides?.ToHashSet() ?? new HashSet<int>();
-
-		foreach (var group in sideGroups)
-		{
-			var actual = ComputeActualScore(outcome.Value, group.Key, winningSet, sideGroups.Count);
-			var expected = ComputeExpectedScore(group.Key, sideRatings);
-			var sideDelta = DefaultKFactor * (actual - expected);
-
-			var members = group.ToList();
-			if (members.Count == 0)
-			{
-				continue;
-			}
-
-			var perParticipantDelta = sideDelta / members.Count;
-			foreach (var participant in members)
-			{
-				var character = participant.Character;
-				if (character is null)
-				{
-					continue;
-				}
-
-				deltaByCharacter[character] = deltaByCharacter.TryGetValue(character, out var existing)
-					? existing + perParticipantDelta
-					: perParticipantDelta;
-			}
-		}
-
-		if (deltaByCharacter.Count == 0)
+		var eventType = arenaEvent.EventType;
+		var style = eventType?.EloStyle ?? ArenaEloStyle.TeamAverage;
+		var kFactor = eventType is { EloKFactor: > 0.0m }
+			? eventType.EloKFactor
+			: DefaultKFactor;
+		var strategy = _eloStrategies.TryGetValue(style, out var selectedStrategy)
+			? selectedStrategy
+			: _eloStrategies[ArenaEloStyle.TeamAverage];
+		var deltaByCharacterId = strategy.CalculateDeltas(
+			participants,
+			outcome.Value,
+			winningSet,
+			kFactor,
+			GetRating);
+		if (deltaByCharacterId.Count == 0)
 		{
 			return;
 		}
 
-		UpdateRatings(arenaEvent, deltaByCharacter);
+		UpdateRatingsByCharacterId(arenaEvent, deltaByCharacterId);
+	}
+
+	private static List<ArenaRatingParticipant> SelectRateableParticipants(IArenaEvent arenaEvent)
+	{
+		return arenaEvent.Participants
+			.Where(x => !x.IsNpc)
+			.Select(x =>
+			{
+				var characterId = x.CharacterId;
+				if (characterId <= 0)
+				{
+					characterId = x.Character?.Id ?? 0L;
+				}
+
+				return new ArenaRatingParticipant(characterId, x.SideIndex, x.CombatantClass, x.StartingRating);
+			})
+			.Where(x => x.CharacterId > 0)
+			.ToList();
 	}
 
 	private IDisposable? BeginContext(out FuturemudDatabaseContext context)
@@ -265,42 +272,4 @@ public class ArenaRatingsService : IArenaRatingsService
 		}
 	}
 
-	private static decimal ComputeActualScore(ArenaOutcome outcome, int sideIndex, IReadOnlySet<int> winningSides, int totalSides)
-	{
-		return outcome switch
-		{
-			ArenaOutcome.Win => winningSides.Count == 0
-				? (totalSides == 2 ? 1.0m : 0.0m)
-				: (winningSides.Contains(sideIndex) ? 1.0m : 0.0m),
-			ArenaOutcome.Draw => 0.5m,
-			_ => 0.0m
-		};
-	}
-
-	private static decimal ComputeExpectedScore(int sideIndex, IReadOnlyDictionary<int, decimal> sideRatings)
-	{
-		var rating = sideRatings.TryGetValue(sideIndex, out var value) ? value : DefaultRating;
-		var total = 0.0m;
-		var comparisons = 0;
-
-		foreach (var (otherSide, otherRating) in sideRatings)
-		{
-			if (otherSide == sideIndex)
-			{
-				continue;
-			}
-
-			comparisons++;
-			var exponent = (double)((otherRating - rating) / 400.0m);
-			var denominator = 1.0 + Math.Pow(10.0, exponent);
-			total += (decimal)(1.0 / denominator);
-		}
-
-		if (comparisons == 0)
-		{
-			return 0.5m;
-		}
-
-		return total / comparisons;
-	}
 }

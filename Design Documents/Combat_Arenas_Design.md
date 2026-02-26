@@ -15,6 +15,9 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - Live events are monitored on a short scheduler interval and auto-transition to resolving when elimination conditions are met (instead of waiting for timeout only).
 - NPC cleanup now respects dead combatants: dead NPCs are never forced to a non-dead state, and corpses are moved to stable/after-fight locations.
 - Combatant classes now support a separate stable-only recovery toggle for post-event NPC full restoration (guest-like health reset after return).
+- NPCs that are auto-resurrected or successfully fully restored during cleanup now have all matching corpses and severed bodyparts purged to prevent arena remains from persisting.
+- Event types now expose configurable rating parameters: `ArenaEloStyle` (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and per-type Elo `K` factor.
+- Ratings settlement now keys participants by persistent character ID snapshots, so rating writes still occur when character objects are not currently loaded at completion.
 - Arena lifecycle text announcements now use watcher-suppressed output flags to prevent duplicated observer spam from per-room broadcasts.
 - Arena no-quit/no-timeout phase effects now self-prune if their referenced event is no longer active, preventing stale saved effects from blocking players after crashes.
 - Automatic combat retargeting now excludes incapacitated combatants during reacquire, preventing misleading target-switch echoes as knockout eliminations resolve.
@@ -29,7 +32,7 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - **Events (instances)**: created from an Event Type, optionally with **reserved slots** for characters/clans when **manually launched**; progress via a lifecycle (below).
 - **Observation**: **remote viewing only**, via an arena-scoped watcher effect mirroring in-arena output with appropriate audio "quietening" and notice checks for subtle actions.
 - **Betting**: **custodied** wagers (stake moved immediately). Two selectable models: **Fixed-Odds** (snapshot at bet time) and **Pari-Mutuel** (pool). **Draw** outcome supported. If arena lacks payout funds, **payout is blocked** and can be collected later.
-- **Ratings**: Elo-style per **Combatant Class** (not global), applied when events reach **Completed** using the default Elo service implementation.
+- **Ratings**: Elo-style per **Combatant Class** (not global), applied when events reach **Completed**. Event types choose style (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and K-factor.
 - **Crash/Reboot**: mid-match -> **cancel event** and **refund wagers** (no state restore).
 - **Disconnects**: PCs cannot quit (effect); no linkdead auto-logout in an event. If disconnected, they **remain** in the match.
 - **Mercy Stoppage**: allowed when **all other sides** are incapacitated; managers can always stop a fight manually.
@@ -58,7 +61,7 @@ Draft -> Scheduled -> RegistrationOpen -> Preparing -> Staged -> Live -> Resolvi
 - **Live**: combat proceeds; scoring and elimination receive combat callbacks; observers see mirrored output with hearing/notice rules.
 - **Live (termination)**: scheduler polling checks elimination conditions continuously; time limit remains a fallback/end-cap.
 - **Resolving**: decide win/draw (draws supported on time tie); award victory/appearance fees; settle bets (block payouts if insolvent); update ratings via prog.
-- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy.
+- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy. NPCs auto-resurrected by class policy, or fully restored in stables, have matching corpse and severed-bodypart remains removed.
 - **Completed**: immutable record.
 - **Aborted**: manual stop or pre-live failure; default: refund wagers, no appearance/victory fees unless arena policy says otherwise.
 
@@ -111,8 +114,9 @@ Minimum strategies:
 
 
 ## 7) Ratings & Records
-- **Per Combatant Class** Elo‑style rating (not global).  
-- Ratings are applied at event **Completed** by the arena ratings service (`ApplyDefaultElo`).  
+- **Per Combatant Class** Elo-style rating (not global).  
+- Ratings are applied at event **Completed** by the arena ratings service (`ApplyDefaultElo`) and persisted by `ArenaId + CharacterId + CombatantClassId`.
+- Event types configure Elo variant and pace: `elostyle` (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and `elok` (K-factor > 0).
 - Performance record fields per combatant (per class, optionally per event type): W/L/D, rating, last N bouts, stage name, signature colour/items.
 
 
@@ -186,7 +190,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 - `arena set <arena> economiczone|property|bank|virtualcash <...>`
 - `arena rooms set <arena> waiting|arena|observe|infirmary|stable|after <room ids...>`
 - `arena class add|edit|remove …`
-- `arena eventtype add|edit|remove …` (sides, capacities, fees, BYO, outfit prog, scoring, elimination, NPC policies)
+- `arena eventtype add|edit|remove …` (sides, capacities, fees, BYO, outfit prog, scoring, elimination, NPC policies, rating style/K via `elostyle` and `elok`)
 - `arena eventtype clone <arena> <eventtype> as <newname> [mutations…]`
 - `arena schedule <arena> <eventtype> open <time> start <time>`
 - `arena start <event> [reserve side:<n> whom:<char|clan> [ttl:<span>] …]`

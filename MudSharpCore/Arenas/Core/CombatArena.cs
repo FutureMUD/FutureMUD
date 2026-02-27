@@ -291,13 +291,17 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"Combat Arena #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Combat Arena #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
 		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
 		sb.AppendLine($"Bank Account: {(BankAccount != null ? BankAccount.AccountReference.ColourValue() : "None".ColourError())}");
-		sb.AppendLine($"Funds: {Currency.Describe(AvailableFunds(), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Cash: {Currency.Describe(_virtualBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Bank Balance: {(BankAccount is not null ? BankAccount.Currency.Describe(BankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : "N/A".ColourError())}");
+		var unclaimed = 0.0M;
+		// TODO - work out unclaimed money from owed bets and apperance fees
+		sb.AppendLine($"Unclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
 		if (!Managers.Any())
@@ -314,14 +318,30 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 
 		sb.AppendLine();
 		sb.AppendLine("Cells:");
-		foreach (var role in Enum.GetValues<ArenaCellRole>())
+		sb.AppendLine();
+		var unrolledCells = new List<(ICell cell, ArenaCellRole role)>();
+		foreach (var group in _cells)
 		{
-			var cells = _cells.ContainsKey(role) ? _cells[role] : [];
-			var text = cells.Any()
-				? cells.Select(x => x.GetFriendlyReference(actor).ColourName()).ListToCommaSeparatedValues("\n")
-				: "None".ColourError();
-			sb.AppendLine($"\t{role.DescribeEnum().ColourName()}: {text}");
+			foreach (var item in group.Value)
+			{
+				if (item is null)
+				{
+					continue;
+				}
+				unrolledCells.Add((item, group.Key));
+			}
 		}
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in unrolledCells
+			select new List<string>
+			{
+				item.cell.GetFriendlyReference(actor),
+				item.role.DescribeEnum()
+			},
+			[ "Room", "Role" ],
+			actor,
+			Telnet.Green
+		));
 
 		sb.AppendLine();
 		sb.AppendLine("Combatant Classes:");
@@ -358,11 +378,20 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 	public string ShowToManager(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Arena {Name.ColourName()}");
+		sb.AppendLine($"Arena - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
-		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
-		sb.AppendLine($"Funds: {Currency.Describe(AvailableFunds(), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Bank Account: {(BankAccount is not null ? $"{BankAccount.AccountReference}".Colour(Telnet.Cyan) : "None".ColourError())}");
+		sb.AppendLine();
+		sb.AppendLine("Financial Position:");
+		sb.AppendLine();
+
+		sb.AppendLine($"\tCash: {Currency.Describe(_virtualBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"\tBank Balance: {(BankAccount is not null ? BankAccount.Currency.Describe(BankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : "N/A".ColourError())}");
+		var unclaimed = 0.0M;
+		// TODO - work out unclaimed money from owed bets and apperance fees
+		sb.AppendLine($"\tUnclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
 		if (!Managers.Any())
@@ -373,7 +402,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		{
 			foreach (var mgr in Managers)
 			{
-				sb.AppendLine($"\t{mgr.HowSeen(actor).ColourName()}");
+				sb.AppendLine($"\t{mgr.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription).ColourName()}");
 			}
 		}
 

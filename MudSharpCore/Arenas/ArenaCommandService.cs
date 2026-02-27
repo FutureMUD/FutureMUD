@@ -16,151 +16,150 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaCommandService : IArenaCommandService
 {
-        private readonly IFuturemud _gameworld;
+	private readonly IFuturemud _gameworld;
 
-        public ArenaCommandService(IFuturemud gameworld)
-        {
-                _gameworld = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
-        }
+	public ArenaCommandService(IFuturemud gameworld)
+	{
+		_gameworld = gameworld ?? throw new ArgumentNullException(nameof(gameworld));
+	}
 
-        /// <inheritdoc />
-        public void ShowArena(ICharacter actor, ICombatArena arena)
-        {
-                if (actor is null)
-                {
-                        throw new ArgumentNullException(nameof(actor));
-                }
+	/// <inheritdoc />
+	public void ShowArena(ICharacter actor, ICombatArena arena)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
 
-                if (arena is null)
-                {
-                        throw new ArgumentNullException(nameof(arena));
-                }
+		if (arena is null)
+		{
+			throw new ArgumentNullException(nameof(arena));
+		}
 
-                actor.OutputHandler.Send(arena.ShowToManager(actor));
-        }
+		actor.OutputHandler.Send(arena.ShowToManager(actor));
+	}
 
-        /// <inheritdoc />
-        public void ShowEvent(ICharacter actor, IArenaEvent arenaEvent)
-        {
-                if (actor is null)
-                {
-                        throw new ArgumentNullException(nameof(actor));
-                }
+	/// <inheritdoc />
+	public void ShowEvent(ICharacter actor, IArenaEvent arenaEvent)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
 
-                if (arenaEvent is null)
-                {
-                        throw new ArgumentNullException(nameof(arenaEvent));
-                }
+		if (arenaEvent is null)
+		{
+			throw new ArgumentNullException(nameof(arenaEvent));
+		}
 
-                var sb = new StringBuilder();
-                sb.AppendLine($"Event {arenaEvent.Name.ColourName()} ({arenaEvent.EventType.Name.ColourName()})");
-                sb.AppendLine($"Arena: {arenaEvent.Arena.Name.ColourName()}");
-                sb.AppendLine($"State: {arenaEvent.State.DescribeEnum().ColourValue()}");
-                sb.AppendLine($"Scheduled: {arenaEvent.ScheduledAt.ToString("f", actor).ColourValue()}");
-                if (arenaEvent.RegistrationOpensAt is { } reg)
-                {
-                        sb.AppendLine($"Registration Opens: {reg.ToString("f", actor).ColourValue()}");
-                }
-                if (arenaEvent.StartedAt is { } started)
-                {
-                        sb.AppendLine($"Started: {started.ToString("f", actor).ColourValue()}");
-                }
-                if (arenaEvent.ResolvedAt is { } resolved)
-                {
-                        sb.AppendLine($"Resolved: {resolved.ToString("f", actor).ColourValue()}");
-                }
-                if (arenaEvent.CompletedAt is { } completed)
-                {
-                        sb.AppendLine($"Completed: {completed.ToString("f", actor).ColourValue()}");
-                }
+		var sb = new StringBuilder();
+		sb.AppendLine($"Event {arenaEvent.Name.ColourName()} ({arenaEvent.EventType.Name.ColourName()})");
+		sb.AppendLine($"Arena: {arenaEvent.Arena.Name.ColourName()}");
+		sb.AppendLine($"State: {arenaEvent.State.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Scheduled: {arenaEvent.ScheduledAt.ToString("f", actor).ColourValue()}");
+		if (arenaEvent.RegistrationOpensAt is { } reg)
+		{
+			sb.AppendLine($"Registration Opens: {reg.ToString("f", actor).ColourValue()}");
+		}
+		if (arenaEvent.StartedAt is { } started)
+		{
+			sb.AppendLine($"Started: {started.ToString("f", actor).ColourValue()}");
+		}
+		if (arenaEvent.ResolvedAt is { } resolved)
+		{
+			sb.AppendLine($"Resolved: {resolved.ToString("f", actor).ColourValue()}");
+		}
+		if (arenaEvent.CompletedAt is { } completed)
+		{
+			sb.AppendLine($"Completed: {completed.ToString("f", actor).ColourValue()}");
+		}
 
-                sb.AppendLine();
-                sb.AppendLine("Participants:".Colour(Telnet.Cyan));
-                var grouped = arenaEvent.Participants.GroupBy(x => x.SideIndex).OrderBy(x => x.Key);
-                foreach (var group in grouped)
-                {
-                        var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == group.Key);
+		sb.AppendLine();
+		sb.AppendLine("Participants:".Colour(Telnet.Cyan));
+		var grouped = arenaEvent.Participants.GroupBy(x => x.SideIndex).OrderBy(x => x.Key);
+		foreach (var group in grouped)
+		{
+			var side = arenaEvent.EventType.Sides.FirstOrDefault(x => x.Index == group.Key);
 			var displayIndex = ArenaSideIndexUtilities.ToDisplayString(actor, group.Key);
-                        var title = side is null
-				? $"Side {displayIndex}".Colour(Telnet.Yellow)
-				: displayIndex.ColourValue() + $" - {side.Policy.DescribeEnum().ColourValue()}";
-                        sb.AppendLine(title);
-                        foreach (var participant in group)
-                        {
-                                var name = participant.Character?.PersonalName?.GetName(NameStyle.FullName) ??
-                                           participant.StageName ??
-                                           participant.Character?.Name ?? "NPC";
-                                var className = participant.CombatantClass?.Name ?? "Unknown";
-                                sb.AppendLine(
-                                        $"\t{name.ColourName()} ({className.ColourName()})" +
-                                        (participant.IsNpc ? " [NPC]".Colour(Telnet.Yellow) : string.Empty));
-                        }
-                }
+			var title = side is null
+	? $"Side {displayIndex}".Colour(Telnet.Yellow)
+	: displayIndex.ColourValue() + $" - {side.Policy.DescribeEnum().ColourValue()}";
+			sb.AppendLine(title);
+			foreach (var participant in group)
+			{
+				var name = participant.Character?.PersonalName?.GetName(NameStyle.FullName) ??
+						   participant.StageName ??
+						   participant.Character?.Name ?? "NPC";
+				var className = participant.CombatantClass?.Name ?? "Unknown";
+				sb.AppendLine(
+						$"\t{name.ColourName()} ({className.ColourName()})" +
+						(participant.IsNpc ? " [NPC]".Colour(Telnet.Yellow) : string.Empty));
+			}
+		}
 
-                actor.OutputHandler.Send(sb.ToString());
-        }
+		actor.OutputHandler.Send(sb.ToString());
+	}
 
-        /// <inheritdoc />
-        public void ShowEventType(ICharacter actor, IArenaEventType eventType)
-        {
-                if (actor is null)
-                {
-                        throw new ArgumentNullException(nameof(actor));
-                }
+	/// <inheritdoc />
+	public void ShowEventType(ICharacter actor, IArenaEventType eventType)
+	{
+		if (actor is null)
+		{
+			throw new ArgumentNullException(nameof(actor));
+		}
 
-                if (eventType is null)
-                {
-                        throw new ArgumentNullException(nameof(eventType));
-                }
+		if (eventType is null)
+		{
+			throw new ArgumentNullException(nameof(eventType));
+		}
 
-                var sb = new StringBuilder();
-                sb.AppendLine($"Event Type {eventType.Name.ColourName()}");
-                sb.AppendLine($"Arena: {eventType.Arena.Name.ColourName()}");
-                sb.AppendLine($"Bring Your Own: {eventType.BringYourOwn.ToColouredString()}");
-                sb.AppendLine(
-                        $"Registration: {eventType.RegistrationDuration.Describe(actor).ColourValue()}, Preparation: {eventType.PreparationDuration.Describe(actor).ColourValue()}");
-                sb.AppendLine(eventType.TimeLimit is null
-                        ? "Time Limit: None".Colour(Telnet.Green)
-                        : $"Time Limit: {eventType.TimeLimit.Value.Describe(actor).ColourValue()}");
-                sb.AppendLine($"Betting: {eventType.BettingModel.DescribeEnum().ColourValue()}");
-                sb.AppendLine($"Appearance Fee: {DescribeCurrency(eventType.Arena, eventType.AppearanceFee)}");
-                sb.AppendLine($"Victory Fee: {DescribeCurrency(eventType.Arena, eventType.VictoryFee)}");
-                sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(eventType, actor)}");
-                sb.AppendLine($"Elimination: {eventType.EliminationMode.DescribeEnum().ColourValue()}");
-                sb.AppendLine($"Allow Surrender: {eventType.AllowSurrender.ToColouredString()}");
+		var sb = new StringBuilder();
+		sb.AppendLine($"Event Type {eventType.Name.ColourName()}");
+		sb.AppendLine($"Arena: {eventType.Arena.Name.ColourName()}");
+		sb.AppendLine($"Bring Your Own: {eventType.BringYourOwn.ToColouredString()}");
+		sb.AppendLine(
+				$"Registration: {eventType.RegistrationDuration.Describe(actor).ColourValue()}, Preparation: {eventType.PreparationDuration.Describe(actor).ColourValue()}");
+		sb.AppendLine(eventType.TimeLimit is null
+				? $"Time Limit: {"None".Colour(Telnet.Green)}"
+				: $"Time Limit: {eventType.TimeLimit.Value.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Betting: {eventType.BettingModel.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Appearance Fee: {DescribeCurrency(eventType.Arena, eventType.AppearanceFee)}");
+		sb.AppendLine($"Victory Fee: {DescribeCurrency(eventType.Arena, eventType.VictoryFee)}");
+		sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(eventType, actor)}");
+		sb.AppendLine($"Elimination: {eventType.EliminationMode.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Allow Surrender: {eventType.AllowSurrender.ToColouredString()}");
 
-                sb.AppendLine();
-                sb.AppendLine("Sides:".Colour(Telnet.Cyan));
-				foreach (var side in eventType.Sides.OrderBy(x => x.Index))
-				{
-					sb.AppendLine(
-						$"\nSide {ArenaSideIndexUtilities.ToDisplayString(actor, side.Index).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
-					sb.AppendLine($"\tPolicy: {side.Policy.DescribeEnum().ColourValue()}");
-					sb.AppendLine($"\tRating Range: {DescribeRatingRange(side, actor)}");
-					sb.AppendLine($"\tAllow NPC Signup: {side.AllowNpcSignup.ToColouredString()}");
-					sb.AppendLine($"\tAuto Fill NPC: {side.AutoFillNpc.ToColouredString()}");
-					if (side.EligibleClasses.Any())
-					{
-						sb.AppendLine($"\tEligible Classes: {side.EligibleClasses.Select(x => x.Name.ColourName()).ListToString()}");
-					}
-					else
-					{
-						sb.AppendLine("\tEligible Classes: None".Colour(Telnet.Red));
-					}
-				}
+		sb.AppendLine();
+		sb.AppendLine("Sides:".Colour(Telnet.Cyan));
+		foreach (var side in eventType.Sides.OrderBy(x => x.Index))
+		{
+			sb.AppendLine($"\nSide {ArenaSideIndexUtilities.ToDisplayString(actor, side.Index).ColourValue()} (Capacity {side.Capacity.ToString(actor).ColourValue()})");
+			sb.AppendLine($"\tPolicy: {side.Policy.DescribeEnum().ColourValue()}");
+			sb.AppendLine($"\tRating Range: {DescribeRatingRange(side, actor)}");
+			sb.AppendLine($"\tAllow NPC Signup: {side.AllowNpcSignup.ToColouredString()}");
+			sb.AppendLine($"\tAuto Fill NPC: {side.AutoFillNpc.ToColouredString()}");
+			if (side.EligibleClasses.Any())
+			{
+				sb.AppendLine($"\tEligible Classes: {side.EligibleClasses.Select(x => x.Name.ColourName()).ListToString()}");
+			}
+			else
+			{
+				sb.AppendLine("\tEligible Classes: None".Colour(Telnet.Red));
+			}
+		}
 
-                actor.OutputHandler.Send(sb.ToString());
-        }
+		actor.OutputHandler.Send(sb.ToString());
+	}
 
-        private static string DescribeCurrency(ICombatArena arena, decimal amount)
-        {
-                return arena.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
-        }
+	private static string DescribeCurrency(ICombatArena arena, decimal amount)
+	{
+		return arena.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
+	}
 
 	private static string DescribeAutoSchedule(IArenaEventType eventType, ICharacter actor)
 	{
 		if (!eventType.AutoScheduleEnabled || !eventType.AutoScheduleInterval.HasValue ||
-		    !eventType.AutoScheduleReferenceTime.HasValue)
+			!eventType.AutoScheduleReferenceTime.HasValue)
 		{
 			return "Disabled".ColourError();
 		}

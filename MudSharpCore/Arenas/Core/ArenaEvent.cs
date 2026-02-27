@@ -51,9 +51,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		RegistrationDuration = TimeSpan.FromSeconds(model.RegistrationDurationSeconds);
 		PreparationDuration = TimeSpan.FromSeconds(model.PreparationDurationSeconds);
 		TimeLimit = model.TimeLimitSeconds.HasValue ? TimeSpan.FromSeconds(model.TimeLimitSeconds.Value) : null;
-		BettingModel = (BettingModel)model.BettingModel;
-		AppearanceFee = model.AppearanceFee;
-		VictoryFee = model.VictoryFee;
+			BettingModel = (BettingModel)model.BettingModel;
+			AppearanceFee = model.AppearanceFee;
+			VictoryFee = model.VictoryFee;
+			PayNpcAppearanceFee = model.PayNpcAppearanceFee;
 
 		foreach (var signup in model.ArenaSignups)
 		{
@@ -80,9 +81,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		RegistrationDuration = template.RegistrationDuration;
 		PreparationDuration = template.PreparationDuration;
 		TimeLimit = template.TimeLimit;
-		BettingModel = template.BettingModel;
-		AppearanceFee = template.AppearanceFee;
-		VictoryFee = template.VictoryFee;
+			BettingModel = template.BettingModel;
+			AppearanceFee = template.AppearanceFee;
+			VictoryFee = template.VictoryFee;
+			PayNpcAppearanceFee = template.PayNpcAppearanceFee;
 		var opensAt = scheduledFor - PreparationDuration - RegistrationDuration;
 		RegistrationOpensAt = opensAt > CreatedAt ? opensAt : CreatedAt;
 
@@ -97,10 +99,11 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				RegistrationDurationSeconds = (int)RegistrationDuration.TotalSeconds,
 				PreparationDurationSeconds = (int)PreparationDuration.TotalSeconds,
 				TimeLimitSeconds = TimeLimit.HasValue ? (int)TimeLimit.Value.TotalSeconds : null,
-				BettingModel = (int)BettingModel,
-				AppearanceFee = AppearanceFee,
-				VictoryFee = VictoryFee,
-				CreatedAt = CreatedAt,
+					BettingModel = (int)BettingModel,
+					AppearanceFee = AppearanceFee,
+					VictoryFee = VictoryFee,
+					PayNpcAppearanceFee = PayNpcAppearanceFee,
+					CreatedAt = CreatedAt,
 				ScheduledAt = ScheduledAt,
 				RegistrationOpensAt = RegistrationOpensAt,
 				StartedAt = StartedAt,
@@ -142,6 +145,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	public BettingModel BettingModel { get; }
 	public decimal AppearanceFee { get; }
 	public decimal VictoryFee { get; }
+	public bool PayNpcAppearanceFee { get; }
 
 	public IEnumerable<IArenaParticipant> Participants => _participants;
 	public IEnumerable<IArenaReservation> Reservations => _reservations;
@@ -426,6 +430,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		Changed = true;
 		ExecuteResolutionOverrideProg();
 		EnsureResolvedOutcome();
+		Gameworld.ArenaBettingService.Settle(this, Outcome ?? ArenaOutcome.Aborted, WinningSides ?? Array.Empty<int>());
+		Gameworld.ArenaFinanceService.AccrueAppearancePayouts(this);
 		AnnounceArenaOutcome();
 	}
 
@@ -743,6 +749,25 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		_state = state;
 		Changed = true;
 		AnnounceStateChange(state);
+		ExecutePhaseTransitionProg(state);
+	}
+
+	private void ExecutePhaseTransitionProg(ArenaEventState state)
+	{
+		var prog = Arena.OnArenaEventPhaseProg;
+		if (prog is null)
+		{
+			return;
+		}
+
+		try
+		{
+			prog.Execute(ArenaProgParameters.BuildPhaseTransitionArguments(this, state));
+		}
+		catch (Exception ex)
+		{
+			Gameworld.SystemMessage($"Arena phase prog for arena #{Arena.Id:N0} threw an exception: {ex.Message}", true);
+		}
 	}
 
 	private void AnnounceStateChange(ArenaEventState currentState)
@@ -807,14 +832,15 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				return;
 			}
 
-			dbEvent.State = (int)_state;
-			dbEvent.ScheduledAt = ScheduledAt;
-			dbEvent.RegistrationOpensAt = RegistrationOpensAt;
-			dbEvent.StartedAt = StartedAt;
-			dbEvent.ResolvedAt = ResolvedAt;
-			dbEvent.CompletedAt = CompletedAt;
-			FMDB.Context.SaveChanges();
-		}
+				dbEvent.State = (int)_state;
+				dbEvent.ScheduledAt = ScheduledAt;
+				dbEvent.RegistrationOpensAt = RegistrationOpensAt;
+				dbEvent.StartedAt = StartedAt;
+				dbEvent.ResolvedAt = ResolvedAt;
+				dbEvent.CompletedAt = CompletedAt;
+				dbEvent.PayNpcAppearanceFee = PayNpcAppearanceFee;
+				FMDB.Context.SaveChanges();
+			}
 
 		Changed = false;
 	}
@@ -1466,8 +1492,12 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				.FirstOrDefault(x => x.EventId == Id);
 			if (effect is not null)
 			{
-				var wasDeadBeforeReturn = npc.State.IsDead();
-				Gameworld.ArenaNpcService.ReturnNpc(npc, this, participant.CombatantClass.ResurrectNpcOnDeath);
+					var wasDeadBeforeReturn = npc.State.IsDead();
+					Gameworld.ArenaNpcService.ReturnNpc(
+						npc,
+						this,
+						participant.CombatantClass.ResurrectNpcOnDeath,
+						participant.CombatantClass.FullyRestoreNpcOnCompletion);
 				var wasAutoResurrected = participant.CombatantClass.ResurrectNpcOnDeath &&
 				                         wasDeadBeforeReturn &&
 				                         !npc.State.IsDead();
@@ -1701,15 +1731,21 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return;
 		}
 
-		if (!ReferenceEquals(item.InInventoryOf, owner.Body))
-		{
-			item.ContainedIn?.Take(item);
-			item.InInventoryOf?.Take(item);
-			item.Location?.Extract(item);
+			if (!ReferenceEquals(item.InInventoryOf, owner.Body))
+			{
+				item.ContainedIn?.Take(item);
+				item.InInventoryOf?.Take(item);
+				item.Location?.Extract(item);
 
-			owner.Body.Get(item, silent: true,
-				ignoreFlags: ItemCanGetIgnore.IgnoreWeight | ItemCanGetIgnore.IgnoreFreeHands);
-		}
+				try
+				{
+					owner.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
+				}
+				catch
+				{
+					// If the owner cannot hold items at this moment, place it nearby as fallback.
+				}
+			}
 
 		if (!ReferenceEquals(item.InInventoryOf, owner.Body))
 		{
@@ -1853,8 +1889,21 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
-			participant.Body.Get(item, silent: true,
-				ignoreFlags: ItemCanGetIgnore.IgnoreWeight | ItemCanGetIgnore.IgnoreFreeHands);
+			try
+			{
+				participant.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
+			}
+			catch
+			{
+				PlaceCapturedItemNearParticipant(participant, item);
+				continue;
+			}
+
+			if (!ReferenceEquals(item.InInventoryOf, participant.Body))
+			{
+				PlaceCapturedItemNearParticipant(participant, item);
+				continue;
+			}
 
 			switch (snapshot.State)
 			{
@@ -1892,6 +1941,21 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			item.RoomLayer = participant.RoomLayer;
 			location.Insert(item, true);
 		}
+	}
+
+	private static void PlaceCapturedItemNearParticipant(ICharacter participant, IGameItem item)
+	{
+		item.ContainedIn?.Take(item);
+		item.InInventoryOf?.Take(item);
+		item.Location?.Extract(item);
+
+		if (participant.Location is not { } location)
+		{
+			return;
+		}
+
+		item.RoomLayer = participant.RoomLayer;
+		location.Insert(item, true);
 	}
 
 	private static void TryWearItem(IBody body, IGameItem item, long? wearProfileId)

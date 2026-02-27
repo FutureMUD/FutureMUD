@@ -10,6 +10,7 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.FutureProg;
 using MudSharp.Framework;
+using MudSharp.Models;
 
 namespace MudSharp_Unit_Tests.Arenas;
 
@@ -151,6 +152,65 @@ public class ArenaRatingsServiceTests
 		Assert.AreEqual(1492.00m, ratings[80L]);
 	}
 
+	[TestMethod]
+	public void GetArenaRatings_ReturnsOnlyRequestedArena()
+	{
+		using var context = BuildContext();
+		context.Characters.AddRange(
+			BuildCharacter(1, "Alice"),
+			BuildCharacter(2, "Bob"),
+			BuildCharacter(3, "Cara"));
+		context.ArenaCombatantClasses.AddRange(
+			BuildCombatantClass(10, 1, "Heavyweight"),
+			BuildCombatantClass(11, 1, "Lightweight"));
+		context.ArenaRatings.AddRange(
+			new ArenaRating { ArenaId = 1, CharacterId = 1, CombatantClassId = 10, Rating = 1610m, LastUpdatedAt = DateTime.UtcNow },
+			new ArenaRating { ArenaId = 1, CharacterId = 2, CombatantClassId = 11, Rating = 1425m, LastUpdatedAt = DateTime.UtcNow },
+			new ArenaRating { ArenaId = 2, CharacterId = 3, CombatantClassId = 10, Rating = 1775m, LastUpdatedAt = DateTime.UtcNow });
+		context.SaveChanges();
+
+		var service = CreateService(context);
+		var arena = new Mock<ICombatArena>();
+		arena.SetupGet(x => x.Id).Returns(1L);
+
+		var ratings = service.GetArenaRatings(arena.Object).ToList();
+
+		Assert.AreEqual(2, ratings.Count);
+		Assert.IsTrue(ratings.All(x => x.ArenaId == 1L));
+		Assert.AreEqual("Alice", ratings[0].CharacterName);
+		Assert.AreEqual(1610m, ratings[0].Rating);
+	}
+
+	[TestMethod]
+	public void GetCharacterRatings_ReturnsOnlyRequestedCharacterWithinArena()
+	{
+		using var context = BuildContext();
+		context.Characters.AddRange(
+			BuildCharacter(1, "Alice"),
+			BuildCharacter(2, "Bob"));
+		context.ArenaCombatantClasses.AddRange(
+			BuildCombatantClass(20, 1, "Blade"),
+			BuildCombatantClass(21, 1, "Brawl"));
+		context.ArenaRatings.AddRange(
+			new ArenaRating { ArenaId = 1, CharacterId = 1, CombatantClassId = 20, Rating = 1530m, LastUpdatedAt = DateTime.UtcNow },
+			new ArenaRating { ArenaId = 1, CharacterId = 1, CombatantClassId = 21, Rating = 1490m, LastUpdatedAt = DateTime.UtcNow },
+			new ArenaRating { ArenaId = 1, CharacterId = 2, CombatantClassId = 20, Rating = 1720m, LastUpdatedAt = DateTime.UtcNow },
+			new ArenaRating { ArenaId = 2, CharacterId = 1, CombatantClassId = 20, Rating = 1800m, LastUpdatedAt = DateTime.UtcNow });
+		context.SaveChanges();
+
+		var service = CreateService(context);
+		var arena = new Mock<ICombatArena>();
+		arena.SetupGet(x => x.Id).Returns(1L);
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(1L);
+
+		var ratings = service.GetCharacterRatings(arena.Object, character.Object).ToList();
+
+		Assert.AreEqual(2, ratings.Count);
+		Assert.IsTrue(ratings.All(x => x.ArenaId == 1L && x.CharacterId == 1L));
+		CollectionAssert.AreEquivalent(new[] { 20L, 21L }, ratings.Select(x => x.CombatantClassId).ToArray());
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -163,6 +223,39 @@ public class ArenaRatingsServiceTests
 	{
 		var gameworld = new Mock<IFuturemud>();
 		return new ArenaRatingsService(gameworld.Object, () => context);
+	}
+
+	private static MudSharp.Models.Character BuildCharacter(long id, string name)
+	{
+		return new MudSharp.Models.Character
+		{
+			Id = id,
+			Name = name,
+			CreationTime = DateTime.UtcNow,
+			EffectData = string.Empty,
+			BirthdayDate = string.Empty,
+			NeedsModel = string.Empty,
+			LongTermPlan = string.Empty,
+			ShortTermPlan = string.Empty,
+			IntroductionMessage = string.Empty,
+			PositionTargetType = string.Empty,
+			PositionEmote = string.Empty,
+			Outfits = string.Empty,
+			NameInfo = string.Empty
+		};
+	}
+
+	private static MudSharp.Models.ArenaCombatantClass BuildCombatantClass(long classId, long arenaId, string name)
+	{
+		return new MudSharp.Models.ArenaCombatantClass
+		{
+			Id = classId,
+			ArenaId = arenaId,
+			Name = name,
+			Description = string.Empty,
+			EligibilityProgId = 1,
+			DefaultSignatureColour = string.Empty
+		};
 	}
 
 	private static (Mock<IArenaParticipant> Participant, Mock<ICharacter> Character, Mock<ICombatantClass> CombatantClass) BuildParticipant(

@@ -54,6 +54,7 @@ public class ArenaEventType
 	public bool AllowSurrender { get; set; }
 	public decimal AppearanceFee { get; set; }
 	public decimal VictoryFee { get; set; }
+	public bool PayNpcAppearanceFee { get; set; }
 	public long? IntroProgId { get; set; }
 	public long? ScoringProgId { get; set; }
 	public long? ResolutionOverrideProgId { get; set; }

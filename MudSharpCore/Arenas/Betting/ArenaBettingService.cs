@@ -273,14 +273,15 @@ public class ArenaBettingService : IArenaBettingService
 				                          .ColourValue();
 				payout.Winner.OutputHandler.Send(
 					$"You receive {payoutText} from betting on {arenaEvent.Name.ColourName()}.".Colour(Telnet.Green));
-				var record = new ArenaBetPayout
-				{
-					ArenaEventId = arenaEvent.Id,
-					CharacterId = payout.Winner.Id,
-					Amount = payout.Amount,
-					IsBlocked = false,
-					CreatedAt = DateTime.UtcNow,
-					CollectedAt = DateTime.UtcNow
+					var record = new ArenaBetPayout
+					{
+						ArenaEventId = arenaEvent.Id,
+						CharacterId = payout.Winner.Id,
+						Amount = payout.Amount,
+						PayoutType = (int)ArenaPayoutType.Bet,
+						IsBlocked = false,
+						CreatedAt = DateTime.UtcNow,
+						CollectedAt = DateTime.UtcNow
 				};
 				context.ArenaBetPayouts.Add(record);
 				continue;
@@ -457,12 +458,21 @@ public class ArenaBettingService : IArenaBettingService
 			                     ArenaName = x.ArenaEvent.Arena.Name,
 			                     EventTypeName = x.ArenaEvent.ArenaEventType.Name,
 			                     x.Amount,
+			                     x.PayoutType,
 			                     x.IsBlocked,
 			                     x.CreatedAt
 		                     })
 		                     .ToList();
 
-		return payouts.Select(x => new ArenaBetPayoutSummary(x.ArenaEventId, x.ArenaId, x.ArenaName, x.EventTypeName, x.Amount, x.IsBlocked, x.CreatedAt))
+		return payouts.Select(x => new ArenaBetPayoutSummary(
+				x.ArenaEventId,
+				x.ArenaId,
+				x.ArenaName,
+				x.EventTypeName,
+				x.Amount,
+				Enum.IsDefined(typeof(ArenaPayoutType), x.PayoutType) ? (ArenaPayoutType)x.PayoutType : ArenaPayoutType.Bet,
+				x.IsBlocked,
+				x.CreatedAt))
 		              .ToList();
 	}
 
@@ -544,8 +554,13 @@ public class ArenaBettingService : IArenaBettingService
 			return;
 		}
 
+		var payoutType = (int)ArenaPayoutType.Bet;
 		var existing = context.ArenaBetPayouts.FirstOrDefault(x =>
-			x.ArenaEventId == arenaEvent.Id && x.CharacterId == characterId && !x.IsBlocked && x.CollectedAt == null);
+			x.ArenaEventId == arenaEvent.Id &&
+			x.CharacterId == characterId &&
+			x.PayoutType == payoutType &&
+			!x.IsBlocked &&
+			x.CollectedAt == null);
 		if (existing is null)
 		{
 			context.ArenaBetPayouts.Add(new ArenaBetPayout
@@ -553,6 +568,7 @@ public class ArenaBettingService : IArenaBettingService
 				ArenaEventId = arenaEvent.Id,
 				CharacterId = characterId,
 				Amount = amount,
+				PayoutType = payoutType,
 				IsBlocked = false,
 				CreatedAt = DateTime.UtcNow
 			});
@@ -758,8 +774,9 @@ public class ArenaBettingService : IArenaBettingService
 	private static Dictionary<long, PayoutTotals> GetPayoutTotals(FuturemudDatabaseContext context, long characterId)
 	{
 		return context.ArenaBetPayouts
-		              .Where(x => x.CharacterId == characterId)
-		              .GroupBy(x => x.ArenaEventId)
+			              .Where(x => x.CharacterId == characterId)
+			              .Where(x => x.PayoutType == (int)ArenaPayoutType.Bet)
+			              .GroupBy(x => x.ArenaEventId)
 		              .Select(group => new
 		              {
 			              EventId = group.Key,

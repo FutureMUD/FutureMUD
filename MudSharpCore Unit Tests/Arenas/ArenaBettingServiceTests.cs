@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp_Unit_Tests.Arenas;
@@ -74,6 +76,55 @@ public class ArenaBettingServiceTests
 		participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
 		participant.SetupGet(x => x.StartingRating).Returns(startingRating);
 		return participant.Object;
+	}
+
+	private static void SeedArenaGraph(FuturemudDatabaseContext context, long arenaId, long eventTypeId, long eventId,
+		ArenaEventState state = ArenaEventState.Live)
+	{
+		context.Arenas.Add(new Arena
+		{
+			Id = arenaId,
+			Name = $"Arena {arenaId}",
+			EconomicZoneId = 1,
+			CurrencyId = 1,
+			CreatedAt = DateTime.UtcNow,
+			IsDeleted = false,
+			SignupEcho = string.Empty
+		});
+		context.ArenaEventTypes.Add(new MudSharp.Models.ArenaEventType
+		{
+			Id = eventTypeId,
+			ArenaId = arenaId,
+			Name = $"Type {eventTypeId}",
+			BringYourOwn = false,
+			RegistrationDurationSeconds = 0,
+			PreparationDurationSeconds = 0,
+			BettingModel = (int)BettingModel.FixedOdds,
+			EliminationMode = (int)ArenaEliminationMode.NoElimination,
+			AllowSurrender = true,
+			AppearanceFee = 0m,
+			VictoryFee = 0m,
+			PayNpcAppearanceFee = false,
+			EloStyle = (int)ArenaEloStyle.TeamAverage,
+			EloKFactor = 32m
+		});
+		context.ArenaEvents.Add(new MudSharp.Models.ArenaEvent
+		{
+			Id = eventId,
+			ArenaId = arenaId,
+			ArenaEventTypeId = eventTypeId,
+			State = (int)state,
+			BringYourOwn = false,
+			RegistrationDurationSeconds = 0,
+			PreparationDurationSeconds = 0,
+			BettingModel = (int)BettingModel.FixedOdds,
+			AppearanceFee = 0m,
+			VictoryFee = 0m,
+			PayNpcAppearanceFee = false,
+			CreatedAt = DateTime.UtcNow,
+			ScheduledAt = DateTime.UtcNow
+		});
+		context.SaveChanges();
 	}
 
 	[TestMethod]
@@ -231,5 +282,96 @@ public class ArenaBettingServiceTests
 		var bet = context.ArenaBets.Single();
 		Assert.IsTrue(bet.IsCancelled);
 		arena.Verify(x => x.Debit(10m, It.Is<string>(s => s.Contains("refund"))), Times.Once);
+	}
+
+	[TestMethod]
+	public void GetBetHistory_IgnoresNonBetPayoutTypesInResultTotals()
+	{
+		using var context = BuildContext();
+		SeedArenaGraph(context, arenaId: 1, eventTypeId: 1, eventId: 1, state: ArenaEventState.Completed);
+
+		context.ArenaBets.Add(new ArenaBet
+		{
+			ArenaEventId = 1,
+			CharacterId = 55,
+			SideIndex = 0,
+			Stake = 50m,
+			PlacedAt = DateTime.UtcNow,
+			FixedDecimalOdds = 2.0m,
+			IsCancelled = false,
+			ModelSnapshot = "{}"
+		});
+		context.ArenaBetPayouts.AddRange(
+			new ArenaBetPayout
+			{
+				ArenaEventId = 1,
+				CharacterId = 55,
+				Amount = 75m,
+				PayoutType = (int)ArenaPayoutType.Bet,
+				IsBlocked = false,
+				CreatedAt = DateTime.UtcNow,
+				CollectedAt = DateTime.UtcNow
+			},
+			new ArenaBetPayout
+			{
+				ArenaEventId = 1,
+				CharacterId = 55,
+				Amount = 999m,
+				PayoutType = (int)ArenaPayoutType.Appearance,
+				IsBlocked = false,
+				CreatedAt = DateTime.UtcNow,
+				CollectedAt = DateTime.UtcNow
+			});
+		context.SaveChanges();
+
+		var financeMock = new Mock<IArenaFinanceService>();
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Id).Returns(55L);
+		var service = CreateService(context, financeMock, paymentMock, new Dictionary<long, ICharacter> { { 55L, actor.Object } });
+
+		var history = service.GetBetHistory(actor.Object, 5).Single();
+
+		Assert.AreEqual(75m, history.CollectedPayout);
+	}
+
+	[TestMethod]
+	public void GetOutstandingPayouts_IncludesPayoutTypeInSummaries()
+	{
+		using var context = BuildContext();
+		SeedArenaGraph(context, arenaId: 2, eventTypeId: 2, eventId: 2, state: ArenaEventState.Completed);
+		context.ArenaBetPayouts.AddRange(
+			new ArenaBetPayout
+			{
+				ArenaEventId = 2,
+				CharacterId = 88,
+				Amount = 12m,
+				PayoutType = (int)ArenaPayoutType.Bet,
+				IsBlocked = false,
+				CreatedAt = DateTime.UtcNow
+			},
+			new ArenaBetPayout
+			{
+				ArenaEventId = 2,
+				CharacterId = 88,
+				Amount = 7m,
+				PayoutType = (int)ArenaPayoutType.Appearance,
+				IsBlocked = true,
+				CreatedAt = DateTime.UtcNow
+			});
+		context.SaveChanges();
+
+		var financeMock = new Mock<IArenaFinanceService>();
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Id).Returns(88L);
+		var service = CreateService(context, financeMock, paymentMock, new Dictionary<long, ICharacter> { { 88L, actor.Object } });
+
+		var payouts = service.GetOutstandingPayouts(actor.Object).ToList();
+
+		Assert.AreEqual(2, payouts.Count);
+		CollectionAssert.AreEquivalent(
+			new[] { ArenaPayoutType.Bet, ArenaPayoutType.Appearance },
+			payouts.Select(x => x.PayoutType).ToArray());
 	}
 }

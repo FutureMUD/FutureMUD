@@ -28,6 +28,7 @@ public class ArenaEvent
 	public int BettingModel { get; set; }
 	public decimal AppearanceFee { get; set; }
 	public decimal VictoryFee { get; set; }
+	public bool PayNpcAppearanceFee { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public DateTime ScheduledAt { get; set; }
 	public DateTime? RegistrationOpensAt { get; set; }

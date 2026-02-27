@@ -38,10 +38,11 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			? TimeSpan.FromSeconds(model.AutoScheduleIntervalSeconds.Value)
 			: null;
 		AutoScheduleReferenceTime = model.AutoScheduleReferenceTime;
-		BettingModel = (BettingModel)model.BettingModel;
-		AppearanceFee = model.AppearanceFee;
-		VictoryFee = model.VictoryFee;
-		IntroProg = model.IntroProgId.HasValue ? Gameworld.FutureProgs.Get(model.IntroProgId.Value) : null;
+			BettingModel = (BettingModel)model.BettingModel;
+			AppearanceFee = model.AppearanceFee;
+			VictoryFee = model.VictoryFee;
+			PayNpcAppearanceFee = model.PayNpcAppearanceFee;
+			IntroProg = model.IntroProgId.HasValue ? Gameworld.FutureProgs.Get(model.IntroProgId.Value) : null;
 		ScoringProg = model.ScoringProgId.HasValue ? Gameworld.FutureProgs.Get(model.ScoringProgId.Value) : null;
 		ResolutionOverrideProg = model.ResolutionOverrideProgId.HasValue
 			? Gameworld.FutureProgs.Get(model.ResolutionOverrideProgId.Value)
@@ -78,6 +79,7 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 	public BettingModel BettingModel { get; private set; }
 	public decimal AppearanceFee { get; private set; }
 	public decimal VictoryFee { get; private set; }
+	public bool PayNpcAppearanceFee { get; private set; }
 	public IFutureProg? IntroProg { get; private set; }
 	public IFutureProg? ScoringProg { get; private set; }
 	public IFutureProg? ResolutionOverrideProg { get; private set; }
@@ -101,9 +103,10 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			? $"Time Limit: {TimeLimit.Value.Describe(actor).ColourValue()}"
 			: $"Time Limit: {"None".Colour(Telnet.Green)}");
 		sb.AppendLine($"Betting Model: {BettingModel.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Appearance Fee: {Arena.Currency.Describe(AppearanceFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-		sb.AppendLine($"Victory Fee: {Arena.Currency.Describe(VictoryFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-		sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(actor)}");
+			sb.AppendLine($"Appearance Fee: {Arena.Currency.Describe(AppearanceFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"Victory Fee: {Arena.Currency.Describe(VictoryFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"Pay NPC Appearance Fee: {PayNpcAppearanceFee.ToColouredString()}");
+			sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(actor)}");
 		sb.AppendLine($"Intro Prog: {IntroProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Scoring Prog: {ScoringProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Resolution Override Prog: {ResolutionOverrideProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -135,10 +138,11 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 	#3preparation <timespan>#0 - sets the preparation duration
 	#3timelimit <timespan>|none#0 - sets or clears the time limit
 	#3autoschedule <interval> <reference>|off#0 - sets or clears recurring event creation
-	#3betting <fixed|parimutuel>#0 - sets the betting model
-	#3appearance <amount>#0 - sets the appearance fee
-	#3victory <amount>#0 - sets the victory fee
-	#3introprog <prog>|none#0 - sets the intro prog
+		#3betting <fixed|parimutuel>#0 - sets the betting model
+		#3appearance <amount>#0 - sets the appearance fee
+		#3victory <amount>#0 - sets the victory fee
+		#3paynpcappearance#0 - toggles whether NPCs receive appearance payouts
+		#3introprog <prog>|none#0 - sets the intro prog
 	#3scoringprog <prog>|none#0 - sets the scoring prog
 	#3resolutionprog <prog>|none#0 - sets the resolution override prog
 	#3elostyle <style>#0 - sets which Elo variant is used for rating updates
@@ -178,10 +182,14 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			case "appearance":
 			case "appearancefee":
 				return BuildingCommandAppearance(actor, command);
-			case "victory":
-			case "victoryfee":
-				return BuildingCommandVictory(actor, command);
-			case "introprog":
+				case "victory":
+				case "victoryfee":
+					return BuildingCommandVictory(actor, command);
+				case "paynpcappearance":
+				case "paynpcfee":
+				case "npcappearance":
+					return BuildingCommandPayNpcAppearance(actor);
+				case "introprog":
 			case "intro":
 				return BuildingCommandIntroProg(actor, command);
 			case "scoringprog":
@@ -439,6 +447,16 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 		VictoryFee = value;
 		Changed = true;
 		actor.OutputHandler.Send($"Victory fee is now {Arena.Currency.Describe(VictoryFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandPayNpcAppearance(ICharacter actor)
+	{
+		PayNpcAppearanceFee = !PayNpcAppearanceFee;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"NPC appearance payouts are now {(PayNpcAppearanceFee ? "enabled" : "disabled")} for this event type."
+				.SubstituteANSIColour());
 		return true;
 	}
 
@@ -751,10 +769,11 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 				AutoScheduleReferenceTime = AutoScheduleReferenceTime,
 				BettingModel = (int)BettingModel,
 				EliminationMode = (int)EliminationMode,
-				AllowSurrender = AllowSurrender,
-				AppearanceFee = AppearanceFee,
-				VictoryFee = VictoryFee,
-				IntroProgId = IntroProg?.Id,
+					AllowSurrender = AllowSurrender,
+					AppearanceFee = AppearanceFee,
+					VictoryFee = VictoryFee,
+					PayNpcAppearanceFee = PayNpcAppearanceFee,
+					IntroProgId = IntroProg?.Id,
 				ScoringProgId = ScoringProg?.Id,
 				ResolutionOverrideProgId = ResolutionOverrideProg?.Id,
 				EloStyle = (int)EloStyle,
@@ -821,10 +840,11 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 			dbType.AutoScheduleReferenceTime = AutoScheduleReferenceTime;
 			dbType.BettingModel = (int)BettingModel;
 			dbType.EliminationMode = (int)EliminationMode;
-			dbType.AllowSurrender = AllowSurrender;
-			dbType.AppearanceFee = AppearanceFee;
-			dbType.VictoryFee = VictoryFee;
-			dbType.IntroProgId = IntroProg?.Id;
+				dbType.AllowSurrender = AllowSurrender;
+				dbType.AppearanceFee = AppearanceFee;
+				dbType.VictoryFee = VictoryFee;
+				dbType.PayNpcAppearanceFee = PayNpcAppearanceFee;
+				dbType.IntroProgId = IntroProg?.Id;
 			dbType.ScoringProgId = ScoringProg?.Id;
 			dbType.ResolutionOverrideProgId = ResolutionOverrideProg?.Id;
 			dbType.EloStyle = (int)EloStyle;

@@ -36,6 +36,7 @@ public class ArenaBetPayout
 	public long ArenaEventId { get; set; }
 	public long CharacterId { get; set; }
 	public decimal Amount { get; set; }
+	public int PayoutType { get; set; }
 	public bool IsBlocked { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public DateTime? CollectedAt { get; set; }

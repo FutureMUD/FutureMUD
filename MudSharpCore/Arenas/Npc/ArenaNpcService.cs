@@ -154,7 +154,7 @@ public class ArenaNpcService : IArenaNpcService
 		}
 	}
 
-	public void ReturnNpc(ICharacter npc, IArenaEvent arenaEvent, bool resurrect)
+	public void ReturnNpc(ICharacter npc, IArenaEvent arenaEvent, bool resurrect, bool fullRestoreBeforeInventory)
 	{
 		if (npc is null)
 		{
@@ -185,7 +185,12 @@ public class ArenaNpcService : IArenaNpcService
 			return;
 		}
 
-		RestoreInventory(npc.Body, effect);
+		if (fullRestoreBeforeInventory && npc.Body is { } restoreBody)
+		{
+			RestoreBody(restoreBody);
+		}
+
+		RestoreInventory(npc, effect);
 
 		if (effect.OriginalLocation is not null)
 		{
@@ -213,97 +218,109 @@ public class ArenaNpcService : IArenaNpcService
 		}
 	}
 
-        private static void RestoreInventory(IBody? body, ArenaNpcPreparationEffect effect)
-        {
-                if (body is null)
-                {
-                        foreach (var snapshot in effect.Items)
-                        {
-                                if (snapshot.Item is { } orphanCandidate)
-                                {
-                                        HandleOrphanedItem(orphanCandidate);
-                                }
-                        }
+	private static void RestoreInventory(ICharacter npc, ArenaNpcPreparationEffect effect)
+	{
+		var body = npc.Body;
+		if (body is null)
+		{
+			foreach (var snapshot in effect.Items)
+			{
+				if (snapshot.Item is { } item && !item.Deleted)
+				{
+					PlaceItemNearCharacter(item, npc);
+				}
+			}
 
-                        return;
-                }
+			return;
+		}
 
-                foreach (var snapshot in effect.Items)
-                {
-                        var item = snapshot.Item;
-                        if (item is null || item.Deleted)
-                        {
-                                continue;
-                        }
+		foreach (var snapshot in effect.Items)
+		{
+			var item = snapshot.Item;
+			if (item is null || item.Deleted)
+			{
+				continue;
+			}
 
-                        body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight | ItemCanGetIgnore.IgnoreFreeHands);
+			try
+			{
+				body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
+			}
+			catch
+			{
+				PlaceItemNearCharacter(item, npc);
+				continue;
+			}
 
-                        if (HandleOrphanedItem(item))
-                        {
-                                continue;
-                        }
+			if (!ReferenceEquals(item.InInventoryOf, body))
+			{
+				PlaceItemNearCharacter(item, npc);
+				continue;
+			}
 
-                        switch (snapshot.State)
-                        {
-                                case InventoryState.Worn:
-                                        if (!WearItem(body, item, snapshot.WearProfileId))
-                                        {
-                                                HandleOrphanedItem(item);
-                                        }
+			switch (snapshot.State)
+			{
+				case InventoryState.Worn:
+					if (!WearItem(body, item, snapshot.WearProfileId))
+					{
+						PlaceItemNearCharacter(item, npc);
+					}
 
-                                        break;
-                                case InventoryState.Wielded:
-                                        if (!WieldItem(body, item, snapshot.BodypartId))
-                                        {
-                                                HandleOrphanedItem(item);
-                                        }
+					break;
+				case InventoryState.Wielded:
+					if (!WieldItem(body, item, snapshot.BodypartId))
+					{
+						PlaceItemNearCharacter(item, npc);
+					}
 
-                                        break;
-                                case InventoryState.Held:
-                                        HandleOrphanedItem(item);
-                                        break;
-                        }
+					break;
+				case InventoryState.Held:
+					break;
+			}
 
-                        HandleOrphanedItem(item);
-                }
-        }
+			if (!ItemAnchored(item))
+			{
+				PlaceItemNearCharacter(item, npc);
+			}
+		}
+	}
 
-        private static bool WearItem(IBody body, IGameItem item, long? wearProfileId)
-        {
-                var wearable = item.GetItemType<IWearable>();
-                if (wearable is null)
-                {
-                        return false;
-                }
+	private static bool WearItem(IBody body, IGameItem item, long? wearProfileId)
+	{
+		var wearable = item.GetItemType<IWearable>();
+		if (wearable is null)
+		{
+			return false;
+		}
 
-                var profile = wearProfileId.HasValue
-                        ? wearable.Profiles.FirstOrDefault(x => x.Id == wearProfileId.Value)
-                        : wearable.CurrentProfile;
+		var profile = wearProfileId.HasValue
+			? wearable.Profiles.FirstOrDefault(x => x.Id == wearProfileId.Value)
+			: wearable.CurrentProfile;
 
-                if (profile is not null)
-                {
-                        body.Wear(item, profile, null, true);
-                }
-                else
-                {
-                        body.Wear(item, null, true);
-                }
+		if (profile is not null)
+		{
+			body.Wear(item, profile, null, true);
+		}
+		else
+		{
+			body.Wear(item, null, true);
+		}
 
-                return body.WornItems.Contains(item);
-        }
+		return body.WornItems.Contains(item);
+	}
 
-        private static bool WieldItem(IBody body, IGameItem item, long? bodypartId)
-        {
-                var hand = bodypartId.HasValue
-                        ? body.Bodyparts.FirstOrDefault(x => x.Id == bodypartId.Value) as IWield
-                        : null;
+	private static bool WieldItem(IBody body, IGameItem item, long? bodypartId)
+	{
+		var hand = bodypartId.HasValue
+			? body.Bodyparts.FirstOrDefault(x => x.Id == bodypartId.Value) as IWield
+			: null;
 
-                return body.Wield(item, hand, null, true, ItemCanWieldFlags.IgnoreFreeHands);
-        }
+		return body.Wield(item, hand, null, true, ItemCanWieldFlags.IgnoreFreeHands);
+	}
 
-        private static InventoryState DetermineState(IBody body, IGameItem item)
-        {
-                if (body.WornItems.Contains(item))
+	private static InventoryState DetermineState(IBody body, IGameItem item)
+	{
+		if (body.WornItems.Contains(item))
 		{
 			return InventoryState.Worn;
 		}
@@ -311,26 +328,41 @@ public class ArenaNpcService : IArenaNpcService
 		if (body.WieldedItems.Contains(item))
 		{
 			return InventoryState.Wielded;
-                }
+		}
 
-                return InventoryState.Held;
-        }
+		return InventoryState.Held;
+	}
 
-        private static bool HandleOrphanedItem(IGameItem item)
-        {
-                if (item is null || item.Deleted)
-                {
-                        return true;
-                }
+	private static void RestoreBody(IBody body)
+	{
+		body.HeldBreathTime = TimeSpan.Zero;
+		body.RestoreAllBodypartsOrgansAndBones();
+		body.Sober();
+		body.CureAllWounds();
+		body.CurrentStamina = body.MaximumStamina;
+		body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
+		body.EndHealthTick();
+	}
 
-                if (item.InInventoryOf is not null || item.Location is not null || item.ContainedIn is not null)
-                {
-                        return false;
-                }
+	private static bool ItemAnchored(IGameItem item)
+	{
+		return item.InInventoryOf is not null || item.Location is not null || item.ContainedIn is not null;
+	}
 
-                item.Delete();
-                return true;
-        }
+	private static void PlaceItemNearCharacter(IGameItem item, ICharacter character)
+	{
+		item.ContainedIn?.Take(item);
+		item.InInventoryOf?.Take(item);
+		item.Location?.Extract(item);
+
+		if (character.Location is not { } location)
+		{
+			return;
+		}
+
+		item.RoomLayer = character.RoomLayer;
+		location.Insert(item, true);
+	}
 
 	private static ICell? SelectArenaCell(IEnumerable<ICell> cells, int sideIndex)
 	{

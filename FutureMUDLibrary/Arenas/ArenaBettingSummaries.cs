@@ -29,6 +29,7 @@ public sealed record ArenaBetPayoutSummary(
 	string ArenaName,
 	string EventTypeName,
 	decimal Amount,
+	ArenaPayoutType PayoutType,
 	bool IsBlocked,
 	DateTime CreatedAt);
 

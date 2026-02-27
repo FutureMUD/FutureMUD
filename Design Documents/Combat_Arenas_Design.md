@@ -25,6 +25,11 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - Arena lifecycle text announcements now use watcher-suppressed output flags to prevent duplicated observer spam from per-room broadcasts.
 - Arena no-quit/no-timeout phase effects now self-prune if their referenced event is no longer active, preventing stale saved effects from blocking players after crashes.
 - Automatic combat retargeting now excludes incapacitated combatants during reacquire, preventing misleading target-switch echoes as knockout eliminations resolve.
+- Arena phase transitions now support an optional arena-level hook prog (`OnArenaEventPhaseProg`) executed after transition announcements with arguments: `arenaId:number`, `eventId:number`, `eventName:text`, `phaseName:text`.
+- Arena payout liabilities are now typed (`Bet`, `Appearance`) so outstanding/unclaimed reporting remains understandable.
+- Appearance fees now accrue as collectible liabilities at resolve time instead of immediate mandatory disbursement attempts.
+- Manager-facing arena views now display unclaimed money totals (unblocked + uncollected bet and appearance payouts).
+- Managers can now deposit/withdraw physical cash to/from arena cash reserves, inspect stable NPC rosters with ratings, and query/list arena ratings with filters.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
@@ -36,6 +41,7 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - **Events (instances)**: created from an Event Type, optionally with **reserved slots** for characters/clans when **manually launched**; progress via a lifecycle (below).
 - **Observation**: **remote viewing only**, via an arena-scoped watcher effect mirroring in-arena output with appropriate audio "quietening" and notice checks for subtle actions.
 - **Betting**: **custodied** wagers (stake moved immediately). Two selectable models: **Fixed-Odds** (snapshot at bet time) and **Pari-Mutuel** (pool). **Draw** outcome supported. If arena lacks payout funds, **payout is blocked** and can be collected later.
+- **Appearance Fees**: appearance payouts are persisted as owed liabilities on resolve and collected later; NPC recipients are controlled by event-type configuration.
 - **Ratings**: Elo-style per **Combatant Class** (not global), applied when events reach **Completed**. Event types choose style (`TeamAverage`, `PairwiseIndividual`, `PairwiseSide`) and K-factor.
 - **Crash/Reboot**: mid-match -> **cancel event** and **refund wagers** (no state restore).
 - **Disconnects**: PCs cannot quit (effect); no linkdead auto-logout in an event. If disconnected, they **remain** in the match.
@@ -65,11 +71,13 @@ Draft -> Scheduled -> RegistrationOpen -> Preparing -> Staged -> Live -> Resolvi
 - **Live**: combat proceeds; scoring and elimination receive combat callbacks; observers see mirrored output with hearing/notice rules.
 - **Live (termination)**: scheduler polling checks elimination conditions continuously; time limit remains a fallback/end-cap.
 - **Resolving**: decide win/draw (draws supported on time tie); award victory/appearance fees; settle bets (block payouts if insolvent); update ratings via prog.
-- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy. NPCs auto-resurrected by class policy, or fully restored in stables, have matching corpse and severed-bodypart remains removed.
+- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy. NPCs auto-resurrected by class policy, or fully restored in stables, have matching corpse and severed-bodypart remains removed. Item re-get failures (e.g., no usable hands) must fall back to nearby placement instead of deletion.
 - **Completed**: immutable record.
 - **Aborted**: manual stop or pre-live failure; default: refund wagers, no appearance/victory fees unless arena policy says otherwise.
 
 **Timers/Drivers**: use the game scheduler/heartbeat; arenas may attach schedules (for example via `IProgSchedule` or equivalent). No cross-reboot restoration.
+
+**Phase Transition Hook**: after each successful state transition announcement, optionally execute the arena phase prog with `(arenaId, eventId, eventName, phaseName)` and swallow/log hook exceptions so transitions remain reliable.
 
 ## 5) Strategies (plugin design; responsibilities only)
 ### 5.1 Elimination
@@ -112,7 +120,9 @@ Minimum strategies:
 **Solvency & Settlement**:
 - Custody stake to arena account immediately.
 - Settlement **blocks payouts** if insolvent; players may collect later when funds exist.
+- Appearance fees are accrued as payout liabilities at resolve, using the same blocked/unblocked collection model.
 - Maintain a **withholding ledger** for unsettled liabilities to avoid taxing phantom profit.
+- Unclaimed money reporting is based on unblocked, uncollected payouts for both bet and appearance liability types.
 
 **Outcomes**:
 - Sides + **Draw** supported across both models.
@@ -144,11 +154,13 @@ Minimum strategies:
 - **Admin**: can set NPC loader progs; full control.
 - **Property Owner/Lease**: hires/fires managers.
 - **Manager (unrestricted)**: configure event types, fees, schedules; launch/abort events; reserve slots; manage funds (deposit/withdraw/transfer); choose betting model; toggle NPC signup/backfill.
+- **Manager cash operations**: manager cash commands operate only on arena cash reserve; deposits require physical cash on the manager and withdrawals return physical cash (or ground pile fallback).
 
 
 ## 11) Taxation (Economic Zones)
 - Tax on **net profit per period**.
 - Track **withheld liabilities** for unsettled wagers so P&L reflects exposure.
+- Arena manager financial views include **unclaimed money**: payouts for this arena with type `Bet` or `Appearance`, `IsBlocked=false`, and `CollectedAt=null`.
 
 
 ## 12) Failure Modes & Policy
@@ -173,6 +185,7 @@ Minimum strategies:
 - **Betting book** with pluggable model (fixed‑odds/pari‑mutuel), solvency checks, custody on placement, settlement on outcome, payout blocking when insolvent, and withheld liabilities ledger. 
 
 ### 13.4 Hooks & Effects
+- **Phase transition hook** should be available as a dedicated arena-level callback receiving arena id, event id, event name, and phase name text.
 - **FutureProg hooks** at: event creation, registration open, preparing, staged, live, resolve, cleanup; per‑actor elimination/kill/crit‑injury.
 - **Watcher effect** scoped to arena; mirrors output respecting hearing/notice rules and honours output-level "ignore watchers" flags.
 
@@ -203,6 +216,11 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 - `arena start <event> [reserve side:<n> whom:<char|clan> [ttl:<span>] …]`
 - `arena abort <event> <reason>`
 - `arena fund <arena> deposit|withdraw <amount> [bankaccount]`
+- `arena manager deposit [<arena>] <amount>`
+- `arena manager withdraw [<arena>] <amount>`
+- `arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]`
+- `arena manager rating [<arena>] <character>`
+- `arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]`
 - `arena status <arena>` (balances, withheld, upcoming, live, liabilities)
 
 **Players**
@@ -216,6 +234,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 
 ## 16) Prog Hooks (context & intent only)
 - Arena/Event lifecycle: `OnEventCreated`, `OnRegistrationOpened`, `OnPreparing`, `OnStaged`, `OnLive`, `OnResolve`, `OnCleanup`
+- Arena phase transition: `OnArenaEventPhase(arenaId:number, eventId:number, eventName:text, phaseName:text)`.
 - Per‑actor: `OnEliminate`, `OnKill`, `OnCritInjury`
 - Ratings: `OnRatingAdjust` (returns Δ/override)
 - Hooks receive a context map (event, arena, side, combatant, cause, etc.) using existing **ProgVariableTypes**.

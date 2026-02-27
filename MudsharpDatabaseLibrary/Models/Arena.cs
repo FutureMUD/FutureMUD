@@ -21,6 +21,7 @@ public class Arena
 	public long EconomicZoneId { get; set; }
 	public long CurrencyId { get; set; }
 	public long? BankAccountId { get; set; }
+	public long? OnArenaEventPhaseProgId { get; set; }
 	public decimal VirtualBalance { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public bool IsDeleted { get; set; }
@@ -29,6 +30,7 @@ public class Arena
 	public virtual EconomicZone EconomicZone { get; set; }
 	public virtual Currency Currency { get; set; }
 	public virtual BankAccount BankAccount { get; set; }
+	public virtual FutureProg OnArenaEventPhaseProg { get; set; }
 	public virtual ICollection<ArenaManager> ArenaManagers { get; set; }
 	public virtual ICollection<ArenaCell> ArenaCells { get; set; }
 	public virtual ICollection<ArenaCombatantClass> ArenaCombatantClasses { get; set; }

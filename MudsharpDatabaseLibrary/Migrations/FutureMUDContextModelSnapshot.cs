@@ -1037,8 +1037,11 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("BankAccountId")
-                        .HasColumnType("bigint(20)");
+	                    b.Property<long?>("BankAccountId")
+	                        .HasColumnType("bigint(20)");
+
+	                    b.Property<long?>("OnArenaEventPhaseProgId")
+	                        .HasColumnType("bigint(20)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
@@ -1075,11 +1078,14 @@ namespace MudSharp.Migrations
                     b.HasIndex("BankAccountId")
                         .HasDatabaseName("FK_Arenas_BankAccounts");
 
-                    b.HasIndex("CurrencyId")
-                        .HasDatabaseName("FK_Arenas_Currencies");
+	                    b.HasIndex("CurrencyId")
+	                        .HasDatabaseName("FK_Arenas_Currencies");
 
-                    b.HasIndex("EconomicZoneId")
-                        .HasDatabaseName("FK_Arenas_EconomicZones");
+	                    b.HasIndex("EconomicZoneId")
+	                        .HasDatabaseName("FK_Arenas_EconomicZones");
+
+	                    b.HasIndex("OnArenaEventPhaseProgId")
+	                        .HasDatabaseName("FK_Arenas_OnArenaEventPhaseProg");
 
                     b.ToTable("Arenas", (string)null);
                 });
@@ -1158,10 +1164,15 @@ namespace MudSharp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
 
-                    b.Property<ulong>("IsBlocked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit(1)")
-                        .HasDefaultValueSql("b'0'");
+	                    b.Property<ulong>("IsBlocked")
+	                        .ValueGeneratedOnAdd()
+	                        .HasColumnType("bit(1)")
+	                        .HasDefaultValueSql("b'0'");
+
+	                    b.Property<int>("PayoutType")
+	                        .ValueGeneratedOnAdd()
+	                        .HasColumnType("int(11)")
+	                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
@@ -1374,11 +1385,16 @@ namespace MudSharp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("PreparationDurationSeconds")
-                        .HasColumnType("int(11)");
+	                    b.Property<int>("PreparationDurationSeconds")
+	                        .HasColumnType("int(11)");
 
-                    b.Property<int>("RegistrationDurationSeconds")
-                        .HasColumnType("int(11)");
+	                    b.Property<ulong>("PayNpcAppearanceFee")
+	                        .ValueGeneratedOnAdd()
+	                        .HasColumnType("bit(1)")
+	                        .HasDefaultValueSql("b'0'");
+
+	                    b.Property<int>("RegistrationDurationSeconds")
+	                        .HasColumnType("int(11)");
 
                     b.Property<DateTime?>("RegistrationOpensAt")
                         .HasColumnType("datetime");
@@ -1518,11 +1534,16 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
-                    b.Property<int>("PreparationDurationSeconds")
-                        .HasColumnType("int(11)");
+	                    b.Property<int>("PreparationDurationSeconds")
+	                        .HasColumnType("int(11)");
 
-                    b.Property<int>("RegistrationDurationSeconds")
-                        .HasColumnType("int(11)");
+	                    b.Property<ulong>("PayNpcAppearanceFee")
+	                        .ValueGeneratedOnAdd()
+	                        .HasColumnType("bit(1)")
+	                        .HasDefaultValueSql("b'0'");
+
+	                    b.Property<int>("RegistrationDurationSeconds")
+	                        .HasColumnType("int(11)");
 
                     b.Property<long?>("ResolutionOverrideProgId")
                         .HasColumnType("bigint(20)");
@@ -17375,18 +17396,26 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Arenas_Currencies");
 
-                    b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
-                        .WithMany()
-                        .HasForeignKey("EconomicZoneId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Arenas_EconomicZones");
+	                    b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
+	                        .WithMany()
+	                        .HasForeignKey("EconomicZoneId")
+	                        .IsRequired()
+	                        .HasConstraintName("FK_Arenas_EconomicZones");
+
+	                    b.HasOne("MudSharp.Models.FutureProg", "OnArenaEventPhaseProg")
+	                        .WithMany()
+	                        .HasForeignKey("OnArenaEventPhaseProgId")
+	                        .OnDelete(DeleteBehavior.SetNull)
+	                        .HasConstraintName("FK_Arenas_OnArenaEventPhaseProg");
 
                     b.Navigation("BankAccount");
 
                     b.Navigation("Currency");
 
-                    b.Navigation("EconomicZone");
-                });
+	                    b.Navigation("EconomicZone");
+
+	                    b.Navigation("OnArenaEventPhaseProg");
+	                });
 
             modelBuilder.Entity("MudSharp.Models.ArenaBet", b =>
                 {

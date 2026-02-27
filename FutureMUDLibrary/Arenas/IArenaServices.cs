@@ -54,6 +54,8 @@ public interface IArenaBettingService {
 /// </summary>
 public interface IArenaRatingsService {
 	decimal GetRating(ICharacter character, ICombatantClass combatantClass);
+	IReadOnlyCollection<ArenaRatingSummary> GetArenaRatings(ICombatArena arena);
+	IReadOnlyCollection<ArenaRatingSummary> GetCharacterRatings(ICombatArena arena, ICharacter character);
 	void UpdateRatings(IArenaEvent arenaEvent, IReadOnlyDictionary<ICharacter, decimal> deltas);
 	void ApplyDefaultElo(IArenaEvent arenaEvent);
 }
@@ -67,6 +69,8 @@ public interface IArenaFinanceService {
 	void PostProfitLoss(ICombatArena arena, string reference);
 	void BlockPayout(ICombatArena arena, IArenaEvent arenaEvent, IEnumerable<(ICharacter Winner, decimal Amount)> payouts);
 	void UnblockPayouts(ICombatArena arena);
+	void AccrueAppearancePayouts(IArenaEvent arenaEvent);
+	decimal GetUnclaimedMoney(ICombatArena arena);
 }
 
 /// <summary>
@@ -84,7 +88,7 @@ public interface IArenaBetPaymentService {
 public interface IArenaNpcService {
         IEnumerable<ICharacter> AutoFill(IArenaEvent arenaEvent, int sideIndex, int slotsNeeded);
         void PrepareNpc(ICharacter npc, IArenaEvent arenaEvent, int sideIndex, ICombatantClass combatantClass);
-        void ReturnNpc(ICharacter npc, IArenaEvent arenaEvent, bool resurrect);
+        void ReturnNpc(ICharacter npc, IArenaEvent arenaEvent, bool resurrect, bool fullRestoreBeforeInventory);
 }
 
 /// <summary>

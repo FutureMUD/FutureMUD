@@ -11,10 +11,12 @@ using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate;
+using MudSharp.Economy.Payment;
 
 namespace MudSharp.Commands.Modules;
 
@@ -58,10 +60,15 @@ Manager Commands:
 	#6Note: You must be a manager of the arena owning the target event or event type.#0
 
 
-	#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
-	#3arena manager autoschedule <eventtype> show#0 - show recurring settings
-	#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
-	#3arena manager autoschedule <eventtype> every <interval> [from] <reference>#0 - enable recurring creation";
+		#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
+		#3arena manager autoschedule <eventtype> show#0 - show recurring settings
+		#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
+		#3arena manager autoschedule <eventtype> every <interval> [from] <reference>#0 - enable recurring creation
+		#3arena manager deposit [<arena>] <amount>#0 - deposit physical cash into arena cash reserve
+		#3arena manager withdraw [<arena>] <amount>#0 - withdraw physical cash from arena cash reserve
+		#3arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]#0 - show stable NPC roster by class
+		#3arena manager rating [<arena>] <character>#0 - show ratings for a character in an arena
+		#3arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]#0 - list arena ratings";
 
         [PlayerCommand("Arena", "arena")]
         [RequiredCharacterState(CharacterState.Conscious)]
@@ -226,7 +233,8 @@ Manager Commands:
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				"Do you want to #3phase#0 or #3autoschedule#0? Use #3help arena#0 for syntax.".SubstituteANSIColour());
+				"Do you want to #3phase#0, #3autoschedule#0, #3deposit#0, #3withdraw#0, #3stable#0, #3rating#0 or #3ratings#0? Use #3help arena#0 for syntax."
+					.SubstituteANSIColour());
 			return;
 		}
 
@@ -240,9 +248,25 @@ Manager Commands:
 			case "schedule":
 				ArenaManagerAutoSchedule(actor, ss);
 				return;
+			case "deposit":
+				ArenaManagerDeposit(actor, ss);
+				return;
+			case "withdraw":
+				ArenaManagerWithdraw(actor, ss);
+				return;
+			case "stable":
+				ArenaManagerStable(actor, ss);
+				return;
+			case "rating":
+				ArenaManagerRating(actor, ss);
+				return;
+			case "ratings":
+				ArenaManagerRatings(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(
-					"Valid options are #3phase#0 and #3autoschedule#0.".SubstituteANSIColour());
+					"Valid options are #3phase#0, #3autoschedule#0, #3deposit#0, #3withdraw#0, #3stable#0, #3rating#0 and #3ratings#0."
+						.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -402,6 +426,503 @@ Manager Commands:
 		actor.OutputHandler.Send(
 			$"Auto scheduling for {eventType.Name.ColourName()} is now {DescribeAutoSchedule(eventType, actor)}."
 				.Colour(Telnet.Green));
+	}
+
+	private static void ArenaManagerDeposit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"How much cash do you want to deposit? Use #3arena manager deposit [<arena>] <amount>#0."
+					.SubstituteANSIColour());
+			return;
+		}
+
+		var originalArguments = ss.SafeRemainingArgument;
+		var firstToken = ss.PopSpeech();
+		var explicitArena = GetArena(actor, firstToken);
+		if (explicitArena is not null && ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"How much cash do you want to deposit into {explicitArena.Name.ColourName()}?");
+			return;
+		}
+
+		var arena = explicitArena is not null && !ss.IsFinished ? explicitArena : GetArena(actor, null);
+		var amountText = explicitArena is not null && !ss.IsFinished ? ss.SafeRemainingArgument : originalArguments;
+		if (arena is null)
+		{
+			actor.OutputHandler.Send(
+				"Which arena do you want to deposit cash to? You can omit this if you're in an arena room."
+					.ColourCommand());
+			return;
+		}
+
+		if (!arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		if (!arena.Currency.TryGetBaseCurrency(amountText, out var amount) || amount <= 0.0m)
+		{
+			actor.OutputHandler.Send("That is not a valid amount.".ColourError());
+			return;
+		}
+
+		var payment = new OtherCashPayment(arena.Currency, actor);
+		var available = payment.AccessibleMoneyForPayment();
+		if (available < amount)
+		{
+			actor.OutputHandler.Send(
+				$"You only have {arena.Currency.Describe(available, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} of that currency available.");
+			return;
+		}
+
+		payment.TakePayment(amount);
+		arena.CreditCash(amount, $"Arena manager cash deposit by {actor.Id:N0}");
+		actor.OutputHandler.Send(
+			$"You deposit {arena.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into {arena.Name.ColourName()}'s cash reserve."
+				.Colour(Telnet.Green));
+	}
+
+	private static void ArenaManagerWithdraw(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"How much cash do you want to withdraw? Use #3arena manager withdraw [<arena>] <amount>#0."
+					.SubstituteANSIColour());
+			return;
+		}
+
+		var originalArguments = ss.SafeRemainingArgument;
+		var firstToken = ss.PopSpeech();
+		var explicitArena = GetArena(actor, firstToken);
+		if (explicitArena is not null && ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"How much cash do you want to withdraw from {explicitArena.Name.ColourName()}?");
+			return;
+		}
+
+		var arena = explicitArena is not null && !ss.IsFinished ? explicitArena : GetArena(actor, null);
+		var amountText = explicitArena is not null && !ss.IsFinished ? ss.SafeRemainingArgument : originalArguments;
+		if (arena is null)
+		{
+			actor.OutputHandler.Send(
+				"Which arena do you want to withdraw cash from? You can omit this if you're in an arena room."
+					.ColourCommand());
+			return;
+		}
+
+		if (!arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		if (!arena.Currency.TryGetBaseCurrency(amountText, out var amount) || amount <= 0.0m)
+		{
+			actor.OutputHandler.Send("That is not a valid amount.".ColourError());
+			return;
+		}
+
+		var ensureCash = arena.EnsureCashFunds(amount);
+		if (!ensureCash.Truth)
+		{
+			actor.OutputHandler.Send(ensureCash.Reason.ColourError());
+			return;
+		}
+
+		arena.DebitCash(amount, $"Arena manager cash withdrawal by {actor.Id:N0}");
+		var pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(arena.Currency,
+			arena.Currency.FindCoinsForAmount(amount, out _));
+		if (actor.Body is not null && actor.Body.CanGet(pile, 0))
+		{
+			actor.Body.Get(pile, silent: true);
+		}
+		else if (actor.Location is not null)
+		{
+			actor.Location.Insert(pile, true);
+			actor.OutputHandler.Send("You couldn't hold that money, so it is on the ground.".Colour(Telnet.Yellow));
+		}
+		else
+		{
+			pile.Delete();
+		}
+
+		actor.OutputHandler.Send(
+			$"You withdraw {arena.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {arena.Name.ColourName()}'s cash reserve."
+				.Colour(Telnet.Green));
+	}
+
+	private static void ArenaManagerStable(ICharacter actor, StringStack ss)
+	{
+		var arena = ResolveOptionalArenaArgument(actor, ss, "class", "search", "top");
+		if (arena is null)
+		{
+			actor.OutputHandler.Send(
+				"Which arena do you want to inspect? You can omit this if you're in an arena room."
+					.ColourCommand());
+			return;
+		}
+
+		if (!arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		ICombatantClass? classFilter = null;
+		string? search = null;
+		var top = 100;
+		while (!ss.IsFinished)
+		{
+			switch (ss.PopForSwitch())
+			{
+				case "class":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("Which combatant class do you want to filter by?");
+						return;
+					}
+
+					classFilter = FindCombatantClass(arena.CombatantClasses, ss.PopSpeech());
+					if (classFilter is null)
+					{
+						actor.OutputHandler.Send("There is no combatant class matching that filter.".ColourError());
+						return;
+					}
+
+					break;
+				case "search":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("What text do you want to search for?");
+						return;
+					}
+
+					search = ss.PopSpeech();
+					break;
+				case "top":
+					if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out top) || top <= 0)
+					{
+						actor.OutputHandler.Send("You must specify a positive whole number for the top count.");
+						return;
+					}
+
+					break;
+				default:
+					actor.OutputHandler.Send(
+						"Valid options are #3class <class>#0, #3search <text>#0, and #3top <count>#0."
+							.SubstituteANSIColour());
+					return;
+			}
+		}
+
+		var stableNpcs = arena.NpcStablesCells
+			.SelectMany(x => x.Characters)
+			.Where(x => !x.IsPlayerCharacter)
+			.GroupBy(x => x.Id)
+			.Select(x => x.First())
+			.ToList();
+		if (!stableNpcs.Any())
+		{
+			actor.OutputHandler.Send("There are no NPCs currently in the stable cells for that arena.".ColourError());
+			return;
+		}
+
+		var classes = classFilter is null
+			? arena.CombatantClasses.OrderBy(x => x.Name).ToList()
+			: new List<ICombatantClass> { classFilter };
+		var rows = new List<(string ClassName, string NpcName, decimal Rating, string Location)>();
+		foreach (var combatantClass in classes)
+		{
+			foreach (var npc in stableNpcs)
+			{
+				if (!IsEligibleForCombatantClass(npc, combatantClass))
+				{
+					continue;
+				}
+
+				var npcName = npc.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription);
+				if (!string.IsNullOrWhiteSpace(search) &&
+				    !npcName.Contains(search, StringComparison.InvariantCultureIgnoreCase) &&
+				    !combatantClass.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+				{
+					continue;
+				}
+
+				var rating = actor.Gameworld.ArenaRatingsService.GetRating(npc, combatantClass);
+				rows.Add((
+					combatantClass.Name,
+					npcName,
+					rating,
+					npc.Location?.GetFriendlyReference(actor) ?? "Nowhere"));
+			}
+		}
+
+		if (!rows.Any())
+		{
+			actor.OutputHandler.Send("No stable NPCs matched your filters.".ColourError());
+			return;
+		}
+
+		rows = rows
+			.OrderBy(x => x.ClassName)
+			.ThenByDescending(x => x.Rating)
+			.ThenBy(x => x.NpcName)
+			.Take(top)
+			.ToList();
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			rows.Select(x => new[]
+			{
+				x.ClassName.ColourName(),
+				x.NpcName.ColourName(),
+				x.Rating.ToString("N2", actor).ColourValue(),
+				x.Location.ColourName()
+			}).ToList(),
+			new[] { "Class", "NPC", "Rating", "Location" },
+			actor,
+			Telnet.Cyan));
+	}
+
+	private static void ArenaManagerRating(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"Which character do you want to look up? Use #3arena manager rating [<arena>] <character>#0."
+					.SubstituteANSIColour());
+			return;
+		}
+
+		var originalArguments = ss.SafeRemainingArgument;
+		var firstToken = ss.PopSpeech();
+		var explicitArena = GetArena(actor, firstToken);
+		var arena = explicitArena is not null && !ss.IsFinished ? explicitArena : GetArena(actor, null);
+		var characterText = explicitArena is not null && !ss.IsFinished ? ss.SafeRemainingArgument : originalArguments;
+		if (arena is null)
+		{
+			actor.OutputHandler.Send(
+				"Which arena do you want to inspect? You can omit this if you're in an arena room."
+					.ColourCommand());
+			return;
+		}
+
+		if (!arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		var target = ResolveCharacter(actor, characterText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no character matching that description.".ColourError());
+			return;
+		}
+
+		var summaries = actor.Gameworld.ArenaRatingsService.GetCharacterRatings(arena, target)
+			.ToDictionary(x => x.CombatantClassId, x => x);
+		var rows = arena.CombatantClasses
+			.OrderBy(x => x.Name)
+			.Select(combatantClass =>
+			{
+				if (summaries.TryGetValue(combatantClass.Id, out var summary))
+				{
+					return new[]
+					{
+						combatantClass.Name.ColourName(),
+						summary.Rating.ToString("N2", actor).ColourValue(),
+						(summary.LastUpdatedAt?.ToString("g", actor) ?? "Never").ColourValue()
+					};
+				}
+
+				return new[]
+				{
+					combatantClass.Name.ColourName(),
+					actor.Gameworld.ArenaRatingsService.GetRating(target, combatantClass).ToString("N2", actor)
+						.ColourValue(),
+					"Never".ColourValue()
+				};
+			})
+			.ToList();
+
+		if (!rows.Any())
+		{
+			actor.OutputHandler.Send("That arena has no combatant classes to report ratings for.".ColourError());
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"Ratings for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription).ColourName()} in {arena.Name.ColourName()}:\n" +
+			StringUtilities.GetTextTable(rows, new[] { "Class", "Rating", "Updated" }, actor, Telnet.Green));
+	}
+
+	private static void ArenaManagerRatings(ICharacter actor, StringStack ss)
+	{
+		var arena = ResolveOptionalArenaArgument(actor, ss, "class", "search", "min", "max", "sort", "desc", "top");
+		if (arena is null)
+		{
+			actor.OutputHandler.Send(
+				"Which arena do you want to inspect? You can omit this if you're in an arena room."
+					.ColourCommand());
+			return;
+		}
+
+		if (!arena.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of that arena.".ColourError());
+			return;
+		}
+
+		long? classId = null;
+		string? search = null;
+		decimal? min = null;
+		decimal? max = null;
+		var sort = "rating";
+		var desc = true;
+		var top = 100;
+		while (!ss.IsFinished)
+		{
+			switch (ss.PopForSwitch())
+			{
+				case "class":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("Which combatant class do you want to filter by?");
+						return;
+					}
+
+					var combatantClass = FindCombatantClass(arena.CombatantClasses, ss.PopSpeech());
+					if (combatantClass is null)
+					{
+						actor.OutputHandler.Send("There is no combatant class matching that filter.".ColourError());
+						return;
+					}
+
+					classId = combatantClass.Id;
+					break;
+				case "search":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("What text do you want to search for?");
+						return;
+					}
+
+					search = ss.PopSpeech();
+					break;
+				case "min":
+					if (ss.IsFinished || !decimal.TryParse(ss.PopSpeech(), NumberStyles.Number, CultureInfo.InvariantCulture, out var minRating))
+					{
+						actor.OutputHandler.Send("You must specify a numeric minimum rating.");
+						return;
+					}
+
+					min = minRating;
+					break;
+				case "max":
+					if (ss.IsFinished || !decimal.TryParse(ss.PopSpeech(), NumberStyles.Number, CultureInfo.InvariantCulture, out var maxRating))
+					{
+						actor.OutputHandler.Send("You must specify a numeric maximum rating.");
+						return;
+					}
+
+					max = maxRating;
+					break;
+				case "sort":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("You must specify one of #3name#0, #3class#0, #3rating#0, or #3updated#0."
+							.SubstituteANSIColour());
+						return;
+					}
+
+					sort = ss.PopForSwitch();
+					if (!sort.EqualToAny("name", "class", "rating", "updated"))
+					{
+						actor.OutputHandler.Send("Sort must be one of #3name#0, #3class#0, #3rating#0, or #3updated#0."
+							.SubstituteANSIColour());
+						return;
+					}
+
+					break;
+				case "desc":
+					desc = true;
+					break;
+				case "top":
+					if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out top) || top <= 0)
+					{
+						actor.OutputHandler.Send("You must specify a positive whole number for the top count.");
+						return;
+					}
+
+					break;
+				default:
+					actor.OutputHandler.Send(
+						"Valid options are #3class#0, #3search#0, #3min#0, #3max#0, #3sort#0, #3desc#0, and #3top#0."
+							.SubstituteANSIColour());
+					return;
+			}
+		}
+
+		var results = actor.Gameworld.ArenaRatingsService.GetArenaRatings(arena).AsEnumerable();
+		if (classId.HasValue)
+		{
+			results = results.Where(x => x.CombatantClassId == classId.Value);
+		}
+
+		if (!string.IsNullOrWhiteSpace(search))
+		{
+			results = results.Where(x =>
+				x.CharacterName.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+				x.CombatantClassName.Contains(search, StringComparison.InvariantCultureIgnoreCase));
+		}
+
+		if (min.HasValue)
+		{
+			results = results.Where(x => x.Rating >= min.Value);
+		}
+
+		if (max.HasValue)
+		{
+			results = results.Where(x => x.Rating <= max.Value);
+		}
+
+		results = sort switch
+		{
+			"name" => desc
+				? results.OrderByDescending(x => x.CharacterName).ThenBy(x => x.CombatantClassName)
+				: results.OrderBy(x => x.CharacterName).ThenBy(x => x.CombatantClassName),
+			"class" => desc
+				? results.OrderByDescending(x => x.CombatantClassName).ThenBy(x => x.CharacterName)
+				: results.OrderBy(x => x.CombatantClassName).ThenBy(x => x.CharacterName),
+			"updated" => desc
+				? results.OrderByDescending(x => x.LastUpdatedAt).ThenBy(x => x.CharacterName)
+				: results.OrderBy(x => x.LastUpdatedAt).ThenBy(x => x.CharacterName),
+			_ => desc
+				? results.OrderByDescending(x => x.Rating).ThenBy(x => x.CharacterName)
+				: results.OrderBy(x => x.Rating).ThenBy(x => x.CharacterName)
+		};
+
+		var list = results.Take(top).ToList();
+		if (!list.Any())
+		{
+			actor.OutputHandler.Send("No ratings matched your filters.".ColourError());
+			return;
+		}
+
+		var rows = list.Select(x => new[]
+		{
+			x.CharacterName.ColourName(),
+			x.CombatantClassName.ColourName(),
+			x.Rating.ToString("N2", actor).ColourValue(),
+			(x.LastUpdatedAt?.ToString("g", actor) ?? "Never").ColourValue()
+		}).ToList();
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(rows, new[] { "Character", "Class", "Rating", "Updated" },
+			actor, Telnet.Yellow));
 	}
 
         private static void ArenaObserve(ICharacter actor, StringStack ss)
@@ -1081,15 +1602,16 @@ Manager Commands:
                                 sb.AppendLine();
                         }
 
-                        sb.AppendLine("Outstanding Payouts:");
-                        var header = new[] { "Event", "Arena", "Amount", "Status", "Recorded" };
-                        var rows = payouts.Select(payout => new[]
-                        {
-                                DescribeEvent(payout.EventTypeName, payout.ArenaEventId, actor),
-                                payout.ArenaName.ColourName(),
-                                DescribeCurrency(actor, payout.ArenaId, payout.Amount),
-                                DescribePayoutStatus(payout),
-                                payout.CreatedAt.ToString("g", actor).ColourValue()
+					sb.AppendLine("Outstanding Payouts:");
+					var header = new[] { "Event", "Arena", "Type", "Amount", "Status", "Recorded" };
+					var rows = payouts.Select(payout => new[]
+					{
+						DescribeEvent(payout.EventTypeName, payout.ArenaEventId, actor),
+						payout.ArenaName.ColourName(),
+						payout.PayoutType.DescribeEnum().ColourValue(),
+						DescribeCurrency(actor, payout.ArenaId, payout.Amount),
+						DescribePayoutStatus(payout),
+						payout.CreatedAt.ToString("g", actor).ColourValue()
                         }).ToList();
 
                         sb.AppendLine(StringUtilities.GetTextTable(rows, header, actor, Telnet.Green));
@@ -1264,8 +1786,64 @@ Manager Commands:
 				arena.ArenaCells.Contains(cell) ||
 				arena.ObservationCells.Contains(cell) ||
 				arena.InfirmaryCells.Contains(cell) ||
-				arena.AfterFightCells.Contains(cell) ||
-				arena.NpcStablesCells.Contains(cell));
+					arena.AfterFightCells.Contains(cell) ||
+					arena.NpcStablesCells.Contains(cell));
+	}
+
+	private static ICombatArena? ResolveOptionalArenaArgument(ICharacter actor, StringStack ss, params string[] optionKeywords)
+	{
+		if (ss.IsFinished)
+		{
+			return GetArena(actor, null);
+		}
+
+		var firstToken = ss.PeekSpeech();
+		if (optionKeywords.Any(x => firstToken.EqualTo(x)))
+		{
+			return GetArena(actor, null);
+		}
+
+		var explicitArena = GetArena(actor, firstToken);
+		if (explicitArena is null)
+		{
+			return GetArena(actor, null);
+		}
+
+		ss.PopSpeech();
+		return explicitArena;
+	}
+
+	private static ICharacter? ResolveCharacter(ICharacter actor, string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return null;
+		}
+
+		var localMatch = actor.TargetActor(text);
+		if (localMatch is not null)
+		{
+			return localMatch;
+		}
+
+		if (long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
+		{
+			return actor.Gameworld.TryGetCharacter(id, true);
+		}
+
+		return actor.Gameworld.Characters.GetByIdOrName(text);
+	}
+
+	private static bool IsEligibleForCombatantClass(ICharacter character, ICombatantClass combatantClass)
+	{
+		try
+		{
+			return combatantClass.EligibilityProg.Execute<bool?>(character) != false;
+		}
+		catch
+		{
+			return false;
+		}
 	}
 
 	private static IArenaEvent? GetArenaEvent(ICharacter actor, string? text)

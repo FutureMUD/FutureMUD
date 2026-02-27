@@ -77,6 +77,14 @@ public enum ArenaFeeType {
 }
 
 /// <summary>
+/// Distinguishes payout liabilities by source.
+/// </summary>
+public enum ArenaPayoutType {
+	Bet = 0,
+	Appearance = 1
+}
+
+/// <summary>
 /// Selects which Elo variant to use when settling arena ratings.
 /// </summary>
 public enum ArenaEloStyle {

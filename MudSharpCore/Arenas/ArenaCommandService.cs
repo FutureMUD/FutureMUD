@@ -122,10 +122,11 @@ public class ArenaCommandService : IArenaCommandService
 		sb.AppendLine(eventType.TimeLimit is null
 				? $"Time Limit: {"None".Colour(Telnet.Green)}"
 				: $"Time Limit: {eventType.TimeLimit.Value.Describe(actor).ColourValue()}");
-		sb.AppendLine($"Betting: {eventType.BettingModel.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Appearance Fee: {DescribeCurrency(eventType.Arena, eventType.AppearanceFee)}");
-		sb.AppendLine($"Victory Fee: {DescribeCurrency(eventType.Arena, eventType.VictoryFee)}");
-		sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(eventType, actor)}");
+			sb.AppendLine($"Betting: {eventType.BettingModel.DescribeEnum().ColourValue()}");
+			sb.AppendLine($"Appearance Fee: {DescribeCurrency(eventType.Arena, eventType.AppearanceFee)}");
+			sb.AppendLine($"Victory Fee: {DescribeCurrency(eventType.Arena, eventType.VictoryFee)}");
+			sb.AppendLine($"Pay NPC Appearance Fee: {eventType.PayNpcAppearanceFee.ToColouredString()}");
+			sb.AppendLine($"Auto Schedule: {DescribeAutoSchedule(eventType, actor)}");
 		sb.AppendLine($"Elimination: {eventType.EliminationMode.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Allow Surrender: {eventType.AllowSurrender.ToColouredString()}");
 

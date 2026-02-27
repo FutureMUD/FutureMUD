@@ -27,6 +27,7 @@ public interface IArenaEventType : IEditableItem
 	BettingModel BettingModel { get; }
 	decimal AppearanceFee { get; }
 	decimal VictoryFee { get; }
+	bool PayNpcAppearanceFee { get; }
 	IFutureProg? IntroProg { get; }
 	IFutureProg? ScoringProg { get; }
 	IFutureProg? ResolutionOverrideProg { get; }

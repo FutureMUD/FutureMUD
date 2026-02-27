@@ -34,6 +34,9 @@ public interface IArenaEvent : IEditableItem, ISaveable {
 	DateTime? CompletedAt { get; }
 	ArenaOutcome? Outcome { get; }
 	IReadOnlyCollection<int>? WinningSides { get; }
+	decimal AppearanceFee { get; }
+	decimal VictoryFee { get; }
+	bool PayNpcAppearanceFee { get; }
 
 	IEnumerable<IArenaParticipant> Participants { get; }
 	IEnumerable<IArenaReservation> Reservations { get; }

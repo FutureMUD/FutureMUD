@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Framework;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Arenas;
@@ -49,6 +50,14 @@ internal static class ArenaProgParameters
 		ProgVariableTypes.TimeSpan
 	];
 
+	internal static readonly IReadOnlyList<ProgVariableTypes> PhaseTransitionParameters =
+	[
+		ProgVariableTypes.Number,
+		ProgVariableTypes.Number,
+		ProgVariableTypes.Text,
+		ProgVariableTypes.Text
+	];
+
 	internal static IReadOnlyCollection<IReadOnlyList<ProgVariableTypes>> EventProgParameterSets { get; } =
 		BuildParameterSets(EventProgParameters);
 
@@ -57,6 +66,9 @@ internal static class ArenaProgParameters
 
 	internal static IReadOnlyCollection<IReadOnlyList<ProgVariableTypes>> NpcLoaderParameterSets { get; } =
 		BuildParameterSets(NpcLoaderParameters);
+
+	internal static IReadOnlyCollection<IReadOnlyList<ProgVariableTypes>> PhaseTransitionProgParameterSets { get; } =
+		BuildParameterSets(PhaseTransitionParameters);
 
 	internal static object[] BuildEventProgArguments(IArenaEvent arenaEvent)
 	{
@@ -110,6 +122,17 @@ internal static class ArenaProgParameters
 			arenaEvent.Id,
 			arenaEvent.ScheduledAt,
 			arenaEvent.EventType.TimeLimit
+		];
+	}
+
+	internal static object[] BuildPhaseTransitionArguments(IArenaEvent arenaEvent, ArenaEventState phase)
+	{
+		return
+		[
+			arenaEvent.Arena.Id,
+			arenaEvent.Id,
+			arenaEvent.Name,
+			phase.DescribeEnum()
 		];
 	}
 

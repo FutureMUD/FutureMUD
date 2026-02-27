@@ -9,6 +9,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 
 namespace MudSharp.Arenas;
 
@@ -19,8 +20,11 @@ public interface ICombatArena : IEditableItem {
 	IEconomicZone EconomicZone { get; }
 	ICurrency Currency { get; }
 	IBankAccount? BankAccount { get; set; }
+	IFutureProg? OnArenaEventPhaseProg { get; set; }
 	IEnumerable<ICharacter> Managers { get; }
 	string SignupEcho { get; }
+	decimal CashBalance { get; }
+	decimal BankBalance { get; }
 
 	IEnumerable<ICell> WaitingCells { get; }
 	IEnumerable<ICell> ArenaCells { get; }
@@ -43,8 +47,11 @@ public interface ICombatArena : IEditableItem {
 
 	decimal AvailableFunds();
 	(bool Truth, string Reason) EnsureFunds(decimal amount);
+	(bool Truth, string Reason) EnsureCashFunds(decimal amount);
 	void Credit(decimal amount, string reference);
 	void Debit(decimal amount, string reference);
+	void CreditCash(decimal amount, string reference);
+	void DebitCash(decimal amount, string reference);
 
 	string ShowToManager(ICharacter actor);
 }

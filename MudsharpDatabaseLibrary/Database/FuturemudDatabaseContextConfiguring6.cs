@@ -20,6 +20,9 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => e.BankAccountId)
 				.HasDatabaseName("FK_Arenas_BankAccounts");
 
+			entity.HasIndex(e => e.OnArenaEventPhaseProgId)
+				.HasDatabaseName("FK_Arenas_OnArenaEventPhaseProg");
+
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.Name)
 				.IsRequired()
@@ -29,6 +32,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
 			entity.Property(e => e.BankAccountId).HasColumnType("bigint(20)");
+			entity.Property(e => e.OnArenaEventPhaseProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.VirtualBalance).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 			entity.Property(e => e.IsDeleted)
@@ -56,6 +60,12 @@ public partial class FuturemudDatabaseContext
 				.HasForeignKey(d => d.BankAccountId)
 				.OnDelete(DeleteBehavior.SetNull)
 				.HasConstraintName("FK_Arenas_BankAccounts");
+
+			entity.HasOne(d => d.OnArenaEventPhaseProg)
+				.WithMany()
+				.HasForeignKey(d => d.OnArenaEventPhaseProgId)
+				.OnDelete(DeleteBehavior.SetNull)
+				.HasConstraintName("FK_Arenas_OnArenaEventPhaseProg");
 		});
 
 		modelBuilder.Entity<ArenaManager>(entity =>
@@ -219,6 +229,9 @@ public partial class FuturemudDatabaseContext
 				.HasDefaultValueSql("b'1'");
 			entity.Property(e => e.AppearanceFee).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.VictoryFee).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.PayNpcAppearanceFee)
+				.HasColumnType("bit(1)")
+				.HasDefaultValueSql("b'0'");
 			entity.Property(e => e.IntroProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ScoringProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ResolutionOverrideProgId).HasColumnType("bigint(20)");
@@ -348,6 +361,9 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.BettingModel).HasColumnType("int(11)");
 			entity.Property(e => e.AppearanceFee).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.VictoryFee).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.PayNpcAppearanceFee)
+				.HasColumnType("bit(1)")
+				.HasDefaultValueSql("b'0'");
 			entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 			entity.Property(e => e.ScheduledAt).HasColumnType("datetime");
 			entity.Property(e => e.RegistrationOpensAt).HasColumnType("datetime");
@@ -675,6 +691,9 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.ArenaEventId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.PayoutType)
+				.HasColumnType("int(11)")
+				.HasDefaultValue(0);
 			entity.Property(e => e.IsBlocked)
 				.HasColumnType("bit(1)")
 				.HasDefaultValueSql("b'0'");

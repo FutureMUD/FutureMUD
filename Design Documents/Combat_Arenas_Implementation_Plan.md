@@ -21,6 +21,12 @@ Current Runtime Snapshot (2026-02-25)
 - Arena lifecycle text announcements now use watcher-suppressed output flags to avoid duplicate mirrored spam to observers.
 - Participation/preparation/staging cleanup now includes actor-wide orphan sweeps, and stale no-quit/no-timeout arena effects self-prune on load/login when their event no longer exists or is no longer in the expected state.
 - Auto reacquire target selection now ignores incapacitated combatants, preventing spurious target-switch echoes immediately before knockout-resolved arena conclusions.
+- Arena payouts now persist `PayoutType` (`Bet` or `Appearance`) and betting history totals explicitly ignore non-bet payout types.
+- Arena event resolution now explicitly invokes bet settlement and appearance payout accrual exactly once on the normal resolve path.
+- Arena event types and event snapshots now include `PayNpcAppearanceFee` so NPC appearance fee eligibility is a persisted per-event decision.
+- Arenas now optionally store an arena-level phase transition prog (`OnArenaEventPhaseProgId`) and fire it on phase changes with `(arenaId, eventId, eventName, phaseName)`.
+- Arena manager command surface now includes cash reserve operations (`deposit`, `withdraw`), stable roster visibility, and arena rating lookup/list commands.
+- Arena show/manager show now include unclaimed money computed from unblocked+uncollected bet/appearance liabilities.
 
 ---
 
@@ -120,6 +126,11 @@ public enum ArenaSidePolicy {
 public enum ArenaFeeType {
 	Appearance,
 	Victory
+}
+
+public enum ArenaPayoutType {
+	Bet = 0,
+	Appearance = 1
 }
 ```
 
@@ -438,6 +449,24 @@ public record ArenaPayoutEvent(long EventId, ArenaOutcome Outcome, IReadOnlyColl
 public record ArenaParticipantEliminated(long EventId, long CharacterId, EliminationReason Reason);
 ```
 
+### 2.10 2026-02-27 Contract Delta (Implemented)
+
+- `ArenaPayoutType` enum added with `Bet=0`, `Appearance=1`.
+- `ArenaBetPayoutSummary` now includes payout type.
+- `ArenaRatingSummary` record added for arena-scoped rating views.
+- `IArenaRatingsService` now includes:
+	- `GetArenaRatings(ICombatArena arena)`
+	- `GetCharacterRatings(ICombatArena arena, ICharacter character)`
+- `ICombatArena` now includes:
+	- `OnArenaEventPhaseProg`
+	- `CashBalance`, `BankBalance`
+	- `EnsureCashFunds`, `CreditCash`, `DebitCash`
+- `IArenaEventType` and `IArenaEvent` now include `PayNpcAppearanceFee`; event snapshots carry this forward at event creation.
+- `IArenaFinanceService` now includes:
+	- `AccrueAppearancePayouts(IArenaEvent arenaEvent)`
+	- `GetUnclaimedMoney(ICombatArena arena)`
+- `IArenaNpcService.ReturnNpc` now includes `fullRestoreBeforeInventory` to enforce restore ordering when configured.
+
 ---
 
 ## 3) EF Core Data Model & Migrations
@@ -447,7 +476,7 @@ Location: `MudsharpDatabaseLibrary`
 
 Entities (sketch)
 - `Arena`
-  - Id, Name, EconomicZoneId, BankAccountId (nullable), CurrencyId
+  - Id, Name, EconomicZoneId, BankAccountId (nullable), CurrencyId, OnArenaEventPhaseProgId (nullable FK FutureProgs)
   - Funds (virtual cash) if bank absent
   - Rooms mapping tables (see below)
   - Soft‑delete flag
@@ -457,12 +486,13 @@ Entities (sketch)
   - Id, Name, EligibilityProgId, AdminNpcLoaderProgId (nullable), ResurrectNpcOnDeath (bool), FullyRestoreNpcOnCompletion (bool), DefaultStageNameProfileId (nullable FK `RandomNameProfiles.Id`), DefaultSignatureColour
 - `ArenaEventType`
   - Id, ArenaId, Name, BringYourOwn (bool), RegistrationDuration, PreparationDuration, TimeLimit (nullable)
-  - BettingModel, AppearanceFee, VictoryFee
+  - BettingModel, AppearanceFee, VictoryFee, PayNpcAppearanceFee (bool)
   - IntroProgId (nullable), ScoringProgId (nullable), ResolutionOverrideProgId (nullable), EloStyle (int), EloKFactor (decimal)
 - `ArenaEventTypeSide`
   - Id, EventTypeId, Index, Capacity, Policy, MinimumRating (nullable decimal), MaximumRating (nullable decimal), OutfitProgId (nullable), AllowNpcSignup (bool), AutoFillNpc (bool), NpcLoaderProgId (nullable)
 - `ArenaEvent`
   - Id, ArenaId, EventTypeId, State, CreatedAt, ScheduledAt, RegistrationOpensAt (nullable), StartedAt (nullable), ResolvedAt (nullable), CompletedAt (nullable)
+  - PayNpcAppearanceFee (bool snapshot at creation)
   - CancellationReason (nullable)
 - `ArenaReservation`
   - Id, EventId, SideIndex, CharacterId (nullable), ClanId (nullable), ExpiresAt
@@ -477,7 +507,7 @@ Entities (sketch)
 - `ArenaBetPool`
   - Id, EventId, SideIndex (nullable for Draw), TotalStake, TakeRate
 - `ArenaBetPayout`
-  - Id, EventId, BettorCharacterId, Amount, CreatedAt, IsBlocked (bool), CollectedAt (nullable)
+  - Id, EventId, BettorCharacterId, Amount, PayoutType (int), CreatedAt, IsBlocked (bool), CollectedAt (nullable)
 - `ArenaFinanceSnapshot`
   - Id, ArenaId, EventId, Period, Revenue, Costs, TaxWithheld, Profit
 
@@ -544,9 +574,13 @@ Betting
 - Fixed‑odds: snapshot odds per bet.
 - Pari‑mutuel: pool stakes per side (incl. Draw); apply take rate at settlement.
 - Payout blocking: if insolvent, create blocked payouts for later collection.
+- Appearance fees accrue as payout liabilities at resolve and use the same blocked/unblocked collect-later model.
+- Payout records are typed (`Bet` vs `Appearance`) to keep bet reporting and liabilities distinct.
 
 Finance
 - Use `IBankAccount` if present; otherwise arena virtual cash store.
+- General debits spend cash reserve first, then bank account. General credits still prefer bank account when configured.
+- Manager cash commands operate only on arena cash reserve and physical cash flows.
 - Withhold tax entries and post period P&L to ledgers.
 
 ---
@@ -574,6 +608,13 @@ Manager Commands
 - Side editing includes rating-gate controls (`rating <min> <max>`, `rating min|max <value>`, `rating none`) to constrain signup by side.
 - `arenaeventtype set elostyle <TeamAverage|PairwiseIndividual|PairwiseSide>` and `arenaeventtype set elok <value>`
 - `arena event schedule|launch|reserve|close|prepare|stage|start|stop|resolve|cleanup`
+- `arena manager deposit [<arena>] <amount>` (cash reserve only, from manager on-hand cash)
+- `arena manager withdraw [<arena>] <amount>` (cash reserve only, to manager/ground currency pile)
+- `arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]`
+- `arena manager rating [<arena>] <character>`
+- `arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]`
+- `combatarena set phaseprog <prog>|none`
+- Rating list filtering intentionally excludes any PC/NPC discriminator filter to avoid leaking hidden identity metadata.
 
 Player Commands
 - `arena signup|withdraw`
@@ -620,6 +661,11 @@ Unit Tests
 - Betting math (fixed‑odds/pari‑mutuel) and payout blocking.
 - Ratings updates (win/loss/draw; Elo deltas).
 - Strategy hooks fire on combat callbacks.
+- Finance: appearance accrual NPC gating, blocked vs unblocked accrual, unclaimed-money calculations across payout types.
+- Ratings service queries: arena-scoped listing and character-scoped lookup.
+- Betting reporting: payout-type visibility in outstanding summaries and bet-history payout totals ignoring non-bet types.
+- NPC return: restore `Get` regression (no `IgnoreFreeHands`) and no-hands fallback placement without item deletion.
+- Resolve path: verify bet settlement and appearance accrual are invoked exactly once on normal resolve.
 
 Integration Tests
 - NPC backfill, inventory snapshot/restore.
@@ -679,6 +725,7 @@ Naming and registration follow existing FutureProg conventions. Signatures indic
 - `Arena.Scoring(event: IArenaEvent, source: Character, target: Character|Null, action: text, value: number) -> void`
 - `Arena.ResolutionOverride(event: IArenaEvent) -> (outcome: text, winningSides: collection<number>)`
 - `Arena.RatingUpdate(class: ICombatantClass, participants: collection<Character>, outcomes: collection<text>, currentRatings: collection<number>) -> collection<number>`
+- `Arena.OnArenaEventPhase(arenaId: number, eventId: number, eventName: text, phaseName: text) -> void`
 
 Return value conventions
 - Boolean as number (1/0) if required by existing patterns; otherwise true bool where supported.
@@ -703,19 +750,24 @@ Architecture & Interfaces
 
 Data Model
 - Migrations apply/rollback cleanly; constraints and indices correct.
+- Arena schema includes `OnArenaEventPhaseProgId`, payout `PayoutType`, and `PayNpcAppearanceFee` on event type plus event snapshot.
 
 Lifecycle
 - Transitions are persisted and idempotent; boot recovery aborts unsafe events and issues refunds/inventory restores.
+- Phase transition prog executes after transition/announcement and transition safety is maintained even when hook throws.
 
 NPC Backfill
 - Only fills when loaders exist; BYO respected; inventory restored.
 - BYO tagging/reclaim returns pre-event tagged items to owners during cleanup, and applies NPC full-recovery item repair where configured.
+- Full-restore NPC classes restore body state before inventory re-get; failed re-get paths place items nearby instead of deleting/orphaning.
 
 Observation
 - Observers see mirrored output with correct gating; no hidden info leak.
 
 Betting & Finance
 - Stakes custodied; settlements correct; insolvency blocks payouts and allows later collection.
+- Appearance fees accrue as liabilities at resolve and share the same collect-later mechanism.
+- Unclaimed-money reporting includes unblocked/uncollected liabilities for both bet and appearance payout types.
 
 Ratings
 - Ratings update on completion using the configured event-type Elo style and K-factor.
@@ -725,12 +777,14 @@ Ratings
 
 Commands
 - Managers and players can operate end‑to‑end flows with clear feedback.
+- Manager command surface includes cash reserve deposit/withdraw, stable roster, rating lookup, and filtered rating lists (without PC/NPC filter exposure).
 
 Seeder
 - Fresh install yields working example arena and event types.
 
 Tests
 - Unit/integration suite passes locally and in CI.
+- Coverage includes payout-type reporting, appearance accrual gating/solvency behavior, NPC restore regressions, and resolve-path settlement/accrual invocation counts.
 
 Docs & Review
 - Guides complete; checklist signed off; design goals met or deviations documented.

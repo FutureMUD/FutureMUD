@@ -33,8 +33,8 @@ public class ArenaFinanceService : IArenaFinanceService
 
 		using var scope = BeginContext(out var context);
 		var outstanding = context.ArenaBetPayouts
-		.Where(x => x.IsBlocked && x.CollectedAt == null && x.ArenaEvent.ArenaId == arena.Id)
-		.Sum(x => (decimal?)x.Amount) ?? 0.0m;
+			.Where(x => x.IsBlocked && x.CollectedAt == null && x.ArenaEvent.ArenaId == arena.Id)
+			.Sum(x => (decimal?)x.Amount) ?? 0.0m;
 		var available = arena.AvailableFunds();
 		var net = available - outstanding;
 		if (net >= required)
@@ -111,7 +111,13 @@ public class ArenaFinanceService : IArenaFinanceService
 				continue;
 			}
 
-			var existing = context.ArenaBetPayouts.FirstOrDefault(x => x.ArenaEventId == arenaEvent.Id && x.CharacterId == winner.Id && x.IsBlocked && x.CollectedAt == null);
+				var payoutType = (int)ArenaPayoutType.Bet;
+				var existing = context.ArenaBetPayouts.FirstOrDefault(x =>
+				x.ArenaEventId == arenaEvent.Id &&
+				x.CharacterId == winner.Id &&
+				x.PayoutType == payoutType &&
+				x.IsBlocked &&
+				x.CollectedAt == null);
 			if (existing is null)
 			{
 				context.ArenaBetPayouts.Add(new ArenaBetPayout
@@ -119,6 +125,7 @@ public class ArenaFinanceService : IArenaFinanceService
 					ArenaEventId = arenaEvent.Id,
 					CharacterId = winner.Id,
 					Amount = amount,
+					PayoutType = payoutType,
 					IsBlocked = true,
 					CreatedAt = DateTime.UtcNow
 				});
@@ -141,9 +148,9 @@ public class ArenaFinanceService : IArenaFinanceService
 
 		using var scope = BeginContext(out var context);
 		var blocked = context.ArenaBetPayouts
-		.Where(x => x.IsBlocked && x.CollectedAt == null && x.ArenaEvent.ArenaId == arena.Id)
-		.OrderBy(x => x.CreatedAt)
-		.ToList();
+			.Where(x => x.IsBlocked && x.CollectedAt == null && x.ArenaEvent.ArenaId == arena.Id)
+			.OrderBy(x => x.CreatedAt)
+			.ToList();
 
 		foreach (var payout in blocked)
 		{
@@ -153,12 +160,97 @@ public class ArenaFinanceService : IArenaFinanceService
 				break;
 			}
 
-			arena.Debit(payout.Amount, $"Arena payout for event #{payout.ArenaEventId}");
+			var solvency = IsSolvent(arena, payout.Amount);
+			if (!solvency.Truth)
+			{
+				break;
+			}
+
+			arena.Debit(payout.Amount, $"Arena payout funding for event #{payout.ArenaEventId}");
 			payout.IsBlocked = false;
-			payout.CollectedAt = DateTime.UtcNow;
 		}
 
 		context.SaveChanges();
+	}
+
+	/// <inheritdoc />
+	public void AccrueAppearancePayouts(IArenaEvent arenaEvent)
+	{
+		if (arenaEvent is null)
+		{
+			throw new ArgumentNullException(nameof(arenaEvent));
+		}
+
+		if (arenaEvent.AppearanceFee <= 0.0m)
+		{
+			return;
+		}
+
+		var payoutType = (int)ArenaPayoutType.Appearance;
+		var participants = arenaEvent.Participants
+			.Where(x => x.Character is not null)
+			.Where(x => !x.IsNpc || arenaEvent.PayNpcAppearanceFee)
+			.GroupBy(x => x.Character!.Id)
+			.Select(x => x.First())
+			.ToList();
+		if (participants.Count == 0)
+		{
+			return;
+		}
+
+		using var scope = BeginContext(out var context);
+		var existingPayouts = context.ArenaBetPayouts
+			.Where(x => x.ArenaEventId == arenaEvent.Id && x.PayoutType == payoutType)
+			.ToList()
+			.ToDictionary(x => x.CharacterId, x => x);
+
+		foreach (var participant in participants)
+		{
+			var character = participant.Character!;
+			if (existingPayouts.ContainsKey(character.Id))
+			{
+				continue;
+			}
+
+			var amount = arenaEvent.AppearanceFee;
+			var ensure = arenaEvent.Arena.EnsureFunds(amount);
+			var solvency = IsSolvent(arenaEvent.Arena, amount);
+			var blocked = !ensure.Truth || !solvency.Truth;
+			context.ArenaBetPayouts.Add(new ArenaBetPayout
+			{
+				ArenaEventId = arenaEvent.Id,
+				CharacterId = character.Id,
+				Amount = amount,
+				PayoutType = payoutType,
+				IsBlocked = blocked,
+				CreatedAt = DateTime.UtcNow,
+				CollectedAt = null
+			});
+
+			if (!blocked)
+			{
+				arenaEvent.Arena.Debit(amount, $"Arena appearance payout accrual for event #{arenaEvent.Id}");
+			}
+		}
+
+		context.SaveChanges();
+	}
+
+	/// <inheritdoc />
+	public decimal GetUnclaimedMoney(ICombatArena arena)
+	{
+		if (arena is null)
+		{
+			throw new ArgumentNullException(nameof(arena));
+		}
+
+		using var scope = BeginContext(out var context);
+		return context.ArenaBetPayouts
+			.Where(x => x.ArenaEvent.ArenaId == arena.Id)
+			.Where(x => x.CollectedAt == null)
+			.Where(x => !x.IsBlocked)
+			.Where(x => x.PayoutType == (int)ArenaPayoutType.Bet || x.PayoutType == (int)ArenaPayoutType.Appearance)
+			.Sum(x => (decimal?)x.Amount) ?? 0.0m;
 	}
 
 	private IDisposable? BeginContext(out FuturemudDatabaseContext context)

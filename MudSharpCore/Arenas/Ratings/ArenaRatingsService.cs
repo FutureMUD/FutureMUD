@@ -49,6 +49,60 @@ public class ArenaRatingsService : IArenaRatingsService
 		return GetRating(character.Id, combatantClass);
 	}
 
+	/// <inheritdoc />
+	public IReadOnlyCollection<ArenaRatingSummary> GetArenaRatings(ICombatArena arena)
+	{
+		if (arena is null)
+		{
+			throw new ArgumentNullException(nameof(arena));
+		}
+
+		using var scope = BeginContext(out var context);
+		return context.ArenaRatings
+			.Where(x => x.ArenaId == arena.Id)
+			.OrderByDescending(x => x.Rating)
+			.ThenBy(x => x.CombatantClass.Name)
+			.ThenBy(x => x.Character.Name)
+			.Select(x => new ArenaRatingSummary(
+				x.ArenaId,
+				x.CharacterId,
+				x.Character.Name ?? $"Character #{x.CharacterId}",
+				x.CombatantClassId,
+				x.CombatantClass.Name ?? $"Class #{x.CombatantClassId}",
+				x.Rating,
+				x.LastUpdatedAt))
+			.ToList();
+	}
+
+	/// <inheritdoc />
+	public IReadOnlyCollection<ArenaRatingSummary> GetCharacterRatings(ICombatArena arena, ICharacter character)
+	{
+		if (arena is null)
+		{
+			throw new ArgumentNullException(nameof(arena));
+		}
+
+		if (character is null)
+		{
+			throw new ArgumentNullException(nameof(character));
+		}
+
+		using var scope = BeginContext(out var context);
+		return context.ArenaRatings
+			.Where(x => x.ArenaId == arena.Id && x.CharacterId == character.Id)
+			.OrderByDescending(x => x.Rating)
+			.ThenBy(x => x.CombatantClass.Name)
+			.Select(x => new ArenaRatingSummary(
+				x.ArenaId,
+				x.CharacterId,
+				x.Character.Name ?? $"Character #{x.CharacterId}",
+				x.CombatantClassId,
+				x.CombatantClass.Name ?? $"Class #{x.CombatantClassId}",
+				x.Rating,
+				x.LastUpdatedAt))
+			.ToList();
+	}
+
 	private decimal GetRating(long characterId, ICombatantClass combatantClass)
 	{
 		using var scope = BeginContext(out var context);

@@ -1610,6 +1610,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		body.RestoreAllBodypartsOrgansAndBones();
 		body.Sober();
 		body.CureAllWounds();
+		body.RemoveAllEffects(effect => effect.IsEffectType<PainTolerance>());
 		body.CurrentStamina = body.MaximumStamina;
 		body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
 		body.EndHealthTick();
@@ -1832,6 +1833,15 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return;
 		}
 
+		var sideStartIndices = ArenaSideIndexUtilities.ResolveEvenlySpacedStartCells(
+			_participants
+				.Select(x => x.SideIndex)
+				.Distinct()
+				.OrderBy(_ => Constants.Random.Next())
+				.ToList(),
+			arenaCells.Count,
+			Constants.Random.Next(arenaCells.Count));
+
 		var sideOffsets = new Dictionary<int, int>();
 		foreach (var participant in _participants)
 		{
@@ -1847,8 +1857,11 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 				continue;
 			}
 
+			var startIndex = sideStartIndices.TryGetValue(participant.SideIndex, out var sideStartIndex)
+				? sideStartIndex
+				: Constants.Random.Next(arenaCells.Count);
 			var offset = sideOffsets.TryGetValue(participant.SideIndex, out var value) ? value : 0;
-			var index = (participant.SideIndex + offset) % arenaCells.Count;
+			var index = (startIndex + offset) % arenaCells.Count;
 			sideOffsets[participant.SideIndex] = offset + 1;
 
 			character.Teleport(arenaCells[index], RoomLayer.GroundLevel, false, false);

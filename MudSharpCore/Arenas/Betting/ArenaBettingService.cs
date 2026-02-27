@@ -616,14 +616,18 @@ public class ArenaBettingService : IArenaBettingService
 				return 0.0m;
 			}
 
-                        var totalPool = pools.Sum(x => x.TotalStake);
-                        if (totalPool <= 0.0m)
-                        {
-                                return 0.0m;
-                        }
+			var totalPool = pools.Sum(x => x.TotalStake);
+			if (totalPool <= 0.0m)
+			{
+				return 0.0m;
+			}
 
-                        var netPool = totalPool * (1.0m - pool.TakeRate);
-                        return bet.Stake / pool.TotalStake * netPool;
+			// Winners always get at least their original stake back.
+			var losingPool = Math.Max(0.0m, totalPool - pool.TotalStake);
+			var share = bet.Stake / pool.TotalStake;
+			var takeRate = Clamp(pool.TakeRate, 0.0m, 1.0m);
+			var distributableLosingPool = losingPool * (1.0m - takeRate);
+			return bet.Stake + share * distributableLosingPool;
 			default:
 			return 0.0m;
 		}

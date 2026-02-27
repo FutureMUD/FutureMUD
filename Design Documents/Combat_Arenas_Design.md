@@ -30,6 +30,9 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - Appearance fees now accrue as collectible liabilities at resolve time instead of immediate mandatory disbursement attempts.
 - Manager-facing arena views now display unclaimed money totals (unblocked + uncollected bet and appearance payouts).
 - Managers can now deposit/withdraw physical cash to/from arena cash reserves, inspect stable NPC rosters with ratings, and query/list arena ratings with filters.
+- Pari-mutuel settlement now guarantees a winning bettor never receives less than their staked amount; arena takeout is applied only to the losing side(s) pool.
+- NPC full-restore paths now explicitly clear `PainTolerance` effects so reused arena NPCs do not carry boosted pass-out thresholds into future bouts.
+- Staged participant placement now uses randomized, evenly spaced side start anchors across arena floor cells so opposing teams start as far apart as possible while varying room assignments between bouts.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
@@ -50,7 +53,7 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 ## 3) Spatial Model & Requirements
 Arena configuration must include room sets:
 - **Waiting Rooms** (>=1, ideally per side)
-- **Arena Rooms** (1..N). For multi-room arenas, different teams **start in different rooms** when available; fights may traverse rooms.
+- **Arena Rooms** (1..N). For multi-room arenas, different teams start from randomized, evenly spaced room anchors to maximize initial separation while avoiding deterministic repeat starts where possible; fights may traverse rooms.
 - **Observation Rooms** (remote watcher effect)
 - **Infirmary** (PC destination on elimination)
 - **NPC Stables** (spawn/return/resurrect)
@@ -71,7 +74,7 @@ Draft -> Scheduled -> RegistrationOpen -> Preparing -> Staged -> Live -> Resolvi
 - **Live**: combat proceeds; scoring and elimination receive combat callbacks; observers see mirrored output with hearing/notice rules.
 - **Live (termination)**: scheduler polling checks elimination conditions continuously; time limit remains a fallback/end-cap.
 - **Resolving**: decide win/draw (draws supported on time tie); award victory/appearance fees; settle bets (block payouts if insolvent); update ratings via prog.
-- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy. NPCs auto-resurrected by class policy, or fully restored in stables, have matching corpse and severed-bodypart remains removed. Item re-get failures (e.g., no usable hands) must fall back to nearby placement instead of deletion.
+- **Cleanup**: reclaim signature items (PC/NPC); confiscate illegal kit per policy; restore bundled inventory; teleport PCs to after-fight/infirmary; return NPCs and then apply optional full restoration only once they are back in NPC stables. Dead NPCs are handled as corpses for relocation and are not forced to non-dead states unless explicitly resurrected by class policy. NPC restorative passes reset health state and clear transient tolerance effects (including `PainTolerance`) before reuse. NPCs auto-resurrected by class policy, or fully restored in stables, have matching corpse and severed-bodypart remains removed. Item re-get failures (e.g., no usable hands) must fall back to nearby placement instead of deletion.
 - **Completed**: immutable record.
 - **Aborted**: manual stop or pre-live failure; default: refund wagers, no appearance/victory fees unless arena policy says otherwise.
 
@@ -114,8 +117,8 @@ Minimum strategies:
 ## 6) Betting & Finance
 **Models**:
 - **Fixed-Odds runtime behavior**: side and draw quotes are rating-aware; side prices derive from side rating strength and draw pricing is adjusted by rating spread parity.
-- **Fixed‑Odds**: odds fixed at bet time from ratings; configurable house edge; stake **custodied** at placement.
-- **Pari‑Mutuel**: pool per outcome; dynamic payouts at close; configurable takeout.
+- **Fixed-Odds**: odds fixed at bet time from ratings; configurable house edge; stake **custodied** at placement.
+- **Pari-Mutuel**: pool per outcome; dynamic payouts at close with a guaranteed stake floor for winners. Arena takeout is applied to losing pool contributions (not winner stake principal), preventing winner payouts below stake.
 
 **Solvency & Settlement**:
 - Custody stake to arena account immediately.
@@ -200,6 +203,7 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 - **EventType**: arena, name/description, allow BYO, registration/prep/time‑limit, scoring config, elimination config, hooks, per‑side definitions (name/desc, capacity, appearance/victory fees, eligible classes, allow NPC signup, auto‑fill, outfit prog).
 - **EventInstance**: type, arena, state, timestamps, rosters (incl. reservations), scores, outcome, per‑side data.
 - **Wager**: event, bettor, outcome, stake, odds snapshot/pool share, payout, state, payment method snapshot.
+- **Persistence implication**: pari-mutuel stake-floor changes and start-cell randomization are runtime-only behaviors and do not add or alter persisted schema fields.
 - **Performance**: combatant, class, rating, W/L/D, signature colour/items, stage name.
 
 

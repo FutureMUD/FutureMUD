@@ -7,6 +7,7 @@ using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
@@ -164,5 +165,6 @@ public class ArenaNpcServiceTests
 		Assert.IsTrue(callOrder.Contains("Restore"));
 		Assert.IsTrue(callOrder.Contains("Get"));
 		Assert.IsTrue(callOrder.IndexOf("Restore") < callOrder.IndexOf("Get"));
+		body.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()), Times.Once);
 	}
 }

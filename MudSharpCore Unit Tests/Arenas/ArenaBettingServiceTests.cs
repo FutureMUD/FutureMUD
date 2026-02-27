@@ -231,6 +231,40 @@ public class ArenaBettingServiceTests
 	}
 
 	[TestMethod]
+	public void Settle_PariMutuelSingleWinningBet_ReturnsStakeWithoutTake()
+	{
+		using var context = BuildContext();
+		var financeMock = new Mock<IArenaFinanceService>();
+		financeMock.Setup(x => x.IsSolvent(It.IsAny<ICombatArena>(), It.IsAny<decimal>())).Returns((true, string.Empty));
+		var arena = new Mock<ICombatArena>();
+		arena.Setup(x => x.EnsureFunds(It.IsAny<decimal>())).Returns((true, string.Empty));
+		var currency = new Mock<ICurrency>();
+		currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
+			.Returns<decimal, CurrencyDescriptionPatternType>((amount, _) => amount.ToString("F2"));
+		arena.SetupGet(x => x.Currency).Returns(currency.Object);
+		var actor = new Mock<ICharacter>();
+		actor.Setup(x => x.Id).Returns(15L);
+		var outputHandler = new Mock<IOutputHandler>();
+		outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+		outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+		actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+		var paymentMock = new Mock<IArenaBetPaymentService>();
+		paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+			.Returns((true, string.Empty));
+		paymentMock.Setup(x => x.TryDisburse(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+			.Returns(true);
+		var characters = new Dictionary<long, ICharacter> { { 15L, actor.Object } };
+		var service = CreateService(context, financeMock, paymentMock, characters);
+		var evt = BuildEvent(arena, BettingModel.PariMutuel, ArenaEventState.RegistrationOpen);
+
+		service.PlaceBet(actor.Object, evt, 0, 70m);
+		service.Settle(evt, ArenaOutcome.Win, new[] { 0 });
+
+		var payout = context.ArenaBetPayouts.Single();
+		Assert.AreEqual(70m, payout.Amount);
+	}
+
+	[TestMethod]
 	public void Settle_InsufficientFunds_BlocksPayouts()
 	{
 		using var context = BuildContext();

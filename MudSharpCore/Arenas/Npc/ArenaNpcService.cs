@@ -11,6 +11,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Framework;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.NPC;
 
 namespace MudSharp.Arenas;
@@ -339,6 +340,7 @@ public class ArenaNpcService : IArenaNpcService
 		body.RestoreAllBodypartsOrgansAndBones();
 		body.Sober();
 		body.CureAllWounds();
+		body.RemoveAllEffects(effect => effect.IsEffectType<PainTolerance>());
 		body.CurrentStamina = body.MaximumStamina;
 		body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
 		body.EndHealthTick();

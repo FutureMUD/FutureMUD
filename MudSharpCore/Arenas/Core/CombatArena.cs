@@ -499,13 +499,13 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 
 	#3name <name>#0 - renames this combat arena
 	#3zone <economic zone>#0 - changes the economic zone for this arena
-		#3currency <currency>#0 - sets the accounting currency for this arena
-		#3bank <account>|none#0 - sets or clears the bank account for this arena
-		#3signupecho <emote>|none#0 - sets or clears the signup staging echo
-		#3phaseprog <prog>|none#0 - sets or clears the event phase transition prog
-		#3manager add <character id>#0 - adds a manager by character id
-		#3manager remove <character id>#0 - removes a manager by character id
-		#3cell <role> add <cell id>#0 - adds a cell in a particular role
+	#3currency <currency>#0 - sets the accounting currency for this arena
+	#3bank <account>|none#0 - sets or clears the bank account for this arena
+	#3signupecho <emote>|none#0 - sets or clears the signup staging echo
+	#3phaseprog <prog>|none#0 - sets or clears the event phase transition prog
+	#3manager add <character id>#0 - adds a manager by character id
+	#3manager remove <character id>#0 - removes a manager by character id
+	#3cell <role> add <cell id>#0 - adds a cell in a particular role
 	#3cell <role> remove <cell id>#0 - removes a cell from a particular role";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

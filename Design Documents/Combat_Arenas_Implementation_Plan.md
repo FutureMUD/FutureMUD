@@ -10,6 +10,7 @@ Current Runtime Snapshot (2026-02-25)
 - Live events now poll for elimination conditions during combat and transition to resolving without waiting only for timeout.
 - NPC cleanup now handles dead participants safely, including corpse relocation to stable/after-fight locations.
 - Combatant classes now expose a separate stable-only full-recovery toggle for post-event NPC reset.
+- Cleanup now forces participants to leave active combat before return/restore teleports to prevent timeout/draw re-injury after stable return.
 - BYO events now tag participant direct items with a saveable ownership effect and reclaim those tagged items to the original owner during cleanup.
 - Reclaimed BYO items are repaired when the tagged owner is an NPC participant whose combatant class has full-recovery enabled.
 - Completed-event rating settlement now keys participant updates by persistent character IDs, so ratings are persisted even when character objects are unloaded at completion.

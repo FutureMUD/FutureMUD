@@ -1461,6 +1461,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private void FinalizeParticipants()
 	{
+		DisengageParticipantCombats();
 		ReturnNpcParticipants();
 		MovePlayerParticipantsToAfterFight();
 		RestoreBringYourOwnEquipment();
@@ -1468,6 +1469,40 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		ClearParticipantPhaseEffects();
 		ClearObservationEffects();
 		_surrenderedParticipantIds.Clear();
+	}
+
+	private void DisengageParticipantCombats()
+	{
+		var participantsInCombat = _participants
+			.Select(x => x.Character)
+			.OfType<ICharacter>()
+			.Where(x => x.Combat is not null)
+			.ToList();
+
+		foreach (var participant in participantsInCombat)
+		{
+			var combat = participant.Combat;
+			if (combat is null)
+			{
+				continue;
+			}
+
+			try
+			{
+				combat.LeaveCombat(participant);
+			}
+			catch
+			{
+				try
+				{
+					combat.EndCombat(true);
+				}
+				catch
+				{
+					// Do not block participant restoration if combat teardown fails.
+				}
+			}
+		}
 	}
 
 	private void ReturnNpcParticipants()

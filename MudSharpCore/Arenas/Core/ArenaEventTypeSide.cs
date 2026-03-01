@@ -79,7 +79,18 @@ internal sealed class ArenaEventTypeSide : SaveableItem, IArenaEventTypeSide
 	#3autofill#0 - toggles whether NPCs auto-fill empty slots
 	#3outfit <prog>|none#0 - sets an outfit prog
 	#3npcloader <prog>|none#0 - sets an NPC loader prog
-	#3class <class>#0 - toggles an eligible combatant class";
+	#3class <class>#0 - toggles an eligible combatant class
+
+The outfit prog is executed once for each side and passes in the following parameters:
+	
+	#kCharacter Collection#0 #mcharacters#0 - the characters on the side
+	#kNumber#0 #mside#0 - the side this prog is being run for
+	#kLocation#0 #mroom#0 - the room the characters are in
+	#kText#0 #mevent#0 - the name of the event type
+	#kText#0 #marena#0 - the name of the arena
+	#kText#0 #mname#0 - the name of the arena event
+
+The NPC Loader prog is executed once and has the same parameters but returns a collection of characters loaded.";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{

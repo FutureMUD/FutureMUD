@@ -19,9 +19,6 @@ internal static class ArenaProgParameters
 		ProgVariableTypes.Text,
 		ProgVariableTypes.Text,
 		ProgVariableTypes.Text,
-		ProgVariableTypes.Number,
-		ProgVariableTypes.DateTime,
-		ProgVariableTypes.TimeSpan
 	];
 
 	internal static readonly IReadOnlyList<ProgVariableTypes> SideOutfitParameters =
@@ -32,9 +29,6 @@ internal static class ArenaProgParameters
 		ProgVariableTypes.Text,
 		ProgVariableTypes.Text,
 		ProgVariableTypes.Text,
-		ProgVariableTypes.Number,
-		ProgVariableTypes.DateTime,
-		ProgVariableTypes.TimeSpan
 	];
 
 	internal static readonly IReadOnlyList<ProgVariableTypes> NpcLoaderParameters =
@@ -45,9 +39,6 @@ internal static class ArenaProgParameters
 		ProgVariableTypes.Text,
 		ProgVariableTypes.Text,
 		ProgVariableTypes.Text,
-		ProgVariableTypes.Number,
-		ProgVariableTypes.DateTime,
-		ProgVariableTypes.TimeSpan
 	];
 
 	internal static readonly IReadOnlyList<ProgVariableTypes> PhaseTransitionParameters =
@@ -83,12 +74,9 @@ internal static class ArenaProgParameters
 			participants,
 			sideIndices,
 			SelectArenaCell(arenaEvent.Arena.ArenaCells),
-			arenaEvent.Name,
 			arenaEvent.EventType.Name,
 			arenaEvent.Arena.Name,
-			arenaEvent.Id,
-			arenaEvent.ScheduledAt,
-			arenaEvent.EventType.TimeLimit
+			arenaEvent.Name,
 		];
 	}
 
@@ -100,12 +88,9 @@ internal static class ArenaProgParameters
 			participants,
 			sideIndex,
 			SelectWaitingCell(arenaEvent.Arena, sideIndex),
-			arenaEvent.Name,
 			arenaEvent.EventType.Name,
 			arenaEvent.Arena.Name,
-			arenaEvent.Id,
-			arenaEvent.ScheduledAt,
-			arenaEvent.EventType.TimeLimit
+			arenaEvent.Name,
 		];
 	}
 
@@ -116,12 +101,9 @@ internal static class ArenaProgParameters
 			sideIndex,
 			slotsNeeded,
 			SelectWaitingCell(arenaEvent.Arena, sideIndex),
-			arenaEvent.Name,
 			arenaEvent.EventType.Name,
 			arenaEvent.Arena.Name,
-			arenaEvent.Id,
-			arenaEvent.ScheduledAt,
-			arenaEvent.EventType.TimeLimit
+			arenaEvent.Name,
 		];
 	}
 
@@ -130,8 +112,8 @@ internal static class ArenaProgParameters
 		return
 		[
 			arenaEvent.Arena.Id,
-			arenaEvent.Id,
-			arenaEvent.Name,
+			arenaEvent.EventType.Id,
+			arenaEvent.EventType.Name,
 			phase.DescribeEnum()
 		];
 	}

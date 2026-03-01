@@ -48,13 +48,13 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		_id = arena.Id;
 		_name = arena.Name;
 		EconomicZone = Gameworld.EconomicZones.Get(arena.EconomicZoneId);
-			Currency = Gameworld.Currencies.Get(arena.CurrencyId);
-			_virtualBalance = arena.VirtualBalance;
-			BankAccount = arena.BankAccountId.HasValue ? Gameworld.BankAccounts.Get(arena.BankAccountId.Value) : null;
-			_onArenaEventPhaseProg = arena.OnArenaEventPhaseProgId.HasValue
-				? Gameworld.FutureProgs.Get(arena.OnArenaEventPhaseProgId.Value)
-				: null;
-			_signupEcho = arena.SignupEcho ?? DefaultSignupEcho;
+		Currency = Gameworld.Currencies.Get(arena.CurrencyId);
+		_virtualBalance = arena.VirtualBalance;
+		BankAccount = arena.BankAccountId.HasValue ? Gameworld.BankAccounts.Get(arena.BankAccountId.Value) : null;
+		_onArenaEventPhaseProg = arena.OnArenaEventPhaseProgId.HasValue
+			? Gameworld.FutureProgs.Get(arena.OnArenaEventPhaseProgId.Value)
+			: null;
+		_signupEcho = arena.SignupEcho ?? DefaultSignupEcho;
 
 		foreach (var manager in arena.ArenaManagers)
 		{
@@ -128,9 +128,9 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 			{
 				Name = name,
 				EconomicZoneId = zone.Id,
-					CurrencyId = currency.Id,
-					OnArenaEventPhaseProgId = null,
-					CreatedAt = DateTime.UtcNow,
+				CurrencyId = currency.Id,
+				OnArenaEventPhaseProgId = null,
+				CreatedAt = DateTime.UtcNow,
 				VirtualBalance = 0.0m,
 				SignupEcho = _signupEcho,
 				IsDeleted = false
@@ -370,13 +370,13 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		sb.AppendLine();
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
-			sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
-			sb.AppendLine($"Bank Account: {(BankAccount != null ? BankAccount.AccountReference.ColourValue() : "None".ColourError())}");
-			sb.AppendLine($"Phase Prog: {OnArenaEventPhaseProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-			sb.AppendLine($"Cash: {Currency.Describe(_virtualBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-			sb.AppendLine($"Bank Balance: {(BankAccount is not null ? BankAccount.Currency.Describe(BankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : "N/A".ColourError())}");
-			var unclaimed = Gameworld.ArenaFinanceService.GetUnclaimedMoney(this);
-			sb.AppendLine($"Unclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Signup Echo: {(string.IsNullOrWhiteSpace(SignupEcho) ? "None".ColourError() : SignupEcho.ColourCommand())}");
+		sb.AppendLine($"Bank Account: {(BankAccount != null ? BankAccount.AccountReference.ColourValue() : "None".ColourError())}");
+		sb.AppendLine($"Phase Prog: {OnArenaEventPhaseProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Cash: {Currency.Describe(_virtualBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Bank Balance: {(BankAccount is not null ? BankAccount.Currency.Describe(BankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : "N/A".ColourError())}");
+		var unclaimed = Gameworld.ArenaFinanceService.GetUnclaimedMoney(this);
+		sb.AppendLine($"Unclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
 		if (!Managers.Any())
@@ -413,7 +413,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 				item.cell.GetFriendlyReference(actor),
 				item.role.DescribeEnum()
 			},
-			[ "Room", "Role" ],
+			["Room", "Role"],
 			actor,
 			Telnet.Green
 		));
@@ -455,18 +455,18 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		var sb = new StringBuilder();
 		sb.AppendLine($"Arena - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
-			sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
-			sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
-			sb.AppendLine($"Bank Account: {(BankAccount is not null ? $"{BankAccount.AccountReference}".Colour(Telnet.Cyan) : "None".ColourError())}");
-			sb.AppendLine($"Phase Prog: {OnArenaEventPhaseProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-			sb.AppendLine();
-			sb.AppendLine("Financial Position:");
+		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
+		sb.AppendLine($"Currency: {Currency.Name.ColourValue()}");
+		sb.AppendLine($"Bank Account: {(BankAccount is not null ? $"{BankAccount.AccountReference}".Colour(Telnet.Cyan) : "None".ColourError())}");
+		sb.AppendLine($"Phase Prog: {OnArenaEventPhaseProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine();
+		sb.AppendLine("Financial Position:");
 		sb.AppendLine();
 
-			sb.AppendLine($"\tCash: {Currency.Describe(_virtualBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-			sb.AppendLine($"\tBank Balance: {(BankAccount is not null ? BankAccount.Currency.Describe(BankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : "N/A".ColourError())}");
-			var unclaimed = Gameworld.ArenaFinanceService.GetUnclaimedMoney(this);
-			sb.AppendLine($"\tUnclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"\tCash: {Currency.Describe(_virtualBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"\tBank Balance: {(BankAccount is not null ? BankAccount.Currency.Describe(BankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : "N/A".ColourError())}");
+		var unclaimed = Gameworld.ArenaFinanceService.GetUnclaimedMoney(this);
+		sb.AppendLine($"\tUnclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Managers:");
 		if (!Managers.Any())
@@ -486,7 +486,7 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 		foreach (var type in EventTypes)
 		{
 			var autoSchedule = type.AutoScheduleEnabled && type.AutoScheduleInterval.HasValue &&
-			                   type.AutoScheduleReferenceTime.HasValue
+							   type.AutoScheduleReferenceTime.HasValue
 				? $"Every {type.AutoScheduleInterval.Value.Describe(actor).ColourValue()} from {type.AutoScheduleReferenceTime.Value.ToString("g", actor).ColourValue()}"
 				: "Disabled".ColourError();
 			sb.AppendLine($"\t#{type.Id.ToStringN0(actor)} - {type.Name.ColourName()} ({autoSchedule})");
@@ -506,7 +506,16 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 	#3manager add <character id>#0 - adds a manager by character id
 	#3manager remove <character id>#0 - removes a manager by character id
 	#3cell <role> add <cell id>#0 - adds a cell in a particular role
-	#3cell <role> remove <cell id>#0 - removes a cell from a particular role";
+	#3cell <role> remove <cell id>#0 - removes a cell from a particular role
+
+The phase transition prog is executed once for each side and passes in the following parameters:
+	
+	#kNumber#0 #marenaid#0 - the id of the arena
+	#kNumber#0 #mid#0 - the id of the event type
+	#kText#0 #mevent#0 - the name of the event type
+	#kText#0 #mphase#0 - the phase of the arena fight
+
+The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing#0, #6Staged#0, #6Live#0, #6Resolving#0, #6Cleanup#0, #6Completed#0, and #6Aborted#0.";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -520,14 +529,14 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 				return BuildingCommandCurrency(actor, command);
 			case "bank":
 				return BuildingCommandBank(actor, command);
-				case "signupecho":
-					return BuildingCommandSignupEcho(actor, command);
-				case "phaseprog":
-				case "phasehook":
-					return BuildingCommandPhaseProg(actor, command);
-				case "manager":
-				case "managers":
-					return BuildingCommandManager(actor, command);
+			case "signupecho":
+				return BuildingCommandSignupEcho(actor, command);
+			case "phaseprog":
+			case "phasehook":
+				return BuildingCommandPhaseProg(actor, command);
+			case "manager":
+			case "managers":
+				return BuildingCommandManager(actor, command);
 			case "cell":
 			case "cells":
 				return BuildingCommandCells(actor, command);
@@ -840,11 +849,11 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 				return;
 			}
 
-				dbArena.VirtualBalance = _virtualBalance;
-				dbArena.BankAccountId = BankAccount?.Id;
-				dbArena.OnArenaEventPhaseProgId = OnArenaEventPhaseProg?.Id;
-				dbArena.EconomicZoneId = EconomicZone.Id;
-				dbArena.CurrencyId = Currency.Id;
+			dbArena.VirtualBalance = _virtualBalance;
+			dbArena.BankAccountId = BankAccount?.Id;
+			dbArena.OnArenaEventPhaseProgId = OnArenaEventPhaseProg?.Id;
+			dbArena.EconomicZoneId = EconomicZone.Id;
+			dbArena.CurrencyId = Currency.Id;
 			dbArena.Name = Name;
 			dbArena.SignupEcho = _signupEcho;
 			if (_cellsDirty)

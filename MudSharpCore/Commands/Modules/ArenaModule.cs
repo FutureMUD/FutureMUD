@@ -30,18 +30,14 @@ internal class ArenaModule : Module<ICharacter>
 
 	public static ArenaModule Instance { get; } = new();
 
-	private const string ArenaManagerHelp = @"The #3arena#0 command provides access to combat arena systems.
+	private const string ArenaManagerHelp = @"The #3arena#0 command is used to interact with combat arenas. All of these commands need to be done from the arena itself.
 
-General:
 	#3arena list#0 - list known arenas
 	#3arena show [<arena>]#0 - show details for an arena
 	#3arena events [<arena>]#0 - list active and scheduled events
-
-Participant Commands:
-	If only one event applies, you can omit #6<event>#0.
 	#3arena observe list#0 - show events observable from your location
-	#3arena observe enter [<event>]#0 - begin observing an event
-	#3arena observe leave [<event>]#0 - stop observing an event
+	#3arena observe begin [<event>]#0 - begin observing an event
+	#3arena observe stop [<event>]#0 - stop observing an event
 	#3arena signup [<event>] [<side>] [<class>]#0 - sign up for an event (omitted values auto-select)
 	#3arena withdraw [<event>]#0 - withdraw from an event
 	#3arena surrender [<event>]#0 - surrender your current bout
@@ -54,20 +50,19 @@ Participant Commands:
 	#3arena bet collect [<event>]#0 - collect outstanding payouts
 	#3arena ratings [<class>]#0 - show your arena ratings
 
-Manager Commands:
+If only one event applies, you can omit #6<event>#0 in the above commands.
 
-	#6Note: You must be a manager of the arena owning the target event or event type.#0
+Manager Only Commands:
 
-
-		#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
-		#3arena manager autoschedule <eventtype> show#0 - show recurring settings
-		#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
-		#3arena manager autoschedule <eventtype> every <interval> [from] <reference>#0 - enable recurring creation
-		#3arena manager deposit [<arena>] <amount>#0 - deposit physical cash into arena cash reserve
-		#3arena manager withdraw [<arena>] <amount>#0 - withdraw physical cash from arena cash reserve
-		#3arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]#0 - show stable NPC roster by class
-		#3arena manager rating [<arena>] <character>#0 - show ratings for a character in an arena
-		#3arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]#0 - list arena ratings";
+	#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
+	#3arena manager autoschedule <eventtype> show#0 - show recurring settings
+	#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
+	#3arena manager autoschedule <eventtype> every <interval> [from] <reference>#0 - enable recurring creation
+	#3arena manager deposit [<arena>] <amount>#0 - deposit physical cash into arena cash reserve
+	#3arena manager withdraw [<arena>] <amount>#0 - withdraw physical cash from arena cash reserve
+	#3arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]#0 - show stable NPC roster by class
+	#3arena manager rating [<arena>] <character>#0 - show ratings for a character in an arena
+	#3arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]#0 - list arena ratings";
 
 	private const string ArenaHelp =
 		@"The #3arena#0 command is used to interact with combat arenas. All of these commands need to be done from the arena itself.
@@ -151,11 +146,22 @@ If only one event applies, you can omit #6<event>#0 in the above commands.";
 
 	private static void ShowGeneralHelp(ICharacter actor)
 	{
+		if (actor.IsAdministrator() || actor.Gameworld.CombatArenas.Any(x => x.Managers.Contains(actor)))
+		{
+			actor.OutputHandler.Send(ArenaManagerHelp.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+			return;
+		}
 		actor.OutputHandler.Send(ArenaHelp.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 	}
 
 	private static void ArenaList(ICharacter actor)
 	{
+		if (!actor.IsAdministrator() && !actor.Gameworld.CombatArenas.Any(x => x.Managers.Contains(actor)))
+		{
+			ShowGeneralHelp(actor);
+			return;
+		}
+		
 		var arenas = actor.Gameworld.CombatArenas.ToList();
 		if (!arenas.Any())
 		{
@@ -177,6 +183,12 @@ If only one event applies, you can omit #6<event>#0 in the above commands.";
 
 	private static void ArenaShow(ICharacter actor, StringStack ss)
 	{
+		if (!actor.IsAdministrator() && !actor.Gameworld.CombatArenas.Any(x => x.Managers.Contains(actor)))
+		{
+			ShowGeneralHelp(actor);
+			return;
+		}
+
 		var hasArgument = !ss.IsFinished;
 		var arena = GetArena(actor, hasArgument ? ss.PopSpeech() : null);
 		if (arena is null)

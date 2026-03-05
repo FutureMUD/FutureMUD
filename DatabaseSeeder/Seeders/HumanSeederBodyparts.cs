@@ -3250,7 +3250,7 @@ public partial class HumanSeeder
 			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
 				HidesSevered: true),
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
-				HidesSevered: true),
+				HidesSevered: true)
 		);
 		AddWearProfileDirect("Sleeveless Tunic", "worn on", "put", "puts", "on", "Worn as a Sleeveless Tunic", false,
 			false,

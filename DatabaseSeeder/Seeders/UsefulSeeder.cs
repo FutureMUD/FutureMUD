@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -95,10 +96,12 @@ public class UsefulSeeder : IDatabaseSeeder
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+		_context = context;
 		context.Database.BeginTransaction();
 		var errors = new List<string>();
-		
-		foreach (var item in _context.GameItemComponentProtos.ToList()){
+		_itemProtos = new Dictionary<string, GameItemComponentProto>(StringComparer.OrdinalIgnoreCase);
+
+		foreach (var item in context.GameItemComponentProtos.ToList()){
 			if (item.EditableItem.RevisionStatus != 4){
 				continue;
 			}
@@ -186,14 +189,30 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 	private Account _dbaccount => _context.Accounts.First();
 
-	private Dictionary<string,GameItemComponentProto> _itemProtos = new();
+	private Dictionary<string, GameItemComponentProto> _itemProtos = new(StringComparer.OrdinalIgnoreCase);
+
+	private GameItemComponentProto AddGameItemComponent(FuturemudDatabaseContext context, GameItemComponentProto component)
+	{
+		if (_itemProtos.TryGetValue(component.Name, out var existing))
+		{
+			return existing;
+		}
+
+		existing = context.GameItemComponentProtos
+			.FirstOrDefault(x => x.Name == component.Name && x.EditableItem.RevisionStatus == 4);
+		if (existing is not null)
+		{
+			_itemProtos[existing.Name] = existing;
+			return existing;
+		}
+
+		context.GameItemComponentProtos.Add(component);
+		_itemProtos[component.Name] = component;
+		return component;
+	}
 
 	private GameItemComponentProto CreateItemProto(long id, DateTime now, string type, string name, string description, string definition)
 	{
-		if (_itemProtos.ContainsKey(name)){
-			return _itemProtos[name];
-		}
-		
 		var component = new GameItemComponentProto
 		{
 			Id = id,
@@ -214,9 +233,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = description,
 			Definition = definition
 		};
-		_context.GameItemComponentProtos.Add(component);
-		_itemProtos[name] = component;
-		return component;
+		return AddGameItemComponent(_context, component);
 	}
 
 	private void SeedTerrain(FuturemudDatabaseContext context, ICollection<string> errors)
@@ -715,8 +732,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition = definition
 		};
 
-		context.GameItemComponentProtos.Add(component);
-		return component;
+		return AddGameItemComponent(context, component);
 	}
 
 	private GameItemComponentProto CreateTorchComponent(FuturemudDatabaseContext context,
@@ -746,14 +762,14 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	{
 		var definition = @$"<Definition>
 <IlluminationProvided>{illuminationProvided}</IlluminationProvided>
-<FuelCapacity>{fuelCapacity}</FuelCapacity>
+<FuelCapacity>{fuelCapacity.ToString(System.Globalization.CultureInfo.InvariantCulture)}</FuelCapacity>
 <RequiresIgnitionSource>{requiresIgnitionSource.ToString().ToLower()}</RequiresIgnitionSource>
 <LightEmote><![CDATA[{lightEmote}]]></LightEmote>
 <ExtinguishEmote><![CDATA[{extinguishEmote}]]></ExtinguishEmote>
 <TenPercentFuelEcho><![CDATA[{tenPercentFuelEcho}]]></TenPercentFuelEcho>
 <FuelExpendedEcho><![CDATA[{fuelExpendedEcho}]]></FuelExpendedEcho>
 <LiquidFuel>{liquidFuelId}</LiquidFuel>
-<FuelPerSecond>{fuelPerSecond}</FuelPerSecond>
+<FuelPerSecond>{fuelPerSecond.ToString(System.Globalization.CultureInfo.InvariantCulture)}</FuelPerSecond>
 </Definition>";
 		return CreateComponent(context, ref nextId, account, now, "Lantern", name, description,
 		definition);
@@ -763,9 +779,35 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	ref long nextId, Account account, DateTime now, string name, string description,
 	double liquidCapacity, long defaultLiquidId, double refillRate, bool useOnOffForRefill)
 	{
-		var definition = $"<Definition LiquidCapacity=\"{liquidCapacity}\" Closable=\"false\" Transparent=\"false\" OnceOnly=\"false\" DefaultLiquid=\"{defaultLiquidId}\" RefillRate=\"{refillRate}\" UseOnOffForRefill=\"{useOnOffForRefill.ToString().ToLower()}\" RefillingProg=\"0\" CanBeEmptiedWhenInRoom=\"false\" />";
+		var definition = $"<Definition LiquidCapacity=\"{liquidCapacity.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" Closable=\"false\" Transparent=\"false\" OnceOnly=\"false\" DefaultLiquid=\"{defaultLiquidId}\" RefillRate=\"{refillRate.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" UseOnOffForRefill=\"{useOnOffForRefill.ToString().ToLower()}\" RefillingProg=\"0\" CanBeEmptiedWhenInRoom=\"false\" />";
 		return CreateComponent(context, ref nextId, account, now, "WaterSource", name, description,
 		definition);
+	}
+
+	private RangedCover CreateOrGetRangedCover(FuturemudDatabaseContext context, string name, int coverType,
+		int coverExtent, int highestPositionState, string descriptionString, string actionDescriptionString,
+		int maximumSimultaneousCovers, bool coverStaysWhileMoving)
+	{
+		var cover = context.RangedCovers.FirstOrDefault(x => x.Name == name);
+		if (cover is not null)
+		{
+			return cover;
+		}
+
+		cover = new RangedCover
+		{
+			Name = name,
+			CoverType = coverType,
+			CoverExtent = coverExtent,
+			HighestPositionState = highestPositionState,
+			DescriptionString = descriptionString,
+			ActionDescriptionString = actionDescriptionString,
+			MaximumSimultaneousCovers = maximumSimultaneousCovers,
+			CoverStaysWhileMoving = coverStaysWhileMoving
+		};
+
+		context.RangedCovers.Add(cover);
+		return cover;
 	}
 
 	private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
@@ -1120,7 +1162,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <PageCount>{pages}</PageCount>
  </Definition>"
 			};
-			context.GameItemComponentProtos.Add(component);
+			AddGameItemComponent(context, component);
 			return component;
 		}
 
@@ -1290,7 +1332,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<ReflectingDegrees>0.5</ReflectingDegrees>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1316,7 +1358,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<ReflectingDegrees>0.5</ReflectingDegrees>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1342,7 +1384,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<ReflectingDegrees>0.5</ReflectingDegrees>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1368,7 +1410,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<ReflectingDegrees>0.5</ReflectingDegrees>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1394,7 +1436,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<ReflectingDegrees>2.0</ReflectingDegrees>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -1421,7 +1463,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes item correct Myopia flaws",
 			Definition = @"<Definition></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -1467,7 +1509,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	</Characteristics>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1509,7 +1551,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	</Characteristics>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1535,7 +1577,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<Characteristic Profile=""{context.CharacteristicProfiles.First(x => x.Name == "All Hair Styles").Id}"" Value=""{context.CharacteristicDefinitions.First(x => x.Name == "Hair Style").Id}""/>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1561,7 +1603,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<Characteristic Profile=""{context.CharacteristicProfiles.First(x => x.Name == "All Facial Hair Styles").Id}"" Value=""{context.CharacteristicDefinitions.First(x => x.Name == "Facial Hair Style").Id}""/>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1586,7 +1628,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	<Characteristic Profile=""{context.CharacteristicProfiles.First(x => x.Name == "All Eye Colours").Id}"" Value=""{context.CharacteristicDefinitions.First(x => x.Name == "Eye Colour").Id}""/>
 </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -1648,7 +1690,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </DamageMultipliers>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1698,7 +1740,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </DamageMultipliers>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1748,7 +1790,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </DamageMultipliers>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1798,7 +1840,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </DamageMultipliers>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1848,7 +1890,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </DamageMultipliers>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1898,7 +1940,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </DamageMultipliers>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -1936,7 +1978,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{allColours.Id}"" Value=""{colour.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1961,7 +2003,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{basicColours.Id}"" Value=""{colour.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -1986,7 +2028,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{fineColours.Id}"" Value=""{colour.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2011,7 +2053,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{drabColours.Id}"" Value=""{colour.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2037,7 +2079,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{allColours.Id}"" Value=""{colour2.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2063,7 +2105,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{basicColours.Id}"" Value=""{colour2.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2089,7 +2131,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{fineColours.Id}"" Value=""{colour2.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2115,7 +2157,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{drabColours.Id}"" Value=""{colour2.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2142,7 +2184,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{allColours.Id}"" Value=""{colour3.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2170,7 +2212,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{basicColours.Id}"" Value=""{colour3.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2198,7 +2240,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{fineColours.Id}"" Value=""{colour3.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2226,7 +2268,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <Characteristic Profile=""{drabColours.Id}"" Value=""{colour3.Id}"" />
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -2258,7 +2300,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ColourCharacteristic>{context.CharacteristicDefinitions.First(x => x.Name == "Colour").Id}</ColourCharacteristic>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2286,7 +2328,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ColourCharacteristic>{context.CharacteristicDefinitions.First(x => x.Name == "Colour1").Id}</ColourCharacteristic>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2313,7 +2355,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ColourCharacteristic>{context.CharacteristicDefinitions.First(x => x.Name == "Colour").Id}</ColourCharacteristic>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2340,7 +2382,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ColourCharacteristic>{context.CharacteristicDefinitions.First(x => x.Name == "Colour1").Id}</ColourCharacteristic>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2367,7 +2409,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ColourCharacteristic>{context.CharacteristicDefinitions.First(x => x.Name == "Colour").Id}</ColourCharacteristic>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2394,7 +2436,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ColourCharacteristic>{context.CharacteristicDefinitions.First(x => x.Name == "Colour1").Id}</ColourCharacteristic>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -2421,7 +2463,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes an item a chair that can hold a single occupant",
 			Definition = @"<Definition ChairSlotsUsed=""1"" ChairOccupantCapacity=""1"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2444,7 +2486,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes an item a chair that can hold two occupants",
 			Definition = @"<Definition ChairSlotsUsed=""2"" ChairOccupantCapacity=""2"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2467,7 +2509,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes an item a chair that can hold three occupants",
 			Definition = @"<Definition ChairSlotsUsed=""3"" ChairOccupantCapacity=""3"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2490,298 +2532,89 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes an item a chair that can hold four occupants",
 			Definition = @"<Definition ChairSlotsUsed=""4"" ChairOccupantCapacity=""4"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
 
 		#region Ranged Cover
 
-		// TODO - ranged covers aren't protected against being installed multiple times
+		var unflippedTable = CreateOrGetRangedCover(context, "Upright Table", 1, 1, 1,
+			"using $?0|$0|a table|$ as cover",
+			"@ move|moves behind $?1|$1|a nearby table|$ and use|uses it to obscure &0's profile",
+			3, false);
+		var flippedTable = CreateOrGetRangedCover(context, "Overturned Table", 1, 2, 3,
+			"hiding behind $?0|$0|an overturned table|$ as cover",
+			"@ duck|ducks behind $?1|$1|a nearby overturned table|$ and begin|begins to use it as cover",
+			3, false);
+		CreateOrGetRangedCover(context, "Uneven Ground", 0, 1, 6,
+			"prone, using the uneven ground as cover",
+			"@ go|goes prone and begin|begins to use the uneven ground as cover",
+			0, true);
+		var smokeCover = CreateOrGetRangedCover(context, "Smoke", 0, 2, 1,
+			"obscured by $?0|$0|the smoke|$",
+			"@ move|moves into $?1|$1|the smoke|$ and uses it to obscure &0's form",
+			0, true);
+		var sandbagCover = CreateOrGetRangedCover(context, "Sandbag", 1, 2, 3,
+			"hiding behind $?0|$0|a sandbag barricade|$, using it as cover",
+			"@ take|takes position behind $?1|$1|a sandbag barricade|$ and begin|begins to use it as cover",
+			3, false);
+		var treeCover = CreateOrGetRangedCover(context, "Tree", 1, 2, 1,
+			"hiding behind $?0|$0|a tree|$ for cover",
+			"@ slip|slips behind $?1|$1|a tree|$ and use|uses it to protect &0's vital areas",
+			1, false);
+		var bushesCover = CreateOrGetRangedCover(context, "Bushes", 0, 2, 1,
+			"hiding in $?0|$0|the bushes|$ for cover",
+			"@ take|takes position behind $?1|$1|a bush|$ and use|uses it to obscure &0's profile",
+			2, false);
+		CreateOrGetRangedCover(context, "Long Grass", 0, 2, 6,
+			"hiding in $?0|$0|the long grass|$ for cover",
+			"@ take|takes position in $?1|$1|the long grass|$ and use|uses it to obscure &0's profile",
+			2, true);
+		var doorwaysCover = CreateOrGetRangedCover(context, "Doorways", 0, 1, 1,
+			"using a doorway as cover",
+			"@ duck|ducks into a doorway and begin|begins to use it as cover",
+			0, false);
+		var rubbleCover = CreateOrGetRangedCover(context, "Rubble", 1, 2, 12,
+			"slumped up against $?0|$0|some rubble|$ as cover",
+			"@ slump|slumps up against $?1|$1|some rubble|$ and begin|begins to use it as cover",
+			2, false);
 
-		var unflippedTable = new RangedCover
-		{
-			Name = "Upright Table",
-			CoverType = 1,
-			CoverExtent = 1,
-			HighestPositionState = 1,
-			DescriptionString = "using $?0|$0|a table|$ as cover",
-			ActionDescriptionString =
-				"@ move|moves behind $?1|$1|a nearby table|$ and use|uses it to obscure &0's profile",
-			MaximumSimultaneousCovers = 3,
-			CoverStaysWhileMoving = false
-		};
-		context.RangedCovers.Add(unflippedTable);
 		context.SaveChanges();
 
-		var flippedTable = new RangedCover
-		{
-			Name = "Overturned Table",
-			CoverType = 1,
-			CoverExtent = 2,
-			HighestPositionState = 3,
-			DescriptionString = "hiding behind $?0|$0|an overturned table|$ as cover",
-			ActionDescriptionString =
-				"@ duck|ducks behind $?1|$1|a nearby overturned table|$ and begin|begins to use it as cover",
-			MaximumSimultaneousCovers = 3,
-			CoverStaysWhileMoving = false
-		};
-		context.RangedCovers.Add(flippedTable);
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Uneven Ground",
-			CoverType = 0,
-			CoverExtent = 1,
-			HighestPositionState = 6,
-			DescriptionString = "prone, using the uneven ground as cover",
-			ActionDescriptionString = "@ go|goes prone and begin|begins to use the uneven ground as cover",
-			MaximumSimultaneousCovers = 0,
-			CoverStaysWhileMoving = true
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Smoke",
-			CoverType = 0,
-			CoverExtent = 2,
-			HighestPositionState = 1,
-			DescriptionString = "obscured by $?0|$0|the smoke|$",
-			ActionDescriptionString = "@ move|moves into $?1|$1|the smoke|$ and uses it to obscure &0's form",
-			MaximumSimultaneousCovers = 0,
-			CoverStaysWhileMoving = true
-		});
-		context.SaveChanges();
-
-		context.GameItemComponentProtos.Add(new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Cover",
-			Name = "Cover_Smoke",
-			Description = @"Turns an item into ranged cover of type ""Smoke"".",
-			Definition = @$"<Definition>
-   <Cover>{context.RangedCovers.First(x => x.Name == "Smoke").Id}</Cover>
- </Definition>"
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Sandbag",
-			CoverType = 1,
-			CoverExtent = 2,
-			HighestPositionState = 3,
-			DescriptionString = "hiding behind $?0|$0|a sandbag barricade|$, using it as cover",
-			ActionDescriptionString =
-				"@ take|takes position behind $?1|$1|a sandbag barricade|$ and begin|begins to use it as cover",
-			MaximumSimultaneousCovers = 3,
-			CoverStaysWhileMoving = false
-		});
-		context.SaveChanges();
-
-		context.GameItemComponentProtos.Add(new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Cover",
-			Name = "Cover_Sandbag",
-			Description = @"Turns an item into ranged cover of type ""Sandbag"".",
-			Definition = @$"<Definition>
-   <Cover>{context.RangedCovers.First(x => x.Name == "Sandbag").Id}</Cover>
- </Definition>"
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Tree",
-			CoverType = 1,
-			CoverExtent = 2,
-			HighestPositionState = 1,
-			DescriptionString = "hiding behind $?0|$0|a tree|$ for cover",
-			ActionDescriptionString = "@ slip|slips behind $?1|$1|a tree|$ and use|uses it to protect &0's vital areas",
-			MaximumSimultaneousCovers = 1,
-			CoverStaysWhileMoving = false
-		});
-		context.SaveChanges();
-		context.GameItemComponentProtos.Add(new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Cover",
-			Name = "Cover_Tree",
-			Description = @"Turns an item into ranged cover of type ""Tree"".",
-			Definition = @$"<Definition>
-   <Cover>{context.RangedCovers.First(x => x.Name == "Tree").Id}</Cover>
- </Definition>"
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Bushes",
-			CoverType = 0,
-			CoverExtent = 2,
-			HighestPositionState = 1,
-			DescriptionString = "hiding in $?0|$0|the bushes|$ for cover",
-			ActionDescriptionString =
-				"@ take|takes position behind $?1|$1|a bush|$ and use|uses it to obscure &0's profile",
-			MaximumSimultaneousCovers = 2,
-			CoverStaysWhileMoving = false
-		});
-		context.SaveChanges();
-
-		context.GameItemComponentProtos.Add(new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Cover",
-			Name = "Cover_Bushes",
-			Description = @"Turns an item into ranged cover of type ""Bushes"".",
-			Definition = @$"<Definition>
-   <Cover>{context.RangedCovers.First(x => x.Name == "Bushes").Id}</Cover>
- </Definition>"
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Long Grass",
-			CoverType = 0,
-			CoverExtent = 2,
-			HighestPositionState = 6,
-			DescriptionString = "hiding in $?0|$0|the long grass|$ for cover",
-			ActionDescriptionString =
-				"@ take|takes position in $?1|$1|the long grass|$ and use|uses it to obscure &0's profile",
-			MaximumSimultaneousCovers = 2,
-			CoverStaysWhileMoving = true
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Doorways",
-			CoverType = 0,
-			CoverExtent = 1,
-			HighestPositionState = 1,
-			DescriptionString = "using a doorway as cover",
-			ActionDescriptionString = "@ duck|ducks into a doorway and begin|begins to use it as cover",
-			MaximumSimultaneousCovers = 0,
-			CoverStaysWhileMoving = false
-		});
-		context.SaveChanges();
-
-		context.GameItemComponentProtos.Add(new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Cover",
-			Name = "Cover_Doorways",
-			Description = @"Turns an item into ranged cover of type ""Doorways"".",
-			Definition = @$"<Definition>
-   <Cover>{context.RangedCovers.First(x => x.Name == "Doorways").Id}</Cover>
- </Definition>"
-		});
-		context.SaveChanges();
-
-		context.RangedCovers.Add(new RangedCover
-		{
-			Name = "Rubble",
-			CoverType = 1,
-			CoverExtent = 2,
-			HighestPositionState = 12,
-			DescriptionString = "slumped up against $?0|$0|some rubble|$ as cover",
-			ActionDescriptionString =
-				"@ slump|slumps up against $?1|$1|some rubble|$ and begin|begins to use it as cover",
-			MaximumSimultaneousCovers = 2,
-			CoverStaysWhileMoving = false
-		});
-		context.SaveChanges();
-
-		context.GameItemComponentProtos.Add(new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Cover",
-			Name = "Cover_Rubble",
-			Description = @"Turns an item into ranged cover of type ""Rubble"".",
-			Definition = @$"<Definition>
-   <Cover>{context.RangedCovers.First(x => x.Name == "Rubble").Id}</Cover>
- </Definition>"
-		});
+		CreateItemProto(nextId++, now, "Cover", "Cover_Smoke",
+			@"Turns an item into ranged cover of type ""Smoke"".",
+			$@"<Definition>
+   <Cover>{smokeCover.Id}</Cover>
+ </Definition>");
+		CreateItemProto(nextId++, now, "Cover", "Cover_Sandbag",
+			@"Turns an item into ranged cover of type ""Sandbag"".",
+			$@"<Definition>
+   <Cover>{sandbagCover.Id}</Cover>
+ </Definition>");
+		CreateItemProto(nextId++, now, "Cover", "Cover_Tree",
+			@"Turns an item into ranged cover of type ""Tree"".",
+			$@"<Definition>
+   <Cover>{treeCover.Id}</Cover>
+ </Definition>");
+		CreateItemProto(nextId++, now, "Cover", "Cover_Bushes",
+			@"Turns an item into ranged cover of type ""Bushes"".",
+			$@"<Definition>
+   <Cover>{bushesCover.Id}</Cover>
+ </Definition>");
+		CreateItemProto(nextId++, now, "Cover", "Cover_Doorways",
+			@"Turns an item into ranged cover of type ""Doorways"".",
+			$@"<Definition>
+   <Cover>{doorwaysCover.Id}</Cover>
+ </Definition>");
+		CreateItemProto(nextId++, now, "Cover", "Cover_Rubble",
+			@"Turns an item into ranged cover of type ""Rubble"".",
+			$@"<Definition>
+   <Cover>{rubbleCover.Id}</Cover>
+ </Definition>");
 		context.SaveChanges();
 
 		#endregion
-
 		#region Tables
 
 		component = new GameItemComponentProto
@@ -2811,7 +2644,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
   </Cover>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2841,7 +2674,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
   </Cover>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2871,7 +2704,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
   </Cover>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2901,7 +2734,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
   </Cover>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2931,7 +2764,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
   </Cover>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -2961,7 +2794,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
   </Cover>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -2988,7 +2821,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes an item a gag when worn over the mouth",
 			Definition = @"<Definition />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3011,7 +2844,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Makes an item a blindfold when worn over the eyes",
 			Definition = @"<Definition />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3047,7 +2880,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <LimbType>6</LimbType>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3083,7 +2916,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <LimbType>6</LimbType>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3106,7 +2939,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a belt that can have 2 attached items of up to size Small",
 			Definition = @"<Definition MaximumNumberOfBeltedItems=""2"" MaximumSize=""5""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3129,7 +2962,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a belt that can have 4 attached items of up to size Small",
 			Definition = @"<Definition MaximumNumberOfBeltedItems=""4"" MaximumSize=""5""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3152,7 +2985,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a belt that can have 6 attached items of up to size Small",
 			Definition = @"<Definition MaximumNumberOfBeltedItems=""6"" MaximumSize=""5""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3175,7 +3008,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a belt that can have 1 attached item of up to size Normal",
 			Definition = @"<Definition MaximumNumberOfBeltedItems=""1"" MaximumSize=""6""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3198,7 +3031,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Allows an item to be attached to a belt",
 			Definition = @"<Definition/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3221,7 +3054,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a sheath for melee weapons of up to size Normal",
 			Definition = @"<Definition StealthDrawDifficulty=""6"" MaximumSize=""6""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3244,7 +3077,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a sheath for melee weapons of up to size Small",
 			Definition = @"<Definition StealthDrawDifficulty=""4"" MaximumSize=""5""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3267,7 +3100,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a sheath for melee weapons of up to size Large",
 			Definition = @"<Definition StealthDrawDifficulty=""8"" MaximumSize=""7""/>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -3294,7 +3127,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Item can be used to immobilise a broken limb (e.g. splint)",
 			Definition = @"<Definition />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3317,7 +3150,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Item can be used as a crutch to walk when limbs are injured",
 			Definition = @"<Definition />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3340,7 +3173,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a syringe that holds a 10ml dose",
 			Definition = @"<Definition LiquidCapacity=""0.01"" Transparent=""true"" WeightLimit=""100"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3363,7 +3196,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a syringe that holds a 5ml dose",
 			Definition = @"<Definition LiquidCapacity=""0.005"" Transparent=""true"" WeightLimit=""50"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3386,7 +3219,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a syringe that holds a 2ml dose",
 			Definition = @"<Definition LiquidCapacity=""0.002"" Transparent=""true"" WeightLimit=""20"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3409,7 +3242,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a syringe that holds a 1ml dose",
 			Definition = @"<Definition LiquidCapacity=""0.001"" Transparent=""true"" WeightLimit=""10"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3432,7 +3265,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a syringe that holds a 0.5ml dose",
 			Definition = @"<Definition LiquidCapacity=""0.0005"" Transparent=""true"" WeightLimit=""5"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3455,7 +3288,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Description = "Turns item into a syringe that holds a 0.25ml dose",
 			Definition = @"<Definition LiquidCapacity=""0.00025"" Transparent=""true"" WeightLimit=""2.5"" />"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3482,7 +3315,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Connectors>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3509,7 +3342,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Connectors>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3536,7 +3369,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Connectors>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3564,7 +3397,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Connectors>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3593,7 +3426,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ExternalDescription><![CDATA[a peripheral venous cannula]]></ExternalDescription>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3622,7 +3455,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ExternalDescription><![CDATA[a large arterial cannula]]></ExternalDescription>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3651,7 +3484,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <ExternalDescription><![CDATA[a large venous cannula]]></ExternalDescription>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3679,7 +3512,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TreatmentType>2</TreatmentType>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3707,7 +3540,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TreatmentType>2</TreatmentType>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3735,7 +3568,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TreatmentType>2</TreatmentType>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3759,7 +3592,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>20</MaximumUses>  <Refillable>true</Refillable>  <DifficultyStages>1</DifficultyStages>  <TreatmentType>4</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3783,7 +3616,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>20</MaximumUses>  <Refillable>true</Refillable>  <DifficultyStages>3</DifficultyStages>  <TreatmentType>4</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3807,7 +3640,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>1</MaximumUses>  <Refillable>false</Refillable>  <DifficultyStages>2</DifficultyStages>  <TreatmentType>4</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3831,7 +3664,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>20</MaximumUses>  <Refillable>true</Refillable>  <DifficultyStages>1</DifficultyStages>  <TreatmentType>3</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3855,7 +3688,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>1</MaximumUses>  <Refillable>false</Refillable>  <DifficultyStages>2</DifficultyStages>  <TreatmentType>3</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3879,7 +3712,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>20</MaximumUses>  <Refillable>true</Refillable>  <DifficultyStages>1</DifficultyStages>  <TreatmentType>1</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3903,7 +3736,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>1</MaximumUses>  <Refillable>false</Refillable>  <DifficultyStages>2</DifficultyStages>  <TreatmentType>1</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3927,7 +3760,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>20</MaximumUses>  <Refillable>true</Refillable>  <DifficultyStages>1</DifficultyStages>  <TreatmentType>11</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -3951,7 +3784,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition =
 				@"<Definition>  <MaximumUses>1</MaximumUses>  <Refillable>false</Refillable>  <DifficultyStages>2</DifficultyStages>  <TreatmentType>11</TreatmentType></Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -3982,7 +3815,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rhand").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4011,7 +3844,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rwrist").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4040,7 +3873,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rforearm").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4069,7 +3902,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "relbow").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4098,7 +3931,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rupperarm").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4126,7 +3959,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lhand").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4155,7 +3988,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lwrist").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4184,7 +4017,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lforearm").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4213,7 +4046,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lelbow").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4242,7 +4075,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lupperarm").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4270,7 +4103,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "reye").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4298,7 +4131,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "leye").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4326,7 +4159,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rhand").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4354,7 +4187,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lhand").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4382,7 +4215,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rfoot").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4411,7 +4244,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rankle").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4439,7 +4272,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rcalf").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4468,7 +4301,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rknee").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4496,7 +4329,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "rthigh").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4524,7 +4357,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lfoot").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4553,7 +4386,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lankle").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4581,7 +4414,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lcalf").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4610,7 +4443,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lknee").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4638,7 +4471,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <TargetBodypart>{context.BodypartProtos.First(x => x.Name == "lthigh").Id}</TargetBodypart>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -4690,7 +4523,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4748,7 +4581,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4816,7 +4649,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4894,7 +4727,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -4972,7 +4805,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -5060,7 +4893,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -5192,7 +5025,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		component = new GameItemComponentProto
@@ -5251,7 +5084,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    </Weights>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		context.SaveChanges();
 
 		#endregion
@@ -5285,513 +5118,114 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 				"@ turn|turns on $1", "@ turn|turns off $1",
 				"$0 begin|begins to flicker", "$0 have|has completely burned out");
 
-		var component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "SignalFire",
-			Description = "Turns an item into a bright signal fire that burns for 3 hours.",
-			Definition = @"<Definition>
-   <IlluminationProvided>500</IlluminationProvided>
-   <SecondsOfFuel>10800</SecondsOfFuel>
-   <RequiresIgnitionSource>true</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "SignalFire",
+				"Turns an item into a bright signal fire that burns for 3 hours.", 500, 10800, true,
+				"@ light|lights $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker", "$0 have|has completely burned out");
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "Match",
-			Description = "Turns an item into a match that burns dimly for only a few seconds.",
-			Definition = @"<Definition>
-   <IlluminationProvided>5</IlluminationProvided>
-   <SecondsOfFuel>20</SecondsOfFuel>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Match",
+				"Turns an item into a match that burns dimly for only a few seconds.", 5, 20, false,
+				"@ light|lights $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "Candle",
-			Description = "Turns an item into a candle that burns dimly for 12 hours.",
-			Definition = @"<Definition>
-   <IlluminationProvided>5</IlluminationProvided>
-   <SecondsOfFuel>43200</SecondsOfFuel>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Candle",
+				"Turns an item into a candle that burns dimly for 12 hours.", 5, 43200, false,
+				"@ light|lights $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "Candle_Long",
-			Description = "Turns an item into a candle that burns very dimly for 48 hours.",
-			Definition = @"<Definition>
-   <IlluminationProvided>3</IlluminationProvided>
-   <SecondsOfFuel>172800</SecondsOfFuel>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Candle_Long",
+				"Turns an item into a candle that burns very dimly for 48 hours.", 3, 172800, false,
+				"@ light|lights $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "Candle_Bright",
-			Description = "Turns an item into a candle that burns a little dimly for 6 hours.",
-			Definition = @"<Definition>
-   <IlluminationProvided>8</IlluminationProvided>
-   <SecondsOfFuel>21600</SecondsOfFuel>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Candle_Bright",
+				"Turns an item into a candle that burns a little dimly for 6 hours.", 8, 21600, false,
+				"@ light|lights $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "Candle_Infinite",
-			Description = "Turns an item into an ever-burning candle.",
-			Definition = @"<Definition>
-   <IlluminationProvided>5</IlluminationProvided>
-   <SecondsOfFuel>-1</SecondsOfFuel>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "Candle_Infinite",
+				"Turns an item into an ever-burning candle.", 5, -1, false,
+				"@ light|lights $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Torch",
-			Name = "BrightCandle_Infinite",
-			Description = "Turns an item into an ever-burning bright candle.",
-			Definition = @"<Definition>
-   <IlluminationProvided>8</IlluminationProvided>
-   <SecondsOfFuel>-1</SecondsOfFuel>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights on $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateTorchComponent(context, ref nextId, dbaccount, now, "BrightCandle_Infinite",
+				"Turns an item into an ever-burning bright candle.", 8, -1, false,
+				"@ light|lights on $1", "@ extinguish|extinguishes $1",
+				"$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
 		var fuelLiquid = context.Liquids.FirstOrDefault(x => x.Name == "fuel") ??
 			context.Liquids.First(x => x.Name == "water");
-
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Lantern",
-			Name = "Lantern",
-			Description = "Turns an item into a lantern that burns any flammable fuel.",
-			Definition = @$"<Definition>
-   <IlluminationProvided>500</IlluminationProvided>
-   <FuelCapacity>0.2273046</FuelCapacity>
-   <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
-   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
-   <TenPercentFuelEcho><![CDATA[$0 begin|begins to splutter as the fuel runs low]]></TenPercentFuelEcho>
-   <FuelExpendedEcho><![CDATA[$0 have|has completely exhausted its fuel]]></FuelExpendedEcho>
-   <LiquidFuel>{fuelLiquid.Id}</LiquidFuel>
-   <FuelPerSecond>0.000007892522</FuelPerSecond>
- </Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateLanternComponent(context, ref nextId, dbaccount, now, "Lantern",
+			"Turns an item into a lantern that burns any flammable fuel.",
+			500, 0.2273046, false,
+			"@ light|lights $1", "@ extinguish|extinguishes $1",
+			"$0 begin|begins to splutter as the fuel runs low", "$0 have|has completely exhausted its fuel",
+			fuelLiquid.Id, 0.000007892522);
 
 		context.SaveChanges();
 		#endregion
 
 		#region Water Sources
 		var waterLiquid = context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_WaterSource",
-			Description = "Turns an item into a self-refilling source of water.",
-			Definition = @$"<Definition LiquidCapacity=""1000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{waterLiquid.Id}"" RefillRate=""0.8333333333333334"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_WaterSource",
+			"Turns an item into a self-refilling source of water.",
+			1000000, waterLiquid.Id, 0.8333333333333334, false);
 
 		var lakeLiquid = context.Liquids.FirstOrDefault(x => x.Name == "lake water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_LakeWaterSource",
-			Description = "Turns an item into a self-refilling source of lake water.",
-			Definition = @$"<Definition LiquidCapacity=""100000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{lakeLiquid.Id}"" RefillRate=""1000"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_LakeWaterSource",
+			"Turns an item into a self-refilling source of lake water.",
+			100000000, lakeLiquid.Id, 1000, false);
 
 		var springLiquid = context.Liquids.FirstOrDefault(x => x.Name == "spring water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_SpringWaterSource",
-			Description = "Turns an item into a self-refilling source of spring water.",
-			Definition = @$"<Definition LiquidCapacity=""100000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{springLiquid.Id}"" RefillRate=""1000"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_SpringWaterSource",
+			"Turns an item into a self-refilling source of spring water.",
+			100000000, springLiquid.Id, 1000, false);
 
 		var riverLiquid = context.Liquids.FirstOrDefault(x => x.Name == "river water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_RiverWaterSource",
-			Description = "Turns an item into a self-refilling source of river water.",
-			Definition = @$"<Definition LiquidCapacity=""100000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{riverLiquid.Id}"" RefillRate=""1000"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_RiverWaterSource",
+			"Turns an item into a self-refilling source of river water.",
+			100000000, riverLiquid.Id, 1000, false);
 
 		var liquid = context.Liquids.FirstOrDefault(x => x.Name == "swamp water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_SwampWaterSource",
-			Description = "Turns an item into a self-refilling source of swamp water.",
-			Definition = @$"<Definition LiquidCapacity=""100000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""1000"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_SwampWaterSource",
+			"Turns an item into a self-refilling source of swamp water.",
+			100000000, liquid.Id, 1000, false);
 
 		liquid = context.Liquids.FirstOrDefault(x => x.Name == "brackish water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_BrackishWaterSource",
-			Description = "Turns an item into a self-refilling source of brackish water.",
-			Definition = @$"<Definition LiquidCapacity=""100000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""1000"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_BrackishWaterSource",
+			"Turns an item into a self-refilling source of brackish water.",
+			100000000, liquid.Id, 1000, false);
 
 		liquid = context.Liquids.FirstOrDefault(x => x.Name == "salt water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Infinite_SaltWaterSource",
-			Description = "Turns an item into a self-refilling source of salt water.",
-			Definition = @$"<Definition LiquidCapacity=""100000000"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""1000"" UseOnOffForRefill=""false"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_SaltWaterSource",
+			"Turns an item into a self-refilling source of salt water.",
+			100000000, liquid.Id, 1000, false);
 
-		liquid = context.Liquids.FirstOrDefault(x => x.Name == "tap water") ??
+		var tapWaterLiquid = context.Liquids.FirstOrDefault(x => x.Name == "tap water") ??
 			context.Liquids.First(x => x.Name == "water");
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Sink_5L",
-			Description = "Turns an item into a 5L sink that can be filled up.",
-			Definition = @$"<Definition LiquidCapacity=""5"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""0.8333333333333334"" UseOnOffForRefill=""true"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Sink_5L",
+			"Turns an item into a 5L sink that can be filled up.",
+			5, tapWaterLiquid.Id, 0.8333333333333334, true);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Sink_20L",
+			"Turns an item into a 20L sink that can be filled up.",
+			20, tapWaterLiquid.Id, 0.8333333333333334, true);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Sink_50L",
+			"Turns an item into a 50L sink that can be filled up.",
+			50, tapWaterLiquid.Id, 0.8333333333333334, true);
+		CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Bathtub",
+			"Turns an item into a 500L bathtub that can be filled up.",
+			500, tapWaterLiquid.Id, 0.8333333333333334, true);
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Sink_20L",
-			Description = "Turns an item into a 20L sink that can be filled up.",
-			Definition = @$"<Definition LiquidCapacity=""20"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""0.8333333333333334"" UseOnOffForRefill=""true"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
-
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Sink_50L",
-			Description = "Turns an item into a 50L sink that can be filled up.",
-			Definition = @$"<Definition LiquidCapacity=""50"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""0.8333333333333334"" UseOnOffForRefill=""true"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
-
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "WaterSource",
-			Name = "Bathtub",
-			Description = "Turns an item into a 500L bathtub that can be filled up.",
-			Definition = @$"<Definition LiquidCapacity=""500"" Closable=""false"" Transparent=""false"" OnceOnly=""false"" DefaultLiquid=""{liquid.Id}"" RefillRate=""0.8333333333333334"" UseOnOffForRefill=""true"" RefillingProg=""0"" CanBeEmptiedWhenInRoom=""false"" />"
-		};
-		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
 		#endregion
 
+		GameItemComponentProto component;
 		#region Repair Kits
 
 		var materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
@@ -5866,7 +5300,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 						)
 					).ToString()
 			};
-			context.GameItemComponentProtos.Add(repairComponent);
+			AddGameItemComponent(context, repairComponent);
 		}
 
 		AddRepairKitType("Cloth", "a repair kit that repairs cloth items", WoundSeverity.Grievous, 500, (skills["Tailoring"] ?? skills["Tailor"])?.Id, 0.0, ["Fabric", "Hair", "Feather"], []);
@@ -5895,44 +5329,61 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		#endregion
 
 		#region Smokeables
-		context.VariableDefinitions.Add(new VariableDefinition
+		var saveChangesRequired = false;
+		if (!context.VariableDefinitions.Any(x => x.OwnerType == 8 && x.Property == "nicotineuntil"))
 		{
-			ContainedType = (long)ProgVariableTypes.DateTime,
-			OwnerType = 8,
-			Property = "nicotineuntil"
-		});
-		context.VariableDefaults.Add(new VariableDefault
+			context.VariableDefinitions.Add(new VariableDefinition
+			{
+				ContainedType = (long)ProgVariableTypes.DateTime,
+				OwnerType = 8,
+				Property = "nicotineuntil"
+			});
+			saveChangesRequired = true;
+		}
+
+		if (!context.VariableDefaults.Any(x => x.OwnerType == 8 && x.Property == "nicotineuntil"))
 		{
-			OwnerType = 8,
-			Property = "nicotineuntil",
-			DefaultValue = "<var>01/01/0001 00:00:00</var>"
-		});
-		context.SaveChanges();
-		var smokeProg = new FutureProg
+			context.VariableDefaults.Add(new VariableDefault
+			{
+				OwnerType = 8,
+				Property = "nicotineuntil",
+				DefaultValue = "<var>01/01/0001 00:00:00</var>"
+			});
+			saveChangesRequired = true;
+		}
+
+		var smokeProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "OnSmokeCigarette");
+		if (smokeProg is null)
 		{
-			FunctionName = "OnSmokeCigarette",
-			AcceptsAnyParameters = false,
-			ReturnType = 0,
-			Category = "Character",
-			Subcategory = "Smoking",
-			Public = false,
-			FunctionComment = "This prog gives the character a 5 minute nicotene hit.",
-			FunctionText = @"var NicotineUntil as datetime
+			smokeProg = new FutureProg
+			{
+				FunctionName = "OnSmokeCigarette",
+				AcceptsAnyParameters = false,
+				ReturnType = 0,
+				Category = "Character",
+				Subcategory = "Smoking",
+				Public = false,
+				FunctionComment = "This prog gives the character a 5 minute nicotene hit.",
+				FunctionText = @"var NicotineUntil as datetime
 NicotineUntil = ifnull(GetRegister(@ch, ""NicotineUntil""), now())
 if (@nicotineuntil < now())
   NicotineUntil = now()
 end if
 SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
-			StaticType = 0
-		};
-		smokeProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{ FutureProg = smokeProg, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)ProgVariableTypes.Character });
-		smokeProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{ FutureProg = smokeProg, ParameterIndex = 1, ParameterName = "item", ParameterType = (long)ProgVariableTypes.Item });
-		context.FutureProgs.Add(smokeProg);
+				StaticType = 0
+			};
+			smokeProg.FutureProgsParameters.Add(new FutureProgsParameter
+			{ FutureProg = smokeProg, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)ProgVariableTypes.Character });
+			smokeProg.FutureProgsParameters.Add(new FutureProgsParameter
+			{ FutureProg = smokeProg, ParameterIndex = 1, ParameterName = "item", ParameterType = (long)ProgVariableTypes.Item });
+			context.FutureProgs.Add(smokeProg);
+			saveChangesRequired = true;
+		}
 
-		context.SaveChanges();
-
+		if (saveChangesRequired)
+		{
+			context.SaveChanges();
+		}
 		component = new GameItemComponentProto
 		{
 			Id = nextId++,
@@ -5962,7 +5413,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
    <GramsPerDrag>0</GramsPerDrag>
  </Definition>"
 		};
-		context.GameItemComponentProtos.Add(component);
+		AddGameItemComponent(context, component);
 		#endregion
 		context.SaveChanges();
 	}
@@ -7847,3 +7298,10 @@ The #3longscan#0 command takes longer then scan but can potentially see much fur
 		AddHint("You can position yourself and items by using the #3position#0 command or one of its specific implementations (e.g. #3stand#0, #3kneel#0, #3sit#0, etc.). See #3position ?#0 for more information on this.");
 	}
 }
+
+
+
+
+
+
+

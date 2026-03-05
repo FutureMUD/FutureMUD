@@ -60,34 +60,10 @@ public class UsefulSeeder : IDatabaseSeeder
 										return (false, "Invalid answer");
 								}),
 						("items",
-								"#DItem Package 1#F\n\nItem Package 1 includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys and basic writing implements.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+								"#DItem Package 1#F\n\nItem Package 1 includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
 								(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Container_Table"),
 								(answer, context) =>
 								{
-					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-					return (false, "Invalid answer");
-				}),
-			("itemsp2",
-				"#DItem Package 2#f\n\nItem Package 2 includes some further items such as insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.)\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor"),
-				(answer, context) =>
-				{
-					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-					return (false, "Invalid answer");
-				}),
-			("itemsp3",
-				"#DItem Package 3#f\n\nItem Package 3 includes some further useful items, such as destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, and dice.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc"),
-				(answer, context) =>
-				{
-					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-					return (false, "Invalid answer");
-				}),
-			("itemsp4",
-				"#DItem Package 4#f\n\nItem Package 4 includes some further useful items, such as torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite"),
-				(answer, context) =>
-				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
 					return (false, "Invalid answer");
 				}),
@@ -121,6 +97,13 @@ public class UsefulSeeder : IDatabaseSeeder
 	{
 		context.Database.BeginTransaction();
 		var errors = new List<string>();
+		
+		foreach (var item in _context.GameItemComponentProtos.ToList()){
+			if (item.EditableItem.RevisionStatus != 4){
+				continue;
+			}
+			_itemProtos[item.Name] = item;
+		}
 
 		if (questionAnswers["tags"].EqualToAny("yes", "y"))
 		{
@@ -131,13 +114,12 @@ public class UsefulSeeder : IDatabaseSeeder
 
 		if (questionAnswers["ai2"].EqualToAny("yes", "y")) SeedAIPart2(context, errors);
 
-		if (questionAnswers["items"].EqualToAny("yes", "y")) SeedItemsPart1(context, questionAnswers, errors);
-
-		if (questionAnswers["itemsp2"].EqualToAny("yes", "y")) SeedItemsPart2(context, questionAnswers, errors);
-
-		if (questionAnswers["itemsp3"].EqualToAny("yes", "y")) SeedItemsPart3(context, questionAnswers, errors);
-
-		if (questionAnswers["itemsp4"].EqualToAny("yes", "y")) SeedItemsPart4(context, questionAnswers, errors);
+		if (questionAnswers["items"].EqualToAny("yes", "y")){
+			SeedItemsPart1(context, questionAnswers, errors);
+			SeedItemsPart2(context, questionAnswers, errors);
+			SeedItemsPart3(context, questionAnswers, errors);
+			SeedItemsPart4(context, questionAnswers, errors);
+		}
 
 		if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
 
@@ -204,8 +186,14 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 	private Account _dbaccount => _context.Accounts.First();
 
+	private Dictionary<string,GameItemComponentProto> _itemProtos = new();
+
 	private GameItemComponentProto CreateItemProto(long id, DateTime now, string type, string name, string description, string definition)
 	{
+		if (_itemProtos.ContainsKey(name)){
+			return _itemProtos[name];
+		}
+		
 		var component = new GameItemComponentProto
 		{
 			Id = id,
@@ -227,6 +215,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition = definition
 		};
 		_context.GameItemComponentProtos.Add(component);
+		_itemProtos[name] = component;
 		return component;
 	}
 
@@ -782,12 +771,6 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
 			ICollection<string> errors)
 	{
-		if (context.GameItemComponentProtos.Any(x => x.Name == "Container_Table"))
-		{
-			errors.Add("Detected that items were already installed. Did not seed any items.");
-			return;
-		}
-
 		var now = DateTime.UtcNow;
 		var dbaccount = context.Accounts.First();
 		var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
@@ -808,6 +791,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		CreateContainer("Container_Small_Table", "Allows a small table to have items 'on' it", 50000, SizeCategory.Normal, false, true, "on");
 		CreateContainer("Container_Carton", "A container for cartons of cigarettes, matches etc", 250, SizeCategory.Tiny, true, false, "in");
 		CreateContainer("Container_Pocket", "A container for pockets in clothes", 500, SizeCategory.VerySmall, false, false, "in");
+		CreateContainer("Container_LargePocket", "A container for large pockets in clothes", 2000, SizeCategory.Small, false, false, "in");
+		CreateContainer("Container_Pocket_Closable", "A container for closable pockets in clothes", 500, SizeCategory.VerySmall, true, false, "in");
+		CreateContainer("Container_LargePocket_Closable", "A container for closable large pockets in clothes", 2000, SizeCategory.Small, true, false, "in");
 		CreateContainer("Container_Pouch", "A container for pouches", 1000, SizeCategory.VerySmall, true, false, "in");
 		CreateContainer("Container_Baggie", "A container for see-through baggies", 1000, SizeCategory.VerySmall, true, true, "in");
 		CreateContainer("Container_Sachet", "A container for single-use sachets", 1000, SizeCategory.VerySmall, true, false, "in", true);
@@ -885,6 +871,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		CreateLiquidContainer("LContainer_PintCarton", "A liquid container for a one pint carton", 0.471, true, false, 47100);
 		CreateLiquidContainer("LContainer_HalfPintCarton", "A liquid container for a one quart carton", 0.237, true, false, 23700);
 		CreateLiquidContainer("LContainer_Waterskin", "A liquid container for a standard sized waterskin", 1.892, true, false, 189200);
+		CreateLiquidContainer("LContainer_FuelCan", "A liquid container for a standard small sized fuel can (8L/2gal)", 8, true, false, 8000);
+		CreateLiquidContainer("LContainer_JerryCan", "A liquid container for a standard sized jerry can (20L/5.4gal)", 20, true, false, 20000);
+		CreateLiquidContainer("LContainer_Drum", "A liquid container for a standard 200L / 55gal drum", 200, true, false, 200000);
 		CreateLiquidContainer("LContainer_Amphora_Sextarius", "A liquid container for an amphora in the roman sextarius (~0.96 pint)", 0.546, true, false, 5460);
 		CreateLiquidContainer("LContainer_Amphora_Congius", "A liquid container for an amphora in the roman congius (~0.72 gallon)", 3.27, true, false, 32700);
 		CreateLiquidContainer("LContainer_Amphora_Urna", "A liquid container for an amphora in the roman urna (~2.88 gallon)", 13.1, true, false, 131000);
@@ -1272,12 +1261,6 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	private void SeedItemsPart2(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
 		ICollection<string> errors)
 	{
-		if (context.GameItemComponentProtos.Any(x => x.Name == "Insulation_Minor"))
-		{
-			errors.Add("Detected that items were already installed. Did not seed any items from package 2.");
-			return;
-		}
-
 		var now = DateTime.UtcNow;
 		var dbaccount = context.Accounts.First();
 		var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
@@ -1612,12 +1595,6 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	private void SeedItemsPart3(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
 	{
-		if (context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc"))
-		{
-			errors.Add("Detected that items were already installed. Did not seed any items from package 3.");
-			return;
-		}
-
 		var now = DateTime.UtcNow;
 		var dbaccount = context.Accounts.First();
 		var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
@@ -2519,6 +2496,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		#endregion
 
 		#region Ranged Cover
+
+		// TODO - ranged covers aren't protected against being installed multiple times
 
 		var unflippedTable = new RangedCover
 		{
@@ -5281,12 +5260,6 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	private void SeedItemsPart4(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
 	{
-		if (context.GameItemComponentProtos.Any(x => x.Name == "Torch_Infinite"))
-		{
-			errors.Add("Detected that items were already installed. Did not seed any items from package 4.");
-			return;
-		}
-
 		var now = DateTime.UtcNow;
 		var dbaccount = context.Accounts.First();
 		var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;

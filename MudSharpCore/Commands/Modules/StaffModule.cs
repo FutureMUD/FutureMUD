@@ -116,7 +116,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that.");
@@ -129,7 +129,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var partText = ss.Pop();
+		var partText = ss.PopSpeech();
 		var part = target.Body.Bodyparts.Concat(target.Body.Bodyparts.SelectMany(x => x.Organs)).Distinct()
 		                 .FirstOrDefault(x => x.Name.StartsWith(partText, StringComparison.InvariantCultureIgnoreCase));
 		if (part == null)
@@ -181,7 +181,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone here like that.");
@@ -220,7 +220,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone here like that.");
@@ -256,7 +256,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 	protected static void SetCharacteristic(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (actor.Target(ss.Pop()) is not IPerceivableHaveCharacteristics target)
+		if (actor.Target(ss.PopSpeech()) is not IPerceivableHaveCharacteristics target)
 		{
 			actor.Send("There is nothing or noone like that here for you to set the characteristics of.");
 			return;
@@ -317,7 +317,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to give an accent to.");
@@ -390,7 +390,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that.");
@@ -437,7 +437,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone named that.");
@@ -478,7 +478,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send(StringUtilities.HMark + "You don't see anyone like that.");
@@ -546,7 +546,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send(StringUtilities.HMark + "You don't see anyone that looks like that.");
@@ -830,7 +830,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = ss.Pop();
+		var target = ss.PopSpeech();
 		var targetExit = actor.Location.ExitsFor(actor).GetFromItemListByKeyword(target, actor);
 		var targetItem = targetExit?.Exit.Door?.Parent;
 		if (targetItem == null && targetExit != null)
@@ -854,7 +854,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 		if (lockable != null && !ss.IsFinished)
 		{
 			var container = targetItem;
-			target = ss.Pop();
+			target = ss.PopSpeech();
 			targetItem = lockable.Locks.Select(x => x.Parent).GetFromItemListByKeyword(target, actor);
 			if (targetItem == null)
 			{
@@ -1009,7 +1009,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.Target(ss.Pop());
+		var target = actor.Target(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see that target.");
@@ -1077,7 +1077,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.Target(ss.Pop());
+		var target = actor.Target(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see that target to list the effects of.");
@@ -1092,7 +1092,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 				return;
 			}
 
-			var secondTarget = (target as ICharacter).Inventory.GetFromItemListByKeyword(ss.Pop(), actor);
+			var secondTarget = (target as ICharacter).Inventory.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 			if (secondTarget == null)
 			{
 				actor.Send($"{target.HowSeen(actor, true)} does not have anything like that in their inventory.");
@@ -1180,7 +1180,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
 		using (new FMDB())
 		{
-			var name = ss.Pop();
+			var name = ss.PopSpeech();
 			var dbaccount =
 				FMDB.Context.Accounts.FirstOrDefault(
 					x => x.Name == name);
@@ -1227,7 +1227,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
 		using (new FMDB())
 		{
-			var name = ss.Pop();
+			var name = ss.PopSpeech();
 			var dbaccount =
 				FMDB.Context.Accounts.FirstOrDefault(
 					x => x.Name == name);
@@ -1263,7 +1263,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var ipAddress = ss.Pop().Replace('*', '%').Replace('?', '_');
+		var ipAddress = ss.PopSpeech().Replace('*', '%').Replace('?', '_');
 		if (ss.IsFinished)
 		{
 			character.OutputHandler.Send("When do you want to site ban them until?");
@@ -1319,7 +1319,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
 		using (new FMDB())
 		{
-			var bans = long.TryParse(ss.Pop(), out var banID)
+			var bans = long.TryParse(ss.PopSpeech(), out var banID)
 				? FMDB.Context.Bans.Where(x => x.Id == banID)
 				: FMDB.Context.Bans.Where(x => x.IpMask == ss.Last);
 			bans = bans.Where(x => x.Expiry == null || x.Expiry >= DateTime.UtcNow);
@@ -1487,7 +1487,7 @@ The syntax for this command is:
 	protected static void ToggleAdminAvatar(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send(StringUtilities.HMark + "You do not see any such person to turn into an admin avatar.");
@@ -1680,7 +1680,7 @@ The syntax is #3setcharacters <account> <##characters>#0.", AutoHelp.HelpArgOrNo
 		using (new FMDB())
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
-			if (string.IsNullOrEmpty(ss.Pop()))
+			if (string.IsNullOrEmpty(ss.PopSpeech()))
 			{
 				actor.OutputHandler.Send(
 					"You must enter an account for which to set the number of allowed characters.");
@@ -1725,7 +1725,7 @@ The syntax is #3setcharacters <account> <##characters>#0.", AutoHelp.HelpArgOrNo
 	protected static void Shutdown(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var arg = ss.Pop();
+		var arg = ss.PopSpeech();
 		if (arg.Length == 0 || arg.EqualTo("reboot"))
 		{
 			Console.WriteLine($"{actor.Name.Proper()} excecuted a shutdown [reboot] command.");
@@ -1929,7 +1929,7 @@ The syntax is simply #3broadcast <message>#0.", AutoHelp.HelpArgOrNoArg)]
 			return;
 		}
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "chargen":
 				if (actor.Gameworld.MaintenanceMode.HasFlag(MaintenanceModeSetting.NoChargen))
@@ -1982,7 +1982,7 @@ There are three forms for this command:
 	protected static void Purge(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command);
-		if (!ss.Pop().EqualTo("purge"))
+		if (!ss.PopSpeech().EqualTo("purge"))
 		{
 			actor.OutputHandler.Send("You must type out the entire PURGE command for it to work.");
 			return;
@@ -2000,7 +2000,7 @@ There are three forms for this command:
 		{
 			if (ss.Peek().Equals("all", StringComparison.InvariantCultureIgnoreCase))
 			{
-				ss.Pop();
+				ss.PopSpeech();
 				if (ss.IsFinished)
 				{
 					actor.Send("Purge the location of all items with which keyword?");
@@ -2016,7 +2016,7 @@ There are three forms for this command:
 			}
 			else
 			{
-				var target = actor.TargetLocalItem(ss.Pop());
+				var target = actor.TargetLocalItem(ss.PopSpeech());
 				if (target == null)
 				{
 					actor.Send("There is no such item for you to purge.");
@@ -2341,7 +2341,7 @@ The following options are available:
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see anyone like that to give a dream to.");
@@ -2584,7 +2584,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var name = ss.Pop();
+		var name = ss.PopSpeech();
 
 		using (new FMDB())
 		{
@@ -3069,7 +3069,7 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!decimal.TryParse(ss.Pop(), out amount))
+		if (!decimal.TryParse(ss.PopSpeech(), out amount))
 		{
 			actor.OutputHandler.Send("That is not a valid decimal number.");
 			return;

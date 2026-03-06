@@ -135,7 +135,7 @@ public class DragAidGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value) || value < 1)
+		if (!int.TryParse(command.PopSpeech(), out var value) || value < 1)
 		{
 			actor.Send("The value must be a valid number equal to or greater than 1.");
 			return false;

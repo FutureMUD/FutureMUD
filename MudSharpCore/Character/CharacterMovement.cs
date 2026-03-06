@@ -1151,12 +1151,12 @@ public partial class Character
 	public bool Move(string rawInput)
 	{
 		var ss = new StringStack(rawInput);
-		var direction = ss.Pop();
+		var direction = ss.PopSpeech();
 		var force = false;
 		if (ss.Peek().EqualTo("!"))
 		{
 			force = true;
-			ss.Pop();
+			ss.PopSpeech();
 		}
 
 		var target = ss.PopSafe();

@@ -41,7 +41,7 @@ internal class LoadCoinsFunction : BuiltInFunction
 		var coins = new Dictionary<ICoin, int>();
 		while (true)
 		{
-			var samount = ss.Pop();
+			var samount = ss.PopSpeech();
 			if (string.IsNullOrEmpty(samount))
 			{
 				ErrorMessage = "You must enter the specific coins which you want to load.";

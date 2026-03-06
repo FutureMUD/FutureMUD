@@ -30,7 +30,7 @@ public static class RevisionExtensions
 		{
 			if (!text.IsFinished && int.TryParse(text.Peek(), out revision))
 			{
-				text.Pop();
+				text.PopSpeech();
 			}
 		}
 		else
@@ -38,7 +38,7 @@ public static class RevisionExtensions
 			name = text.Last;
 			if (!text.IsFinished && int.TryParse(text.Peek(), out revision))
 			{
-				text.Pop();
+				text.PopSpeech();
 			}
 		}
 

@@ -96,7 +96,7 @@ public class CommandableAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var whichCommand = new StringStack(commandText).Pop();
+		var whichCommand = new StringStack(commandText).PopSpeech();
 		var locatedCommand = ch.CommandTree.Commands.LocateCommand(ch, ref whichCommand);
 		if (locatedCommand != null)
 		{

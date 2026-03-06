@@ -67,11 +67,11 @@ public class SimpleHearingProfile : HearingProfile
                 switch (command.Peek()?.ToLowerInvariant())
                 {
                         case "default":
-                                command.Pop();
+                                command.PopSpeech();
                                 return BuildingCommandDefault(actor, command);
                         case "difficulty":
                         case "diff":
-                                command.Pop();
+                                command.PopSpeech();
                                 return BuildingCommandDifficulty(actor, command);
                         default:
                                 return base.BuildingCommand(actor, command);

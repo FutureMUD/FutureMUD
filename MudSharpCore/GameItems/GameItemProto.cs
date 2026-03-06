@@ -2206,7 +2206,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return BuildingCommandRegisterDelete(actor, command);
 		}
 
-		var variableName = command.Pop();
+		var variableName = command.PopSpeech();
 		var variableType = Gameworld.VariableRegister.GetType(ProgVariableTypes.Item, variableName);
 		if (variableType == ProgVariableTypes.Error)
 		{
@@ -2250,7 +2250,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return false;
 		}
 
-		var whichVariable = command.Pop().ToLowerInvariant();
+		var whichVariable = command.PopSpeech().ToLowerInvariant();
 		if (!_defaultVariables.ContainsKey(whichVariable))
 		{
 			actor.Send("This item does not have a default register value of {0}.", whichVariable);
@@ -2287,7 +2287,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		var value = 0L;
 		if (command.Peek().EqualTo("none"))
 		{
-			command.Pop();
+			command.PopSpeech();
 			if (Morphs && _onMorphGameItemProto > 0 && command.IsFinished)
 			{
 				_onMorphGameItemProto = 0;
@@ -2299,7 +2299,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		}
 		else
 		{
-			if (!long.TryParse(command.Pop(), out value))
+			if (!long.TryParse(command.PopSpeech(), out value))
 			{
 				actor.Send(
 					$"Correct syntax is {"item set morph clear".Colour(Telnet.Yellow)} or {"item set morph <item#/none> <seconds> [<emote>]".Colour(Telnet.Yellow)}.");

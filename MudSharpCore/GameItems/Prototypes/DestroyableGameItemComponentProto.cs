@@ -192,7 +192,7 @@ public class DestroyableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!WoundExtensions.TryGetDamageType(command.Pop(), out var type))
+		if (!WoundExtensions.TryGetDamageType(command.PopSpeech(), out var type))
 		{
 			actor.Send("There is no such damage type.");
 			return false;

@@ -137,7 +137,7 @@ public class TableGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "maximumchairslots":
 			case "chairs":
@@ -204,7 +204,7 @@ public class TableGameItemComponentProto : GameItemComponentProto
 		}
 
 		var flipped = false;
-		var text = input.Pop();
+		var text = input.PopSpeech();
 		switch (text.ToLowerInvariant())
 		{
 			case "flipped":
@@ -259,7 +259,7 @@ public class TableGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_MaximumChairSlots(ICharacter actor, StringStack input)
 	{
-		var number = input.Pop();
+		var number = input.PopSpeech();
 		if (!int.TryParse(number, out var value))
 		{
 			actor.OutputHandler.Send("How many chair slots do you want this table to have?");

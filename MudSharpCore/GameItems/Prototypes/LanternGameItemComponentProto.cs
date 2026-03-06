@@ -254,7 +254,7 @@ public class LanternGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("How many lux of illumination should this lantern provide when lit?");
 			return false;

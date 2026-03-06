@@ -66,7 +66,7 @@ public class HookOnInput : HookBase, IHookWithProgs, ICommandHook, IExecuteProgH
 				}
 
 				var ss = (StringStack)(type == EventType.CommandInput ? paramList[3] : paramList[2]);
-				ss.PopAll();
+				ss.PopSpeechAll();
 
 				foreach (var prog in _futureProgs)
 				{

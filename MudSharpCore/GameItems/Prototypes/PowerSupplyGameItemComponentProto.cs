@@ -127,7 +127,7 @@ public class PowerSupplyGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("How many watts should this power supply draw when in use?");
 			return false;

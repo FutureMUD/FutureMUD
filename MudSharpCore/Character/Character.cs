@@ -2013,7 +2013,7 @@ public partial class Character : PerceiverItem, ICharacter
 	{
 		Gameworld?.LogManager.LogCharacterCommand(this, command);
 		// Handle Command Interupt hooks first
-		var cmd = new StringStack(command).Pop();
+		var cmd = new StringStack(command).PopSpeech();
 		var ss = new StringStack(command.RemoveFirstWord());
 		if (!EffectHandler.AffectedBy<IIgnoreCommandHooksEffect>())
 		{

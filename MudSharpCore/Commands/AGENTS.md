@@ -27,7 +27,12 @@ It inherits from:
 - Socials are a special type of built-in command that are like abbreviated emotes.
 - CommandManager handles the work of translating user input into an executable command
 - When you create a new command, you should always include a [HelpInfo] attribute with a default help file that explains what the command is and how to use it. There are ample examples of the way these should be laid out and structured, especially for building commands.
-- Within commands, you can use the StringStack class to help you "Pop" individual command arguments off the stack. This is the preferred way to do command interpretation. You will see some examples of Regular Expressions being used, but this is only used in some situations where there is moderately complex branching syntax where REGEX adds clarity.
+- Use StringStack as the default parser for command input.
+- Use PopSpeech() for each non-final argument by default. If optional parenthetical emotes are valid at the current position, consume them with PopParentheses() before continuing with PopSpeech().
+- Use SafeRemainingArgument for the final argument by default so quoted final arguments behave as players expect.
+- Keep RemainingArgument only when quote characters are semantically meaningful to downstream parsing (for example forwarding a command to be re-parsed, regex text, or emote markup that relies on raw quotes).
+- Avoid side-effecting pops inside LINQ predicates/selectors. Pop into a temporary variable first, or use Peek/PeekSpeech and then pop once when you intentionally advance the stack.
+- Regular expressions are allowed only when whole-input shape branching is substantially clearer than StringStack parsing.
 
 
 ## Notes

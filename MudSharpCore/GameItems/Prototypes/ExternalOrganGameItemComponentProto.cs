@@ -299,7 +299,7 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var gendering = Gendering.Get(command.Pop());
+		var gendering = Gendering.Get(command.PopSpeech());
 		if (gendering.Enum == Form.Shape.Gender.Indeterminate)
 		{
 			actor.Send("You can either set the connection type to male, female or neuter.");
@@ -335,7 +335,7 @@ public class ExternalOrganGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var gendering = Gendering.Get(command.Pop());
+		var gendering = Gendering.Get(command.PopSpeech());
 		if (gendering.Enum == Form.Shape.Gender.Indeterminate)
 		{
 			actor.Send("You can either set the connection type to male, female or neuter.");

@@ -2002,7 +2002,7 @@ All of the following commands must happen with an edited clan selected:
 	protected static void Clans(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.Pop().EqualTo("template") || ss.Last.EqualTo("templates"))
+		if (ss.PopSpeech().EqualTo("template") || ss.Last.EqualTo("templates"))
 		{
 			ClansTemplates(actor);
 			return;
@@ -3163,7 +3163,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var promoteText = command.Pop();
+		var promoteText = command.PopSpeech();
 		switch (promoteText.ToLowerInvariant())
 		{
 			case "promote":
@@ -3967,7 +3967,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var aliasText = command.Pop();
+		var aliasText = command.PopSpeech();
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("What name do you want to give to your new clan?");
@@ -4080,7 +4080,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var aliasText = command.Pop();
+		var aliasText = command.PopSpeech();
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("What name do you want to give to your new clan?");
@@ -4344,7 +4344,7 @@ Your next payday is {3}.
 		}
 
 		bool before;
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "before":
 				before = true;
@@ -4561,7 +4561,7 @@ Your next payday is {3}.
 		{
 			if (command.Peek().Equals("under", StringComparison.InvariantCultureIgnoreCase))
 			{
-				command.Pop();
+				command.PopSpeech();
 			}
 
 			var targetAppointmentText = command.PopSpeech();
@@ -4621,7 +4621,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "template":
 				ClanCreateTemplate(actor, command);
@@ -4938,7 +4938,7 @@ Your next payday is {3}.
 		}
 
 		bool before;
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "before":
 				before = true;
@@ -5003,7 +5003,7 @@ Your next payday is {3}.
 		}
 
 		bool add;
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				add = true;
@@ -5071,7 +5071,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var actionText = command.Pop().ToLowerInvariant();
+		var actionText = command.PopSpeech().ToLowerInvariant();
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which abbreviation are you referring to?");
@@ -5154,7 +5154,7 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!int.TryParse(command.Pop(), out var value2))
+				if (!int.TryParse(command.PopSpeech(), out var value2))
 				{
 					actor.OutputHandler.Send("What position do you want to move this abbreviation to?");
 					return;
@@ -5248,7 +5248,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var actionText = command.Pop().ToLowerInvariant();
+		var actionText = command.PopSpeech().ToLowerInvariant();
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which title are you referring to?");
@@ -5329,7 +5329,7 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!int.TryParse(command.Pop(), out var value2))
+				if (!int.TryParse(command.PopSpeech(), out var value2))
 				{
 					actor.OutputHandler.Send("What position do you want to move this title to?");
 					return;
@@ -5442,7 +5442,7 @@ Your next payday is {3}.
 		}
 
 		bool add;
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				add = true;
@@ -5660,7 +5660,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var actionText = command.Pop().ToLowerInvariant();
+		var actionText = command.PopSpeech().ToLowerInvariant();
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which abbreviation are you referring to?");
@@ -5746,7 +5746,7 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!int.TryParse(command.Pop(), out var value2))
+				if (!int.TryParse(command.PopSpeech(), out var value2))
 				{
 					actor.OutputHandler.Send("What position do you want to move this abbreviation to?");
 					return;
@@ -5842,7 +5842,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var actionText = command.Pop().ToLowerInvariant();
+		var actionText = command.PopSpeech().ToLowerInvariant();
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which title are you referring to?");
@@ -5926,7 +5926,7 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!int.TryParse(command.Pop(), out var value2))
+				if (!int.TryParse(command.PopSpeech(), out var value2))
 				{
 					actor.OutputHandler.Send("What position do you want to move this title to?");
 					return;
@@ -6234,7 +6234,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send(
 				"You must specify a number of simultaneous members for that appointment. Use 0 for unlimited.");
@@ -6294,7 +6294,7 @@ Your next payday is {3}.
 		}
 
 		bool add;
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				add = true;
@@ -6310,7 +6310,7 @@ Your next payday is {3}.
 		var privileges = ClanPrivilegeType.None;
 		while (!command.IsFinished)
 		{
-			var text = command.Pop();
+			var text = command.PopSpeech();
 			if (!text.TryParseEnum<ClanPrivilegeType>(out var privilege))
 			{
 				actor.OutputHandler.Send(
@@ -7051,7 +7051,7 @@ Your next payday is {3}.
 		var otherClanText = command.PopSpeech();
 
 		var maximumNumber = 1;
-		if (!command.IsFinished && (!int.TryParse(command.Pop(), out maximumNumber) || maximumNumber < 0))
+		if (!command.IsFinished && (!int.TryParse(command.PopSpeech(), out maximumNumber) || maximumNumber < 0))
 		{
 			actor.OutputHandler.Send(
 				"If you specify a maximum number of appointees for that external control, it must be a valid number.");
@@ -8329,7 +8329,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "appoint":
 				ClanVassalAppoint(actor, command);
@@ -8441,7 +8441,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"You must either specify CLEAR to clear the maximum backpay and make it uncapped, or specify a multiple of the individual's per-period pay to cap backpay at.");

@@ -88,7 +88,7 @@ public class StackableGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "decorator":
 				return BuildingCommand_Decorator(actor, command);

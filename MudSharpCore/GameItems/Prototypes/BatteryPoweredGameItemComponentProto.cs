@@ -182,7 +182,7 @@ Note:
 
 	private bool BuildingCommand_Preposition(ICharacter actor, StringStack command)
 	{
-		var preposition = command.Pop().ToLowerInvariant();
+		var preposition = command.PopSpeech().ToLowerInvariant();
 		if (string.IsNullOrEmpty(preposition))
 		{
 			actor.OutputHandler.Send("What preposition do you want to use for this battery powered item?");

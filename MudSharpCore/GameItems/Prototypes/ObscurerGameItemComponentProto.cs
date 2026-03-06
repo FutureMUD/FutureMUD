@@ -59,7 +59,7 @@ public class ObscurerGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_Add(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		ICharacteristicDefinition definition = null;
 		definition = long.TryParse(cmd, out var value)
 			? actor.Gameworld.Characteristics.Get(value)
@@ -89,7 +89,7 @@ public class ObscurerGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_Remove(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		if (string.IsNullOrEmpty(cmd))
 		{
 			actor.OutputHandler.Send("Which characteristic definition do you wish to remove?");

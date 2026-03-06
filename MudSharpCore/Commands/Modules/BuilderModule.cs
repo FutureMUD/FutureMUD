@@ -356,7 +356,7 @@ You must use one of the following subcommands of this command:
 
 	private static void Characteristic_Value(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				Characteristic_Value_Add(actor, command);
@@ -1048,7 +1048,7 @@ The syntax to use this command is as follows:
 	protected static void Tag(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 			case "new":
@@ -1414,7 +1414,7 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		var type = ss.Pop().ToLowerInvariant();
+		var type = ss.PopSpeech().ToLowerInvariant();
 		switch (type)
 		{
 			case "direct":

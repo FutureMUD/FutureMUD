@@ -865,7 +865,7 @@ Finally, you can filter the output of list by a keyword with #3list <keyword>#0.
 			listable = listableItem.GetItemType<IListable>();
 		}
 
-		actor.Send(listable.ShowList(actor, ss.RemainingArgument ?? ""));
+		actor.Send(listable.ShowList(actor, ss.SafeRemainingArgument ?? ""));
 	}
 
 	[PlayerCommand("Preview", "preview")]

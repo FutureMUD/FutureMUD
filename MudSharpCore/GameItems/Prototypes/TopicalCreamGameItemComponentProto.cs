@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -95,7 +95,7 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto {
     public override string ShowBuildingHelp => BuildingHelpText;
 
     public override bool BuildingCommand(ICharacter actor, StringStack command) {
-        switch (command.Pop().ToLowerInvariant()) {
+        switch (command.PopSpeech().ToLowerInvariant()) {
             case "quantity":
             case "weight":
                 return BuildingCommandQuantity(actor, command);
@@ -127,7 +127,7 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto {
             actor.Send("Do you want to add or remove a drug?");
             return false;
         }
-        var sub = command.Pop().ToLowerInvariant();
+        var sub = command.PopSpeech().ToLowerInvariant();
         if (sub == "add" || sub == "set") {
             if (command.IsFinished) { actor.Send("Which drug do you want to add?"); return false; }
             var drugText = command.PopSpeech();

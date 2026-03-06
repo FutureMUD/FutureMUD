@@ -291,7 +291,7 @@ public class DirectWearProfile : WearProfile
 		}
 
 		bool bValue;
-		var whichCommand = command.Pop().ToLowerInvariant();
+		var whichCommand = command.PopSpeech().ToLowerInvariant();
 		switch (whichCommand)
 		{
 			case "transparent":
@@ -301,7 +301,7 @@ public class DirectWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -320,7 +320,7 @@ public class DirectWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -337,7 +337,7 @@ public class DirectWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -353,7 +353,7 @@ public class DirectWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -374,7 +374,7 @@ public class DirectWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");

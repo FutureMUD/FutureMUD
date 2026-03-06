@@ -293,9 +293,10 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(command.PopSpeech())) ??
+		var locationText = command.PopSpeech();
+		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(locationText)) ??
 		            Locations.FirstOrDefault(x =>
-			            x.Name.StartsWith(command.PopSpeech(), StringComparison.InvariantCultureIgnoreCase));
+			            x.Name.StartsWith(locationText, StringComparison.InvariantCultureIgnoreCase));
 		if (which is null)
 		{
 			actor.OutputHandler.Send("There is no such starting location.");

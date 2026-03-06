@@ -150,9 +150,9 @@ The syntax to edit roles is as follows:
 		}
 
 		target.OutputHandler.Send(
-			$"{(actor.AffectedBy<IAdminAvailableEffect>() || target.IsAdministrator() ? string.Format("[From {1}{0}]", actor.Account.Name.TitleCase(), actor.PermissionLevel > PermissionLevel.Guide ? "" : "Player Guide ").Colour(Telnet.Green) : (actor.PermissionLevel > PermissionLevel.Guide ? "[Staff Member]" : "[Player Guide]").Colour(Telnet.Green))} {ss.RemainingArgument.ProperSentences().Fullstop()}");
+			$"{(actor.AffectedBy<IAdminAvailableEffect>() || target.IsAdministrator() ? string.Format("[From {1}{0}]", actor.Account.Name.TitleCase(), actor.PermissionLevel > PermissionLevel.Guide ? "" : "Player Guide ").Colour(Telnet.Green) : (actor.PermissionLevel > PermissionLevel.Guide ? "[Staff Member]" : "[Player Guide]").Colour(Telnet.Green))} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}");
 		actor.OutputHandler.Send(
-			$"{$"[Sent to {(actor.PermissionLevel > PermissionLevel.Guide ? target.PersonalName.GetName(NameStyle.SimpleFull) : target.Account.Name.TitleCase())}]".Colour(Telnet.Magenta)} {ss.RemainingArgument.ProperSentences().Fullstop()}");
+			$"{$"[Sent to {(actor.PermissionLevel > PermissionLevel.Guide ? target.PersonalName.GetName(NameStyle.SimpleFull) : target.Account.Name.TitleCase())}]".Colour(Telnet.Magenta)} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}");
 	}
 
 	[PlayerCommand("Applications", "applications", "apps")]
@@ -192,7 +192,7 @@ The syntax to edit roles is as follows:
 	protected static void Application(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "view":
 			case "show":
@@ -202,7 +202,7 @@ The syntax to edit roles is as follows:
 				ApplicationReview(character, ss);
 				break;
 			case "list":
-				Applications(character, ss.RemainingArgument);
+				Applications(character, ss.SafeRemainingArgument);
 				break;
 			default:
 				character.OutputHandler.Send("You must specify either view or review to the application command.");
@@ -214,7 +214,7 @@ The syntax to edit roles is as follows:
 	{
 		using (new FMDB())
 		{
-			var cmd = command.Pop();
+			var cmd = command.PopSpeech();
 			var applications =
 				FMDB.Context.Chargens.Where(x => x.Status == (int)CharacterStatus.Submitted).ToList();
 			Chargen chargen = null;
@@ -238,7 +238,7 @@ The syntax to edit roles is as follows:
 	{
 		using (new FMDB())
 		{
-			var cmd = command.Pop();
+			var cmd = command.PopSpeech();
 			var applications =
 				FMDB.Context.Chargens.Where(x => x.Status == (int)CharacterStatus.Submitted).ToList();
 			Chargen chargen = null;

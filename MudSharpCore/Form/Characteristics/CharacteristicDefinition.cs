@@ -129,7 +129,7 @@ public class CharacteristicDefinition : FrameworkItem, ICharacteristicDefinition
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "name":
 				var newname = command.PopSpeech();

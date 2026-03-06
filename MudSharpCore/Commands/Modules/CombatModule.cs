@@ -89,7 +89,7 @@ The syntax is:
 
 		bool offense = false, defense = false;
 		var degrees = 0;
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "offense":
 				offense = true;
@@ -99,7 +99,7 @@ The syntax is:
 					return;
 				}
 
-				if (!int.TryParse(ss.Pop(), out degrees) || degrees < 0 || degrees > 10)
+				if (!int.TryParse(ss.PopSpeech(), out degrees) || degrees < 0 || degrees > 10)
 				{
 					actor.Send("You must set a valid number of degrees. Minimum 0, maximum 10.");
 					return;
@@ -114,7 +114,7 @@ The syntax is:
 					return;
 				}
 
-				if (!int.TryParse(ss.Pop(), out degrees) || degrees < 0 || degrees > 10)
+				if (!int.TryParse(ss.PopSpeech(), out degrees) || degrees < 0 || degrees > 10)
 				{
 					actor.Send("You must set a valid number of degrees. Minimum 0, maximum 10.");
 					return;
@@ -233,7 +233,7 @@ You can use the command in one of three ways:
 			return;
 		}
 
-		var targetExit = actor.Location.GetExitKeyword(ss.Pop(), actor);
+		var targetExit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
 		if (targetExit == null)
 		{
 			actor.OutputHandler.Send("There is no exit in that direction.");
@@ -473,7 +473,7 @@ The syntax is one of the following:
 		}
 
 		var desiredStrategy = CombatStrategyMode.GrappleForControl;
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "kill":
 			case "strangle":
@@ -1116,7 +1116,7 @@ The syntax is #3rescue <target>#0 or #3rescue none#0 to stop trying to rescue th
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anybody like that to rescue.");
@@ -1254,7 +1254,7 @@ Similarly to reverse the above you can use the following:
 		}
 
 		// Clearing Guard
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 		if (targetText.EqualTo("clear") || targetText.EqualTo("none") || targetText.EqualTo("off") ||
 			targetText.EqualTo("self") || targetText.EqualTo("me"))
 		{
@@ -1602,7 +1602,7 @@ The syntax for this command is #3spar <target>#0.", AutoHelp.HelpArgOrNoArg)]
 			return;
 		}
 
-		var target = actor.Target(ss.Pop());
+		var target = actor.Target(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone or anything like that to spar.");
@@ -1677,7 +1677,7 @@ The syntax for this command is #3support <target>#0.", AutoHelp.HelpArgOrNoArg)]
 			return;
 		}
 
-		var target = actor.TargetAlly(ss.Pop()) ?? actor.TargetActor(ss.Last);
+		var target = actor.TargetAlly(ss.PopSpeech()) ?? actor.TargetActor(ss.Last);
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to support.");
@@ -1855,7 +1855,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 		if (ss.Peek().StartsWith("permanent", StringComparison.InvariantCultureIgnoreCase))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			IFutureProg prog = null;
 			if (!ss.IsFinished)
 			{
@@ -2629,7 +2629,7 @@ The syntax is as follows:
 		targets.AddRange(actor.Location.LayerGameItems(actor.RoomLayer)
 							  .Where(x => x.GetItemType<IProvideCover>()?.Cover != null));
 		targets.AddRange(actor.Location.GetCoverFor(actor));
-		var target = targets.GetFromItemListByKeyword(ss.Pop(), actor);
+		var target = targets.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		if (target == null)
 		{
 			actor.Send("You don't see any cover like that nearby.");
@@ -2699,7 +2699,7 @@ The syntax is as follows:
 		var target = actor.CombatTarget as ICharacter;
 		if (!ss.IsFinished)
 		{
-			var keyword = ss.Pop();
+			var keyword = ss.PopSpeech();
 			target = actor.Combat.Friendly ? actor.TargetActor(keyword) : actor.TargetNonAlly(keyword);
 		}
 
@@ -2752,7 +2752,7 @@ The syntax is as follows:
 		var target = actor.CombatTarget as ICharacter;
 		if (!ss.IsFinished)
 		{
-			var keyword = ss.Pop();
+			var keyword = ss.PopSpeech();
 			target = actor.Combat.Friendly ? actor.TargetActor(keyword) : actor.TargetNonAlly(keyword);
 		}
 
@@ -3006,7 +3006,7 @@ The syntax for this command is as follows:
 	{
 		if (!command.IsFinished && actor.IsAdministrator())
 		{
-			var target = actor.TargetActor(command.Pop());
+			var target = actor.TargetActor(command.PopSpeech());
 			if (target == null)
 			{
 				actor.Send("You don't see anyone like that to view their combat status.");
@@ -3873,7 +3873,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		actor.CombatSettings.ClearClassifications();
 		while (!command.IsFinished)
 		{
-			var cmd = command.Pop();
+			var cmd = command.PopSpeech();
 			if (!classifications.Any(x => x.Describe().Equals(cmd, StringComparison.InvariantCultureIgnoreCase)))
 			{
 				actor.CombatSettings.ClearClassifications();

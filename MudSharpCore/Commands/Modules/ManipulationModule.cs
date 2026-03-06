@@ -100,7 +100,7 @@ You can also use this command to remove similarly large items from containers. I
 			return;
 		}
 
-		var targetItem = actor.TargetLocalItem(ss.Pop());
+		var targetItem = actor.TargetLocalItem(ss.PopSpeech());
 		if (targetItem == null)
 		{
 			actor.Send("You don't see anything like that to haul anywhere.");
@@ -113,7 +113,7 @@ You can also use this command to remove similarly large items from containers. I
 			return;
 		}
 
-		var targetContainer = actor.TargetLocalItem(ss.Pop());
+		var targetContainer = actor.TargetLocalItem(ss.PopSpeech());
 		if (targetContainer == null)
 		{
 			actor.Send("You don't see any container like that to haul anything into.");
@@ -281,7 +281,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that.");
@@ -395,14 +395,14 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 
 		if (ss.Peek().EqualTo("aid") || ss.Peek().EqualTo("help"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			if (ss.IsFinished)
 			{
 				actor.Send("Who would you like to help to drag something?");
 				return;
 			}
 
-			var help = actor.TargetActor(ss.Pop());
+			var help = actor.TargetActor(ss.PopSpeech());
 			if (help == null)
 			{
 				actor.Send("There is nobody like that here who you can help to drag something.");
@@ -425,7 +425,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 
 			if (ss.Peek().EqualTo("by"))
 			{
-				ss.Pop();
+				ss.PopSpeech();
 				if (ss.IsFinished)
 				{
 					actor.Send($"Help {help.HowSeen(actor)} to drag {drag.Target.HowSeen(actor)} by what?");
@@ -436,7 +436,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 				if (tChar != null)
 				{
 					var item = tChar.Body.WornItems.Concat(tChar.Body.Wounds.Select(x => x.Lodged))
-					                .GetFromItemListByKeyword(ss.Pop(), actor);
+					                .GetFromItemListByKeyword(ss.PopSpeech(), actor);
 					if (item == null)
 					{
 						actor.Send(
@@ -462,7 +462,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 				else
 				{
 					var tItem = drag.Target as IGameItem;
-					var item = tItem.AttachedAndConnectedItems.GetFromItemListByKeyword(ss.Pop(), actor);
+					var item = tItem.AttachedAndConnectedItems.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 					if (item == null)
 					{
 						actor.Send(
@@ -493,7 +493,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 			return;
 		}
 
-		var target = actor.TargetLocal(ss.Pop());
+		var target = actor.TargetLocal(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything or anyone like that to drag.");
@@ -514,7 +514,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 
 		if (ss.Peek().EqualTo("by"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			if (ss.IsFinished)
 			{
 				actor.Send($"Drag {target.HowSeen(actor)} by what?");
@@ -525,7 +525,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 			if (tChar != null)
 			{
 				var item = tChar.Body.WornItems.Concat(tChar.Body.Wounds.Select(x => x.Lodged))
-				                .GetFromItemListByKeyword(ss.Pop(), actor);
+				                .GetFromItemListByKeyword(ss.PopSpeech(), actor);
 				if (item == null)
 				{
 					actor.Send(
@@ -544,7 +544,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 			else
 			{
 				var tItem = target as IGameItem;
-				var item = tItem.AttachedAndConnectedItems.GetFromItemListByKeyword(ss.Pop(), actor);
+				var item = tItem.AttachedAndConnectedItems.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 				if (item == null)
 				{
 					actor.Send(
@@ -729,7 +729,7 @@ The syntax is #3flip <item>#0 or #3flip coin#0. You must be holding a single coi
 
 		if (ss.Peek().EqualTo("coin"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			var currency = actor.Body.HeldOrWieldedItems
 								.SelectNotNull(x => x.GetItemType<ICurrencyPile>())
 								.FirstOrDefault(x => x.Coins.Count() == 1 && x.Coins.First().Item2 == 1 && x.Coins.First().Item1.GeneralForm.EqualTo("coin")) ??
@@ -804,7 +804,7 @@ The syntax is #3flip <item>#0 or #3flip coin#0. You must be holding a single coi
 			return;
 		}
 
-		var target = actor.TargetLocalItem(ss.Pop());
+		var target = actor.TargetLocalItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that to flip.");
@@ -2898,7 +2898,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = character.TargetHeldItem(ss.Pop());
+		var target = character.TargetHeldItem(ss.PopSpeech());
 		if (target == null)
 		{
 			character.Send("You do not see anything like that to smoke.");
@@ -2939,7 +2939,7 @@ The syntax is as follows:
                         return;
                 }
 
-                var target = character.TargetHeldItem(ss.Pop());
+                var target = character.TargetHeldItem(ss.PopSpeech());
                 if (target == null)
                 {
                         character.Send("You do not see anything like that to puff.");
@@ -2981,14 +2981,14 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = character.TargetItem(ss.Pop());
+		var target = character.TargetItem(ss.PopSpeech());
 		if (target == null)
 		{
 			character.Send("You do not see that to light.");
 			return;
 		}
 
-		var ignitionText = ss.Pop();
+		var ignitionText = ss.PopSpeech();
 		var ignition = character.Target(ignitionText);
 		if (ignition == null && !string.IsNullOrEmpty(ignitionText))
 		{
@@ -3038,7 +3038,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = character.TargetItem(ss.Pop());
+		var target = character.TargetItem(ss.PopSpeech());
 		if (target == null)
 		{
 			character.Send("You do not see that to extinguish.");
@@ -3085,7 +3085,7 @@ The syntax is as follows:
 
 		IDoor openable = null;
 
-		var targetExit = exits.GetFromItemListByKeyword(ss.Pop(), character);
+		var targetExit = exits.GetFromItemListByKeyword(ss.PopSpeech(), character);
 		if (targetExit != null)
 		{
 			if (targetExit.Exit.Door == null)
@@ -3146,7 +3146,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var installText = ss.Pop();
+		var installText = ss.PopSpeech();
 		if (ss.IsFinished)
 		{
 			character.Send("Where do you want to install that?");
@@ -3307,7 +3307,7 @@ The syntax is as follows:
 		ICell openDirection = null;
 		if (!ss.IsFinished)
 		{
-			switch (ss.Pop().ToLowerInvariant())
+			switch (ss.PopSpeech().ToLowerInvariant())
 			{
 				case "inwards":
 					openDirection = exit.Origin;
@@ -3388,7 +3388,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 		IGameItem targetItem = null;
 		var exit = character.Location.ExitsFor(character).GetFromItemListByKeyword(targetText, character);
 		if (exit == null)
@@ -3449,7 +3449,7 @@ The syntax is as follows:
 		}
 		else
 		{
-			var targetLock = lockable.Locks.Select(x => x.Parent).GetFromItemListByKeyword(ss.Pop(), character);
+			var targetLock = lockable.Locks.Select(x => x.Parent).GetFromItemListByKeyword(ss.PopSpeech(), character);
 			if (targetLock == null)
 			{
 				character.Send("{0} does not have any such lock for you to uninstall.",
@@ -3655,7 +3655,7 @@ The syntax is as follows:
 		}
 
 		var ss = new StringStack(command);
-		var junkCmd = ss.Pop();
+		var junkCmd = ss.PopSpeech();
 		if (!junkCmd.EqualTo("junk"))
 		{
 			character.Send(
@@ -3909,7 +3909,7 @@ The syntax is as follows:
 	protected static void Attach(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 
 		var targetItem = actor.TargetHeldItem(cmd);
 		if (targetItem == null)
@@ -3931,7 +3931,7 @@ The syntax is as follows:
 			return;
 		}
 
-		cmd = ss.Pop();
+		cmd = ss.PopSpeech();
 		if (string.IsNullOrEmpty(cmd))
 		{
 			actor.Send("What is it that you want to attach {0} to?", targetItem.HowSeen(actor));
@@ -4221,7 +4221,7 @@ The syntax is as follows:
 	protected static void Detach(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 
 		var targetBelt = actor.TargetItem(cmd);
 		if (targetBelt?.GetItemType<IBelt>() == null)
@@ -4242,7 +4242,7 @@ The syntax is as follows:
 					           .GetFromItemListByKeyword(ss.Peek(), actor);
 				if (targetBelt != null)
 				{
-					ss.Pop();
+					ss.PopSpeech();
 					DetachProsthetic(actor, targetActor, targetBelt.GetItemType<IProsthetic>(), ss);
 					return;
 				}
@@ -4259,7 +4259,7 @@ The syntax is as follows:
 			return;
 		}
 
-		cmd = ss.Pop();
+		cmd = ss.PopSpeech();
 		if (string.IsNullOrEmpty(cmd))
 		{
 			actor.Send("What is it that you want to detach from {0}?", targetBelt.HowSeen(actor));
@@ -5040,7 +5040,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "set":
 				LockSmithSet(actor, ss);
@@ -5075,7 +5075,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var target1 = actor.TargetItem(ss.Pop());
+		var target1 = actor.TargetItem(ss.PopSpeech());
 		if (target1 == null)
 		{
 			actor.Send("You do not see anything like that to connect.");
@@ -5096,7 +5096,7 @@ The syntax for this command is as follows:
 		}
 
 		ICharacter targetActor = null;
-		var target2 = actor.TargetItem(ss.Pop());
+		var target2 = actor.TargetItem(ss.PopSpeech());
 		if (target2 == null)
 		{
 			targetActor = actor.TargetActor(ss.Last);
@@ -5293,7 +5293,7 @@ The syntax for this command is as follows:
 		}
 
 		var argSS = new StringStack(argumentText);
-		argSS.PopAll();
+		argSS.PopSpeechAll();
 
 		IEnumerable<ISelectable> selectables;
 		ISelectable selectable;
@@ -5962,8 +5962,8 @@ The syntax is as follows:
 			return;
 		}
 
-		var targetName = ss.Pop();
-		var lockName = ss.IsFinished ? string.Empty : ss.Pop();
+		var targetName = ss.PopSpeech();
+		var lockName = ss.IsFinished ? string.Empty : ss.PopSpeech();
 
 		var target = actor.TargetItem(targetName);
 		if (target == null)
@@ -6101,7 +6101,7 @@ The syntax is as follows:
 		}
 
 		var targetName = ss.PopSpeech();
-		var lockName = ss.IsFinished ? string.Empty : ss.Pop();
+		var lockName = ss.IsFinished ? string.Empty : ss.PopSpeech();
 
 		var target = actor.TargetItem(targetName);
 		if (target == null)
@@ -6369,7 +6369,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = actor.TargetHeldItem(ss.Pop());
+		var target = actor.TargetHeldItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that to sharpen.");
@@ -6382,7 +6382,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var sharpener = actor.TargetItem(ss.Pop());
+		var sharpener = actor.TargetItem(ss.PopSpeech());
 		if (sharpener == null)
 		{
 			actor.Send("You don't see anything like that with which to sharpen {0}.", target.HowSeen(actor));

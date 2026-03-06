@@ -261,7 +261,7 @@ The syntax is as follows:
 		var subtleSneak = false;
 		if (!ss.IsFinished)
 		{
-			if (ss.Pop().EqualTo("subtle"))
+			if (ss.PopSpeech().EqualTo("subtle"))
 			{
 				subtleSneak = true;
 			}

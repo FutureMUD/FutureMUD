@@ -95,7 +95,7 @@ public class ChangerGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_SetValue(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		ICharacteristicDefinition definition = null;
 		definition = actor.Gameworld.Characteristics.GetByIdOrName(cmd);
 
@@ -105,7 +105,7 @@ public class ChangerGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		cmd = command.Pop().ToLowerInvariant();
+		cmd = command.PopSpeech().ToLowerInvariant();
 		var cvalue = actor.Gameworld.CharacteristicValues.GetByIdOrName(cmd);
 
 		if (cvalue == null)
@@ -129,7 +129,7 @@ public class ChangerGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_RemoveValue(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		if (string.IsNullOrEmpty(cmd))
 		{
 			actor.OutputHandler.Send("Which characteristic definition do you wish to remove?");
@@ -158,7 +158,7 @@ public class ChangerGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		switch (cmd)
 		{
 			case "target":

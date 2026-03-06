@@ -100,7 +100,7 @@ See also the closely related #6hook#0 and #6events#0 areas for some further supp
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "edit":
 				ProgEdit(actor, ss);
@@ -1460,7 +1460,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var prog = long.TryParse(command.Pop(), out var value)
+		var prog = long.TryParse(command.PopSpeech(), out var value)
 			? actor.Gameworld.FutureProgs.Get(value)
 			: actor.Gameworld.FutureProgs.Get(command.Last).FirstOrDefault();
 
@@ -1495,7 +1495,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		var newName = $"{prog.FunctionName}clone";
 		if (!command.IsFinished)
 		{
-			newName = command.Pop();
+			newName = command.PopSpeech();
 			if (
 				actor.Gameworld.FutureProgs.Any(
 					x => x.FunctionName.Equals(newName, StringComparison.InvariantCultureIgnoreCase)))
@@ -1541,11 +1541,11 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 	private static void ProgEditNew(ICharacter actor, StringStack command)
 	{
-		command.Pop();
+		command.PopSpeech();
 		var newName = "Unnamed";
 		if (!command.IsFinished)
 		{
-			newName = command.Pop();
+			newName = command.PopSpeech();
 			if (
 				actor.Gameworld.FutureProgs.Any(
 					x => x.FunctionName.Equals(newName, StringComparison.InvariantCultureIgnoreCase)))
@@ -1603,7 +1603,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		var newName = "Unnamed";
 		if (!command.IsFinished)
 		{
-			newName = command.Pop();
+			newName = command.PopSpeech();
 			if (
 				actor.Gameworld.FutureProgs.Any(
 					x => x.FunctionName.Equals(newName, StringComparison.InvariantCultureIgnoreCase)))
@@ -1676,7 +1676,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				ProgParameterAdd(actor, prog, command);
@@ -1709,7 +1709,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var parameterName = command.Pop();
+		var parameterName = command.PopSpeech();
 		if (prog.NamedParameters.Any(x => x.Item2.Equals(parameterName, StringComparison.InvariantCultureIgnoreCase)))
 		{
 			actor.OutputHandler.Send(
@@ -1755,7 +1755,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var parameterName = command.Pop();
+		var parameterName = command.PopSpeech();
 		if (
 			!prog.NamedParameters.Any(
 				x => x.Item2.Equals(parameterName, StringComparison.InvariantCultureIgnoreCase)))
@@ -1789,7 +1789,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var parameterName1 = command.Pop();
+		var parameterName1 = command.PopSpeech();
 		if (
 			!prog.NamedParameters.Any(
 				x => x.Item2.Equals(parameterName1, StringComparison.InvariantCultureIgnoreCase)))
@@ -1804,7 +1804,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var parameterName2 = command.Pop();
+		var parameterName2 = command.PopSpeech();
 		if (
 			!prog.NamedParameters.Any(
 				x => x.Item2.Equals(parameterName2, StringComparison.InvariantCultureIgnoreCase)))
@@ -1842,7 +1842,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var progName = command.Pop();
+		var progName = command.PopSpeech();
 		if (
 			actor.Gameworld.FutureProgs.Any(
 				x => x.FunctionName.Equals(progName, StringComparison.InvariantCultureIgnoreCase)))
@@ -1865,7 +1865,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		prog.Category = command.Pop().Proper();
+		prog.Category = command.PopSpeech().Proper();
 		prog.Changed = true;
 		actor.OutputHandler.Send(
 			$"You set the category for prog {prog.MXPClickableFunctionNameWithId()} to {prog.Category}.");
@@ -1879,7 +1879,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		prog.Subcategory = command.Pop().Proper();
+		prog.Subcategory = command.PopSpeech().Proper();
 		prog.Changed = true;
 		actor.OutputHandler.Send(
 			$"You set the subcategory for prog {prog.MXPClickableFunctionNameWithId()} to {prog.Subcategory.ColourValue()}.");
@@ -2000,7 +2000,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		switch (command.Pop())
+		switch (command.PopSpeech())
 		{
 			case "name":
 				ProgSetName(actor, command, prog);
@@ -2126,7 +2126,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 			return;
 		}
 
-		var variableName = ss.Pop().ToLowerInvariant();
+		var variableName = ss.PopSpeech().ToLowerInvariant();
 
 		if (ss.IsFinished)
 		{
@@ -2239,7 +2239,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 			return;
 		}
 
-		var variableName = input.Pop().ToLowerInvariant();
+		var variableName = input.PopSpeech().ToLowerInvariant();
 		if (!actor.Gameworld.VariableRegister.IsRegistered(type, variableName))
 		{
 			actor.OutputHandler.Send(
@@ -2288,7 +2288,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 			return;
 		}
 
-		var variableName = ss.Pop().ToLowerInvariant();
+		var variableName = ss.PopSpeech().ToLowerInvariant();
 		if (actor.Gameworld.VariableRegister.DeregisterVariable(type, variableName))
 		{
 			actor.Send(
@@ -2422,7 +2422,7 @@ You can use the following filters with #3hook list#0:
 			return;
 		}
 
-		var command = ss.Pop();
+		var command = ss.PopSpeech();
 		chook.CommandText = command;
 		chook.Changed = true;
 		actor.OutputHandler.Send($"The {hook.Name.ColourName()} hook will now execute from the {command.ColourCommand()} command.");
@@ -2630,7 +2630,7 @@ You can use the following filters with #3hook list#0:
 					return;
 				}
 
-				var newHook = new HookOnInput(name, ss.Pop(), actor.Gameworld, whichEvent, prog);
+				var newHook = new HookOnInput(name, ss.PopSpeech(), actor.Gameworld, whichEvent, prog);
 				actor.Send($"You create command hook #{newHook.Id.ToString("N0", actor)} \"{name.ColourName()}\".");
 				return;
 		}

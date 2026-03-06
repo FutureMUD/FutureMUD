@@ -73,7 +73,7 @@ public abstract class GameItemGroupForm : SaveableItem, IGameItemGroupForm
 			return;
 		}
 
-		if (!long.TryParse(command.Pop(), out var value))
+		if (!long.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"What is the ID number of the cell that you wish to add to or remove from this Item Group Form?");

@@ -39,7 +39,7 @@ public class VariableChangerGameItemComponentProto : VariableGameItemComponentPr
 	{
 		if (command.Peek().ToLowerInvariant() == "target")
 		{
-			command.Pop();
+			command.PopSpeech();
 			var arg = command.PopSpeech().ToLowerInvariant();
 			if (arg.Length == 0)
 			{

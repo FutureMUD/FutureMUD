@@ -911,7 +911,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("You must enter a number weighting for this gender.");
 			return false;
@@ -1192,13 +1192,13 @@ public class VariableNPCTemplate : NPCTemplateBase
 
 	private bool BuildingCommandAge(ICharacter actor, StringStack command)
 	{
-		if (!int.TryParse(command.Pop(), out var minAge))
+		if (!int.TryParse(command.PopSpeech(), out var minAge))
 		{
 			actor.OutputHandler.Send("You must enter a minimum age for this NPC.");
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var maxAge))
+		if (!int.TryParse(command.PopSpeech(), out var maxAge))
 		{
 			actor.OutputHandler.Send("You must enter a maximum age for this NPC.");
 			return false;
@@ -1259,7 +1259,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 
 	private bool BuildingCommandAttributeTotal(ICharacter actor, StringStack command)
 	{
-		if (!int.TryParse(command.Pop(), out var total))
+		if (!int.TryParse(command.PopSpeech(), out var total))
 		{
 			actor.OutputHandler.Send(
 				"You must either enter a number to be the attribute total for this NPC, or 0 to clear it and use the race's default.");
@@ -1334,7 +1334,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			return true;
 		}
 
-		if (!long.TryParse(command.Pop(), out var value))
+		if (!long.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("You must enter the ID of a description pattern you'd like to use.");
 			return false;
@@ -1376,7 +1376,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			return true;
 		}
 
-		if (!long.TryParse(command.Pop(), out var value))
+		if (!long.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("You must enter the ID of a description pattern you'd like to use.");
 			return false;
@@ -1434,13 +1434,13 @@ public class VariableNPCTemplate : NPCTemplateBase
 			return true;
 		}
 
-		if (!double.TryParse(command.Pop(), out var mean))
+		if (!double.TryParse(command.PopSpeech(), out var mean))
 		{
 			actor.OutputHandler.Send("You must enter a mean (average) value for this skill to be given to this NPC.");
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var stddev))
+		if (!double.TryParse(command.PopSpeech(), out var stddev))
 		{
 			actor.OutputHandler.Send(
 				$"You must enter a standard deviation value for this skill. Based on your average, a suggested value for standard deviation is {(mean * 0.05).ToString("N2", actor).ColourValue()}.");

@@ -88,7 +88,7 @@ public class CommandHelpInfo : ICommandHelpInfo
 			return ShowHelp(argument, outputHandler);
 		}
 
-		var firstArg = ss.Pop();
+		var firstArg = ss.PopSpeech();
 		if ((AutoHelpSetting == AutoHelp.HelpArg || AutoHelpSetting == AutoHelp.HelpArgOrNoArg) &&
 		    ss.IsFinished && (firstArg == "help" || firstArg == "?"))
 		{

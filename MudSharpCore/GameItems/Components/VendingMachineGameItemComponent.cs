@@ -139,7 +139,7 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "currency":
 				VendingMachineCommandCurrency(character, command);

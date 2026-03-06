@@ -351,7 +351,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var target = actor.TargetHeldItem(ss.Pop());
+		var target = actor.TargetHeldItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You aren't holding anything like that to see your attacks with.");
@@ -392,14 +392,14 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 
 		if (ss.Peek().EqualTo("in"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			if (ss.IsFinished)
 			{
 				actor.OutputHandler.Send("Check for keywords in what container?");
 				return;
 			}
 
-			var target = actor.TargetItem(ss.Pop());
+			var target = actor.TargetItem(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You don't see anything like that to check keywords in.");
@@ -661,9 +661,9 @@ The syntax for this command is as follows:
 	protected static void Petition(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 
-		var petitionText = ss.RemainingArgument.ProperSentences().Fullstop();
+		var petitionText = ss.SafeRemainingArgument.ProperSentences().Fullstop();
 		if (petitionText.Length > 350)
 		{
 			actor.Send("You cannot petition that much text at once. Please keep it under 350 characters.");
@@ -674,7 +674,7 @@ The syntax for this command is as follows:
 		{
 			var staff = actor.Gameworld.Actors.Where(x => x.IsAdministrator() || x.AffectedBy<Switched>()).ToList();
 			staff.Handle(
-				$"{$"[Petition: {actor.PersonalName.GetName(NameStyle.FullName)} ({actor.Account.Name.TitleCase()})]".Colour(Telnet.Cyan)} {ss.RemainingArgument.ProperSentences().Fullstop()}");
+				$"{$"[Petition: {actor.PersonalName.GetName(NameStyle.FullName)} ({actor.Account.Name.TitleCase()})]".Colour(Telnet.Cyan)} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}");
 			actor.OutputHandler.Send(("You petition to all staff: " + petitionText).Wrap(actor.InnerLineFormatLength));
 			if (!staff.Any())
 			{
@@ -699,7 +699,7 @@ The syntax for this command is as follows:
 			}
 
 			actor.Gameworld.Actors.Where(x => x.PermissionLevel >= PermissionLevel.Guide || x.AffectedBy<Switched>()).Handle(
-				$"{$"[Guide Petition: {actor.Account.Name.TitleCase()}]".Colour(Telnet.Cyan)} {ss.RemainingArgument.ProperSentences().Fullstop()}");
+				$"{$"[Guide Petition: {actor.Account.Name.TitleCase()}]".Colour(Telnet.Cyan)} {ss.SafeRemainingArgument.ProperSentences().Fullstop()}");
 			actor.OutputHandler.Send("You petition to all guides and staff: " + petitionText);
 		}
 		else
@@ -718,7 +718,7 @@ The syntax for this command is as follows:
 
 			target.Send("{0} {1}",
 				$"[Direct Petition: {actor.PersonalName.GetName(NameStyle.FullName)}]".Colour(Telnet.Cyan),
-				ss.RemainingArgument.ProperSentences().Fullstop());
+				ss.SafeRemainingArgument.ProperSentences().Fullstop());
 			actor.Send("You petition to {0}: {1}", target.Account.Name.TitleCase(), petitionText.Fullstop());
 		}
 	}
@@ -911,7 +911,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Teach(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see that person to teach.");
@@ -1122,7 +1122,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
 			return;
 		}
 
-		if (!new StringStack(input).Pop().Equals("quit", StringComparison.InvariantCultureIgnoreCase))
+		if (!new StringStack(input).PopSpeech().Equals("quit", StringComparison.InvariantCultureIgnoreCase))
 		{
 			actor.Send("You must type out the entire word {0} to quit.", "quit".Colour(Telnet.Yellow));
 			return;
@@ -1188,14 +1188,14 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 		{
 			if (ss.Peek().Equals("into", StringComparison.InvariantCultureIgnoreCase))
 			{
-				ss.Pop();
+				ss.PopSpeech();
 				if (ss.IsFinished)
 				{
 					actor.Send("Into what container do you want to forage for items?");
 					return;
 				}
 
-				targetContainer = actor.TargetItem(ss.Pop());
+				targetContainer = actor.TargetItem(ss.PopSpeech());
 				if (targetContainer == null)
 				{
 					actor.Send("There is no such container into which you can forage.");
@@ -1457,7 +1457,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 			return;
 		}
 
-		if (ss.Pop().EqualTo("all"))
+		if (ss.PopSpeech().EqualTo("all"))
 		{
 			CleanAll(actor, false);
 			return;
@@ -1485,7 +1485,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 	protected static void Accept(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 		if ("accept".StartsWith(cmd, StringComparison.InvariantCultureIgnoreCase))
 		{
 			cmd = "accept";
@@ -1602,7 +1602,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
 	private static void ProposalKeyword(ICharacter actor, StringStack ss, string action)
 	{
-		var item = actor.EffectsOfType<IProposalEffect>().GetFromItemListByKeyword(ss.Pop(), actor);
+		var item = actor.EffectsOfType<IProposalEffect>().GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		if (item == null)
 		{
 			actor.OutputHandler.Send("You have no such pending transaction.");

@@ -146,7 +146,7 @@ public class WearableGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant().CollapseString())
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
 		{
 			case "default":
 				return BuildingCommand_Default(actor, command);
@@ -416,7 +416,7 @@ It has a layer weight of {9}.",
 
 	private bool BuildingCommand_Default(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		if (cmd.Length == 0)
 		{
 			actor.OutputHandler.Send("Which wear profile do you wish to set as default?");
@@ -448,7 +448,7 @@ It has a layer weight of {9}.",
 
 	private bool BuildingCommand_Add(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		if (cmd.Length == 0)
 		{
 			actor.OutputHandler.Send("Which wear profile do you wish to add?");
@@ -485,7 +485,7 @@ It has a layer weight of {9}.",
 
 	private bool BuildingCommand_Remove(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		if (cmd.Length == 0)
 		{
 			actor.OutputHandler.Send("Which wear profile do you wish to remove?");

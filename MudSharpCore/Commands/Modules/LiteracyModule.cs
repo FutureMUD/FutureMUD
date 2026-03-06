@@ -65,7 +65,7 @@ For graffiti, see the #3look#0 command instead.", AutoHelp.HelpArgOrNoArg)]
 			return;
 		}
 
-		var target = actor.TargetItem(ss.Pop());
+		var target = actor.TargetItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that to read.");
@@ -122,7 +122,7 @@ For graffiti, see the #3look#0 command instead.", AutoHelp.HelpArgOrNoArg)]
 			return;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var value))
+		if (!int.TryParse(ss.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"If you specify an additional argument for read, it must be the number of the writing or drawing on that item that you wish to view.");

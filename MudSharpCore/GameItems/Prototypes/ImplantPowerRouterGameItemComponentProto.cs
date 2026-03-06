@@ -274,9 +274,9 @@ public class ImplantPowerRouterGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var body = long.TryParse(command.RemainingArgument, out var value)
+		var body = long.TryParse(command.SafeRemainingArgument, out var value)
 			? Gameworld.BodyPrototypes.Get(value)
-			: Gameworld.BodyPrototypes.GetByName(command.RemainingArgument);
+			: Gameworld.BodyPrototypes.GetByName(command.SafeRemainingArgument);
 		if (body == null)
 		{
 			actor.Send("There is no body prototype like that.");

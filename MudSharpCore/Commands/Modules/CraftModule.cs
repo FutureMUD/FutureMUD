@@ -45,7 +45,7 @@ internal class CraftModule : Module<ICharacter>
 		while (!ss.IsFinished)
 		{
 			parameters = true;
-			var arg = ss.Pop();
+			var arg = ss.PopSpeech();
 			if (arg[0] == '+')
 			{
 				crafts = crafts
@@ -267,7 +267,7 @@ The full list of filters for craft list is below:
 	protected static void Craft(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "begin":
 			case "start":
@@ -1061,7 +1061,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		var target = actor.TargetLocalItem(ss.Pop());
+		var target = actor.TargetLocalItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that to butcher.");
@@ -1094,7 +1094,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		var subcategory = ss.Pop();
+		var subcategory = ss.PopSpeech();
 		if (!string.IsNullOrEmpty(subcategory))
 		{
 			if (!profile.Products.Where(x => x.Subcategory.EqualTo(subcategory)).Any(x => x.CanProduce(actor, target)))
@@ -1137,7 +1137,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		var target = actor.TargetLocalItem(ss.Pop());
+		var target = actor.TargetLocalItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that to salvage.");
@@ -1171,7 +1171,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		var subcategory = ss.Pop();
+		var subcategory = ss.PopSpeech();
 		if (!string.IsNullOrEmpty(subcategory))
 		{
 			if (!profile.Products.Where(x => x.Subcategory.EqualTo(subcategory)).Any(x => x.CanProduce(actor, target)))
@@ -1214,7 +1214,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		var target = actor.TargetLocalItem(ss.Pop());
+		var target = actor.TargetLocalItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that to skin.");

@@ -58,7 +58,7 @@ internal class HealthModule : Module<ICharacter>
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see that person to perform CPR on.");
@@ -109,7 +109,7 @@ internal class HealthModule : Module<ICharacter>
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see that person to defibrillate.");
@@ -134,7 +134,7 @@ internal class HealthModule : Module<ICharacter>
 	protected static void Vitals(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		var target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -375,7 +375,7 @@ internal class HealthModule : Module<ICharacter>
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		ICharacter target = null;
-		target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -592,7 +592,7 @@ Options:
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		ICharacter target = null;
-		target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -742,7 +742,7 @@ Options:
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		ICharacter target = null;
-		target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -879,7 +879,7 @@ The syntaxes available include:
 				return;
 			}
 
-			if (!ss.IsFinished && ss.Pop().EqualTo("worst"))
+			if (!ss.IsFinished && ss.PopSpeech().EqualTo("worst"))
 			{
 				worstFirst = true;
 			}
@@ -979,7 +979,7 @@ The syntaxes available include:
 				return;
 			}
 
-			if (!ss.IsFinished && ss.Pop().EqualTo("worst"))
+			if (!ss.IsFinished && ss.PopSpeech().EqualTo("worst"))
 			{
 				worstFirst = true;
 			}
@@ -1103,7 +1103,7 @@ The syntaxes available include:
 	protected static void Dislodge(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var broadTarget = ss.IsFinished ? actor : actor.Target(ss.Pop());
+		var broadTarget = ss.IsFinished ? actor : actor.Target(ss.PopSpeech());
 
 		if (broadTarget == null)
 		{
@@ -1158,7 +1158,7 @@ The syntaxes available include:
 			return;
 		}
 
-		var targetLodged = woundsAndLodged.Select(x => x.Lodged).GetFromItemListByKeyword(ss.Pop(), actor);
+		var targetLodged = woundsAndLodged.Select(x => x.Lodged).GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		if (targetLodged == null)
 		{
 			actor.Send(
@@ -1283,7 +1283,7 @@ The syntaxes available include:
 			return;
 		}
 
-		var targetLodged = woundsAndLodged.Select(x => x.Lodged).GetFromItemListByKeyword(ss.Pop(), actor);
+		var targetLodged = woundsAndLodged.Select(x => x.Lodged).GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		if (targetLodged == null)
 		{
 			actor.Send(
@@ -1392,7 +1392,7 @@ The syntax is as follows:
 
 		var ss = new StringStack(command.RemoveFirstWord());
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "list":
 				SurgeryList(actor, ss);
@@ -1586,7 +1586,7 @@ The syntax is as follows:
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		ICharacter target = null;
-		target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -1887,7 +1887,7 @@ The syntax is as follows:
 		ICharacter target;
 		if (procedure.RequiresLivingPatient)
 		{
-			target = actor.TargetActor(ss.Pop());
+			target = actor.TargetActor(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.Send("You do not see anybody like that to perform that procedure on.");
@@ -1896,7 +1896,7 @@ The syntax is as follows:
 		}
 		else
 		{
-			var targetPerceivable = actor.TargetLocal(ss.Pop());
+			var targetPerceivable = actor.TargetLocal(ss.PopSpeech());
 			if (targetPerceivable == null)
 			{
 				actor.Send("You do not see anybody like that to perform that procedure on.");
@@ -1933,7 +1933,7 @@ The syntax is as follows:
 		}
 
 		var remains = new StringStack(ss.RemainingArgument);
-		remains.PopAll();
+		remains.PopSpeechAll();
 		if (!procedure.CanPerformProcedure(actor, target, remains.Memory.ToArray()))
 		{
 			actor.Send(procedure.WhyCannotPerformProcedure(actor, target, remains.Memory.ToArray()));
@@ -2112,7 +2112,7 @@ The syntax is as follows:
 				"This command cures wounds or other ailments. The syntax is:\n\tcure <target> - cures all of the target's wounds one level of severity\n\tcure <target> <bodypart> - cures all of the target's wounds on a particular bodypart one level of severity.\n\tcure <target> all - removes all of a target's wounds, infections, refills blood\n\tcure <target> blood - adds 10% blood to the target\n\tcure <target> infections - removes all of the target's part infections\n\tcure <target> bones - cures all of the targets bone fractures 1 stage");
 		}
 
-		var target = ss.IsFinished ? actor : actor.Target(ss.Pop());
+		var target = ss.IsFinished ? actor : actor.Target(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -2240,7 +2240,7 @@ The syntax is either of the following:
 
 		var ss = new StringStack(command.RemoveFirstWord());
 
-		var target = actor.Target(ss.Pop());
+		var target = actor.Target(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see that here to wound.");
@@ -2266,14 +2266,14 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 		IMeleeWeapon weapon = null;
 		if (ss.Peek().Equals("with", StringComparison.InvariantCultureIgnoreCase))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			if (ss.IsFinished)
 			{
 				actor.Send($"Which weapon did you want to wound {target.HowSeen(actor)} with?");
 				return;
 			}
 
-			targetItem = actor.TargetHeldItem(ss.Pop());
+			targetItem = actor.TargetHeldItem(ss.PopSpeech());
 			if (targetItem == null)
 			{
 				actor.Send($"You do not see anything like that to wound {target.HowSeen(actor)} with.");
@@ -2378,7 +2378,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 				return;
 			}
 
-			if (!WoundExtensions.TryGetDamageType(ss.Pop(), out var damageType))
+			if (!WoundExtensions.TryGetDamageType(ss.PopSpeech(), out var damageType))
 			{
 				actor.Send("That is not a valid damage type.");
 				return;
@@ -2422,7 +2422,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 			IGameItem lodged = null;
 			if (!ss.IsFinished)
 			{
-				lodged = actor.TargetHeldItem(ss.Pop());
+				lodged = actor.TargetHeldItem(ss.PopSpeech());
 				if (lodged == null)
 				{
 					actor.Send("You do not have anything like that to lodge.");
@@ -2509,7 +2509,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 		{
 			var attack = ss.IsFinished
 				? weapon.WeaponType.Attacks.GetRandomElement()
-				: weapon.WeaponType.Attacks.GetFromItemListByKeyword(ss.Pop(), actor);
+				: weapon.WeaponType.Attacks.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 
 			if (attack == null)
 			{
@@ -2524,7 +2524,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 			}
 			else
 			{
-				if (!OpposedOutcomeExtensions.TryParse(ss.Pop(), out degree))
+				if (!OpposedOutcomeExtensions.TryParse(ss.PopSpeech(), out degree))
 				{
 					actor.Send("There is no such degree of success.");
 					return;

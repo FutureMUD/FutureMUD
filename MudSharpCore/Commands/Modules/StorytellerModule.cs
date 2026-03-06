@@ -477,7 +477,7 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
 	protected static void Award(ICharacter character, string input)
 	{
 		var ss = new StringStack(input);
-		var award = ss.Pop().Equals("award", StringComparison.InvariantCultureIgnoreCase);
+		var award = ss.PopSpeech().Equals("award", StringComparison.InvariantCultureIgnoreCase);
 
 		if (ss.IsFinished)
 		{
@@ -486,9 +486,9 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
 			return;
 		}
 
-		var accountText = ss.Pop();
+		var accountText = ss.PopSpeech();
 		var typeText = ss.PopSpeech();
-		var amountText = ss.Pop();
+		var amountText = ss.PopSpeech();
 
 		if (string.IsNullOrEmpty(typeText))
 		{
@@ -580,7 +580,7 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
 	protected static void Force(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 		if (string.IsNullOrEmpty(targetText))
 		{
 			character.OutputHandler.Send("Force who to do what?");
@@ -757,7 +757,7 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
 	protected static void As(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 		if (string.IsNullOrEmpty(targetText))
 		{
 			character.OutputHandler.Send("Force who to do what?");
@@ -808,10 +808,10 @@ The syntax to use this command is as follows:
 		IGameItem newItem = null;
 		if (ss.Peek().ToLowerInvariant() == "coins")
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			while (true)
 			{
-				var samount = ss.Pop();
+				var samount = ss.PopSpeech();
 				if (string.IsNullOrEmpty(samount))
 				{
 					character.OutputHandler.Send("You must enter the specific coins which you want to load.");
@@ -1001,11 +1001,11 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		string targettext = ss.Pop(), chartext = null;
+		string targettext = ss.PopSpeech(), chartext = null;
 		if (!ss.IsFinished) // They can load something into a liquid container someone holds
 		{
 			chartext = targettext;
-			targettext = ss.Pop();
+			targettext = ss.PopSpeech();
 		}
 
 		IGameItem target;
@@ -1097,11 +1097,11 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		string targettext = ss.Pop(), chartext = null;
+		string targettext = ss.PopSpeech(), chartext = null;
 		if (!ss.IsFinished) // They can load something into a liquid container someone holds
 		{
 			chartext = targettext;
-			targettext = ss.Pop();
+			targettext = ss.PopSpeech();
 		}
 
 		IGameItem target;
@@ -1179,11 +1179,11 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		string targettext = ss.Pop(), chartext = null;
+		string targettext = ss.PopSpeech(), chartext = null;
 		if (!ss.IsFinished) // They can load something into a liquid container someone holds
 		{
 			chartext = targettext;
-			targettext = ss.Pop();
+			targettext = ss.PopSpeech();
 		}
 
 		IGameItem target;
@@ -1259,11 +1259,11 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		string targettext = ss.Pop(), chartext = null;
+		string targettext = ss.PopSpeech(), chartext = null;
 		if (!ss.IsFinished) // They can load something into a gas container someone holds
 		{
 			chartext = targettext;
-			targettext = ss.Pop();
+			targettext = ss.PopSpeech();
 		}
 
 		IGameItem target;
@@ -1308,7 +1308,7 @@ The syntax to use this command is as follows:
 	protected static void Notes(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 
 		if (string.IsNullOrEmpty(cmd))
 		{
@@ -1356,7 +1356,7 @@ The syntax to use this command is as follows:
 
 	private static void NoteRead(ICharacter character, StringStack input)
 	{
-		if (!long.TryParse(input.Pop(), out var value))
+		if (!long.TryParse(input.PopSpeech(), out var value))
 		{
 			character.OutputHandler.Send("That is not a valid note ID.");
 			return;
@@ -1416,7 +1416,7 @@ The syntax to use this command is as follows:
 
 	private static void NoteWrite(ICharacter character, StringStack input)
 	{
-		var accountName = input.Pop().ToLowerInvariant();
+		var accountName = input.PopSpeech().ToLowerInvariant();
 		if (string.IsNullOrEmpty(accountName))
 		{
 			character.OutputHandler.Send("To which account will your note pertain?");
@@ -1450,7 +1450,7 @@ The syntax to use this command is as follows:
 	protected static void Note(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "read":
 				NoteRead(character, ss);
@@ -1674,7 +1674,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 				}
 
 				var dvalue = 1.0;
-				if (!ss.IsFinished && !double.TryParse(ss.Pop(), out dvalue))
+				if (!ss.IsFinished && !double.TryParse(ss.PopSpeech(), out dvalue))
 				{
 					actor.Send("You must either specify a value for the new skill, or leave blank to start at 1.");
 					return;
@@ -1699,7 +1699,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 				return;
 			case "level":
 				dvalue = 1.0;
-				if (!ss.IsFinished && !double.TryParse(ss.Pop(), out dvalue))
+				if (!ss.IsFinished && !double.TryParse(ss.PopSpeech(), out dvalue))
 				{
 					actor.Send("You must either specify a value for the new skill, or leave blank to start at 1.");
 					return;
@@ -1999,7 +1999,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 		double decay = 1000;
 		if (!ss.IsFinished)
 		{
-			if (!double.TryParse(ss.Pop(), out decay))
+			if (!double.TryParse(ss.PopSpeech(), out decay))
 			{
 				actor.Send("How much decay do you want to add to corpses in this room?");
 				return;
@@ -2026,7 +2026,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 	protected static void Kill(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 		if (!cmd.Equals("kill", StringComparison.InvariantCultureIgnoreCase))
 		{
 			actor.Send("You must type out kill in its entirety, to avoid accidents.");
@@ -2039,7 +2039,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("There is no such person to kill.");
@@ -2169,7 +2169,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to possess.");
@@ -2229,7 +2229,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 		if (ss.Peek().EqualTo("clear"))
 		{
 			clear = true;
-			ss.Pop();
+			ss.PopSpeech();
 		}
 
 		if (ss.IsFinished)
@@ -2240,7 +2240,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return;
 		}
 
-		var target = actor.Target(ss.Pop());
+		var target = actor.Target(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anything like that.");
@@ -2490,7 +2490,7 @@ The syntax is as follows:
 		}
 
 		DescriptionType type;
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "desc":
 				type = DescriptionType.Full;

@@ -250,7 +250,7 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 			return;
 		}
 
-		var cmd = input.Pop().ToLowerInvariant();
+		var cmd = input.PopSpeech().ToLowerInvariant();
 		if (cmd.Length == 0)
 		{
 			GenericReviewList(character, input, helper);
@@ -280,11 +280,11 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopSpeech().ToLowerInvariant();
 			switch (cmd)
 			{
 				case "by":
-					cmd = input.Pop().ToLowerInvariant();
+					cmd = input.PopSpeech().ToLowerInvariant();
 					if (cmd.Length == 0)
 					{
 						character.Send("List {0} for Review by whom?", helper.ItemNamePlural);
@@ -332,11 +332,11 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 		var protos = helper.GetAllEditableItems(character).Where(x => x.Status == RevisionStatus.PendingRevision);
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopSpeech().ToLowerInvariant();
 			switch (cmd)
 			{
 				case "by":
-					cmd = input.Pop().ToLowerInvariant();
+					cmd = input.PopSpeech().ToLowerInvariant();
 					if (cmd.Length == 0)
 					{
 						character.Send("Review {0} by whom?", helper.ItemNamePlural);
@@ -534,7 +534,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 					}
 
 				case "reviewed":
-					cmd = input.Pop().ToLowerInvariant();
+					cmd = input.PopSpeech().ToLowerInvariant();
 					if (cmd.Length == 0)
 					{
 						character.Send("List {0} reviewed by whom?", helper.ItemNamePlural);
@@ -931,7 +931,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 	{
 		IGameItemProto proto;
 		int quantity;
-		if (!long.TryParse(input.Pop(), out var value))
+		if (!long.TryParse(input.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("What is the ID of the item you wish to load?");
 			return;
@@ -947,7 +947,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
 			proto = actor.Gameworld.ItemProtos.Get(value2);
 			quantity = (int)value;
-			input.Pop();
+			input.PopSpeech();
 		}
 		else
 		{

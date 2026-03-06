@@ -131,6 +131,9 @@ The discord bot is a bot designed to run alongside the engine to provide some di
 - Names of things, locations, people, as well as text representations of enum values are usually presented with ANSIColour.Cyan, often best done through the extension method `ColourName(this string str)`.
 - When building up large strings for presentation to players, prefer to use StringBuilder rather than concatenating strings together. If you must concatenate strings, prefer string interpolation over String.Format or concatenation operators.
 - When chopping up user input one argument at a time, prefer to use the StringStack class rather than splitting strings manually. It provides a lot of helper methods for this purpose.
+- Prefer PopSpeech() for argument-by-argument parsing and reserve Pop() for situations that explicitly need raw token behaviour.
+- For final free-text arguments, prefer SafeRemainingArgument over RemainingArgument unless quote characters are semantically meaningful to downstream parsing (for example command forwarding, regex patterns, or raw emote text).
+- Avoid side-effecting Pop*() calls inside LINQ expressions; pop into a temporary variable first or use Peek*() and then pop once deliberately.
 - Prefer to use LINQ methods like .Any(), .FirstOrDefault(), .Where() and the like over manual loops where possible for clarity. When stacking multiple LINQ methods, put each method on its own line for clarity.
 - Use LINQ query syntax only when it makes the code significantly clearer than method syntax. A common place this is done is when presenting tabular data to players.
 - Use the method `StringUtilities.GetTextTable()` to present tabular data to players rather than building tables manually.

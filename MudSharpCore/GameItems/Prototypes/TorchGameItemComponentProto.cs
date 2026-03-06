@@ -58,7 +58,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("How many seconds of fuel should this torch have? You can use -1 for unlimited.");
 			return false;
@@ -94,7 +94,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("How many lux of illumination should this torch provide when lit?");
 			return false;
@@ -215,7 +215,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "fuel":
 				return BuildingCommand_Fuel(actor, command);

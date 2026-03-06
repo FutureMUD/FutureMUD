@@ -589,7 +589,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 	{
 		if (actionText.StartsWith("bleeding", StringComparison.InvariantCultureIgnoreCase))
 		{
-			var bloodAmounts = new StringStack(actionText.RemoveFirstWord()).PopAll().Select(x => double.Parse(x)).ToList();
+			var bloodAmounts = new StringStack(actionText.RemoveFirstWord()).PopSpeechAll().Select(x => double.Parse(x)).ToList();
 			var bleedingDictionary = new Dictionary<Outcome, double>();
 			var outcome = Outcome.MajorFail;
 			foreach (var amount in bloodAmounts)

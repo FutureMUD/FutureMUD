@@ -200,7 +200,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		EntranceKeyword = command.Pop().ToLowerInvariant();
+		EntranceKeyword = command.PopSpeech().ToLowerInvariant();
 		Changed = true;
 		actor.Send($"This dwelling will now generate an external exit with the keyword '{EntranceKeyword}'.");
 		return true;
@@ -291,7 +291,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!long.TryParse(command.Pop(), out var value))
+		if (!long.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must specify a valid ID number for the cell you want to set as the entryway.");
 			return false;

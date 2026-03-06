@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using MudSharp.Accounts;
@@ -126,7 +126,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             actor.Send("Which gender should this connector be?");
             return false;
         }
-        var gender = Gendering.Get(command.Pop());
+        var gender = Gendering.Get(command.PopSpeech());
         if (gender.Enum == Form.Shape.Gender.Indeterminate)
         {
             actor.Send("That is not a valid gender.");

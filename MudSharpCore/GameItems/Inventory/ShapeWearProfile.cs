@@ -279,7 +279,7 @@ public class ShapeWearProfile : WearProfile
 		}
 
 		bool bValue;
-		var whichCommand = command.Pop().ToLowerInvariant();
+		var whichCommand = command.PopSpeech().ToLowerInvariant();
 		switch (whichCommand)
 		{
 			case "count":
@@ -289,7 +289,7 @@ public class ShapeWearProfile : WearProfile
 					return;
 				}
 
-				if (!int.TryParse(command.Pop(), out var iValue) || iValue < 1)
+				if (!int.TryParse(command.PopSpeech(), out var iValue) || iValue < 1)
 				{
 					actor.Send("You must enter a valid number of shapes for this wear profile to require.");
 					return;
@@ -304,7 +304,7 @@ public class ShapeWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -323,7 +323,7 @@ public class ShapeWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -340,7 +340,7 @@ public class ShapeWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -356,7 +356,7 @@ public class ShapeWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");
@@ -377,7 +377,7 @@ public class ShapeWearProfile : WearProfile
 					break;
 				}
 
-				if (!bool.TryParse(command.Pop(), out bValue))
+				if (!bool.TryParse(command.PopSpeech(), out bValue))
 				{
 					actor.Send(
 						"You can either leave the final argument blank to toggle, or you can use true or false.");

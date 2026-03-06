@@ -126,7 +126,7 @@ internal class TimeModule : Module<ICharacter>
 			return;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var year))
+		if (!int.TryParse(ss.PopSpeech(), out var year))
 		{
 			actor.Send(
 				"You must either specify nothing to view the calendar definition, or specify a year for which to see the calendar.");

@@ -140,7 +140,7 @@ public class GameItemGroup : SavableKeywordedItem, IGameItemGroup
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "name":
 				BuildingCommandName(actor, command);
@@ -236,7 +236,7 @@ public class GameItemGroup : SavableKeywordedItem, IGameItemGroup
 			return;
 		}
 
-		var newForm = GameItemGroupFactory.CreateGameItemGroupForm(this, command.Pop(), Gameworld);
+		var newForm = GameItemGroupFactory.CreateGameItemGroupForm(this, command.PopSpeech(), Gameworld);
 		if (newForm == null)
 		{
 			actor.Send("There is no such item group form type.");
@@ -256,7 +256,7 @@ public class GameItemGroup : SavableKeywordedItem, IGameItemGroup
 			return;
 		}
 
-		if (!long.TryParse(command.Pop(), out var value))
+		if (!long.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("Which form do you want to delete from this item group?");
 			return;

@@ -211,12 +211,12 @@ public class VariableGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		var cmd = command.Pop().ToLowerInvariant();
+		var cmd = command.PopSpeech().ToLowerInvariant();
 		switch (cmd)
 		{
 			case "variable":
 			case "var":
-				switch (command.Pop().ToLowerInvariant())
+				switch (command.PopSpeech().ToLowerInvariant())
 				{
 					case "add":
 					case "set":

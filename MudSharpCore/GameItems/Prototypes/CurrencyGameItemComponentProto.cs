@@ -64,7 +64,7 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		command.Pop();
+		command.PopSpeech();
 		return base.BuildingCommand(actor, command);
 	}
 

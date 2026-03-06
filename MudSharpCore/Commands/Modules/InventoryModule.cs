@@ -227,7 +227,7 @@ The syntax is as follows:
 		}
 		else
 		{
-			var text = ss.Pop();
+			var text = ss.PopSpeech();
 			profile = profiles.FirstOrDefault(x => x.Name.EqualTo(text));
 		}
 
@@ -259,7 +259,7 @@ The syntax is as follows:
 				return;
 			}
 
-			targetItem = actor.TargetLocalItem(ss.Pop());
+			targetItem = actor.TargetLocalItem(ss.PopSpeech());
 			if (targetItem == null)
 			{
 				actor.Send("There is nothing like that here to restrain them to.");
@@ -373,7 +373,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to undo the bindings of.");
@@ -390,7 +390,7 @@ The syntax is as follows:
 		}
 		else
 		{
-			item = target.Body.WornItems.GetFromItemListByKeyword(ss.Pop(), actor);
+			item = target.Body.WornItems.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		}
 
 		if (item == null)
@@ -450,7 +450,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 		var targetItem = actor.Body.WieldedItems.GetFromItemListByKeyword(targetText, actor);
 		if (targetItem == null)
 		{
@@ -484,7 +484,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 		var targetItem = actor.TargetHeldItem(targetText);
 		if (targetItem == null)
 		{
@@ -1499,7 +1499,7 @@ The syntax is as follows:
 	protected static void Remove(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var target = ss.Pop();
+		var target = ss.PopSpeech();
 
 		var emote = new PlayerEmote(ss.PopParentheses(), actor);
 
@@ -1550,7 +1550,7 @@ The syntax is as follows:
 		}
 
 		ICharacter target;
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 		if (cmd.EqualTo("me"))
 		{
 			if (ss.IsFinished)
@@ -1566,7 +1566,7 @@ The syntax is as follows:
 				return;
 			}
 
-			target = actor.TargetActor(ss.Pop());
+			target = actor.TargetActor(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.Send("You don't see anyone like that to give consent to dress and undress you.");
@@ -1627,7 +1627,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var item = actor.TargetHeldItem(ss.Pop());
+		var item = actor.TargetHeldItem(ss.PopSpeech());
 		if (item == null)
 		{
 			actor.Send("You aren't holding anything like that.");
@@ -1696,7 +1696,7 @@ The syntax is as follows:
 		IGameItem item = null, sheath = null;
 		if (!ss.IsFinished)
 		{
-			item = actor.TargetHeldItem(ss.Pop());
+			item = actor.TargetHeldItem(ss.PopSpeech());
 			if (item == null)
 			{
 				actor.OutputHandler.Send("You do not see anything like that to sheathe.");
@@ -1706,7 +1706,7 @@ The syntax is as follows:
 			emoteText = ss.PopParentheses();
 			if (!ss.IsFinished)
 			{
-				sheath = actor.TargetPersonalItem(ss.Pop());
+				sheath = actor.TargetPersonalItem(ss.PopSpeech());
 				if (sheath == null)
 				{
 					actor.OutputHandler.Send("You do not have any item like that to sheathe something in.");
@@ -1740,7 +1740,7 @@ The syntax is as follows:
 		IGameItem item = null;
 		if (!ss.IsFinished && !ss.Peek().EqualToAny(MUDConstants.TwoHandedStrings))
 		{
-			var targetText = ss.Pop();
+			var targetText = ss.PopSpeech();
 			emoteText = ss.PopParentheses();
 			item =
 				actor.Body.ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
@@ -2099,7 +2099,7 @@ The possible syntaxes for this command are:
 		IContainer container = null;
 		if (ss.Peek().EqualTo("covering"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			if (ss.IsFinished)
 			{
 				actor.Send("Which item do you want to strip the covering items from?");
@@ -2134,7 +2134,7 @@ The possible syntaxes for this command are:
 		}
 		else if (ss.Peek().EqualTo("into"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			var targetContainerItem = actor.TargetLocalOrHeldItem(ss.PopSpeech());
 			if (targetContainerItem == null)
 			{
@@ -2160,7 +2160,7 @@ The possible syntaxes for this command are:
 			IBodypart targetPart;
 			if (!ss.IsFinished)
 			{
-				targetPart = actor.Body.GetTargetBodypart(ss.Pop());
+				targetPart = actor.Body.GetTargetBodypart(ss.PopSpeech());
 				if (targetPart == null)
 				{
 					actor.Send("You don't have any such bodypart to strip and expose.");
@@ -2356,7 +2356,7 @@ The possible syntaxes for this command are:
 		IBodypart targetPart;
 		if (!ss.IsFinished && ss.Peek().EqualTo("into"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			var targetContainerItem = actor.TargetLocalOrHeldItem(ss.PopSpeech());
 			if (targetContainerItem == null)
 			{
@@ -2379,7 +2379,7 @@ The possible syntaxes for this command are:
 		}
 		else if (!ss.IsFinished)
 		{
-			targetPart = target.Body.GetTargetBodypart(ss.Pop());
+			targetPart = target.Body.GetTargetBodypart(ss.PopSpeech());
 			if (targetPart == null)
 			{
 				actor.Send($"{target.HowSeen(actor, true)} doesn't have any such bodypart to strip and expose.");
@@ -2720,7 +2720,7 @@ The valid syntaxes are:
 			return;
 		}
 
-		var force = !ss.IsFinished && ss.Pop().EqualTo("!");
+		var force = !ss.IsFinished && ss.PopSpeech().EqualTo("!");
 		var i = 1;
 		var plan = new InventoryPlanTemplate(actor.Gameworld,
 			from item in outfit.Items

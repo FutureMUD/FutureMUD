@@ -78,7 +78,7 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "desc":
 				BuildingCommandDesc(actor, command);

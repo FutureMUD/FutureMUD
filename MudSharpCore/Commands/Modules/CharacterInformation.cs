@@ -127,7 +127,7 @@ Additionally, admins can use the following options:
 			return;
 		}
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "roomtabs":
 				actor.Account.TabRoomDescriptions = !actor.Account.TabRoomDescriptions;
@@ -207,7 +207,7 @@ Additionally, admins can use the following options:
 				actor.OutputHandler.Send($"You will {actor.Account.AutoReacquireTargets.NowNoLonger()} automatically acquire new targets when your current target is incapacitated.");
 				return;
 			case "prompt":
-				switch (ss.Pop().ToLowerInvariant())
+				switch (ss.PopSpeech().ToLowerInvariant())
 				{
 					case "full":
 						actor.Account.PromptType &= ~PromptType.Classic;
@@ -375,7 +375,7 @@ Additionally, admins can use the following options:
 					return;
 				}
 
-				if (!int.TryParse(ss.Pop(), out var outerWrap))
+				if (!int.TryParse(ss.PopSpeech(), out var outerWrap))
 				{
 					actor.Send("You must enter a number for your wrap width.");
 					return;
@@ -387,7 +387,7 @@ Additionally, admins can use the following options:
 					return;
 				}
 
-				if (!int.TryParse(ss.Pop(), out var innerWrap))
+				if (!int.TryParse(ss.PopSpeech(), out var innerWrap))
 				{
 					actor.Send("You must enter a number for your wrap width.");
 					return;
@@ -410,7 +410,7 @@ Additionally, admins can use the following options:
 					return;
 				}
 
-				if (!int.TryParse(ss.Pop(), out var pageLength))
+				if (!int.TryParse(ss.PopSpeech(), out var pageLength))
 				{
 					actor.Send("You must enter a number for your page length.");
 					return;
@@ -482,7 +482,7 @@ Additionally, admins can use the following options:
 					return;
 				}
 
-				var unitChoice = ss.Pop();
+				var unitChoice = ss.PopSpeech();
 				if (!unitSystems.Any(x => x.Equals(unitChoice, StringComparison.InvariantCultureIgnoreCase)))
 				{
 					actor.Send("You must select one of the following options: {0}",
@@ -683,7 +683,7 @@ Additionally, admins can use the following options:
 	{
 		var adminMode = actor.IsAdministrator();
 		var ss = new StringStack(input.RemoveFirstWord());
-		var arg = ss.Pop();
+		var arg = ss.PopSpeech();
 		if (arg.Length == 0)
 		{
 			actor.OutputHandler.Send("Skills:\n\n" +
@@ -861,7 +861,7 @@ Additionally, admins can use these forms:
 		var target = actor;
 		if (!ss.IsFinished && actor.IsAdministrator() && ss.Peek()[0] == '*')
 		{
-			var targetText = ss.Pop().RemoveFirstCharacter();
+			var targetText = ss.PopSpeech().RemoveFirstCharacter();
 			target = long.TryParse(targetText, out var value)
 				? actor.Gameworld.TryGetCharacter(value, true)
 				: actor.TargetActor(targetText);
@@ -935,7 +935,7 @@ The syntax is as follows:
 		var target = actor;
 		if (!ss.IsFinished && actor.IsAdministrator())
 		{
-			target = actor.TargetActor(ss.Pop());
+			target = actor.TargetActor(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.Send("You do not see anyone like that whose quirks you can view.");
@@ -1263,7 +1263,7 @@ You can also use this command to test against someone else. This always echoes.
 	protected static void Test(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var topLevelCommand = ss.Pop();
+		var topLevelCommand = ss.PopSpeech();
 		var echo = "silentcommand".StartsWith(topLevelCommand, StringComparison.InvariantCultureIgnoreCase);
 
 		var experimental = false;
@@ -1587,7 +1587,7 @@ You can also use this command to test against someone else. This always echoes.
 			return;
 		}
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "short":
 			case "shortterm":
@@ -1599,13 +1599,13 @@ You can also use this command to test against someone else. This always echoes.
 					return;
 				}
 
-				if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumShortTermPlanLength"))
+				if (ss.SafeRemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumShortTermPlanLength"))
 				{
 					actor.Send($"Your short term plan may be a maximum of {actor.Gameworld.GetStaticInt("MaximumShortTermPlanLength").ToString("N0", actor).ColourValue()} characters in length.");
 					return;
 				}
 
-				actor.ShortTermPlan = ss.RemainingArgument.Trim().ProperSentences();
+				actor.ShortTermPlan = ss.SafeRemainingArgument.Trim().ProperSentences();
 				actor.Send("You set your short term plan to:\n\n{0}", actor.ShortTermPlan.Wrap(actor.InnerLineFormatLength, "\t").Colour(Telnet.Green));
 				actor.RemoveAllEffects<RecentlyUpdatedPlan>();
 				actor.AddEffect(new RecentlyUpdatedPlan(actor), TimeSpan.FromDays(14));
@@ -1620,13 +1620,13 @@ You can also use this command to test against someone else. This always echoes.
 					return;
 				}
 
-				if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumLongTermPlanLength"))
+				if (ss.SafeRemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumLongTermPlanLength"))
 				{
 					actor.Send($"Your long term plan may be a maximum of {actor.Gameworld.GetStaticInt("MaximumLongTermPlanLength").ToString("N0", actor).ColourValue()} characters in length.");
 					return;
 				}
 
-				actor.LongTermPlan = ss.RemainingArgument.Trim().ProperSentences();
+				actor.LongTermPlan = ss.SafeRemainingArgument.Trim().ProperSentences();
 				actor.Send("You set your long term plan to:\n\n{0}", actor.LongTermPlan.Wrap(actor.InnerLineFormatLength, "\t").Colour(Telnet.Green));
 				actor.RemoveAllEffects<RecentlyUpdatedPlan>();
 				actor.AddEffect(new RecentlyUpdatedPlan(actor), TimeSpan.FromDays(14));
@@ -1664,14 +1664,14 @@ You can also use this command to test against someone else. This always echoes.
 			return;
 		}
 
-		if (ss.Peek().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+		if (ss.PeekSpeech().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
 		{
 			actor.RemoveAllEffects(x => x.GetSubtype<IDescriptionAdditionEffect>()?.PlayerSet ?? false);
 			actor.Send("You clear your current dmote.");
 			return;
 		}
 
-		if (ss.RemainingArgument.Length > 300)
+		if (ss.SafeRemainingArgument.Length > 300)
 		{
 			actor.Send("Your dmote may be a maximum of 300 characters in length.");
 			return;
@@ -1693,7 +1693,7 @@ You can also use this command to test against someone else. This always echoes.
 			return;
 		}
 
-		var targetDub = actor.Dubs.GetFromItemListByKeyword(ss.Pop(), actor);
+		var targetDub = actor.Dubs.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		if (targetDub == null)
 		{
 			actor.Send("You don't have any dubs like that to remove.");
@@ -1732,7 +1732,7 @@ You can also use this command to test against someone else. This always echoes.
 			return;
 		}
 
-		var targetText = ss.Pop();
+		var targetText = ss.PopSpeech();
 
 		if (ss.IsFinished)
 		{
@@ -1740,7 +1740,7 @@ You can also use this command to test against someone else. This always echoes.
 			return;
 		}
 
-		var keywordText = ss.Pop();
+		var keywordText = ss.PopSpeech();
 		if (keywordText.Equals("me", StringComparison.InvariantCultureIgnoreCase) ||
 		    keywordText.Equals("self", StringComparison.InvariantCultureIgnoreCase))
 		{
@@ -1802,7 +1802,7 @@ You can also use this command to test against someone else. This always echoes.
 	protected static void DubName(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to give a dub name to.");
@@ -1841,7 +1841,7 @@ You can also use this command to test against someone else. This always echoes.
 		IEnumerable<IDub> dubs = actor.Dubs;
 		while (!ss.IsFinished)
 		{
-			var filterText = ss.Pop();
+			var filterText = ss.PopSpeech();
 			dubs =
 				dubs.Where(
 					x => x.Keywords.Any(y => y.Equals(filterText, StringComparison.InvariantCultureIgnoreCase)) ||
@@ -1917,7 +1917,7 @@ You can also use this command to test against someone else. This always echoes.
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to declare your ally.");
@@ -1973,7 +1973,7 @@ You can also use this command to test against someone else. This always echoes.
 		IDub targetDub;
 		if (ss.Peek()[0] == '*')
 		{
-			targetDub = actor.Dubs.GetFromItemListByKeyword(ss.Pop().RemoveFirstCharacter(), actor);
+			targetDub = actor.Dubs.GetFromItemListByKeyword(ss.PopSpeech().RemoveFirstCharacter(), actor);
 			if (targetDub == null)
 			{
 				actor.Send("You don't have anyone dubbed like that to unally.");
@@ -1982,7 +1982,7 @@ You can also use this command to test against someone else. This always echoes.
 		}
 		else
 		{
-			var target = actor.Target(ss.Pop());
+			var target = actor.Target(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.Send("You don't see anyone here like that who you can unally.");

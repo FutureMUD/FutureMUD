@@ -61,7 +61,7 @@ public class SharedModule : Module<ICharacter>
 		}
 
 		var ss = new StringStack(input.RemoveFirstWord());
-		var cmd = ss.Pop().ToLowerInvariant();
+		var cmd = ss.PopSpeech().ToLowerInvariant();
 
 		if (cmd == "silent" || cmd == "discrete")
 		{
@@ -127,7 +127,7 @@ public class SharedModule : Module<ICharacter>
 		}
 
 		var ss = new StringStack(input.RemoveFirstWord());
-		var cmd = ss.Pop().ToLowerInvariant();
+		var cmd = ss.PopSpeech().ToLowerInvariant();
 		if (cmd == "silent" || cmd == "discrete")
 		{
 			if (actor.AffectedBy<IAdminInvisEffect>())
@@ -285,7 +285,7 @@ This command is useful when you write-up a bunch of room creation commands in a 
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (ss.Peek().StartsWith("-", StringComparison.Ordinal))
 		{
-			switch (ss.Pop().RemoveFirstCharacter().ToLowerInvariant())
+			switch (ss.PopSpeech().RemoveFirstCharacter().ToLowerInvariant())
 			{
 				case "a":
 					auditory = true;
@@ -424,7 +424,7 @@ This command is useful when you write-up a bunch of room creation commands in a 
 
 		var ss = new StringStack(input.RemoveFirstWord());
 		var targets = new List<ICharacter>();
-		foreach (var starget in ss.Pop().Split(','))
+		foreach (var starget in ss.PopSpeech().Split(','))
 		{
 			var target = actor.TargetActor(starget);
 			if (target == null)

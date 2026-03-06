@@ -188,7 +188,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 
 	private bool BuildingCommandQualityWeight(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished || !double.TryParse(command.RemainingArgument, out var value) || value < 0.0)
+		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
 		{
 			actor.OutputHandler.Send(
 				"What weight do you want to give to the quality of this tool in determining the overall quality of the output?");

@@ -109,7 +109,7 @@ The valid sub-commands and their syntaxes are as follows:
 		protected static void Item(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
-			switch (ss.Pop().ToLowerInvariant())
+			switch (ss.PopSpeech().ToLowerInvariant())
 			{
 				case "review":
 					GenericReview(actor, ss, EditableRevisableItemHelper.GameItemHelper);
@@ -208,7 +208,7 @@ Note: The following two subcommands take a long time and can sometimes cause iss
 		protected static void Component(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
-			switch (ss.Pop().ToLowerInvariant())
+			switch (ss.PopSpeech().ToLowerInvariant())
 			{
 				case "review":
 					Component_Review(actor, ss);
@@ -242,7 +242,7 @@ Note: The following two subcommands take a long time and can sometimes cause iss
 
 		private static void Component_Update(ICharacter actor, StringStack input)
 		{
-			var includeOffline = input.Pop().Equals("all", StringComparison.InvariantCultureIgnoreCase);
+			var includeOffline = input.PopSpeech().Equals("all", StringComparison.InvariantCultureIgnoreCase);
 			actor.Send(
 				"Warning: This command can take a very long time to run, particularly if you use the \"all\" option. Are you sure you want to do this right now? Type ACCEPT to begin.");
 			actor.AddEffect(new Accept(actor, new GenericProposal(
@@ -398,7 +398,7 @@ Help:
 
 		private static void Component_Review(ICharacter actor, StringStack input)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopSpeech().ToLowerInvariant();
 			if (cmd.Length == 0)
 			{
 				Component_Review_List(actor, input);
@@ -428,11 +428,11 @@ Help:
 
 			while (!input.IsFinished)
 			{
-				var cmd = input.Pop().ToLowerInvariant();
+				var cmd = input.PopSpeech().ToLowerInvariant();
 				switch (cmd)
 				{
 					case "by":
-						cmd = input.Pop().ToLowerInvariant();
+						cmd = input.PopSpeech().ToLowerInvariant();
 						if (cmd.Length == 0)
 						{
 							actor.OutputHandler.Send("List Item Components for Review by whom?");
@@ -485,7 +485,7 @@ Help:
 
 		private static void Component_Review_History(ICharacter actor, StringStack input)
 		{
-			var cmd = input.Pop();
+			var cmd = input.PopSpeech();
 			if (!long.TryParse(cmd, out var value))
 			{
 				actor.OutputHandler.Send("Which item component do you want to view the revision history of?");
@@ -534,11 +534,11 @@ Help:
 			var protos = actor.Gameworld.ItemComponentProtos.Where(x => x.Status == RevisionStatus.PendingRevision);
 			while (!input.IsFinished)
 			{
-				var cmd = input.Pop().ToLowerInvariant();
+				var cmd = input.PopSpeech().ToLowerInvariant();
 				switch (cmd)
 				{
 					case "by":
-						cmd = input.Pop().ToLowerInvariant();
+						cmd = input.PopSpeech().ToLowerInvariant();
 						if (cmd.Length == 0)
 						{
 							actor.OutputHandler.Send("Review Item Components by whom?");
@@ -610,7 +610,7 @@ Help:
 
 			IGameItemComponentProto proto = null;
 
-			var cmd = input.Pop();
+			var cmd = input.PopSpeech();
 			if (cmd.Length == 0)
 			{
 				proto =
@@ -820,7 +820,7 @@ Help:
 			}
 
 			IGameItemComponentProto proto = null;
-			cmd = input.Pop();
+			cmd = input.PopSpeech();
 			if (cmd.Length == 0)
 			{
 				proto = actor.Gameworld.ItemComponentProtos.Get(id);
@@ -1021,7 +1021,7 @@ Help:
 
 		private static void Component_Show(ICharacter actor, StringStack input)
 		{
-			var cmd = input.Pop();
+			var cmd = input.PopSpeech();
 			if (!long.TryParse(cmd, out var vnum))
 			{
 				actor.OutputHandler.Send("That is not a valid id number.");
@@ -1029,7 +1029,7 @@ Help:
 			}
 
 			IGameItemComponentProto proto = null;
-			cmd = input.Pop();
+			cmd = input.PopSpeech();
 			if (cmd.Length > 0)
 			{
 				if (!int.TryParse(cmd, out var revision))

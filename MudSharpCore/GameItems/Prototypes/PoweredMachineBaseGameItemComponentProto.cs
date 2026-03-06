@@ -77,7 +77,7 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("How many watts should this machine use when powered on?");
 			return false;

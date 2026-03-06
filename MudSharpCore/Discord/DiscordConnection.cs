@@ -303,7 +303,7 @@ public sealed class DiscordConnection : IDiscordConnection
 	private void HandleTcpCommand(string getString)
 	{
 		var ss = new StringStack(getString);
-		switch (ss.Pop())
+		switch (ss.PopSpeech())
 		{
 			case "help":
 				Console.WriteLine("Discord asked for HELP.");
@@ -374,7 +374,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleSendChannelTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
+		var request = ulong.Parse(ss.PopSpeech());
 		var from = ss.PopSpeech();
 		var channel = ss.PopSpeech();
 		var message = ss.SafeRemainingArgument;
@@ -404,8 +404,8 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleShutdownTcpCommand(StringStack ss)
 	{
-		var requesterid = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
-		var reboot = bool.Parse(ss.Pop());
+		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		var reboot = bool.Parse(ss.PopSpeech());
 		IAccount account;
 		using (new FMDB())
 		{
@@ -449,9 +449,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleRejectChargenTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
-		var which = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
-		var requesterid = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+		var request = ulong.Parse(ss.PopSpeech());
+		var which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
 		var message = ss.RemainingArgument;
 
 		Chargen chargen;
@@ -481,9 +481,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleApproveChargenTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
-		var which = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
-		var requesterid = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+		var request = ulong.Parse(ss.PopSpeech());
+		var which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
 		var message = ss.RemainingArgument;
 
 		Chargen chargen;
@@ -547,9 +547,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleShowChargenTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
-		var requesterid = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
-		var id = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+		var request = ulong.Parse(ss.PopSpeech());
+		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		var id = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
 
 		Chargen chargen;
 		IAccount account;
@@ -572,10 +572,10 @@ public sealed class DiscordConnection : IDiscordConnection
 
         private void HandleRegisterTcpCommand(StringStack ss)
         {
-		var request = ulong.Parse(ss.Pop());
-		var discorduserid = ulong.Parse(ss.Pop());
+		var request = ulong.Parse(ss.PopSpeech());
+		var discorduserid = ulong.Parse(ss.PopSpeech());
 		var discordusername = ss.PopSpeech();
-		var accountname = ss.Pop();
+		var accountname = ss.PopSpeech();
 
 		var character = Gameworld.Characters.FirstOrDefault(x => x.Account.Name.EqualTo(accountname));
 		if (character == null)
@@ -620,9 +620,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
         private void HandleShowAccountTcpCommand(StringStack ss)
         {
-                var request = ulong.Parse(ss.Pop());
-                var requesterId = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
-                var which = ss.Pop();
+                var request = ulong.Parse(ss.PopSpeech());
+                var requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+                var which = ss.PopSpeech();
 
                 IAccount viewer;
                 MudSharp.Models.Account dbitem;
@@ -647,9 +647,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
         private void HandleShowCharacterTcpCommand(StringStack ss)
         {
-                var request = ulong.Parse(ss.Pop());
-                ss.Pop(); // requester id, currently unused
-                var which = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+                var request = ulong.Parse(ss.PopSpeech());
+                ss.PopSpeech(); // requester id, currently unused
+                var which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
 
                 var character = Gameworld.TryGetCharacter(which, true);
                 if (character == null)
@@ -664,9 +664,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
         private void HandleMapTcpCommand(StringStack ss)
         {
-                var request = ulong.Parse(ss.Pop());
-                var accountId = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
-                var cellId = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+                var request = ulong.Parse(ss.PopSpeech());
+                var accountId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+                var cellId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
 
                 IAccount account;
                 using (new FMDB())
@@ -831,9 +831,9 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleSendTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
-		var from = ss.Pop();
-		var to = ss.Pop();
+		var request = ulong.Parse(ss.PopSpeech());
+		var from = ss.PopSpeech();
+		var to = ss.PopSpeech();
 		var message = ss.RemainingArgument;
 		var user = Gameworld.Connections.FirstOrDefault(x =>
 			x.State == ConnectionState.Open && x.ControlPuppet?.Account?.Name.EqualTo(to) == true);
@@ -861,7 +861,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleProgHelpTcpCommand(StringStack ss)
 	{
-		var response = ulong.Parse(ss.Pop());
+		var response = ulong.Parse(ss.PopSpeech());
 		var which = ss.PopForSwitch();
 		switch (which)
 		{
@@ -1000,7 +1000,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleHelpTcpCommand(StringStack ss, bool admin = false)
 	{
-		var response = ulong.Parse(ss.Pop());
+		var response = ulong.Parse(ss.PopSpeech());
 		if (ss.IsFinished)
 		{
 			SendClientMessage(
@@ -1018,7 +1018,7 @@ public sealed class DiscordConnection : IDiscordConnection
 				return;
 			}
 
-			ss.Pop();
+			ss.PopSpeech();
 			var category = ss.RemainingArgument;
 			var helpFileInfos = new List<(string Name, string Subcategory, string Tagline, string Keywords)>();
 			var helpfiles = Gameworld.Helpfiles.Where(x =>
@@ -1098,7 +1098,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleStatsTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
+		var request = ulong.Parse(ss.PopSpeech());
 		var sb = new StringBuilder();
 		sb.AppendLine($"The following statistics are available regarding {Gameworld.Name.Proper()}:");
 		sb.AppendLine();
@@ -1135,7 +1135,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleWhereTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
+		var request = ulong.Parse(ss.PopSpeech());
 		SendClientMessage($"request {request} " + StringUtilities.GetTextTable(
 			from character in Gameworld.Characters.Where(x => !x.State.HasFlag(CharacterState.Dead))
 			                           .OrderBy(x => x.Location.Id).ToList()
@@ -1156,7 +1156,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 	private void HandleWhoTcpCommand(StringStack ss)
 	{
-		var request = ulong.Parse(ss.Pop());
+		var request = ulong.Parse(ss.PopSpeech());
 		var count =
 			Gameworld.Characters.Count(
 				x => !x.IsAdministrator() && !x.IsGuest) +

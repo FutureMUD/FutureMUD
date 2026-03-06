@@ -522,7 +522,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var value))
+		if (!int.TryParse(ss.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a valid amount for this resource to cost.");
 			return false;
@@ -584,7 +584,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		var argText = ss.Pop();
+		var argText = ss.PopSpeech();
 		if (argText.Equals("clear", StringComparison.InvariantCultureIgnoreCase))
 		{
 			if (AvailabilityProg == null)
@@ -639,7 +639,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var value))
+		if (!int.TryParse(ss.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a number.");
 			return false;
@@ -674,7 +674,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var value))
+		if (!int.TryParse(ss.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a number.");
 			return false;

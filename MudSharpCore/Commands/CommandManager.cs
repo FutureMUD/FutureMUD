@@ -162,7 +162,7 @@ public class CommandManager : ICommandManager
 	{
 		var splitCommands = new StringStack(input);
 
-		_commands.TryGetValue(splitCommands.Pop().ToLowerInvariant(), out var command);
+		_commands.TryGetValue(splitCommands.PopSpeech().ToLowerInvariant(), out var command);
 
 		if (command == null)
 		{

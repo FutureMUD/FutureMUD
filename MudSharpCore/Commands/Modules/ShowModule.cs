@@ -2378,7 +2378,7 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
-		if (!long.TryParse(ss.Pop(), out var value))
+		if (!long.TryParse(ss.PopSpeech(), out var value))
 		{
 			actor.Send("Which description pattern do you want to see?");
 			return;
@@ -2406,7 +2406,7 @@ public class ShowModule : Module<ICharacter>
 		string whoFor;
 		int age;
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "me":
 				race = actor.Race;
@@ -2427,7 +2427,7 @@ public class ShowModule : Module<ICharacter>
 					return;
 				}
 
-				if (!long.TryParse(ss.Pop(), out value))
+				if (!long.TryParse(ss.PopSpeech(), out value))
 				{
 					actor.Send("That is not a valid ID number for an NPC template.");
 					return;
@@ -2461,7 +2461,7 @@ public class ShowModule : Module<ICharacter>
 					return;
 				}
 
-				if (!long.TryParse(ss.Pop(), out value))
+				if (!long.TryParse(ss.PopSpeech(), out value))
 				{
 					actor.Send("That is not a valid ID number for a Character.");
 					return;
@@ -2525,16 +2525,16 @@ public class ShowModule : Module<ICharacter>
 		    ss.Peek().Equals("sdesc", StringComparison.InvariantCultureIgnoreCase))
 		{
 			patterns = patterns.Where(x => x.Type == EntityDescriptionType.ShortDescription).ToList();
-			ss.Pop();
+			ss.PopSpeech();
 		}
 		else if (ss.Peek().Equals("full", StringComparison.InvariantCultureIgnoreCase) ||
 		         ss.Peek().Equals("desc", StringComparison.InvariantCultureIgnoreCase))
 		{
 			patterns = patterns.Where(x => x.Type == EntityDescriptionType.FullDescription).ToList();
-			ss.Pop();
+			ss.PopSpeech();
 		}
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "me":
 				race = actor.Race;
@@ -2555,7 +2555,7 @@ public class ShowModule : Module<ICharacter>
 					return;
 				}
 
-				if (!long.TryParse(ss.Pop(), out value))
+				if (!long.TryParse(ss.PopSpeech(), out value))
 				{
 					actor.Send("That is not a valid ID number for an NPC template.");
 					return;
@@ -2589,7 +2589,7 @@ public class ShowModule : Module<ICharacter>
 					return;
 				}
 
-				if (!long.TryParse(ss.Pop(), out value))
+				if (!long.TryParse(ss.PopSpeech(), out value))
 				{
 					actor.Send("That is not a valid ID number for a Character.");
 					return;
@@ -2805,7 +2805,7 @@ public class ShowModule : Module<ICharacter>
 
                 using (new FMDB())
                 {
-                        var dbaccount = long.TryParse(input.Pop(), out var value)
+                        var dbaccount = long.TryParse(input.PopSpeech(), out var value)
                                 ? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
                                 : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == input.Last);
                         if (dbaccount == null)
@@ -3228,7 +3228,7 @@ public class ShowModule : Module<ICharacter>
 		var characteristics = actor.Gameworld.CharacteristicProfiles.ToList();
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop();
+			var cmd = input.PopSpeech();
 			characteristics =
 				characteristics.Where(x => x.Name.StartsWith(cmd, StringComparison.CurrentCultureIgnoreCase))
 				               .ToList();
@@ -3257,7 +3257,7 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
-		var cmd = input.Pop();
+		var cmd = input.PopSpeech();
 		var definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.Pattern.IsMatch(cmd));
 		if (definition == null)
 		{
@@ -3292,7 +3292,7 @@ public class ShowModule : Module<ICharacter>
 		var characteristics = actor.Gameworld.Characteristics.ToList();
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop();
+			var cmd = input.PopSpeech();
 			characteristics =
 				characteristics.Where(x => x.Name.StartsWith(cmd, StringComparison.CurrentCultureIgnoreCase))
 				               .ToList();

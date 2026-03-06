@@ -60,7 +60,7 @@ public class ColourCharacteristicValue : CharacteristicValue
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "colour":
 			case "color":

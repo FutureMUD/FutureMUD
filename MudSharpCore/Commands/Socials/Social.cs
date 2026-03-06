@@ -126,7 +126,7 @@ public class Social : ISocial
 		{
 			while (!ss.IsFinished && string.IsNullOrEmpty(ss.PeekParentheses()))
 			{
-				var targetText = ss.Pop();
+				var targetText = ss.PopSpeech();
 				var target = actor.Target(targetText);
 				if (target == null)
 				{

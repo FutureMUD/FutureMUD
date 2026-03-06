@@ -53,13 +53,13 @@ internal class CommunicationsModule : Module<ICharacter>
 			return;
 		}
 
-		if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
+		if (ss.SafeRemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send("You could not possibly think so much at once.");
 			return;
 		}
 
-		var thinkText = ss.RemainingArgument.Sanitise().ProperSentences().NormaliseSpacing().Fullstop();
+		var thinkText = ss.SafeRemainingArgument.Sanitise().ProperSentences().NormaliseSpacing().Fullstop();
 		actor.Send(
 			$"You think{(!string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(actor)}, " : "")}\n\t\"{thinkText}\"");
 		foreach (
@@ -98,7 +98,7 @@ internal class CommunicationsModule : Module<ICharacter>
 			return;
 		}
 
-		if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
+		if (ss.SafeRemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send("You could not possibly feel so much at once.");
 			return;
@@ -396,7 +396,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -426,7 +426,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to sing at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -455,7 +455,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void SingTo(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var target = ss.Pop();
+		var target = ss.PopSpeech();
 		var ptarget = actor.Target(target);
 		if (ptarget == null)
 		{
@@ -477,7 +477,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to sing at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -506,7 +506,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void Talk(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var argument = ss.Pop();
+		var argument = ss.PopSpeech();
 
 		IPerceivable target = null;
 		if (argument.Equals("talkto", StringComparison.InvariantCultureIgnoreCase))
@@ -517,7 +517,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 				return;
 			}
 
-			target = actor.Target(ss.Pop());
+			target = actor.Target(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You do not see anyone or anything like that to talk to.");
@@ -539,7 +539,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -555,7 +555,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void Transmit(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var argument = ss.Pop();
+		var argument = ss.PopSpeech();
 
 		IGameItem target = null;
 		if (argument.Equals("transmitwith", StringComparison.InvariantCultureIgnoreCase))
@@ -566,7 +566,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 				return;
 			}
 
-			target = actor.TargetItem(ss.Pop());
+			target = actor.TargetItem(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You do not see anything like that to transmit with.");
@@ -601,7 +601,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -617,7 +617,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void Tell(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var target = ss.Pop();
+		var target = ss.PopSpeech();
 
 		var emote = new PlayerEmote(ss.PopParentheses(), actor);
 
@@ -633,7 +633,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -656,7 +656,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void Shout(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var argument = ss.Pop();
+		var argument = ss.PopSpeech();
 
 		IPerceivable target = null;
 		if (argument.Equals("shoutat", StringComparison.InvariantCultureIgnoreCase))
@@ -667,7 +667,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 				return;
 			}
 
-			target = actor.Target(ss.Pop());
+			target = actor.Target(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You do not see anyone or anything like that to shout at.");
@@ -689,7 +689,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -705,7 +705,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void LoudSay(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var argument = ss.Pop();
+		var argument = ss.PopSpeech();
 
 		IPerceivable target = null;
 		if (argument.Equals("loudtell", StringComparison.InvariantCultureIgnoreCase))
@@ -716,7 +716,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 				return;
 			}
 
-			target = actor.Target(ss.Pop());
+			target = actor.Target(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You do not see anyone or anything like that to tell loudly.");
@@ -738,7 +738,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -754,7 +754,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void Yell(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var argument = ss.Pop();
+		var argument = ss.PopSpeech();
 
 		IPerceivable target = null;
 		if (argument.Equals("yellat", StringComparison.InvariantCultureIgnoreCase))
@@ -765,7 +765,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 				return;
 			}
 
-			target = actor.Target(ss.Pop());
+			target = actor.Target(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You do not see anyone or anything like that to yell at.");
@@ -787,7 +787,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -803,7 +803,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 	protected static void Whisper(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var argument = ss.Pop();
+		var argument = ss.PopSpeech();
 
 		IPerceivable target = null;
 		if (argument.Equals("whisperto", StringComparison.InvariantCultureIgnoreCase))
@@ -814,7 +814,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 				return;
 			}
 
-			target = actor.Target(ss.Pop());
+			target = actor.Target(ss.PopSpeech());
 			if (target == null)
 			{
 				actor.OutputHandler.Send("You do not see anyone or anything like that to whisper to.");
@@ -836,7 +836,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 			return;
 		}
 
-		var message = ss.RemainingArgument;
+		var message = ss.SafeRemainingArgument;
 		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
@@ -907,7 +907,7 @@ You can use the following syntax with this command:
 	protected static void Board(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "read":
 				BoardRead(actor, ss);

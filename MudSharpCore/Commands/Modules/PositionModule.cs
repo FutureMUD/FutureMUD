@@ -414,7 +414,7 @@ The syntax can be either of the following:
 	protected static void Chair(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				Chair_Add(character, ss);
@@ -971,7 +971,7 @@ For example:
 			match = _positionTableRegex.Match(input);
 			if (!match.Success)
 			{
-				actor.OutputHandler.Send("That is not a valid use of the " + new StringStack(input).Pop() +
+				actor.OutputHandler.Send("That is not a valid use of the " + new StringStack(input).PopSpeech() +
 				                         " command.");
 				return;
 			}

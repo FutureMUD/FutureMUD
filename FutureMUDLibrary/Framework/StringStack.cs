@@ -64,6 +64,9 @@ namespace MudSharp.Framework {
 				new string(result.ToArray());
 		}
 
+		/// <summary>
+		/// Returns the remaining argument with balanced quote wrappers removed. This is the preferred API for final free-text arguments.
+		/// </summary>
 		public string SafeRemainingArgument {
 			get
 			{
@@ -93,7 +96,10 @@ namespace MudSharp.Framework {
 			return PopSpeech();
 		}
 
-		// TODO: Need to trim off pop?
+		/// <summary>
+		/// Pops the next space-delimited token without any quote handling.
+		/// Prefer PopSpeech() for command parsing unless raw token behaviour is explicitly required.
+		/// </summary>
 		public string Pop() {
 			if ((RemainingArgument.Length > 0) && !IsFinished) {
 				var splitResult = RemainingArgument.Split(_separators, 2, StringSplitOptions.RemoveEmptyEntries);
@@ -123,6 +129,10 @@ namespace MudSharp.Framework {
 				: string.Empty;
 		}
 
+		/// <summary>
+		/// Pops the next argument, respecting leading quoted text as a single argument.
+		/// This is the default pop operation for player/admin command argument parsing.
+		/// </summary>
 		public string PopSpeech() {
 			if ((RemainingArgument.Length > 0) && !IsFinished && _speechSeparator.Contains(RemainingArgument[0])) {
 				var splitResult = RemainingArgument.Split(_speechSeparator, 3);
@@ -144,7 +154,7 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		/// Equivalent to PopSpeech().ToLowerInvariant().CollapseString(). Used commonly with switch statements for building commands.
+		/// Equivalent to PopSpeech().ToLowerInvariant().CollapseString(). Used commonly with switch statements for building commands. Note that this advances the stack and should not be used inside LINQ selectors/predicates.
 		/// </summary>
 		/// <returns></returns>
 		public string PopForSwitch()
@@ -152,6 +162,9 @@ namespace MudSharp.Framework {
 			return PopSpeech().ToLowerInvariant().CollapseString();
 		}
 
+		/// <summary>
+		/// Peeks the next argument with the same quote-aware behaviour as PopSpeech().
+		/// </summary>
 		public string PeekSpeech() {
 			return (RemainingArgument.Length > 0) && !IsFinished && RemainingArgument.StartsWith("\"", StringComparison.Ordinal)
 				? RemainingArgument.Split(_speechSeparator, 3)[1]

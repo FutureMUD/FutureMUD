@@ -55,7 +55,7 @@ public class SmokeableGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "fuel":
 				return BuildingCommandFuel(actor, command);
@@ -227,7 +227,7 @@ public class SmokeableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a number of seconds of fuel for this smokeable item to have.");
 			return false;
@@ -254,7 +254,7 @@ public class SmokeableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"You must enter a number of seconds of fuel for this smokeable item to use upon taking a drag.");
@@ -282,7 +282,7 @@ public class SmokeableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"You must enter a multiplier for this smokeable item to have in terms of the lingering effect length.");
@@ -311,7 +311,7 @@ public class SmokeableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (command.Pop().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+		if (command.PopSpeech().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
 		{
 			OnDragProg = null;
 			Changed = true;

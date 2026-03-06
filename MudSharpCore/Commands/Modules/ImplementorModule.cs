@@ -107,7 +107,7 @@ public class ImplementorModule : Module<ICharacter>
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (ss.Peek().ToLowerInvariant() == "convert")
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			var amount = actor.Currency.GetBaseCurrency(ss.SafeRemainingArgument, out var success);
 			if (success)
 			{
@@ -126,7 +126,7 @@ public class ImplementorModule : Module<ICharacter>
 		}
 		else
 		{
-			if (!decimal.TryParse(ss.Pop(), out var amount))
+			if (!decimal.TryParse(ss.PopSpeech(), out var amount))
 			{
 				actor.OutputHandler.Send("You must enter a number.");
 				return;
@@ -203,10 +203,11 @@ public class ImplementorModule : Module<ICharacter>
 				return;
 			}
 
+			var prompt = ss.SafeRemainingArgument;
 			var threadName = thread.Name;
 			actor.OutputHandler.Send(
-				$"You send the following request to the {thread.Name.ColourName()} GPT thread:\n\n{ss.RemainingArgument}");
-			OpenAI.OpenAIHandler.MakeGPTRequest(thread, ss.RemainingArgument, actor, text =>
+				$"You send the following request to the {thread.Name.ColourName()} GPT thread:\n\n{prompt}");
+			OpenAI.OpenAIHandler.MakeGPTRequest(thread, prompt, actor, text =>
 			{
 				actor.OutputHandler.Send($"#B[GPT Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
 			});
@@ -249,10 +250,11 @@ public class ImplementorModule : Module<ICharacter>
 				return;
 			}
 
+			var prompt = ss.SafeRemainingArgument;
 			var threadName = thread.Name;
 			actor.OutputHandler.Send(
-				$"You send the following request to the {thread.Name.ColourName()} Anthropic thread:\n\n{ss.RemainingArgument}");
-			OpenAI.OpenAIHandler.MakeAnthropicRequest(thread.Prompt, ss.SafeRemainingArgument, text =>
+				$"You send the following request to the {thread.Name.ColourName()} Anthropic thread:\n\n{prompt}");
+			OpenAI.OpenAIHandler.MakeAnthropicRequest(thread.Prompt, prompt, text =>
 			{
 				actor.OutputHandler.Send($"#B[Anthropic Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
 			}, actor.Gameworld.GetStaticConfiguration("AnthropicDefaultModel"));
@@ -295,10 +297,11 @@ public class ImplementorModule : Module<ICharacter>
 				return;
 			}
 
+			var prompt = ss.SafeRemainingArgument;
 			var threadName = thread.Name;
 			actor.OutputHandler.Send(
-				$"You send the following request to the {thread.Name.ColourName()} Gemini thread:\n\n{ss.RemainingArgument}");
-			OpenAI.OpenAIHandler.MakeGeminiRequest(thread.Prompt, ss.SafeRemainingArgument, text =>
+				$"You send the following request to the {thread.Name.ColourName()} Gemini thread:\n\n{prompt}");
+			OpenAI.OpenAIHandler.MakeGeminiRequest(thread.Prompt, prompt, text =>
 			{
 				actor.OutputHandler.Send($"#B[Gemini Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
 			}, actor.Gameworld.GetStaticConfiguration("GeminiDefaultModel"));
@@ -1431,7 +1434,7 @@ div.function-generalhelp {
 		}
 
 		IEnumerable<IEntityDescriptionPattern> patterns;
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "short":
 			case "sdesc":
@@ -1451,7 +1454,7 @@ div.function-generalhelp {
 				return;
 		}
 
-		var target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		var target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -1484,7 +1487,7 @@ div.function-generalhelp {
 
 		try
 		{
-			actor.OutputHandler.Send(actor.Gameworld.GetStaticString(ss.Pop()), nopage: true);
+			actor.OutputHandler.Send(actor.Gameworld.GetStaticString(ss.PopSpeech()), nopage: true);
 		}
 		catch
 		{
@@ -1502,7 +1505,7 @@ div.function-generalhelp {
 
 		try
 		{
-			actor.OutputHandler.Send(actor.Gameworld.GetStaticConfiguration(ss.Pop()), nopage: true);
+			actor.OutputHandler.Send(actor.Gameworld.GetStaticConfiguration(ss.PopSpeech()), nopage: true);
 		}
 		catch
 		{
@@ -1518,7 +1521,7 @@ div.function-generalhelp {
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You do not see anyone like that to give a dream to.");
@@ -1564,7 +1567,7 @@ div.function-generalhelp {
 			return;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var number))
+		if (!int.TryParse(ss.PopSpeech(), out var number))
 		{
 			actor.Send("How many new guests do you want to generate?");
 			return;

@@ -41,7 +41,7 @@ internal class MovementModule : Module<ICharacter>
 		}
 
 		var ss = new StringStack(input);
-		var direction = ss.Pop();
+		var direction = ss.PopSpeech();
 		var emote = new PlayerEmote(ss.PopParentheses(), actor.Body);
 
 		if (!emote.Valid)
@@ -187,7 +187,7 @@ The syntax for this command is as follows:
 		switch (cmd)
 		{
 			case "speed":
-				cmd = ss.Pop().ToLowerInvariant();
+				cmd = ss.PopSpeech().ToLowerInvariant();
 				if (cmd.Length == 0)
 				{
 					actor.OutputHandler.Send("Which speed would you like to set for the party?");
@@ -240,7 +240,7 @@ The syntax for this command is as follows:
 
 				break;
 			case "join":
-				cmd = ss.Pop().ToLowerInvariant();
+				cmd = ss.PopSpeech().ToLowerInvariant();
 				if (cmd.Length == 0)
 				{
 					actor.OutputHandler.Send("Who do you wish to petition to join their party?");
@@ -271,7 +271,7 @@ The syntax for this command is as follows:
 				                          actor.Body.ApparentGender(target).Possessive() + " request.");
 				break;
 			case "invite":
-				cmd = ss.Pop().ToLowerInvariant();
+				cmd = ss.PopSpeech().ToLowerInvariant();
 				if (cmd.Length == 0)
 				{
 					actor.OutputHandler.Send("Who do you wish to invite to join your party?");
@@ -302,7 +302,7 @@ The syntax for this command is as follows:
 				                          " request.");
 				break;
 			case "promote":
-				cmd = ss.Pop().ToLowerInvariant();
+				cmd = ss.PopSpeech().ToLowerInvariant();
 				if (cmd.Length == 0)
 				{
 					actor.OutputHandler.Send("Who do you wish to promote to the new party leader?");
@@ -404,7 +404,7 @@ The syntax for this command is as follows:
 					return;
 				}
 
-				cmd = ss.Pop().ToLowerInvariant();
+				cmd = ss.PopSpeech().ToLowerInvariant();
 				if (cmd.Length == 0)
 				{
 					actor.OutputHandler.Send("With whose party do you wish to merge?");
@@ -457,7 +457,7 @@ The syntax for this command is as follows:
 					return;
 				}
 
-				cmd = ss.Pop().ToLowerInvariant();
+				cmd = ss.PopSpeech().ToLowerInvariant();
 				if (cmd.Length == 0)
 				{
 					actor.OutputHandler.Send("Who do you wish to eject from your party?");
@@ -499,7 +499,7 @@ The syntax for this command is as follows:
 	protected static void Speed(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var cmd = ss.Pop().ToLowerInvariant();
+		var cmd = ss.PopSpeech().ToLowerInvariant();
 
 		if (cmd.Length == 0)
 		{

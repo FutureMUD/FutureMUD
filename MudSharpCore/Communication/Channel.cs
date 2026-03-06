@@ -151,7 +151,7 @@ public class Channel : SaveableItem, IChannel
 	public static void ChannelCommandDelegate(ICharacter character, string command)
 	{
 		var ss = new StringStack(command);
-		var original = ss.Pop().ToLowerInvariant();
+		var original = ss.PopSpeech().ToLowerInvariant();
 
 		if (original.Equals("channel", StringComparison.InvariantCultureIgnoreCase))
 		{

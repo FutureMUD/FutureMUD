@@ -113,7 +113,7 @@ public class ChairGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_ChairSlots(ICharacter actor, StringStack command)
 	{
-		var number = command.Pop();
+		var number = command.PopSpeech();
 		if (!int.TryParse(number, out var value))
 		{
 			actor.OutputHandler.Send("How many chair slots do you want this chair to use up?");
@@ -134,7 +134,7 @@ public class ChairGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_Occupants(ICharacter actor, StringStack command)
 	{
-		var number = command.Pop();
+		var number = command.PopSpeech();
 		if (!int.TryParse(number, out var value))
 		{
 			actor.OutputHandler.Send("How many places for occupants do you want this chair to have?");

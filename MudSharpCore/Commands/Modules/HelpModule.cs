@@ -264,7 +264,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (command.Pop().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+		if (command.PopSpeech().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
 		{
 			if (helpfile.Rule == null)
 			{
@@ -386,7 +386,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		var prog = long.TryParse(command.Pop(), out var value)
+		var prog = long.TryParse(command.PopSpeech(), out var value)
 			? actor.Gameworld.FutureProgs.Get(value)
 			: actor.Gameworld.FutureProgs.FirstOrDefault(
 				x => x.FunctionName.Equals(command.Last, StringComparison.InvariantCultureIgnoreCase));
@@ -507,7 +507,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a valid number for the extra text to edit.");
 			return;
@@ -542,7 +542,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a valid number for the extra text to edit.");
 			return;
@@ -555,7 +555,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		var prog = long.TryParse(command.Pop(), out var progid)
+		var prog = long.TryParse(command.PopSpeech(), out var progid)
 			? actor.Gameworld.FutureProgs.Get(progid)
 			: actor.Gameworld.FutureProgs.FirstOrDefault(
 				x => x.FunctionName.Equals(command.Last, StringComparison.InvariantCultureIgnoreCase));
@@ -604,7 +604,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 			case "new":
@@ -870,7 +870,7 @@ The following is a list of all of the categories that exist for you to search:
 		}
 
 		//Next handle 'help <exact match>' or 'help "<exact match>"'
-		if (HelpExactMatch(actor, ss.RemainingArgument, true))
+		if (HelpExactMatch(actor, ss.SafeRemainingArgument, true))
 			//User was shown the exact matching helpfile.
 		{
 			return;

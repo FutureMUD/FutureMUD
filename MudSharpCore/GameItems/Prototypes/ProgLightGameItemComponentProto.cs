@@ -38,7 +38,7 @@ public class ProgLightGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("How many lux of illumination should this torch provide when lit?");
 			return false;
@@ -58,7 +58,7 @@ public class ProgLightGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "lux":
 			case "illumination":

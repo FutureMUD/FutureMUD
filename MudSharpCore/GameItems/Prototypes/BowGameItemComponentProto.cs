@@ -307,7 +307,7 @@ public class BowGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value) || value < 0.0)
+		if (!double.TryParse(command.PopSpeech(), out var value) || value < 0.0)
 		{
 			actor.Send("You must enter a positive amount of stamina for this bow to drain.");
 			return false;

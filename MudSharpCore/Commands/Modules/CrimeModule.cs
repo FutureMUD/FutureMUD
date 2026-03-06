@@ -1355,7 +1355,7 @@ The syntax is either #3patrols#0 or #3patrols <jurisdiction>#0 if you are an enf
 	protected static void PermitWork(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input);
-		var property = ss.Pop().EqualTo("permitworkproperty");
+		var property = ss.PopSpeech().EqualTo("permitworkproperty");
 		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{

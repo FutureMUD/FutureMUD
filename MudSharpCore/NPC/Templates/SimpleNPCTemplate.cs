@@ -189,7 +189,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "accent":
 				return BuildingCommandAccent(actor, command);
@@ -1135,7 +1135,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var dValue))
+		if (!double.TryParse(command.PopSpeech(), out var dValue))
 		{
 			actor.OutputHandler.Send("You must enter a number for the value of the attribute.");
 			return false;
@@ -1167,14 +1167,14 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			MudDate date;
 			if (command.Peek().Equals("random", StringComparison.InvariantCultureIgnoreCase))
 			{
-				command.Pop();
+				command.PopSpeech();
 				if (command.IsFinished)
 				{
 					actor.Send("How old do you want this NPC to be?");
 					return false;
 				}
 
-				if (!int.TryParse(command.Pop(), out var age))
+				if (!int.TryParse(command.PopSpeech(), out var age))
 				{
 					actor.Send("You must enter a number in years for the age of this NPC.");
 					return false;
@@ -1440,7 +1440,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		var template = GetCharacterTemplate();
 		IEnumerable<IEntityDescriptionPattern> patterns;
 		EntityDescriptionType type;
-		switch (command.Pop())
+		switch (command.PopSpeech())
 		{
 			case "sdesc":
 				patterns =
@@ -1468,7 +1468,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		}
 		else
 		{
-			pattern = long.TryParse(command.Pop(), out var value) ? patterns.FirstOrDefault(x => x.Id == value) : null;
+			pattern = long.TryParse(command.PopSpeech(), out var value) ? patterns.FirstOrDefault(x => x.Id == value) : null;
 		}
 
 		if (pattern == null)
@@ -1541,7 +1541,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			return false;
 		}
 
-		if (string.IsNullOrEmpty(command.Pop()))
+		if (string.IsNullOrEmpty(command.PopSpeech()))
 		{
 			actor.OutputHandler.Send("What gender do you want to give to this NPC?");
 			return false;
@@ -1668,7 +1668,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("You must enter a value for this NPCs skill to be set to.");
 			return false;

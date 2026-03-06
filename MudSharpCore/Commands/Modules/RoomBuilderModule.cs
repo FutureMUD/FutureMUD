@@ -201,7 +201,7 @@ There is also a universal optional argument which must come first in the form of
 	protected static void Cell(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "new":
 			case "create":
@@ -922,7 +922,7 @@ Enter your text below:");
 		ICellOverlayPackage package = null;
 		if (long.TryParse(cmd, out var value))
 		{
-			cmd = input.Pop();
+			cmd = input.PopSpeech();
 			if (!string.IsNullOrEmpty(cmd) && int.TryParse(cmd, out var revnum))
 			{
 				package = actor.Gameworld.CellOverlayPackages.Get(value, revnum);
@@ -934,7 +934,7 @@ Enter your text below:");
 		}
 		else
 		{
-			var revcmd = input.Pop();
+			var revcmd = input.PopSpeech();
 			if (!string.IsNullOrEmpty(cmd) && int.TryParse(revcmd, out var revnum))
 			{
 				package = actor.Gameworld.CellOverlayPackages.GetByName(cmd, revnum);
@@ -1129,7 +1129,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "list":
 				Zones(actor, input);
@@ -1205,7 +1205,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			return;
 		}
 
-		if (!double.TryParse(command.Pop(), out var latitude))
+		if (!double.TryParse(command.PopSpeech(), out var latitude))
 		{
 			actor.OutputHandler.Send("You must enter a number of degrees of latitude for this zone.");
 			return;
@@ -1235,7 +1235,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			return;
 		}
 
-		if (!double.TryParse(command.Pop(), out var longitude))
+		if (!double.TryParse(command.PopSpeech(), out var longitude))
 		{
 			actor.OutputHandler.Send("You must enter a number of degrees of longitude for this zone.");
 			return;
@@ -1265,7 +1265,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			return;
 		}
 
-		if (!double.TryParse(command.Pop(), out var level))
+		if (!double.TryParse(command.PopSpeech(), out var level))
 		{
 			actor.OutputHandler.Send(
 				"You must enter an amount of light in lux for this zone's ambient light pollution.");
@@ -1916,14 +1916,14 @@ You can use the following subcommands:
 	{
 		if (input.Peek().EqualTo("exit"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExit(actor, input);
 			return;
 		}
 
 		if (input.Peek().Equals("register", StringComparison.InvariantCultureIgnoreCase))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellSetRegister(actor, input);
 			return;
 		}
@@ -2249,7 +2249,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		var variableName = command.Pop();
+		var variableName = command.PopSpeech();
 		var variableType = actor.Gameworld.VariableRegister.GetType(ProgVariableTypes.Location, variableName);
 		if (variableType == ProgVariableTypes.Error)
 		{
@@ -2281,7 +2281,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		var whichVariable = command.Pop().ToLowerInvariant();
+		var whichVariable = command.PopSpeech().ToLowerInvariant();
 		var type = actor.Gameworld.VariableRegister.GetType(ProgVariableTypes.Location, whichVariable);
 		if (type == ProgVariableTypes.Error)
 		{
@@ -2304,7 +2304,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -2430,7 +2430,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		if (!double.TryParse(input.Pop(), out var value))
+		if (!double.TryParse(input.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send(
 				"You must enter a valid number to use as a multiplier for natural light levels.");
@@ -2456,7 +2456,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		if (!double.TryParse(input.Pop(), out var value))
+		if (!double.TryParse(input.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("You must enter a valid number to use as the ambient light level.");
 			return;
@@ -2626,14 +2626,14 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		if (input.Peek().EqualTo("hide"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitHide(actor, input);
 			return;
 		}
 
 		if (input.Peek().EqualTo("unhide"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitUnhide(actor, input);
 			return;
 		}
@@ -2654,55 +2654,55 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		if (input.Peek().EqualTo("size"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitSize(actor, input, false);
 			return;
 		}
 
 		if (input.Peek().EqualTo("upright"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitSize(actor, input, true);
 			return;
 		}
 
 		if (input.Peek().EqualTo("fall"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitFall(actor, input);
 			return;
 		}
 
 		if (input.Peek().EqualTo("climb"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitClimb(actor, input);
 			return;
 		}
 
 		if (input.Peek().EqualTo("reset"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitReset(actor, input);
 			return;
 		}
 
 		if (input.Peek().EqualTo("block"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitBlock(actor, input);
 			return;
 		}
 
 		if (input.Peek().EqualTo("unblock"))
 		{
-			input.Pop();
+			input.PopSpeech();
 			CellExitUnblock(actor, input);
 			return;
 		}
 
 		var add = false;
-		switch (input.Pop().ToLowerInvariant())
+		switch (input.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				add = true;
@@ -2728,7 +2728,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 				return;
 		}
 
-		if (!long.TryParse(input.Pop(), out var value))
+		if (!long.TryParse(input.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send($"You must enter the ID of the exit you want to {(add ? "add" : "remove")}.");
 			return;
@@ -2791,7 +2791,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -2849,7 +2849,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -2877,7 +2877,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -2914,7 +2914,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -2952,7 +2952,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -3007,7 +3007,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -3049,7 +3049,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -3098,7 +3098,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var currentOverlayExits = actor.Location.ExitsFor(actor, true);
-		var exit = long.TryParse(input.Pop(), out var id)
+		var exit = long.TryParse(input.PopSpeech(), out var id)
 			? currentOverlayExits.FirstOrDefault(x => x.Exit.Id == id)
 			: currentOverlayExits.GetFromItemListByKeyword(input.Last, actor);
 		if (exit == null)
@@ -3492,14 +3492,14 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopSpeech().ToLowerInvariant();
 			switch (cmd)
 			{
 				case "all":
 					packages = actor.Gameworld.CellOverlayPackages.AsEnumerable();
 					break;
 				case "by":
-					cmd = input.Pop().ToLowerInvariant();
+					cmd = input.PopSpeech().ToLowerInvariant();
 					if (cmd.Length == 0)
 					{
 						actor.OutputHandler.Send("List Cell Overlay Packages for Review by whom?");
@@ -3799,11 +3799,11 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopSpeech().ToLowerInvariant();
 			switch (cmd)
 			{
 				case "by":
-					cmd = input.Pop().ToLowerInvariant();
+					cmd = input.PopSpeech().ToLowerInvariant();
 					if (cmd.Length == 0)
 					{
 						actor.OutputHandler.Send("List Cell Overlay Packages for Review by whom?");
@@ -3862,11 +3862,11 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		while (!input.IsFinished)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopSpeech().ToLowerInvariant();
 			switch (cmd)
 			{
 				case "by":
-					cmd = input.Pop().ToLowerInvariant();
+					cmd = input.PopSpeech().ToLowerInvariant();
 					if (cmd.Length == 0)
 					{
 						actor.OutputHandler.Send("List Cell Overlay Packages for Review by whom?");
@@ -3922,7 +3922,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 
 		ICellOverlayPackage package = null;
 
-		var cmd = input.Pop();
+		var cmd = input.PopSpeech();
 		if (cmd.Length == 0)
 		{
 			package =
@@ -4207,7 +4207,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		if (!double.TryParse(input.Pop(), out var value))
+		if (!double.TryParse(input.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a valid number of lux.");
 			return;
@@ -4267,7 +4267,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		switch (input.Pop().ToLowerInvariant())
+		switch (input.PopSpeech().ToLowerInvariant())
 		{
 			case "name":
 				ShardEditName(actor, input, shard);

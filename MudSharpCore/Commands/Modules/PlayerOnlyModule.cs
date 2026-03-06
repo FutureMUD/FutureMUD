@@ -16,7 +16,6 @@ using MudSharp.Accounts;
 using MudSharp.Character.Name;
 using MudSharp.TimeAndDate;
 using System.Xml.Linq;
-using System.Text.RegularExpressions;
 using MudSharp.Community.Boards;
 
 namespace MudSharp.Commands.Modules;
@@ -43,7 +42,6 @@ The syntax for this command is as follows:
   #3journal history <character>#0 - shows you all the journal entries for a particular character of yours
   #3journal write <title>#0 - drops you into an editor to write a journal entry";
 
-	private static Regex JournalReadRegex = new("(?<name>\"?\\w+\"?) (?<index>\\d+)");
 
 	[PlayerCommand("Journal", "journal")]
 	[HelpInfo("journal", JournalHelp, AutoHelp.HelpArg)]
@@ -111,11 +109,14 @@ The syntax for this command is as follows:
 					var character = actor.Id;
 					var characterName = actor.PersonalName.GetName(NameStyle.FullName);
 					int index;
-					if (JournalReadRegex.IsMatch(ss.SafeRemainingArgument))
+					var readArguments = new StringStack(ss.SafeRemainingArgument);
+					var firstArgument = readArguments.PopSpeech();
+					if (!int.TryParse(firstArgument, out index))
 					{
-						var match = JournalReadRegex.Match(ss.SafeRemainingArgument);
-						var name = match.Groups["name"].Value;
-						if (!int.TryParse(match.Groups["index"].Value, out index))
+						var name = firstArgument;
+						if (readArguments.IsFinished ||
+						    !int.TryParse(readArguments.PopSpeech(), out index) ||
+						    !readArguments.IsFinished)
 						{
 							actor.OutputHandler.Send(
 								"You must specify a valid number of the journal entry you'd like to read for that character.");
@@ -128,10 +129,10 @@ The syntax for this command is as follows:
 						                         .AsEnumerable()
 						                         .Select(x => (Character: x,
 							                         Name: new PersonalName(
-									                         XElement.Parse(x.NameInfo).Element("PersonalName")
-									                                 .Element("Name"),
-									                         actor.Gameworld)
-								                         .GetName(NameStyle.FullName)))
+								                         XElement.Parse(x.NameInfo).Element("PersonalName")
+								                                 .Element("Name"),
+								                         actor.Gameworld)
+							                         .GetName(NameStyle.FullName)))
 						                         .ToList();
 
 						var couldBe =
@@ -152,16 +153,6 @@ The syntax for this command is as follows:
 							new PersonalName(XElement.Parse(couldBe.NameInfo).Element("PersonalName").Element("Name"),
 								actor.Gameworld).GetName(NameStyle.FullName);
 					}
-					else
-					{
-						if (!int.TryParse(ss.SafeRemainingArgument, out index))
-						{
-							actor.OutputHandler.Send(
-								"You must specify a valid number of the journal entry you'd like to read.");
-							return;
-						}
-					}
-
 					var notes = FMDB.Context.AccountNotes
 					                .Where(x => x.AccountId == account.Id && x.CharacterId == character &&
 					                            x.IsJournalEntry)
@@ -421,7 +412,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that.");
@@ -457,7 +448,7 @@ See also the #3names#0 command and the #3introduce#0 command.";
 	protected static void Alias(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				AliasAdd(actor, ss);
@@ -594,7 +585,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 			}
 
 			targetName = actorDub.IntroducedName;
-			firstName = new StringStack(targetName).Pop().ToLowerInvariant();
+			firstName = new StringStack(targetName).PopSpeech().ToLowerInvariant();
 		}
 
 		actor.OutputHandler.Handle(
@@ -654,7 +645,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 			return;
 		}
 
-		var socialText = ss.Pop();
+		var socialText = ss.PopSpeech();
 		var social = actor.CommandTree.Commands.Socials.FirstOrDefault(x => x.Applies(actor, socialText, false));
 		if (social == null)
 		{

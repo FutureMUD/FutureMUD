@@ -242,7 +242,7 @@ Note: With the DISPLAY subcommand you can use the following markup in the text:
 		{
 			PlayersCanSetTime = !PlayersCanSetTime;
 		}
-		else if (bool.TryParse(command.Pop(), out var value))
+		else if (bool.TryParse(command.PopSpeech(), out var value))
 		{
 			PlayersCanSetTime = value;
 		}

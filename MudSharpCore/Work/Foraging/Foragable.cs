@@ -430,7 +430,7 @@ public class Foragable : EditableItem, IForagable
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a number for the relative chance.");
 			return false;

@@ -166,7 +166,7 @@ public class BenchGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "maximumchairslots":
 			case "chairs":
@@ -238,7 +238,7 @@ public class BenchGameItemComponentProto : GameItemComponentProto
 		}
 
 		var flipped = false;
-		var text = input.Pop();
+		var text = input.PopSpeech();
 		switch (text.ToLowerInvariant())
 		{
 			case "flipped":
@@ -317,7 +317,7 @@ public class BenchGameItemComponentProto : GameItemComponentProto
 		var chairCount = 1;
 		if (!command.IsFinished)
 		{
-			if (!int.TryParse(command.Pop(), out chairCount))
+			if (!int.TryParse(command.PopSpeech(), out chairCount))
 			{
 				actor.Send("How many of these chairs do you want to be permanently attached to the bench?");
 				return false;
@@ -348,7 +348,7 @@ public class BenchGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommand_MaximumChairSlots(ICharacter actor, StringStack input)
 	{
-		var number = input.Pop();
+		var number = input.PopSpeech();
 		if (!int.TryParse(number, out var value))
 		{
 			actor.OutputHandler.Send("How many chair slots do you want this bench to have?");

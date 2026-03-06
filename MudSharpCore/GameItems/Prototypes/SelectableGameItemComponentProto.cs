@@ -71,7 +71,7 @@ public class SelectableGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				return BuildingCommandAdd(actor, command);
@@ -93,7 +93,7 @@ public class SelectableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var keyword = command.Pop().ToLowerInvariant();
+		var keyword = command.PopSpeech().ToLowerInvariant();
 		if (Options.Any(x => x.Keyword.Equals(keyword, StringComparison.InvariantCultureIgnoreCase)))
 		{
 			actor.Send(
@@ -107,7 +107,7 @@ public class SelectableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var canSelectProg = long.TryParse(command.Pop(), out var value)
+		var canSelectProg = long.TryParse(command.PopSpeech(), out var value)
 			? Gameworld.FutureProgs.Get(value)
 			: Gameworld.FutureProgs.GetByName(command.Last);
 		if (canSelectProg == null)
@@ -139,7 +139,7 @@ public class SelectableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var onSelectProg = long.TryParse(command.Pop(), out value)
+		var onSelectProg = long.TryParse(command.PopSpeech(), out value)
 			? Gameworld.FutureProgs.Get(value)
 			: Gameworld.FutureProgs.GetByName(command.Last);
 		if (onSelectProg == null)

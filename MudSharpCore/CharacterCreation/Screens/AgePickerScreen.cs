@@ -163,16 +163,16 @@ public class AgePickerScreenStoryboard : ChargenScreenStoryboard
 			int day;
 			string month;
 			var ss = new StringStack(command);
-			var cmd = ss.Pop();
+			var cmd = ss.PopSpeech();
 			if (cmd.GetIntFromOrdinal() != null)
 			{
 				day = cmd.GetIntFromOrdinal() ?? 0;
-				month = ss.Pop();
+				month = ss.PopSpeech();
 			}
 			else
 			{
 				month = cmd;
-				if (ss.Pop().GetIntFromOrdinal() == null)
+				if (ss.PopSpeech().GetIntFromOrdinal() == null)
 				{
 					return "You must enter the day and month on which your character was born.";
 				}

@@ -159,7 +159,7 @@ public class TreatmentGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"You must specify a number of degrees of difficulty to add or remove. Negative numbers make it harder.");
@@ -227,7 +227,7 @@ public class TreatmentGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			if (command.Last.Equals("unlimited", StringComparison.InvariantCultureIgnoreCase))
 			{

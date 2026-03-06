@@ -138,7 +138,7 @@ public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var gendering = Gendering.Get(command.Pop());
+		var gendering = Gendering.Get(command.PopSpeech());
 		if (gendering.Enum == Form.Shape.Gender.Indeterminate)
 		{
 			actor.Send("You can either set the connection type to male, female or neuter.");
@@ -165,7 +165,7 @@ public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!bool.TryParse(command.Pop(), out var powered))
+		if (!bool.TryParse(command.PopSpeech(), out var powered))
 		{
 			actor.Send("Should the connection be powered? You must answer true or false");
 			return false;
@@ -192,7 +192,7 @@ public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var gendering = Gendering.Get(command.Pop());
+		var gendering = Gendering.Get(command.PopSpeech());
 		if (gendering.Enum == Form.Shape.Gender.Indeterminate)
 		{
 			actor.Send("Connection types can be male, female or neuter.");
@@ -235,7 +235,7 @@ public class ElectricGridOutletGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "add":
 				return BuildingCommandConnectionTypeAdd(actor, command);

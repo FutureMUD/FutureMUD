@@ -105,7 +105,7 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "bonus":
 			case "penalty":
@@ -140,7 +140,7 @@ public class LocksmithingGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send(
 				"You must enter a number for the difficulty adjustment. Use negative values for penalties and positive values for bonuses, or zero for none.");

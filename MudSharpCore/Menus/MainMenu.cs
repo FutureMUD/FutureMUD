@@ -297,7 +297,7 @@ public class MainMenu : Menu, IController
 	private void RecoverPasswordEnterAccountName(string command)
 	{
 		var ss = new StringStack(command);
-		_accountName = ss.Pop();
+		_accountName = ss.PopSpeech();
 		_state = MainMenuState.RecoverPasswordEnterCode;
 		OutputHandler.Send(_passwordRecoveryEnterCodeString);
 	}
@@ -360,7 +360,7 @@ public class MainMenu : Menu, IController
 	private void CreateAccountLogin(string command)
 	{
 		var ss = new StringStack(command);
-		_accountName = ss.Pop();
+		_accountName = ss.PopSpeech();
 		if (_accountName.Length < 2)
 		{
 			OutputHandler.Send("\nAccount names must be at least 2 letters long. Please select another: ", false);
@@ -781,7 +781,7 @@ public class MainMenu : Menu, IController
 	private void ConnectAccountLogin(string command)
 	{
 		var ss = new StringStack(command);
-		_accountName = ss.Pop();
+		_accountName = ss.PopSpeech();
 		OutputHandler.Send("\nPlease enter your password: ", false);
 		_state = MainMenuState.ConnectAccountPassword;
 	}

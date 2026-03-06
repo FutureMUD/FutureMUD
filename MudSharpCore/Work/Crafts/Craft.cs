@@ -1389,7 +1389,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	/// <returns>True if anything was changed, false if the command was invalid or did not change anything</returns>
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopSpeech().ToLowerInvariant())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -1918,7 +1918,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.OutputHandler.Send("You must specify a number of seconds for the phase to last.");
 			return false;
@@ -1947,7 +1947,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value) || value <= 0 || value > LastPhase)
+		if (!int.TryParse(command.PopSpeech(), out var value) || value <= 0 || value > LastPhase)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a valid phase. There are currently {_craftPhases.Count.ToStringN0Colour(actor)} phases.");
@@ -1969,7 +1969,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var index) || index <= 0 || index > LastPhase)
+		if (!int.TryParse(command.PopSpeech(), out var index) || index <= 0 || index > LastPhase)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
@@ -1982,7 +1982,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var seconds))
+		if (!double.TryParse(command.PopSpeech(), out var seconds))
 		{
 			actor.OutputHandler.Send("You must specify a number of seconds for the phase to last.");
 			return false;
@@ -2011,7 +2011,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value) || value <= 0 || value > LastPhase)
+		if (!int.TryParse(command.PopSpeech(), out var value) || value <= 0 || value > LastPhase)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
@@ -2025,7 +2025,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value2) || value2 <= 0 || value2 > LastPhase)
+		if (!int.TryParse(command.PopSpeech(), out var value2) || value2 <= 0 || value2 > LastPhase)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
@@ -2053,7 +2053,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var index) || index <= 0 || index > LastPhase)
+		if (!int.TryParse(command.PopSpeech(), out var index) || index <= 0 || index > LastPhase)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
@@ -2086,7 +2086,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var index) || index <= 0 || index > LastPhase)
+		if (!int.TryParse(command.PopSpeech(), out var index) || index <= 0 || index > LastPhase)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
@@ -2395,7 +2395,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var checks) || checks < 0)
+		if (!int.TryParse(command.PopSpeech(), out var checks) || checks < 0)
 		{
 			actor.OutputHandler.Send("You must specify a number of free skill check rolls for improvement.");
 			return false;

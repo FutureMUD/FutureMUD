@@ -270,7 +270,7 @@ Note: Calories/Water is mostly obsolete and may be removed in future, so don't s
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value) || value < 1)
+		if (!double.TryParse(command.PopSpeech(), out var value) || value < 1)
 		{
 			actor.Send("You must enter a valid, positive number of bites.");
 			return false;
@@ -293,7 +293,7 @@ Note: Calories/Water is mostly obsolete and may be removed in future, so don't s
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a valid number of calories.");
 			return false;
@@ -318,7 +318,7 @@ Note: Calories/Water is mostly obsolete and may be removed in future, so don't s
 			return false;
 		}
 
-		if (!double.TryParse(command.Pop(), out var value))
+		if (!double.TryParse(command.PopSpeech(), out var value))
 		{
 			actor.Send("You must enter a valid number of hours.");
 			return false;

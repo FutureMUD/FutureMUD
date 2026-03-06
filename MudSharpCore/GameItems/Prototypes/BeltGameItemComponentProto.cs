@@ -79,7 +79,7 @@ public class BeltGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommandMaximumNumberOfBeltedItems(ICharacter character, StringStack command)
 	{
-		if (!int.TryParse(command.Pop(), out var value))
+		if (!int.TryParse(command.PopSpeech(), out var value))
 		{
 			character.OutputHandler.Send("You must enter a valid number of items for the capacity of this belt.");
 			return false;

@@ -74,7 +74,7 @@ public class Terrain : SaveableItem, ITerrain
 		_overrideWeatherControllerId = terrain.WeatherControllerId;
 		TerrainBehaviourString = terrain.TerrainBehaviourMode;
 		var ss = new StringStack(terrain.TerrainBehaviourMode);
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "outdoors":
 				SetAsOutdoorsTerrain();

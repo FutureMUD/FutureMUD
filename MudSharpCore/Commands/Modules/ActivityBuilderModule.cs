@@ -887,7 +887,7 @@ You can use the following options with this command:
 	protected static void Foragable(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "review":
 				GenericReview(actor, ss, EditableRevisableItemHelper.ForagableHelper);
@@ -952,7 +952,7 @@ You can use the following options with this command:
 	protected static void ForagableProfile(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "review":
 				GenericReview(actor, ss, EditableRevisableItemHelper.ForagableProfileHelper);

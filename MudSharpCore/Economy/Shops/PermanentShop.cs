@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -377,28 +377,36 @@ public class PermanentShop : Shop, IPermanentShop
 
 	public override IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
 	{
-		return
-			ShopfrontCells.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
-						  .Concat(
-							  ShopfrontCells
-								  .ConcatIfNotNull(StockroomCell)
-								  .SelectMany(x => x.GameItems)
-								  .SelectMany(x => x.ShallowItems)
-						  )
-						  .Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise));
+		var shopCells = AllShopCells.ToList();
+		return shopCells
+			.SelectMany(x => x.Characters)
+			.SelectMany(x => x.Body.HeldItems)
+			.Concat(
+				shopCells
+					.SelectMany(x => x.GameItems)
+					.SelectMany(x => x.DeepItems)
+			)
+			.Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise))
+			.Distinct();
 	}
 
-	public override IEnumerable<IGameItem> AllStockedItems =>
-		ShopfrontCells
-		.SelectMany(x => x.Characters)
-		.SelectMany(x => x.Body.HeldItems)
-		.Concat(
-			ShopfrontCells
-			.ConcatIfNotNull(StockroomCell)
-			.SelectMany(x => x.GameItems)
-			.SelectMany(x => x.ShallowItems)
-			)
-		.Where(x => x.AffectedBy<ItemOnDisplayInShop>());
+	public override IEnumerable<IGameItem> AllStockedItems
+	{
+		get
+		{
+			var shopCells = AllShopCells.ToList();
+			return shopCells
+				.SelectMany(x => x.Characters)
+				.SelectMany(x => x.Body.HeldItems)
+				.Concat(
+					shopCells
+						.SelectMany(x => x.GameItems)
+						.SelectMany(x => x.DeepItems)
+				)
+				.Where(x => x.AffectedBy<ItemOnDisplayInShop>())
+				.Distinct();
+		}
+	}
 
 	public override void CheckFloat()
 	{
@@ -485,9 +493,10 @@ public class PermanentShop : Shop, IPermanentShop
 						  .Concat(
 							  ShopfrontCells
 								  .SelectMany(x => x.GameItems)
-								  .SelectMany(x => x.ShallowItems)
+								  .SelectMany(x => x.DeepItems)
 						  )
 						  .Where(x => x.AffectedBy<ItemOnDisplayInShop>(whichMerchandise))
+						  .Distinct()
 						  .Sum(x => x.Quantity);
 		return (floorStock, _stockedMerchandiseCounts[whichMerchandise] - floorStock);
 	}

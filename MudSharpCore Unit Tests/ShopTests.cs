@@ -104,6 +104,68 @@ public class ShopTests
     }
 
     [TestMethod]
+    public void DisposeFromStock_StackedItem_RecordsStockRemovalCredit()
+    {
+        var proto = new Mock<IGameItemProto>();
+        proto.SetupGet(x => x.Id).Returns(20);
+        var merch = new Merchandise(_shop, "stock-removal", proto.Object, 10m, false, null, null);
+        _shop.AddMerchandise(merch);
+
+        var item = new Mock<IGameItem>();
+        item.SetupGet(x => x.Id).Returns(200L);
+        item.SetupGet(x => x.Quantity).Returns(3);
+        item.Setup(x => x.AddEffect(It.IsAny<IEffect>()));
+        item.Setup(x => x.RemoveAllEffects<ItemOnDisplayInShop>(It.IsAny<Predicate<ItemOnDisplayInShop>>(), true));
+        _items[item.Object.Id] = item.Object;
+
+        _shop.AddToStock(null, item.Object, merch);
+        _shop.DisposeFromStock(null, item.Object);
+
+        var transaction = _shop.TransactionRecords.Last();
+        Assert.AreEqual(ShopTransactionType.StockRemoval, transaction.TransactionType);
+        Assert.AreEqual(30m, transaction.PretaxValue);
+        Assert.AreEqual(30m, transaction.NetValue);
+        Assert.AreEqual(0, _shop.StockedItems(merch).Count());
+    }
+
+    [TestMethod]
+    public void LoseFromStock_StackedItem_RecordsStockLoss()
+    {
+        var proto = new Mock<IGameItemProto>();
+        proto.SetupGet(x => x.Id).Returns(21);
+        var merch = new Merchandise(_shop, "stock-loss", proto.Object, 10m, false, null, null);
+        _shop.AddMerchandise(merch);
+
+        var item = new Mock<IGameItem>();
+        item.SetupGet(x => x.Id).Returns(201L);
+        item.SetupGet(x => x.Quantity).Returns(4);
+        item.Setup(x => x.AddEffect(It.IsAny<IEffect>()));
+        item.Setup(x => x.RemoveAllEffects<ItemOnDisplayInShop>(It.IsAny<Predicate<ItemOnDisplayInShop>>(), true));
+        _items[item.Object.Id] = item.Object;
+
+        _shop.AddToStock(null, item.Object, merch);
+        _shop.LoseFromStock(null, item.Object);
+
+        var transaction = _shop.TransactionRecords.Last();
+        Assert.AreEqual(ShopTransactionType.StockLoss, transaction.TransactionType);
+        Assert.AreEqual(40m, transaction.PretaxValue);
+        Assert.AreEqual(-40m, transaction.NetValue);
+        Assert.AreEqual(0, _shop.StockedItems(merch).Count());
+    }
+
+    [TestMethod]
+    public void TransactionRecord_NonOperationalTransactions_HaveZeroNetValue()
+    {
+        var now = MudDateTime.Never;
+        var deposit = new TransactionRecord(ShopTransactionType.Deposit, _currency.Object, _shop, now, null, 10m, 0m, null);
+        var withdrawal = new TransactionRecord(ShopTransactionType.Withdrawal, _currency.Object, _shop, now, null, 10m, 0m, null);
+        var taxPayment = new TransactionRecord(ShopTransactionType.TaxPayment, _currency.Object, _shop, now, null, 10m, 0m, null);
+
+        Assert.AreEqual(0m, deposit.NetValue);
+        Assert.AreEqual(0m, withdrawal.NetValue);
+        Assert.AreEqual(0m, taxPayment.NetValue);
+    }
+    [TestMethod]
     public void BuyingItemUpdatesStockAndTransactions()
     {
         var proto = new Mock<IGameItemProto>();

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
@@ -208,7 +208,7 @@ public class TransientShop : Shop, ITransientShop
 			return Enumerable.Empty<IGameItem>();
 		}
 
-		return CurrentStall.Contents.Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise));
+		return CurrentStall.Contents.SelectMany(x => x.DeepItems).Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise)).Distinct();
 	}
 
 	public override IEnumerable<IGameItem> AllStockedItems
@@ -220,7 +220,7 @@ public class TransientShop : Shop, ITransientShop
 				return Enumerable.Empty<IGameItem>();
 			}
 
-			return CurrentStall.Contents.Where(x => x.AffectedBy<ItemOnDisplayInShop>());
+			return CurrentStall.Contents.SelectMany(x => x.DeepItems).Where(x => x.AffectedBy<ItemOnDisplayInShop>()).Distinct();
 		}
 	}
 

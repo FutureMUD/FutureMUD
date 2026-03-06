@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Resources;
@@ -54,6 +54,7 @@ using MudSharp.Economy.Shoppers;
 using MudSharp.Economy.Shops;
 using MudSharp.Events;
 using TimeSpanParserUtil;
+using MudSharp.RPG.Law;
 
 namespace MudSharp.Commands.Modules;
 
@@ -1147,36 +1148,60 @@ The syntax for this command is as follows:
 			}
 		}
 
-                var (truth, reason) = shop.CanBuy(actor, merch, quantity, payment);
-                if (!truth)
-                {
-                        actor.OutputHandler.Send(
-                                $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
-                        return;
-                }
+		var (truth, reason) = shop.CanBuy(actor, merch, quantity, payment);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(
+				$"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
+			return;
+		}
 
-                var preview = shop.PreviewBuy(actor, merch, quantity, payment);
-                if (preview.Items.Any(x => x.Prototype.Morphs &&
-                                             x.Prototype.MorphTimeSpan > TimeSpan.Zero &&
-                                             (x.CachedMorphTime ?? (x.MorphTime == DateTime.MinValue ? x.Prototype.MorphTimeSpan : x.MorphTime - DateTime.UtcNow))
-                                             .TotalSeconds / x.Prototype.MorphTimeSpan.TotalSeconds < 0.3))
-                {
-                        actor.OutputHandler.Send(
-                                $"Warning: That item will morph soon.\n{Accept.StandardAcceptPhrasing}");
-                        actor.AddEffect(new Accept(actor, new GenericProposal
-                        {
-                                DescriptionString = "confirming near-morph purchase",
-                                AcceptAction = text => { shop.Buy(actor, merch, quantity, payment); },
-                                RejectAction = text => { actor.OutputHandler.Send("You decide not to buy it."); },
-                                ExpireAction = () => { actor.OutputHandler.Send("You decide not to buy it."); },
-                                Keywords = new List<string> { "buy" }
-                        }), TimeSpan.FromSeconds(120));
-                        return;
-                }
+		var preview = shop.PreviewBuy(actor, merch, quantity, payment);
+		if (actor.Account.ActLawfully &&
+		    preview.Items.Any(x => CrimeTypes.PossessingContraband.CheckWouldBeACrime(actor, null, x, "")))
+		{
+			actor.OutputHandler.Send(
+				$"That action would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
+			return;
+		}
 
-                shop.Buy(actor, merch, quantity, payment);
+		if (preview.Items.Any(x => x.Prototype.Morphs &&
+		                          x.Prototype.MorphTimeSpan > TimeSpan.Zero &&
+		                          (x.CachedMorphTime ??
+		                           (x.MorphTime == DateTime.MinValue
+			                           ? x.Prototype.MorphTimeSpan
+			                           : x.MorphTime - DateTime.UtcNow)).TotalSeconds /
+		                          x.Prototype.MorphTimeSpan.TotalSeconds < 0.3))
+		{
+			actor.OutputHandler.Send(
+				$"Warning: That item will morph soon.\n{Accept.StandardAcceptPhrasing}");
+			actor.AddEffect(new Accept(actor, new GenericProposal
+			{
+				DescriptionString = "confirming near-morph purchase",
+				AcceptAction = text =>
+				{
+					var bought = shop.Buy(actor, merch, quantity, payment).ToList();
+					foreach (var contrabandItem in bought)
+					{
+						CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
+							contrabandItem, "");
+					}
+				},
+				RejectAction = text => { actor.OutputHandler.Send("You decide not to buy it."); },
+				ExpireAction = () => { actor.OutputHandler.Send("You decide not to buy it."); },
+				Keywords = new List<string> { "buy" }
+			}), TimeSpan.FromSeconds(120));
+			return;
+		}
+
+		var boughtItems = shop.Buy(actor, merch, quantity, payment).ToList();
+		foreach (var boughtContrabandItem in boughtItems)
+		{
+			CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
+				boughtContrabandItem, "");
+		}
+
 	}
-
 	[PlayerCommand("Sell", "Sell")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
@@ -1223,7 +1248,7 @@ The syntax for this command is as follows:
 		else
 		{
 			merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
-			        shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true)); ;
+			        shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 			if (merch == null)
 			{
 				actor.OutputHandler.Send(
@@ -1333,6 +1358,13 @@ The syntax for this command is as follows:
 		{
 			actor.OutputHandler.Send(
 				$"You cannot sell {item.HowSeen(actor)} because {reason}.");
+			return;
+		}
+
+		if (actor.Account.ActLawfully && CrimeTypes.SellingContraband.CheckWouldBeACrime(actor, null, item, ""))
+		{
+			actor.OutputHandler.Send(
+				$"That action would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
 			return;
 		}
 
@@ -1941,6 +1973,8 @@ Additionally, you can use the following shop admin subcommands:
 
 		shop.TakeCashFromAllSources(amount, "Paying taxes");
 		shop.EconomicZone.PayTaxesForShop(shop, amount);
+		shop.AddTransaction(new TransactionRecord(ShopTransactionType.TaxPayment, shop.Currency, shop,
+			shop.EconomicZone.ZoneForTimePurposes.DateTime(), actor, amount, 0.0M, null));
 		actor.OutputHandler.Send(
 			$"You pay {shop.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in taxes for {shop.Name.TitleCase().ColourName()}. The shop now owes {shop.Currency.Describe(shop.EconomicZone.OutstandingTaxesForShop(shop), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in taxes.");
 	}
@@ -2043,6 +2077,8 @@ Additionally, you can use the following shop admin subcommands:
 		payment.TakePayment(amount);
 		account.PayoffAccount(amount);
 		shop.ExpectedCashBalance += amount;
+		shop.AddTransaction(new TransactionRecord(ShopTransactionType.Deposit, shop.Currency, shop,
+			actor.Location.DateTime(), actor, amount, 0.0M, null));
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
 			$"@ pay|pays $1 towards the {account.AccountName.ColourName()} line of credit account.", actor, actor,
 			new DummyPerceivable(shop.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)))));

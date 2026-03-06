@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using MoreLinq;
+using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -184,6 +185,10 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 		if (oldLease.AutoRenew && oldLease.PaymentBalance >= 0.0M && oldLease.BondClaimed <= 0.0M)
 		{
 			Property.Lease = RenewLease(oldLease);
+			if (oldLease.Leaseholder is ICharacter leaseholder)
+			{
+				Property.ClaimShops(leaseholder);
+			}
 			return;
 		}
 

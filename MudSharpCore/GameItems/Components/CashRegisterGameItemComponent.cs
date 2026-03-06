@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,7 @@ using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Shops;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
@@ -205,6 +206,11 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 			if (!IsAllowedToInteract(taker))
 			{
 				CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, item, "shoplifting");
+				var shop = Parent.TrueLocations.FirstOrDefault()?.Shop;
+				if (shop is not null && item.AffectedBy<ItemOnDisplayInShop>(shop))
+				{
+					shop.LoseFromStock(taker, item);
+				}
 			}
 
 			return item;
@@ -214,6 +220,11 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 		if (!IsAllowedToInteract(taker))
 		{
 			CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, newItem, "shoplifting");
+			var shop = Parent.TrueLocations.FirstOrDefault()?.Shop;
+			if (shop is not null && newItem.AffectedBy<ItemOnDisplayInShop>(shop))
+			{
+				shop.LoseFromStock(taker, newItem);
+			}
 		}
 
 		return newItem;
@@ -267,6 +278,11 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 			{
 				CrimeExtensions.CheckPossibleCrimeAllAuthorities(emptier, CrimeTypes.Theft, null, item,
 					"shoplifting");
+				var shop = Parent.TrueLocations.FirstOrDefault()?.Shop;
+				if (shop is not null && item.AffectedBy<ItemOnDisplayInShop>(shop))
+				{
+					shop.LoseFromStock(emptier, item);
+				}
 			}
 
 			item.ContainedIn = null;
@@ -327,7 +343,12 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 
 	private bool IsAllowedToInteract(ICharacter character)
 	{
-		var shop = Parent.TrueLocations.First().Shop;
+		if (character is null)
+		{
+			return true;
+		}
+
+		var shop = Parent.TrueLocations.FirstOrDefault()?.Shop;
 		return shop?.IsEmployee(character) != false;
 	}
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -519,6 +519,41 @@ public class Property : SaveableItem, IProperty
 			shop.SetProprietor(who, true);
 		}
 	}
+	private ICharacter AutomaticShopController()
+	{
+		if (Lease?.Leaseholder is ICharacter leaseholder)
+		{
+			return leaseholder;
+		}
+
+		if (Lease is not null)
+		{
+			return null;
+		}
+
+		if (_propertyOwners.Count == 1 && _propertyOwners[0].Owner is ICharacter soleOwner)
+		{
+			return soleOwner;
+		}
+
+		return null;
+	}
+
+	private void TransferPropertyShopsToController()
+	{
+		var controller = AutomaticShopController();
+		foreach (var shop in PropertyShops)
+		{
+			shop.ClearEmployees();
+			if (controller is null)
+			{
+				continue;
+			}
+
+			shop.AddEmployee(controller);
+			shop.SetProprietor(controller, true);
+		}
+	}
 
 	public void AddKey(IPropertyKey key)
 	{
@@ -595,10 +630,7 @@ public class Property : SaveableItem, IProperty
 			_expiredLeases.Add(lease);
 		}
 
-		foreach (var shop in PropertyLocations.SelectNotNull(x => x.Shop).Distinct())
-		{
-			shop.ClearEmployees();
-		}
+		TransferPropertyShopsToController();
 
 		Changed = true;
 	}
@@ -894,10 +926,7 @@ public class Property : SaveableItem, IProperty
 		LeaseOrder?.ChangeConsentDueToSale(_propertyOwners[0]);
 		if (Lease is null)
 		{
-			foreach (var shop in PropertyLocations.SelectNotNull(x => x.Shop).Distinct())
-			{
-				shop.ClearEmployees();
-			}
+			TransferPropertyShopsToController();
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -52,15 +52,16 @@ public abstract class Shop : SaveableItem, IShop
 			}
 
 			var available = shop.AvailableCashFromAllSources();
-			if (available > owed)
+			var amountToPay = Math.Min(available, owed);
+			if (amountToPay <= 0.0M)
 			{
-				shop.TakeCashFromAllSources(owed, "Automatically paying taxes");
-				shop.EconomicZone.PayTaxesForShop(shop, owed);
 				continue;
 			}
 
-			shop.TakeCashFromAllSources(available, "Automatically paying taxes");
-			shop.EconomicZone.PayTaxesForShop(shop, owed);
+			shop.TakeCashFromAllSources(amountToPay, "Automatically paying taxes");
+			shop.EconomicZone.PayTaxesForShop(shop, amountToPay);
+			shop.AddTransaction(new TransactionRecord(ShopTransactionType.TaxPayment, shop.Currency, shop,
+				shop.EconomicZone.ZoneForTimePurposes.DateTime(), null, amountToPay, 0.0M, null));
 		}
 	}
 
@@ -202,16 +203,18 @@ public abstract class Shop : SaveableItem, IShop
 				if (owed > 0.0M)
 				{
 					var available = AvailableCashFromAllSources();
-					if (available > owed)
+					var amountToPay = Math.Min(available, owed);
+					if (amountToPay > 0.0M)
 					{
-						TakeCashFromAllSources(owed, "Paying taxes due to change of economic zone");
-						old.PayTaxesForShop(this, owed);
+						TakeCashFromAllSources(amountToPay, "Paying taxes due to change of economic zone");
+						old.PayTaxesForShop(this, amountToPay);
+						AddTransaction(new TransactionRecord(ShopTransactionType.TaxPayment, Currency, this,
+							old.ZoneForTimePurposes.DateTime(), null, amountToPay, 0.0M, null));
 					}
-					else
+
+					if (amountToPay < owed)
 					{
-						TakeCashFromAllSources(available, "Paying taxes due to change of economic zone");
-						old.PayTaxesForShop(this, owed);
-						old.ForgiveTaxesForShop(this);
+						old.ForgiveTaxesForShop(this, owed - amountToPay);
 					}
 				}
 			}
@@ -450,20 +453,36 @@ public abstract class Shop : SaveableItem, IShop
 
 	public void DisposeFromStock(ICharacter actor, IGameItem item)
 	{
-		item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
 		actor?.OutputHandler.Send(
 			$"You dispose of {item.HowSeen(actor)} from the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
-		var merch =
-			_merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
-			_merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
-		AddTransaction(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
-			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-			merch?.EffectivePrice ?? 0.0M * item.Quantity, 0.0M, merch));
-		if (merch != null)
+		RemoveFromStockInternal(actor, item, ShopTransactionType.StockRemoval);
+	}
+
+	public void LoseFromStock(ICharacter actor, IGameItem item)
+	{
+		RemoveFromStockInternal(actor, item, ShopTransactionType.StockLoss);
+	}
+
+	private IMerchandise MerchandiseForStockItem(IGameItem item)
+	{
+		return _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+		       _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
+	}
+
+	private void RemoveFromStockInternal(ICharacter actor, IGameItem item, ShopTransactionType transactionType)
+	{
+		item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
+		var merch = MerchandiseForStockItem(item);
+		var value = (merch?.EffectivePrice ?? 0.0M) * item.Quantity;
+		AddTransaction(new TransactionRecord(transactionType, Currency, this,
+			EconomicZone.ZoneForTimePurposes.DateTime(), actor, value, 0.0M, merch));
+		if (merch is null)
 		{
-			_stockedMerchandise.Remove(merch, item.Id);
-			_stockedMerchandiseCounts.Add(merch, item.Quantity * -1);
+			return;
 		}
+
+		_stockedMerchandise.Remove(merch, item.Id);
+		_stockedMerchandiseCounts.Add(merch, item.Quantity * -1);
 	}
 
 	private readonly List<ILineOfCreditAccount> _lineOfCreditAccounts = new();

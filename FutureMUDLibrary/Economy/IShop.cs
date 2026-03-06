@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -77,6 +77,7 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 
 	void AddToStock(ICharacter actor, IGameItem item, IMerchandise merch);
 	void DisposeFromStock(ICharacter actor, IGameItem item);
+	void LoseFromStock(ICharacter actor, IGameItem item);
 	IEnumerable<IMerchandise> StockedMerchandise { get; }
 	IEnumerable<IGameItem> AllStockedItems { get; }
 	IEnumerable<IGameItem> StockedItems(IMerchandise merchandise);

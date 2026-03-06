@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -204,7 +204,7 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
 					if (!Shop.IsEmployee(ch))
 					{
 						CrimeExtensions.CheckPossibleCrimeAllAuthorities(ch, CrimeTypes.Theft, null, (IGameItem)Owner, "shoplifting");
-						Owner.RemoveEffect(this, true);
+						Shop.LoseFromStock(ch, (IGameItem)Owner);
 					}
 					else
 					{

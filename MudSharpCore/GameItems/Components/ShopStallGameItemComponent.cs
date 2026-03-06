@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -181,6 +181,8 @@ namespace MudSharp.GameItems.Components
 			{
 				Shop.CurrentStall = this;
 			}
+
+			ApplyTradingNoGetEffect();
 		}
 
 		public override void Delete()
@@ -519,7 +521,7 @@ namespace MudSharp.GameItems.Components
 
 		public bool CanTake(ICharacter taker, IGameItem item, int quantity)
 		{
-			return IsOpen && _contents.Contains(item) && item.CanGet(quantity).AsBool();
+			return IsOpen && _contents.Contains(item) && (taker?.Account.ActLawfully != true || IsAllowedToInteract(taker)) && item.CanGet(quantity).AsBool();
 		}
 
 		public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
@@ -532,6 +534,10 @@ namespace MudSharp.GameItems.Components
 				if (!IsAllowedToInteract(taker))
 				{
 					CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, item, "shoplifting");
+					if (Shop is not null && item.AffectedBy<ItemOnDisplayInShop>(Shop))
+					{
+						Shop.LoseFromStock(taker, item);
+					}
 				}
 
 				return item;
@@ -541,6 +547,10 @@ namespace MudSharp.GameItems.Components
 			if (!IsAllowedToInteract(taker))
 			{
 				CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, newItem, "shoplifting");
+				if (Shop is not null && newItem.AffectedBy<ItemOnDisplayInShop>(Shop))
+				{
+					Shop.LoseFromStock(taker, newItem);
+				}
 			}
 
 			return newItem;
@@ -593,6 +603,10 @@ namespace MudSharp.GameItems.Components
 				{
 					CrimeExtensions.CheckPossibleCrimeAllAuthorities(emptier, CrimeTypes.Theft, null, item,
 						"shoplifting");
+					if (Shop is not null && item.AffectedBy<ItemOnDisplayInShop>(Shop))
+					{
+						Shop.LoseFromStock(emptier, item);
+					}
 				}
 				item.ContainedIn = null;
 				if (intoContainer != null)
@@ -634,11 +648,12 @@ namespace MudSharp.GameItems.Components
 
 		private bool IsAllowedToInteract(ICharacter character)
 		{
-			if (Shop is null)
+			if (character is null || Shop is null)
 			{
 				return true;
 			}
-			return Shop?.IsEmployee(character) != false;
+
+			return Shop.IsEmployee(character);
 		}
 
 		#endregion
@@ -915,22 +930,23 @@ namespace MudSharp.GameItems.Components
 		}
 
 		private bool _isTrading = false;
+		private void ApplyTradingNoGetEffect()
+		{
+			Parent.RemoveAllEffects<ShopStallNoGetEffect>(fireRemovalAction: true);
+			if (_isTrading)
+			{
+				Parent.AddEffect(new ShopStallNoGetEffect(Parent));
+			}
+		}
+
 		public bool IsTrading
 		{
-			get => _isTrading; 
+			get => _isTrading;
 			set
 			{
 				_isTrading = value;
 				Changed = true;
-				if (value)
-				{
-					Parent.RemoveAllEffects<ShopStallNoGetEffect>(fireRemovalAction: true);
-					Parent.AddEffect(new ShopStallNoGetEffect(Parent));
-				}
-				else
-				{
-					Parent.RemoveAllEffects<ShopStallNoGetEffect>(fireRemovalAction: true);
-				}
+				ApplyTradingNoGetEffect();
 			}
 		}
 #nullable restore

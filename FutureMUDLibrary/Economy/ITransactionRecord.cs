@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using JetBrains.Annotations;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework.Save;
@@ -17,7 +17,9 @@ namespace MudSharp.Economy
         Deposit,
         Withdrawal,
         AccessCashDraw,
-        Purchase
+        Purchase,
+        StockRemoval,
+        TaxPayment
     }
 
     public interface ITransactionRecord : ILateInitialisingItem

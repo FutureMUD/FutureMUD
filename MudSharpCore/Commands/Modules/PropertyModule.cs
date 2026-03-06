@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -1751,6 +1751,7 @@ The following commands are specific to those who own a property (or who are mana
 		}
 
 		property.Lease = property.LeaseOrder.CreateLease(actor, duration);
+		property.ClaimShops(actor);
 		actor.OutputHandler.Handle(
 			new EmoteOutput(new Emote($"@ lease|leases the property {property.Name.ColourName()}.", actor, actor)));
 		if (property.PropertyKeys.Any())

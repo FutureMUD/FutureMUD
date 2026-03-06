@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
@@ -114,12 +114,15 @@ public class TransactionRecord : LateInitialisingItem, ITransactionRecord
 					return PretaxValue;
 				case ShopTransactionType.StockLoss:
 					return -1 * PretaxValue;
+				case ShopTransactionType.StockRemoval:
+					return PretaxValue;
 				case ShopTransactionType.PriceAdjustment:
 					return PretaxValue;
 				case ShopTransactionType.Deposit:
-					return PretaxValue;
 				case ShopTransactionType.Withdrawal:
-					return -1 * PretaxValue;
+				case ShopTransactionType.AccessCashDraw:
+				case ShopTransactionType.TaxPayment:
+					return 0.0M;
 				default:
 					return 0.0M;
 			}

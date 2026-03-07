@@ -247,6 +247,66 @@ public class WeatherSeederClimateTests
 		Assert.IsTrue(midAutumnShelterMean is >= 9.0 and <= 13.5, $"Expected mid-autumn mean sheltered temperature to be cool and brisk, but got {midAutumnShelterMean:F2}C.");
 	}
 
+	[TestMethod]
+	public void WeatherSeeder_DryWinterHumidSubcontinentalProfile_RemainsWithinBroadSeoulBounds()
+	{
+		var result = AnalyzeSeededNorthernHemisphereClimate(
+			"Dry Winter Humid Subcontinental Northern Hemisphere",
+			"Seeded Dry Winter Humid Subcontinental");
+
+		var annualWet = WeightedAveragePercent(result.Rows, "RainfallProxy", "Wet");
+		var winterWet = GetPercent(result.Rows, "temperate_mid_winter", "RainfallProxy", "Wet");
+		var summerWet = GetPercent(result.Rows, "temperate_mid_summer", "RainfallProxy", "Wet");
+		var autumnWet = GetPercent(result.Rows, "temperate_mid_autumn", "RainfallProxy", "Wet");
+		var annualSnow = WeightedAveragePercent(result.Rows, "RainfallProxy", "Snow");
+		var winterSnow = GetPercent(result.Rows, "temperate_mid_winter", "RainfallProxy", "Snow");
+		var annualGaleOrWorse = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"Gale Wind",
+				"Hurricane Wind",
+				"Maelstrom Wind"
+			});
+		var annualHurricaneOrWorse = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"Hurricane Wind",
+				"Maelstrom Wind"
+			});
+		var annualBreezeOrCalmer = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"None",
+				"Still",
+				"Occasional Breeze",
+				"Breeze"
+			});
+		var midWinterShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_winter", "Shelter");
+		var midSummerShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_summer", "Shelter");
+		var midAutumnShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_autumn", "Shelter");
+
+		Assert.IsTrue(annualWet is >= 18.0 and <= 40.0, $"Expected annual wet occupancy to remain monsoonal but not constant, but got {annualWet:F2}%.");
+		Assert.IsTrue(winterWet is >= 2.0 and <= 15.0, $"Expected mid-winter wet occupancy to stay clearly drier than other seasons, but got {winterWet:F2}%.");
+		Assert.IsTrue(summerWet is >= 40.0 and <= 70.0, $"Expected mid-summer wet occupancy to reflect the East Asian monsoon, but got {summerWet:F2}%.");
+		Assert.IsTrue(autumnWet is >= 12.0 and <= 35.0, $"Expected mid-autumn wet occupancy to ease back from summer while remaining wetter than winter, but got {autumnWet:F2}%.");
+		Assert.IsTrue(summerWet > autumnWet, $"Expected summer to be wetter than autumn, but summer={summerWet:F2}% and autumn={autumnWet:F2}%.");
+		Assert.IsTrue(autumnWet > winterWet, $"Expected autumn to be wetter than winter, but autumn={autumnWet:F2}% and winter={winterWet:F2}%.");
+		Assert.IsTrue(annualSnow is >= 0.4 and <= 3.0, $"Expected annual snow occupancy to remain present but clearly secondary to rain, but got {annualSnow:F2}%.");
+		Assert.IsTrue(winterSnow is >= 1.5 and <= 10.0, $"Expected mid-winter snow occupancy to remain noticeable, but got {winterSnow:F2}%.");
+		Assert.IsTrue(annualGaleOrWorse <= 3.0, $"Expected gale-force or worse wind to remain uncommon, but got {annualGaleOrWorse:F2}%.");
+		Assert.IsTrue(annualHurricaneOrWorse <= 0.10, $"Expected hurricane-force or worse wind to be effectively absent, but got {annualHurricaneOrWorse:F2}%.");
+		Assert.IsTrue(annualBreezeOrCalmer >= 80.0, $"Expected most weather to remain breeze strength or calmer, but got {annualBreezeOrCalmer:F2}%.");
+		Assert.IsTrue(midWinterShelterMean is >= -4.5 and <= 1.5, $"Expected mid-winter mean sheltered temperature to stay cold but not subarctic, but got {midWinterShelterMean:F2}C.");
+		Assert.IsTrue(midSummerShelterMean is >= 23.5 and <= 27.5, $"Expected mid-summer mean sheltered temperature to be hot and humid, but got {midSummerShelterMean:F2}C.");
+		Assert.IsTrue(midAutumnShelterMean is >= 13.0 and <= 18.0, $"Expected mid-autumn mean sheltered temperature to stay mild, but got {midAutumnShelterMean:F2}C.");
+	}
+
 	private static WeatherStatisticsResult AnalyzeSeededNorthernHemisphereClimate(string regionalClimateName, string controllerName)
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

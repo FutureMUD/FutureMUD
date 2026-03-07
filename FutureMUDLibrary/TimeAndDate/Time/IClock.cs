@@ -44,7 +44,7 @@ namespace MudSharp.TimeAndDate.Time
 	List<string> HourIntervalLongNames { get; }
 	bool NoZeroHour { get; }
 	MudTime CurrentTime { get; }
-	IUneditableAll<IMudTimeZone> Timezones { get; }
+	IEnumerable<IMudTimeZone> Timezones { get; }
 	IMudTimeZone PrimaryTimezone { get; }
 	void UpdateSeconds();
 	void UpdateMinutes();

@@ -119,7 +119,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 			var hour = int.Parse(regexMatch.Groups["hour"].Value);
 			var minute = int.Parse(regexMatch.Groups["minute"].Value);
 			var second = regexMatch.Groups["second"].Length > 0 ? int.Parse(regexMatch.Groups["second"].Value) : 0;
-			var tz = regexMatch.Groups["timezone"].Length > 0 ? clock.Timezones.GetByName(regexMatch.Groups["timezone"].Value) ?? clock.PrimaryTimezone : clock.PrimaryTimezone;
+			var tz = regexMatch.Groups["timezone"].Length > 0 ? clock.Timezones.GetByIdOrName(regexMatch.Groups["timezone"].Value) ?? clock.PrimaryTimezone : clock.PrimaryTimezone;
 			if (regexMatch.Groups["period"].Length > 0)
 			{
 				hour +=
@@ -165,7 +165,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 			try {
 				var date = calendar.GetDate(match.Groups["date"].Value);
 				var timezone = match.Groups["timezone"].Length > 0
-				? clock.Timezones.GetByName(match.Groups["timezone"].Value)
+				? clock.Timezones.GetByIdOrName(match.Groups["timezone"].Value)
 				: clock.PrimaryTimezone;
 				if (timezone == null) {
 					return false;
@@ -201,7 +201,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 			}
 			try {
 				var date = calendar.GetDate(match.Groups["date"].Value);
-				var timezone = clock.Timezones.GetByName(match.Groups["timezone"].Value);
+				var timezone = clock.Timezones.GetByIdOrName(match.Groups["timezone"].Value);
 				if (timezone == null) {
 					return false;
 				}
@@ -280,7 +280,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 			else {
 				var splitText = text.Split(' ');
 				Date = calendar.GetDate(splitText[0]);
-				TimeZone = clock.Timezones.GetByName(splitText[1]);
+				TimeZone = clock.Timezones.GetByIdOrName(splitText[1]);
 				Time = clock.GetTime($"{splitText[1]} {splitText[2]}");
 			}
 
@@ -300,7 +300,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 				Date = calendar.GetDate(splitText[1]);
 				var clock = Gameworld.Clocks.Get(long.Parse(splitText[2]));
 				var timeSplit = splitText[3].Split(' ');
-				TimeZone = clock.Timezones.GetByName(timeSplit[0]);
+				TimeZone = clock.Timezones.GetByIdOrName(timeSplit[0]);
 				Time = clock.GetTime(splitText[3]);
 			}
 		}

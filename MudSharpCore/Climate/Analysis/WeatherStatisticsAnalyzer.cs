@@ -68,6 +68,8 @@ internal sealed class WeatherEventInfo
 	public required PrecipitationLevel Precipitation { get; init; }
 	public required WindLevel Wind { get; init; }
 	public required double TemperatureEffect { get; init; }
+	public double PrecipitationTemperatureEffect { get; init; }
+	public double WindTemperatureEffect { get; init; }
 	public required HashSet<TimeOfDay> PermittedTimesOfDay { get; init; }
 }
 
@@ -378,6 +380,12 @@ internal sealed class SeasonAccumulator
 
 internal sealed class HourlySeasonStatistics
 {
+	public HourlyTemperatureStatistics Shelter { get; } = new();
+	public HourlyTemperatureStatistics Outdoors { get; } = new();
+}
+
+internal sealed class HourlyTemperatureStatistics
+{
 	public List<double> HourlyMeans { get; } = new();
 	public List<double> HourlyMins { get; } = new();
 	public List<double> HourlyMaxs { get; } = new();
@@ -388,49 +396,71 @@ internal sealed class HourlyBlockTracker
 	private bool _hasBlock;
 	private long _seasonId;
 	private int _hour;
-	private double _sum;
+	private double _shelterSum;
+	private double _outdoorsSum;
 	private long _count;
-	private double _min;
-	private double _max;
+	private double _shelterMin;
+	private double _shelterMax;
+	private double _outdoorsMin;
+	private double _outdoorsMax;
 
 	public void Reset()
 	{
 		_hasBlock = false;
 		_seasonId = 0;
 		_hour = 0;
-		_sum = 0.0;
+		_shelterSum = 0.0;
+		_outdoorsSum = 0.0;
 		_count = 0;
-		_min = 0.0;
-		_max = 0.0;
+		_shelterMin = 0.0;
+		_shelterMax = 0.0;
+		_outdoorsMin = 0.0;
+		_outdoorsMax = 0.0;
 	}
 
-	public void RecordMinute(long seasonId, int hour, double temperature, IReadOnlyDictionary<long, SeasonAccumulator> accumulators)
+	public void RecordMinute(
+		long seasonId,
+		int hour,
+		double shelteredTemperature,
+		double outdoorsTemperature,
+		IReadOnlyDictionary<long, SeasonAccumulator> accumulators)
 	{
 		if (!_hasBlock)
 		{
-			StartNewBlock(seasonId, hour, temperature);
+			StartNewBlock(seasonId, hour, shelteredTemperature, outdoorsTemperature);
 			return;
 		}
 
 		if (_seasonId == seasonId && _hour == hour)
 		{
-			_sum += temperature;
+			_shelterSum += shelteredTemperature;
+			_outdoorsSum += outdoorsTemperature;
 			_count++;
-			if (temperature < _min)
+			if (shelteredTemperature < _shelterMin)
 			{
-				_min = temperature;
+				_shelterMin = shelteredTemperature;
 			}
 
-			if (temperature > _max)
+			if (shelteredTemperature > _shelterMax)
 			{
-				_max = temperature;
+				_shelterMax = shelteredTemperature;
+			}
+
+			if (outdoorsTemperature < _outdoorsMin)
+			{
+				_outdoorsMin = outdoorsTemperature;
+			}
+
+			if (outdoorsTemperature > _outdoorsMax)
+			{
+				_outdoorsMax = outdoorsTemperature;
 			}
 
 			return;
 		}
 
 		FlushCurrentBlock(accumulators);
-		StartNewBlock(seasonId, hour, temperature);
+		StartNewBlock(seasonId, hour, shelteredTemperature, outdoorsTemperature);
 	}
 
 	public void Finalize(IReadOnlyDictionary<long, SeasonAccumulator> accumulators)
@@ -438,15 +468,18 @@ internal sealed class HourlyBlockTracker
 		FlushCurrentBlock(accumulators);
 	}
 
-	private void StartNewBlock(long seasonId, int hour, double temperature)
+	private void StartNewBlock(long seasonId, int hour, double shelteredTemperature, double outdoorsTemperature)
 	{
 		_hasBlock = true;
 		_seasonId = seasonId;
 		_hour = hour;
-		_sum = temperature;
+		_shelterSum = shelteredTemperature;
+		_outdoorsSum = outdoorsTemperature;
 		_count = 1;
-		_min = temperature;
-		_max = temperature;
+		_shelterMin = shelteredTemperature;
+		_shelterMax = shelteredTemperature;
+		_outdoorsMin = outdoorsTemperature;
+		_outdoorsMax = outdoorsTemperature;
 	}
 
 	private void FlushCurrentBlock(IReadOnlyDictionary<long, SeasonAccumulator> accumulators)
@@ -465,9 +498,13 @@ internal sealed class HourlyBlockTracker
 				accumulator.HourlyStatistics[_hour] = hourly;
 			}
 
-			hourly.HourlyMins.Add(_min);
-			hourly.HourlyMaxs.Add(_max);
-			hourly.HourlyMeans.Add(_sum / _count);
+			hourly.Shelter.HourlyMins.Add(_shelterMin);
+			hourly.Shelter.HourlyMaxs.Add(_shelterMax);
+			hourly.Shelter.HourlyMeans.Add(_shelterSum / _count);
+
+			hourly.Outdoors.HourlyMins.Add(_outdoorsMin);
+			hourly.Outdoors.HourlyMaxs.Add(_outdoorsMax);
+			hourly.Outdoors.HourlyMeans.Add(_outdoorsSum / _count);
 		}
 
 		_hasBlock = false;
@@ -605,8 +642,11 @@ internal sealed class WeatherStatisticsAnalyzer
 				}
 				var localHour = request.SimulationContext.GetFeedLocalHour();
 				var weatherEvent = request.TransitionSnapshot.GetEvent(state.CurrentWeatherEventId);
-				var temperature = request.SimulationContext.GetBaseTemperature(state.CurrentSeasonId, localHour) +
-							  (weatherEvent?.TemperatureEffect ?? 0.0);
+				var shelteredTemperature = request.SimulationContext.GetBaseTemperature(state.CurrentSeasonId, localHour) +
+										 (weatherEvent?.TemperatureEffect ?? 0.0);
+				var outdoorsTemperature = shelteredTemperature +
+										 (weatherEvent?.PrecipitationTemperatureEffect ?? 0.0) +
+										 (weatherEvent?.WindTemperatureEffect ?? 0.0);
 				if (collectData)
 				{
 					if (!seasonAccumulators.TryGetValue(state.CurrentSeasonId, out var seasonAccumulator))
@@ -615,7 +655,12 @@ internal sealed class WeatherStatisticsAnalyzer
 						seasonAccumulators[state.CurrentSeasonId] = seasonAccumulator;
 					}
 					seasonAccumulator.RecordOccupancy(weatherEvent);
-					hourlyTracker.RecordMinute(state.CurrentSeasonId, localHour, temperature, seasonAccumulators);
+					hourlyTracker.RecordMinute(
+						state.CurrentSeasonId,
+						localHour,
+						shelteredTemperature,
+						outdoorsTemperature,
+						seasonAccumulators);
 				}
 				if (!request.SimulationContext.ConsumeYearBoundary())
 				{
@@ -699,53 +744,67 @@ internal sealed class WeatherStatisticsAnalyzer
 			for (var hour = 0; hour < Math.Max(1, hoursPerDay); hour++)
 			{
 				var hasSamples = stats.HourlyStatistics.TryGetValue(hour, out var hourly);
-				var sampleCount = hasSamples ? hourly!.HourlyMeans.Count : 0;
-				var mean = sampleCount > 0 ? hourly!.HourlyMeans.Average() : 0.0;
-				var likelyMin = sampleCount > 0 ? WeatherStatisticsMath.Percentile(hourly!.HourlyMins, 0.025) : 0.0;
-				var likelyMax = sampleCount > 0 ? WeatherStatisticsMath.Percentile(hourly!.HourlyMaxs, 0.975) : 0.0;
+				var shelterStats = hasSamples ? hourly!.Shelter : null;
+				var outdoorsStats = hasSamples ? hourly!.Outdoors : null;
 
-				rows.Add(new WeatherStatisticsCsvRow
-				{
-					Season = season.Name,
-					MetricType = "TemperatureHourly",
-					Key = "Temperature",
-					Hour = hour,
-					Statistic = "Mean",
-					Value = mean,
-					Unit = "temperature",
-					SampleCount = sampleCount,
-					SeasonMinutes = totalMinutes
-				});
-
-				rows.Add(new WeatherStatisticsCsvRow
-				{
-					Season = season.Name,
-					MetricType = "TemperatureHourly",
-					Key = "Temperature",
-					Hour = hour,
-					Statistic = "LikelyMin",
-					Value = likelyMin,
-					Unit = "temperature",
-					SampleCount = sampleCount,
-					SeasonMinutes = totalMinutes
-				});
-
-				rows.Add(new WeatherStatisticsCsvRow
-				{
-					Season = season.Name,
-					MetricType = "TemperatureHourly",
-					Key = "Temperature",
-					Hour = hour,
-					Statistic = "LikelyMax",
-					Value = likelyMax,
-					Unit = "temperature",
-					SampleCount = sampleCount,
-					SeasonMinutes = totalMinutes
-				});
+				rows.AddRange(BuildTemperatureRows(season.Name, "Shelter", hour, totalMinutes, shelterStats));
+				rows.AddRange(BuildTemperatureRows(season.Name, "Outdoors", hour, totalMinutes, outdoorsStats));
 			}
 		}
 
 		return rows;
+	}
+
+	private static IEnumerable<WeatherStatisticsCsvRow> BuildTemperatureRows(
+		string seasonName,
+		string key,
+		int hour,
+		long totalMinutes,
+		HourlyTemperatureStatistics? hourly)
+	{
+		var sampleCount = hourly?.HourlyMeans.Count ?? 0;
+		var mean = sampleCount > 0 ? hourly!.HourlyMeans.Average() : 0.0;
+		var likelyMin = sampleCount > 0 ? WeatherStatisticsMath.Percentile(hourly!.HourlyMins, 0.025) : 0.0;
+		var likelyMax = sampleCount > 0 ? WeatherStatisticsMath.Percentile(hourly!.HourlyMaxs, 0.975) : 0.0;
+
+		yield return new WeatherStatisticsCsvRow
+		{
+			Season = seasonName,
+			MetricType = "TemperatureHourly",
+			Key = key,
+			Hour = hour,
+			Statistic = "Mean",
+			Value = mean,
+			Unit = "temperature",
+			SampleCount = sampleCount,
+			SeasonMinutes = totalMinutes
+		};
+
+		yield return new WeatherStatisticsCsvRow
+		{
+			Season = seasonName,
+			MetricType = "TemperatureHourly",
+			Key = key,
+			Hour = hour,
+			Statistic = "LikelyMin",
+			Value = likelyMin,
+			Unit = "temperature",
+			SampleCount = sampleCount,
+			SeasonMinutes = totalMinutes
+		};
+
+		yield return new WeatherStatisticsCsvRow
+		{
+			Season = seasonName,
+			MetricType = "TemperatureHourly",
+			Key = key,
+			Hour = hour,
+			Statistic = "LikelyMax",
+			Value = likelyMax,
+			Unit = "temperature",
+			SampleCount = sampleCount,
+			SeasonMinutes = totalMinutes
+		};
 	}
 
 	private static IEnumerable<WeatherStatisticsCsvRow> BuildMinuteAndPercentRows(
@@ -845,6 +904,8 @@ internal sealed class WeatherStatisticsAnalyzer
 					Precipitation = weatherEvent.Precipitation,
 					Wind = weatherEvent.Wind,
 					TemperatureEffect = weatherEvent.TemperatureEffect,
+					PrecipitationTemperatureEffect = weatherEvent.PrecipitationTemperatureEffect,
+					WindTemperatureEffect = weatherEvent.WindTemperatureEffect,
 					PermittedTimesOfDay = weatherEvent.PermittedTimesOfDay.ToHashSet()
 				};
 			}
@@ -859,7 +920,7 @@ internal sealed class WeatherStatisticsAnalyzer
 		}
 	}
 
-	private static List<(long EventId, double Chance)> ParseTransitions(string xml)
+	internal static List<(long EventId, double Chance)> ParseTransitions(string xml)
 	{
 		var result = new List<(long EventId, double Chance)>();
 		if (string.IsNullOrWhiteSpace(xml))
@@ -877,7 +938,7 @@ internal sealed class WeatherStatisticsAnalyzer
 			return result;
 		}
 
-		foreach (var element in root.Elements("Event"))
+		foreach (var element in root.Elements())
 		{
 			var idText = element.Attribute("id")?.Value;
 			var chanceText = element.Attribute("chance")?.Value;

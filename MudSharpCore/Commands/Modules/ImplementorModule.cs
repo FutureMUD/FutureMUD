@@ -1520,6 +1520,7 @@ div.function-generalhelp {
 		try
 		{
 			actor.OutputHandler.Send("Running weather analysis simulation. This may take some time...");
+			actor.Gameworld.ForceOutgoingMessages();
 			var analyzer = new WeatherStatisticsAnalyzer();
 			var result = analyzer.Analyze(new WeatherStatisticsRequest
 			{
@@ -1564,7 +1565,7 @@ div.function-generalhelp {
 				),
 				(
 					"Temperatures",
-					"Hourly seasonal temperature summary with mean and central 95% likely min/max envelope.",
+					"Hourly seasonal sheltered and outdoors temperature summary with mean and central 95% likely min/max envelopes.",
 					$"{fullBasePath}-temperatures.csv",
 					result.Rows.Where(x => x.MetricType == "TemperatureHourly").ToList()
 				)
@@ -1613,9 +1614,9 @@ div.function-generalhelp {
 	{
 		using var file = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.Read);
 		using var writer = new StreamWriter(file, Encoding.UTF8);
-		foreach (var line in BuildWeatherStatisticsHeaderLines(outputDescription, controller, result, seed, generatedAtUtc))
+		foreach (var entry in BuildWeatherStatisticsHeaderEntries(fullPath, outputDescription, controller, result, seed, generatedAtUtc))
 		{
-			writer.WriteLine($"# {line}");
+			writer.WriteLine(FormatWeatherStatisticsMetadataCsv(entry.Label, entry.Value));
 		}
 
 		writer.WriteLine("Season,MetricType,Key,Hour,Statistic,Value,Unit,SampleCount,SeasonMinutes");
@@ -1628,7 +1629,8 @@ div.function-generalhelp {
 		writer.Flush();
 	}
 
-	private static IEnumerable<string> BuildWeatherStatisticsHeaderLines(
+	private static IEnumerable<(string Label, string Value)> BuildWeatherStatisticsHeaderEntries(
+		string fullPath,
 		string outputDescription,
 		IWeatherController controller,
 		WeatherStatisticsResult result,
@@ -1661,28 +1663,36 @@ div.function-generalhelp {
 			.ThenBy(x => x.Name)
 			.Select(DescribeItem)
 			.ToList();
+		var weatherEvents = result.Rows
+			.Where(x => x.MetricType == "WeatherEvent" && x.Statistic == "Minutes")
+			.Select(x => x.Key)
+			.ToList();
 
-		yield return "Analysis: Non-destructive in-memory Monte Carlo weather simulation.";
-		yield return $"Output: {outputDescription}";
-		yield return $"GeneratedUtc: {generatedAtUtc:O}";
-		yield return $"Controller: {DescribeItem(controller)}";
-		yield return $"RegionalClimate: {DescribeItem(controller.RegionalClimate)}";
-		yield return $"ClimateModel: {DescribeItem(controller.RegionalClimate.ClimateModel)}";
-		yield return $"InitialSeason: {DescribeItem(controller.CurrentSeason)}";
-		yield return $"InitialWeatherEvent: {DescribeItem(controller.CurrentWeatherEvent)}";
-		yield return $"Years: {result.Years.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-		yield return $"BurnInYears: {result.BurnInYears.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-		yield return $"Seed: {(seed.HasValue ? seed.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "random")}";
-		yield return $"SimulatedMinutes: {result.SimulatedMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-		yield return $"FeedClock: {DescribeItem(controller.FeedClock)}";
-		yield return $"FeedClockPrimaryTimezone: {DescribeItem(controller.FeedClock.PrimaryTimezone)}";
-		yield return $"FeedClockAnalysisTimezone: {DescribeItem(controller.FeedClockTimeZone)}";
-		yield return $"Geography: lat={controller.GeographyForTimeOfDay.Latitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, lon={controller.GeographyForTimeOfDay.Longitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, elevation={controller.GeographyForTimeOfDay.Elevation.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, radius={controller.GeographyForTimeOfDay.Radius.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}";
-		yield return $"CelestialRoot: {(controller.Celestial is null ? "None" : DescribeItem(controller.Celestial))}";
-		yield return $"CelestialObjects: {DescribeItemList(celestials.Select(DescribeItem))}";
-		yield return $"CelestialClocks: {DescribeItemList(celestialClocks)}";
-		yield return $"CelestialCalendars: {DescribeItemList(celestialCalendars)}";
-		yield return $"Seasons: {DescribeItemList(seasonDescriptions)}";
+		yield return ("Analysis", "Non-destructive in-memory Monte Carlo weather simulation.");
+		yield return ("Output", outputDescription);
+		yield return ("OutputFile", fullPath);
+		yield return ("Parameters", $"years={result.Years.ToString(System.Globalization.CultureInfo.InvariantCulture)}, burninYears={result.BurnInYears.ToString(System.Globalization.CultureInfo.InvariantCulture)}, seed={(seed.HasValue ? seed.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "random")}");
+		yield return ("GeneratedUtc", $"{generatedAtUtc:O}");
+		yield return ("Controller", DescribeItem(controller));
+		yield return ("RegionalClimate", DescribeItem(controller.RegionalClimate));
+		yield return ("ClimateModel", DescribeItem(controller.RegionalClimate.ClimateModel));
+		yield return ("InitialSeason", DescribeItem(controller.CurrentSeason));
+		yield return ("InitialWeatherEvent", DescribeItem(controller.CurrentWeatherEvent));
+		yield return ("Years", result.Years.ToString(System.Globalization.CultureInfo.InvariantCulture));
+		yield return ("BurnInYears", result.BurnInYears.ToString(System.Globalization.CultureInfo.InvariantCulture));
+		yield return ("Seed", seed.HasValue ? seed.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "random");
+		yield return ("SimulatedMinutes", result.SimulatedMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture));
+		yield return ("FeedClock", DescribeItem(controller.FeedClock));
+		yield return ("FeedClockPrimaryTimezone", DescribeItem(controller.FeedClock.PrimaryTimezone));
+		yield return ("FeedClockAnalysisTimezone", DescribeItem(controller.FeedClockTimeZone));
+		yield return ("Geography", $"lat={controller.GeographyForTimeOfDay.Latitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, lon={controller.GeographyForTimeOfDay.Longitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, elevation={controller.GeographyForTimeOfDay.Elevation.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, radius={controller.GeographyForTimeOfDay.Radius.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}");
+		yield return ("CelestialRoot", controller.Celestial is null ? "None" : DescribeItem(controller.Celestial));
+		yield return ("CelestialObjects", DescribeItemList(celestials.Select(DescribeItem)));
+		yield return ("CelestialClocks", DescribeItemList(celestialClocks));
+		yield return ("CelestialCalendars", DescribeItemList(celestialCalendars));
+		yield return ("Seasons", DescribeItemList(seasonDescriptions));
+		yield return ("WeatherEvents", DescribeItemList(weatherEvents));
+		yield return ("TemperatureProfiles", "Shelter; Outdoors");
 	}
 
 	private static IEnumerable<ICelestialObject> FlattenCelestialObjects(ICelestialObject root)
@@ -1781,6 +1791,11 @@ div.function-generalhelp {
 		return items.Count > 0 ? string.Join("; ", items) : "None";
 	}
 
+	internal static string FormatWeatherStatisticsMetadataCsv(string label, string value)
+	{
+		return $"{EscapeCsv($"# {label}")},{EscapeCsv(value)}";
+	}
+
 	private static string EscapeCsv(string value)
 	{
 		if (value is null)
@@ -1788,7 +1803,14 @@ div.function-generalhelp {
 			return string.Empty;
 		}
 
-		throw new NotImplementedException("CSV escaping is not implemented yet. This should be fixed before any of the debug weather stats functions are used.");
+		var needsQuotes = value.IndexOfAny(new[] { ',', '"', '\r', '\n' }) != -1 ||
+		                  (value.Length > 0 && (char.IsWhiteSpace(value[0]) || char.IsWhiteSpace(value[^1])));
+		if (!needsQuotes)
+		{
+			return value;
+		}
+
+		return $"\"{value.Replace("\"", "\"\"")}\"";
 	}
 
 	private static void DebugDescriptions(ICharacter actor, StringStack ss)
@@ -2667,5 +2689,3 @@ The syntax is as follows:
 		}
 	}
 }
-
-

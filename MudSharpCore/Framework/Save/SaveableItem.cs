@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using MudSharp.Framework;
 using MudSharp.Character;
 
@@ -61,6 +61,23 @@ public abstract class SaveableItem : FrameworkItem, ISaveable
 
 	public abstract void Save();
 
+	public void SetNoSave(bool value)
+	{
+		_noSave = value;
+		if (!value)
+		{
+			return;
+		}
+
+		_changed = false;
+		_gameworld?.SaveManager.Abort(this);
+	}
+
+	public bool GetNoSave()
+	{
+		return _noSave;
+	}
+
 	#endregion
 }
 
@@ -119,6 +136,23 @@ public abstract class SavableKeywordedItem : KeywordedItem, ISaveable
 	}
 
 	public abstract void Save();
+
+	public void SetNoSave(bool value)
+	{
+		_noSave = value;
+		if (!value)
+		{
+			return;
+		}
+
+		_changed = false;
+		_gameworld?.SaveManager.Abort(this);
+	}
+
+	public bool GetNoSave()
+	{
+		return _noSave;
+	}
 
 	#endregion
 }

@@ -62,6 +62,11 @@ public abstract class LateInitialisingItem : FrameworkItem, ILateInitialisingIte
 
 	public Action InitialiseItem()
 	{
+		if (_noSave)
+		{
+			return () => { };
+		}
+
 		var obj = DatabaseInsert();
 		if (obj != null)
 		{
@@ -87,6 +92,13 @@ public abstract class LateInitialisingItem : FrameworkItem, ILateInitialisingIte
 	public void SetNoSave(bool value)
 	{
 		_noSave = value;
+		if (!value)
+		{
+			return;
+		}
+
+		_changed = false;
+		Gameworld?.SaveManager.Abort(this);
 	}
 
 	public bool GetNoSave()
@@ -159,6 +171,13 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
 	public void SetNoSave(bool value)
 	{
 		_noSave = value;
+		if (!value)
+		{
+			return;
+		}
+
+		_changed = false;
+		Gameworld?.SaveManager.Abort(this);
 	}
 
 	public bool GetNoSave()
@@ -168,6 +187,11 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
 
 	public Action InitialiseItem()
 	{
+		if (_noSave)
+		{
+			return () => { };
+		}
+
 		var obj = DatabaseInsert();
 		if (obj != null)
 		{

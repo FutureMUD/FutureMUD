@@ -533,8 +533,8 @@ public class Clock : SaveableItem, IClock
 		protected init => _currentTime = value;
 	}
 
-	protected readonly All<IMudTimeZone> _timezones = new();
-	public IUneditableAll<IMudTimeZone> Timezones => _timezones;
+	protected readonly List<IMudTimeZone> _timezones = new();
+	public IEnumerable<IMudTimeZone> Timezones => _timezones;
 	public IMudTimeZone PrimaryTimezone { get; protected set; }
 
 	public void AddTimezone(IMudTimeZone timezone)

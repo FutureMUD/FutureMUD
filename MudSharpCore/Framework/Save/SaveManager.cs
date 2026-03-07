@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Database;
@@ -29,11 +29,20 @@ public class SaveManager : ISaveManager
 
 	public void AddInitialisation(ILateInitialisingItem item)
 	{
+		if (IsNoSave(item))
+		{
+			return;
+		}
+
 		_initialisationQueue.Add(item);
 	}
 
 	public void Add(ISaveable item)
 	{
+		if (IsNoSave(item))
+		{
+			return;
+		}
 #if DEBUG
 		if (MudBootingMode)
 		{
@@ -169,6 +178,12 @@ public class SaveManager : ISaveManager
 
 	public void DirectInitialise(ILateInitialisingItem item)
 	{
+		if (IsNoSave(item))
+		{
+			Abort(item);
+			return;
+		}
+
 		using (new FMDB())
 		{
 			var action = item.InitialiseItem();
@@ -183,13 +198,14 @@ public class SaveManager : ISaveManager
 		using (new FMDB())
 		{
 			var actions = new List<Action>();
-			var firstQueue = _initialisationQueue.Where(x => x.InitialisationPhase == InitialisationPhase.First)
-			                                     .ToList();
-			var secondQueue = _initialisationQueue.Where(x => x.InitialisationPhase == InitialisationPhase.Second)
-			                                      .ToList();
-			var thirdQueue = _initialisationQueue
-			                 .Where(x => x.InitialisationPhase == InitialisationPhase.AfterFirstDatabaseHit)
-			                 .ToList();
+			var queuedItems = _initialisationQueue.Where(x => !IsNoSave(x)).ToList();
+			var firstQueue = queuedItems.Where(x => x.InitialisationPhase == InitialisationPhase.First)
+			                            .ToList();
+			var secondQueue = queuedItems.Where(x => x.InitialisationPhase == InitialisationPhase.Second)
+			                             .ToList();
+			var thirdQueue = queuedItems
+			                .Where(x => x.InitialisationPhase == InitialisationPhase.AfterFirstDatabaseHit)
+			                .ToList();
 			_initialisationQueue.Clear();
 
 			// Some items need to be sure to run before other items (parents with children for example). They may take action in their InitialiseItem() function to prime their subordinates.
@@ -226,7 +242,7 @@ public class SaveManager : ISaveManager
 			actions.Clear();
 
 			// Some items may add additional items to the queue to process (particularly things for which an entity relationship cannot be established - e.g. anything that applies to "perceivers"). These must run AFTER the first transactions have been processed.
-			foreach (var item in _initialisationQueue)
+			foreach (var item in _initialisationQueue.Where(x => !IsNoSave(x)))
 			{
 				actions.Add(item.InitialiseItem());
 			}
@@ -277,6 +293,12 @@ public class SaveManager : ISaveManager
 				_saveStack.Clear();
 				foreach (var item in tempStack)
 				{
+					if (IsNoSave(item))
+					{
+						item.Changed = false;
+						continue;
+					}
+
 					item.Save();
 					if (item.Changed == true)
 					{
@@ -360,5 +382,26 @@ public class SaveManager : ISaveManager
 		}
 	}
 
+	private static bool IsNoSave(ISaveable item)
+	{
+		return item switch
+		{
+			SaveableItem saveableItem => saveableItem.GetNoSave(),
+			SavableKeywordedItem savableKeywordedItem => savableKeywordedItem.GetNoSave(),
+			LateInitialisingItem lateInitialisingItem => lateInitialisingItem.GetNoSave(),
+			LateKeywordedInitialisingItem lateKeywordedInitialisingItem => lateKeywordedInitialisingItem.GetNoSave(),
+			_ => false
+		};
+	}
+
+	private static bool IsNoSave(ILateInitialisingItem item)
+	{
+		return item switch
+		{
+			LateInitialisingItem lateInitialisingItem => lateInitialisingItem.GetNoSave(),
+			LateKeywordedInitialisingItem lateKeywordedInitialisingItem => lateKeywordedInitialisingItem.GetNoSave(),
+			_ => false
+		};
+	}
 	#endregion
 }

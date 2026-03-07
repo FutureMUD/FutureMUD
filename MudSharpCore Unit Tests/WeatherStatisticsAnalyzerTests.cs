@@ -160,6 +160,135 @@ public class WeatherStatisticsAnalyzerTests
 	}
 
 	[TestMethod]
+	public void AnalyzeSimulation_TemperatureSummary_IncludesGeneralRainAndWindModifiers()
+	{
+		var season = CreateSeason(1, "Season One", 0);
+		var seasonInfo = new Dictionary<long, ISeason> { [season.Id] = season };
+		var seasonRotation = new CircularRange<ISeason>(4.0, new[] { (season, 0.0) });
+		var simulationClock = new TinySimulationClock(1, 4, 1);
+		var context = CreateContext(simulationClock, seasonRotation, (_, _) => 10.0, () => TimeOfDay.Morning);
+
+		var events = new Dictionary<long, WeatherEventInfo>
+		{
+			[1] = new()
+			{
+				Id = 1,
+				Name = "Warmer Wet Windy",
+				Precipitation = PrecipitationLevel.Rain,
+				Wind = WindLevel.StrongWind,
+				TemperatureEffect = 1.0,
+				PrecipitationTemperatureEffect = 2.0,
+				WindTemperatureEffect = 3.0,
+				PermittedTimesOfDay = Enum.GetValues<TimeOfDay>().ToHashSet()
+			}
+		};
+
+		var snapshot = new WeatherTransitionSnapshot(
+			1,
+			events,
+			new Dictionary<long, double> { [season.Id] = 0.0 },
+			new Dictionary<long, double> { [season.Id] = 0.0 },
+			new Dictionary<(long SeasonId, long EventId), double> { [(season.Id, 1)] = 0.0 },
+			new Dictionary<(long SeasonId, long EventId), IReadOnlyList<(long EventId, double Chance)>>
+			{
+				[(season.Id, 1)] = Array.Empty<(long EventId, double Chance)>()
+			});
+
+		var analyzer = new WeatherStatisticsAnalyzer();
+		var result = analyzer.AnalyzeSimulation(new WeatherStatisticsSimulationRequest
+		{
+			Years = 1,
+			BurnInYears = 0,
+			Seed = 2468,
+			SeasonInfo = seasonInfo,
+			TransitionSnapshot = snapshot,
+			SimulationContext = context,
+			InitialSeasonId = season.Id,
+			InitialWeatherEventId = 1,
+			InitialConsecutiveUnchangedPeriods = 0,
+			InitialMinuteCounter = 0
+		});
+
+		var shelterMean = result.Rows.Single(x =>
+			x.Season == season.Name &&
+			x.MetricType == "TemperatureHourly" &&
+			x.Key == "Shelter" &&
+			x.Hour == 0 &&
+			x.Statistic == "Mean");
+		var shelterLikelyMin = result.Rows.Single(x =>
+			x.Season == season.Name &&
+			x.MetricType == "TemperatureHourly" &&
+			x.Key == "Shelter" &&
+			x.Hour == 0 &&
+			x.Statistic == "LikelyMin");
+		var shelterLikelyMax = result.Rows.Single(x =>
+			x.Season == season.Name &&
+			x.MetricType == "TemperatureHourly" &&
+			x.Key == "Shelter" &&
+			x.Hour == 0 &&
+			x.Statistic == "LikelyMax");
+		var outdoorsMean = result.Rows.Single(x =>
+			x.Season == season.Name &&
+			x.MetricType == "TemperatureHourly" &&
+			x.Key == "Outdoors" &&
+			x.Hour == 0 &&
+			x.Statistic == "Mean");
+		var outdoorsLikelyMin = result.Rows.Single(x =>
+			x.Season == season.Name &&
+			x.MetricType == "TemperatureHourly" &&
+			x.Key == "Outdoors" &&
+			x.Hour == 0 &&
+			x.Statistic == "LikelyMin");
+		var outdoorsLikelyMax = result.Rows.Single(x =>
+			x.Season == season.Name &&
+			x.MetricType == "TemperatureHourly" &&
+			x.Key == "Outdoors" &&
+			x.Hour == 0 &&
+			x.Statistic == "LikelyMax");
+
+		Assert.AreEqual(11.0, shelterMean.Value, 0.00001);
+		Assert.AreEqual(11.0, shelterLikelyMin.Value, 0.00001);
+		Assert.AreEqual(11.0, shelterLikelyMax.Value, 0.00001);
+		Assert.AreEqual(16.0, outdoorsMean.Value, 0.00001);
+		Assert.AreEqual(16.0, outdoorsLikelyMin.Value, 0.00001);
+		Assert.AreEqual(16.0, outdoorsLikelyMax.Value, 0.00001);
+	}
+
+	[TestMethod]
+	public void ParseTransitions_LegacySeederTransitionNodes_AreParsed()
+	{
+		const string xml = """
+		                   <Transitions>
+		                   	<Transition id="101" chance="2.5" />
+		                   	<Transition id="202" chance="7.5" />
+		                   </Transitions>
+		                   """;
+
+		var result = WeatherStatisticsAnalyzer.ParseTransitions(xml);
+
+		Assert.AreEqual(2, result.Count);
+		Assert.AreEqual((101L, 2.5), result[0]);
+		Assert.AreEqual((202L, 7.5), result[1]);
+	}
+
+	[TestMethod]
+	public void ParseTransitions_CurrentEventNodes_AreParsed()
+	{
+		const string xml = """
+		                   <Transitions>
+		                   	<Event id="303" chance="1.25" />
+		                   	<Event id="404" chance="3.75" />
+		                   </Transitions>
+		                   """;
+
+		var result = WeatherStatisticsAnalyzer.ParseTransitions(xml);
+
+		Assert.AreEqual(2, result.Count);
+		Assert.AreEqual((303L, 1.25), result[0]);
+		Assert.AreEqual((404L, 3.75), result[1]);
+	}
+
+	[TestMethod]
 	public void Percentile_Central95_ComputesExpectedInterpolatedValues()
 	{
 		var values = Enumerable.Range(1, 100).Select(x => (double)x).ToList();
@@ -180,24 +309,30 @@ public class WeatherStatisticsAnalyzerTests
 		};
 		var tracker = new HourlyBlockTracker();
 
-		tracker.RecordMinute(1, 0, 10.0, accumulators);
-		tracker.RecordMinute(1, 0, 20.0, accumulators);
-		tracker.RecordMinute(1, 0, 30.0, accumulators);
-		tracker.RecordMinute(1, 1, 5.0, accumulators);
-		tracker.RecordMinute(1, 1, 15.0, accumulators);
-		tracker.RecordMinute(1, 0, 40.0, accumulators);
-		tracker.RecordMinute(1, 0, 50.0, accumulators);
+		tracker.RecordMinute(1, 0, 10.0, 15.0, accumulators);
+		tracker.RecordMinute(1, 0, 20.0, 25.0, accumulators);
+		tracker.RecordMinute(1, 0, 30.0, 35.0, accumulators);
+		tracker.RecordMinute(1, 1, 5.0, 7.0, accumulators);
+		tracker.RecordMinute(1, 1, 15.0, 17.0, accumulators);
+		tracker.RecordMinute(1, 0, 40.0, 45.0, accumulators);
+		tracker.RecordMinute(1, 0, 50.0, 55.0, accumulators);
 		tracker.Finalize(accumulators);
 
 		var hour0 = accumulators[1].HourlyStatistics[0];
-		CollectionAssert.AreEqual(new[] { 10.0, 40.0 }, hour0.HourlyMins.ToArray());
-		CollectionAssert.AreEqual(new[] { 30.0, 50.0 }, hour0.HourlyMaxs.ToArray());
-		CollectionAssert.AreEqual(new[] { 20.0, 45.0 }, hour0.HourlyMeans.ToArray());
+		CollectionAssert.AreEqual(new[] { 10.0, 40.0 }, hour0.Shelter.HourlyMins.ToArray());
+		CollectionAssert.AreEqual(new[] { 30.0, 50.0 }, hour0.Shelter.HourlyMaxs.ToArray());
+		CollectionAssert.AreEqual(new[] { 20.0, 45.0 }, hour0.Shelter.HourlyMeans.ToArray());
+		CollectionAssert.AreEqual(new[] { 15.0, 45.0 }, hour0.Outdoors.HourlyMins.ToArray());
+		CollectionAssert.AreEqual(new[] { 35.0, 55.0 }, hour0.Outdoors.HourlyMaxs.ToArray());
+		CollectionAssert.AreEqual(new[] { 25.0, 50.0 }, hour0.Outdoors.HourlyMeans.ToArray());
 
 		var hour1 = accumulators[1].HourlyStatistics[1];
-		CollectionAssert.AreEqual(new[] { 5.0 }, hour1.HourlyMins.ToArray());
-		CollectionAssert.AreEqual(new[] { 15.0 }, hour1.HourlyMaxs.ToArray());
-		CollectionAssert.AreEqual(new[] { 10.0 }, hour1.HourlyMeans.ToArray());
+		CollectionAssert.AreEqual(new[] { 5.0 }, hour1.Shelter.HourlyMins.ToArray());
+		CollectionAssert.AreEqual(new[] { 15.0 }, hour1.Shelter.HourlyMaxs.ToArray());
+		CollectionAssert.AreEqual(new[] { 10.0 }, hour1.Shelter.HourlyMeans.ToArray());
+		CollectionAssert.AreEqual(new[] { 7.0 }, hour1.Outdoors.HourlyMins.ToArray());
+		CollectionAssert.AreEqual(new[] { 17.0 }, hour1.Outdoors.HourlyMaxs.ToArray());
+		CollectionAssert.AreEqual(new[] { 12.0 }, hour1.Outdoors.HourlyMeans.ToArray());
 	}
 
 	private static WeatherSimulationContext CreateContext(

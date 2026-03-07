@@ -1250,6 +1250,326 @@ public partial class WeatherSeeder
 		};
 	}
 
+	private static WeatherSeederClimateProfile CreateTundraProfile()
+	{
+		var baseProfile = CreateSubarcticProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Tundra",
+			RegionalClimatePrefix = "Tundra",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-10.0, -2.0),
+				["Mid Winter"] = (-12.0, -3.0),
+				["Late Winter"] = (-11.0, -2.0),
+				["Early Spring"] = (-8.0, 0.0),
+				["Mid Spring"] = (-3.0, 4.0),
+				["Late Spring"] = (1.0, 7.0),
+				["Early Summer"] = (4.0, 10.0),
+				["Mid Summer"] = (5.0, 11.0),
+				["Late Summer"] = (4.5, 10.5),
+				["Early Autumn"] = (2.0, 7.0),
+				["Mid Autumn"] = (-1.0, 4.0),
+				["Late Autumn"] = (-6.0, 0.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.15, 1.05, 1.0, 1.15),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.90, 0.95, 1.0, 0.90),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.25, 1.10, 1.05, 1.30),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.82, 0.92, 0.95, 0.82),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 0.95, 0.95, 0.90, 0.95),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 1.05, 1.0, 1.0, 1.05),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 1.28, 1.18, 1.10, 1.30),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 0.72, 0.80, 0.85, 0.72),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 1.25, 1.15, 1.10, 1.30),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 1.25, 1.15, 1.10, 1.25),
+			OvercastToLightRainChance = seasonName => baseProfile.OvercastToLightRainChance(seasonName) * SeasonalScale(seasonName, 0.65, 0.95, 1.05, 1.20),
+			OvercastToRainChance = seasonName => baseProfile.OvercastToRainChance(seasonName) * SeasonalScale(seasonName, 0.30, 0.80, 0.95, 1.10),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonalScale(seasonName, 1.55, 1.25, 0.05, 1.80),
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 0.70, 0.78, 0.82, 0.70),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 0.18, 0.20, 0.18, 0.18),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 1.18, 1.10, 1.05, 1.20),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 0.88, 0.90, 0.95, 0.88),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.95, 0.95, 0.95, 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00036
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreatePolarIceCapProfile()
+	{
+		var baseProfile = CreateTundraProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Polar Ice Cap",
+			RegionalClimatePrefix = "Polar Ice Cap",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-42.0, -32.0),
+				["Mid Winter"] = (-60.0, -50.0),
+				["Late Winter"] = (-55.0, -45.0),
+				["Early Spring"] = (-58.0, -46.0),
+				["Mid Spring"] = (-54.0, -42.0),
+				["Late Spring"] = (-46.0, -34.0),
+				["Early Summer"] = (-38.0, -26.0),
+				["Mid Summer"] = (-33.0, -20.0),
+				["Late Summer"] = (-40.0, -28.0),
+				["Early Autumn"] = (-48.0, -36.0),
+				["Mid Autumn"] = (-56.0, -44.0),
+				["Late Autumn"] = (-50.0, -38.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.25, 1.20, 1.15, 1.25),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.82, 0.85, 0.88, 0.82),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.03, 0.03, 0.04, 0.03),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.65, 1.60, 1.55, 1.60),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 1.05, 1.05, 1.0, 1.05),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 1.15, 1.10, 1.05, 1.15),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 0.24, 0.22, 0.26, 0.24),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 1.55, 1.50, 1.40, 1.50),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 0.22, 0.20, 0.24, 0.22),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 0.01, 0.01, 0.015, 0.01),
+			OvercastToLightRainChance = seasonName => 0.0,
+			OvercastToRainChance = seasonName => 0.0,
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonalScale(seasonName, 0.80, 0.65, 0.90, 0.75),
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 1.70, 1.85, 1.65, 1.80),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 3.0, 3.2, 3.0, 3.0),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 0.05, 0.04, 0.06, 0.05),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 1.45, 1.45, 1.35, 1.40),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.85, 0.85, 0.85, 0.85),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00032
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateHotSemiAridProfile()
+	{
+		var baseProfile = CreateHumidSubtropicalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Hot Semi-Arid",
+			RegionalClimatePrefix = "Hot Semi-Arid",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (7.0, 19.0),
+				["Mid Winter"] = (6.0, 18.0),
+				["Late Winter"] = (9.0, 22.0),
+				["Early Spring"] = (14.0, 27.0),
+				["Mid Spring"] = (18.0, 31.0),
+				["Late Spring"] = (22.0, 35.0),
+				["Early Summer"] = (25.0, 38.0),
+				["Mid Summer"] = (26.0, 39.0),
+				["Late Summer"] = (25.0, 38.0),
+				["Early Autumn"] = (22.0, 35.0),
+				["Mid Autumn"] = (16.0, 29.0),
+				["Late Autumn"] = (10.0, 23.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.05, 1.10, 1.12, 1.08),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.95, 0.95, 0.92, 0.95),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.20, 0.34, 0.25, 0.38),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.80, 1.52, 1.28, 1.38),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 1.0, 1.08, 1.10, 1.05),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 1.05, 1.10, 1.10, 1.05),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 0.28, 0.42, 0.35, 0.46),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 1.58, 1.38, 1.20, 1.28),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 0.28, 0.42, 0.30, 0.48),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 0.20, 0.28, 0.22, 0.32),
+			OvercastToLightRainChance = seasonName => baseProfile.OvercastToLightRainChance(seasonName) * SeasonalScale(seasonName, 0.30, 0.50, 0.45, 0.72),
+			OvercastToRainChance = seasonName => baseProfile.OvercastToRainChance(seasonName) * SeasonalScale(seasonName, 0.18, 0.38, 0.35, 0.60),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonalScale(seasonName, 0.04, 0.02, 0.0, 0.01),
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 1.95, 1.68, 1.42, 1.56),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 3.0, 2.5, 2.0, 2.2),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 0.30, 0.42, 0.32, 0.48),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 1.18, 1.12, 1.08, 1.12),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.95, 0.95, 0.90, 0.92),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00042
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateColdSemiAridProfile()
+	{
+		var baseProfile = CreateHumidSubcontinentalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Cold Semi-Arid",
+			RegionalClimatePrefix = "Cold Semi-Arid",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-6.0, 7.0),
+				["Mid Winter"] = (-8.0, 6.0),
+				["Late Winter"] = (-5.0, 8.0),
+				["Early Spring"] = (0.0, 12.0),
+				["Mid Spring"] = (5.0, 18.0),
+				["Late Spring"] = (10.0, 24.0),
+				["Early Summer"] = (15.0, 28.0),
+				["Mid Summer"] = (18.0, 30.0),
+				["Late Summer"] = (17.0, 29.0),
+				["Early Autumn"] = (11.0, 24.0),
+				["Mid Autumn"] = (4.0, 17.0),
+				["Late Autumn"] = (-2.0, 10.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.10, 1.15, 1.05, 1.10),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.95, 0.92, 0.98, 0.95),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.16, 0.34, 0.42, 0.28),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.78, 1.45, 1.30, 1.52),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 1.05, 1.08, 1.0, 1.05),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 1.10, 1.10, 1.0, 1.08),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 0.34, 0.52, 0.46, 0.34),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 1.42, 1.22, 1.28, 1.36),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 0.32, 0.48, 0.44, 0.32),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 0.18, 0.34, 0.28, 0.18),
+			OvercastToLightRainChance = seasonName => baseProfile.OvercastToLightRainChance(seasonName) * SeasonalScale(seasonName, 0.14, 0.50, 0.58, 0.30),
+			OvercastToRainChance = seasonName => baseProfile.OvercastToRainChance(seasonName) * SeasonalScale(seasonName, 0.08, 0.34, 0.42, 0.18),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonalScale(seasonName, 0.85, 0.22, 0.0, 0.10),
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 1.85, 1.50, 1.42, 1.72),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 2.4, 2.0, 1.9, 2.2),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 0.34, 0.55, 0.52, 0.36),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 1.10, 1.05, 1.02, 1.08),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.95, 0.95, 0.92, 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00044
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateHotDesertProfile()
+	{
+		var baseProfile = CreateHotSemiAridProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Hot Desert",
+			RegionalClimatePrefix = "Hot Desert",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (8.0, 22.0),
+				["Mid Winter"] = (7.0, 21.0),
+				["Late Winter"] = (10.0, 25.0),
+				["Early Spring"] = (15.0, 29.0),
+				["Mid Spring"] = (19.0, 33.0),
+				["Late Spring"] = (24.0, 38.0),
+				["Early Summer"] = (29.0, 43.0),
+				["Mid Summer"] = (31.0, 45.0),
+				["Late Summer"] = (30.0, 44.0),
+				["Early Autumn"] = (25.0, 39.0),
+				["Mid Autumn"] = (17.0, 31.0),
+				["Late Autumn"] = (10.0, 24.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.0, 1.0, 1.05, 1.0),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.98, 0.96, 0.95, 0.98),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.10, 0.12, 0.20, 0.22),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.85, 1.80, 1.65, 1.55),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 1.02, 1.08, 1.15, 1.08),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 1.0, 1.0, 1.05, 1.0),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 0.10, 0.09, 0.12, 0.16),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 1.85, 2.0, 1.82, 1.65),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 0.08, 0.08, 0.12, 0.18),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 0.05, 0.04, 0.08, 0.12),
+			OvercastToLightRainChance = seasonName => baseProfile.OvercastToLightRainChance(seasonName) * SeasonalScale(seasonName, 0.06, 0.08, 0.18, 0.24),
+			OvercastToRainChance = seasonName => baseProfile.OvercastToRainChance(seasonName) * SeasonalScale(seasonName, 0.02, 0.04, 0.10, 0.14),
+			OvercastToLightSnowChance = seasonName => 0.0,
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 1.85, 2.15, 2.30, 1.95),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 3.4, 3.6, 3.9, 3.0),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 0.08, 0.08, 0.12, 0.16),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 1.35, 1.35, 1.28, 1.25),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.90, 0.90, 0.88, 0.90),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00040
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateColdDesertProfile()
+	{
+		var baseProfile = CreateColdSemiAridProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Cold Desert",
+			RegionalClimatePrefix = "Cold Desert",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-3.0, 11.0),
+				["Mid Winter"] = (-4.0, 10.0),
+				["Late Winter"] = (0.0, 13.0),
+				["Early Spring"] = (4.0, 17.0),
+				["Mid Spring"] = (8.0, 23.0),
+				["Late Spring"] = (13.0, 29.0),
+				["Early Summer"] = (18.0, 34.0),
+				["Mid Summer"] = (20.0, 35.0),
+				["Late Summer"] = (19.0, 34.0),
+				["Early Autumn"] = (13.0, 29.0),
+				["Mid Autumn"] = (6.0, 21.0),
+				["Late Autumn"] = (0.0, 14.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.0, 1.05, 1.08, 1.02),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.98, 0.95, 0.94, 0.98),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.24, 0.28, 0.20, 0.24),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.45, 1.60, 1.70, 1.58),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 1.0, 1.05, 1.08, 1.02),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 1.0, 1.02, 1.05, 1.0),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 0.38, 0.32, 0.22, 0.28),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 1.42, 1.55, 1.75, 1.62),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 0.38, 0.32, 0.18, 0.24),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 0.20, 0.16, 0.10, 0.12),
+			OvercastToLightRainChance = seasonName => baseProfile.OvercastToLightRainChance(seasonName) * SeasonalScale(seasonName, 0.22, 0.20, 0.10, 0.18),
+			OvercastToRainChance = seasonName => baseProfile.OvercastToRainChance(seasonName) * SeasonalScale(seasonName, 0.10, 0.10, 0.04, 0.08),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonalScale(seasonName, 0.62, 0.12, 0.0, 0.03),
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 1.55, 1.80, 2.0, 1.82),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 2.1, 2.3, 2.7, 2.3),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 0.26, 0.22, 0.18, 0.20),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 1.28, 1.30, 1.24, 1.25),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.90, 0.88, 0.86, 0.88),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00038
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateTropicalRainforestProfile()
+	{
+		var baseProfile = CreateHumidSubtropicalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Tropical Rainforest",
+			RegionalClimatePrefix = "Tropical Rainforest",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (24.0, 30.0),
+				["Mid Winter"] = (24.0, 30.0),
+				["Late Winter"] = (25.0, 31.0),
+				["Early Spring"] = (25.0, 31.0),
+				["Mid Spring"] = (25.0, 32.0),
+				["Late Spring"] = (25.0, 32.0),
+				["Early Summer"] = (25.0, 31.0),
+				["Mid Summer"] = (25.0, 31.0),
+				["Late Summer"] = (25.0, 31.0),
+				["Early Autumn"] = (25.0, 31.0),
+				["Mid Autumn"] = (25.0, 31.0),
+				["Late Autumn"] = (24.0, 30.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => baseProfile.WindIncreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 0.75, 0.80, 0.82, 0.78),
+			WindDecreaseChance = (seasonName, currentWind) => baseProfile.WindDecreaseChance(seasonName, currentWind) * SeasonalScale(seasonName, 1.20, 1.15, 1.12, 1.18),
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipIncreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 1.28, 1.10, 1.04, 1.22),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) => baseProfile.PrecipDecreaseChance(seasonName, currentPrecipitation, stages) * SeasonalScale(seasonName, 0.74, 0.80, 0.84, 0.76),
+			TemperatureVariationChance = seasonName => baseProfile.TemperatureVariationChance(seasonName) * SeasonalScale(seasonName, 0.75, 0.75, 0.72, 0.75),
+			WindVariationChance = seasonName => baseProfile.WindVariationChance(seasonName) * SeasonalScale(seasonName, 0.72, 0.75, 0.78, 0.72),
+			CloudIncreaseChance = seasonName => baseProfile.CloudIncreaseChance(seasonName) * SeasonalScale(seasonName, 1.32, 1.15, 1.10, 1.28),
+			CloudDecreaseChance = seasonName => baseProfile.CloudDecreaseChance(seasonName) * SeasonalScale(seasonName, 0.64, 0.74, 0.80, 0.68),
+			CloudyToOvercastChance = seasonName => baseProfile.CloudyToOvercastChance(seasonName) * SeasonalScale(seasonName, 1.34, 1.16, 1.08, 1.28),
+			CloudyToHumidChance = seasonName => baseProfile.CloudyToHumidChance(seasonName) * SeasonalScale(seasonName, 1.30, 1.15, 1.12, 1.24),
+			OvercastToLightRainChance = seasonName => baseProfile.OvercastToLightRainChance(seasonName) * SeasonalScale(seasonName, 1.26, 1.12, 1.08, 1.22),
+			OvercastToRainChance = seasonName => baseProfile.OvercastToRainChance(seasonName) * SeasonalScale(seasonName, 1.22, 1.12, 1.08, 1.18),
+			OvercastToLightSnowChance = seasonName => 0.0,
+			CloudyToDryChance = seasonName => baseProfile.CloudyToDryChance(seasonName) * SeasonalScale(seasonName, 0.36, 0.38, 0.40, 0.36),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonalScale(seasonName, 0.05, 0.05, 0.06, 0.05),
+			OvercastToHumidChance = seasonName => baseProfile.OvercastToHumidChance(seasonName) * SeasonalScale(seasonName, 1.20, 1.15, 1.12, 1.18),
+			OvercastToCloudyChance = seasonName => baseProfile.OvercastToCloudyChance(seasonName) * SeasonalScale(seasonName, 0.82, 0.85, 0.88, 0.84),
+			MaximumAdditionalChangeChance = seasonName => baseProfile.MaximumAdditionalChangeChance(seasonName) * SeasonalScale(seasonName, 0.95, 0.95, 0.95, 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00042
+		};
+	}
+
+	private static double SeasonalScale(string seasonName, double winter, double spring, double summer, double autumn)
+	{
+		return seasonName switch
+		{
+			"Winter" => winter,
+			"Spring" => spring,
+			"Summer" => summer,
+			"Autumn" => autumn,
+			_ => 1.0
+		};
+	}
+
 	private static double WindChanceByDelta(int delta, double belowBase, double belowStep, double equalChance, double aboveBase, double aboveStep, double minimumChance)
 	{
 		if (delta < 0)
@@ -1352,10 +1672,17 @@ public partial class WeatherSeeder
 		{
 			"Oceanic Temperate" => CreateClimateModels(context, seasons, events),
 			"Humid Subtropical" => CreateHumidSubtropicalClimateModel(context, profile),
+			"Tropical Rainforest" => CreateTropicalRainforestClimateModel(context, profile),
 			"Humid Subcontinental" => CreateHumidSubcontinentalClimateModel(context, profile),
 			"Dry Winter Humid Subcontinental" => CreateDryWinterHumidSubcontinentalClimateModel(context, profile),
 			"Subarctic" => CreateSubarcticClimateModel(context, profile),
+			"Tundra" => CreateTundraClimateModel(context, profile),
+			"Polar Ice Cap" => CreatePolarIceCapClimateModel(context, profile),
 			"Mediterranean" => CreateMediterraneanClimateModel(context, profile),
+			"Hot Semi-Arid" => CreateHotSemiAridClimateModel(context, profile),
+			"Cold Semi-Arid" => CreateColdSemiAridClimateModel(context, profile),
+			"Hot Desert" => CreateHotDesertClimateModel(context, profile),
+			"Cold Desert" => CreateColdDesertClimateModel(context, profile),
 			_ => throw new ArgumentOutOfRangeException(nameof(profile), profile.RegionalClimatePrefix, "Unsupported seeded climate profile.")
 		};
 	}
@@ -1363,6 +1690,11 @@ public partial class WeatherSeeder
 	private static ClimateModel CreateHumidSubtropicalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustHumidSubtropicalTransitionChance);
+	}
+
+	private static ClimateModel CreateTropicalRainforestClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustTropicalRainforestTransitionChance);
 	}
 
 	private static ClimateModel CreateMediterraneanClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
@@ -1383,6 +1715,36 @@ public partial class WeatherSeeder
 	private static ClimateModel CreateSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustSubarcticTransitionChance);
+	}
+
+	private static ClimateModel CreateTundraClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateSubarcticProfile(), profile, AdjustTundraTransitionChance);
+	}
+
+	private static ClimateModel CreatePolarIceCapClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateTundraProfile(), profile, AdjustPolarIceCapTransitionChance);
+	}
+
+	private static ClimateModel CreateHotSemiAridClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustHotSemiAridTransitionChance);
+	}
+
+	private static ClimateModel CreateColdSemiAridClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustColdSemiAridTransitionChance);
+	}
+
+	private static ClimateModel CreateHotDesertClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHotSemiAridProfile(), profile, AdjustHotDesertTransitionChance);
+	}
+
+	private static ClimateModel CreateColdDesertClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateColdSemiAridProfile(), profile, AdjustColdDesertTransitionChance);
 	}
 
 	private static ClimateModel CreateDerivedClimateModel(
@@ -1473,6 +1835,24 @@ public partial class WeatherSeeder
 			ApplyHumidSubtropicalFallback);
 	}
 
+	private static double AdjustTropicalRainforestTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile humidSubtropicalProfile,
+		WeatherSeederClimateProfile tropicalRainforestProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			humidSubtropicalProfile,
+			tropicalRainforestProfile,
+			ApplyTropicalRainforestFallback);
+	}
+
 	private static double AdjustMediterraneanTransitionChance(
 		string seasonName,
 		WeatherSeederEventDescriptor fromEvent,
@@ -1543,6 +1923,114 @@ public partial class WeatherSeeder
 			subcontinentalProfile,
 			subarcticProfile,
 			ApplySubarcticFallback);
+	}
+
+	private static double AdjustTundraTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile subarcticProfile,
+		WeatherSeederClimateProfile tundraProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			subarcticProfile,
+			tundraProfile,
+			ApplyTundraFallback);
+	}
+
+	private static double AdjustPolarIceCapTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile tundraProfile,
+		WeatherSeederClimateProfile polarIceCapProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			tundraProfile,
+			polarIceCapProfile,
+			ApplyPolarIceCapFallback);
+	}
+
+	private static double AdjustHotSemiAridTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile humidSubtropicalProfile,
+		WeatherSeederClimateProfile hotSemiAridProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			humidSubtropicalProfile,
+			hotSemiAridProfile,
+			ApplyHotSemiAridFallback);
+	}
+
+	private static double AdjustColdSemiAridTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile humidSubcontinentalProfile,
+		WeatherSeederClimateProfile coldSemiAridProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			humidSubcontinentalProfile,
+			coldSemiAridProfile,
+			ApplyColdSemiAridFallback);
+	}
+
+	private static double AdjustHotDesertTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile hotSemiAridProfile,
+		WeatherSeederClimateProfile hotDesertProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			hotSemiAridProfile,
+			hotDesertProfile,
+			ApplyHotDesertFallback);
+	}
+
+	private static double AdjustColdDesertTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile coldSemiAridProfile,
+		WeatherSeederClimateProfile coldDesertProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			coldSemiAridProfile,
+			coldDesertProfile,
+			ApplyColdDesertFallback);
 	}
 
 	private static double AdjustDerivedTransitionChance(
@@ -2041,6 +2529,495 @@ public partial class WeatherSeeder
 		else if (toEvent.Wind >= WindLevel.StrongWind)
 		{
 			adjusted *= 0.70;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyTundraFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.55,
+				"Spring" => 1.18,
+				"Autumn" => 1.75,
+				_ => 0.04
+			};
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.40,
+				"Spring" => 1.0,
+				"Summer" => 1.12,
+				"Autumn" => 1.28,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.18,
+				"Spring" => 1.10,
+				"Summer" => 1.02,
+				"Autumn" => 1.20,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.22,
+				"Spring" => 1.12,
+				"Summer" => 1.05,
+				"Autumn" => 1.24,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.58,
+				"Spring" => 0.72,
+				"Summer" => 0.78,
+				"Autumn" => 0.62,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.45;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.80;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyPolarIceCapFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.00,
+				"Spring" => 0.85,
+				"Summer" => 1.10,
+				"Autumn" => 0.90,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			return 0.0;
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= 0.18;
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= 0.65;
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.55,
+				"Spring" => 1.70,
+				"Summer" => 1.45,
+				"Autumn" => 1.65,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.85;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.95;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyHotSemiAridFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			adjusted *= 0.02;
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.25,
+				"Spring" => 0.58,
+				"Summer" => 0.55,
+				"Autumn" => 0.78,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.30,
+				"Spring" => 0.42,
+				"Summer" => 0.36,
+				"Autumn" => 0.48,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.40,
+				"Spring" => 0.56,
+				"Summer" => 0.45,
+				"Autumn" => 0.58,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.62,
+				"Spring" => 1.48,
+				"Summer" => 1.55,
+				"Autumn" => 1.38,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.55;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.85;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyColdSemiAridFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.30,
+				"Spring" => 0.32,
+				"Autumn" => 0.16,
+				_ => 0.02
+			};
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.20,
+				"Spring" => 0.62,
+				"Summer" => 0.72,
+				"Autumn" => 0.48,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.24,
+				"Spring" => 0.42,
+				"Summer" => 0.44,
+				"Autumn" => 0.28,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.54,
+				"Spring" => 0.62,
+				"Summer" => 0.58,
+				"Autumn" => 0.48,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.52,
+				"Spring" => 1.32,
+				"Summer" => 1.24,
+				"Autumn" => 1.46,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.70;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.90;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyHotDesertFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			return 0.0;
+		}
+
+		if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.08,
+				"Spring" => 0.10,
+				"Summer" => 0.22,
+				"Autumn" => 0.28,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.08,
+				"Spring" => 0.08,
+				"Summer" => 0.12,
+				"Autumn" => 0.16,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.10,
+				"Spring" => 0.10,
+				"Summer" => 0.14,
+				"Autumn" => 0.18,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.80,
+				"Spring" => 1.90,
+				"Summer" => 2.05,
+				"Autumn" => 1.72,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.60;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.85;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyColdDesertFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.85,
+				"Spring" => 0.20,
+				"Autumn" => 0.08,
+				_ => 0.01
+			};
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.20,
+				"Spring" => 0.24,
+				"Summer" => 0.16,
+				"Autumn" => 0.22,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.26,
+				"Spring" => 0.22,
+				"Summer" => 0.18,
+				"Autumn" => 0.20,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.36,
+				"Spring" => 0.28,
+				"Summer" => 0.22,
+				"Autumn" => 0.24,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.50,
+				"Spring" => 1.58,
+				"Summer" => 1.70,
+				"Autumn" => 1.56,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.75;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.90;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyTropicalRainforestFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			return 0.0;
+		}
+
+		if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.35,
+				"Spring" => 1.18,
+				"Summer" => 1.12,
+				"Autumn" => 1.30,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.35,
+				"Spring" => 1.20,
+				"Summer" => 1.18,
+				"Autumn" => 1.28,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.30,
+				"Spring" => 1.15,
+				"Summer" => 1.12,
+				"Autumn" => 1.26,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= 0.25;
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.25;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.60;
 		}
 
 		return adjusted;

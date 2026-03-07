@@ -118,7 +118,7 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
 
 Once you have installed this seeder you will need to add the WeatherControllers it installs onto your zones yourself.
 
-At the present time, this seeder installs temperate oceanic, humid subtropical, humid subcontinental, East Asian dry-winter continental, subarctic and mediterranean climate templates (e.g. Western Europe / Pacific Northwest US, Köppen Cfa regions such as Atlanta or Brisbane, cool-summer humid continental regions such as Buffalo or southern Ontario, Köppen Dwa regions such as Seoul or Beijing, Siberian Dfc regions such as Bratsk, and dry-summer regions such as Sacramento or coastal southern Europe).";
+At the present time, this seeder installs temperate oceanic, humid subtropical, tropical rainforest, humid subcontinental, East Asian dry-winter continental, subarctic, tundra, polar ice cap, mediterranean, hot and cold semi-arid, and hot and cold desert climate templates (e.g. Western Europe / Pacific Northwest US, Köppen Cfa regions such as Atlanta or Brisbane, equatorial Af regions such as Singapore, cool-summer humid continental regions such as Buffalo or southern Ontario, Köppen Dwa regions such as Seoul or Beijing, Siberian Dfc regions such as Bratsk, polar ET/EF regions such as Nuuk or Antarctica, dry-summer regions such as Sacramento or coastal southern Europe, steppe climates such as Del Rio or Denver, and desert climates such as Yuma or Bishop).";
 
 	public bool Enabled => true;
 
@@ -385,10 +385,17 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	{
 		yield return CreateTemperateOceanicProfile();
 		yield return CreateHumidSubtropicalProfile();
+		yield return CreateTropicalRainforestProfile();
 		yield return CreateHumidSubcontinentalProfile();
 		yield return CreateDryWinterHumidSubcontinentalProfile();
 		yield return CreateSubarcticProfile();
+		yield return CreateTundraProfile();
+		yield return CreatePolarIceCapProfile();
 		yield return CreateMediterraneanProfile();
+		yield return CreateHotSemiAridProfile();
+		yield return CreateHotDesertProfile();
+		yield return CreateColdSemiAridProfile();
+		yield return CreateColdDesertProfile();
 	}
 
 	private static XElement CreateDailyTemperatures(double minimum, double maximum)

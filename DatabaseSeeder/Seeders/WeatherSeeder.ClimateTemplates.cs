@@ -332,6 +332,230 @@ public partial class WeatherSeeder
 		};
 	}
 
+	private static WeatherSeederClimateProfile CreateHumidSubcontinentalProfile()
+	{
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Humid Subcontinental",
+			RegionalClimatePrefix = "Humid Subcontinental",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-5.0, 3.0),
+				["Mid Winter"] = (-8.0, 1.0),
+				["Late Winter"] = (-8.0, 2.0),
+				["Early Spring"] = (-3.0, 7.0),
+				["Mid Spring"] = (3.0, 13.0),
+				["Late Spring"] = (9.0, 20.0),
+				["Early Summer"] = (14.0, 24.0),
+				["Mid Summer"] = (17.0, 27.0),
+				["Late Summer"] = (16.0, 26.0),
+				["Early Autumn"] = (12.0, 22.0),
+				["Mid Autumn"] = (7.0, 15.0),
+				["Late Autumn"] = (2.0, 9.0)
+			},
+			WindIncreaseChance = (seasonName, currentWind) => seasonName switch
+			{
+				"Winter" => WindChanceByDelta(currentWind.StepsFrom(WindLevel.Breeze), 4.8, 1.6, 1.0, 0.9, 0.14, 0.10),
+				"Autumn" => WindChanceByDelta(currentWind.StepsFrom(WindLevel.Breeze), 4.6, 1.5, 0.95, 0.85, 0.13, 0.10),
+				"Spring" => WindChanceByDelta(currentWind.StepsFrom(WindLevel.OccasionalBreeze), 4.4, 1.4, 0.85, 0.75, 0.12, 0.08),
+				_ => WindChanceByDelta(currentWind.StepsFrom(WindLevel.OccasionalBreeze), 4.0, 1.3, 0.75, 0.65, 0.10, 0.08)
+			},
+			WindDecreaseChance = (seasonName, currentWind) => seasonName switch
+			{
+				"Winter" => WindDecreaseChanceByDelta(currentWind.StepsFrom(WindLevel.Breeze), 4.8, 1.6, 1.2, 1.0, 0.14, 0.12),
+				"Autumn" => WindDecreaseChanceByDelta(currentWind.StepsFrom(WindLevel.Breeze), 4.6, 1.5, 1.1, 0.95, 0.13, 0.12),
+				"Spring" => WindDecreaseChanceByDelta(currentWind.StepsFrom(WindLevel.OccasionalBreeze), 4.4, 1.3, 1.0, 0.95, 0.12, 0.12),
+				_ => WindDecreaseChanceByDelta(currentWind.StepsFrom(WindLevel.OccasionalBreeze), 4.2, 1.2, 0.95, 0.9, 0.10, 0.12)
+			},
+			PrecipIncreaseChance = (seasonName, currentPrecipitation, stages) =>
+				PrecipIncreaseChanceByDelta(
+					currentPrecipitation.StepsFrom(PrecipitationLevel.Humid),
+					stages,
+					5.4,
+					1.6,
+					2.1,
+					0.85,
+					seasonName switch
+					{
+						"Winter" => 1.9,
+						"Spring" => 1.8,
+						"Summer" => 2.0,
+						"Autumn" => 1.8,
+						_ => 1.8
+					},
+					seasonName switch
+					{
+						"Winter" => 0.45,
+						"Spring" => 0.40,
+						"Summer" => 0.48,
+						"Autumn" => 0.40,
+						_ => 0.40
+					},
+					seasonName switch
+					{
+						"Winter" => 1.0,
+						"Spring" => 0.95,
+						"Summer" => 1.0,
+						"Autumn" => 0.95,
+						_ => 0.95
+					},
+					seasonName switch
+					{
+						"Winter" => 0.18,
+						"Spring" => 0.16,
+						"Summer" => 0.18,
+						"Autumn" => 0.16,
+						_ => 0.16
+					},
+					0.12,
+					0.05,
+					0.16,
+					0.04),
+			PrecipDecreaseChance = (seasonName, currentPrecipitation, stages) =>
+				PrecipDecreaseChanceByDelta(
+					currentPrecipitation.StepsFrom(PrecipitationLevel.Humid),
+					stages,
+					2.3,
+					0.75,
+					0.80,
+					0.35,
+					seasonName switch
+					{
+						"Winter" => 0.85,
+						"Spring" => 0.80,
+						"Summer" => 0.75,
+						"Autumn" => 0.80,
+						_ => 0.80
+					},
+					seasonName switch
+					{
+						"Winter" => 0.14,
+						"Spring" => 0.12,
+						"Summer" => 0.12,
+						"Autumn" => 0.12,
+						_ => 0.12
+					},
+					0.72,
+					0.12,
+					0.08,
+					0.03,
+					0.16,
+					0.03),
+			TemperatureVariationChance = seasonName => seasonName switch
+			{
+				"Winter" => 2.8,
+				"Spring" => 2.2,
+				"Summer" => 1.4,
+				"Autumn" => 2.3,
+				_ => 2.0
+			},
+			WindVariationChance = seasonName => seasonName switch
+			{
+				"Winter" => 1.0,
+				"Spring" => 0.9,
+				"Summer" => 0.5,
+				"Autumn" => 0.9,
+				_ => 0.8
+			},
+			CloudIncreaseChance = seasonName => seasonName switch
+			{
+				"Winter" => 4.4,
+				"Spring" => 3.6,
+				"Summer" => 3.5,
+				"Autumn" => 4.1,
+				_ => 3.8
+			},
+			CloudDecreaseChance = seasonName => seasonName switch
+			{
+				"Winter" => 1.8,
+				"Spring" => 2.1,
+				"Summer" => 2.3,
+				"Autumn" => 2.0,
+				_ => 2.0
+			},
+			CloudyToOvercastChance = seasonName => seasonName switch
+			{
+				"Winter" => 4.4,
+				"Spring" => 3.5,
+				"Summer" => 3.2,
+				"Autumn" => 4.0,
+				_ => 0.0
+			},
+			CloudyToHumidChance = seasonName => seasonName switch
+			{
+				"Winter" => 1.8,
+				"Spring" => 2.2,
+				"Summer" => 2.0,
+				"Autumn" => 2.0,
+				_ => 0.0
+			},
+			OvercastToLightRainChance = seasonName => seasonName switch
+			{
+				"Winter" => 1.2,
+				"Spring" => 3.8,
+				"Summer" => 4.0,
+				"Autumn" => 3.4,
+				_ => 0.0
+			},
+			OvercastToRainChance = seasonName => seasonName switch
+			{
+				"Winter" => 0.2,
+				"Spring" => 1.4,
+				"Summer" => 1.6,
+				"Autumn" => 1.2,
+				_ => 0.0
+			},
+			OvercastToLightSnowChance = seasonName => seasonName switch
+			{
+				"Winter" => 5.8,
+				"Autumn" => 0.35,
+				"Spring" => 0.22,
+				_ => 0.0
+			},
+			CloudyToDryChance = seasonName => seasonName switch
+			{
+				"Winter" => 1.4,
+				"Spring" => 2.0,
+				"Summer" => 2.1,
+				"Autumn" => 1.6,
+				_ => 0.0
+			},
+			CloudyToParchedChance = seasonName => seasonName switch
+			{
+				"Winter" => 0.01,
+				"Spring" => 0.02,
+				"Summer" => 0.05,
+				"Autumn" => 0.02,
+				_ => 0.0
+			},
+			OvercastToHumidChance = seasonName => seasonName switch
+			{
+				"Winter" => 4.4,
+				"Spring" => 4.0,
+				"Summer" => 3.8,
+				"Autumn" => 4.2,
+				_ => 0.0
+			},
+			OvercastToCloudyChance = seasonName => seasonName switch
+			{
+				"Winter" => 0.9,
+				"Spring" => 1.1,
+				"Summer" => 1.2,
+				"Autumn" => 1.0,
+				_ => 0.0
+			},
+			MaximumAdditionalChangeChance = seasonName => seasonName switch
+			{
+				"Winter" => 0.09,
+				"Spring" => 0.08,
+				"Summer" => 0.06,
+				"Autumn" => 0.10,
+				_ => 0.08
+			},
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00045
+		};
+	}
+
 	private static WeatherSeederClimateProfile CreateMediterraneanProfile()
 	{
 		return new WeatherSeederClimateProfile
@@ -658,6 +882,7 @@ public partial class WeatherSeeder
 		{
 			"Oceanic Temperate" => CreateClimateModels(context, seasons, events),
 			"Humid Subtropical" => CreateHumidSubtropicalClimateModel(context, profile),
+			"Humid Subcontinental" => CreateHumidSubcontinentalClimateModel(context, profile),
 			"Mediterranean" => CreateMediterraneanClimateModel(context, profile),
 			_ => throw new ArgumentOutOfRangeException(nameof(profile), profile.RegionalClimatePrefix, "Unsupported seeded climate profile.")
 		};
@@ -671,6 +896,11 @@ public partial class WeatherSeeder
 	private static ClimateModel CreateMediterraneanClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, profile, AdjustMediterraneanTransitionChance);
+	}
+
+	private static ClimateModel CreateHumidSubcontinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, profile, AdjustHumidSubcontinentalTransitionChance);
 	}
 
 	private static ClimateModel CreateDerivedClimateModel(
@@ -777,6 +1007,24 @@ public partial class WeatherSeeder
 			oceanicProfile,
 			mediterraneanProfile,
 			ApplyMediterraneanFallback);
+	}
+
+	private static double AdjustHumidSubcontinentalTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile oceanicProfile,
+		WeatherSeederClimateProfile subcontinentalProfile)
+	{
+		return AdjustDerivedTransitionChance(
+			seasonName,
+			fromEvent,
+			toEvent,
+			baseChance,
+			oceanicProfile,
+			subcontinentalProfile,
+			ApplyHumidSubcontinentalFallback);
 	}
 
 	private static double AdjustDerivedTransitionChance(
@@ -1049,6 +1297,80 @@ public partial class WeatherSeeder
 		else if (toEvent.Wind >= WindLevel.StrongWind)
 		{
 			adjusted *= 0.75;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplyHumidSubcontinentalFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 3.2,
+				"Autumn" => 0.35,
+				"Spring" => 0.22,
+				_ => 0.02
+			};
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.68,
+				"Spring" => 1.10,
+				"Summer" => 1.15,
+				"Autumn" => 1.05,
+				_ => 1.0
+			};
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.10,
+				"Autumn" => 1.06,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 1.15,
+				"Autumn" => 1.10,
+				"Spring" => 1.05,
+				"Summer" => 0.95,
+				_ => 1.0
+			};
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= seasonName switch
+			{
+				"Winter" => 0.45,
+				"Spring" => 0.70,
+				"Summer" => 0.85,
+				"Autumn" => 0.60,
+				_ => 0.7
+			};
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= 0.55;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= 0.80;
 		}
 
 		return adjusted;

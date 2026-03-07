@@ -17,3 +17,5 @@ MudSharp/bin/*
 /.idea/.idea.MudSharp
 /Publish/*
 /UpgradeLog11.htm
+/.appdata
+/.dotnet-cli

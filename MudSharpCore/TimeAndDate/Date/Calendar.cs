@@ -219,7 +219,7 @@ public class Calendar : SaveableItem, ICalendar
 			new XElement("ancienterashortstring", AncientEraShortString),
 			new XElement("ancienteralongstring", AncientEraLongString),
 			new XElement("modernerashortstring", ModernEraShortString),
-			new XElement("modernerashortstring", ModernEraLongString), new XElement("weekdays",
+			new XElement("moderneralongstring", ModernEraLongString), new XElement("weekdays",
 				new object[]
 				{
 					from wd in Weekdays

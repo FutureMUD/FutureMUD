@@ -1,13 +1,15 @@
-﻿using MudSharp.Character;
-using MudSharp.Construction;
-using MudSharp.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Celestial;
+using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Climate
 {
@@ -32,8 +34,24 @@ namespace MudSharp.Climate
 
         bool WeatherFrozen { get; }
         void FreezeWeather();
-        void UnfreezeWeather();
+		void UnfreezeWeather();
 
-        PrecipitationLevel HighestRecentPrecipitationLevel { get; }
-    }
+		PrecipitationLevel HighestRecentPrecipitationLevel { get; }
+		IClock FeedClock { get; }
+		IMudTimeZone FeedClockTimeZone { get; }
+		ICelestialObject Celestial
+		{
+			get;
+		}
+		GeographicCoordinate GeographyForTimeOfDay
+		{
+			get;
+		}
+
+		int MinuteCounter { get; }
+		int ConsecutiveUnchangedPeriods
+		{
+			get;
+		}
+	}
 }

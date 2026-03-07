@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +13,7 @@ using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Celestial;
+using MudSharp.Climate.Analysis;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Combat;
@@ -47,6 +49,7 @@ using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
 using Dapper;
 using System.Numerics;
+using MudSharp.Climate;
 
 namespace MudSharp.Commands.Modules;
 
@@ -354,7 +357,8 @@ public class ImplementorModule : Module<ICharacter>
 	#3crash#0 - causes the MUD to crash
 	#3heartbeat hour|minute|second|5second|10second|30second#0 - manually triggers a heartbeat
 	#3freezetime#0 - freezes all in game clocks
-	#3unfreezetime#0 - resumes all in game clocks", AutoHelp.HelpArgOrNoArg)]
+	#3unfreezetime#0 - resumes all in game clocks
+	#3weatherstats <controller> [years <n>] [burnin <n>] [seed <n>] [file <basename>]#0 - runs a non-destructive Monte Carlo weather analysis and writes multiple CSVs", AutoHelp.HelpArgOrNoArg)]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void ImpDebug(ICharacter actor, string input)
 	{
@@ -366,6 +370,9 @@ public class ImplementorModule : Module<ICharacter>
 				return;
 			case "unfreezetime":
 				DebugUnfreezeTime(actor);
+				return;
+			case "weatherstats":
+				DebugWeatherStats(actor, ss);
 				return;
 			case "exportcrafts":
 				DebugExportCrafts(actor, ss);
@@ -1425,6 +1432,365 @@ div.function-generalhelp {
 		html.Close();
 	}
 
+	private static void DebugWeatherStats(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which weather controller do you want to analyse?");
+			return;
+		}
+
+		var controller = actor.Gameworld.WeatherControllers.GetByIdOrName(ss.PopSpeech());
+		if (controller is null)
+		{
+			actor.OutputHandler.Send("There is no such weather controller.");
+			return;
+		}
+
+		if (controller.RegionalClimate is null)
+		{
+			actor.OutputHandler.Send("That weather controller has no regional climate.");
+			return;
+		}
+
+		if (controller.RegionalClimate.ClimateModel is null)
+		{
+			actor.OutputHandler.Send("That weather controller's regional climate has no climate model.");
+			return;
+		}
+
+		var years = 20;
+		var burnInYears = 2;
+		int? seed = null;
+		var outputBase = $"WeatherStats-{controller.Id}-{DateTime.UtcNow:yyyyMMddHHmmss}";
+
+		while (!ss.IsFinished)
+		{
+			switch (ss.PopForSwitch())
+			{
+				case "years":
+					if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out years) || years <= 0)
+					{
+						actor.OutputHandler.Send("You must supply a positive number for years.");
+						return;
+					}
+
+					break;
+				case "burnin":
+				case "burn":
+					if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out burnInYears) || burnInYears < 0)
+					{
+						actor.OutputHandler.Send("You must supply a non-negative number for burnin.");
+						return;
+					}
+
+					break;
+				case "seed":
+					if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var seedValue))
+					{
+						actor.OutputHandler.Send("You must supply a valid integer seed.");
+						return;
+					}
+
+					seed = seedValue;
+					break;
+				case "file":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("You must supply a file name.");
+						return;
+					}
+
+					outputBase = ss.PopSpeech();
+					break;
+				default:
+					actor.OutputHandler.Send("Valid options are years <n>, burnin <n>, seed <n>, and file <basename>.");
+					return;
+			}
+		}
+
+		if (string.IsNullOrWhiteSpace(outputBase))
+		{
+			actor.OutputHandler.Send("You must supply a valid output filename.");
+			return;
+		}
+
+		var fullBasePath = GetWeatherStatisticsOutputBasePath(outputBase);
+
+		try
+		{
+			actor.OutputHandler.Send("Running weather analysis simulation. This may take some time...");
+			var analyzer = new WeatherStatisticsAnalyzer();
+			var result = analyzer.Analyze(new WeatherStatisticsRequest
+			{
+				Controller = controller,
+				Years = years,
+				BurnInYears = burnInYears,
+				Seed = seed
+			});
+
+			var directory = Path.GetDirectoryName(fullBasePath);
+			if (!string.IsNullOrEmpty(directory))
+			{
+				Directory.CreateDirectory(directory);
+			}
+
+			var generatedAtUtc = DateTime.UtcNow;
+			var outputs = new List<(string Label, string Description, string Path, List<WeatherStatisticsCsvRow> Rows)>
+			{
+				(
+					"Weather Events",
+					"Weather event occupancy by season.",
+					$"{fullBasePath}-weather-events.csv",
+					result.Rows.Where(x => x.MetricType == "WeatherEvent").ToList()
+				),
+				(
+					"Precipitation",
+					"Precipitation-state occupancy by season.",
+					$"{fullBasePath}-precipitation.csv",
+					result.Rows.Where(x => x.MetricType == "Precipitation").ToList()
+				),
+				(
+					"Wind",
+					"Wind-state occupancy by season.",
+					$"{fullBasePath}-wind.csv",
+					result.Rows.Where(x => x.MetricType == "Wind").ToList()
+				),
+				(
+					"Rainfall Proxy",
+					"Rainfall proxy occupancy by season (state-based wet/rain/snow durations).",
+					$"{fullBasePath}-rainfall-proxy.csv",
+					result.Rows.Where(x => x.MetricType == "RainfallProxy").ToList()
+				),
+				(
+					"Temperatures",
+					"Hourly seasonal temperature summary with mean and central 95% likely min/max envelope.",
+					$"{fullBasePath}-temperatures.csv",
+					result.Rows.Where(x => x.MetricType == "TemperatureHourly").ToList()
+				)
+			};
+
+			foreach (var output in outputs)
+			{
+				WriteWeatherStatisticsCsv(output.Path, output.Description, output.Rows, controller, result, seed, generatedAtUtc);
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"Wrote weather statistics for {controller.Name.ColourName()} to the following files:");
+			foreach (var output in outputs)
+			{
+				sb.AppendLine($"{output.Label}: {output.Path.ColourCommand()} ({output.Rows.Count.ToString("N0", actor).ColourValue()} rows)");
+			}
+
+			actor.OutputHandler.Send(sb.ToString().TrimEnd());
+		}
+		catch (Exception ex)
+		{
+			actor.OutputHandler.Send($"Weather analysis failed: {ex.Message.ColourError()}");
+		}
+	}
+
+	private static string GetWeatherStatisticsOutputBasePath(string outputBase)
+	{
+		if (outputBase.EndsWith(".csv", StringComparison.InvariantCultureIgnoreCase))
+		{
+			outputBase = outputBase[..^4];
+		}
+
+		return Path.IsPathRooted(outputBase)
+			? outputBase
+			: Path.GetFullPath(outputBase);
+	}
+
+	private static void WriteWeatherStatisticsCsv(
+		string fullPath,
+		string outputDescription,
+		IReadOnlyCollection<WeatherStatisticsCsvRow> rows,
+		IWeatherController controller,
+		WeatherStatisticsResult result,
+		int? seed,
+		DateTime generatedAtUtc)
+	{
+		using var file = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+		using var writer = new StreamWriter(file, Encoding.UTF8);
+		foreach (var line in BuildWeatherStatisticsHeaderLines(outputDescription, controller, result, seed, generatedAtUtc))
+		{
+			writer.WriteLine($"# {line}");
+		}
+
+		writer.WriteLine("Season,MetricType,Key,Hour,Statistic,Value,Unit,SampleCount,SeasonMinutes");
+		foreach (var row in rows)
+		{
+			writer.WriteLine(
+				$"{EscapeCsv(row.Season)},{EscapeCsv(row.MetricType)},{EscapeCsv(row.Key)},{(row.Hour.HasValue ? row.Hour.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty)},{EscapeCsv(row.Statistic)},{row.Value.ToString("R", System.Globalization.CultureInfo.InvariantCulture)},{EscapeCsv(row.Unit)},{row.SampleCount.ToString(System.Globalization.CultureInfo.InvariantCulture)},{row.SeasonMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+		}
+
+		writer.Flush();
+	}
+
+	private static IEnumerable<string> BuildWeatherStatisticsHeaderLines(
+		string outputDescription,
+		IWeatherController controller,
+		WeatherStatisticsResult result,
+		int? seed,
+		DateTime generatedAtUtc)
+	{
+		var celestials = controller.Celestial is null
+			? new List<ICelestialObject>()
+			: FlattenCelestialObjects(controller.Celestial).ToList();
+		var celestialClocks = celestials
+			.Select(GetCelestialClock)
+			.Where(x => x is not null)
+			.GroupBy(x => x.Id)
+			.Select(x => x.First())
+			.Cast<IClock>()
+			.Select(DescribeItem)
+			.OrderBy(x => x)
+			.ToList();
+		var celestialCalendars = celestials
+			.Select(GetCelestialCalendar)
+			.Where(x => x is not null)
+			.GroupBy(x => x.Id)
+			.Select(x => x.First())
+			.Cast<ICalendar>()
+			.Select(DescribeItem)
+			.OrderBy(x => x)
+			.ToList();
+		var seasonDescriptions = controller.RegionalClimate.Seasons
+			.OrderBy(x => x.CelestialDayOnset)
+			.ThenBy(x => x.Name)
+			.Select(DescribeItem)
+			.ToList();
+
+		yield return "Analysis: Non-destructive in-memory Monte Carlo weather simulation.";
+		yield return $"Output: {outputDescription}";
+		yield return $"GeneratedUtc: {generatedAtUtc:O}";
+		yield return $"Controller: {DescribeItem(controller)}";
+		yield return $"RegionalClimate: {DescribeItem(controller.RegionalClimate)}";
+		yield return $"ClimateModel: {DescribeItem(controller.RegionalClimate.ClimateModel)}";
+		yield return $"InitialSeason: {DescribeItem(controller.CurrentSeason)}";
+		yield return $"InitialWeatherEvent: {DescribeItem(controller.CurrentWeatherEvent)}";
+		yield return $"Years: {result.Years.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		yield return $"BurnInYears: {result.BurnInYears.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		yield return $"Seed: {(seed.HasValue ? seed.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "random")}";
+		yield return $"SimulatedMinutes: {result.SimulatedMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		yield return $"FeedClock: {DescribeItem(controller.FeedClock)}";
+		yield return $"FeedClockPrimaryTimezone: {DescribeItem(controller.FeedClock.PrimaryTimezone)}";
+		yield return $"FeedClockAnalysisTimezone: {DescribeItem(controller.FeedClockTimeZone)}";
+		yield return $"Geography: lat={controller.GeographyForTimeOfDay.Latitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, lon={controller.GeographyForTimeOfDay.Longitude.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, elevation={controller.GeographyForTimeOfDay.Elevation.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}, radius={controller.GeographyForTimeOfDay.Radius.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}";
+		yield return $"CelestialRoot: {(controller.Celestial is null ? "None" : DescribeItem(controller.Celestial))}";
+		yield return $"CelestialObjects: {DescribeItemList(celestials.Select(DescribeItem))}";
+		yield return $"CelestialClocks: {DescribeItemList(celestialClocks)}";
+		yield return $"CelestialCalendars: {DescribeItemList(celestialCalendars)}";
+		yield return $"Seasons: {DescribeItemList(seasonDescriptions)}";
+	}
+
+	private static IEnumerable<ICelestialObject> FlattenCelestialObjects(ICelestialObject root)
+	{
+		var results = new List<ICelestialObject>();
+		var visited = new HashSet<long>();
+
+		void Visit(ICelestialObject celestial)
+		{
+			if (celestial is null)
+			{
+				return;
+			}
+
+			if (celestial is IFrameworkItem frameworkItem)
+			{
+				if (frameworkItem.Id != 0 && !visited.Add(frameworkItem.Id))
+				{
+					return;
+				}
+			}
+			else if (results.Any(x => ReferenceEquals(x, celestial)))
+			{
+				return;
+			}
+
+			results.Add(celestial);
+			switch (celestial)
+			{
+				case SunFromPlanetaryMoon sunFromMoon:
+					Visit(sunFromMoon.Moon);
+					Visit(sunFromMoon.Sun);
+					break;
+				case PlanetFromMoon planetFromMoon:
+					Visit(planetFromMoon.Moon);
+					if (planetFromMoon.Sun is not null)
+					{
+						Visit(planetFromMoon.Sun);
+					}
+					break;
+			}
+		}
+
+		Visit(root);
+		return results;
+	}
+
+	private static IClock GetCelestialClock(ICelestialObject celestial)
+	{
+		return celestial switch
+		{
+			Sun sun => sun.Clock,
+			NewSun newSun => newSun.Clock,
+			PlanetaryMoon moon => moon.Clock,
+			_ => null
+		};
+	}
+
+	private static ICalendar GetCelestialCalendar(ICelestialObject celestial)
+	{
+		return celestial switch
+		{
+			NewSun newSun => newSun.Calendar,
+			PlanetaryMoon moon => moon.Calendar,
+			_ => null
+		};
+	}
+
+	private static string DescribeItem(object item)
+	{
+		if (item is null)
+		{
+			return "None";
+		}
+
+		if (item is IFrameworkItem frameworkItem)
+		{
+			return $"{frameworkItem.Name} (#{frameworkItem.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {frameworkItem.FrameworkItemType})";
+		}
+
+		var type = item.GetType();
+		var name = type.GetProperty("Name")?.GetValue(item)?.ToString() ?? type.Name;
+		var id = type.GetProperty("Id")?.GetValue(item)?.ToString();
+		return string.IsNullOrWhiteSpace(id)
+			? name
+			: $"{name} (#{id})";
+	}
+
+	private static string DescribeItemList(IEnumerable<string> descriptions)
+	{
+		var items = descriptions
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Distinct(StringComparer.InvariantCultureIgnoreCase)
+			.OrderBy(x => x)
+			.ToList();
+		return items.Count > 0 ? string.Join("; ", items) : "None";
+	}
+
+	private static string EscapeCsv(string value)
+	{
+		if (value is null)
+		{
+			return string.Empty;
+		}
+
+		throw new NotImplementedException("CSV escaping is not implemented yet. This should be fixed before any of the debug weather stats functions are used.");
+	}
+
 	private static void DebugDescriptions(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -2301,3 +2667,5 @@ The syntax is as follows:
 		}
 	}
 }
+
+

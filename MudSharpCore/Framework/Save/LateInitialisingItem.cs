@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace MudSharp.Framework.Save;
 
@@ -11,7 +11,7 @@ public abstract class LateInitialisingItem : FrameworkItem, ILateInitialisingIte
 	{
 		get
 		{
-			if (!IdHasBeenRegistered)
+			if (!IdHasBeenRegistered && !_noSave)
 			{
 				Gameworld?.SaveManager.Flush();
 			}
@@ -107,7 +107,7 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
 	{
 		get
 		{
-			if (!IdHasBeenRegistered)
+			if (!IdHasBeenRegistered && !_noSave)
 			{
 				Gameworld.SaveManager.Flush();
 			}

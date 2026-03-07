@@ -17,12 +17,14 @@ using SeasonModel = MudSharp.Models.Season;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class WeatherSeederOceanicClimateTests
+public class WeatherSeederClimateTests
 {
 	[TestMethod]
 	public void WeatherSeeder_TemperateOceanicProfile_RemainsWithinBroadLondonBounds()
 	{
-		var result = AnalyzeSeededNorthernHemisphereClimate();
+		var result = AnalyzeSeededNorthernHemisphereClimate(
+			"Oceanic Temperate Northern Hemisphere",
+			"Seeded Oceanic Temperate");
 
 		var annualWet = WeightedAveragePercent(result.Rows, "RainfallProxy", "Wet");
 		var winterWet = GetPercent(result.Rows, "temperate_mid_winter", "RainfallProxy", "Wet");
@@ -72,7 +74,64 @@ public class WeatherSeederOceanicClimateTests
 		Assert.IsTrue(lateAutumnShelterMean is >= 7.0 and <= 11.5, $"Expected late autumn mean sheltered temperature to stay cool but not harsh, but got {lateAutumnShelterMean:F2}C.");
 	}
 
-	private static WeatherStatisticsResult AnalyzeSeededNorthernHemisphereClimate()
+	[TestMethod]
+	public void WeatherSeeder_HumidSubtropicalProfile_RemainsWithinBroadAtlantaBounds()
+	{
+		var result = AnalyzeSeededNorthernHemisphereClimate(
+			"Humid Subtropical Northern Hemisphere",
+			"Seeded Humid Subtropical");
+
+		var annualWet = WeightedAveragePercent(result.Rows, "RainfallProxy", "Wet");
+		var winterWet = GetPercent(result.Rows, "temperate_mid_winter", "RainfallProxy", "Wet");
+		var summerWet = GetPercent(result.Rows, "temperate_mid_summer", "RainfallProxy", "Wet");
+		var autumnWet = GetPercent(result.Rows, "temperate_mid_autumn", "RainfallProxy", "Wet");
+		var annualSnow = WeightedAveragePercent(result.Rows, "RainfallProxy", "Snow");
+		var annualGaleOrWorse = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"Gale Wind",
+				"Hurricane Wind",
+				"Maelstrom Wind"
+			});
+		var annualHurricaneOrWorse = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"Hurricane Wind",
+				"Maelstrom Wind"
+			});
+		var annualBreezeOrCalmer = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"None",
+				"Still",
+				"Occasional Breeze",
+				"Breeze"
+			});
+		var midWinterShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_winter", "Shelter");
+		var midSummerShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_summer", "Shelter");
+		var lateAutumnShelterMean = AverageHourlyMean(result.Rows, "temperate_late_autumn", "Shelter");
+
+		Assert.IsTrue(annualWet is >= 25.0 and <= 45.0, $"Expected annual wet occupancy to stay in a humid subtropical band, but got {annualWet:F2}%.");
+		Assert.IsTrue(winterWet is >= 18.0 and <= 40.0, $"Expected mid-winter wet occupancy to remain present without a dry season, but got {winterWet:F2}%.");
+		Assert.IsTrue(summerWet is >= 28.0 and <= 50.0, $"Expected mid-summer wet occupancy to reflect a convective summer maximum, but got {summerWet:F2}%.");
+		Assert.IsTrue(autumnWet is >= 15.0 and <= 32.0, $"Expected mid-autumn wet occupancy to be the comparatively drier season, but got {autumnWet:F2}%.");
+		Assert.IsTrue(summerWet > autumnWet, $"Expected summer to be wetter than autumn, but summer={summerWet:F2}% and autumn={autumnWet:F2}%.");
+		Assert.IsTrue(annualSnow <= 0.8, $"Expected snow to remain very rare in Atlanta-like conditions, but got {annualSnow:F2}%.");
+		Assert.IsTrue(annualGaleOrWorse <= 3.0, $"Expected gale-force or worse wind to remain rare, but got {annualGaleOrWorse:F2}%.");
+		Assert.IsTrue(annualHurricaneOrWorse <= 0.05, $"Expected hurricane-force or worse wind to be effectively absent, but got {annualHurricaneOrWorse:F2}%.");
+		Assert.IsTrue(annualBreezeOrCalmer >= 78.0, $"Expected most weather to remain breeze strength or calmer, but got {annualBreezeOrCalmer:F2}%.");
+		Assert.IsTrue(midWinterShelterMean is >= 5.5 and <= 9.5, $"Expected mid-winter mean sheltered temperature to stay mild, but got {midWinterShelterMean:F2}C.");
+		Assert.IsTrue(midSummerShelterMean is >= 24.0 and <= 28.8, $"Expected mid-summer mean sheltered temperature to be hot and humid, but got {midSummerShelterMean:F2}C.");
+		Assert.IsTrue(lateAutumnShelterMean is >= 10.0 and <= 14.5, $"Expected late autumn mean sheltered temperature to stay mild, but got {lateAutumnShelterMean:F2}C.");
+	}
+
+	private static WeatherStatisticsResult AnalyzeSeededNorthernHemisphereClimate(string regionalClimateName, string controllerName)
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
@@ -99,7 +158,7 @@ public class WeatherSeederOceanicClimateTests
 		var regionalClimate = context.RegionalClimates
 			.Include(x => x.RegionalClimatesSeasons)
 			.ThenInclude(x => x.Season)
-			.Single(x => x.Name == "Oceanic Temperate Northern Hemisphere");
+			.Single(x => x.Name == regionalClimateName);
 		var climateModel = context.ClimateModels
 			.Include(x => x.ClimateModelSeasons)
 			.ThenInclude(x => x.Season)
@@ -151,7 +210,7 @@ public class WeatherSeederOceanicClimateTests
 			InitialWeatherEventId = null,
 			InitialConsecutiveUnchangedPeriods = 0,
 			InitialMinuteCounter = 0
-		}, controllerName: "Seeded Oceanic Temperate");
+		}, controllerName: controllerName);
 	}
 
 	private static WeatherTransitionSnapshot BuildSnapshot(ClimateModel climateModel, IReadOnlyDictionary<long, WeatherEvent> eventMap)

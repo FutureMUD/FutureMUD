@@ -44,7 +44,34 @@ enum CloudVariation
 	Overcast
 }
 
-public class WeatherSeeder: IDatabaseSeeder
+sealed class WeatherSeederClimateProfile
+{
+	public required string ClimateModelName { get; init; }
+	public required string RegionalClimatePrefix { get; init; }
+	public required IReadOnlyDictionary<string, (double Minimum, double Maximum)> SeasonalTemperatureRanges { get; init; }
+	public required Func<string, WindLevel, double> WindIncreaseChance { get; init; }
+	public required Func<string, WindLevel, double> WindDecreaseChance { get; init; }
+	public required Func<string, PrecipitationLevel, int, double> PrecipIncreaseChance { get; init; }
+	public required Func<string, PrecipitationLevel, int, double> PrecipDecreaseChance { get; init; }
+	public required Func<string, double> TemperatureVariationChance { get; init; }
+	public required Func<string, double> WindVariationChance { get; init; }
+	public required Func<string, double> CloudIncreaseChance { get; init; }
+	public required Func<string, double> CloudDecreaseChance { get; init; }
+	public required Func<string, double> CloudyToOvercastChance { get; init; }
+	public required Func<string, double> CloudyToHumidChance { get; init; }
+	public required Func<string, double> OvercastToLightRainChance { get; init; }
+	public required Func<string, double> OvercastToRainChance { get; init; }
+	public required Func<string, double> OvercastToLightSnowChance { get; init; }
+	public required Func<string, double> CloudyToDryChance { get; init; }
+	public required Func<string, double> CloudyToParchedChance { get; init; }
+	public required Func<string, double> OvercastToHumidChance { get; init; }
+	public required Func<string, double> OvercastToCloudyChance { get; init; }
+	public required Func<string, double> MaximumAdditionalChangeChance { get; init; }
+	public double IncrementalAdditionalChangeChanceFromStableWeather { get; init; } = 0.0005;
+	public double BaseChangeChance { get; init; } = 0.01;
+}
+
+public partial class WeatherSeeder: IDatabaseSeeder
 {
 	static Regex TempVariationRegex = new("(?:Freezing|VeryCold|Cold|Cool|Cooler|Warmer|Warm|Hot|VeryHot|Sweltering)$");
 	static Regex CloudVariationRegex = new("^(?:Cloudy|Overcast)");
@@ -91,7 +118,7 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
 
 Once you have installed this seeder you will need to add the WeatherControllers it installs onto your zones yourself.
 
-At the present time, this seeder only installs a temperate oceanic climate (e.g. Western Europe or Pacific Northwest US)";
+At the present time, this seeder installs temperate oceanic and humid subtropical climate templates (e.g. Western Europe / Pacific Northwest US and Köppen Cfa regions such as Atlanta or Brisbane).";
 
 	public bool Enabled => true;
 
@@ -345,113 +372,91 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 
 		List<Season> seasons = CreateSeasons(celestial);
 		Dictionary<string, WeatherEvent> events = CreateWeatherEvents(context);
-		ClimateModel temperateModel = CreateClimateModels(context, seasons, events);
-		CreateRegionalClimates(context, seasons, temperateModel);
+		foreach (var profile in GetClimateProfiles())
+		{
+			var climateModel = CreateClimateModel(context, seasons, events, profile);
+			CreateRegionalClimatePair(context, seasons, climateModel, profile);
+		}
 
 		return string.Empty;
 	}
 
-	private static void CreateRegionalClimates(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel temperateModel)
+	private static IEnumerable<WeatherSeederClimateProfile> GetClimateProfiles()
+	{
+		yield return CreateTemperateOceanicProfile();
+		yield return CreateHumidSubtropicalProfile();
+	}
+
+	private static XElement CreateDailyTemperatures(double minimum, double maximum)
+	{
+		var temps = new List<(int Hour, double Temp)>();
+		var delta = maximum - minimum;
+		for (var i = 0; i < 24; i++)
+		{
+			temps.Add((i, minimum + delta * i switch
+			{
+				0 => 0.0866,
+				1 => 0.0472,
+				2 => 0.0236,
+				3 => 0.0079,
+				4 => 0.0,
+				5 => 0.0315,
+				6 => 0.126,
+				7 => 0.2835,
+				8 => 0.3622,
+				9 => 0.4409,
+				10 => 0.5197,
+				11 => 0.5984,
+				12 => 0.6772,
+				13 => 0.7559,
+				14 => 0.8346,
+				15 => 0.8740,
+				16 => 0.9134,
+				17 => 0.9370,
+				18 => 0.9685,
+				19 => 1.0,
+				20 => 0.8346,
+				21 => 0.6772,
+				22 => 0.3622,
+				23 => 0.2047,
+				_ => minimum
+			}));
+		}
+
+		return new XElement("Temperatures",
+			from temp in temps
+			select new XElement("Value", new XAttribute("hour", temp.Hour), temp.Temp)
+		);
+	}
+
+	private static void CreateRegionalClimatePair(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel climateModel, WeatherSeederClimateProfile profile)
 	{
 		#region Regional Climate
 		var regionalClimateNH = new RegionalClimate
 		{
-			Name = "Oceanic Temperate Northern Hemisphere",
-			ClimateModelId = temperateModel.Id
+			Name = $"{profile.RegionalClimatePrefix} Northern Hemisphere",
+			ClimateModelId = climateModel.Id
 		};
 		context.RegionalClimates.Add(regionalClimateNH);
 		var regionalClimateSH = new RegionalClimate
 		{
-			Name = "Oceanic Temperate Southern Hemisphere",
-			ClimateModelId = temperateModel.Id
+			Name = $"{profile.RegionalClimatePrefix} Southern Hemisphere",
+			ClimateModelId = climateModel.Id
 		};
 		context.RegionalClimates.Add(regionalClimateSH);
 
-		XElement CreateDailyTemperatures(double minimum, double maximum)
-		{
-			var temps = new List<(int Hour, double Temp)>();
-			var delta = maximum - minimum;
-			for (var i = 0; i < 24; i++)
-			{
-				temps.Add((i, minimum + delta * i switch
-				{
-					0 => 0.0866,
-					1 => 0.0472,
-					2 => 0.0236,
-					3 => 0.0079,
-					4 => 0.0,
-					5 => 0.0315,
-					6 => 0.126,
-					7 => 0.2835,
-					8 => 0.3622,
-					9 => 0.4409,
-					10 => 0.5197,
-					11 => 0.5984,
-					12 => 0.6772,
-					13 => 0.7559,
-					14 => 0.8346,
-					15 => 0.8740,
-					16 => 0.9134,
-					17 => 0.9370,
-					18 => 0.9685,
-					19 => 1.0,
-					20 => 0.8346,
-					21 => 0.6772,
-					22 => 0.3622,
-					23 => 0.2047,
-					_ => minimum
-				}));
-			}
-
-			return new XElement("Temperatures",
-				from temp in temps
-				select new XElement("Value", new XAttribute("hour", temp.Hour), temp.Temp)
-			);
-		}
-
 		foreach (var season in seasons)
 		{
+			var temperatures = profile.SeasonalTemperatureRanges[season.DisplayName];
 			var rs = new RegionalClimatesSeason
 			{
 				RegionalClimate = season.Name.EndsWith("_south") ? regionalClimateSH : regionalClimateNH,
 				Season = season,
-				TemperatureInfo = CreateDailyTemperatures(
-							season.DisplayName switch
-							{
-								"Early Winter" => 4.0,
-								"Mid Winter" => 2.0,
-								"Late Winter" => 2.0,
-								"Early Spring" => 4.0,
-								"Mid Spring" => 6.0,
-								"Late Spring" => 9.0,
-								"Early Summer" => 12.0,
-								"Mid Summer" => 14.0,
-								"Late Summer" => 14.0,
-								"Early Autumn" => 11.0,
-								"Mid Autumn" => 8.0,
-								"Late Autumn" => 6.0,
-								_ => 0.0
-							},
-							season.DisplayName switch
-							{
-								"Early Winter" => 9.0,
-								"Mid Winter" => 8.0,
-								"Late Winter" => 8.0,
-								"Early Spring" => 11.0,
-								"Mid Spring" => 14.0,
-								"Late Spring" => 18.0,
-								"Early Summer" => 21.0,
-								"Mid Summer" => 24.0,
-								"Late Summer" => 23.0,
-								"Early Autumn" => 20.0,
-								"Mid Autumn" => 16.0,
-								"Late Autumn" => 13.0,
-								_ => 0.0
-							}
-						).ToString()
+				TemperatureInfo = CreateDailyTemperatures(temperatures.Minimum, temperatures.Maximum).ToString()
 			};
 			context.RegionalClimatesSeasons.Add(rs);
 		}
+
 		context.SaveChanges();
 		#endregion
 	}

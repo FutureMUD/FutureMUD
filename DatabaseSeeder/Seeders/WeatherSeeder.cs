@@ -118,7 +118,7 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
 
 Once you have installed this seeder you will need to add the WeatherControllers it installs onto your zones yourself.
 
-At the present time, this seeder installs temperate oceanic and humid subtropical climate templates (e.g. Western Europe / Pacific Northwest US and Köppen Cfa regions such as Atlanta or Brisbane).";
+At the present time, this seeder installs temperate oceanic, humid subtropical and mediterranean climate templates (e.g. Western Europe / Pacific Northwest US, Köppen Cfa regions such as Atlanta or Brisbane, and dry-summer regions such as Sacramento or coastal southern Europe).";
 
 	public bool Enabled => true;
 
@@ -385,6 +385,7 @@ At the present time, this seeder installs temperate oceanic and humid subtropica
 	{
 		yield return CreateTemperateOceanicProfile();
 		yield return CreateHumidSubtropicalProfile();
+		yield return CreateMediterraneanProfile();
 	}
 
 	private static XElement CreateDailyTemperatures(double minimum, double maximum)

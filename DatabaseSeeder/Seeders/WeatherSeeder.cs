@@ -418,7 +418,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 				TemperatureInfo = CreateDailyTemperatures(
 							season.DisplayName switch
 							{
-								"Early Winter" => 3.0,
+								"Early Winter" => 4.0,
 								"Mid Winter" => 2.0,
 								"Late Winter" => 2.0,
 								"Early Spring" => 4.0,
@@ -429,12 +429,12 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 								"Late Summer" => 14.0,
 								"Early Autumn" => 11.0,
 								"Mid Autumn" => 8.0,
-								"Late Autumn" => 3.0,
+								"Late Autumn" => 6.0,
 								_ => 0.0
 							},
 							season.DisplayName switch
 							{
-								"Early Winter" => 8.0,
+								"Early Winter" => 9.0,
 								"Mid Winter" => 8.0,
 								"Late Winter" => 8.0,
 								"Early Spring" => 11.0,
@@ -445,7 +445,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 								"Late Summer" => 23.0,
 								"Early Autumn" => 20.0,
 								"Mid Autumn" => 16.0,
-								"Late Autumn" => 10.0,
+								"Late Autumn" => 13.0,
 								_ => 0.0
 							}
 						).ToString()
@@ -468,11 +468,141 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 
 		var seasonalNormalWind = new Dictionary<string, WindLevel>
 		{
-			{ "Winter", WindLevel.Still },
+			{ "Winter", WindLevel.OccasionalBreeze },
 			{ "Autumn", WindLevel.Breeze },
 			{ "Spring", WindLevel.OccasionalBreeze },
-			{ "Summer", WindLevel.Still }
+			{ "Summer", WindLevel.OccasionalBreeze }
 		};
+
+		var seasonalNormalPrecipitation = new Dictionary<string, PrecipitationLevel>
+		{
+			{ "Winter", PrecipitationLevel.Humid },
+			{ "Autumn", PrecipitationLevel.Humid },
+			{ "Spring", PrecipitationLevel.Humid },
+			{ "Summer", PrecipitationLevel.Humid }
+		};
+
+		double WindIncreaseChance(string seasonName, WindLevel currentWind)
+		{
+			var delta = currentWind.StepsFrom(seasonalNormalWind[seasonName]);
+			if (delta < 0)
+			{
+				return 4.5 + Math.Abs(delta) * 1.5;
+			}
+
+			if (delta == 0)
+			{
+				return 0.9;
+			}
+
+			return Math.Max(0.1, 0.8 - delta * 0.15);
+		}
+
+		double WindDecreaseChance(string seasonName, WindLevel currentWind)
+		{
+			var delta = currentWind.StepsFrom(seasonalNormalWind[seasonName]);
+			if (delta > 0)
+			{
+				return 4.5 + delta * 1.5;
+			}
+
+			if (delta == 0)
+			{
+				return 1.0;
+			}
+
+			return Math.Max(0.1, 0.9 - Math.Abs(delta) * 0.15);
+		}
+
+		double PrecipIncreaseChance(string seasonName, PrecipitationLevel currentPrecipitation, int stages = 1)
+		{
+			var delta = currentPrecipitation.StepsFrom(seasonalNormalPrecipitation[seasonName]);
+			if (delta < 0)
+			{
+				return stages == 1
+					? 5.0 + Math.Abs(delta) * 1.5
+					: 1.75 + Math.Abs(delta) * 0.75;
+			}
+
+			if (delta == 0)
+			{
+				return stages == 1 ? 1.8 : 0.4;
+			}
+
+			return Math.Max(
+				stages == 1 ? 0.25 : 0.05,
+				(stages == 1 ? 0.9 : 0.15) - delta * (stages == 1 ? 0.1 : 0.04)
+			);
+		}
+
+		double PrecipDecreaseChance(string seasonName, PrecipitationLevel currentPrecipitation, int stages = 1)
+		{
+			var delta = currentPrecipitation.StepsFrom(seasonalNormalPrecipitation[seasonName]);
+			if (delta > 0)
+			{
+				return stages == 1
+					? 2.5 + delta * 0.75
+					: 0.8 + delta * 0.4;
+			}
+
+			if (delta == 0)
+			{
+				return stages == 1 ? 0.8 : 0.15;
+			}
+
+			return Math.Max(
+				stages == 1 ? 0.25 : 0.05,
+				(stages == 1 ? 0.9 : 0.15) - Math.Abs(delta) * (stages == 1 ? 0.1 : 0.04)
+			);
+		}
+
+		double TemperatureVariationChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 3.0,
+				"Winter" => 2.5,
+				"Spring" => 2.0,
+				"Summer" => 1.5,
+				_ => 2.0
+			};
+		}
+
+		double WindVariationChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 1.5,
+				"Winter" => 1.0,
+				"Spring" => 1.0,
+				"Summer" => 0.5,
+				_ => 1.0
+			};
+		}
+
+		double CloudIncreaseChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 4.5,
+				"Winter" => 4.0,
+				"Spring" => 3.5,
+				"Summer" => 3.0,
+				_ => 3.5
+			};
+		}
+
+		double CloudDecreaseChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 2.2,
+				"Winter" => 2.4,
+				"Spring" => 2.3,
+				"Summer" => 2.8,
+				_ => 2.4
+			};
+		}
 
 		foreach (var we in events)
 		{
@@ -543,10 +673,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 					WeatherEventVariation.Normal => "",
 					_ => variation.DescribeEnum()
 				}}"];
-				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 10.0 - Math.Abs(wind.StepsFrom(seasonalNormalWind["Winter"])))));
-				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 12.0 - Math.Abs(wind.StepsFrom(seasonalNormalWind["Autumn"])))));
-				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 8.0 - Math.Abs(wind.StepsFrom(seasonalNormalWind["Summer"])))));
-				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 10.0 - Math.Abs(wind.StepsFrom(seasonalNormalWind["Spring"])))));
+				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindIncreaseChance("Winter", wind)));
+				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindIncreaseChance("Autumn", wind)));
+				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindIncreaseChance("Summer", wind)));
+				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindIncreaseChance("Spring", wind)));
 			}
 
 			// 1 down on wind type
@@ -572,10 +702,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 					WeatherEventVariation.Normal => "",
 					_ => variation.DescribeEnum()
 				}}"];
-				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 3.0 + Math.Abs(wind.StepsFrom(seasonalNormalWind["Winter"])))));
-				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 5.0 + Math.Abs(wind.StepsFrom(seasonalNormalWind["Autumn"])))));
-				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(wind.StepsFrom(seasonalNormalWind["Summer"])))));
-				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 3.0 + Math.Abs(wind.StepsFrom(seasonalNormalWind["Spring"])))));
+				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindDecreaseChance("Winter", wind)));
+				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindDecreaseChance("Autumn", wind)));
+				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindDecreaseChance("Summer", wind)));
+				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindDecreaseChance("Spring", wind)));
 			}
 
 			// 1 up or down on precipitation
@@ -599,10 +729,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 10.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 12.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 7.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 6.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipIncreaseChance("Winter", precip)));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipIncreaseChance("Autumn", precip)));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipIncreaseChance("Summer", precip)));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipIncreaseChance("Spring", precip)));
 
 					if (precip == PrecipitationLevel.HeavyRain || precip == PrecipitationLevel.HeavySnow)
 					{
@@ -620,10 +750,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(0.2, 4.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(0.2, 7.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(0.2, 3.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(0.2, 3.0 - Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipIncreaseChance("Winter", precip, 2)));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipIncreaseChance("Autumn", precip, 2)));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipIncreaseChance("Summer", precip, 2)));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipIncreaseChance("Spring", precip, 2)));
 					break;
 				case CloudVariation.Cloudy:
 					// Become overcast instead
@@ -637,10 +767,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 5.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 3.5));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 4.0));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 2.5));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 3.5));
 
 					// Become humid instead
 					to = events[$"Humid{windVariation switch
@@ -653,10 +783,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 1.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 3.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 1.5));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 2.0));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.5));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 2.5));
 					break;
 				case CloudVariation.Overcast:
 					// Start raining lightly
@@ -670,10 +800,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 15.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 3.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 4.0));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 4.5));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 3.5));
 
 					// Start raining
 					to = events[$"Rain{windVariation switch
@@ -686,10 +816,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 7.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 7.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 5.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 0.5));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 1.5));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 2.0));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 1.0));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 1.2));
 
 					// Start snowing
 					to = events[$"LightSnow{windVariation switch
@@ -702,8 +832,8 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 2.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 0.1));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 0.7));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 0.05));
 					break;
 			}
 
@@ -730,10 +860,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 3.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 5.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 2.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip)));
 
 						to = events[$"Humid{windVariation switch
 						{
@@ -746,10 +876,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 3.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 5.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 2.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip)));
 					}
 					else
 					{
@@ -764,10 +894,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 3.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 5.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 2.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip)));
 					}
 
 					if (precip == PrecipitationLevel.Dry)
@@ -790,10 +920,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(0.2, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 2.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip, 2)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip, 2)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip, 2)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip, 2)));
 
 						to = events[$"Dry{windVariation switch
 						{
@@ -806,10 +936,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 2.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip, 2)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip, 2)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip, 2)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip, 2)));
 					}
 					else if (precip == PrecipitationLevel.Snow || precip == PrecipitationLevel.Rain)
 					{
@@ -824,10 +954,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 2.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip, 2)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip, 2)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip, 2)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip, 2)));
 
 						to = events[$"Humid{windVariation switch
 						{
@@ -840,10 +970,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 2.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 0.5 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip, 2)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip, 2)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip, 2)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip, 2)));
 					}
 					else
 					{
@@ -858,15 +988,15 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							_ => variation.DescribeEnum()
 						}}"];
 
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, Math.Max(1.0, 3.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, Math.Max(1.0, 5.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, Math.Max(1.0, 2.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Dry)))));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, Math.Max(1.0, 1.0 + Math.Abs(precip.StepsFrom(PrecipitationLevel.Humid)))));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, PrecipDecreaseChance("Winter", precip)));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, PrecipDecreaseChance("Autumn", precip)));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, PrecipDecreaseChance("Summer", precip)));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, PrecipDecreaseChance("Spring", precip)));
 					}
 					break;
 				case CloudVariation.Cloudy:
-					// Become overcast instead
-					to = events[$"Overcast{windVariation switch
+					// Clear back to the underlying dry state
+					to = events[$"Dry{windVariation switch
 					{
 						WindVariation.Polar => "Polar",
 						WindVariation.Equatorial => "Equatorial",
@@ -876,12 +1006,29 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 5.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 3.5));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 3.0));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 4.0));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 3.5));
 
-					// Become humid instead
+					// Occasionally clear further into notably dry weather
+					to = events[$"Parched{windVariation switch
+					{
+						WindVariation.Polar => "Polar",
+						WindVariation.Equatorial => "Equatorial",
+						_ => ""
+					}}{wind.DescribeEnum()}{variation switch
+					{
+						WeatherEventVariation.Normal => "",
+						_ => variation.DescribeEnum()
+					}}"];
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 0.2));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 0.1));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 1.2));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 0.3));
+					break;
+				case CloudVariation.Overcast:
+					// Ease back to humid, with a smaller chance of the cloud deck thinning further
 					to = events[$"Humid{windVariation switch
 					{
 						WindVariation.Polar => "Polar",
@@ -892,30 +1039,12 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 1.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 3.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
-					break;
-				case CloudVariation.Overcast:
-					// Start raining lightly
-					to = events[$"LightRain{windVariation switch
-					{
-						WindVariation.Polar => "Polar",
-						WindVariation.Equatorial => "Equatorial",
-						_ => ""
-					}}{wind.DescribeEnum()}{variation switch
-					{
-						WeatherEventVariation.Normal => "",
-						_ => variation.DescribeEnum()
-					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 15.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 3.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 4.0));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 3.5));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 4.5));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 4.0));
 
-					// Start raining
-					to = events[$"Rain{windVariation switch
+					to = events[$"Cloudy{windVariation switch
 					{
 						WindVariation.Polar => "Polar",
 						WindVariation.Equatorial => "Equatorial",
@@ -925,38 +1054,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 7.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 7.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 5.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 0.5));
-
-					// Start snowing
-					to = events[$"LightSnow{windVariation switch
-					{
-						WindVariation.Polar => "Polar",
-						WindVariation.Equatorial => "Equatorial",
-						_ => ""
-					}}{wind.DescribeEnum()}{variation switch
-					{
-						WeatherEventVariation.Normal => "",
-						_ => variation.DescribeEnum()
-					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 2.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 0.1));
-
-					// Start sleeting
-					to = events[$"Sleet{windVariation switch
-					{
-						WindVariation.Polar => "Polar",
-						WindVariation.Equatorial => "Equatorial",
-						_ => ""
-					}}{wind.DescribeEnum()}{variation switch
-					{
-						WeatherEventVariation.Normal => "",
-						_ => variation.DescribeEnum()
-					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 2.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 0.1));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 1.5));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 1.2));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 2.0));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 1.8));
 					break;
 			}
 
@@ -985,10 +1086,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 					WeatherEventVariation.Cooler => "",
 					_ => variation.StageUp().DescribeEnum()
 				}}"];
-				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, TemperatureVariationChance("Winter")));
+				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, TemperatureVariationChance("Autumn")));
+				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, TemperatureVariationChance("Summer")));
+				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, TemperatureVariationChance("Spring")));
 			}
 
 			// 1 down on temp variation
@@ -1015,10 +1116,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 					WeatherEventVariation.Warmer => "",
 					_ => variation.StageDown().DescribeEnum()
 				}}"];
-				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+				eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, TemperatureVariationChance("Winter")));
+				eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, TemperatureVariationChance("Autumn")));
+				eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, TemperatureVariationChance("Summer")));
+				eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, TemperatureVariationChance("Spring")));
 			}
 
 			// Wind variation change
@@ -1037,10 +1138,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindVariationChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindVariationChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindVariationChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindVariationChance("Spring")));
 
 						to = events[$"{cloudVariation switch
 						{
@@ -1052,10 +1153,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindVariationChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindVariationChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindVariationChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindVariationChance("Spring")));
 						break;
 					case WindVariation.Polar:
 						to = events[$"{cloudVariation switch
@@ -1068,10 +1169,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindVariationChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindVariationChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindVariationChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindVariationChance("Spring")));
 
 						to = events[$"{cloudVariation switch
 						{
@@ -1083,10 +1184,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindVariationChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindVariationChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindVariationChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindVariationChance("Spring")));
 						break;
 					case WindVariation.Equatorial:
 						to = events[$"{cloudVariation switch
@@ -1099,10 +1200,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindVariationChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindVariationChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindVariationChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindVariationChance("Spring")));
 
 						to = events[$"{cloudVariation switch
 						{
@@ -1114,10 +1215,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, WindVariationChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, WindVariationChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, WindVariationChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, WindVariationChance("Spring")));
 						break;
 				}
 
@@ -1149,10 +1250,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 							WeatherEventVariation.Normal => "",
 							_ => variation.DescribeEnum()
 						}}"];
-						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, CloudIncreaseChance("Winter")));
+						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, CloudIncreaseChance("Autumn")));
+						eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, CloudIncreaseChance("Summer")));
+						eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, CloudIncreaseChance("Spring")));
 						break;
 					}
 
@@ -1171,10 +1272,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, CloudIncreaseChance("Winter")));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, CloudIncreaseChance("Autumn")));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, CloudIncreaseChance("Summer")));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, CloudIncreaseChance("Spring")));
 					break;
 
 				case CloudVariation.Cloudy:
@@ -1194,10 +1295,10 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						WeatherEventVariation.Normal => "",
 						_ => variation.DescribeEnum()
 					}}"];
-					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
-					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
-					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, 3.0));
-					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, 5.0));
+					eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, CloudDecreaseChance("Winter")));
+					eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, CloudDecreaseChance("Autumn")));
+					eventsAndTransitionsBySeason["Summer"].Add(we.Value, (to, CloudDecreaseChance("Summer")));
+					eventsAndTransitionsBySeason["Spring"].Add(we.Value, (to, CloudDecreaseChance("Spring")));
 					break;
 			}
 

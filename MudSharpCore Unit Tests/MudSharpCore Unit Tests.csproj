@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DatabaseSeeder\DatabaseSeeder.csproj" />
     <ProjectReference Include="..\ExpressionEngine\ExpressionEngine.csproj" />
     <ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
     <ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />

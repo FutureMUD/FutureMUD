@@ -19,6 +19,68 @@ readonly record struct WeatherSeederEventDescriptor(
 
 public partial class WeatherSeeder
 {
+	private static double SeasonFactor(
+		string seasonName,
+		double winter = 1.0,
+		double spring = 1.0,
+		double summer = 1.0,
+		double autumn = 1.0)
+	{
+		return seasonName switch
+		{
+			"Winter" => winter,
+			"Spring" => spring,
+			"Summer" => summer,
+			"Autumn" => autumn,
+			_ => 1.0
+		};
+	}
+
+	private static Func<string, double> ScaleSeasonalChance(
+		Func<string, double> baseFunc,
+		double winter = 1.0,
+		double spring = 1.0,
+		double summer = 1.0,
+		double autumn = 1.0,
+		double add = 0.0,
+		double minimum = 0.0)
+	{
+		return seasonName =>
+			Math.Max(
+				minimum,
+				baseFunc(seasonName) * SeasonFactor(seasonName, winter, spring, summer, autumn) + add);
+	}
+
+	private static Func<string, WindLevel, double> ScaleSeasonalChance(
+		Func<string, WindLevel, double> baseFunc,
+		double winter = 1.0,
+		double spring = 1.0,
+		double summer = 1.0,
+		double autumn = 1.0,
+		double add = 0.0,
+		double minimum = 0.0)
+	{
+		return (seasonName, wind) =>
+			Math.Max(
+				minimum,
+				baseFunc(seasonName, wind) * SeasonFactor(seasonName, winter, spring, summer, autumn) + add);
+	}
+
+	private static Func<string, PrecipitationLevel, int, double> ScaleSeasonalChance(
+		Func<string, PrecipitationLevel, int, double> baseFunc,
+		double winter = 1.0,
+		double spring = 1.0,
+		double summer = 1.0,
+		double autumn = 1.0,
+		double add = 0.0,
+		double minimum = 0.0)
+	{
+		return (seasonName, precipitation, stages) =>
+			Math.Max(
+				minimum,
+				baseFunc(seasonName, precipitation, stages) * SeasonFactor(seasonName, winter, spring, summer, autumn) + add);
+	}
+
 	private static WeatherSeederClimateProfile CreateTemperateOceanicProfile()
 	{
 		return new WeatherSeederClimateProfile
@@ -1610,6 +1672,870 @@ public partial class WeatherSeeder
 		};
 	}
 
+	private static WeatherSeederClimateProfile CreateSubpolarOceanicProfile()
+	{
+		var baseProfile = CreateTemperateOceanicProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Subpolar Oceanic",
+			RegionalClimatePrefix = "Subpolar Oceanic",
+			KoppenClimateClassification = "Cfc",
+			ReferenceLocation = "Adak, Alaska, United States",
+			ClimateModelSummary = "This model represents a cool maritime climate with short chilly summers, stormy shoulders, and persistent cloud and precipitation through the year. It should feel oceanic first and polar second, with raw wind and dampness more defining than deep continental cold.",
+			RegionalClimateSummary = "Expect cold grey seas, brief cool summers, and long stretches of damp windy weather. Snow and sleet appear regularly in the colder half of the year, but the climate remains too maritime for the brutal extremes of true subarctic interiors.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-1.0, 4.0),
+				["Mid Winter"] = (-2.0, 3.0),
+				["Late Winter"] = (-2.0, 3.0),
+				["Early Spring"] = (-1.0, 5.0),
+				["Mid Spring"] = (1.0, 7.0),
+				["Late Spring"] = (3.0, 10.0),
+				["Early Summer"] = (5.0, 12.0),
+				["Mid Summer"] = (7.0, 14.0),
+				["Late Summer"] = (7.0, 14.0),
+				["Early Autumn"] = (5.0, 11.0),
+				["Mid Autumn"] = (3.0, 8.0),
+				["Late Autumn"] = (1.0, 6.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 1.10, spring: 1.05, summer: 0.98, autumn: 1.18),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 0.96, spring: 0.98, summer: 1.02, autumn: 0.92),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 1.08, spring: 1.02, summer: 0.92, autumn: 1.12),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 0.94, spring: 0.98, summer: 1.06, autumn: 0.90),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 0.92, spring: 0.95, summer: 0.90, autumn: 0.95),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 1.18, spring: 1.08, summer: 0.95, autumn: 1.25),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 1.12, spring: 1.05, summer: 0.95, autumn: 1.16),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 0.92, spring: 0.96, summer: 1.08, autumn: 0.90),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 1.10, spring: 1.05, summer: 0.95, autumn: 1.14),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 1.10, spring: 1.04, summer: 0.95, autumn: 1.10),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 1.05, spring: 1.02, summer: 0.92, autumn: 1.12),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.95, spring: 0.95, summer: 0.85, autumn: 1.02),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 1.8, 0.6, 0.0, 0.45),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 0.78, spring: 0.86, summer: 1.05, autumn: 0.76),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 0.10, 0.12, 0.16, 0.10),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 1.08, spring: 1.04, summer: 0.94, autumn: 1.12),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 0.95, spring: 0.95, summer: 1.06, autumn: 0.92),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 1.05, spring: 1.02, summer: 0.95, autumn: 1.08),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00055
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateDryWinterHumidSubtropicalProfile()
+	{
+		var baseProfile = CreateHumidSubtropicalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Dry Winter Humid Subtropical",
+			RegionalClimatePrefix = "Dry Winter Humid Subtropical",
+			KoppenClimateClassification = "Cwa",
+			ReferenceLocation = "Daegu, South Korea",
+			ClimateModelSummary = "This model represents the warm temperate monsoon pattern with hot humid summers but a distinctly drier, clearer winter than year-round-humid subtropical climates. Spring should feel transitional and breezy, while the warm season carries most of the heavier rain and thunderstorm activity.",
+			RegionalClimateSummary = "Expect hot sticky summers, cool comparatively dry winters, and a dramatic seasonal swing in rainfall. The climate should feel brighter and crisper in winter than a Cfa region, but still much milder than a true continental interior.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (0.0, 10.0),
+				["Mid Winter"] = (-3.0, 8.0),
+				["Late Winter"] = (-1.0, 10.0),
+				["Early Spring"] = (4.0, 16.0),
+				["Mid Spring"] = (9.0, 22.0),
+				["Late Spring"] = (15.0, 27.0),
+				["Early Summer"] = (20.0, 31.0),
+				["Mid Summer"] = (23.0, 33.0),
+				["Late Summer"] = (22.0, 32.0),
+				["Early Autumn"] = (17.0, 28.0),
+				["Mid Autumn"] = (10.0, 22.0),
+				["Late Autumn"] = (3.0, 15.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 1.08, summer: 0.95, autumn: 0.98),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.05, spring: 0.95, summer: 1.0, autumn: 1.02),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.45, spring: 0.90, summer: 1.25, autumn: 0.82),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.50, spring: 1.05, summer: 0.82, autumn: 1.05),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.12, spring: 1.04, summer: 0.95, autumn: 1.02),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.92, spring: 1.10, summer: 0.95, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.62, spring: 0.95, summer: 1.18, autumn: 0.88),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.28, spring: 1.0, summer: 0.88, autumn: 1.05),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.58, spring: 0.95, summer: 1.15, autumn: 0.88),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.52, spring: 0.88, summer: 1.12, autumn: 0.85),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.42, spring: 0.88, summer: 1.25, autumn: 0.85),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.38, spring: 0.92, summer: 1.32, autumn: 0.90),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 2.0, 0.15, 0.0, 0.02),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.55, spring: 1.05, summer: 0.70, autumn: 1.05),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 4.5, 2.2, 0.65, 1.1),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.68, spring: 0.92, summer: 1.08, autumn: 0.92),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.18, spring: 1.02, summer: 0.90, autumn: 1.02),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 1.0, summer: 1.02, autumn: 0.98),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00042
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateSubtropicalHighlandProfile()
+	{
+		var baseProfile = CreateDryWinterHumidSubtropicalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Subtropical Highland",
+			RegionalClimatePrefix = "Subtropical Highland",
+			KoppenClimateClassification = "Cwb",
+			ReferenceLocation = "Mexico City, Mexico",
+			ClimateModelSummary = "This model represents a highland monsoon climate with dry sunny winters, mild days, and wet summers tempered by elevation. It should feel seasonally tropical in rainfall but not in heat, with cool nights and a softer annual temperature curve than lowland subtropical climates.",
+			RegionalClimateSummary = "Expect spring warmth, summer rains, and dry bright winters, but without oppressive heat. The overall feel is upland and elevated, with comfortable daytime temperatures, noticeable nighttime cooling, and only rare brushes with frost or snow.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (5.0, 20.0),
+				["Mid Winter"] = (4.0, 19.0),
+				["Late Winter"] = (5.0, 21.0),
+				["Early Spring"] = (7.0, 23.0),
+				["Mid Spring"] = (9.0, 25.0),
+				["Late Spring"] = (11.0, 26.0),
+				["Early Summer"] = (12.0, 24.0),
+				["Mid Summer"] = (12.0, 23.0),
+				["Late Summer"] = (12.0, 23.0),
+				["Early Autumn"] = (11.0, 22.0),
+				["Mid Autumn"] = (8.0, 21.0),
+				["Late Autumn"] = (6.0, 20.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.92, spring: 1.05, summer: 0.92, autumn: 0.96),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.05, spring: 0.98, summer: 1.05, autumn: 1.02),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.35, spring: 0.80, summer: 1.18, autumn: 0.92),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.60, spring: 1.10, summer: 0.88, autumn: 0.98),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.08, spring: 1.02, summer: 0.90, autumn: 0.98),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.95, spring: 1.05, summer: 0.90, autumn: 0.96),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.52, spring: 0.85, summer: 1.10, autumn: 0.90),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.35, spring: 1.05, summer: 0.92, autumn: 1.0),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.50, spring: 0.85, summer: 1.08, autumn: 0.92),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.45, spring: 0.82, summer: 1.06, autumn: 0.90),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.30, spring: 0.78, summer: 1.15, autumn: 0.95),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.22, spring: 0.72, summer: 1.10, autumn: 0.92),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 0.65, 0.10, 0.0, 0.0),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.70, spring: 1.12, summer: 0.76, autumn: 1.0),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 2.6, 1.8, 0.75, 1.0),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.56, spring: 0.88, summer: 1.04, autumn: 0.95),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.20, spring: 1.05, summer: 0.95, autumn: 1.0),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.92, spring: 0.95, summer: 0.95, autumn: 0.92),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00040
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateColdSummerSubtropicalHighlandProfile()
+	{
+		var baseProfile = CreateSubtropicalHighlandProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Cold Summer Subtropical Highland",
+			RegionalClimatePrefix = "Cold Summer Subtropical Highland",
+			KoppenClimateClassification = "Cwc",
+			ReferenceLocation = "El Alto, Bolivia",
+			ClimateModelSummary = "This model represents a rare cold-summer highland monsoon climate, with a marked dry winter, a short damp summer, and temperatures kept low year-round by altitude. It should feel stark and elevated, more alpine than subtropical despite the monsoonal rainfall rhythm.",
+			RegionalClimateSummary = "Expect chilly mornings in every season, a modest wet season in the warmer months, and a long clear dry season. Summer never becomes truly warm, and winter often feels bright, thin-aired, and near freezing rather than dark and stormy.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-5.0, 9.0),
+				["Mid Winter"] = (-6.0, 8.0),
+				["Late Winter"] = (-5.0, 10.0),
+				["Early Spring"] = (-3.0, 12.0),
+				["Mid Spring"] = (-1.0, 14.0),
+				["Late Spring"] = (1.0, 16.0),
+				["Early Summer"] = (2.0, 16.0),
+				["Mid Summer"] = (2.0, 15.0),
+				["Late Summer"] = (2.0, 15.0),
+				["Early Autumn"] = (1.0, 14.0),
+				["Mid Autumn"] = (-1.0, 12.0),
+				["Late Autumn"] = (-3.0, 10.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.98, spring: 1.08, summer: 0.92, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.04, spring: 0.98, summer: 1.04, autumn: 1.02),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.28, spring: 0.72, summer: 1.15, autumn: 0.88),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.75, spring: 1.18, summer: 0.90, autumn: 1.02),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.10, spring: 1.04, summer: 0.92, autumn: 1.0),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.95, spring: 1.05, summer: 0.92, autumn: 0.98),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.45, spring: 0.80, summer: 1.10, autumn: 0.88),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.45, spring: 1.10, summer: 0.92, autumn: 1.05),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.42, spring: 0.82, summer: 1.08, autumn: 0.90),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.38, spring: 0.78, summer: 1.05, autumn: 0.88),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.20, spring: 0.65, summer: 1.12, autumn: 0.85),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.12, spring: 0.52, summer: 1.02, autumn: 0.80),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 2.2, 0.6, 0.04, 0.22),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.90, spring: 1.18, summer: 0.78, autumn: 1.05),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 3.2, 2.0, 0.72, 1.08),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.48, spring: 0.82, summer: 1.02, autumn: 0.90),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.24, spring: 1.08, summer: 0.96, autumn: 1.02),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.90, spring: 0.92, summer: 0.92, autumn: 0.90),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00038
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateWarmSummerMediterraneanProfile()
+	{
+		var baseProfile = CreateMediterraneanProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Warm-Summer Mediterranean",
+			RegionalClimatePrefix = "Warm-Summer Mediterranean",
+			KoppenClimateClassification = "Csb",
+			ReferenceLocation = "San Francisco, California, United States",
+			ClimateModelSummary = "This model represents a mild dry-summer Mediterranean climate shaped by marine influence rather than interior heat. Winters are cool and wetter, summers are comfortable and notably dry, and the warm season should feel bright, stable, and often breezy without the furnace heat of Csa country.",
+			RegionalClimateSummary = "Expect mild wet winters, cool-to-warm dry summers, and a climate that often feels tempered by nearby ocean water. Summer skies stay comparatively clear, frost is rare, and the transition back to wetter weather comes gradually through autumn.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (7.0, 14.0),
+				["Mid Winter"] = (7.0, 14.0),
+				["Late Winter"] = (8.0, 16.0),
+				["Early Spring"] = (8.0, 17.0),
+				["Mid Spring"] = (9.0, 18.0),
+				["Late Spring"] = (10.0, 20.0),
+				["Early Summer"] = (11.0, 21.0),
+				["Mid Summer"] = (12.0, 22.0),
+				["Late Summer"] = (12.0, 23.0),
+				["Early Autumn"] = (12.0, 24.0),
+				["Mid Autumn"] = (10.0, 22.0),
+				["Late Autumn"] = (8.0, 17.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 1.0, summer: 1.08, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.02, spring: 1.0, summer: 0.96, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 1.0, spring: 0.88, summer: 0.72, autumn: 0.86),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.0, spring: 1.08, summer: 1.18, autumn: 1.05),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 0.92, spring: 0.95, summer: 0.85, autumn: 0.92),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.95, spring: 1.0, summer: 1.08, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 1.0, spring: 0.92, summer: 0.72, autumn: 0.82),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.0, spring: 1.05, summer: 1.18, autumn: 1.08),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 1.0, spring: 0.92, summer: 0.60, autumn: 0.80),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 1.0, spring: 0.90, summer: 0.72, autumn: 0.82),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.96, spring: 0.86, summer: 0.45, autumn: 0.76),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.90, spring: 0.78, summer: 0.25, autumn: 0.65),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 0.15, 0.0, 0.0, 0.0),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 0.95, spring: 1.12, summer: 1.25, autumn: 1.12),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 0.08, 0.12, 0.45, 0.18),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 1.0, spring: 0.95, summer: 0.85, autumn: 0.90),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.0, spring: 1.02, summer: 1.08, autumn: 1.05),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.92, summer: 0.90, autumn: 0.92),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00036
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateColdSummerMediterraneanProfile()
+	{
+		var baseProfile = CreateWarmSummerMediterraneanProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Cold-Summer Mediterranean",
+			RegionalClimatePrefix = "Cold-Summer Mediterranean",
+			KoppenClimateClassification = "Csc",
+			ReferenceLocation = "Rost, Norway",
+			ClimateModelSummary = "This model represents a rare cool dry-summer maritime climate where even the warm season stays gentle, but winter remains wet and often raw rather than deeply continental. It should feel like a windswept ocean fringe or upland coast with a Mediterranean precipitation rhythm but much colder air.",
+			RegionalClimateSummary = "Expect cool summers, damp winters, and a noticeably drier but not truly hot warm season. Wind and cloud still matter, snow can appear in winter, and the whole climate should feel sparse, ocean-facing, and strongly seasonal without huge heat.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (0.0, 6.0),
+				["Mid Winter"] = (-1.0, 5.0),
+				["Late Winter"] = (0.0, 6.0),
+				["Early Spring"] = (1.0, 8.0),
+				["Mid Spring"] = (3.0, 10.0),
+				["Late Spring"] = (5.0, 12.0),
+				["Early Summer"] = (7.0, 14.0),
+				["Mid Summer"] = (8.0, 15.0),
+				["Late Summer"] = (8.0, 15.0),
+				["Early Autumn"] = (6.0, 13.0),
+				["Mid Autumn"] = (4.0, 10.0),
+				["Late Autumn"] = (2.0, 8.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 1.04, spring: 1.02, summer: 1.0, autumn: 1.08),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 0.98, spring: 1.0, summer: 1.0, autumn: 0.96),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 1.05, spring: 0.95, summer: 0.82, autumn: 1.0),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 0.96, spring: 1.02, summer: 1.10, autumn: 1.0),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 0.92, spring: 0.95, summer: 0.88, autumn: 0.92),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 1.02, spring: 1.0, summer: 1.02, autumn: 1.06),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 1.02, spring: 0.98, summer: 0.85, autumn: 1.0),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 0.96, spring: 1.0, summer: 1.08, autumn: 0.98),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 1.02, spring: 0.98, summer: 0.75, autumn: 0.95),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 1.04, spring: 1.0, summer: 0.88, autumn: 0.96),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 1.0, spring: 0.92, summer: 0.62, autumn: 0.90),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.95, spring: 0.88, summer: 0.32, autumn: 0.82),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 3.2, 0.25, 0.0, 0.18),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 0.92, spring: 1.10, summer: 1.18, autumn: 1.05),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 0.05, 0.08, 0.22, 0.10),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 1.02, spring: 0.98, summer: 0.92, autumn: 0.96),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 0.98, spring: 1.02, summer: 1.08, autumn: 1.02),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.92, summer: 0.90, autumn: 0.94),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00036
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateTropicalMonsoonProfile()
+	{
+		var baseProfile = CreateTropicalRainforestProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Tropical Monsoon",
+			RegionalClimatePrefix = "Tropical Monsoon",
+			KoppenClimateClassification = "Am",
+			ReferenceLocation = "Miami, Florida, United States",
+			ClimateModelSummary = "This model represents a tropical monsoon climate with rainforest warmth, a very wet warm season, and a short but noticeable drier interval. Rain should still feel common compared with non-tropical climates, but the year has more structure and a clearer break than a true equatorial rainforest.",
+			RegionalClimateSummary = "Expect hot humid weather all year, with a long stormier wet season and a shorter brighter season that is drier without becoming arid. Heavy showers and overcast skies are still common, but the climate breathes a little more than Af rainforest conditions.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (18.0, 26.0),
+				["Mid Winter"] = (17.0, 25.0),
+				["Late Winter"] = (18.0, 26.0),
+				["Early Spring"] = (20.0, 28.0),
+				["Mid Spring"] = (22.0, 30.0),
+				["Late Spring"] = (24.0, 31.0),
+				["Early Summer"] = (25.0, 32.0),
+				["Mid Summer"] = (25.0, 32.0),
+				["Late Summer"] = (25.0, 32.0),
+				["Early Autumn"] = (24.0, 31.0),
+				["Mid Autumn"] = (22.0, 30.0),
+				["Late Autumn"] = (20.0, 28.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 0.98, summer: 1.0, autumn: 1.05),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.04, spring: 1.0, summer: 0.98, autumn: 0.95),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.72, spring: 0.85, summer: 1.0, autumn: 1.15),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.20, spring: 1.08, summer: 0.95, autumn: 0.90),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 0.88, spring: 0.92, summer: 0.92, autumn: 0.90),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.85, spring: 0.90, summer: 0.92, autumn: 0.88),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.85, spring: 0.95, summer: 1.02, autumn: 1.08),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.10, spring: 1.02, summer: 0.96, autumn: 0.92),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.82, spring: 0.94, summer: 1.0, autumn: 1.10),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.88, spring: 0.95, summer: 1.0, autumn: 1.08),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.78, spring: 0.90, summer: 1.0, autumn: 1.12),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.82, spring: 0.92, summer: 1.0, autumn: 1.12),
+			OvercastToLightSnowChance = seasonName => 0.0,
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.55, spring: 1.18, summer: 0.82, autumn: 0.68),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 6.0, 3.0, 0.45, 0.25),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.88, spring: 0.98, summer: 1.02, autumn: 1.10),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.10, spring: 1.02, summer: 0.96, autumn: 0.90),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.95, summer: 0.95, autumn: 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00040
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateTropicalSavannaDryWinterProfile()
+	{
+		var baseProfile = CreateTropicalMonsoonProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Tropical Savanna Dry Winter",
+			RegionalClimatePrefix = "Tropical Savanna Dry Winter",
+			KoppenClimateClassification = "Aw",
+			ReferenceLocation = "Bangkok, Thailand",
+			ClimateModelSummary = "This model represents a tropical wet-and-dry climate with a pronounced monsoonal summer and a much drier winter. Heat stays present all year, but the atmosphere swings between a storm-heavy wet season and a clearer, dustier, more open dry season.",
+			RegionalClimateSummary = "Expect a strong contrast between a humid rainy warm season and a drier sunnier winter. Even the dry half of the year stays warm, but vegetation and sky cover should react sharply to the monsoon rather than feeling uniformly tropical and wet.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (20.0, 31.0),
+				["Mid Winter"] = (19.0, 31.0),
+				["Late Winter"] = (21.0, 33.0),
+				["Early Spring"] = (24.0, 35.0),
+				["Mid Spring"] = (26.0, 36.0),
+				["Late Spring"] = (26.0, 35.0),
+				["Early Summer"] = (25.0, 34.0),
+				["Mid Summer"] = (25.0, 33.0),
+				["Late Summer"] = (25.0, 33.0),
+				["Early Autumn"] = (24.0, 33.0),
+				["Mid Autumn"] = (23.0, 32.0),
+				["Late Autumn"] = (21.0, 31.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.92, spring: 0.98, summer: 1.02, autumn: 1.05),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.08, spring: 1.02, summer: 0.96, autumn: 0.95),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.28, spring: 0.55, summer: 1.35, autumn: 1.18),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.90, spring: 1.25, summer: 0.75, autumn: 0.88),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 0.92, spring: 1.05, summer: 0.95, autumn: 0.92),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.90, spring: 0.98, summer: 0.95, autumn: 0.92),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.42, spring: 0.68, summer: 1.20, autumn: 1.12),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.55, spring: 1.18, summer: 0.88, autumn: 0.90),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.35, spring: 0.62, summer: 1.18, autumn: 1.08),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.38, spring: 0.65, summer: 1.12, autumn: 1.05),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.22, spring: 0.55, summer: 1.35, autumn: 1.15),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.18, spring: 0.48, summer: 1.42, autumn: 1.18),
+			OvercastToLightSnowChance = seasonName => 0.0,
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 2.25, spring: 1.55, summer: 0.60, autumn: 0.75),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 9.0, 5.0, 0.25, 0.18),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.55, spring: 0.78, summer: 1.08, autumn: 1.02),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.35, spring: 1.12, summer: 0.95, autumn: 0.92),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.92, spring: 0.95, summer: 0.98, autumn: 0.98),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00038
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateTropicalSavannaDrySummerProfile()
+	{
+		var baseProfile = CreateTropicalMonsoonProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Tropical Savanna Dry Summer",
+			RegionalClimatePrefix = "Tropical Savanna Dry Summer",
+			KoppenClimateClassification = "As",
+			ReferenceLocation = "Chennai, India",
+			ClimateModelSummary = "This model represents the rarer tropical savanna pattern with heat year-round but a dry warm season and a much wetter autumn and early winter. It should feel tropical and monsoonal, but with the rainfall peak arriving later than in Aw climates.",
+			RegionalClimateSummary = "Expect hot conditions through the year, a noticeably drier summer, and a stormier wetter turn in autumn and early winter. The region should still feel lush and humid during its wet phase, but the timing of the rains differs sharply from the more common dry-winter savanna.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (22.0, 29.0),
+				["Mid Winter"] = (21.0, 28.0),
+				["Late Winter"] = (22.0, 30.0),
+				["Early Spring"] = (24.0, 32.0),
+				["Mid Spring"] = (27.0, 35.0),
+				["Late Spring"] = (28.0, 37.0),
+				["Early Summer"] = (28.0, 37.0),
+				["Mid Summer"] = (27.0, 35.0),
+				["Late Summer"] = (26.0, 34.0),
+				["Early Autumn"] = (25.0, 33.0),
+				["Mid Autumn"] = (24.0, 31.0),
+				["Late Autumn"] = (23.0, 29.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 0.98, summer: 0.92, autumn: 1.05),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.02, spring: 1.0, summer: 1.08, autumn: 0.95),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 1.08, spring: 0.72, summer: 0.35, autumn: 1.55),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 0.90, spring: 1.18, summer: 1.90, autumn: 0.72),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 0.92, spring: 1.0, summer: 0.95, autumn: 0.90),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.90, spring: 0.95, summer: 0.92, autumn: 0.92),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 1.05, spring: 0.85, summer: 0.42, autumn: 1.35),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 0.95, spring: 1.05, summer: 1.62, autumn: 0.80),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 1.08, spring: 0.78, summer: 0.30, autumn: 1.60),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 1.05, spring: 0.85, summer: 0.35, autumn: 1.40),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 1.02, spring: 0.72, summer: 0.20, autumn: 1.65),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 1.12, spring: 0.65, summer: 0.18, autumn: 1.75),
+			OvercastToLightSnowChance = seasonName => 0.0,
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 0.82, spring: 1.22, summer: 2.20, autumn: 0.45),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 0.50, 1.8, 8.0, 0.15),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 1.05, spring: 0.85, summer: 0.45, autumn: 1.45),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 0.95, spring: 1.0, summer: 1.30, autumn: 0.82),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.95, summer: 0.90, autumn: 1.0),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00038
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateHotSummerHumidSubcontinentalProfile()
+	{
+		var baseProfile = CreateHumidSubcontinentalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Hot Summer Humid Subcontinental",
+			RegionalClimatePrefix = "Hot Summer Humid Subcontinental",
+			KoppenClimateClassification = "Dfa",
+			ReferenceLocation = "Chicago, Illinois, United States",
+			ClimateModelSummary = "This model represents the hotter-summer humid continental pattern, with cold winters, large seasonal contrast, and frequent warm-season thunderstorms. Compared with Dfb, the warm half of the year should feel longer, more humid, and decisively hot rather than merely warm.",
+			RegionalClimateSummary = "Expect snowy winters, stormy spring and summer weather, and hot often humid midsummers. The climate should still feel continental and strongly seasonal, but summer now carries real heat and heavier convective rain.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-4.0, 4.0),
+				["Mid Winter"] = (-7.0, 1.0),
+				["Late Winter"] = (-6.0, 3.0),
+				["Early Spring"] = (0.0, 10.0),
+				["Mid Spring"] = (6.0, 17.0),
+				["Late Spring"] = (12.0, 24.0),
+				["Early Summer"] = (18.0, 29.0),
+				["Mid Summer"] = (21.0, 31.0),
+				["Late Summer"] = (20.0, 30.0),
+				["Early Autumn"] = (15.0, 25.0),
+				["Mid Autumn"] = (9.0, 18.0),
+				["Late Autumn"] = (2.0, 10.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 1.0, spring: 1.02, summer: 1.0, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.0, spring: 1.0, summer: 1.0, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.95, spring: 1.02, summer: 1.12, autumn: 1.0),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.05, spring: 1.0, summer: 0.92, autumn: 1.0),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.0, spring: 1.02, summer: 1.05, autumn: 1.0),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.98, spring: 1.0, summer: 1.02, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.98, spring: 1.02, summer: 1.08, autumn: 1.0),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.0, spring: 1.0, summer: 0.95, autumn: 1.0),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 1.0, spring: 1.02, summer: 1.05, autumn: 1.0),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.95, spring: 1.0, summer: 1.05, autumn: 1.0),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.95, spring: 1.0, summer: 1.10, autumn: 1.0),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.90, spring: 1.0, summer: 1.15, autumn: 1.0),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 0.72, 0.18, 0.0, 0.04),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.02, spring: 1.0, summer: 0.92, autumn: 0.98),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 0.75, 0.85, 0.95, 0.85),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.95, spring: 0.98, summer: 1.02, autumn: 1.0),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.0, spring: 1.0, summer: 0.98, autumn: 1.0),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.98, spring: 1.0, summer: 1.02, autumn: 1.0),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00048
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateWarmSummerDryWinterHumidSubcontinentalProfile()
+	{
+		var baseProfile = CreateDryWinterHumidSubcontinentalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Warm Summer Dry Winter Humid Subcontinental",
+			RegionalClimatePrefix = "Warm Summer Dry Winter Humid Subcontinental",
+			KoppenClimateClassification = "Dwb",
+			ReferenceLocation = "Vladivostok, Russia",
+			ClimateModelSummary = "This model represents a monsoon-influenced continental climate with cold dry winters, wet summers, and warm rather than hot summer conditions. It should feel more maritime and cloudy in the wet season than Dwa, but still sharply continental and winter-dry.",
+			RegionalClimateSummary = "Expect bright dry cold winters and a wetter, foggier, stormier summer half of the year. Seasonal contrast remains strong, but the warm season is milder than a Dwa interior and the wettest weather is concentrated around summer and early autumn.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-10.0, -1.0),
+				["Mid Winter"] = (-14.0, -4.0),
+				["Late Winter"] = (-11.0, -2.0),
+				["Early Spring"] = (-3.0, 6.0),
+				["Mid Spring"] = (3.0, 12.0),
+				["Late Spring"] = (8.0, 18.0),
+				["Early Summer"] = (13.0, 22.0),
+				["Mid Summer"] = (17.0, 24.0),
+				["Late Summer"] = (16.0, 24.0),
+				["Early Autumn"] = (11.0, 20.0),
+				["Mid Autumn"] = (4.0, 13.0),
+				["Late Autumn"] = (-3.0, 5.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 1.0, summer: 0.98, autumn: 1.05),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.05, spring: 1.0, summer: 1.0, autumn: 0.98),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.70, spring: 0.88, summer: 1.12, autumn: 1.05),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.25, spring: 1.05, summer: 0.90, autumn: 0.95),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.0, spring: 1.02, summer: 0.95, autumn: 1.0),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.95, spring: 1.0, summer: 0.95, autumn: 1.02),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.78, spring: 0.92, summer: 1.12, autumn: 1.08),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.12, spring: 1.02, summer: 0.95, autumn: 0.98),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.78, spring: 0.92, summer: 1.12, autumn: 1.08),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.70, spring: 0.88, summer: 1.15, autumn: 1.05),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.68, spring: 0.85, summer: 1.15, autumn: 1.10),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.58, spring: 0.82, summer: 1.12, autumn: 1.10),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 1.35, 0.06, 0.0, 0.0),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.45, spring: 1.08, summer: 0.82, autumn: 0.92),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 2.0, 1.4, 0.55, 0.60),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.80, spring: 0.92, summer: 1.08, autumn: 1.05),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.15, spring: 1.05, summer: 0.95, autumn: 0.92),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.98, spring: 1.0, summer: 1.0, autumn: 1.0),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00044
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateSevereWinterSubarcticProfile()
+	{
+		var baseProfile = CreateSubarcticProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Severe Winter Subarctic",
+			RegionalClimatePrefix = "Severe Winter Subarctic",
+			KoppenClimateClassification = "Dfd",
+			ReferenceLocation = "Oymyakon, Russia",
+			ClimateModelSummary = "This model represents the most severe fully forested continental cold, with a very long bitter winter, a short mild summer, and relatively modest precipitation. The key note is not wetness but the extraordinary winter cold, which should dominate the climate’s personality.",
+			RegionalClimateSummary = "Expect a short growing season, a huge annual temperature range, and winter cold that is genuinely punishing. Snow remains part of the climate, but the real impression is extreme interior dryness and cold rather than frequent storminess.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-27.0, -16.0),
+				["Mid Winter"] = (-39.0, -28.0),
+				["Late Winter"] = (-35.0, -21.0),
+				["Early Spring"] = (-22.0, -7.0),
+				["Mid Spring"] = (-10.0, 4.0),
+				["Late Spring"] = (0.0, 14.0),
+				["Early Summer"] = (8.0, 21.0),
+				["Mid Summer"] = (12.0, 24.0),
+				["Late Summer"] = (8.0, 20.0),
+				["Early Autumn"] = (-1.0, 10.0),
+				["Mid Autumn"] = (-14.0, -3.0),
+				["Late Autumn"] = (-24.0, -12.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 1.0, summer: 0.95, autumn: 1.02),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.05, spring: 1.0, summer: 1.02, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.80, spring: 0.88, summer: 1.0, autumn: 0.92),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.18, spring: 1.05, summer: 0.98, autumn: 1.0),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.18, spring: 1.10, summer: 1.0, autumn: 1.10),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.98, spring: 1.0, summer: 0.95, autumn: 1.02),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.88, spring: 0.92, summer: 1.0, autumn: 0.95),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.10, spring: 1.05, summer: 1.0, autumn: 1.0),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.85, spring: 0.90, summer: 1.0, autumn: 0.95),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.72, spring: 0.80, summer: 1.0, autumn: 0.95),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.22, spring: 0.75, summer: 1.0, autumn: 0.78),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.08, spring: 0.55, summer: 0.98, autumn: 0.58),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 1.25, 0.95, 0.0, 1.05),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.18, spring: 1.05, summer: 0.95, autumn: 1.0),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 1.35, 1.18, 0.92, 1.05),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.78, spring: 0.86, summer: 0.98, autumn: 0.95),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.12, spring: 1.05, summer: 1.0, autumn: 1.0),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.95, summer: 0.92, autumn: 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00034
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateDryWinterSubarcticProfile()
+	{
+		var baseProfile = CreateSevereWinterSubarcticProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Dry Winter Subarctic",
+			RegionalClimatePrefix = "Dry Winter Subarctic",
+			KoppenClimateClassification = "Dwc",
+			ReferenceLocation = "Delta Junction, Alaska, United States",
+			ClimateModelSummary = "This model represents a cold continental climate with a very dry winter, a short mild summer, and a precipitation peak in the warm season. It should feel inland and high-latitude, but with the monsoonal dry-winter signature superimposed on subarctic temperatures.",
+			RegionalClimateSummary = "Expect long cold clear winters, a brief greener summer, and a marked seasonal rainfall swing. Snow remains important in winter, but the overall air mass should feel relatively dry until the warm season turns showery again.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-20.0, -9.0),
+				["Mid Winter"] = (-26.0, -14.0),
+				["Late Winter"] = (-23.0, -10.0),
+				["Early Spring"] = (-12.0, 0.0),
+				["Mid Spring"] = (-2.0, 10.0),
+				["Late Spring"] = (4.0, 18.0),
+				["Early Summer"] = (9.0, 22.0),
+				["Mid Summer"] = (11.0, 24.0),
+				["Late Summer"] = (8.0, 21.0),
+				["Early Autumn"] = (1.0, 12.0),
+				["Mid Autumn"] = (-8.0, 2.0),
+				["Late Autumn"] = (-17.0, -6.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 1.0, summer: 0.95, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.05, spring: 1.0, summer: 1.02, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.55, spring: 0.82, summer: 1.08, autumn: 0.95),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.42, spring: 1.10, summer: 0.92, autumn: 1.0),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.12, spring: 1.05, summer: 0.98, autumn: 1.05),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.98, spring: 1.0, summer: 0.95, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.62, spring: 0.82, summer: 1.05, autumn: 0.95),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.22, spring: 1.05, summer: 1.0, autumn: 1.0),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.58, spring: 0.80, summer: 1.02, autumn: 0.95),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.50, spring: 0.75, summer: 1.05, autumn: 0.98),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.15, spring: 0.60, summer: 1.08, autumn: 0.85),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.04, spring: 0.40, summer: 1.02, autumn: 0.65),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 1.05, 0.55, 0.0, 0.72),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.55, spring: 1.12, summer: 0.90, autumn: 1.0),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 3.0, 1.9, 0.75, 0.80),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.55, spring: 0.80, summer: 1.02, autumn: 0.95),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.30, spring: 1.08, summer: 0.98, autumn: 1.02),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.92, spring: 0.95, summer: 0.92, autumn: 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00032
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateSevereWinterDryWinterSubarcticProfile()
+	{
+		var baseProfile = CreateDryWinterSubarcticProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Severe Winter Dry Winter Subarctic",
+			RegionalClimatePrefix = "Severe Winter Dry Winter Subarctic",
+			KoppenClimateClassification = "Dwd",
+			ReferenceLocation = "Delyankir, Russia",
+			ClimateModelSummary = "This model represents one of the rarest and harshest inhabited climate types: extremely severe continental winter cold combined with a distinctly dry winter and only a short mild summer. The weather graph should emphasize clarity and cold more than frequent precipitation.",
+			RegionalClimateSummary = "Expect a very long dry brutal winter, a short thaw season, and only modest precipitation concentrated in the warm months. Even by subarctic standards the annual temperature range should feel enormous.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-30.0, -18.0),
+				["Mid Winter"] = (-42.0, -30.0),
+				["Late Winter"] = (-39.0, -24.0),
+				["Early Spring"] = (-24.0, -10.0),
+				["Mid Spring"] = (-10.0, 4.0),
+				["Late Spring"] = (0.0, 15.0),
+				["Early Summer"] = (8.0, 21.0),
+				["Mid Summer"] = (11.0, 24.0),
+				["Late Summer"] = (7.0, 20.0),
+				["Early Autumn"] = (-3.0, 9.0),
+				["Mid Autumn"] = (-16.0, -4.0),
+				["Late Autumn"] = (-27.0, -15.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.92, spring: 1.0, summer: 0.95, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.08, spring: 1.0, summer: 1.02, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.42, spring: 0.78, summer: 1.02, autumn: 0.92),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.55, spring: 1.12, summer: 0.95, autumn: 1.02),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.18, spring: 1.08, summer: 1.0, autumn: 1.08),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.98, spring: 1.0, summer: 0.95, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.52, spring: 0.78, summer: 1.0, autumn: 0.92),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.30, spring: 1.08, summer: 1.0, autumn: 1.02),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.45, spring: 0.72, summer: 1.0, autumn: 0.92),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.38, spring: 0.65, summer: 0.98, autumn: 0.92),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.08, spring: 0.50, summer: 1.0, autumn: 0.72),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.02, spring: 0.28, summer: 0.95, autumn: 0.50),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 0.92, 0.45, 0.0, 0.62),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.72, spring: 1.15, summer: 0.92, autumn: 1.02),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 4.0, 2.2, 0.82, 0.88),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.45, spring: 0.72, summer: 0.98, autumn: 0.92),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.40, spring: 1.10, summer: 1.0, autumn: 1.02),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.90, spring: 0.92, summer: 0.90, autumn: 0.92),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00030
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateHotSummerDrySummerContinentalProfile()
+	{
+		var baseProfile = CreateHotSummerHumidSubcontinentalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Hot Summer Dry-Summer Continental",
+			RegionalClimatePrefix = "Hot Summer Dry-Summer Continental",
+			KoppenClimateClassification = "Dsa",
+			ReferenceLocation = "Salt Lake City, Utah, United States",
+			ClimateModelSummary = "This model represents a continental climate with hot summers, cold winters, and a strongly Mediterranean dry-summer signal. It should feel inland and high-contrast, with winter snow and spring weather systems giving way to a stable dry warm season.",
+			RegionalClimateSummary = "Expect cold winters, hot dry summers, and a shoulder-season pattern where spring is more active and summer becomes bright and thirsty. Snow matters in winter, but summer behaves far more like an interior Mediterranean than a humid continental climate.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-4.0, 6.0),
+				["Mid Winter"] = (-6.0, 4.0),
+				["Late Winter"] = (-3.0, 8.0),
+				["Early Spring"] = (1.0, 13.0),
+				["Mid Spring"] = (6.0, 19.0),
+				["Late Spring"] = (11.0, 26.0),
+				["Early Summer"] = (16.0, 31.0),
+				["Mid Summer"] = (20.0, 34.0),
+				["Late Summer"] = (19.0, 33.0),
+				["Early Autumn"] = (13.0, 28.0),
+				["Mid Autumn"] = (6.0, 19.0),
+				["Late Autumn"] = (0.0, 10.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 1.0, spring: 1.05, summer: 1.0, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.0, spring: 0.98, summer: 1.0, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.92, spring: 0.88, summer: 0.35, autumn: 0.72),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.02, spring: 1.10, summer: 1.85, autumn: 1.18),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.0, spring: 1.02, summer: 1.10, autumn: 1.02),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 0.98, spring: 1.02, summer: 1.02, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.92, spring: 0.85, summer: 0.32, autumn: 0.62),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.02, spring: 1.10, summer: 1.45, autumn: 1.20),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.90, spring: 0.82, summer: 0.22, autumn: 0.55),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.95, spring: 0.85, summer: 0.28, autumn: 0.52),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.82, spring: 0.78, summer: 0.18, autumn: 0.55),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.78, spring: 0.72, summer: 0.08, autumn: 0.42),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 0.90, 0.30, 0.0, 0.08),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.05, spring: 1.18, summer: 1.95, autumn: 1.32),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 1.05, 1.35, 2.8, 1.55),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.98, spring: 0.92, summer: 0.35, autumn: 0.62),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.0, spring: 1.05, summer: 1.22, autumn: 1.08),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.95, summer: 0.95, autumn: 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00044
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateWarmSummerDrySummerContinentalProfile()
+	{
+		var baseProfile = CreateHumidSubcontinentalProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Warm Summer Dry-Summer Continental",
+			RegionalClimatePrefix = "Warm Summer Dry-Summer Continental",
+			KoppenClimateClassification = "Dsb",
+			ReferenceLocation = "Truckee, California, United States",
+			ClimateModelSummary = "This model represents a cool-summer continental climate with dry bright summers and snowy wet winters. It combines a mountain-Mediterranean precipitation rhythm with a fully continental winter and should feel alpine rather than coastal.",
+			RegionalClimateSummary = "Expect snowy winters, pleasantly warm but dry summers, and a sharp spring snowmelt shoulder season. Summer should feel much clearer and calmer than a Dfb region, but the winter half of the year remains markedly continental.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-8.0, 4.0),
+				["Mid Winter"] = (-10.0, 3.0),
+				["Late Winter"] = (-8.0, 5.0),
+				["Early Spring"] = (-3.0, 10.0),
+				["Mid Spring"] = (1.0, 15.0),
+				["Late Spring"] = (5.0, 21.0),
+				["Early Summer"] = (8.0, 25.0),
+				["Mid Summer"] = (10.0, 27.0),
+				["Late Summer"] = (9.0, 26.0),
+				["Early Autumn"] = (5.0, 22.0),
+				["Mid Autumn"] = (0.0, 15.0),
+				["Late Autumn"] = (-4.0, 8.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 1.0, spring: 1.05, summer: 1.0, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.0, spring: 0.98, summer: 1.02, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.95, spring: 0.90, summer: 0.28, autumn: 0.65),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.0, spring: 1.10, summer: 1.95, autumn: 1.18),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.0, spring: 1.02, summer: 1.02, autumn: 1.0),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 1.0, spring: 1.02, summer: 1.0, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.95, spring: 0.88, summer: 0.28, autumn: 0.60),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.0, spring: 1.08, summer: 1.55, autumn: 1.22),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.95, spring: 0.85, summer: 0.18, autumn: 0.52),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.92, spring: 0.82, summer: 0.22, autumn: 0.50),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.85, spring: 0.72, summer: 0.15, autumn: 0.48),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.70, spring: 0.62, summer: 0.05, autumn: 0.35),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 1.25, 0.55, 0.0, 0.22),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.02, spring: 1.20, summer: 2.15, autumn: 1.30),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 0.92, 1.25, 2.4, 1.25),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.95, spring: 0.88, summer: 0.32, autumn: 0.58),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.0, spring: 1.08, summer: 1.22, autumn: 1.10),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.95, summer: 0.92, autumn: 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00042
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateDrySummerSubarcticProfile()
+	{
+		var baseProfile = CreateSubarcticProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Dry-Summer Subarctic",
+			RegionalClimatePrefix = "Dry-Summer Subarctic",
+			KoppenClimateClassification = "Dsc",
+			ReferenceLocation = "McCarthy, Alaska, United States",
+			ClimateModelSummary = "This model represents a dry-summer boreal climate with very cold winters, a short mild summer, and a notable reduction in warm-season rain compared with typical subarctic interiors. It should feel mountainous or rain-shadowed while still remaining unmistakably subarctic.",
+			RegionalClimateSummary = "Expect long cold snowy winters, brief mild summers, and clearer drier weather in the warmest part of the year than in a standard Dfc region. Snow and freezing conditions still dominate the calendar, but summer offers a comparatively stable break.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-18.0, -7.0),
+				["Mid Winter"] = (-24.0, -12.0),
+				["Late Winter"] = (-21.0, -9.0),
+				["Early Spring"] = (-11.0, 0.0),
+				["Mid Spring"] = (-2.0, 9.0),
+				["Late Spring"] = (4.0, 17.0),
+				["Early Summer"] = (8.0, 20.0),
+				["Mid Summer"] = (10.0, 22.0),
+				["Late Summer"] = (8.0, 20.0),
+				["Early Autumn"] = (2.0, 12.0),
+				["Mid Autumn"] = (-7.0, 2.0),
+				["Late Autumn"] = (-15.0, -5.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 1.0, spring: 1.02, summer: 0.95, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.0, spring: 1.0, summer: 1.02, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.95, spring: 0.92, summer: 0.45, autumn: 0.82),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.0, spring: 1.02, summer: 1.55, autumn: 1.15),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.0, spring: 1.02, summer: 0.95, autumn: 1.0),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 1.0, spring: 1.0, summer: 0.98, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.98, spring: 0.92, summer: 0.45, autumn: 0.82),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.0, spring: 1.02, summer: 1.35, autumn: 1.08),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.95, spring: 0.90, summer: 0.35, autumn: 0.72),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.95, spring: 0.90, summer: 0.42, autumn: 0.78),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.40, spring: 0.72, summer: 0.45, autumn: 0.72),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.15, spring: 0.52, summer: 0.28, autumn: 0.48),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 1.12, 0.72, 0.0, 0.82),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.02, spring: 1.12, summer: 1.55, autumn: 1.15),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 1.02, 1.22, 1.60, 1.22),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.92, spring: 0.88, summer: 0.55, autumn: 0.82),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.0, spring: 1.05, summer: 1.15, autumn: 1.08),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.95, spring: 0.95, summer: 0.92, autumn: 0.95),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00034
+		};
+	}
+
+	private static WeatherSeederClimateProfile CreateSevereWinterDrySummerSubarcticProfile()
+	{
+		var baseProfile = CreateSevereWinterSubarcticProfile();
+		return new WeatherSeederClimateProfile
+		{
+			ClimateModelName = "Severe Winter Dry-Summer Subarctic",
+			RegionalClimatePrefix = "Severe Winter Dry-Summer Subarctic",
+			KoppenClimateClassification = "Dsd",
+			ReferenceLocation = "Verkhoyansk, Russia",
+			ClimateModelSummary = "This model represents an exceptionally cold dry-summer continental climate where summer stays brief and relatively dry, but winter temperatures are among the most severe on Earth. It should feel sparse, inland, and punishingly seasonal.",
+			RegionalClimateSummary = "Expect extraordinary winter cold, limited precipitation, and a short comparatively stable summer. Snow and freezing dominate much of the year, but the main personality is the sheer intensity of the cold rather than constant storm activity.",
+			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
+			{
+				["Early Winter"] = (-29.0, -17.0),
+				["Mid Winter"] = (-41.0, -29.0),
+				["Late Winter"] = (-37.0, -23.0),
+				["Early Spring"] = (-23.0, -9.0),
+				["Mid Spring"] = (-10.0, 4.0),
+				["Late Spring"] = (0.0, 16.0),
+				["Early Summer"] = (9.0, 22.0),
+				["Mid Summer"] = (12.0, 25.0),
+				["Late Summer"] = (8.0, 20.0),
+				["Early Autumn"] = (-2.0, 10.0),
+				["Mid Autumn"] = (-15.0, -3.0),
+				["Late Autumn"] = (-26.0, -14.0)
+			},
+			WindIncreaseChance = ScaleSeasonalChance(baseProfile.WindIncreaseChance, winter: 0.95, spring: 1.0, summer: 0.92, autumn: 1.0),
+			WindDecreaseChance = ScaleSeasonalChance(baseProfile.WindDecreaseChance, winter: 1.05, spring: 1.0, summer: 1.02, autumn: 1.0),
+			PrecipIncreaseChance = ScaleSeasonalChance(baseProfile.PrecipIncreaseChance, winter: 0.60, spring: 0.82, summer: 0.35, autumn: 0.75),
+			PrecipDecreaseChance = ScaleSeasonalChance(baseProfile.PrecipDecreaseChance, winter: 1.30, spring: 1.08, summer: 1.65, autumn: 1.12),
+			TemperatureVariationChance = ScaleSeasonalChance(baseProfile.TemperatureVariationChance, winter: 1.18, spring: 1.08, summer: 1.0, autumn: 1.08),
+			WindVariationChance = ScaleSeasonalChance(baseProfile.WindVariationChance, winter: 1.0, spring: 1.0, summer: 0.95, autumn: 1.0),
+			CloudIncreaseChance = ScaleSeasonalChance(baseProfile.CloudIncreaseChance, winter: 0.70, spring: 0.82, summer: 0.32, autumn: 0.72),
+			CloudDecreaseChance = ScaleSeasonalChance(baseProfile.CloudDecreaseChance, winter: 1.15, spring: 1.05, summer: 1.35, autumn: 1.08),
+			CloudyToOvercastChance = ScaleSeasonalChance(baseProfile.CloudyToOvercastChance, winter: 0.62, spring: 0.75, summer: 0.22, autumn: 0.62),
+			CloudyToHumidChance = ScaleSeasonalChance(baseProfile.CloudyToHumidChance, winter: 0.55, spring: 0.70, summer: 0.30, autumn: 0.68),
+			OvercastToLightRainChance = ScaleSeasonalChance(baseProfile.OvercastToLightRainChance, winter: 0.06, spring: 0.45, summer: 0.25, autumn: 0.52),
+			OvercastToRainChance = ScaleSeasonalChance(baseProfile.OvercastToRainChance, winter: 0.02, spring: 0.30, summer: 0.12, autumn: 0.32),
+			OvercastToLightSnowChance = seasonName => baseProfile.OvercastToLightSnowChance(seasonName) * SeasonFactor(seasonName, 0.92, 0.55, 0.0, 0.68),
+			CloudyToDryChance = ScaleSeasonalChance(baseProfile.CloudyToDryChance, winter: 1.35, spring: 1.15, summer: 1.55, autumn: 1.15),
+			CloudyToParchedChance = seasonName => baseProfile.CloudyToParchedChance(seasonName) * SeasonFactor(seasonName, 2.0, 1.55, 1.42, 1.20),
+			OvercastToHumidChance = ScaleSeasonalChance(baseProfile.OvercastToHumidChance, winter: 0.62, spring: 0.75, summer: 0.40, autumn: 0.72),
+			OvercastToCloudyChance = ScaleSeasonalChance(baseProfile.OvercastToCloudyChance, winter: 1.22, spring: 1.08, summer: 1.15, autumn: 1.08),
+			MaximumAdditionalChangeChance = ScaleSeasonalChance(baseProfile.MaximumAdditionalChangeChance, winter: 0.90, spring: 0.92, summer: 0.90, autumn: 0.92),
+			IncrementalAdditionalChangeChanceFromStableWeather = 0.00030
+		};
+	}
+
 	private static double SeasonalScale(string seasonName, double winter, double spring, double summer, double autumn)
 	{
 		return seasonName switch
@@ -1723,11 +2649,29 @@ public partial class WeatherSeeder
 		return profile.RegionalClimatePrefix switch
 		{
 			"Oceanic Temperate" => CreateClimateModels(context, seasons, events, profile),
+			"Subpolar Oceanic" => CreateSubpolarOceanicClimateModel(context, profile),
 			"Humid Subtropical" => CreateHumidSubtropicalClimateModel(context, profile),
+			"Dry Winter Humid Subtropical" => CreateDryWinterHumidSubtropicalClimateModel(context, profile),
+			"Subtropical Highland" => CreateSubtropicalHighlandClimateModel(context, profile),
+			"Cold Summer Subtropical Highland" => CreateColdSummerSubtropicalHighlandClimateModel(context, profile),
+			"Tropical Monsoon" => CreateTropicalMonsoonClimateModel(context, profile),
+			"Tropical Savanna Dry Winter" => CreateTropicalSavannaDryWinterClimateModel(context, profile),
+			"Tropical Savanna Dry Summer" => CreateTropicalSavannaDrySummerClimateModel(context, profile),
 			"Tropical Rainforest" => CreateTropicalRainforestClimateModel(context, profile),
+			"Warm-Summer Mediterranean" => CreateWarmSummerMediterraneanClimateModel(context, profile),
+			"Cold-Summer Mediterranean" => CreateColdSummerMediterraneanClimateModel(context, profile),
 			"Humid Subcontinental" => CreateHumidSubcontinentalClimateModel(context, profile),
+			"Hot Summer Humid Subcontinental" => CreateHotSummerHumidSubcontinentalClimateModel(context, profile),
 			"Dry Winter Humid Subcontinental" => CreateDryWinterHumidSubcontinentalClimateModel(context, profile),
+			"Warm Summer Dry Winter Humid Subcontinental" => CreateWarmSummerDryWinterHumidSubcontinentalClimateModel(context, profile),
 			"Subarctic" => CreateSubarcticClimateModel(context, profile),
+			"Severe Winter Subarctic" => CreateSevereWinterSubarcticClimateModel(context, profile),
+			"Dry Winter Subarctic" => CreateDryWinterSubarcticClimateModel(context, profile),
+			"Severe Winter Dry Winter Subarctic" => CreateSevereWinterDryWinterSubarcticClimateModel(context, profile),
+			"Hot Summer Dry-Summer Continental" => CreateHotSummerDrySummerContinentalClimateModel(context, profile),
+			"Warm Summer Dry-Summer Continental" => CreateWarmSummerDrySummerContinentalClimateModel(context, profile),
+			"Dry-Summer Subarctic" => CreateDrySummerSubarcticClimateModel(context, profile),
+			"Severe Winter Dry-Summer Subarctic" => CreateSevereWinterDrySummerSubarcticClimateModel(context, profile),
 			"Tundra" => CreateTundraClimateModel(context, profile),
 			"Polar Ice Cap" => CreatePolarIceCapClimateModel(context, profile),
 			"Mediterranean" => CreateMediterraneanClimateModel(context, profile),
@@ -1744,9 +2688,44 @@ public partial class WeatherSeeder
 		return CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustHumidSubtropicalTransitionChance);
 	}
 
+	private static ClimateModel CreateSubpolarOceanicClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustSubpolarOceanicTransitionChance);
+	}
+
+	private static ClimateModel CreateDryWinterHumidSubtropicalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustDryWinterHumidSubtropicalTransitionChance);
+	}
+
+	private static ClimateModel CreateSubtropicalHighlandClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateDryWinterHumidSubtropicalProfile(), profile, AdjustSubtropicalHighlandTransitionChance);
+	}
+
+	private static ClimateModel CreateColdSummerSubtropicalHighlandClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateSubtropicalHighlandProfile(), profile, AdjustColdSummerSubtropicalHighlandTransitionChance);
+	}
+
 	private static ClimateModel CreateTropicalRainforestClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustTropicalRainforestTransitionChance);
+	}
+
+	private static ClimateModel CreateTropicalMonsoonClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateTropicalRainforestProfile(), profile, AdjustTropicalMonsoonTransitionChance);
+	}
+
+	private static ClimateModel CreateTropicalSavannaDryWinterClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateTropicalMonsoonProfile(), profile, AdjustTropicalSavannaDryWinterTransitionChance);
+	}
+
+	private static ClimateModel CreateTropicalSavannaDrySummerClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateTropicalMonsoonProfile(), profile, AdjustTropicalSavannaDrySummerTransitionChance);
 	}
 
 	private static ClimateModel CreateMediterraneanClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
@@ -1754,9 +2733,24 @@ public partial class WeatherSeeder
 		return CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustMediterraneanTransitionChance);
 	}
 
+	private static ClimateModel CreateWarmSummerMediterraneanClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateMediterraneanProfile(), profile, AdjustWarmSummerMediterraneanTransitionChance);
+	}
+
+	private static ClimateModel CreateColdSummerMediterraneanClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateWarmSummerMediterraneanProfile(), profile, AdjustColdSummerMediterraneanTransitionChance);
+	}
+
 	private static ClimateModel CreateHumidSubcontinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustHumidSubcontinentalTransitionChance);
+	}
+
+	private static ClimateModel CreateHotSummerHumidSubcontinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustHotSummerHumidSubcontinentalTransitionChance);
 	}
 
 	private static ClimateModel CreateDryWinterHumidSubcontinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
@@ -1764,9 +2758,49 @@ public partial class WeatherSeeder
 		return CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustDryWinterHumidSubcontinentalTransitionChance);
 	}
 
+	private static ClimateModel CreateWarmSummerDryWinterHumidSubcontinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateDryWinterHumidSubcontinentalProfile(), profile, AdjustWarmSummerDryWinterHumidSubcontinentalTransitionChance);
+	}
+
 	private static ClimateModel CreateSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustSubarcticTransitionChance);
+	}
+
+	private static ClimateModel CreateSevereWinterSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateSubarcticProfile(), profile, AdjustSevereWinterSubarcticTransitionChance);
+	}
+
+	private static ClimateModel CreateDryWinterSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateSevereWinterSubarcticProfile(), profile, AdjustDryWinterSubarcticTransitionChance);
+	}
+
+	private static ClimateModel CreateSevereWinterDryWinterSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateDryWinterSubarcticProfile(), profile, AdjustSevereWinterDryWinterSubarcticTransitionChance);
+	}
+
+	private static ClimateModel CreateHotSummerDrySummerContinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHotSummerHumidSubcontinentalProfile(), profile, AdjustHotSummerDrySummerContinentalTransitionChance);
+	}
+
+	private static ClimateModel CreateWarmSummerDrySummerContinentalClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustWarmSummerDrySummerContinentalTransitionChance);
+	}
+
+	private static ClimateModel CreateDrySummerSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateSubarcticProfile(), profile, AdjustDrySummerSubarcticTransitionChance);
+	}
+
+	private static ClimateModel CreateSevereWinterDrySummerSubarcticClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
+	{
+		return CreateDerivedClimateModel(context, CreateSevereWinterSubarcticProfile(), profile, AdjustSevereWinterDrySummerSubarcticTransitionChance);
 	}
 
 	private static ClimateModel CreateTundraClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
@@ -2086,6 +3120,204 @@ public partial class WeatherSeeder
 			ApplyColdDesertFallback);
 	}
 
+	private static double AdjustSubpolarOceanicTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile oceanicProfile,
+		WeatherSeederClimateProfile subpolarOceanicProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, oceanicProfile, subpolarOceanicProfile, ApplySubpolarOceanicFallback);
+	}
+
+	private static double AdjustDryWinterHumidSubtropicalTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile humidSubtropicalProfile,
+		WeatherSeederClimateProfile dryWinterHumidSubtropicalProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, humidSubtropicalProfile, dryWinterHumidSubtropicalProfile, ApplyDryWinterHumidSubtropicalFallback);
+	}
+
+	private static double AdjustSubtropicalHighlandTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile dryWinterHumidSubtropicalProfile,
+		WeatherSeederClimateProfile subtropicalHighlandProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, dryWinterHumidSubtropicalProfile, subtropicalHighlandProfile, ApplySubtropicalHighlandFallback);
+	}
+
+	private static double AdjustColdSummerSubtropicalHighlandTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile subtropicalHighlandProfile,
+		WeatherSeederClimateProfile coldSummerSubtropicalHighlandProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, subtropicalHighlandProfile, coldSummerSubtropicalHighlandProfile, ApplyColdSummerSubtropicalHighlandFallback);
+	}
+
+	private static double AdjustTropicalMonsoonTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile tropicalRainforestProfile,
+		WeatherSeederClimateProfile tropicalMonsoonProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, tropicalRainforestProfile, tropicalMonsoonProfile, ApplyTropicalMonsoonFallback);
+	}
+
+	private static double AdjustTropicalSavannaDryWinterTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile tropicalMonsoonProfile,
+		WeatherSeederClimateProfile tropicalSavannaProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, tropicalMonsoonProfile, tropicalSavannaProfile, ApplyTropicalSavannaDryWinterFallback);
+	}
+
+	private static double AdjustTropicalSavannaDrySummerTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile tropicalMonsoonProfile,
+		WeatherSeederClimateProfile tropicalSavannaProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, tropicalMonsoonProfile, tropicalSavannaProfile, ApplyTropicalSavannaDrySummerFallback);
+	}
+
+	private static double AdjustWarmSummerMediterraneanTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile mediterraneanProfile,
+		WeatherSeederClimateProfile warmSummerMediterraneanProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, mediterraneanProfile, warmSummerMediterraneanProfile, ApplyWarmSummerMediterraneanFallback);
+	}
+
+	private static double AdjustColdSummerMediterraneanTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile warmSummerMediterraneanProfile,
+		WeatherSeederClimateProfile coldSummerMediterraneanProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, warmSummerMediterraneanProfile, coldSummerMediterraneanProfile, ApplyColdSummerMediterraneanFallback);
+	}
+
+	private static double AdjustHotSummerHumidSubcontinentalTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile humidSubcontinentalProfile,
+		WeatherSeederClimateProfile hotSummerHumidSubcontinentalProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, humidSubcontinentalProfile, hotSummerHumidSubcontinentalProfile, ApplyHotSummerHumidSubcontinentalFallback);
+	}
+
+	private static double AdjustWarmSummerDryWinterHumidSubcontinentalTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile dryWinterHumidSubcontinentalProfile,
+		WeatherSeederClimateProfile warmSummerDryWinterHumidSubcontinentalProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, dryWinterHumidSubcontinentalProfile, warmSummerDryWinterHumidSubcontinentalProfile, ApplyWarmSummerDryWinterHumidSubcontinentalFallback);
+	}
+
+	private static double AdjustSevereWinterSubarcticTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile subarcticProfile,
+		WeatherSeederClimateProfile severeWinterSubarcticProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, subarcticProfile, severeWinterSubarcticProfile, ApplySevereWinterSubarcticFallback);
+	}
+
+	private static double AdjustDryWinterSubarcticTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile severeWinterSubarcticProfile,
+		WeatherSeederClimateProfile dryWinterSubarcticProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, severeWinterSubarcticProfile, dryWinterSubarcticProfile, ApplyDryWinterSubarcticFallback);
+	}
+
+	private static double AdjustSevereWinterDryWinterSubarcticTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile dryWinterSubarcticProfile,
+		WeatherSeederClimateProfile severeWinterDryWinterSubarcticProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, dryWinterSubarcticProfile, severeWinterDryWinterSubarcticProfile, ApplySevereWinterDryWinterSubarcticFallback);
+	}
+
+	private static double AdjustHotSummerDrySummerContinentalTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile hotSummerHumidSubcontinentalProfile,
+		WeatherSeederClimateProfile hotSummerDrySummerContinentalProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, hotSummerHumidSubcontinentalProfile, hotSummerDrySummerContinentalProfile, ApplyHotSummerDrySummerContinentalFallback);
+	}
+
+	private static double AdjustWarmSummerDrySummerContinentalTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile humidSubcontinentalProfile,
+		WeatherSeederClimateProfile warmSummerDrySummerContinentalProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, humidSubcontinentalProfile, warmSummerDrySummerContinentalProfile, ApplyWarmSummerDrySummerContinentalFallback);
+	}
+
+	private static double AdjustDrySummerSubarcticTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile subarcticProfile,
+		WeatherSeederClimateProfile drySummerSubarcticProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, subarcticProfile, drySummerSubarcticProfile, ApplyDrySummerSubarcticFallback);
+	}
+
+	private static double AdjustSevereWinterDrySummerSubarcticTransitionChance(
+		string seasonName,
+		WeatherSeederEventDescriptor fromEvent,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		WeatherSeederClimateProfile severeWinterSubarcticProfile,
+		WeatherSeederClimateProfile severeWinterDrySummerSubarcticProfile)
+	{
+		return AdjustDerivedTransitionChance(seasonName, fromEvent, toEvent, baseChance, severeWinterSubarcticProfile, severeWinterDrySummerSubarcticProfile, ApplySevereWinterDrySummerSubarcticFallback);
+	}
+
 	private static double AdjustDerivedTransitionChance(
 		string seasonName,
 		WeatherSeederEventDescriptor fromEvent,
@@ -2241,6 +3473,156 @@ public partial class WeatherSeeder
 		}
 
 		return fallbackAdjuster(seasonName, fromEvent, toEvent, baseChance);
+	}
+
+	private static double ApplyGenericFallback(
+		string seasonName,
+		WeatherSeederEventDescriptor toEvent,
+		double baseChance,
+		(double Winter, double Spring, double Summer, double Autumn) rainFactors,
+		(double Winter, double Spring, double Summer, double Autumn) humidFactors,
+		(double Winter, double Spring, double Summer, double Autumn) snowFactors,
+		(double Winter, double Spring, double Summer, double Autumn) overcastFactors,
+		(double Winter, double Spring, double Summer, double Autumn) dryFactors,
+		double strongWindFactor,
+		double galeWindFactor,
+		bool blockRain = false,
+		bool blockSnow = false)
+	{
+		var adjusted = baseChance;
+		if (toEvent.Precipitation.IsSnowing())
+		{
+			if (blockSnow)
+			{
+				return 0.0;
+			}
+
+			adjusted *= SeasonFactor(seasonName, snowFactors.Winter, snowFactors.Spring, snowFactors.Summer, snowFactors.Autumn);
+		}
+		else if (toEvent.Precipitation.IsRaining())
+		{
+			if (blockRain)
+			{
+				return 0.0;
+			}
+
+			adjusted *= SeasonFactor(seasonName, rainFactors.Winter, rainFactors.Spring, rainFactors.Summer, rainFactors.Autumn);
+		}
+		else if (toEvent.Precipitation == PrecipitationLevel.Humid)
+		{
+			adjusted *= SeasonFactor(seasonName, humidFactors.Winter, humidFactors.Spring, humidFactors.Summer, humidFactors.Autumn);
+		}
+
+		if (toEvent.CloudVariation == CloudVariation.Overcast)
+		{
+			adjusted *= SeasonFactor(seasonName, overcastFactors.Winter, overcastFactors.Spring, overcastFactors.Summer, overcastFactors.Autumn);
+		}
+
+		if (toEvent.Precipitation == PrecipitationLevel.Dry || toEvent.Precipitation == PrecipitationLevel.Parched)
+		{
+			adjusted *= SeasonFactor(seasonName, dryFactors.Winter, dryFactors.Spring, dryFactors.Summer, dryFactors.Autumn);
+		}
+
+		if (toEvent.Wind >= WindLevel.GaleWind)
+		{
+			adjusted *= galeWindFactor;
+		}
+		else if (toEvent.Wind >= WindLevel.StrongWind)
+		{
+			adjusted *= strongWindFactor;
+		}
+
+		return adjusted;
+	}
+
+	private static double ApplySubpolarOceanicFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (1.08, 1.02, 0.92, 1.12), (1.10, 1.04, 0.95, 1.10), (1.8, 0.6, 0.0, 0.45), (1.12, 1.05, 0.95, 1.16), (0.78, 0.86, 1.05, 0.76), 0.72, 0.38);
+	}
+
+	private static double ApplyDryWinterHumidSubtropicalFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.45, 0.95, 1.30, 0.88), (0.52, 0.90, 1.12, 0.88), (1.8, 0.12, 0.0, 0.0), (0.58, 0.95, 1.18, 0.88), (1.48, 1.05, 0.72, 1.02), 0.78, 0.42);
+	}
+
+	private static double ApplySubtropicalHighlandFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.30, 0.78, 1.15, 0.95), (0.45, 0.82, 1.06, 0.90), (0.65, 0.10, 0.0, 0.0), (0.50, 0.85, 1.08, 0.92), (1.70, 1.12, 0.76, 1.0), 0.78, 0.40);
+	}
+
+	private static double ApplyColdSummerSubtropicalHighlandFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.20, 0.65, 1.12, 0.85), (0.38, 0.78, 1.05, 0.88), (2.2, 0.6, 0.04, 0.22), (0.42, 0.82, 1.08, 0.90), (1.90, 1.18, 0.78, 1.05), 0.78, 0.42);
+	}
+
+	private static double ApplyTropicalMonsoonFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.78, 0.90, 1.0, 1.12), (0.88, 0.98, 1.02, 1.10), (0.0, 0.0, 0.0, 0.0), (0.82, 0.94, 1.0, 1.10), (1.55, 1.18, 0.82, 0.68), 0.60, 0.25, blockSnow: true);
+	}
+
+	private static double ApplyTropicalSavannaDryWinterFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.22, 0.55, 1.35, 1.18), (0.38, 0.65, 1.12, 1.05), (0.0, 0.0, 0.0, 0.0), (0.35, 0.62, 1.18, 1.08), (2.25, 1.55, 0.60, 0.75), 0.62, 0.26, blockSnow: true);
+	}
+
+	private static double ApplyTropicalSavannaDrySummerFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (1.02, 0.72, 0.20, 1.65), (1.05, 0.85, 0.45, 1.45), (0.0, 0.0, 0.0, 0.0), (1.08, 0.78, 0.30, 1.60), (0.82, 1.22, 2.20, 0.45), 0.62, 0.26, blockSnow: true);
+	}
+
+	private static double ApplyWarmSummerMediterraneanFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.96, 0.86, 0.45, 0.76), (1.0, 0.90, 0.72, 0.82), (0.15, 0.0, 0.0, 0.0), (1.0, 0.92, 0.60, 0.80), (0.95, 1.12, 1.25, 1.12), 0.78, 0.42);
+	}
+
+	private static double ApplyColdSummerMediterraneanFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (1.0, 0.92, 0.62, 0.90), (1.04, 1.0, 0.88, 0.96), (3.2, 0.25, 0.0, 0.18), (1.02, 0.98, 0.75, 0.95), (0.92, 1.10, 1.18, 1.05), 0.76, 0.40);
+	}
+
+	private static double ApplyHotSummerHumidSubcontinentalFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.95, 1.02, 1.12, 1.0), (0.95, 0.98, 1.02, 1.0), (2.4, 0.18, 0.0, 0.04), (0.98, 1.02, 1.08, 1.0), (1.02, 1.0, 0.92, 0.98), 0.80, 0.55);
+	}
+
+	private static double ApplyWarmSummerDryWinterHumidSubcontinentalFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.70, 0.88, 1.12, 1.05), (0.70, 0.88, 1.15, 1.05), (1.35, 0.06, 0.0, 0.0), (0.78, 0.92, 1.12, 1.08), (1.45, 1.08, 0.82, 0.92), 0.78, 0.45);
+	}
+
+	private static double ApplySevereWinterSubarcticFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.22, 0.75, 1.0, 0.78), (0.72, 0.80, 1.0, 0.95), (1.25, 0.95, 0.0, 1.05), (0.88, 0.92, 1.0, 0.95), (1.18, 1.05, 0.95, 1.0), 0.68, 0.32);
+	}
+
+	private static double ApplyDryWinterSubarcticFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.15, 0.60, 1.08, 0.85), (0.50, 0.75, 1.05, 0.98), (1.05, 0.55, 0.0, 0.72), (0.62, 0.82, 1.05, 0.95), (1.55, 1.12, 0.90, 1.0), 0.70, 0.34);
+	}
+
+	private static double ApplySevereWinterDryWinterSubarcticFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.08, 0.50, 1.0, 0.72), (0.38, 0.65, 0.98, 0.92), (0.92, 0.45, 0.0, 0.62), (0.52, 0.78, 1.0, 0.92), (1.72, 1.15, 0.92, 1.02), 0.68, 0.32);
+	}
+
+	private static double ApplyHotSummerDrySummerContinentalFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.82, 0.78, 0.18, 0.55), (0.95, 0.85, 0.28, 0.52), (0.90, 0.30, 0.0, 0.08), (0.90, 0.82, 0.22, 0.55), (1.05, 1.18, 1.95, 1.32), 0.80, 0.48);
+	}
+
+	private static double ApplyWarmSummerDrySummerContinentalFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.85, 0.72, 0.15, 0.48), (0.92, 0.82, 0.22, 0.50), (1.25, 0.55, 0.0, 0.22), (0.95, 0.85, 0.18, 0.52), (1.02, 1.20, 2.15, 1.30), 0.78, 0.45);
+	}
+
+	private static double ApplyDrySummerSubarcticFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.40, 0.72, 0.45, 0.72), (0.95, 0.90, 0.42, 0.78), (1.12, 0.72, 0.0, 0.82), (0.95, 0.90, 0.35, 0.72), (1.02, 1.12, 1.55, 1.15), 0.72, 0.36);
+	}
+
+	private static double ApplySevereWinterDrySummerSubarcticFallback(string seasonName, WeatherSeederEventDescriptor fromEvent, WeatherSeederEventDescriptor toEvent, double baseChance)
+	{
+		return ApplyGenericFallback(seasonName, toEvent, baseChance, (0.06, 0.45, 0.25, 0.52), (0.55, 0.70, 0.30, 0.68), (0.92, 0.55, 0.0, 0.68), (0.70, 0.82, 0.32, 0.72), (1.35, 1.15, 1.55, 1.15), 0.68, 0.32);
 	}
 
 	private static double ApplyHumidSubtropicalFallback(

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Celestial;
@@ -19,6 +20,10 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class WeatherSeederClimateTests
 {
+	private static readonly InMemoryDatabaseRoot DatabaseRoot = new();
+	private static readonly object SeededContextLock = new();
+	private static bool _sharedDatabaseSeeded;
+
 	[TestMethod]
 	public void WeatherSeeder_TemperateOceanicProfile_RemainsWithinBroadLondonBounds()
 	{
@@ -775,8 +780,8 @@ public class WeatherSeederClimateTests
 	public void WeatherSeeder_SeededClimateDescriptions_ArePopulatedAndIncludeReferenceMetadata()
 	{
 		using var context = CreateSeededWeatherContext();
-		Assert.AreEqual(13, context.ClimateModels.Count(), "Expected the seeded weather data to create thirteen climate models.");
-		Assert.AreEqual(26, context.RegionalClimates.Count(), "Expected the seeded weather data to create paired northern and southern regional climates.");
+		Assert.AreEqual(31, context.ClimateModels.Count(), "Expected the seeded weather data to create thirty-one climate models.");
+		Assert.AreEqual(62, context.RegionalClimates.Count(), "Expected the seeded weather data to create paired northern and southern regional climates.");
 
 		foreach (var climateModel in context.ClimateModels)
 		{
@@ -805,38 +810,225 @@ public class WeatherSeederClimateTests
 		Assert.IsTrue(tropicalRegional.Description.Contains("Northern Hemisphere", StringComparison.Ordinal), "Expected the northern tropical rainforest regional climate description to mention its hemisphere.");
 	}
 
+	[DataTestMethod]
+	[DynamicData(nameof(GetMaritimeAndTropicalClimateExpectations), DynamicDataSourceType.Method)]
+	public void WeatherSeeder_MaritimeAndTropicalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
+	{
+		AssertClimateExpectation(expectation);
+	}
+
+	[DataTestMethod]
+	[DynamicData(nameof(GetWarmTemperateClimateExpectations), DynamicDataSourceType.Method)]
+	public void WeatherSeeder_WarmTemperateKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
+	{
+		AssertClimateExpectation(expectation);
+	}
+
+	[DataTestMethod]
+	[DynamicData(nameof(GetHotAndMonsoonalContinentalClimateExpectations), DynamicDataSourceType.Method)]
+	public void WeatherSeeder_HotAndMonsoonalContinentalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
+	{
+		AssertClimateExpectation(expectation);
+	}
+
+	[DataTestMethod]
+	[DynamicData(nameof(GetSevereContinentalClimateExpectations), DynamicDataSourceType.Method)]
+	public void WeatherSeeder_SevereContinentalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
+	{
+		AssertClimateExpectation(expectation);
+	}
+
+	private static void AssertClimateExpectation(ClimateExpectation expectation)
+	{
+		var result = AnalyzeSeededClimate(expectation.RegionalClimateName, expectation.ControllerName, years: 3, burnInYears: 1);
+		var annualWet = WeightedAveragePercent(result.Rows, "RainfallProxy", "Wet");
+		var winterWet = GetPercent(result.Rows, "temperate_mid_winter", "RainfallProxy", "Wet");
+		var summerWet = GetPercent(result.Rows, "temperate_mid_summer", "RainfallProxy", "Wet");
+		var autumnWet = GetPercent(result.Rows, "temperate_mid_autumn", "RainfallProxy", "Wet");
+		var annualSnow = WeightedAveragePercent(result.Rows, "RainfallProxy", "Snow");
+		var winterSnow = GetPercent(result.Rows, "temperate_mid_winter", "RainfallProxy", "Snow");
+		var annualGaleOrWorse = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"Gale Wind",
+				"Hurricane Wind",
+				"Maelstrom Wind"
+			});
+		var annualHurricaneOrWorse = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"Hurricane Wind",
+				"Maelstrom Wind"
+			});
+		var annualBreezeOrCalmer = WeightedAveragePercent(
+			result.Rows,
+			"Wind",
+			new[]
+			{
+				"None",
+				"Still",
+				"Occasional Breeze",
+				"Breeze"
+			});
+		var midWinterShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_winter", "Shelter");
+		var midSummerShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_summer", "Shelter");
+		var midAutumnShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_autumn", "Shelter");
+
+		var failures = new List<string>();
+
+		CheckBetween(annualWet, expectation.AnnualWetMin, expectation.AnnualWetMax, $"{expectation.RegionalClimateName} annual wet occupancy", failures);
+		CheckBetween(winterWet, expectation.WinterWetMin, expectation.WinterWetMax, $"{expectation.RegionalClimateName} mid-winter wet occupancy", failures);
+		CheckBetween(summerWet, expectation.SummerWetMin, expectation.SummerWetMax, $"{expectation.RegionalClimateName} mid-summer wet occupancy", failures);
+		CheckBetween(autumnWet, expectation.AutumnWetMin, expectation.AutumnWetMax, $"{expectation.RegionalClimateName} mid-autumn wet occupancy", failures);
+		CheckBetween(annualSnow, expectation.AnnualSnowMin, expectation.AnnualSnowMax, $"{expectation.RegionalClimateName} annual snow occupancy", failures);
+		CheckBetween(winterSnow, expectation.WinterSnowMin, expectation.WinterSnowMax, $"{expectation.RegionalClimateName} mid-winter snow occupancy", failures);
+		CheckMaximum(annualGaleOrWorse, expectation.AnnualGaleOrWorseMax, $"{expectation.RegionalClimateName} annual gale-force-or-worse wind occupancy", failures);
+		CheckMaximum(annualHurricaneOrWorse, expectation.AnnualHurricaneOrWorseMax, $"{expectation.RegionalClimateName} annual hurricane-force-or-worse wind occupancy", failures);
+		CheckMinimum(annualBreezeOrCalmer, expectation.AnnualBreezeOrCalmerMin, $"{expectation.RegionalClimateName} annual breeze-or-calmer wind occupancy", failures);
+		CheckBetween(midWinterShelterMean, expectation.MidWinterMin, expectation.MidWinterMax, $"{expectation.RegionalClimateName} mid-winter sheltered temperature", failures);
+		CheckBetween(midSummerShelterMean, expectation.MidSummerMin, expectation.MidSummerMax, $"{expectation.RegionalClimateName} mid-summer sheltered temperature", failures);
+		CheckBetween(midAutumnShelterMean, expectation.MidAutumnMin, expectation.MidAutumnMax, $"{expectation.RegionalClimateName} mid-autumn sheltered temperature", failures);
+
+		Assert.IsFalse(failures.Any(), string.Join(Environment.NewLine, failures));
+	}
+
 	private static WeatherStatisticsResult AnalyzeSeededNorthernHemisphereClimate(string regionalClimateName, string controllerName)
 	{
 		return AnalyzeSeededClimate(regionalClimateName, controllerName);
 	}
 
+	public static IEnumerable<object[]> GetAdditionalClimateExpectations()
+	{
+		yield return new object[] { new ClimateExpectation("Subpolar Oceanic Northern Hemisphere", "Seeded Subpolar Oceanic", 20.0, 45.0, 20.0, 45.0, 14.0, 35.0, 20.0, 45.0, 0.4, 8.0, 1.5, 15.0, 7.0, 0.10, 72.0, -2.0, 4.0, 8.0, 12.0, 4.0, 8.0) };
+		yield return new object[] { new ClimateExpectation("Dry Winter Humid Subtropical Northern Hemisphere", "Seeded Dry Winter Humid Subtropical", 18.0, 38.0, 2.0, 12.0, 35.0, 65.0, 15.0, 35.0, 0.0, 1.0, 0.0, 3.0, 3.0, 0.05, 78.0, 1.0, 6.0, 25.0, 29.5, 14.0, 20.0) };
+		yield return new object[] { new ClimateExpectation("Subtropical Highland Northern Hemisphere", "Seeded Subtropical Highland", 15.0, 35.0, 0.0, 10.0, 25.0, 55.0, 10.0, 25.0, 0.0, 0.5, 0.0, 1.0, 3.0, 0.05, 80.0, 9.0, 14.0, 16.0, 20.0, 11.0, 16.0) };
+		yield return new object[] { new ClimateExpectation("Cold Summer Subtropical Highland Northern Hemisphere", "Seeded Cold Summer Subtropical Highland", 10.0, 30.0, 0.0, 8.0, 20.0, 50.0, 10.0, 25.0, 0.0, 6.0, 0.0, 4.0, 3.0, 0.05, 80.0, 0.5, 6.0, 8.0, 12.0, 4.0, 9.0) };
+		yield return new object[] { new ClimateExpectation("Warm-Summer Mediterranean Northern Hemisphere", "Seeded Warm-Summer Mediterranean", 8.0, 25.0, 18.0, 40.0, 0.0, 8.0, 1.0, 20.0, 0.0, 0.2, 0.0, 0.5, 2.0, 0.05, 82.0, 9.0, 13.0, 15.0, 18.5, 15.0, 19.0) };
+		yield return new object[] { new ClimateExpectation("Cold-Summer Mediterranean Northern Hemisphere", "Seeded Cold-Summer Mediterranean", 10.0, 30.0, 20.0, 45.0, 0.0, 10.0, 0.0, 25.0, 0.0, 6.0, 0.0, 12.0, 3.0, 0.05, 78.0, 1.0, 5.0, 10.0, 13.5, 6.0, 10.0) };
+		yield return new object[] { new ClimateExpectation("Tropical Monsoon Northern Hemisphere", "Seeded Tropical Monsoon", 25.0, 55.0, 10.0, 35.0, 35.0, 65.0, 20.0, 60.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 80.0, 19.0, 25.0, 27.0, 30.0, 25.0, 28.5) };
+		yield return new object[] { new ClimateExpectation("Tropical Savanna Dry Winter Northern Hemisphere", "Seeded Tropical Savanna Dry Winter", 10.0, 35.0, 0.0, 8.0, 30.0, 65.0, 20.0, 50.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 82.0, 23.0, 28.0, 28.0, 31.5, 25.0, 29.0) };
+		yield return new object[] { new ClimateExpectation("Tropical Savanna Dry Summer Northern Hemisphere", "Seeded Tropical Savanna Dry Summer", 10.0, 35.0, 15.0, 45.0, 0.0, 32.0, 30.0, 70.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 82.0, 22.0, 26.5, 29.0, 33.5, 25.0, 29.0) };
+		yield return new object[] { new ClimateExpectation("Hot Summer Humid Subcontinental Northern Hemisphere", "Seeded Hot Summer Humid Subcontinental", 20.0, 45.0, 18.0, 35.0, 25.0, 50.0, 18.0, 35.0, 1.0, 8.0, 4.0, 18.0, 5.0, 0.05, 78.0, -5.0, 0.0, 24.0, 29.0, 11.0, 16.0) };
+		yield return new object[] { new ClimateExpectation("Warm Summer Dry Winter Humid Subcontinental Northern Hemisphere", "Seeded Warm Summer Dry Winter Humid Subcontinental", 15.0, 35.0, 0.0, 12.0, 28.0, 55.0, 20.0, 40.0, 0.0, 6.0, 0.0, 10.0, 3.0, 0.05, 80.0, -12.0, -6.0, 18.0, 22.0, 6.0, 12.0) };
+		yield return new object[] { new ClimateExpectation("Severe Winter Subarctic Northern Hemisphere", "Seeded Severe Winter Subarctic", 10.0, 25.0, 4.0, 15.0, 15.0, 35.0, 10.0, 25.0, 1.5, 10.0, 4.5, 18.0, 2.5, 0.05, 84.0, -35.0, -25.0, 17.0, 21.0, -9.0, -1.0) };
+		yield return new object[] { new ClimateExpectation("Dry Winter Subarctic Northern Hemisphere", "Seeded Dry Winter Subarctic", 10.0, 25.0, 1.0, 8.0, 18.0, 40.0, 10.0, 25.0, 1.0, 7.0, 2.0, 12.0, 2.5, 0.05, 84.0, -23.0, -15.0, 16.0, 20.0, -5.0, 1.0) };
+		yield return new object[] { new ClimateExpectation("Severe Winter Dry Winter Subarctic Northern Hemisphere", "Seeded Severe Winter Dry Winter Subarctic", 8.0, 22.0, 0.0, 6.0, 15.0, 35.0, 8.0, 22.0, 0.0, 6.0, 0.0, 8.0, 2.5, 0.05, 85.0, -37.0, -26.0, 17.0, 21.0, -11.0, -2.0) };
+		yield return new object[] { new ClimateExpectation("Hot Summer Dry-Summer Continental Northern Hemisphere", "Seeded Hot Summer Dry-Summer Continental", 8.0, 25.0, 18.0, 40.0, 0.0, 14.0, 5.0, 30.0, 1.0, 5.0, 3.0, 15.0, 3.0, 0.25, 80.0, -2.0, 4.0, 25.0, 30.0, 12.0, 19.0) };
+		yield return new object[] { new ClimateExpectation("Warm Summer Dry-Summer Continental Northern Hemisphere", "Seeded Warm Summer Dry-Summer Continental", 8.0, 25.0, 20.0, 45.0, 0.0, 8.0, 5.0, 25.0, 2.5, 12.0, 8.0, 25.0, 3.0, 0.05, 80.0, -4.0, 1.0, 16.0, 21.0, 7.0, 12.0) };
+		yield return new object[] { new ClimateExpectation("Dry-Summer Subarctic Northern Hemisphere", "Seeded Dry-Summer Subarctic", 10.0, 25.0, 12.0, 28.0, 2.0, 12.0, 8.0, 22.0, 1.5, 12.0, 7.0, 25.0, 2.5, 0.05, 82.0, -19.0, -10.0, 14.0, 18.0, -3.0, 3.0) };
+		yield return new object[] { new ClimateExpectation("Severe Winter Dry-Summer Subarctic Northern Hemisphere", "Seeded Severe Winter Dry-Summer Subarctic", 8.0, 20.0, 4.0, 18.0, 1.0, 14.0, 6.0, 18.0, 1.0, 10.0, 3.0, 20.0, 2.5, 0.05, 84.0, -36.0, -25.0, 17.0, 21.0, -10.0, -2.0) };
+	}
+
+	public static IEnumerable<object[]> GetMaritimeAndTropicalClimateExpectations()
+	{
+		var names = new HashSet<string>
+		{
+			"Subpolar Oceanic Northern Hemisphere",
+			"Tropical Monsoon Northern Hemisphere",
+			"Tropical Savanna Dry Winter Northern Hemisphere",
+			"Tropical Savanna Dry Summer Northern Hemisphere"
+		};
+
+		return GetAdditionalClimateExpectations()
+			.Where(x => names.Contains(((ClimateExpectation)x[0]).RegionalClimateName));
+	}
+
+	public static IEnumerable<object[]> GetWarmTemperateClimateExpectations()
+	{
+		var names = new HashSet<string>
+		{
+			"Dry Winter Humid Subtropical Northern Hemisphere",
+			"Subtropical Highland Northern Hemisphere",
+			"Cold Summer Subtropical Highland Northern Hemisphere",
+			"Warm-Summer Mediterranean Northern Hemisphere",
+			"Cold-Summer Mediterranean Northern Hemisphere"
+		};
+
+		return GetAdditionalClimateExpectations()
+			.Where(x => names.Contains(((ClimateExpectation)x[0]).RegionalClimateName));
+	}
+
+	public static IEnumerable<object[]> GetHotAndMonsoonalContinentalClimateExpectations()
+	{
+		var names = new HashSet<string>
+		{
+			"Hot Summer Humid Subcontinental Northern Hemisphere",
+			"Warm Summer Dry Winter Humid Subcontinental Northern Hemisphere",
+			"Hot Summer Dry-Summer Continental Northern Hemisphere",
+			"Warm Summer Dry-Summer Continental Northern Hemisphere"
+		};
+
+		return GetAdditionalClimateExpectations()
+			.Where(x => names.Contains(((ClimateExpectation)x[0]).RegionalClimateName));
+	}
+
+	public static IEnumerable<object[]> GetSevereContinentalClimateExpectations()
+	{
+		var names = new HashSet<string>
+		{
+			"Severe Winter Subarctic Northern Hemisphere",
+			"Dry Winter Subarctic Northern Hemisphere",
+			"Severe Winter Dry Winter Subarctic Northern Hemisphere",
+			"Dry-Summer Subarctic Northern Hemisphere",
+			"Severe Winter Dry-Summer Subarctic Northern Hemisphere"
+		};
+
+		return GetAdditionalClimateExpectations()
+			.Where(x => names.Contains(((ClimateExpectation)x[0]).RegionalClimateName));
+	}
+
 	private static FuturemudDatabaseContext CreateSeededWeatherContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+			.UseInMemoryDatabase(nameof(WeatherSeederClimateTests), DatabaseRoot)
 			.Options;
 		var context = new FuturemudDatabaseContext(options);
-		context.Celestials.Add(new Celestial
-		{
-			Definition = "<Celestial />",
-			Minutes = 0,
-			FeedClockId = 1,
-			CelestialYear = 0,
-			LastYearBump = 0,
-			CelestialType = "test"
-		});
-		context.SaveChanges();
 
-		var seeder = new WeatherSeeder();
-		var error = seeder.SeedData(context, new Dictionary<string, string>
+		if (_sharedDatabaseSeeded)
 		{
-			["rain"] = "none"
-		});
-		Assert.AreEqual(string.Empty, error);
+			return context;
+		}
+
+		lock (SeededContextLock)
+		{
+			if (_sharedDatabaseSeeded)
+			{
+				return context;
+			}
+
+			context.Celestials.Add(new Celestial
+			{
+				Definition = "<Celestial />",
+				Minutes = 0,
+				FeedClockId = 1,
+				CelestialYear = 0,
+				LastYearBump = 0,
+				CelestialType = "test"
+			});
+			context.SaveChanges();
+
+			var seeder = new WeatherSeeder();
+			var error = seeder.SeedData(context, new Dictionary<string, string>
+			{
+				["rain"] = "none"
+			});
+			Assert.AreEqual(string.Empty, error);
+			_sharedDatabaseSeeded = true;
+		}
+
 		return context;
 	}
 
 	private static WeatherStatisticsResult AnalyzeSeededClimate(string regionalClimateName, string controllerName)
+	{
+		return AnalyzeSeededClimate(regionalClimateName, controllerName, years: 12, burnInYears: 2);
+	}
+
+	private static WeatherStatisticsResult AnalyzeSeededClimate(string regionalClimateName, string controllerName, int years, int burnInYears)
 	{
 		using var context = CreateSeededWeatherContext();
 
@@ -872,8 +1064,8 @@ public class WeatherSeederClimateTests
 		var analyzer = new WeatherStatisticsAnalyzer();
 		return analyzer.AnalyzeSimulation(new WeatherStatisticsSimulationRequest
 		{
-			Years = 12,
-			BurnInYears = 2,
+			Years = years,
+			BurnInYears = burnInYears,
 			Seed = 123456,
 			SeasonInfo = seasonMocks.ToDictionary(x => x.Key, x => x.Value),
 			TransitionSnapshot = snapshot,
@@ -897,6 +1089,60 @@ public class WeatherSeederClimateTests
 			InitialMinuteCounter = 0
 		}, controllerName: controllerName);
 	}
+
+	private static void AssertBetween(double value, double minimum, double maximum, string label)
+	{
+		Assert.IsTrue(value >= minimum && value <= maximum, $"Expected {label} to stay between {minimum:F2} and {maximum:F2}, but got {value:F2}.");
+	}
+
+	private static void CheckBetween(double value, double minimum, double maximum, string label, ICollection<string> failures)
+	{
+		if (value < minimum || value > maximum)
+		{
+			failures.Add($"Expected {label} to stay between {minimum:F2} and {maximum:F2}, but got {value:F2}.");
+		}
+	}
+
+	private static void CheckMaximum(double value, double maximum, string label, ICollection<string> failures)
+	{
+		if (value > maximum)
+		{
+			failures.Add($"Expected {label} to stay at or below {maximum:F2}, but got {value:F2}.");
+		}
+	}
+
+	private static void CheckMinimum(double value, double minimum, string label, ICollection<string> failures)
+	{
+		if (value < minimum)
+		{
+			failures.Add($"Expected {label} to stay at or above {minimum:F2}, but got {value:F2}.");
+		}
+	}
+
+	public sealed record ClimateExpectation(
+		string RegionalClimateName,
+		string ControllerName,
+		double AnnualWetMin,
+		double AnnualWetMax,
+		double WinterWetMin,
+		double WinterWetMax,
+		double SummerWetMin,
+		double SummerWetMax,
+		double AutumnWetMin,
+		double AutumnWetMax,
+		double AnnualSnowMin,
+		double AnnualSnowMax,
+		double WinterSnowMin,
+		double WinterSnowMax,
+		double AnnualGaleOrWorseMax,
+		double AnnualHurricaneOrWorseMax,
+		double AnnualBreezeOrCalmerMin,
+		double MidWinterMin,
+		double MidWinterMax,
+		double MidSummerMin,
+		double MidSummerMax,
+		double MidAutumnMin,
+		double MidAutumnMax);
 
 	private static WeatherTransitionSnapshot BuildSnapshot(ClimateModel climateModel, IReadOnlyDictionary<long, WeatherEvent> eventMap)
 	{

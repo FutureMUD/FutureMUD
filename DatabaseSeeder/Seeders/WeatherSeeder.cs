@@ -388,14 +388,32 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	private static IEnumerable<WeatherSeederClimateProfile> GetClimateProfiles()
 	{
 		yield return CreateTemperateOceanicProfile();
+		yield return CreateSubpolarOceanicProfile();
 		yield return CreateHumidSubtropicalProfile();
+		yield return CreateDryWinterHumidSubtropicalProfile();
+		yield return CreateSubtropicalHighlandProfile();
+		yield return CreateColdSummerSubtropicalHighlandProfile();
+		yield return CreateMediterraneanProfile();
+		yield return CreateWarmSummerMediterraneanProfile();
+		yield return CreateColdSummerMediterraneanProfile();
 		yield return CreateTropicalRainforestProfile();
+		yield return CreateTropicalMonsoonProfile();
+		yield return CreateTropicalSavannaDryWinterProfile();
+		yield return CreateTropicalSavannaDrySummerProfile();
 		yield return CreateHumidSubcontinentalProfile();
+		yield return CreateHotSummerHumidSubcontinentalProfile();
 		yield return CreateDryWinterHumidSubcontinentalProfile();
+		yield return CreateWarmSummerDryWinterHumidSubcontinentalProfile();
 		yield return CreateSubarcticProfile();
+		yield return CreateSevereWinterSubarcticProfile();
+		yield return CreateDryWinterSubarcticProfile();
+		yield return CreateSevereWinterDryWinterSubarcticProfile();
+		yield return CreateHotSummerDrySummerContinentalProfile();
+		yield return CreateWarmSummerDrySummerContinentalProfile();
+		yield return CreateDrySummerSubarcticProfile();
+		yield return CreateSevereWinterDrySummerSubarcticProfile();
 		yield return CreateTundraProfile();
 		yield return CreatePolarIceCapProfile();
-		yield return CreateMediterraneanProfile();
 		yield return CreateHotSemiAridProfile();
 		yield return CreateHotDesertProfile();
 		yield return CreateColdSemiAridProfile();

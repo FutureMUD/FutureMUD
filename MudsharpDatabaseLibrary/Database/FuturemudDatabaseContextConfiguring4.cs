@@ -228,6 +228,11 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.ClimateModelId).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.Description)
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
 				entity.Property(e => e.Name)
 					.IsRequired()
 					.HasColumnType("varchar(200)")

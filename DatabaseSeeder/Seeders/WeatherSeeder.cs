@@ -48,6 +48,10 @@ sealed class WeatherSeederClimateProfile
 {
 	public required string ClimateModelName { get; init; }
 	public required string RegionalClimatePrefix { get; init; }
+	public required string KoppenClimateClassification { get; init; }
+	public required string ReferenceLocation { get; init; }
+	public required string ClimateModelSummary { get; init; }
+	public required string RegionalClimateSummary { get; init; }
 	public required IReadOnlyDictionary<string, (double Minimum, double Maximum)> SeasonalTemperatureRanges { get; init; }
 	public required Func<string, WindLevel, double> WindIncreaseChance { get; init; }
 	public required Func<string, WindLevel, double> WindDecreaseChance { get; init; }
@@ -398,6 +402,34 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		yield return CreateColdDesertProfile();
 	}
 
+	private static string DescribeTemperature(double temperature)
+	{
+		return $"{temperature.ToString("0.#", global::System.Globalization.CultureInfo.InvariantCulture)}C";
+	}
+
+	private static string DescribeTemperatureRange((double Minimum, double Maximum) range)
+	{
+		return $"{DescribeTemperature(range.Minimum)} to {DescribeTemperature(range.Maximum)}";
+	}
+
+	private static string BuildClimateModelDescription(WeatherSeederClimateProfile profile)
+	{
+		var coldest = profile.SeasonalTemperatureRanges.OrderBy(x => x.Value.Minimum).First();
+		var warmest = profile.SeasonalTemperatureRanges.OrderByDescending(x => x.Value.Maximum).First();
+		var midWinter = profile.SeasonalTemperatureRanges["Mid Winter"];
+		var midSummer = profile.SeasonalTemperatureRanges["Mid Summer"];
+		return $"{profile.ClimateModelSummary}\n\nThis template matches Koppen climate classification {profile.KoppenClimateClassification} and was calibrated against {profile.ReferenceLocation}. In the seeded paired regional climates, temperatures usually bottom out around {DescribeTemperature(coldest.Value.Minimum)} in {coldest.Key} and peak around {DescribeTemperature(warmest.Value.Maximum)} in {warmest.Key}, with Mid Winter typically sitting near {DescribeTemperatureRange(midWinter)} and Mid Summer near {DescribeTemperatureRange(midSummer)}.";
+	}
+
+	private static string BuildRegionalClimateDescription(WeatherSeederClimateProfile profile, string hemisphere)
+	{
+		var coldest = profile.SeasonalTemperatureRanges.OrderBy(x => x.Value.Minimum).First();
+		var warmest = profile.SeasonalTemperatureRanges.OrderByDescending(x => x.Value.Maximum).First();
+		var midWinter = profile.SeasonalTemperatureRanges["Mid Winter"];
+		var midSummer = profile.SeasonalTemperatureRanges["Mid Summer"];
+		return $"{profile.RegionalClimateSummary} This is the seeded {hemisphere} regional baseline for the {profile.RegionalClimatePrefix} template.\n\nTypical daily temperatures sit around {DescribeTemperatureRange(midWinter)} in Mid Winter and {DescribeTemperatureRange(midSummer)} in Mid Summer, with the full annual envelope running from about {DescribeTemperature(coldest.Value.Minimum)} to {DescribeTemperature(warmest.Value.Maximum)}. It matches Koppen climate classification {profile.KoppenClimateClassification} and was based on {profile.ReferenceLocation}.";
+	}
+
 	private static XElement CreateDailyTemperatures(double minimum, double maximum)
 	{
 		var temps = new List<(int Hour, double Temp)>();
@@ -446,12 +478,14 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		var regionalClimateNH = new RegionalClimate
 		{
 			Name = $"{profile.RegionalClimatePrefix} Northern Hemisphere",
+			Description = BuildRegionalClimateDescription(profile, "Northern Hemisphere"),
 			ClimateModelId = climateModel.Id
 		};
 		context.RegionalClimates.Add(regionalClimateNH);
 		var regionalClimateSH = new RegionalClimate
 		{
 			Name = $"{profile.RegionalClimatePrefix} Southern Hemisphere",
+			Description = BuildRegionalClimateDescription(profile, "Southern Hemisphere"),
 			ClimateModelId = climateModel.Id
 		};
 		context.RegionalClimates.Add(regionalClimateSH);
@@ -472,7 +506,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		#endregion
 	}
 
-	private static ClimateModel CreateClimateModels(FuturemudDatabaseContext context, List<Season> seasons, Dictionary<string, WeatherEvent> events)
+	private static ClimateModel CreateClimateModels(FuturemudDatabaseContext context, List<Season> seasons, Dictionary<string, WeatherEvent> events, WeatherSeederClimateProfile profile)
 	{
 		#region Climate Models
 
@@ -1323,6 +1357,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		var temperateModel = new ClimateModel
 		{
 			Name = "Temperate",
+			Description = BuildClimateModelDescription(profile),
 			MinuteProcessingInterval = 10,
 			MinimumMinutesBetweenFlavourEchoes = 60,
 			MinuteFlavourEchoChance = 0.01,

@@ -25,6 +25,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Temperate",
 			RegionalClimatePrefix = "Oceanic Temperate",
+			KoppenClimateClassification = "Cfb",
+			ReferenceLocation = "London, United Kingdom",
+			ClimateModelSummary = "This model represents a mild marine west coast climate with frequent cloud cover, regular rain in every season, and only modest swings between winter and summer. Weather changes most often in autumn and winter, when Atlantic-style fronts keep the sky unsettled and winds can turn blustery.",
+			RegionalClimateSummary = "Expect cool summers, chilly winters, and plenty of damp grey days. Snow is possible but usually brief, while early and mid autumn are the most likely times for windy, stormier spells.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (4.0, 9.0),
@@ -171,6 +175,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Humid Subtropical",
 			RegionalClimatePrefix = "Humid Subtropical",
+			KoppenClimateClassification = "Cfa",
+			ReferenceLocation = "Atlanta, Georgia, United States",
+			ClimateModelSummary = "This model represents a warm, moisture-heavy climate with hot summers, muggy air, and rain in every season. Summer should feel thunderstorm-prone and sticky rather than dry, while winter stays generally mild with only brief cold snaps and rare snow.",
+			RegionalClimateSummary = "Expect long warm-to-hot seasons, short mild winters, and a year-round sense of humidity. Spring and summer are the wettest-feeling parts of the year, while autumn turns somewhat calmer without becoming truly dry.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (4.0, 13.5),
@@ -338,6 +346,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Humid Subcontinental",
 			RegionalClimatePrefix = "Humid Subcontinental",
+			KoppenClimateClassification = "Dfb",
+			ReferenceLocation = "Buffalo, New York, United States",
+			ClimateModelSummary = "This model represents a cool-summer humid continental climate with cold snowy winters, warm summers, and year-round precipitation. Storm tracks can bring mixed conditions in spring and autumn, while winter supports regular snow cover without shutting rain out entirely.",
+			RegionalClimateSummary = "Expect a large seasonal contrast, with freezing winters and comfortable to warm summers. Snow and overcast conditions are common in the cold half of the year, while summer is greener, wetter, and less severe than a dry continental interior.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-5.0, 3.0),
@@ -562,6 +574,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Dry Winter Humid Subcontinental",
 			RegionalClimatePrefix = "Dry Winter Humid Subcontinental",
+			KoppenClimateClassification = "Dwa",
+			ReferenceLocation = "Seoul, South Korea",
+			ClimateModelSummary = "This model represents the East Asian dry-winter monsoonal continental pattern: cold dry winters, hot humid summers, and a sharp ramp-up of rain once the warm season arrives. Spring should feel changeable and breezy, while the heaviest wet weather is concentrated in high summer.",
+			RegionalClimateSummary = "Expect clear, comparatively dry winters followed by a steep seasonal swing into hot, muggy summer weather. Late spring and summer feel stormier and wetter, while winter snow remains possible but the air is usually too dry for constant precipitation.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-2.0, 5.0),
@@ -800,6 +816,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Subarctic",
 			RegionalClimatePrefix = "Subarctic",
+			KoppenClimateClassification = "Dfc",
+			ReferenceLocation = "Bratsk, Russia",
+			ClimateModelSummary = "This model represents a boreal subarctic climate with very long, bitter winters, a short mild summer, and modest overall precipitation. Snow dominates much of the year, but the wettest-feeling weather arrives in the brief warm season rather than midwinter.",
+			RegionalClimateSummary = "Expect an extreme annual temperature range, with deep winter cold and only a short window of gentle summer warmth. Autumn cools rapidly, spring stays hesitant, and windy or snowy weather can return quickly outside the core summer period.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-21.0, -13.0),
@@ -1032,6 +1052,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Mediterranean",
 			RegionalClimatePrefix = "Mediterranean",
+			KoppenClimateClassification = "Csa",
+			ReferenceLocation = "Sacramento, California, United States",
+			ClimateModelSummary = "This model represents a dry-summer Mediterranean climate with clear, stable warm seasons and a rainy cool season. Most unsettled weather should cluster in late autumn through winter, while summer is dominated by dry air, brighter skies, and only rare interruptions.",
+			RegionalClimateSummary = "Expect hot dry summers, mild wetter winters, and a shoulder season pattern where autumn marks the return of the rains. Snow is rare, summer cloud cover is limited, and the climate should feel much calmer and sunnier than an oceanic coast.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (4.0, 13.0),
@@ -1257,6 +1281,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Tundra",
 			RegionalClimatePrefix = "Tundra",
+			KoppenClimateClassification = "ET",
+			ReferenceLocation = "Nuuk, Greenland",
+			ClimateModelSummary = "This model represents a polar tundra climate where even summer stays cool, winters are harsh, and the atmosphere often hovers near freezing. Rain is limited and much of the year is spent in snow, sleet, damp cold, and strong coastal winds rather than in heavy warm-season storms.",
+			RegionalClimateSummary = "Expect a cold maritime polar environment with a brief thaw season and a long, raw cold season. Summers are cool rather than warm, snow can linger far outside winter, and wind exposure makes autumn and winter feel especially severe.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-10.0, -2.0),
@@ -1301,6 +1329,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Polar Ice Cap",
 			RegionalClimatePrefix = "Polar Ice Cap",
+			KoppenClimateClassification = "EF",
+			ReferenceLocation = "Amundsen-Scott South Pole Station, Antarctica",
+			ClimateModelSummary = "This model represents a permanent ice-cap climate where thaw conditions are exceptional, the air is extremely dry, and snow is usually light rather than wet. The system suppresses rain almost entirely and keeps the world in a state of cold, barren, wind-scoured weather.",
+			RegionalClimateSummary = "Expect relentless cold in every season. Even the warmest part of the year remains below freezing, snowfall is usually fine and dry, and any increase in wind quickly turns the climate from merely hostile to punishing.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-42.0, -32.0),
@@ -1345,6 +1377,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Hot Semi-Arid",
 			RegionalClimatePrefix = "Hot Semi-Arid",
+			KoppenClimateClassification = "BSh",
+			ReferenceLocation = "Del Rio, Texas, United States",
+			ClimateModelSummary = "This model represents a hot steppe climate on the dry side of subtropical weather, with long hot seasons, scarce rainfall, and occasional bursts of storm activity rather than dependable wet periods. Dry and parched states should dominate, but the region still receives more meaningful rain than a true desert.",
+			RegionalClimateSummary = "Expect hot, thirsty weather for most of the year, with brief greener periods after rain rather than a lasting wet season. Winters are milder and somewhat more forgiving, but the overall feel remains open, dry, and heat-stressed.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (7.0, 19.0),
@@ -1389,6 +1425,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Cold Semi-Arid",
 			RegionalClimatePrefix = "Cold Semi-Arid",
+			KoppenClimateClassification = "BSk",
+			ReferenceLocation = "Denver, Colorado, United States",
+			ClimateModelSummary = "This model represents a cool continental steppe climate with dry air, broad temperature swings, and limited precipitation split between occasional rain and winter snow. It should feel open and inland, with enough moisture to avoid true desert sterility but not enough to support lush conditions.",
+			RegionalClimateSummary = "Expect warm to hot summers, cold winters, and a generally dry sky in every season. Snow can arrive in winter, spring can be sharp and windy, and even the wetter spells tend to be brief rather than persistent.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-6.0, 7.0),
@@ -1433,6 +1473,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Hot Desert",
 			RegionalClimatePrefix = "Hot Desert",
+			KoppenClimateClassification = "BWh",
+			ReferenceLocation = "Yuma, Arizona, United States",
+			ClimateModelSummary = "This model represents a subtropical hot desert with extreme summer heat, very low humidity, and rare but sometimes dramatic bursts of rain. Clear skies and parched air should dominate, with cloud build-up or wet conditions feeling unusual rather than routine.",
+			RegionalClimateSummary = "Expect scorching summers, mild winters, and a landscape that spends most of the year dry to parched. Daytime heat climbs hard in the warm season, nights cool back off quickly, and most rain arrives as short-lived relief rather than a real wet spell.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (8.0, 22.0),
@@ -1477,6 +1521,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Cold Desert",
 			RegionalClimatePrefix = "Cold Desert",
+			KoppenClimateClassification = "BWk",
+			ReferenceLocation = "Bishop, California, United States",
+			ClimateModelSummary = "This model represents a mid-latitude cold desert with sparse precipitation, strong diurnal temperature swings, and winters cold enough for snow. It is drier than steppe country but cooler and more seasonally varied than a subtropical hot desert.",
+			RegionalClimateSummary = "Expect dry bright weather in most seasons, hot afternoons in summer, and cold winters with only occasional snow. The air usually feels thin and arid, with short wet spells giving way quickly to clearer skies again.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (-3.0, 11.0),
@@ -1521,6 +1569,10 @@ public partial class WeatherSeeder
 		{
 			ClimateModelName = "Tropical Rainforest",
 			RegionalClimatePrefix = "Tropical Rainforest",
+			KoppenClimateClassification = "Af",
+			ReferenceLocation = "Singapore",
+			ClimateModelSummary = "This model represents an equatorial rainforest climate with very little seasonal temperature change, persistent humidity, and rain that can arrive at almost any time. Cloud cover and wet conditions are common enough that genuinely dry weather should feel temporary.",
+			RegionalClimateSummary = "This region should feel hot, lush, and damp all year. Days and nights stay warm, rain and overcast skies are common, and even the calmer parts of the year still feel humid rather than dry.",
 			SeasonalTemperatureRanges = new Dictionary<string, (double Minimum, double Maximum)>
 			{
 				["Early Winter"] = (24.0, 30.0),
@@ -1670,7 +1722,7 @@ public partial class WeatherSeeder
 	{
 		return profile.RegionalClimatePrefix switch
 		{
-			"Oceanic Temperate" => CreateClimateModels(context, seasons, events),
+			"Oceanic Temperate" => CreateClimateModels(context, seasons, events, profile),
 			"Humid Subtropical" => CreateHumidSubtropicalClimateModel(context, profile),
 			"Tropical Rainforest" => CreateTropicalRainforestClimateModel(context, profile),
 			"Humid Subcontinental" => CreateHumidSubcontinentalClimateModel(context, profile),
@@ -1764,6 +1816,7 @@ public partial class WeatherSeeder
 		var climateModel = new ClimateModel
 		{
 			Name = profile.ClimateModelName,
+			Description = BuildClimateModelDescription(profile),
 			MinuteProcessingInterval = baseModel.MinuteProcessingInterval,
 			MinimumMinutesBetweenFlavourEchoes = baseModel.MinimumMinutesBetweenFlavourEchoes,
 			MinuteFlavourEchoChance = baseModel.MinuteFlavourEchoChance,

@@ -10,6 +10,7 @@ using MudSharp.Framework.Revision;
 namespace MudSharp.Climate
 {
 	public interface IClimateModel : IEditableItem {
+		string Description { get; }
 		IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason, TimeOfDay currentTime, int consecutiveUnchangedPeriods);
 		/// <summary>
 		/// The number of in-character minutes between checking for weather changes

@@ -9,6 +9,7 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Climate.ClimateModels;
 
@@ -153,6 +154,7 @@ public class TerrestrialClimateModel : ClimateModelBase
 	public const string HelpText = @"You can use the following options with this command:
 
 	#3name <name>#0 - sets the name of this climate model
+	#3desc#0 - opens an editor for this climate model's description
 	#3ticks <minutes>#0 - sets the minutes between weather ticks
 	#3echochance <%>#0 - sets the per-minute chance of echoes
 	#3echoticks <minutes>#0 - sets the minimum number of minutes between echoes
@@ -170,6 +172,9 @@ public class TerrestrialClimateModel : ClimateModelBase
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
+			case "desc":
+			case "description":
+				return BuildingCommandDescription(actor);
 			case "ticks":
 				return BuildingCommandTicks(actor, command);
 			case "echo":
@@ -189,6 +194,25 @@ public class TerrestrialClimateModel : ClimateModelBase
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return true;
+	}
+
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.OutputHandler.Send("Enter the new description in the editor below.");
+		actor.EditorMode(BuildingCommandDescriptionPost, BuildingCommandDescriptionCancel, 1.0, Description);
+		return true;
+	}
+
+	private void BuildingCommandDescriptionCancel(IOutputHandler handler, object[] parameters)
+	{
+		handler.Send("You decide not to change the climate model description.");
+	}
+
+	private void BuildingCommandDescriptionPost(string description, IOutputHandler handler, object[] parameters)
+	{
+		Description = description.Trim();
+		Changed = true;
+		handler.Send($"The climate model description is now:\n\n{FormatDescription(Description, 80, "\t")}");
 	}
 
 	private bool BuildingCommandCloneSeason(ICharacter actor, StringStack command)
@@ -551,6 +575,9 @@ public class TerrestrialClimateModel : ClimateModelBase
 		var sb = new StringBuilder();
 		sb.AppendLine($"Climate Model #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
+		sb.AppendLine("Description:");
+		sb.AppendLine(FormatDescription(Description, actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine();
 		sb.AppendLine($"Minutes Between Ticks: {MinuteProcessingInterval.ToStringN0Colour(actor)}");
 		sb.AppendLine($"Minimum Minutes Between Echoes: {MinimumMinutesBetweenFlavourEchoes.ToStringN0Colour(actor)}");
 		sb.AppendLine($"Echo Chance Per Minute: {MinuteFlavourEchoChance.ToStringP2Colour(actor)}");
@@ -599,6 +626,7 @@ public class TerrestrialClimateModel : ClimateModelBase
 			var dbitem = new Models.ClimateModel
 			{
 				Name = Name,
+				Description = Description,
 				MinimumMinutesBetweenFlavourEchoes = MinimumMinutesBetweenFlavourEchoes,
 				MinuteFlavourEchoChance = MinuteFlavourEchoChance,
 				MinuteProcessingInterval = MinuteProcessingInterval,
@@ -649,6 +677,7 @@ public class TerrestrialClimateModel : ClimateModelBase
         {
                 Gameworld = gameworld;
                 _name = name;
+                Description = "An undescribed climate model.";
                 MinimumMinutesBetweenFlavourEchoes = 60;
                 MinuteProcessingInterval = 60;
                 MinuteFlavourEchoChance = 0.01;
@@ -660,6 +689,7 @@ public class TerrestrialClimateModel : ClimateModelBase
 	{
 		Gameworld = rhs.Gameworld;
 		_name = name;
+		Description = rhs.Description;
 		MinimumMinutesBetweenFlavourEchoes = rhs.MinimumMinutesBetweenFlavourEchoes;
 		MinuteProcessingInterval = rhs.MinuteProcessingInterval;
 		MinuteFlavourEchoChance = rhs.MinuteFlavourEchoChance;
@@ -687,6 +717,7 @@ public class TerrestrialClimateModel : ClimateModelBase
 		Gameworld = gameworld;
 		_id = model.Id;
 		_name = model.Name;
+		Description = model.Description ?? string.Empty;
 		MinuteProcessingInterval = model.MinuteProcessingInterval;
 		MinimumMinutesBetweenFlavourEchoes = model.MinimumMinutesBetweenFlavourEchoes;
 		MinuteFlavourEchoChance = model.MinuteFlavourEchoChance;
@@ -723,6 +754,7 @@ public class TerrestrialClimateModel : ClimateModelBase
 	{
 		var dbitem = FMDB.Context.ClimateModels.Find(Id);
 		dbitem.Name = Name;
+		dbitem.Description = Description;
 		dbitem.MinimumMinutesBetweenFlavourEchoes = MinimumMinutesBetweenFlavourEchoes;
 		dbitem.MinuteFlavourEchoChance = MinuteFlavourEchoChance;
 		dbitem.MinuteProcessingInterval = MinuteProcessingInterval;
@@ -766,4 +798,18 @@ public class TerrestrialClimateModel : ClimateModelBase
 	}
 
 	#endregion
+
+	private static string FormatDescription(string description, int lineLength, string indent)
+	{
+		if (string.IsNullOrWhiteSpace(description))
+		{
+			return $"{indent}None";
+		}
+
+		return string.Join("\n",
+			description
+				.Replace("\r\n", "\n")
+				.Split('\n')
+				.Select(x => string.IsNullOrWhiteSpace(x) ? string.Empty : x.Wrap(lineLength, indent)));
+	}
 }

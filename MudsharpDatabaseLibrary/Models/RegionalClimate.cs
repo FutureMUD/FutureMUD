@@ -13,6 +13,7 @@ namespace MudSharp.Models
 
         public long Id { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public long ClimateModelId { get; set; }
 
         public virtual ICollection<RegionalClimatesSeason> RegionalClimatesSeasons { get; set; }

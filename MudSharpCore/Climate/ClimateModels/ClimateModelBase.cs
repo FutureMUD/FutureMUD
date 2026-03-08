@@ -28,6 +28,8 @@ public abstract class ClimateModelBase : SaveableItem, IClimateModel
 	/// </summary>
 	public int MinuteProcessingInterval { get; protected set; }
 
+	public string Description { get; protected set; } = string.Empty;
+
 	/// <summary>
 	/// The minimum number of in-character minutes between flavour echoes for current weather being sent
 	/// </summary>

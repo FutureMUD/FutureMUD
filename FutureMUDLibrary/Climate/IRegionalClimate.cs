@@ -11,6 +11,7 @@ namespace MudSharp.Climate
 {
     public interface IRegionalClimate : IEditableItem
     {
+        string Description { get; }
         IClimateModel ClimateModel { get; }
         IEnumerable<ISeason> Seasons { get; }
         IReadOnlyDictionary<(ISeason Season, int DailyHour),double> HourlyBaseTemperaturesBySeason { get; }

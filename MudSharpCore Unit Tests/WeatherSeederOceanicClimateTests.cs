@@ -771,17 +771,51 @@ public class WeatherSeederClimateTests
 		Assert.IsTrue(Math.Abs(midSummerShelterMean - midWinterShelterMean) <= 1.5, $"Expected the tropical rainforest annual temperature range to stay small, but winter={midWinterShelterMean:F2}C and summer={midSummerShelterMean:F2}C.");
 	}
 
+	[TestMethod]
+	public void WeatherSeeder_SeededClimateDescriptions_ArePopulatedAndIncludeReferenceMetadata()
+	{
+		using var context = CreateSeededWeatherContext();
+		Assert.AreEqual(13, context.ClimateModels.Count(), "Expected the seeded weather data to create thirteen climate models.");
+		Assert.AreEqual(26, context.RegionalClimates.Count(), "Expected the seeded weather data to create paired northern and southern regional climates.");
+
+		foreach (var climateModel in context.ClimateModels)
+		{
+			Assert.IsFalse(string.IsNullOrWhiteSpace(climateModel.Description), $"Expected climate model {climateModel.Name} to have a description.");
+			Assert.IsTrue(climateModel.Description.Contains("Koppen climate classification", StringComparison.Ordinal), $"Expected climate model {climateModel.Name} to mention its Koppen classification.");
+		}
+
+		foreach (var regionalClimate in context.RegionalClimates)
+		{
+			Assert.IsFalse(string.IsNullOrWhiteSpace(regionalClimate.Description), $"Expected regional climate {regionalClimate.Name} to have a description.");
+			Assert.IsTrue(regionalClimate.Description.Contains("Koppen climate classification", StringComparison.Ordinal), $"Expected regional climate {regionalClimate.Name} to mention its Koppen classification.");
+			Assert.IsTrue(regionalClimate.Description.Contains("Mid Winter", StringComparison.Ordinal), $"Expected regional climate {regionalClimate.Name} to mention Mid Winter temperatures.");
+			Assert.IsTrue(regionalClimate.Description.Contains("Mid Summer", StringComparison.Ordinal), $"Expected regional climate {regionalClimate.Name} to mention Mid Summer temperatures.");
+		}
+
+		var oceanicModel = context.ClimateModels.Single(x => x.Name == "Temperate");
+		Assert.IsTrue(oceanicModel.Description.Contains("London", StringComparison.Ordinal), "Expected the oceanic climate model description to reference London.");
+		Assert.IsTrue(oceanicModel.Description.Contains("Cfb", StringComparison.Ordinal), "Expected the oceanic climate model description to reference Cfb.");
+
+		var dryWinterModel = context.ClimateModels.Single(x => x.Name == "Dry Winter Humid Subcontinental");
+		Assert.IsTrue(dryWinterModel.Description.Contains("Seoul", StringComparison.Ordinal), "Expected the dry winter humid subcontinental climate model description to reference Seoul.");
+		Assert.IsTrue(dryWinterModel.Description.Contains("Dwa", StringComparison.Ordinal), "Expected the dry winter humid subcontinental climate model description to reference Dwa.");
+
+		var tropicalRegional = context.RegionalClimates.Single(x => x.Name == "Tropical Rainforest Northern Hemisphere");
+		Assert.IsTrue(tropicalRegional.Description.Contains("Singapore", StringComparison.Ordinal), "Expected the tropical rainforest regional climate description to reference Singapore.");
+		Assert.IsTrue(tropicalRegional.Description.Contains("Northern Hemisphere", StringComparison.Ordinal), "Expected the northern tropical rainforest regional climate description to mention its hemisphere.");
+	}
+
 	private static WeatherStatisticsResult AnalyzeSeededNorthernHemisphereClimate(string regionalClimateName, string controllerName)
 	{
 		return AnalyzeSeededClimate(regionalClimateName, controllerName);
 	}
 
-	private static WeatherStatisticsResult AnalyzeSeededClimate(string regionalClimateName, string controllerName)
+	private static FuturemudDatabaseContext CreateSeededWeatherContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
 			.Options;
-		using var context = new FuturemudDatabaseContext(options);
+		var context = new FuturemudDatabaseContext(options);
 		context.Celestials.Add(new Celestial
 		{
 			Definition = "<Celestial />",
@@ -799,6 +833,12 @@ public class WeatherSeederClimateTests
 			["rain"] = "none"
 		});
 		Assert.AreEqual(string.Empty, error);
+		return context;
+	}
+
+	private static WeatherStatisticsResult AnalyzeSeededClimate(string regionalClimateName, string controllerName)
+	{
+		using var context = CreateSeededWeatherContext();
 
 		var regionalClimate = context.RegionalClimates
 			.Include(x => x.RegionalClimatesSeasons)

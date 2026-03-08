@@ -405,6 +405,11 @@ namespace MudSharp.Database
 			{
 				entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.Description)
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
 				entity.Property(e => e.MinimumMinutesBetweenFlavourEchoes).HasColumnType("int(11)");
 
 				entity.Property(e => e.MinuteProcessingInterval).HasColumnType("int(11)");

@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.Models;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Climate;
 
@@ -19,8 +20,10 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 {
 	public RegionalClimate(MudSharp.Models.RegionalClimate climate, IFuturemud gameworld)
 	{
+		Gameworld = gameworld;
 		_id = climate.Id;
 		_name = climate.Name;
+		Description = climate.Description ?? string.Empty;
 		ClimateModel = gameworld.ClimateModels.Get(climate.ClimateModelId);
 
 		foreach (var season in climate.RegionalClimatesSeasons)
@@ -50,6 +53,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	{
 		Gameworld = gameworld;
 		_name = name;
+		Description = "An undescribed regional climate.";
 		ClimateModel = model;
 		SeasonRotation = new CircularRange<ISeason>();
 		DoDatabaseInsert();
@@ -59,6 +63,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	{
 		Gameworld = rhs.Gameworld;
 		_name = name;
+		Description = rhs.Description;
 		ClimateModel = rhs.ClimateModel;
 		_seasons.AddRange(rhs._seasons);
 		foreach (var item in rhs._hourlyBaseTemperaturesBySeason)
@@ -84,7 +89,18 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 
 	private void DoDatabaseInsert()
 	{
-
+		using (new FMDB())
+		{
+			var dbitem = new MudSharp.Models.RegionalClimate
+			{
+				Name = Name,
+				Description = Description,
+				ClimateModelId = ClimateModel.Id
+			};
+			FMDB.Context.RegionalClimates.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
 	}
 
 	#region Overrides of Item
@@ -95,6 +111,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 
 	#region Implementation of IRegionalClimate
 
+	public string Description { get; protected set; }
 	public IClimateModel ClimateModel { get; protected set; }
 	private readonly List<ISeason> _seasons = new();
 	public IEnumerable<ISeason> Seasons => _seasons;
@@ -107,6 +124,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	public const string HelpText = @"You can use the following options with this command:
 
 	#3name <name>#0 - renames this regional climate
+	#3desc#0 - opens an editor for this regional climate's description
 	#3model <model>#0 - changes the climate model
 	#3season <which>#0 - toggles a season belonging to this regional climate
 	#3temp <season> <hour> <temp>#0 - sets an hourly temperature
@@ -119,6 +137,9 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
+			case "desc":
+			case "description":
+				return BuildingCommandDescription(actor);
 			case "model":
 			case "climate":
 			case "climatemodel":
@@ -133,6 +154,25 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.OutputHandler.Send("Enter the new description in the editor below.");
+		actor.EditorMode(BuildingCommandDescriptionPost, BuildingCommandDescriptionCancel, 1.0, Description);
+		return true;
+	}
+
+	private void BuildingCommandDescriptionCancel(IOutputHandler handler, object[] parameters)
+	{
+		handler.Send("You decide not to change the regional climate description.");
+	}
+
+	private void BuildingCommandDescriptionPost(string description, IOutputHandler handler, object[] parameters)
+	{
+		Description = description.Trim();
+		Changed = true;
+		handler.Send($"The regional climate description is now:\n\n{FormatDescription(Description, 80, "\t")}");
 	}
 
 	private bool BuildingCommandTemperatures(ICharacter actor, StringStack command)
@@ -341,6 +381,9 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		var sb = new StringBuilder();
 		sb.AppendLine($"Regional Climate #{Id.ToString("N0", voyeur)}: {Name}".GetLineWithTitleInner(voyeur, Telnet.Yellow, Telnet.BoldWhite));
 		sb.AppendLine();
+		sb.AppendLine("Description:");
+		sb.AppendLine(FormatDescription(Description, voyeur.InnerLineFormatLength, "\t"));
+		sb.AppendLine();
 		sb.AppendLine($"Climate Model: {ClimateModel.Name.Colour(Telnet.BoldCyan)}");
 		sb.AppendLine();
 		sb.AppendLine("Seasons:");
@@ -375,6 +418,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	{
 		var dbitem = FMDB.Context.RegionalClimates.Find(Id);
 		dbitem.Name = Name;
+		dbitem.Description = Description;
 		dbitem.ClimateModelId = ClimateModel.Id;
 		FMDB.Context.RegionalClimatesSeasons.RemoveRange(dbitem.RegionalClimatesSeasons);
 		foreach (var season in Seasons)
@@ -396,4 +440,18 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	}
 
 	#endregion
+
+	private static string FormatDescription(string description, int lineLength, string indent)
+	{
+		if (string.IsNullOrWhiteSpace(description))
+		{
+			return $"{indent}None";
+		}
+
+		return string.Join("\n",
+			description
+				.Replace("\r\n", "\n")
+				.Split('\n')
+				.Select(x => string.IsNullOrWhiteSpace(x) ? string.Empty : x.Wrap(lineLength, indent)));
+	}
 }

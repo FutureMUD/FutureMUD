@@ -361,7 +361,6 @@ public class Nausea : Effect, ICheckBonusEffect, IScoreAddendumEffect
 			{
 				WaterLitres = -0.5 * amountMultiplier,
 				ThirstPoints = -2.0 * amountMultiplier,
-				Calories = -200 * amountMultiplier,
 				SatiationPoints = -4.0 * amountMultiplier
 			}, true);
 			bodyOwner.RemoveAllEffects(x => x.IsEffectType<DelayedNeedsFulfillment>());

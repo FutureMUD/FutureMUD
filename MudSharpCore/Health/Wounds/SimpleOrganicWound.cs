@@ -7,6 +7,7 @@ using MudSharp.Models;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
@@ -80,6 +81,10 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		}
 	}
 
+	private bool IsNecroticDamage => DamageType == DamageType.Necrotic;
+
+	private double InfectionPain => _infection?.Pain ?? 0.0;
+
 	protected void CheckForOrganBleeding()
 	{
 		if (!DamageType.CanCauseOrganBleeding())
@@ -110,13 +115,13 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 		Gameworld = gameworld;
 		_parent = owner ?? throw new ArgumentNullException(nameof(owner));
+		DamageType = damageType;
 		_currentDamage = Math.Max(0.0,
 			Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
 		_originalDamage = Math.Max(0.0,
 			Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
-		_currentPain = Math.Max(0.0, pain * bodypart.PainModifier);
-		_currentStun = Math.Max(0.0, stun * bodypart.StunModifier);
-		DamageType = damageType;
+		_currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, pain * bodypart.PainModifier);
+		_currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, stun * bodypart.StunModifier);
 		Bodypart = bodypart;
 		_lodged = lodged;
 		_actorOriginId = actorOrigin?.Id ?? 0;
@@ -244,6 +249,14 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		get => _infection;
 		set
 		{
+			if (IsNecroticDamage && value is not null)
+			{
+				value.Delete();
+				_infection = null;
+				Changed = true;
+				return;
+			}
+
 			_infection = value;
 			Changed = true;
 		}
@@ -529,6 +542,11 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		_currentPain = wound.CurrentPain;
 		_currentStun = wound.CurrentStun;
 		DamageType = (DamageType)wound.DamageType;
+		if (IsNecroticDamage)
+		{
+			_currentPain = 0.0;
+			_currentStun = 0.0;
+		}
 		_bodypart = Gameworld.BodypartPrototypes.Get(wound.BodypartProtoId ?? 0);
 		if (wound.LodgedItemId.HasValue)
 		{
@@ -667,8 +685,11 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 	{
 		OriginalDamage += damage.DamageAmount;
 		CurrentDamage += damage.DamageAmount;
-		_currentPain += damage.PainAmount;
-		CurrentStun += damage.StunAmount;
+		if (!IsNecroticDamage)
+		{
+			_currentPain += damage.PainAmount;
+			CurrentStun += damage.StunAmount;
+		}
 		_cleanAttempted = false;
 		_cleaned = false;
 		_tended = Outcome.None;
@@ -735,13 +756,10 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 	public double CurrentPain
 	{
-		//TODO - I think this approach to combining wound and infection pain might be dangerous. I believe calls to the 
-		//+= operator will unintentionally add the Infection Pain into the Wound Pain each time they are called. 
-		//Need to refactor.
-		get => _currentPain + (_infection?.Pain ?? 0.0);
+		get => _currentPain + InfectionPain;
 		set
 		{
-			_currentPain = Math.Max(0.0, value);
+			_currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, value - InfectionPain);
 			Changed = true;
 		}
 	}
@@ -753,7 +771,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		get => _currentStun;
 		set
 		{
-			_currentStun = Math.Max(0.0, value);
+			_currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, value);
 			Changed = true;
 		}
 	}
@@ -1360,110 +1378,126 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			currentBloodLitres = 0.25 * totalBloodLitres;
 		}
 
-		switch (_bleedStatus)
+		return _bleedStatus switch
 		{
-			case BleedStatus.Bleeding:
-				if (ch.Body.BloodLiquid == null)
-				{
-					_bleedStatus = BleedStatus.NeverBled;
-					Changed = true;
-					return BleedResult.NoBleed;
-				}
+			BleedStatus.Bleeding => HandleActiveBleeding(ch, currentBloodLitres, activityExertionLevel),
+			BleedStatus.TraumaControlled => HandleTraumaControlledBleeding(activityExertionLevel),
+			BleedStatus.Closed => HandleClosedBleeding(activityExertionLevel),
+			_ => BleedResult.NoBleed
+		};
+	}
 
-				var beingBounds = Parent.EffectsOfType<BeingBound>().Where(x => x.Bodypart == Bodypart).ToList();
-				var bleedPercentage = Math.Max(0, (int)Severity + (int)activityExertionLevel - 4) *
-				                      PercentageExternalBloodlossPerWoundSeverity *
-				                      Bodypart.BleedModifier *
-				                      (beingBounds.Any() ? 0.5 : 1);
-				var bleeding = bleedPercentage * currentBloodLitres;
-				if (bleeding > 0)
-				{
-					var items = ch.Body.WornItemsProfilesFor(Bodypart);
-					var item = ch.Body.WornItemsFor(Bodypart).FirstOrDefault();
-					var mixture = new LiquidMixture(new BloodLiquidInstance(ch, bleeding), Gameworld);
-					item?.ExposeToLiquid(mixture, Bodypart, LiquidExposureDirection.FromUnderneath);
-					if (!mixture.IsEmpty)
-					{
-						var binders = beingBounds
-						                        .Select(x => (x.Binder, x.Binder.Body.HoldLocs))
-						                        .ToList();
-						var bindingPartCount = binders.Sum(x => x.HoldLocs.Count());
-						if (bindingPartCount > 0)
-						{
-							var mixtures = new Queue<LiquidMixture>(mixture.Split(bindingPartCount));
-							foreach (var (binder, locs) in binders)
-							{
-								foreach (var loc in locs)
-								{
-									binder.Body.ExposeToLiquid(mixtures.Dequeue(), loc, LiquidExposureDirection.Irrelevant);
-								}
-							}
-						}
-						else
-						{
-							PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, ch.Location, ch.RoomLayer, ch);
-						}
-					}
+	private BleedResult HandleActiveBleeding(ICharacter ch, double currentBloodLitres,
+		ExertionLevel activityExertionLevel)
+	{
+		if (ch.Body.BloodLiquid == null)
+		{
+			_bleedStatus = BleedStatus.NeverBled;
+			Changed = true;
+			return BleedResult.NoBleed;
+		}
 
-					if (items.All(x => x.Item2.Transparent))
-					{
-						return new BleedResult
-						{
-							BloodAmount = bleeding,
-							CoverItem = null,
-							Visible = true,
-							Bodypart = Bodypart
-						};
-					}
+		var beingBounds = Parent.EffectsOfType<BeingBound>().Where(x => x.Bodypart == Bodypart).ToList();
+		var bleedPercentage = Math.Max(0, (int)Severity + (int)activityExertionLevel - 4) *
+		                      PercentageExternalBloodlossPerWoundSeverity *
+		                      Bodypart.BleedModifier *
+		                      (beingBounds.Any() ? 0.5 : 1);
+		var bleeding = bleedPercentage * currentBloodLitres;
+		if (bleeding <= 0.0)
+		{
+			return BleedResult.NoBleed;
+		}
 
-					if (items.All(x => x.Item1.SaturationLevel > ItemSaturationLevel.Wet))
-					{
-						return new BleedResult
-						{
-							BloodAmount = bleeding,
-							CoverItem = items.Last().Item1,
-							Visible = true,
-							Bodypart = Bodypart
-						};
-					}
+		var items = ch.Body.WornItemsProfilesFor(Bodypart);
+		var item = ch.Body.WornItemsFor(Bodypart).FirstOrDefault();
+		var mixture = new LiquidMixture(new BloodLiquidInstance(ch, bleeding), Gameworld);
+		item?.ExposeToLiquid(mixture, Bodypart, LiquidExposureDirection.FromUnderneath);
+		if (!mixture.IsEmpty)
+		{
+			ExposeBleedMixture(ch, mixture, beingBounds);
+		}
 
-					return new BleedResult { BloodAmount = bleeding, Visible = false, Bodypart = Bodypart };
-				}
+		if (items.All(x => x.Item2.Transparent))
+		{
+			return new BleedResult
+			{
+				BloodAmount = bleeding,
+				CoverItem = null,
+				Visible = true,
+				Bodypart = Bodypart
+			};
+		}
 
-				return BleedResult.NoBleed;
-			case BleedStatus.TraumaControlled:
-				if (activityExertionLevel > ExertionLevel.Normal &&
-				    Dice.Roll(1, 100) < ((int)activityExertionLevel + (int)Severity - 2) * 2)
-				{
-					_bleedStatus = BleedStatus.Bleeding;
-					_cleaned = false;
-					_cleanAttempted = false;
-					Parent.OutputHandler.Handle(
-						new EmoteOutput(
-							new Emote(
-								string.Format(
-									"$0's exertion has caused {0} on &0's {1} to start bleeding!".Colour(Telnet.Red),
-									Describe(WoundExaminationType.Glance, Outcome.MajorPass),
-									Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
-					Changed = true; //Moved this into the scope to prevent unnecessary saves
-				}
+		if (items.All(x => x.Item1.SaturationLevel > ItemSaturationLevel.Wet))
+		{
+			return new BleedResult
+			{
+				BloodAmount = bleeding,
+				CoverItem = items.Last().Item1,
+				Visible = true,
+				Bodypart = Bodypart
+			};
+		}
 
-				return BleedResult.NoBleed;
-			case BleedStatus.Closed:
-				if (activityExertionLevel > ExertionLevel.Heavy &&
-				    Dice.Roll(1, 100) < (int)activityExertionLevel + (int)Severity - 5)
-				{
-					_bleedStatus = BleedStatus.TraumaControlled;
-					Parent.OutputHandler.Handle(
-						new EmoteOutput(
-							new Emote(
-								string.Format("$0's exertion has reopened {0} on &0's {1}!".Colour(Telnet.Red),
-									Describe(WoundExaminationType.Glance, Outcome.MajorPass),
-									Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
-				}
+		return new BleedResult { BloodAmount = bleeding, Visible = false, Bodypart = Bodypart };
+	}
 
-				Changed = true;
-				return BleedResult.NoBleed;
+	private void ExposeBleedMixture(ICharacter ch, LiquidMixture mixture, IEnumerable<BeingBound> beingBounds)
+	{
+		var binders = beingBounds
+		              .Select(x => (x.Binder, x.Binder.Body.HoldLocs))
+		              .ToList();
+		var bindingPartCount = binders.Sum(x => x.HoldLocs.Count());
+		if (bindingPartCount <= 0)
+		{
+			PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, ch.Location, ch.RoomLayer, ch);
+			return;
+		}
+
+		var mixtures = new Queue<LiquidMixture>(mixture.Split(bindingPartCount));
+		foreach (var (binder, locs) in binders)
+		{
+			foreach (var loc in locs)
+			{
+				binder.Body.ExposeToLiquid(mixtures.Dequeue(), loc, LiquidExposureDirection.Irrelevant);
+			}
+		}
+	}
+
+	private BleedResult HandleTraumaControlledBleeding(ExertionLevel activityExertionLevel)
+	{
+		if (activityExertionLevel > ExertionLevel.Normal &&
+		    Dice.Roll(1, 100) < ((int)activityExertionLevel + (int)Severity - 2) * 2)
+		{
+			_bleedStatus = BleedStatus.Bleeding;
+			_cleaned = false;
+			_cleanAttempted = false;
+			Parent.OutputHandler.Handle(
+				new EmoteOutput(
+					new Emote(
+						string.Format(
+							"$0's exertion has caused {0} on &0's {1} to start bleeding!".Colour(Telnet.Red),
+							Describe(WoundExaminationType.Glance, Outcome.MajorPass),
+							Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
+			Changed = true;
+		}
+
+		return BleedResult.NoBleed;
+	}
+
+	private BleedResult HandleClosedBleeding(ExertionLevel activityExertionLevel)
+	{
+		if (activityExertionLevel > ExertionLevel.Heavy &&
+		    Dice.Roll(1, 100) < (int)activityExertionLevel + (int)Severity - 5)
+		{
+			_bleedStatus = BleedStatus.TraumaControlled;
+			Parent.OutputHandler.Handle(
+				new EmoteOutput(
+					new Emote(
+						string.Format("$0's exertion has reopened {0} on &0's {1}!".Colour(Telnet.Red),
+							Describe(WoundExaminationType.Glance, Outcome.MajorPass),
+							Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
+			Changed = true;
 		}
 
 		return BleedResult.NoBleed;
@@ -1488,7 +1522,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 	public bool EligableForInfection()
 	{
-		if (Infection != null || !(_parent is ICharacter ch))
+		if (IsNecroticDamage || Infection != null || !(_parent is ICharacter ch))
 		{
 			return false;
 		}
@@ -1526,19 +1560,41 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			return;
 		}
 
+		var hadInfection = Infection != null;
+		TickExistingInfection();
+		if (hadInfection || Infection != null || !EligableForInfection())
+		{
+			return;
+		}
+
+		var terrain = ch.Location.Terrain(ch);
+		if (RandomUtilities.DoubleRandom(0.0, 1.0) > CalculateInfectionChance(ch, terrain))
+		{
+			return;
+		}
+
+		if (InfectionPreventedByCleaning(ch))
+		{
+			return;
+		}
+
+		StartNewInfection(ch, terrain);
+	}
+
+	private void TickExistingInfection()
+	{
 		Infection?.InfectionTick();
-		if (Infection?.InfectionHealed() == true)
-		{
-			Infection.Delete();
-			Infection = null;
-			return;
-		}
-
-		if (!EligableForInfection())
+		if (Infection?.InfectionHealed() != true)
 		{
 			return;
 		}
 
+		Infection.Delete();
+		Infection = null;
+	}
+
+	private double CalculateInfectionChance(ICharacter ch, ITerrain terrain)
+	{
 		var chance = Gameworld.GetStaticDouble("BaseInfectionChance");
 		switch (DamageType)
 		{
@@ -1571,8 +1627,6 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 		chance *= ch.CurrentProject.Labour?.LabourImpacts.OfType<ILabourImpactHealing>()
 		            .Aggregate(1.0, (sum, x) => sum * x.InfectionChanceMultiplier) ?? 1.0;
-
-		var terrain = ch.Location.Terrain(ch);
 		chance *= terrain.InfectionMultiplier;
 
 		switch (Severity)
@@ -1594,45 +1648,46 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				break;
 		}
 
-		if (BleedStatus == BleedStatus.TraumaControlled ||
-		    BleedStatus == BleedStatus.Bleeding)
+		if (BleedStatus is BleedStatus.TraumaControlled or BleedStatus.Bleeding)
 		{
-			chance *= 2; // 2x the infection chance for not suturing wound
+			chance *= 2;
 		}
 
-		if (RandomUtilities.DoubleRandom(0.0, 1.0) > chance)
-		{
-			return;
-		}
+		return chance;
+	}
 
+	private bool InfectionPreventedByCleaning(ICharacter ch)
+	{
 		if (_cleaned && Dice.Roll(1, 100) > 5)
 		{
-#if DEBUG
-			Console.WriteLine($"Infection for {ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} " +
-			                  $"on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} stopped by clean wound.");
-#endif
-			ch.Send(
-				$"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
-			_cleaned = false;
-			_cleanAttempted = false;
-			Changed = true;
-			return;
+			SendCleaningProtectionEcho(ch, "clean wound");
+			return true;
 		}
 
-		if (_cleanAttempted && Dice.Roll(1, 100) > 75)
+		if (!_cleanAttempted || Dice.Roll(1, 100) <= 75)
 		{
-#if DEBUG
-			Console.WriteLine(
-				$"Infection for {ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} stopped by clean attempt.");
-#endif
-			ch.Send(
-				$"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
-			_cleaned = false;
-			_cleanAttempted = false;
-			Changed = true;
-			return;
+			return false;
 		}
 
+		SendCleaningProtectionEcho(ch, "clean attempt");
+		return true;
+	}
+
+	private void SendCleaningProtectionEcho(ICharacter ch, string reason)
+	{
+#if DEBUG
+		Console.WriteLine(
+			$"Infection for {ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} stopped by {reason}.");
+#endif
+		ch.Send(
+			$"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
+		_cleaned = false;
+		_cleanAttempted = false;
+		Changed = true;
+	}
+
+	private void StartNewInfection(ICharacter ch, ITerrain terrain)
+	{
 		var virulence =
 			ch.Merits.OfType<IInfectionResistanceMerit>()
 			  .Where(x => x.Applies(ch))
@@ -1655,63 +1710,149 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 #endif
 	}
 
-	public void DoOfflineHealing(TimeSpan timePassed, double externalRateMultiplier, double externalCheckBonus)
+	private double GetOfflineTendAmount()
 	{
-		if (_bleedStatus == BleedStatus.Bleeding || Lodged != null || !(_parent is ICharacter ch))
+		return _tended switch
+		{
+			Outcome.Fail => 1.025,
+			Outcome.MinorFail => 1.05,
+			Outcome.MinorPass => 1.1,
+			Outcome.Pass => 1.2,
+			Outcome.MajorPass => 1.3,
+			_ => 1.0
+		};
+	}
+
+	private double GetHealingTendAmount()
+	{
+		return _tended switch
+		{
+			Outcome.Fail => 1.1,
+			Outcome.MinorFail => 1.2,
+			Outcome.MinorPass => 1.4,
+			Outcome.Pass => 1.7,
+			Outcome.MajorPass => 2.0,
+			_ => 1.0
+		};
+	}
+
+	private void RecoverOfflineStun(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed)
+	{
+		if (_currentStun <= 0.0)
 		{
 			return;
 		}
 
-		var tendAmount = 1.0;
-		switch (_tended)
+		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
+		var amount =
+			Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
+			            amountModifier * Math.Max(0.01,
+				            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
+				            0.01) *
+			            timePassed.TotalMinutes);
+		CurrentStun = Math.Max(_currentStun - amount, 0);
+	}
+
+	private void RecoverOfflinePain(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed,
+		Difficulty difficulty)
+	{
+		if (_currentPain <= 0.0 || IsNecroticDamage)
 		{
-			case Outcome.Fail:
-				tendAmount = 1.025;
-				break;
-			case Outcome.MinorFail:
-				tendAmount = 1.05;
-				break;
-			case Outcome.MinorPass:
-				tendAmount = 1.1;
-				break;
-			case Outcome.Pass:
-				tendAmount = 1.2;
-				break;
-			case Outcome.MajorPass:
-				tendAmount = 1.3;
-				break;
+			return;
 		}
 
-		var amountModifier = tendAmount * externalRateMultiplier;
+		var painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
+		var amount =
+			Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Pain) *
+			            amountModifier * Math.Max(0.01,
+				            painCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) *
+				            0.01) *
+			            timePassed.TotalMinutes);
+		_currentPain = Math.Max(CurrentDamage * Bodypart.PainModifier / 2.0, _currentPain - amount);
+		Changed = true;
+	}
 
-		if (CurrentStun > 0)
+	private bool TryAutoCloseTraumaOffline(ICharacter ch, double externalCheckBonus, ref TimeSpan timePassed)
+	{
+		if (_bleedStatus != BleedStatus.TraumaControlled)
 		{
-			var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
-			var amount =
-				Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
-				            amountModifier * Math.Max(0.01,
-					            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
-					            0.01) *
-				            timePassed.TotalMinutes);
-			CurrentStun = Math.Max(_currentDamage - amount, 0);
+			return false;
 		}
+
+		var traumaCheck = Gameworld.GetCheck(CheckType.WoundCloseCheck);
+		if (traumaCheck.TargetNumber(ch, CanBeTreated(TreatmentType.Close), null,
+			    externalBonus: externalCheckBonus) * timePassed.TotalMinutes < 50.0)
+		{
+			return false;
+		}
+
+		_bleedStatus = BleedStatus.Closed;
+		Changed = true;
+		timePassed = TimeSpan.FromTicks(timePassed.Ticks / 2);
+		return true;
+	}
+
+	private void RecoverActiveStun(ICharacter ch, double amountModifier, double externalCheckBonus)
+	{
+		if (CurrentStun <= 0.0)
+		{
+			return;
+		}
+
+		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
+		var result = stunCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
+		if (!result.IsPass())
+		{
+			return;
+		}
+
+		CurrentStun =
+			Math.Max(
+				CurrentStun -
+				Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Stun) *
+				amountModifier, 0);
+	}
+
+	private double GetNeedHealingMultiplier(NeedsResult needStatus)
+	{
+		var multiplier = 1.0;
+		if (needStatus.HasFlag(NeedsResult.Parched))
+		{
+			multiplier -= 0.45;
+		}
+		else if (needStatus.HasFlag(NeedsResult.Thirsty))
+		{
+			multiplier -= 0.1;
+		}
+
+		if (needStatus.HasFlag(NeedsResult.Starving))
+		{
+			multiplier -= 0.45;
+		}
+		else if (needStatus.HasFlag(NeedsResult.Hungry))
+		{
+			multiplier -= 0.1;
+		}
+
+		return multiplier;
+	}
+
+	public void DoOfflineHealing(TimeSpan timePassed, double externalRateMultiplier, double externalCheckBonus)
+	{
+		if (_bleedStatus == BleedStatus.Bleeding || Lodged != null || !(_parent is ICharacter ch) || IsNecroticDamage)
+		{
+			return;
+		}
+
+		var amountModifier = GetOfflineTendAmount() * externalRateMultiplier;
+		RecoverOfflineStun(ch, amountModifier, externalCheckBonus, timePassed);
 
 		if (_infection != null)
 		{
 			return;
 		}
 
-		if (_bleedStatus == BleedStatus.TraumaControlled)
-		{
-			var traumaCheck = Gameworld.GetCheck(CheckType.WoundCloseCheck);
-			if (traumaCheck.TargetNumber(ch, CanBeTreated(TreatmentType.Close), null,
-				    externalBonus: externalCheckBonus) * timePassed.TotalMinutes >= 50.0)
-			{
-				_bleedStatus = BleedStatus.Closed;
-				Changed = true;
-				timePassed = TimeSpan.FromTicks(timePassed.Ticks / 2);
-			}
-		}
+		TryAutoCloseTraumaOffline(ch, externalCheckBonus, ref timePassed);
 
 		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
 		if (_currentDamage > 0)
@@ -1728,19 +1869,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			// TODO - hunger and thirst?
 		}
 
-		if (_currentPain > 0)
-		{
-			var painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
-			var amount =
-				Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Pain) *
-				            amountModifier * Math.Max(0.01,
-					            painCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) *
-					            0.01) *
-				            timePassed.TotalMinutes);
-			// Pain is never less than half current damage
-			_currentPain = Math.Max(CurrentDamage * Bodypart.PainModifier / 2.0, _currentPain - amount);
-			Changed = true;
-		}
+		RecoverOfflinePain(ch, amountModifier, externalCheckBonus, timePassed, difficulty);
 	}
 
 	public bool HealingTick(double externalRateMultiplier, double externalCheckBonus)
@@ -1777,43 +1906,11 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			return false;
 		}
 
-		var tendAmount = 1.0;
-		switch (_tended)
-		{
-			case Outcome.Fail:
-				tendAmount = 1.1;
-				break;
-			case Outcome.MinorFail:
-				tendAmount = 1.2;
-				break;
-			case Outcome.MinorPass:
-				tendAmount = 1.4;
-				break;
-			case Outcome.Pass:
-				tendAmount = 1.7;
-				break;
-			case Outcome.MajorPass:
-				tendAmount = 2.0;
-				break;
-		}
-
-		var amountModifer = (ch.State.HasFlag(CharacterState.Sleeping) ? 1.3 : 1.0) * tendAmount *
+		var amountModifer = (ch.State.HasFlag(CharacterState.Sleeping) ? 1.3 : 1.0) *
+		                    GetHealingTendAmount() *
 		                    externalRateMultiplier;
 
-		Outcome result;
-		if (CurrentStun > 0)
-		{
-			var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
-			result = stunCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
-			if (result.IsPass())
-			{
-				CurrentStun =
-					Math.Max(
-						CurrentStun -
-						Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Stun) *
-						amountModifer, 0);
-			}
-		}
+		RecoverActiveStun(ch, amountModifer, externalCheckBonus);
 
 		// You must be breathing for healing to take place
 		if (ch.NeedsToBreathe && !ch.IsBreathing)
@@ -1829,6 +1926,14 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		{
 			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
 				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInfected,
+				Outcome.NotTested);
+			return false;
+		}
+
+		if (IsNecroticDamage)
+		{
+			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealNecrotic,
 				Outcome.NotTested);
 			return false;
 		}
@@ -1854,32 +1959,12 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			return false;
 		}
 
-		var needStatus = ch.Body.NeedsModel.Status;
-		var multiplier = 1.0;
-		if (needStatus.HasFlag(NeedsResult.Parched))
-		{
-			multiplier -= 0.45;
-		}
-		else if (needStatus.HasFlag(NeedsResult.Thirsty))
-		{
-			multiplier -= 0.1;
-		}
-
-		if (needStatus.HasFlag(NeedsResult.Starving))
-		{
-			multiplier -= 0.45;
-		}
-		else if (needStatus.HasFlag(NeedsResult.Hungry))
-		{
-			multiplier -= 0.1;
-		}
-
-		Outcome healthResult;
+		var multiplier = GetNeedHealingMultiplier(ch.Body.NeedsModel.Status);
 		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
 		if (_currentDamage > 0 && ch.Body.CurrentExertion <= ExertionLevel.Rest)
 		{
 			var healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
-			healthResult = healthCheck.Check(ch, difficulty, externalBonus: externalCheckBonus);
+			var healthResult = healthCheck.Check(ch, difficulty, externalBonus: externalCheckBonus);
 			if (healthResult.IsPass())
 			{
 				var healing = Parent.HealthStrategy.GetHealingTickAmount(this, healthResult, HealthDamageType.Damage) *
@@ -1889,7 +1974,6 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				{
 					ThirstPoints = -0.0075 * CurrentDamage / 100,
 					WaterLitres = -0.001 * CurrentDamage / 100,
-					Calories = -2.0 * CurrentDamage / 100,
 					SatiationPoints = -0.01 * CurrentDamage / 100
 				}, true);
 				Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
@@ -1901,7 +1985,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		if (_currentPain > 0)
 		{
 			var painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
-			result = painCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
+			var result = painCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
 			double painhealing = 0;
 			if (result.IsPass())
 			{

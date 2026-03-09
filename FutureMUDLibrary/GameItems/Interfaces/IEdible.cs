@@ -1,8 +1,7 @@
 ﻿using MudSharp.Body;
 
 namespace MudSharp.GameItems.Interfaces {
-    public interface IEdible : IGameItemComponent {
-        double Calories { get; }
+public interface IEdible : IGameItemComponent {
         double SatiationPoints { get; }
         double WaterLitres { get; }
         double ThirstPoints { get; }

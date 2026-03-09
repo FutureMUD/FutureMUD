@@ -2077,7 +2077,7 @@ Additionally, there are numerous properties that can be set:
 	#3race set biteweight <weight>#0 - sets the amount of corpse weight eaten per bite
 	#3race set material add <material>#0 - adds a material definition for corpse-eating
 	#3race set material remove <material>#0 - removes a material as eligible for corpse-eating
-	#3race set material alcohol|thirst|hunger|water|calories <amount>#0 - sets the per-kg nutrition for this material
+	#3race set material alcohol|thirst|hunger|water <amount>#0 - sets the per-kg nutrition for this material
 	#3race set optinediblematerial#0 - toggles whether the race can only eat materials from the pre-defined list
 	#3race set emotecorpse <emote>#0 - sets the emote for eating corpses. $0 is eater, $1 is corpse.
 	#3race set yield#0 - tba";

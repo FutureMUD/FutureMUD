@@ -146,7 +146,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		var liverFunction = Owner.OrganFunction<LiverProto>();
 		if (liverFunction < 1.0)
 		{
-			externalBonus += (1.0 - spleenFunction) * Gameworld.GetStaticDouble("InfectionBonusPerLiverFunction");
+			externalBonus += (1.0 - liverFunction) * Gameworld.GetStaticDouble("InfectionBonusPerLiverFunction");
 		}
 
 		// Resting and Sleeping helps the immune system

@@ -11,7 +11,11 @@
         double WaterLitres { get; }
         double FoodSatiatedHours { get; }
         double DrinkSatiatedHours { get; }
-        double Calories { get; }
+        double SatiationReserve { get; }
+        double StarvationLevel { get; }
+        double OversatiationLevel { get; }
+        double SatiationExcess { get; }
+        double SatiationDeficit { get; }
         NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false);
         void NeedsHeartbeat();
     }

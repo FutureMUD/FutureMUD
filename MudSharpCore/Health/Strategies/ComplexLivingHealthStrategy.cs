@@ -1028,8 +1028,6 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 						               (liquid.Amount * owner.Gameworld.UnitManager.BaseFluidToLitres),
 						WaterLitres = liquid.Liquid.WaterLitresPerLitre /
 						              (liquid.Amount * owner.Gameworld.UnitManager.BaseFluidToLitres),
-						Calories = liquid.Liquid.CaloriesPerLitre /
-						           (liquid.Amount * owner.Gameworld.UnitManager.BaseFluidToLitres),
 						AlcoholLitres = liquid.Liquid.AlcoholLitresPerLitre /
 						                (liquid.Amount * owner.Gameworld.UnitManager.BaseFluidToLitres),
 						SatiationPoints = liquid.Liquid.FoodSatiatedHoursPerLitre /

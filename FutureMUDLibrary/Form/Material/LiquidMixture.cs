@@ -429,11 +429,10 @@ namespace MudSharp.Form.Material
 			}
 
 			var multiplier = Gameworld.UnitManager.BaseFluidToLitres;
-			double satiationPoints = 0.0, calories = 0.0, thirstPoints = 0.0, waterLitres = 0.0, alcoholLitres = 0.0;
+			double satiationPoints = 0.0, thirstPoints = 0.0, waterLitres = 0.0, alcoholLitres = 0.0;
 			foreach (var liquid in Instances)
 			{
 				satiationPoints += liquid.Liquid.FoodSatiatedHoursPerLitre * liquid.Amount * multiplier;
-				calories += liquid.Liquid.CaloriesPerLitre * liquid.Amount * multiplier;
 				thirstPoints += liquid.Liquid.DrinkSatiatedHoursPerLitre * liquid.Amount * multiplier;
 				waterLitres += liquid.Liquid.WaterLitresPerLitre * liquid.Amount * multiplier;
 				alcoholLitres += liquid.Liquid.AlcoholLitresPerLitre * liquid.Amount * multiplier;
@@ -442,7 +441,6 @@ namespace MudSharp.Form.Material
 			return new NeedFulfiller
 			{
 				SatiationPoints = satiationPoints,
-				Calories = calories,
 				ThirstPoints = thirstPoints,
 				WaterLitres = waterLitres,
 				AlcoholLitres = alcoholLitres

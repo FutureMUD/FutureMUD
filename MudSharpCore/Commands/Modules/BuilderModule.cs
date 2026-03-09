@@ -2444,7 +2444,6 @@ The syntax for this command is as follows:
 	#3liquid set thirst <hours>#0 - how many hours of thirst quenched per litre drunk
 	#3liquid set hunger <hours>#0 - how many hours of hunger quenched per litre drunk
 	#3liquid set water <litres per litre>#0 - how many litres of hydrating water per litre of liquid#B*#0
-	#3liquid set calories <calories per litre>#0 - how many calories per litre of liquid#B*#0
 	#3liquid set prog <which>#0 - sets a prog to be executed when the liquid is drunk
 	#3liquid set prog none#0 - clears the draught prog
 	#3liquid set solvent <liquid>#0 - sets a solvent required for cleaning this liquid off things
@@ -2525,7 +2524,6 @@ The syntax for this command is as follows:
 					liquid.Organic.ToColouredString(),
 					liquid.WaterLitresPerLitre.ToString("P0", actor),
 					liquid.DrinkSatiatedHoursPerLitre.ToString("N1", actor),
-					liquid.CaloriesPerLitre.ToString("N0", actor),
 					liquid.FoodSatiatedHoursPerLitre.ToString("N1", actor),
 					liquid.AlcoholLitresPerLitre.ToString("P0", actor),
 					liquid.DraughtProg?.MXPClickableFunctionNameWithId() ?? "None",
@@ -2541,7 +2539,6 @@ The syntax for this command is as follows:
 					"Organic",
 					"Water",
 					"Thirst",
-					"Calories",
 					"Food",
 					"Alcohol",
 					"Draught",

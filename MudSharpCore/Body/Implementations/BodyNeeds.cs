@@ -223,7 +223,6 @@ public partial class Body : IHaveNeeds, IEat
 		FulfilNeeds(new NeedFulfiller
 		{
 			SatiationPoints = edible.SatiationPoints * bites / edible.TotalBites,
-			Calories = edible.Calories * bites / edible.TotalBites,
 			ThirstPoints = edible.ThirstPoints * bites / edible.TotalBites,
 			WaterLitres = edible.WaterLitres * bites / edible.TotalBites,
 			AlcoholLitres = edible.AlcoholLitres * bites / edible.TotalBites
@@ -269,7 +268,6 @@ public partial class Body : IHaveNeeds, IEat
 		FulfilNeeds(new NeedFulfiller
 		{
 			SatiationPoints = edible.SatiationPoints * bites / edible.TotalBites,
-			Calories = edible.Calories * bites / edible.TotalBites,
 			ThirstPoints = edible.ThirstPoints * bites / edible.TotalBites,
 			WaterLitres = edible.WaterLitres * bites / edible.TotalBites,
 			AlcoholLitres = edible.AlcoholLitres * bites / edible.TotalBites
@@ -701,7 +699,6 @@ public partial class Body : IHaveNeeds, IEat
 			FulfilNeeds(new NeedFulfiller
 			{
 				SatiationPoints = edible.SatiationPoints,
-				Calories = edible.Calories,
 				ThirstPoints = edible.ThirstPoints,
 				WaterLitres = edible.WaterLitres,
 				AlcoholLitres = edible.AlcoholLitres
@@ -753,7 +750,6 @@ public partial class Body : IHaveNeeds, IEat
 			FulfilNeeds(new NeedFulfiller
 			{
 				SatiationPoints = edible.SatiationPoints,
-				Calories = edible.Calories,
 				ThirstPoints = edible.ThirstPoints,
 				WaterLitres = edible.WaterLitres,
 				AlcoholLitres = edible.AlcoholLitres

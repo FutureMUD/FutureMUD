@@ -43,13 +43,12 @@ namespace MudSharp.Form.Material {
 
         string Description { get; }
 
-        double AlcoholLitresPerLitre { get; }
-        double WaterLitresPerLitre { get; }
-        double FoodSatiatedHoursPerLitre { get; }
-        double DrinkSatiatedHoursPerLitre { get; }
-        double CaloriesPerLitre { get; }
+		double AlcoholLitresPerLitre { get; }
+		double WaterLitresPerLitre { get; }
+		double FoodSatiatedHoursPerLitre { get; }
+		double DrinkSatiatedHoursPerLitre { get; }
 
-        IFutureProg DraughtProg { get; }
+		IFutureProg DraughtProg { get; }
         double SolventVolumeRatio { get; }
         ILiquid Solvent { get; }
         ISolid DriedResidue { get; }

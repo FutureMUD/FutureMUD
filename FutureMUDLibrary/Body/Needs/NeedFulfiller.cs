@@ -5,8 +5,6 @@
     public class NeedFulfiller : INeedFulfiller {
         #region IFulfilNeeds Members
 
-        public double Calories { get; init; }
-
         public double SatiationPoints { get; init; }
 
         public double WaterLitres { get; init; }

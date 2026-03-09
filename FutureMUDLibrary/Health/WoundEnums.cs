@@ -5,6 +5,7 @@
         NoHealLodged,
         NoHealCantBreathe,
         NoHealInfected,
+        NoHealNecrotic,
         NoHealNotSutured,
         NoHealNotSuturedAutoClosed,
         Healed

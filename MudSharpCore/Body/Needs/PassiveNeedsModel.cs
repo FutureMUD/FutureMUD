@@ -15,7 +15,7 @@ public class PassiveNeedsModel : ChangingNeedsModelBase
 		WaterLitres = 0.0;
 		FoodSatiatedHours = 16.0;
 		DrinkSatiatedHours = 8.0;
-		Calories = 0.0;
+		SatiationReserve = 0.0;
 	}
 
 	public override bool NeedsSave => false;

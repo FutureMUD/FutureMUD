@@ -1,7 +1,8 @@
-﻿using System;
+using System;
+using System.Linq;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
-using System.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
@@ -19,45 +20,49 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
 	public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
 	{
-                var oldStatus = Status;
+		var oldStatus = Status;
 
-                var effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToActive).ToList();
-                var hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
-                var thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
-                var drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
+		var effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToActive).ToList();
+		var hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
+		var thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
+		var drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
+		var satiationDelta = fulfiller.SatiationPoints * hungerMult;
+		var thirstDelta = fulfiller.ThirstPoints * thirstMult;
+		var previousFoodSatiatedHours = FoodSatiatedHours;
 
-                WaterLitres += fulfiller.WaterLitres;
-                FoodSatiatedHours += fulfiller.SatiationPoints * hungerMult;
-                DrinkSatiatedHours += fulfiller.ThirstPoints * thirstMult;
-                Calories += fulfiller.Calories * hungerMult;
-                if (!ignoreDelays && fulfiller.AlcoholLitres > 0.0)
-                {
-                        AlcoholLitres += fulfiller.AlcoholLitres * 0.25 * drunkMult;
-                        var timespan = TimeSpan.FromMinutes(Math.Max(1.0,
-                                15.0 * (1.0 + FoodSatiatedHours / 12.0) * RealSecondsToInGameSeconds));
-                        Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-                                new NeedFulfiller
-                                {
-                                        AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
-                                }
-                        ), timespan);
-                        Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-                                new NeedFulfiller
-                                {
-                                        AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
-                                }
-                        ), timespan + timespan);
-                        Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-                                new NeedFulfiller
-                                {
-                                        AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
-                                }
-                        ), timespan + timespan + timespan);
-                }
-                else
-                {
-                        AlcoholLitres += fulfiller.AlcoholLitres * drunkMult;
-                }
+		WaterLitres += fulfiller.WaterLitres;
+		FoodSatiatedHours += satiationDelta;
+		DrinkSatiatedHours += thirstDelta;
+		SatiationReserve =
+			ApplySatiationReserveFromFulfiller(SatiationReserve, previousFoodSatiatedHours, satiationDelta);
+		if (!ignoreDelays && fulfiller.AlcoholLitres > 0.0)
+		{
+			AlcoholLitres += fulfiller.AlcoholLitres * 0.25 * drunkMult;
+			var timespan = TimeSpan.FromMinutes(Math.Max(1.0,
+				15.0 * (1.0 + FoodSatiatedHours / 12.0) * RealSecondsToInGameSeconds));
+			Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
+				new NeedFulfiller
+				{
+					AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
+				}
+			), timespan);
+			Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
+				new NeedFulfiller
+				{
+					AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
+				}
+			), timespan + timespan);
+			Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
+				new NeedFulfiller
+				{
+					AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
+				}
+			), timespan + timespan + timespan);
+		}
+		else
+		{
+			AlcoholLitres += fulfiller.AlcoholLitres * drunkMult;
+		}
 
 		NormaliseValues();
 
@@ -251,6 +256,91 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 		return newStatus;
 	}
 
+	internal static double CalculateStarvationLevel(double foodSatiatedHours)
+	{
+		return Math.Max(0.0, -foodSatiatedHours);
+	}
+
+	internal static double CalculateOversatiationLevel(double foodSatiatedHours)
+	{
+		return Math.Max(0.0, foodSatiatedHours - 12.0);
+	}
+
+	internal static double ApplySatiationReserveFromFulfiller(double currentReserve, double previousFoodSatiatedHours,
+		double satiationDelta)
+	{
+		if (satiationDelta <= 0.0)
+		{
+			return currentReserve + satiationDelta;
+		}
+
+		var originalSatiationDelta = satiationDelta;
+		if (currentReserve < 0.0)
+		{
+			var deficitRecovery = Math.Min(-currentReserve, satiationDelta);
+			currentReserve += deficitRecovery;
+			satiationDelta -= deficitRecovery;
+		}
+
+		if (satiationDelta <= 0.0)
+		{
+			return currentReserve;
+		}
+
+		var oversatiationBefore = CalculateOversatiationLevel(previousFoodSatiatedHours);
+		var oversatiationAfter = CalculateOversatiationLevel(previousFoodSatiatedHours + originalSatiationDelta);
+		var oversatiationGain = Math.Max(0.0, oversatiationAfter - oversatiationBefore);
+		if (oversatiationGain <= 0.0)
+		{
+			return currentReserve;
+		}
+
+		var oversatiationFraction = Math.Min(1.0, oversatiationGain / originalSatiationDelta);
+		return currentReserve + satiationDelta * oversatiationFraction;
+	}
+
+	internal static double GetStarvationSatiationDeficitMultiplier(double starvationLevel)
+	{
+		if (starvationLevel <= 0.0)
+		{
+			return 0.0;
+		}
+
+		return Math.Max(0.25, Math.Min(1.0, starvationLevel));
+	}
+
+	internal static double GetExertionSatiationBurnMultiplier(ExertionLevel exertion)
+	{
+		return exertion switch
+		{
+			ExertionLevel.Heavy => 0.5,
+			ExertionLevel.VeryHeavy => 1.0,
+			ExertionLevel.ExtremelyHeavy => 1.5,
+			_ => 0.0
+		};
+	}
+
+	protected void SpendSatiationReserve(double amount, bool allowDeficit)
+	{
+		if (amount <= 0.0)
+		{
+			return;
+		}
+
+		if (allowDeficit)
+		{
+			SatiationReserve -= amount;
+			return;
+		}
+
+		if (SatiationReserve <= 0.0)
+		{
+			return;
+		}
+
+		SatiationReserve = Math.Max(0.0, SatiationReserve - amount);
+	}
+
 	public NeedsResult Status
 	{
 		get
@@ -348,7 +438,15 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
 	public double DrinkSatiatedHours { get; protected set; }
 
-	public double Calories { get; protected set; }
+	public double SatiationReserve { get; protected set; }
+
+	public double StarvationLevel => CalculateStarvationLevel(FoodSatiatedHours);
+
+	public double OversatiationLevel => CalculateOversatiationLevel(FoodSatiatedHours);
+
+	public double SatiationExcess => Math.Max(0.0, SatiationReserve);
+
+	public double SatiationDeficit => Math.Max(0.0, -SatiationReserve);
 
 	public virtual bool NeedsSave => true;
 

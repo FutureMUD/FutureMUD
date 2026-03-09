@@ -65,6 +65,10 @@ public class HealingLogger : ICustomLogger
 				_pendingLogEntries.AppendLine(
 					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal infection");
 				break;
+			case WoundHealingTickResult.NoHealNecrotic:
+				_pendingLogEntries.AppendLine(
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal necrotic");
+				break;
 			case WoundHealingTickResult.NoHealNotSutured:
 				_pendingLogEntries.AppendLine(
 					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal not sutured");

@@ -63,7 +63,7 @@ public partial class Character
 	public double WaterLitres { get; set; }
 	public double FoodSatiatedHours { get; set; }
 	public double DrinkSatiatedHours { get; set; }
-	public double Calories { get; set; }
+	public double SatiationReserve { get; set; }
 	public string NeedsModel { get; set; }
 	public string LongTermPlan { get; set; }
 	public string ShortTermPlan { get; set; }

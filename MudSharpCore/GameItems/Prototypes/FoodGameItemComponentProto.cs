@@ -16,7 +16,6 @@ namespace MudSharp.GameItems.Prototypes;
 public class FoodGameItemComponentProto : GameItemComponentProto
 {
 	public IStackDecorator Decorator { get; protected set; }
-	public double Calories { get; protected set; }
 	public double SatiationPoints { get; protected set; }
 	public double WaterLitres { get; protected set; }
 	public double ThirstPoints { get; protected set; }
@@ -52,9 +51,8 @@ public class FoodGameItemComponentProto : GameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{10:N0}r{11:N0}, {12})\n\nThis item is food. When eaten it provides {1} calories and satisfies hunger for {2} hours, and provides {3} of water whilst satisfying {4} hours of regular thirst. It contains {5} of alcohol. It can be eaten in {6} bite{7}.\n\nWhen bites are taken out of it, it uses the {8} decorator and has the taste string {9}\n\nProg fired on eat: {13}",
+			"{0} (#{9:N0}r{10:N0}, {11})\n\nThis item is food. When eaten it satisfies hunger for {1} hours, and provides {2} of water whilst satisfying {3} hours of regular thirst. It contains {4} of alcohol. It can be eaten in {5} bite{6}.\n\nWhen bites are taken out of it, it uses the {7} decorator and has the taste string {8}\n\nProg fired on eat: {12}",
 			"Food Item Component".Colour(Telnet.Cyan),
-			Calories.ToString("N0", actor).Colour(Telnet.Green),
 			SatiationPoints.ToString("N1", actor).Colour(Telnet.Green),
 			actor.Gameworld.UnitManager.Describe(WaterLitres / actor.Gameworld.UnitManager.BaseFluidToLitres,
 				UnitType.FluidVolume, actor).Colour(Telnet.Green),
@@ -74,13 +72,7 @@ public class FoodGameItemComponentProto : GameItemComponentProto
 
 	protected override void LoadFromXml(XElement root)
 	{
-		var attribute = root.Attribute("Calories");
-		if (attribute != null)
-		{
-			Calories = double.Parse(attribute.Value);
-		}
-
-		attribute = root.Attribute("Satiation");
+		var attribute = root.Attribute("Satiation");
 		if (attribute != null)
 		{
 			SatiationPoints = double.Parse(attribute.Value);
@@ -132,8 +124,7 @@ public class FoodGameItemComponentProto : GameItemComponentProto
 	protected override string SaveToXml()
 	{
 		return
-			new XElement("Definition", new XAttribute("Calories", Calories),
-				new XAttribute("Satiation", SatiationPoints), new XAttribute("Water", WaterLitres),
+			new XElement("Definition", new XAttribute("Satiation", SatiationPoints), new XAttribute("Water", WaterLitres),
 				new XAttribute("Thirst", ThirstPoints), new XAttribute("Alcohol", AlcoholLitres),
 				new XAttribute("Bites", Bites), new XAttribute("Decorator", Decorator?.Id ?? 0),
 				new XElement("Taste", new XCData(TasteString)),
@@ -167,7 +158,6 @@ public class FoodGameItemComponentProto : GameItemComponentProto
 			Decorator = Gameworld.StackDecorators.Get(long.Parse(stringValue));
 		}
 
-		Calories = 500;
 		SatiationPoints = 6;
 		WaterLitres = 0.05;
 		ThirstPoints = 0;
@@ -181,20 +171,17 @@ public class FoodGameItemComponentProto : GameItemComponentProto
 
 	#region Building Commands
 
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	hunger <hours> - the hours of food satiation from eating the whole thing
-	thirst <hours> - the hours of thirst satiation from eating the whole thing
-	alcohol <amount> - the liquid volume of alcohol from eating the whole thing
-	bites <#> - the number of bites before the food is consumed
-	calories <cals> - the number of Calories (kCal) from eating the whole thing
-	water <amount> - the liquid volume of water from eating the whole thing
-	taste <string> - a taste string to display to the character eating it
-	prog <which> - sets a prog to be executed when the food is eaten
-	prog clear - clears the on-eat prog
-
-Note: Calories/Water is mostly obsolete and may be removed in future, so don't stress those values too much";
+private const string BuildingHelpText = @"You can use the following options with this component:
+name <name> - sets the name of the component
+desc <desc> - sets the description of the component
+hunger <hours> - the hours of food satiation from eating the whole thing
+thirst <hours> - the hours of thirst satiation from eating the whole thing
+alcohol <amount> - the liquid volume of alcohol from eating the whole thing
+bites <#> - the number of bites before the food is consumed
+water <amount> - the liquid volume of water from eating the whole thing
+taste <string> - a taste string to display to the character eating it
+prog <which> - sets a prog to be executed when the food is eaten
+prog clear - clears the on-eat prog";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -202,9 +189,6 @@ Note: Calories/Water is mostly obsolete and may be removed in future, so don't s
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
-			case "calories":
-			case "cals":
-				return BuildingCommandCalories(actor, command);
 			case "satiation":
 			case "hunger":
 			case "hours":
@@ -281,31 +265,6 @@ Note: Calories/Water is mostly obsolete and may be removed in future, so don't s
 		actor.Send("This food now requires {0} bite{1} to be completely consumed.",
 			Bites.ToString("N2", actor).Colour(Telnet.Green),
 			Bites == 1 ? "" : "s"
-		);
-		return true;
-	}
-
-	private bool BuildingCommandCalories(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.Send("How many calories do you want this food to give when eaten?");
-			return false;
-		}
-
-		if (!double.TryParse(command.PopSpeech(), out var value))
-		{
-			actor.Send("You must enter a valid number of calories.");
-			return false;
-		}
-
-		Calories = value;
-		Changed = true;
-		actor.Send("This food now gives a total of {0} calories{1}.",
-			Calories.ToString("N0", actor).Colour(Telnet.Green),
-			Bites == 1
-				? ""
-				: $", or {(Calories / Bites).ToString("N0", actor).Colour(Telnet.Green)} calories per bite"
 		);
 		return true;
 	}

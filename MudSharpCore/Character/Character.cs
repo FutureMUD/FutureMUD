@@ -568,9 +568,9 @@ public partial class Character : PerceiverItem, ICharacter
 		{
 			dbchar.AlcoholLitres = NeedsModel.AlcoholLitres;
 			dbchar.WaterLitres = NeedsModel.WaterLitres;
-			dbchar.Calories = NeedsModel.Calories;
 			dbchar.DrinkSatiatedHours = NeedsModel.DrinkSatiatedHours;
 			dbchar.FoodSatiatedHours = NeedsModel.FoodSatiatedHours;
+			dbchar.SatiationReserve = NeedsModel.SatiationReserve;
 		}
 
 		dbchar.ShortTermPlan = ShortTermPlan;

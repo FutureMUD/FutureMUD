@@ -31,7 +31,6 @@ namespace MudSharp.Models
 		public double WaterLitresPerLitre { get; set; }
 		public double FoodSatiatedHoursPerLitre { get; set; }
 		public double DrinkSatiatedHoursPerLitre { get; set; }
-		public double CaloriesPerLitre { get; set; }
 		public double Viscosity { get; set; }
 		public double Density { get; set; }
 		public bool Organic { get; set; }

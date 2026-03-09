@@ -18,7 +18,6 @@ public class DelayedNeedsFulfillment : Effect, IEffectSubtype
 		var definition = effect.Element("Effect");
 		Payload = new NeedFulfiller
 		{
-			Calories = double.Parse(definition.Attribute("Calories").Value),
 			SatiationPoints = double.Parse(definition.Attribute("SatiationPoints").Value),
 			ThirstPoints = double.Parse(definition.Attribute("ThirstPoints").Value),
 			WaterLitres = double.Parse(definition.Attribute("WaterLitres").Value),
@@ -43,7 +42,7 @@ public class DelayedNeedsFulfillment : Effect, IEffectSubtype
 			new XElement("Effect", new XAttribute("SatiationPoints", Payload.SatiationPoints),
 				new XAttribute("ThirstPoints", Payload.ThirstPoints),
 				new XAttribute("AlcoholLitres", Payload.AlcoholLitres),
-				new XAttribute("WaterLitres", Payload.WaterLitres), new XAttribute("Calories", Payload.Calories));
+				new XAttribute("WaterLitres", Payload.WaterLitres));
 	}
 
 	public override void ExpireEffect()
@@ -57,12 +56,12 @@ public class DelayedNeedsFulfillment : Effect, IEffectSubtype
 	public override string Describe(IPerceiver voyeur)
 	{
 		return
-			$"Delayed Needs Fulfillment - {Payload.Calories:N0} {Payload.WaterLitres:N4} {Payload.SatiationPoints:N2} {Payload.ThirstPoints:N2} {Payload.AlcoholLitres:N4}";
+			$"Delayed Needs Fulfillment - {Payload.WaterLitres:N4} {Payload.SatiationPoints:N2} {Payload.ThirstPoints:N2} {Payload.AlcoholLitres:N4}";
 	}
 
 	public override string ToString()
 	{
 		return
-			$"Delayed Needs Fulfillment - {Payload.Calories:N0} {Payload.WaterLitres:N4} {Payload.SatiationPoints:N2} {Payload.ThirstPoints:N2} {Payload.AlcoholLitres:N4}";
+			$"Delayed Needs Fulfillment - {Payload.WaterLitres:N4} {Payload.SatiationPoints:N2} {Payload.ThirstPoints:N2} {Payload.AlcoholLitres:N4}";
 	}
 }

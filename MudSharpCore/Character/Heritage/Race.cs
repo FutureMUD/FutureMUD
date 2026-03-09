@@ -527,7 +527,6 @@ public partial class Race : SaveableItem, IRace
 			{
 				YieldType = yield.YieldType.ToLowerInvariant(),
 				YieldPerBite = yield.BiteYield,
-				CaloriesPerYield = yield.CaloriesPerYield,
 				HungerPerYield = yield.HungerPerYield,
 				ThirstPerYield = yield.ThirstPerYield,
 				WaterPerYield = yield.WaterPerYield,
@@ -544,7 +543,6 @@ public partial class Race : SaveableItem, IRace
 				Material = Gameworld.Materials.Get(material.MaterialId),
 				HungerPerKilogram = material.HungerPerKilogram,
 				ThirstPerKilogram = material.ThirstPerKilogram,
-				CaloriesPerKilogram = material.CaloriesPerKilogram,
 				WaterPerKilogram = material.WaterPerKilogram,
 				AlcoholPerKilogram = material.AlcoholPerKilogram
 			});
@@ -908,7 +906,6 @@ public partial class Race : SaveableItem, IRace
 				{
 					Race = dbitem,
 					MaterialId = item.Material.Id,
-					CaloriesPerKilogram = item.CaloriesPerKilogram,
 					ThirstPerKilogram = item.ThirstPerKilogram,
 					HungerPerKilogram = item.HungerPerKilogram,
 					WaterPerKilogram = item.WaterPerKilogram,
@@ -954,7 +951,6 @@ public partial class Race : SaveableItem, IRace
 					YieldType = item.YieldType.ToLowerInvariant(),
 					BiteYield = item.YieldPerBite,
 					AlcoholPerYield = item.AlcoholPerYield,
-					CaloriesPerYield = item.CaloriesPerYield,
 					EatEmote = item.EmoteText,
 					HungerPerYield = item.HungerPerYield,
 					ThirstPerYield = item.ThirstPerYield,
@@ -1340,7 +1336,6 @@ public partial class Race : SaveableItem, IRace
 			{
 				Race = dbitem,
 				MaterialId = item.Material.Id,
-				CaloriesPerKilogram = item.CaloriesPerKilogram,
 				ThirstPerKilogram = item.ThirstPerKilogram,
 				HungerPerKilogram = item.HungerPerKilogram,
 				WaterPerKilogram = item.WaterPerKilogram,
@@ -1391,7 +1386,6 @@ public partial class Race : SaveableItem, IRace
 				YieldType = item.YieldType.ToLowerInvariant(),
 				BiteYield = item.YieldPerBite,
 				AlcoholPerYield = item.AlcoholPerYield,
-				CaloriesPerYield = item.CaloriesPerYield,
 				EatEmote = item.EmoteText,
 				HungerPerYield = item.HungerPerYield,
 				ThirstPerYield = item.ThirstPerYield,
@@ -1840,7 +1834,6 @@ public partial class Race : SaveableItem, IRace
 		return (efy.EmoteText,
 			new NeedFulfiller
 			{
-				Calories = efy.CaloriesPerYield * totalYield,
 				SatiationPoints = efy.HungerPerYield * totalYield,
 				ThirstPoints = efy.ThirstPerYield * totalYield,
 				WaterLitres = efy.WaterPerYield * totalYield,
@@ -1855,7 +1848,6 @@ public partial class Race : SaveableItem, IRace
 		var totalKGs = BiteWeight * bites;
 		return new NeedFulfiller
 		{
-			Calories = em.CaloriesPerKilogram * totalKGs,
 			SatiationPoints = em.HungerPerKilogram * totalKGs,
 			ThirstPoints = em.ThirstPerKilogram * totalKGs,
 			WaterLitres = em.WaterPerKilogram * totalKGs,

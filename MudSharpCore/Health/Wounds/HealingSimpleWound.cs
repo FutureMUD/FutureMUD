@@ -78,6 +78,8 @@ public class HealingSimpleWound : PerceivedItem, IWound
 		}
 	}
 
+	private bool IsNecroticDamage => DamageType == DamageType.Necrotic;
+
 	public override void Register(IOutputHandler handler)
 	{
 		// Do nothing
@@ -131,46 +133,171 @@ public class HealingSimpleWound : PerceivedItem, IWound
 
 	public bool Repairable => true;
 
-	public void DoOfflineHealing(TimeSpan timePassed, double externalRateMultiplier, double externalCheckBonus)
+	private double GetOfflineTendAmount()
 	{
-		if (Lodged != null || !(_parent is ICharacter ch))
+		return _tended switch
+		{
+			Outcome.Fail => 1.025,
+			Outcome.MinorFail => 1.05,
+			Outcome.MinorPass => 1.1,
+			Outcome.Pass => 1.2,
+			Outcome.MajorPass => 1.3,
+			_ => 1.0
+		};
+	}
+
+	private double GetHealingTendAmount()
+	{
+		return _tended switch
+		{
+			Outcome.Fail => 1.1,
+			Outcome.MinorFail => 1.2,
+			Outcome.MinorPass => 1.4,
+			Outcome.Pass => 1.7,
+			Outcome.MajorPass => 2.0,
+			_ => 1.0
+		};
+	}
+
+	private double GetNeedHealingMultiplier(NeedsResult needStatus)
+	{
+		var multiplier = 1.0;
+		if (needStatus.HasFlag(NeedsResult.Parched))
+		{
+			multiplier -= 0.45;
+		}
+		else if (needStatus.HasFlag(NeedsResult.Thirsty))
+		{
+			multiplier -= 0.1;
+		}
+
+		if (needStatus.HasFlag(NeedsResult.Starving))
+		{
+			multiplier -= 0.45;
+		}
+		else if (needStatus.HasFlag(NeedsResult.Hungry))
+		{
+			multiplier -= 0.1;
+		}
+
+		return multiplier;
+	}
+
+	private void RecoverOfflineStun(ICharacter ch, double amountModifier, double externalCheckBonus,
+		TimeSpan timePassed)
+	{
+		if (CurrentStun <= 0.0)
 		{
 			return;
 		}
 
-		var tendAmount = 1.0;
-		switch (_tended)
+		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
+		var amount =
+			Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
+			            amountModifier * Math.Max(0.01,
+				            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
+				            0.01) *
+			            timePassed.TotalMinutes);
+		CurrentStun = Math.Max(CurrentStun - amount, 0);
+	}
+
+	private void RecoverActiveStun(ICharacter ch, double amountModifier, double externalCheckBonus)
+	{
+		if (CurrentStun <= 0.0)
 		{
-			case Outcome.Fail:
-				tendAmount = 1.025;
-				break;
-			case Outcome.MinorFail:
-				tendAmount = 1.05;
-				break;
-			case Outcome.MinorPass:
-				tendAmount = 1.1;
-				break;
-			case Outcome.Pass:
-				tendAmount = 1.2;
-				break;
-			case Outcome.MajorPass:
-				tendAmount = 1.3;
-				break;
+			return;
 		}
 
-		var amountModifier = tendAmount * externalRateMultiplier;
-
-		if (CurrentStun > 0)
+		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
+		var result = stunCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
+		if (!result.IsPass())
 		{
-			var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
-			var amount =
-				Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
-				            amountModifier * Math.Max(0.01,
-					            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
-					            0.01) *
-				            timePassed.TotalMinutes);
-			CurrentStun = Math.Max(_currentDamage - amount, 0);
+			return;
 		}
+
+		CurrentStun =
+			Math.Max(
+				CurrentStun -
+				Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Stun) *
+				amountModifier, 0);
+	}
+
+	private bool CanNaturalHealingProceed(ICharacter ch)
+	{
+		if (ch.Combat != null)
+		{
+			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInCombat,
+				Outcome.NotTested);
+			return false;
+		}
+
+		if (Lodged != null)
+		{
+			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealLodged,
+				Outcome.NotTested);
+			return false;
+		}
+
+		if (ch.NeedsToBreathe && !ch.IsBreathing)
+		{
+			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealCantBreathe,
+				Outcome.NotTested);
+			return false;
+		}
+
+		if (!IsNecroticDamage)
+		{
+			return true;
+		}
+
+		Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+			CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealNecrotic,
+			Outcome.NotTested);
+		return false;
+	}
+
+	private void HealDamageTick(ICharacter ch, double amountModifier, double externalCheckBonus)
+	{
+		var multiplier = GetNeedHealingMultiplier(ch.Body.NeedsModel.Status);
+		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
+		if (_currentDamage <= 0 || ch.Body.CurrentExertion > ExertionLevel.Rest)
+		{
+			return;
+		}
+
+		var healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
+		var healthResult = healthCheck.Check(ch, difficulty, externalBonus: externalCheckBonus);
+		if (!healthResult.IsPass())
+		{
+			return;
+		}
+
+		var healing = Parent.HealthStrategy.GetHealingTickAmount(this, healthResult, HealthDamageType.Damage) *
+		              amountModifier * multiplier;
+		CurrentDamage = Math.Max(_currentDamage - healing, 0);
+		ch.Body.NeedsModel.FulfilNeeds(new NeedFulfiller
+		{
+			ThirstPoints = -0.0075 * CurrentDamage / 100,
+			WaterLitres = -0.001 * CurrentDamage / 100,
+			SatiationPoints = -0.01 * CurrentDamage / 100
+		}, true);
+		Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+			CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.Healed, healthResult,
+			healing);
+	}
+
+	public void DoOfflineHealing(TimeSpan timePassed, double externalRateMultiplier, double externalCheckBonus)
+	{
+		if (Lodged != null || !(_parent is ICharacter ch) || IsNecroticDamage)
+		{
+			return;
+		}
+
+		var amountModifier = GetOfflineTendAmount() * externalRateMultiplier;
+		RecoverOfflineStun(ch, amountModifier, externalCheckBonus, timePassed);
 
 		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
 		if (_currentDamage > 0)
@@ -750,113 +877,15 @@ public class HealingSimpleWound : PerceivedItem, IWound
 			return false;
 		}
 
-		if (ch?.Combat != null)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInCombat,
-				Outcome.NotTested);
-			return false;
-		}
-
-		if (Lodged != null)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealLodged,
-				Outcome.NotTested);
-			return false;
-		}
-
-		var tendAmount = 1.0;
-		switch (_tended)
-		{
-			case Outcome.Fail:
-				tendAmount = 1.1;
-				break;
-			case Outcome.MinorFail:
-				tendAmount = 1.2;
-				break;
-			case Outcome.MinorPass:
-				tendAmount = 1.4;
-				break;
-			case Outcome.Pass:
-				tendAmount = 1.7;
-				break;
-			case Outcome.MajorPass:
-				tendAmount = 2.0;
-				break;
-		}
-
-		var amountModifer = (ch.State.HasFlag(CharacterState.Sleeping) ? 1.3 : 1.0) * tendAmount *
+		var amountModifer = (ch.State.HasFlag(CharacterState.Sleeping) ? 1.3 : 1.0) * GetHealingTendAmount() *
 		                    externalRateMultiplier;
-
-		Outcome result;
-		if (CurrentStun > 0)
+		RecoverActiveStun(ch, amountModifer, externalCheckBonus);
+		if (!CanNaturalHealingProceed(ch))
 		{
-			var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
-			result = stunCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
-			if (result.IsPass())
-			{
-				CurrentStun =
-					Math.Max(
-						CurrentStun -
-						Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Stun) *
-						amountModifer, 0);
-			}
-		}
-
-		// You must be breathing for healing to take place
-		if (ch.NeedsToBreathe && !ch.IsBreathing)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealCantBreathe,
-				Outcome.NotTested);
 			return false;
 		}
 
-		var needStatus = ch.Body.NeedsModel.Status;
-		var multiplier = 1.0;
-		if (needStatus.HasFlag(NeedsResult.Parched))
-		{
-			multiplier -= 0.45;
-		}
-		else if (needStatus.HasFlag(NeedsResult.Thirsty))
-		{
-			multiplier -= 0.1;
-		}
-
-		if (needStatus.HasFlag(NeedsResult.Starving))
-		{
-			multiplier -= 0.45;
-		}
-		else if (needStatus.HasFlag(NeedsResult.Hungry))
-		{
-			multiplier -= 0.1;
-		}
-
-		Outcome healthResult;
-		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
-		if (_currentDamage > 0 && ch.Body.CurrentExertion <= ExertionLevel.Rest)
-		{
-			var healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
-			healthResult = healthCheck.Check(ch, difficulty, externalBonus: externalCheckBonus);
-			if (healthResult.IsPass())
-			{
-				var healing = Parent.HealthStrategy.GetHealingTickAmount(this, healthResult, HealthDamageType.Damage) *
-				              amountModifer * multiplier;
-				CurrentDamage = Math.Max(_currentDamage - healing, 0);
-				ch.Body.NeedsModel.FulfilNeeds(new NeedFulfiller
-				{
-					ThirstPoints = -0.0075 * CurrentDamage / 100,
-					WaterLitres = -0.001 * CurrentDamage / 100,
-					Calories = -2.0 * CurrentDamage / 100,
-					SatiationPoints = -0.01 * CurrentDamage / 100
-				}, true);
-				Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-					CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.Healed, healthResult,
-					healing);
-			}
-		}
-
+		HealDamageTick(ch, amountModifer, externalCheckBonus);
 		return true;
 	}
 

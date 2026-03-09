@@ -30,7 +30,15 @@ public class NoNeedsModel : INeedsModel
 
 	public double DrinkSatiatedHours => double.MaxValue;
 
-	public double Calories => 0.0;
+	public double SatiationReserve => 0.0;
+
+	public double StarvationLevel => 0.0;
+
+	public double OversatiationLevel => 0.0;
+
+	public double SatiationExcess => 0.0;
+
+	public double SatiationDeficit => 0.0;
 
 	public bool NeedsSave => false;
 

@@ -110,8 +110,6 @@ public class FoodGameItemComponent : GameItemComponent, IEdible
 
 	#region IEdible Members
 
-	public double Calories => _prototype.Calories;
-
 	public double SatiationPoints => _prototype.SatiationPoints;
 
 	public double WaterLitres => _prototype.WaterLitres;

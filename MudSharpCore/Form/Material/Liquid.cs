@@ -45,7 +45,6 @@ public class Liquid : Fluid, ILiquid
 		VagueTasteText = rhs.VagueTasteText;
 		AlcoholLitresPerLitre = rhs.AlcoholLitresPerLitre;
 		WaterLitresPerLitre = rhs.WaterLitresPerLitre;
-		CaloriesPerLitre = rhs.CaloriesPerLitre;
 		FoodSatiatedHoursPerLitre = rhs.FoodSatiatedHoursPerLitre;
 		DrinkSatiatedHoursPerLitre = rhs.DrinkSatiatedHoursPerLitre;
 		DampDescription = rhs.DampDescription;
@@ -78,7 +77,6 @@ public class Liquid : Fluid, ILiquid
 				WaterLitresPerLitre = WaterLitresPerLitre,
 				FoodSatiatedHoursPerLitre = FoodSatiatedHoursPerLitre,
 				DrinkSatiatedHoursPerLitre = DrinkSatiatedHoursPerLitre,
-				CaloriesPerLitre = CaloriesPerLitre,
 				Viscosity = Viscosity,
 				Density = Density,
 				Organic = Organic,
@@ -157,7 +155,6 @@ public class Liquid : Fluid, ILiquid
 				WaterLitresPerLitre = WaterLitresPerLitre,
 				FoodSatiatedHoursPerLitre = FoodSatiatedHoursPerLitre,
 				DrinkSatiatedHoursPerLitre = DrinkSatiatedHoursPerLitre,
-				CaloriesPerLitre = CaloriesPerLitre,
 				Viscosity = Viscosity,
 				Density = Density,
 				Organic = Organic,
@@ -206,7 +203,6 @@ public class Liquid : Fluid, ILiquid
 		WaterLitresPerLitre = liquid.WaterLitresPerLitre;
 		FoodSatiatedHoursPerLitre = liquid.FoodSatiatedHoursPerLitre;
 		DrinkSatiatedHoursPerLitre = liquid.DrinkSatiatedHoursPerLitre;
-		CaloriesPerLitre = liquid.CaloriesPerLitre;
 		BoilingPoint = liquid.BoilingPoint;
 		FreezingPoint = liquid.FreezingPoint;
 		Viscosity = liquid.Viscosity;
@@ -276,8 +272,6 @@ public class Liquid : Fluid, ILiquid
 	public double FoodSatiatedHoursPerLitre { get; set; }
 
 	public double DrinkSatiatedHoursPerLitre { get; set; }
-
-	public double CaloriesPerLitre { get; set; }
 
 	public ISolid DriedResidue
 	{
@@ -593,7 +587,6 @@ public class Liquid : Fluid, ILiquid
 	#3thirst <hours>#0 - how many hours of thirst quenched per litre drunk
 	#3hunger <hours>#0 - how many hours of hunger quenched per litre drunk
 	#3water <litres per litre>#0 - how many litres of hydrating water per litre of liquid
-	#3calories <calories per litre>#0 - how many calories per litre of liquid
 	#3prog <which>#0 - sets a prog to be executed when the liquid is drunk
 	#3prog none#0 - clears the draught prog
 	#3solvent <liquid>#0 - sets a solvent required for cleaning this liquid off things
@@ -637,8 +630,6 @@ public class Liquid : Fluid, ILiquid
 				return BuildingCommandThirst(actor, command);
 			case "hunger":
 				return BuildingCommandHunger(actor, command);
-			case "calories":
-				return BuildingCommandCalories(actor, command);
 			case "prog":
 			case "draught":
 			case "draughtprog":
@@ -1144,21 +1135,6 @@ public class Liquid : Fluid, ILiquid
 		return true;
 	}
 
-	private bool BuildingCommandCalories(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
-		{
-			actor.OutputHandler.Send("You must enter a valid number.");
-			return false;
-		}
-
-		CaloriesPerLitre = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This liquid will now be worth {CaloriesPerLitre.ToString("N3", actor).ColourValue()} calories per litre of liquid consumed.");
-		return true;
-	}
-
 	private bool BuildingCommandHunger(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
@@ -1308,7 +1284,6 @@ public class Liquid : Fluid, ILiquid
 		dbitem.WaterLitresPerLitre = WaterLitresPerLitre;
 		dbitem.FoodSatiatedHoursPerLitre = FoodSatiatedHoursPerLitre;
 		dbitem.DrinkSatiatedHoursPerLitre = DrinkSatiatedHoursPerLitre;
-		dbitem.CaloriesPerLitre = CaloriesPerLitre;
 		dbitem.TasteIntensity = TasteIntensity;
 		dbitem.TasteText = TasteText;
 		dbitem.VagueTasteText = VagueTasteText;

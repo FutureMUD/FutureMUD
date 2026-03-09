@@ -106,12 +106,11 @@ public partial class Race
 	#3biteweight <weight>#0 - sets the amount of corpse weight eaten per bite
 	#3material add <material>#0 - adds a material definition for corpse-eating
 	#3material remove <material>#0 - removes a material as eligible for corpse-eating
-	#3material alcohol|thirst|hunger|water|calories <amount>#0 - sets the per-kg nutrition for this material
+	#3material alcohol|thirst|hunger|water <amount>#0 - sets the per-kg nutrition for this material
 	#3optinediblematerial#0 - toggles whether the race can only eat materials from the pre-defined list
 	#3emotecorpse <emote>#0 - sets the emote for eating corpses. $0 is eater, $1 is corpse.
 	#3yield add <type> <hunger> <thirst> <emote>#0 - adds an edible foragable yield profile
 	#3yield remove <type>#0 - removes an edible foragable yield profile
-	#3yield <type> calories <amount>#0 - edits the calories of a profile
 	#3yield <type> water <amount>#0 - edits the water of a profile
 	#3yield <type> thirst <amount>#0 - edits the thirst hours of a profile
 	#3yield <type> hunger <amount>#0 - edits the hunger hours of a profile
@@ -706,8 +705,6 @@ public partial class Race
 
 		switch (command.PopForSwitch())
 		{
-			case "calories":
-				return BuildingCommandEdibleYieldCalories(actor, command, yield);
 			case "hunger":
 				return BuildingCommandEdibleYieldHunger(actor, command, yield);
 			case "water":
@@ -720,10 +717,9 @@ public partial class Race
 				return BuildingCommandEdibleYieldEmote(actor, command, yield);
 			case "bite":
 				return BuildingCommandEdibleYieldBite(actor, command, yield);
-			default:
-				actor.OutputHandler.Send(@"Your valid options are as follows:
+		default:
+			actor.OutputHandler.Send(@"Your valid options are as follows:
 
-	#3calories <amount>#0
 	#3hunger <hours>#0
 	#3water <amount>#0
 	#3thirst <hours>#0
@@ -798,7 +794,6 @@ public partial class Race
 			YieldPerBite = 1.0,
 			HungerPerYield = hunger,
 			ThirstPerYield = thirst,
-			CaloriesPerYield = hunger * 100,
 			WaterPerYield = 0.1 * thirst,
 			AlcoholPerYield = 0.0,
 			EmoteText = emoteText
@@ -826,26 +821,6 @@ public partial class Race
 		_edibleForagableYields.RemoveAll(x => x.YieldType.EqualTo(yield));
 		Changed = true;
 		actor.OutputHandler.Send($"You remove the edible foragable type for the {yield.ColourValue()} yield type.");
-		return true;
-	}
-
-	private bool BuildingCommandEdibleYieldCalories(ICharacter actor, StringStack command, string yield)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("How many calories do you want one point of yield to give?");
-			return false;
-		}
-
-		if (!double.TryParse(command.SafeRemainingArgument, out var value))
-		{
-			actor.OutputHandler.Send("That is not a valid number.");
-			return false;
-		}
-
-		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).CaloriesPerYield = value;
-		Changed = true;
-		actor.OutputHandler.Send($"Eating one unit of the {yield.ColourValue()} yield will now give {value.ToString("N3", actor).ColourValue()} calories.");
 		return true;
 	}
 
@@ -1029,7 +1004,7 @@ public partial class Race
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				"What do you want to do with that edible material? Options are #3add#0, #3remove#0, #3calories#0, #3water#0, #3thirst#0, #3hunger#0, #3alcohol#0."
+				"What do you want to do with that edible material? Options are #3add#0, #3remove#0, #3water#0, #3thirst#0, #3hunger#0, #3alcohol#0."
 					.SubstituteANSIColour());
 			return false;
 		}
@@ -1045,7 +1020,6 @@ public partial class Race
 			case "remove":
 			case "rem":
 				return BuildingCommandEdibleMaterialRemove(actor, command, material);
-			case "calories":
 			case "water":
 			case "thirst":
 			case "hunger":
@@ -1060,7 +1034,7 @@ public partial class Race
 				return BuildingCommandEdibleMaterialProperties(actor, command, material);
 			default:
 				actor.OutputHandler.Send(
-					"The valid options are #3add#0, #3remove#0, #3calories#0, #3water#0, #3thirst#0, #3hunger#0, #3alcohol#0."
+					"The valid options are #3add#0, #3remove#0, #3water#0, #3thirst#0, #3hunger#0, #3alcohol#0."
 						.SubstituteANSIColour());
 				return false;
 		}
@@ -1073,10 +1047,6 @@ public partial class Race
 		{
 			switch (property)
 			{
-				case "calories":
-					actor.OutputHandler.Send(
-						$"How many calories should eating {Gameworld.UnitManager.DescribeDecimal(1.0 / Gameworld.UnitManager.BaseWeightToKilograms, UnitType.Mass, actor).ColourValue()} of this material give?");
-					return false;
 				case "water":
 					actor.OutputHandler.Send(
 						$"How much bio-available water should eating {Gameworld.UnitManager.DescribeDecimal(1.0 / Gameworld.UnitManager.BaseWeightToKilograms, UnitType.Mass, actor).ColourValue()} of this material give?");
@@ -1101,7 +1071,6 @@ public partial class Race
 		var quantity = 0.0;
 		switch (property)
 		{
-			case "calories":
 			case "thirst":
 			case "hunger":
 				if (!double.TryParse(command.SafeRemainingArgument, out quantity))
@@ -1136,11 +1105,6 @@ public partial class Race
 		Changed = true;
 		switch (property)
 		{
-			case "calories":
-				em.CaloriesPerKilogram = quantity;
-				actor.OutputHandler.Send(
-					$"Eating corpses made from {material.Name.Colour(material.ResidueColour)} will now give {quantity.ToString("N2", actor).ColourValue()} calories per {Gameworld.UnitManager.DescribeDecimal(1.0 / Gameworld.UnitManager.BaseWeightToKilograms, UnitType.Mass, actor).ColourValue()} eaten.");
-				return true;
 			case "water":
 				em.WaterPerKilogram = Gameworld.UnitManager.BaseFluidToLitres * quantity;
 				actor.OutputHandler.Send(
@@ -1216,7 +1180,6 @@ public partial class Race
 			AlcoholPerKilogram = 0.0,
 			ThirstPerKilogram = 0.0,
 			WaterPerKilogram = 0.0,
-			CaloriesPerKilogram = 1600,
 			HungerPerKilogram = 6.0
 		});
 		Changed = true;
@@ -2697,7 +2660,6 @@ public partial class Race
 				{
 					item.Material.Name,
 					item.AlcoholPerKilogram.ToString("N2", actor),
-					item.CaloriesPerKilogram.ToString("N2", actor),
 					item.WaterPerKilogram.ToString("N2", actor),
 					item.HungerPerKilogram.ToString("N2", actor),
 					item.ThirstPerKilogram.ToString("N2", actor),
@@ -2707,7 +2669,6 @@ public partial class Race
 				{
 					"Material",
 					"Alc / Kg",
-					"Cal / Kg",
 					"Wat / Kg",
 					"Hun / Kg",
 					"Thi / Kg",
@@ -2732,7 +2693,6 @@ public partial class Race
 				yield.YieldType,
 				yield.YieldPerBite.ToString("N2", actor),
 				yield.AlcoholPerYield.ToString("N2", actor),
-				yield.CaloriesPerYield.ToString("N2", actor),
 				yield.WaterPerYield.ToString("N2", actor),
 				yield.HungerPerYield.ToString("N2", actor),
 				yield.ThirstPerYield.ToString("N2", actor),
@@ -2744,7 +2704,6 @@ public partial class Race
 				"Yield",
 				"Yield / Bite",
 				"Alc / Yield",
-				"Cal / Yield",
 				"Wat / Yield",
 				"Hun / Yield",
 				"Thi / Yield",

@@ -3,7 +3,6 @@
     public class EdibleForagableYield
     {
         public string YieldType { get; init; }
-        public double CaloriesPerYield { get; set; }
         public double HungerPerYield { get; set; }
         public double WaterPerYield { get; set; }
         public double ThirstPerYield { get; set; }

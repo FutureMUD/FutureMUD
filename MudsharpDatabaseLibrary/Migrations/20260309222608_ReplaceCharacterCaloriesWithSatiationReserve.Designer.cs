@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260309222608_ReplaceCharacterCaloriesWithSatiationReserve")]
+    partial class ReplaceCharacterCaloriesWithSatiationReserve
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -10578,6 +10581,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("double")
                         .HasDefaultValueSql("'373.15'");
 
+                    b.Property<double>("CaloriesPerLitre")
+                        .HasColumnType("double");
+
                     b.Property<long?>("CountAsId")
                         .HasColumnType("bigint(20)");
 
@@ -13645,6 +13651,9 @@ namespace MudSharp.Migrations
                     b.Property<double>("BiteYield")
                         .HasColumnType("double");
 
+                    b.Property<double>("CaloriesPerYield")
+                        .HasColumnType("double");
+
                     b.Property<string>("EatEmote")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -13835,6 +13844,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     b.Property<double>("AlcoholPerKilogram")
+                        .HasColumnType("double");
+
+                    b.Property<double>("CaloriesPerKilogram")
                         .HasColumnType("double");
 
                     b.Property<double>("HungerPerKilogram")

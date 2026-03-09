@@ -325,6 +325,8 @@ internal sealed class WeatherSimulationContext : IDisposable
 	public required Action AdvanceOneFeedMinute { get; init; }
 	public required Func<bool> ConsumeYearBoundary { get; init; }
 	public required Func<long, int, double> GetBaseTemperature { get; init; }
+	public double InitialTemperatureFluctuation { get; init; }
+	public Func<double, int, double>? AdvanceTemperatureFluctuation { get; init; }
 	public Action? DisposeAction { private get; init; }
 	private bool _disposed;
 	public void Dispose()
@@ -592,7 +594,8 @@ internal sealed class WeatherStatisticsAnalyzer
 					: request.SeasonInfo.Values.First().Id,
 				CurrentWeatherEventId = request.InitialWeatherEventId,
 				ConsecutiveUnchangedPeriods = Math.Max(0, request.InitialConsecutiveUnchangedPeriods),
-				MinuteCounter = Math.Max(0, request.InitialMinuteCounter)
+				MinuteCounter = Math.Max(0, request.InitialMinuteCounter),
+				CurrentTemperatureFluctuation = request.SimulationContext.InitialTemperatureFluctuation
 			};
 			if (state.CurrentWeatherEventId is null)
 			{
@@ -624,6 +627,12 @@ internal sealed class WeatherStatisticsAnalyzer
 					var season = request.SimulationContext.SeasonRotation.Get(request.SimulationContext.GetCelestialDay());
 					state.CurrentSeasonId = season.Id;
 					state.MinuteCounter = 0;
+					if (request.SimulationContext.AdvanceTemperatureFluctuation is not null)
+					{
+						state.CurrentTemperatureFluctuation = request.SimulationContext.AdvanceTemperatureFluctuation(
+							state.CurrentTemperatureFluctuation,
+							request.TransitionSnapshot.MinuteProcessingInterval);
+					}
 					var nextEvent = request.TransitionSnapshot.NextWeatherEvent(
 						state.CurrentWeatherEventId,
 						state.CurrentSeasonId,
@@ -643,6 +652,7 @@ internal sealed class WeatherStatisticsAnalyzer
 				var localHour = request.SimulationContext.GetFeedLocalHour();
 				var weatherEvent = request.TransitionSnapshot.GetEvent(state.CurrentWeatherEventId);
 				var shelteredTemperature = request.SimulationContext.GetBaseTemperature(state.CurrentSeasonId, localHour) +
+										 state.CurrentTemperatureFluctuation +
 										 (weatherEvent?.TemperatureEffect ?? 0.0);
 				var outdoorsTemperature = shelteredTemperature +
 										 (weatherEvent?.PrecipitationTemperatureEffect ?? 0.0) +
@@ -1018,12 +1028,21 @@ internal sealed class WeatherStatisticsAnalyzer
 			FeedHoursPerDay = controller.FeedClock.HoursPerDay,
 			FeedMinutesPerHour = controller.FeedClock.MinutesPerHour,
 			YearLengthDays = seasonYearLength,
-			GetCelestialDay = runtime.GetCelestialDay,
+			GetCelestialDay = () => WeatherClimateUtilities.ApplySeasonPhaseShift(
+				runtime.GetCelestialDay(),
+				seasonYearLength,
+				controller.OppositeHemisphere),
 			GetCurrentTimeOfDay = runtime.GetTimeOfDay,
 			GetFeedLocalHour = runtime.GetLocalHour,
 			AdvanceOneFeedMinute = runtime.AdvanceOneFeedMinute,
 			ConsumeYearBoundary = runtime.ConsumeYearBoundary,
 			GetBaseTemperature = (seasonId, hour) => baseTemperatures[(seasonId, hour)],
+			InitialTemperatureFluctuation = controller.CurrentTemperatureFluctuation,
+			AdvanceTemperatureFluctuation = (currentOffset, tickMinutes) => WeatherClimateUtilities.AdvanceTemperatureFluctuation(
+				currentOffset,
+				controller.RegionalClimate.TemperatureFluctuationStandardDeviation,
+				controller.RegionalClimate.TemperatureFluctuationPeriod,
+				tickMinutes),
 			DisposeAction = () =>
 			{
 				for (var i = cleanupActions.Count - 1; i >= 0; i--)
@@ -1359,6 +1378,7 @@ internal sealed class WeatherStatisticsAnalyzer
 		public long? CurrentWeatherEventId { get; set; }
 		public int ConsecutiveUnchangedPeriods { get; set; }
 		public int MinuteCounter { get; set; }
+		public double CurrentTemperatureFluctuation { get; set; }
 	}
 
 	private interface ICelestialSimulation

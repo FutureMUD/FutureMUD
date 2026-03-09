@@ -150,8 +150,16 @@ public partial class WeatherSeeder: IDatabaseSeeder
 	static Regex TempVariationRegex = new("(?:Freezing|VeryCold|Cold|Cool|Cooler|Warmer|Warm|Hot|VeryHot|Sweltering)$");
 	static Regex CloudVariationRegex = new("^(?:Cloudy|Overcast)");
 	private static readonly string[] ClimateSeasonGroups = { "Winter", "Spring", "Summer", "Autumn" };
-	private static readonly IReadOnlyDictionary<string, WeatherSeederTemperatureVariationOption> TemperatureVariationOptions =
-		CreateTemperatureVariationOptions();
+	private static readonly WeatherSeederTemperatureVariationOption SingleTemperatureVariationOption = new()
+	{
+		Id = "base",
+		Name = "Base Only",
+		Summary = "single seeded weather state per event",
+		Tiers =
+		[
+			new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0)
+		]
+	};
 	#region Implementation of IDatabaseSeeder
 
 	/// <inheritdoc />
@@ -179,25 +187,6 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
 				return (true, string.Empty);
 			}
 		),
-		(
-			"temperaturevariations",
-			@"The weather seeder can create multiple hotter and colder variants of every weather event. More tiers make the seeded weather graph richer, but they also increase seeding time and add more climate transitions for the engine to process.
-
-The possible configurations are as follows:
-
-	#3none#F: Only one temperature state for each weather event. Fastest, but least varied
-	#3hotcold#F: One cold and one hot tier around the normal state
-	#3twotier#F: Cool/cold and warm/hot tiers around the normal state. Recommended balance
-	#3full#F: All seeded temperature tiers. Slowest, but highest fidelity
-
-Please answer #3none#F, #3hotcold#F, #3twotier#F or #3full#f. ",
-			(context, answers) => true, (text, context) =>
-			{
-				return NormalizeTemperatureVariationAnswer(text) is null
-					? (false, "Please answer #3none#F, #3hotcold#F, #3twotier#F or #3full#f.")
-					: (true, string.Empty);
-			}
-		),
 	};
 
 	/// <inheritdoc />
@@ -222,100 +211,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	public IReadOnlyDictionary<string, string> _questionAnswers;
 	private bool UseRainEvents { get; set; }
 	private Liquid? RainLiquid { get; set; }
-	private WeatherSeederTemperatureVariationOption TemperatureVariationOption { get; set; } = null!;
-
-	private static IReadOnlyDictionary<string, WeatherSeederTemperatureVariationOption> CreateTemperatureVariationOptions()
-	{
-		return new Dictionary<string, WeatherSeederTemperatureVariationOption>(StringComparer.OrdinalIgnoreCase)
-		{
-			["none"] = new WeatherSeederTemperatureVariationOption
-			{
-				Id = "none",
-				Name = "No Variations",
-				Summary = "single temperature state per weather event",
-				Tiers = new[]
-				{
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0)
-				}
-			},
-			["hotcold"] = new WeatherSeederTemperatureVariationOption
-			{
-				Id = "hotcold",
-				Name = "Hot/Cold",
-				Summary = "one colder and one hotter tier around normal weather",
-				Tiers = new[]
-				{
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cold, -2),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Hot, 2)
-				}
-			},
-			["twotier"] = new WeatherSeederTemperatureVariationOption
-			{
-				Id = "twotier",
-				Name = "Two Tier",
-				Summary = "cool/cold and warm/hot tiers around normal weather",
-				Tiers = new[]
-				{
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cold, -2),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cool, -1),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Warm, 1),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Hot, 2)
-				}
-			},
-			["full"] = new WeatherSeederTemperatureVariationOption
-			{
-				Id = "full",
-				Name = "Full",
-				Summary = "all eleven seeded temperature tiers",
-				Tiers = new[]
-				{
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Freezing, -5),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.VeryCold, -4),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cold, -3),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cool, -2),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cooler, -1),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Warmer, 1),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Warm, 2),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Hot, 3),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.VeryHot, 4),
-					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Sweltering, 5)
-				}
-			}
-		};
-	}
-
-	private static string? NormalizeTemperatureVariationAnswer(string? answer)
-	{
-		if (string.IsNullOrWhiteSpace(answer))
-		{
-			return null;
-		}
-
-		var normalized = new string(
-			answer
-				.Trim()
-				.Where(char.IsLetter)
-				.ToArray())
-			.ToLowerInvariant();
-
-		return normalized switch
-		{
-			"none" => "none",
-			"hotcold" => "hotcold",
-			"twotier" => "twotier",
-			"full" => "full",
-			_ => null
-		};
-	}
-
-	private static WeatherSeederTemperatureVariationOption GetTemperatureVariationOption(string? answer)
-	{
-		var normalized = NormalizeTemperatureVariationAnswer(answer) ?? "full";
-		return TemperatureVariationOptions[normalized];
-	}
+	private WeatherSeederTemperatureVariationOption TemperatureVariationOption { get; } = SingleTemperatureVariationOption;
 
 	private static WeatherSeederEventDescriptor CreateEventDescriptor(
 		PrecipitationLevel precipitation,
@@ -378,6 +274,60 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		{
 			transitionsBySeason[seasonGroup].Add(from, (to, chance));
 		}
+	}
+
+	private static (double EffectiveChangeChance, string TransitionXml) BuildTransitionDefinition(
+		WeatherEvent currentEvent,
+		IEnumerable<(WeatherEvent To, double Chance)> transitions,
+		double baseChangeChance)
+	{
+		var groupedTransitions = transitions
+			.GroupBy(x => x.To)
+			.Select(x => (To: x.Key, Chance: x.Sum(y => y.Chance)))
+			.Where(x => x.Chance > 0.0)
+			.ToList();
+		var totalChance = groupedTransitions.Sum(x => x.Chance);
+		var nonSelfTransitions = groupedTransitions
+			.Where(x => x.To != currentEvent)
+			.ToList();
+		var nonSelfChance = nonSelfTransitions.Sum(x => x.Chance);
+		return (
+			totalChance > 0.0 && nonSelfChance > 0.0 ? baseChangeChance * nonSelfChance / totalChance : 0.0,
+			new XElement(
+				"Transitions",
+				from transition in nonSelfTransitions
+				select new XElement(
+					"Transition",
+					new XAttribute("id", transition.To.Id),
+					new XAttribute("chance", transition.Chance)))
+				.ToString());
+	}
+
+	private static (double EffectiveChangeChance, string TransitionXml) BuildTransitionDefinition(
+		long currentEventId,
+		IEnumerable<(long EventId, double Chance)> transitions,
+		double baseChangeChance)
+	{
+		var groupedTransitions = transitions
+			.GroupBy(x => x.EventId)
+			.Select(x => (EventId: x.Key, Chance: x.Sum(y => y.Chance)))
+			.Where(x => x.Chance > 0.0)
+			.ToList();
+		var totalChance = groupedTransitions.Sum(x => x.Chance);
+		var nonSelfTransitions = groupedTransitions
+			.Where(x => x.EventId != currentEventId)
+			.ToList();
+		var nonSelfChance = nonSelfTransitions.Sum(x => x.Chance);
+		return (
+			totalChance > 0.0 && nonSelfChance > 0.0 ? baseChangeChance * nonSelfChance / totalChance : 0.0,
+			new XElement(
+				"Transitions",
+				from transition in nonSelfTransitions
+				select new XElement(
+					"Transition",
+					new XAttribute("id", transition.EventId),
+					new XAttribute("chance", transition.Chance)))
+				.ToString());
 	}
 
 	private void CreateWeatherEvent(
@@ -674,14 +624,10 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	{
 		_context = context;
 		_questionAnswers = questionAnswers;
-		TemperatureVariationOption = GetTemperatureVariationOption(
-			_questionAnswers.TryGetValue("temperaturevariations", out var temperatureVariationAnswer)
-				? temperatureVariationAnswer
-				: "full");
 
 		var totalStopwatch = Stopwatch.StartNew();
 		Console.WriteLine("[Weather Seeder] Starting weather and climate seeding.");
-		Console.WriteLine($"[Weather Seeder] Temperature variation preset: {TemperatureVariationOption.Name} ({TemperatureVariationOption.Summary}).");
+		Console.WriteLine("[Weather Seeder] Using a single canonical weather event set without seeded temperature variants.");
 
 		var celestial = _context.Celestials.FirstOrDefault();
 		if (celestial is null)
@@ -729,7 +675,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 			var profile = profiles[i];
 			stageStopwatch.Restart();
 			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Building {profile.ClimateModelName} ({profile.KoppenClimateClassification}; {profile.ReferenceLocation})...");
-			var climateModel = CreateClimateModel(context, seasons, eventCatalog, profile, seededClimateModels, TemperatureVariationOption);
+			var climateModel = CreateClimateModel(context, seasons, eventCatalog, profile, seededClimateModels);
 			seededClimateModels.Add(climateModel.Name, climateModel);
 			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Built {profile.ClimateModelName} in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
 		}
@@ -739,14 +685,14 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		context.SaveChanges();
 		Console.WriteLine($"[Weather Seeder] Saved {seededClimateModels.Count:N0} climate models in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
 
-		Console.WriteLine($"[Weather Seeder] Creating {profiles.Count * 2:N0} regional climates...");
+		Console.WriteLine($"[Weather Seeder] Creating {profiles.Count:N0} regional climates...");
 		for (var i = 0; i < profiles.Count; i++)
 		{
 			var profile = profiles[i];
 			stageStopwatch.Restart();
-			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Creating paired regional climates for {profile.RegionalClimatePrefix}...");
-			CreateRegionalClimatePair(context, seasons, seededClimateModels[profile.ClimateModelName], profile);
-			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Prepared paired regional climates in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
+			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Creating regional climate for {profile.RegionalClimatePrefix}...");
+			CreateRegionalClimate(context, seasons, seededClimateModels[profile.ClimateModelName], profile);
+			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Prepared regional climate in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
 		}
 
 		stageStopwatch.Restart();
@@ -802,22 +748,41 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		return $"{DescribeTemperature(range.Minimum)} to {DescribeTemperature(range.Maximum)}";
 	}
 
+	private static double EstimateTemperatureFluctuationStandardDeviation(WeatherSeederClimateProfile profile)
+	{
+		var coldest = profile.SeasonalTemperatureRanges.Min(x => x.Value.Minimum);
+		var warmest = profile.SeasonalTemperatureRanges.Max(x => x.Value.Maximum);
+		var annualEnvelope = Math.Max(0.0, warmest - coldest);
+		return Math.Round(Math.Clamp(0.75 + annualEnvelope / 18.0, 0.6, 4.5), 1);
+	}
+
+	private static TimeSpan EstimateTemperatureFluctuationPeriod(WeatherSeederClimateProfile profile)
+	{
+		var coldest = profile.SeasonalTemperatureRanges.Min(x => x.Value.Minimum);
+		var warmest = profile.SeasonalTemperatureRanges.Max(x => x.Value.Maximum);
+		var annualEnvelope = Math.Max(0.0, warmest - coldest);
+		var days = Math.Clamp(3.0 + annualEnvelope / 12.0, 3.0, 8.0);
+		return TimeSpan.FromDays(Math.Round(days * 2.0) / 2.0);
+	}
+
 	private static string BuildClimateModelDescription(WeatherSeederClimateProfile profile)
 	{
 		var coldest = profile.SeasonalTemperatureRanges.OrderBy(x => x.Value.Minimum).First();
 		var warmest = profile.SeasonalTemperatureRanges.OrderByDescending(x => x.Value.Maximum).First();
 		var midWinter = profile.SeasonalTemperatureRanges["Mid Winter"];
 		var midSummer = profile.SeasonalTemperatureRanges["Mid Summer"];
-		return $"{profile.ClimateModelSummary}\n\nThis template matches Koppen climate classification {profile.KoppenClimateClassification} and was calibrated against {profile.ReferenceLocation}. In the seeded paired regional climates, temperatures usually bottom out around {DescribeTemperature(coldest.Value.Minimum)} in {coldest.Key} and peak around {DescribeTemperature(warmest.Value.Maximum)} in {warmest.Key}, with Mid Winter typically sitting near {DescribeTemperatureRange(midWinter)} and Mid Summer near {DescribeTemperatureRange(midSummer)}.";
+		return $"{profile.ClimateModelSummary}\n\nThis template matches Koppen climate classification {profile.KoppenClimateClassification} and was calibrated against {profile.ReferenceLocation}. In the seeded regional climate baseline, temperatures usually bottom out around {DescribeTemperature(coldest.Value.Minimum)} in {coldest.Key} and peak around {DescribeTemperature(warmest.Value.Maximum)} in {warmest.Key}, with Mid Winter typically sitting near {DescribeTemperatureRange(midWinter)} and Mid Summer near {DescribeTemperatureRange(midSummer)}. Use the opposite-hemisphere flag on weather controllers to phase shift these seasons by half a year without duplicating the climate data.";
 	}
 
-	private static string BuildRegionalClimateDescription(WeatherSeederClimateProfile profile, string hemisphere)
+	private static string BuildRegionalClimateDescription(WeatherSeederClimateProfile profile)
 	{
 		var coldest = profile.SeasonalTemperatureRanges.OrderBy(x => x.Value.Minimum).First();
 		var warmest = profile.SeasonalTemperatureRanges.OrderByDescending(x => x.Value.Maximum).First();
 		var midWinter = profile.SeasonalTemperatureRanges["Mid Winter"];
 		var midSummer = profile.SeasonalTemperatureRanges["Mid Summer"];
-		return $"{profile.RegionalClimateSummary} This is the seeded {hemisphere} regional baseline for the {profile.RegionalClimatePrefix} template.\n\nTypical daily temperatures sit around {DescribeTemperatureRange(midWinter)} in Mid Winter and {DescribeTemperatureRange(midSummer)} in Mid Summer, with the full annual envelope running from about {DescribeTemperature(coldest.Value.Minimum)} to {DescribeTemperature(warmest.Value.Maximum)}. It matches Koppen climate classification {profile.KoppenClimateClassification} and was based on {profile.ReferenceLocation}.";
+		var fluctuationStdDev = EstimateTemperatureFluctuationStandardDeviation(profile);
+		var fluctuationPeriod = EstimateTemperatureFluctuationPeriod(profile);
+		return $"{profile.RegionalClimateSummary} This is the seeded northern-hemisphere baseline for the {profile.RegionalClimatePrefix} template.\n\nTypical daily temperatures sit around {DescribeTemperatureRange(midWinter)} in Mid Winter and {DescribeTemperatureRange(midSummer)} in Mid Summer, with the full annual envelope running from about {DescribeTemperature(coldest.Value.Minimum)} to {DescribeTemperature(warmest.Value.Maximum)}. Day-to-day conditions are intended to wander by about {DescribeTemperature(fluctuationStdDev)} around the hourly mean over roughly {fluctuationPeriod.TotalDays:0.#} days before tending back toward normal. It matches Koppen climate classification {profile.KoppenClimateClassification} and was based on {profile.ReferenceLocation}. Use the opposite-hemisphere flag on a weather controller to invert the seasonal timing for southern locations.";
 	}
 
 	private static XElement CreateDailyTemperatures(double minimum, double maximum)
@@ -862,30 +827,25 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		);
 	}
 
-	private static void CreateRegionalClimatePair(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel climateModel, WeatherSeederClimateProfile profile)
+	private static void CreateRegionalClimate(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel climateModel, WeatherSeederClimateProfile profile)
 	{
 		#region Regional Climate
-		var regionalClimateNH = new RegionalClimate
+		var regionalClimate = new RegionalClimate
 		{
 			Name = $"{profile.RegionalClimatePrefix} Northern Hemisphere",
-			Description = BuildRegionalClimateDescription(profile, "Northern Hemisphere"),
-			ClimateModelId = climateModel.Id
+			Description = BuildRegionalClimateDescription(profile),
+			ClimateModelId = climateModel.Id,
+			TemperatureFluctuationStandardDeviation = EstimateTemperatureFluctuationStandardDeviation(profile),
+			TemperatureFluctuationPeriodMinutes = (int)Math.Round(EstimateTemperatureFluctuationPeriod(profile).TotalMinutes)
 		};
-		context.RegionalClimates.Add(regionalClimateNH);
-		var regionalClimateSH = new RegionalClimate
-		{
-			Name = $"{profile.RegionalClimatePrefix} Southern Hemisphere",
-			Description = BuildRegionalClimateDescription(profile, "Southern Hemisphere"),
-			ClimateModelId = climateModel.Id
-		};
-		context.RegionalClimates.Add(regionalClimateSH);
+		context.RegionalClimates.Add(regionalClimate);
 
 		foreach (var season in seasons)
 		{
 			var temperatures = profile.SeasonalTemperatureRanges[season.DisplayName];
 			var rs = new RegionalClimatesSeason
 			{
-				RegionalClimate = season.Name.EndsWith("_south") ? regionalClimateSH : regionalClimateNH,
+				RegionalClimate = regionalClimate,
 				Season = season,
 				TemperatureInfo = CreateDailyTemperatures(temperatures.Minimum, temperatures.Maximum).ToString()
 			};
@@ -1277,11 +1237,23 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 					WithStableWindVariation(precip, wind, warmerVariation, cloudVariation),
 					TemperatureVariationChance);
 			}
+			else
+			{
+				AddWeatherTransition(
+					CreateEventDescriptor(precip, wind, variation, windVariation, cloudVariation),
+					TemperatureVariationChance);
+			}
 
 			if (temperatureVariationOption.TryGetCoolerVariation(variation, out var coolerVariation))
 			{
 				AddWeatherTransition(
 					WithStableWindVariation(precip, wind, coolerVariation, cloudVariation),
+					TemperatureVariationChance);
+			}
+			else
+			{
+				AddWeatherTransition(
+					CreateEventDescriptor(precip, wind, variation, windVariation, cloudVariation),
 					TemperatureVariationChance);
 			}
 
@@ -1373,20 +1345,17 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
 			foreach (var weatherEventTransitions in eventsAndTransitionsBySeason[season.SeasonGroup])
 			{
+				var transitionDefinition = BuildTransitionDefinition(
+					weatherEventTransitions.Key,
+					weatherEventTransitions.Value,
+					0.01);
 				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
 				{
 					ClimateModel = temperateModel,
 					Season = season,
 					WeatherEvent = weatherEventTransitions.Key,
-					ChangeChance = 0.01,
-					Transitions = new XElement(
-						"Transitions",
-						from transition in weatherEventTransitions.Value
-						select new XElement(
-							"Transition",
-							new XAttribute("id", transition.To.Id),
-							new XAttribute("chance", transition.Chance)))
-						.ToString()
+					ChangeChance = transitionDefinition.EffectiveChangeChance,
+					Transitions = transitionDefinition.TransitionXml
 				});
 			}
 		}
@@ -2270,20 +2239,17 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
 			foreach (var we in eventsAndTransitionsBySeason[season.SeasonGroup])
 			{
+				var transitionDefinition = BuildTransitionDefinition(
+					we.Key,
+					we.Value,
+					0.01);
 				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
 				{
 					ClimateModel = temperateModel,
 					Season = season,
 					WeatherEvent = we.Key,
-					ChangeChance = 0.01,
-					Transitions =
-					new XElement("Transitions",
-										from trans in we.Value
-										select new XElement("Transition",
-											new XAttribute("id", trans.To.Id),
-											new XAttribute("chance", trans.Chance)
-										)
-									).ToString()
+					ChangeChance = transitionDefinition.EffectiveChangeChance,
+					Transitions = transitionDefinition.TransitionXml
 				});
 			}
 		}
@@ -2434,18 +2400,6 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		AddSeason("temperate_early_autumn", "Autumn", "Early Autumn", 244);
 		AddSeason("temperate_mid_autumn", "Autumn", "Mid Autumn", 274);
 		AddSeason("temperate_late_autumn", "Autumn", "Late Autumn", 304);
-		AddSeason("temperate_early_winter_south", "Winter", "Early Winter", 153);
-		AddSeason("temperate_mid_winter_south", "Winter", "Mid Winter", 183);
-		AddSeason("temperate_late_winter_south", "Winter", "Late Winter", 214);
-		AddSeason("temperate_early_spring_south", "Spring", "Early Spring", 244);
-		AddSeason("temperate_mid_spring_south", "Spring", "Mid Spring", 274);
-		AddSeason("temperate_late_spring_south", "Spring", "Late Spring", 304);
-		AddSeason("temperate_early_summer_south", "Summer", "Early Summer", 334);
-		AddSeason("temperate_mid_summer_south", "Summer", "Mid Summer", 0);
-		AddSeason("temperate_late_summer_south", "Summer", "Late Summer", 31);
-		AddSeason("temperate_early_autumn_south", "Autumn", "Early Autumn", 61);
-		AddSeason("temperate_mid_autumn_south", "Autumn", "Mid Autumn", 92);
-		AddSeason("temperate_late_autumn_south", "Autumn", "Late Autumn", 122);
 		#endregion
 		return seasons;
 	}

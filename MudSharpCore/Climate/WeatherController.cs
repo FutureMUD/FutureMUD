@@ -29,6 +29,8 @@ public class WeatherController : SaveableItem, IWeatherController
 			new GeographicCoordinate(controller.Latitude, controller.Longitude, controller.Elevation,
 									 controller.Radius);
 		Celestial = gameworld.CelestialObjects.Get(controller.CelestialId ?? 0L);
+		OppositeHemisphere = controller.OppositeHemisphere;
+		CurrentTemperatureFluctuation = controller.CurrentTemperatureFluctuation;
 		ConsecutiveUnchangedPeriods = controller.ConsecutiveUnchangedPeriods;
 		MinuteCounter = controller.MinutesCounter;
 		CurrentSeason = gameworld.Seasons.Get(controller.CurrentSeasonId);
@@ -40,6 +42,7 @@ public class WeatherController : SaveableItem, IWeatherController
 			HighestRecentPrecipitationLevel = CurrentWeatherEvent.Precipitation;
 			PeriodsSinceHighestPrecipitation = 0;
 		}
+		UpdateCurrentSeason();
 		CalculateCurrentTemperature();
 		FeedClock.MinutesUpdated += HandleWeatherTick;
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandleFiveSecondTick;
@@ -54,10 +57,12 @@ public class WeatherController : SaveableItem, IWeatherController
 		FeedClockTimeZone = FeedClock.PrimaryTimezone;
 		RegionalClimate = climate;
 		Celestial = Gameworld.CelestialObjects.FirstOrDefault();
+		OppositeHemisphere = false;
+		CurrentTemperatureFluctuation = 0.0;
 		GeographyForTimeOfDay = new GeographicCoordinate(zone.Geography.Latitude, zone.Geography.Longitude, zone.Geography.Elevation, 6371000);
 
 		var currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
-		CurrentSeason = RegionalClimate.SeasonRotation.Get(Celestial?.CurrentCelestialDay ?? 0);
+		UpdateCurrentSeason();
 		CurrentWeatherEvent = RegionalClimate.ClimateModel.HandleWeatherTick(null, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
 		CalculateCurrentTemperature();
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandleFiveSecondTick;
@@ -76,6 +81,8 @@ public class WeatherController : SaveableItem, IWeatherController
 				Radius = GeographyForTimeOfDay.Radius,
 				CurrentSeasonId = CurrentSeason.Id,
 				CurrentWeatherEventId = CurrentWeatherEvent.Id,
+				OppositeHemisphere = OppositeHemisphere,
+				CurrentTemperatureFluctuation = CurrentTemperatureFluctuation,
 				MinutesCounter = 0,
 				HighestRecentPrecipitationLevel = 0,
 				PeriodsSinceHighestPrecipitation = 0,
@@ -99,6 +106,8 @@ public class WeatherController : SaveableItem, IWeatherController
 	public string DescribeCurrentWeather => CurrentWeatherEvent.WeatherDescription;
 	public string CurrentWeatherRoomAddendum => CurrentWeatherEvent.WeatherRoomAddendum;
 	public double CurrentTemperature { get; protected set; }
+	public double CurrentTemperatureFluctuation { get; protected set; }
+	public bool OppositeHemisphere { get; protected set; }
 	public int ConsecutiveUnchangedPeriods { get; protected set; }
 	public PrecipitationLevel HighestRecentPrecipitationLevel { get; protected set; }
 	public int PeriodsSinceHighestPrecipitation { get; protected set; }
@@ -188,38 +197,44 @@ public class WeatherController : SaveableItem, IWeatherController
 			WeatherRoomTick?.Invoke(CurrentWeatherEvent.OnMinuteEvent);
 		}
 
-                if (++MinuteCounter >= RegionalClimate.ClimateModel.MinuteProcessingInterval)
-                {
-                        var currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
-                        CurrentSeason = RegionalClimate.SeasonRotation.Get(Celestial?.CurrentCelestialDay ?? 0);
-                        MinuteCounter = 0;
+		if (++MinuteCounter >= RegionalClimate.ClimateModel.MinuteProcessingInterval)
+		{
+			var currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
+			UpdateCurrentSeason();
+			MinuteCounter = 0;
 
-                        if (WeatherFrozen)
-                        {
-                                ConsecutiveUnchangedPeriods++;
-                        }
-                        else
-                        {
-                                var weather = RegionalClimate.ClimateModel.HandleWeatherTick(CurrentWeatherEvent, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
-                                if (weather == CurrentWeatherEvent)
-                                {
-                                        ConsecutiveUnchangedPeriods++;
-                                }
-                                else
-                                {
-                                        weatherChanged = true;
-                                        var echo = weather.DescribeTransitionTo(CurrentWeatherEvent)?.SubstituteANSIColour();
-                                        var oldWeather = CurrentWeatherEvent;
-                                        CurrentWeatherEvent = weather;
-                                        ConsecutiveUnchangedPeriods = 0;
-                                        if (!string.IsNullOrEmpty(echo))
-                                        {
-                                                WeatherEcho?.Invoke(this, echo);
-                                        }
-                                        WeatherChanged?.Invoke(this, oldWeather, weather);
-                                }
-                        }
-                }
+			if (WeatherFrozen)
+			{
+				ConsecutiveUnchangedPeriods++;
+			}
+			else
+			{
+				CurrentTemperatureFluctuation = WeatherClimateUtilities.AdvanceTemperatureFluctuation(
+					CurrentTemperatureFluctuation,
+					RegionalClimate.TemperatureFluctuationStandardDeviation,
+					RegionalClimate.TemperatureFluctuationPeriod,
+					RegionalClimate.ClimateModel.MinuteProcessingInterval);
+				var weather = RegionalClimate.ClimateModel.HandleWeatherTick(CurrentWeatherEvent, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
+				if (weather == CurrentWeatherEvent)
+				{
+					ConsecutiveUnchangedPeriods++;
+				}
+				else
+				{
+					weatherChanged = true;
+					var echo = weather.DescribeTransitionTo(CurrentWeatherEvent)?.SubstituteANSIColour();
+					var oldWeather = CurrentWeatherEvent;
+					CurrentWeatherEvent = weather;
+					ConsecutiveUnchangedPeriods = 0;
+					if (!string.IsNullOrEmpty(echo))
+					{
+						WeatherEcho?.Invoke(this, echo);
+					}
+
+					WeatherChanged?.Invoke(this, oldWeather, weather);
+				}
+			}
+		}
 
 		if (CurrentWeatherEvent != null && CurrentWeatherEvent.Precipitation >= HighestRecentPrecipitationLevel)
 		{
@@ -260,7 +275,24 @@ public class WeatherController : SaveableItem, IWeatherController
 		CurrentTemperature =
 			RegionalClimate.HourlyBaseTemperaturesBySeason[
 				(CurrentSeason, FeedClock.CurrentTime.GetTimeByTimezone(FeedClockTimeZone).Hours)] +
+			CurrentTemperatureFluctuation +
 			(CurrentWeatherEvent?.TemperatureEffect ?? 0.0);
+	}
+
+	private void UpdateCurrentSeason()
+	{
+		if (!RegionalClimate.SeasonRotation.Ranges.Any())
+		{
+			CurrentSeason = CurrentSeason ?? RegionalClimate.Seasons.FirstOrDefault();
+			return;
+		}
+
+		var seasonYearLength = RegionalClimate.SeasonRotation.Ceiling > 0.0
+			? RegionalClimate.SeasonRotation.Ceiling
+			: Celestial?.CelestialDaysPerYear ?? 365.0;
+		var celestialDay = Celestial?.CurrentCelestialDay ?? 0.0;
+		CurrentSeason = RegionalClimate.SeasonRotation.Get(
+			WeatherClimateUtilities.ApplySeasonPhaseShift(celestialDay, seasonYearLength, OppositeHemisphere));
 	}
 
 	public override void Save()
@@ -268,6 +300,8 @@ public class WeatherController : SaveableItem, IWeatherController
 		var dbitem = FMDB.Context.WeatherControllers.Find(Id);
 		dbitem.CurrentSeasonId = CurrentSeason.Id;
 		dbitem.CurrentWeatherEventId = CurrentWeatherEvent.Id;
+		dbitem.OppositeHemisphere = OppositeHemisphere;
+		dbitem.CurrentTemperatureFluctuation = CurrentTemperatureFluctuation;
 		dbitem.MinutesCounter = MinuteCounter;
 		dbitem.ConsecutiveUnchangedPeriods = ConsecutiveUnchangedPeriods;
 		dbitem.HighestRecentPrecipitationLevel = (int)HighestRecentPrecipitationLevel;
@@ -291,7 +325,8 @@ public class WeatherController : SaveableItem, IWeatherController
 	#3latitude <degrees>#0 - set the latitude
 	#3elevation <height>#0 - sets the height above sea level
 	#3radius <measurement>#0 - sets the planetary radius
-	#3celestial <which>#0 - changes which celestial this is tied to";
+	#3celestial <which>#0 - changes which celestial this is tied to
+	#3hemisphere <normal|opposite>#0 - phase shifts seasons by half a year for opposite-hemisphere locations";
 
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -317,10 +352,41 @@ public class WeatherController : SaveableItem, IWeatherController
 				return BuildingCommandRadius(actor, command);
 			case "celestial":
 				return BuildingCommandCelestial(actor, command);
+			case "hemisphere":
+			case "oppositehemisphere":
+				return BuildingCommandHemisphere(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandHemisphere(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Should this controller use the normal or opposite hemisphere season alignment? It is currently {(OppositeHemisphere ? "opposite" : "normal").ColourValue()}.");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		bool? opposite = text.EqualToAny("opposite", "south", "southern", "yes", "true")
+			? true
+			: text.EqualToAny("normal", "north", "northern", "no", "false")
+				? false
+				: null;
+		if (opposite is null)
+		{
+			actor.OutputHandler.Send("You must specify either normal or opposite.");
+			return false;
+		}
+
+		OppositeHemisphere = opposite.Value;
+		UpdateCurrentSeason();
+		CalculateCurrentTemperature();
+		Changed = true;
+		actor.OutputHandler.Send($"This weather controller now uses the {(OppositeHemisphere ? "opposite" : "normal").ColourValue()} hemisphere season alignment.");
+		return true;
 	}
 
 	private bool BuildingCommandRadius(ICharacter actor, StringStack command)
@@ -504,10 +570,12 @@ public class WeatherController : SaveableItem, IWeatherController
 		sb.AppendLine($"Longitude {GeographyForTimeOfDay.Longitude.RadiansToDegrees().ToString("N3").Colour(Telnet.Green)}");
 		sb.AppendLine($"Elevation {$"{GeographyForTimeOfDay.Elevation}m".Colour(Telnet.Green)}");
 		sb.AppendLine($"Planetary Radius: {Gameworld.UnitManager.DescribeMostSignificantExact(GeographyForTimeOfDay.Radius, UnitType.Length, voyeur).ColourValue()}");
+		sb.AppendLine($"Opposite Hemisphere: {OppositeHemisphere.ToColouredString()}");
 		sb.AppendLine();
 		sb.AppendLine($"Current Season: {CurrentSeason.Name.Colour(Telnet.Green)}");
 		sb.AppendLine($"Current Weather: {CurrentWeatherEvent.Name.Colour(Telnet.Green)}");
 		sb.AppendLine($"Consecutive Unchanged Periods: {ConsecutiveUnchangedPeriods.ToString("N0", voyeur)}");
+		sb.AppendLine($"Current Base Temperature Fluctuation: {Gameworld.UnitManager.DescribeMostSignificantExact(CurrentTemperatureFluctuation, Framework.Units.UnitType.Temperature, voyeur).ColourValue()}");
 		sb.AppendLine($"Current Temperature: {Gameworld.UnitManager.DescribeExact(CurrentTemperature, Framework.Units.UnitType.Temperature, voyeur)}");
 		sb.AppendLine($"Highest Recent Precipitation: {HighestRecentPrecipitationLevel.Describe().Colour(Telnet.BoldBlue)} ({PeriodsSinceHighestPrecipitation.ToString("N0", voyeur)} periods)");
 		return sb.ToString();

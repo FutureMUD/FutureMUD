@@ -28,6 +28,8 @@ namespace MudSharp.Models
         public double Longitude { get; set; }
         public int HighestRecentPrecipitationLevel { get; set; }
         public int PeriodsSinceHighestPrecipitation { get; set; }
+        public bool OppositeHemisphere { get; set; }
+        public double CurrentTemperatureFluctuation { get; set; }
 
         public virtual Celestial Celestial { get; set; }
         public virtual Season CurrentSeason { get; set; }

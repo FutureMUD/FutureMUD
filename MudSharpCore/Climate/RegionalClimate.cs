@@ -13,6 +13,7 @@ using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Climate;
 
@@ -25,6 +26,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		_name = climate.Name;
 		Description = climate.Description ?? string.Empty;
 		ClimateModel = gameworld.ClimateModels.Get(climate.ClimateModelId);
+		TemperatureFluctuationStandardDeviation = climate.TemperatureFluctuationStandardDeviation;
+		TemperatureFluctuationPeriod = TimeSpan.FromMinutes(Math.Max(0, climate.TemperatureFluctuationPeriodMinutes));
 
 		foreach (var season in climate.RegionalClimatesSeasons)
 		{
@@ -55,6 +58,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		_name = name;
 		Description = "An undescribed regional climate.";
 		ClimateModel = model;
+		TemperatureFluctuationStandardDeviation = 0.0;
+		TemperatureFluctuationPeriod = TimeSpan.FromDays(4);
 		SeasonRotation = new CircularRange<ISeason>();
 		DoDatabaseInsert();
 	}
@@ -65,6 +70,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		_name = name;
 		Description = rhs.Description;
 		ClimateModel = rhs.ClimateModel;
+		TemperatureFluctuationStandardDeviation = rhs.TemperatureFluctuationStandardDeviation;
+		TemperatureFluctuationPeriod = rhs.TemperatureFluctuationPeriod;
 		_seasons.AddRange(rhs._seasons);
 		foreach (var item in rhs._hourlyBaseTemperaturesBySeason)
 		{
@@ -95,7 +102,9 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 			{
 				Name = Name,
 				Description = Description,
-				ClimateModelId = ClimateModel.Id
+				ClimateModelId = ClimateModel.Id,
+				TemperatureFluctuationStandardDeviation = TemperatureFluctuationStandardDeviation,
+				TemperatureFluctuationPeriodMinutes = (int)Math.Round(Math.Max(0.0, TemperatureFluctuationPeriod.TotalMinutes))
 			};
 			FMDB.Context.RegionalClimates.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -113,6 +122,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 
 	public string Description { get; protected set; }
 	public IClimateModel ClimateModel { get; protected set; }
+	public double TemperatureFluctuationStandardDeviation { get; protected set; }
+	public TimeSpan TemperatureFluctuationPeriod { get; protected set; }
 	private readonly List<ISeason> _seasons = new();
 	public IEnumerable<ISeason> Seasons => _seasons;
 	private readonly Dictionary<(ISeason Season, int DailyHour), double> _hourlyBaseTemperaturesBySeason = new();
@@ -126,6 +137,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	#3name <name>#0 - renames this regional climate
 	#3desc#0 - opens an editor for this regional climate's description
 	#3model <model>#0 - changes the climate model
+	#3fluctuation <temp>#0 - sets the standard deviation for slow base temperature fluctuation
+	#3period <timespan>#0 - sets how long the base temperature fluctuation takes to meaningfully drift
 	#3season <which>#0 - toggles a season belonging to this regional climate
 	#3temp <season> <hour> <temp>#0 - sets an hourly temperature
 	#3temps <season> [<temp0> <temp1> ... <tempn>]#0 - bulk edits the seasonal temperatures";
@@ -144,6 +157,13 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 			case "climate":
 			case "climatemodel":
 				return BuildingCommandClimateModel(actor, command);
+			case "fluctuation":
+			case "stddev":
+			case "stdev":
+				return BuildingCommandTemperatureFluctuation(actor, command);
+			case "period":
+			case "fluctuationperiod":
+				return BuildingCommandTemperatureFluctuationPeriod(actor, command);
 			case "season":
 				return BuildingCommandSeason(actor, command);
 			case "temp":
@@ -154,6 +174,46 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandTemperatureFluctuation(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What standard deviation should this regional climate use for its slow base temperature fluctuation?");
+			return false;
+		}
+
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature, actor, out var value) || value < 0.0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid non-negative temperature value.");
+			return false;
+		}
+
+		TemperatureFluctuationStandardDeviation = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This regional climate now uses a base temperature fluctuation standard deviation of {Gameworld.UnitManager.DescribeMostSignificantExact(value, UnitType.Temperature, actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandTemperatureFluctuationPeriod(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How long should this regional climate take to drift through its slow base temperature fluctuation?");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var value) || ((TimeSpan)value) <= TimeSpan.Zero)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid positive timespan.");
+			return false;
+		}
+
+		TemperatureFluctuationPeriod = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This regional climate now uses a base temperature fluctuation period of {value.Describe(actor).ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandDescription(ICharacter actor)
@@ -385,6 +445,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		sb.AppendLine(FormatDescription(Description, voyeur.InnerLineFormatLength, "\t"));
 		sb.AppendLine();
 		sb.AppendLine($"Climate Model: {ClimateModel.Name.Colour(Telnet.BoldCyan)}");
+		sb.AppendLine($"Base Temperature Fluctuation Std Dev: {voyeur.Gameworld.UnitManager.DescribeMostSignificantExact(TemperatureFluctuationStandardDeviation, UnitType.Temperature, voyeur).ColourValue()}");
+		sb.AppendLine($"Base Temperature Fluctuation Period: {TemperatureFluctuationPeriod.Describe(voyeur).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Seasons:");
 		sb.AppendLine();
@@ -420,6 +482,8 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		dbitem.Name = Name;
 		dbitem.Description = Description;
 		dbitem.ClimateModelId = ClimateModel.Id;
+		dbitem.TemperatureFluctuationStandardDeviation = TemperatureFluctuationStandardDeviation;
+		dbitem.TemperatureFluctuationPeriodMinutes = (int)Math.Round(Math.Max(0.0, TemperatureFluctuationPeriod.TotalMinutes));
 		FMDB.Context.RegionalClimatesSeasons.RemoveRange(dbitem.RegionalClimatesSeasons);
 		foreach (var season in Seasons)
 		{

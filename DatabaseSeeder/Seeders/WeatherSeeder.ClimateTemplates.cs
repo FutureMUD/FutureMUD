@@ -2649,14 +2649,11 @@ public partial class WeatherSeeder
 		List<Season> seasons,
 		WeatherSeederEventCatalog eventCatalog,
 		WeatherSeederClimateProfile profile,
-		IReadOnlyDictionary<string, ClimateModel> seededClimateModels,
-		WeatherSeederTemperatureVariationOption temperatureVariationOption)
+		IReadOnlyDictionary<string, ClimateModel> seededClimateModels)
 	{
 		return profile.RegionalClimatePrefix switch
 		{
-			"Oceanic Temperate" => temperatureVariationOption.Id == "full"
-				? CreateClimateModels(context, seasons, eventCatalog.EventsByName, profile)
-				: CreateClimateModels(context, seasons, eventCatalog, profile, temperatureVariationOption),
+			"Oceanic Temperate" => CreateClimateModels(context, seasons, eventCatalog.EventsByName, profile),
 			"Subpolar Oceanic" => CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustSubpolarOceanicTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
 			"Humid Subtropical" => CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustHumidSubtropicalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
 			"Dry Winter Humid Subtropical" => CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustDryWinterHumidSubtropicalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
@@ -2875,14 +2872,8 @@ public partial class WeatherSeeder
 			{
 				var descriptor = descriptorsById[baseSeasonEvent.WeatherEvent.Id];
 				var transitionElements = XElement.Parse(baseSeasonEvent.Transitions).Elements("Transition").ToList();
-				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
-				{
-					ClimateModel = climateModel,
-					Season = baseSeason.Season,
-					WeatherEvent = baseSeasonEvent.WeatherEvent,
-					ChangeChance = profile.BaseChangeChance,
-					Transitions = new XElement("Transitions",
-						from transition in transitionElements
+				var transitionPairs =
+					(from transition in transitionElements
 						let targetId = long.Parse(transition.Attribute("id")!.Value)
 						where descriptorsById.ContainsKey(targetId)
 						let adjustedChance = transitionAdjuster(
@@ -2893,10 +2884,27 @@ public partial class WeatherSeeder
 							baseProfile,
 							profile)
 						where adjustedChance > 0.0
-						select new XElement("Transition",
-							new XAttribute("id", targetId),
-							new XAttribute("chance", adjustedChance))
-					).ToString()
+						select (EventId: targetId, Chance: adjustedChance))
+					.ToList();
+				var collapsedTemperatureChance = GetCollapsedTemperatureVariationReallocationChance(
+					profile,
+					baseSeason.Season.SeasonGroup,
+					descriptor);
+				if (collapsedTemperatureChance > 0.0)
+				{
+					transitionPairs.Add((baseSeasonEvent.WeatherEvent.Id, collapsedTemperatureChance));
+				}
+				var transitionDefinition = BuildTransitionDefinition(
+					baseSeasonEvent.WeatherEvent.Id,
+					transitionPairs,
+					profile.BaseChangeChance);
+				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
+				{
+					ClimateModel = climateModel,
+					Season = baseSeason.Season,
+					WeatherEvent = baseSeasonEvent.WeatherEvent,
+					ChangeChance = transitionDefinition.EffectiveChangeChance,
+					Transitions = transitionDefinition.TransitionXml
 				});
 			}
 		}
@@ -2944,14 +2952,8 @@ public partial class WeatherSeeder
 			{
 				var descriptor = DescribeEvent(baseSeasonEvent.WeatherEvent);
 				var transitionElements = XElement.Parse(baseSeasonEvent.Transitions).Elements("Transition").ToList();
-				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
-				{
-					ClimateModel = climateModel,
-					Season = baseSeason.Season,
-					WeatherEvent = baseSeasonEvent.WeatherEvent,
-					ChangeChance = profile.BaseChangeChance,
-					Transitions = new XElement("Transitions",
-						from transition in transitionElements
+				var transitionPairs =
+					(from transition in transitionElements
 						let targetId = long.Parse(transition.Attribute("id")!.Value)
 						let target = context.WeatherEvents.Find(targetId)
 						where target is not null
@@ -2963,10 +2965,27 @@ public partial class WeatherSeeder
 							baseProfile,
 							profile)
 						where adjustedChance > 0.0
-						select new XElement("Transition",
-							new XAttribute("id", targetId),
-							new XAttribute("chance", adjustedChance))
-					).ToString()
+						select (EventId: targetId, Chance: adjustedChance))
+					.ToList();
+				var collapsedTemperatureChance = GetCollapsedTemperatureVariationReallocationChance(
+					profile,
+					baseSeason.Season.SeasonGroup,
+					descriptor);
+				if (collapsedTemperatureChance > 0.0)
+				{
+					transitionPairs.Add((baseSeasonEvent.WeatherEvent.Id, collapsedTemperatureChance));
+				}
+				var transitionDefinition = BuildTransitionDefinition(
+					baseSeasonEvent.WeatherEvent.Id,
+					transitionPairs,
+					profile.BaseChangeChance);
+				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
+				{
+					ClimateModel = climateModel,
+					Season = baseSeason.Season,
+					WeatherEvent = baseSeasonEvent.WeatherEvent,
+					ChangeChance = transitionDefinition.EffectiveChangeChance,
+					Transitions = transitionDefinition.TransitionXml
 				});
 			}
 		}
@@ -4547,5 +4566,24 @@ public partial class WeatherSeeder
 				: CloudVariation.Cloudy
 			: CloudVariation.None;
 		return new WeatherSeederEventDescriptor((PrecipitationLevel)weatherEvent.Precipitation, (WindLevel)weatherEvent.Wind, variation, windVariation, cloudVariation);
+	}
+
+	private static double GetCollapsedTemperatureVariationReallocationChance(
+		WeatherSeederClimateProfile profile,
+		string seasonName,
+		WeatherSeederEventDescriptor descriptor)
+	{
+		var reallocationCount = 0;
+		if (descriptor.TemperatureVariation < WeatherEventVariation.Sweltering)
+		{
+			reallocationCount++;
+		}
+
+		if (descriptor.TemperatureVariation > WeatherEventVariation.Freezing)
+		{
+			reallocationCount++;
+		}
+
+		return reallocationCount * profile.TemperatureVariationChance(seasonName);
 	}
 }

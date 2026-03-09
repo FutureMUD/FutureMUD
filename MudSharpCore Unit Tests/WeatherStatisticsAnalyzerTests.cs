@@ -255,6 +255,54 @@ public class WeatherStatisticsAnalyzerTests
 	}
 
 	[TestMethod]
+	public void WeatherClimateUtilities_AdvanceTemperatureFluctuation_ZeroVarianceReturnsZero()
+	{
+		var result = WeatherClimateUtilities.AdvanceTemperatureFluctuation(
+			1.25,
+			0.0,
+			TimeSpan.FromDays(4),
+			60,
+			() => 0.5);
+
+		Assert.AreEqual(0.0, result, 0.00001);
+	}
+
+	[TestMethod]
+	public void WeatherClimateUtilities_AdvanceTemperatureFluctuation_OneSigmaBiasesTowardMean()
+	{
+		const int iterations = 20000;
+		var random = new Random(42);
+		var towardMeanCount = 0;
+
+		for (var i = 0; i < iterations; i++)
+		{
+			var next = WeatherClimateUtilities.AdvanceTemperatureFluctuation(
+				2.0,
+				2.0,
+				TimeSpan.FromDays(4),
+				60,
+				random.NextDouble);
+			if (Math.Abs(next) < 2.0)
+			{
+				towardMeanCount++;
+			}
+		}
+
+		var towardMeanFraction = towardMeanCount / (double)iterations;
+		Assert.IsTrue(
+			towardMeanFraction is >= 0.62 and <= 0.69,
+			$"Expected a one-sigma fluctuation to bias back toward the mean at about two-thirds probability, but got {towardMeanFraction:P2}.");
+	}
+
+	[TestMethod]
+	public void WeatherClimateUtilities_ApplySeasonPhaseShift_OppositeHemisphereAddsHalfAYear()
+	{
+		Assert.AreEqual(0.0, WeatherClimateUtilities.ApplySeasonPhaseShift(0.0, 365.0, false), 0.00001);
+		Assert.AreEqual(182.5, WeatherClimateUtilities.ApplySeasonPhaseShift(0.0, 365.0, true), 0.00001);
+		Assert.AreEqual(20.0, WeatherClimateUtilities.ApplySeasonPhaseShift(202.5, 365.0, true), 0.00001);
+	}
+
+	[TestMethod]
 	public void ParseTransitions_LegacySeederTransitionNodes_AreParsed()
 	{
 		const string xml = """

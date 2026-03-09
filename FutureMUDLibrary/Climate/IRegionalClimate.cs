@@ -13,6 +13,8 @@ namespace MudSharp.Climate
     {
         string Description { get; }
         IClimateModel ClimateModel { get; }
+        double TemperatureFluctuationStandardDeviation { get; }
+        TimeSpan TemperatureFluctuationPeriod { get; }
         IEnumerable<ISeason> Seasons { get; }
         IReadOnlyDictionary<(ISeason Season, int DailyHour),double> HourlyBaseTemperaturesBySeason { get; }
         CircularRange<ISeason> SeasonRotation { get; }

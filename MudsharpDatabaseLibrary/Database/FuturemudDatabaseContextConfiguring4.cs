@@ -233,6 +233,10 @@ namespace MudSharp.Database
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 
+				entity.Property(e => e.TemperatureFluctuationPeriodMinutes).HasColumnType("int(11)");
+
+				entity.Property(e => e.TemperatureFluctuationStandardDeviation).HasColumnType("double");
+
 				entity.Property(e => e.Name)
 					.IsRequired()
 					.HasColumnType("varchar(200)")
@@ -1848,6 +1852,8 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.ConsecutiveUnchangedPeriods).HasColumnType("int(11)");
 
+				entity.Property(e => e.CurrentTemperatureFluctuation).HasColumnType("double");
+
 				entity.Property(e => e.CurrentSeasonId).HasColumnType("bigint(20)");
 
 				entity.Property(e => e.CurrentWeatherEventId).HasColumnType("bigint(20)");
@@ -1865,6 +1871,8 @@ namespace MudSharp.Database
 					.HasColumnType("varchar(500)")
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
+
+				entity.Property(e => e.OppositeHemisphere).HasColumnType("bit(1)");
 
 				entity.Property(e => e.PeriodsSinceHighestPrecipitation).HasColumnType("int(11)");
 

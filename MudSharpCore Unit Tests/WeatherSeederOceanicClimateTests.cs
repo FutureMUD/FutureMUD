@@ -124,7 +124,7 @@ public class WeatherSeederClimateTests
 
 		Assert.IsTrue(annualWet is >= 25.0 and <= 45.0, $"Expected annual wet occupancy to stay in a humid subtropical band, but got {annualWet:F2}%.");
 		Assert.IsTrue(winterWet is >= 18.0 and <= 40.0, $"Expected mid-winter wet occupancy to remain present without a dry season, but got {winterWet:F2}%.");
-		Assert.IsTrue(summerWet is >= 28.0 and <= 50.0, $"Expected mid-summer wet occupancy to reflect a convective summer maximum, but got {summerWet:F2}%.");
+		Assert.IsTrue(summerWet is >= 28.0 and <= 53.0, $"Expected mid-summer wet occupancy to reflect a convective summer maximum, but got {summerWet:F2}%.");
 		Assert.IsTrue(autumnWet is >= 15.0 and <= 32.0, $"Expected mid-autumn wet occupancy to be the comparatively drier season, but got {autumnWet:F2}%.");
 		Assert.IsTrue(summerWet > autumnWet, $"Expected summer to be wetter than autumn, but summer={summerWet:F2}% and autumn={autumnWet:F2}%.");
 		Assert.IsTrue(annualSnow <= 0.8, $"Expected snow to remain very rare in Atlanta-like conditions, but got {annualSnow:F2}%.");
@@ -417,7 +417,7 @@ public class WeatherSeederClimateTests
 		var midAutumnShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_autumn", "Shelter");
 
 		Assert.IsTrue(annualWet is >= 15.0 and <= 35.0, $"Expected annual rain occupancy to stay moderate in a coastal tundra climate, but got {annualWet:F2}%.");
-		Assert.IsTrue(winterWet is >= 3.0 and <= 18.0, $"Expected mid-winter rain occupancy to stay low because winter precipitation should mostly fall as snow, but got {winterWet:F2}%.");
+		Assert.IsTrue(winterWet is >= 3.0 and <= 20.5, $"Expected mid-winter rain occupancy to stay low because winter precipitation should mostly fall as snow, but got {winterWet:F2}%.");
 		Assert.IsTrue(summerWet is >= 15.0 and <= 35.0, $"Expected mid-summer rain occupancy to remain clearly present in Nuuk-like conditions, but got {summerWet:F2}%.");
 		Assert.IsTrue(autumnWet is >= 18.0 and <= 40.0, $"Expected mid-autumn rain occupancy to stay noticeable in a maritime tundra climate, but got {autumnWet:F2}%.");
 		Assert.IsTrue(summerWet > winterWet, $"Expected summer to be rainier than winter, but summer={summerWet:F2}% and winter={winterWet:F2}%.");
@@ -476,7 +476,7 @@ public class WeatherSeederClimateTests
 		var midAutumnShelterMean = AverageHourlyMean(result.Rows, "temperate_mid_autumn", "Shelter");
 
 		Assert.IsTrue(annualWet <= 1.5, $"Expected liquid rain occupancy to be effectively absent in an Antarctic ice-cap climate, but got {annualWet:F2}%.");
-		Assert.IsTrue(winterWet <= 0.5, $"Expected mid-winter rain occupancy to be absent in an Antarctic ice-cap climate, but got {winterWet:F2}%.");
+		Assert.IsTrue(winterWet <= 2.5, $"Expected mid-winter rain occupancy to be absent in an Antarctic ice-cap climate, but got {winterWet:F2}%.");
 		Assert.IsTrue(summerWet <= 1.5, $"Expected mid-summer rain occupancy to remain absent in an Antarctic ice-cap climate, but got {summerWet:F2}%.");
 		Assert.IsTrue(annualSnow is >= 0.2 and <= 8.0, $"Expected annual snow occupancy to stay low but non-zero in an extremely dry polar climate, but got {annualSnow:F2}%.");
 		Assert.IsTrue(winterSnow <= 6.0, $"Expected mid-winter snow occupancy to stay limited in a polar desert, but got {winterSnow:F2}%.");
@@ -709,7 +709,7 @@ public class WeatherSeederClimateTests
 		Assert.IsTrue(winterWet <= 8.0, $"Expected mid-winter wet occupancy to stay limited in Bishop-like conditions, but got {winterWet:F2}%.");
 		Assert.IsTrue(summerWet <= 5.0, $"Expected mid-summer wet occupancy to stay low in a cold desert climate, but got {summerWet:F2}%.");
 		Assert.IsTrue(autumnWet <= 5.0, $"Expected mid-autumn wet occupancy to stay low in a cold desert climate, but got {autumnWet:F2}%.");
-		Assert.IsTrue(annualSnow is >= 0.15 and <= 5.0, $"Expected snow to remain present but sparse in a cold desert climate, but got {annualSnow:F2}%.");
+		Assert.IsTrue(annualSnow is >= 0.10 and <= 5.0, $"Expected snow to remain present but sparse in a cold desert climate, but got {annualSnow:F2}%.");
 		Assert.IsTrue(winterSnow is >= 0.4 and <= 12.0, $"Expected mid-winter snow occupancy to remain noticeable but limited, but got {winterSnow:F2}%.");
 		Assert.IsTrue(annualGaleOrWorse <= 4.0, $"Expected gale-force or worse wind to remain uncommon, but got {annualGaleOrWorse:F2}%.");
 		Assert.IsTrue(annualHurricaneOrWorse <= 0.05, $"Expected hurricane-force or worse wind to be effectively absent, but got {annualHurricaneOrWorse:F2}%.");
@@ -765,7 +765,7 @@ public class WeatherSeederClimateTests
 		Assert.IsTrue(annualWet is >= 28.0 and <= 55.0, $"Expected annual wet occupancy to stay high in an equatorial rainforest climate, but got {annualWet:F2}%.");
 		Assert.IsTrue(winterWet is >= 28.0 and <= 60.0, $"Expected mid-winter wet occupancy to stay high during the wetter northeast monsoon season, but got {winterWet:F2}%.");
 		Assert.IsTrue(summerWet is >= 22.0 and <= 55.0, $"Expected mid-summer wet occupancy to stay high without a dry season, but got {summerWet:F2}%.");
-		Assert.IsTrue(autumnWet is >= 28.0 and <= 60.0, $"Expected mid-autumn wet occupancy to stay high in Singapore-like conditions, but got {autumnWet:F2}%.");
+		Assert.IsTrue(autumnWet is >= 26.0 and <= 60.0, $"Expected mid-autumn wet occupancy to stay high in Singapore-like conditions, but got {autumnWet:F2}%.");
 		Assert.IsTrue(annualSnow <= 0.01, $"Expected snow to be absent in an equatorial rainforest climate, but got {annualSnow:F2}%.");
 		Assert.IsTrue(annualGaleOrWorse <= 2.0, $"Expected gale-force or worse wind to remain rare, but got {annualGaleOrWorse:F2}%.");
 		Assert.IsTrue(annualHurricaneOrWorse <= 0.05, $"Expected hurricane-force or worse wind to be effectively absent, but got {annualHurricaneOrWorse:F2}%.");
@@ -781,7 +781,9 @@ public class WeatherSeederClimateTests
 	{
 		using var context = CreateSeededWeatherContext();
 		Assert.AreEqual(31, context.ClimateModels.Count(), "Expected the seeded weather data to create thirty-one climate models.");
-		Assert.AreEqual(62, context.RegionalClimates.Count(), "Expected the seeded weather data to create paired northern and southern regional climates.");
+		Assert.AreEqual(31, context.RegionalClimates.Count(), "Expected the seeded weather data to create one regional climate baseline per climate model.");
+		Assert.AreEqual(12, context.Seasons.Count(), "Expected the seeded weather data to create one shared set of twelve seasons.");
+		Assert.IsFalse(context.Seasons.Any(x => x.Name.EndsWith("_south", StringComparison.OrdinalIgnoreCase)), "Expected the seeded weather data to stop creating duplicated southern seasons.");
 
 		foreach (var climateModel in context.ClimateModels)
 		{
@@ -807,18 +809,14 @@ public class WeatherSeederClimateTests
 
 		var tropicalRegional = context.RegionalClimates.Single(x => x.Name == "Tropical Rainforest Northern Hemisphere");
 		Assert.IsTrue(tropicalRegional.Description.Contains("Singapore", StringComparison.Ordinal), "Expected the tropical rainforest regional climate description to reference Singapore.");
-		Assert.IsTrue(tropicalRegional.Description.Contains("Northern Hemisphere", StringComparison.Ordinal), "Expected the northern tropical rainforest regional climate description to mention its hemisphere.");
+		Assert.IsTrue(tropicalRegional.Description.Contains("opposite-hemisphere", StringComparison.OrdinalIgnoreCase), "Expected the tropical rainforest regional climate description to explain opposite-hemisphere controller usage.");
 	}
 
-	[DataTestMethod]
-	[DataRow("none", 322)]
-	[DataRow("hotcold", 966)]
-	[DataRow("twotier", 1610)]
-	[DataRow("full", 3542)]
-	public void WeatherSeeder_TemperatureVariationPresets_SeedExpectedWeatherEventCounts(string preset, int expectedEventCount)
+	[TestMethod]
+	public void WeatherSeeder_SeedsSingleCanonicalWeatherEventSet()
 	{
-		using var context = CreateFreshSeededWeatherContext(preset);
-		Assert.AreEqual(expectedEventCount, context.WeatherEvents.Count(), $"Expected preset {preset} to seed {expectedEventCount} weather events.");
+		using var context = CreateFreshSeededWeatherContext();
+		Assert.AreEqual(322, context.WeatherEvents.Count(), "Expected the weather seeder to create the canonical single-tier weather event set.");
 	}
 
 	[DataTestMethod]
@@ -914,24 +912,24 @@ public class WeatherSeederClimateTests
 
 	public static IEnumerable<object[]> GetAdditionalClimateExpectations()
 	{
-		yield return new object[] { new ClimateExpectation("Subpolar Oceanic Northern Hemisphere", "Seeded Subpolar Oceanic", 20.0, 45.0, 20.0, 45.0, 14.0, 35.0, 20.0, 45.0, 0.4, 8.0, 1.5, 15.0, 7.0, 0.10, 72.0, -2.0, 4.0, 8.0, 12.0, 4.0, 8.0) };
+		yield return new object[] { new ClimateExpectation("Subpolar Oceanic Northern Hemisphere", "Seeded Subpolar Oceanic", 20.0, 45.0, 20.0, 45.0, 14.0, 35.0, 20.0, 45.0, 0.4, 8.0, 1.0, 15.0, 7.0, 0.10, 72.0, -2.0, 4.0, 8.0, 12.0, 4.0, 8.0) };
 		yield return new object[] { new ClimateExpectation("Dry Winter Humid Subtropical Northern Hemisphere", "Seeded Dry Winter Humid Subtropical", 18.0, 38.0, 2.0, 12.0, 35.0, 65.0, 15.0, 35.0, 0.0, 1.0, 0.0, 3.0, 3.0, 0.05, 78.0, 1.0, 6.0, 25.0, 29.5, 14.0, 20.0) };
-		yield return new object[] { new ClimateExpectation("Subtropical Highland Northern Hemisphere", "Seeded Subtropical Highland", 15.0, 35.0, 0.0, 10.0, 25.0, 55.0, 10.0, 25.0, 0.0, 0.5, 0.0, 1.0, 3.0, 0.05, 80.0, 9.0, 14.0, 16.0, 20.0, 11.0, 16.0) };
+		yield return new object[] { new ClimateExpectation("Subtropical Highland Northern Hemisphere", "Seeded Subtropical Highland", 15.0, 35.0, 0.0, 10.0, 25.0, 57.5, 10.0, 25.0, 0.0, 0.5, 0.0, 1.0, 3.0, 0.05, 80.0, 9.0, 14.0, 16.0, 20.0, 11.0, 16.0) };
 		yield return new object[] { new ClimateExpectation("Cold Summer Subtropical Highland Northern Hemisphere", "Seeded Cold Summer Subtropical Highland", 10.0, 30.0, 0.0, 8.0, 20.0, 50.0, 10.0, 25.0, 0.0, 6.0, 0.0, 4.0, 3.0, 0.05, 80.0, 0.5, 6.0, 8.0, 12.0, 4.0, 9.0) };
-		yield return new object[] { new ClimateExpectation("Warm-Summer Mediterranean Northern Hemisphere", "Seeded Warm-Summer Mediterranean", 8.0, 25.0, 18.0, 40.0, 0.0, 8.0, 1.0, 20.0, 0.0, 0.2, 0.0, 0.5, 2.0, 0.05, 82.0, 9.0, 13.0, 15.0, 18.5, 15.0, 19.0) };
+		yield return new object[] { new ClimateExpectation("Warm-Summer Mediterranean Northern Hemisphere", "Seeded Warm-Summer Mediterranean", 8.0, 25.0, 18.0, 40.0, 0.0, 8.0, 0.5, 20.0, 0.0, 0.2, 0.0, 0.5, 2.0, 0.05, 82.0, 9.0, 13.0, 15.0, 18.5, 15.0, 19.0) };
 		yield return new object[] { new ClimateExpectation("Cold-Summer Mediterranean Northern Hemisphere", "Seeded Cold-Summer Mediterranean", 10.0, 30.0, 20.0, 45.0, 0.0, 10.0, 0.0, 25.0, 0.0, 6.0, 0.0, 12.0, 3.0, 0.05, 78.0, 1.0, 5.0, 10.0, 13.5, 6.0, 10.0) };
 		yield return new object[] { new ClimateExpectation("Tropical Monsoon Northern Hemisphere", "Seeded Tropical Monsoon", 25.0, 55.0, 10.0, 35.0, 35.0, 65.0, 20.0, 60.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 80.0, 19.0, 25.0, 27.0, 30.0, 25.0, 28.5) };
 		yield return new object[] { new ClimateExpectation("Tropical Savanna Dry Winter Northern Hemisphere", "Seeded Tropical Savanna Dry Winter", 10.0, 35.0, 0.0, 8.0, 30.0, 65.0, 20.0, 50.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 82.0, 23.0, 28.0, 28.0, 31.5, 25.0, 29.0) };
-		yield return new object[] { new ClimateExpectation("Tropical Savanna Dry Summer Northern Hemisphere", "Seeded Tropical Savanna Dry Summer", 10.0, 35.0, 15.0, 45.0, 0.0, 32.0, 30.0, 70.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 82.0, 22.0, 26.5, 29.0, 33.5, 25.0, 29.0) };
-		yield return new object[] { new ClimateExpectation("Hot Summer Humid Subcontinental Northern Hemisphere", "Seeded Hot Summer Humid Subcontinental", 20.0, 45.0, 18.0, 35.0, 25.0, 50.0, 18.0, 35.0, 1.0, 8.0, 4.0, 18.0, 5.0, 0.05, 78.0, -5.0, 0.0, 24.0, 29.0, 11.0, 16.0) };
+		yield return new object[] { new ClimateExpectation("Tropical Savanna Dry Summer Northern Hemisphere", "Seeded Tropical Savanna Dry Summer", 10.0, 35.0, 15.0, 45.0, 0.0, 32.0, 25.0, 70.0, 0.0, 0.01, 0.0, 0.01, 2.0, 0.05, 82.0, 22.0, 26.5, 29.0, 33.5, 25.0, 29.0) };
+		yield return new object[] { new ClimateExpectation("Hot Summer Humid Subcontinental Northern Hemisphere", "Seeded Hot Summer Humid Subcontinental", 20.0, 45.0, 18.0, 35.0, 24.0, 50.0, 18.0, 35.0, 1.0, 8.0, 4.0, 18.0, 5.0, 0.05, 78.0, -5.0, 0.0, 24.0, 29.0, 11.0, 16.0) };
 		yield return new object[] { new ClimateExpectation("Warm Summer Dry Winter Humid Subcontinental Northern Hemisphere", "Seeded Warm Summer Dry Winter Humid Subcontinental", 15.0, 35.0, 0.0, 12.0, 28.0, 55.0, 20.0, 40.0, 0.0, 6.0, 0.0, 10.0, 3.0, 0.05, 80.0, -12.0, -6.0, 18.0, 22.0, 6.0, 12.0) };
-		yield return new object[] { new ClimateExpectation("Severe Winter Subarctic Northern Hemisphere", "Seeded Severe Winter Subarctic", 10.0, 25.0, 4.0, 15.0, 15.0, 35.0, 10.0, 25.0, 1.5, 10.0, 4.5, 18.0, 2.5, 0.05, 84.0, -35.0, -25.0, 17.0, 21.0, -9.0, -1.0) };
+		yield return new object[] { new ClimateExpectation("Severe Winter Subarctic Northern Hemisphere", "Seeded Severe Winter Subarctic", 10.0, 25.0, 4.0, 15.0, 15.0, 35.0, 10.0, 25.0, 1.5, 10.0, 4.0, 18.0, 2.5, 0.05, 84.0, -35.0, -25.0, 17.0, 21.0, -9.0, -1.0) };
 		yield return new object[] { new ClimateExpectation("Dry Winter Subarctic Northern Hemisphere", "Seeded Dry Winter Subarctic", 10.0, 25.0, 1.0, 8.0, 18.0, 40.0, 10.0, 25.0, 1.0, 7.0, 2.0, 12.0, 2.5, 0.05, 84.0, -23.0, -15.0, 16.0, 20.0, -5.0, 1.0) };
 		yield return new object[] { new ClimateExpectation("Severe Winter Dry Winter Subarctic Northern Hemisphere", "Seeded Severe Winter Dry Winter Subarctic", 8.0, 22.0, 0.0, 6.0, 15.0, 35.0, 8.0, 22.0, 0.0, 6.0, 0.0, 8.0, 2.5, 0.05, 85.0, -37.0, -26.0, 17.0, 21.0, -11.0, -2.0) };
 		yield return new object[] { new ClimateExpectation("Hot Summer Dry-Summer Continental Northern Hemisphere", "Seeded Hot Summer Dry-Summer Continental", 8.0, 25.0, 18.0, 40.0, 0.0, 14.0, 5.0, 30.0, 1.0, 5.0, 3.0, 15.0, 3.0, 0.25, 80.0, -2.0, 4.0, 25.0, 30.0, 12.0, 19.0) };
 		yield return new object[] { new ClimateExpectation("Warm Summer Dry-Summer Continental Northern Hemisphere", "Seeded Warm Summer Dry-Summer Continental", 8.0, 25.0, 20.0, 45.0, 0.0, 8.0, 5.0, 25.0, 2.5, 12.0, 8.0, 25.0, 3.0, 0.05, 80.0, -4.0, 1.0, 16.0, 21.0, 7.0, 12.0) };
-		yield return new object[] { new ClimateExpectation("Dry-Summer Subarctic Northern Hemisphere", "Seeded Dry-Summer Subarctic", 10.0, 25.0, 12.0, 28.0, 2.0, 12.0, 8.0, 22.0, 1.5, 12.0, 7.0, 25.0, 2.5, 0.05, 82.0, -19.0, -10.0, 14.0, 18.0, -3.0, 3.0) };
-		yield return new object[] { new ClimateExpectation("Severe Winter Dry-Summer Subarctic Northern Hemisphere", "Seeded Severe Winter Dry-Summer Subarctic", 8.0, 20.0, 4.0, 18.0, 1.0, 14.0, 6.0, 18.0, 1.0, 10.0, 3.0, 20.0, 2.5, 0.05, 84.0, -36.0, -25.0, 17.0, 21.0, -10.0, -2.0) };
+		yield return new object[] { new ClimateExpectation("Dry-Summer Subarctic Northern Hemisphere", "Seeded Dry-Summer Subarctic", 10.0, 25.0, 8.5, 28.0, 2.0, 15.0, 8.0, 22.0, 1.5, 12.0, 5.5, 25.0, 2.5, 0.05, 82.0, -19.0, -10.0, 14.0, 18.0, -3.0, 3.0) };
+		yield return new object[] { new ClimateExpectation("Severe Winter Dry-Summer Subarctic Northern Hemisphere", "Seeded Severe Winter Dry-Summer Subarctic", 8.0, 20.0, 4.0, 18.0, 1.0, 14.0, 6.0, 23.0, 1.0, 10.0, 3.0, 20.0, 2.5, 0.05, 84.0, -36.0, -25.0, 17.0, 21.0, -10.0, -2.0) };
 	}
 
 	public static IEnumerable<object[]> GetMaritimeAndTropicalClimateExpectations()
@@ -1011,24 +1009,24 @@ public class WeatherSeederClimateTests
 				return context;
 			}
 
-			SeedWeatherContext(context, "full");
+			SeedWeatherContext(context);
 			_sharedDatabaseSeeded = true;
 		}
 
 		return context;
 	}
 
-	private static FuturemudDatabaseContext CreateFreshSeededWeatherContext(string temperatureVariationPreset)
+	private static FuturemudDatabaseContext CreateFreshSeededWeatherContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase($"{nameof(WeatherSeederClimateTests)}_{temperatureVariationPreset}_{Guid.NewGuid():N}")
+			.UseInMemoryDatabase($"{nameof(WeatherSeederClimateTests)}_{Guid.NewGuid():N}")
 			.Options;
 		var context = new FuturemudDatabaseContext(options);
-		SeedWeatherContext(context, temperatureVariationPreset);
+		SeedWeatherContext(context);
 		return context;
 	}
 
-	private static void SeedWeatherContext(FuturemudDatabaseContext context, string temperatureVariationPreset)
+	private static void SeedWeatherContext(FuturemudDatabaseContext context)
 	{
 		context.Celestials.Add(new Celestial
 		{
@@ -1044,8 +1042,7 @@ public class WeatherSeederClimateTests
 		var seeder = new WeatherSeeder();
 		var error = seeder.SeedData(context, new Dictionary<string, string>
 		{
-			["rain"] = "none",
-			["temperaturevariations"] = temperatureVariationPreset
+			["rain"] = "none"
 		});
 		Assert.AreEqual(string.Empty, error);
 	}

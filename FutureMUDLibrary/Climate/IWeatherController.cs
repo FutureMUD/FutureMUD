@@ -25,6 +25,8 @@ namespace MudSharp.Climate
         string DescribeCurrentWeather { get; }
         string CurrentWeatherRoomAddendum { get; }
         double CurrentTemperature { get; }
+        double CurrentTemperatureFluctuation { get; }
+        bool OppositeHemisphere { get; }
         void HandleWeatherTick();
         event WeatherEchoDelegate WeatherEcho;
         event WeatherChangedDelegate WeatherChanged;

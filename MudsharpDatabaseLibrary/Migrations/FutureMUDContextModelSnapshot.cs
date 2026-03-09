@@ -14288,11 +14288,11 @@ namespace MudSharp.Migrations
                     b.ToTable("Ranks_Titles", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RegionalClimate", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
+			modelBuilder.Entity("MudSharp.Models.RegionalClimate", b =>
+				{
+					b.Property<long>("Id")
+						.ValueGeneratedOnAdd()
+						.HasColumnType("bigint(20)");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
@@ -14305,14 +14305,20 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
+					b.Property<string>("Name")
+						.IsRequired()
+						.HasColumnType("varchar(200)")
+						.UseCollation("utf8_general_ci");
 
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+					MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
-                    b.HasKey("Id");
+					b.Property<int>("TemperatureFluctuationPeriodMinutes")
+						.HasColumnType("int(11)");
+
+					b.Property<double>("TemperatureFluctuationStandardDeviation")
+						.HasColumnType("double");
+
+					b.HasKey("Id");
 
                     b.ToTable("RegionalClimates");
                 });
@@ -16434,22 +16440,25 @@ namespace MudSharp.Migrations
                     b.ToTable("WearableSizeParameterRule", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.WeatherController", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
+			modelBuilder.Entity("MudSharp.Models.WeatherController", b =>
+				{
+					b.Property<long>("Id")
+						.ValueGeneratedOnAdd()
+						.HasColumnType("bigint(20)");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<long?>("CelestialId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<int>("ConsecutiveUnchangedPeriods")
-                        .HasColumnType("int(11)");
+					b.Property<int>("ConsecutiveUnchangedPeriods")
+						.HasColumnType("int(11)");
 
-                    b.Property<long>("CurrentSeasonId")
-                        .HasColumnType("bigint(20)");
+					b.Property<double>("CurrentTemperatureFluctuation")
+						.HasColumnType("double");
+
+					b.Property<long>("CurrentSeasonId")
+						.HasColumnType("bigint(20)");
 
                     b.Property<long>("CurrentWeatherEventId")
                         .HasColumnType("bigint(20)");
@@ -16475,15 +16484,18 @@ namespace MudSharp.Migrations
                     b.Property<int>("MinutesCounter")
                         .HasColumnType("int(11)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
+					b.Property<string>("Name")
+						.IsRequired()
+						.HasColumnType("varchar(500)")
+						.UseCollation("utf8_general_ci");
 
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+					MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
-                    b.Property<int>("PeriodsSinceHighestPrecipitation")
-                        .HasColumnType("int(11)");
+					b.Property<ulong>("OppositeHemisphere")
+						.HasColumnType("bit(1)");
+
+					b.Property<int>("PeriodsSinceHighestPrecipitation")
+						.HasColumnType("int(11)");
 
                     b.Property<double>("Radius")
                         .HasColumnType("double");

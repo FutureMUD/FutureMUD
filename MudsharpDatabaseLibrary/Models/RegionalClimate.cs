@@ -15,6 +15,8 @@ namespace MudSharp.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public long ClimateModelId { get; set; }
+        public double TemperatureFluctuationStandardDeviation { get; set; }
+        public int TemperatureFluctuationPeriodMinutes { get; set; }
 
         public virtual ICollection<RegionalClimatesSeason> RegionalClimatesSeasons { get; set; }
         public virtual ICollection<WeatherController> WeatherControllers { get; set; }

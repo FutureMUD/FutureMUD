@@ -4645,7 +4645,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			Alignment.FrontRight, Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head",
 			true, isVital: false, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(wormProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket",
-			Alignment.FrontRight, Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head",
+			Alignment.FrontLeft, Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head",
 			true, isVital: false, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(serpentProto, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "mouth", Alignment.Front,
 			Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
@@ -4662,7 +4662,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(wormProto, "lbody", "lower body", "serpent body", BodypartTypeEnum.Wear, "mbody",
 			Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(wormProto, "tail", "tail", "tail", BodypartTypeEnum.Wear, "lbody", Alignment.Front,
+		AddBodypart(wormProto, "tail", "tail", "tail", BodypartTypeEnum.Wear, "lbody", Alignment.Rear,
 			Orientation.Lowest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 
@@ -4856,7 +4856,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(fishProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(fishProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
 		AddBodypart(fishProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
@@ -4891,10 +4891,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(fishProto, "neck", "neck", "neck", BodypartTypeEnum.BonyDrapeable, "uback", Alignment.Front,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(fishProto, "rgill", "right gills", "gill", BodypartTypeEnum.Gill, "urflank", Alignment.Front,
+		AddBodypart(fishProto, "rgill", "right gills", "gill", BodypartTypeEnum.Gill, "urflank", Alignment.Right,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(fishProto, "lgill", "left gills", "gill", BodypartTypeEnum.Gill, "ulflank", Alignment.Front,
+		AddBodypart(fishProto, "lgill", "left gills", "gill", BodypartTypeEnum.Gill, "ulflank", Alignment.Left,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		AddBodypart(fishProto, "head", "head", "face", BodypartTypeEnum.BonyDrapeable, "neck", Alignment.Front,
@@ -5413,7 +5413,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(pinnipedProto, "bneck", "neck back", "neck back", BodypartTypeEnum.Wear, "neck",
-			Alignment.Front, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+			Alignment.Rear, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(pinnipedProto, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck",
 			Alignment.Front, Orientation.Highest, 40, 50, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Head",
@@ -5424,10 +5424,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(pinnipedProto, "bhead", "head back", "head back", BodypartTypeEnum.Wear, "bneck",
 			Alignment.Rear, Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(pinnipedProto, "rjaw", "right jaw", "jaw", BodypartTypeEnum.Wear, "neck",
+		AddBodypart(pinnipedProto, "rjaw", "right jaw", "jaw", BodypartTypeEnum.Wear, "head",
 			Alignment.FrontRight, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(pinnipedProto, "ljaw", "left jaw", "jaw", BodypartTypeEnum.Wear, "neck",
+		AddBodypart(pinnipedProto, "ljaw", "left jaw", "jaw", BodypartTypeEnum.Wear, "head",
 			Alignment.FrontLeft, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(pinnipedProto, "rcheek", "right cheek", "cheek", BodypartTypeEnum.Wear, "head",
@@ -6062,13 +6062,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(cetaceanProto, "neck", "neck", "neck", BodypartTypeEnum.Wear, "uback", Alignment.Front,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(cetaceanProto, "blowhole", "blowhole", "blowhole", BodypartTypeEnum.Blowhole, "neck",
-			Alignment.Front,
-			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
-			implantSpace: 5, stunMultiplier: 1.0);
 		AddBodypart(cetaceanProto, "head", "head", "face", BodypartTypeEnum.Wear, "neck", Alignment.Front,
 			Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
+		AddBodypart(cetaceanProto, "blowhole", "blowhole", "blowhole", BodypartTypeEnum.Blowhole, "head",
+			Alignment.Front,
+			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
+			implantSpace: 5, stunMultiplier: 1.0);
 		AddBodypart(cetaceanProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
 			Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
@@ -6393,7 +6393,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(quadrupedBody, "bneck", "neck back", "neck back", BodypartTypeEnum.Wear, "neck",
-			Alignment.Front, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
+			Alignment.Rear, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(quadrupedBody, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck",
 			Alignment.Front, Orientation.Highest, 40, 50, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Head",
@@ -6404,10 +6404,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(quadrupedBody, "bhead", "head back", "head back", BodypartTypeEnum.Wear, "bneck",
 			Alignment.Rear, Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(quadrupedBody, "rjaw", "right jaw", "jaw", BodypartTypeEnum.Wear, "neck",
+		AddBodypart(quadrupedBody, "rjaw", "right jaw", "jaw", BodypartTypeEnum.Wear, "head",
 			Alignment.FrontRight, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(quadrupedBody, "ljaw", "left jaw", "jaw", BodypartTypeEnum.Wear, "neck",
+		AddBodypart(quadrupedBody, "ljaw", "left jaw", "jaw", BodypartTypeEnum.Wear, "head",
 			Alignment.FrontLeft, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(quadrupedBody, "rcheek", "right cheek", "cheek", BodypartTypeEnum.Wear, "head",
@@ -6627,10 +6627,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(toedQuadruped, "lrclaw", "left rear claws", "claw", BodypartTypeEnum.Wear, "lrpaw",
 			Alignment.RearLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Left Hindleg", false, isVital: false);
-		AddBodypart(toedQuadruped, "rrclaw", "right dewclaw", "dewclaw", BodypartTypeEnum.Wear, "rrpaw",
+		AddBodypart(toedQuadruped, "rrdewclaw", "right dewclaw", "dewclaw", BodypartTypeEnum.Wear, "rrpaw",
 			Alignment.RearRight, Orientation.Lowest, 10, 50, 5, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Right Hindleg", false, isVital: false);
-		AddBodypart(toedQuadruped, "lrclaw", "left dewclaw", "claw", BodypartTypeEnum.Wear, "lrpaw",
+		AddBodypart(toedQuadruped, "lrdewclaw", "left dewclaw", "dewclaw", BodypartTypeEnum.Wear, "lrpaw",
 			Alignment.RearLeft, Orientation.Lowest, 10, 50, 5, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Left Hindleg", false, isVital: false);
 
@@ -7382,6 +7382,235 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		});
 	}
 
+	private static int GetAnimalRelativeHitChance(BodyProto body, string alias, int fallback) => body.Name switch
+	{
+		"Quadruped Base" => GetQuadrupedRelativeHitChance(alias, fallback),
+		"Ungulate" => GetUngulateRelativeHitChance(alias, fallback),
+		"Toed Quadruped" => GetToedQuadrupedRelativeHitChance(alias, fallback),
+		"Pinniped" => GetPinnipedRelativeHitChance(alias, fallback),
+		"Avian" => GetAvianRelativeHitChance(alias, fallback),
+		"Vermiform" or "Serpentine" => GetSerpentRelativeHitChance(alias, fallback),
+		"Piscine" => GetFishRelativeHitChance(alias, fallback),
+		"Cetacean" => GetCetaceanRelativeHitChance(alias, fallback),
+		"Cephalopod" => GetCephalopodRelativeHitChance(alias, fallback),
+		"Jellyfish" => GetJellyfishRelativeHitChance(alias, fallback),
+		"Insectoid" or "Winged Insectoid" => GetInsectoidRelativeHitChance(alias, fallback),
+		_ => fallback
+	};
+
+	private static int GetQuadrupedRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"abdomen" => 90,
+		"rbreast" or "lbreast" => 60,
+		"urflank" or "ulflank" or "lrflank" or "llflank" => 100,
+		"belly" => 80,
+		"rshoulder" or "lshoulder" => 35,
+		"uback" or "lback" => 100,
+		"withers" => 20,
+		"rrump" or "lrump" => 40,
+		"rloin" or "lloin" => 35,
+		"neck" => 30,
+		"bneck" => 18,
+		"throat" => 10,
+		"head" => 45,
+		"bhead" => 25,
+		"rjaw" or "ljaw" => 12,
+		"rcheek" or "lcheek" => 10,
+		"reyesocket" or "leyesocket" => 5,
+		"reye" or "leye" => 3,
+		"rear" or "lear" => 4,
+		"muzzle" => 15,
+		"mouth" => 10,
+		"tongue" => 1,
+		"nose" => 5,
+		"ruforeleg" or "luforeleg" or "ruhindleg" or "luhindleg" => 50,
+		"rfknee" or "lfknee" or "rrknee" or "rlknee" => 12,
+		"rlforeleg" or "llforeleg" or "rlhindleg" or "llhindleg" => 35,
+		"rfhock" or "lfhock" or "rrhock" or "lrhock" => 8,
+		"utail" or "mtail" or "ltail" => 20,
+		"groin" => 8,
+		"testicles" or "penis" => 1,
+		"rwingbase" or "lwingbase" => 15,
+		"rwing" or "lwing" => 60,
+		"udder" => 10,
+		"rhorn" or "lhorn" or "horn" or "rantler" or "lantler" or "rtusk" or "ltusk" => 2,
+		_ => fallback
+	};
+
+	private static int GetUngulateRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"rfhoof" or "lfhoof" or "rrhoof" or "lrhoof" => 15,
+		"rffrog" or "lffrog" or "rrfrog" or "lrfrog" => 1,
+		_ => GetQuadrupedRelativeHitChance(alias, fallback)
+	};
+
+	private static int GetToedQuadrupedRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"rfpaw" or "lfpaw" or "rrpaw" or "lrpaw" => 15,
+		"rfclaw" or "lfclaw" or "rrclaw" or "lrclaw" => 3,
+		"rrdewclaw" or "lrdewclaw" => 1,
+		_ => GetQuadrupedRelativeHitChance(alias, fallback)
+	};
+
+	private static int GetPinnipedRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"rfrontflipper" or "lfrontflipper" or "rhindflipper" or "lhindflipper" => 50,
+		"tail" => 15,
+		"rtusk" or "ltusk" => 2,
+		_ => GetQuadrupedRelativeHitChance(alias, fallback)
+	};
+
+	private static int GetAvianRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"abdomen" => 65,
+		"rbreast" or "lbreast" => 55,
+		"urflank" or "ulflank" or "lrflank" or "llflank" => 45,
+		"belly" => 55,
+		"rshoulder" or "lshoulder" => 20,
+		"uback" or "lback" => 55,
+		"rump" => 30,
+		"loin" => 25,
+		"neck" => 22,
+		"bneck" => 12,
+		"throat" => 8,
+		"head" => 28,
+		"bhead" => 18,
+		"rcheek" or "lcheek" => 6,
+		"reyesocket" or "leyesocket" => 4,
+		"reye" or "leye" => 2,
+		"rear" or "lear" => 2,
+		"beak" => 10,
+		"tongue" => 1,
+		"nose" => 3,
+		"rupperleg" or "lupperleg" => 20,
+		"rknee" or "lknee" => 5,
+		"rlowerleg" or "llowerleg" => 16,
+		"rankle" or "lankle" => 4,
+		"rfoot" or "lfoot" => 10,
+		"rtalons" or "ltalons" => 3,
+		"tail" => 18,
+		"groin" => 4,
+		"rwingbase" or "lwingbase" => 10,
+		"rwing" or "lwing" => 65,
+		_ => fallback
+	};
+
+	private static int GetSerpentRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"head" => 25,
+		"mouth" => 8,
+		"fangs" => 1,
+		"reyesocket" or "leyesocket" => 3,
+		"reye" or "leye" => 2,
+		"tongue" => 1,
+		"neck" => 12,
+		"ubody" => 80,
+		"mbody" => 100,
+		"lbody" => 70,
+		"tail" => 35,
+		_ => fallback
+	};
+
+	private static int GetFishRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"abdomen" => 80,
+		"rbreast" or "lbreast" => 50,
+		"urflank" or "ulflank" or "lrflank" or "llflank" => 90,
+		"belly" => 65,
+		"uback" or "lback" => 80,
+		"loin" => 55,
+		"dorsalfin" or "analfin" or "rpectoralfin" or "lpectoralfin" or "rpelvicfin" or "lpelvicfin" => 12,
+		"neck" => 12,
+		"rgill" or "lgill" => 10,
+		"head" => 35,
+		"reyesocket" or "leyesocket" => 4,
+		"reye" or "leye" => 2,
+		"mouth" => 12,
+		"peduncle" => 30,
+		"caudalfin" => 20,
+		_ => fallback
+	};
+
+	private static int GetCetaceanRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"abdomen" => 90,
+		"rbreast" or "lbreast" => 55,
+		"urflank" or "ulflank" or "lrflank" or "llflank" => 100,
+		"belly" => 70,
+		"uback" or "lback" => 90,
+		"loin" => 60,
+		"dorsalfin" => 10,
+		"rpectoralfin" or "lpectoralfin" => 18,
+		"neck" => 10,
+		"blowhole" => 4,
+		"head" => 40,
+		"reyesocket" or "leyesocket" => 4,
+		"reye" or "leye" => 2,
+		"mouth" => 14,
+		"stock" => 25,
+		"fluke" => 30,
+		_ => fallback
+	};
+
+	private static int GetCephalopodRelativeHitChance(string alias, int fallback)
+	{
+		if (alias.StartsWith("arm", StringComparison.OrdinalIgnoreCase))
+		{
+			return 18;
+		}
+
+		if (alias.StartsWith("tentacle", StringComparison.OrdinalIgnoreCase))
+		{
+			return 20;
+		}
+
+		return alias switch
+		{
+			"abdomen" => 70,
+			"mouth" => 8,
+			"head" => 25,
+			"mantle" => 55,
+			"reye" or "leye" => 3,
+			_ => fallback
+		};
+	}
+
+	private static int GetJellyfishRelativeHitChance(string alias, int fallback)
+	{
+		if (alias.StartsWith("tendril", StringComparison.OrdinalIgnoreCase))
+		{
+			return 6;
+		}
+
+		return alias switch
+		{
+			"body" => 50,
+			_ => fallback
+		};
+	}
+
+	private static int GetInsectoidRelativeHitChance(string alias, int fallback)
+	{
+		if (alias.StartsWith("rleg", StringComparison.OrdinalIgnoreCase) ||
+		    alias.StartsWith("lleg", StringComparison.OrdinalIgnoreCase))
+		{
+			return 5;
+		}
+
+		return alias switch
+		{
+			"thorax" => 35,
+			"head" => 18,
+			"abdomen" => 30,
+			"rantenna" or "lantenna" => 1,
+			"mandibles" => 2,
+			"reye" or "leye" => 1,
+			"rwingbase" or "lwingbase" => 3,
+			"rwing" or "lwing" => 10,
+			_ => fallback
+		};
+	}
+
 	private void AddBodypart(BodyProto body, string alias, string name, string shape,
 		BodypartTypeEnum type, string? upstreamPartName, Alignment alignment,
 		Orientation orientation, int hitPoints, int severThreshold, int hitChance, int displayOrder,
@@ -7414,7 +7643,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			ImplantSpaceOccupied = implantSpaceOccupied,
 			Size = (int)size,
 			DisplayOrder = displayOrder,
-			RelativeHitChance = hitChance,
+			RelativeHitChance = GetAnimalRelativeHitChance(body, alias, hitChance),
 			DefaultMaterial = _cachedMaterials[material],
 			ArmourType = _naturalArmour
 		};

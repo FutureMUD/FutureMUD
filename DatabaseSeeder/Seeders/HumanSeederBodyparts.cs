@@ -30,6 +30,56 @@ public partial class HumanSeeder
 	private Material _spongyBone;
 	private Material _visceraMaterial;
 
+	private static int GetHumanRelativeHitChance(string alias, int fallback) => alias switch
+	{
+		"abdomen" => 120,
+		"rbreast" or "lbreast" => 75,
+		"rnipple" or "lnipple" => 1,
+		"uback" => 110,
+		"belly" => 100,
+		"lback" => 90,
+		"rbuttock" or "lbuttock" => 45,
+		"rshoulder" or "lshoulder" => 30,
+		"rshoulderblade" or "lshoulderblade" => 25,
+		"neck" => 25,
+		"bneck" => 15,
+		"throat" => 10,
+		"face" => 50,
+		"chin" => 10,
+		"rcheek" or "lcheek" => 15,
+		"mouth" => 8,
+		"tongue" => 1,
+		"nose" => 6,
+		"forehead" => 18,
+		"reyesocket" or "leyesocket" => 6,
+		"reye" or "leye" => 3,
+		"rear" or "lear" => 4,
+		"bhead" => 20,
+		"scalp" => 20,
+		"rbrow" or "lbrow" => 5,
+		"rtemple" or "ltemple" => 5,
+		"rupperarm" or "lupperarm" => 35,
+		"relbow" or "lelbow" => 10,
+		"rforearm" or "lforearm" => 30,
+		"rwrist" or "lwrist" => 7,
+		"rhand" or "lhand" => 12,
+		"rthumb" or "lthumb" => 2,
+		"rindexfinger" or "lindexfinger" or "rmiddlefinger" or "lmiddlefinger" or "rringfinger" or "lringfinger" or
+			"rpinkyfinger" or "lpinkyfinger" => 2,
+		"rhip" or "lhip" => 15,
+		"rthigh" or "lthigh" or "rthighback" or "lthighback" => 35,
+		"rknee" or "lknee" or "rkneeback" or "lkneeback" => 10,
+		"rshin" or "lshin" or "rcalf" or "lcalf" => 18,
+		"rankle" or "lankle" => 6,
+		"rheel" or "lheel" => 4,
+		"rfoot" or "lfoot" => 12,
+		"rbigtoe" or "lbigtoe" or "rindextoe" or "lindextoe" or "rmiddletoe" or "lmiddletoe" or "rringtoe" or
+			"lringtoe" or "rpinkytoe" or "lpinkytoe" => 1,
+		"groin" => 10,
+		"testicles" or "penis" => 1,
+		_ => fallback
+	};
+
 	public void CreateBodypart(BodyProto body, string alias, string name, string shape, BodypartTypeEnum type,
 		string? upstreamPartName, Alignment alignment, Orientation orientation, int hitPoints, int severThreshold,
 		int hitChance, int displayOrder, Material material, SizeCategory size, string limb, bool isSignificant = true,
@@ -61,7 +111,7 @@ public partial class HumanSeeder
 			ImplantSpaceOccupied = implantSpaceOccupied,
 			Size = (int)size,
 			DisplayOrder = displayOrder,
-			RelativeHitChance = hitChance,
+			RelativeHitChance = GetHumanRelativeHitChance(alias, hitChance),
 			DefaultMaterial = material,
 			ArmourType = _naturalArmour
 		};
@@ -779,10 +829,10 @@ public partial class HumanSeeder
 			Alignment.FrontLeft, Orientation.High, 80, -1, 100, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rnipple", "right nipple", "nipple", BodypartTypeEnum.Wear, "rbreast",
-			Alignment.FrontRight, Orientation.High, 80, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
+			Alignment.FrontRight, Orientation.High, 5, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lnipple", "left nipple", "nipple", BodypartTypeEnum.Wear, "lbreast",
-			Alignment.FrontLeft, Orientation.High, 80, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
+			Alignment.FrontLeft, Orientation.High, 5, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "uback", "upper back", "upper back", niDrapeableType, "abdomen",
 			Alignment.Rear, Orientation.Centre, 80, -1, 150, 51, fattyFlesh, SizeCategory.Normal, "Torso",
@@ -806,10 +856,10 @@ public partial class HumanSeeder
 			Alignment.FrontLeft, Orientation.High, 80, -1, 75, 30, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rshoulderblade", "right shoulder blade", "shoulder blade",
-			niDrapeableType, "rshoulder", Alignment.RearRight, Orientation.High, 80, -1, 75, 30, flesh,
+			niDrapeableType, "uback", Alignment.RearRight, Orientation.High, 80, -1, 75, 30, bonyFlesh,
 			SizeCategory.Normal, "Torso", isVital: false, implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lshoulderblade", "left shoulder blade", "shoulder blade",
-			niDrapeableType, "lshoulder", Alignment.RearLeft, Orientation.High, 80, -1, 75, 30, flesh,
+			niDrapeableType, "uback", Alignment.RearLeft, Orientation.High, 80, -1, 75, 30, bonyFlesh,
 			SizeCategory.Normal, "Torso", isVital: false, implantSpace: 5, stunMultiplier: 0.2);
 		if (!_questionAnswers["inventory"].EqualTo("hands"))
 			CreateBodypart(baseHumanoid, "inventory", "inventory", "inventory", BodypartTypeEnum.Grabbing, null,
@@ -923,10 +973,10 @@ public partial class HumanSeeder
 				: BodypartTypeEnum.Wielding, "lwrist", Alignment.Left, Orientation.Appendage, 20, 100, 25, 64, flesh,
 			SizeCategory.Small, "Left Arm", isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rthumb", "right thumb", "thumb", drapeableType, "rhand",
-			Alignment.Right, Orientation.Appendage, 5, 100, 5, 65, flesh, SizeCategory.VerySmall, "Right Arm",
+			Alignment.Right, Orientation.Appendage, 5, 100, 5, 65, bonyFlesh, SizeCategory.VerySmall, "Right Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lthumb", "left thumb", "thumb", drapeableType, "lhand",
-			Alignment.Left, Orientation.Appendage, 5, 100, 5, 65, flesh, SizeCategory.VerySmall, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 5, 100, 5, 65, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rindexfinger", "right index finger", "finger", drapeableType,
 			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 66, bonyFlesh, SizeCategory.VerySmall,

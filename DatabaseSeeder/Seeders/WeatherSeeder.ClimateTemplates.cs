@@ -2644,41 +2644,49 @@ public partial class WeatherSeeder
 			(stages == 1 ? belowBase : belowBaseTwoStage) - Math.Abs(delta) * (stages == 1 ? belowStep : belowStepTwoStage));
 	}
 
-	private static ClimateModel CreateClimateModel(FuturemudDatabaseContext context, List<Season> seasons, Dictionary<string, WeatherEvent> events, WeatherSeederClimateProfile profile)
+	private static ClimateModel CreateClimateModel(
+		FuturemudDatabaseContext context,
+		List<Season> seasons,
+		WeatherSeederEventCatalog eventCatalog,
+		WeatherSeederClimateProfile profile,
+		IReadOnlyDictionary<string, ClimateModel> seededClimateModels,
+		WeatherSeederTemperatureVariationOption temperatureVariationOption)
 	{
 		return profile.RegionalClimatePrefix switch
 		{
-			"Oceanic Temperate" => CreateClimateModels(context, seasons, events, profile),
-			"Subpolar Oceanic" => CreateSubpolarOceanicClimateModel(context, profile),
-			"Humid Subtropical" => CreateHumidSubtropicalClimateModel(context, profile),
-			"Dry Winter Humid Subtropical" => CreateDryWinterHumidSubtropicalClimateModel(context, profile),
-			"Subtropical Highland" => CreateSubtropicalHighlandClimateModel(context, profile),
-			"Cold Summer Subtropical Highland" => CreateColdSummerSubtropicalHighlandClimateModel(context, profile),
-			"Tropical Monsoon" => CreateTropicalMonsoonClimateModel(context, profile),
-			"Tropical Savanna Dry Winter" => CreateTropicalSavannaDryWinterClimateModel(context, profile),
-			"Tropical Savanna Dry Summer" => CreateTropicalSavannaDrySummerClimateModel(context, profile),
-			"Tropical Rainforest" => CreateTropicalRainforestClimateModel(context, profile),
-			"Warm-Summer Mediterranean" => CreateWarmSummerMediterraneanClimateModel(context, profile),
-			"Cold-Summer Mediterranean" => CreateColdSummerMediterraneanClimateModel(context, profile),
-			"Humid Subcontinental" => CreateHumidSubcontinentalClimateModel(context, profile),
-			"Hot Summer Humid Subcontinental" => CreateHotSummerHumidSubcontinentalClimateModel(context, profile),
-			"Dry Winter Humid Subcontinental" => CreateDryWinterHumidSubcontinentalClimateModel(context, profile),
-			"Warm Summer Dry Winter Humid Subcontinental" => CreateWarmSummerDryWinterHumidSubcontinentalClimateModel(context, profile),
-			"Subarctic" => CreateSubarcticClimateModel(context, profile),
-			"Severe Winter Subarctic" => CreateSevereWinterSubarcticClimateModel(context, profile),
-			"Dry Winter Subarctic" => CreateDryWinterSubarcticClimateModel(context, profile),
-			"Severe Winter Dry Winter Subarctic" => CreateSevereWinterDryWinterSubarcticClimateModel(context, profile),
-			"Hot Summer Dry-Summer Continental" => CreateHotSummerDrySummerContinentalClimateModel(context, profile),
-			"Warm Summer Dry-Summer Continental" => CreateWarmSummerDrySummerContinentalClimateModel(context, profile),
-			"Dry-Summer Subarctic" => CreateDrySummerSubarcticClimateModel(context, profile),
-			"Severe Winter Dry-Summer Subarctic" => CreateSevereWinterDrySummerSubarcticClimateModel(context, profile),
-			"Tundra" => CreateTundraClimateModel(context, profile),
-			"Polar Ice Cap" => CreatePolarIceCapClimateModel(context, profile),
-			"Mediterranean" => CreateMediterraneanClimateModel(context, profile),
-			"Hot Semi-Arid" => CreateHotSemiAridClimateModel(context, profile),
-			"Cold Semi-Arid" => CreateColdSemiAridClimateModel(context, profile),
-			"Hot Desert" => CreateHotDesertClimateModel(context, profile),
-			"Cold Desert" => CreateColdDesertClimateModel(context, profile),
+			"Oceanic Temperate" => temperatureVariationOption.Id == "full"
+				? CreateClimateModels(context, seasons, eventCatalog.EventsByName, profile)
+				: CreateClimateModels(context, seasons, eventCatalog, profile, temperatureVariationOption),
+			"Subpolar Oceanic" => CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustSubpolarOceanicTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Humid Subtropical" => CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustHumidSubtropicalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Dry Winter Humid Subtropical" => CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustDryWinterHumidSubtropicalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Subtropical Highland" => CreateDerivedClimateModel(context, CreateDryWinterHumidSubtropicalProfile(), profile, AdjustSubtropicalHighlandTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Cold Summer Subtropical Highland" => CreateDerivedClimateModel(context, CreateSubtropicalHighlandProfile(), profile, AdjustColdSummerSubtropicalHighlandTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Tropical Monsoon" => CreateDerivedClimateModel(context, CreateTropicalRainforestProfile(), profile, AdjustTropicalMonsoonTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Tropical Savanna Dry Winter" => CreateDerivedClimateModel(context, CreateTropicalMonsoonProfile(), profile, AdjustTropicalSavannaDryWinterTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Tropical Savanna Dry Summer" => CreateDerivedClimateModel(context, CreateTropicalMonsoonProfile(), profile, AdjustTropicalSavannaDrySummerTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Tropical Rainforest" => CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustTropicalRainforestTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Warm-Summer Mediterranean" => CreateDerivedClimateModel(context, CreateMediterraneanProfile(), profile, AdjustWarmSummerMediterraneanTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Cold-Summer Mediterranean" => CreateDerivedClimateModel(context, CreateWarmSummerMediterraneanProfile(), profile, AdjustColdSummerMediterraneanTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Humid Subcontinental" => CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustHumidSubcontinentalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Hot Summer Humid Subcontinental" => CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustHotSummerHumidSubcontinentalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Dry Winter Humid Subcontinental" => CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustDryWinterHumidSubcontinentalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Warm Summer Dry Winter Humid Subcontinental" => CreateDerivedClimateModel(context, CreateDryWinterHumidSubcontinentalProfile(), profile, AdjustWarmSummerDryWinterHumidSubcontinentalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Subarctic" => CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustSubarcticTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Severe Winter Subarctic" => CreateDerivedClimateModel(context, CreateSubarcticProfile(), profile, AdjustSevereWinterSubarcticTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Dry Winter Subarctic" => CreateDerivedClimateModel(context, CreateSevereWinterSubarcticProfile(), profile, AdjustDryWinterSubarcticTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Severe Winter Dry Winter Subarctic" => CreateDerivedClimateModel(context, CreateDryWinterSubarcticProfile(), profile, AdjustSevereWinterDryWinterSubarcticTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Hot Summer Dry-Summer Continental" => CreateDerivedClimateModel(context, CreateHotSummerHumidSubcontinentalProfile(), profile, AdjustHotSummerDrySummerContinentalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Warm Summer Dry-Summer Continental" => CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustWarmSummerDrySummerContinentalTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Dry-Summer Subarctic" => CreateDerivedClimateModel(context, CreateSubarcticProfile(), profile, AdjustDrySummerSubarcticTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Severe Winter Dry-Summer Subarctic" => CreateDerivedClimateModel(context, CreateSevereWinterSubarcticProfile(), profile, AdjustSevereWinterDrySummerSubarcticTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Tundra" => CreateDerivedClimateModel(context, CreateSubarcticProfile(), profile, AdjustTundraTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Polar Ice Cap" => CreateDerivedClimateModel(context, CreateTundraProfile(), profile, AdjustPolarIceCapTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Mediterranean" => CreateDerivedClimateModel(context, CreateTemperateOceanicProfile(), profile, AdjustMediterraneanTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Hot Semi-Arid" => CreateDerivedClimateModel(context, CreateHumidSubtropicalProfile(), profile, AdjustHotSemiAridTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Cold Semi-Arid" => CreateDerivedClimateModel(context, CreateHumidSubcontinentalProfile(), profile, AdjustColdSemiAridTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Hot Desert" => CreateDerivedClimateModel(context, CreateHotSemiAridProfile(), profile, AdjustHotDesertTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
+			"Cold Desert" => CreateDerivedClimateModel(context, CreateColdSemiAridProfile(), profile, AdjustColdDesertTransitionChance, seededClimateModels, eventCatalog.DescriptorsById),
 			_ => throw new ArgumentOutOfRangeException(nameof(profile), profile.RegionalClimatePrefix, "Unsupported seeded climate profile.")
 		};
 	}
@@ -2831,6 +2839,70 @@ public partial class WeatherSeeder
 	private static ClimateModel CreateColdDesertClimateModel(FuturemudDatabaseContext context, WeatherSeederClimateProfile profile)
 	{
 		return CreateDerivedClimateModel(context, CreateColdSemiAridProfile(), profile, AdjustColdDesertTransitionChance);
+	}
+
+	private static ClimateModel CreateDerivedClimateModel(
+		FuturemudDatabaseContext context,
+		WeatherSeederClimateProfile baseProfile,
+		WeatherSeederClimateProfile profile,
+		Func<string, WeatherSeederEventDescriptor, WeatherSeederEventDescriptor, double, WeatherSeederClimateProfile, WeatherSeederClimateProfile, double> transitionAdjuster,
+		IReadOnlyDictionary<string, ClimateModel> seededClimateModels,
+		IReadOnlyDictionary<long, WeatherSeederEventDescriptor> descriptorsById)
+	{
+		var baseModel = GetRequiredBaseClimateModel(seededClimateModels, baseProfile);
+		var climateModel = new ClimateModel
+		{
+			Name = profile.ClimateModelName,
+			Description = BuildClimateModelDescription(profile),
+			MinuteProcessingInterval = baseModel.MinuteProcessingInterval,
+			MinimumMinutesBetweenFlavourEchoes = baseModel.MinimumMinutesBetweenFlavourEchoes,
+			MinuteFlavourEchoChance = baseModel.MinuteFlavourEchoChance,
+			Type = baseModel.Type
+		};
+
+		foreach (var baseSeason in baseModel.ClimateModelSeasons)
+		{
+			var cms = new ClimateModelSeason
+			{
+				ClimateModel = climateModel,
+				Season = baseSeason.Season,
+				IncrementalAdditionalChangeChanceFromStableWeather = profile.IncrementalAdditionalChangeChanceFromStableWeather,
+				MaximumAdditionalChangeChanceFromStableWeather = profile.MaximumAdditionalChangeChance(baseSeason.Season.SeasonGroup)
+			};
+			climateModel.ClimateModelSeasons.Add(cms);
+
+			foreach (var baseSeasonEvent in baseSeason.SeasonEvents)
+			{
+				var descriptor = descriptorsById[baseSeasonEvent.WeatherEvent.Id];
+				var transitionElements = XElement.Parse(baseSeasonEvent.Transitions).Elements("Transition").ToList();
+				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
+				{
+					ClimateModel = climateModel,
+					Season = baseSeason.Season,
+					WeatherEvent = baseSeasonEvent.WeatherEvent,
+					ChangeChance = profile.BaseChangeChance,
+					Transitions = new XElement("Transitions",
+						from transition in transitionElements
+						let targetId = long.Parse(transition.Attribute("id")!.Value)
+						where descriptorsById.ContainsKey(targetId)
+						let adjustedChance = transitionAdjuster(
+							baseSeason.Season.SeasonGroup,
+							descriptor,
+							descriptorsById[targetId],
+							double.Parse(transition.Attribute("chance")!.Value),
+							baseProfile,
+							profile)
+						where adjustedChance > 0.0
+						select new XElement("Transition",
+							new XAttribute("id", targetId),
+							new XAttribute("chance", adjustedChance))
+					).ToString()
+				});
+			}
+		}
+
+		context.ClimateModels.Add(climateModel);
+		return climateModel;
 	}
 
 	private static ClimateModel CreateDerivedClimateModel(

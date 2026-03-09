@@ -60,7 +60,7 @@ Please press enter to begin.".WriteLineConsole();
 		Console.Clear();
 #if DEBUG
 		ConnectionString =
-			"server=localhost;port=3306;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;";
+			"server=localhost;port=3306;database=damnatio_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;";
 #else
 			Console.WriteLine("Please enter the connection string for your database: ");
 			Console.Write("This is very likely to be in the following format: ");

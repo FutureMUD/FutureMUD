@@ -811,6 +811,17 @@ public class WeatherSeederClimateTests
 	}
 
 	[DataTestMethod]
+	[DataRow("none", 322)]
+	[DataRow("hotcold", 966)]
+	[DataRow("twotier", 1610)]
+	[DataRow("full", 3542)]
+	public void WeatherSeeder_TemperatureVariationPresets_SeedExpectedWeatherEventCounts(string preset, int expectedEventCount)
+	{
+		using var context = CreateFreshSeededWeatherContext(preset);
+		Assert.AreEqual(expectedEventCount, context.WeatherEvents.Count(), $"Expected preset {preset} to seed {expectedEventCount} weather events.");
+	}
+
+	[DataTestMethod]
 	[DynamicData(nameof(GetMaritimeAndTropicalClimateExpectations), DynamicDataSourceType.Method)]
 	public void WeatherSeeder_MaritimeAndTropicalKoppenProfiles_RemainWithinBroadReferenceBounds(ClimateExpectation expectation)
 	{
@@ -1000,27 +1011,43 @@ public class WeatherSeederClimateTests
 				return context;
 			}
 
-			context.Celestials.Add(new Celestial
-			{
-				Definition = "<Celestial />",
-				Minutes = 0,
-				FeedClockId = 1,
-				CelestialYear = 0,
-				LastYearBump = 0,
-				CelestialType = "test"
-			});
-			context.SaveChanges();
-
-			var seeder = new WeatherSeeder();
-			var error = seeder.SeedData(context, new Dictionary<string, string>
-			{
-				["rain"] = "none"
-			});
-			Assert.AreEqual(string.Empty, error);
+			SeedWeatherContext(context, "full");
 			_sharedDatabaseSeeded = true;
 		}
 
 		return context;
+	}
+
+	private static FuturemudDatabaseContext CreateFreshSeededWeatherContext(string temperatureVariationPreset)
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase($"{nameof(WeatherSeederClimateTests)}_{temperatureVariationPreset}_{Guid.NewGuid():N}")
+			.Options;
+		var context = new FuturemudDatabaseContext(options);
+		SeedWeatherContext(context, temperatureVariationPreset);
+		return context;
+	}
+
+	private static void SeedWeatherContext(FuturemudDatabaseContext context, string temperatureVariationPreset)
+	{
+		context.Celestials.Add(new Celestial
+		{
+			Definition = "<Celestial />",
+			Minutes = 0,
+			FeedClockId = 1,
+			CelestialYear = 0,
+			LastYearBump = 0,
+			CelestialType = "test"
+		});
+		context.SaveChanges();
+
+		var seeder = new WeatherSeeder();
+		var error = seeder.SeedData(context, new Dictionary<string, string>
+		{
+			["rain"] = "none",
+			["temperaturevariations"] = temperatureVariationPreset
+		});
+		Assert.AreEqual(string.Empty, error);
 	}
 
 	private static WeatherStatisticsResult AnalyzeSeededClimate(string regionalClimateName, string controllerName)

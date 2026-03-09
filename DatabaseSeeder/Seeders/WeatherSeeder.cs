@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -44,6 +45,10 @@ enum CloudVariation
 	Overcast
 }
 
+readonly record struct WeatherSeederTemperatureVariationTier(
+	WeatherEventVariation Variation,
+	int OffsetFromNormal);
+
 sealed class WeatherSeederClimateProfile
 {
 	public required string ClimateModelName { get; init; }
@@ -75,10 +80,78 @@ sealed class WeatherSeederClimateProfile
 	public double BaseChangeChance { get; init; } = 0.01;
 }
 
+sealed class WeatherSeederTemperatureVariationOption
+{
+	private Dictionary<WeatherEventVariation, int>? _variationIndices;
+
+	public required string Id { get; init; }
+	public required string Name { get; init; }
+	public required string Summary { get; init; }
+	public required IReadOnlyList<WeatherSeederTemperatureVariationTier> Tiers { get; init; }
+
+	private Dictionary<WeatherEventVariation, int> VariationIndices =>
+		_variationIndices ??= Tiers
+			.Select((tier, index) => new { tier.Variation, Index = index })
+			.ToDictionary(x => x.Variation, x => x.Index);
+
+	private int NormalIndex => VariationIndices[WeatherEventVariation.Normal];
+
+	public int GetOffset(WeatherEventVariation variation)
+	{
+		return Tiers[VariationIndices[variation]].OffsetFromNormal;
+	}
+
+	public bool TryGetWarmerVariation(WeatherEventVariation currentVariation, out WeatherEventVariation warmerVariation)
+	{
+		warmerVariation = default;
+		if (Tiers.Count <= 1 || !VariationIndices.TryGetValue(currentVariation, out var index) || index == Tiers.Count - 1)
+		{
+			return false;
+		}
+
+		if (index == NormalIndex)
+		{
+			warmerVariation = currentVariation;
+			return true;
+		}
+
+		warmerVariation = Tiers[index + 1].Variation;
+		return true;
+	}
+
+	public bool TryGetCoolerVariation(WeatherEventVariation currentVariation, out WeatherEventVariation coolerVariation)
+	{
+		coolerVariation = default;
+		if (Tiers.Count <= 1 || !VariationIndices.TryGetValue(currentVariation, out var index) || index == 0)
+		{
+			return false;
+		}
+
+		if (index == NormalIndex)
+		{
+			coolerVariation = currentVariation;
+			return true;
+		}
+
+		coolerVariation = Tiers[index - 1].Variation;
+		return true;
+	}
+}
+
+sealed class WeatherSeederEventCatalog
+{
+	public required IReadOnlyDictionary<string, WeatherEvent> EventsByName { get; init; }
+	public required IReadOnlyDictionary<WeatherSeederEventDescriptor, WeatherEvent> EventsByDescriptor { get; init; }
+	public required IReadOnlyDictionary<long, WeatherSeederEventDescriptor> DescriptorsById { get; init; }
+}
+
 public partial class WeatherSeeder: IDatabaseSeeder
 {
 	static Regex TempVariationRegex = new("(?:Freezing|VeryCold|Cold|Cool|Cooler|Warmer|Warm|Hot|VeryHot|Sweltering)$");
 	static Regex CloudVariationRegex = new("^(?:Cloudy|Overcast)");
+	private static readonly string[] ClimateSeasonGroups = { "Winter", "Spring", "Summer", "Autumn" };
+	private static readonly IReadOnlyDictionary<string, WeatherSeederTemperatureVariationOption> TemperatureVariationOptions =
+		CreateTemperatureVariationOptions();
 	#region Implementation of IDatabaseSeeder
 
 	/// <inheritdoc />
@@ -106,6 +179,25 @@ Please answer #3full#F, #3soak#F or #3none#f. ",
 				return (true, string.Empty);
 			}
 		),
+		(
+			"temperaturevariations",
+			@"The weather seeder can create multiple hotter and colder variants of every weather event. More tiers make the seeded weather graph richer, but they also increase seeding time and add more climate transitions for the engine to process.
+
+The possible configurations are as follows:
+
+	#3none#F: Only one temperature state for each weather event. Fastest, but least varied
+	#3hotcold#F: One cold and one hot tier around the normal state
+	#3twotier#F: Cool/cold and warm/hot tiers around the normal state. Recommended balance
+	#3full#F: All seeded temperature tiers. Slowest, but highest fidelity
+
+Please answer #3none#F, #3hotcold#F, #3twotier#F or #3full#f. ",
+			(context, answers) => true, (text, context) =>
+			{
+				return NormalizeTemperatureVariationAnswer(text) is null
+					? (false, "Please answer #3none#F, #3hotcold#F, #3twotier#F or #3full#f.")
+					: (true, string.Empty);
+			}
+		),
 	};
 
 	/// <inheritdoc />
@@ -130,10 +222,192 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	public IReadOnlyDictionary<string, string> _questionAnswers;
 	private bool UseRainEvents { get; set; }
 	private Liquid? RainLiquid { get; set; }
+	private WeatherSeederTemperatureVariationOption TemperatureVariationOption { get; set; } = null!;
 
-	private void CreateWeatherEvent(FuturemudDatabaseContext context, PrecipitationLevel precipitation, WindLevel wind, Dictionary<WeatherEvent, string> defaultTransitions, Dictionary<string, WeatherEvent> events)
+	private static IReadOnlyDictionary<string, WeatherSeederTemperatureVariationOption> CreateTemperatureVariationOptions()
 	{
-		void AddEvent(string name, string description, string roomAddendum, double temp, double precipTemp, double windTemp, PrecipitationLevel precipitation, WindLevel wind, bool obscureSky, bool night, bool dawn, bool morning, bool afternoon, bool dusk, string? countsAs, string defaultTransition)
+		return new Dictionary<string, WeatherSeederTemperatureVariationOption>(StringComparer.OrdinalIgnoreCase)
+		{
+			["none"] = new WeatherSeederTemperatureVariationOption
+			{
+				Id = "none",
+				Name = "No Variations",
+				Summary = "single temperature state per weather event",
+				Tiers = new[]
+				{
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0)
+				}
+			},
+			["hotcold"] = new WeatherSeederTemperatureVariationOption
+			{
+				Id = "hotcold",
+				Name = "Hot/Cold",
+				Summary = "one colder and one hotter tier around normal weather",
+				Tiers = new[]
+				{
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cold, -2),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Hot, 2)
+				}
+			},
+			["twotier"] = new WeatherSeederTemperatureVariationOption
+			{
+				Id = "twotier",
+				Name = "Two Tier",
+				Summary = "cool/cold and warm/hot tiers around normal weather",
+				Tiers = new[]
+				{
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cold, -2),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cool, -1),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Warm, 1),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Hot, 2)
+				}
+			},
+			["full"] = new WeatherSeederTemperatureVariationOption
+			{
+				Id = "full",
+				Name = "Full",
+				Summary = "all eleven seeded temperature tiers",
+				Tiers = new[]
+				{
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Freezing, -5),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.VeryCold, -4),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cold, -3),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cool, -2),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Cooler, -1),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Normal, 0),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Warmer, 1),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Warm, 2),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Hot, 3),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.VeryHot, 4),
+					new WeatherSeederTemperatureVariationTier(WeatherEventVariation.Sweltering, 5)
+				}
+			}
+		};
+	}
+
+	private static string? NormalizeTemperatureVariationAnswer(string? answer)
+	{
+		if (string.IsNullOrWhiteSpace(answer))
+		{
+			return null;
+		}
+
+		var normalized = new string(
+			answer
+				.Trim()
+				.Where(char.IsLetter)
+				.ToArray())
+			.ToLowerInvariant();
+
+		return normalized switch
+		{
+			"none" => "none",
+			"hotcold" => "hotcold",
+			"twotier" => "twotier",
+			"full" => "full",
+			_ => null
+		};
+	}
+
+	private static WeatherSeederTemperatureVariationOption GetTemperatureVariationOption(string? answer)
+	{
+		var normalized = NormalizeTemperatureVariationAnswer(answer) ?? "full";
+		return TemperatureVariationOptions[normalized];
+	}
+
+	private static WeatherSeederEventDescriptor CreateEventDescriptor(
+		PrecipitationLevel precipitation,
+		WindLevel wind,
+		WeatherEventVariation temperatureVariation,
+		WindVariation windVariation,
+		CloudVariation cloudVariation)
+	{
+		return new WeatherSeederEventDescriptor(
+			precipitation,
+			wind,
+			temperatureVariation,
+			wind > WindLevel.Still ? windVariation : WindVariation.Normal,
+			cloudVariation);
+	}
+
+	private static string GetTemperatureVariationSuffix(WeatherEventVariation variation)
+	{
+		return variation == WeatherEventVariation.Normal ? string.Empty : variation.DescribeEnum();
+	}
+
+	private static WeatherEvent GetRequiredEvent(WeatherSeederEventCatalog eventCatalog, WeatherSeederEventDescriptor descriptor)
+	{
+		return eventCatalog.EventsByDescriptor[CreateEventDescriptor(
+			descriptor.Precipitation,
+			descriptor.Wind,
+			descriptor.TemperatureVariation,
+			descriptor.WindVariation,
+			descriptor.CloudVariation)];
+	}
+
+	private static ClimateModel GetRequiredBaseClimateModel(
+		IReadOnlyDictionary<string, ClimateModel> seededClimateModels,
+		WeatherSeederClimateProfile baseProfile)
+	{
+		return seededClimateModels.TryGetValue(baseProfile.ClimateModelName, out var climateModel)
+			? climateModel
+			: throw new InvalidOperationException($"Base climate model {baseProfile.ClimateModelName} was not seeded before its derived climates.");
+	}
+
+	private static void AddTransitionForAllSeasons(
+		IDictionary<string, CollectionDictionary<WeatherEvent, (WeatherEvent To, double Chance)>> transitionsBySeason,
+		WeatherEvent from,
+		WeatherEvent to,
+		Func<string, double> chanceSelector)
+	{
+		foreach (var seasonGroup in ClimateSeasonGroups)
+		{
+			transitionsBySeason[seasonGroup].Add(from, (to, chanceSelector(seasonGroup)));
+		}
+	}
+
+	private static void AddTransitionForSpecificSeasons(
+		IDictionary<string, CollectionDictionary<WeatherEvent, (WeatherEvent To, double Chance)>> transitionsBySeason,
+		WeatherEvent from,
+		WeatherEvent to,
+		params (string SeasonGroup, double Chance)[] seasonChances)
+	{
+		foreach (var (seasonGroup, chance) in seasonChances)
+		{
+			transitionsBySeason[seasonGroup].Add(from, (to, chance));
+		}
+	}
+
+	private void CreateWeatherEvent(
+		FuturemudDatabaseContext context,
+		PrecipitationLevel precipitation,
+		WindLevel wind,
+		Dictionary<WeatherEvent, string> defaultTransitions,
+		Dictionary<string, WeatherEvent> eventsByName,
+		Dictionary<WeatherSeederEventDescriptor, WeatherEvent> eventsByDescriptor)
+	{
+		void AddEvent(
+			string name,
+			string description,
+			string roomAddendum,
+			double temp,
+			double precipTemp,
+			double windTemp,
+			PrecipitationLevel precipitationLevel,
+			WindLevel windLevel,
+			WeatherEventVariation temperatureVariation,
+			WindVariation windVariation,
+			CloudVariation cloudVariation,
+			bool obscureSky,
+			bool night,
+			bool dawn,
+			bool morning,
+			bool afternoon,
+			bool dusk,
+			string? countsAs,
+			string defaultTransition)
 		{
 			var weatherEvent = new WeatherEvent
 			{
@@ -143,40 +417,96 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 				TemperatureEffect = temp,
 				PrecipitationTemperatureEffect = precipTemp,
 				WindTemperatureEffect = windTemp,
-				Precipitation = (int)precipitation,
-				Wind = (int)wind,
+				Precipitation = (int)precipitationLevel,
+				Wind = (int)windLevel,
 				ObscuresViewOfSky = obscureSky,
 				PermittedAtNight = night,
 				PermittedAtDawn = dawn,
 				PermittedAtMorning = morning,
 				PermittedAtAfternoon = afternoon,
 				PermittedAtDusk = dusk,
-				WeatherEventType = UseRainEvents ? (precipitation.IsRaining() ? "rain" : "simple") : "simple",
+				WeatherEventType = UseRainEvents ? (precipitationLevel.IsRaining() ? "rain" : "simple") : "simple",
 				AdditionalInfo = "" // This is set later
 			};
 			if (countsAs is not null)
 			{
-				weatherEvent.CountsAs = events[countsAs];
+				weatherEvent.CountsAs = eventsByName[countsAs];
 			}
 
 			defaultTransitions[weatherEvent] = defaultTransition;
-			events.Add(name, weatherEvent);
-			_context.WeatherEvents.Add(weatherEvent);
+			eventsByName.Add(name, weatherEvent);
+			eventsByDescriptor.Add(CreateEventDescriptor(precipitationLevel, windLevel, temperatureVariation, windVariation, cloudVariation), weatherEvent);
+			context.WeatherEvents.Add(weatherEvent);
 		}
 
-		void AddEventWithTempVariations(string name, string description, string roomAddendum, double temp, double precipTemp, double windTemp, double tempPerVariation, double precipTempPerVariation, double windTempPerVariation, PrecipitationLevel precipitation, WindLevel wind, bool obscureSky, bool night, bool dawn, bool morning, bool afternoon, bool dusk, string defaultTransition)
+		void AddEventWithTempVariations(
+			string name,
+			string description,
+			string roomAddendum,
+			double temp,
+			double precipTemp,
+			double windTemp,
+			double tempPerVariation,
+			double precipTempPerVariation,
+			double windTempPerVariation,
+			PrecipitationLevel precipitationLevel,
+			WindLevel windLevel,
+			WindVariation windVariation,
+			CloudVariation cloudVariation,
+			bool obscureSky,
+			bool night,
+			bool dawn,
+			bool morning,
+			bool afternoon,
+			bool dusk,
+			string defaultTransition)
 		{
-			AddEvent(name, description, roomAddendum, temp, precipTemp, windTemp, precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, null, defaultTransition);
-			AddEvent($"{name}Warmer", description, roomAddendum, temp + (1 * tempPerVariation), precipTemp + (1 * precipTempPerVariation), windTemp + (1 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Warm", description, roomAddendum, temp + (2 * tempPerVariation), precipTemp + (2 * precipTempPerVariation), windTemp + (2 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Hot", description, roomAddendum, temp + (3 * tempPerVariation), precipTemp + (3 * precipTempPerVariation), windTemp + (3 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}VeryHot", description, roomAddendum, temp + (4 * tempPerVariation), precipTemp + (4 * precipTempPerVariation), windTemp + (4 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Sweltering", description, roomAddendum, temp + (5 * tempPerVariation), precipTemp + (5 * precipTempPerVariation), windTemp + (5 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Cooler", description, roomAddendum, temp - (1 * tempPerVariation), precipTemp - (1 * precipTempPerVariation), windTemp - (1 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Cool", description, roomAddendum, temp - (2 * tempPerVariation), precipTemp - (2 * precipTempPerVariation), windTemp - (2 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Cold", description, roomAddendum, temp - (3 * tempPerVariation), precipTemp - (3 * precipTempPerVariation), windTemp - (3 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}VeryCold", description, roomAddendum, temp - (4 * tempPerVariation), precipTemp - (4 * precipTempPerVariation), windTemp - (4 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
-			AddEvent($"{name}Freezing", description, roomAddendum, temp - (5 * tempPerVariation), precipTemp - (5 * precipTempPerVariation), windTemp - (5 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+			var normalTier = TemperatureVariationOption.Tiers.Single(x => x.Variation == WeatherEventVariation.Normal);
+			AddEvent(
+				name,
+				description,
+				roomAddendum,
+				temp + normalTier.OffsetFromNormal * tempPerVariation,
+				precipTemp + normalTier.OffsetFromNormal * precipTempPerVariation,
+				windTemp + normalTier.OffsetFromNormal * windTempPerVariation,
+				precipitationLevel,
+				windLevel,
+				normalTier.Variation,
+				windVariation,
+				cloudVariation,
+				obscureSky,
+				night,
+				dawn,
+				morning,
+				afternoon,
+				dusk,
+				null,
+				defaultTransition);
+
+			foreach (var tier in TemperatureVariationOption.Tiers.Where(x => x.Variation != WeatherEventVariation.Normal))
+			{
+				var eventName = $"{name}{GetTemperatureVariationSuffix(tier.Variation)}";
+				AddEvent(
+					eventName,
+					description,
+					roomAddendum,
+					temp + tier.OffsetFromNormal * tempPerVariation,
+					precipTemp + tier.OffsetFromNormal * precipTempPerVariation,
+					windTemp + tier.OffsetFromNormal * windTempPerVariation,
+					precipitationLevel,
+					windLevel,
+					tier.Variation,
+					windVariation,
+					cloudVariation,
+					obscureSky,
+					night,
+					dawn,
+					morning,
+					afternoon,
+					dusk,
+					tier.Variation == WeatherEventVariation.Normal ? null : name,
+					defaultTransition);
+			}
 		}
 
 		var precipitationTempDeltaPerVariation = 0.0;
@@ -313,28 +643,28 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 				break;
 		}
 
-		AddEventWithTempVariations($"{precipitation.DescribeEnum()}{wind.DescribeEnum()}", $"{precipitationDescription}{string.Format(windDescription, "")}", $"{textColour.Colour}{precipitationDescription}{string.Format(windDescription, "")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDelta, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, obscureSky, true, true, true, true, true, $"{precipitationDescription}{string.Format(windDescription, "")}");
+		AddEventWithTempVariations($"{precipitation.DescribeEnum()}{wind.DescribeEnum()}", $"{precipitationDescription}{string.Format(windDescription, "")}", $"{textColour.Colour}{precipitationDescription}{string.Format(windDescription, "")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDelta, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Normal, CloudVariation.None, obscureSky, true, true, true, true, true, $"{precipitationDescription}{string.Format(windDescription, "")}");
 		if (wind > WindLevel.Still)
 		{
-			AddEventWithTempVariations($"{precipitation.DescribeEnum()}Equatorial{wind.DescribeEnum()}", $"{precipitationDescription}{string.Format(windDescription, "hot ")}", $"{textColour.Colour}{precipitationDescription}{string.Format(windDescription, "hot ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaHot, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, obscureSky, true, true, true, true, true, $"{precipitationDescription}{string.Format(windDescription, "hot ")}");
-			AddEventWithTempVariations($"{precipitation.DescribeEnum()}Polar{wind.DescribeEnum()}", $"{precipitationDescription}{string.Format(windDescription, "cold ")}", $"{textColour.Colour}{precipitationDescription}{string.Format(windDescription, "cold ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaCold, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, obscureSky, true, true, true, true, true, $"{precipitationDescription}{string.Format(windDescription, "cold ")}");
+			AddEventWithTempVariations($"{precipitation.DescribeEnum()}Equatorial{wind.DescribeEnum()}", $"{precipitationDescription}{string.Format(windDescription, "hot ")}", $"{textColour.Colour}{precipitationDescription}{string.Format(windDescription, "hot ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaHot, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Equatorial, CloudVariation.None, obscureSky, true, true, true, true, true, $"{precipitationDescription}{string.Format(windDescription, "hot ")}");
+			AddEventWithTempVariations($"{precipitation.DescribeEnum()}Polar{wind.DescribeEnum()}", $"{precipitationDescription}{string.Format(windDescription, "cold ")}", $"{textColour.Colour}{precipitationDescription}{string.Format(windDescription, "cold ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaCold, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Polar, CloudVariation.None, obscureSky, true, true, true, true, true, $"{precipitationDescription}{string.Format(windDescription, "cold ")}");
 		}
 		if (precipitation == PrecipitationLevel.Humid)
 		{
-			AddEventWithTempVariations($"Overcast{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDelta, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, true, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}");
+			AddEventWithTempVariations($"Overcast{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDelta, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Normal, CloudVariation.Overcast, true, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}");
 			if (wind > WindLevel.Still)
 			{
-				AddEventWithTempVariations($"OvercastEquatorial{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaHot, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, true, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}");
-				AddEventWithTempVariations($"OvercastPolar{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaCold, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, true, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}");
+				AddEventWithTempVariations($"OvercastEquatorial{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaHot, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Equatorial, CloudVariation.Overcast, true, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}");
+				AddEventWithTempVariations($"OvercastPolar{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaCold, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Polar, CloudVariation.Overcast, true, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}");
 			}	
 		}
 		if (precipitation == PrecipitationLevel.Dry)
 		{
-			AddEventWithTempVariations($"Cloudy{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDelta, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, obscureSky, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}");
+			AddEventWithTempVariations($"Cloudy{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDelta, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Normal, CloudVariation.Cloudy, obscureSky, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "")}");
 			if (wind > WindLevel.Still)
 			{
-				AddEventWithTempVariations($"CloudyEquatorial{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaHot, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, obscureSky, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}");
-				AddEventWithTempVariations($"CloudyPolar{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaCold, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, obscureSky, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}");
+				AddEventWithTempVariations($"CloudyEquatorial{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaHot, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Equatorial, CloudVariation.Cloudy, obscureSky, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "hot ")}");
+				AddEventWithTempVariations($"CloudyPolar{wind.DescribeEnum()}", $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}", $"{textColour.Colour}{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}{Telnet.RESETALL}", 0.0, precipitationTempDelta, windTempDeltaCold, 1.0, precipitationTempDeltaPerVariation, 0.0, precipitation, wind, WindVariation.Polar, CloudVariation.Cloudy, obscureSky, true, true, true, true, true, $"{precipitationDescriptionCloudy}{string.Format(windDescription, "cold ")}");
 			}
 		}
 	}
@@ -344,6 +674,14 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	{
 		_context = context;
 		_questionAnswers = questionAnswers;
+		TemperatureVariationOption = GetTemperatureVariationOption(
+			_questionAnswers.TryGetValue("temperaturevariations", out var temperatureVariationAnswer)
+				? temperatureVariationAnswer
+				: "full");
+
+		var totalStopwatch = Stopwatch.StartNew();
+		Console.WriteLine("[Weather Seeder] Starting weather and climate seeding.");
+		Console.WriteLine($"[Weather Seeder] Temperature variation preset: {TemperatureVariationOption.Name} ({TemperatureVariationOption.Summary}).");
 
 		var celestial = _context.Celestials.FirstOrDefault();
 		if (celestial is null)
@@ -366,7 +704,6 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 					context.StaticConfigurations.Add(dbsetting);
 				}
 				dbsetting.Definition = "false";
-				context.SaveChanges();
 				RainLiquid = context.Liquids.First(x => x.Name == "rain water");
 				break;
 			case "none":
@@ -374,13 +711,48 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 				break;
 		}
 
+		var stageStopwatch = Stopwatch.StartNew();
+		Console.WriteLine("[Weather Seeder] Creating seasons...");
 		List<Season> seasons = CreateSeasons(celestial);
-		Dictionary<string, WeatherEvent> events = CreateWeatherEvents(context);
-		foreach (var profile in GetClimateProfiles())
+		Console.WriteLine($"[Weather Seeder] Created {seasons.Count:N0} seasons in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
+
+		stageStopwatch.Restart();
+		Console.WriteLine("[Weather Seeder] Creating weather events...");
+		WeatherSeederEventCatalog eventCatalog = CreateWeatherEvents(context);
+		Console.WriteLine($"[Weather Seeder] Created {eventCatalog.EventsByDescriptor.Count:N0} weather events in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
+
+		var profiles = GetClimateProfiles().ToList();
+		var seededClimateModels = new Dictionary<string, ClimateModel>(StringComparer.OrdinalIgnoreCase);
+		Console.WriteLine($"[Weather Seeder] Building {profiles.Count:N0} climate models...");
+		for (var i = 0; i < profiles.Count; i++)
 		{
-			var climateModel = CreateClimateModel(context, seasons, events, profile);
-			CreateRegionalClimatePair(context, seasons, climateModel, profile);
+			var profile = profiles[i];
+			stageStopwatch.Restart();
+			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Building {profile.ClimateModelName} ({profile.KoppenClimateClassification}; {profile.ReferenceLocation})...");
+			var climateModel = CreateClimateModel(context, seasons, eventCatalog, profile, seededClimateModels, TemperatureVariationOption);
+			seededClimateModels.Add(climateModel.Name, climateModel);
+			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Built {profile.ClimateModelName} in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
 		}
+
+		stageStopwatch.Restart();
+		Console.WriteLine("[Weather Seeder] Saving climate models...");
+		context.SaveChanges();
+		Console.WriteLine($"[Weather Seeder] Saved {seededClimateModels.Count:N0} climate models in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
+
+		Console.WriteLine($"[Weather Seeder] Creating {profiles.Count * 2:N0} regional climates...");
+		for (var i = 0; i < profiles.Count; i++)
+		{
+			var profile = profiles[i];
+			stageStopwatch.Restart();
+			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Creating paired regional climates for {profile.RegionalClimatePrefix}...");
+			CreateRegionalClimatePair(context, seasons, seededClimateModels[profile.ClimateModelName], profile);
+			Console.WriteLine($"[Weather Seeder] [{i + 1}/{profiles.Count}] Prepared paired regional climates in {stageStopwatch.Elapsed.TotalSeconds:0.0}s.");
+		}
+
+		stageStopwatch.Restart();
+		Console.WriteLine("[Weather Seeder] Saving regional climates...");
+		context.SaveChanges();
+		Console.WriteLine($"[Weather Seeder] Weather seeding complete in {totalStopwatch.Elapsed.TotalSeconds:0.0}s.");
 
 		return string.Empty;
 	}
@@ -519,12 +891,511 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 			};
 			context.RegionalClimatesSeasons.Add(rs);
 		}
-
-		context.SaveChanges();
 		#endregion
 	}
 
-	private static ClimateModel CreateClimateModels(FuturemudDatabaseContext context, List<Season> seasons, Dictionary<string, WeatherEvent> events, WeatherSeederClimateProfile profile)
+	private static ClimateModel CreateClimateModels(
+		FuturemudDatabaseContext context,
+		List<Season> seasons,
+		WeatherSeederEventCatalog eventCatalog,
+		WeatherSeederClimateProfile profile,
+		WeatherSeederTemperatureVariationOption temperatureVariationOption)
+	{
+		var eventsAndTransitionsBySeason = ClimateSeasonGroups.ToDictionary(
+			x => x,
+			x => new CollectionDictionary<WeatherEvent, (WeatherEvent To, double Chance)>());
+
+		var seasonalNormalWind = new Dictionary<string, WindLevel>
+		{
+			{ "Winter", WindLevel.OccasionalBreeze },
+			{ "Autumn", WindLevel.Breeze },
+			{ "Spring", WindLevel.OccasionalBreeze },
+			{ "Summer", WindLevel.OccasionalBreeze }
+		};
+
+		var seasonalNormalPrecipitation = new Dictionary<string, PrecipitationLevel>
+		{
+			{ "Winter", PrecipitationLevel.Humid },
+			{ "Autumn", PrecipitationLevel.Humid },
+			{ "Spring", PrecipitationLevel.Humid },
+			{ "Summer", PrecipitationLevel.Humid }
+		};
+
+		double WindIncreaseChance(string seasonName, WindLevel currentWind)
+		{
+			var delta = currentWind.StepsFrom(seasonalNormalWind[seasonName]);
+			if (delta < 0)
+			{
+				return 4.5 + Math.Abs(delta) * 1.5;
+			}
+
+			if (delta == 0)
+			{
+				return 0.9;
+			}
+
+			return Math.Max(0.1, 0.8 - delta * 0.15);
+		}
+
+		double WindDecreaseChance(string seasonName, WindLevel currentWind)
+		{
+			var delta = currentWind.StepsFrom(seasonalNormalWind[seasonName]);
+			if (delta > 0)
+			{
+				return 4.5 + delta * 1.5;
+			}
+
+			if (delta == 0)
+			{
+				return 1.0;
+			}
+
+			return Math.Max(0.1, 0.9 - Math.Abs(delta) * 0.15);
+		}
+
+		double PrecipIncreaseChance(string seasonName, PrecipitationLevel currentPrecipitation, int stages = 1)
+		{
+			var delta = currentPrecipitation.StepsFrom(seasonalNormalPrecipitation[seasonName]);
+			if (delta < 0)
+			{
+				return stages == 1
+					? 5.0 + Math.Abs(delta) * 1.5
+					: 1.75 + Math.Abs(delta) * 0.75;
+			}
+
+			if (delta == 0)
+			{
+				return stages == 1 ? 1.8 : 0.4;
+			}
+
+			return Math.Max(
+				stages == 1 ? 0.25 : 0.05,
+				(stages == 1 ? 0.9 : 0.15) - delta * (stages == 1 ? 0.1 : 0.04)
+			);
+		}
+
+		double PrecipDecreaseChance(string seasonName, PrecipitationLevel currentPrecipitation, int stages = 1)
+		{
+			var delta = currentPrecipitation.StepsFrom(seasonalNormalPrecipitation[seasonName]);
+			if (delta > 0)
+			{
+				return stages == 1
+					? 2.5 + delta * 0.75
+					: 0.8 + delta * 0.4;
+			}
+
+			if (delta == 0)
+			{
+				return stages == 1 ? 0.8 : 0.15;
+			}
+
+			return Math.Max(
+				stages == 1 ? 0.25 : 0.05,
+				(stages == 1 ? 0.9 : 0.15) - Math.Abs(delta) * (stages == 1 ? 0.1 : 0.04)
+			);
+		}
+
+		double TemperatureVariationChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 3.0,
+				"Winter" => 2.5,
+				"Spring" => 2.0,
+				"Summer" => 1.5,
+				_ => 2.0
+			};
+		}
+
+		double WindVariationChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 1.5,
+				"Winter" => 1.0,
+				"Spring" => 1.0,
+				"Summer" => 0.5,
+				_ => 1.0
+			};
+		}
+
+		double CloudIncreaseChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 4.5,
+				"Winter" => 4.0,
+				"Spring" => 3.5,
+				"Summer" => 3.0,
+				_ => 3.5
+			};
+		}
+
+		double CloudDecreaseChance(string seasonName)
+		{
+			return seasonName switch
+			{
+				"Autumn" => 2.2,
+				"Winter" => 2.4,
+				"Spring" => 2.3,
+				"Summer" => 2.8,
+				_ => 2.4
+			};
+		}
+
+		foreach (var (descriptor, weatherEvent) in eventCatalog.EventsByDescriptor)
+		{
+			var wind = descriptor.Wind;
+			var precip = descriptor.Precipitation;
+			var variation = descriptor.TemperatureVariation;
+			var windVariation = descriptor.WindVariation;
+			var cloudVariation = descriptor.CloudVariation;
+			var stableWindVariation = wind > WindLevel.OccasionalBreeze ? windVariation : WindVariation.Normal;
+
+			WeatherSeederEventDescriptor WithStableWindVariation(
+				PrecipitationLevel targetPrecipitation,
+				WindLevel targetWind,
+				WeatherEventVariation targetVariation,
+				CloudVariation targetCloudVariation)
+			{
+				return CreateEventDescriptor(targetPrecipitation, targetWind, targetVariation, stableWindVariation, targetCloudVariation);
+			}
+
+			WeatherSeederEventDescriptor WithCurrentWindVariation(
+				PrecipitationLevel targetPrecipitation,
+				WindLevel targetWind,
+				WeatherEventVariation targetVariation,
+				CloudVariation targetCloudVariation)
+			{
+				return CreateEventDescriptor(targetPrecipitation, targetWind, targetVariation, windVariation, targetCloudVariation);
+			}
+
+			void AddWeatherTransition(WeatherSeederEventDescriptor targetDescriptor, Func<string, double> chanceSelector)
+			{
+				AddTransitionForAllSeasons(
+					eventsAndTransitionsBySeason,
+					weatherEvent,
+					GetRequiredEvent(eventCatalog, targetDescriptor),
+					chanceSelector);
+			}
+
+			void AddWeatherTransitionForSpecificSeasons(WeatherSeederEventDescriptor targetDescriptor, params (string SeasonGroup, double Chance)[] seasonChances)
+			{
+				AddTransitionForSpecificSeasons(
+					eventsAndTransitionsBySeason,
+					weatherEvent,
+					GetRequiredEvent(eventCatalog, targetDescriptor),
+					seasonChances);
+			}
+
+			if (wind < WindLevel.MaelstromWind)
+			{
+				AddWeatherTransition(
+					WithCurrentWindVariation(precip, wind.StageUp(), variation, cloudVariation),
+					seasonName => WindIncreaseChance(seasonName, wind));
+			}
+
+			if (wind > WindLevel.None)
+			{
+				AddWeatherTransition(
+					WithStableWindVariation(precip, wind.StageDown(), variation, cloudVariation),
+					seasonName => WindDecreaseChance(seasonName, wind));
+			}
+
+			switch (cloudVariation)
+			{
+				case CloudVariation.None:
+					if (precip != PrecipitationLevel.TorrentialRain &&
+					    precip != PrecipitationLevel.Blizzard &&
+					    precip != PrecipitationLevel.Sleet)
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(precip.StageUp(), wind, variation, CloudVariation.None),
+							seasonName => PrecipIncreaseChance(seasonName, precip));
+
+						if (precip != PrecipitationLevel.HeavyRain && precip != PrecipitationLevel.HeavySnow)
+						{
+							AddWeatherTransition(
+								WithStableWindVariation(precip.StageUp(2), wind, variation, CloudVariation.None),
+								seasonName => PrecipIncreaseChance(seasonName, precip, 2));
+						}
+					}
+					break;
+				case CloudVariation.Cloudy:
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.Overcast),
+						seasonName => seasonName switch
+						{
+							"Winter" => 3.5,
+							"Autumn" => 4.0,
+							"Summer" => 2.5,
+							"Spring" => 3.5,
+							_ => 0.0
+						});
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.None),
+						seasonName => seasonName switch
+						{
+							"Winter" => 1.5,
+							"Autumn" => 2.0,
+							"Summer" => 3.5,
+							"Spring" => 2.5,
+							_ => 0.0
+						});
+					break;
+				case CloudVariation.Overcast:
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.LightRain, wind, variation, CloudVariation.None),
+						seasonName => seasonName switch
+						{
+							"Winter" => 4.0,
+							"Autumn" => 4.5,
+							"Summer" => 3.0,
+							"Spring" => 3.5,
+							_ => 0.0
+						});
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Rain, wind, variation, CloudVariation.None),
+						seasonName => seasonName switch
+						{
+							"Winter" => 1.5,
+							"Autumn" => 2.0,
+							"Summer" => 1.0,
+							"Spring" => 1.2,
+							_ => 0.0
+						});
+					AddWeatherTransitionForSpecificSeasons(
+						WithStableWindVariation(PrecipitationLevel.LightSnow, wind, variation, CloudVariation.None),
+						("Winter", 0.7),
+						("Autumn", 0.05));
+					break;
+			}
+
+			switch (cloudVariation)
+			{
+				case CloudVariation.None:
+					if (precip == PrecipitationLevel.Parched)
+					{
+						break;
+					}
+
+					if (precip == PrecipitationLevel.LightSnow || precip == PrecipitationLevel.Sleet || precip == PrecipitationLevel.LightRain)
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.Overcast),
+							seasonName => PrecipDecreaseChance(seasonName, precip));
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.None),
+							seasonName => PrecipDecreaseChance(seasonName, precip));
+					}
+					else
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(precip.StageDown(), wind, variation, CloudVariation.None),
+							seasonName => PrecipDecreaseChance(seasonName, precip));
+					}
+
+					if (precip == PrecipitationLevel.Dry)
+					{
+						break;
+					}
+
+					if (precip == PrecipitationLevel.LightSnow || precip == PrecipitationLevel.Sleet || precip == PrecipitationLevel.LightRain)
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Dry, wind, variation, CloudVariation.Cloudy),
+							seasonName => PrecipDecreaseChance(seasonName, precip, 2));
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Dry, wind, variation, CloudVariation.None),
+							seasonName => PrecipDecreaseChance(seasonName, precip, 2));
+					}
+					else if (precip == PrecipitationLevel.Snow || precip == PrecipitationLevel.Rain)
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.Overcast),
+							seasonName => PrecipDecreaseChance(seasonName, precip, 2));
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.None),
+							seasonName => PrecipDecreaseChance(seasonName, precip, 2));
+					}
+					else
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(precip.StageDown(), wind, variation, CloudVariation.None),
+							seasonName => PrecipDecreaseChance(seasonName, precip, 2));
+					}
+					break;
+				case CloudVariation.Cloudy:
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Dry, wind, variation, CloudVariation.None),
+						seasonName => seasonName switch
+						{
+							"Winter" => 3.5,
+							"Autumn" => 3.0,
+							"Summer" => 4.0,
+							"Spring" => 3.5,
+							_ => 0.0
+						});
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Parched, wind, variation, CloudVariation.None),
+						seasonName => seasonName switch
+						{
+							"Winter" => 0.2,
+							"Autumn" => 0.1,
+							"Summer" => 1.2,
+							"Spring" => 0.3,
+							_ => 0.0
+						});
+					break;
+				case CloudVariation.Overcast:
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.None),
+						seasonName => seasonName switch
+						{
+							"Winter" => 4.0,
+							"Autumn" => 3.5,
+							"Summer" => 4.5,
+							"Spring" => 4.0,
+							_ => 0.0
+						});
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Dry, wind, variation, CloudVariation.Cloudy),
+						seasonName => seasonName switch
+						{
+							"Winter" => 1.5,
+							"Autumn" => 1.2,
+							"Summer" => 2.0,
+							"Spring" => 1.8,
+							_ => 0.0
+						});
+					break;
+			}
+
+			if (temperatureVariationOption.TryGetWarmerVariation(variation, out var warmerVariation))
+			{
+				AddWeatherTransition(
+					WithStableWindVariation(precip, wind, warmerVariation, cloudVariation),
+					TemperatureVariationChance);
+			}
+
+			if (temperatureVariationOption.TryGetCoolerVariation(variation, out var coolerVariation))
+			{
+				AddWeatherTransition(
+					WithStableWindVariation(precip, wind, coolerVariation, cloudVariation),
+					TemperatureVariationChance);
+			}
+
+			if (wind > WindLevel.OccasionalBreeze)
+			{
+				switch (windVariation)
+				{
+					case WindVariation.Normal:
+						AddWeatherTransition(
+							CreateEventDescriptor(precip, wind, variation, WindVariation.Polar, cloudVariation),
+							WindVariationChance);
+						AddWeatherTransition(
+							CreateEventDescriptor(precip, wind, variation, WindVariation.Equatorial, cloudVariation),
+							WindVariationChance);
+						break;
+					case WindVariation.Polar:
+						AddWeatherTransition(
+							CreateEventDescriptor(precip, wind, variation, WindVariation.Normal, cloudVariation),
+							WindVariationChance);
+						AddWeatherTransition(
+							CreateEventDescriptor(precip, wind, variation, WindVariation.Equatorial, cloudVariation),
+							WindVariationChance);
+						break;
+					case WindVariation.Equatorial:
+						AddWeatherTransition(
+							CreateEventDescriptor(precip, wind, variation, WindVariation.Polar, cloudVariation),
+							WindVariationChance);
+						AddWeatherTransition(
+							CreateEventDescriptor(precip, wind, variation, WindVariation.Normal, cloudVariation),
+							WindVariationChance);
+						break;
+				}
+			}
+
+			switch (cloudVariation)
+			{
+				case CloudVariation.None:
+					if (precip > PrecipitationLevel.Humid || precip == PrecipitationLevel.Parched)
+					{
+						break;
+					}
+
+					if (precip == PrecipitationLevel.Humid)
+					{
+						AddWeatherTransition(
+							WithStableWindVariation(PrecipitationLevel.Humid, wind, variation, CloudVariation.Overcast),
+							CloudIncreaseChance);
+						break;
+					}
+
+					AddWeatherTransition(
+						WithStableWindVariation(PrecipitationLevel.Dry, wind, variation, CloudVariation.Cloudy),
+						CloudIncreaseChance);
+					break;
+
+				case CloudVariation.Cloudy:
+				case CloudVariation.Overcast:
+					AddWeatherTransition(
+						WithStableWindVariation(precip, wind, variation, CloudVariation.None),
+						CloudDecreaseChance);
+					break;
+			}
+		}
+
+		var temperateModel = new ClimateModel
+		{
+			Name = profile.ClimateModelName,
+			Description = BuildClimateModelDescription(profile),
+			MinuteProcessingInterval = 10,
+			MinimumMinutesBetweenFlavourEchoes = 60,
+			MinuteFlavourEchoChance = 0.01,
+			Type = "terrestrial"
+		};
+		foreach (var season in seasons)
+		{
+			var cms = new ClimateModelSeason
+			{
+				ClimateModel = temperateModel,
+				Season = season,
+				IncrementalAdditionalChangeChanceFromStableWeather = 0.0005,
+				MaximumAdditionalChangeChanceFromStableWeather = season.SeasonGroup switch
+				{
+					"Autumn" => 0.15,
+					"Spring" => 0.10,
+					_ => 0.05
+				}
+			};
+			temperateModel.ClimateModelSeasons.Add(cms);
+
+			foreach (var weatherEventTransitions in eventsAndTransitionsBySeason[season.SeasonGroup])
+			{
+				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
+				{
+					ClimateModel = temperateModel,
+					Season = season,
+					WeatherEvent = weatherEventTransitions.Key,
+					ChangeChance = 0.01,
+					Transitions = new XElement(
+						"Transitions",
+						from transition in weatherEventTransitions.Value
+						select new XElement(
+							"Transition",
+							new XAttribute("id", transition.To.Id),
+							new XAttribute("chance", transition.Chance)))
+						.ToString()
+				});
+			}
+		}
+
+		context.ClimateModels.Add(temperateModel);
+		return temperateModel;
+	}
+
+	private static ClimateModel CreateClimateModels(FuturemudDatabaseContext context, List<Season> seasons, IReadOnlyDictionary<string, WeatherEvent> events, WeatherSeederClimateProfile profile)
 	{
 		#region Climate Models
 
@@ -1423,26 +2294,24 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		return temperateModel;
 	}
 
-	private Dictionary<string, WeatherEvent> CreateWeatherEvents(FuturemudDatabaseContext context)
+	private WeatherSeederEventCatalog CreateWeatherEvents(FuturemudDatabaseContext context)
 	{
 		#region Weather Events
 
-		var events = new Dictionary<string, WeatherEvent>(StringComparer.OrdinalIgnoreCase);
+		var eventsByName = new Dictionary<string, WeatherEvent>(StringComparer.OrdinalIgnoreCase);
+		var eventsByDescriptor = new Dictionary<WeatherSeederEventDescriptor, WeatherEvent>();
 		var defaultTransitions = new Dictionary<WeatherEvent, string>();
-		var transitions = new CollectionDictionary<WeatherEvent, (WeatherEvent, string)>();
 		var echoes = new CollectionDictionary<WeatherEvent, string>();
 
 		foreach (var precipitation in Enum.GetValues<PrecipitationLevel>())
 		{
 			foreach (var wind in Enum.GetValues<WindLevel>())
 			{
-				CreateWeatherEvent(context, precipitation, wind, defaultTransitions, events);
+				CreateWeatherEvent(context, precipitation, wind, defaultTransitions, eventsByName, eventsByDescriptor);
 			}
 		}
 
-		_context.SaveChanges();
-
-		foreach (var we in events)
+		foreach (var we in eventsByName)
 		{
 			switch ((PrecipitationLevel)we.Value.Precipitation)
 			{
@@ -1525,7 +2394,12 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
 		context.SaveChanges();
 		#endregion
-		return events;
+		return new WeatherSeederEventCatalog
+		{
+			EventsByName = eventsByName,
+			EventsByDescriptor = eventsByDescriptor,
+			DescriptorsById = eventsByDescriptor.ToDictionary(x => x.Value.Id, x => x.Key)
+		};
 	}
 
 	private List<Season> CreateSeasons(Celestial? celestial)
@@ -1572,7 +2446,6 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 		AddSeason("temperate_early_autumn_south", "Autumn", "Early Autumn", 61);
 		AddSeason("temperate_mid_autumn_south", "Autumn", "Mid Autumn", 92);
 		AddSeason("temperate_late_autumn_south", "Autumn", "Late Autumn", 122);
-		_context.SaveChanges();
 		#endregion
 		return seasons;
 	}

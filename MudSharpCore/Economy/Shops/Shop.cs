@@ -465,14 +465,20 @@ public abstract class Shop : SaveableItem, IShop
 
 	private IMerchandise MerchandiseForStockItem(IGameItem item)
 	{
+		var stockedMerchandise = _stockedMerchandise.FirstOrDefault(x => x.Value.Contains(item.Id)).Key;
+		if (stockedMerchandise is not null)
+		{
+			return stockedMerchandise;
+		}
+
 		return _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
 		       _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 	}
 
 	private void RemoveFromStockInternal(ICharacter actor, IGameItem item, ShopTransactionType transactionType)
 	{
-		item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
 		var merch = MerchandiseForStockItem(item);
+		item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
 		var value = (merch?.EffectivePrice ?? 0.0M) * item.Quantity;
 		AddTransaction(new TransactionRecord(transactionType, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), actor, value, 0.0M, merch));

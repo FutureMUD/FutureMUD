@@ -17,9 +17,9 @@ The `HealthModule` command set is the main interaction layer for live medical pl
 | --- | --- | --- |
 | Inspection and assessment | `vitals`, `health`, `wounds`, `wound`, `triage` | Read visible health state, pulse and breathing, or deeper wound information |
 | Bedside wound care | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Stabilize bleeding, clean or close wounds, tend healing, relocate bones, remove lodged objects, repair robot-like injuries |
-| Surgery and implants | `surgery`, `installimplant`, `powerimplant`, `connectimplants`, `implants` | Run formal procedures and manage implant systems |
+| Surgery and implants | `surgery` | Run formal procedures and manage implant systems |
 | Rescue medicine | `cpr`, `defibrillate` | Attempt to restore breathing or circulation when a patient is non-responsive |
-| Administrative or force tools | `infect`, `cure`, `sever`, `unsever`, `exsanguinate` | Directly manipulate health state for testing, administration, or special gameplay flows |
+| Administrative or force tools | `infect`, `cure`, `sever`, `unsever`, `exsanguinate`, `installimplant`, `powerimplant`, `connectimplants`, `implants` | Directly manipulate health state for testing, administration, or special gameplay flows |
 
 ## Treatments
 ### Core model

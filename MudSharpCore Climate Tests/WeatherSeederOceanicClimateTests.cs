@@ -18,6 +18,7 @@ using SeasonModel = MudSharp.Models.Season;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[TestCategory("ClimateSeeder")]
 public class WeatherSeederClimateTests
 {
 	private static readonly InMemoryDatabaseRoot DatabaseRoot = new();

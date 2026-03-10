@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<AssemblyName>MudSharpCore.ClimateTests</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>MudSharp_Climate_Tests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+		<PackageReference Include="Moq" Version="4.20.70" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\DatabaseSeeder\DatabaseSeeder.csproj" />
+		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+		<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />
+	</ItemGroup>
+
+</Project>

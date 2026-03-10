@@ -219,6 +219,8 @@ To compile the project locally or in automated checks:
 
 1. Run `scripts/setup.sh` once to install the .NET 9 SDK in `~/.dotnet`.
 2. Use `scripts/test.sh` to build the main engine project.
+3. Use `scripts/test-unit-core.sh` for the default unit-test pass. This is the "Core" suite that should be run for most changes that warrant unit-test verification.
+4. Use `scripts/test-unit-climate.sh` only for climate/weather special cases, such as changes under `DatabaseSeeder/Seeders/WeatherSeeder*`, `MudSharpCore/Climate/`, or weather-statistics export/analysis code, or when the user explicitly asks for the extended suite.
 
 `test.sh` sets `DOTNET_EnableWindowsTargeting` so the build succeeds on Linux.
 

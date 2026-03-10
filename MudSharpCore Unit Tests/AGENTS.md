@@ -9,7 +9,7 @@ It inherits from the [Solution-Level AGENTS.md](../AGENTS.md).
 * Precedence: **Module > Project > Solution**.
 
 ## Purpose of Project
-Contains MSTest-based unit tests for MudSharpCore and shared utilities.
+Contains the **core** MSTest-based unit tests for MudSharpCore and shared utilities. This is the default unit-test suite that should be run for most changes.
 
 ## Key Architectural Principles
 * Use MSTest attributes `[TestClass]` and `[TestMethod]`.
@@ -17,6 +17,7 @@ Contains MSTest-based unit tests for MudSharpCore and shared utilities.
 * Tests must be deterministic and avoid reliance on external state or ordering.
 * Mirror the namespace or module of the code under test for organisation.
 * Name test methods in the `Method_Scenario_ExpectedResult` format when practical.
+* Keep long-running climate seeder regressions out of this project; they belong in the dedicated climate test project.
 
 ## Notes
 

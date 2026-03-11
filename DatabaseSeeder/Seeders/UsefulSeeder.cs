@@ -38,33 +38,33 @@ public class UsefulSeeder : IDatabaseSeeder
 					return (false, "Invalid answer");
 				}),
 			("ai2", "Do you want to install some further examples of AIs?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => context.ArtificialIntelligences.All(x => x.Name != "Rescuer"),
+				(context, questions) => context.ArtificialIntelligences.All(x => x.Type != "Rescuer"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
 					return (false, "Invalid answer");
 				}),
-						("terrain",
-								"Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
-								(context, questions) => context.Terrains.Count() <= 1,
-								(answer, context) =>
-								{
-										if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-										return (false, "Invalid answer");
-								}),
-						("covers",
-								"Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
-								(context, questions) => context.RangedCovers.Count() <= 1,
-								(answer, context) =>
-								{
-										if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-										return (false, "Invalid answer");
-								}),
-						("items",
-								"#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-								(context, questions) => true,
-								(answer, context) =>
-								{
+			("terrain",
+				"Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
+				(context, questions) => context.Terrains.Count() <= 1,
+				(answer, context) =>
+				{
+						if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+						return (false, "Invalid answer");
+				}),
+			("covers",
+				"Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
+				(context, questions) => context.RangedCovers.Count() <= 1,
+				(answer, context) =>
+				{
+						if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+						return (false, "Invalid answer");
+				}),
+			("items",
+				"#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+				(context, questions) => true,
+				(answer, context) =>
+				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
 					return (false, "Invalid answer");
 				}),
@@ -78,7 +78,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("tags",
 				"Do you want to install pre-made tags for use with items, crafts and projects? The main reason not to do this is if you are planning on an implementation that substantially differs from the one that comes with this seeder.\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.Tags.All(x => x.Name != "Aluminothermic Welding Portion"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -87,6 +87,14 @@ public class UsefulSeeder : IDatabaseSeeder
 			("autobuilder",
 				"Do you want to install an auto builder that can generate random areas with randomised room descriptions?\n\nPlease answer #3yes#f or #3no#f: ",
 				(context, questions) => context.Terrains.Count() > 1 || questions["terrain"].EqualToAny("yes", "y"),
+				(answer, context) =>
+				{
+					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+					return (false, "Invalid answer");
+				}),
+			("hints",
+				"Do you want to install some newbie hints that will instruct new users about the key commands and engine concepts that they need to know?\n\nPlease answer #3yes#f or #3no#f: ",
+				(context, questions) => context.NewPlayerHints.Count() == 0,
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -100,9 +108,12 @@ public class UsefulSeeder : IDatabaseSeeder
 		context.Database.BeginTransaction();
 		var errors = new List<string>();
 		_itemProtos = new Dictionary<string, GameItemComponentProto>(StringComparer.OrdinalIgnoreCase);
+		_tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 
-		foreach (var item in context.GameItemComponentProtos.ToList()){
-			if (item.EditableItem.RevisionStatus != 4){
+		foreach (var item in context.GameItemComponentProtos.ToList())
+		{
+			if (item.EditableItem.RevisionStatus != 4)
+			{
 				continue;
 			}
 			_itemProtos[item.Name] = item;
@@ -117,7 +128,8 @@ public class UsefulSeeder : IDatabaseSeeder
 
 		if (questionAnswers["ai2"].EqualToAny("yes", "y")) SeedAIPart2(context, errors);
 
-		if (questionAnswers["items"].EqualToAny("yes", "y")){
+		if (questionAnswers["items"].EqualToAny("yes", "y"))
+		{
 			SeedItemsPart1(context, questionAnswers, errors);
 			SeedItemsPart2(context, questionAnswers, errors);
 			SeedItemsPart3(context, questionAnswers, errors);
@@ -133,6 +145,11 @@ public class UsefulSeeder : IDatabaseSeeder
 		if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
 		{
 			SeedTerrainAutobuilder(context, questionAnswers, errors);
+		}
+
+		if (questionAnswers["hints"].EqualToAny("yes", "y"))
+		{
+			SeedNewbieHints(context, errors);
 		}
 
 		context.Database.CommitTransaction();
@@ -992,17 +1009,17 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			context.SaveChanges();
 
 			GameItemComponentProto CreateLockableDoor(
-				string name, 
-				string description, 
-				bool seeThrough, 
-				bool canFireThrough, 
-				bool canUninstall, 
-				Difficulty uninstallHinge, 
-				Difficulty uninstallNotHinge, 
-				bool canSmash, 
-				Difficulty smashDifficulty, 
-				string exitDescription, 
-				Difficulty force, 
+				string name,
+				string description,
+				bool seeThrough,
+				bool canFireThrough,
+				bool canUninstall,
+				Difficulty uninstallHinge,
+				Difficulty uninstallNotHinge,
+				bool canSmash,
+				Difficulty smashDifficulty,
+				string exitDescription,
+				Difficulty force,
 				Difficulty pick,
 				string lockType
 				)
@@ -6145,7 +6162,7 @@ end if",
 
 	private void SeedAIPart2(FuturemudDatabaseContext context, ICollection<string> errors)
 	{
-		if (context.ArtificialIntelligences.Any(x => x.Name == "Rescuer"))
+		if (context.ArtificialIntelligences.Any(x => x.Type == "Rescuer"))
 		{
 			errors.Add("Detected that Part2 AIs were already installed. Did not seed any AIs.");
 			return;

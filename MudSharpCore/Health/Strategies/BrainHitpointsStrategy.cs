@@ -44,6 +44,8 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
 	public TimeSpan KnockoutDuration { get; set; }
 
+	public double CriticalInjuryThreshold { get; set; }
+
 	public override bool RequiresSpinalCord => false;
 
 	public static void RegisterHealthStrategyLoader()
@@ -81,14 +83,15 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 				$"BrainHPHealthStrategy ID {Id} had a HealingTickDamageExpression element that did not contain an ID.");
 		}
 
-		PercentageHealthPerPenalty = double.Parse(root.Element("PercentageHealthPerPenalty")?.Value ?? "1.0");
+		PercentageHealthPerPenalty = LoadDouble(root, "PercentageHealthPerPenalty", 1.0);
 		HealingTickDamageExpression = gameworld.TraitExpressions.Get(value);
 
-		CheckPowerCore = bool.Parse(root.Element("CheckPowerCore")?.Value ?? "false");
-		CheckHeart = bool.Parse(root.Element("CheckHeart")?.Value ?? "false");
-		UseHypoxiaDamage = bool.Parse(root.Element("UseHypoxiaDamage")?.Value ?? "false");
-		KnockoutOnCritical = bool.Parse(root.Element("KnockoutOnCritical")?.Value ?? "false");
-		KnockoutDuration = TimeSpan.FromSeconds(double.Parse(root.Element("KnockoutDuration")?.Value ?? "240"));
+		CheckPowerCore = LoadBool(root, "CheckPowerCore", false);
+		CheckHeart = LoadBool(root, "CheckHeart", false);
+		UseHypoxiaDamage = LoadBool(root, "UseHypoxiaDamage", false);
+		KnockoutOnCritical = LoadBool(root, "KnockoutOnCritical", false);
+		KnockoutDuration = LoadTimeSpanFromSeconds(root, "KnockoutDuration", 240);
+		CriticalInjuryThreshold = LoadDouble(root, "CriticalInjuryThreshold", 0.9);
 	}
 
 	public override double MaxHP(IHaveWounds owner)
@@ -224,7 +227,8 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
 		if (KnockoutOnCritical)
 		{
-			if (character.Wounds.Sum(x => x.CurrentDamage) / MaximumHitPointsExpression.Evaluate(character) > 0.9)
+			if (character.Wounds.Sum(x => x.CurrentDamage) / MaximumHitPointsExpression.Evaluate(character) >
+			    CriticalInjuryThreshold)
 			{
 				if (!character.AffectedBy<CriticalInjureKnockout>())
 				{
@@ -248,7 +252,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 	public override bool IsCriticallyInjured(IHaveWounds owner)
 	{
 		return owner.Wounds.Sum(x => x.CurrentDamage) /
-		       MaximumHitPointsExpression.Evaluate((ICharacter)owner) > 0.9 &&
+		       MaximumHitPointsExpression.Evaluate((ICharacter)owner) > CriticalInjuryThreshold &&
 		       owner is ICharacter ch &&
 		       ch.State.HasFlag(CharacterState.Unconscious);
 	}

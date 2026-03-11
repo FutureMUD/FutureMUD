@@ -49,8 +49,8 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 
 		MaximumHitPointsExpression = gameworld.TraitExpressions.Get(value);
-		PercentageHealthPerPenalty = double.Parse(root.Element("PercentageHealthPerPenalty")?.Value ?? "1.0");
-		PercentageStunPerPenalty = double.Parse(root.Element("PercentageStunPerPenalty")?.Value ?? "1.0");
+		PercentageHealthPerPenalty = LoadDouble(root, "PercentageHealthPerPenalty", 1.0);
+		PercentageStunPerPenalty = LoadDouble(root, "PercentageStunPerPenalty", 1.0);
 
 		element = root.Element("MaximumStunExpression");
 		if (element == null)
@@ -66,6 +66,9 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 
 		MaximumStunExpression = gameworld.TraitExpressions.Get(value);
+		BleedMessageCooldown = LoadTimeSpanFromSeconds(root, "BleedMessageCooldown", 15);
+		PowerCoreCriticalThreshold = LoadDouble(root, "PowerCoreCriticalThreshold", 0.3);
+		HydraulicFluidParalysisThreshold = LoadDouble(root, "HydraulicFluidParalysisThreshold", 0.0);
 	}
 
 	public override string HealthStrategyType => "Robot";
@@ -76,6 +79,9 @@ public class RobotHealthStrategy : BaseHealthStrategy
 	public ITraitExpression MaximumStunExpression { get; set; }
 	public double PercentageHealthPerPenalty { get; set; }
 	public double PercentageStunPerPenalty { get; set; }
+	public TimeSpan BleedMessageCooldown { get; set; }
+	public double PowerCoreCriticalThreshold { get; set; }
+	public double HydraulicFluidParalysisThreshold { get; set; }
 	public override bool RequiresSpinalCord => false;
 
 	public override double MaxHP(IHaveWounds owner)
@@ -236,7 +242,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 					if (!charOwner.Body.EffectsOfType<ISuppressBleedMessage>().Any())
 					{
 						charOwner.Body.AddEffect(new SuppressBleedMessage(charOwner.Body, null),
-							TimeSpan.FromSeconds(15));
+							BleedMessageCooldown);
 					}
 				}
 
@@ -286,7 +292,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			return HealthTickResult.Unconscious;
 		}
 
-		if (charOwner.Body.CurrentBloodVolumeLitres <= 0.00)
+		if (charOwner.Body.CurrentBloodVolumeLitres <= HydraulicFluidParalysisThreshold)
 		{
 			return HealthTickResult.Paralyzed;
 		}
@@ -329,7 +335,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		var sb = new StringBuilder();
 		sb.Append("<");
 		var power = charOwner.Body.OrganFunction<PowerCore>();
-		if (power < 0.3)
+		if (power < PowerCoreCriticalThreshold)
 		{
 			sb.Append("*** YOUR POWER CORE IS CRITICAL! ***".Colour(Telnet.BoldRed));
 			sb.Append(">\n<");

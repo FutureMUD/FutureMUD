@@ -494,7 +494,8 @@ public class RobotWound : PerceivedItem, IWound
 
 		if (_unsuccessfulTreatmentAttempts > 0)
 		{
-			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts / 3);
+			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts /
+			                               Math.Max(1, Gameworld.GetStaticInt("WoundTreatmentAttemptPenaltyInterval")));
 		}
 
 		if (difficulty == Difficulty.Impossible)
@@ -775,7 +776,9 @@ public class RobotWound : PerceivedItem, IWound
 				return BleedResult.NoBleed;
 			case BleedStatus.TraumaControlled:
 				if (activityExertionLevel > ExertionLevel.Normal &&
-				    Dice.Roll(1, 100) < ((int)activityExertionLevel + (int)Severity - 2) * 2)
+				    Dice.Roll(1, 100) < ((int)activityExertionLevel + (int)Severity -
+				                         Gameworld.GetStaticInt("TraumaBleedReopenSeverityExertionOffset")) *
+				    Gameworld.GetStaticInt("TraumaBleedReopenChancePerStep"))
 				{
 					_bleedStatus = BleedStatus.Bleeding;
 					Parent.OutputHandler.Handle(

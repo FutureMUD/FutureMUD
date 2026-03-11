@@ -100,6 +100,45 @@ Builders and administrators currently configure or consume health through:
 
 One important current-state fact is that the dedicated `HealthSeeder` is disabled. In practice, stock health behavior is assembled across multiple seeders rather than coming from one fully active medical setup step.
 
+## Tuning Surfaces
+The current runtime exposes health tuning in two different ways, depending on where the behavior lives.
+
+### Health strategy properties
+Direct tuning numbers inside `IHealthStrategy` implementations are now treated as optional strategy properties loaded from the `HealthStrategies.Definition` XML.
+
+Important current examples include:
+
+- `BrainHitpoints`, `Construct`, and `BrainConstruct` critical injury thresholds.
+- `Robot` bleed-message cooldown, power-core critical threshold, and hydraulic paralysis threshold.
+- `SimpleLiving` and `ComplexLiving` bleed-message cooldowns, internal-bleed decay settings, airway and digestive blood symptom thresholds, cardiac and hypoxia thresholds, contaminant cleanup rates, blood regeneration rates, and critical-injury breakpoints.
+- `ComplexLiving` kidney-waste and spleen-cleanup thresholds, plus the chance of aggravating an existing fracture when fresh bone-breaking damage lands on the same bone.
+
+Compatibility rule:
+
+- existing strategy definitions do not need to contain the new XML elements
+- when an element is absent, the runtime falls back to the previous hard-coded value
+- this preserves the old gameplay behavior for existing worlds unless builders opt in to editing the values
+
+### Static health configuration
+Direct tuning numbers in wounds, infections, and other non-strategy health classes are now exposed through global static configurations with defaults in `DefaultStaticSettings`.
+
+Important current groups include:
+
+- wound tending and natural-healing multipliers
+- wound sleep and needs penalties
+- wound treatment difficulty scaling from repeated failed attempts, antiseptic protection durations, and non-organic repair-degradation risk
+- anti-inflammatory duration and pain-reduction values
+- external bleeding, reopening, painful-wound thresholds, and minimum blood-floor values
+- infection starting intensity, damage-type multipliers, severity multipliers, and cleaning protection chances
+- shared infection stage thresholds, visibility thresholds, nausea scaling, and infectious spread modifiers
+- bone-fracture healing multipliers, infection multipliers, and treatment progress bonuses
+
+Persistence rule:
+
+- these values live in `StaticConfigurations`
+- if a value is missing, `Futuremud.GetStaticConfiguration` inserts the default on first access
+- this means older worlds automatically gain the new settings without requiring a hand-written migration
+
 ## Important Current-State Constraints
 These are central to understanding the current implementation:
 

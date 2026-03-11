@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -11,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using ExpressionEngine;
 using MudSharp.Health.Wounds;
+using GlobalizationCultureInfo = System.Globalization.CultureInfo;
 
 namespace MudSharp.Health.Strategies;
 
@@ -87,6 +89,74 @@ public abstract class BaseHealthStrategy : FrameworkItem, IHealthStrategy
 
 		element = root.Element("LodgeDamageExpression");
 		LodgeDamageExpression = element != null ? new Expression(element.Value) : new Expression("0");
+	}
+
+	protected static double LoadDouble(XElement root, string elementName, double defaultValue)
+	{
+		var value = root.Element(elementName)?.Value;
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return defaultValue;
+		}
+
+		if (double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands,
+			    GlobalizationCultureInfo.InvariantCulture,
+			    out var result))
+		{
+			return result;
+		}
+
+		if (double.TryParse(value, out result))
+		{
+			return result;
+		}
+
+		throw new ApplicationException(
+			$"BaseHealthStrategy could not parse element {elementName} value '{value}' as a double.");
+	}
+
+	protected static int LoadInt(XElement root, string elementName, int defaultValue)
+	{
+		var value = root.Element(elementName)?.Value;
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return defaultValue;
+		}
+
+		if (int.TryParse(value, NumberStyles.Integer, GlobalizationCultureInfo.InvariantCulture, out var result))
+		{
+			return result;
+		}
+
+		if (int.TryParse(value, out result))
+		{
+			return result;
+		}
+
+		throw new ApplicationException(
+			$"BaseHealthStrategy could not parse element {elementName} value '{value}' as an integer.");
+	}
+
+	protected static bool LoadBool(XElement root, string elementName, bool defaultValue)
+	{
+		var value = root.Element(elementName)?.Value;
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return defaultValue;
+		}
+
+		if (bool.TryParse(value, out var result))
+		{
+			return result;
+		}
+
+		throw new ApplicationException(
+			$"BaseHealthStrategy could not parse element {elementName} value '{value}' as a boolean.");
+	}
+
+	protected static TimeSpan LoadTimeSpanFromSeconds(XElement root, string elementName, double defaultSeconds)
+	{
+		return TimeSpan.FromSeconds(LoadDouble(root, elementName, defaultSeconds));
 	}
 
 	#region IHealthStrategy Members

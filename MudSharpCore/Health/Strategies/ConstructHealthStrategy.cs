@@ -26,6 +26,7 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 	public override string HealthStrategyType => "Construct";
 
 	public ITraitExpression MaximumHitPointsExpression { get; set; }
+	public double CriticalInjuryThreshold { get; set; }
 
 	public override bool RequiresSpinalCord => false;
 
@@ -52,6 +53,7 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 		}
 
 		MaximumHitPointsExpression = gameworld.TraitExpressions.Get(value);
+		CriticalInjuryThreshold = LoadDouble(root, "CriticalInjuryThreshold", 0.9);
 	}
 
 	#region Overrides of BaseHealthStrategy
@@ -118,7 +120,8 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 	public override bool IsCriticallyInjured(IHaveWounds owner)
 	{
 		return owner.Wounds.Sum(x => x.CurrentDamage * x.Bodypart?.DamageModifier) /
-		       MaximumHitPointsExpression.Evaluate((ICharacter)owner) > 0.9 && owner is ICharacter ch &&
+		       MaximumHitPointsExpression.Evaluate((ICharacter)owner) > CriticalInjuryThreshold &&
+		       owner is ICharacter ch &&
 		       ch.State.HasFlag(CharacterState.Unconscious);
 	}
 

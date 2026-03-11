@@ -75,9 +75,12 @@ public class InfectiousInfection : SimpleInfection
 			_ => 0.0
 		};
 
-		var outcomeMultiplier = 1.0 + Math.Max(0, outcome.FailureDegrees()) * 0.25;
-		var intensityMultiplier = Math.Max(0.5, Intensity);
-		return Math.Min(0.95, baseChance * outcomeMultiplier * intensityMultiplier);
+		var outcomeMultiplier = 1.0 + Math.Max(0, outcome.FailureDegrees()) *
+		                        Gameworld.GetStaticDouble("InfectiousInfectionSpreadChanceFailureDegreeMultiplier");
+		var intensityMultiplier = Math.Max(
+			Gameworld.GetStaticDouble("InfectiousInfectionSpreadMinimumIntensityMultiplier"), Intensity);
+		return Math.Min(Gameworld.GetStaticDouble("InfectiousInfectionSpreadMaximumChance"),
+			baseChance * outcomeMultiplier * intensityMultiplier);
 	}
 
 	protected virtual void SpreadToTarget(ICharacter target)

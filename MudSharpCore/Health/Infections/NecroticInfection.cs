@@ -22,7 +22,8 @@ public class NecroticInfection : InfectiousInfection
 
 	public override bool InfectionIsDamaging()
 	{
-		return InfectionStage >= InfectionStage.StageFive && (Bodypart != null || Wound != null);
+		return (int)InfectionStage >= Gameworld.GetStaticInt("NecroticInfectionDamagingStageMinimum") &&
+		       (Bodypart != null || Wound != null);
 	}
 
 	public override IDamage GetInfectionDamage()

@@ -45,6 +45,46 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 	public double PercentageHealthPerPenalty { get; set; }
 	public double PercentageStunPerPenalty { get; set; }
 	public double PercentagePainPerPenalty { get; set; }
+	public TimeSpan BleedMessageCooldown { get; set; }
+	public int InternalBleedingRecoveryRollSides { get; set; }
+	public double InternalBleedingRecoveryFlatReduction { get; set; }
+	public double InternalBleedingRecoveryMultiplier { get; set; }
+	public double InternalBleedingTotalDecayFlatReduction { get; set; }
+	public double InternalBleedingTotalDecayMultiplier { get; set; }
+	public double AirwayBloodMinorThreshold { get; set; }
+	public double AirwayBloodModerateThreshold { get; set; }
+	public double AirwayBloodSevereThreshold { get; set; }
+	public double DigestiveBloodMinorThreshold { get; set; }
+	public double DigestiveBloodModerateThreshold { get; set; }
+	public double DigestiveBloodSevereThreshold { get; set; }
+	public double HeartAttackThreshold { get; set; }
+	public double BloodLossHypoxiaThreshold { get; set; }
+	public double BloodReplacementHypoxiaThreshold { get; set; }
+	public double HydratingHypoxiaThreshold { get; set; }
+	public double CprMinimumBloodRatio { get; set; }
+	public double CprHypoxiaMultiplier { get; set; }
+	public double TissueDieOffHarmfulMultiplier { get; set; }
+	public double TissueDieOffDeadlyMultiplier { get; set; }
+	public double TissueDieOffKidneyWasteThreshold { get; set; }
+	public double TissueDieOffKidneyWasteMultiplier { get; set; }
+	public double CriticalInjuryBloodRatioThreshold { get; set; }
+	public double CriticalInjuryVitalOrganDamageThreshold { get; set; }
+	public double PainPassOutThreshold { get; set; }
+	public double AnesthesiaUnconsciousThreshold { get; set; }
+	public double ContaminantHydratingRemovalFraction { get; set; }
+	public double ContaminantBloodRemovalFraction { get; set; }
+	public double MinimumBloodRatioForRegeneration { get; set; }
+	public double BloodCleanseFraction { get; set; }
+	public double BloodRegenerationFraction { get; set; }
+	public double SleepingBloodRegenerationMultiplier { get; set; }
+	public double BloodGainThirstPointsPerTick { get; set; }
+	public double BloodGainWaterLitresPerBloodChange { get; set; }
+	public double KidneyWasteAccumulationThreshold { get; set; }
+	public double KidneyWasteAccumulationMultiplier { get; set; }
+	public double SpleenFunctionThreshold { get; set; }
+	public double SpleenBloodReplacementCleanseMultiplier { get; set; }
+	public double SpleenHarmfulCleanseMultiplier { get; set; }
+	public int ExistingFractureAggravationChanceDivisor { get; set; }
 
 	public override string HealthStrategyType => "ComplexLiving";
 	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
@@ -71,9 +111,52 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
 		MaximumHitPointsExpression = gameworld.TraitExpressions.Get(value);
 
-		PercentageHealthPerPenalty = double.Parse(root.Element("PercentageHealthPerPenalty")?.Value ?? "1.0");
-		PercentageStunPerPenalty = double.Parse(root.Element("PercentageStunPerPenalty")?.Value ?? "1.0");
-		PercentagePainPerPenalty = double.Parse(root.Element("PercentagePainPerPenalty")?.Value ?? "1.0");
+		PercentageHealthPerPenalty = LoadDouble(root, "PercentageHealthPerPenalty", 1.0);
+		PercentageStunPerPenalty = LoadDouble(root, "PercentageStunPerPenalty", 1.0);
+		PercentagePainPerPenalty = LoadDouble(root, "PercentagePainPerPenalty", 1.0);
+		BleedMessageCooldown = LoadTimeSpanFromSeconds(root, "BleedMessageCooldown", 15);
+		InternalBleedingRecoveryRollSides = LoadInt(root, "InternalBleedingRecoveryRollSides", 30);
+		InternalBleedingRecoveryFlatReduction = LoadDouble(root, "InternalBleedingRecoveryFlatReduction", 0.01);
+		InternalBleedingRecoveryMultiplier = LoadDouble(root, "InternalBleedingRecoveryMultiplier", 0.66);
+		InternalBleedingTotalDecayFlatReduction = LoadDouble(root, "InternalBleedingTotalDecayFlatReduction", 1.0);
+		InternalBleedingTotalDecayMultiplier = LoadDouble(root, "InternalBleedingTotalDecayMultiplier", 0.98);
+		AirwayBloodMinorThreshold = LoadDouble(root, "AirwayBloodMinorThreshold", 0.005);
+		AirwayBloodModerateThreshold = LoadDouble(root, "AirwayBloodModerateThreshold", 0.01);
+		AirwayBloodSevereThreshold = LoadDouble(root, "AirwayBloodSevereThreshold", 0.03);
+		DigestiveBloodMinorThreshold = LoadDouble(root, "DigestiveBloodMinorThreshold", 0.1);
+		DigestiveBloodModerateThreshold = LoadDouble(root, "DigestiveBloodModerateThreshold", 0.3);
+		DigestiveBloodSevereThreshold = LoadDouble(root, "DigestiveBloodSevereThreshold", 0.4);
+		HeartAttackThreshold = LoadDouble(root, "HeartAttackThreshold", 0.3);
+		BloodLossHypoxiaThreshold = LoadDouble(root, "BloodLossHypoxiaThreshold", 0.6);
+		BloodReplacementHypoxiaThreshold = LoadDouble(root, "BloodReplacementHypoxiaThreshold", 0.5);
+		HydratingHypoxiaThreshold = LoadDouble(root, "HydratingHypoxiaThreshold", 0.66);
+		CprMinimumBloodRatio = LoadDouble(root, "CprMinimumBloodRatio", 0.4);
+		CprHypoxiaMultiplier = LoadDouble(root, "CprHypoxiaMultiplier", 0.01);
+		TissueDieOffHarmfulMultiplier = LoadDouble(root, "TissueDieOffHarmfulMultiplier", 1.0);
+		TissueDieOffDeadlyMultiplier = LoadDouble(root, "TissueDieOffDeadlyMultiplier", 5.0);
+		TissueDieOffKidneyWasteThreshold = LoadDouble(root, "TissueDieOffKidneyWasteThreshold", 1000.0);
+		TissueDieOffKidneyWasteMultiplier = LoadDouble(root, "TissueDieOffKidneyWasteMultiplier", 0.5);
+		CriticalInjuryBloodRatioThreshold = LoadDouble(root, "CriticalInjuryBloodRatioThreshold", 0.75);
+		CriticalInjuryVitalOrganDamageThreshold =
+			LoadDouble(root, "CriticalInjuryVitalOrganDamageThreshold", 10.0);
+		PainPassOutThreshold = LoadDouble(root, "PainPassOutThreshold", 1.0);
+		AnesthesiaUnconsciousThreshold = LoadDouble(root, "AnesthesiaUnconsciousThreshold", 1.0);
+		ContaminantHydratingRemovalFraction = LoadDouble(root, "ContaminantHydratingRemovalFraction", 0.001);
+		ContaminantBloodRemovalFraction = LoadDouble(root, "ContaminantBloodRemovalFraction", 0.002);
+		MinimumBloodRatioForRegeneration = LoadDouble(root, "MinimumBloodRatioForRegeneration", 0.2);
+		BloodCleanseFraction = LoadDouble(root, "BloodCleanseFraction", 0.00025);
+		BloodRegenerationFraction = LoadDouble(root, "BloodRegenerationFraction", 0.0005);
+		SleepingBloodRegenerationMultiplier = LoadDouble(root, "SleepingBloodRegenerationMultiplier", 1.05);
+		BloodGainThirstPointsPerTick = LoadDouble(root, "BloodGainThirstPointsPerTick", -0.01);
+		BloodGainWaterLitresPerBloodChange = LoadDouble(root, "BloodGainWaterLitresPerBloodChange", -0.85);
+		KidneyWasteAccumulationThreshold = LoadDouble(root, "KidneyWasteAccumulationThreshold", 0.3);
+		KidneyWasteAccumulationMultiplier = LoadDouble(root, "KidneyWasteAccumulationMultiplier", 1.0);
+		SpleenFunctionThreshold = LoadDouble(root, "SpleenFunctionThreshold", 0.3);
+		SpleenBloodReplacementCleanseMultiplier =
+			LoadDouble(root, "SpleenBloodReplacementCleanseMultiplier", 2.0);
+		SpleenHarmfulCleanseMultiplier = LoadDouble(root, "SpleenHarmfulCleanseMultiplier", 50.0);
+		ExistingFractureAggravationChanceDivisor =
+			Math.Max(1, LoadInt(root, "ExistingFractureAggravationChanceDivisor", 3));
 
 		element = root.Element("MaximumStunExpression");
 		if (element == null)
@@ -182,7 +265,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			if (boneDamageAmount > 0.0)
 			{
 				var boneDamage = new Damage(damage) { DamageAmount = boneDamageAmount };
-				if (RandomUtilities.Random(0, 2) == 0)
+				if (RandomUtilities.Random(1, ExistingFractureAggravationChanceDivisor) == 1)
 				{
 					var existing =
 						owner.Wounds.Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
@@ -330,7 +413,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 					if (!charOwner.Body.EffectsOfType<ISuppressBleedMessage>().Any())
 					{
 						charOwner.Body.AddEffect(new SuppressBleedMessage(charOwner.Body, null),
-							TimeSpan.FromSeconds(15));
+							BleedMessageCooldown);
 					}
 				}
 
@@ -352,16 +435,18 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 				charOwner.Body.CurrentBloodVolumeLitres -= internalBleeding;
 				foreach (var effect in internalBleeders)
 				{
-					if (Dice.Roll(1, 30) == 1)
+					if (Dice.Roll(1, InternalBleedingRecoveryRollSides) == 1)
 					{
-						effect.BloodlossPerTick = Math.Max(Math.Min(effect.BloodlossPerTick - 0.01,
-							effect.BloodlossPerTick * 0.66), 0);
+						effect.BloodlossPerTick = Math.Max(Math.Min(
+							effect.BloodlossPerTick - InternalBleedingRecoveryFlatReduction,
+							effect.BloodlossPerTick * InternalBleedingRecoveryMultiplier), 0);
 					}
 
 					if (effect.BloodlossPerTick <= 0.0)
 					{
 						effect.BloodlossTotal = Math.Max(0,
-							Math.Min(effect.BloodlossTotal - 1.0, effect.BloodlossTotal * 0.98));
+							Math.Min(effect.BloodlossTotal - InternalBleedingTotalDecayFlatReduction,
+								effect.BloodlossTotal * InternalBleedingTotalDecayMultiplier));
 					}
 
 					if (effect.BloodlossPerTick <= 0.0 && effect.BloodlossTotal <= 0.0)
@@ -389,15 +474,15 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 					}
 				}
 
-				if (airwayBlood > 0.005 && message)
+				if (airwayBlood > AirwayBloodMinorThreshold && message)
 				{
 					var amount = "a small amount of";
 					var action = "";
-					if (airwayBlood > 0.01)
+					if (airwayBlood > AirwayBloodModerateThreshold)
 					{
 						amount = "some";
 					}
-					else if (airwayBlood > 0.03)
+					else if (airwayBlood > AirwayBloodSevereThreshold)
 					{
 						amount = "a large amount of";
 						action = "violently ";
@@ -429,16 +514,16 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 					}
 				}
 
-				if (digestiveBlood > 0.1 && message)
+				if (digestiveBlood > DigestiveBloodMinorThreshold && message)
 				{
 					var amount = "a small amount of";
 					var action = "spit|spits up";
-					if (digestiveBlood > 0.3)
+					if (digestiveBlood > DigestiveBloodModerateThreshold)
 					{
 						amount = "some";
 						action = "vomit|vomits up";
 					}
-					else if (digestiveBlood > 0.40)
+					else if (digestiveBlood > DigestiveBloodSevereThreshold)
 					{
 						amount = "a large amount of";
 						action = "violently vomit|vomits out";
@@ -488,23 +573,24 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var heartAttack = false;
 		var heartFactor = charOwner.Body.OrganFunction<HeartProto>();
 
-		if (heartFactor < 0.3)
+		if (heartFactor < HeartAttackThreshold)
 		{
 			heartAttack = true;
 			charOwner.OutputHandler.Send(heartFactor <= 0
 				? $"You feel an all-encompassing sensation of crushing in your {charOwner.Body.Bodyparts.Where(x => x.Organs.Any(y => y is HeartProto)).Select(x => x.FullDescription()).ListToString()}!"
 				: $"You feel a tightness in your {charOwner.Body.Bodyparts.Where(x => x.Organs.Any(y => y is HeartProto)).Select(x => x.FullDescription()).ListToString()}{(charOwner.CanBreathe ? " and you find yourself short of breath" : "")}!");
 			hypoxia += charOwner.Gameworld.GetStaticDouble("HypoxiaPerHeartFactor") *
-			           (1 - 3 * heartFactor);
+			           (1.0 - heartFactor / HeartAttackThreshold);
 		}
 
 		// Hypoxia from Blood Loss
 		var bloodRatio = charOwner.Body.CurrentBloodVolumeLitres / totalBlood;
 		var oxygenHypoxia = 0.0;
-		if (bloodRatio < 0.6)
+		if (bloodRatio < BloodLossHypoxiaThreshold)
 		{
 			oxygenHypoxia =
-				Math.Pow(0.6 - bloodRatio, charOwner.Gameworld.GetStaticDouble("HypoxiaPowerFromBloodLoss")) *
+				Math.Pow(BloodLossHypoxiaThreshold - bloodRatio,
+					charOwner.Gameworld.GetStaticDouble("HypoxiaPowerFromBloodLoss")) *
 				charOwner.Gameworld.GetStaticDouble("HypoxiaDamageFromBloodLoss");
 		}
 
@@ -518,15 +604,15 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			          .FirstOrDefault(x => x.Applies() && x.Consequence == LiquidInjectionConsequence.Hydrating)?
 			          .Volume ?? 0) / totalBlood;
 
-		if (bloodReplacementToBloodRatio > 0.5)
+		if (bloodReplacementToBloodRatio > BloodReplacementHypoxiaThreshold)
 		{
-			hypoxia += (bloodReplacementToBloodRatio - 0.5) *
+			hypoxia += (bloodReplacementToBloodRatio - BloodReplacementHypoxiaThreshold) *
 			           charOwner.Gameworld.GetStaticDouble("HypoxiaFromBloodReplacementPerVolume");
 		}
 
-		if (hydrateToBloodRatio > 0.66)
+		if (hydrateToBloodRatio > HydratingHypoxiaThreshold)
 		{
-			hypoxia += (hydrateToBloodRatio - 0.66) *
+			hypoxia += (hydrateToBloodRatio - HydratingHypoxiaThreshold) *
 			           charOwner.Gameworld.GetStaticDouble("HypoxiaFromHydratePerVolume");
 		}
 
@@ -549,7 +635,9 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var multiplier =
 			charOwner.Merits.OfType<IHypoxiaReducingMerit>().Where(x => x.Applies(charOwner))
 			         .Aggregate(1.0, (accum, merit) => accum * merit.HypoxiaReductionFactor) *
-			(charOwner.Body.EffectsOfType<CPRTarget>().Any() && bloodRatio > 0.4 ? 0.01 : 1.0);
+			(charOwner.Body.EffectsOfType<CPRTarget>().Any() && bloodRatio > CprMinimumBloodRatio
+				? CprHypoxiaMultiplier
+				: 1.0);
 
 		if (multiplier > 0.0 && (oxygenHypoxia > 0 || hypoxia > 0))
 		{
@@ -576,11 +664,14 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 				{
 					case LiquidInjectionConsequence.BloodReplacement:
 					case LiquidInjectionConsequence.Harmful:
-						return 1.0 * x.Volume * dieoffFactor;
+						return TissueDieOffHarmfulMultiplier * x.Volume * dieoffFactor;
 					case LiquidInjectionConsequence.Deadly:
-						return 5.0 * x.Volume * dieoffFactor;
+						return TissueDieOffDeadlyMultiplier * x.Volume * dieoffFactor;
 					case LiquidInjectionConsequence.KidneyWaste:
-						return x.Volume > 1000 ? 0.5 * (x.Volume - 1000) * dieoffFactor : 0.0;
+						return x.Volume > TissueDieOffKidneyWasteThreshold
+							? TissueDieOffKidneyWasteMultiplier * (x.Volume - TissueDieOffKidneyWasteThreshold) *
+							  dieoffFactor
+							: 0.0;
 					default:
 						return 0.0;
 				}
@@ -677,7 +768,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			sb.Append("*** YOU ARE IN CARDIAC ARREST! ***".Colour(Telnet.BoldRed));
 			sb.Append(">\n<");
 		}
-		else if (heartFactor < 0.3)
+		else if (heartFactor < HeartAttackThreshold)
 		{
 			sb.Append("*** YOU ARE HAVING A HEART ATTACK! ***".Colour(Telnet.BoldRed));
 			sb.Append(">\n<");
@@ -1071,12 +1162,15 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			return true;
 		}
 
-		if (ch.Body.CurrentBloodVolumeLitres / ch.Body.TotalBloodVolumeLitres < 0.75)
+		if (ch.Body.CurrentBloodVolumeLitres / ch.Body.TotalBloodVolumeLitres < CriticalInjuryBloodRatioThreshold)
 		{
 			return true;
 		}
 
-		if (ch.Body.Wounds.Any(x => x.Bodypart is IOrganProto op && op.IsVital && x.CurrentDamage > 10.0))
+		if (ch.Body.Wounds.Any(x =>
+			    x.Bodypart is IOrganProto op &&
+			    op.IsVital &&
+			    x.CurrentDamage > CriticalInjuryVitalOrganDamageThreshold))
 		{
 			return true;
 		}
@@ -1136,7 +1230,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var maxStun = MaximumStunExpression.Evaluate(charOwner);
 		var painRatio = charOwner.Wounds.Sum(x => x.CurrentPain) /
 		                MaximumPainExpression.Evaluate(charOwner);
-		if (painRatio >= 1.0 && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
+		if (painRatio >= PainPassOutThreshold && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
 		{
 			return HealthTickResult.PassOut;
 		}
@@ -1150,7 +1244,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var anasthesia =
 			charOwner.Body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).DefaultIfEmpty(0).Sum();
 
-		if (anasthesia >= 1.0)
+		if (anasthesia >= AnesthesiaUnconsciousThreshold)
 		{
 			return HealthTickResult.Unconscious;
 		}
@@ -1164,7 +1258,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var hydrate = contaminants.FirstOrDefault(x => x.Consequence == LiquidInjectionConsequence.Hydrating);
 		if (hydrate != null)
 		{
-			hydrate.Volume -= body.TotalBloodVolumeLitres * 0.001;
+			hydrate.Volume -= body.TotalBloodVolumeLitres * ContaminantHydratingRemovalFraction;
 			if (hydrate.Volume <= 0)
 			{
 				body.RemoveEffect(hydrate);
@@ -1176,7 +1270,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var blood = contaminants.FirstOrDefault(x => x.Consequence == LiquidInjectionConsequence.BloodVolume);
 		if (blood != null)
 		{
-			blood.Volume -= body.TotalBloodVolumeLitres * 0.002;
+			blood.Volume -= body.TotalBloodVolumeLitres * ContaminantBloodRemovalFraction;
 			if (blood.Volume <= 0)
 			{
 				body.RemoveEffect(blood);
@@ -1190,7 +1284,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var cOwner = (ICharacter)owner;
 		var body = cOwner.Body;
 		var totalBlood = body.TotalBloodVolumeLitres;
-		if (body.CurrentBloodVolumeLitres / totalBlood < 0.2)
+		if (body.CurrentBloodVolumeLitres / totalBlood < MinimumBloodRatioForRegeneration)
 		{
 			return;
 		}
@@ -1213,11 +1307,14 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 				if (body.CurrentBloodVolumeLitres >= totalBlood)
 				{
 					RemoveContaminants(body, contaminants);
-					bloodChange = totalBlood * 0.00025;
+					bloodChange = totalBlood * BloodCleanseFraction;
 				}
 				else
 				{
-					var recoveryAmount = 0.0005 * (cOwner.State.HasFlag(CharacterState.Sleeping) ? 1.05 : 1.0);
+					var recoveryAmount = BloodRegenerationFraction *
+					                     (cOwner.State.HasFlag(CharacterState.Sleeping)
+						                     ? SleepingBloodRegenerationMultiplier
+						                     : 1.0);
 
 					var newBlood = Math.Min(body.CurrentBloodVolumeLitres + recoveryAmount * totalBlood, totalBlood);
 					bloodChange = newBlood - body.CurrentBloodVolumeLitres;
@@ -1227,8 +1324,8 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
 			body.FulfilNeeds(new NeedFulfiller
 			{
-				ThirstPoints = -0.01,
-				WaterLitres = -0.85 * bloodChange
+				ThirstPoints = BloodGainThirstPointsPerTick,
+				WaterLitres = BloodGainWaterLitresPerBloodChange * bloodChange
 			});
 		}
 	}
@@ -1244,17 +1341,19 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			owner.EffectsOfType<IHarmfulBloodAdditiveEffect>()
 			     .FirstOrDefault(x => x.Consequence == LiquidInjectionConsequence.KidneyWaste);
 		var kidneyFunction = owner.OrganFunction<KidneyProto>();
-		if (kidneyFunction < 0.3)
+		if (kidneyFunction < KidneyWasteAccumulationThreshold)
 		{
+			var accumulation = KidneyWasteAccumulationMultiplier *
+			                   (1.0 - kidneyFunction / KidneyWasteAccumulationThreshold);
 			if (contaminant == null)
 			{
 				contaminant = new HarmfulBloodAdditive(owner, LiquidInjectionConsequence.KidneyWaste,
-					1.0 * (1 - 3 * kidneyFunction));
+					accumulation);
 				owner.AddEffect(contaminant);
 				return;
 			}
 
-			contaminant.Volume += 1.0 * (1 - 3 * kidneyFunction);
+			contaminant.Volume += accumulation;
 			return;
 		}
 
@@ -1284,7 +1383,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 	public override void PerformSpleenFunction(IBody owner)
 	{
 		var spleenFunction = owner.OrganFunction<SpleenProto>();
-		if (spleenFunction < 0.3)
+		if (spleenFunction < SpleenFunctionThreshold)
 		{
 			return;
 		}
@@ -1296,7 +1395,9 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			     .FirstMax(x => x.Volume);
 		if (contaminant != null)
 		{
-			var multiplier = contaminant.Consequence == LiquidInjectionConsequence.BloodReplacement ? 2 : 50;
+			var multiplier = contaminant.Consequence == LiquidInjectionConsequence.BloodReplacement
+				? SpleenBloodReplacementCleanseMultiplier
+				: SpleenHarmfulCleanseMultiplier;
 			contaminant.Volume -= owner.CurrentBloodVolumeLitres / owner.Gameworld.UnitManager.BaseFluidToLitres /
 			                      (1440 * multiplier);
 			if (contaminant.Volume <= 0)

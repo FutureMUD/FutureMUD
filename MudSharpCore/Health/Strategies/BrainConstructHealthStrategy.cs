@@ -35,6 +35,8 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 
 	public bool UseHypoxiaDamage { get; set; }
 
+	public double CriticalInjuryThreshold { get; set; }
+
 	public override bool RequiresSpinalCord => false;
 
 	public static void RegisterHealthStrategyLoader()
@@ -59,9 +61,10 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 
 		MaximumHitPointsExpression = gameworld.TraitExpressions.Get(value);
 
-		CheckPowerCore = bool.Parse(root.Element("CheckPowerCore")?.Value ?? "false");
-		CheckHeart = bool.Parse(root.Element("CheckHeart")?.Value ?? "false");
-		UseHypoxiaDamage = bool.Parse(root.Element("UseHypoxiaDamage")?.Value ?? "false");
+		CheckPowerCore = LoadBool(root, "CheckPowerCore", false);
+		CheckHeart = LoadBool(root, "CheckHeart", false);
+		UseHypoxiaDamage = LoadBool(root, "UseHypoxiaDamage", false);
+		CriticalInjuryThreshold = LoadDouble(root, "CriticalInjuryThreshold", 0.9);
 	}
 
 	#region Overrides of BaseHealthStrategy
@@ -166,7 +169,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 	public override bool IsCriticallyInjured(IHaveWounds owner)
 	{
 		return owner.Wounds.Sum(x => x.CurrentDamage * x.Bodypart?.DamageModifier) /
-		       MaximumHitPointsExpression.Evaluate((ICharacter)owner) > 0.9 &&
+		       MaximumHitPointsExpression.Evaluate((ICharacter)owner) > CriticalInjuryThreshold &&
 		       owner is ICharacter ch &&
 		       ch.State.HasFlag(CharacterState.Unconscious);
 	}

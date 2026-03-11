@@ -133,6 +133,7 @@ The following findings are directly verified in code and matter when describing 
 ### Runtime broader than implementation
 - `DrugType` exposes more effect families than the stock seeded drugs use.
 - Multiple health strategy families exist in runtime without matching stock seeded strategy definitions.
+- Seeded strategy XML still only emits the older minimal field set; newer optional strategy tuning properties now load with fallback defaults when omitted.
 
 ### Recently resolved runtime gaps
 - `LungBreather` now integrates stop-breathing effects and non-rebreather `IProvideGasForBreathing` sources.
@@ -148,6 +149,7 @@ The following findings are directly verified in code and matter when describing 
 These are verified runtime features that exist in the codebase but are not broadly reflected in the stock seeding.
 
 - advanced health strategy families for constructs, robots, and simpler living models
+- expanded strategy tuning XML for health thresholds, bleed handling, hypoxia, blood recovery, kidney waste, and spleen cleanup
 - non-decaying corpse models
 - high-tech medical items such as defibrillators, rebreathers, breathing filters, external organs, and complex implants
 - a broad drug system with many effect families but only two stock seeded example drugs

@@ -454,7 +454,8 @@ public class SimpleWound : PerceivedItem, IWound
 
 		if (_unsuccessfulTreatmentAttempts > 0)
 		{
-			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts / 3);
+			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts /
+			                               Math.Max(1, Gameworld.GetStaticInt("WoundTreatmentAttemptPenaltyInterval")));
 		}
 
 		if (difficulty == Difficulty.Impossible)
@@ -489,7 +490,9 @@ public class SimpleWound : PerceivedItem, IWound
 		{
 			_unsuccessfulTreatmentAttempts++;
 			Changed = true;
-			if (_unsuccessfulTreatmentAttempts > 3 && RandomUtilities.Random(0, 100) < 2 && Parent is IGameItem item)
+			if (_unsuccessfulTreatmentAttempts >= Gameworld.GetStaticInt("RepairQualityDamageMinimumFailedAttempts") &&
+			    RandomUtilities.Random(0, 100) < Gameworld.GetStaticInt("RepairQualityDamageChanceThreshold") &&
+			    Parent is IGameItem item)
 			{
 				item.Quality = item.Quality.StageUp(-1);
 				if (treater != null && !silent)

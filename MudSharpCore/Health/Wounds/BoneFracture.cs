@@ -277,7 +277,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 					break;
 			}
 
-			if (CurrentPain > CurrentDamage * 2)
+			if (CurrentPain > CurrentDamage * Gameworld.GetStaticDouble("WoundPainfulRatioThreshold"))
 			{
 				difficulty = difficulty.StageUp(1);
 			}
@@ -1017,7 +1017,9 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 							break;
 						case BoneFractureStage.Reparation:
 						case BoneFractureStage.Ossification:
-							AddFractureStageProgress(0.34 * testOutcome.SuccessDegrees());
+							AddFractureStageProgress(
+								Gameworld.GetStaticDouble("BoneFractureMendProgressPerSuccessDegree") *
+								testOutcome.SuccessDegrees());
 							break;
 					}
 				}
@@ -1048,9 +1050,13 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 				}
 
 				AntiInflammatoryTreatment.ApplyOrUpdate(_parent.Body, Bodypart,
-					Math.Max(0.35, 1.0 - strength * 0.08),
-					Math.Max(0.5, strength * (int)Severity * 0.3),
-					TimeSpan.FromMinutes((strength + 1) * 10));
+					Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumPainMultiplier"),
+						1.0 - strength * Gameworld.GetStaticDouble("AntiInflammatoryPainMultiplierReductionPerStrength")),
+					Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumFlatReduction"),
+						strength * (int)Severity * Gameworld.GetStaticDouble("AntiInflammatoryBoneFlatReductionPerSeverity")),
+					TimeSpan.FromMinutes(
+						Gameworld.GetStaticDouble("AntiInflammatoryBaseDurationMinutes") +
+						strength * Gameworld.GetStaticDouble("AntiInflammatoryDurationMinutesPerStrength")));
 				if (treater != null && !silent)
 				{
 					treater.OutputHandler.Handle(new EmoteOutput(new Emote(
@@ -1104,10 +1110,11 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 					switch (testOutcome)
 					{
 						case Outcome.Pass:
-							AddFractureStageProgress(0.05);
+							AddFractureStageProgress(Gameworld.GetStaticDouble("BoneFractureRelocationProgressPass"));
 							break;
 						case Outcome.MajorPass:
-							AddFractureStageProgress(0.1);
+							AddFractureStageProgress(
+								Gameworld.GetStaticDouble("BoneFractureRelocationProgressMajorPass"));
 							break;
 					}
 
@@ -1169,21 +1176,21 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 		{
 			case WoundSeverity.None:
 			case WoundSeverity.Superficial:
-				return 5.0;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierSuperficial");
 			case WoundSeverity.Minor:
-				return 3.0;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierMinor");
 			case WoundSeverity.Small:
-				return 1.1;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierSmall");
 			case WoundSeverity.Moderate:
-				return 1.0;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierModerate");
 			case WoundSeverity.Severe:
-				return 0.9;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierSevere");
 			case WoundSeverity.VerySevere:
-				return 0.8;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierVerySevere");
 			case WoundSeverity.Grievous:
-				return 0.6;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierGrievous");
 			case WoundSeverity.Horrifying:
-				return 0.4;
+				return Gameworld.GetStaticDouble("BoneFractureHealingMultiplierHorrifying");
 			default:
 				return 1.0;
 		}
@@ -1207,8 +1214,8 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 			Gameworld.GetStaticDouble("BaseBoneHealingPerMinute") *
 			Bone.BoneHealingModifier *
 			GetSeverityHealingMultiplier() *
-			(ImmobilisingItem != null ? 2.0 : 1.0) *
-			(HasBeenSurgicallyReinforced ? 3.0 : 1.0) *
+			(ImmobilisingItem != null ? Gameworld.GetStaticDouble("BoneFractureHealingImmobilisedMultiplier") : 1.0) *
+			(HasBeenSurgicallyReinforced ? Gameworld.GetStaticDouble("BoneFractureHealingSurgicalMultiplier") : 1.0) *
 			externalRateMultiplier;
 		;
 	}
@@ -1252,6 +1259,36 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 		return _parent.Body.EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
 	}
 
+	private double GetInfectionChanceDamageMultiplier()
+	{
+		return DamageType switch
+		{
+			DamageType.Ballistic => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBallistic"),
+			DamageType.Bite => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBite"),
+			DamageType.Burning => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBurning"),
+			DamageType.Chemical => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierChemical"),
+			DamageType.Chopping => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierChopping"),
+			DamageType.Claw => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierClaw"),
+			DamageType.Freezing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierFreezing"),
+			DamageType.Piercing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierPiercing"),
+			DamageType.Slashing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierSlashing"),
+			DamageType.Hypoxia => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierHypoxia"),
+			DamageType.Cellular => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierCellular"),
+			_ => 1.0
+		};
+	}
+
+	private double GetInfectionChanceSeverityMultiplier()
+	{
+		return Severity switch
+		{
+			WoundSeverity.VerySevere => Gameworld.GetStaticDouble("BoneFractureInfectionSeverityMultiplierVerySevere"),
+			WoundSeverity.Grievous => Gameworld.GetStaticDouble("BoneFractureInfectionSeverityMultiplierGrievous"),
+			WoundSeverity.Horrifying => Gameworld.GetStaticDouble("BoneFractureInfectionSeverityMultiplierHorrifying"),
+			_ => 1.0
+		};
+	}
+
 	/// <summary>
 	///     Called in the health heartbeat to determine whether an uninfected wound becomes infected, and also to trigger
 	///     subsequent processing if there is an existing infection
@@ -1277,52 +1314,17 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 		}
 
 		var chance = Gameworld.GetStaticDouble("BaseInfectionChanceBoneFractures");
-		switch (DamageType)
-		{
-			case DamageType.Ballistic:
-				chance *= 0.8;
-				break;
-			case DamageType.Bite:
-				chance *= 20;
-				break;
-			case DamageType.Burning:
-				chance *= 10;
-				break;
-			case DamageType.Chemical:
-			case DamageType.Chopping:
-				chance *= 1.1;
-				break;
-			case DamageType.Claw:
-				chance *= 8;
-				break;
-			case DamageType.Freezing:
-			case DamageType.Piercing:
-			case DamageType.Slashing:
-				chance *= 1.2;
-				break;
-			case DamageType.Hypoxia:
-			case DamageType.Cellular:
-				chance *= 7.0;
-				break;
-		}
+		chance *= GetInfectionChanceDamageMultiplier();
 
 		var terrain = _parent.Location.Terrain(_parent);
 		chance *= terrain.InfectionMultiplier;
 
-		switch (Severity)
+		if (Severity <= WoundSeverity.Severe)
 		{
-			case WoundSeverity.Horrifying:
-				chance *= 3;
-				break;
-			case WoundSeverity.Grievous:
-				chance *= 2;
-				break;
-			case WoundSeverity.VerySevere:
-				chance *= 1;
-				break;
-			default:
-				return;
+			return;
 		}
+
+		chance *= GetInfectionChanceSeverityMultiplier();
 
 		if (RandomUtilities.DoubleRandom(0.0, 1.0) > chance)
 		{
@@ -1343,8 +1345,9 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 				$"Infection Virulance Changed by Merits - Original {terrain.InfectionVirulence.Describe()} New {virulence.Describe()}.");
 		}
 #endif
-		Infection = Infections.Infection.LoadNewInfection(terrain.PrimaryInfection, virulence, 0.0001, _parent.Body,
-			this, Bodypart, terrain.InfectionMultiplier);
+		Infection = Infections.Infection.LoadNewInfection(terrain.PrimaryInfection, virulence,
+			Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), _parent.Body, this, Bodypart,
+			terrain.InfectionMultiplier);
 		Changed = true;
 #if DEBUG
 		Console.WriteLine(

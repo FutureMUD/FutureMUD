@@ -61,14 +61,14 @@ public class Gangrene : Infection
 			case WoundExaminationType.Glance:
 				break; //Too busy to spot infections
 			case WoundExaminationType.Look:
-				if (Intensity > 0.3 / outcome.SuccessDegrees())
+				if (Intensity > Gameworld.GetStaticDouble("GangreneVisibleThresholdLook") / outcome.SuccessDegrees())
 				{
 					woundTag = "(gangrenous)".Colour(Telnet.Yellow);
 				}
 
 				break;
 			case WoundExaminationType.Self:
-				if (Intensity > 0.2 / outcome.SuccessDegrees())
+				if (Intensity > Gameworld.GetStaticDouble("GangreneVisibleThresholdSelf") / outcome.SuccessDegrees())
 				{
 					woundTag = "(gangrenous)".Colour(Telnet.Yellow);
 				}
@@ -128,37 +128,7 @@ public class Gangrene : Infection
 
 	private InfectionStage DetermineStage(double intensity)
 	{
-		if (intensity < 0.0375)
-		{
-			return InfectionStage.StageZero;
-		}
-
-		if (intensity < 0.1)
-		{
-			return InfectionStage.StageOne;
-		}
-
-		if (intensity < 0.25)
-		{
-			return InfectionStage.StageTwo;
-		}
-
-		if (intensity < 0.4)
-		{
-			return InfectionStage.StageThree;
-		}
-
-		if (intensity < 0.6)
-		{
-			return InfectionStage.StageFour;
-		}
-
-		if (intensity < 0.8)
-		{
-			return InfectionStage.StageFive;
-		}
-
-		return InfectionStage.StageSix;
+		return DetermineStandardStage(intensity);
 	}
 
 	// As a rule of thumb, external wounds are noticeably  infected at 100 intensity. 
@@ -462,14 +432,14 @@ public class Gangrene : Infection
 
 	public override bool InfectionIsDamaging()
 	{
-		return InfectionStage >= InfectionStage.StageTwo;
+		return (int)InfectionStage >= Gameworld.GetStaticInt("GangreneDamagingStageMinimum");
 	}
 
 	private int _infectionSpreadCounter;
 
 	public override bool InfectionCanSpread()
 	{
-		if (InfectionStage < InfectionStage.StageThree || Immunity >= 1.0)
+		if ((int)InfectionStage < Gameworld.GetStaticInt("GangreneSpreadingStageMinimum") || Immunity >= 1.0)
 		{
 			return false;
 		}

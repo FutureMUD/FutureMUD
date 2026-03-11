@@ -137,11 +137,11 @@ public class HealingSimpleWound : PerceivedItem, IWound
 	{
 		return _tended switch
 		{
-			Outcome.Fail => 1.025,
-			Outcome.MinorFail => 1.05,
-			Outcome.MinorPass => 1.1,
-			Outcome.Pass => 1.2,
-			Outcome.MajorPass => 1.3,
+			Outcome.Fail => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierFail"),
+			Outcome.MinorFail => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMinorFail"),
+			Outcome.MinorPass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMinorPass"),
+			Outcome.Pass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierPass"),
+			Outcome.MajorPass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMajorPass"),
 			_ => 1.0
 		};
 	}
@@ -150,11 +150,11 @@ public class HealingSimpleWound : PerceivedItem, IWound
 	{
 		return _tended switch
 		{
-			Outcome.Fail => 1.1,
-			Outcome.MinorFail => 1.2,
-			Outcome.MinorPass => 1.4,
-			Outcome.Pass => 1.7,
-			Outcome.MajorPass => 2.0,
+			Outcome.Fail => Gameworld.GetStaticDouble("WoundHealingTendMultiplierFail"),
+			Outcome.MinorFail => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMinorFail"),
+			Outcome.MinorPass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMinorPass"),
+			Outcome.Pass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierPass"),
+			Outcome.MajorPass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMajorPass"),
 			_ => 1.0
 		};
 	}
@@ -164,20 +164,20 @@ public class HealingSimpleWound : PerceivedItem, IWound
 		var multiplier = 1.0;
 		if (needStatus.HasFlag(NeedsResult.Parched))
 		{
-			multiplier -= 0.45;
+			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyParched");
 		}
 		else if (needStatus.HasFlag(NeedsResult.Thirsty))
 		{
-			multiplier -= 0.1;
+			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyThirsty");
 		}
 
 		if (needStatus.HasFlag(NeedsResult.Starving))
 		{
-			multiplier -= 0.45;
+			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyStarving");
 		}
 		else if (needStatus.HasFlag(NeedsResult.Hungry))
 		{
-			multiplier -= 0.1;
+			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyHungry");
 		}
 
 		return multiplier;
@@ -194,7 +194,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
 		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
 		var amount =
 			Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
-			            amountModifier * Math.Max(0.01,
+			            amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
 				            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
 				            0.01) *
 			            timePassed.TotalMinutes);
@@ -280,9 +280,11 @@ public class HealingSimpleWound : PerceivedItem, IWound
 		CurrentDamage = Math.Max(_currentDamage - healing, 0);
 		ch.Body.NeedsModel.FulfilNeeds(new NeedFulfiller
 		{
-			ThirstPoints = -0.0075 * CurrentDamage / 100,
-			WaterLitres = -0.001 * CurrentDamage / 100,
-			SatiationPoints = -0.01 * CurrentDamage / 100
+			ThirstPoints = Gameworld.GetStaticDouble("WoundHealingThirstPointsPerDamageHundred") * CurrentDamage /
+			               100,
+			WaterLitres = Gameworld.GetStaticDouble("WoundHealingWaterLitresPerDamageHundred") * CurrentDamage / 100,
+			SatiationPoints = Gameworld.GetStaticDouble("WoundHealingSatiationPointsPerDamageHundred") *
+			                  CurrentDamage / 100
 		}, true);
 		Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
 			CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.Healed, healthResult,
@@ -306,9 +308,9 @@ public class HealingSimpleWound : PerceivedItem, IWound
 			var amount =
 				Math.Max(0,
 					Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Damage) *
-					amountModifier * Math.Max(0.01,
+					amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
 						healthCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) * 0.01) *
-					0.4 *
+					Gameworld.GetStaticDouble("WoundOfflineHealingRateMultiplier") *
 					timePassed.TotalMinutes);
 			CurrentDamage = Math.Max(_currentDamage - amount, 0);
 			// TODO - hunger and thirst?
@@ -657,7 +659,8 @@ public class HealingSimpleWound : PerceivedItem, IWound
 
 		if (_unsuccessfulTreatmentAttempts > 0)
 		{
-			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts / 3);
+			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts /
+			                               Math.Max(1, Gameworld.GetStaticInt("WoundTreatmentAttemptPenaltyInterval")));
 		}
 
 		return difficulty;
@@ -877,8 +880,10 @@ public class HealingSimpleWound : PerceivedItem, IWound
 			return false;
 		}
 
-		var amountModifer = (ch.State.HasFlag(CharacterState.Sleeping) ? 1.3 : 1.0) * GetHealingTendAmount() *
-		                    externalRateMultiplier;
+		var amountModifer =
+			(ch.State.HasFlag(CharacterState.Sleeping)
+				? Gameworld.GetStaticDouble("WoundHealingSleepingMultiplier")
+				: 1.0) * GetHealingTendAmount() * externalRateMultiplier;
 		RecoverActiveStun(ch, amountModifer, externalCheckBonus);
 		if (!CanNaturalHealingProceed(ch))
 		{

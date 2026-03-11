@@ -64,14 +64,16 @@ public class SimpleInfection : Infection
 			case WoundExaminationType.Glance:
 				break; //Too busy to spot infections
 			case WoundExaminationType.Look:
-				if (Intensity > 0.5 / outcome.SuccessDegrees())
+				if (Intensity > Gameworld.GetStaticDouble("SimpleInfectionVisibleThresholdLook") /
+				    outcome.SuccessDegrees())
 				{
 					woundTag = "(infected)".Colour(Telnet.Yellow);
 				}
 
 				break;
 			case WoundExaminationType.Self:
-				if (Intensity > 0.33 / outcome.SuccessDegrees())
+				if (Intensity > Gameworld.GetStaticDouble("SimpleInfectionVisibleThresholdSelf") /
+				    outcome.SuccessDegrees())
 				{
 					woundTag = "(infected)".Colour(Telnet.Yellow);
 				}
@@ -133,37 +135,7 @@ public class SimpleInfection : Infection
 
 	protected InfectionStage DetermineStage(double intensity)
 	{
-		if (intensity < 0.0375)
-		{
-			return InfectionStage.StageZero;
-		}
-
-		if (intensity < 0.1)
-		{
-			return InfectionStage.StageOne;
-		}
-
-		if (intensity < 0.25)
-		{
-			return InfectionStage.StageTwo;
-		}
-
-		if (intensity < 0.4)
-		{
-			return InfectionStage.StageThree;
-		}
-
-		if (intensity < 0.6)
-		{
-			return InfectionStage.StageFour;
-		}
-
-		if (intensity < 0.8)
-		{
-			return InfectionStage.StageFive;
-		}
-
-		return InfectionStage.StageSix;
+		return DetermineStandardStage(intensity);
 	}
 
 	// As a rule of thumb, external wounds are noticeably  infected at 100 intensity. 
@@ -467,14 +439,16 @@ public class SimpleInfection : Infection
 
 	public override bool InfectionIsDamaging()
 	{
-		return InfectionStage >= InfectionStage.StageSix && Wound == null && Bodypart is IOrganProto;
+		return (int)InfectionStage >= Gameworld.GetStaticInt("SimpleInfectionDamagingStageMinimum") &&
+		       Wound == null &&
+		       Bodypart is IOrganProto;
 	}
 
 	private int _infectionSpreadCounter;
 
 	public override bool InfectionCanSpread()
 	{
-		if (InfectionStage < InfectionStage.StageFour || Immunity >= 1.0)
+		if ((int)InfectionStage < Gameworld.GetStaticInt("SimpleInfectionSpreadingStageMinimum") || Immunity >= 1.0)
 		{
 			return false;
 		}
@@ -519,7 +493,9 @@ public class SimpleInfection : Infection
 		return Bodypart is BrainProto or LiverProto or StomachProto || Bodypart == null;
 	}
 
-	private double NauseaIntensity => Math.Max(0.0, (Intensity - 0.4) * 2.5);
+	private double NauseaIntensity => Math.Max(0.0,
+		(Intensity - Gameworld.GetStaticDouble("InfectionNauseaThreshold")) *
+		Gameworld.GetStaticDouble("InfectionNauseaMultiplier"));
 
 	private void UpdateNauseaEffect()
 	{

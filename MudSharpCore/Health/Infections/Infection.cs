@@ -288,10 +288,47 @@ public abstract class Infection : LateInitialisingItem, IInfection
 	{
 	}
 
-	protected virtual IInfection CreateSpreadInfection(IBody owner, IWound wound, IBodypart bodypart,
-		double intensity = 0.0001)
+	protected InfectionStage DetermineStandardStage(double intensity)
 	{
-		return LoadNewInfection(InfectionType, VirulenceDifficulty, intensity, owner, wound, bodypart, Virulence);
+		if (intensity < Gameworld.GetStaticDouble("InfectionStageZeroUpperThreshold"))
+		{
+			return InfectionStage.StageZero;
+		}
+
+		if (intensity < Gameworld.GetStaticDouble("InfectionStageOneUpperThreshold"))
+		{
+			return InfectionStage.StageOne;
+		}
+
+		if (intensity < Gameworld.GetStaticDouble("InfectionStageTwoUpperThreshold"))
+		{
+			return InfectionStage.StageTwo;
+		}
+
+		if (intensity < Gameworld.GetStaticDouble("InfectionStageThreeUpperThreshold"))
+		{
+			return InfectionStage.StageThree;
+		}
+
+		if (intensity < Gameworld.GetStaticDouble("InfectionStageFourUpperThreshold"))
+		{
+			return InfectionStage.StageFour;
+		}
+
+		if (intensity < Gameworld.GetStaticDouble("InfectionStageFiveUpperThreshold"))
+		{
+			return InfectionStage.StageFive;
+		}
+
+		return InfectionStage.StageSix;
+	}
+
+	protected virtual IInfection CreateSpreadInfection(IBody owner, IWound wound, IBodypart bodypart,
+		double? intensity = null)
+	{
+		return LoadNewInfection(InfectionType, VirulenceDifficulty,
+			intensity ?? Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), owner, wound, bodypart,
+			Virulence);
 	}
 
 	public virtual void Spread(Outcome outcome)
@@ -390,7 +427,11 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					Owner.Bodyparts.SelectMany(x => x.Organs)
 					     .Distinct()
 					     .Where(x => Owner.PartInfections.All(y => y.Bodypart != x))
-					     .GetWeightedRandom(x => x.RelativeInfectability * (Bodypart.Organs.Contains(x) ? 5 : 1));
+					     .GetWeightedRandom(x =>
+						     x.RelativeInfectability *
+						     (Bodypart.Organs.Contains(x)
+							     ? Gameworld.GetStaticDouble("InfectionSameBodypartOrganSpreadWeightMultiplier")
+							     : 1));
 				if (organ == null)
 				{
 					goto case Outcome.MinorFail;

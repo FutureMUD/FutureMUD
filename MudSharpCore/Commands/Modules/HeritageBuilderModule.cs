@@ -1917,6 +1917,17 @@ The correct syntax for this command is as follows:
 				return;
 			}
 
+			var missingCharacteristics = MudSharp.Character.Heritage.Ethnicity.GetCharacteristicProfileSelections(race, actor.Gameworld.CharacteristicProfiles)
+				.Where(x => x.Profile == null)
+				.Select(x => x.Characteristic)
+				.ToList();
+			if (missingCharacteristics.Any())
+			{
+				actor.OutputHandler.Send(
+					$"You cannot create an ethnicity for the {race.Name.ColourName()} race because the following characteristics do not have any applicable profiles: {missingCharacteristics.Select(x => x.Name.ColourName()).ListToString()}. Create characteristic profiles for those definitions before trying again.");
+				return;
+			}
+
 			var newEthnicity = new Ethnicity(actor.Gameworld, race, name);
 			actor.Gameworld.Add(newEthnicity);
 			actor.OutputHandler.Send(

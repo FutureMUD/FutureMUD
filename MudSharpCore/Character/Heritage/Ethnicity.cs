@@ -61,15 +61,13 @@ public class Ethnicity : SaveableItem, IEthnicity
 					continue;
 				}
 
-				var all = gameworld.CharacteristicProfiles.Where(x => x.IsProfileFor(item))
-								   .OrderByDescending(x => x.TargetDefinition == item)
-								   .FirstOrDefault(x => x.Type == "All");
-				if (all is null)
+				var profile = GetDefaultCharacteristicProfile(gameworld.CharacteristicProfiles, item);
+				if (profile is null)
 				{
 					continue;
 				}
 
-				CharacteristicChoices[item] = all;
+				CharacteristicChoices[item] = profile;
 				Changed = true;
 			}
 		}
@@ -100,6 +98,17 @@ public class Ethnicity : SaveableItem, IEthnicity
 	public Ethnicity(IFuturemud gameworld, IRace race, string name)
 	{
 		Gameworld = gameworld;
+		var characteristicSelections = GetCharacteristicProfileSelections(race, gameworld.CharacteristicProfiles);
+		var missingCharacteristics = characteristicSelections
+			.Where(x => x.Profile == null)
+			.Select(x => x.Characteristic)
+			.ToList();
+		if (missingCharacteristics.Any())
+		{
+			throw new InvalidOperationException(
+				$"Cannot create an ethnicity for the {race.Name} race because the following characteristics do not have any applicable characteristic profiles: {missingCharacteristics.Select(x => x.Name).ListToString()}.");
+		}
+
 		using (new FMDB())
 		{
 			var dbitem = new Models.Ethnicity
@@ -111,20 +120,16 @@ public class Ethnicity : SaveableItem, IEthnicity
 				TolerableTemperatureFloorEffect = 0.0
 			};
 			FMDB.Context.Ethnicities.Add(dbitem);
-			FMDB.Context.SaveChanges();
-			foreach (var characteristic in race.Characteristics(Gender.Indeterminate))
+			foreach (var selection in characteristicSelections)
 			{
-				var profiles = Gameworld.CharacteristicProfiles.Where(x => x.TargetDefinition == characteristic)
-										.ToList();
-				var profile = profiles.FirstOrDefault(x => x.Type == "All") ?? profiles.First();
 				dbitem.EthnicitiesCharacteristics.Add(new Models.EthnicitiesCharacteristics
 				{
-					CharacteristicDefinitionId = characteristic.Id,
+					CharacteristicDefinitionId = selection.Characteristic.Id,
 					Ethnicity = dbitem,
-					CharacteristicProfileId = profile.Id
+					CharacteristicProfileId = selection.Profile.Id
 				});
 
-				CharacteristicChoices[characteristic] = profile;
+				CharacteristicChoices[selection.Characteristic] = selection.Profile;
 			}
 
 			FMDB.Context.SaveChanges();
@@ -196,7 +201,6 @@ public class Ethnicity : SaveableItem, IEthnicity
 				PopulationBloodModelId = PopulationBloodModel?.Id
 			};
 			FMDB.Context.Ethnicities.Add(dbitem);
-			FMDB.Context.SaveChanges();
 
 			foreach (var characteristic in CharacteristicChoices)
 			{
@@ -232,6 +236,30 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 			_id = dbitem.Id;
 		}
+	}
+
+	internal static IReadOnlyCollection<(ICharacteristicDefinition Characteristic, ICharacteristicProfile Profile)>
+		GetCharacteristicProfileSelections(IRace race, IEnumerable<ICharacteristicProfile> characteristicProfiles)
+	{
+		var profiles = characteristicProfiles.ToList();
+		return race.Characteristics(Gender.Indeterminate)
+			.Select(characteristic => (
+				Characteristic: characteristic,
+				Profile: GetDefaultCharacteristicProfile(profiles, characteristic)))
+			.ToList();
+	}
+
+	internal static ICharacteristicProfile GetDefaultCharacteristicProfile(
+		IEnumerable<ICharacteristicProfile> characteristicProfiles,
+		ICharacteristicDefinition characteristic)
+	{
+		var profiles = characteristicProfiles
+			.Where(x => x.IsProfileFor(characteristic))
+			.OrderByDescending(x => x.TargetDefinition == characteristic)
+			.ToList();
+
+		return profiles.FirstOrDefault(x => x.Type.EqualTo("All")) ??
+			   profiles.FirstOrDefault();
 	}
 
 	public override string FrameworkItemType => "Ethnicity";

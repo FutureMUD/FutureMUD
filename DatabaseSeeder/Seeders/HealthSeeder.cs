@@ -1,6 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+#nullable enable
+
+using MudSharp.Body;
+using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -8,50 +12,168 @@ using MudSharp.RPG.Knowledge;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using MudSharp.Body;
-using MudSharp.Combat;
-using MudSharp.GameItems.Inventory;
-using MudSharp.GameItems.Inventory.Plans;
 
 namespace DatabaseSeeder.Seeders
 {
 	internal class HealthSeeder : IDatabaseSeeder
 	{
+		private static readonly string[] RequiredToolTags =
+		[
+			"Arterial Clamp",
+			"Bonesaw",
+			"Forceps",
+			"Scalpel",
+			"Surgical Suture Needle"
+		];
+
+		private static readonly string[] HumanArmParts =
+		[
+			"lupperarm",
+			"rupperarm",
+			"lforearm",
+			"rforearm",
+			"lhand",
+			"rhand"
+		];
+
+		private static readonly string[] HumanLegParts =
+		[
+			"lthigh",
+			"rthigh",
+			"llowerleg",
+			"rlowerleg",
+			"lfoot",
+			"rfoot"
+		];
+
+		private static readonly string[] HumanDigitParts =
+		[
+			"lthumb",
+			"rthumb",
+			"lindexfinger",
+			"rindexfinger",
+			"lmiddlefinger",
+			"rmiddlefinger",
+			"lringfinger",
+			"rringfinger",
+			"lpinkyfinger",
+			"rpinkyfinger",
+			"lbigtoe",
+			"rbigtoe",
+			"lindextoe",
+			"rindextoe",
+			"lmiddletoe",
+			"rmiddletoe",
+			"lringtoe",
+			"rringtoe",
+			"lpinkytoe",
+			"rpinkytoe"
+		];
+
+		private static readonly string[] HumanBrainTargets = ["brain"];
+		private static readonly string[] HumanHeartTargets = ["heart"];
+		private static readonly string[] HumanLiverTargets = ["liver"];
+		private static readonly string[] HumanSpleenTargets = ["spleen"];
+		private static readonly string[] HumanStomachTargets = ["stomach"];
+		private static readonly string[] HumanIntestineTargets = ["lintestines", "sintestines"];
+		private static readonly string[] HumanKidneyTargets = ["rkidney", "lkidney"];
+		private static readonly string[] HumanLungTargets = ["rlung", "llung"];
+		private static readonly string[] HumanTracheaTargets = ["trachea"];
+		private static readonly string[] HumanEsophagusTargets = ["esophagus"];
+		private static readonly string[] HumanSpinalTargets = ["uspinalcord", "mspinalcord", "lspinalcord"];
+		private static readonly string[] HumanInnerEarTargets = ["rinnerear", "linnerear"];
+
+		private static readonly string[] QuadrupedForelegParts =
+		[
+			"ruforeleg",
+			"luforeleg",
+			"rfknee",
+			"lfknee",
+			"rlforeleg",
+			"llforeleg",
+			"rfhock",
+			"lfhock"
+		];
+
+		private static readonly string[] QuadrupedHindlegParts =
+		[
+			"ruhindleg",
+			"luhindleg",
+			"rrknee",
+			"rlknee",
+			"rlhindleg",
+			"llhindleg",
+			"rrhock",
+			"lrhock"
+		];
+
 		public IEnumerable<(string Id, string Question,
-		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
-		new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
-			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
-		{
-			("techlevel",
-				@"What should be the rough equivalent tech level of the surgeries, drugs and the like that you would like to install?
+			Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+			Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+			new List<(string Id, string Question,
+				Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+				Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
+			{
+				("techlevel",
+					@"What should be the rough equivalent tech level of the surgeries, drugs and the like that you would like to install?
 
 	#Bprimitive#0 - no replantation, transplantation, resection or implants
 	#Bpre-modern#0 - no replantation, transplantation or implants
 	#Bmodern#0 - all surgical procedures
 
-Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ", (context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("primitive", "pre-modern", "premodern", "pre modern", "modern")) return (false, "Please answer #3primitive#F, #3pre-modern#0, or #3modern#F.");
+Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
+					(context, answers) => true,
+					(answer, context) =>
+					{
+						return NormaliseTechLevel(answer) switch
+						{
+							"primitive" or "pre-modern" or "modern" => (true, string.Empty),
+							_ => (false, "Please answer #3primitive#F, #3pre-modern#0, or #3modern#F.")
+						};
+					})
+			};
 
-					return (true, string.Empty);
-				})
-		};
+		private readonly Dictionary<string, Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, MudSharp.Models.Knowledge> _knowledges = new(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, MudSharp.Models.SurgicalProcedure> _procedures =
+			new(StringComparer.OrdinalIgnoreCase);
 
-		private readonly Dictionary<string,Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
+		private FuturemudDatabaseContext _context = null!;
+		private IReadOnlyDictionary<string, string> _questionAnswers = null!;
+		private BodyProto _humanBody = null!;
+		private BodyProto? _quadrupedBody;
+		private MudSharp.Models.FutureProg? _alwaysTrueProg;
+
+		private MudSharp.Models.FutureProg AlwaysTrueProg
+		{
+			get
+			{
+				_alwaysTrueProg ??= _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
+				return _alwaysTrueProg;
+			}
+		}
+
+		public int SortOrder => 250;
+		public string Name => "Health Seeder";
+		public string Tagline => "Sets up surgeries, drugs, and medical starter content";
+		public string FullDescription =>
+			"Installs a release-ready medical starter set for the selected tech level, including human surgery, a broader drug catalogue, and basic veterinary procedures for stock mammal bodies when those bodies are available.";
+		public bool Enabled => true;
 
 		public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 		{
 			_context = context;
 			_questionAnswers = questionAnswers;
+			_humanBody = _context.BodyProtos.First(x => x.Name == "Organic Humanoid");
+			_quadrupedBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Quadruped Base");
+
+			_tags.Clear();
 			foreach (var tag in _context.Tags.ToArray())
 			{
 				_tags[tag.Name] = tag;
 			}
+
 			context.Database.BeginTransaction();
 			SeedKnowledges();
 			SeedSurgery();
@@ -64,81 +186,49 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ", (context, answers
 
 		public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
 		{
-			if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
+			if (!context.Accounts.Any())
+			{
+				return ShouldSeedResult.PrerequisitesNotMet;
+			}
 
 			if (!context.Races.Any(x => x.Name == "Organic Humanoid"))
 			{
 				return ShouldSeedResult.PrerequisitesNotMet;
 			}
 
-			if (context.SurgicalProcedures.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
+			if (RequiredToolTags.Any(tag => !context.Tags.Any(x => x.Name == tag)))
+			{
+				return ShouldSeedResult.PrerequisitesNotMet;
+			}
+
+			if (context.SurgicalProcedures.Any())
+			{
+				return ShouldSeedResult.MayAlreadyBeInstalled;
+			}
 
 			return ShouldSeedResult.ReadyToInstall;
 		}
 
-		public int SortOrder => 250;
-		public string Name => "Health Seeder";
-		public string Tagline => "Sets up Surgeries, Drugs, Medical Equipment";
-
-		public string FullDescription => "";
-
-		#region Implementation of IDatabaseSeeder
-
-		/// <inheritdoc />
-		public bool Enabled => false;
-
-		#endregion
-
-		private FuturemudDatabaseContext _context;
-		private IReadOnlyDictionary<string, string> _questionAnswers;
-		private readonly Dictionary<string, MudSharp.Models.Knowledge> _knowledges = new(StringComparer.OrdinalIgnoreCase);
-		private readonly Dictionary<string, MudSharp.Models.SurgicalProcedure> _procedures = new(StringComparer.OrdinalIgnoreCase);
-
-		private MudSharp.Models.FutureProg? _alwaysTrueProg;
-		public MudSharp.Models.FutureProg AlwaysTrueProg
+		private static string NormaliseTechLevel(string answer)
 		{
-			get
+			return answer.Trim().ToLowerInvariant() switch
 			{
-				_alwaysTrueProg ??= _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
-				return _alwaysTrueProg;
-			}
-		}
-
-		private void AddSurgicalProcedure(string name, string procedureName, string school, SurgicalProcedureType type, double baseCheckBonus, long knowledgeId, CheckType check, string gerund, string emote, string description, string definition)
-		{
-			var dbitem = new MudSharp.Models.SurgicalProcedure { 
-				Name = name, 
-				ProcedureName = procedureName, 
-				Procedure = (int)type,
-				MedicalSchool = school,
-				BaseCheckBonus = baseCheckBonus,
-				KnowledgeRequiredId = knowledgeId,
-				ProcedureBeginEmote = emote,
-				ProcedureGerund = gerund,
-				ProcedureDescriptionEmote = description,
-				Check = (int)check,
-				Definition = definition,
+				"primitive" => "primitive",
+				"pre-modern" => "pre-modern",
+				"premodern" => "pre-modern",
+				"pre modern" => "pre-modern",
+				"modern" => "modern",
+				_ => string.Empty
 			};
-			_context.SurgicalProcedures.Add(dbitem);
-			_procedures[name] = dbitem;
 		}
 
-		private void AddSurgicalProcedurePhase(MudSharp.Models.SurgicalProcedure procedure, int phaseNumber, double seconds, string? special, string emote, string? template = null)
-		{
-			procedure.SurgicalProcedurePhases.Add(new MudSharp.Models.SurgicalProcedurePhase { 
-				PhaseNumber = phaseNumber, 
-				PhaseEmote= emote,
-				PhaseSpecialEffects = special,
-				BaseLengthInSeconds= seconds,
-				SurgicalProcedureId = procedure.Id,
-				InventoryActionPlan = template
-			});
-		}
+		private string SelectedTechLevel => NormaliseTechLevel(_questionAnswers["techlevel"]);
 
-		private void AddKnowledge(string name, string type, string subType, int sessions, Difficulty difficulty, string description, string longDescription)
+		private void AddKnowledge(string name, string type, string subType, int sessions, Difficulty difficulty,
+			string description, string longDescription)
 		{
-			var knowledge = new MudSharp.Models.Knowledge 
-			{ 
+			var knowledge = new MudSharp.Models.Knowledge
+			{
 				Name = name,
 				Type = type,
 				Subtype = subType,
@@ -149,354 +239,1382 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ", (context, answers
 				TeachDifficulty = (int)difficulty,
 				LearningSessionsRequired = sessions,
 				CanAcquireProg = AlwaysTrueProg,
-				CanLearnProg = AlwaysTrueProg,
+				CanLearnProg = AlwaysTrueProg
 			};
+
 			_context.Knowledges.Add(knowledge);
 			_knowledges[name] = knowledge;
 		}
 
 		private void SeedKnowledges()
 		{
-			switch (_questionAnswers["techlevel"].ToLowerInvariant())
+			switch (SelectedTechLevel)
 			{
 				case "primitive":
-					AddKnowledge("Medicine", "Medicine", "Human", 15, Difficulty.Hard, "Knowledge of the practice of treating the sick and injured", @"This knowledge is about knowing all the correct prayers, invocations and minstrations to treat the sick and injured. Those who hold this knowledge will be able to balance the humours of an imbalance individual and understand the nature of injuries that beset them.");
+					AddKnowledge(
+						"Medicine",
+						"Medicine",
+						"Human",
+						15,
+						Difficulty.Hard,
+						"Knowledge of treating the sick and injured",
+						"This knowledge covers anatomy by tradition, injury care, and the rough hands-on procedures used to keep the badly hurt alive.");
+					AddOptionalVeterinaryKnowledge(
+						"Animal Medicine",
+						15,
+						Difficulty.Hard,
+						"Knowledge of treating domesticated and wild mammals",
+						"This knowledge covers the fieldcraft and practical treatment techniques used to diagnose and stabilise injured mammals.");
 					break;
+
 				case "pre-modern":
-				case "premodern":
-				case "pre modern":
-					AddKnowledge("Chiurgery", "Medicine", "Human", 15, Difficulty.Hard, "Knowledge of the practice of performing surgeries and other medical procedures on humans", @"Chiurgery (also known as Surgery) translates to ""hand work"", and is the knowledge of doing practical medical interventions on the sick and injured. It is the knowledge of how to make major incisions to repair, remove, or replace various parts of the body, as well as associated minor treatments that go with this.");
-					AddKnowledge("Physical Medicine", "Medicine", "Human", 20, Difficulty.VeryHard, "Knowledge of the higher medical principals such as anatomy and physiology of humans", "Physical Medicine is the academic knowledge of the higher principals of anatomy, medicine, and the practice of diagnosis.");
+					AddKnowledge(
+						"Chiurgery",
+						"Medicine",
+						"Human",
+						15,
+						Difficulty.Hard,
+						"Knowledge of performing surgery and major interventions on humans",
+						"Chiurgery is the practical craft of opening, repairing, removing, and closing injured portions of the body.");
+					AddKnowledge(
+						"Physical Medicine",
+						"Medicine",
+						"Human",
+						20,
+						Difficulty.VeryHard,
+						"Knowledge of anatomy, diagnosis, and practical medicine for humans",
+						"Physical Medicine is the academic understanding of anatomy, physiology, diagnosis, and the preparation that supports surgery.");
+					AddOptionalVeterinaryKnowledge(
+						"Veterinary Medicine",
+						18,
+						Difficulty.Hard,
+						"Knowledge of diagnosing and treating mammalian patients",
+						"This knowledge covers practical veterinary assessment, bandaging, fracture care, and stabilisation for mammals.");
+					AddOptionalVeterinaryKnowledge(
+						"Veterinary Chiurgery",
+						18,
+						Difficulty.VeryHard,
+						"Knowledge of surgical interventions on mammalian patients",
+						"This knowledge covers the surgical craft required to open, repair, or remove damaged tissue in mammalian patients.");
 					break;
+
 				case "modern":
-					AddKnowledge("Diagnostic Medicine", "Medicine", "Human", 20, Difficulty.Hard, "Knowledge of the practice of diagnosing illness and trauma in humans", "This is a knowledge of medicine that helps you understand the necessary symptoms, descriptions and signs to diagnose disease and trauma in humans.");
-					AddKnowledge("Clinical Medicine", "Medicine", "Human", 10, Difficulty.Normal, "Knowledge of the core clinical medical procedures used in human medicine", "This is a knowledge of common medical procedures used in clinical settings. This allows you to be a medical practioner and perform minor tasks.");
-					AddKnowledge("Surgery", "Medicine", "Human", 15, Difficulty.Hard, "Knowledge of surgical procedures and techniques", "This is the knowledge of surgery, which allows you to perform various procedures to repair, remove, replace or otherwise alter the human body.");
+					AddKnowledge(
+						"Diagnostic Medicine",
+						"Medicine",
+						"Human",
+						20,
+						Difficulty.Hard,
+						"Knowledge of diagnosing illness and trauma in humans",
+						"This knowledge covers the signs, symptoms, and assessments used to diagnose disease and injury in human patients.");
+					AddKnowledge(
+						"Clinical Medicine",
+						"Medicine",
+						"Human",
+						10,
+						Difficulty.Normal,
+						"Knowledge of routine clinical procedures used in human medicine",
+						"This knowledge covers bedside practice, patient handling, and the common procedures used in clinical environments.");
+					AddKnowledge(
+						"Surgery",
+						"Medicine",
+						"Human",
+						15,
+						Difficulty.Hard,
+						"Knowledge of surgical procedures and techniques",
+						"This knowledge covers the operative procedures used to expose, repair, remove, replace, and reconstruct parts of the human body.");
+					AddOptionalVeterinaryKnowledge(
+						"Veterinary Medicine",
+						15,
+						Difficulty.Hard,
+						"Knowledge of modern veterinary diagnosis and care for mammals",
+						"This knowledge covers diagnostic work, clinical care, and stabilisation for common mammalian veterinary patients.");
+					AddOptionalVeterinaryKnowledge(
+						"Veterinary Surgery",
+						18,
+						Difficulty.Hard,
+						"Knowledge of surgical procedures and techniques for mammals",
+						"This knowledge covers operative veterinary work for mammalian patients, including trauma care and limb surgery.");
 					break;
 			}
 
 			_context.SaveChanges();
 		}
 
-		public void SeedSurgery()
+		private void AddOptionalVeterinaryKnowledge(string name, int sessions, Difficulty difficulty, string description,
+			string longDescription)
 		{
-			var useTags = _context.Tags.Any(x => x.Name == "Surgical Tools");
-			switch (_questionAnswers["techlevel"].ToLowerInvariant())
+			if (_quadrupedBody is null)
+			{
+				return;
+			}
+
+			AddKnowledge(name, "Medicine", "Animal", sessions, difficulty, description, longDescription);
+		}
+
+		private void SeedSurgery()
+		{
+			switch (SelectedTechLevel)
 			{
 				case "primitive":
-					SeedPrimitiveSurgery();
-					return;
+					SeedPrimitiveHumanSurgery();
+					SeedPrimitiveVeterinarySurgery();
+					break;
 				case "pre-modern":
-				case "premodern":
-				case "pre modern":
-					SeedPreModernSurgery();
-					return;
+					SeedPreModernHumanSurgery();
+					SeedPreModernVeterinarySurgery();
+					break;
 				case "modern":
-					SeedModernSurgery();
-					return;
+					SeedModernHumanSurgery();
+					SeedModernVeterinarySurgery();
+					break;
 			}
-			
 		}
 
-                private void SeedPrimitiveSurgery()
-                {
-                        AddSurgicalProcedure("Hasty Triage", "hasty triage", "Human Medicine", SurgicalProcedureType.Triage, -3.0, _knowledges["Medicine"].Id, CheckType.TriageCheck, "triaging", "@ begin|begins triaging $1=0", @"This procedure will use a variety of relatively non-invasive and non-surgical methods to guess at the state of injury and stability of a patient. Upon completion (and success), you will get a report of your patient's wounds (including ones that might not be apparent to a normal look), your patients bloodloss, an indication of locations of internal trauma, and a few indications of some specific conditions like liver failure, concussion and the like. It doesn't take as long as a more detailed triage, but you are also less likely to pick up problems. This might be useful in a mass casualty situation where time is off the essence.", "");
-                        AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 1, 10, null, "@ observe|observes $1, noting any obvious bleeding or bruising");
-                        AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 2, 10, null, "@ lightly prod|prods $1's vital areas, noting &1's reaction");
-                        AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 3, 10, null, "@ feel|feels $1's forehead, checking for fever");
-
-                        AddSurgicalProcedure("Crude Physical", "crude physical", "Human Medicine", SurgicalProcedureType.DetailedExamination, -5.0, _knowledges["Medicine"].Id, CheckType.MedicalExaminationCheck, "examining", "@ begin|begins examining $1=0", @"This procedure is used to perform a basic physical examination of the patient with only touch and eyesight. At conclusion, and if successful, you will receive a report of the target's age, general health attributes, and current wounds.", "");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 1, 25, null, "@ circle|circles $1, eyeing &1's posture and obvious wounds");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 2, 25, null, "@ prod|prods at $1's limbs and belly, gauging any flinches");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 3, 25, null, "@ press|presses $1's wrist and count|counts a heartbeat");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 4, 25, null, "@ lean|leans close to listen to $1's breath");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 5, 25, null, "@ step|steps back from $1, finishing the crude examination");
-
-                        AddSurgicalProcedure("Primitive Stitching", "primitive stitching", "Human Medicine", SurgicalProcedureType.InvasiveProcedureFinalisation, -3.0, _knowledges["Medicine"].Id, CheckType.InvasiveProcedureFinalisation, "stitching", "@ begin|begins stitching up $1", @"This procedure crudely closes a wound with bone needles and sinew.", "");
-                        AddSurgicalProcedurePhase(_procedures["Primitive Stitching"], 1, 30, "bleeding 0.05 0.03 0.02 0.01 0.005 0", "@ push|pushes organs back into $1's {0}");
-                        AddSurgicalProcedurePhase(_procedures["Primitive Stitching"], 2, 30, null, "@ pierce|pierces $1's flesh with $i1 and tug|tugs sinew tight", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
-                        AddSurgicalProcedurePhase(_procedures["Primitive Stitching"], 3, 30, null, "@ knot|knots the last crude stitch");
-
-                        AddSurgicalProcedure("Exploratory Surgery", "exploratory", "Human Medicine", SurgicalProcedureType.ExploratorySurgery, -5.0, _knowledges["Medicine"].Id, CheckType.ExploratorySurgeryCheck, "exploring", "@ begin|begins exploratory surgery on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 1, 40, "bleeding 0.08 0.05 0.03 0.02 0.01 0", "@ slice|slices roughly into $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 2, 40, null, "@ probe|probes the wound with stained fingers");
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 3, 30, null, "@ withdraw|withdraws &0's hands, ending the search");
-
-                        AddSurgicalProcedure("Arm Amputation", "arm amputation", "Human Medicine", SurgicalProcedureType.Amputation, -5.0, _knowledges["Medicine"].Id, CheckType.AmputationCheck, "amputating", "@ begin|begins to amputate $1's arm", @"The amputation procedure is used to remove an arm from a patient. It can be used on living or dead patients.", GetDefinitionForBodyparts("lupperarm","rupperarm","lforearm","rforearm","lhand","rhand"));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 1, 40, "bleeding 0.1 0.06 0.04 0.02 0.01 0", "@ hack|hacks into $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Bonesaw",1)));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 2, 30, null, "@ wrench|wrenches the severed limb free");
-
-                        AddSurgicalProcedure("Leg Amputation", "leg amputation", "Human Medicine", SurgicalProcedureType.Amputation, -5.0, _knowledges["Medicine"].Id, CheckType.AmputationCheck, "amputating", "@ begin|begins to amputate $1's leg", @"The amputation procedure removes a leg from the patient.", GetDefinitionForBodyparts("lthigh","rthigh","llowerleg","rlowerleg","lfoot","rfoot"));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 1, 40, "bleeding 0.12 0.08 0.05 0.03 0.015 0", "@ hack|hacks into $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Bonesaw",1)));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 2, 30, null, "@ wrench|wrenches the severed limb free");
-
-                        AddSurgicalProcedure("Trauma Control", "trauma control", "Human Medicine", SurgicalProcedureType.TraumaControl, -5.0, _knowledges["Medicine"].Id, CheckType.TraumaControlSurgery, "cauterising", "@ begin|begins crude trauma control on $1", @"This procedure attempts to halt bleeding in a bodypart by crude cauterisation.", "");
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 1, 40, "bleeding 0.06 0.04 0.03 0.015 0.01 0", "@ cut|cuts into $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 2, 40, null, "@ press|presses a heated $i1 against the wound", ProduceInventoryPlanDefinition((InventoryState.Held,"Arterial Clamp",1)));
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 3, 30, null, "@ bind|binds the wound with rough cloth");
-
-                        AddSurgicalProcedure("Organ Extraction", "organ extraction", "Human Medicine", SurgicalProcedureType.OrganExtraction, -5.0, _knowledges["Medicine"].Id, CheckType.OrganExtractionCheck, "cutting out", "@ begin|begins to perform a brutal organ extraction on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 1, 40, "bleeding 0.08 0.05 0.04 0.02 0.01 0", "@ carve|carves into $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 2, 40, null, "@ tug|tugs free the organ with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 3, 30, null, "@ rip|rips the organ away");
-
-                        AddSurgicalProcedure("Bone Setting", "bone setting", "Human Medicine", SurgicalProcedureType.SurgicalBoneSetting, -4.0, _knowledges["Medicine"].Id, CheckType.SurgicalSetCheck, "setting", "@ begin|begins to set $1's bone", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Bone Setting"], 1, 30, "bleeding 0.02 0.015 0.01 0.005 0.002 0", "@ grip|grips $1's {0}, lining up jagged edges");
-                        AddSurgicalProcedurePhase(_procedures["Bone Setting"], 2, 30, null, "@ yank|yanks the limb straight");
-                        AddSurgicalProcedurePhase(_procedures["Bone Setting"], 3, 20, null, "@ bind|binds the limb tightly with splints");
-                }
-
-                private void SeedPreModernSurgery()
-                {
-                        AddSurgicalProcedure("Hasty Triage", "hasty triage", "Human Medicine", SurgicalProcedureType.Triage, -3.0, _knowledges["Physical Medicine"].Id, CheckType.TriageCheck, "triaging", "@ begin|begins triaging $1=0", @"This procedure will use a variety of relatively non-invasive and non-surgical methods to guess at the state of injury and stability of a patient. Upon completion (and success), you will get a report of your patient's wounds (including ones that might not be apparent to a normal look), your patients bloodloss, an indication of locations of internal trauma, and a few indications of some specific conditions like liver failure, concussion and the like. It doesn't take as long as a more detailed triage, but you are also less likely to pick up problems. This might be useful in a mass casualty situation where time is off the essence.", "");
-                        AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 1, 10, null, "@ observe|observes $1, noting any obvious bleeding or bruising");
-                        AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 2, 10, null, "@ lightly prod|prods $1's vital areas, noting &1's reaction");
-                        AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 3, 10, null, "@ feel|feels $1's forehead, checking for fever");
-
-                        AddSurgicalProcedure("Triage", "triage", "Human Medicine", SurgicalProcedureType.Triage, -1.0, _knowledges["Physical Medicine"].Id, CheckType.TriageCheck, "triaging", "@ begin|begins triaging $1=0", @"This procedure will use observation, touch and a few simple instruments to judge the state of a patient in detail.", "");
-                        AddSurgicalProcedurePhase(_procedures["Triage"], 1, 15, null, "@ observe|observes $1, noting any obvious bleeding or bruising");
-                        AddSurgicalProcedurePhase(_procedures["Triage"], 2, 20, null, "@ take|takes $1's pulse with practiced fingers");
-                        AddSurgicalProcedurePhase(_procedures["Triage"], 3, 15, null, "@ prod|prods $1's abdomen and limbs, watching for reactions");
-                        AddSurgicalProcedurePhase(_procedures["Triage"], 4, 20, null, "@ listen|listens to $1's breathing with a hollow tube", ProduceInventoryPlanDefinition((InventoryState.Held,"Stethoscope",1)));
-                        AddSurgicalProcedurePhase(_procedures["Triage"], 5, 10, null, "@ feel|feels $1's forehead, checking for fever");
-
-                        AddSurgicalProcedure("Crude Physical", "crude physical", "Human Medicine", SurgicalProcedureType.DetailedExamination, -3.0, _knowledges["Physical Medicine"].Id, CheckType.MedicalExaminationCheck, "examining", "@ begin|begins examining $1=0", @"This procedure performs a basic physical examination of the patient using simple tools.", "");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 1, 25, null, "@ measure|measures $1's height against a rod");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 2, 25, null, "@ weigh|weighs $1 with a balance scale", ProduceInventoryPlanDefinition((InventoryState.Dropped,"Mechanical Scale",1)));
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 3, 25, null, "@ listen|listens to $1's chest with a cupped ear");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 4, 25, null, "@ test|tests $1's reflexes with a wooden mallet");
-                        AddSurgicalProcedurePhase(_procedures["Crude Physical"], 5, 25, null, "@ finish|finishes the rough examination");
-
-                        AddSurgicalProcedure("Stitch Up", "stitchup", "Human Medicine", SurgicalProcedureType.InvasiveProcedureFinalisation, -2.0, _knowledges["Chiurgery"].Id, CheckType.InvasiveProcedureFinalisation, "stitching", "@ begin|begins stitching up $1", @"This procedure closes a wound with needle and catgut.", "");
-                        AddSurgicalProcedurePhase(_procedures["Stitch Up"], 1, 30, "bleeding 0.04 0.025 0.015 0.008 0.004 0", "@ arrange|arranges organs back into $1's {0}");
-                        AddSurgicalProcedurePhase(_procedures["Stitch Up"], 2, 30, null, "@ stitch|stitches the muscles with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
-                        AddSurgicalProcedurePhase(_procedures["Stitch Up"], 3, 30, null, "@ close|closes the skin with tight catgut stitches");
-
-                        AddSurgicalProcedure("Exploratory Surgery", "exploratory", "Human Medicine", SurgicalProcedureType.ExploratorySurgery, -2.0, _knowledges["Chiurgery"].Id, CheckType.ExploratorySurgeryCheck, "exploring", "@ begin|begins exploratory surgery on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 1, 40, "bleeding 0.06 0.04 0.025 0.015 0.01 0", "@ score|scores a careful incision across $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 2, 40, null, "@ part|parts the flesh with $i1, peering within", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 3, 30, null, "@ withdraw|withdraws, satisfied with the inspection");
-
-                        AddSurgicalProcedure("Arm Amputation", "arm amputation", "Human Medicine", SurgicalProcedureType.Amputation, -2.0, _knowledges["Chiurgery"].Id, CheckType.AmputationCheck, "amputating", "@ begin|begins to amputate $1's arm", @"The amputation procedure is used to remove an arm from a patient. It can be used on living or dead patients.", GetDefinitionForBodyparts("lupperarm","rupperarm","lforearm","rforearm","lhand","rhand"));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 1, 35, "bleeding 0.08 0.05 0.03 0.015 0.008 0", "@ incise|incises around $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 2, 35, null, "@ saw|saws through the bone with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Bonesaw",1)));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 3, 20, null, "@ remove|removes the severed limb");
-
-                        AddSurgicalProcedure("Leg Amputation", "leg amputation", "Human Medicine", SurgicalProcedureType.Amputation, -2.0, _knowledges["Chiurgery"].Id, CheckType.AmputationCheck, "amputating", "@ begin|begins to amputate $1's leg", @"The amputation procedure removes a leg from the patient.", GetDefinitionForBodyparts("lthigh","rthigh","llowerleg","rlowerleg","lfoot","rfoot"));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 1, 35, "bleeding 0.1 0.07 0.04 0.02 0.01 0", "@ incise|incises around $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 2, 35, null, "@ saw|saws through the bone with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Bonesaw",1)));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 3, 20, null, "@ remove|removes the severed limb");
-
-                        AddSurgicalProcedure("Trauma Control", "trauma control", "Human Medicine", SurgicalProcedureType.TraumaControl, -2.0, _knowledges["Chiurgery"].Id, CheckType.TraumaControlSurgery, "cauterising", "@ begin|begins trauma control with $1", @"This procedure stops internal bleeding in a bodypart using clamps and hot irons.", "");
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 1, 40, "bleeding 0.05 0.03 0.02 0.01 0.005 0", "@ open|opens $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 2, 40, null, "@ clamp|clamps bleeding vessels with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Arterial Clamp",1)));
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 3, 30, null, "@ sear|sears the vessels shut with a hot iron");
-
-                        AddSurgicalProcedure("Organ Extraction", "organ extraction", "Human Medicine", SurgicalProcedureType.OrganExtraction, -2.0, _knowledges["Chiurgery"].Id, CheckType.OrganExtractionCheck, "cutting out", "@ begin|begins to perform an organ extraction on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 1, 40, "bleeding 0.06 0.04 0.025 0.015 0.01 0", "@ make|makes an incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 2, 40, null, "@ cut|cuts the organ free with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 3, 30, null, "@ lift|lifts the organ out");
-
-                        AddSurgicalProcedure("Intestinal Resection", "intestinal resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, -2.0, _knowledges["Chiurgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins to remove damaged intestine from $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 1, 40, "bleeding 0.05 0.03 0.02 0.01 0.005 0", "@ open|opens $1's belly with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 2, 40, null, "@ cut|cuts away diseased loops with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 3, 30, null, "@ stitch|stitches the remaining intestine with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
-
-                        AddSurgicalProcedure("Bone Setting", "bone setting", "Human Medicine", SurgicalProcedureType.SurgicalBoneSetting, -2.0, _knowledges["Chiurgery"].Id, CheckType.SurgicalSetCheck, "setting", "@ begin|begins to set $1's bone", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Bone Setting"], 1, 30, "bleeding 0.02 0.015 0.01 0.005 0.002 0", "@ examine|examines $1's {0}");
-                        AddSurgicalProcedurePhase(_procedures["Bone Setting"], 2, 30, null, "@ manipulate|manipulates the bone back into alignment");
-                        AddSurgicalProcedurePhase(_procedures["Bone Setting"], 3, 20, null, "@ splint|splints the limb with wooden boards");
-                }
-
-		private void SeedModernSurgery()
+		private void SeedPrimitiveHumanSurgery()
 		{
-			AddSurgicalProcedure("Hasty Triage", "hasty triage", "Human Medicine", SurgicalProcedureType.Triage, -3.0, _knowledges["Diagnostic Medicine"].Id, CheckType.TriageCheck, "triaging", "@ begin|begins triaging $1=0", @"This procedure will use a variety of relatively non-invasive and non-surgical methods to guess at the state of injury and stability of a patient. Upon completion (and success), you will get a report of your patient's wounds (including ones that might not be apparent to a normal look), your patients bloodloss, an indication of locations of internal trauma, and a few indications of some specific conditions like liver failure, concussion and the like. It doesn't take as long as a more detailed triage, but you are also less likely to pick up problems. This might be useful in a mass casualty situation where time is off the essence.", "");
-			AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 1, 10, null, "@ observe|observes $1, noting any obvious bleeding or bruising");
-			AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 2, 10, null, "@ lightly prod|prods $1's vital areas, noting &1's reaction");
-			AddSurgicalProcedurePhase(_procedures["Hasty Triage"], 3, 10, null, "@ feel|feels $1's forehead, checking for fever");
-
-			AddSurgicalProcedure("Triage", "triage", "Human Medicine", SurgicalProcedureType.Triage, 0.0, _knowledges["Diagnostic Medicine"].Id, CheckType.TriageCheck, "triaging", "@ begin|begins triaging $1=0", @"This procedure will use a variety of relatively non-invasive and non-surgical methods to guess at the state of injury and stability of a patient. Upon completion (and success), you will get a report of your patient's wounds (including ones that might not be apparent to a normal look), your patients bloodloss, an indication of locations of internal trauma, and a few indications of some specific conditions like liver failure, concussion and the like.", "");
-			AddSurgicalProcedurePhase(_procedures["Triage"], 1, 15, null, "@ observe|observes $1, noting any obvious bleeding or bruising");
-			AddSurgicalProcedurePhase(_procedures["Triage"], 2, 20, null, "@ put|puts &0's finger on $1's neck and mentally count|counts the pulse rate");
-			AddSurgicalProcedurePhase(_procedures["Triage"], 3, 15, null, "@ lightly prod|prods $1's vital areas, noting &1's reaction");
-			AddSurgicalProcedurePhase(_procedures["Triage"], 4, 20, null, "@ gently move|moves several of $1's limbs and joints, looking for a reaction and testing range of movement");
-			AddSurgicalProcedurePhase(_procedures["Triage"], 5, 10, null, "@ feel|feels $1's forehead, checking for fever");
-
-			AddSurgicalProcedure("Crude Physical", "crude physical", "Human Medicine", SurgicalProcedureType.DetailedExamination, -3.0, _knowledges["Diagnostic Medicine"].Id, CheckType.MedicalExaminationCheck, "examining", "@ begin|begins examining $1=0", @"This procedure is used to perform a basic physical examination of the patient, but absent any modern tools. At conclusion, and if successful, you will receive a report of the target's age, general health attributes, and current wounds.", "");
-			AddSurgicalProcedurePhase(_procedures["Physical"], 1, 25, null, "@ begin|begins &0's physical examination of $1 by considering &1's physical form and estimating &1's height and weight");
-			AddSurgicalProcedurePhase(_procedures["Physical"], 2, 25, null, "@ continue|continues &0's physical examination of $1 by taking &1's blood pressure with a mental count and a thumb on the patient's wrist");
-			AddSurgicalProcedurePhase(_procedures["Physical"], 3, 25, null, "@ continue|continues &0's physical examination of $1 by listening to &1's breathing");
-			AddSurgicalProcedurePhase(_procedures["Physical"], 4, 25, null, "@ continue|continues &0's examination of $1 by testing the flexibility of various joints and limbs by manual manipulation, and squeezing and prodding various parts");
-			AddSurgicalProcedurePhase(_procedures["Physical"], 5, 25, null, "@ step|steps back from $1, having completed the physical examination");
-
-			AddSurgicalProcedure("Physical", "physical", "Human Medicine", SurgicalProcedureType.DetailedExamination, 2.0, _knowledges["Diagnostic Medicine"].Id, CheckType.MedicalExaminationCheck, "examining", "@ begin|begins examining $1=0", @"This procedure is used to perform a basic physical examination of the patient. At conclusion, and if successful, you will receive a report of the target's age, general health attributes, and current wounds.", "");
-			AddSurgicalProcedurePhase(_procedures["Physical"], 1, 25, null, "@ begin|begins &0's physical examination of $1 by asking &1 to stand on $i1", ProduceInventoryPlanDefinition((InventoryState.Dropped, "Mechanical Scale", 1)));
-			AddSurgicalProcedurePhase(_procedures["Physical"], 2, 25, null, "@ continue|continues &0's physical examination of $1 by taking &1's blood pressure with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Blood Pressure Monitor", 1)));
-			AddSurgicalProcedurePhase(_procedures["Physical"], 3, 25, null, "@ continue|continues &0's physical examination of $1 by listening to &1's breathing with $i1, and checking &1's pulse", ProduceInventoryPlanDefinition((InventoryState.Held, "Stethoscope", 1)));
-			AddSurgicalProcedurePhase(_procedures["Physical"], 4, 25, null, "@ continue|continues &0's examination of $1 by testing the flexibility of various joints and limbs with $i1, and squeezing and prodding various parts", ProduceInventoryPlanDefinition((InventoryState.Held, "Tendon Hammer", 1)));
-			AddSurgicalProcedurePhase(_procedures["Physical"], 5, 25, null, "@ step|steps back from $1, having completed the physical examination");
-
-			AddSurgicalProcedure("Stitch Up", "stitchup", "Human Medicine", SurgicalProcedureType.InvasiveProcedureFinalisation, 0.0, _knowledges["Surgery"].Id, CheckType.InvasiveProcedureFinalisation, "stiching-up", "@ begin|begins stitching up $1", @"This procedure is a surgical suture and tidy-up procedure. It is used after other procedures that make any kind of substantial incision, and effectively finalises the procedure. Without the successful completion of this procedure, the patient is likely to get rather nasty infections on their internal organs.", "");
-			AddSurgicalProcedurePhase(_procedures["Stitch Up"], 1, 25, null, "@ begin|begins moving everything inside $1's {0} back to where it is supposed to be");
-			AddSurgicalProcedurePhase(_procedures["Stitch Up"], 2, 25, null, "@ begin|begins the process of reattaching $1's larger blood vessels back to each other as needed using $i1 and $i2");
-			AddSurgicalProcedurePhase(_procedures["Stitch Up"], 3, 25, null, "@ finish|finishes the process of attaching $1's larger blood vessels back to each other");
-			AddSurgicalProcedurePhase(_procedures["Stitch Up"], 4, 25, null, "@ begin|begins to suture all of the muscle tissue in $1's {0} that has been separated back together with $i1 and $i2");
-                        AddSurgicalProcedurePhase(_procedures["Stitch Up"], 5, 25, null, "@ pull|pulls the skin closed on $1's {0} wound, then slowly, carefully, stitch|stitches it closed with $i1 and $i2");
-                        AddSurgicalProcedurePhase(_procedures["Stitch Up"], 6, 25, null, "@ finish|finishes the last stitch on $1's {0} and clip|clips and tie|ties it off; the wound is closed");
-
-                        AddSurgicalProcedure("Exploratory Surgery", "exploratory", "Human Medicine", SurgicalProcedureType.ExploratorySurgery, 0.0, _knowledges["Surgery"].Id, CheckType.ExploratorySurgeryCheck, "exploring", "@ begin|begins exploratory surgery on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 1, 30, "exposed", "@ draw|draws a precise incision across $1's {0} with $i1, easing the edges apart with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1),(InventoryState.Held,"Forceps",1)));
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 2, 35, null, "@ sweep|sweeps $i1 through the cavity, searching for hidden damage", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-                        AddSurgicalProcedurePhase(_procedures["Exploratory Surgery"], 3, 25, null, "@ pack|packs the wound with $i1 before preparing to close", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
-
-                        AddSurgicalProcedure("Arm Amputation", "arm amputation", "Human Medicine", SurgicalProcedureType.Amputation, 0.0, _knowledges["Surgery"].Id, CheckType.AmputationCheck, "amputating", "@ begin|begins to amputate $1's arm", @"The amputation procedure is used to remove an arm from a patient. It can be used on living or dead patients.", GetDefinitionForBodyparts("lupperarm","rupperarm","lforearm","rforearm","lhand","rhand"));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 1, 30, "exposed", "@ mark|marks the site on $1's {0} and make|makes a careful incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 2, 30, null, "@ saw|saws cleanly through the bone with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Bonesaw",1)));
-                        AddSurgicalProcedurePhase(_procedures["Arm Amputation"], 3, 20, null, "@ remove|removes the severed limb");
-
-                        AddSurgicalProcedure("Leg Amputation", "leg amputation", "Human Medicine", SurgicalProcedureType.Amputation, 0.0, _knowledges["Surgery"].Id, CheckType.AmputationCheck, "amputating", "@ begin|begins to amputate $1's leg", @"The amputation procedure removes a leg from the patient.", GetDefinitionForBodyparts("lthigh","rthigh","llowerleg","rlowerleg","lfoot","rfoot"));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 1, 30, "exposed", "@ mark|marks the site on $1's {0} and make|makes a careful incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 2, 30, null, "@ saw|saws through the limb with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Bonesaw",1)));
-                        AddSurgicalProcedurePhase(_procedures["Leg Amputation"], 3, 20, null, "@ remove|removes the severed limb");
-
-                        AddSurgicalProcedure("Replantation", "replantation", "Human Medicine", SurgicalProcedureType.Replantation, 0.0, _knowledges["Surgery"].Id, CheckType.ReplantationCheck, "replanting", "@ begin|begins replantation on $1", @"The replantation procedure reattaches a severed bodypart to the patient.", "");
-                        AddSurgicalProcedurePhase(_procedures["Replantation"], 1, 30, "exposed", "@ clean|cleans the stump on $1 with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Replantation"], 2, 30, null, "@ align|aligns the severed part and begin|begins suturing with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
-                        AddSurgicalProcedurePhase(_procedures["Replantation"], 3, 30, null, "@ finish|finishes securing the part in place");
-
-                        AddSurgicalProcedure("Cannulation", "cannulation", "Human Medicine", SurgicalProcedureType.Cannulation, 0.0, _knowledges["Clinical Medicine"].Id, CheckType.CannulationProcedure, "cannulating", "@ begin|begins a cannulation procedure on $1", @"Cannulation installs a cannula into a vein for IV access.", "");
-                        AddSurgicalProcedurePhase(_procedures["Cannulation"], 1, 15, "exposed", "@ swab|swabs $1's {0} and slide|slides $i1 into the vein", ProduceInventoryPlanDefinition((InventoryState.Held,"Cannula",1)));
-                        AddSurgicalProcedurePhase(_procedures["Cannulation"], 2, 15, null, "@ secure|secures the cannula in place");
-
-                        AddSurgicalProcedure("Decannulation", "decannulation", "Human Medicine", SurgicalProcedureType.Decannulation, 0.0, _knowledges["Clinical Medicine"].Id, CheckType.DecannulationProcedure, "decannulating", "@ begin|begins to decannulate $1", @"Decannulation removes a cannula from a patient's veins.", "");
-                        AddSurgicalProcedurePhase(_procedures["Decannulation"], 1, 15, null, "@ gently withdraw|withdraws the cannula from $1's {0}");
-
-                        AddSurgicalProcedure("Trauma Control", "trauma control", "Human Medicine", SurgicalProcedureType.TraumaControl, 0.0, _knowledges["Surgery"].Id, CheckType.TraumaControlSurgery, "patching up", "@ begin|begins trauma control with $1", @"This procedure stops internal bleeding in a bodypart.", "");
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 1, 30, "exposed", "@ open|opens $1's {0} with $i1, suctioning pooled blood", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1)));
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 2, 30, null, "@ clamp|clamps bleeding vessels with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Arterial Clamp",1)));
-                        AddSurgicalProcedurePhase(_procedures["Trauma Control"], 3, 30, null, "@ close|closes up the wound with $i1", ProduceInventoryPlanDefinition((InventoryState.Held,"Suture_Kit",1)));
-
-                        AddSurgicalProcedure("Organ Extraction", "organ extraction", "Human Medicine", SurgicalProcedureType.OrganExtraction, 0.0, _knowledges["Surgery"].Id, CheckType.OrganExtractionCheck, "cutting out", "@ begin|begins to perform an organ extraction on $1", "", "");
-                        AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 1, 30, "checkorgan exposed", "@ make|makes a long incision with $i1 and retract|retracts the flesh with $i2", ProduceInventoryPlanDefinition((InventoryState.Held,"Scalpel",1),(InventoryState.Held,"Forceps",1)));
-			AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 2, 35, null, "@ sever|severs connective tissue with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-			AddSurgicalProcedurePhase(_procedures["Organ Extraction"], 3, 25, null, "@ lift|lifts the organ free and set|sets it aside");
-
-			AddSurgicalProcedure("Organ Transplant", "organ transplant", "Human Medicine", SurgicalProcedureType.OrganTransplant, 0.0, _knowledges["Surgery"].Id, CheckType.OrganTransplantCheck, "transplanting", "@ begin|begins an organ transplantation on $1", "", "");
-			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 1, 30, "checkspace", "@ prepare|prepares the cavity in $1's {0} with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
-			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 2, 35, "checkorgan", "@ seat|seats the new organ and suture|sutures vessels with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 3, 30, null, "@ close|closes up the incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
-
-			AddSurgicalProcedure("Intestinal Resection", "intestinal resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins to remove damaged intestine from $1", "", "");
-			AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 1, 35, "checkorgan", "@ open|opens $1's belly with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
-			AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 2, 35, null, "@ excise|excises diseased loops with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-			AddSurgicalProcedurePhase(_procedures["Intestinal Resection"], 3, 30, null, "@ reconnect|reconnects the bowel and close|closes the wound with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
-
-			AddSurgicalProcedure("Liver Resection", "liver resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins a liver resection on $1", "", GetDefinitionForBodyparts("liver"));
-			AddSurgicalProcedurePhase(_procedures["Liver Resection"], 1, 35, "checkorgan", "@ slice|slices beneath $1's ribs with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
-			AddSurgicalProcedurePhase(_procedures["Liver Resection"], 2, 35, null, "@ trim|trims away damaged hepatic tissue with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-			AddSurgicalProcedurePhase(_procedures["Liver Resection"], 3, 30, null, "@ close|closes the incision with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
-
-			AddSurgicalProcedure("Lung Resection", "lung resection", "Human Medicine", SurgicalProcedureType.OrganStabilisation, 0.0, _knowledges["Surgery"].Id, CheckType.OrganStabilisationCheck, "resecting", "@ begin|begins a lung resection on $1", "", GetDefinitionForBodyparts("llung", "rlung"));
-			AddSurgicalProcedurePhase(_procedures["Lung Resection"], 1, 35, "checkorgan", "@ open|opens $1's chest with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
-			AddSurgicalProcedurePhase(_procedures["Lung Resection"], 2, 35, null, "@ remove|removes the damaged portion with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-			AddSurgicalProcedurePhase(_procedures["Lung Resection"], 3, 30, null, "@ suture|sutures the remaining lung and close|closes the chest with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
-
-			AddSurgicalProcedure("Bone Setting", "bone setting", "Human Medicine", SurgicalProcedureType.SurgicalBoneSetting, 0.0, _knowledges["Surgery"].Id, CheckType.SurgicalSetCheck, "setting", "@ begin|begins to set $1's bone", "", "");
-			AddSurgicalProcedurePhase(_procedures["Bone Setting"], 1, 30, "exposed checkbone", "@ examine|examines $1's {0}");
-			AddSurgicalProcedurePhase(_procedures["Bone Setting"], 2, 30, null, "@ manipulate|manipulates the bone back into alignment with $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1)));
-			AddSurgicalProcedurePhase(_procedures["Bone Setting"], 3, 20, null, "@ secure|secures the bone with a splint");
-
-			AddSurgicalProcedure("Install Implant", "install implant", "Human Medicine", SurgicalProcedureType.InstallImplant, 0.0, _knowledges["Surgery"].Id, CheckType.InstallImplantSurgery, "installing", "@ begin|begins to install an implant in $1", "", "");
-			AddSurgicalProcedurePhase(_procedures["Install Implant"], 1, 30, "exposed checkspace", "@ open|opens $1's {0} with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Implant", 1), (InventoryState.Held, "Scalpel", 1)));
-			AddSurgicalProcedurePhase(_procedures["Install Implant"], 2, 30, null, "@ insert|inserts $i1 and secure|secures it", ProduceInventoryPlanDefinition((InventoryState.Held, "Implant", 1)));
-			AddSurgicalProcedurePhase(_procedures["Install Implant"], 3, 20, null, "@ close|closes the incision with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
-
-			AddSurgicalProcedure("Remove Implant", "remove implant", "Human Medicine", SurgicalProcedureType.RemoveImplant, 0.0, _knowledges["Surgery"].Id, CheckType.RemoveImplantSurgery, "removing", "@ begin|begins to remove an implant from $1", "", "");
-			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 1, 30, "exposed", "@ open|opens $1's {0} with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1)));
-			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 2, 30, null, "@ extract|extracts the implant using $i1", ProduceInventoryPlanDefinition((InventoryState.Held, "Implant", 1)));
-			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 3, 20, null, "@ close|closes the incision with $i2", ProduceInventoryPlanDefinition((InventoryState.Held, "Suture_Kit", 1)));
-
-			AddSurgicalProcedure("Configure Implant Power", "configure implant power", "Human Medicine", SurgicalProcedureType.ConfigureImplantPower, 0.0, _knowledges["Surgery"].Id, CheckType.ConfigureImplantPowerSurgery, "configuring", "@ begin|begins to configure power settings for $1's implants", "", "");
-			AddSurgicalProcedurePhase(_procedures["Configure Implant Power"], 1, 20, null, "@ adjust|adjusts wiring and power settings");
-
-			AddSurgicalProcedure("Configure Implant Interface", "configure implant interface", "Human Medicine", SurgicalProcedureType.ConfigureImplantInterface, 0.0, _knowledges["Surgery"].Id, CheckType.ConfigureImplantInterfaceSurgery, "configuring", "@ begin|begins to configure interface settings for $1's implants", "", "");
-			AddSurgicalProcedurePhase(_procedures["Configure Implant Interface"], 1, 20, null, "@ tune|tunes the interface connections");
+			AddHastyTriage("Medicine", "Human Medicine", _humanBody, -3.0);
+			AddPrimitivePhysical("Medicine", "Human Medicine", _humanBody, -5.0);
+			AddPrimitiveStitching("Primitive Stitching", "primitive stitching", "Medicine", "Human Medicine", _humanBody,
+				-3.0, "A rough closure procedure that uses crude needles and bindings to close an opened wound.");
+			AddPrimitiveExploratory("Exploratory Surgery", "exploratory", "Medicine", "Human Medicine", _humanBody, -5.0);
+			AddAmputation("Arm Amputation", "arm amputation", "Medicine", "Human Medicine", _humanBody, -5.0,
+				"The amputation procedure removes an arm or major section of an arm from the patient.", HumanArmParts);
+			AddAmputation("Leg Amputation", "leg amputation", "Medicine", "Human Medicine", _humanBody, -5.0,
+				"The amputation procedure removes a leg or major section of a leg from the patient.", HumanLegParts);
+			AddAmputation("Digit Amputation", "digit amputation", "Medicine", "Human Medicine", _humanBody, -4.0,
+				"This procedure removes ruined fingers or toes that can no longer be saved.", HumanDigitParts);
+			AddPrimitiveTraumaControl("Trauma Control", "trauma control", "Medicine", "Human Medicine", _humanBody, -5.0);
+			AddPrimitiveOrganExtraction("Organ Extraction", "organ extraction", "Medicine", "Human Medicine", _humanBody,
+				-5.0);
+			AddPrimitiveOrganRepair("Crude Organ Repair", "organ repair", "Medicine", "Human Medicine", _humanBody, -5.0,
+				"A crude attempt to pack, trim, and secure damaged internal organs.", string.Empty);
+			AddPrimitiveOrganRepair("Trepanation", "trepanation", "Medicine", "Human Medicine", _humanBody, -3.5,
+				"A specialised primitive cranial procedure used to relieve pressure and work on the brain.",
+				GetDefinitionForTargets(_humanBody, HumanBrainTargets));
+			AddPrimitiveOrganRepair("Windpipe Repair", "windpipe repair", "Medicine", "Human Medicine", _humanBody, -3.5,
+				"A specialised primitive procedure for repairing the airway and trachea.",
+				GetDefinitionForTargets(_humanBody, HumanTracheaTargets));
+			AddBoneSetting("Bone Setting", "bone setting", "Medicine", "Human Medicine", _humanBody, -4.0,
+				"A hands-on surgical setting procedure for badly displaced fractures.");
 		}
 
-				private string ProduceInventoryPlanDefinition(params (InventoryState State, string Tag, int Quantity)[] actions)
-				{
-			return new XElement("Plan",
-				new XElement("Phase",
-					from action in actions
-					select action.State switch
-					{
-						InventoryState.Held => new XElement("Action", new XAttribute("state", "held"), new XAttribute("tag", _tags[action.Tag].Id), new XAttribute("quantity", action.Quantity), new XAttribute("optionalquantity", false)),
-						InventoryState.Wielded => new XElement("Action", new XAttribute("state", "wielded"), new XAttribute("tag", _tags[action.Tag].Id), new XAttribute("wieldstate", (int)AttackHandednessOptions.Any)),
-						InventoryState.Worn => new XElement("Action", new XAttribute("state", "worn"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.Dropped => new XElement("Action", new XAttribute("state", "dropped"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.Sheathed => new XElement("Action", new XAttribute("state", "sheathed"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.InContainer => new XElement("Action", new XAttribute("state", "incontainer"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.Attached => new XElement("Action", new XAttribute("state", "held"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.Prosthetic => new XElement("Action", new XAttribute("state", "prosthetic"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.Implanted => new XElement("Action", new XAttribute("state", "implanted"), new XAttribute("tag", _tags[action.Tag].Id)),
-						InventoryState.Consumed => new XElement("Action", new XAttribute("state", "consume"), new XAttribute("tag", _tags[action.Tag].Id), new XAttribute("quantity", action.Quantity)),
-						InventoryState.ConsumedLiquid => new XElement("Action", new XAttribute("state", "consumeliquid"), new XAttribute("tag", _tags[action.Tag].Id)),
+		private void SeedPreModernHumanSurgery()
+		{
+			AddHastyTriage("Physical Medicine", "Human Medicine", _humanBody, -2.0);
+			AddTriage("Triage", "triage", "Physical Medicine", "Human Medicine", _humanBody, -0.5,
+				"A fuller examination of urgent injuries using practical tools and observation.");
+			AddPreModernPhysical("Crude Physical", "crude physical", "Physical Medicine", "Human Medicine", _humanBody,
+				-2.5, false);
+			AddPreModernStitching("Stitch Up", "stitch up", "Chiurgery", "Human Medicine", _humanBody, -1.5,
+				"A surgical closure procedure that restores a clean incision to a closed wound.");
+			AddPreModernExploratory("Exploratory Surgery", "exploratory", "Chiurgery", "Human Medicine", _humanBody,
+				-1.5);
+			AddAmputation("Arm Amputation", "arm amputation", "Chiurgery", "Human Medicine", _humanBody, -1.5,
+				"The amputation procedure removes an arm or major section of an arm from the patient.", HumanArmParts);
+			AddAmputation("Leg Amputation", "leg amputation", "Chiurgery", "Human Medicine", _humanBody, -1.5,
+				"The amputation procedure removes a leg or major section of a leg from the patient.", HumanLegParts);
+			AddAmputation("Digit Amputation", "digit amputation", "Chiurgery", "Human Medicine", _humanBody, -1.0,
+				"This procedure removes ruined fingers or toes that can no longer be saved.", HumanDigitParts);
+			AddPreModernTraumaControl("Trauma Control", "trauma control", "Chiurgery", "Human Medicine", _humanBody, -1.5);
+			AddPreModernOrganExtraction("Organ Extraction", "organ extraction", "Chiurgery", "Human Medicine", _humanBody,
+				-1.5);
+			AddPreModernOrganRepair("General Organ Repair", "organ repair", "Chiurgery", "Human Medicine", _humanBody,
+				-1.5, "A general pre-modern procedure for repairing or excising damaged internal tissue.", string.Empty);
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.5, "Trepanation",
+				GetDefinitionForTargets(_humanBody, HumanBrainTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Cardiac Repair",
+				GetDefinitionForTargets(_humanBody, HumanHeartTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Liver Resection",
+				GetDefinitionForTargets(_humanBody, HumanLiverTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Splenic Repair",
+				GetDefinitionForTargets(_humanBody, HumanSpleenTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Gastric Repair",
+				GetDefinitionForTargets(_humanBody, HumanStomachTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Intestinal Resection",
+				GetDefinitionForTargets(_humanBody, HumanIntestineTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Kidney Repair",
+				GetDefinitionForTargets(_humanBody, HumanKidneyTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Lung Resection",
+				GetDefinitionForTargets(_humanBody, HumanLungTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Tracheal Repair",
+				GetDefinitionForTargets(_humanBody, HumanTracheaTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Esophageal Repair",
+				GetDefinitionForTargets(_humanBody, HumanEsophagusTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Spinal Stabilisation",
+				GetDefinitionForTargets(_humanBody, HumanSpinalTargets));
+			AddHumanSpecificOrganRepairs("Chiurgery", "Human Medicine", _humanBody, -0.25, "Inner Ear Repair",
+				GetDefinitionForTargets(_humanBody, HumanInnerEarTargets));
+			AddBoneSetting("Bone Setting", "bone setting", "Chiurgery", "Human Medicine", _humanBody, -1.0,
+				"A surgical fracture-setting procedure with splints and better alignment techniques.");
+		}
 
-						_ => throw new NotImplementedException()
-					}
+		private void SeedModernHumanSurgery()
+		{
+			AddHastyTriage("Diagnostic Medicine", "Human Medicine", _humanBody, -1.0);
+			AddTriage("Triage", "triage", "Diagnostic Medicine", "Human Medicine", _humanBody, 0.5,
+				"A complete triage procedure for urgent patients that combines clinical observation with practical checks.");
+			AddModernPhysical("Crude Physical", "crude physical", "Diagnostic Medicine", "Human Medicine", _humanBody,
+				-1.0, false);
+			AddModernPhysical("Physical", "physical", "Diagnostic Medicine", "Human Medicine", _humanBody, 2.0, true);
+			AddModernStitching("Stitch Up", "stitch up", "Surgery", "Human Medicine", _humanBody, 0.0,
+				"A surgical closure and clean-up procedure used to finalise invasive operations.");
+			AddModernExploratory("Exploratory Surgery", "exploratory", "Surgery", "Human Medicine", _humanBody, 0.0);
+			AddAmputation("Arm Amputation", "arm amputation", "Surgery", "Human Medicine", _humanBody, 0.0,
+				"The amputation procedure removes an arm or major section of an arm from the patient.", HumanArmParts);
+			AddAmputation("Leg Amputation", "leg amputation", "Surgery", "Human Medicine", _humanBody, 0.0,
+				"The amputation procedure removes a leg or major section of a leg from the patient.", HumanLegParts);
+			AddAmputation("Digit Amputation", "digit amputation", "Surgery", "Human Medicine", _humanBody, 0.5,
+				"This procedure removes ruined fingers or toes that can no longer be saved.", HumanDigitParts);
+			AddModernReplantation();
+			AddModernCannulation();
+			AddModernDecannulation();
+			AddModernTraumaControl("Trauma Control", "trauma control", "Surgery", "Human Medicine", _humanBody, 0.25);
+			AddModernOrganExtraction("Organ Extraction", "organ extraction", "Surgery", "Human Medicine", _humanBody,
+				0.25);
+			AddModernOrganTransplant();
+			AddModernOrganRepair("General Organ Repair", "organ repair", "Surgery", "Human Medicine", _humanBody, 0.25,
+				"A general surgical repair or resection procedure for damaged internal organs.", string.Empty);
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.75, "Brain Surgery",
+				GetDefinitionForTargets(_humanBody, HumanBrainTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Cardiac Repair",
+				GetDefinitionForTargets(_humanBody, HumanHeartTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Liver Resection",
+				GetDefinitionForTargets(_humanBody, HumanLiverTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Splenic Repair",
+				GetDefinitionForTargets(_humanBody, HumanSpleenTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Gastric Repair",
+				GetDefinitionForTargets(_humanBody, HumanStomachTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Intestinal Resection",
+				GetDefinitionForTargets(_humanBody, HumanIntestineTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Kidney Repair",
+				GetDefinitionForTargets(_humanBody, HumanKidneyTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Lung Resection",
+				GetDefinitionForTargets(_humanBody, HumanLungTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Tracheal Repair",
+				GetDefinitionForTargets(_humanBody, HumanTracheaTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Esophageal Repair",
+				GetDefinitionForTargets(_humanBody, HumanEsophagusTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Spinal Stabilisation",
+				GetDefinitionForTargets(_humanBody, HumanSpinalTargets));
+			AddHumanSpecificOrganRepairs("Surgery", "Human Medicine", _humanBody, 0.5, "Inner Ear Repair",
+				GetDefinitionForTargets(_humanBody, HumanInnerEarTargets));
+			AddBoneSetting("Bone Setting", "bone setting", "Surgery", "Human Medicine", _humanBody, 0.5,
+				"A modern surgical fracture-setting procedure.");
+			AddModernImplantProcedures();
+		}
+
+		private void SeedPrimitiveVeterinarySurgery()
+		{
+			if (_quadrupedBody is null || !_knowledges.ContainsKey("Animal Medicine"))
+			{
+				return;
+			}
+
+			AddHastyTriage("Animal Medicine", "Veterinary Medicine", _quadrupedBody, -3.5, "Veterinary Hasty Triage",
+				"veterinary hasty triage");
+			AddPrimitivePhysical("Animal Medicine", "Veterinary Medicine", _quadrupedBody, -5.0,
+				"Veterinary Crude Physical", "veterinary crude physical");
+			AddPrimitiveStitching("Veterinary Stitching", "veterinary stitching", "Animal Medicine", "Veterinary Medicine",
+				_quadrupedBody, -3.5, "A crude closure procedure for mammalian veterinary patients.");
+			AddPrimitiveExploratory("Veterinary Exploratory Surgery", "veterinary exploratory", "Animal Medicine",
+				"Veterinary Medicine", _quadrupedBody, -5.0);
+			AddPrimitiveTraumaControl("Veterinary Trauma Control", "veterinary trauma control", "Animal Medicine",
+				"Veterinary Medicine", _quadrupedBody, -5.0);
+			AddBoneSetting("Veterinary Bone Setting", "veterinary bone setting", "Animal Medicine",
+				"Veterinary Medicine", _quadrupedBody, -4.0,
+				"A primitive fracture-setting procedure for mammalian veterinary patients.");
+			AddAmputation("Foreleg Amputation", "foreleg amputation", "Animal Medicine", "Veterinary Medicine",
+				_quadrupedBody, -5.0, "This procedure removes a badly ruined foreleg from a mammalian patient.",
+				QuadrupedForelegParts);
+			AddAmputation("Hindleg Amputation", "hindleg amputation", "Animal Medicine", "Veterinary Medicine",
+				_quadrupedBody, -5.0, "This procedure removes a badly ruined hindleg from a mammalian patient.",
+				QuadrupedHindlegParts);
+		}
+
+		private void SeedPreModernVeterinarySurgery()
+		{
+			if (_quadrupedBody is null || !_knowledges.ContainsKey("Veterinary Chiurgery"))
+			{
+				return;
+			}
+
+			AddHastyTriage("Veterinary Medicine", "Veterinary Medicine", _quadrupedBody, -2.5, "Veterinary Hasty Triage",
+				"veterinary hasty triage");
+			AddTriage("Veterinary Triage", "veterinary triage", "Veterinary Medicine", "Veterinary Medicine",
+				_quadrupedBody, -0.5, "A fuller examination of an urgent mammalian patient.");
+			AddPreModernPhysical("Veterinary Physical", "veterinary physical", "Veterinary Medicine", "Veterinary Medicine",
+				_quadrupedBody, -2.0, false);
+			AddPreModernStitching("Veterinary Stitch Up", "veterinary stitch up", "Veterinary Chiurgery",
+				"Veterinary Medicine", _quadrupedBody, -1.5,
+				"A clean closure procedure for mammalian veterinary surgery.");
+			AddPreModernExploratory("Veterinary Exploratory Surgery", "veterinary exploratory", "Veterinary Chiurgery",
+				"Veterinary Medicine", _quadrupedBody, -1.5);
+			AddPreModernTraumaControl("Veterinary Trauma Control", "veterinary trauma control", "Veterinary Chiurgery",
+				"Veterinary Medicine", _quadrupedBody, -1.5);
+			AddBoneSetting("Veterinary Bone Setting", "veterinary bone setting", "Veterinary Chiurgery",
+				"Veterinary Medicine", _quadrupedBody, -1.0,
+				"A surgical fracture-setting procedure for mammalian veterinary patients.");
+			AddAmputation("Foreleg Amputation", "foreleg amputation", "Veterinary Chiurgery", "Veterinary Medicine",
+				_quadrupedBody, -1.5, "This procedure removes a badly ruined foreleg from a mammalian patient.",
+				QuadrupedForelegParts);
+			AddAmputation("Hindleg Amputation", "hindleg amputation", "Veterinary Chiurgery", "Veterinary Medicine",
+				_quadrupedBody, -1.5, "This procedure removes a badly ruined hindleg from a mammalian patient.",
+				QuadrupedHindlegParts);
+		}
+
+		private void SeedModernVeterinarySurgery()
+		{
+			if (_quadrupedBody is null || !_knowledges.ContainsKey("Veterinary Surgery"))
+			{
+				return;
+			}
+
+			AddHastyTriage("Veterinary Medicine", "Veterinary Medicine", _quadrupedBody, -1.5, "Veterinary Hasty Triage",
+				"veterinary hasty triage");
+			AddTriage("Veterinary Triage", "veterinary triage", "Veterinary Medicine", "Veterinary Medicine",
+				_quadrupedBody, 0.0, "A complete triage procedure for mammalian veterinary patients.");
+			AddModernPhysical("Veterinary Physical", "veterinary physical", "Veterinary Medicine", "Veterinary Medicine",
+				_quadrupedBody, 1.0, true);
+			AddModernStitching("Veterinary Stitch Up", "veterinary stitch up", "Veterinary Surgery",
+				"Veterinary Medicine", _quadrupedBody, 0.0,
+				"A modern closure procedure for mammalian veterinary surgery.");
+			AddModernExploratory("Veterinary Exploratory Surgery", "veterinary exploratory", "Veterinary Surgery",
+				"Veterinary Medicine", _quadrupedBody, 0.0);
+			AddModernTraumaControl("Veterinary Trauma Control", "veterinary trauma control", "Veterinary Surgery",
+				"Veterinary Medicine", _quadrupedBody, 0.25);
+			AddBoneSetting("Veterinary Bone Setting", "veterinary bone setting", "Veterinary Surgery",
+				"Veterinary Medicine", _quadrupedBody, 0.25,
+				"A modern fracture-setting procedure for mammalian veterinary patients.");
+			AddAmputation("Foreleg Amputation", "foreleg amputation", "Veterinary Surgery", "Veterinary Medicine",
+				_quadrupedBody, 0.0, "This procedure removes a badly ruined foreleg from a mammalian patient.",
+				QuadrupedForelegParts);
+			AddAmputation("Hindleg Amputation", "hindleg amputation", "Veterinary Surgery", "Veterinary Medicine",
+				_quadrupedBody, 0.0, "This procedure removes a badly ruined hindleg from a mammalian patient.",
+				QuadrupedHindlegParts);
+		}
+
+		private void AddHastyTriage(string knowledgeName, string school, BodyProto targetBody, double baseCheckBonus,
+			string name = "Hasty Triage", string procedureName = "hasty triage")
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.Triage,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.TriageCheck,
+				"triaging",
+				"@ begin|begins triaging $1=0",
+				"This procedure uses rapid observation and touch to estimate the severity of a patient's injuries and stability.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 10, null,
+				"@ observe|observes $1, noting obvious bleeding, bruising, and distress");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 10, null,
+				"@ lightly prod|prods $1's vital areas, watching for a reaction");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 10, null,
+				"@ check|checks $1's breathing and pulse before making a quick judgement");
+		}
+
+		private void AddTriage(string name, string procedureName, string knowledgeName, string school, BodyProto targetBody,
+			double baseCheckBonus, string description)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.Triage,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.TriageCheck,
+				"triaging",
+				"@ begin|begins triaging $1=0",
+				description,
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 15, null,
+				"@ observe|observes $1, noting obvious bleeding, bruising, and posture");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 20, null,
+				"@ take|takes $1's pulse and count|counts breaths with practiced focus");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 20, null,
+				"@ test|tests several joints and major body areas for pain and instability");
+			AddSurgicalProcedurePhase(_procedures[name], 4, 20, null,
+				"@ listen|listens closely to $1's breathing and chest sounds");
+			AddSurgicalProcedurePhase(_procedures[name], 5, 10, null,
+				"@ finish|finishes the triage and forms a clearer picture of $1's condition");
+		}
+
+		private void AddPrimitivePhysical(string knowledgeName, string school, BodyProto targetBody, double baseCheckBonus,
+			string name = "Crude Physical", string procedureName = "crude physical")
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.DetailedExamination,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.MedicalExaminationCheck,
+				"examining",
+				"@ begin|begins examining $1=0",
+				"This procedure performs a slow physical examination using touch, posture, and close observation.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 25, null,
+				"@ circle|circles $1, studying posture, stance, and obvious injuries");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 25, null,
+				"@ press|presses along $1's limbs and belly, noting any pain or resistance");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ count|counts $1's pulse with patient fingers");
+			AddSurgicalProcedurePhase(_procedures[name], 4, 25, null,
+				"@ lean|leans close to listen to $1's breathing");
+			AddSurgicalProcedurePhase(_procedures[name], 5, 25, null,
+				"@ step|steps back from $1, finishing the examination");
+		}
+
+		private void AddPreModernPhysical(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, bool useScale)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.DetailedExamination,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.MedicalExaminationCheck,
+				"examining",
+				"@ begin|begins examining $1=0",
+				"This procedure performs a full physical examination using simple clinical tools and direct observation.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 25, null,
+				"@ measure|measures $1 and takes note of overall build");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 25, null,
+				useScale
+					? "@ weigh|weighs $1 and notes the result with practiced care"
+					: "@ estimate|estimates $1's weight and general condition");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ listen|listens to $1's breathing and heartbeat");
+			AddSurgicalProcedurePhase(_procedures[name], 4, 25, null,
+				"@ test|tests $1's reflexes and limb motion");
+			AddSurgicalProcedurePhase(_procedures[name], 5, 25, null,
+				"@ finish|finishes the examination of $1");
+		}
+
+		private void AddModernPhysical(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, bool useClinicalTools)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.DetailedExamination,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.MedicalExaminationCheck,
+				"examining",
+				"@ begin|begins examining $1=0",
+				"This procedure performs a full physical examination, ranging from bedside assessment to a proper instrumented check-up.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 25, null,
+				useClinicalTools
+					? "@ measure|measures $1's weight, build, and stance using routine clinical methods"
+					: "@ visually assess|assesses $1's build, posture, and movement");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 25, null,
+				useClinicalTools
+					? "@ take|takes $1's vital signs in a routine clinical pass"
+					: "@ count|counts $1's pulse and breathing with steady attention");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				useClinicalTools
+					? "@ listen|listens to $1's chest and breathing in a routine clinical pass"
+					: "@ listen|listens to $1's breathing without instruments");
+			AddSurgicalProcedurePhase(_procedures[name], 4, 25, null,
+				useClinicalTools
+					? "@ test|tests $1's reflexes and limb response in a routine clinical pass"
+					: "@ test|tests $1's reflexes and range of movement manually");
+			AddSurgicalProcedurePhase(_procedures[name], 5, 25, null,
+				"@ step|steps back from $1, having completed the examination");
+		}
+
+		private void AddPrimitiveStitching(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.InvasiveProcedureFinalisation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.InvasiveProcedureFinalisation,
+				"stitching",
+				"@ begin|begins stitching up $1",
+				description,
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 30, "bleeding 0.05 0.03 0.02 0.01 0.005 0",
+				"@ push|pushes everything back into $1's {0}");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 30, null,
+				"@ stitch|stitches the wound closed with rough, careful motions", SutureNeedlePlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ bind|binds the closed wound tightly and checks that it will hold");
+		}
+
+		private void AddPreModernStitching(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.InvasiveProcedureFinalisation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.InvasiveProcedureFinalisation,
+				"stitching",
+				"@ begin|begins stitching up $1",
+				description,
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 25, "bleeding 0.04 0.025 0.015 0.008 0.004 0",
+				"@ arrange|arranges tissue and organs back into $1's {0}");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 25, null,
+				"@ tie|ties off larger vessels and bleeding points with practiced care", ClampPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 30, null,
+				"@ stitch|stitches the wound closed with $i1", SutureNeedlePlan());
+		}
+
+		private void AddModernStitching(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.InvasiveProcedureFinalisation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.InvasiveProcedureFinalisation,
+				"stitching",
+				"@ begin|begins stitching up $1",
+				description,
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 25, null,
+				"@ reposition|repositions tissue and organs within $1's {0}");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 25, null,
+				"@ clamp|clamps and secures bleeding vessels with $i1", ClampPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ suture|sutures deeper layers closed with $i1", SutureNeedlePlan());
+			AddSurgicalProcedurePhase(_procedures[name], 4, 25, null,
+				"@ close|closes the surface wound with neat finishing stitches", SutureNeedlePlan());
+		}
+
+		private void AddPrimitiveExploratory(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.ExploratorySurgery,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.ExploratorySurgeryCheck,
+				"exploring",
+				"@ begin|begins exploratory surgery on $1",
+				"This procedure opens the patient to search for unseen internal trauma.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 40, "bleeding 0.08 0.05 0.03 0.02 0.01 0",
+				"@ slice|slices into $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 40, null,
+				"@ probe|probes within the wound, searching for hidden damage");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 30, null,
+				"@ withdraw|withdraws, having finished the exploration");
+		}
+
+		private void AddPreModernExploratory(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.ExploratorySurgery,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.ExploratorySurgeryCheck,
+				"exploring",
+				"@ begin|begins exploratory surgery on $1",
+				"This procedure opens the patient for a deliberate search for hidden internal trauma.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "bleeding 0.06 0.04 0.025 0.015 0.01 0",
+				"@ open|opens $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ part|parts tissue with $i1 and inspect|inspects within", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ pack|packs the wound and prepare|prepares to close the patient");
+		}
+
+		private void AddModernExploratory(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.ExploratorySurgery,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.ExploratorySurgeryCheck,
+				"exploring",
+				"@ begin|begins exploratory surgery on $1",
+				"This procedure opens the patient to search systematically for hidden injuries and internal damage.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 30, "exposed",
+				"@ draw|draws a clean incision across $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ retract|retracts tissue with $i1 and inspect|inspects the cavity", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ pack|packs the wound and prepare|prepares the patient for closure");
+		}
+
+		private void AddPrimitiveTraumaControl(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.TraumaControl,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.TraumaControlSurgery,
+				"controlling trauma",
+				"@ begin|begins crude trauma control on $1",
+				"This procedure attempts to stop dangerous internal bleeding in a bodypart.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "bleeding 0.06 0.04 0.03 0.015 0.01 0",
+				"@ cut|cuts into $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ clamp|clamps and crushes bleeding vessels with $i1", ClampPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ bind|binds and dresses the area as best as possible");
+		}
+
+		private void AddPreModernTraumaControl(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.TraumaControl,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.TraumaControlSurgery,
+				"controlling trauma",
+				"@ begin|begins trauma control on $1",
+				"This procedure attempts to stop internal bleeding and secure damaged tissue in a bodypart.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "bleeding 0.05 0.03 0.02 0.01 0.005 0",
+				"@ open|opens $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ clamp|clamps bleeding vessels with $i1", ClampPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 30, null,
+				"@ secure|secures the wound for later closure");
+		}
+
+		private void AddModernTraumaControl(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.TraumaControl,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.TraumaControlSurgery,
+				"controlling trauma",
+				"@ begin|begins trauma control on $1",
+				"This procedure surgically stops dangerous bleeding and stabilises traumatic internal damage in a bodypart.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 30, "exposed",
+				"@ open|opens $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 30, null,
+				"@ clamp|clamps and secures bleeding vessels with $i1", ClampPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ pack|packs the wound and ready|readies the site for closure");
+		}
+
+		private void AddPrimitiveOrganExtraction(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.OrganExtraction,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.OrganExtractionCheck,
+				"extracting",
+				"@ begin|begins to perform an organ extraction on $1",
+				"This procedure brutally cuts an organ free from the patient's body.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 40, "bleeding 0.08 0.05 0.04 0.02 0.01 0",
+				"@ carve|carves into $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 40, null,
+				"@ tug|tugs the organ free with $i1", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ rip|rips the organ away from the remaining tissue");
+		}
+
+		private void AddPreModernOrganExtraction(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.OrganExtraction,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.OrganExtractionCheck,
+				"extracting",
+				"@ begin|begins to perform an organ extraction on $1",
+				"This procedure cuts an organ free from the patient's body.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "checkorgan",
+				"@ open|opens $1's {0} to reach the {1} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ cut|cuts the {1} free with $i1", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ lift|lifts the {1} clear of the wound");
+		}
+
+		private void AddModernOrganExtraction(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.OrganExtraction,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.OrganExtractionCheck,
+				"extracting",
+				"@ begin|begins to perform an organ extraction on $1",
+				"This procedure cleanly removes a targeted organ from the patient's body.",
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 30, "checkorgan exposed",
+				"@ make|makes a precise opening to reach the {1} in $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ free|frees the {1} from connective tissue with $i1", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ lift|lifts the {1} free of the body");
+		}
+
+		private void AddPrimitiveOrganRepair(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description, string definition)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.OrganStabilisation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.OrganStabilisationCheck,
+				"repairing",
+				"@ begin|begins to repair $1's injured organ",
+				description,
+				definition,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "checkorgan bleeding 0.05 0.03 0.02 0.01 0.005 0",
+				"@ open|opens $1's {0} to reach the {1}");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ pack|packs, trims, and secures the damaged {1}");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ bind|binds and stabilises the wound as best as possible");
+		}
+
+		private void AddPreModernOrganRepair(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description, string definition)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.OrganStabilisation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.OrganStabilisationCheck,
+				"repairing",
+				"@ begin|begins to repair $1's injured organ",
+				description,
+				definition,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "checkorgan",
+				"@ open|opens $1's {0} to reach the {1} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ excise|excises and repairs damaged portions of the {1} with $i1", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 30, null,
+				"@ secure|secures the repaired tissue and prepares the wound for closure");
+		}
+
+		private void AddModernOrganRepair(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description, string definition)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.OrganStabilisation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.OrganStabilisationCheck,
+				"repairing",
+				"@ begin|begins to repair $1's injured organ",
+				description,
+				definition,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 30, "checkorgan exposed",
+				"@ open|opens $1's {0} to expose the {1} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ repair|repairs and trims damaged portions of the {1} with $i1", ForcepsPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 25, null,
+				"@ secure|secures haemostasis and prepares the repaired organ for closure", ClampPlan());
+		}
+
+		private void AddHumanSpecificOrganRepairs(string knowledgeName, string school, BodyProto targetBody,
+			double baseCheckBonus, string name, string definition)
+		{
+			var procedureName = name.ToLowerInvariant();
+			if (SelectedTechLevel == "modern")
+			{
+				AddModernOrganRepair(
+					name,
+					procedureName,
+					knowledgeName,
+					school,
+					targetBody,
+					baseCheckBonus,
+					$"This specialised surgical procedure focuses on {name.ToLowerInvariant()} with a better than generic outcome.",
+					definition);
+				return;
+			}
+
+			AddPreModernOrganRepair(
+				name,
+				procedureName,
+				knowledgeName,
+				school,
+				targetBody,
+				baseCheckBonus,
+				$"This specialised surgical procedure focuses on {name.ToLowerInvariant()} with a better than generic outcome.",
+				definition);
+		}
+
+		private void AddBoneSetting(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.SurgicalBoneSetting,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.SurgicalSetCheck,
+				"setting",
+				"@ begin|begins to set $1's bone",
+				description,
+				string.Empty,
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 25, "checkbone",
+				"@ examine|examines $1's {0} to find the damaged {1}");
+			AddSurgicalProcedurePhase(_procedures[name], 2, 30, null,
+				"@ align|aligns the damaged {1} and works it back into place");
+			AddSurgicalProcedurePhase(_procedures[name], 3, 20, null,
+				"@ secure|secures the bone with splints and wrappings");
+		}
+
+		private void AddAmputation(string name, string procedureName, string knowledgeName, string school,
+			BodyProto targetBody, double baseCheckBonus, string description, params string[] parts)
+		{
+			AddSurgicalProcedure(
+				name,
+				procedureName,
+				school,
+				SurgicalProcedureType.Amputation,
+				baseCheckBonus,
+				_knowledges[knowledgeName].Id,
+				CheckType.AmputationCheck,
+				"amputating",
+				"@ begin|begins an amputation on $1",
+				description,
+				GetDefinitionForTargets(targetBody, parts),
+				targetBody);
+			AddSurgicalProcedurePhase(_procedures[name], 1, 35, "bleeding 0.10 0.06 0.04 0.02 0.01 0",
+				"@ incise|incises around $1's {0} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
+				"@ saw|saws through the limb with $i1", BonesawPlan());
+			AddSurgicalProcedurePhase(_procedures[name], 3, 20, null,
+				"@ remove|removes the severed part");
+		}
+
+		private void AddModernReplantation()
+		{
+			AddSurgicalProcedure(
+				"Replantation",
+				"replantation",
+				"Human Medicine",
+				SurgicalProcedureType.Replantation,
+				0.25,
+				_knowledges["Surgery"].Id,
+				CheckType.ReplantationCheck,
+				"replanting",
+				"@ begin|begins replantation on $1",
+				"This procedure reattaches a severed bodypart to the patient.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Replantation"], 1, 30, "exposed",
+				"@ clean|cleans and prepares the stump for {2}", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures["Replantation"], 2, 30, null,
+				"@ align|aligns {2} to the patient and begins securing it");
+			AddSurgicalProcedurePhase(_procedures["Replantation"], 3, 30, null,
+				"@ anchor|anchors the replanted tissue with careful sutures", SutureNeedlePlan());
+		}
+
+		private void AddModernCannulation()
+		{
+			AddSurgicalProcedure(
+				"Cannulation",
+				"cannulation",
+				"Human Medicine",
+				SurgicalProcedureType.Cannulation,
+				0.5,
+				_knowledges["Clinical Medicine"].Id,
+				CheckType.CannulationProcedure,
+				"cannulating",
+				"@ begin|begins a cannulation procedure on $1",
+				"Cannulation installs a cannula into an appropriate bodypart for IV access.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Cannulation"], 1, 15, "exposed",
+				"@ swab|swabs $1's {1} and positions {0}");
+			AddSurgicalProcedurePhase(_procedures["Cannulation"], 2, 15, null,
+				"@ slide|slides {0} into the vessel and secure|secures it in place");
+		}
+
+		private void AddModernDecannulation()
+		{
+			AddSurgicalProcedure(
+				"Decannulation",
+				"decannulation",
+				"Human Medicine",
+				SurgicalProcedureType.Decannulation,
+				0.5,
+				_knowledges["Clinical Medicine"].Id,
+				CheckType.DecannulationProcedure,
+				"decannulating",
+				"@ begin|begins to decannulate $1",
+				"This procedure removes an installed cannula from the patient.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Decannulation"], 1, 15, null,
+				"@ gently withdraw|withdraws the cannula from $1's {0}");
+		}
+
+		private void AddModernOrganTransplant()
+		{
+			AddSurgicalProcedure(
+				"Organ Transplant",
+				"organ transplant",
+				"Human Medicine",
+				SurgicalProcedureType.OrganTransplant,
+				0.25,
+				_knowledges["Surgery"].Id,
+				CheckType.OrganTransplantCheck,
+				"transplanting",
+				"@ begin|begins an organ transplant on $1",
+				"This procedure implants a compatible replacement organ into a patient.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 1, 30, "checkspace",
+				"@ prepare|prepares $1's {0} to receive the new {1} with $i1", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 2, 35, "checkorgan",
+				"@ seat|seats the donor {1} and begin|begins securing it");
+			AddSurgicalProcedurePhase(_procedures["Organ Transplant"], 3, 30, null,
+				"@ connect|connects vessels and stabilises the transplant", ClampPlan());
+		}
+
+		private void AddModernImplantProcedures()
+		{
+			AddSurgicalProcedure(
+				"Install Implant",
+				"install implant",
+				"Human Medicine",
+				SurgicalProcedureType.InstallImplant,
+				0.25,
+				_knowledges["Surgery"].Id,
+				CheckType.InstallImplantSurgery,
+				"installing",
+				"@ begin|begins to install an implant in $1",
+				"This procedure installs an implant item into a compatible bodypart.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Install Implant"], 1, 30, "exposed checkspace",
+				"@ open|opens $1's {1} to make room for {0}", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures["Install Implant"], 2, 30, null,
+				"@ insert|inserts {0} and settle|settles it into position");
+			AddSurgicalProcedurePhase(_procedures["Install Implant"], 3, 20, null,
+				"@ secure|secures the implant site for closure");
+
+			AddSurgicalProcedure(
+				"Remove Implant",
+				"remove implant",
+				"Human Medicine",
+				SurgicalProcedureType.RemoveImplant,
+				0.25,
+				_knowledges["Surgery"].Id,
+				CheckType.RemoveImplantSurgery,
+				"removing",
+				"@ begin|begins to remove an implant from $1",
+				"This procedure removes an implant item from a compatible bodypart.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 1, 30, "exposed",
+				"@ open|opens $1's {1} to reach the implant", ScalpelPlan());
+			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 2, 30, null,
+				"@ extract|extracts {0} from the surgical site");
+			AddSurgicalProcedurePhase(_procedures["Remove Implant"], 3, 20, null,
+				"@ secure|secures the site for closure");
+
+			AddSurgicalProcedure(
+				"Configure Implant Power",
+				"configure implant power",
+				"Human Medicine",
+				SurgicalProcedureType.ConfigureImplantPower,
+				0.25,
+				_knowledges["Surgery"].Id,
+				CheckType.ConfigureImplantPowerSurgery,
+				"configuring",
+				"@ begin|begins to configure implant power in $1",
+				"This procedure adjusts the power settings of an installed implant.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Configure Implant Power"], 1, 20, null,
+				"@ adjust|adjusts power settings on the exposed implant");
+
+			AddSurgicalProcedure(
+				"Configure Implant Interface",
+				"configure implant interface",
+				"Human Medicine",
+				SurgicalProcedureType.ConfigureImplantInterface,
+				0.25,
+				_knowledges["Surgery"].Id,
+				CheckType.ConfigureImplantInterfaceSurgery,
+				"configuring",
+				"@ begin|begins to configure implant interfaces in $1",
+				"This procedure adjusts the interface settings of an installed implant.",
+				string.Empty,
+				_humanBody);
+			AddSurgicalProcedurePhase(_procedures["Configure Implant Interface"], 1, 20, null,
+				"@ tune|tunes the exposed implant's interface settings");
+		}
+
+		private void AddSurgicalProcedure(string name, string procedureName, string school, SurgicalProcedureType type,
+			double baseCheckBonus, long knowledgeId, CheckType check, string gerund, string emote, string description,
+			string definition, BodyProto targetBody)
+		{
+			var procedure = new MudSharp.Models.SurgicalProcedure
+			{
+				Name = name,
+				ProcedureName = procedureName,
+				Procedure = (int)type,
+				MedicalSchool = school,
+				BaseCheckBonus = baseCheckBonus,
+				KnowledgeRequiredId = knowledgeId,
+				ProcedureBeginEmote = emote,
+				ProcedureGerund = gerund,
+				ProcedureDescriptionEmote = description,
+				Check = (int)check,
+				Definition = definition,
+				TargetBodyTypeId = targetBody.Id
+			};
+
+			_context.SurgicalProcedures.Add(procedure);
+			_procedures[name] = procedure;
+		}
+
+		private void AddSurgicalProcedurePhase(MudSharp.Models.SurgicalProcedure procedure, int phaseNumber, double seconds,
+			string? special, string emote, string? template = null)
+		{
+			procedure.SurgicalProcedurePhases.Add(new MudSharp.Models.SurgicalProcedurePhase
+			{
+				PhaseNumber = phaseNumber,
+				PhaseEmote = emote,
+				PhaseSpecialEffects = special,
+				BaseLengthInSeconds = seconds,
+				SurgicalProcedureId = procedure.Id,
+				InventoryActionPlan = template
+			});
+		}
+
+		private string ProduceInventoryPlanDefinition(params (InventoryState State, string Tag, int Quantity)[] actions)
+		{
+			var elements = new List<XElement>();
+			foreach (var action in actions)
+			{
+				if (!_tags.TryGetValue(action.Tag, out var tag))
+				{
+					throw new InvalidOperationException(
+						$"HealthSeeder requires the tag '{action.Tag}', but it has not been installed.");
+				}
+
+				elements.Add(action.State switch
+				{
+					InventoryState.Held => new XElement("Action",
+						new XAttribute("state", "held"),
+						new XAttribute("tag", tag.Id),
+						new XAttribute("quantity", action.Quantity),
+						new XAttribute("optionalquantity", false)),
+					InventoryState.Wielded => new XElement("Action",
+						new XAttribute("state", "wielded"),
+						new XAttribute("tag", tag.Id),
+						new XAttribute("wieldstate", (int)AttackHandednessOptions.Any)),
+					InventoryState.Worn => new XElement("Action",
+						new XAttribute("state", "worn"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.Dropped => new XElement("Action",
+						new XAttribute("state", "dropped"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.Sheathed => new XElement("Action",
+						new XAttribute("state", "sheathed"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.InContainer => new XElement("Action",
+						new XAttribute("state", "incontainer"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.Attached => new XElement("Action",
+						new XAttribute("state", "held"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.Prosthetic => new XElement("Action",
+						new XAttribute("state", "prosthetic"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.Implanted => new XElement("Action",
+						new XAttribute("state", "implanted"),
+						new XAttribute("tag", tag.Id)),
+					InventoryState.Consumed => new XElement("Action",
+						new XAttribute("state", "consume"),
+						new XAttribute("tag", tag.Id),
+						new XAttribute("quantity", action.Quantity)),
+					InventoryState.ConsumedLiquid => new XElement("Action",
+						new XAttribute("state", "consumeliquid"),
+						new XAttribute("tag", tag.Id)),
+					_ => throw new NotImplementedException()
+				});
+			}
+
+			return new XElement("Plan", new XElement("Phase", elements)).ToString();
+		}
+
+		private string GetDefinitionForTargets(BodyProto targetBody, params string[] partNames)
+		{
+			return new XElement(
+				"Definition",
+				new XElement(
+					"Parts",
+					new XAttribute("forbidden", false),
+					from partName in partNames
+					let id = _context.BodypartProtos.First(x => x.BodyId == targetBody.Id && x.Name == partName).Id
+					select new XElement("Part", id)
 				)
-						).ToString();
-				}
+			).ToString();
+		}
 
-				private string GetDefinitionForBodyparts(params string[] parts)
+		private string ScalpelPlan() => ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1));
+		private string BonesawPlan() => ProduceInventoryPlanDefinition((InventoryState.Held, "Bonesaw", 1));
+		private string ForcepsPlan() => ProduceInventoryPlanDefinition((InventoryState.Held, "Forceps", 1));
+		private string ClampPlan() => ProduceInventoryPlanDefinition((InventoryState.Held, "Arterial Clamp", 1));
+		private string SutureNeedlePlan() => ProduceInventoryPlanDefinition((InventoryState.Held, "Surgical Suture Needle", 1));
+
+		public void SeedDrugs()
+		{
+			switch (SelectedTechLevel)
+			{
+				case "primitive":
+					SeedPrimitiveDrugs();
+					break;
+				case "pre-modern":
+					SeedPreModernDrugs();
+					break;
+				case "modern":
+					SeedModernDrugs();
+					break;
+			}
+
+			_context.SaveChanges();
+		}
+
+		private void SeedPrimitiveDrugs()
+		{
+			AddDrug("Willow Bark Tea", 0.8, 0.15, DrugVector.Ingested,
+				(DrugType.Analgesic, 0.55, string.Empty));
+			AddDrug("Mandrake Draught", 0.9, 0.08, DrugVector.Ingested | DrugVector.Inhaled,
+				(DrugType.Anesthesia, 0.45, string.Empty),
+				(DrugType.Nausea, 0.30, string.Empty),
+				(DrugType.VisionImpairment, 0.25, string.Empty));
+			AddDrug("Honey Poultice", 0.7, 0.10, DrugVector.Touched,
+				(DrugType.Antibiotic, 0.18, string.Empty),
+				(DrugType.HealingRate, 0.20,
+					new HealingRateAdditionalInfo { HealingRateIntensity = 0.15, HealingDifficultyIntensity = 0.0 }.DatabaseString));
+			AddDrug("Garlic Salve", 0.6, 0.12, DrugVector.Touched | DrugVector.Ingested,
+				(DrugType.Antifungal, 0.22, string.Empty),
+				(DrugType.Nausea, 0.05, string.Empty));
+			AddDrug("Mint Infusion", 0.5, 0.20, DrugVector.Ingested,
+				(DrugType.NeutraliseDrugEffect, 0.40,
+					new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea] }.DatabaseString));
+			AddDrug("Ephedra Brew", 0.8, 0.18, DrugVector.Ingested,
+				(DrugType.StaminaRegen, 0.35, string.Empty),
+				(DrugType.Adrenaline, 0.20, string.Empty),
+				(DrugType.ThermalImbalance, 0.05, string.Empty));
+			AddDrug("Foxglove Tincture", 0.5, 0.06, DrugVector.Ingested,
+				(DrugType.OrganFunction, 0.25,
+					new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Heart] }.DatabaseString),
+				(DrugType.Nausea, 0.25, string.Empty),
+				(DrugType.VisionImpairment, 0.10, string.Empty));
+		}
+
+		private void SeedPreModernDrugs()
+		{
+			AddDrug("Laudanum", 0.9, 0.10, DrugVector.Ingested,
+				(DrugType.Analgesic, 1.05, string.Empty),
+				(DrugType.Pacifism, 0.15, string.Empty),
+				(DrugType.Nausea, 0.25, string.Empty));
+			AddDrug("Ether Anaesthetic", 1.0, 0.08, DrugVector.Inhaled,
+				(DrugType.Anesthesia, 0.80, string.Empty),
+				(DrugType.Nausea, 0.20, string.Empty),
+				(DrugType.VisionImpairment, 0.10, string.Empty));
+			AddDrug("Mould Poultice", 0.8, 0.10, DrugVector.Touched,
+				(DrugType.Antibiotic, 0.40, string.Empty),
+				(DrugType.HealingRate, 0.20,
+					new HealingRateAdditionalInfo { HealingRateIntensity = 0.10, HealingDifficultyIntensity = 1.0 }.DatabaseString));
+			AddDrug("Distilled Antiseptic", 0.7, 0.15, DrugVector.Touched | DrugVector.Ingested,
+				(DrugType.Antibiotic, 0.22, string.Empty),
+				(DrugType.Antifungal, 0.12, string.Empty),
+				(DrugType.Nausea, 0.08, string.Empty));
+			AddDrug("Mint and Ginger Tonic", 0.5, 0.18, DrugVector.Ingested,
+				(DrugType.NeutraliseDrugEffect, 0.55,
+					new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea] }.DatabaseString));
+			AddDrug("Digitalis Tincture", 0.5, 0.05, DrugVector.Ingested,
+				(DrugType.OrganFunction, 0.40,
+					new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Heart] }.DatabaseString),
+				(DrugType.Nausea, 0.20, string.Empty));
+			AddDrug("Curare Paste", 0.6, 0.06, DrugVector.Touched | DrugVector.Injected,
+				(DrugType.Paralysis, 0.60, string.Empty),
+				(DrugType.Nausea, 0.10, string.Empty));
+			AddDrug("Herbal Burn Salve", 0.7, 0.12, DrugVector.Touched,
+				(DrugType.Analgesic, 0.20, string.Empty),
+				(DrugType.HealingRate, 0.25,
+					new HealingRateAdditionalInfo { HealingRateIntensity = 0.15, HealingDifficultyIntensity = 1.0 }.DatabaseString));
+			AddDrug("Bronchial Smoke", 0.7, 0.08, DrugVector.Inhaled,
+				(DrugType.OrganFunction, 0.30,
+					new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString),
+				(DrugType.VisionImpairment, 0.05, string.Empty));
+		}
+
+		private void SeedModernDrugs()
+		{
+			var generalAnaesthetic = AddDrug("General Anaesthetic", 1.0, 0.08, DrugVector.Injected | DrugVector.Inhaled,
+				(DrugType.Anesthesia, 1.0, string.Empty));
+			var opioid = AddDrug("Opioid Analgesic", 0.9, 0.10, DrugVector.Injected | DrugVector.Ingested,
+				(DrugType.Analgesic, 1.35, string.Empty),
+				(DrugType.Pacifism, 0.15, string.Empty),
+				(DrugType.Nausea, 0.20, string.Empty));
+			var muscleRelaxant = AddDrug("Muscle Relaxant", 0.7, 0.08, DrugVector.Injected,
+				(DrugType.Paralysis, 0.85, string.Empty));
+
+			AddDrug("Local Anaesthetic", 0.8, 0.10, DrugVector.Injected | DrugVector.Touched,
+				(DrugType.Analgesic, 0.85, string.Empty),
+				(DrugType.Paralysis, 0.15, string.Empty));
+			AddDrug("Broad-Spectrum Antibiotic", 0.9, 0.14, DrugVector.Injected | DrugVector.Ingested,
+				(DrugType.Antibiotic, 1.0, string.Empty));
+			AddDrug("Antifungal Course", 0.8, 0.14, DrugVector.Ingested | DrugVector.Touched,
+				(DrugType.Antifungal, 0.90, string.Empty));
+			AddDrug("Antiemetic", 0.6, 0.18, DrugVector.Injected | DrugVector.Ingested,
+				(DrugType.NeutraliseDrugEffect, 1.0,
+					new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea] }.DatabaseString));
+			AddDrug("Immunosuppressant", 0.7, 0.06, DrugVector.Injected | DrugVector.Ingested,
+				(DrugType.Immunosuppressive, 0.90, string.Empty));
+			AddDrug("Adrenaline Shot", 0.7, 0.08, DrugVector.Injected,
+				(DrugType.Adrenaline, 1.0, string.Empty),
+				(DrugType.StaminaRegen, 0.70, string.Empty),
+				(DrugType.ThermalImbalance, 0.20, string.Empty));
+			AddDrug("Bronchodilator", 0.7, 0.12, DrugVector.Inhaled | DrugVector.Ingested,
+				(DrugType.OrganFunction, 0.60,
+					new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString));
+			AddDrug("Cardiac Support Agent", 0.7, 0.08, DrugVector.Injected,
+				(DrugType.OrganFunction, 0.60,
+					new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Heart] }.DatabaseString));
+			AddDrug("Healing Accelerant", 0.7, 0.10, DrugVector.Injected | DrugVector.Ingested,
+				(DrugType.HealingRate, 0.55,
+					new HealingRateAdditionalInfo { HealingRateIntensity = 0.35, HealingDifficultyIntensity = 2.0 }.DatabaseString));
+			AddDrug("Antipyretic", 0.7, 0.16, DrugVector.Ingested | DrugVector.Injected,
+				(DrugType.Analgesic, 0.25, string.Empty),
+				(DrugType.NeutraliseDrugEffect, 0.70,
+					new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.ThermalImbalance] }.DatabaseString));
+			AddDrug("Overdose Antagonist", 0.6, 0.18, DrugVector.Injected,
+				(DrugType.NeutraliseSpecificDrug, 1.0,
+					new NeutraliseSpecificDrugAdditionalInfo
+					{
+						NeutralisedIds = [opioid.Id, generalAnaesthetic.Id, muscleRelaxant.Id]
+					}.DatabaseString));
+		}
+
+		private Drug AddDrug(string name, double intensityPerGram, double relativeMetabolisationRate, DrugVector vectors,
+			params (DrugType Type, double Intensity, string AdditionalEffects)[] effects)
+		{
+			var drug = new Drug
+			{
+				Name = name,
+				IntensityPerGram = intensityPerGram,
+				RelativeMetabolisationRate = relativeMetabolisationRate,
+				DrugVectors = (int)vectors
+			};
+
+			_context.Drugs.Add(drug);
+			_context.SaveChanges();
+
+			foreach (var effect in effects)
+			{
+				_context.DrugsIntensities.Add(new DrugIntensity
 				{
-						return new XElement("Definition",
-								new XElement("Parts",
-										new XAttribute("forbidden", false),
-										from part in parts
-										let id = _context.BodypartProtos.First(x => x.Name == part).Id
-										select new XElement("Part", id)
-								)
-						).ToString();
-				}
+					DrugId = drug.Id,
+					DrugType = (int)effect.Type,
+					RelativeIntensity = effect.Intensity,
+					AdditionalEffects = effect.AdditionalEffects
+				});
+			}
 
-				public void SeedDrugs()
-				{
-						var anaesthetic = new Drug
-						{
-								Name = "General Anaesthetic",
-								IntensityPerGram = 1.0,
-								RelativeMetabolisationRate = 0.1,
-								DrugVectors = (int)(DrugVector.Injected | DrugVector.Inhaled)
-						};
-						_context.Drugs.Add(anaesthetic);
-						_context.SaveChanges();
-						_context.DrugsIntensities.Add(new DrugIntensity
-						{
-								DrugId = anaesthetic.Id,
-								DrugType = (int)DrugType.Anesthesia,
-								RelativeIntensity = 1.0,
-								AdditionalEffects = string.Empty
-						});
-
-						var painkiller = new Drug
-						{
-								Name = "Basic Analgesic",
-								IntensityPerGram = 1.0,
-								RelativeMetabolisationRate = 0.2,
-								DrugVectors = (int)DrugVector.Ingested
-						};
-						_context.Drugs.Add(painkiller);
-						_context.SaveChanges();
-						_context.DrugsIntensities.Add(new DrugIntensity
-						{
-								DrugId = painkiller.Id,
-								DrugType = (int)DrugType.Analgesic,
-								RelativeIntensity = 1.0,
-								AdditionalEffects = string.Empty
-						});
-						_context.SaveChanges();
-				}
-
+			_context.SaveChanges();
+			return drug;
+		}
 	}
 }

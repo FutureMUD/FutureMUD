@@ -96,7 +96,7 @@ This makes surgery much more data-driven than ordinary wound treatment.
 | Implant surgery | `InstallImplantProcedure`, `RemoveImplantProcedure`, `ConfigureImplantPowerProcedure`, `ConfigureImplantInterfaceProcedure` | Install and configure implant systems |
 
 ### Seeder relationship
-Stock surgery content is authored in `HealthSeeder`, including knowledges, procedures, and procedure phases. However, `HealthSeeder.Enabled` is currently `false`, so the runtime framework is broader than the stock data most worlds receive by default.
+Stock surgery content is authored in `HealthSeeder`, including knowledges, procedures, procedure phases, and tech-level variants. The stock seeder is now enabled and installs a release-ready surgery set for the selected tech level, with optional mammal veterinary procedures when the stock quadruped body exists.
 
 The seeded surgery matrix is detailed in [Seeder_and_Gaps.md](./Seeder_and_Gaps.md).
 
@@ -104,7 +104,9 @@ The seeded surgery matrix is detailed in [Seeder_and_Gaps.md](./Seeder_and_Gaps.
 Current surgery-related observations that matter for design:
 
 - the framework is broad and clearly intended for continued expansion
-- stock surgery data is much more complete than stock drug data
+- stock surgery data now covers a much broader release-ready baseline, including primitive, pre-modern, modern, and basic veterinary tracks
+- stock inventory plans for surgical phases are intentionally limited to guaranteed seeded tool tags such as scalpels, bonesaws, forceps, arterial clamps, and surgical suture needles
+- procedures now enforce target body prototypes at runtime, which is what allows human and quadruped stock procedures to coexist without accidental cross-body use
 - `SurgicalProcedureFactory` has a default `NotImplementedException` path for unsupported procedure types
 - `ConfigureImplantInterfaceProcedure` now reports the correct `ConfigureImplantInterface` procedure type
 - the player-facing `surgery show` path now exposes richer procedure, requirement, and phase detail rather than relying on a staff-only style summary
@@ -203,7 +205,7 @@ Adrenaline and paralysis are transient overlays derived from active dosage total
 - configure healing-rate modifiers
 - configure organ-function targets
 
-This is a mature builder-facing surface even though the stock seeding currently uses only two generic drugs.
+This is a mature builder-facing surface, and the stock seeding now exercises it with a wider catalogue of herbal remedies, pre-modern compounds, and modern pharmaceuticals.
 
 ## Verified Current Behavior Summary
 Medical interaction in FutureMUD is a layered system:
@@ -221,12 +223,11 @@ The current stock experience includes:
 - bedside commands in `HealthModule`
 - treatment-capable low-tech medical items from `ItemSeeder` and `UsefulSeeder`
 - stock skills and checks for common treatment and rescue flows
-- a disabled but extensive stock surgery seeder
-- only two seeded drugs in the dedicated health seeder
+- an enabled `HealthSeeder` that installs tech-level surgery content, including optional mammal veterinary procedures
+- a broader stock drug catalogue covering pain control, anesthesia, infection control, healing support, organ support, nausea control, paralysis, adrenaline, and overdose reversal
 
 ## Gaps and Extension Pressure
 The strongest current extension pressure points are:
 
-- more stock drugs that use the already broad runtime drug framework, including concrete stock examples for adrenaline, paralysis, antifungal, and organ-support effects
-- enabling or reworking stock surgery seeding
+- more stock drugs that use the remaining runtime drug framework, including concrete stock examples for rage, magic-facing, and more niche specialist effects
 - more complete stock support for implant and defibrillator workflows

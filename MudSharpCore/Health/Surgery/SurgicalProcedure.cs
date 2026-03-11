@@ -121,6 +121,11 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 			return false;
 		}
 
+		if (TargetBodyType != null && !patient.Body.Prototype.CountsAs(TargetBodyType))
+		{
+			return false;
+		}
+
 		if (surgeon.Combat != null && surgeon.MeleeRange)
 		{
 			return false;
@@ -178,6 +183,12 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 		{
 			return
 				"You cannot perform that procedure because your patient is dead and this procedure requires a living patient.";
+		}
+
+		if (TargetBodyType != null && !patient.Body.Prototype.CountsAs(TargetBodyType))
+		{
+			return
+				$"You cannot perform that procedure because it is designed for {TargetBodyType.Name.ToLowerInvariant()} patients, not {patient.Body.Prototype.Name.ToLowerInvariant()} ones.";
 		}
 
 		if (surgeon.Combat != null && surgeon.MeleeRange)

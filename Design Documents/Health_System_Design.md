@@ -1,7 +1,7 @@
 # FutureMUD Health System Design
 
 ## Purpose
-This document describes the current state of the FutureMUD health system as implemented in the repository on 2026-03-10. It is a runtime and gameplay reference, not a forward-looking redesign.
+This document describes the current state of the FutureMUD health system as implemented in the repository on 2026-03-11. It is a runtime and gameplay reference, not a forward-looking redesign.
 
 The intended audience is:
 
@@ -41,8 +41,8 @@ This design makes health heavily simulation-oriented. The system cares about whe
 | Wounds | `IWound`, `SimpleOrganicWound`, `BoneFracture`, `RobotWound` | `wounds`, `wound`, treatment commands, healing ticks | Organic and fracture play are stock reachable; robot support exists in runtime |
 | Infections | `IInfection`, `Infection`, `SimpleInfection`, `InfectiousInfection`, `NecroticInfection`, `FungalInfection`, `Gangrene` | Wound tags, infection progression, antibiotics, antifungal handling, spread, and tissue damage | No broad content seeding beyond whatever wounds and treatments enable |
 | Treatments | `ITreatment`, `TreatmentGameItemComponent`, `TreatmentType` | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Bandages, splints, sutures, prosthetics, cannulae seeded in item seeders |
-| Surgery | `ISurgicalProcedure`, procedure classes and phases | `surgery`, implant commands, medical knowledges and checks | Stock surgery data exists in `HealthSeeder`, but that seeder is disabled |
-| Drugs | `IDrug`, `Drug`, `BodyDrugs`, drug effects | Drug dosing, metabolism, builder editing, medical items, adrenaline support, and paralysis | Only two stock drugs in `HealthSeeder`: anaesthetic and analgesic |
+| Surgery | `ISurgicalProcedure`, procedure classes and phases | `surgery`, implant commands, medical knowledges and checks | `HealthSeeder` now installs a release-ready tech-level surgery set, including optional basic mammal veterinary procedures when stock animal bodies are present |
+| Drugs | `IDrug`, `Drug`, `BodyDrugs`, drug effects | Drug dosing, metabolism, builder editing, medical items, adrenaline support, and paralysis | `HealthSeeder` now installs a broader stock catalogue spanning low-tech remedies through modern pharmaceuticals |
 | Breathing | `IBreathingStrategy`, breathing strategy classes | Suffocation, held breath, rebreathers, breathable fluids | Human and animal seeders assign breathing models |
 | Needs | `INeedsModel`, needs model classes, need effects | Hunger, thirst, alcohol, water, no-needs cases | `NoNeeds` is explicitly seeded in several default paths |
 | Corpses and severed parts | `ICorpse`, corpse model classes, corpse item component | Death aftermath, decay, severed bodypart persistence | Standard corpse models are seeded; non-decaying support exists in runtime |
@@ -99,7 +99,7 @@ Builders and administrators currently configure or consume health through:
 - Static strings and flags such as death messages and whether CPR is enabled.
 - Skills, checks, and knowledges seeded outside the immediate health runtime code.
 
-One important current-state fact is that the dedicated `HealthSeeder` is disabled. In practice, stock health behavior is assembled across multiple seeders rather than coming from one fully active medical setup step.
+One important current-state fact is that the dedicated `HealthSeeder` is now enabled. In practice, stock health behavior is still assembled across multiple seeders rather than coming from one medical step alone, but surgery and drugs now have a release-ready stock entry point.
 
 ## Tuning Surfaces
 The current runtime exposes health tuning in two different ways, depending on where the behavior lives.
@@ -152,7 +152,7 @@ Persistence rule:
 These are central to understanding the current implementation:
 
 - There is no separate flaw subsystem. Health-related "flaws" are currently represented by merits, negative merit configurations, selective applicability, or other gameplay data.
-- Runtime support is broader than stock content. Several health strategies, corpse models, item systems, and drug effect families exist without matching stock seed data.
+- Runtime support is still broader than stock content. Several health strategies, corpse models, item systems, and some drug effect families exist without matching stock seed data.
 - The health system is intentionally cross-cutting. Bodies, items, effects, skills, static strings, and seeders all participate.
 
 ## Recommended Use

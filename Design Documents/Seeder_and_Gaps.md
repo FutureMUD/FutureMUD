@@ -13,7 +13,7 @@ The health system is not seeded from only one place.
 
 | Seeder | Verified health contribution | Current-state note |
 | --- | --- | --- |
-| `HealthSeeder` | Seeds medical knowledges, surgical procedures and phases, and a very small drug set | Present but disabled with `Enabled => false` |
+| `HealthSeeder` | Seeds medical knowledges, surgical procedures and phases, a broad tech-level drug catalogue, and optional mammal veterinary procedures | Enabled as a release-ready stock medical seeder |
 | `HumanSeeder` | Seeds human health strategies, corpse models, blood models, population blood models, race defaults, chargen needs settings, and breathing-related race flags | This is where a large amount of practical health setup currently lives |
 | `AnimalSeeder` | Seeds animal corpse models, health strategies, blood models, population blood models, race defaults, and multiple breathing model assignments | Also carries a large amount of effective health setup |
 | `CoreDataSeeder` | Seeds the stock `GameItem` health strategy and some related static strings such as death messaging | Important for item damage support |
@@ -24,22 +24,23 @@ The health system is not seeded from only one place.
 
 ## Dedicated Health Seeder State
 ### Verified current state
-`HealthSeeder` currently has `Enabled => false`.
+`HealthSeeder` is currently enabled.
 
 That matters because it means:
 
-- the repo contains a substantial stock surgery framework that is not automatically installed
-- the repo contains only a minimal stock drug set in that same disabled seeder
-- core race and item health defaults are currently assembled elsewhere
+- the repo automatically offers a stock surgery framework for the selected medical tech level
+- the stock repo now ships a broader default drug catalogue instead of only two example drugs
+- the seeder can optionally install basic veterinary content for stock mammal bodies alongside the human set
+- core race and item health defaults are still assembled across multiple seeders rather than only here
 
 ## Tech-Level Surgery Matrix
-The disabled `HealthSeeder` still provides the clearest picture of the stock surgical content model.
+The enabled `HealthSeeder` provides the clearest picture of the stock surgical content model.
 
 | Tech level | Seeded knowledges | Seeded procedures |
 | --- | --- | --- |
-| Primitive | `Medicine` | `Hasty Triage`, `Crude Physical`, `Primitive Stitching`, `Exploratory Surgery`, `Arm Amputation`, `Leg Amputation`, `Trauma Control`, `Organ Extraction`, `Bone Setting` |
-| Pre-modern | `Chiurgery`, `Physical Medicine` | `Hasty Triage`, `Triage`, `Crude Physical`, `Stitch Up`, `Exploratory Surgery`, `Arm Amputation`, `Leg Amputation`, `Trauma Control`, `Organ Extraction`, `Intestinal Resection`, `Bone Setting` |
-| Modern | `Diagnostic Medicine`, `Clinical Medicine`, `Surgery` | `Hasty Triage`, `Triage`, `Crude Physical`, `Physical`, `Stitch Up`, `Exploratory Surgery`, `Arm Amputation`, `Leg Amputation`, `Replantation`, `Cannulation`, `Decannulation`, `Trauma Control`, `Organ Extraction`, `Organ Transplant`, `Intestinal Resection`, `Liver Resection`, `Lung Resection`, `Bone Setting`, `Install Implant`, `Remove Implant`, `Configure Implant Power`, `Configure Implant Interface` |
+| Primitive | `Medicine` plus optional `Animal Medicine` | Human: `Hasty Triage`, `Crude Physical`, `Primitive Stitching`, `Exploratory Surgery`, `Arm Amputation`, `Leg Amputation`, `Digit Amputation`, `Trauma Control`, `Organ Extraction`, `Crude Organ Repair`, `Trepanation`, `Windpipe Repair`, `Bone Setting`. Veterinary: `Veterinary Hasty Triage`, `Veterinary Crude Physical`, `Veterinary Stitching`, `Veterinary Exploratory Surgery`, `Veterinary Trauma Control`, `Veterinary Bone Setting`, `Foreleg Amputation`, `Hindleg Amputation` |
+| Pre-modern | `Chiurgery`, `Physical Medicine` plus optional `Veterinary Medicine` and `Veterinary Chiurgery` | Human: `Hasty Triage`, `Triage`, `Crude Physical`, `Stitch Up`, `Exploratory Surgery`, `Arm Amputation`, `Leg Amputation`, `Digit Amputation`, `Trauma Control`, `Organ Extraction`, `General Organ Repair`, `Trepanation`, `Cardiac Repair`, `Liver Resection`, `Splenic Repair`, `Gastric Repair`, `Intestinal Resection`, `Kidney Repair`, `Lung Resection`, `Tracheal Repair`, `Esophageal Repair`, `Spinal Stabilisation`, `Inner Ear Repair`, `Bone Setting`. Veterinary: `Veterinary Hasty Triage`, `Veterinary Triage`, `Veterinary Physical`, `Veterinary Stitch Up`, `Veterinary Exploratory Surgery`, `Veterinary Trauma Control`, `Veterinary Bone Setting`, `Foreleg Amputation`, `Hindleg Amputation` |
+| Modern | `Diagnostic Medicine`, `Clinical Medicine`, `Surgery` plus optional `Veterinary Medicine` and `Veterinary Surgery` | Human: `Hasty Triage`, `Triage`, `Crude Physical`, `Physical`, `Stitch Up`, `Exploratory Surgery`, `Arm Amputation`, `Leg Amputation`, `Digit Amputation`, `Replantation`, `Cannulation`, `Decannulation`, `Trauma Control`, `Organ Extraction`, `Organ Transplant`, `General Organ Repair`, `Brain Surgery`, `Cardiac Repair`, `Liver Resection`, `Splenic Repair`, `Gastric Repair`, `Intestinal Resection`, `Kidney Repair`, `Lung Resection`, `Tracheal Repair`, `Esophageal Repair`, `Spinal Stabilisation`, `Inner Ear Repair`, `Bone Setting`, `Install Implant`, `Remove Implant`, `Configure Implant Power`, `Configure Implant Interface`. Veterinary: `Veterinary Hasty Triage`, `Veterinary Triage`, `Veterinary Physical`, `Veterinary Stitch Up`, `Veterinary Exploratory Surgery`, `Veterinary Trauma Control`, `Veterinary Bone Setting`, `Foreleg Amputation`, `Hindleg Amputation` |
 
 ### Seeder intent
 The prompt text in `HealthSeeder` makes the intended capability progression explicit:
@@ -50,12 +51,50 @@ The prompt text in `HealthSeeder` makes the intended capability progression expl
 
 ## Seeded Medical Items and Drugs
 ### Dedicated health seeder
-`HealthSeeder` seeds only two explicit drugs:
+`HealthSeeder` now seeds a tech-level specific drug catalogue rather than only two examples.
+
+Primitive examples include:
+
+- `Willow Bark Tea`
+- `Mandrake Draught`
+- `Honey Poultice`
+- `Garlic Salve`
+- `Mint Infusion`
+- `Ephedra Brew`
+- `Foxglove Tincture`
+
+Pre-modern examples include:
+
+- `Laudanum`
+- `Ether Anaesthetic`
+- `Mould Poultice`
+- `Distilled Antiseptic`
+- `Mint and Ginger Tonic`
+- `Digitalis Tincture`
+- `Curare Paste`
+- `Herbal Burn Salve`
+- `Bronchial Smoke`
+
+Modern examples include:
 
 - `General Anaesthetic`
-- `Basic Analgesic`
+- `Opioid Analgesic`
+- `Muscle Relaxant`
+- `Local Anaesthetic`
+- `Broad-Spectrum Antibiotic`
+- `Antifungal Course`
+- `Antiemetic`
+- `Immunosuppressant`
+- `Adrenaline Shot`
+- `Bronchodilator`
+- `Cardiac Support Agent`
+- `Healing Accelerant`
+- `Antipyretic`
+- `Overdose Antagonist`
 
-This is much narrower than the drug runtime supports.
+These stock drugs now exercise a much larger share of the runtime drug framework, including analgesia, anesthesia, antibiotics, antifungals, nausea control, paralysis, adrenaline, stamina support, organ support, healing-rate modifiers, immunosuppression, and drug neutralisation.
+
+This is much broader than the old stock seeding, but it is still narrower than the full runtime drug framework.
 
 ### Item seeders
 The item seeders cover a broad low-tech treatment layer.
@@ -74,10 +113,19 @@ Representative seeded content includes:
 `UsefulSeeder` also seeds treatment component prototypes and support content such as:
 
 - `Bandage_Simple`, `Bandage_Good`, `Bandage_Great`
-- `Suture_Kit`, `Suture_Kit_Good`, `Suture_Single`
 - cannula component prototypes
 - IV-related component content
 - a large prosthetic component set
+
+The current `HealthSeeder` inventory plans are intentionally limited to tags that are already seeded for stock play and are cross-checked before installation:
+
+- `Scalpel`
+- `Bonesaw`
+- `Forceps`
+- `Arterial Clamp`
+- `Surgical Suture Needle`
+
+Diagnostic and physical-examination procedures are therefore intentionally tool-light in stock seeding rather than depending on a larger clinical kit that may not exist in base content.
 
 ### Skills and checks
 The stock seeding for skills and packages includes many health-relevant checks, including:
@@ -127,11 +175,8 @@ The following table separates runtime capability from stock seeding.
 ## Verified Partial or Inactive Areas
 The following findings are directly verified in code and matter when describing the current state of the system.
 
-### Disabled or inactive stock setup
-- `HealthSeeder` is disabled.
-
 ### Runtime broader than implementation
-- `DrugType` exposes more effect families than the stock seeded drugs use.
+- `DrugType` still exposes more effect families than the stock seeded drugs use, but the gap is much smaller than before.
 - Multiple health strategy families exist in runtime without matching stock seeded strategy definitions.
 - Seeded strategy XML still only emits the older minimal field set; newer optional strategy tuning properties now load with fallback defaults when omitted.
 
@@ -144,6 +189,7 @@ The following findings are directly verified in code and matter when describing 
 - The player-facing `surgery show` path now exposes richer procedure detail.
 - `SimpleOrganicWound` and `BoneFracture` both support anti-inflammatory treatment through bodypart-scoped pain-reduction effects.
 - `ConfigureImplantInterfaceProcedure` now reports the correct procedure enum.
+- `SurgicalProcedure` now enforces `TargetBodyType` when checking whether a procedure can be started, so human and quadruped surgical content can coexist safely.
 
 ## Supported but Unseeded
 These are verified runtime features that exist in the codebase but are not broadly reflected in the stock seeding.
@@ -152,14 +198,13 @@ These are verified runtime features that exist in the codebase but are not broad
 - expanded strategy tuning XML for health thresholds, bleed handling, hypoxia, blood recovery, kidney waste, and spleen cleanup
 - non-decaying corpse models
 - high-tech medical items such as defibrillators, rebreathers, breathing filters, external organs, and complex implants
-- a broad drug system with many effect families but only two stock seeded example drugs
+- some remaining drug effect families such as explicit rage or magic-oriented stock examples
 - implant installation, removal, and configuration surgery content without matching broad stock implant item content
 
 ## Logical Extension Candidates
 The following are inference-based extension paths. They are not claims about current behavior; they are the most natural next steps suggested by the current design.
 
-- enable or split the current `HealthSeeder` so surgery and drugs can be installed independently of race seeders
-- add stock drugs for the already-supported effect families such as antibiotics, antifungals, adrenaline, paralysis, organ support, thermal imbalance, and magic capability
+- extend the stock drug catalogue into more niche effect families such as rage, vision control, and magic-facing substances where a game setting wants them
 - add broad stock content for defibrillators, rebreathers, external organs, and implant power or interface ecosystems
 - formalize flaw-style health templates if builders want negative baseline traits distinct from merits
 
@@ -169,6 +214,6 @@ The current stock repo has a rich health runtime but a split and uneven stock se
 The most important practical consequences are:
 
 - a lot of effective health setup lives outside `HealthSeeder`
-- surgery is stocked more thoroughly than drugs, but the surgery seeder is disabled
+- the stock repo now includes a release-ready medical seeder with tech-level surgery, drugs, and basic mammal veterinary support
 - low-tech treatment and prosthetic play are well represented in seeded items
 - higher-tech medical play is mostly a runtime capability awaiting fuller stock content

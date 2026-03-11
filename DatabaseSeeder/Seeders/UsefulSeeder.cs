@@ -61,8 +61,8 @@ public class UsefulSeeder : IDatabaseSeeder
 										return (false, "Invalid answer");
 								}),
 						("items",
-								"#DItem Package 1#F\n\nItem Package 1 includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-								(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Container_Table"),
+								"#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+								(context, questions) => true,
 								(answer, context) =>
 								{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);

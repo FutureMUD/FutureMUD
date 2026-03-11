@@ -57,6 +57,7 @@ public class Movement : IMovement
 	public ICellExit Exit { get; }
 
 	public RoomLayer OriginLayer { get; }
+	private readonly ICharacter _originalMover;
 
 	/// <inheritdoc />
 	public MovementPhase Phase { get; private set; }
@@ -283,6 +284,7 @@ public class Movement : IMovement
 			ICellExit exit
 		)
 	{
+		_originalMover = originalMover;
 		Exit = exit;
 		Phase = MovementPhase.OriginalRoom;
 		Party = party;
@@ -939,9 +941,9 @@ public class Movement : IMovement
 		}
 
 		Exit.Destination.ResolveMovement(this);
-		if (Party?.Leader?.QueuedMoveCommands.Count > 0)
+		if (_originalMover.QueuedMoveCommands.Count > 0)
 		{
-			Party.Leader.Move(Party.Leader.QueuedMoveCommands.Dequeue());
+			_originalMover.Move(_originalMover.QueuedMoveCommands.Dequeue());
 		}
 	}
 

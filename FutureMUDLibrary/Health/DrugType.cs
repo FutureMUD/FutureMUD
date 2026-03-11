@@ -19,5 +19,6 @@
         OrganFunction = 16,
         VisionImpairment = 17,
         ThermalImbalance = 18,
+        Antifungal = 19,
     }
 }

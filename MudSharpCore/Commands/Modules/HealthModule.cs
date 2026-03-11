@@ -279,25 +279,41 @@ internal class HealthModule : Module<ICharacter>
 			return;
 		}
 
-		// TODO - dislocation
-		if (targetPart is IBone bone)
+		var candidateBones = new List<IBone>();
+		if (targetPart is IBone boneTarget)
 		{
-			var wounds = target.Wounds.OfType<BoneFracture>().Where(x => x.Bone == bone).ToList();
+			candidateBones.Add(boneTarget);
+		}
+		else if (targetPart is IExternalBodypart externalTarget)
+		{
+			candidateBones.AddRange(externalTarget.Bones);
+		}
+
+		candidateBones = candidateBones.Distinct().ToList();
+
+		if (candidateBones.Any())
+		{
+			var wounds = target.Wounds.OfType<BoneFracture>().Where(x => candidateBones.Contains(x.Bone)).ToList();
+			var displayPart = targetPart.FullDescription();
 			if (!wounds.Any())
 			{
 				actor.OutputHandler.Send(new EmoteOutput(new Emote(
-					$"$0's {bone.FullDescription()} does not have any fractures that you can see.", actor, target)));
+					$"$0's {displayPart} does not have any fractures that you can see.", actor, target)));
 				return;
 			}
 
-			var wound = wounds.FirstOrDefault(x => x.CanBeTreated(TreatmentType.Relocation) != Difficulty.Impossible);
+			var wound = candidateBones
+			           .SelectMany(bone => wounds.Where(x => x.Bone == bone))
+			           .FirstOrDefault(x => x.CanBeTreated(TreatmentType.Relocation) != Difficulty.Impossible);
 			if (wound == null)
 			{
 				actor.OutputHandler.Send(new EmoteOutput(new Emote(
-					$"$0's {bone.FullDescription()} does not have any fractures that could possibly be relocated:\n{wounds.Select(x => x.WhyCannotBeTreated(TreatmentType.Relocation)).ListToString(separator: "\n", article: "\t", conjunction: "", twoItemJoiner: "\n")}",
+					$"$0's {displayPart} does not have any fractures that could possibly be relocated:\n{wounds.Select(x => x.WhyCannotBeTreated(TreatmentType.Relocation)).ListToString(separator: "\n", article: "\t", conjunction: "", twoItemJoiner: "\n")}",
 					actor, target)));
 				return;
 			}
+
+			var bone = wound.Bone;
 
 			if (target.WillingToPermitMedicalIntervention(actor))
 			{
@@ -737,7 +753,9 @@ Options:
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("tend", "Tend to a wound so that it heals a little faster. Syntax: tend [<target>]", AutoHelp.HelpArg)]
+	[HelpInfo("tend",
+		"Tend to a target's wounds so that they heal a little faster, or to apply anti-inflammatory care that reduces pain. Syntax: tend [<target>]",
+		AutoHelp.HelpArg)]
 	protected static void Tend(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -763,9 +781,11 @@ Options:
 		}
 
 		if (target.VisibleWounds(actor, WoundExaminationType.Examination)
-		          .All(x => x.CanBeTreated(TreatmentType.Tend) == Difficulty.Impossible))
+		          .All(x => x.CanBeTreated(TreatmentType.Tend) == Difficulty.Impossible &&
+		                    x.CanBeTreated(TreatmentType.AntiInflammatory) == Difficulty.Impossible))
 		{
-			actor.OutputHandler.Send(new EmoteOutput(new Emote("$0 $0|have|has no wounds that can be tended to by you.",
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(
+				"$0 $0|have|has no wounds that can benefit from tending or anti-inflammatory care by you.",
 				actor, target)));
 			return;
 		}
@@ -1747,115 +1767,6 @@ The syntax is as follows:
 
 	#region Delayed Action Delegates
 
-	private static void CheckTendWounds(ICharacter actor, ICharacter target)
-	{
-		var inventoryPlan = actor.Gameworld.TendInventoryPlanTemplate.CreatePlan(actor);
-		if (target == null)
-		{
-			actor.Send("You cancel your minstrations as your patient is no longer there.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		if (target.Location != actor.Location)
-		{
-			actor.Send("You cancel your minstrations as your patient is no longer there.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		if (target.State == CharacterState.Dead)
-		{
-			actor.Send("You cancel your minstrations as your patient has died.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		if (target.Movement != null)
-		{
-			actor.Send("You cancel your minstrations as your patient is moving about too much.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		if (target.Combat != null)
-		{
-			actor.Send("You cancel your minstrations as your patient is now in combat.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		var wounds = target.VisibleWounds(actor, WoundExaminationType.Look).ToList();
-
-		if (wounds.All(x => x.CanBeTreated(TreatmentType.Tend) == Difficulty.Impossible))
-		{
-			actor.Send("You cancel your minstrations as your patient no longer has any wounds that need tending to.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-		{
-			inventoryPlan.ExecuteWholePlan();
-		}
-
-		var maxDifficulty =
-			target.Wounds.Select(x => x.CanBeTreated(TreatmentType.Tend))
-			      .Where(x => x != Difficulty.Impossible)
-			      .DefaultIfEmpty()
-			      .Max();
-		var treatmentItem =
-			actor.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
-			     .Where(x => x.IsTreatmentType(TreatmentType.Tend))
-			     .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
-
-		if (treatmentItem == null || actor.Body.HeldItems.All(x => x != treatmentItem.Parent))
-		{
-			actor.Send("You cancel your minstrations as you no longer have any tools to work with.");
-			inventoryPlan.FinalisePlan();
-			return;
-		}
-
-		var worstWound =
-			wounds.Where(x => x.CanBeTreated(TreatmentType.Tend) != Difficulty.Impossible)
-			      .FirstMax(x => x.Severity);
-		actor.OutputHandler.Handle(
-			new EmoteOutput(
-				new Emote(
-					$"@ have|has finished tending to {worstWound.Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $0's {worstWound.Bodypart.FullDescription()} with $1.",
-					actor, target,
-					treatmentItem.Parent)));
-		var sutureCheck = actor.Gameworld.GetCheck(CheckType.SutureWoundCheck);
-
-		worstWound.Treat(actor, TreatmentType.Tend, treatmentItem,
-			sutureCheck.Check(actor, worstWound.CanBeTreated(TreatmentType.Tend)), false);
-
-		if (wounds.Any(x =>
-			    x.CanBeTreated(TreatmentType.Tend) != Difficulty.Impossible))
-		{
-			if (actor.Body.HeldItems.All(x => x != treatmentItem.Parent))
-			{
-				inventoryPlan.FinalisePlan();
-				actor.Send("You cancel your minstrations as you no longer have any tools to work with.");
-				return;
-			}
-
-			actor.OutputHandler.Handle(
-				new EmoteOutput(new Emote("@ continue|continues &0's efforts to tend to &0's patient's wounds.",
-					actor, actor)));
-			// TODO - tend duration soft coded
-			actor.AddEffect(
-				new SimpleCharacterAction(actor, perceivable => { CheckTendWounds(actor, target); },
-					"tending to wounds", new[] { "general", "movement" }, "tending to wounds",
-					perceivable => { inventoryPlan.FinalisePlan(); }),
-				TimeSpan.FromSeconds(Dice.Roll(1, 30, 50)));
-		}
-		else
-		{
-			inventoryPlan.FinalisePlan();
-		}
-	}
-
 	#endregion
 
 	#region Surgery Sub-commands
@@ -2022,19 +1933,36 @@ The syntax is as follows:
 			return;
 		}
 
-		// TODO - better player version of this
-
 		var sb = new StringBuilder();
-		sb.AppendLine($"Procedure: {procedure.ProcedureName}");
+		sb.AppendLine($"{procedure.ProcedureName.ColourName()} [{procedure.Procedure.DescribeEnum().ColourValue()}]");
 		sb.AppendLine();
 		sb.AppendLine(procedure.ProcedureDescription);
 		sb.AppendLine();
+		sb.AppendLine($"School: {procedure.MedicalSchool.ColourName()}");
+		sb.AppendLine($"Knowledge: {(procedure.KnowledgeRequired?.Name ?? "None").ColourName()}");
+		sb.AppendLine($"Check: {procedure.Check.DescribeEnum().ColourName()}");
+		if (procedure.CheckTrait != null)
+		{
+			sb.AppendLine($"Trait: {procedure.CheckTrait.Name.ColourName()}");
+		}
+
 		sb.AppendLine(
 			$"Time Taken: {(TimeSpan.FromTicks(procedure.Phases.Sum(x => x.BaseLength.Ticks)) + TimeSpan.FromSeconds(10)).Describe()}");
 		sb.AppendLine($"Requires Living Patient: {(procedure.RequiresLivingPatient ? "Yes" : "No")}");
 		sb.AppendLine(
 			$"Requires Unconscious/Restrained Patient: {(procedure.RequiresUnconsciousPatient ? "Yes" : "No")}");
 		sb.AppendLine($"Requires Finalisation: {(procedure.RequiresInvasiveProcedureFinalisation ? "Yes" : "No")}");
+		if (procedure.Phases.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Phases:");
+			var phaseNumber = 1;
+			foreach (var phase in procedure.Phases)
+			{
+				sb.AppendLine(
+					$"\t{phaseNumber++.ToString("N0", actor)}. {phase.BaseLength.Describe(actor).ColourValue()} - {phase.PhaseSpecialEffectsDescription ?? "Standard surgical step"}");
+			}
+		}
 
 		actor.Send(sb.ToString());
 	}

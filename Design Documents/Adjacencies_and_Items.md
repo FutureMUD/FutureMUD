@@ -37,12 +37,8 @@ Breathing matters because it directly participates in:
 - lung, heart, and trachea function
 - internal bleeding implications
 - anesthesia and related impairment
-- rebreather gas support through `IProvideGasForBreathing`
-
-Verified TODOs in `LungBreather` show that the breathing subsystem is still open to further extension:
-
-- effects are not yet fully integrated
-- gas consumption sources other than rebreathers are anticipated
+- `IStopBreathing` effects that can forcibly prevent breathing
+- gas support from any `IProvideGasForBreathing` source, not only rebreathers
 
 ## Needs
 ### Core model
@@ -133,9 +129,9 @@ Effects are the main glue layer that turns health actions into ongoing states.
 ### Key effect groups
 | Effect group | Concrete effects | Runtime role |
 | --- | --- | --- |
-| Wound-care actions | `CleaningWounds`, `TendingWounds`, `RepairingWounds`, `RelocatingBone`, `AntisepticProtection`, `SupressWoundMessages` | Timed treatment actions, antiseptic persistence, and output control |
+| Wound-care actions | `CleaningWounds`, `TendingWounds`, `RepairingWounds`, `RelocatingBone`, `AntisepticProtection`, `AntiInflammatoryTreatment`, `SupressWoundMessages` | Timed treatment actions, antiseptic persistence, bodypart-scoped pain relief, and output control |
 | Rescue and circulation | `PerformingCPR`, `CPRTarget`, `StablisedOrganFunction` | Tracks who is performing CPR, who is receiving it, and whether organ function has been temporarily restored |
-| Drug-driven modifiers | `HealingRateDrug`, `DrugInducedMagicCapability`, `DrugThermalImbalance`, `PacifismDrug`, `OrganFunctionDrugEffect`, `VisionImpairmentDrugEffect` | Converts drug totals into persistent character-state changes |
+| Drug-driven modifiers | `HealingRateDrug`, `DrugInducedMagicCapability`, `DrugThermalImbalance`, `PacifismDrug`, `OrganFunctionDrugEffect`, `VisionImpairmentDrugEffect`, `AdrenalineRush`, `AdrenalineHeartSupportEffect`, `DrugInducedParalysis`, `InfectionNausea` | Converts drug totals and infection state into persistent character-state changes |
 | Long-term health modifiers | `HealingRateEffect`, `LimbMissingBoneEffect`, `SurgeryFinalisationRequired` | Connects wounds, missing structure, and surgery follow-up to the wider effect system |
 | Need timing | `DelayedNeedsFulfillment` | Delays or stages need resolution instead of resolving it instantly |
 
@@ -174,5 +170,4 @@ The clearest extension paths in this area are:
 
 - broader stock use of advanced implant and external-organ systems
 - stock defibrillator and rebreather item content
-- deeper breathing-effect interaction
 - more worlds taking advantage of passive and active needs outside the current default paths

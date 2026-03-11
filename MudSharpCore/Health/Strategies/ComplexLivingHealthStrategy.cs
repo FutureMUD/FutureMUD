@@ -647,9 +647,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var charOwner = (ICharacter)owner;
 		var stunRatio = owner.Wounds.Sum(x => x.CurrentStun) /
 		                MaximumStunExpression.Evaluate(charOwner);
-		var analgesic = charOwner.Body.EffectsOfType<Analgesic>().FirstOrDefault();
-		var painRatio = (owner.Wounds.Sum(x => x.CurrentPain) * (analgesic?.PainReductionMultiplier ?? 1.0) -
-		                 (analgesic?.FlatPainReductionAmount ?? 0.0)) /
+		var painRatio = owner.Wounds.Sum(x => x.CurrentPain) /
 		                MaximumPainExpression.Evaluate(charOwner);
 		var bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
 		var totalBreath = charOwner.Body.HeldBreathPercentage;
@@ -1136,9 +1134,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		}
 
 		var maxStun = MaximumStunExpression.Evaluate(charOwner);
-		var analgesic = charOwner.Body.EffectsOfType<Analgesic>().FirstOrDefault();
-		var painRatio = (charOwner.Wounds.Sum(x => x.CurrentPain) * (analgesic?.PainReductionMultiplier ?? 1.0) -
-		                 (analgesic?.FlatPainReductionAmount ?? 0.0)) /
+		var painRatio = charOwner.Wounds.Sum(x => x.CurrentPain) /
 		                MaximumPainExpression.Evaluate(charOwner);
 		if (painRatio >= 1.0 && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
 		{

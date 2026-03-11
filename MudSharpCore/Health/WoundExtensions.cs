@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.PerceptionEngine;
@@ -111,6 +113,64 @@ public static class WoundExtensions
 			default:
 				return false;
 		}
+	}
+
+	public static double ApplyPainReduction(this IWound wound, ICharacter owner, double rawPain)
+	{
+		if (rawPain <= 0.0)
+		{
+			return 0.0;
+		}
+
+		var effects = owner.Body.EffectsOfType<IPainReductionEffect>()
+		                 .Where(x => x.Applies())
+		                 .Where(x => x is not IPertainToBodypartEffect bodypartEffect ||
+		                             bodypartEffect.AppliesTo(wound))
+		                 .ToList();
+		if (!effects.Any())
+		{
+			return rawPain;
+		}
+
+		var multiplier = effects.Aggregate(1.0, (sum, x) => sum * x.PainReductionMultiplier);
+		var flatReduction = effects.Sum(x => x.FlatPainReductionAmount);
+		return Math.Max(0.0, rawPain * multiplier - flatReduction);
+	}
+
+	private static bool AppliesTo(this IPertainToBodypartEffect effect, IWound wound)
+	{
+		if (effect.Bodypart == wound.Bodypart)
+		{
+			return true;
+		}
+
+		if (effect.Bodypart is IExternalBodypart effectExternal)
+		{
+			if (wound.Bodypart is IOrganProto organ && effectExternal.Organs.Contains(organ))
+			{
+				return true;
+			}
+
+			if (wound.Bodypart is IBone bone && effectExternal.Bones.Contains(bone))
+			{
+				return true;
+			}
+		}
+
+		if (wound.Bodypart is IExternalBodypart woundExternal)
+		{
+			if (effect.Bodypart is IOrganProto organ && woundExternal.Organs.Contains(organ))
+			{
+				return true;
+			}
+
+			if (effect.Bodypart is IBone bone && woundExternal.Bones.Contains(bone))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static string Describe(this PromptType type)

@@ -959,13 +959,18 @@ public sealed partial class Futuremud : IDisposable
 						DesiredItemState.Held,
 						0,
 						0,
-						item => item.GetItemType<ITreatment>()
-									?.IsTreatmentType(TreatmentType.Tend) ??
-								false,
+						item =>
+						{
+							var treatment = item.GetItemType<ITreatment>();
+							return treatment?.IsTreatmentType(TreatmentType.Tend) == true ||
+							       treatment?.IsTreatmentType(TreatmentType.AntiInflammatory) == true;
+						},
 						null,
 						fitnessscorer: item =>
-							(int)item.GetItemType<ITreatment>()
-									 .GetTreatmentDifficulty(Difficulty.Normal),
+							item.GetItemType<ITreatment>() is ITreatment tr
+								? (tr.IsTreatmentType(TreatmentType.Tend) ? 100.0 : 1.0) *
+								  (int)tr.GetTreatmentDifficulty(Difficulty.Normal)
+								: 0.0,
 						originalReference: "treatment")
 				})
 			});

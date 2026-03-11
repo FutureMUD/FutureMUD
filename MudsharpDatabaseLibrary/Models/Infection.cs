@@ -8,6 +8,7 @@ namespace MudSharp.Models
         public long Id { get; set; }
         public int InfectionType { get; set; }
         public int Virulence { get; set; }
+        public double VirulenceMultiplier { get; set; }
         public double Intensity { get; set; }
         public long OwnerId { get; set; }
         public long? WoundId { get; set; }

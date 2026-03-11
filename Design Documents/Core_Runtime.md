@@ -160,6 +160,7 @@ An infection is a secondary entity tied to a wound and bodypart. It has:
 - a type
 - intensity
 - virulence and immunity values
+- persisted virulence difficulty and virulence multiplier data
 - stage progression
 - optional spread behavior
 - optional direct damage output
@@ -172,26 +173,29 @@ Infections are advanced by infection ticks rather than only by treatment command
 | --- | --- | --- |
 | `Simple` | `SimpleInfection` | Generic organic infection progression |
 | `Gangrene` | `Gangrene` | Specialized severe infection path |
-| `Necrotic` | Enum only | No matching concrete infection class found in current runtime inventory |
-| `Infectious` | Enum only | No matching concrete infection class found in current runtime inventory |
-| `FungalGrowth` | Enum only | No matching concrete infection class found in current runtime inventory |
+| `Necrotic` | `NecroticInfection` | Infectious spread model plus necrotic damage ticks |
+| `Infectious` | `InfectiousInfection` | Simple infection model plus proximity-based spread to other characters |
+| `FungalGrowth` | `FungalInfection` | Similar to simple infection, but resisted by antifungal effects rather than antibiotics and accelerated by wet or hot conditions |
 
 ### Infection interactions
 Infections currently interact with:
 
 - wound cleanliness and antiseptic treatment
 - infection resistance merits
-- antibiotics through the drug system
+- antibiotics and antifungal resistance effects through the drug system
 - triage and examination reporting
 - bodypart-specific wound state
+- proximity and contact exposure for infectious families
+- direct necrotic damage for necrotic families
 
-### Verified partial areas
-Current code includes explicit TODOs around:
+### Current implementation detail
+The infection runtime now includes the previously partial pieces that mattered most to play:
 
-- loading full virulence data in the infection base class
-- applying concrete nausea effects in `SimpleInfection`
-
-That means infection behavior is present and meaningful, but it is not at its final level of detail.
+- `Infection` persists both virulence difficulty and virulence multiplier.
+- `SimpleInfection` applies and removes a concrete nausea effect as infection intensity changes.
+- `InfectiousInfection` uses real local proximities when attempting to spread to nearby characters.
+- `NecroticInfection` converts infection intensity into ongoing necrotic damage.
+- `FungalInfection` progresses much faster when the affected area is wet or the patient is running hot.
 
 ## Health-Related Merits and Flaw-Like Configurations
 There is no separate flaw subsystem in the current repository. Health-related disadvantages are represented through the merit system, negative or selective merit data, or ordinary character configuration.
@@ -235,7 +239,7 @@ Detailed stock surgery and drugs are handled separately and are described in [Se
 ## Gaps and Extension Pressure
 The current runtime already suggests several extension paths:
 
-- additional concrete infection families for the enum values already exposed
+- broader stock use and tuning of the now-implemented infection families
 - broader stock use of non-organic health strategies
 - clearer negative-health templates if a dedicated flaw subsystem is ever added
-- deeper infection, breathing, and recovery effect modeling where TODOs already exist
+- broader stock content that actually uses the newer infection, breathing, and recovery runtime hooks

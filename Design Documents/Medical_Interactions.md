@@ -40,14 +40,14 @@ That allows the same wound logic to work with many item definitions, while build
 | `Clean` | `SimpleOrganicWound` | `cleanwounds` | Cleaning-capable treatment items, `CleanWoundCheck` in stock skill data | Usually blocked while the wound is still bleeding |
 | `Antiseptic` | `SimpleOrganicWound` | `cleanwounds` or antiseptic item use | Antiseptic-capable treatment items | Adds antiseptic protection after cleaning succeeds |
 | `Close` | `SimpleOrganicWound`, `RobotWound` | `suture`, some surgery phases | Suture items, sealing tools, `SutureWoundCheck` for organic closure | Requires prior stabilization |
-| `Tend` | `SimpleOrganicWound` | `tend` | `TendWoundCheck`, tending effects, treatment items that support tending | Improves later healing rather than acting as immediate closure |
+| `Tend` | `SimpleOrganicWound` | `tend` | `TendWoundCheck`, tending effects, treatment items that support tending | Improves later healing rather than acting as immediate closure; the timed wound-care flow can also use anti-inflammatory treatment items when the wound qualifies |
 | `Remove` | `SimpleOrganicWound`, `RobotWound` | `dislodge` | `RemoveLodgedObjectCheck` | Required before several other treatment types become valid |
-| `Relocation` | `BoneFracture` | `relocate` | `RelocateBoneCheck`, `RelocatingBone` effect | Handles relocation of displaced fractures; command file still has a dislocation TODO |
+| `Relocation` | `BoneFracture` | `relocate` | `RelocateBoneCheck`, `RelocatingBone` effect | Handles relocation of displaced fractures, including when the operator targets an external bodypart that contains the broken bone |
 | `Set` | `BoneFracture` | Item-driven immobilization | Splints, casts, or other immobilizing items | Implemented as item support; `BoneFracture.Treat` explicitly rejects direct `Set` calls |
 | `SurgicalSet` | `BoneFracture` | Surgery | `SurgicalSetCheck`, surgical procedure support | Reinforces or surgically sets fractures |
 | `Repair` | `RobotWound`, item-health paths | `repair` | Repair tools and repair-capable items | Mechanical analogue to organic closure and healing |
 | `Mend` | Organic, fracture, robot, and other wound paths where supported | Usually magical or special recovery effects | Healing checks and non-mundane effects | Represents supernatural or otherwise exceptional recovery |
-| `AntiInflammatory` | Surface exists, but not implemented for normal organic play | None of the stock command flows | Enum slot only | `SimpleOrganicWound` currently reports this as not implemented |
+| `AntiInflammatory` | `SimpleOrganicWound`, `BoneFracture` | `tend` when suitable treatment items are available | Bodypart-scoped `AntiInflammatoryTreatment` effect, anti-inflammatory-capable treatment items, currently resolved with `CleanWoundCheck` quality logic in the wound-care flow | Reduces pain and swelling without closing damage, and persists as a timed saving effect on the treated bodypart |
 
 ### Treatment sequencing
 The system intentionally enforces medical order of operations.
@@ -58,7 +58,7 @@ Common organic sequence:
 2. Remove foreign objects if needed.
 3. Clean or antiseptically treat the wound.
 4. Close the wound if appropriate.
-5. Tend the wound to improve healing quality.
+5. Tend the wound to improve healing quality and, when appropriate, apply anti-inflammatory relief to reduce lingering pain.
 
 Common fracture sequence:
 
@@ -106,7 +106,8 @@ Current surgery-related observations that matter for design:
 - the framework is broad and clearly intended for continued expansion
 - stock surgery data is much more complete than stock drug data
 - `SurgicalProcedureFactory` has a default `NotImplementedException` path for unsupported procedure types
-- `ConfigureImplantInterfaceProcedure` currently reports `ConfigureImplantPower` as its `Procedure` enum value, which looks like an implementation inconsistency rather than an intentional design distinction
+- `ConfigureImplantInterfaceProcedure` now reports the correct `ConfigureImplantInterface` procedure type
+- the player-facing `surgery show` path now exposes richer procedure, requirement, and phase detail rather than relying on a staff-only style summary
 
 ## CPR and Defibrillation
 ### CPR
@@ -163,6 +164,8 @@ On each drug heartbeat, the body:
 4. creates or updates persistent effects such as analgesia, pacifism, thermal imbalance, or organ-function modifiers
 5. metabolizes active drugs down over time
 
+Adrenaline and paralysis are transient overlays derived from active dosage totals rather than long-term saved treatment state. By contrast, anti-inflammatory bedside care is a saving effect bound to a bodypart and survives persistence until it expires.
+
 ### Drug effect coverage
 | Drug effect family | Current runtime state |
 | --- | --- |
@@ -179,11 +182,12 @@ On each drug heartbeat, the body:
 | `HealingRate` | Implemented |
 | `MagicAbility` | Implemented |
 | `Antibiotic` | Implemented |
+| `Antifungal` | Implemented |
 | `OrganFunction` | Implemented |
 | `VisionImpairment` | Implemented |
 | `ThermalImbalance` | Implemented |
-| `Adrenaline` | Enum exists, no matching handling found in current runtime search |
-| `Paralysis` | Enum exists, no matching handling found in current runtime search |
+| `Adrenaline` | Implemented through adrenaline rush, heart-support, thermal, and cardiac-stress effects |
+| `Paralysis` | Implemented through a drug-driven forced-paralysis effect |
 
 ### Builder-facing drug editing
 `Drug.BuildingCommand` exposes a rich editing surface:
@@ -223,7 +227,6 @@ The current stock experience includes:
 ## Gaps and Extension Pressure
 The strongest current extension pressure points are:
 
-- anti-inflammatory treatment support
-- more stock drugs that use the already broad runtime drug framework
+- more stock drugs that use the already broad runtime drug framework, including concrete stock examples for adrenaline, paralysis, antifungal, and organ-support effects
 - enabling or reworking stock surgery seeding
 - more complete stock support for implant and defibrillator workflows

@@ -1560,8 +1560,20 @@ public partial class Body
 		CalculateOrganFunctions();
 		ReevaluateLimbAndPartDamageEffects();
 
-		var result = HealthStrategy.EvaluateStatus(Actor);
+		var result = ApplyForcedParalysis(HealthStrategy.EvaluateStatus(Actor));
 		HandleHealthStatusResult(result);
+	}
+
+	private HealthTickResult ApplyForcedParalysis(HealthTickResult result)
+	{
+		if (result.In(HealthTickResult.Dead, HealthTickResult.Unconscious, HealthTickResult.PassOut))
+		{
+			return result;
+		}
+
+		return EffectsOfType<IForceParalysisEffect>().Any(x => x.Applies() && x.ShouldParalyse)
+			? HealthTickResult.Paralyzed
+			: result;
 	}
 
 	private void HandleHealthStatusResult(HealthTickResult result)
@@ -1702,7 +1714,7 @@ public partial class Body
 
 	private void HealthTick_TenSecondHeartbeat()
 	{
-		HandleHealthStatusResult(HealthStrategy.PerformHealthTick(Actor));
+		HandleHealthStatusResult(ApplyForcedParalysis(HealthStrategy.PerformHealthTick(Actor)));
 		CalculateOrganFunctions();
 		ReevaluateLimbAndPartDamageEffects();
 	}

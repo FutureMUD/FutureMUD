@@ -32,7 +32,7 @@ public class ConfigureImplantInterfaceProcedure : BodypartSpecificSurgicalProced
 
 	#region Overrides of SurgicalProcedure
 
-	public override SurgicalProcedureType Procedure => SurgicalProcedureType.ConfigureImplantPower;
+	public override SurgicalProcedureType Procedure => SurgicalProcedureType.ConfigureImplantInterface;
 	public override CheckType Check => CheckType.ConfigureImplantInterfaceSurgery;
 	public override bool RequiresInvasiveProcedureFinalisation => true;
 	public override bool RequiresUnconsciousPatient => true;

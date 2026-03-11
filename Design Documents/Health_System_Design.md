@@ -39,10 +39,10 @@ This design makes health heavily simulation-oriented. The system cares about whe
 | Bodies and anatomy | `IBody`, race bodypart and organ definitions, `Body`, `BodyBiology` | Character health, wound visibility, organ function, death, severing | Seeded mainly in `HumanSeeder` and `AnimalSeeder` |
 | Health strategies | `IHealthStrategy`, strategy classes in `MudSharpCore/Health/Strategies` | Governs damage conversion, severity, prompts, healing, status | `BrainHitpoints`, `ComplexLiving`, and `GameItem` are stock seeded |
 | Wounds | `IWound`, `SimpleOrganicWound`, `BoneFracture`, `RobotWound` | `wounds`, `wound`, treatment commands, healing ticks | Organic and fracture play are stock reachable; robot support exists in runtime |
-| Infections | `IInfection`, `Infection`, `SimpleInfection`, `Gangrene` | Wound tags, infection progression, antibiotics, antiseptic handling | No broad content seeding beyond whatever wounds and treatments enable |
+| Infections | `IInfection`, `Infection`, `SimpleInfection`, `InfectiousInfection`, `NecroticInfection`, `FungalInfection`, `Gangrene` | Wound tags, infection progression, antibiotics, antifungal handling, spread, and tissue damage | No broad content seeding beyond whatever wounds and treatments enable |
 | Treatments | `ITreatment`, `TreatmentGameItemComponent`, `TreatmentType` | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Bandages, splints, sutures, prosthetics, cannulae seeded in item seeders |
 | Surgery | `ISurgicalProcedure`, procedure classes and phases | `surgery`, implant commands, medical knowledges and checks | Stock surgery data exists in `HealthSeeder`, but that seeder is disabled |
-| Drugs | `IDrug`, `Drug`, `BodyDrugs`, drug effects | Drug dosing, metabolism, builder editing, medical items | Only two stock drugs in `HealthSeeder`: anaesthetic and analgesic |
+| Drugs | `IDrug`, `Drug`, `BodyDrugs`, drug effects | Drug dosing, metabolism, builder editing, medical items, adrenaline support, and paralysis | Only two stock drugs in `HealthSeeder`: anaesthetic and analgesic |
 | Breathing | `IBreathingStrategy`, breathing strategy classes | Suffocation, held breath, rebreathers, breathable fluids | Human and animal seeders assign breathing models |
 | Needs | `INeedsModel`, needs model classes, need effects | Hunger, thirst, alcohol, water, no-needs cases | `NoNeeds` is explicitly seeded in several default paths |
 | Corpses and severed parts | `ICorpse`, corpse model classes, corpse item component | Death aftermath, decay, severed bodypart persistence | Standard corpse models are seeded; non-decaying support exists in runtime |
@@ -63,10 +63,10 @@ For characters, `BodyBiology` further routes damage through armor, bodyparts, bo
 Heartbeat-driven health ticks evaluate blood loss, organ performance, breathing, temperature, and the aggregate effects of wounds. Health status can escalate from normal to paralyzed, unconscious, passed out, or dead.
 
 ### 5. Secondary complications
-Organic wounds can become dirty, infected, or gangrenous. Breathing failure causes its own damage path. Needs and drugs introduce slow-burn modifiers rather than single-event outcomes.
+Organic wounds can become dirty, infected, gangrenous, fungal, infectious, or necrotic. Breathing failure causes its own damage path. Needs and drugs introduce slow-burn modifiers rather than single-event outcomes.
 
 ### 6. Medical intervention
-Players and staff can inspect, stabilize, clean, close, tend, repair, relocate, surgically treat, or magically mend wounds. The system cares about sequence. For example, bleeding often must be controlled before cleaning or closure, and fractures must be relocated before they can be set.
+Players and staff can inspect, stabilize, clean, close, tend, apply anti-inflammatory care, repair, relocate, surgically treat, or magically mend wounds. The system cares about sequence. For example, bleeding often must be controlled before cleaning or closure, fractures must be relocated before they can be set, and bodypart-scoped anti-inflammatory care is used to reduce ongoing pain rather than to close damage.
 
 ### 7. Rescue and life support
 When breathing or circulation fails, CPR and defibrillation try to temporarily restore function. Rebreathers, external organs, cannulae, IV support, and organ implants extend the system into equipment-supported survival.
@@ -104,7 +104,7 @@ One important current-state fact is that the dedicated `HealthSeeder` is disable
 These are central to understanding the current implementation:
 
 - There is no separate flaw subsystem. Health-related "flaws" are currently represented by merits, negative merit configurations, selective applicability, or other gameplay data.
-- Runtime support is broader than stock content. Several health strategies, corpse models, item systems, infection enum values, and drug enum values exist without matching stock seed data.
+- Runtime support is broader than stock content. Several health strategies, corpse models, item systems, and drug effect families exist without matching stock seed data.
 - The health system is intentionally cross-cutting. Bodies, items, effects, skills, static strings, and seeders all participate.
 
 ## Recommended Use

@@ -40,7 +40,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		Wound = wound;
 		Bodypart = bodypart;
 		VirulenceDifficulty = (Difficulty)infection.Virulence;
-		Virulence = 1.0; // TODO - load
+		Virulence = infection.VirulenceMultiplier <= 0.0 ? 1.0 : infection.VirulenceMultiplier;
 		_intensity = infection.Intensity;
 		_immunity = infection.Immunity;
 	}
@@ -50,6 +50,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 	public void Delete()
 	{
 		Changed = false;
+		OnDelete();
 		using (new FMDB())
 		{
 			if (_id != 0)
@@ -71,6 +72,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		if (dbitem != null)
 		{
 			dbitem.Virulence = (int)VirulenceDifficulty;
+			dbitem.VirulenceMultiplier = Virulence;
 			dbitem.Intensity = Intensity;
 			dbitem.Immunity = Immunity;
 		}
@@ -105,7 +107,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		}
 	}
 
-	public double Virulence { get; }
+	public double Virulence { get; protected set; }
 
 	public Difficulty VirulenceDifficulty { get; set; }
 
@@ -118,6 +120,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 			var old = Intensity;
 			Intensity -= Gameworld.GetStaticDouble("InfectionIntensityLossPerTickOnceImmune");
 			UpdateInfectionStage(old);
+			HandleInfectionSideEffects();
 			return;
 		}
 
@@ -165,8 +168,10 @@ public abstract class Infection : LateInitialisingItem, IInfection
 
 		Immunity += result.SuccessDegrees() * Gameworld.GetStaticDouble("ImmunityGainPerSuccess");
 		var oldIntensity = Intensity;
-		Intensity += Gameworld.GetStaticDouble("InfectionIntensityGainPerTick") * Virulence;
+		Intensity += Gameworld.GetStaticDouble("InfectionIntensityGainPerTick") * Virulence *
+		             GetIntensityGainMultiplier();
 		UpdateInfectionStage(oldIntensity);
+		HandleInfectionSideEffects();
 
 		if (InfectionIsDamaging())
 		{
@@ -195,6 +200,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		dbitem.BodypartId = Bodypart?.Id;
 		dbitem.Wound = FMDB.Context.Wounds.Find(Wound?.Id ?? 0);
 		dbitem.Virulence = (int)VirulenceDifficulty;
+		dbitem.VirulenceMultiplier = Virulence;
 		dbitem.Intensity = Intensity;
 		dbitem.InfectionType = (int)InfectionType;
 		dbitem.Immunity = Immunity;
@@ -214,8 +220,14 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		{
 			case InfectionType.Simple:
 				return new SimpleInfection(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
+			case InfectionType.Necrotic:
+				return new NecroticInfection(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
+			case InfectionType.Infectious:
+				return new InfectiousInfection(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
 			case InfectionType.Gangrene:
 				return new Gangrene(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
+			case InfectionType.FungalGrowth:
+				return new FungalInfection(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
 		}
 
 		throw new ApplicationException("Unknown Infection Type");
@@ -230,8 +242,14 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		{
 			case InfectionType.Simple:
 				return new SimpleInfection(infection, body, wound, bodypart);
+			case InfectionType.Necrotic:
+				return new NecroticInfection(infection, body, wound, bodypart);
+			case InfectionType.Infectious:
+				return new InfectiousInfection(infection, body, wound, bodypart);
 			case InfectionType.Gangrene:
 				return new Gangrene(infection, body, wound, bodypart);
+			case InfectionType.FungalGrowth:
+				return new FungalInfection(infection, body, wound, bodypart);
 		}
 
 		throw new ApplicationException("Unknown Infection Type");
@@ -256,6 +274,25 @@ public abstract class Infection : LateInitialisingItem, IInfection
 	public abstract bool InfectionIsDamaging();
 	public abstract bool InfectionCanSpread();
 	public abstract IDamage GetInfectionDamage();
+
+	protected virtual double GetIntensityGainMultiplier()
+	{
+		return 1.0;
+	}
+
+	protected virtual void HandleInfectionSideEffects()
+	{
+	}
+
+	protected virtual void OnDelete()
+	{
+	}
+
+	protected virtual IInfection CreateSpreadInfection(IBody owner, IWound wound, IBodypart bodypart,
+		double intensity = 0.0001)
+	{
+		return LoadNewInfection(InfectionType, VirulenceDifficulty, intensity, owner, wound, bodypart, Virulence);
+	}
 
 	public virtual void Spread(Outcome outcome)
 	{
@@ -286,19 +323,18 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		{
 			case Outcome.MajorFail:
 				// Could spread to the whole body
-				if (!Owner.PartInfections.Any(x => x.Bodypart == null && x is SimpleInfection))
+				if (!Owner.PartInfections.Any(x => x.Bodypart == null && x.InfectionType == InfectionType))
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, null, Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, null));
 					return;
 				}
 
 				goto case Outcome.Fail;
 			case Outcome.Fail:
 				// Check parent bodypart first
-				if (!Owner.PartInfections.Any(x => x.Bodypart == Wound.Bodypart && x is SimpleInfection))
+				if (!Owner.PartInfections.Any(x => x.Bodypart == Wound.Bodypart && x.InfectionType == InfectionType))
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, Wound.Bodypart,
-						Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, Wound.Bodypart));
 					return;
 				}
 
@@ -310,8 +346,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					     .GetRandomElement();
 				if (wound != null)
 				{
-					wound.Infection = new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, wound, Wound.Bodypart,
-						Virulence);
+					wound.Infection = CreateSpreadInfection(Owner, wound, Wound.Bodypart);
 					return;
 				}
 
@@ -322,8 +357,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					     .GetRandomElement();
 				if (wound != null)
 				{
-					wound.Infection = new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, wound, wound.Bodypart,
-						Virulence);
+					wound.Infection = CreateSpreadInfection(Owner, wound, wound.Bodypart);
 					return;
 				}
 
@@ -331,8 +365,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 				wound = Owner.Wounds.Where(x => x.EligableForInfection()).GetRandomElement();
 				if (wound != null)
 				{
-					wound.Infection = new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, wound, wound.Bodypart,
-						Virulence);
+					wound.Infection = CreateSpreadInfection(Owner, wound, wound.Bodypart);
 					return;
 				}
 
@@ -346,9 +379,9 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		{
 			case Outcome.MajorFail:
 				// Could spread to the whole body
-				if (!Owner.PartInfections.Any(x => x.Bodypart == null && x is SimpleInfection))
+				if (!Owner.PartInfections.Any(x => x.Bodypart == null && x.InfectionType == InfectionType))
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, null, Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, null));
 					return;
 				}
 
@@ -363,32 +396,31 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					goto case Outcome.MinorFail;
 				}
 
-				Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, organ, Virulence));
+				Owner.AddInfection(CreateSpreadInfection(Owner, null, organ));
 				return;
 			case Outcome.Fail:
 				// Spreads to organs on the same bodypart
 				organ = Bodypart.OrganInfo
 				                .Select(x => x.Key)
-				                .Where(x => !Owner.PartInfections.Any(y => y.Bodypart == x && y is SimpleInfection))
+				                .Where(x => !Owner.PartInfections.Any(y => y.Bodypart == x && y.InfectionType == InfectionType))
 				                .GetWeightedRandom(x => x.RelativeInfectability);
 				if (organ == null)
 				{
 					goto case Outcome.MinorFail;
 				}
 
-				Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, organ, Virulence));
+				Owner.AddInfection(CreateSpreadInfection(Owner, null, organ));
 				return;
 			case Outcome.MinorFail:
 				// Check adjacent bodyparts first
 				var bodypart = Owner.Bodyparts
 				                    .Where(x => x.UpstreamConnection?.CountsAs(Bodypart) == true ||
 				                                Bodypart.UpstreamConnection?.CountsAs(x) == true)
-				                    .Where(x => Owner.PartInfections.All(y => y.Bodypart != x))
+				                    .Where(x => Owner.PartInfections.All(y => y.Bodypart != x || y.InfectionType != InfectionType))
 				                    .GetRandomElement();
 				if (bodypart != null)
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, bodypart,
-						Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, bodypart));
 					return;
 				}
 
@@ -397,8 +429,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					Owner.Wounds.Where(x => x.Bodypart == Bodypart && x.EligableForInfection()).GetRandomElement();
 				if (wound != null)
 				{
-					wound.Infection =
-						new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, wound, Bodypart, Virulence);
+					wound.Infection = CreateSpreadInfection(Owner, wound, Bodypart);
 					return;
 				}
 
@@ -409,8 +440,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					     .GetRandomElement();
 				if (wound != null)
 				{
-					wound.Infection = new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, wound, wound.Bodypart,
-						Virulence);
+					wound.Infection = CreateSpreadInfection(Owner, wound, wound.Bodypart);
 					return;
 				}
 
@@ -418,8 +448,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 				wound = Owner.Wounds.Where(x => x.EligableForInfection()).GetRandomElement();
 				if (wound != null)
 				{
-					wound.Infection = new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, wound, wound.Bodypart,
-						Virulence);
+					wound.Infection = CreateSpreadInfection(Owner, wound, wound.Bodypart);
 					return;
 				}
 
@@ -433,9 +462,9 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		{
 			case Outcome.MajorFail:
 				// Could spread to the whole body
-				if (!Owner.PartInfections.Any(x => x.Bodypart == null && x is SimpleInfection))
+				if (!Owner.PartInfections.Any(x => x.Bodypart == null && x.InfectionType == InfectionType))
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, null, Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, null));
 					return;
 				}
 
@@ -450,7 +479,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					goto case Outcome.MinorFail;
 				}
 
-				Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, organ, Virulence));
+				Owner.AddInfection(CreateSpreadInfection(Owner, null, organ));
 				return;
 			case Outcome.Fail:
 				// Spreads to organs on the same bodypart
@@ -464,17 +493,16 @@ public abstract class Infection : LateInitialisingItem, IInfection
 					goto case Outcome.MinorFail;
 				}
 
-				Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, organ, Virulence));
+				Owner.AddInfection(CreateSpreadInfection(Owner, null, organ));
 				return;
 			case Outcome.MinorFail:
 				// Spread to parent bodypart first
 				var bodypart = Owner.Bodyparts.Where(x => x.OrganInfo.Any(y => y.Key.CountsAs(Bodypart)))
-				                    .Where(x => Owner.PartInfections.All(y => y.Bodypart != x))
+				                    .Where(x => Owner.PartInfections.All(y => y.Bodypart != x || y.InfectionType != InfectionType))
 				                    .GetRandomElement();
 				if (bodypart != null)
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, bodypart,
-						Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, bodypart));
 					return;
 				}
 
@@ -484,12 +512,11 @@ public abstract class Infection : LateInitialisingItem, IInfection
 				                .Distinct()
 				                .SelectMany(x => Owner.BodypartsForLimb(x))
 				                .Distinct()
-				                .Where(x => Owner.PartInfections.All(y => y.Bodypart != x))
+				                .Where(x => Owner.PartInfections.All(y => y.Bodypart != x || y.InfectionType != InfectionType))
 				                .GetRandomElement();
 				if (bodypart != null)
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, bodypart,
-						Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, bodypart));
 					return;
 				}
 
@@ -508,23 +535,22 @@ public abstract class Infection : LateInitialisingItem, IInfection
 				var organ =
 					Owner.Bodyparts.SelectMany(x => x.Organs)
 					     .Distinct()
-					     .Where(x => Owner.PartInfections.All(y => y.Bodypart != x))
+					     .Where(x => Owner.PartInfections.All(y => y.Bodypart != x || y.InfectionType != InfectionType))
 					     .GetWeightedRandom(x => x.RelativeInfectability);
 				if (organ == null)
 				{
 					goto case Outcome.MinorFail;
 				}
 
-				Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, organ, Virulence));
+				Owner.AddInfection(CreateSpreadInfection(Owner, null, organ));
 				return;
 			case Outcome.MinorFail:
 				// Could spread to any bodypart
-				var bodypart = Owner.Bodyparts.Where(x => Owner.PartInfections.All(y => y.Bodypart != x))
+				var bodypart = Owner.Bodyparts.Where(x => Owner.PartInfections.All(y => y.Bodypart != x || y.InfectionType != InfectionType))
 				                    .GetRandomElement();
 				if (bodypart != null)
 				{
-					Owner.AddInfection(new SimpleInfection(VirulenceDifficulty, 0.0001, Owner, null, bodypart,
-						Virulence));
+					Owner.AddInfection(CreateSpreadInfection(Owner, null, bodypart));
 				}
 
 				return;

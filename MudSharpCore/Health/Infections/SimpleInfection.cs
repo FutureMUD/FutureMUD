@@ -2,6 +2,7 @@
 using System.Linq;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using ExpressionEngine;
@@ -10,16 +11,20 @@ namespace MudSharp.Health.Infections;
 
 public class SimpleInfection : Infection
 {
+	private InfectionNausea _nauseaEffect;
+
 	public SimpleInfection(Difficulty virulenceDifficulty, double intensity, IBody owner, IWound wound,
 		IBodypart bodypart, double virulence) : base(virulenceDifficulty, intensity, owner, wound, bodypart, virulence)
 	{
-		InfectionStage = InfectionStage.StageOne;
+		InfectionStage = DetermineStage(Intensity);
+		HandleInfectionSideEffects();
 	}
 
 	public SimpleInfection(MudSharp.Models.Infection infection, IBody body, IWound wound, IBodypart bodypart)
 		: base(infection, body, wound, bodypart)
 	{
-		InfectionStage = InfectionStage.StageOne;
+		InfectionStage = DetermineStage(Intensity);
+		HandleInfectionSideEffects();
 	}
 
 	public override InfectionType InfectionType => InfectionType.Simple;
@@ -115,34 +120,7 @@ public class SimpleInfection : Infection
 	protected override bool UpdateInfectionStage(double oldIntensity)
 	{
 		var oldStage = InfectionStage;
-		if (Intensity < 0.0375)
-		{
-			InfectionStage = InfectionStage.StageZero;
-		}
-		else if (Intensity < 0.1)
-		{
-			InfectionStage = InfectionStage.StageOne;
-		}
-		else if (Intensity < 0.25)
-		{
-			InfectionStage = InfectionStage.StageTwo;
-		}
-		else if (Intensity < 0.4)
-		{
-			InfectionStage = InfectionStage.StageThree; //PC gets first echo indicating a potential problem
-		}
-		else if (Intensity < 0.6)
-		{
-			InfectionStage = InfectionStage.StageFour; //Infection can now start spreading
-		}
-		else if (Intensity < 0.8)
-		{
-			InfectionStage = InfectionStage.StageFive;
-		}
-		else
-		{
-			InfectionStage = InfectionStage.StageSix; //Infection is now inflicting cellular damage
-		}
+		InfectionStage = DetermineStage(Intensity);
 
 		if (oldStage != InfectionStage)
 		{
@@ -151,6 +129,41 @@ public class SimpleInfection : Infection
 		}
 
 		return false;
+	}
+
+	protected InfectionStage DetermineStage(double intensity)
+	{
+		if (intensity < 0.0375)
+		{
+			return InfectionStage.StageZero;
+		}
+
+		if (intensity < 0.1)
+		{
+			return InfectionStage.StageOne;
+		}
+
+		if (intensity < 0.25)
+		{
+			return InfectionStage.StageTwo;
+		}
+
+		if (intensity < 0.4)
+		{
+			return InfectionStage.StageThree;
+		}
+
+		if (intensity < 0.6)
+		{
+			return InfectionStage.StageFour;
+		}
+
+		if (intensity < 0.8)
+		{
+			return InfectionStage.StageFive;
+		}
+
+		return InfectionStage.StageSix;
 	}
 
 	// As a rule of thumb, external wounds are noticeably  infected at 100 intensity. 
@@ -484,5 +497,56 @@ public class SimpleInfection : Infection
 			DamageType = DamageType.Cellular,
 			DamageAmount = Intensity * Gameworld.GetStaticDouble("SimpleInfectionDamagePerIntensity")
 		};
+	}
+
+	protected override void HandleInfectionSideEffects()
+	{
+		UpdateNauseaEffect();
+	}
+
+	protected override void OnDelete()
+	{
+		RemoveNauseaEffect();
+	}
+
+	private bool ShouldHaveNauseaEffect()
+	{
+		if (InfectionStage < InfectionStage.StageSix)
+		{
+			return false;
+		}
+
+		return Bodypart is BrainProto or LiverProto or StomachProto || Bodypart == null;
+	}
+
+	private double NauseaIntensity => Math.Max(0.0, (Intensity - 0.4) * 2.5);
+
+	private void UpdateNauseaEffect()
+	{
+		if (!ShouldHaveNauseaEffect())
+		{
+			RemoveNauseaEffect();
+			return;
+		}
+
+		if (_nauseaEffect == null || !Owner.EffectsOfType<InfectionNausea>().Contains(_nauseaEffect))
+		{
+			_nauseaEffect = new InfectionNausea(Owner, NauseaIntensity);
+			Owner.AddEffect(_nauseaEffect);
+			return;
+		}
+
+		_nauseaEffect.Intensity = NauseaIntensity;
+	}
+
+	private void RemoveNauseaEffect()
+	{
+		if (_nauseaEffect == null)
+		{
+			return;
+		}
+
+		Owner.RemoveEffect(_nauseaEffect, true);
+		_nauseaEffect = null;
 	}
 }

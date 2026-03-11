@@ -227,6 +227,13 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 				sb.Append(Telnet.RESETALL);
 
 			}
+
+			if (_parent?.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart) == true)
+			{
+				sb.Append(", ");
+				sb.Append("Anti-Inflammatory".Colour(Telnet.BoldGreen));
+			}
+
 			return sb.ToString();
 		}
 	}
@@ -369,7 +376,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 		dbitem.GameItemId = (Parent as IGameItem)?.Id;
 		dbitem.OriginalDamage = OriginalDamage;
 		dbitem.CurrentDamage = CurrentDamage;
-		dbitem.CurrentPain = CurrentPain;
+		dbitem.CurrentPain = _currentPain;
 		dbitem.DamageType = (int)DamageType;
 		dbitem.BodypartProtoId = Bodypart?.Id;
 		dbitem.LodgedItemId = Lodged?.Id;
@@ -403,7 +410,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 			{
 				dbitem.CurrentDamage = CurrentDamage;
 				dbitem.OriginalDamage = OriginalDamage;
-				dbitem.CurrentPain = CurrentPain;
+				dbitem.CurrentPain = _currentPain;
 				dbitem.CurrentStun = CurrentStun;
 				dbitem.ExtraInformation = SaveExtras();
 			}
@@ -444,7 +451,13 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 		set { }
 	}
 
-	public double CurrentPain { get; set; }
+	private double _currentPain;
+
+	public double CurrentPain
+	{
+		get => _parent != null ? this.ApplyPainReduction(_parent, _currentPain) : _currentPain;
+		set => _currentPain = value;
+	}
 
 	public double CurrentStun
 	{
@@ -707,8 +720,34 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 			case TreatmentType.Trauma:
 			case TreatmentType.Antiseptic:
 			case TreatmentType.Clean:
+				return Difficulty.Impossible;
 			case TreatmentType.Tend:
 				return Difficulty.Impossible;
+			case TreatmentType.AntiInflammatory:
+				if (CurrentPain <= 0.0)
+				{
+					return Difficulty.Impossible;
+				}
+
+				switch (Severity)
+				{
+					case WoundSeverity.Superficial:
+					case WoundSeverity.Minor:
+						return Difficulty.Trivial;
+					case WoundSeverity.Small:
+					case WoundSeverity.Moderate:
+						return Difficulty.ExtremelyEasy;
+					case WoundSeverity.Severe:
+						return Difficulty.VeryEasy;
+					case WoundSeverity.VerySevere:
+						return Difficulty.Easy;
+					case WoundSeverity.Grievous:
+						return Difficulty.Normal;
+					case WoundSeverity.Horrifying:
+						return Difficulty.Hard;
+				}
+
+				break;
 			case TreatmentType.Relocation:
 				if (HasBeenRelocated)
 				{
@@ -857,6 +896,13 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 			case TreatmentType.Antiseptic:
 			case TreatmentType.Clean:
 				return "That kind of treatment is not effective for that wound.";
+			case TreatmentType.AntiInflammatory:
+				if (CurrentPain <= 0.0)
+				{
+					return "That fracture is not currently causing any pain that anti-inflammatory treatment would improve.";
+				}
+
+				break;
 			case TreatmentType.Relocation:
 				switch (Severity)
 				{
@@ -959,7 +1005,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 
 					CurrentDamage = Parent.GetSeverityFloor(Severity.StageDown(testOutcome.SuccessDegrees()), true) *
 					                _parent.Body.HitpointsForBodypart(Bone);
-					CurrentPain = Math.Min(CurrentPain, CurrentDamage);
+					_currentPain = Math.Min(_currentPain, CurrentDamage);
 					CurrentStun = Math.Min(CurrentStun, CurrentDamage);
 
 					switch (Stage)
@@ -977,6 +1023,45 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 				}
 
 				return;
+			case TreatmentType.AntiInflammatory:
+			{
+				var strength = testOutcome switch
+				{
+					Outcome.MajorPass => 4,
+					Outcome.Pass => 3,
+					Outcome.MinorPass => 2,
+					Outcome.MinorFail => 1,
+					_ => 0
+				};
+
+				treatmentItem?.UseTreatment();
+				if (strength <= 0)
+				{
+					if (treater != null && !silent)
+					{
+						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+							$"$0's efforts to reduce the inflammation around {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} have been unsuccessful.",
+							treater, treater)));
+					}
+
+					return;
+				}
+
+				AntiInflammatoryTreatment.ApplyOrUpdate(_parent.Body, Bodypart,
+					Math.Max(0.35, 1.0 - strength * 0.08),
+					Math.Max(0.5, strength * (int)Severity * 0.3),
+					TimeSpan.FromMinutes((strength + 1) * 10));
+				if (treater != null && !silent)
+				{
+					treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+						treatmentItem == null
+							? $"$0 finish|finishes applying anti-inflammatory treatment to {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)}."
+							: $"$0 finish|finishes applying anti-inflammatory treatment to {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} with $1.",
+						treater, treater, treatmentItem?.Parent)));
+				}
+
+				return;
+			}
 			case TreatmentType.Relocation:
 				if (testOutcome.IsFail())
 				{

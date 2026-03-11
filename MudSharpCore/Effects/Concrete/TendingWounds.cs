@@ -39,7 +39,7 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 
 	public IInventoryPlan OriginalInventoryPlan { get; set; }
 
-	private readonly List<IWound> _tendedWounds = new();
+	private readonly HashSet<(IWound Wound, TreatmentType Type)> _treatedWounds = new();
 
 	#region Overrides of Effect
 
@@ -87,21 +87,17 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 
 	public override void ExpireEffect()
 	{
-		var wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                            .Where(x => x.CanBeTreated(TreatmentType.Tend) != Difficulty.Impossible)
-		                            .Where(x => !_tendedWounds.Contains(x))
-		                            .ToList();
-		if (!wounds.Any())
+		var wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination).ToList();
+		var treatment = GetPendingTreatment(wounds);
+		if (treatment.Wound == null)
 		{
 			CharacterOwner.OutputHandler.Handle(new EmoteOutput(
 				new Emote(
-					"@ have|has finished tending to all of $1's visible wounds.",
+					"@ have|has finished providing all of the wound care that $1's visible wounds currently need.",
 					CharacterOwner, CharacterOwner, TargetCharacter)));
 			Owner.RemoveEffect(this, true);
 			return;
 		}
-
-		var worstWound = wounds.FirstMax(x => x.Severity)!;
 
 		var inventoryPlan = Gameworld.TendInventoryPlanTemplate.CreatePlan(CharacterOwner);
 		if (OriginalInventoryPlan == null)
@@ -119,14 +115,7 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 			inventoryPlan.FinalisePlanNoRestore();
 		}
 
-		var maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Tend))
-		                          .Where(x => x != Difficulty.Impossible)
-		                          .DefaultIfEmpty()
-		                          .Max();
-		var treatmentItem =
-			CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
-			              .Where(x => x.IsTreatmentType(TreatmentType.Tend))
-			              .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
+		var treatmentItem = GetTreatmentItem(treatment.Type, treatment.Difficulty);
 
 		if (treatmentItem == null)
 		{
@@ -138,17 +127,19 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 			return;
 		}
 
-		var tendCheck = Gameworld.GetCheck(CheckType.TendWoundCheck);
-		worstWound.Treat(CharacterOwner, TreatmentType.Tend, treatmentItem,
-			tendCheck.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Tend)), false);
-		_tendedWounds.Add(worstWound);
+		var check = Gameworld.GetCheck(treatment.Type == TreatmentType.AntiInflammatory
+			? CheckType.CleanWoundCheck
+			: CheckType.TendWoundCheck);
+		treatment.Wound.Treat(CharacterOwner, treatment.Type, treatmentItem,
+			check.Check(CharacterOwner, treatment.Difficulty), false);
+		_treatedWounds.Add((treatment.Wound, treatment.Type));
 
-		if (TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                   .Any(x => x.CanBeTreated(TreatmentType.Tend) != Difficulty.Impossible))
+		if (GetPendingTreatment(TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination).ToList())
+		    .Wound != null)
 		{
 			CharacterOwner.OutputHandler.Handle(new EmoteOutput(
 				new Emote(
-					"@ continue|continues &0's medical efforts, as $1 still $1|have|has wounds that need tending to.",
+					"@ continue|continues &0's medical efforts, as $1 still $1|have|has wounds that need attention.",
 					CharacterOwner, CharacterOwner, TargetCharacter)));
 			CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
 			return;
@@ -156,8 +147,40 @@ public class TendingWounds : CharacterActionWithTarget, IAffectProximity
 
 		CharacterOwner.OutputHandler.Handle(new EmoteOutput(
 			new Emote(
-				"@ have|has finished tending to all of $1's visible wounds.",
+				"@ have|has finished providing all of the wound care that $1's visible wounds currently need.",
 				CharacterOwner, CharacterOwner, TargetCharacter)));
 		Owner.RemoveEffect(this, true);
+	}
+
+	private (IWound Wound, TreatmentType Type, Difficulty Difficulty) GetPendingTreatment(List<IWound> wounds)
+	{
+		var tend = wounds
+		           .Where(x => x.CanBeTreated(TreatmentType.Tend) != Difficulty.Impossible)
+		           .Where(x => !_treatedWounds.Contains((x, TreatmentType.Tend)))
+		           .OrderByDescending(x => x.Severity)
+		           .ThenBy(x => x.CanBeTreated(TreatmentType.Tend))
+		           .Select(x => (Wound: x, Type: TreatmentType.Tend, Difficulty: x.CanBeTreated(TreatmentType.Tend)))
+		           .FirstOrDefault();
+		if (tend.Wound != null)
+		{
+			return tend;
+		}
+
+		return wounds
+		       .Where(x => x.CanBeTreated(TreatmentType.AntiInflammatory) != Difficulty.Impossible)
+		       .Where(x => !_treatedWounds.Contains((x, TreatmentType.AntiInflammatory)))
+		       .OrderByDescending(x => x.Severity)
+		       .ThenBy(x => x.CanBeTreated(TreatmentType.AntiInflammatory))
+		       .Select(x => (Wound: x, Type: TreatmentType.AntiInflammatory,
+			       Difficulty: x.CanBeTreated(TreatmentType.AntiInflammatory)))
+		       .FirstOrDefault();
+	}
+
+	private ITreatment GetTreatmentItem(TreatmentType type, Difficulty difficulty)
+	{
+		return CharacterOwner.Body.HeldItems
+		                     .SelectNotNull(x => x.GetItemType<ITreatment>())
+		                     .Where(x => x.IsTreatmentType(type))
+		                     .FirstMin(x => x.GetTreatmentDifficulty(difficulty));
 	}
 }

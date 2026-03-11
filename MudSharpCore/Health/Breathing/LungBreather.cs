@@ -27,6 +27,11 @@ public class LungBreather : IBreathingStrategy
 
 	public bool CanBreathe(IBody body)
 	{
+		if (body.EffectsOfType<IStopBreathing>().Any(x => x.Applies()))
+		{
+			return false;
+		}
+
 		if (!body.Race.BreathableFluids.Contains(BreathingFluid(body)))
 		{
 			return false;
@@ -84,11 +89,10 @@ public class LungBreather : IBreathingStrategy
 			return;
 		}
 
-		var rebreather = body.WornItemsFor(mouth).FirstOrDefault()?.GetItemType<IProvideGasForBreathing>();
-		if (rebreather != null)
+		var gasSource = GetBreathingGasSource(body, mouth);
+		if (gasSource != null)
 		{
-			// TODO - things other than rebreathers that might have breath consumed
-			if (rebreather.ConsumeGas(body.Race.BreathingRate(body, BreathingFluid(body))))
+			if (gasSource.ConsumeGas(body.Race.BreathingRate(body, gasSource.Gas)))
 			{
 				if (body.HeldBreathTime > TimeSpan.Zero)
 				{
@@ -117,13 +121,23 @@ public class LungBreather : IBreathingStrategy
 			? body.Location?.Terrain(body.Actor).WaterFluid
 			: null;
 
-		var rebreather = body.WornItemsFor(mouth).SelectNotNull(x => x.GetItemType<IProvideGasForBreathing>())
-		                     .FirstOrDefault();
-		if (rebreather != null && (underwaterFluid == null || rebreather.WaterTight))
+		var gasSource = GetBreathingGasSource(body, mouth, underwaterFluid);
+		if (gasSource != null && (underwaterFluid == null || gasSource.WaterTight))
 		{
-			return rebreather.Gas;
+			return gasSource.Gas;
 		}
 
 		return underwaterFluid ?? body.Location?.Atmosphere;
+	}
+
+	private static IProvideGasForBreathing GetBreathingGasSource(IBody body, MouthProto mouth, IFluid underwaterFluid = null)
+	{
+		underwaterFluid ??= body.Location.IsUnderwaterLayer(body.RoomLayer)
+			? body.Location?.Terrain(body.Actor).WaterFluid
+			: null;
+
+		return body.WornItemsFor(mouth)
+		           .SelectNotNull(x => x.GetItemType<IProvideGasForBreathing>())
+		           .FirstOrDefault(x => x.Gas != null && (underwaterFluid == null || x.WaterTight));
 	}
 }

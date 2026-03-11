@@ -643,6 +643,11 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				conditions.Add("Antiseptic".Colour(Telnet.Yellow));
 			}
 
+			if (CharacterParent.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart))
+			{
+				conditions.Add("Anti-Inflammatory".Colour(Telnet.BoldGreen));
+			}
+
 			if (_cleaned)
 			{
 				conditions.Add("Cleaned".Colour(Telnet.Cyan));
@@ -756,7 +761,9 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 	public double CurrentPain
 	{
-		get => _currentPain + InfectionPain;
+		get => _parent is ICharacter ch
+			? this.ApplyPainReduction(ch, _currentPain + InfectionPain)
+			: _currentPain + InfectionPain;
 		set
 		{
 			_currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, value - InfectionPain);
@@ -911,8 +918,6 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			case TreatmentType.Relocation:
 			case TreatmentType.Set:
 				return Difficulty.Impossible;
-			case TreatmentType.AntiInflammatory:
-				return Difficulty.Impossible;
 		}
 
 		if (type == TreatmentType.Remove && Lodged == null)
@@ -948,14 +953,33 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			return Difficulty.Impossible;
 		}
 
+		if (type == TreatmentType.AntiInflammatory)
+		{
+			if (_bleedStatus == BleedStatus.Bleeding)
+			{
+				return Difficulty.Impossible;
+			}
+
+			if (Lodged != null)
+			{
+				return Difficulty.Impossible;
+			}
+
+			if (_currentPain <= 0.0 && InfectionPain <= 0.0)
+			{
+				return Difficulty.Impossible;
+			}
+
+			return Difficulty.VeryEasy;
+		}
+
 		if (type == TreatmentType.Antiseptic && _cleaned &&
 		    ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
 		{
 			return Difficulty.Impossible;
 		}
 
-		if (type == TreatmentType.Clean || type == TreatmentType.Antiseptic ||
-		    type == TreatmentType.AntiInflammatory)
+		if (type == TreatmentType.Clean || type == TreatmentType.Antiseptic)
 		{
 			return Difficulty.VeryEasy;
 		}
@@ -1039,8 +1063,6 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			case TreatmentType.Relocation:
 			case TreatmentType.Set:
 				return "That kind of treatment cannot be applied to that wound.";
-			case TreatmentType.AntiInflammatory:
-				return "That kind of treatment is not yet implemented.";
 		}
 
 		if (type == TreatmentType.Remove && Lodged == null)
@@ -1075,6 +1097,24 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		if (type == TreatmentType.Clean && _cleaned)
 		{
 			return "That wound is already as clean as it's going to get with conventional cleaning.";
+		}
+
+		if (type == TreatmentType.AntiInflammatory)
+		{
+			if (_bleedStatus == BleedStatus.Bleeding)
+			{
+				return "You must first stop the bleeding before anti-inflammatory care will do any good.";
+			}
+
+			if (Lodged != null)
+			{
+				return "Foreign objects must be removed from the wound before anti-inflammatory treatment can be applied.";
+			}
+
+			if (_currentPain <= 0.0 && InfectionPain <= 0.0)
+			{
+				return "That wound is not causing any inflammatory pain that anti-inflammatory treatment would improve.";
+			}
 		}
 
 		if (type == TreatmentType.Antiseptic && _cleaned &&
@@ -1136,7 +1176,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 					_unsuccessfulTreatmentAttempts = 0;
 					CurrentDamage = Parent.GetSeverityFloor(Severity.StageDown(testOutcome.SuccessDegrees()));
-					CurrentPain = Math.Min(CurrentPain, CurrentDamage);
+					_currentPain = Math.Min(_currentPain, CurrentDamage);
+					Changed = true;
 					CurrentStun = Math.Min(CurrentStun, CurrentDamage);
 				}
 
@@ -1152,6 +1193,45 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				}
 
 				return;
+			case TreatmentType.AntiInflammatory:
+			{
+				var strength = testOutcome switch
+				{
+					Outcome.MajorPass => 4,
+					Outcome.Pass => 3,
+					Outcome.MinorPass => 2,
+					Outcome.MinorFail => 1,
+					_ => 0
+				};
+
+				treatmentItem?.UseTreatment();
+				if (strength <= 0)
+				{
+					if (treater != null && !silent)
+					{
+						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+							$"$0's efforts to calm the inflammation in {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} have been unsuccessful.",
+							treater, treater, CharacterParent)));
+					}
+
+					return;
+				}
+
+				var multiplier = Math.Max(0.35, 1.0 - strength * 0.08);
+				var flatReduction = Math.Max(0.5, strength * (int)Severity * 0.25);
+				var duration = TimeSpan.FromMinutes((strength + 1) * 10);
+				AntiInflammatoryTreatment.ApplyOrUpdate(ch.Body, Bodypart, multiplier, flatReduction, duration);
+				if (treater != null && !silent)
+				{
+					treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+						treatmentItem == null
+							? $"$0 finish|finishes applying anti-inflammatory care to {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()}."
+							: $"$0 finish|finishes applying anti-inflammatory care to {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} with $2.",
+						treater, treater, CharacterParent, treatmentItem?.Parent)));
+				}
+
+				return;
+			}
 			case TreatmentType.Trauma:
 				if (testOutcome == Outcome.MajorFail || (treatmentItem == null && testOutcome.IsFail()))
 				{

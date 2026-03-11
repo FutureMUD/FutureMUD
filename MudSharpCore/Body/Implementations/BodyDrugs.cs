@@ -304,6 +304,19 @@ public partial class Body
 						(Weight * Gameworld.UnitManager.BaseWeightToKilograms *
 						 0.001);
 					break;
+				case DrugType.Antifungal:
+					var antifungalEffect = EffectsOfType<Antifungal>().FirstOrDefault();
+					if (antifungalEffect == null)
+					{
+						antifungalEffect = new Antifungal(this, 0);
+						EffectHandler.AddEffect(antifungalEffect);
+					}
+
+					antifungalEffect.IntensityPerGramMass =
+						(effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+						(Weight * Gameworld.UnitManager.BaseWeightToKilograms *
+						 0.001);
+					break;
 				case DrugType.Immunosuppressive:
 					var immuneEffect = EffectsOfType<Immunosupressant>().FirstOrDefault();
 					if (immuneEffect == null)
@@ -355,6 +368,89 @@ public partial class Body
 						(effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
 						(Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
 					nauseaEffect.BloodAlcoholContent = bac;
+					break;
+				case DrugType.Adrenaline:
+				{
+					var intensity = (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+					                (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
+					var adrenalineEffect = EffectsOfType<AdrenalineRush>().FirstOrDefault();
+					if (adrenalineEffect == null)
+					{
+						adrenalineEffect = new AdrenalineRush(this, 0);
+						EffectHandler.AddEffect(adrenalineEffect);
+					}
+
+					adrenalineEffect.IntensityPerGramMass = intensity;
+
+					var supportFloor = Math.Min(Gameworld.GetStaticDouble("AdrenalineHeartSupportMaximumFloor"),
+						intensity * Gameworld.GetStaticDouble("AdrenalineHeartSupportFloorPerIntensity"));
+					foreach (var heart in Organs.OfType<HeartProto>())
+					{
+						var heartSupport =
+							EffectsOfType<AdrenalineHeartSupportEffect>().FirstOrDefault(x => x.Organ == heart);
+						if (heartSupport == null)
+						{
+							heartSupport = new AdrenalineHeartSupportEffect(this, heart, supportFloor, ExertionLevel.Normal);
+							EffectHandler.AddEffect(heartSupport);
+						}
+
+						heartSupport.Floor = supportFloor;
+						heartSupport.ExertionCap = ExertionLevel.Normal;
+					}
+
+					var thermalGain = intensity * Gameworld.GetStaticDouble("AdrenalineThermalGainPerIntensity");
+					if (thermalGain > 0.0)
+					{
+						var thermal = EffectsOfType<DrugThermalImbalance>().FirstOrDefault();
+						if (thermal == null)
+						{
+							thermal = new DrugThermalImbalance(this);
+							EffectHandler.AddEffect(thermal);
+						}
+
+						thermal.ImbalanceProgress += thermalGain;
+					}
+
+					var cardiacDamage = intensity * Gameworld.GetStaticDouble("AdrenalineCardiacDamagePerIntensity");
+					if (cardiacDamage > 0.0)
+					{
+						var hearts = Organs.OfType<HeartProto>().ToList();
+						if (hearts.Any())
+						{
+							var wounds = new List<IWound>();
+							foreach (var heart in hearts)
+							{
+								wounds.AddRange(PassiveSufferDamage(new Damage
+								{
+									DamageType = DamageType.Cellular,
+									Bodypart = heart,
+									ActorOrigin = Actor,
+									DamageAmount = cardiacDamage / hearts.Count,
+									PainAmount = 0.0
+								}));
+							}
+
+							if (wounds.Any())
+							{
+								wounds.ProcessPassiveWounds();
+							}
+						}
+					}
+
+					break;
+				}
+				case DrugType.Paralysis:
+					var paralysisEffect = EffectsOfType<DrugInducedParalysis>().FirstOrDefault();
+					if (paralysisEffect == null)
+					{
+						paralysisEffect = new DrugInducedParalysis(this, 0);
+						EffectHandler.AddEffect(paralysisEffect);
+					}
+
+					paralysisEffect.IntensityPerGramMass =
+						(effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+						(Weight * Gameworld.UnitManager.BaseWeightToKilograms *
+						 0.001);
 					break;
 				case DrugType.HealingRate:
 					var healingEffect = EffectsOfType<HealingRateDrug>().FirstOrDefault();
@@ -481,6 +577,13 @@ public partial class Body
 			EffectHandler.RemoveAllEffects(x => x.IsEffectType<Antibiotic>(), true);
 		}
 
+		if (effectIntensities.ValueOrDefault(DrugType.Antifungal) -
+		    neutralisingEffects.ValueOrDefault(DrugType.Antifungal) <=
+		    0.0)
+		{
+			EffectHandler.RemoveAllEffects(x => x.IsEffectType<Antifungal>(), true);
+		}
+
 		if (effectIntensities.ValueOrDefault(DrugType.Immunosuppressive) -
 		    neutralisingEffects.ValueOrDefault(DrugType.Immunosuppressive) <=
 		    0.0)
@@ -506,6 +609,19 @@ public partial class Body
 			EffectHandler.RemoveAllEffects(x => x.IsEffectType<Nausea>(), true);
 		}
 
+		if (effectIntensities.ValueOrDefault(DrugType.Adrenaline) -
+		    neutralisingEffects.ValueOrDefault(DrugType.Adrenaline) <= 0.0)
+		{
+			EffectHandler.RemoveAllEffects(x => x.IsEffectType<AdrenalineRush>(), true);
+			EffectHandler.RemoveAllEffects(x => x.IsEffectType<AdrenalineHeartSupportEffect>(), true);
+		}
+
+		if (effectIntensities.ValueOrDefault(DrugType.Paralysis) -
+		    neutralisingEffects.ValueOrDefault(DrugType.Paralysis) <= 0.0)
+		{
+			EffectHandler.RemoveAllEffects(x => x.IsEffectType<DrugInducedParalysis>(), true);
+		}
+
                 if (effectIntensities.ValueOrDefault(DrugType.HealingRate) -
                     neutralisingEffects.ValueOrDefault(DrugType.HealingRate) <=
                     0.0)
@@ -527,7 +643,9 @@ public partial class Body
                 }
 
                 if (effectIntensities.ValueOrDefault(DrugType.ThermalImbalance) -
-                    neutralisingEffects.ValueOrDefault(DrugType.ThermalImbalance) <= 0.0)
+                    neutralisingEffects.ValueOrDefault(DrugType.ThermalImbalance) <= 0.0 &&
+                    effectIntensities.ValueOrDefault(DrugType.Adrenaline) -
+                    neutralisingEffects.ValueOrDefault(DrugType.Adrenaline) <= 0.0)
                 {
                         EffectHandler.RemoveAllEffects<DrugThermalImbalance>(fireRemovalAction: true);
                 }

@@ -16,13 +16,13 @@ public class Gangrene : Infection
 	public Gangrene(Difficulty virulenceDifficulty, double intensity, IBody owner, IWound wound,
 		IBodypart bodypart, double virulence) : base(virulenceDifficulty, intensity, owner, wound, bodypart, virulence)
 	{
-		InfectionStage = InfectionStage.StageOne;
+		InfectionStage = DetermineStage(Intensity);
 	}
 
 	public Gangrene(MudSharp.Models.Infection infection, IBody body, IWound wound, IBodypart bodypart)
 		: base(infection, body, wound, bodypart)
 	{
-		InfectionStage = InfectionStage.StageOne;
+		InfectionStage = DetermineStage(Intensity);
 	}
 
 	public override InfectionType InfectionType => InfectionType.Gangrene;
@@ -115,34 +115,7 @@ public class Gangrene : Infection
 	protected override bool UpdateInfectionStage(double oldIntensity)
 	{
 		var oldStage = InfectionStage;
-		if (Intensity < 0.0375)
-		{
-			InfectionStage = InfectionStage.StageZero;
-		}
-		else if (Intensity < 0.1)
-		{
-			InfectionStage = InfectionStage.StageOne;
-		}
-		else if (Intensity < 0.25)
-		{
-			InfectionStage = InfectionStage.StageTwo;
-		}
-		else if (Intensity < 0.4)
-		{
-			InfectionStage = InfectionStage.StageThree; //PC gets first echo indicating a potential problem
-		}
-		else if (Intensity < 0.6)
-		{
-			InfectionStage = InfectionStage.StageFour; //Infection can now start spreading
-		}
-		else if (Intensity < 0.8)
-		{
-			InfectionStage = InfectionStage.StageFive;
-		}
-		else
-		{
-			InfectionStage = InfectionStage.StageSix; //Infection is now inflicting cellular damage
-		}
+		InfectionStage = DetermineStage(Intensity);
 
 		if (oldStage != InfectionStage)
 		{
@@ -151,6 +124,41 @@ public class Gangrene : Infection
 		}
 
 		return false;
+	}
+
+	private InfectionStage DetermineStage(double intensity)
+	{
+		if (intensity < 0.0375)
+		{
+			return InfectionStage.StageZero;
+		}
+
+		if (intensity < 0.1)
+		{
+			return InfectionStage.StageOne;
+		}
+
+		if (intensity < 0.25)
+		{
+			return InfectionStage.StageTwo;
+		}
+
+		if (intensity < 0.4)
+		{
+			return InfectionStage.StageThree;
+		}
+
+		if (intensity < 0.6)
+		{
+			return InfectionStage.StageFour;
+		}
+
+		if (intensity < 0.8)
+		{
+			return InfectionStage.StageFive;
+		}
+
+		return InfectionStage.StageSix;
 	}
 
 	// As a rule of thumb, external wounds are noticeably  infected at 100 intensity. 

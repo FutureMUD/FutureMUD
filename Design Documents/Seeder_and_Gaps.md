@@ -114,7 +114,7 @@ The following table separates runtime capability from stock seeding.
 | `RobotHealthStrategy` | Not stock seeded | Runtime class exists |
 | `Simple` infection | Runtime implemented | Reached through organic wound logic rather than a named stock seeding block |
 | `Gangrene` infection | Runtime implemented | Reached through infection progression rather than dedicated stock content |
-| `Necrotic`, `Infectious`, `FungalGrowth` infection types | Not implemented as concrete runtime classes in current inventory | Enum surface is broader than implementation |
+| `Necrotic`, `Infectious`, `FungalGrowth` infection types | Runtime implemented | Concrete infection classes now exist, but stock seeding still does little to showcase them |
 | `StandardCorpseModel` | Seeded | Human and animal seeders create standard corpse models |
 | `NonDecayingCorpseModel` | Not broadly stock seeded | Runtime support exists |
 | `NoNeeds`, `Passive`, `Active` needs models | Runtime supported | `NoNeeds` is the most explicit stock default in current seeding paths |
@@ -131,22 +131,18 @@ The following findings are directly verified in code and matter when describing 
 - `HealthSeeder` is disabled.
 
 ### Runtime broader than implementation
-- `InfectionType` exposes `Necrotic`, `Infectious`, and `FungalGrowth`, but the current infection class inventory contains only `Infection`, `SimpleInfection`, and `Gangrene`.
 - `DrugType` exposes more effect families than the stock seeded drugs use.
-- `DrugType.Adrenaline` and `DrugType.Paralysis` were not found in the current runtime drug-effect handling search.
 - Multiple health strategy families exist in runtime without matching stock seeded strategy definitions.
 
-### Explicit TODO or partial markers
-- `LungBreather` has TODOs around effect integration and breath sources other than rebreathers.
-- `Infection` contains a TODO around loading virulence.
-- `SimpleInfection` contains TODOs about applying concrete nausea effects.
-- `HealthModule` contains a TODO for dislocation handling in `relocate`.
-- `HealthModule` contains a TODO about soft-coded tending duration.
-- `HealthModule` contains a TODO noting that one health-reporting path needs a better player version.
-- `SimpleOrganicWound` reports `AntiInflammatory` treatment as not implemented.
-
-### Implementation inconsistencies that extension work should note
-- `ConfigureImplantInterfaceProcedure` currently reports `SurgicalProcedureType.ConfigureImplantPower` for its `Procedure` property. That looks inconsistent with the surrounding factory and check wiring.
+### Recently resolved runtime gaps
+- `LungBreather` now integrates stop-breathing effects and non-rebreather `IProvideGasForBreathing` sources.
+- `Infection` now persists virulence multiplier data instead of dropping it on load or save.
+- `SimpleInfection` now applies a concrete nausea effect.
+- `HealthModule.relocate` now resolves fractures from targeted external bodyparts rather than only direct bone targets.
+- The old soft-coded tending helper path has been removed in favor of the effect-driven wound-care flow.
+- The player-facing `surgery show` path now exposes richer procedure detail.
+- `SimpleOrganicWound` and `BoneFracture` both support anti-inflammatory treatment through bodypart-scoped pain-reduction effects.
+- `ConfigureImplantInterfaceProcedure` now reports the correct procedure enum.
 
 ## Supported but Unseeded
 These are verified runtime features that exist in the codebase but are not broadly reflected in the stock seeding.
@@ -161,10 +157,8 @@ These are verified runtime features that exist in the codebase but are not broad
 The following are inference-based extension paths. They are not claims about current behavior; they are the most natural next steps suggested by the current design.
 
 - enable or split the current `HealthSeeder` so surgery and drugs can be installed independently of race seeders
-- add stock drugs for the already-supported effect families such as antibiotics, organ support, thermal imbalance, and magic capability
-- add concrete infection classes for the unused infection enum values
+- add stock drugs for the already-supported effect families such as antibiotics, antifungals, adrenaline, paralysis, organ support, thermal imbalance, and magic capability
 - add broad stock content for defibrillators, rebreathers, external organs, and implant power or interface ecosystems
-- expand breathing-effect integration so environmental and status effects can participate more explicitly
 - formalize flaw-style health templates if builders want negative baseline traits distinct from merits
 
 ## Main Takeaways

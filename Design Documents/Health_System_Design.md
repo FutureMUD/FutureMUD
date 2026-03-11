@@ -92,6 +92,7 @@ The health system is partly data-driven and partly hard-coded.
 Builders and administrators currently configure or consume health through:
 
 - Race data and seeder-created anatomy, blood, breathing, and corpse definitions.
+- Editable health strategies through `healthstrategy` / `hs`, including `types`, `typehelp`, `edit new <type> <name>`, and `clone`.
 - Editable drugs and their vectors, intensities, and effect payloads.
 - Surgical procedures, their phases, knowledges, checks, inventory plans, and progs.
 - Treatment-capable item component prototypes and health-adjacent game item components.
@@ -105,6 +106,14 @@ The current runtime exposes health tuning in two different ways, depending on wh
 
 ### Health strategy properties
 Direct tuning numbers inside `IHealthStrategy` implementations are now treated as optional strategy properties loaded from the `HealthStrategies.Definition` XML.
+
+Builders edit those definitions through the ordinary non-revisable builder pipeline. `BaseHealthStrategy` now supplies the shared editable surface for common commands such as `name` and `lodge`, while each concrete strategy registers its own builder loader, type blurb, and type help text. New strategies are created by type, cloned through the standard editable helper path, and persist their strategy-specific XML plus any linked `TraitExpression` records.
+
+Strategy builder UX now follows two additional conventions:
+
+- ratio-like values such as percentages, multipliers, fractions, and thresholds are shown and entered as percentages rather than raw normalized doubles
+- fluid-volume-like values are shown and entered through the `UnitManager`, so builders use their local unit preferences instead of raw litres
+- the lodge expression is presented as a `1d100` threshold check, matching the runtime roll
 
 Important current examples include:
 

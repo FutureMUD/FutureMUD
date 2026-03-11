@@ -113,6 +113,18 @@ Each strategy is responsible for:
 | `RobotHealthStrategy` | Characters or entities | Mechanical or synthetic model with robot wound semantics | Runtime support only in stock repo |
 | `BaseHealthStrategy` | Shared base | Shared implementation infrastructure, not a stock selectable endpoint by itself | Not seeded directly |
 
+### Builder surface
+Health strategies now participate in the ordinary non-revisable editable-item workflow. Builders use `healthstrategy` (alias `hs`) to list, show, edit, create, and clone strategy definitions.
+
+Type discovery is driven by `BaseHealthStrategy` registrations rather than hard-coded command switches:
+
+- `healthstrategy types` lists the registered strategy families with blurbs.
+- `healthstrategy typehelp <type>` shows the registered help text for a family before creation.
+- `healthstrategy edit new <type> <name>` invokes the registered builder loader for that type.
+- `healthstrategy clone <which> <name>` duplicates the strategy definition and clones any linked `TraitExpression` records used by that strategy.
+
+Shared editable commands such as `name` and `lodge` live on `BaseHealthStrategy`. Concrete strategies handle their own subtype-specific builder commands and then fall back to the base implementation.
+
 ### Design implication
 Health strategies are how FutureMUD keeps one set of command surfaces usable across very different bodies. The same command module can inspect wounds on a human, a robot, or a game item, while the strategy and wound family decide what those actions actually mean.
 

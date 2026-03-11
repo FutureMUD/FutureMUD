@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
@@ -13,8 +12,10 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
+using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.Health.Wounds;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -23,14 +24,97 @@ namespace MudSharp.Health.Strategies;
 
 public class RobotHealthStrategy : BaseHealthStrategy
 {
-	public static void RegisterHealthStrategyLoader()
-	{
-		RegisterHealthStrategy("Robot", (strategy, game) => new RobotHealthStrategy(strategy, game));
-	}
+	private static readonly TraitExpressionBuilderField<RobotHealthStrategy>[] TraitExpressionFields =
+	[
+		new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",
+			x => x.MaximumHitPointsExpression, (x, value) => x.MaximumHitPointsExpression = value),
+		new("MaximumStunExpression", ["maxstun", "maximumstunexpression"], "Maximum Stun Expression",
+			x => x.MaximumStunExpression, (x, value) => x.MaximumStunExpression = value)
+	];
 
-	protected RobotHealthStrategy(Models.HealthStrategy strategy, IFuturemud gameworld) : base(strategy)
+	private static readonly DoubleBuilderField<RobotHealthStrategy>[] DoubleFields =
+	[
+		PercentageField<RobotHealthStrategy>("PercentageHealthPerPenalty", ["percentagehealthperpenalty", "healthpenalty"], "Percentage Health Per Penalty",
+			x => x.PercentageHealthPerPenalty, (x, value) => x.PercentageHealthPerPenalty = value),
+		PercentageField<RobotHealthStrategy>("PercentageStunPerPenalty", ["percentagestunperpenalty", "stunpenalty"], "Percentage Stun Per Penalty",
+			x => x.PercentageStunPerPenalty, (x, value) => x.PercentageStunPerPenalty = value),
+		PercentageField<RobotHealthStrategy>("PowerCoreCriticalThreshold", ["powercorecriticalthreshold"], "Power Core Critical Threshold",
+			x => x.PowerCoreCriticalThreshold, (x, value) => x.PowerCoreCriticalThreshold = value),
+		UnitField<RobotHealthStrategy>("HydraulicFluidParalysisThreshold", ["hydraulicfluidparalysisthreshold"], "Hydraulic Fluid Paralysis Threshold",
+			UnitType.FluidVolume,
+			x => x.HydraulicFluidParalysisThreshold, (x, value) => x.HydraulicFluidParalysisThreshold = value)
+	];
+
+	private static readonly TimeSpanBuilderField<RobotHealthStrategy>[] TimeSpanFields =
+	[
+		new("BleedMessageCooldown", ["bleedmessagecooldown"], "Bleed Message Cooldown",
+			x => x.BleedMessageCooldown, (x, value) => x.BleedMessageCooldown = value)
+	];
+
+	private const string TypeBlurb =
+		"A robotic health model with hydraulic leakage, stun limits, and power-core failure handling.";
+
+	private static readonly string TypeHelp = BuildTypeHelp(TypeBlurb,
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(DoubleFields))
+			.Concat(GetBuilderFieldHelpText(TimeSpanFields)));
+
+	protected RobotHealthStrategy(HealthStrategy strategy, IFuturemud gameworld)
+		: base(strategy, gameworld)
 	{
 		LoadDefinition(XElement.Parse(strategy.Definition), gameworld);
+	}
+
+	private RobotHealthStrategy(IFuturemud gameworld, string name)
+		: base(gameworld, name)
+	{
+		MaximumHitPointsExpression = CreateDefaultExpression(gameworld, $"{name} Max HP", "100");
+		MaximumStunExpression = CreateDefaultExpression(gameworld, $"{name} Max Stun", "100");
+		PercentageHealthPerPenalty = 1.0;
+		PercentageStunPerPenalty = 1.0;
+		BleedMessageCooldown = TimeSpan.FromSeconds(15);
+		PowerCoreCriticalThreshold = 0.3;
+		HydraulicFluidParalysisThreshold = 0.0;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
+	private RobotHealthStrategy(RobotHealthStrategy rhs, string name)
+		: base(rhs, name)
+	{
+		MaximumHitPointsExpression = CloneExpression(rhs.MaximumHitPointsExpression, Gameworld);
+		MaximumStunExpression = CloneExpression(rhs.MaximumStunExpression, Gameworld);
+		PercentageHealthPerPenalty = rhs.PercentageHealthPerPenalty;
+		PercentageStunPerPenalty = rhs.PercentageStunPerPenalty;
+		BleedMessageCooldown = rhs.BleedMessageCooldown;
+		PowerCoreCriticalThreshold = rhs.PowerCoreCriticalThreshold;
+		HydraulicFluidParalysisThreshold = rhs.HydraulicFluidParalysisThreshold;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
+	public override string HealthStrategyType => "Robot";
+	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
+	public override bool RequiresSpinalCord => false;
+
+	public ITraitExpression MaximumHitPointsExpression { get; set; }
+	public ITraitExpression MaximumStunExpression { get; set; }
+	public double PercentageHealthPerPenalty { get; set; }
+	public double PercentageStunPerPenalty { get; set; }
+	public TimeSpan BleedMessageCooldown { get; set; }
+	public double PowerCoreCriticalThreshold { get; set; }
+	public double HydraulicFluidParalysisThreshold { get; set; }
+
+	protected override IEnumerable<string> SubtypeBuilderHelpText =>
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(DoubleFields))
+			.Concat(GetBuilderFieldHelpText(TimeSpanFields));
+
+	public static void RegisterHealthStrategyLoader()
+	{
+		RegisterHealthStrategy("Robot",
+			(strategy, game) => new RobotHealthStrategy(strategy, game),
+			(game, name) => new RobotHealthStrategy(game, name),
+			TypeHelp,
+			TypeBlurb);
 	}
 
 	private void LoadDefinition(XElement root, IFuturemud gameworld)
@@ -71,18 +155,45 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		HydraulicFluidParalysisThreshold = LoadDouble(root, "HydraulicFluidParalysisThreshold", 0.0);
 	}
 
-	public override string HealthStrategyType => "Robot";
+	protected override void SaveSubtypeDefinition(XElement root)
+	{
+		SaveBuilderFields(root, this, TraitExpressionFields);
+		SaveBuilderFields(root, this, DoubleFields);
+		SaveBuilderFields(root, this, TimeSpanFields);
+	}
 
-	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
+	protected override void AppendSubtypeShow(StringBuilder sb, ICharacter actor)
+	{
+		sb.AppendLine();
+		AppendBuilderFieldShow(sb, actor, this, TraitExpressionFields);
+		AppendBuilderFieldShow(sb, actor, this, DoubleFields);
+		AppendBuilderFieldShow(sb, actor, this, TimeSpanFields);
+	}
 
-	public ITraitExpression MaximumHitPointsExpression { get; set; }
-	public ITraitExpression MaximumStunExpression { get; set; }
-	public double PercentageHealthPerPenalty { get; set; }
-	public double PercentageStunPerPenalty { get; set; }
-	public TimeSpan BleedMessageCooldown { get; set; }
-	public double PowerCoreCriticalThreshold { get; set; }
-	public double HydraulicFluidParalysisThreshold { get; set; }
-	public override bool RequiresSpinalCord => false;
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		if (TryBuildingCommand(actor, command.GetUndo(), TraitExpressionFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), DoubleFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), TimeSpanFields))
+		{
+			return true;
+		}
+
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	public override IHealthStrategy Clone(string name)
+	{
+		return new RobotHealthStrategy(this, name);
+	}
 
 	public override double MaxHP(IHaveWounds owner)
 	{
@@ -125,19 +236,13 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 #endif
 
-		IGameItem lodgedItem = null;
-		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
-		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-		if (damage.DamageType.CanLodge() && Dice.Roll(0, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
-		{
-			lodgedItem = damage.LodgableItem;
-		}
+		IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-		return new[]
-		{
+		return
+		[
 			new RobotWound(owner.Gameworld, owner, damage.DamageAmount, damage.StunAmount, damage.DamageType,
 				damage.Bodypart, lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
-		};
+		];
 	}
 
 	public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
@@ -159,25 +264,16 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 	}
 
-	private string WoundCountDesc(int count)
+	private static string WoundCountDesc(int count)
 	{
-		switch (count)
+		return count switch
 		{
-			case 1:
-				return "a wound";
-			case 2:
-				return "a couple of wounds";
-			case 3:
-			case 4:
-				return "a few wounds";
-			case 5:
-			case 6:
-			case 7:
-			case 8:
-				return "several wounds";
-			default:
-				return "many wounds";
-		}
+			1 => "a wound",
+			2 => "a couple of wounds",
+			3 or 4 => "a few wounds",
+			5 or 6 or 7 or 8 => "several wounds",
+			_ => "many wounds"
+		};
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)
@@ -255,7 +351,6 @@ public class RobotHealthStrategy : BaseHealthStrategy
 
 		if (charOwner.State.HasFlag(CharacterState.Dead))
 		{
-			// Only process bleeding for dead people
 			if (!isBleeding)
 			{
 				charOwner.EndHealthTick();
@@ -286,8 +381,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			return charOwner.Body.EffectsOfType<ILossOfConsciousnessEffect>().First(x => x.Applies()).UnconType;
 		}
 
-		if (
-			charOwner.Body.OrganFunction<PowerCore>() <= 0.0)
+		if (charOwner.Body.OrganFunction<PowerCore>() <= 0.0)
 		{
 			return HealthTickResult.Unconscious;
 		}
@@ -316,17 +410,13 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		var bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
 		var totalBreath = charOwner.Body.HeldBreathPercentage;
 
-		switch (type)
+		return type switch
 		{
-			case PromptType.Classic:
-				return ReportClassicPrompt(charOwner, stunRatio, painRatio, bloodlossRatio, totalBreath);
-			case PromptType.Full:
-				return ReportFullPrompt(charOwner, stunRatio, painRatio, bloodlossRatio, totalBreath, false);
-			case PromptType.FullBrief:
-				return ReportFullPrompt(charOwner, stunRatio, painRatio, bloodlossRatio, totalBreath, true);
-		}
-
-		return ">";
+			PromptType.Classic => ReportClassicPrompt(charOwner, stunRatio, painRatio, bloodlossRatio, totalBreath),
+			PromptType.Full => ReportFullPrompt(charOwner, stunRatio, painRatio, bloodlossRatio, totalBreath, false),
+			PromptType.FullBrief => ReportFullPrompt(charOwner, stunRatio, painRatio, bloodlossRatio, totalBreath, true),
+			_ => ">"
+		};
 	}
 
 	private string ReportFullPrompt(ICharacter charOwner, double stunRatio, double painRatio, double bloodlossRatio,
@@ -393,33 +483,28 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			sb.Append(" and have ");
 		}
 
-		if (bloodlossRatio >= 0.98)
+		if (bloodlossRatio >= 0.95)
 		{
-			//sb.Append($" and have {"no blood loss".Colour(Telnet.Green)}");
-		}
-		else if (bloodlossRatio >= 0.95)
-		{
-			sb.Append($"{"very minor hydraulic fluid loss".Colour(Telnet.Yellow)}");
 		}
 		else if (bloodlossRatio >= 0.80)
 		{
-			sb.Append($"{"minor hydraulic fluid loss".Colour(Telnet.Yellow)}");
+			sb.Append($"{"very minor hydraulic fluid loss".Colour(Telnet.Yellow)}");
 		}
 		else if (bloodlossRatio >= 0.65)
 		{
-			sb.Append($"{"moderate hydraulic fluid loss".Colour(Telnet.Red)}");
+			sb.Append($"{"minor hydraulic fluid loss".Colour(Telnet.Yellow)}");
 		}
 		else if (bloodlossRatio >= 0.5)
 		{
-			sb.Append($"{"major hydraulic fluid loss".Colour(Telnet.Red)}");
+			sb.Append($"{"moderate hydraulic fluid loss".Colour(Telnet.Red)}");
 		}
 		else if (bloodlossRatio >= 0.35)
 		{
-			sb.Append($"{"severe hydraulic fluid loss".Colour(Telnet.Red)}");
+			sb.Append($"{"major hydraulic fluid loss".Colour(Telnet.Red)}");
 		}
 		else if (bloodlossRatio >= 0.2)
 		{
-			sb.Append($"{"very severe hydraulic fluid loss".Colour(Telnet.Red)}");
+			sb.Append($"{"severe hydraulic fluid loss".Colour(Telnet.Red)}");
 		}
 		else if (bloodlossRatio >= 0.1)
 		{
@@ -465,7 +550,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 		else if (stunRatio >= 1.0)
 		{
-			sb.Append($"      ");
+			sb.Append("      ");
 		}
 
 		var stamRatio = 1.0 - charOwner.CurrentStamina / charOwner.MaximumStamina;
@@ -496,7 +581,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 		else if (stamRatio >= 1.0)
 		{
-			sb.Append($"      ");
+			sb.Append("      ");
 		}
 
 		sb.Append(" / Hydraulics: ");
@@ -526,7 +611,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 		else
 		{
-			sb.Append($"      ");
+			sb.Append("      ");
 		}
 
 		if (breathRatio < 1.0)
@@ -534,7 +619,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			sb.Append(" / Breath: ");
 			if (breathRatio <= 0.0)
 			{
-				sb.Append($"      ");
+				sb.Append("      ");
 			}
 			else if (breathRatio <= 0.1667)
 			{

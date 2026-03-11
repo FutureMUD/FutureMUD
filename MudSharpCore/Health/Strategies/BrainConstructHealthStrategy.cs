@@ -1,47 +1,101 @@
-﻿using MudSharp.Body;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health.Wounds;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using MudSharp.Body.Traits;
+using MudSharp.Models;
 
 namespace MudSharp.Health.Strategies;
 
 public class BrainConstructHealthStrategy : BaseHealthStrategy
 {
-	private BrainConstructHealthStrategy(Models.HealthStrategy strategy, IFuturemud gameworld)
-		: base(strategy)
+	private static readonly TraitExpressionBuilderField<BrainConstructHealthStrategy>[] TraitExpressionFields =
+	[
+		new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",
+			x => x.MaximumHitPointsExpression, (x, value) => x.MaximumHitPointsExpression = value)
+	];
+
+	private static readonly BoolBuilderField<BrainConstructHealthStrategy>[] BoolFields =
+	[
+		new("CheckPowerCore", ["checkpowercore"], "Check Power Core",
+			x => x.CheckPowerCore, (x, value) => x.CheckPowerCore = value),
+		new("CheckHeart", ["checkheart"], "Check Heart",
+			x => x.CheckHeart, (x, value) => x.CheckHeart = value),
+		new("UseHypoxiaDamage", ["usehypoxiadamage"], "Use Hypoxia Damage",
+			x => x.UseHypoxiaDamage, (x, value) => x.UseHypoxiaDamage = value)
+	];
+
+	private static readonly DoubleBuilderField<BrainConstructHealthStrategy>[] DoubleFields =
+	[
+		PercentageField<BrainConstructHealthStrategy>("CriticalInjuryThreshold", ["criticalinjurythreshold"], "Critical Injury Threshold",
+			x => x.CriticalInjuryThreshold, (x, value) => x.CriticalInjuryThreshold = value)
+	];
+
+	private const string TypeBlurb =
+		"A construct model with optional heart and power-core checks, plus brain-based death handling.";
+
+	private static readonly string TypeHelp = BuildTypeHelp(TypeBlurb,
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(BoolFields))
+			.Concat(GetBuilderFieldHelpText(DoubleFields)));
+
+	private BrainConstructHealthStrategy(HealthStrategy strategy, IFuturemud gameworld)
+		: base(strategy, gameworld)
 	{
 		LoadDefinition(XElement.Parse(strategy.Definition), gameworld);
 	}
 
+	private BrainConstructHealthStrategy(IFuturemud gameworld, string name)
+		: base(gameworld, name)
+	{
+		MaximumHitPointsExpression = CreateDefaultExpression(gameworld, $"{name} Max HP", "100");
+		CheckPowerCore = false;
+		CheckHeart = false;
+		UseHypoxiaDamage = false;
+		CriticalInjuryThreshold = 0.9;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
+	private BrainConstructHealthStrategy(BrainConstructHealthStrategy rhs, string name)
+		: base(rhs, name)
+	{
+		MaximumHitPointsExpression = CloneExpression(rhs.MaximumHitPointsExpression, Gameworld);
+		CheckPowerCore = rhs.CheckPowerCore;
+		CheckHeart = rhs.CheckHeart;
+		UseHypoxiaDamage = rhs.UseHypoxiaDamage;
+		CriticalInjuryThreshold = rhs.CriticalInjuryThreshold;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
 	public override string HealthStrategyType => "BrainConstruct";
+	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
+	public override bool RequiresSpinalCord => false;
 
 	public ITraitExpression MaximumHitPointsExpression { get; set; }
-
-	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
-
 	public bool CheckPowerCore { get; set; }
-
 	public bool CheckHeart { get; set; }
-
 	public bool UseHypoxiaDamage { get; set; }
-
 	public double CriticalInjuryThreshold { get; set; }
 
-	public override bool RequiresSpinalCord => false;
+	protected override IEnumerable<string> SubtypeBuilderHelpText =>
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(BoolFields))
+			.Concat(GetBuilderFieldHelpText(DoubleFields));
 
 	public static void RegisterHealthStrategyLoader()
 	{
-		RegisterHealthStrategy("BrainConstruct", (strategy, game) => new BrainConstructHealthStrategy(strategy, game));
+		RegisterHealthStrategy("BrainConstruct",
+			(strategy, game) => new BrainConstructHealthStrategy(strategy, game),
+			(game, name) => new BrainConstructHealthStrategy(game, name),
+			TypeHelp,
+			TypeBlurb);
 	}
 
 	private void LoadDefinition(XElement root, IFuturemud gameworld)
@@ -60,25 +114,59 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 		}
 
 		MaximumHitPointsExpression = gameworld.TraitExpressions.Get(value);
-
 		CheckPowerCore = LoadBool(root, "CheckPowerCore", false);
 		CheckHeart = LoadBool(root, "CheckHeart", false);
 		UseHypoxiaDamage = LoadBool(root, "UseHypoxiaDamage", false);
 		CriticalInjuryThreshold = LoadDouble(root, "CriticalInjuryThreshold", 0.9);
 	}
 
-	#region Overrides of BaseHealthStrategy
+	protected override void SaveSubtypeDefinition(XElement root)
+	{
+		SaveBuilderFields(root, this, TraitExpressionFields);
+		SaveBuilderFields(root, this, BoolFields);
+		SaveBuilderFields(root, this, DoubleFields);
+	}
+
+	protected override void AppendSubtypeShow(System.Text.StringBuilder sb, ICharacter actor)
+	{
+		sb.AppendLine();
+		AppendBuilderFieldShow(sb, actor, this, TraitExpressionFields);
+		AppendBuilderFieldShow(sb, actor, this, BoolFields);
+		AppendBuilderFieldShow(sb, actor, this, DoubleFields);
+	}
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		if (TryBuildingCommand(actor, command.GetUndo(), TraitExpressionFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), BoolFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), DoubleFields))
+		{
+			return true;
+		}
+
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	public override IHealthStrategy Clone(string name)
+	{
+		return new BrainConstructHealthStrategy(this, name);
+	}
 
 	public override double MaxHP(IHaveWounds owner)
 	{
 		return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits);
 	}
 
-	#endregion
-
 	public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
 	{
-		// Do nothing
 	}
 
 	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
@@ -93,19 +181,13 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 			return Enumerable.Empty<IWound>();
 		}
 
-		IGameItem lodgedItem = null;
-		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
-		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-		if (damage.DamageType.CanLodge() && Dice.Roll(0, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
-		{
-			lodgedItem = damage.LodgableItem;
-		}
+		IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-		return new[]
-		{
+		return
+		[
 			new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
 				lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
-		};
+		];
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)
@@ -127,8 +209,6 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 
 		return EvaluateStatus(thing);
 	}
-
-	#region Overrides of BaseHealthStrategy
 
 	public override HealthTickResult EvaluateStatus(IHaveWounds thing)
 	{
@@ -173,8 +253,6 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 		       owner is ICharacter ch &&
 		       ch.State.HasFlag(CharacterState.Unconscious);
 	}
-
-	#endregion
 
 	public override string ReportConditionPrompt(IHaveWounds owner, PromptType type)
 	{

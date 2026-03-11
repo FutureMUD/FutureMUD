@@ -19,6 +19,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Health.Strategies;
 using MudSharp.RPG.Checks;
 using MudSharp.Body.Disfigurements;
 using MudSharp.GameItems.Inventory;
@@ -4754,6 +4755,91 @@ The syntax is as follows:
 	protected static void PopBloodModel(ICharacter actor, string input)
 	{
 		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.PopulationBloodModelHelper);
+	}
+
+	#endregion
+
+	#region Health Strategies
+
+	public const string HealthStrategyHelpText = @"The #3healthstrategy#0 command is used to view, edit, create, and clone health strategies.
+
+The syntax is as follows:
+
+#3healthstrategy list [<filters>]#0 - lists all of the health strategies
+#3healthstrategy edit <which>#0 - begins editing a health strategy
+#3healthstrategy edit new <type> <name>#0 - creates a new health strategy of the specified type
+#3healthstrategy clone <which> <name>#0 - clones an existing health strategy
+#3healthstrategy close#0 - stops editing a health strategy
+#3healthstrategy show <which>#0 - views information about a health strategy
+#3healthstrategy show#0 - views information about your currently editing health strategy
+#3healthstrategy types#0 - lists all available health strategy types
+#3healthstrategy typehelp <type>#0 - shows the help information for a health strategy type
+#3healthstrategy set name <name>#0 - renames this health strategy
+#3healthstrategy set lodge <expression>#0 - sets the lodge expression
+#3healthstrategy set ...#0 - type-specific health strategy options
+
+You can filter #3healthstrategy list#0 by type, owner type, or with #6+keyword#0 / #6-keyword#0 name filters.";
+
+	[PlayerCommand("HealthStrategy", "healthstrategy", "hs")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("healthstrategy", HealthStrategyHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void HealthStrategy(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.PeekSpeech().EqualTo("types"))
+		{
+			ss.PopSpeech();
+			var sb = new StringBuilder();
+			sb.AppendLine("There are the following health strategy types:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in BaseHealthStrategy.Types
+				let help = BaseHealthStrategy.GetTypeInfoFor(item)
+				select new List<string>
+				{
+					item,
+					help.Blurb
+				},
+				new List<string>
+				{
+					"Type",
+					"Blurb"
+				},
+				actor,
+				Telnet.FunctionYellow
+			));
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualTo("typehelp"))
+		{
+			ss.PopSpeech();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which health strategy type do you want to see help for?");
+				return;
+			}
+
+			var type = ss.SafeRemainingArgument.ToLowerInvariant();
+			if (BaseHealthStrategy.Types.All(x => !x.EqualTo(type)))
+			{
+				actor.OutputHandler.Send($"There is no health strategy type identified by the text {type.ColourCommand()}.");
+				return;
+			}
+
+			var (blurb, help) = BaseHealthStrategy.GetTypeInfoFor(type);
+			var sb = new StringBuilder();
+			sb.AppendLine($"Type help for health strategy type {type.ColourCommand()}:");
+			sb.AppendLine();
+			sb.AppendLine($"Blurb: {blurb}");
+			sb.AppendLine();
+			sb.AppendLine(help.SubstituteANSIColour());
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		GenericBuildingCommand(actor, ss, EditableItemHelper.HealthStrategyHelper);
 	}
 
 	#endregion

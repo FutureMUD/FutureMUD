@@ -1,31 +1,61 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using MudSharp.Models;
+using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health.Wounds;
-using System.Collections.Generic;
+using MudSharp.Models;
 
 namespace MudSharp.Health.Strategies;
 
 public class GameItemHealthStrategy : BaseHealthStrategy
 {
-	private GameItemHealthStrategy(HealthStrategy strategy)
-		: base(strategy)
+	private const string TypeBlurb =
+		"A game item damage model that relies on destroyable item maximum damage and shared severity logic.";
+
+	private static readonly string TypeHelp = BuildTypeHelp(TypeBlurb, Enumerable.Empty<string>());
+
+	private GameItemHealthStrategy(HealthStrategy strategy, IFuturemud gameworld)
+		: base(strategy, gameworld)
 	{
+	}
+
+	private GameItemHealthStrategy(IFuturemud gameworld, string name)
+		: base(gameworld, name)
+	{
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
+	private GameItemHealthStrategy(GameItemHealthStrategy rhs, string name)
+		: base(rhs, name)
+	{
+		DoDatabaseInsert(HealthStrategyType);
 	}
 
 	public static void RegisterHealthStrategyLoader()
 	{
-		RegisterHealthStrategy("GameItem", (strategy, game) => new GameItemHealthStrategy(strategy));
+		RegisterHealthStrategy("GameItem",
+			(strategy, game) => new GameItemHealthStrategy(strategy, game),
+			(game, name) => new GameItemHealthStrategy(game, name),
+			TypeHelp,
+			TypeBlurb);
 	}
 
-	#region IHealthStrategy Members
-
 	public override string HealthStrategyType => "GameItem";
+	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.GameItem;
+
+	public override IHealthStrategy Clone(string name)
+	{
+		return new GameItemHealthStrategy(this, name);
+	}
+
+	protected override void SaveSubtypeDefinition(XElement root)
+	{
+	}
 
 	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
@@ -34,41 +64,34 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 			return Enumerable.Empty<IWound>();
 		}
 
-		IGameItem lodgedItem = null;
-		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
-		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-		if (damage.DamageType.CanLodge() && Dice.Roll(0, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
-		{
-			lodgedItem = damage.LodgableItem;
-		}
+		IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
 		if (lodgedItem != null)
 		{
-			return new[]
-			{
+			return
+			[
 				new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, null, lodgedItem,
 					damage.ToolOrigin, damage.ActorOrigin)
-			};
+			];
 		}
 
 		var existing = owner.Wounds.FirstOrDefault(x => x.DamageType == damage.DamageType);
-		if (existing != null && Dice.Roll(1,6) == 1)
+		if (existing != null && Dice.Roll(1, 6) == 1)
 		{
 			existing.SufferAdditionalDamage(damage);
-			return new[] { existing };
+			return [existing];
 		}
 
-		return new[]
-		{
+		return
+		[
 			new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, null, null,
 				damage.ToolOrigin, damage.ActorOrigin)
-		};
+		];
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)
 	{
 		var item = thing as IGameItem;
-
 		var destroyable = item?.GetItemType<IDestroyable>();
 		if (destroyable == null)
 		{
@@ -80,8 +103,6 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 			: HealthTickResult.Dead;
 	}
 
-	#region Overrides of BaseHealthStrategy
-
 	public override HealthTickResult EvaluateStatus(IHaveWounds thing)
 	{
 		return PerformHealthTick(thing);
@@ -89,7 +110,6 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 
 	public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
 	{
-		// Do nothing
 	}
 
 	public override double MaxHP(IHaveWounds owner)
@@ -97,21 +117,14 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 		return ((IGameItem)owner).GetItemType<IDestroyable>()?.MaximumDamage ?? 0.0;
 	}
 
-	#endregion
-
 	public override string ReportConditionPrompt(IHaveWounds owner, PromptType type)
 	{
-		// TODO - should this be possible? Should an exception be thrown?
 		return "<Fine>";
 	}
-
-	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.GameItem;
 
 	public override bool IsCriticallyInjured(IHaveWounds owner)
 	{
 		return owner.Wounds.Sum(x => x.CurrentDamage * x.Bodypart?.DamageModifier) /
-			(((IGameItem)owner).GetItemType<IDestroyable>()?.MaximumDamage ?? 1.0) > 0.9;
+		       (((IGameItem)owner).GetItemType<IDestroyable>()?.MaximumDamage ?? 1.0) > 0.9;
 	}
-
-	#endregion
 }

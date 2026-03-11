@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -13,6 +13,7 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
+using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.Health.Wounds;
 using MudSharp.PerceptionEngine;
@@ -25,10 +26,224 @@ namespace MudSharp.Health.Strategies;
 
 public class SimpleLivingHealthStrategy : BaseHealthStrategy
 {
+	private static readonly TraitExpressionBuilderField<SimpleLivingHealthStrategy>[] TraitExpressionFields =
+	[
+		new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",
+			x => x.MaximumHitPointsExpression, (x, value) => x.MaximumHitPointsExpression = value),
+		new("MaximumStunExpression", ["maxstun", "maximumstunexpression"], "Maximum Stun Expression",
+			x => x.MaximumStunExpression, (x, value) => x.MaximumStunExpression = value),
+		new("MaximumPainExpression", ["maxpain", "maximumpainexpression"], "Maximum Pain Expression",
+			x => x.MaximumPainExpression, (x, value) => x.MaximumPainExpression = value),
+		new("HealingTickDamageExpression", ["healdamage", "healingtickdamageexpression"], "Healing Tick Damage Expression",
+			x => x.HealingTickDamageExpression, (x, value) => x.HealingTickDamageExpression = value),
+		new("HealingTickStunExpression", ["healstun", "healingtickstunexpression"], "Healing Tick Stun Expression",
+			x => x.HealingTickStunExpression, (x, value) => x.HealingTickStunExpression = value),
+		new("HealingTickPainExpression", ["healpain", "healingtickpainexpression"], "Healing Tick Pain Expression",
+			x => x.HealingTickPainExpression, (x, value) => x.HealingTickPainExpression = value)
+	];
+
+	private static readonly DoubleBuilderField<SimpleLivingHealthStrategy>[] DoubleFields =
+	[
+		PercentageField<SimpleLivingHealthStrategy>("PercentageHealthPerPenalty", ["percentagehealthperpenalty", "healthpenalty"], "Percentage Health Per Penalty",
+			x => x.PercentageHealthPerPenalty, (x, value) => x.PercentageHealthPerPenalty = value),
+		PercentageField<SimpleLivingHealthStrategy>("PercentageStunPerPenalty", ["percentagestunperpenalty", "stunpenalty"], "Percentage Stun Per Penalty",
+			x => x.PercentageStunPerPenalty, (x, value) => x.PercentageStunPerPenalty = value),
+		PercentageField<SimpleLivingHealthStrategy>("PercentagePainPerPenalty", ["percentagepainperpenalty", "painpenalty"], "Percentage Pain Per Penalty",
+			x => x.PercentagePainPerPenalty, (x, value) => x.PercentagePainPerPenalty = value),
+		PercentageField<SimpleLivingHealthStrategy>("HPGrace", ["hpgrace"], "HP Grace",
+			x => x.HPGrace, (x, value) => x.HPGrace = value),
+		PercentageField<SimpleLivingHealthStrategy>("InternalBleedingRecoveryMinRatio", ["ibrecoveryminratio", "internalbleedingrecoveryminratio"], "Internal Bleeding Recovery Minimum Ratio",
+			x => x.InternalBleedingRecoveryMinRatio, (x, value) => x.InternalBleedingRecoveryMinRatio = value),
+		UnitField<SimpleLivingHealthStrategy>("InternalBleedingRecoveryFlatReduction", ["ibrecoveryflat", "internalbleedingrecoveryflatreduction"], "Internal Bleeding Recovery Flat Reduction",
+			UnitType.FluidVolume,
+			x => x.InternalBleedingRecoveryFlatReduction, (x, value) => x.InternalBleedingRecoveryFlatReduction = value),
+		PercentageField<SimpleLivingHealthStrategy>("InternalBleedingRecoveryMultiplier", ["ibrecoverymultiplier", "internalbleedingrecoverymultiplier"], "Internal Bleeding Recovery Multiplier",
+			x => x.InternalBleedingRecoveryMultiplier, (x, value) => x.InternalBleedingRecoveryMultiplier = value),
+		UnitField<SimpleLivingHealthStrategy>("InternalBleedingTotalDecayFlatReduction", ["ibdecayflat", "internalbleedingtotaldecayflatreduction"], "Internal Bleeding Total Decay Flat Reduction",
+			UnitType.FluidVolume,
+			x => x.InternalBleedingTotalDecayFlatReduction, (x, value) => x.InternalBleedingTotalDecayFlatReduction = value),
+		PercentageField<SimpleLivingHealthStrategy>("InternalBleedingTotalDecayMultiplier", ["ibdecaymultiplier", "internalbleedingtotaldecaymultiplier"], "Internal Bleeding Total Decay Multiplier",
+			x => x.InternalBleedingTotalDecayMultiplier, (x, value) => x.InternalBleedingTotalDecayMultiplier = value),
+		UnitField<SimpleLivingHealthStrategy>("AirwayBloodMinorThreshold", ["airwayminor", "airwaybloodminorthreshold"], "Airway Blood Minor Threshold",
+			UnitType.FluidVolume,
+			x => x.AirwayBloodMinorThreshold, (x, value) => x.AirwayBloodMinorThreshold = value),
+		UnitField<SimpleLivingHealthStrategy>("AirwayBloodModerateThreshold", ["airwaymoderate", "airwaybloodmoderatethreshold"], "Airway Blood Moderate Threshold",
+			UnitType.FluidVolume,
+			x => x.AirwayBloodModerateThreshold, (x, value) => x.AirwayBloodModerateThreshold = value),
+		UnitField<SimpleLivingHealthStrategy>("AirwayBloodSevereThreshold", ["airwaysevere", "airwaybloodseverethreshold"], "Airway Blood Severe Threshold",
+			UnitType.FluidVolume,
+			x => x.AirwayBloodSevereThreshold, (x, value) => x.AirwayBloodSevereThreshold = value),
+		UnitField<SimpleLivingHealthStrategy>("DigestiveBloodMinorThreshold", ["digestiveminor", "digestivebloodminorthreshold"], "Digestive Blood Minor Threshold",
+			UnitType.FluidVolume,
+			x => x.DigestiveBloodMinorThreshold, (x, value) => x.DigestiveBloodMinorThreshold = value),
+		UnitField<SimpleLivingHealthStrategy>("DigestiveBloodModerateThreshold", ["digestivemoderate", "digestivebloodmoderatethreshold"], "Digestive Blood Moderate Threshold",
+			UnitType.FluidVolume,
+			x => x.DigestiveBloodModerateThreshold, (x, value) => x.DigestiveBloodModerateThreshold = value),
+		UnitField<SimpleLivingHealthStrategy>("DigestiveBloodSevereThreshold", ["digestivesevere", "digestivebloodseverethreshold"], "Digestive Blood Severe Threshold",
+			UnitType.FluidVolume,
+			x => x.DigestiveBloodSevereThreshold, (x, value) => x.DigestiveBloodSevereThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("CardiacHypoxiaThreshold", ["cardiachypoxiathreshold"], "Cardiac Hypoxia Threshold",
+			x => x.CardiacHypoxiaThreshold, (x, value) => x.CardiacHypoxiaThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("BloodReplacementHypoxiaThreshold", ["bloodreplacementhypoxiathreshold"], "Blood Replacement Hypoxia Threshold",
+			x => x.BloodReplacementHypoxiaThreshold, (x, value) => x.BloodReplacementHypoxiaThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("HydratingHypoxiaThreshold", ["hydratinghypoxiathreshold"], "Hydrating Hypoxia Threshold",
+			x => x.HydratingHypoxiaThreshold, (x, value) => x.HydratingHypoxiaThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("TissueDieOffHarmfulMultiplier", ["tissuedieoffharmfulmultiplier"], "Tissue Die Off Harmful Multiplier",
+			x => x.TissueDieOffHarmfulMultiplier, (x, value) => x.TissueDieOffHarmfulMultiplier = value),
+		PercentageField<SimpleLivingHealthStrategy>("TissueDieOffDeadlyMultiplier", ["tissuedieoffdeadlymultiplier"], "Tissue Die Off Deadly Multiplier",
+			x => x.TissueDieOffDeadlyMultiplier, (x, value) => x.TissueDieOffDeadlyMultiplier = value),
+		UnitField<SimpleLivingHealthStrategy>("TissueDieOffKidneyWasteThreshold", ["tissuedieoffkidneywastethreshold"], "Tissue Die Off Kidney Waste Threshold",
+			UnitType.FluidVolume,
+			x => x.TissueDieOffKidneyWasteThreshold, (x, value) => x.TissueDieOffKidneyWasteThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("TissueDieOffKidneyWasteMultiplier", ["tissuedieoffkidneywastemultiplier"], "Tissue Die Off Kidney Waste Multiplier",
+			x => x.TissueDieOffKidneyWasteMultiplier, (x, value) => x.TissueDieOffKidneyWasteMultiplier = value),
+		PercentageField<SimpleLivingHealthStrategy>("BloodLossDeadThreshold", ["bloodlossdeadthreshold"], "Blood Loss Dead Threshold",
+			x => x.BloodLossDeadThreshold, (x, value) => x.BloodLossDeadThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("BrainActivityUnconsciousThreshold", ["brainactivityunconsciousthreshold"], "Brain Activity Unconscious Threshold",
+			x => x.BrainActivityUnconsciousThreshold, (x, value) => x.BrainActivityUnconsciousThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("BloodLossUnconsciousThreshold", ["bloodlossunconsciousthreshold"], "Blood Loss Unconscious Threshold",
+			x => x.BloodLossUnconsciousThreshold, (x, value) => x.BloodLossUnconsciousThreshold = value),
+		new("AnesthesiaDeathThreshold", ["anesthesiadeaththreshold"], "Anesthesia Death Threshold",
+			x => x.AnesthesiaDeathThreshold, (x, value) => x.AnesthesiaDeathThreshold = value),
+		new("AnesthesiaUnconsciousThreshold", ["anesthesiaunconsciousthreshold"], "Anesthesia Unconscious Threshold",
+			x => x.AnesthesiaUnconsciousThreshold, (x, value) => x.AnesthesiaUnconsciousThreshold = value),
+		PercentageField<SimpleLivingHealthStrategy>("ContaminantHydratingRemovalFraction", ["contaminanthydratingremovalfraction"], "Contaminant Hydrating Removal Fraction",
+			x => x.ContaminantHydratingRemovalFraction, (x, value) => x.ContaminantHydratingRemovalFraction = value),
+		PercentageField<SimpleLivingHealthStrategy>("ContaminantBloodRemovalFraction", ["contaminantbloodremovalfraction"], "Contaminant Blood Removal Fraction",
+			x => x.ContaminantBloodRemovalFraction, (x, value) => x.ContaminantBloodRemovalFraction = value),
+		PercentageField<SimpleLivingHealthStrategy>("BloodCleanseFraction", ["bloodcleansefraction"], "Blood Cleanse Fraction",
+			x => x.BloodCleanseFraction, (x, value) => x.BloodCleanseFraction = value),
+		PercentageField<SimpleLivingHealthStrategy>("BloodRegenerationFraction", ["bloodregenerationfraction"], "Blood Regeneration Fraction",
+			x => x.BloodRegenerationFraction, (x, value) => x.BloodRegenerationFraction = value),
+		new("BloodGainThirstPointsPerTick", ["bloodgainthirstpointspertick"], "Blood Gain Thirst Points Per Tick",
+			x => x.BloodGainThirstPointsPerTick, (x, value) => x.BloodGainThirstPointsPerTick = value),
+		UnitField<SimpleLivingHealthStrategy>("BloodGainWaterLitresPerBloodChange", ["bloodgainwaterlitresperbloodchange"], "Blood Gain Water Litres Per Blood Change",
+			UnitType.FluidVolume,
+			x => x.BloodGainWaterLitresPerBloodChange, (x, value) => x.BloodGainWaterLitresPerBloodChange = value)
+	];
+
+	private static readonly IntBuilderField<SimpleLivingHealthStrategy>[] IntFields =
+	[
+		new("InternalBleedingRecoveryRollSides", ["ibrecoveryrollsides", "internalbleedingrecoveryrollsides"], "Internal Bleeding Recovery Roll Sides",
+			x => x.InternalBleedingRecoveryRollSides, (x, value) => x.InternalBleedingRecoveryRollSides = value,
+			Validator: (_, value) => value > 0
+				? (true, string.Empty, value)
+				: (false, "The internal bleeding recovery roll sides must be at least 1.", value))
+	];
+
+	private static readonly TimeSpanBuilderField<SimpleLivingHealthStrategy>[] TimeSpanFields =
+	[
+		new("BleedMessageCooldown", ["bleedcooldown", "bleedmessagecooldown"], "Bleed Message Cooldown",
+			x => x.BleedMessageCooldown, (x, value) => x.BleedMessageCooldown = value)
+	];
+
+	private const string TypeBlurb =
+		"A simple organic character model with hit point, stun, pain, blood loss, hypoxia, and contaminant recovery tuning.";
+
+	private static readonly string TypeHelp = BuildTypeHelp(TypeBlurb,
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(DoubleFields))
+			.Concat(GetBuilderFieldHelpText(IntFields))
+			.Concat(GetBuilderFieldHelpText(TimeSpanFields)));
+
 	private SimpleLivingHealthStrategy(HealthStrategy strategy, IFuturemud gameworld)
-		: base(strategy)
+		: base(strategy, gameworld)
 	{
 		LoadDefinition(XElement.Parse(strategy.Definition), gameworld);
+	}
+
+	private SimpleLivingHealthStrategy(IFuturemud gameworld, string name)
+		: base(gameworld, name)
+	{
+		MaximumHitPointsExpression = CreateDefaultExpression(gameworld, $"{name} Max HP", "100");
+		MaximumStunExpression = CreateDefaultExpression(gameworld, $"{name} Max Stun", "100");
+		MaximumPainExpression = CreateDefaultExpression(gameworld, $"{name} Max Pain", "100");
+		HealingTickDamageExpression = CreateDefaultExpression(gameworld, $"{name} Damage Heal", "1");
+		HealingTickStunExpression = CreateDefaultExpression(gameworld, $"{name} Stun Heal", "1");
+		HealingTickPainExpression = CreateDefaultExpression(gameworld, $"{name} Pain Heal", "1");
+		PercentageHealthPerPenalty = 1.0;
+		PercentageStunPerPenalty = 1.0;
+		PercentagePainPerPenalty = 1.0;
+		HPGrace = 1.1;
+		BleedMessageCooldown = TimeSpan.FromSeconds(15);
+		InternalBleedingRecoveryRollSides = 20;
+		InternalBleedingRecoveryMinRatio = 0.05;
+		InternalBleedingRecoveryFlatReduction = 0.01;
+		InternalBleedingRecoveryMultiplier = 0.66;
+		InternalBleedingTotalDecayFlatReduction = 1.0;
+		InternalBleedingTotalDecayMultiplier = 0.98;
+		AirwayBloodMinorThreshold = 0.025;
+		AirwayBloodModerateThreshold = 0.1;
+		AirwayBloodSevereThreshold = 0.2;
+		DigestiveBloodMinorThreshold = 0.2;
+		DigestiveBloodModerateThreshold = 0.33;
+		DigestiveBloodSevereThreshold = 0.66;
+		CardiacHypoxiaThreshold = 0.3;
+		BloodReplacementHypoxiaThreshold = 0.5;
+		HydratingHypoxiaThreshold = 0.66;
+		TissueDieOffHarmfulMultiplier = 1.0;
+		TissueDieOffDeadlyMultiplier = 5.0;
+		TissueDieOffKidneyWasteThreshold = 1000.0;
+		TissueDieOffKidneyWasteMultiplier = 0.5;
+		BloodLossDeadThreshold = 0.5;
+		BrainActivityUnconsciousThreshold = 0.9;
+		BloodLossUnconsciousThreshold = 0.6;
+		AnesthesiaDeathThreshold = 10.0;
+		AnesthesiaUnconsciousThreshold = 1.0;
+		ContaminantHydratingRemovalFraction = 0.001;
+		ContaminantBloodRemovalFraction = 0.002;
+		BloodCleanseFraction = 0.00025;
+		BloodRegenerationFraction = 0.0005;
+		BloodGainThirstPointsPerTick = -0.01;
+		BloodGainWaterLitresPerBloodChange = -0.85;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
+	private SimpleLivingHealthStrategy(SimpleLivingHealthStrategy rhs, string name)
+		: base(rhs, name)
+	{
+		MaximumHitPointsExpression = CloneExpression(rhs.MaximumHitPointsExpression, Gameworld);
+		MaximumStunExpression = CloneExpression(rhs.MaximumStunExpression, Gameworld);
+		MaximumPainExpression = CloneExpression(rhs.MaximumPainExpression, Gameworld);
+		HealingTickDamageExpression = CloneExpression(rhs.HealingTickDamageExpression, Gameworld);
+		HealingTickStunExpression = CloneExpression(rhs.HealingTickStunExpression, Gameworld);
+		HealingTickPainExpression = CloneExpression(rhs.HealingTickPainExpression, Gameworld);
+		PercentageHealthPerPenalty = rhs.PercentageHealthPerPenalty;
+		PercentageStunPerPenalty = rhs.PercentageStunPerPenalty;
+		PercentagePainPerPenalty = rhs.PercentagePainPerPenalty;
+		HPGrace = rhs.HPGrace;
+		BleedMessageCooldown = rhs.BleedMessageCooldown;
+		InternalBleedingRecoveryRollSides = rhs.InternalBleedingRecoveryRollSides;
+		InternalBleedingRecoveryMinRatio = rhs.InternalBleedingRecoveryMinRatio;
+		InternalBleedingRecoveryFlatReduction = rhs.InternalBleedingRecoveryFlatReduction;
+		InternalBleedingRecoveryMultiplier = rhs.InternalBleedingRecoveryMultiplier;
+		InternalBleedingTotalDecayFlatReduction = rhs.InternalBleedingTotalDecayFlatReduction;
+		InternalBleedingTotalDecayMultiplier = rhs.InternalBleedingTotalDecayMultiplier;
+		AirwayBloodMinorThreshold = rhs.AirwayBloodMinorThreshold;
+		AirwayBloodModerateThreshold = rhs.AirwayBloodModerateThreshold;
+		AirwayBloodSevereThreshold = rhs.AirwayBloodSevereThreshold;
+		DigestiveBloodMinorThreshold = rhs.DigestiveBloodMinorThreshold;
+		DigestiveBloodModerateThreshold = rhs.DigestiveBloodModerateThreshold;
+		DigestiveBloodSevereThreshold = rhs.DigestiveBloodSevereThreshold;
+		CardiacHypoxiaThreshold = rhs.CardiacHypoxiaThreshold;
+		BloodReplacementHypoxiaThreshold = rhs.BloodReplacementHypoxiaThreshold;
+		HydratingHypoxiaThreshold = rhs.HydratingHypoxiaThreshold;
+		TissueDieOffHarmfulMultiplier = rhs.TissueDieOffHarmfulMultiplier;
+		TissueDieOffDeadlyMultiplier = rhs.TissueDieOffDeadlyMultiplier;
+		TissueDieOffKidneyWasteThreshold = rhs.TissueDieOffKidneyWasteThreshold;
+		TissueDieOffKidneyWasteMultiplier = rhs.TissueDieOffKidneyWasteMultiplier;
+		BloodLossDeadThreshold = rhs.BloodLossDeadThreshold;
+		BrainActivityUnconsciousThreshold = rhs.BrainActivityUnconsciousThreshold;
+		BloodLossUnconsciousThreshold = rhs.BloodLossUnconsciousThreshold;
+		AnesthesiaDeathThreshold = rhs.AnesthesiaDeathThreshold;
+		AnesthesiaUnconsciousThreshold = rhs.AnesthesiaUnconsciousThreshold;
+		ContaminantHydratingRemovalFraction = rhs.ContaminantHydratingRemovalFraction;
+		ContaminantBloodRemovalFraction = rhs.ContaminantBloodRemovalFraction;
+		BloodCleanseFraction = rhs.BloodCleanseFraction;
+		BloodRegenerationFraction = rhs.BloodRegenerationFraction;
+		BloodGainThirstPointsPerTick = rhs.BloodGainThirstPointsPerTick;
+		BloodGainWaterLitresPerBloodChange = rhs.BloodGainWaterLitresPerBloodChange;
+		DoDatabaseInsert(HealthStrategyType);
 	}
 
 	public ITraitExpression HealingTickDamageExpression { get; set; }
@@ -78,9 +293,19 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 	public override string HealthStrategyType => "SimpleLiving";
 	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
 
+	protected override IEnumerable<string> SubtypeBuilderHelpText =>
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(DoubleFields))
+			.Concat(GetBuilderFieldHelpText(IntFields))
+			.Concat(GetBuilderFieldHelpText(TimeSpanFields));
+
 	public static void RegisterHealthStrategyLoader()
 	{
-		RegisterHealthStrategy("SimpleLiving", (strategy, game) => new SimpleLivingHealthStrategy(strategy, game));
+		RegisterHealthStrategy("SimpleLiving",
+			(strategy, game) => new SimpleLivingHealthStrategy(strategy, game),
+			(game, name) => new SimpleLivingHealthStrategy(game, name),
+			TypeHelp,
+			TypeBlurb);
 	}
 
 	private void LoadDefinition(XElement root, IFuturemud gameworld)
@@ -212,6 +437,53 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 		HealingTickPainExpression = gameworld.TraitExpressions.Get(value);
 	}
 
+	protected override void SaveSubtypeDefinition(XElement root)
+	{
+		SaveBuilderFields(root, this, TraitExpressionFields);
+		SaveBuilderFields(root, this, DoubleFields);
+		SaveBuilderFields(root, this, IntFields);
+		SaveBuilderFields(root, this, TimeSpanFields);
+	}
+
+	protected override void AppendSubtypeShow(System.Text.StringBuilder sb, ICharacter actor)
+	{
+		sb.AppendLine();
+		AppendBuilderFieldShow(sb, actor, this, TraitExpressionFields);
+		AppendBuilderFieldShow(sb, actor, this, DoubleFields);
+		AppendBuilderFieldShow(sb, actor, this, IntFields);
+		AppendBuilderFieldShow(sb, actor, this, TimeSpanFields);
+	}
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		if (TryBuildingCommand(actor, command.GetUndo(), TraitExpressionFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), DoubleFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), IntFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), TimeSpanFields))
+		{
+			return true;
+		}
+
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	public override IHealthStrategy Clone(string name)
+	{
+		return new SimpleLivingHealthStrategy(this, name);
+	}
+
 	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (bodypart == null)
@@ -219,13 +491,7 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 			return Enumerable.Empty<IWound>();
 		}
 
-		IGameItem lodgedItem = null;
-		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
-		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-		if (Dice.Roll(0, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
-		{
-			lodgedItem = damage.LodgableItem;
-		}
+		IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
 		return new[]
 		{

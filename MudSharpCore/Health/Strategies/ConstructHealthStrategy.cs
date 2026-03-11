@@ -1,40 +1,79 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using MudSharp.Models;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
-using MudSharp.Database;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health.Wounds;
-using TraitExpression = MudSharp.Body.Traits.TraitExpression;
-using System.Collections.Generic;
+using MudSharp.Models;
 
 namespace MudSharp.Health.Strategies;
 
 public class ConstructHealthStrategy : BaseHealthStrategy
 {
+	private static readonly TraitExpressionBuilderField<ConstructHealthStrategy>[] TraitExpressionFields =
+	[
+		new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",
+			x => x.MaximumHitPointsExpression, (x, value) => x.MaximumHitPointsExpression = value)
+	];
+
+	private static readonly DoubleBuilderField<ConstructHealthStrategy>[] DoubleFields =
+	[
+		PercentageField<ConstructHealthStrategy>("CriticalInjuryThreshold", ["criticalinjurythreshold"], "Critical Injury Threshold",
+			x => x.CriticalInjuryThreshold, (x, value) => x.CriticalInjuryThreshold = value)
+	];
+
+	private const string TypeBlurb =
+		"A non-organic construct model that ignores hypoxia and cellular damage and dies when its hit points are exhausted.";
+
+	private static readonly string TypeHelp = BuildTypeHelp(TypeBlurb,
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(DoubleFields)));
+
 	private ConstructHealthStrategy(HealthStrategy strategy, IFuturemud gameworld)
-		: base(strategy)
+		: base(strategy, gameworld)
 	{
 		LoadDefinition(XElement.Parse(strategy.Definition), gameworld);
 	}
 
+	private ConstructHealthStrategy(IFuturemud gameworld, string name)
+		: base(gameworld, name)
+	{
+		MaximumHitPointsExpression = CreateDefaultExpression(gameworld, $"{name} Max HP", "100");
+		CriticalInjuryThreshold = 0.9;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
+	private ConstructHealthStrategy(ConstructHealthStrategy rhs, string name)
+		: base(rhs, name)
+	{
+		MaximumHitPointsExpression = CloneExpression(rhs.MaximumHitPointsExpression, Gameworld);
+		CriticalInjuryThreshold = rhs.CriticalInjuryThreshold;
+		DoDatabaseInsert(HealthStrategyType);
+	}
+
 	public override string HealthStrategyType => "Construct";
+	public override bool RequiresSpinalCord => false;
+	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
 
 	public ITraitExpression MaximumHitPointsExpression { get; set; }
 	public double CriticalInjuryThreshold { get; set; }
 
-	public override bool RequiresSpinalCord => false;
-
-	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.Character;
+	protected override IEnumerable<string> SubtypeBuilderHelpText =>
+		GetBuilderFieldHelpText(TraitExpressionFields)
+			.Concat(GetBuilderFieldHelpText(DoubleFields));
 
 	public static void RegisterHealthStrategyLoader()
 	{
-		RegisterHealthStrategy("Construct", (strategy, game) => new ConstructHealthStrategy(strategy, game));
+		RegisterHealthStrategy("Construct",
+			(strategy, game) => new ConstructHealthStrategy(strategy, game),
+			(game, name) => new ConstructHealthStrategy(game, name),
+			TypeHelp,
+			TypeBlurb);
 	}
 
 	private void LoadDefinition(XElement root, IFuturemud gameworld)
@@ -56,18 +95,46 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 		CriticalInjuryThreshold = LoadDouble(root, "CriticalInjuryThreshold", 0.9);
 	}
 
-	#region Overrides of BaseHealthStrategy
+	protected override void SaveSubtypeDefinition(XElement root)
+	{
+		SaveBuilderFields(root, this, TraitExpressionFields);
+		SaveBuilderFields(root, this, DoubleFields);
+	}
+
+	protected override void AppendSubtypeShow(System.Text.StringBuilder sb, ICharacter actor)
+	{
+		sb.AppendLine();
+		AppendBuilderFieldShow(sb, actor, this, TraitExpressionFields);
+		AppendBuilderFieldShow(sb, actor, this, DoubleFields);
+	}
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		if (TryBuildingCommand(actor, command.GetUndo(), TraitExpressionFields))
+		{
+			return true;
+		}
+
+		if (TryBuildingCommand(actor, command.GetUndo(), DoubleFields))
+		{
+			return true;
+		}
+
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	public override IHealthStrategy Clone(string name)
+	{
+		return new ConstructHealthStrategy(this, name);
+	}
 
 	public override double MaxHP(IHaveWounds owner)
 	{
 		return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits);
 	}
 
-	#endregion
-
 	public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
 	{
-		// Do nothing
 	}
 
 	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
@@ -77,19 +144,13 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 			return Enumerable.Empty<IWound>();
 		}
 
-		IGameItem lodgedItem = null;
-		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
-		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-		if (damage.DamageType.CanLodge() && Dice.Roll(0, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
-		{
-			lodgedItem = damage.LodgableItem;
-		}
+		IGameItem lodgedItem = CheckDamageLodges(damage) ? damage.LodgableItem : null;
 
-		return new[]
-		{
+		return
+		[
 			new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
 				lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
-		};
+		];
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)
@@ -110,8 +171,6 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 			: HealthTickResult.Dead;
 	}
 
-	#region Overrides of BaseHealthStrategy
-
 	public override HealthTickResult EvaluateStatus(IHaveWounds thing)
 	{
 		return PerformHealthTick(thing);
@@ -124,8 +183,6 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 		       owner is ICharacter ch &&
 		       ch.State.HasFlag(CharacterState.Unconscious);
 	}
-
-	#endregion
 
 	public override string ReportConditionPrompt(IHaveWounds owner, PromptType type)
 	{

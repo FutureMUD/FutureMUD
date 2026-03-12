@@ -436,6 +436,24 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		context.BodyProtos.Add(crabBody);
 		context.SaveChanges();
 
+		var malacostracanBody = new BodyProto
+		{
+			Id = nextId++,
+			CountsAs = crabBody,
+			Name = "Malacostracan",
+			ConsiderString = "",
+			WielderDescriptionSingle = "claw",
+			WielderDescriptionPlural = "claws",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 4,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(malacostracanBody);
+		context.SaveChanges();
+
 		var cephalopod = new BodyProto
 		{
 			Id = nextId++,
@@ -504,7 +522,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		context.BodyProtos.Add(cetacean);
 		context.SaveChanges();
 
-		SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
+		SeedAquatic(fishBody, crabBody, malacostracanBody, cephalopod, jellyfish, pinniped, cetacean);
 
 		Console.WriteLine("Installing insectoids...");
 		var insectBody = new BodyProto
@@ -544,10 +562,103 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		SeedInsectoid(insectBody);
 		SeedWingedInsectoid(wingedInsectBody);
 
+		var arachnidBody = new BodyProto
+		{
+			Id = nextId++,
+			CountsAs = insectBody,
+			Name = "Arachnid",
+			ConsiderString = "",
+			WielderDescriptionSingle = "fang",
+			WielderDescriptionPlural = "fangs",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 6,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(arachnidBody);
+		context.SaveChanges();
+
+		var scorpionBody = new BodyProto
+		{
+			Id = nextId++,
+			CountsAs = arachnidBody,
+			Name = "Scorpion",
+			ConsiderString = "",
+			WielderDescriptionSingle = "claw",
+			WielderDescriptionPlural = "claws",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 6,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(scorpionBody);
+		context.SaveChanges();
+
+		SeedArachnidBody(arachnidBody, false);
+		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
+		SeedAnimalRaces(GetArachnidRaceTemplates().Where(x => x.BodyKey == "Arachnid"),
+			("Arachnid", arachnidBody));
+
+		SeedArachnidBody(scorpionBody, true);
+		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
+		SeedAnimalRaces(GetArachnidRaceTemplates().Where(x => x.BodyKey == "Scorpion"),
+			("Scorpion", scorpionBody));
+
+		var reptilianBody = new BodyProto
+		{
+			Id = nextId++,
+			CountsAs = toedQuadruped,
+			Name = "Reptilian",
+			ConsiderString = "",
+			WielderDescriptionSingle = "mouth",
+			WielderDescriptionPlural = "mouths",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 3,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(reptilianBody);
+		context.SaveChanges();
+
+		var anuranBody = new BodyProto
+		{
+			Id = nextId++,
+			CountsAs = reptilianBody,
+			Name = "Anuran",
+			ConsiderString = "",
+			WielderDescriptionSingle = "mouth",
+			WielderDescriptionPlural = "mouths",
+			StaminaRecoveryProgId = staminaRecoveryProg.Id,
+			MinimumLegsToStand = 2,
+			MinimumWingsToFly = 2,
+			LegDescriptionPlural = "legs",
+			LegDescriptionSingular = "leg",
+			WearSizeParameter = wearSize
+		};
+		context.BodyProtos.Add(anuranBody);
+		context.SaveChanges();
+
+		SeedReptilianBodies(toedQuadruped, reptilianBody, anuranBody);
+		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
+		SeedAnimalRaces(GetReptileAmphibianRaceTemplates(),
+			("Reptilian", reptilianBody),
+			("Anuran", anuranBody));
+
 		SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
 				cetacean, wormBody, insectBody, wingedInsectBody);
 		SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
 				cetacean, wormBody, insectBody, wingedInsectBody);
+		CloneBodyPositionsAndSpeeds(crabBody, malacostracanBody);
+		CloneBodyPositionsAndSpeeds(insectBody, arachnidBody);
+		CloneBodyPositionsAndSpeeds(insectBody, scorpionBody);
+		CloneBodyPositionsAndSpeeds(toedQuadruped, reptilianBody);
+		CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
 
 		context.Database.CommitTransaction();
 
@@ -965,115 +1076,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 	private void SetupHeightWeightModels()
 	{
 		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Height Weight Models...");
-		AddHWModel("Big Cat Baby", 30, 1.5, 111.111111111111, 11.1111111111111);
-		AddHWModel("Big Cat Female", 60, 3, 125, 12.5);
-		AddHWModel("Big Cat Juvenile", 40, 2, 175, 17.5);
-		AddHWModel("Big Cat Male", 65, 3.25, 142.011834319527, 14.2011834319527);
-		AddHWModel("Cat", 35, 1.75, 81.6326530612245, 8.16326530612245);
-		AddHWModel("Cow Baby", 80, 4, 121.875, 12.1875);
-		AddHWModel("Cow Female", 180, 9, 154.320987654321, 15.4320987654321);
-		AddHWModel("Cow Juvenile", 130, 6.5, 118.343195266272, 11.8343195266272);
-		AddHWModel("Cow Male", 200, 10, 212.5, 21.25);
-		AddHWModel("Deer Baby", 30, 1.5, 111.111111111111, 11.1111111111111);
-		AddHWModel("Deer Female", 65, 3.25, 118.343195266272, 11.8343195266272);
-		AddHWModel("Deer Juvenile", 45, 2.25, 148.148148148148, 14.8148148148148);
-		AddHWModel("Deer Male", 80, 4, 234.375, 23.4375);
-		AddHWModel("Dog", 65, 3.25, 71.0059171597633, 7.10059171597633);
-		AddHWModel("Wolf", 65, 3.25, 71.0059171597633, 7.10059171597633);
-		AddHWModel("Elephant Baby", 150, 7.5, 311.111111111111, 31.1111111111111);
-		AddHWModel("Elephant Female", 310, 15.5, 322.58064516129, 32.258064516129);
-		AddHWModel("Elephant Juvenile", 220, 11, 247.933884297521, 24.7933884297521);
-		AddHWModel("Elephant Male", 330, 16.5, 550.964187327824, 55.0964187327824);
-		AddHWModel("Hippo Baby", 90, 4.5, 555.555555555556, 55.5555555555556);
-		AddHWModel("Hippo Female", 150, 7.5, 577.777777777778, 57.7777777777778);
-		AddHWModel("Hippo Juvenile", 120, 6, 541.666666666667, 54.1666666666667);
-		AddHWModel("Hippo Male", 160, 8, 585.9375, 58.59375);
-		AddHWModel("Huge Bird", 150, 7.5, 8.88888888888889, 0.888888888888889);
-		AddHWModel("Large Bird", 90, 4.5, 11.1111111111111, 1.11111111111111);
-		AddHWModel("Lion Baby", 40, 2, 62.5, 6.25);
-		AddHWModel("Lion Female", 110, 5.5, 123.96694214876, 12.396694214876);
-		AddHWModel("Lion Juvenile", 80, 4, 109.375, 10.9375);
-		AddHWModel("Lion Male", 120, 6, 131.944444444444, 13.1944444444444);
-		AddHWModel("Large Mammal", 120, 6, 131.944444444444, 13.1944444444444);
-		AddHWModel("Tiger Baby", 40, 2, 62.5, 6.25);
-		AddHWModel("Tiger Female", 110, 5.5, 123.96694214876, 12.396694214876);
-		AddHWModel("Tiger Juvenile", 80, 4, 109.375, 10.9375);
-		AddHWModel("Tiger Male", 120, 6, 131.944444444444, 13.1944444444444);
-		AddHWModel("Moose Baby", 100, 5, 100, 10);
-		AddHWModel("Moose Female", 200, 10, 125, 12.5);
-		AddHWModel("Moose Juvenile", 170, 8.5, 103.806228373702, 10.3806228373702);
-		AddHWModel("Moose Male", 230, 11.5, 151.228733459357, 15.1228733459357);
-		AddHWModel("Pig Baby", 30, 1.5, 22.2222222222222, 2.22222222222222);
-		AddHWModel("Pig Female", 50, 2.5, 720, 72);
-		AddHWModel("Pig Juvenile", 45, 2.25, 592.592592592593, 59.2592592592593);
-		AddHWModel("Pig Male", 70, 3.5, 448.979591836735, 44.8979591836735);
-		AddHWModel("Sheep Baby", 30, 1.5, 22.2222222222222, 2.22222222222222);
-		AddHWModel("Sheep Female", 50, 2.5, 720, 72);
-		AddHWModel("Sheep Juvenile", 45, 2.25, 592.592592592593, 59.2592592592593);
-		AddHWModel("Sheep Male", 70, 3.5, 448.979591836735, 44.8979591836735);
-		AddHWModel("Goat Baby", 20, 1.5, 22.2222222222222, 2.22222222222222);
-		AddHWModel("Goat Female", 40, 2.5, 720, 72);
-		AddHWModel("Goat Juvenile", 30, 2.25, 592.592592592593, 59.2592592592593);
-		AddHWModel("Goat Male", 45, 3.5, 448.979591836735, 44.8979591836735);
-		AddHWModel("Rhino Baby", 100, 5, 500, 50);
-		AddHWModel("Rhino Female", 180, 9, 493.827160493827, 49.3827160493827);
-		AddHWModel("Rhino Juvenile", 130, 6.5, 591.715976331361, 59.1715976331361);
-		AddHWModel("Rhino Male", 200, 10, 600, 60);
-		AddHWModel("Huge Mammal", 200, 10, 600, 60);
-		AddHWModel("Small Bird", 20, 1, 20, 2);
-		AddHWModel("Small Mammal", 30, 1.5, 13.8888888888889, 1.38888888888889);
-		AddHWModel("Small Mammal Baby", 5, 0.25, 40, 4);
-		AddHWModel("Tiny Bird", 10, 0.5, 20, 2);
-		AddHWModel("Tiny Mammal", 10, 0.5, 12, 1.2);
-		AddHWModel("Tiny Mammal Baby", 2, 0.1, 87.5, 8.75);
-		AddHWModel("Bear Male", 180, 9, 84.8765432098765, 8.48765432098766);
-		AddHWModel("Bear Female", 150, 7.5, 66.6666666666667, 6.66666666666667);
-		AddHWModel("Bear Juvenile", 130, 6.5, 71.0059171597633, 7.10059171597633);
-		AddHWModel("Bear Baby", 80, 4, 78.125, 7.8125);
-		AddHWModel("Fowl", 25, 1.25, 48, 4.8);
-		AddHWModel("Medium Bird", 50, 2.5, 20, 2);
-		AddHWModel("Serpent", 50, 2.5, 20, 2);
-		AddHWModel("Horse Male", 180, 9, 154.320987654321, 15.4320987654321);
-		AddHWModel("Horse Female", 160, 8, 167.96875, 16.796875);
-		AddHWModel("Horse Juvenile", 120, 6, 208.333333333333, 20.8333333333333);
-		AddHWModel("Horse Baby", 80, 4, 156.25, 15.625);
-		AddHWModel("Warhorse Male", 210, 10.5, 181.40589569161, 18.140589569161);
-		AddHWModel("Warhorse Female", 185, 9.25, 219.138056975895, 21.9138056975895);
-		AddHWModel("Warhorse Juvenile", 140, 7, 255.102040816327, 25.5102040816327);
-		AddHWModel("Warhorse Baby", 100, 5, 200, 20);
-		AddHWModel("Medium Mammal", 100, 5, 75, 7.5);
-		AddHWModel("Medium Mammal Baby", 30, 1.5, 111.111111111111, 11.1111111111111);
-		AddHWModel("Tiny Fish", 5, 0.25, 20, 2);
-		AddHWModel("Small Fish", 15, 0.75, 13.3333333333333, 1.33333333333333);
-		AddHWModel("Medium Fish", 30, 1.5, 8.33333333333333, 0.833333333333333);
-		AddHWModel("Large Fish", 100, 5, 3, 0.3);
-		AddHWModel("Huge Fish", 200, 10, 37.5, 3.75);
-		AddHWModel("Shark", 450, 22.5, 111.111111111111, 11.1111111111111);
-		AddHWModel("Small Whale", 1000, 50, 40, 4);
-		AddHWModel("Dolphin", 250, 12.5, 28, 2.8);
-		AddHWModel("Large Whale", 3000, 150, 200, 20);
-		AddHWModel("Octopus", 50, 2.5, 4, 0.4);
-		AddHWModel("Squid", 30, 1.5, 5.55555555555556, 0.555555555555556);
-		AddHWModel("Giant Squid", 300, 15, 14.4444444444444, 1.44444444444444);
-		AddHWModel("Small Crab", 10, 0.5, 30, 3);
-		AddHWModel("Medium Crab", 30, 1.5, 20, 2);
-		AddHWModel("Large Crab", 50, 2.5, 20, 2);
-		AddHWModel("Lobster", 30, 1.5, 13.3333333333333, 1.33333333333333);
-		AddHWModel("Shrimp", 10, 0.5, 5, 0.5);
-		AddHWModel("Small Jellyfish", 10, 0.5, 5, 0.5);
-		AddHWModel("Medium Jellyfish", 30, 1.5, 4.44444444444444, 0.444444444444444);
-		AddHWModel("Large Jellyfish", 100, 5, 1.2, 0.12);
-		AddHWModel("Seal Male", 180, 9, 92.5925925925926, 0);
-		AddHWModel("Seal Female", 120, 6, 69.4444444444444, 0);
-		AddHWModel("Seal Juvenile", 100, 5, 80, 0);
-		AddHWModel("Seal Baby", 40, 2, 125, 0);
-		AddHWModel("Walrus Male", 300, 15, 144.444444444444, 0);
-		AddHWModel("Walrus Female", 200, 10, 125, 0);
-		AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
-		AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
-		AddHWModel("Small Insect", 5, 0.25, 20, 2);
-		AddHWModel("Medium Insect", 15, 0.75, 18, 1.8);
-		AddHWModel("Large Insect", 30, 1.5, 17, 1.7);
+		foreach (var template in HeightWeightTemplates.Values)
+		{
+			AddHWModel(template.Name, template.MeanHeight, template.StandardDeviationHeight, template.MeanBmi,
+				template.StandardDeviationBmi);
+		}
 	}
 
 	private void AddHWModel(string name, double meanHeight, double stddevheight, double meanbmi, double stddevbmi)
@@ -1535,6 +1542,46 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 	{
 		if (!firstTime)
 		{
+			var randomPortion = "";
+			switch (_questionAnswers["random"].ToLowerInvariant())
+			{
+				case "partial":
+					randomPortion = " * rand(0.7,1.0)";
+					break;
+				case "random":
+					randomPortion = " * rand(0.2,1.0)";
+					break;
+			}
+
+			TraitExpression GetOrCreateExpression(string name, string expression)
+			{
+				var existing = _context.TraitExpressions.FirstOrDefault(x => x.Name == name);
+				if (existing is not null)
+				{
+					return existing;
+				}
+
+				var created = new TraitExpression
+				{
+					Name = name,
+					Expression = expression
+				};
+				_context.TraitExpressions.Add(created);
+				_context.SaveChanges();
+				return created;
+			}
+
+			var peckDamage = GetOrCreateExpression("Animal Peck Damage",
+				$"0.45 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+			var talonDamage = GetOrCreateExpression("Animal Talon Damage",
+				$"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+			var mandibleDamage = GetOrCreateExpression("Animal Mandible Damage",
+				$"0.35 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+			var ramDamage = GetOrCreateExpression("Animal Ram Damage",
+				$"0.9 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+			_snakeBiteDamage = GetOrCreateExpression("Snake Bite Damage",
+				$"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}");
+
 			_attacks["carnivorebite"] = _context.WeaponAttacks.First(x => x.Name == "Carnivore Bite");
 			_attacks["carnivoresmashbite"] = _context.WeaponAttacks.First(x => x.Name == "Carnivore Smash Bite");
 			_attacks["carnivorelowbite"] = _context.WeaponAttacks.First(x => x.Name == "Carnivore Low Bite");
@@ -1570,6 +1617,60 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_attacks["fishquickbite"] = _context.WeaponAttacks.First(x => x.Name == "Fish Quick Bite");
 			_attacks["sharkbite"] = _context.WeaponAttacks.First(x => x.Name == "Shark Bite");
 			_attacks["sharkreelbite"] = _context.WeaponAttacks.First(x => x.Name == "Shark Reel Bite");
+
+			var beakShape = _context.BodypartShapes.First(x => x.Name == "Beak");
+			var talonShape = _context.BodypartShapes.First(x => x.Name == "Talon");
+			var fangShape = _context.BodypartShapes.First(x => x.Name == "Fang");
+			var mandibleShape = _context.BodypartShapes.First(x => x.Name == "Mandible");
+			var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
+			var tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
+			var clawShape = _context.BodypartShapes.First(x => x.Name == "Claw");
+
+			var attackAddendum = _questionAnswers["messagestyle"].ToLowerInvariant() switch
+			{
+				"sentences" => ".",
+				"sparse" => ".",
+				_ => ""
+			};
+
+			_attacks["beakpeck"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Beak Peck") ??
+				AddAttack("Beak Peck", BuiltInCombatMoveType.NaturalWeaponAttack,
+					MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
+					Alignment.Front, Orientation.High, 2.5, 0.7, beakShape, peckDamage,
+					$"@ dart|darts forward and peck|pecks sharply at $1 with &0's {{0}}{attackAddendum}",
+					DamageType.Piercing);
+			_attacks["talonstrike"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Talon Strike") ??
+				AddAttack("Talon Strike", BuiltInCombatMoveType.NaturalWeaponAttack,
+					MeleeWeaponVerb.Claw, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
+					Alignment.FrontRight, Orientation.Low, 3.5, 0.9, talonShape, talonDamage,
+					$"@ slash|slashes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
+			_attacks["fangbite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Fang Bite") ??
+				AddAttack("Fang Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Front, Orientation.Low, 3.0, 0.7, fangShape, _snakeBiteDamage,
+					$"@ dart|darts in and try|tries to bite $1 with &0's {{0}}{attackAddendum}", DamageType.Bite);
+			_attacks["mandiblebite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Mandible Bite") ??
+				AddAttack("Mandible Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
+					Alignment.Front, Orientation.Centre, 1.5, 0.4, mandibleShape, mandibleDamage,
+					$"@ snap|snaps &0's {{0}} at $1{attackAddendum}", DamageType.Shearing);
+			_attacks["arachnidclaw"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Arachnid Claw") ??
+				AddAttack("Arachnid Claw", BuiltInCombatMoveType.NaturalWeaponAttack,
+					MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
+					Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, _context.TraitExpressions.First(x => x.Name == "Animal Claw Damage"),
+					$"@ lash|lashes out with &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+			_attacks["headram"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Head Ram") ??
+				AddAttack("Head Ram", BuiltInCombatMoveType.StaggeringBlowUnarmed,
+					MeleeWeaponVerb.Strike, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
+					Alignment.Front, Orientation.High, 5.0, 1.1, headShape, ramDamage,
+					$"@ surge|surges forward and slam|slams &0's head into $1{attackAddendum}", DamageType.Crushing,
+					additionalInfo: ((int)Difficulty.Hard).ToString());
+			_attacks["tailslap"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tail Slap") ??
+				AddAttack("Tail Slap", BuiltInCombatMoveType.StaggeringBlowUnarmed,
+					MeleeWeaponVerb.Sweep, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Rear, Orientation.Centre, 4.5, 1.1, tailShape, ramDamage,
+					$"@ whip|whips &0's tail around at $1{attackAddendum}", DamageType.Crushing,
+					additionalInfo: ((int)Difficulty.Normal).ToString());
 		}
 		else
 		{
@@ -1635,6 +1736,38 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_context.TraitExpressions.Add(clawDamage);
 			_context.SaveChanges();
 
+			var peckDamage = new TraitExpression
+			{
+				Name = "Animal Peck Damage",
+				Expression = $"0.45 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+			};
+			_context.TraitExpressions.Add(peckDamage);
+			_context.SaveChanges();
+
+			var talonDamage = new TraitExpression
+			{
+				Name = "Animal Talon Damage",
+				Expression = $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+			};
+			_context.TraitExpressions.Add(talonDamage);
+			_context.SaveChanges();
+
+			var mandibleDamage = new TraitExpression
+			{
+				Name = "Animal Mandible Damage",
+				Expression = $"0.35 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+			};
+			_context.TraitExpressions.Add(mandibleDamage);
+			_context.SaveChanges();
+
+			var ramDamage = new TraitExpression
+			{
+				Name = "Animal Ram Damage",
+				Expression = $"0.9 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+			};
+			_context.TraitExpressions.Add(ramDamage);
+			_context.SaveChanges();
+
 			var smashDamage = new TraitExpression
 			{
 				Name = "Animal Smash Damage",
@@ -1666,6 +1799,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			var antlerShape = _context.BodypartShapes.First(x => x.Name == "Antler");
 			var tuskShape = _context.BodypartShapes.First(x => x.Name == "Tusk");
 			var hornShape = _context.BodypartShapes.First(x => x.Name == "Horn");
+			var beakShape = _context.BodypartShapes.First(x => x.Name == "Beak");
+			var talonShape = _context.BodypartShapes.First(x => x.Name == "Talon");
+			var fangShape = _context.BodypartShapes.First(x => x.Name == "Fang");
+			var mandibleShape = _context.BodypartShapes.First(x => x.Name == "Mandible");
+			var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
+			var tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
 
 			var attackAddendum = "";
 			switch (_questionAnswers["messagestyle"].ToLowerInvariant())
@@ -1833,11 +1972,46 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Low, 4.0, 1.3, clawShape, clawDamage,
 				$"@ lash|lashes out and try|tries to pinch $1 with &0's {{0}}{attackAddendum}", DamageType.Shearing);
+			_attacks["beakpeck"] = AddAttack("Beak Peck", BuiltInCombatMoveType.NaturalWeaponAttack,
+				MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
+				Alignment.Front, Orientation.High, 2.5, 0.7, beakShape, peckDamage,
+				$"@ dart|darts forward and peck|pecks sharply at $1 with &0's {{0}}{attackAddendum}", DamageType.Piercing);
+			_attacks["talonstrike"] = AddAttack("Talon Strike", BuiltInCombatMoveType.NaturalWeaponAttack,
+				MeleeWeaponVerb.Claw, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
+				Alignment.FrontRight, Orientation.Low, 3.5, 0.9, talonShape, talonDamage,
+				$"@ slash|slashes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
+			_attacks["fangbite"] = AddAttack("Fang Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+				Alignment.Front, Orientation.Low, 3.0, 0.7, fangShape, _snakeBiteDamage,
+				$"@ dart|darts in and try|tries to bite $1 with &0's {{0}}{attackAddendum}", DamageType.Bite);
+			_attacks["mandiblebite"] = AddAttack("Mandible Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
+				Alignment.Front, Orientation.Centre, 1.5, 0.4, mandibleShape, mandibleDamage,
+				$"@ snap|snaps &0's {{0}} at $1{attackAddendum}", DamageType.Shearing);
+			_attacks["arachnidclaw"] = AddAttack("Arachnid Claw", BuiltInCombatMoveType.NaturalWeaponAttack,
+				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
+				Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, clawDamage,
+				$"@ lash|lashes out with &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+			_attacks["headram"] = AddAttack("Head Ram", BuiltInCombatMoveType.StaggeringBlowUnarmed,
+				MeleeWeaponVerb.Strike, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
+				Alignment.Front, Orientation.High, 5.0, 1.1, headShape, ramDamage,
+				$"@ surge|surges forward and slam|slams &0's head into $1{attackAddendum}", DamageType.Crushing,
+				additionalInfo: ((int)Difficulty.Hard).ToString());
+			_attacks["tailslap"] = AddAttack("Tail Slap", BuiltInCombatMoveType.StaggeringBlowUnarmed,
+				MeleeWeaponVerb.Sweep, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Hard,
+				Alignment.Rear, Orientation.Centre, 4.5, 1.1, tailShape, ramDamage,
+				$"@ whip|whips &0's tail around at $1{attackAddendum}", DamageType.Crushing,
+				additionalInfo: ((int)Difficulty.Normal).ToString());
 		}
 	}
 
 	private void CreateRaceAttacks(Race race)
 	{
+		if (TryApplyTemplateRaceAttacks(race))
+		{
+			return;
+		}
+
 		switch (race.Name)
 		{
 			case "Python":
@@ -2625,6 +2799,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_context.CharacteristicProfiles.Add(profile);
 		}
 
+		if (TryGetRaceTemplate(race.Name, out var template))
+		{
+			CreateDescriptionsFromPack(race, template.DescriptionPack, isAdultMaleRaceProg, isAdultFemaleRaceProg,
+				isJuvenileMaleRaceProg, isJuvenileFemaleRaceProg, isBabyMaleRaceProg, isBabyFemaleRaceProg);
+			return;
+		}
+
 		var extraAdultDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 {
 {"Coyote", "A rangy canine with tawny fur and sharp features. Its wary eyes and lean frame speak of a life spent hunting small game and scavenging."},
@@ -3326,188 +3507,49 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		string breathing = "simple")
 	{
 		var model = _defaultCorpseModel;
+		TryGetRaceTemplate(name, out var raceTemplate);
 		int childage, youthage, youngadultage, adultage, elderage, venerableage;
-		switch (name)
+		if (raceTemplate is not null && AgeProfiles.TryGetValue(raceTemplate.AgeProfileKey, out var ageProfile))
 		{
-			case "Mouse":
-			case "Rat":
-			case "Guinea Pig":
-			case "Hamster":
-			case "Ferret":
-			case "Rabbit":
-			case "Hare":
-			case "Pigeon":
-			case "Swallow":
-			case "Sparrow":
-			case "Quail":
-			case "Chicken":
-				childage = 1;
-				youthage = 2;
-				youngadultage = 3;
-				adultage = 4;
-				elderage = 5;
-				venerableage = 6;
-				break;
-
-			case "Dog":
-			case "Beaver":
-			case "Otter":
-			case "Wolf":
-			case "Fox":
-			case "Coyote":
-			case "Hyena":
-			case "Cat":
-			case "Lion":
-			case "Cheetah":
-			case "Leopard":
-			case "Tiger":
-			case "Panther":
-			case "Deer":
-			case "Jaguar":
-			case "Jackal":
-			case "Wolverine":
-			case "Badger":
-			case "Goat":
-			case "Python":
-			case "Tree Python":
-			case "Boa":
-			case "Anaconda":
-			case "Cobra":
-			case "Adder":
-			case "Rattlesnake":
-			case "Viper":
-			case "Mamba":
-			case "Coral Snake":
-			case "Moccasin":
-				childage = 1;
-				youthage = 2;
-				youngadultage = 3;
-				adultage = 7;
-				elderage = 12;
-				venerableage = 15;
-				break;
-			case "Pig":
-			case "Boar":
-			case "Warthog":
-			case "Sheep":
-			case "Cow":
-			case "Ox":
-			case "Buffalo":
-			case "Bison":
-			case "Hippopotamus":
-			case "Moose":
-			case "Llama":
-			case "Alpaca":
-				childage = 1;
-				youthage = 3;
-				youngadultage = 5;
-				adultage = 9;
-				elderage = 14;
-				venerableage = 20;
-				break;
-			case "Horse":
-			case "Bear":
-			case "Rhinocerous":
-			case "Giraffe":
-				childage = 1;
-				youthage = 3;
-				youngadultage = 5;
-				adultage = 9;
-				elderage = 16;
-				venerableage = 25;
-				break;
-
-			case "Duck":
-			case "Goose":
-			case "Swan":
-			case "Grouse":
-			case "Parrot":
-			case "Pheasant":
-			case "Turkey":
-			case "Seagull":
-			case "Albatross":
-			case "Heron":
-			case "Crane":
-			case "Flamingo":
-			case "Peacock":
-			case "Ibis":
-			case "Pelican":
-			case "Crow":
-			case "Raven":
-			case "Emu":
-			case "Ostrich":
-			case "Moa":
-			case "Vulture":
-			case "Hawk":
-			case "Eagle":
-			case "Falcon":
-			case "Woodpecker":
-			case "Owl":
-			case "Kingfisher":
-			case "Stork":
-			case "Penguin":
-			case "Carp":
-			case "Cod":
-			case "Haddock":
-			case "Koi":
-			case "Pilchard":
-			case "Perch":
-			case "Herring":
-			case "Mackerel":
-			case "Anchovy":
-			case "Sardine":
-			case "Pollock":
-			case "Salmon":
-			case "Tuna":
-			case "Shark":
-			case "Small Crab":
-			case "Crab":
-			case "Giant Crab":
-			case "Lobster":
-			case "Jellyfish":
-			case "Octopus":
-			case "Squid":
-			case "Giant Squid":
-			case "Sea Lion":
-			case "Seal":
-			case "Walrus":
-
-				childage = 1;
-				youthage = 3;
-				youngadultage = 5;
-				adultage = 9;
-				elderage = 20;
-				venerableage = 35;
-				break;
-			case "Elephant":
-				childage = 2;
-				youthage = 5;
-				youngadultage = 8;
-				adultage = 12;
-				elderage = 35;
-				venerableage = 50;
-				break;
-
-			case "Dolphin":
-			case "Porpoise":
-			case "Orca":
-			case "Baleen Whale":
-			case "Toothed Whale":
-				childage = 2;
-				youthage = 5;
-				youngadultage = 8;
-				adultage = 15;
-				elderage = 45;
-				venerableage = 75;
-				break;
-			default:
-				childage = 1;
-				youthage = 2;
-				youngadultage = 3;
-				adultage = 7;
-				elderage = 12;
-				venerableage = 15;
-				break;
+			childage = ageProfile.ChildAge;
+			youthage = ageProfile.YouthAge;
+			youngadultage = ageProfile.YoungAdultAge;
+			adultage = ageProfile.AdultAge;
+			elderage = ageProfile.ElderAge;
+			venerableage = ageProfile.VenerableAge;
+		}
+		else
+		{
+			switch (name)
+			{
+				case "Mouse":
+				case "Rat":
+				case "Guinea Pig":
+				case "Hamster":
+				case "Ferret":
+				case "Rabbit":
+				case "Hare":
+				case "Pigeon":
+				case "Swallow":
+				case "Sparrow":
+				case "Quail":
+				case "Chicken":
+					childage = 1;
+					youthage = 2;
+					youngadultage = 3;
+					adultage = 4;
+					elderage = 5;
+					venerableage = 6;
+					break;
+				default:
+					childage = 1;
+					youthage = 2;
+					youngadultage = 3;
+					adultage = 7;
+					elderage = 12;
+					venerableage = 15;
+					break;
+			}
 		}
 
 		var sb = new StringBuilder();
@@ -3680,62 +3722,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		BloodModel? bloodModel = null;
 		PopulationBloodModel? populationModel = null;
-		switch (name)
+		if (raceTemplate?.BloodProfileKey is not null)
 		{
-			case "Horse":
-				(bloodModel, populationModel) = SetupBloodModel("Equine", new List<string>
-				{
-					"Equine A-Antigen",
-					"Equine C-Antigen",
-					"Equine Q-Antigen"
-				}, new List<(string Name, IEnumerable<string> Antigens, double weight)>
-				{
-					("Equine ACQ", new List<string> { "Equine A-Antigen", "Equine C-Antigen", "Equine Q-Antigen" },
-						10),
-					("Equine AC", new List<string> { "Equine A-Antigen", "Equine C-Antigen" }, 10),
-					("Equine A", new List<string> { "Equine A-Antigen" }, 10),
-					("Equine CQ", new List<string> { "Equine C-Antigen", "Equine Q-Antigen" }, 10),
-					("Equine Q", new List<string> { "Equine Q-Antigen" }, 10),
-					("Equine C", new List<string> { "Equine C-Antigen" }, 10)
-				});
-				break;
-			case "Cat":
-				(bloodModel, populationModel) = SetupBloodModel("Feline",
-					new List<string> { "Feline A-Antigen", "Feline B-Antigen" },
-					new List<(string Name, IEnumerable<string> Antigens, double weight)>
-					{
-						("Feline A", new List<string> { "Feline A-Antigen" }, 87),
-						("Feline B", new List<string> { "Feline B-Antigen" }, 10),
-						("Feline AB", new List<string> { "Feline A-Antigen", "Feline B-Antigen" }, 3)
-					});
-				break;
-			case "Dog":
-			case "Wolf":
-				(bloodModel, populationModel) = SetupBloodModel("Canine", new List<string> { "DEA 1.1" },
-					new List<(string Name, IEnumerable<string> Antigens, double weight)>
-					{
-						("Canine DEA 1.1 Positive", new List<string> { "DEA 1.1" }, 40),
-						("Canine DEA 1.1 Negative", new List<string>(), 60)
-					});
-				break;
-			case "Cow":
-				(bloodModel, populationModel) = SetupBloodModel("Bovine", new List<string> { "Bovine B", "Bovine J" },
-					new List<(string Name, IEnumerable<string> Antigens, double weight)>
-					{
-						("Bovine BJ", new List<string> { "Bovine B", "Bovine J" }, 20),
-						("Bovine B", new List<string> { "Bovine B" }, 40),
-						("Bovine J", new List<string> { "Bovine J" }, 40)
-					});
-				break;
-			case "Sheep":
-				(bloodModel, populationModel) = SetupBloodModel("Ovine", new List<string> { "Ovine B", "Ovine R" },
-					new List<(string Name, IEnumerable<string> Antigens, double weight)>
-					{
-						("Ovine BR", new List<string> { "Ovine B", "Ovine R" }, 20),
-						("Ovine B", new List<string> { "Ovine B" }, 40),
-						("Ovine R", new List<string> { "Ovine R" }, 40)
-					});
-				break;
+			var bloodProfile = CreateBloodProfile(raceTemplate.BloodProfileKey);
+			if (bloodProfile is not null)
+			{
+				(bloodModel, populationModel) = bloodProfile.Value;
+			}
 		}
 
 		var race = new Race
@@ -3890,53 +3883,63 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				break;
 		}
 
-		switch (name)
+		if (raceTemplate?.AdditionalBodypartUsages is not null)
 		{
-			case "Cow":
-			case "Pig":
-			case "Sheep":
-			case "Ox":
-			case "Bison":
-			case "Buffalo":
-			case "Deer":
-			case "Moose":
-			case "Llama":
-			case "Alpaca":
-			case "Rhinocerous":
-			case "Horse":
-				AddRacialBodypartUsage("udder", "female", race);
-				break;
+			foreach (var usage in raceTemplate.AdditionalBodypartUsages)
+			{
+				AddRacialBodypartUsage(usage.BodypartAlias, usage.Usage, race);
+			}
 		}
-
-		switch (name)
+		else
 		{
-			case "Ox":
-			case "Cow":
-			case "Bison":
-			case "Buffalo":
-			case "Goat":
-			case "Sheep":
-				AddRacialBodypartUsage("rhorn", "male", race);
-				AddRacialBodypartUsage("lhorn", "male", race);
-				break;
-			case "Rhino":
-				AddRacialBodypartUsage("horn", "general", race);
-				break;
-			case "Deer":
-			case "Moose":
-				AddRacialBodypartUsage("rantler", "male", race);
-				AddRacialBodypartUsage("lantler", "male", race);
-				break;
-			case "Boar":
-			case "Warthog":
-				AddRacialBodypartUsage("rtusk", "male", race);
-				AddRacialBodypartUsage("ltusk", "male", race);
-				break;
-			case "Elephant":
-			case "Hippopotamus":
-				AddRacialBodypartUsage("rtusk", "general", race);
-				AddRacialBodypartUsage("ltusk", "general", race);
-				break;
+			switch (name)
+			{
+				case "Cow":
+				case "Pig":
+				case "Sheep":
+				case "Ox":
+				case "Bison":
+				case "Buffalo":
+				case "Deer":
+				case "Moose":
+				case "Llama":
+				case "Alpaca":
+				case "Rhinocerous":
+				case "Horse":
+					AddRacialBodypartUsage("udder", "female", race);
+					break;
+			}
+
+			switch (name)
+			{
+				case "Ox":
+				case "Cow":
+				case "Bison":
+				case "Buffalo":
+				case "Goat":
+				case "Sheep":
+					AddRacialBodypartUsage("rhorn", "male", race);
+					AddRacialBodypartUsage("lhorn", "male", race);
+					break;
+				case "Rhinocerous":
+					AddRacialBodypartUsage("horn", "general", race);
+					break;
+				case "Deer":
+				case "Moose":
+					AddRacialBodypartUsage("rantler", "male", race);
+					AddRacialBodypartUsage("lantler", "male", race);
+					break;
+				case "Boar":
+				case "Warthog":
+					AddRacialBodypartUsage("rtusk", "male", race);
+					AddRacialBodypartUsage("ltusk", "male", race);
+					break;
+				case "Elephant":
+				case "Hippopotamus":
+					AddRacialBodypartUsage("rtusk", "general", race);
+					AddRacialBodypartUsage("ltusk", "general", race);
+					break;
+			}
 		}
 	}
 
@@ -4602,6 +4605,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddShape("Antenna");
 		AddShape("Mandible");
 		AddShape("Compound Eye");
+		AddShape("Stinger");
 
 		_context.SaveChanges();
 
@@ -4801,26 +4805,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Races
 
-		AddRace("Python", "Python", null, serpentProto, SizeCategory.Small, false, 0.1, "Serpent", "Serpent", false);
-		AddRace("Tree Python", "Tree Python", null, serpentProto, SizeCategory.Normal, true, 0.4, "Serpent", "Serpent",
-			false);
-		AddRace("Boa", "Boa", null, serpentProto, SizeCategory.Normal, false, 0.6, "Serpent", "Serpent", false);
-		AddRace("Anaconda", "Anaconda", null, serpentProto, SizeCategory.Large, true, 1.0, "Serpent", "Serpent", false);
-		AddRace("Cobra", "Cobra", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent", false);
-		AddRace("Adder", "Adder", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent", false);
-		AddRace("Rattlesnake", "Rattlesnake", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent",
-			false);
-		AddRace("Viper", "Viper", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent", false);
-		AddRace("Mamba", "Mamba", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent", false);
-		AddRace("Coral Snake", "Coral Snake", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent",
-			false);
-		AddRace("Moccasin", "Moccasin", null, serpentProto, SizeCategory.Small, false, 0.2, "Serpent", "Serpent",
-			false);
+		SeedAnimalRaces(GetSerpentRaceTemplates(),
+			("Serpentine", serpentProto));
 
 		#endregion
 	}
 
-	private void SeedAquatic(BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto,
+	private void SeedAquatic(BodyProto fishProto, BodyProto crabProto, BodyProto malacostracanProto, BodyProto octopusProto,
 		BodyProto jellyfishProto, BodyProto pinnipedProto, BodyProto cetaceanProto)
 	{
 		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Fish...");
@@ -5105,6 +5096,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		#endregion
 
 		#region Crabs
+
+		SeedDecapodBody(crabProto);
+		SeedMalacostracanBody(malacostracanProto);
 
 		#endregion
 
@@ -5541,8 +5535,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			0.05, stunModifier: 1.0, painModifier: 2.0);
 		AddOrgan(pinnipedProto, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
 			stunModifier: 1.0, painModifier: 2.0);
-		AddOrgan(pinnipedProto, "rinnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
-		AddOrgan(pinnipedProto, "linnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+		AddOrgan(pinnipedProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+		AddOrgan(pinnipedProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
 
 		AddOrganCoverage("brain", "head", 100, true);
 		AddOrganCoverage("brain", "bhead", 100);
@@ -6250,71 +6244,14 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Races
 
-		AddRace("Carp", "Carp", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish", false,
-			"freshwater");
-		AddRace("Cod", "Cod", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish", false,
-			"freshwater");
-		AddRace("Haddock", "Haddock", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish",
-			false, "saltwater");
-		AddRace("Koi", "Koi", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish", false,
-			"freshwater");
-		AddRace("Pilchard", "Pilchard", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish",
-			false, "saltwater");
-		AddRace("Perch", "Perch", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish", false,
-			"saltwater");
-		AddRace("Herring", "Herring", null, fishProto, SizeCategory.VerySmall, false, 0.1, "Tiny Fish", "Tiny Fish",
-			false, "saltwater");
-		AddRace("Mackerel", "Mackerel", null, fishProto, SizeCategory.VerySmall, false, 0.1, "Tiny Fish", "Tiny Fish",
-			false, "saltwater");
-		AddRace("Anchovy", "Anchovy", null, fishProto, SizeCategory.VerySmall, false, 0.1, "Tiny Fish", "Tiny Fish",
-			false, "saltwater");
-		AddRace("Sardine", "Sardine", null, fishProto, SizeCategory.VerySmall, false, 0.1, "Tiny Fish", "Tiny Fish",
-			false, "saltwater");
-		AddRace("Pollock", "Pollock", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish",
-			false, "saltwater");
-		AddRace("Salmon", "Salmon", null, fishProto, SizeCategory.Small, false, 0.2, "Small Fish", "Small Fish", false,
-			"freshwater");
-		AddRace("Tuna", "Tuna", null, fishProto, SizeCategory.Normal, false, 0.5, "Large Fish", "Large Fish", false,
-			"saltwater");
-		AddRace("Shark", "Shark", null, fishProto, SizeCategory.Large, false, 1.2, "Shark", "Shark", false,
-			"saltwater");
-
-		AddRace("Small Crab", "Small Crab", null, crabProto, SizeCategory.VerySmall, false, 0.2, "Small Crab",
-			"Small Crab", false, "saltwater");
-		AddRace("Crab", "Crab", null, crabProto, SizeCategory.Small, false, 0.6, "Medium Crab", "Medium Crab", false,
-			"saltwater");
-		AddRace("Giant Crab", "Giant Crab", null, crabProto, SizeCategory.Normal, false, 1.2, "Large Crab",
-			"Large Crab", false, "saltwater");
-		AddRace("Lobster", "Lobster", null, crabProto, SizeCategory.Small, false, 0.6, "Lobster", "Lobster", false,
-			"saltwater");
-
-		AddRace("Jellyfish", "Jellyfish", null, jellyfishProto, SizeCategory.Small, false, 0.1, "Small Jellyfish",
-			"Small Jellyfish", false, "partless");
-
-		AddRace("Octopus", "Octopus", null, octopusProto, SizeCategory.Small, true, 0.4, "Octopus", "Octopus", false,
-			"partless");
-		AddRace("Squid", "Squid", null, octopusProto, SizeCategory.Small, false, 0.4, "Squid", "Squid", false,
-			"partless");
-		AddRace("Giant Squid", "Giant Squid", null, octopusProto, SizeCategory.Large, false, 1.2, "Giant Squid",
-			"Giant Squid", false, "partless");
-
-		AddRace("Sea Lion", "Sea Lion", null, pinnipedProto, SizeCategory.Normal, false, 0.8, "Seal Male",
-			"Seal Female", false);
-		AddRace("Seal", "Seal", null, pinnipedProto, SizeCategory.Normal, false, 0.8, "Seal Male", "Seal Female",
-			false);
-		AddRace("Walrus", "Walrus", null, pinnipedProto, SizeCategory.Large, false, 1.4, "Walrus Male", "Walrus Female",
-			false);
-
-		AddRace("Dolphin", "Dolphin", null, cetaceanProto, SizeCategory.Normal, false, 1.0, "Dolphin", "Dolphin", false,
-			"blowhole");
-		AddRace("Porpoise", "Porpoise", null, cetaceanProto, SizeCategory.Normal, false, 1.0, "Dolphin", "Dolphin",
-			false, "blowhole");
-		AddRace("Orca", "Orca", null, cetaceanProto, SizeCategory.VeryLarge, false, 2.0, "Small Whale", "Small Whale",
-			false, "blowhole");
-		AddRace("Baleen Whale", "Baleen Whale", null, cetaceanProto, SizeCategory.Huge, false, 3.0, "Large Whale",
-			"Large Whale", false, "blowhole");
-		AddRace("Toothed Whale", "Toothed Whale", null, cetaceanProto, SizeCategory.Huge, false, 3.0, "Small Whale",
-			"Small Whale", false, "blowhole");
+		SeedAnimalRaces(GetAquaticRaceTemplates(),
+			("Piscine", fishProto),
+			("Decapod", crabProto),
+			("Malacostracan", malacostracanProto),
+			("Cephalopod", octopusProto),
+			("Jellyfish", jellyfishProto),
+			("Pinniped", pinnipedProto),
+			("Cetacean", cetaceanProto));
 
 		#endregion
 	}
@@ -6660,8 +6597,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			0.05, stunModifier: 1.0, painModifier: 2.0);
 		AddOrgan(quadrupedBody, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
 			stunModifier: 1.0, painModifier: 2.0);
-		AddOrgan(quadrupedBody, "rinnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
-		AddOrgan(quadrupedBody, "linnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+		AddOrgan(quadrupedBody, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+		AddOrgan(quadrupedBody, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
 
 		AddOrganCoverage("brain", "head", 100, true);
 		AddOrganCoverage("brain", "bhead", 100);
@@ -7213,77 +7150,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Races
 
-		AddRace("Rabbit", "Leporine", null, toedQuadruped, SizeCategory.VerySmall, false, 0.3, "Small Mammal",
-			"Small Mammal");
-		AddRace("Hare", "Hare", null, toedQuadruped, SizeCategory.VerySmall, false, 0.5, "Small Mammal",
-			"Small Mammal");
-		AddRace("Beaver", "Beaver", null, toedQuadruped, SizeCategory.Small, false, 0.8, "Small Mammal",
-			"Small Mammal");
-		AddRace("Otter", "Otter", null, toedQuadruped, SizeCategory.VerySmall, false, 0.5, "Small Mammal",
-			"Small Mammal");
-		AddRace("Dog", "Canine", "Common domestic dogs", toedQuadruped, SizeCategory.Small, false, 0.8, "Dog", "Dog");
-		AddRace("Cat", "Feline", "Common domestic cats", toedQuadruped, SizeCategory.Small, true, 0.5, "Cat", "Cat");
-		AddRace("Wolf", "Lupine", "Wild grey wolves", toedQuadruped, SizeCategory.Normal, false, 1.0, "Wolf", "Wolf");
-		AddRace("Fox", "Vulpine", "Foxes", toedQuadruped, SizeCategory.Small, false, 0.8, "Small Mammal",
-			"Small Mammal");
-		AddRace("Coyote", "Coyote", "Coyote", toedQuadruped, SizeCategory.Small, false, 0.8, "Dog", "Dog");
-		AddRace("Hyena", "Hyena", "Hyena", toedQuadruped, SizeCategory.Small, false, 0.8, "Dog", "Dog");
-		AddRace("Lion", "Leonine", "Lions", toedQuadruped, SizeCategory.Normal, true, 1.3, "Lion Male", "Lion Female");
-		AddRace("Tiger", "Tigrine", "Tigers", toedQuadruped, SizeCategory.Normal, true, 1.3, "Tiger Male",
-			"Tiger Female");
-		AddRace("Cheetah", "Cheetah", "Cheetah", toedQuadruped, SizeCategory.Small, false, 0.8, "Big Cat Male",
-			"Big Cat Female");
-		AddRace("Leopard", "Leopard", "Leopard", toedQuadruped, SizeCategory.Small, false, 0.8, "Big Cat Male",
-			"Big Cat Female");
-		AddRace("Panther", "Panther", "Panther", toedQuadruped, SizeCategory.Small, false, 0.8, "Big Cat Male",
-			"Big Cat Female");
-		AddRace("Jaguar", "Jaguar", "Jaguar", toedQuadruped, SizeCategory.Small, false, 0.8, "Big Cat Male",
-			"Big Cat Female");
-		AddRace("Jackal", "Jackal", "Jackal", toedQuadruped, SizeCategory.Small, false, 0.8, "Dog", "Dog");
-
-		AddRace("Deer", "Cervine", "Deer", ungulateBody, SizeCategory.Normal, false, 0.8, "Deer Male", "Deer Female");
-		AddRace("Moose", "Moose", "Moose", ungulateBody, SizeCategory.Large, false, 1.5, "Moose Male", "Moose Female");
-		AddRace("Pig", "Porcine", "Pigs", ungulateBody, SizeCategory.Normal, false, 1.0, "Pig Male", "Pig Female");
-		AddRace("Boar", "Boar", null, ungulateBody, SizeCategory.Normal, false, 1.2, "Pig Male", "Pig Female");
-		AddRace("Warthog", "Warthog", null, ungulateBody, SizeCategory.Normal, false, 1.2, "Pig Male", "Pig Female");
-		AddRace("Sheep", "Ovine", "Sheep", ungulateBody, SizeCategory.Normal, false, 0.8, "Sheep Male", "Sheep Female");
-		AddRace("Goat", "Caprine", "Goats", ungulateBody, SizeCategory.Normal, false, 0.8, "Goat Male", "Goat Female");
-		AddRace("Llama", "Llama", "Llamas", ungulateBody, SizeCategory.Normal, false, 1.0, "Large Mammal",
-			"Large Mammal");
-		AddRace("Alpaca", "Alpaca", "Alpacas", ungulateBody, SizeCategory.Normal, false, 0.8, "Large Mammal",
-			"Large Mammal");
-
-		AddRace("Bear", "Ursine", "Bears", ungulateBody, SizeCategory.Large, false, 1.4, "Bear Male", "Bear Female");
-		AddRace("Mouse", "Murine", "Mice", ungulateBody, SizeCategory.Tiny, true, 0.1, "Tiny Mammal", "Tiny Mammal");
-		AddRace("Rat", "Rat", "Rats", ungulateBody, SizeCategory.Tiny, true, 0.2, "Tiny Mammal", "Tiny Mammal");
-		AddRace("Hamster", "Cricetid", "Hamsters", ungulateBody, SizeCategory.Tiny, false, 0.1, "Tiny Mammal",
-			"Tiny Mammal");
-		AddRace("Guinea Pig", "Guinea Pig", "Guinea Pigs", ungulateBody, SizeCategory.Tiny, false, 0.1, "Tiny Mammal",
-			"Tiny Mammal");
-		AddRace("Ferret", "Ferret", "Ferrets", ungulateBody, SizeCategory.VerySmall, true, 0.2, "Small Mammal",
-			"Small Mammal");
-		AddRace("Weasel", "Weasel", "Weasels", ungulateBody, SizeCategory.VerySmall, true, 0.2, "Small Mammal",
-			"Small Mammal");
-		AddRace("Badger", "Badger", "Badgers", ungulateBody, SizeCategory.Small, false, 0.8, "Medium Mammal",
-			"Medium Mammal");
-		AddRace("Wolverine", "Wolverine", "Wolverines", ungulateBody, SizeCategory.Small, false, 0.5, "Medium Mammal",
-			"Medium Mammal");
-
-		AddRace("Cow", "Bovine", "Cows", ungulateBody, SizeCategory.Large, false, 1.5, "Cow Male", "Cow Female");
-		AddRace("Ox", "Ox", "Oxen", ungulateBody, SizeCategory.Large, false, 1.7, "Cow Male", "Cow Female");
-		AddRace("Bison", "Bison", "Bisons", ungulateBody, SizeCategory.Large, false, 1.5, "Cow Male", "Cow Female");
-		AddRace("Buffalo", "Buffalo", "Buffalos", ungulateBody, SizeCategory.Large, false, 1.5, "Cow Male",
-			"Cow Female");
-		AddRace("Horse", "Equine", "Horse", ungulateBody, SizeCategory.Large, false, 1.5, "Horse Male", "Horse Female");
-
-		AddRace("Rhinocerous", "Ceratorhine", "Rhinocerouses", ungulateBody, SizeCategory.Large, false, 1.5,
-			"Rhino Male", "Rhino Female");
-		AddRace("Hippopotamus", "Hippopotamine", "Hippopotamuses", ungulateBody, SizeCategory.Large, false, 1.5,
-			"Hippo Male", "Hippo Female");
-		AddRace("Elephant", "Elephantine", "Elephants", ungulateBody, SizeCategory.VeryLarge, false, 2.0,
-			"Elephant Male", "Elephant Female");
-		AddRace("Giraffe", "Giraffine", "Giraffes", ungulateBody, SizeCategory.VeryLarge, false, 1.0, "Huge Mammal",
-			"Huge Mammal");
+		SeedAnimalRaces(GetMammalRaceTemplates(),
+			("Ungulate", ungulateBody),
+			("Toed Quadruped", toedQuadruped));
 
 		#endregion
 	}
@@ -7878,7 +7747,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			Alias = "trot",
 			FirstPersonVerb = "trot",
 			ThirdPersonVerb = "trots",
-			PresentParticiple = "troting",
+			PresentParticiple = "trotting",
 			Multiplier = 0.4,
 			StaminaMultiplier = 2.4
 		});
@@ -7972,9 +7841,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = quadrupedBody,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});
@@ -8081,9 +7950,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = avianBody,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});
@@ -8240,9 +8109,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = serpentBody,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});
@@ -8337,9 +8206,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = wormBody,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});
@@ -8580,9 +8449,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = pinnipedProto,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});
@@ -8689,9 +8558,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = crabProto,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});
@@ -8798,9 +8667,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			BodyProto = octopusProto,
 			PositionId = 18,
 			Alias = "franticfly",
-			FirstPersonVerb = "franticly fly",
-			ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying",
+			FirstPersonVerb = "frantically fly",
+			ThirdPersonVerb = "frantically flies",
+			PresentParticiple = "frantically flying",
 			Multiplier = 1.4,
 			StaminaMultiplier = 25
 		});

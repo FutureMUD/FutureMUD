@@ -8,6 +8,21 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class AnimalSeeder
 {
+	internal static string? GetAvianSpinalOrganAliasForLimb(string limbName)
+	{
+		return limbName switch
+		{
+			"Torso" => "uspinalcord",
+			"Genitals" => "mspinalcord",
+			"Right Wing" => "mspinalcord",
+			"Left Wing" => "mspinalcord",
+			"Right Leg" => "lspinalcord",
+			"Left Leg" => "lspinalcord",
+			"Tail" => "lspinalcord",
+			_ => null
+		};
+	}
+
 	private void SeedAvian(BodyProto avianProto)
 	{
 		ResetCachedParts();
@@ -215,8 +230,8 @@ public partial class AnimalSeeder
 			stunModifier: 1.0, painModifier: 2.0);
 		AddOrgan(avianProto, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
 			stunModifier: 1.0, painModifier: 2.0);
-		AddOrgan(avianProto, "rinnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "linnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+		AddOrgan(avianProto, "rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
+		AddOrgan(avianProto, "linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
 
 		AddOrganCoverage("brain", "head", 100, true);
 		AddOrganCoverage("brain", "bhead", 100);
@@ -276,6 +291,83 @@ public partial class AnimalSeeder
 
 		#endregion
 
+		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bones...");
+
+		AddBone(avianProto, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 120, "Compact Bone");
+		AddBone(avianProto, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 80, "Compact Bone");
+		AddBone(avianProto, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 80, "Compact Bone");
+		AddBone(avianProto, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 70, "Compact Bone");
+		AddBone(avianProto, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 60, "Compact Bone");
+		AddBone(avianProto, "sternum", "sternum", BodypartTypeEnum.NonImmobilisingBone, 120, "Compact Bone");
+		AddBone(avianProto, "rscapula", "right scapula", BodypartTypeEnum.NonImmobilisingBone, 90, "Compact Bone");
+		AddBone(avianProto, "lscapula", "left scapula", BodypartTypeEnum.NonImmobilisingBone, 90, "Compact Bone");
+		AddBone(avianProto, "rhumerus", "right humerus", BodypartTypeEnum.Bone, 100, "Compact Bone");
+		AddBone(avianProto, "lhumerus", "left humerus", BodypartTypeEnum.Bone, 100, "Compact Bone");
+		AddBone(avianProto, "rradius", "right radius", BodypartTypeEnum.Bone, 80, "Compact Bone");
+		AddBone(avianProto, "lradius", "left radius", BodypartTypeEnum.Bone, 80, "Compact Bone");
+		AddBone(avianProto, "rulna", "right ulna", BodypartTypeEnum.Bone, 80, "Compact Bone");
+		AddBone(avianProto, "lulna", "left ulna", BodypartTypeEnum.Bone, 80, "Compact Bone");
+		AddBone(avianProto, "rmetacarpal", "right metacarpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+		AddBone(avianProto, "lmetacarpal", "left metacarpal", BodypartTypeEnum.MinorBone, 40, "Compact Bone");
+		AddBone(avianProto, "rilium", "right ilium", BodypartTypeEnum.NonImmobilisingBone, 90, "Compact Bone");
+		AddBone(avianProto, "lilium", "left ilium", BodypartTypeEnum.NonImmobilisingBone, 90, "Compact Bone");
+		AddBone(avianProto, "sacrum", "sacrum", BodypartTypeEnum.NonImmobilisingBone, 90, "Compact Bone");
+		AddBone(avianProto, "rfemur", "right femur", BodypartTypeEnum.Bone, 100, "Compact Bone");
+		AddBone(avianProto, "lfemur", "left femur", BodypartTypeEnum.Bone, 100, "Compact Bone");
+		AddBone(avianProto, "rpatella", "right patella", BodypartTypeEnum.Bone, 40, "Compact Bone");
+		AddBone(avianProto, "lpatella", "left patella", BodypartTypeEnum.Bone, 40, "Compact Bone");
+		AddBone(avianProto, "rtibia", "right tibia", BodypartTypeEnum.Bone, 80, "Compact Bone");
+		AddBone(avianProto, "ltibia", "left tibia", BodypartTypeEnum.Bone, 80, "Compact Bone");
+		AddBone(avianProto, "rfibula", "right fibula", BodypartTypeEnum.Bone, 50, "Compact Bone");
+		AddBone(avianProto, "lfibula", "left fibula", BodypartTypeEnum.Bone, 50, "Compact Bone");
+		AddBone(avianProto, "rtarsus", "right tarsus", BodypartTypeEnum.Bone, 40, "Compact Bone");
+		AddBone(avianProto, "ltarsus", "left tarsus", BodypartTypeEnum.Bone, 40, "Compact Bone");
+		AddBone(avianProto, "rmetatarsus", "right metatarsus", BodypartTypeEnum.Bone, 40, "Compact Bone");
+		AddBone(avianProto, "lmetatarsus", "left metatarsus", BodypartTypeEnum.Bone, 40, "Compact Bone");
+		_context.SaveChanges();
+
+		AddBoneInternal("fskull", "head", 100);
+		AddBoneInternal("fskull", "bhead", 35, false);
+		AddBoneInternal("cvertebrae", "bneck", 35);
+		AddBoneInternal("dvertebrae", "uback", 20);
+		AddBoneInternal("lvertebrae", "lback", 20);
+		AddBoneInternal("cavertebrae", "tail", 80);
+		AddBoneInternal("sternum", "abdomen", 50);
+		AddBoneInternal("rscapula", "rshoulder", 100);
+		AddBoneInternal("lscapula", "lshoulder", 100);
+		AddBoneInternal("rhumerus", "rwingbase", 60);
+		AddBoneInternal("lhumerus", "lwingbase", 60);
+		AddBoneInternal("rradius", "rwing", 40);
+		AddBoneInternal("lradius", "lwing", 40);
+		AddBoneInternal("rulna", "rwing", 40);
+		AddBoneInternal("lulna", "lwing", 40);
+		AddBoneInternal("rmetacarpal", "rwing", 30);
+		AddBoneInternal("lmetacarpal", "lwing", 30);
+		AddBoneInternal("rilium", "loin", 20);
+		AddBoneInternal("lilium", "loin", 20);
+		AddBoneInternal("sacrum", "rump", 35);
+		AddBoneInternal("rfemur", "rupperleg", 60);
+		AddBoneInternal("lfemur", "lupperleg", 60);
+		AddBoneInternal("rpatella", "rknee", 100);
+		AddBoneInternal("lpatella", "lknee", 100);
+		AddBoneInternal("rtibia", "rlowerleg", 60);
+		AddBoneInternal("ltibia", "llowerleg", 60);
+		AddBoneInternal("rfibula", "rlowerleg", 30);
+		AddBoneInternal("lfibula", "llowerleg", 30);
+		AddBoneInternal("rtarsus", "rankle", 40);
+		AddBoneInternal("ltarsus", "lankle", 40);
+		AddBoneInternal("rmetatarsus", "rfoot", 50);
+		AddBoneInternal("lmetatarsus", "lfoot", 50);
+
+		AddBoneCover("fskull", "brain", 100);
+		AddBoneCover("cvertebrae", "uspinalcord", 100);
+		AddBoneCover("dvertebrae", "mspinalcord", 100);
+		AddBoneCover("lvertebrae", "lspinalcord", 100);
+		AddBoneCover("sternum", "heart", 75);
+		AddBoneCover("sternum", "rlung", 25);
+		AddBoneCover("sternum", "llung", 25);
+		_context.SaveChanges();
+
 		_context.SaveChanges();
 
 		foreach (var (child, parent) in _cachedBodypartUpstreams)
@@ -324,26 +416,14 @@ public partial class AnimalSeeder
 			foreach (var part in _cachedLimbs[limb.Name])
 				_context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
 
-			switch (limb.Name)
+			var spinalAlias = GetAvianSpinalOrganAliasForLimb(limb.Name);
+			if (spinalAlias is not null)
 			{
-				case "Torso":
-					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
-					break;
-				case "Genitals":
-				case "Right Wing":
-				case "Left Wing":
-				case "Right Arm":
-				case "Left Arm":
-					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
-					break;
-				case "Leg Leg":
-				case "Right Leg":
-				case "Tail":
-					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
-					break;
+				_context.LimbsSpinalParts.Add(new LimbsSpinalPart
+				{
+					Limb = limb,
+					BodypartProto = _cachedOrgans[spinalAlias]
+				});
 			}
 		}
 
@@ -429,65 +509,7 @@ public partial class AnimalSeeder
 
 		#region Races
 
-		AddRace("Pigeon", "Pigeon", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Small Bird", "Small Bird",
-			false);
-		AddRace("Parrot", "Parrot", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Small Bird", "Small Bird",
-			false);
-		AddRace("Swallow", "Swallow", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Sparrow", "Sparrow", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Finch", "Finch", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Robin", "Robin", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Wren", "Wren", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird", false);
-		AddRace("Quail", "Quail", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Duck", "Duck", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Goose", "Goose", null, avianProto, SizeCategory.Small, false, 0.4, "Fowl", "Fowl", false);
-		AddRace("Swan", "Swan", null, avianProto, SizeCategory.Small, false, 0.4, "Fowl", "Fowl", false);
-		AddRace("Grouse", "Grouse", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Pheasant", "Pheasant", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Chicken", "Chicken", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Turkey", "Turkey", null, avianProto, SizeCategory.Small, false, 0.35, "Fowl", "Fowl", false);
-		AddRace("Seagull", "Seagull", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird",
-			false);
-		AddRace("Albatross", "Albatross", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird",
-			"Medium Bird", false);
-		AddRace("Heron", "Heron", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Crane", "Crane", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Flamingo", "Flamingo", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Peacock", "Peacock", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Ibis", "Ibis", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird", false);
-		AddRace("Pelican", "Pelican", null, avianProto, SizeCategory.Small, false, 0.5, "Large Bird", "Large Bird",
-			false);
-		AddRace("Crow", "Crow", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird", false);
-		AddRace("Raven", "Raven", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird", false);
-		AddRace("Emu", "Emu", null, avianProto, SizeCategory.Normal, false, 0.8, "Large Bird", "Large Bird", false);
-		AddRace("Ostrich", "Ostrich", null, avianProto, SizeCategory.Normal, false, 0.8, "Large Bird", "Large Bird",
-			false);
-		AddRace("Moa", "Moa", null, avianProto, SizeCategory.Normal, false, 0.8, "Large Bird", "Large Bird", false);
-		AddRace("Vulture", "Vulture", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Hawk", "Hawk", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird", "Small Bird", false);
-		AddRace("Eagle", "Eagle", null, avianProto, SizeCategory.Normal, false, 0.7, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Falcon", "Falcon", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird", "Small Bird",
-			false);
-		AddRace("Woodpecker", "Woodpecker", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird",
-			"Small Bird", false);
-		AddRace("Owl", "Owl", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird", "Medium Bird", false);
-		AddRace("Kingfisher", "Kingfisher", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird",
-			"Small Bird", false);
-		AddRace("Stork", "Stork", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Penguin", "Penguin", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird",
-			false);
+		SeedAnimalRaces(GetBirdRaceTemplates(), ("Avian", avianProto));
 
 		#endregion
 	}

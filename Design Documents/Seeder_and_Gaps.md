@@ -22,6 +22,53 @@ The health system is not seeded from only one place.
 | `SkillSeeder` | Seeds the skills behind many health-related checks | Medical action quality depends on this seeding |
 | `SkillPackageSeeder` | Seeds the package-level distribution of medical and rescue checks | Helps determine who can actually use the health systems well |
 
+## Animal Seeder Coverage
+### Verified current state
+`AnimalSeeder` now uses a typed template catalogue rather than relying on a single large switch-heavy file.
+
+The stock animal seeding path is now organized around:
+
+- family-focused partial files for mammals, birds, serpents, aquatic animals, insects, arachnids, and reptile-amphibian bodies
+- reusable template data for race definitions, attack loadouts, venom profiles, height and weight models, description packs, and anatomy audit profiles
+- a smaller core builder layer that still handles EF creation of bodies, organs, bones, attacks, liquids, and drugs
+
+### Stock body and race coverage
+The stock seeder now covers a broader set of body families than the earlier animal pass.
+
+Current seeded morphology groups include:
+
+- hoofed and toed quadruped mammals
+- avians
+- serpents
+- fish, sharks, pinnipeds, and cetaceans
+- decapod crabs plus lobster and shrimp style malacostracans
+- cephalopods and jellyfish
+- winged and non-winged insects
+- arachnids and scorpions
+- starter reptilian and anuran bodies for lizards, geckos, iguanas, chelonians, crocodilians, frogs, and toads
+
+### Anatomy validation
+Animal anatomy seeding now uses family-specific audit profiles rather than one implicit mammal-centric assumption.
+
+This matters because:
+
+- endoskeletal families explicitly require key bones, organs, limbs, and bodyparts
+- exoskeletal or part-light families can intentionally omit bones without failing validation
+- new arthropod, crustacean, reptilian, and amphibian bodies can be checked for completeness using rules appropriate to their morphology
+
+### Venom and attack seeding
+Animal venoms are now seeded as reusable drug-backed venom profiles with per-profile effect rows.
+
+The stock catalogue now includes reusable profiles for:
+
+- `Neurotoxic`
+- `Hemotoxic`
+- `Cytotoxic`
+- `Irritant`
+- `Mixed`
+
+Those venoms are attached to stock venomous animals through dedicated natural weapon attacks, and all stock races now seed at least one natural attack loadout rather than leaving passive or aquatic species with no attack entries.
+
 ## Dedicated Health Seeder State
 ### Verified current state
 `HealthSeeder` is currently enabled.

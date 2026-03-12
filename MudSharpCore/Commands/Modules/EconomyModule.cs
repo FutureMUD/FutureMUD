@@ -5841,11 +5841,11 @@ The following basic syntaxes are used to interact with jobs:
 If you're interested in posting a job rather than applying for one, you can use the following syntaxes:
 
 	#3job show <your job>#0 - shows employer information about a job
-	#3job edit <your job>#0 - begins to edit a job listing
+	#3job edit [<ez>] <your job>#0 - begins to edit a job listing
 	#3job close#0 - stops editing a job listing
 	#3job edit#0 - an alias for doing #3job show#0 on the job you're currently editing
-	#3job new <name>#0 - creates a new job with you as the employer
-	#3job newclan <clan> <name>#0 - creates a new job with a clan as the employer
+	#3job new [<ez>] <name>#0 - creates a new job with you as the employer
+	#3job newclan <clan> [<ez>] <name>#0 - creates a new job with a clan as the employer
 
 The following commands require you to be editing a job listing:
 
@@ -5982,7 +5982,19 @@ Note: There may be additional properties that can be edited depending on the typ
 			return;
 		}
 
-		var ez = actor.Gameworld.EconomicZones.First(x => x.JobFindingCells.Contains(actor.Location));
+		var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+		if (ez is null)
+		{
+			var ezname = ss.PopSpeech();
+			ez = actor.Gameworld.EconomicZones.GetByIdOrName(ezname);
+		}
+
+		if (ez is null)
+		{
+			actor.OutputHandler.Send($"You are not at a location where jobs can be posted.");
+			return;
+		}
+
 		var name = ss.PopSpeech().TitleCase();
 		var job = new OngoingJobListing(actor.Gameworld, name, ez, clan, ez.Currency);
 		actor.Gameworld.Add(job);
@@ -6577,7 +6589,19 @@ Note: There may be additional properties that can be edited depending on the typ
 			return;
 		}
 
-		var ez = actor.Gameworld.EconomicZones.First(x => x.JobFindingCells.Contains(actor.Location));
+		var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+		if (ez is null)
+		{
+			var ezname = ss.PopSpeech();
+			ez = actor.Gameworld.EconomicZones.GetByIdOrName(ezname);
+		}
+
+		if (ez is null)
+		{
+			actor.OutputHandler.Send($"You are not at a location where jobs can be posted.");
+			return;
+		}
+
 		var name = ss.PopSpeech().TitleCase();
 		var job = new OngoingJobListing(actor.Gameworld, name, ez, actor, ez.Currency);
 		actor.Gameworld.Add(job);
@@ -6607,7 +6631,19 @@ Note: There may be additional properties that can be edited depending on the typ
 			return;
 		}
 
-		var ez = actor.Gameworld.EconomicZones.First(x => x.JobFindingCells.Contains(actor.Location));
+		var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+		if (ez is null)
+		{
+			var ezname = ss.PopSpeech();
+			ez = actor.Gameworld.EconomicZones.GetByIdOrName(ezname);
+		}
+
+		if (ez is null)
+		{
+			actor.OutputHandler.Send($"You are not at a location where jobs can be posted.");
+			return;
+		}
+
 		var jobs = actor.Gameworld.JobListings.Where(x => x.EconomicZone == ez && x.IsAuthorisedToEdit(actor))
 						.ToList();
 		var job = jobs.GetByIdOrName(ss.SafeRemainingArgument);
@@ -6641,7 +6677,13 @@ Note: There may be additional properties that can be edited depending on the typ
 			return;
 		}
 
-		var ez = actor.Gameworld.EconomicZones.First(x => x.JobFindingCells.Contains(actor.Location));
+		var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+		if (ez is null)
+		{
+			actor.OutputHandler.Send($"You are not at a location where jobs can be posted.");
+			return;
+		}
+
 		var jobs = actor.Gameworld.JobListings.Where(x => x.EconomicZone == ez && x.IsAuthorisedToEdit(actor))
 						.ToList();
 		var job = jobs.GetByIdOrName(ss.SafeRemainingArgument);

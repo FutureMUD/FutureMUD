@@ -17,6 +17,7 @@ The `HealthModule` command set is the main interaction layer for live medical pl
 | --- | --- | --- |
 | Inspection and assessment | `vitals`, `health`, `wounds`, `wound`, `triage` | Read visible health state, pulse and breathing, or deeper wound information |
 | Bedside wound care | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Stabilize bleeding, clean or close wounds, tend healing, relocate bones, remove lodged objects, repair robot-like injuries |
+| Item-mediated drug delivery | `apply`, `inject` | Use held items such as creams and syringes to deliver drugs through targeted bodypart interactions |
 | Surgery and implants | `surgery` | Run formal procedures and manage implant systems |
 | Rescue medicine | `cpr`, `defibrillate` | Attempt to restore breathing or circulation when a patient is non-responsive |
 | Administrative or force tools | `infect`, `cure`, `sever`, `unsever`, `exsanguinate`, `installimplant`, `powerimplant`, `connectimplants`, `implants` | Directly manipulate health state for testing, administration, or special gameplay flows |
@@ -157,6 +158,15 @@ Different vectors move from latent to active at different rates:
 - injected doses are fast
 - inhaled doses are also fast
 - ingested and touched doses are slower
+
+### Topical cream items
+`TopicalCreamGameItemComponent` is the stock cream-style item component for bodypart application.
+
+- It is used through the generic `apply <item> <target> <bodypart> [<amount>]` command rather than through `HealthModule`.
+- Each cream prototype stores a total quantity plus one or more drug payload definitions, each with grams-per-gram and absorption fraction values.
+- Every configured drug must support the `Touched` vector, and successful application doses the target body through that vector.
+- Cream prototypes can optionally specify an `OnApplyProg` futureprog. When present, the runtime executes it with the treated character, the applied bodypart description text, and the actual amount of cream applied.
+- Prototype persistence lives in the component definition XML, including total quantity, configured drugs, and the optional `OnApplyProg` id. Runtime item state still persists the remaining cream quantity per-instance.
 
 On each drug heartbeat, the body:
 

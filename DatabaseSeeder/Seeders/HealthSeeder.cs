@@ -41,8 +41,8 @@ namespace DatabaseSeeder.Seeders
 		[
 			"lthigh",
 			"rthigh",
-			"llowerleg",
-			"rlowerleg",
+			"lshin",
+			"rshin",
 			"lfoot",
 			"rfoot"
 		];
@@ -1435,18 +1435,205 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 			return new XElement("Plan", new XElement("Phase", elements)).ToString();
 		}
 
-		private string GetDefinitionForTargets(BodyProto targetBody, params string[] partNames)
+		internal static string BuildTargetDefinition(FuturemudDatabaseContext context, BodyProto targetBody, params string[] partNames)
 		{
+			var bodyChain = EnumerateTargetBodies(context, targetBody).ToList();
+			var targetParts = new List<BodypartProto>();
+			var missingParts = new List<string>();
+
+			foreach (var partName in partNames)
+			{
+				var targetPart = bodyChain
+					.Select(body => context.BodypartProtos.Local.FirstOrDefault(x => x.BodyId == body.Id && x.Name == partName) ??
+					                context.BodypartProtos.FirstOrDefault(x => x.BodyId == body.Id && x.Name == partName))
+					.FirstOrDefault(x => x is not null);
+
+				if (targetPart is null)
+				{
+					missingParts.Add(partName);
+					continue;
+				}
+
+				targetParts.Add(targetPart);
+			}
+
+			if (missingParts.Any())
+			{
+				throw new InvalidOperationException(
+					$"Unable to find surgical target alias(es) {missingParts.ListToCommaSeparatedValues()} for body {targetBody.Name}. The resolver checked {bodyChain.Select(x => x.Name).ListToCommaSeparatedValues()}.");
+			}
+
 			return new XElement(
 				"Definition",
 				new XElement(
 					"Parts",
 					new XAttribute("forbidden", false),
-					from partName in partNames
-					let id = _context.BodypartProtos.First(x => x.BodyId == targetBody.Id && x.Name == partName).Id
-					select new XElement("Part", id)
+					from targetPart in targetParts
+					select new XElement("Part", targetPart.Id)
 				)
 			).ToString();
+		}
+
+		internal static IReadOnlyList<string> ValidateDefaultSurgeryTargetAliasesForTesting()
+		{
+			var bodyCatalogue = new Dictionary<string, (string? Parent, HashSet<string> Parts)>(StringComparer.OrdinalIgnoreCase)
+			{
+				["Humanoid"] = (
+					null,
+					new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+					{
+						"lupperarm",
+						"rupperarm",
+						"lforearm",
+						"rforearm",
+						"lhand",
+						"rhand",
+						"lthigh",
+						"rthigh",
+						"lshin",
+						"rshin",
+						"lfoot",
+						"rfoot",
+						"lthumb",
+						"rthumb",
+						"lindexfinger",
+						"rindexfinger",
+						"lmiddlefinger",
+						"rmiddlefinger",
+						"lringfinger",
+						"rringfinger",
+						"lpinkyfinger",
+						"rpinkyfinger",
+						"lbigtoe",
+						"rbigtoe",
+						"lindextoe",
+						"rindextoe",
+						"lmiddletoe",
+						"rmiddletoe",
+						"lringtoe",
+						"rringtoe",
+						"lpinkytoe",
+						"rpinkytoe"
+					}
+				),
+				["Organic Humanoid"] = (
+					"Humanoid",
+					new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+					{
+						"brain",
+						"heart",
+						"liver",
+						"spleen",
+						"stomach",
+						"lintestines",
+						"sintestines",
+						"rkidney",
+						"lkidney",
+						"rlung",
+						"llung",
+						"trachea",
+						"esophagus",
+						"uspinalcord",
+						"mspinalcord",
+						"lspinalcord",
+						"rinnerear",
+						"linnerear"
+					}
+				),
+				["Quadruped Base"] = (
+					null,
+					new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+					{
+						"ruforeleg",
+						"luforeleg",
+						"rfknee",
+						"lfknee",
+						"rlforeleg",
+						"llforeleg",
+						"rfhock",
+						"lfhock",
+						"ruhindleg",
+						"luhindleg",
+						"rrknee",
+						"rlknee",
+						"rlhindleg",
+						"llhindleg",
+						"rrhock",
+						"lrhock"
+					}
+				)
+			};
+
+			var targetGroups = new (string BodyName, string GroupName, IReadOnlyList<string> Parts)[]
+			{
+				("Organic Humanoid", nameof(HumanArmParts), HumanArmParts),
+				("Organic Humanoid", nameof(HumanLegParts), HumanLegParts),
+				("Organic Humanoid", nameof(HumanDigitParts), HumanDigitParts),
+				("Organic Humanoid", nameof(HumanBrainTargets), HumanBrainTargets),
+				("Organic Humanoid", nameof(HumanHeartTargets), HumanHeartTargets),
+				("Organic Humanoid", nameof(HumanLiverTargets), HumanLiverTargets),
+				("Organic Humanoid", nameof(HumanSpleenTargets), HumanSpleenTargets),
+				("Organic Humanoid", nameof(HumanStomachTargets), HumanStomachTargets),
+				("Organic Humanoid", nameof(HumanIntestineTargets), HumanIntestineTargets),
+				("Organic Humanoid", nameof(HumanKidneyTargets), HumanKidneyTargets),
+				("Organic Humanoid", nameof(HumanLungTargets), HumanLungTargets),
+				("Organic Humanoid", nameof(HumanTracheaTargets), HumanTracheaTargets),
+				("Organic Humanoid", nameof(HumanEsophagusTargets), HumanEsophagusTargets),
+				("Organic Humanoid", nameof(HumanSpinalTargets), HumanSpinalTargets),
+				("Organic Humanoid", nameof(HumanInnerEarTargets), HumanInnerEarTargets),
+				("Quadruped Base", nameof(QuadrupedForelegParts), QuadrupedForelegParts),
+				("Quadruped Base", nameof(QuadrupedHindlegParts), QuadrupedHindlegParts)
+			};
+
+			var issues = new List<string>();
+			foreach (var (bodyName, groupName, parts) in targetGroups)
+			{
+				foreach (var part in parts)
+				{
+					if (BodyChainContainsPart(bodyName, part))
+					{
+						continue;
+					}
+
+					issues.Add($"{groupName} references '{part}', but it is not seeded on {bodyName} or any parent body.");
+				}
+			}
+
+			return issues;
+
+			bool BodyChainContainsPart(string bodyName, string partName)
+			{
+				for (var currentBody = bodyName; currentBody is not null; currentBody = bodyCatalogue[currentBody].Parent)
+				{
+					if (bodyCatalogue[currentBody].Parts.Contains(partName))
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		private string GetDefinitionForTargets(BodyProto targetBody, params string[] partNames)
+		{
+			return BuildTargetDefinition(_context, targetBody, partNames);
+		}
+
+		private static IEnumerable<BodyProto> EnumerateTargetBodies(FuturemudDatabaseContext context, BodyProto targetBody)
+		{
+			var seen = new HashSet<long>();
+			var currentBody = targetBody;
+
+			while (currentBody is not null && seen.Add(currentBody.Id))
+			{
+				yield return currentBody;
+				currentBody = currentBody.CountsAs ??
+				              (currentBody.CountsAsId is long parentId
+					              ? context.BodyProtos.Local.FirstOrDefault(x => x.Id == parentId) ??
+					                context.BodyProtos.FirstOrDefault(x => x.Id == parentId)
+					              : null);
+			}
 		}
 
 		private string ScalpelPlan() => ProduceInventoryPlanDefinition((InventoryState.Held, "Scalpel", 1));

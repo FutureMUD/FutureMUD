@@ -73,6 +73,8 @@ The body runtime continuously tracks more than visible wounds:
 - internal bleeding and other hidden trauma
 - consequences of low circulation for prompts, health checks, and death
 
+Temperature imbalance now participates in this same layer. Mild and moderate stages remain mostly symptomatic, but severe and especially critical hypothermia or hyperthermia apply organ-function penalties through the effect system. That means thermal injury is reversible while exposure is corrected, but can still become fatal if a body is left in critical extremes for long enough.
+
 This is why medical commands such as `vitals`, `triage`, and surgery are meaningful. They are reading and acting on underlying simulated state, not only on visible wound descriptions.
 
 ### Health Ticks and Status
@@ -87,6 +89,15 @@ Health is advanced over time, not only when a wound is created.
 - dead
 
 Those outcomes depend on aggregate wound state, blood volume, organ performance, breathing status, and sometimes merit or effect modifiers.
+
+For `ComplexLivingHealthStrategy`, temperature exposure is now processed as a staged continuum:
+
+- very mild stages are informational only
+- mild and moderate stages slow movement and worsen stamina efficiency
+- severe stages begin small organ impairment without being immediately lethal
+- critical stages ramp organ penalties over sustained exposure until ordinary brain and heart failure rules can take over
+
+This entire runtime branch is gated by the static configuration `TemperatureImbalanceEnabled`.
 
 ## Health Strategies
 `IHealthStrategy` is the runtime policy object that decides how an owner experiences damage and healing.

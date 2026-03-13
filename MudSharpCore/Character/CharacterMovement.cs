@@ -1145,6 +1145,8 @@ public partial class Character
 		}
 
 		var result = baseSpeed * multiplier;
+		result *= CombinedEffectsOfType<IMovementDelayEffect>()
+			.Aggregate(1.0, (current, effect) => current * effect.DelayMultiplier(speed));
 		return result;
 	}
 

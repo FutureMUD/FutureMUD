@@ -686,7 +686,8 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
 	private void DoTemperatureTick(ICharacter character)
 	{
-		if (character.IsAdministrator())
+		if (character.IsAdministrator() ||
+		    !character.Gameworld.GetStaticBool(ThermalImbalanceConsequenceModel.EnabledStaticConfiguration))
 		{
 			return;
 		}
@@ -695,8 +696,8 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var temperature = character.Location.CurrentTemperature(character);
 		var subjective =
 			TemperatureExtensions.SubjectiveTemperature(temperature, floor, ceiling);
-		var effect = character.CombinedEffectsOfType<ThermalImbalance>().FirstOrDefault();
-		if (effect != null && subjective == Temperature.Temperate)
+		var effect = DominantThermalImbalanceEffect(character);
+		if (effect == null && subjective == Temperature.Temperate)
 		{
 			return;
 		}
@@ -708,6 +709,15 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		}
 
 		effect.TenSecondProgress(subjective);
+	}
+
+	private static ThermalImbalance DominantThermalImbalanceEffect(ICharacter character)
+	{
+		return character.CombinedEffectsOfType<ThermalImbalance>()
+		                .OrderByDescending(x =>
+			                ThermalImbalanceConsequenceModel.EffectSeverityScore(x.TemperatureStatus,
+				                x.ImbalanceProgress))
+		                .FirstOrDefault();
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)
@@ -1432,8 +1442,13 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
 	public override BodyTemperatureStatus CurrentTemperatureStatus(IHaveWounds owner)
 	{
+		if (!owner.Gameworld.GetStaticBool(ThermalImbalanceConsequenceModel.EnabledStaticConfiguration))
+		{
+			return BodyTemperatureStatus.NormalTemperature;
+		}
+
 		var charOwner = (ICharacter)owner;
-		return charOwner.CombinedEffectsOfType<ThermalImbalance>().FirstOrDefault()?.TemperatureStatus ??
+		return DominantThermalImbalanceEffect(charOwner)?.TemperatureStatus ??
 		       BodyTemperatureStatus.NormalTemperature;
 	}
 

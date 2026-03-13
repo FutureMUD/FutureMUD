@@ -1317,15 +1317,18 @@ public partial class Body
 		CalculateOrganFunctions(initial);
 		ReevaluateLimbAndPartDamageEffects();
 		var (floor, ceiling) = TolerableTemperatures(true);
+		var temperatureImbalanceEnabled =
+			Gameworld.GetStaticBool(ThermalImbalanceConsequenceModel.EnabledStaticConfiguration);
 		if (_healthTickActive ||
 			(!Wounds.Any() &&
 			 !ActiveDrugDosages.Any() &&
 			 !PartInfections.Any() &&
 			 CurrentBloodVolumeLitres >= TotalBloodVolumeLitres &&
 			 CanBreathe &&
-			 HealthStrategy.CurrentTemperatureStatus(Actor) == BodyTemperatureStatus.NormalTemperature &&
-			 TemperatureExtensions.SubjectiveTemperature(Location.CurrentTemperature(Actor), floor, ceiling) ==
-			 Temperature.Temperate &&
+			 (!temperatureImbalanceEnabled ||
+			  (HealthStrategy.CurrentTemperatureStatus(Actor) == BodyTemperatureStatus.NormalTemperature &&
+			   TemperatureExtensions.SubjectiveTemperature(Location.CurrentTemperature(Actor), floor, ceiling) ==
+			   Temperature.Temperate)) &&
 			 _cachedOrganFunctionsByOrgan.All(x => x.Value >= 1.0))
 		   )
 		{

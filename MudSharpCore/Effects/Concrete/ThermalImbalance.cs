@@ -1,18 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Health;
+using MudSharp.Movement;
 
 namespace MudSharp.Effects.Concrete;
 
-public class ThermalImbalance : Effect
+public class ThermalImbalance : Effect, IStaminaExpenditureEffect, IStaminaRegenerationRateEffect, IOrganFunctionEffect,
+	IMovementDelayEffect
 {
 	public static void InitialiseEffectType()
 	{
@@ -23,7 +25,7 @@ public class ThermalImbalance : Effect
 	{
 		ImbalanceProgress = 0.0;
 		TemperatureStatus = BodyTemperatureStatus.NormalTemperature;
-		((ICharacter)owner).StartHealthTick();
+		(owner as IHaveWounds)?.StartHealthTick();
 	}
 
 	protected ThermalImbalance(XElement root, IPerceivable owner) : base(root, owner)
@@ -61,8 +63,16 @@ public class ThermalImbalance : Effect
 		}
 	}
 
+	private bool SystemEnabled => Gameworld.GetStaticBool(ThermalImbalanceConsequenceModel.EnabledStaticConfiguration);
+
 	public void TenSecondProgress(Temperature currentExposure)
 	{
+		if (!SystemEnabled)
+		{
+			RemovalEffect();
+			return;
+		}
+
 		var decayFloor = BodyTemperatureStatus.NormalTemperature;
 		var changeMultiplier = 1.0;
 		switch (currentExposure)
@@ -96,17 +106,14 @@ public class ThermalImbalance : Effect
 				decayFloor = BodyTemperatureStatus.CriticalHyperthermia;
 				break;
 			case Temperature.Warm:
-				// Decay towards Very Mildly Hyperthermic
 				changeMultiplier = 2.0;
 				decayFloor = BodyTemperatureStatus.VeryMildHyperthermia;
 				break;
 			case Temperature.Temperate:
-				// Decay towards Normal
 				break;
 			case Temperature.Cool:
 				changeMultiplier = 1.5;
 				decayFloor = BodyTemperatureStatus.VeryMildHypothermia;
-				// Decay towards Very Mildly Hypothermic
 				break;
 			case Temperature.Chilly:
 				changeMultiplier = 2.25;
@@ -121,7 +128,7 @@ public class ThermalImbalance : Effect
 				decayFloor = BodyTemperatureStatus.CriticalHypothermia;
 				break;
 			case Temperature.ExtremelyCold:
-				changeMultiplier = 5;
+				changeMultiplier = 5.0;
 				decayFloor = BodyTemperatureStatus.CriticalHypothermia;
 				break;
 			case Temperature.Frigid:
@@ -162,8 +169,8 @@ public class ThermalImbalance : Effect
 			                     changeMultiplier;
 		}
 
-		if (TemperatureStatus < BodyTemperatureStatus.CriticalHyperthermia && ImbalanceProgress >=
-		    Gameworld.GetStaticDouble("TemperatureImbalanceHotterThreshold"))
+		if (TemperatureStatus < BodyTemperatureStatus.CriticalHyperthermia &&
+		    ImbalanceProgress >= Gameworld.GetStaticDouble("TemperatureImbalanceHotterThreshold"))
 		{
 			TemperatureStatus += 1;
 			ImbalanceProgress = 0.0;
@@ -181,6 +188,97 @@ public class ThermalImbalance : Effect
 		    currentExposure == Temperature.Temperate)
 		{
 			RemovalEffect();
+		}
+	}
+
+	public double Multiplier => SystemEnabled
+		? ThermalImbalanceConsequenceModel.StaminaMultiplier(
+			TemperatureStatus,
+			Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaStaminaMultiplier),
+			Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaStaminaMultiplier))
+		: 1.0;
+
+	double IStaminaRegenerationRateEffect.Multiplier => SystemEnabled
+		? ThermalImbalanceConsequenceModel.StaminaRegenerationMultiplier(
+			TemperatureStatus,
+			Gameworld.GetStaticDouble(
+				ThermalImbalanceConsequenceModel.MinimumHypothermiaStaminaRegenerationMultiplier),
+			Gameworld.GetStaticDouble(
+				ThermalImbalanceConsequenceModel.MinimumHyperthermiaStaminaRegenerationMultiplier))
+		: 1.0;
+
+	public double DelayMultiplier(IMoveSpeed speed)
+	{
+		if (!SystemEnabled)
+		{
+			return 1.0;
+		}
+
+		return ThermalImbalanceConsequenceModel.MovementDelayMultiplier(
+			TemperatureStatus,
+			Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaMovementDelayMultiplier),
+			Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaMovementDelayMultiplier));
+	}
+
+	public IEnumerable<(IOrganProto Organ, double Bonus)> OrganFunctionBonuses(IBody body)
+	{
+		if (!SystemEnabled)
+		{
+			yield break;
+		}
+
+		var penaltySeverity = ThermalImbalanceConsequenceModel.OrganPenaltySeverity(
+			TemperatureStatus,
+			ImbalanceProgress,
+			Gameworld.GetStaticDouble("TemperatureImbalanceHotterThreshold"),
+			Gameworld.GetStaticDouble("TemperatureImbalanceColderThreshold"),
+			Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.SevereOrganPenaltyFraction),
+			Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.CriticalThresholdsForMaximumOrganPenalty));
+
+		if (penaltySeverity <= 0.0)
+		{
+			yield break;
+		}
+
+		foreach (var (organType, hypothermiaPenalty, hyperthermiaPenalty) in new[]
+		         {
+			         (
+				         BodypartTypeEnum.Brain,
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaBrainPenalty),
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaBrainPenalty)
+			         ),
+			         (
+				         BodypartTypeEnum.Heart,
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaHeartPenalty),
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaHeartPenalty)
+			         ),
+			         (
+				         BodypartTypeEnum.Kidney,
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaKidneyPenalty),
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaKidneyPenalty)
+			         ),
+			         (
+				         BodypartTypeEnum.Liver,
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaLiverPenalty),
+				         Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaLiverPenalty)
+			         )
+		         })
+		{
+			var penalty = ThermalImbalanceConsequenceModel.PenaltyAmount(
+				TemperatureStatus,
+				penaltySeverity,
+				hypothermiaPenalty,
+				hyperthermiaPenalty);
+
+			if (penalty <= 0.0)
+			{
+				continue;
+			}
+
+			foreach (var organ in body.Organs.Where(x => x.BodypartType == organType))
+			{
+				yield return (organ, -penalty);
+			}
 		}
 	}
 

@@ -176,6 +176,8 @@ On each drug heartbeat, the body:
 4. creates or updates persistent effects such as analgesia, pacifism, thermal imbalance, or organ-function modifiers
 5. metabolizes active drugs down over time
 
+Drug-driven thermal load now feeds the same generic `ThermalImbalance` state that environmental exposure uses, so its symptoms and lethal path are shared with ordinary hypothermia and hyperthermia. If `TemperatureImbalanceEnabled` is disabled in static configs, those drug contributions are skipped entirely.
+
 Adrenaline and paralysis are transient overlays derived from active dosage totals rather than long-term saved treatment state. By contrast, anti-inflammatory bedside care is a saving effect bound to a bodypart and survives persistence until it expires.
 
 ### Drug effect coverage

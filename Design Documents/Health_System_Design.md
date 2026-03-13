@@ -62,6 +62,8 @@ For characters, `BodyBiology` further routes damage through armor, bodyparts, bo
 ### 4. Ongoing health evaluation
 Heartbeat-driven health ticks evaluate blood loss, organ performance, breathing, temperature, and the aggregate effects of wounds. Health status can escalate from normal to paralyzed, unconscious, passed out, or dead.
 
+Temperature imbalance is now more than descriptive state. Mild and moderate hypo or hyperthermia increase fatigue pressure and slow movement, while severe and critical stages begin to impair organ function. The lethal path is intentionally delayed: only sustained time in critical hypothermia or critical hyperthermia ramps organ penalties far enough to reliably threaten life.
+
 ### 5. Secondary complications
 Organic wounds can become dirty, infected, gangrenous, fungal, infectious, or necrotic. Breathing failure causes its own damage path. Needs and drugs introduce slow-burn modifiers rather than single-event outcomes.
 
@@ -141,12 +143,15 @@ Important current groups include:
 - infection starting intensity, damage-type multipliers, severity multipliers, and cleaning protection chances
 - shared infection stage thresholds, visibility thresholds, nausea scaling, and infectious spread modifiers
 - bone-fracture healing multipliers, infection multipliers, and treatment progress bonuses
+- temperature-imbalance enablement, progression thresholds, movement-delay and stamina multipliers, and the severe-to-critical organ-failure ramp used by hypothermia and hyperthermia
 
 Persistence rule:
 
 - these values live in `StaticConfigurations`
 - if a value is missing, `Futuremud.GetStaticConfiguration` inserts the default on first access
 - this means older worlds automatically gain the new settings without requiring a hand-written migration
+
+The thermal master switch is `TemperatureImbalanceEnabled`. When it is `false`, environmental and drug-driven temperature imbalance stop creating new staged consequences, health strategy lookups report normal temperature, and the rest of the health runtime ignores thermal penalties.
 
 ## Important Current-State Constraints
 These are central to understanding the current implementation:

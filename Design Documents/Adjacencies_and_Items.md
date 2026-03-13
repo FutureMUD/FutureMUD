@@ -131,7 +131,7 @@ Effects are the main glue layer that turns health actions into ongoing states.
 | --- | --- | --- |
 | Wound-care actions | `CleaningWounds`, `TendingWounds`, `RepairingWounds`, `RelocatingBone`, `AntisepticProtection`, `AntiInflammatoryTreatment`, `SupressWoundMessages` | Timed treatment actions, antiseptic persistence, bodypart-scoped pain relief, and output control |
 | Rescue and circulation | `PerformingCPR`, `CPRTarget`, `StablisedOrganFunction` | Tracks who is performing CPR, who is receiving it, and whether organ function has been temporarily restored |
-| Drug-driven modifiers | `HealingRateDrug`, `DrugInducedMagicCapability`, `DrugThermalImbalance`, `PacifismDrug`, `OrganFunctionDrugEffect`, `VisionImpairmentDrugEffect`, `AdrenalineRush`, `AdrenalineHeartSupportEffect`, `DrugInducedParalysis`, `InfectionNausea` | Converts drug totals and infection state into persistent character-state changes |
+| Drug-driven modifiers | `HealingRateDrug`, `ThermalImbalance`, `DrugThermalImbalance` (legacy load path), `DrugInducedMagicCapability`, `PacifismDrug`, `OrganFunctionDrugEffect`, `VisionImpairmentDrugEffect`, `AdrenalineRush`, `AdrenalineHeartSupportEffect`, `DrugInducedParalysis`, `InfectionNausea` | Converts drug totals and infection state into persistent character-state changes, including shared staged hypo or hyperthermia consequences |
 | Long-term health modifiers | `HealingRateEffect`, `LimbMissingBoneEffect`, `SurgeryFinalisationRequired` | Connects wounds, missing structure, and surgery follow-up to the wider effect system |
 | Need timing | `DelayedNeedsFulfillment` | Delays or stages need resolution instead of resolving it instantly |
 

@@ -17,6 +17,27 @@ public partial class Body
 {
 	#region Drugs
 
+	private void ApplyThermalImbalanceProgress(double progress)
+	{
+		if (progress == 0.0 ||
+		    !Gameworld.GetStaticBool(ThermalImbalanceConsequenceModel.EnabledStaticConfiguration))
+		{
+			return;
+		}
+
+		var thermal = Actor.CombinedEffectsOfType<ThermalImbalance>()
+			.OrderByDescending(x =>
+				ThermalImbalanceConsequenceModel.EffectSeverityScore(x.TemperatureStatus, x.ImbalanceProgress))
+			.FirstOrDefault();
+		if (thermal == null)
+		{
+			thermal = new ThermalImbalance(Actor);
+			Actor.AddEffect(thermal);
+		}
+
+		thermal.ImbalanceProgress += progress;
+	}
+
 	private bool _drugsChanged;
 
 	public bool DrugsChanged
@@ -399,17 +420,7 @@ public partial class Body
 					}
 
 					var thermalGain = intensity * Gameworld.GetStaticDouble("AdrenalineThermalGainPerIntensity");
-					if (thermalGain > 0.0)
-					{
-						var thermal = EffectsOfType<DrugThermalImbalance>().FirstOrDefault();
-						if (thermal == null)
-						{
-							thermal = new DrugThermalImbalance(this);
-							EffectHandler.AddEffect(thermal);
-						}
-
-						thermal.ImbalanceProgress += thermalGain;
-					}
+					ApplyThermalImbalanceProgress(thermalGain);
 
 					var cardiacDamage = intensity * Gameworld.GetStaticDouble("AdrenalineCardiacDamagePerIntensity");
 					if (cardiacDamage > 0.0)
@@ -542,14 +553,8 @@ public partial class Body
                                 }
                                 case DrugType.ThermalImbalance:
                                 {
-                                        var thermal = EffectsOfType<DrugThermalImbalance>().FirstOrDefault();
-                                        if (thermal == null)
-                                        {
-                                                thermal = new DrugThermalImbalance(this);
-                                                EffectHandler.AddEffect(thermal);
-                                        }
-                                        thermal.ImbalanceProgress += (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
-                                                                    (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
+                                        ApplyThermalImbalanceProgress((effect.Value - neutralisingEffects.ValueOrDefault(effect.Key)) /
+                                                                      (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001));
                                         break;
                                 }
                         }
@@ -640,14 +645,6 @@ public partial class Body
                     neutralisingEffects.ValueOrDefault(DrugType.VisionImpairment) <= 0.0)
                 {
                         EffectHandler.RemoveAllEffects<VisionImpairmentDrugEffect>(fireRemovalAction: true);
-                }
-
-                if (effectIntensities.ValueOrDefault(DrugType.ThermalImbalance) -
-                    neutralisingEffects.ValueOrDefault(DrugType.ThermalImbalance) <= 0.0 &&
-                    effectIntensities.ValueOrDefault(DrugType.Adrenaline) -
-                    neutralisingEffects.ValueOrDefault(DrugType.Adrenaline) <= 0.0)
-                {
-                        EffectHandler.RemoveAllEffects<DrugThermalImbalance>(fireRemovalAction: true);
                 }
 
 		if (!applicableCapabilities.Any())

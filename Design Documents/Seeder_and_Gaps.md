@@ -16,6 +16,7 @@ The health system is not seeded from only one place.
 | `HealthSeeder` | Seeds medical knowledges, surgical procedures and phases, a broad tech-level drug catalogue, and optional mammal veterinary procedures | Enabled as a release-ready stock medical seeder |
 | `HumanSeeder` | Seeds human health strategies, corpse models, blood models, population blood models, race defaults, chargen needs settings, and breathing-related race flags | This is where a large amount of practical health setup currently lives |
 | `AnimalSeeder` | Seeds animal corpse models, health strategies, blood models, population blood models, race defaults, and multiple breathing model assignments | Also carries a large amount of effective health setup |
+| `MythicalAnimalSeeder` | Seeds mythic beasts and hybrid folk using the same stock health strategies, corpse models, combat question set, and compatible body frameworks established by `HumanSeeder` and `AnimalSeeder` | Keeps the mythical catalogue separate from the old disabled `FantasySeeder` while still reusing the anatomy and medical compatibility infrastructure where practical |
 | `CoreDataSeeder` | Seeds the stock `GameItem` health strategy and some related static strings such as death messaging | Important for item damage support |
 | `ItemSeeder` | Seeds named medical and health-adjacent items such as bandages, splints, tourniquets, suturing tools, prosthetics, and cannula items | Low-tech medical play is well represented here |
 | `UsefulSeeder` | Seeds many medical component prototypes, including treatment items, cannula definitions, IV support, and prosthetic components | More component-heavy than `ItemSeeder` |
@@ -68,6 +69,41 @@ The stock catalogue now includes reusable profiles for:
 - `Mixed`
 
 Those venoms are attached to stock venomous animals through dedicated natural weapon attacks, and all stock races now seed at least one natural attack loadout rather than leaving passive or aquatic species with no attack entries.
+
+## Mythical Animal Seeder Coverage
+### Verified current state
+`MythicalAnimalSeeder` is now the stock package for mythic creatures and also absorbs the legacy fantasy-beast content that used to live in the old `FantasySeeder`.
+
+The seeder currently:
+
+- reuses the shared non-human seeder questionnaire so builders answer the same health-model and combat-message prompts they already see for stock animals
+- requires the human and animal body and characteristic infrastructure before installation, so mythic races inherit compatible corpse models, breathing setup, attacks, and body semantics
+- now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, and plantfolk, so the separate `FantasySeeder` is no longer needed
+- installs incrementally, skipping any already-present mythic race entries instead of treating partial overlap as a fatal blocker
+
+### Body reuse strategy
+The package prefers to reuse existing stock bodies wherever that does not require a major compromise.
+
+Current reuse patterns include:
+
+- direct reuse of stock `Organic Humanoid`, `Ungulate`, `Toed Quadruped`, `Avian`, and `Serpentine` bodies for races that fit those shapes closely
+- dedicated hybrid bodies for centaurs, merfolk, naga, griffins, hippogriffs, manticores, wyverns, hippocamps, and winged or horned humanoids
+- humanoid-parent races for minotaurs, naga, merfolk, selkies, owlkin, avian people, and centaurs so they can leverage the same characteristic and description ecosystem as humans
+
+### Variation and chargen implications
+The humanoid-form mythic races now seed an ethnicity with human-style characteristic coverage rather than only a flat animal description.
+
+That includes reuse of stock profiles such as:
+
+- eye colours
+- eye shapes
+- noses
+- ears
+- hair colours
+- hair styles
+- skin colours
+- frames
+- race-specific person-word profiles
 
 ## Dedicated Health Seeder State
 ### Verified current state

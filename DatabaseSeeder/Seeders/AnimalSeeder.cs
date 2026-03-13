@@ -2247,31 +2247,34 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			CreateDescription(EntityDescriptionType.FullDescription, description, prog);
 		}
 
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Terrier"),
+		Ethnicity Breed(string name) =>
+			_context.Ethnicities.First(x => x.ParentRaceId == race.Id && x.Name == name);
+
+		AddDogDescription(Breed("Terrier"),
 			"This is &a_an[&age], &male terrier; a small, wiry and generally fearless breed of dog with short legs and an eager nature. They are excellent diggers and have a natural instinct to hunt vermin.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Setter"),
+		AddDogDescription(Breed("Setter"),
 			"This is &a_an[&age], &male setter; a medium sized hunting dog that was bred to hunt birds. They hold their head high in the air as they move rather than tracking along the ground and they have an instinct to freeze or 'set' when they see their prey. They are readily trainable and very disciplined.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Pointer"),
+		AddDogDescription(Breed("Pointer"),
 			"This is &a_an[&age], &male pointer; a medium sized hunting dog that was bred to assist hunters using ranged weapons. They stalk prey in dense vegetation and upon sighting it will stand still in a 'point' with their muzzle at their prey.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Retriever"),
+		AddDogDescription(Breed("Retriever"),
 			"This is &a_an[&age], &male retriever; a medium sized hunting dog that was bred to bring back downed prey. They are loyal and friendly in disposition and relatively soft-mouthed, so make excellent pets.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Spaniel"),
+		AddDogDescription(Breed("Spaniel"),
 			"This is &a_an[&age], &male spaniel; a small hunting dog bred for flushing game out of dense brush. They have distinctive long, silky coats and big droopy ears.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Water Dog"),
+		AddDogDescription(Breed("Water Dog"),
 			"This is &a_an[&age], &male water dog; hunting and companion dogs that are excellent swimmers. They have long and thick hair around their torso to keep them warm in icy-cold water but short-coated limbs to reduce drag while swimming.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Sighthound"),
+		AddDogDescription(Breed("Sighthound"),
 			"This is &a_an[&age], &male sighthound; a large, long-legged and lanky breed of dog with tremendous speed, flexibility and agility. They have long muzzles and flexible backs.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Scenthound"),
+		AddDogDescription(Breed("Scenthound"),
 			"This is &a_an[&age], &male scenthound; a dog with a phenomenal sense of smell, even for their species. These dogs are short-legged and low to the ground, and have big, floppy ears and wet mouths.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Bulldog"),
+		AddDogDescription(Breed("Bulldog"),
 			"This is &a_an[&age], &male bulldog; a stocky, square-bodied dog originally bred for fighting. They have flat faces and tremendous muscle.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Mastiff"),
+		AddDogDescription(Breed("Mastiff"),
 			"This is &a_an[&age], &male mastiff; a large dog originally bred for guarding homes and for war. They have broad, somewhat flat faces and big feet.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Herding Dog"),
+		AddDogDescription(Breed("Herding Dog"),
 			"This is &a_an[&age], &male herding dog; a medium sized dog bred to assist in the herding of livestock. They tend to be low to the ground and agile, and have an instinct to nip at the heels of animals and herd small children.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Lap Dog"),
+		AddDogDescription(Breed("Lap Dog"),
 			"This is &a_an[&age], &male lap dog; a small, lap-sized dog with little use as a working dog. Purely ornamental, they tend to have a lazy but grumpy disposition and prefer to spend their time in the laps of their owners.");
-		AddDogDescription(_context.Ethnicities.First(x => x.Name == "Mongrel"),
+		AddDogDescription(Breed("Mongrel"),
 			"This is &a_an[&age], &male mongrel; a dog of indeterminate parentage and medium size.");
 	}
 
@@ -3707,6 +3710,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			{ Race = race, Attribute = attribute, IsHealthAttribute = attribute.TraitGroup == "Physical" });
 
 		CreateEthnicitiesForRace(race);
+		_context.SaveChanges();
 		CreateDescriptionsForRace(race);
 		CreateRaceAttacks(race);
 

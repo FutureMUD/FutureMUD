@@ -74,6 +74,7 @@ The stock animal seeding path is now organized around:
 - family-focused partial files for mammals, birds, serpents, aquatic animals, insects, arachnids, and reptile-amphibian bodies
 - reusable template data for race definitions, attack loadouts, venom profiles, height and weight models, description packs, and anatomy audit profiles
 - a smaller core builder layer that still handles EF creation of bodies, organs, bones, attacks, liquids, and drugs
+- race-specific ethnicity-dependent description progs are generated only after the owning race and ethnicities have been saved, so seeded progs always reference persistent IDs
 
 ### Stock body and race coverage
 The stock seeder now covers a broader set of body families than the earlier animal pass.

@@ -77,11 +77,9 @@ public partial class AnimalSeeder
 
 	private void AddVenomAttackToRace(Race race, AnimalVenomAttackTemplate template)
 	{
-		var attackAddendum = _questionAnswers["messagestyle"].ToLowerInvariant() switch
-		{
-			"sentences" or "sparse" => ".",
-			_ => ""
-		};
+		var attackAddendum =
+			CombatSeederMessageStyleHelper.AttackSuffix(
+				CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
 
 		var venomProfile = VenomProfiles[template.VenomProfileKey];
 		var drug = new Drug

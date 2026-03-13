@@ -1122,6 +1122,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		CombatMoveIntentions intentions = CombatMoveIntentions.Attack | CombatMoveIntentions.Wound,
 		string additionalInfo = null)
 	{
+		var formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(
+			attackMessage,
+			CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
+
 		var attack = new WeaponAttack
 		{
 			Verb = (int)verb,
@@ -1154,11 +1158,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		var message = new CombatMessage
 		{
 			Type = (int)moveType,
-			Message = attackMessage,
+			Message = formattedAttackMessage,
 			Priority = 50,
 			Verb = (int)verb,
 			Chance = 1.0,
-			FailureMessage = attackMessage
+			FailureMessage = formattedAttackMessage
 		};
 		message.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
 		{ CombatMessage = message, WeaponAttack = attack });
@@ -1192,14 +1196,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 	private void AddJellyfishAttack(Race race)
 	{
-		var attackAddendum = "";
-		switch (_questionAnswers["messagestyle"].ToLowerInvariant())
-		{
-			case "sentences":
-			case "sparse":
-				attackAddendum = ".";
-				break;
-		}
+		var attackAddendum =
+			CombatSeederMessageStyleHelper.AttackSuffix(
+				CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
 
 		var tendrilShape = _context.BodypartShapes.First(x => x.Name == "Tendril");
 		var tendrils = _context.BodypartProtos.Where(x => x.Body == race.BaseBody && x.BodypartShape == tendrilShape)
@@ -1263,10 +1262,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		var attack = AddAttack($"{race.Name} Sting", BuiltInCombatMoveType.EnvenomingAttackClinch,
 			MeleeWeaponVerb.Strike, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 			Alignment.Front, Orientation.Low, 0.5, 1.5, tendrilShape, _snakeBiteDamage,
-			$"@ attempt|attempts to brush a tendril against $1{attackAddendum}", DamageType.Cellular,
+			$"@ drift|drifts close and brush|brushes a stinging tendril across $1{attackAddendum}", DamageType.Cellular,
 			additionalInfo: @$"<Data>
    <Liquid>{liquid.Id}</Liquid>
-   <MaximumQuantity>0.1</MaximumQuantity>
+   <MaximumQuantity>0.08</MaximumQuantity>
    <MinimumWoundSeverity>0</MinimumWoundSeverity>
  </Data>");
 
@@ -1285,14 +1284,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 	private void AddSerpentAttack(Race race, bool venomous)
 	{
-		var attackAddendum = "";
-		switch (_questionAnswers["messagestyle"].ToLowerInvariant())
-		{
-			case "sentences":
-			case "sparse":
-				attackAddendum = ".";
-				break;
-		}
+		var attackAddendum =
+			CombatSeederMessageStyleHelper.AttackSuffix(
+				CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
 
 		var fangShape = _context.BodypartShapes.First(x => x.Name == "Fang");
 		var fang = _context.BodypartProtos.First(x => x.Body == race.BaseBody && x.BodypartShape == fangShape);
@@ -1357,7 +1351,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			attack = AddAttack($"{race.Name} Bite", BuiltInCombatMoveType.EnvenomingAttackClinch,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Low, 4.0, 1.0, fangShape, _snakeBiteDamage,
-				$"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite,
+				$"@ strike|strikes with a quick bite at $1{attackAddendum}", DamageType.Bite,
 				additionalInfo: @$"<Data>
    <Liquid>{liquid.Id}</Liquid>
    <MaximumQuantity>0.005</MaximumQuantity>
@@ -1369,7 +1363,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			attack = AddAttack($"{race.Name} Bite", BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Bite,
 				Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Front,
 				Orientation.Low, 4.0, 1.0, fangShape, _snakeBiteDamage,
-				$"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ dart|darts in and sink|sinks &0's fangs into $1{attackAddendum}", DamageType.Bite);
 		}
 
 		_context.RacesWeaponAttacks.Add(new RacesWeaponAttacks
@@ -1728,112 +1722,107 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
 			var tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
 
-			var attackAddendum = "";
-			switch (_questionAnswers["messagestyle"].ToLowerInvariant())
-			{
-				case "sentences":
-				case "sparse":
-					attackAddendum = ".";
-					break;
-			}
+			var attackAddendum =
+				CombatSeederMessageStyleHelper.AttackSuffix(
+					CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
 
 			_attacks["carnivorebite"] = AddAttack("Carnivore Bite", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Difficulty.Easy,
 				Alignment.Front, Orientation.Centre, 4.0, 1.0, mouthshape, carnivoreBite,
-				$"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ snap|snaps &0's jaws at $1{attackAddendum}", DamageType.Bite);
 			_attacks["carnivoresmashbite"] = AddAttack("Carnivore Smash Bite",
 				BuiltInCombatMoveType.UnarmedSmashItem, MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard,
 				Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.Centre, 4.0, 1.0, mouthshape,
-				carnivoreBite, $"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				carnivoreBite, $"@ lunge|lunges in and clamp|clamps &0's jaws onto $1{attackAddendum}", DamageType.Bite);
 			_attacks["carnivorelowbite"] = AddAttack("Carnivore Low Bite",
 				BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard,
 				Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.Low, 4.0, 1.0, mouthshape,
-				carnivoreBite, $"@ lunge|lunges forward and low, and try|tries to bite $1{attackAddendum}",
+				carnivoreBite, $"@ dart|darts low and snap|snaps at $1's legs{attackAddendum}",
 				DamageType.Bite);
 			_attacks["carnivorelowestbite"] = AddAttack("Carnivore Lowest Bite",
 				BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Bite, Difficulty.Hard, Difficulty.Hard,
 				Difficulty.VeryEasy, Difficulty.Easy, Alignment.Front, Orientation.Lowest, 4.0, 0.9, mouthshape,
 				carnivoreBite,
-				$"@ lunge|lunges forward and very low, trying to bite $1's legs and trip &1 up{attackAddendum}",
+				$"@ surge|surges in ankle-low and snap|snaps at $1's feet in an attempt to drag &1 down{attackAddendum}",
 				DamageType.Bite);
 			_attacks["carnivorehighbite"] = AddAttack("Carnivore High Bite",
 				BuiltInCombatMoveType.StaggeringBlowUnarmed, MeleeWeaponVerb.Bite, Difficulty.Normal,
 				Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.Front, Orientation.High, 6.0, 1.3,
 				mouthshape, carnivoreBite,
-				$"@ leap|leaps forward and throw|throws &0's bulk towards $1, while try|trying to bite &1{attackAddendum}",
+				$"@ spring|springs up at $1 and snap|snaps for &1's upper body{attackAddendum}",
 				DamageType.Bite, additionalInfo: "7");
 			_attacks["carnivoreclinchbite"] = AddAttack("Carnivore Clinch Bite",
 				BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Bite, Difficulty.VeryEasy,
 				Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.Centre, 3.0, 0.6,
-				mouthshape, carnivoreBite, $"@ try|tries to savagely bite $1{attackAddendum}", DamageType.Bite);
+				mouthshape, carnivoreBite, $"@ wrench|wrenches &0's head sideways and try|tries to savage $1 with a close bite{attackAddendum}", DamageType.Bite);
 			_attacks["carnivoreclinchhighbite"] = AddAttack("Carnivore High Clinch Bite",
 				BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Bite, Difficulty.VeryEasy,
 				Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.High, 3.0, 0.6,
-				mouthshape, carnivoreBite, $"@ try|tries to savagely bite $1{attackAddendum}", DamageType.Bite);
+				mouthshape, carnivoreBite, $"@ crane|cranes &0's head up and snap|snaps for $1's throat{attackAddendum}", DamageType.Bite);
 			_attacks["carnivoreclinchhighestbite"] = AddAttack("Carnivore Highest Clinch Bite",
 				BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Bite, Difficulty.VeryEasy,
 				Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.Highest, 3.0, 0.6,
-				mouthshape, carnivoreBite, $"@ try|tries to savagely bite $1{attackAddendum}", DamageType.Bite);
+				mouthshape, carnivoreBite, $"@ surge|surges up and snap|snaps for $1's face{attackAddendum}", DamageType.Bite);
 			_attacks["carnivoredownbite"] = AddAttack("Carnivore Downed Bite",
 				BuiltInCombatMoveType.DownedAttackUnarmed, MeleeWeaponVerb.Bite, Difficulty.VeryEasy,
 				Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.High, 2.0, 0.5,
 				mouthshape, carnivoreBite,
-				$"@ try|tries to savagely bite $1 while #1 %1|are|is down{attackAddendum}", DamageType.Bite,
+				$"@ savage|savages $1 with a bite while #1 %1|are|is down{attackAddendum}", DamageType.Bite,
 				additionalInfo: ((int)Difficulty.ExtremelyEasy).ToString());
 
 			_attacks["herbivorebite"] = AddAttack("Herbivore Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Hard, Difficulty.Easy, Difficulty.Easy,
 				Alignment.Front, Orientation.Centre, 3.0, 1.0, mouthshape, herbivoreBite,
-				$"@ try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ nip|nips at $1{attackAddendum}", DamageType.Bite);
 			_attacks["herbivoresmashbite"] = AddAttack("Herbivore Smash Bite",
 				BuiltInCombatMoveType.UnarmedSmashItem, MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Hard,
 				Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.Centre, 3.0, 1.0, mouthshape,
-				herbivoreBite, $"@ try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				herbivoreBite, $"@ lunge|lunges in and bite|bites at $1{attackAddendum}", DamageType.Bite);
 
 			_attacks["smallbite"] = AddAttack("Small Animal Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy,
 				Alignment.Front, Orientation.Low, 2.0, 0.5, mouthshape, smallBite,
-				$"@ try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ scamper|scampers in and nip|nips at $1{attackAddendum}", DamageType.Bite);
 			_attacks["smallsmashbite"] = AddAttack("Small Animal Smash Bite",
 				BuiltInCombatMoveType.UnarmedSmashItem, MeleeWeaponVerb.Bite, Difficulty.VeryEasy,
 				Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.Low, 2.0, 0.5,
-				mouthshape, smallBite, $"@ try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				mouthshape, smallBite, $"@ dart|darts in and bite|bites at $1{attackAddendum}", DamageType.Bite);
 			_attacks["smalllowbite"] = AddAttack("Small Animal Low Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy,
 				Alignment.Front, Orientation.Lowest, 2.0, 0.5, mouthshape, smallBite,
-				$"@ try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ scamper|scampers low and snap|snaps at $1's ankles{attackAddendum}", DamageType.Bite);
 			_attacks["smalldownedbite"] = AddAttack("Small Animal Downed Bite",
 				BuiltInCombatMoveType.DownedAttackUnarmed, MeleeWeaponVerb.Bite, Difficulty.VeryEasy,
 				Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Alignment.Front, Orientation.High, 2.0, 0.5,
-				mouthshape, smallBite, $"@ try|tries to bite $1 while #1 %1|are|is down{attackAddendum}",
+				mouthshape, smallBite, $"@ worry|worries at $1 with quick bites while #1 %1|are|is down{attackAddendum}",
 				DamageType.Bite, additionalInfo: ((int)Difficulty.Trivial).ToString());
 
 			_attacks["clawswipe"] = AddAttack("Claw Swipe", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.High, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+				$"@ rear|rears up and rake|rakes &0's {{0}} across $1{attackAddendum}", DamageType.Claw);
 			_attacks["clawsmashswipe"] = AddAttack("Claw Swipe Smash", BuiltInCombatMoveType.UnarmedSmashItem,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.High, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+				$"@ rear|rears up and rake|rakes &0's {{0}} hard across $1{attackAddendum}", DamageType.Claw);
 			_attacks["clawhighswipe"] = AddAttack("Claw High Swipe", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
-				Alignment.FrontRight, Orientation.Centre, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+				Alignment.FrontRight, Orientation.Highest, 4.0, 1.3, clawShape, clawDamage,
+				$"@ rear|rears up and slash|slashes high at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
 			_attacks["clawlowswipe"] = AddAttack("Claw Low Swipe", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy,
-				Alignment.FrontRight, Orientation.Highest, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+				Alignment.FrontRight, Orientation.Low, 4.0, 1.3, clawShape, clawDamage,
+				$"@ crouch|crouches low and rake|rakes at $1's legs with &0's {{0}}{attackAddendum}", DamageType.Claw);
 
 			_attacks["hoofstomp"] = AddAttack("Hoof Stomp", BuiltInCombatMoveType.DownedAttackUnarmed,
 				MeleeWeaponVerb.Kick, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 5.0, 1.3, hoofShape, smashDamage,
-				$"@ frantically stomp|stomps on $1 while #1 %1|are|is down{attackAddendum}", DamageType.Crushing,
+				$"@ rear|rears and stamp|stamps at $1 while #1 %1|are|is down{attackAddendum}", DamageType.Crushing,
 				additionalInfo: ((int)Difficulty.Hard).ToString());
 			_attacks["hoofstompsmash"] = AddAttack("Hoof Stomp Smash", BuiltInCombatMoveType.UnarmedSmashItem,
 				MeleeWeaponVerb.Kick, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 5.0, 1.3, hoofShape, smashDamage,
-				$"@ frantically stomp|stomps on $1 while #1 %1|are|is down{attackAddendum}", DamageType.Crushing,
+				$"@ hammer|hammers at $1 with stomping blows while #1 %1|are|is down{attackAddendum}", DamageType.Crushing,
 				additionalInfo: ((int)Difficulty.Hard).ToString());
 			_attacks["barge"] = AddAttack("Animal Barge", BuiltInCombatMoveType.StaggeringBlowUnarmed,
 				MeleeWeaponVerb.Bash, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
@@ -1848,52 +1837,52 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_attacks["clinchbarge"] = AddAttack("Animal Clinch Barge", BuiltInCombatMoveType.StaggeringBlowUnarmed,
 				MeleeWeaponVerb.Bash, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
 				Alignment.Front, Orientation.Centre, 8.0, 1.2, shoulderShape, smashDamage,
-				$"@ thrash|thrashes about and throw|throws &0's bulk at $1{attackAddendum}", DamageType.Crushing,
+				$"@ thrash|thrashes and slam|slams &0's weight into $1{attackAddendum}", DamageType.Crushing,
 				additionalInfo: ((int)Difficulty.Hard).ToString());
 
 			_attacks["gorehorn"] = AddAttack("Horn Gore", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 5.0, 1.3, hornShape, smashDamage,
-				$"@ lower|lowers &0's head and lunge|lunges forward to try to gore $1 with &0's horns{attackAddendum}",
+				$"@ lower|lowers &0's head and drive|drives &0's horns toward $1{attackAddendum}",
 				DamageType.Piercing);
 			_attacks["goreantler"] = AddAttack("Antler Gore", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 5.0, 1.3, antlerShape, smashDamage,
-				$"@ lower|lowers &0's head and lunge|lunges forward to try to gore $1 with &0's antlers{attackAddendum}",
+				$"@ dip|dips &0's antlers and hook|hooks them toward $1{attackAddendum}",
 				DamageType.Piercing);
 			_attacks["goretusk"] = AddAttack("Tusk Gore", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 5.0, 1.3, tuskShape, smashDamage,
-				$"@ lower|lowers &0's head and lunge|lunges forward to try to gore $1 with &0's tusks{attackAddendum}",
+				$"@ surge|surges forward and drive|drives &0's tusks at $1{attackAddendum}",
 				DamageType.Piercing);
 			_attacks["tusksweep"] = AddAttack("Tusk Sweep", BuiltInCombatMoveType.UnbalancingBlowUnarmed,
 				MeleeWeaponVerb.Sweep, Difficulty.Hard, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.Hard,
 				Alignment.FrontRight, Orientation.Low, 5.0, 1.5, tuskShape, smashDamage,
-				$"@ swing|swings &0's head from one side to the other and try|tries to trip up $1 with &0's tusks{attackAddendum}",
+				$"@ sweep|sweeps &0's tusks low across $1 in an attempt to topple &1{attackAddendum}",
 				DamageType.Crushing, additionalInfo: ((int)Difficulty.Hard).ToString());
 
 			_attacks["fishbite"] = AddAttack("Fish Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Low, 2.0, 0.5, mouthshape, fishBite,
-				$"@ try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ dart|darts in and snap|snaps at $1{attackAddendum}", DamageType.Bite);
 			_attacks["fishquickbite"] = AddAttack("Fish Quick Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Low, 2.0, 0.3, mouthshape, fishBite,
-				$"@ quickly try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ flash|flashes in and nip|nips at $1{attackAddendum}", DamageType.Bite);
 			_attacks["sharkbite"] = AddAttack("Shark Bite", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Centre, 4.0, 1.0, mouthshape, sharkBite,
-				$"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite);
+				$"@ surge|surges in and bite|bites down on $1{attackAddendum}", DamageType.Bite);
 			_attacks["sharkreelbite"] = AddAttack("Shark Reel Bite", BuiltInCombatMoveType.StaggeringBlowUnarmed,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Centre, 5.0, 1.2, mouthshape, sharkBite,
-				$"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite,
+				$"@ surge|surges in, bite|bites down on $1, and wrench|wrenches away{attackAddendum}", DamageType.Bite,
 				additionalInfo: ((int)Difficulty.VeryHard).ToString());
 
 			_attacks["crabpinch"] = AddAttack("Crab Pinch", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Low, 4.0, 1.3, clawShape, clawDamage,
-				$"@ lash|lashes out and try|tries to pinch $1 with &0's {{0}}{attackAddendum}", DamageType.Shearing);
+				$"@ snap|snaps &0's {{0}} shut on $1{attackAddendum}", DamageType.Shearing);
 			_attacks["beakpeck"] = AddAttack("Beak Peck", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 2.5, 0.7, beakShape, peckDamage,
@@ -1901,28 +1890,28 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_attacks["talonstrike"] = AddAttack("Talon Strike", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Claw, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Low, 3.5, 0.9, talonShape, talonDamage,
-				$"@ slash|slashes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
+				$"@ rake|rakes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
 			_attacks["fangbite"] = AddAttack("Fang Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Low, 3.0, 0.7, fangShape, _snakeBiteDamage,
-				$"@ dart|darts in and try|tries to bite $1 with &0's {{0}}{attackAddendum}", DamageType.Bite);
+				$"@ dart|darts in and sink|sinks &0's {{0}} into $1{attackAddendum}", DamageType.Bite);
 			_attacks["mandiblebite"] = AddAttack("Mandible Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.Centre, 1.5, 0.4, mandibleShape, mandibleDamage,
-				$"@ snap|snaps &0's {{0}} at $1{attackAddendum}", DamageType.Shearing);
+				$"@ clamp|clamps &0's {{0}} on $1{attackAddendum}", DamageType.Shearing);
 			_attacks["arachnidclaw"] = AddAttack("Arachnid Claw", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, clawDamage,
-				$"@ lash|lashes out with &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+				$"@ rake|rakes $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
 			_attacks["headram"] = AddAttack("Head Ram", BuiltInCombatMoveType.StaggeringBlowUnarmed,
 				MeleeWeaponVerb.Strike, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
 				Alignment.Front, Orientation.High, 5.0, 1.1, headShape, ramDamage,
-				$"@ surge|surges forward and slam|slams &0's head into $1{attackAddendum}", DamageType.Crushing,
+				$"@ lunge|lunges in and slam|slams &0's head into $1{attackAddendum}", DamageType.Crushing,
 				additionalInfo: ((int)Difficulty.Hard).ToString());
 			_attacks["tailslap"] = AddAttack("Tail Slap", BuiltInCombatMoveType.StaggeringBlowUnarmed,
 				MeleeWeaponVerb.Sweep, Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Rear, Orientation.Centre, 4.5, 1.1, tailShape, ramDamage,
-				$"@ whip|whips &0's tail around at $1{attackAddendum}", DamageType.Crushing,
+				$"@ whip|whips &0's tail across $1{attackAddendum}", DamageType.Crushing,
 				additionalInfo: ((int)Difficulty.Normal).ToString());
 		}
 	}

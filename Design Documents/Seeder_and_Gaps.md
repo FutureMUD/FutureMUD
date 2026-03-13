@@ -23,6 +23,47 @@ The health system is not seeded from only one place.
 | `SkillSeeder` | Seeds the skills behind many health-related checks | Medical action quality depends on this seeding |
 | `SkillPackageSeeder` | Seeds the package-level distribution of medical and rescue checks | Helps determine who can actually use the health systems well |
 
+## Combat Seeder Coverage
+### Verified current state
+`CombatSeeder` is the stock source for combat message catalogues, weapon types, attack suites, combat strategies, and the stock unarmed and ranged move families that other seeders build upon.
+
+The seeder now treats message style as a shared concern instead of duplicating punctuation and join rules inline. A single internal helper normalizes how `Compact`, `Sentences`, and `Sparse` styles:
+
+- terminate seeded attack strings
+- append defense success and failure clauses
+- join hit-location follow-up text
+- keep standalone ranged, grapple, clinch, and coup-de-grace strings punctuated correctly
+
+This matters because the runtime does not display seeded messages verbatim in every case. The current engine assembles many exchanges from multiple seeded fragments:
+
+- melee and natural attacks are combined with seeded defense and hit-bodypart text
+- natural attacks still rely on seed strings honouring `{0}` bodypart formatting and `@hand` replacement
+- many ranged, skirmish, aim, and movement-fire messages are effectively standalone strings and therefore need their own terminal punctuation
+
+No runtime combat-message contract changes were required in this pass. Compatibility is still defined by the current runtime assemblers in `CombatMessage`, `CombatMessageManager`, and the concrete move classes.
+
+### Stock weapon-suite intent
+The stock live weapon suites are now seeded with clearer chassis expectations:
+
+- knives and daggers stay fast, cheap, and strongest in clinch work
+- swords stay broad and versatile, with longswords and two-handers covering more control and finishing cases than short blades
+- rapiers stay narrow, thrust-centric, and efficient rather than broadly dominant
+- axes, clubs, maces, warhammers, mattocks, and improvised bludgeons stay heavier, more punishing, and less efficient in bad positions
+- spears and halberds stay reach and control focused
+- shields stay situational and defensive, with limited but real offensive coverage
+
+Training weapons remain intentionally weaker mirrors of the live suites. In stock seeding that now means lower damage bands and no extra move-category breadth over the corresponding live family, not a promise that every training motion is less accurate in isolation.
+
+### Damage-band calibration
+The stock weapon damage tiers are still seeded as shared expressions rather than per-attack bespoke formulas. Their current calibration is intentionally anchored to the stock human severity thresholds:
+
+- a standard-quality weapon in static mode with nominal strength keeps `Terrible` and `Bad` hits below the severe bands
+- `Poor` and `Normal` hits land in the ordinary combat wound bands
+- `Good` and `Great` hits move into heavier but still non-exceptional wound territory
+- `Coup de Grace` damage stays in a distinctly exceptional lethality band
+
+That keeps ordinary exchanges compatible with the stock bodypart and health-severity expectations without flattening the distinction between routine hits and deliberate finishers.
+
 ## Animal Seeder Coverage
 ### Verified current state
 `AnimalSeeder` now uses a typed template catalogue rather than relying on a single large switch-heavy file.
@@ -69,6 +110,17 @@ The stock catalogue now includes reusable profiles for:
 - `Mixed`
 
 Those venoms are attached to stock venomous animals through dedicated natural weapon attacks, and all stock races now seed at least one natural attack loadout rather than leaving passive or aquatic species with no attack entries.
+
+Animal combat seeding is also more explicit about loadout role and message variety than the earlier stock catalogue.
+
+Current stock expectations include:
+
+- predator and pack-hunter templates carrying downed-bite coverage where that morphology makes sense
+- hoofed herbivores and charge animals carrying hoof stomp coverage instead of relying only on barge or gore attacks
+- aquatic, avian, arthropod, reptile, and arachnid families using family-specific prose rather than near-duplicate bite text
+- alias-driven natural attacks validating both attack keys and plausible bodypart aliases for the intended morphology
+
+Venom attacks are now kept more clearly separate from pure damage moves. The stock jellyfish, serpent, spider, insect, and scorpion venom attacks use moderate direct damage, family-appropriate prose, and smaller quantity or wound-severity gates than a raw lethality-only profile would imply.
 
 ## Mythical Animal Seeder Coverage
 ### Verified current state

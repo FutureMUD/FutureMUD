@@ -2970,14 +2970,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		var parryoption = questionAnswers["parryoption"].ToLowerInvariant();
 		var skilloption = questionAnswers["skilloption"].ToLowerInvariant();
 
-		var attackAddendum = "";
-		switch (questionAnswers["messagestyle"].ToLowerInvariant())
-		{
-			case "sentences":
-			case "sparse":
-				attackAddendum = ".";
-				break;
-		}
+		var messageStyle = CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]);
 
 		var randomPortion = "";
 		var startingmultiplier = 1.0;
@@ -3107,14 +3100,15 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			context.WeaponAttacks.Add(attack);
 			context.SaveChanges();
 
+			var formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(attackMessage, messageStyle);
 			var message = new CombatMessage
 			{
 				Type = (int)moveType,
-				Message = $"{attackMessage}{attackAddendum}",
+				Message = formattedAttackMessage,
 				Priority = 50,
 				Verb = (int)verb,
 				Chance = 1.0,
-				FailureMessage = $"{attackMessage}{attackAddendum}"
+				FailureMessage = formattedAttackMessage
 			};
 			message.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
 				{ CombatMessage = message, WeaponAttack = attack });
@@ -3919,32 +3913,32 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 		AddAttack("Improvised Bludgeon Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.High, 4.0, 0.85, improvised, poorDamage, "@ swing|swings $2 at $1");
+			Orientation.High, 4.5, 1.1, improvised, poorDamage, "@ heft|hefts $2 around in an awkward swing at $1");
 		AddAttack("Improvised Bludgeon High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.Hard, Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
-			Orientation.Highest, 4.0, 0.95, improvised, poorDamage, "@ swing|swings $2 in a high blow at $1");
+			Orientation.Highest, 4.5, 1.2, improvised, poorDamage, "@ heave|heaves $2 up into a clumsy high blow at $1");
 		AddAttack("Improvised Bludgeon Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.Centre, 4.0, 0.85, improvised, poorDamage, "@ swing|swings $2 in a low blow at $1");
+			Orientation.Centre, 4.5, 1.1, improvised, poorDamage, "@ hook|hooks $2 in a low, ugly swing at $1");
 		AddAttack("Improvised Bludgeon Leg Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.Hard, Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.Low,
-			4.0, 0.95, improvised, poorDamage, "@ swing|swings $2 at $1's legs");
+			4.5, 1.2, improvised, poorDamage, "@ swipe|swipes $2 awkwardly at $1's legs");
 		AddAttack("Improvised Bludgeon Arm Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.Hard, Difficulty.Easy, Difficulty.Hard, Difficulty.VeryEasy, Alignment.FrontRight,
-			Orientation.Appendage, 4.0, 0.95, improvised, poorDamage, "@ swing|swings $2 at $1's arms");
+			Orientation.Appendage, 4.5, 1.2, improvised, poorDamage, "@ club|clubs at $1's arms with $2");
 		AddAttack("Improvised Bludgeon Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.VeryHard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
-			Orientation.Highest, 5.0, 1.15, improvised, normalDamage, "@ swing|swings $2 in an overhead blow at $1");
+			Orientation.Highest, 5.5, 1.4, improvised, normalDamage, "@ labor|labors through an overhead smash with $2 at $1");
 		AddAttack("Improvised Bludgeon Clinch Bash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
 			Difficulty.ExtremelyHard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
-			Orientation.Highest, 3.0, 1.15, improvised, terribleDamage, "@ heave|heaves $2 down towards $1's head");
+			Orientation.Highest, 3.5, 1.25, improvised, terribleDamage, "@ jam|jams $2 toward $1's head at close quarters");
 
 		AddAttack("Improvised Bludgeon Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Swing,
 			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
-			Orientation.Highest, 6.0, 1.3, improvised, badDamage, "@ swing|swings $2 at $1");
+			Orientation.Highest, 6.5, 1.4, improvised, badDamage, "@ hammer|hammers $2 into $1");
 		AddAttack("Improvised Bludgeon Crush Head", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing,
 			Difficulty.VeryHard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
-			Orientation.Highest, 8.0, 1.5, improvised, goodDamage,
+			Orientation.Highest, 9.0, 1.6, improvised, goodDamage,
 			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
 			DamageType.Crushing, additionalInfo: context.BodypartProtos.First(x => x.Name == "scalp").Id.ToString());
 
@@ -4210,6 +4204,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
 						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Longsword Pommel Strike", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.Hard, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 4.5, 0.8, longsword, badDamage,
+			"@ reverse|reverses $2 and smash|smashes the pommel into $1 at close quarters", DamageType.Crushing);
 
 		AddAttack("Longsword Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Swing, Difficulty.Easy,
 			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 6.0, 1.3,
@@ -4381,6 +4379,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast,
 			handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Training Longsword Pommel Strike", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.VeryHard, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 4.5, 0.8, traininglongsword, trainingDamage,
+			"@ reverse|reverses $2 and tap|taps the pommel into $1 at close quarters", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 		AddAttack("Training Longsword 2-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 0.9, traininglongsword, trainingDamage, "@ swing|swings $2 at $1",
@@ -4635,6 +4638,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
 						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+		AddAttack("Zweihander 2-Handed Downed Cleave", BuiltInCombatMoveType.DownedAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 7.0, 1.3, zweihander, greatDamage,
+			"@ raise|raises $2 high and hew|hews down at $1's {0} while #1 %1|lay|lays sprawled on the ground",
+			DamageType.Slashing, handedness: AttackHandednessOptions.TwoHandedOnly);
 
 		#endregion
 
@@ -4669,91 +4677,119 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 		AddAttack("Rapier 1-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.High, 5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			Orientation.High, 4.0, 0.85, rapier, normalDamage, "@ extend|extends $2 in a straight thrust at $1",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed High Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.Highest, 5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 high at $1",
+			Orientation.Highest, 4.0, 0.85, rapier, normalDamage, "@ extend|extends $2 high in a straight thrust at $1",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Low Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
-			Orientation.Low, 5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 low at $1",
+			Orientation.Low, 4.0, 0.85, rapier, normalDamage, "@ dip|dips the point of $2 and thrust|thrusts low at $1",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight,
-			Orientation.Lowest, 5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's feet",
+			Orientation.Lowest, 4.0, 0.85, rapier, normalDamage, "@ drop|drops the point of $2 and thrust|thrusts at $1's foot",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
 						CombatMoveIntentions.Hinder);
 		AddAttack("Rapier 1-Handed Cross Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High,
-			5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 across the body at $1",
+			4.0, 0.85, rapier, normalDamage, "@ slide|slides $2 across the line and thrust|thrusts at $1",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab, Difficulty.Easy,
-			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0, 0.7,
-			rapier, poorDamage, "@ quickly jab|jabs $2 at $1", DamageType.Piercing,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.5, 0.6,
+			rapier, poorDamage, "@ flick|flicks $2 out in a quick jab at $1", DamageType.Piercing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Rapier 1-Handed Close Thrust", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Hard, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.Front,
+			Orientation.Centre, 4.0, 0.7, rapier, terribleDamage,
+			"@ drive|drives $2 forward in a cramped close-quarters thrust at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
 						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.High, 5.0, 0.7, rapier, poorDamage, "@ quickly counter jab|jabs $2 at $1", DamageType.Piercing,
+			Orientation.High, 3.5, 0.6, rapier, poorDamage, "@ flick|flicks $2 out in a sharp counter-jab at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
 						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.Centre, 5.0, 0.7, rapier, poorDamage, "@ quickly counter jab|jabs $2 at $1",
+			Orientation.Centre, 3.5, 0.6, rapier, poorDamage, "@ flick|flicks $2 low in a counter-jab at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
 						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Rapier Pommel Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Bash,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 4.5, 0.8, rapier, terribleDamage,
+			"@ reverse|reverses $2 and crack|cracks the pommel at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Rapier Throat Skewer", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High, 4.5, 0.9, rapier,
+			greatDamage, "@ line|lines up $2 and drive|drives it straight through $1's {0}", DamageType.Piercing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: context.BodypartProtos.First(x => x.Name == "throat").Id.ToString());
 
 		AddAttack("Training Rapier 1-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.High, 5.0, 0.9, trainingrapier, trainingDamage,
-			"@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Crushing,
+			Orientation.High, 4.0, 0.85, trainingrapier, trainingDamage,
+			"@ extend|extends $2 in a straight thrust at $1", DamageType.Crushing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 		AddAttack("Training Rapier 1-Handed High Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.Highest, 5.0, 0.9, trainingrapier, trainingDamage,
-			"@ lunge|lunges forward and stab|stabs $2 high at $1", DamageType.Crushing,
+			Orientation.Highest, 4.0, 0.85, trainingrapier, trainingDamage,
+			"@ extend|extends $2 high in a straight thrust at $1", DamageType.Crushing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 		AddAttack("Training Rapier 1-Handed Low Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
-			Orientation.Low, 5.0, 0.9, trainingrapier, trainingDamage,
-			"@ lunge|lunges forward and stab|stabs $2 low at $1", DamageType.Crushing,
+			Orientation.Low, 4.0, 0.85, trainingrapier, trainingDamage,
+			"@ dip|dips the point of $2 and thrust|thrusts low at $1", DamageType.Crushing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 		AddAttack("Training Rapier 1-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight,
-			Orientation.Lowest, 5.0, 0.9, trainingrapier, trainingDamage,
-			"@ lunge|lunges forward and stab|stabs $2 at $1's feet", DamageType.Crushing,
+			Orientation.Lowest, 4.0, 0.85, trainingrapier, trainingDamage,
+			"@ drop|drops the point of $2 and thrust|thrusts at $1's foot", DamageType.Crushing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Hinder);
 		AddAttack("Training Rapier 1-Handed Cross Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.Front,
-			Orientation.High, 5.0, 0.9, trainingrapier, trainingDamage,
-			"@ lunge|lunges forward and stab|stabs $2 across the body at $1", DamageType.Crushing,
+			Orientation.High, 4.0, 0.85, trainingrapier, trainingDamage,
+			"@ slide|slides $2 across the line and thrust|thrusts at $1", DamageType.Crushing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 		AddAttack("Training Rapier 1-Handed Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab,
 			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.High, 5.0, 0.7, trainingrapier, trainingDamage, "@ quickly jab|jabs $2 at $1",
+			Orientation.High, 3.5, 0.6, trainingrapier, trainingDamage, "@ flick|flicks $2 out in a quick jab at $1",
 			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast,
+			handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Training Rapier 1-Handed Close Thrust", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryHard, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.Front,
+			Orientation.Centre, 4.0, 0.7, trainingrapier, trainingDamage,
+			"@ drive|drives $2 forward in a cramped close-quarters thrust at $1", DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast,
 			handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Training Rapier 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.High, 5.0, 0.7, trainingrapier, trainingDamage, "@ quickly counter jab|jabs $2 at $1",
+			Orientation.High, 3.5, 0.6, trainingrapier, trainingDamage, "@ flick|flicks $2 out in a sharp counter-jab at $1",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast,
 			handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Training Rapier 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
-			Orientation.Centre, 5.0, 0.7, trainingrapier, trainingDamage, "@ quickly counter jab|jabs $2 at $1",
+			Orientation.Centre, 3.5, 0.6, trainingrapier, trainingDamage, "@ flick|flicks $2 low in a counter-jab at $1",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast,
 			handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Training Rapier Pommel Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Bash,
+			Difficulty.VeryHard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Normal, Alignment.Front,
+			Orientation.High, 4.5, 0.8, trainingrapier, trainingDamage,
+			"@ reverse|reverses $2 and crack|cracks the pommel at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 
 		#endregion
 
@@ -4991,6 +5027,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing |
 						CombatMoveIntentions.Hinder);
+		AddAttack("Halberd 1-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 3.0, 0.6, halberd, terribleDamage,
+			"@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly, additionalInfo: ((int)Difficulty.Normal).ToString(),
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Hinder);
 		AddAttack("Halberd 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 1.0, halberd, poorDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
@@ -6029,16 +6071,16 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 		AddAttack("Shield Bash", BuiltInCombatMoveType.StaggeringBlow, MeleeWeaponVerb.Bash, Difficulty.Normal,
 			Difficulty.Easy, Difficulty.Insane, Difficulty.Hard, Alignment.FrontLeft, Orientation.High, 4.0, 0.8,
-			shield, poorDamage, "@ quickly jolt|jolts forward and try|tries to bash $1 with $2", DamageType.Crushing,
+			shield, poorDamage, "@ drive|drives $2 forward in a shield bash at $1", DamageType.Crushing,
 			additionalInfo: ((int)Difficulty.Trivial).ToString(),
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Shield);
 		AddAttack("Shield Head Smash", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Slam, Difficulty.Normal,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Alignment.FrontLeft, Orientation.Highest, 4.0, 0.8,
-			shield, poorDamage, "@ raise|raises $2 up high and try|tries to smash down at $1", DamageType.Crushing,
+			shield, poorDamage, "@ whip|whips the rim of $2 down at $1's head", DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Shield);
 		AddAttack("Shield Foot Stomp", BuiltInCombatMoveType.DownedAttack, MeleeWeaponVerb.Slam, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.Easy, Alignment.FrontLeft, Orientation.Lowest, 4.0, 0.8,
-			shield, poorDamage, "@ slam|slams $2 downward towards $1's legs", DamageType.Crushing,
+			shield, poorDamage, "@ chop|chops $2 downward toward $1's legs", DamageType.Crushing,
 			additionalInfo: ((int)Difficulty.Easy).ToString(),
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Shield |
 						CombatMoveIntentions.Cripple);
@@ -6071,14 +6113,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			context.SaveChanges();
 		}
 
-		var attackAddendum = "";
-		switch (questionAnswers["messagestyle"].ToLowerInvariant())
-		{
-			case "sentences":
-			case "sparse":
-				attackAddendum = ".";
-				break;
-		}
+		var messageStyle = CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]);
+		var attackAddendum = CombatSeederMessageStyleHelper.AttackSuffix(messageStyle);
+		string Standalone(string message) => CombatSeederMessageStyleHelper.FormatStandaloneMessage(message);
 
 		#region Attack Fallbacks
 
@@ -6569,158 +6606,172 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 		#region Built in Moves
 
-		AddCombatMessage("$0 rescue|rescues $1 from combat with $2",
-			"$0 attempt|attempts to rescue $1 from combat with $2, but is unsuccessful", BuiltInCombatMoveType.Rescue,
+		AddCombatMessage(Standalone("$0 rescue|rescues $1 from combat with $2"),
+			Standalone("$0 attempt|attempts to rescue $1 from combat with $2, but is unsuccessful"), BuiltInCombatMoveType.Rescue,
 			1.0, 1, null, null);
-		AddCombatMessage($"$0 attempt|attempts to grapple $1{attackAddendum}", null,
+		AddCombatMessage(Standalone("$0 attempt|attempts to grapple $1"), null,
 			BuiltInCombatMoveType.InitiateGrapple, 1.0, 1, null, null);
-		AddCombatMessage($"$0 attempt|attempts to put $1's {{1}} into a lock{attackAddendum}", null,
+		AddCombatMessage(Standalone("$0 attempt|attempts to put $1's {1} into a lock"), null,
 			BuiltInCombatMoveType.ExtendGrapple, 1.0, 1, null, null);
-		AddCombatMessage($"$0 wrench|wrenches $1's {{1}} in an attempt to disable it{attackAddendum}", null,
+		AddCombatMessage(Standalone("$0 wrench|wrenches $1's {1} in an attempt to disable it"), null,
 			BuiltInCombatMoveType.WrenchAttack, 1.0, 1, null, null);
-		AddCombatMessage("$0 viciously strangle|strangles $1's {1}", null, BuiltInCombatMoveType.StrangleAttack, 1.0, 1,
+		AddCombatMessage(Standalone("$0 viciously strangle|strangles $1's {1}"), null, BuiltInCombatMoveType.StrangleAttack, 1.0, 1,
 			null, null);
-		AddCombatMessage("$0 attempt|attempts to disarm $1 with $2", null, BuiltInCombatMoveType.Disarm, 1.0, 1, null,
+		AddCombatMessage(Standalone("$0 attempt|attempts to disarm $1 with $2"), null, BuiltInCombatMoveType.Disarm, 1.0, 1, null,
 			null);
-		AddCombatMessage("$0 attempt|attempts to flee from combat", null, BuiltInCombatMoveType.Flee, 1.0, 1, null,
+		AddCombatMessage(Standalone("$0 attempt|attempts to flee from combat"), null, BuiltInCombatMoveType.Flee, 1.0, 1, null,
 			null);
-		AddCombatMessage("$0 attempt|attempts to grab $1", null, BuiltInCombatMoveType.RetrieveItem, 1.0, 1, null,
+		AddCombatMessage(Standalone("$0 attempt|attempts to grab $1"), null, BuiltInCombatMoveType.RetrieveItem, 1.0, 1, null,
 			null);
-		AddCombatMessage("$0 charge|charges into melee range with $1",
-			"$0 attempt|attempts to charge into melee range with $1, but fall|falls short",
+		AddCombatMessage(Standalone("$0 charge|charges into melee range with $1"),
+			Standalone("$0 attempt|attempts to charge into melee range with $1, but fall|falls short"),
 			BuiltInCombatMoveType.ChargeToMelee, 1.0, 1, null, null);
-		AddCombatMessage("$0 advance|advances into melee range with $1",
-			"$0 attempt|attempts to advance into melee range with $1, but fall|falls short",
+		AddCombatMessage(Standalone("$0 advance|advances into melee range with $1"),
+			Standalone("$0 attempt|attempts to advance into melee range with $1, but fall|falls short"),
 			BuiltInCombatMoveType.MoveToMelee, 1.0, 1, null, null);
-		AddCombatMessage("$0 {0} $2 at $1 as #0 %0|advance|advances into melee range with &1",
-			"$0 {0} $2 at $1 as #0 %0|attempt|attempts to advance into melee range with &1, but %0|fall|falls short",
+		AddCombatMessage(Standalone("$0 {0} $2 at $1 as #0 %0|advance|advances into melee range with &1"),
+			Standalone("$0 {0} $2 at $1 as #0 %0|attempt|attempts to advance into melee range with &1, but %0|fall|falls short"),
 			BuiltInCombatMoveType.AdvanceAndFire, 1.0, 1, null, null);
-		AddCombatMessage("$0 receive|receives $1's charge with an attack of $2", null,
+		AddCombatMessage(Standalone("$0 receive|receives $1's charge with an attack of $2"), null,
 			BuiltInCombatMoveType.ReceiveCharge, 1.0, 1, null, null);
-		AddCombatMessage("$0 step|steps close to $1 and attempt|attempts to begin a clinch with &1", null,
+		AddCombatMessage(Standalone("$0 step|steps close to $1 and attempt|attempts to begin a clinch with &1"), null,
 			BuiltInCombatMoveType.StartClinch, 1.0, 1, null, null);
-		AddCombatMessage("$0 try|tries to break free of the clinch with $1", null, BuiltInCombatMoveType.BreakClinch,
+		AddCombatMessage(Standalone("$0 try|tries to break free of the clinch with $1"), null, BuiltInCombatMoveType.BreakClinch,
 			1.0, 1, null, null);
-		AddCombatMessage("@ stand|stands and {0} $2 at $1", null, BuiltInCombatMoveType.StandAndFire, 1.0, 1, null,
+		AddCombatMessage(Standalone("@ stand|stands and {0} $2 at $1"), null, BuiltInCombatMoveType.StandAndFire, 1.0, 1, null,
 			null);
-		AddCombatMessage("@ {0} $2 at $1 as &0 fall|falls back", null, BuiltInCombatMoveType.SkirmishAndFire, 1.0, 1,
+		AddCombatMessage(Standalone("@ {0} $2 at $1 as &0 fall|falls back"), null, BuiltInCombatMoveType.SkirmishAndFire, 1.0, 1,
 			null, null);
-		AddCombatMessage("@ {0} $2 at $1", null, BuiltInCombatMoveType.RangedWeaponAttack, 1.0, 1, null, null);
-		AddCombatMessage("@ aim|aims $2 at $1", "@ continue|continues to aim $2 at $1",
+		AddCombatMessage(Standalone("@ {0} $2 at $1"), null, BuiltInCombatMoveType.RangedWeaponAttack, 1.0, 1, null, null);
+		AddCombatMessage(Standalone("@ aim|aims $2 at $1"), Standalone("@ continue|continues to aim $2 at $1"),
 			BuiltInCombatMoveType.AimRangedWeapon, 1.0, 1, null, null);
-		AddCombatMessage("$0 attempt|attempts to coup-de-grace $1 with a blow to &1's {0} from $2", null,
+		AddCombatMessage(Standalone("$0 attempt|attempts to coup-de-grace $1 with a blow to &1's {0} from $2"), null,
 			BuiltInCombatMoveType.CoupDeGrace, 1.0, 1, null, null);
-		AddCombatMessage("$0 attack|attacks $1$?2| on $2||$ with &0's {0}, causing {1}", null,
+		AddCombatMessage(Standalone("$0 attack|attacks $1$?2| on $2||$ with &0's {0}, causing {1}"), null,
 			BuiltInCombatMoveType.UnarmedSmashItem, 1.0, 1, null, null);
-		AddCombatMessage($"$0 emit|emits a beam of energy towards $1{attackAddendum}", null,
+		AddCombatMessage(Standalone("$0 emit|emits a beam of energy towards $1"), null,
 			BuiltInCombatMoveType.BeamAttack, 1.0, 1, null, null);
-		AddCombatMessage("$0 emit|emits a a horrid screeching that hurts your ears", null,
+		AddCombatMessage(Standalone("$0 emit|emits a horrid screeching that hurts your ears"), null,
 			BuiltInCombatMoveType.ScreechAttack, 1.0, 1, null, null);
-		AddCombatMessage("$0 reach|reaches out and attempt|attempts to get $1's {1} in a position to strangle &1", null,
+		AddCombatMessage(Standalone("$0 reach|reaches out and attempt|attempts to get $1's {1} in a position to strangle &1"), null,
 			BuiltInCombatMoveType.StrangleAttackExtendGrapple, 1.0, 1, null, null);
 
 		#endregion
 
 		#region Defenses
 
-		var prependSuccess = "";
-		var prependFailure = "";
-		var append = "";
-		var appendalternate = "";
-		switch (questionAnswers["messagestyle"].ToLowerInvariant())
-		{
-			case "compact":
-				prependSuccess = ", but ";
-				prependFailure = ", and ";
-				append = "but %1|get|gets ";
-				appendalternate = "and %1|get|gets ";
-				break;
-			case "sparse":
-				prependSuccess = ".\n";
-				prependFailure = ".\n";
-				append = "\n#1 %1|are|is ";
-				appendalternate = "\n#1 %1|are|is ";
-				break;
-			case "sentences":
-				prependSuccess = ". ";
-				prependFailure = ". ";
-				append = ". #1 %1|get|gets ";
-				appendalternate = ". #1 %1|are|is ";
-				break;
-		}
-
-		AddCombatMessage($"{prependSuccess}#1 %1|dodge|dodges out of the way",
-			$"{prependFailure}#1 %1|attempt|attempts to dodge out of the way{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 %1|dodge|dodges out of the way"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 %1|attempt|attempts to dodge out of the way", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Dodge, 1.0, 1, null, null);
-		AddCombatMessage($"{prependSuccess}#1 %1|parry|parries with $3",
-			$"{prependFailure}#1 %1|attempt|attempts to parry with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 %1|parry|parries with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 %1|attempt|attempts to parry with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Parry, 1.0, 1, null, null);
-		AddCombatMessage($"{prependSuccess}#1 %1|block|blocks with $3",
-			$"{prependFailure}#1 %1|attempt|attempts to block with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 %1|block|blocks with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 %1|attempt|attempts to block with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Block, 1.0, 1, null, null);
-		AddCombatMessage($"{prependSuccess}#1 gracelessly %1|dodge|dodges out of the way",
-			$"{prependFailure}#1 gracelessly %1|attempt|attempts to dodge out of the way{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 gracelessly %1|dodge|dodges out of the way"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 gracelessly %1|attempt|attempts to dodge out of the way", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Dodge, 1.0, 2, null, Outcome.MajorFail);
-		AddCombatMessage($"{prependSuccess}#1 ineptly %1|parry|parries with $3",
-			$"{prependFailure}#1 ineptly %1|attempt|attempts to parry with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 ineptly %1|parry|parries with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 ineptly %1|attempt|attempts to parry with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Parry, 1.0, 2, null, Outcome.MajorFail);
-		AddCombatMessage($"{prependSuccess}#1 ineptly %1|block|blocks with $3",
-			$"{prependFailure}#1 ineptly %1|attempt|attempts to block with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 ineptly %1|block|blocks with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 ineptly %1|attempt|attempts to block with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Block, 1.0, 2, null, Outcome.MajorFail);
-		AddCombatMessage($"{prependSuccess}#1 awkwardly %1|dodge|dodges out of the way",
-			$"{prependFailure}#1 awkwardly %1|attempt|attempts to dodge out of the way{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 awkwardly %1|dodge|dodges out of the way"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 awkwardly %1|attempt|attempts to dodge out of the way", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Dodge, 1.0, 2, null, Outcome.Fail);
-		AddCombatMessage($"{prependSuccess}#1 clumsily %1|parry|parries with $3",
-			$"{prependFailure}#1 clumsily %1|attempt|attempts to parry with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 clumsily %1|parry|parries with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 clumsily %1|attempt|attempts to parry with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Parry, 1.0, 2, null, Outcome.Fail);
-		AddCombatMessage($"{prependSuccess}#1 clumsily %1|block|blocks with $3",
-			$"{prependFailure}#1 clumsily %1|attempt|attempts to block with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 clumsily %1|block|blocks with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 clumsily %1|attempt|attempts to block with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Block, 1.0, 2, null, Outcome.Fail);
-		AddCombatMessage($"{prependSuccess}#1 nimbly %1|dodge|dodges out of the way",
-			$"{prependFailure}#1 nimbly %1|attempt|attempts to dodge out of the way{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 nimbly %1|dodge|dodges out of the way"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 nimbly %1|attempt|attempts to dodge out of the way", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Dodge, 1.0, 2, null, Outcome.Pass);
-		AddCombatMessage($"{prependSuccess}#1 skillfully %1|parry|parries with $3",
-			$"{prependFailure}#1 skillfully %1|attempt|attempts to parry with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 skillfully %1|parry|parries with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 skillfully %1|attempt|attempts to parry with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Parry, 1.0, 2, null, Outcome.Pass);
-		AddCombatMessage($"{prependSuccess}#1 skillfully %1|block|blocks with $3",
-			$"{prependFailure}#1 skillfully %1|attempt|attempts to block with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 skillfully %1|block|blocks with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 skillfully %1|attempt|attempts to block with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Block, 1.0, 2, null, Outcome.Pass);
-		AddCombatMessage($"{prependSuccess}#1 deftly %1|dodge|dodges out of the way",
-			$"{prependFailure}#1 deftly %1|attempt|attempts to dodge out of the way{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 deftly %1|dodge|dodges out of the way"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 deftly %1|attempt|attempts to dodge out of the way", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Dodge, 1.0, 2, null, Outcome.MajorPass);
-		AddCombatMessage($"{prependSuccess}#1 masterfully %1|parry|parries with $3",
-			$"{prependFailure}#1 masterfully %1|attempt|attempts to parry with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 masterfully %1|parry|parries with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 masterfully %1|attempt|attempts to parry with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Parry, 1.0, 2, null, Outcome.MajorPass);
-		AddCombatMessage($"{prependSuccess}#1 masterfully %1|block|blocks with $3",
-			$"{prependFailure}#1 masterfully %1|attempt|attempts to block with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 masterfully %1|block|blocks with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 masterfully %1|attempt|attempts to block with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.Block, 1.0, 2, null, Outcome.MajorPass);
-		AddCombatMessage($"{prependSuccess}#1 desperately %1|dodge|dodges out of the way",
-			$"{prependFailure}#1 desperately %1|attempt|attempts to dodge out of the way{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 desperately %1|dodge|dodges out of the way"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 desperately %1|attempt|attempts to dodge out of the way", "hit on &1's {1}"),
 			BuiltInCombatMoveType.DesperateDodge, 1.0, 1, null, null);
-		AddCombatMessage($"{prependSuccess}#1 desperately %1|parry|parries with $3",
-			$"{prependFailure}#1 desperately %1|attempt|attempts to parry with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 desperately %1|parry|parries with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 desperately %1|attempt|attempts to parry with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.DesperateParry, 1.0, 1, null, null);
-		AddCombatMessage($"{prependSuccess}#1 desperately %1|block|blocks with $3",
-			$"{prependFailure}#1 desperately %1|attempt|attempts to block with $3{append}hit on &1's {{1}}",
+		AddCombatMessage(CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 desperately %1|block|blocks with $3"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 desperately %1|attempt|attempts to block with $3", "hit on &1's {1}"),
 			BuiltInCombatMoveType.DesperateBlock, 1.0, 1, null, null);
 
 		AddCombatMessage(
-			$"{prependSuccess}#1 %1|manage|manages to partially dodge the worst of the blow{append}hit on &1's {{1}}",
-			$"{prependFailure}#1 %1|offer|offers no defense{appendalternate}hit on &1's {{1}}",
+			CombatSeederMessageStyleHelper.BuildDefenseSuccess(messageStyle,
+				"#1 %1|manage|manages to partially dodge the worst of the blow"),
+			CombatSeederMessageStyleHelper.BuildDefenseFailure(messageStyle,
+				"#1 %1|offer|offers no defense", "hit on &1's {1}", SeedCombatHitVerb.BeHit),
 			BuiltInCombatMoveType.ClinchDodge, 1.0, 1, null, null);
-		AddCombatMessage("@ dodge|dodges out of the way", "@ try|tries and fail|fails to dodge out of the way",
+		AddCombatMessage(Standalone("@ dodge|dodges out of the way"),
+			Standalone("@ try|tries to dodge out of the way but fail|fails"),
 			BuiltInCombatMoveType.DodgeRange, 1.0, 1, null, null);
-		AddCombatMessage("@ manage|manages to put $3 in the way", "@ try|tries and fail|fails to put $3 in the way",
+		AddCombatMessage(Standalone("@ manage|manages to put $3 in the way"),
+			Standalone("@ try|tries to put $3 in the way but fail|fails"),
 			BuiltInCombatMoveType.BlockRange, 1.0, 1, null, null);
 
-		AddCombatMessage($"{prependSuccess}#1 %1|are|is able to avoid the attempt",
-			$"{prependFailure}#1 %1|aren't|isn't able to avoid it", BuiltInCombatMoveType.DodgeGrapple, 1.0, 1, null,
+		AddCombatMessage($"{CombatSeederMessageStyleHelper.SuccessPrefix(messageStyle)}#1 %1|are|is able to avoid the attempt",
+			$"{CombatSeederMessageStyleHelper.FailurePrefix(messageStyle)}#1 %1|aren't|isn't able to avoid it", BuiltInCombatMoveType.DodgeGrapple, 1.0, 1, null,
 			null);
-		AddCombatMessage($"{prependSuccess}#1 %1|manage|manages to wriggle free",
-			$"{prependFailure}#1 %1|aren't|isn't able to wriggle free", BuiltInCombatMoveType.DodgeExtendGrapple, 1.0,
+		AddCombatMessage($"{CombatSeederMessageStyleHelper.SuccessPrefix(messageStyle)}#1 %1|manage|manages to wriggle free",
+			$"{CombatSeederMessageStyleHelper.FailurePrefix(messageStyle)}#1 %1|aren't|isn't able to wriggle free", BuiltInCombatMoveType.DodgeExtendGrapple, 1.0,
 			1, null, null);
-		AddCombatMessage($"{prependSuccess}#1 %1|manage|manages to turn it around and become the grappler!",
-			$"{prependFailure}#1 %1|attempt|attempts to turn the grapple around, but is unsuccessful!",
+		AddCombatMessage($"{CombatSeederMessageStyleHelper.SuccessPrefix(messageStyle)}#1 %1|manage|manages to turn it around and become the grappler!",
+			$"{CombatSeederMessageStyleHelper.FailurePrefix(messageStyle)}#1 %1|attempt|attempts to turn the grapple around, but is unsuccessful!",
 			BuiltInCombatMoveType.CounterGrapple, 1.0, 1, null, null);
 
 		#endregion

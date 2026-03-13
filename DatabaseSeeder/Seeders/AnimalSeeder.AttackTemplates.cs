@@ -50,7 +50,8 @@ public partial class AnimalSeeder
 				[
 					ShapeAttack("smallbite", ItemQuality.Standard),
 					ShapeAttack("smallsmashbite", ItemQuality.Standard),
-					ShapeAttack("smalllowbite", ItemQuality.Standard)
+					ShapeAttack("smalllowbite", ItemQuality.Standard),
+					ShapeAttack("smalldownedbite", ItemQuality.Substandard)
 				],
 				[
 					AliasAttack("clawswipe", ItemQuality.Poor, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
@@ -60,7 +61,8 @@ public partial class AnimalSeeder
 			["cat"] = new(
 				[
 					ShapeAttack("smallbite", ItemQuality.Bad),
-					ShapeAttack("smallsmashbite", ItemQuality.Bad)
+					ShapeAttack("smallsmashbite", ItemQuality.Bad),
+					ShapeAttack("smalldownedbite", ItemQuality.Terrible)
 				],
 				[
 					AliasAttack("clawswipe", ItemQuality.Bad, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
@@ -81,7 +83,8 @@ public partial class AnimalSeeder
 				[
 					ShapeAttack("carnivorebite", ItemQuality.Standard),
 					ShapeAttack("carnivoreclinchbite", ItemQuality.Standard),
-					ShapeAttack("carnivorehighbite", ItemQuality.Standard)
+					ShapeAttack("carnivorehighbite", ItemQuality.Standard),
+					ShapeAttack("carnivoredownbite", ItemQuality.Standard)
 				],
 				[
 					AliasAttack("clawswipe", ItemQuality.Substandard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
@@ -92,7 +95,8 @@ public partial class AnimalSeeder
 				[
 					ShapeAttack("carnivorebite", ItemQuality.VeryGood),
 					ShapeAttack("carnivoreclinchhighbite", ItemQuality.VeryGood),
-					ShapeAttack("carnivoreclinchhighestbite", ItemQuality.VeryGood)
+					ShapeAttack("carnivoreclinchhighestbite", ItemQuality.VeryGood),
+					ShapeAttack("carnivoredownbite", ItemQuality.Good)
 				],
 				[
 					AliasAttack("clawswipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
@@ -114,14 +118,16 @@ public partial class AnimalSeeder
 				[
 					ShapeAttack("herbivorebite", ItemQuality.Standard),
 					ShapeAttack("barge", ItemQuality.Poor),
-					ShapeAttack("gorehorn", ItemQuality.Substandard)
+					ShapeAttack("gorehorn", ItemQuality.Substandard),
+					ShapeAttack("hoofstomp", ItemQuality.Terrible)
 				]
 			),
 			["herbivore-charge"] = new(
 				[
 					ShapeAttack("herbivorebite", ItemQuality.Standard),
 					ShapeAttack("barge", ItemQuality.Poor),
-					ShapeAttack("bargesmash", ItemQuality.Poor)
+					ShapeAttack("bargesmash", ItemQuality.Poor),
+					ShapeAttack("hoofstomp", ItemQuality.Poor)
 				]
 			),
 			["tusked-herbivore"] = new(
@@ -137,7 +143,8 @@ public partial class AnimalSeeder
 				[
 					ShapeAttack("herbivorebite", ItemQuality.Standard),
 					ShapeAttack("barge", ItemQuality.Poor),
-					ShapeAttack("goreantler", ItemQuality.Standard)
+					ShapeAttack("goreantler", ItemQuality.Standard),
+					ShapeAttack("hoofstomp", ItemQuality.Poor)
 				]
 			),
 			["bovid"] = new(
@@ -145,7 +152,8 @@ public partial class AnimalSeeder
 					ShapeAttack("herbivorebite", ItemQuality.Good),
 					ShapeAttack("barge", ItemQuality.VeryGood),
 					ShapeAttack("bargesmash", ItemQuality.VeryGood),
-					ShapeAttack("gorehorn", ItemQuality.Standard)
+					ShapeAttack("gorehorn", ItemQuality.Standard),
+					ShapeAttack("hoofstomp", ItemQuality.Standard)
 				]
 			),
 			["hippo"] = new(
@@ -247,21 +255,21 @@ public partial class AnimalSeeder
 				[ShapeAttack("fangbite", ItemQuality.Standard)],
 				null,
 				[
-					VenomAttack("Bite", "Fang", "@ lunge|lunges forward and try|tries to bite $1", "neurotoxic", 0.005, 3, "fangs")
+					VenomAttack("Bite", "Fang", "@ strike|strikes with a quick bite at $1", "neurotoxic", 0.004, 2, "fangs")
 				]
 			),
 			["serpent-hemotoxic"] = new(
 				[ShapeAttack("fangbite", ItemQuality.Standard)],
 				null,
 				[
-					VenomAttack("Bite", "Fang", "@ lunge|lunges forward and try|tries to bite $1", "hemotoxic", 0.005, 3, "fangs")
+					VenomAttack("Bite", "Fang", "@ rear|rears back and drive|drives &0's fangs into $1", "hemotoxic", 0.006, 2, "fangs")
 				]
 			),
 			["serpent-cytotoxic"] = new(
 				[ShapeAttack("fangbite", ItemQuality.Standard)],
 				null,
 				[
-					VenomAttack("Bite", "Fang", "@ lunge|lunges forward and try|tries to bite $1", "cytotoxic", 0.005, 3, "fangs")
+					VenomAttack("Bite", "Fang", "@ lash|lashes forward and sink|sinks &0's fangs into $1", "cytotoxic", 0.005, 2, "fangs")
 				]
 			),
 			["jellyfish"] = new(
@@ -272,10 +280,10 @@ public partial class AnimalSeeder
 						"Sting",
 						"Tendril",
 						[],
-						"@ attempt|attempts to brush a tendril against $1",
+						"@ drift|drifts close and brush|brushes a stinging tendril across $1",
 						DamageType.Cellular,
 						"irritant",
-						0.1,
+						0.08,
 						0,
 						BuiltInCombatMoveType.EnvenomingAttackClinch,
 						MeleeWeaponVerb.Strike,
@@ -295,10 +303,10 @@ public partial class AnimalSeeder
 						"Sting",
 						"Stinger",
 						["stinger"],
-						"@ dart|darts in and try|tries to sting $1",
+						"@ dart|darts in and jab|jabs &0's stinger into $1",
 						DamageType.Piercing,
 						"irritant",
-						0.002,
+						0.0015,
 						1,
 						BuiltInCombatMoveType.EnvenomingAttackClinch,
 						MeleeWeaponVerb.Stab,
@@ -314,14 +322,14 @@ public partial class AnimalSeeder
 				[ShapeAttack("fangbite", ItemQuality.Bad), ShapeAttack("arachnidclaw", ItemQuality.Bad)],
 				null,
 				[
-					VenomAttack("Bite", "Fang", "@ dart|darts forward and try|tries to sink &0's fangs into $1", "mixed", 0.003, 2, "rfang", "lfang")
+					VenomAttack("Bite", "Fang", "@ dart|darts forward and sink|sinks &0's fangs into $1", "mixed", 0.0025, 1, "rfang", "lfang")
 				]
 			),
 			["tarantula"] = new(
 				[ShapeAttack("fangbite", ItemQuality.Standard), ShapeAttack("arachnidclaw", ItemQuality.Poor)],
 				null,
 				[
-					VenomAttack("Bite", "Fang", "@ rear|rears up and try|tries to bite $1 with &0's fangs", "irritant", 0.004, 2, "rfang", "lfang")
+					VenomAttack("Bite", "Fang", "@ rear|rears up and lunge|lunges to bite $1 with &0's fangs", "irritant", 0.0035, 1, "rfang", "lfang")
 				]
 			),
 			["scorpion"] = new(
@@ -332,11 +340,11 @@ public partial class AnimalSeeder
 						"Sting",
 						"Stinger",
 						["stinger"],
-						"@ arch|arches &0's tail and try|tries to stab $1 with &0's stinger",
+						"@ arch|arches &0's tail over and stab|stabs at $1 with &0's stinger",
 						DamageType.Piercing,
 						"neurotoxic",
-						0.004,
-						2,
+						0.003,
+						1,
 						BuiltInCombatMoveType.EnvenomingAttackClinch,
 						MeleeWeaponVerb.Stab,
 						Alignment.Rear,

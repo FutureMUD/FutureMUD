@@ -103,6 +103,8 @@ Builders and administrators currently configure or consume health through:
 
 One important current-state fact is that the dedicated `HealthSeeder` is now enabled. In practice, stock health behavior is still assembled across multiple seeders rather than coming from one medical step alone, but surgery and drugs now have a release-ready stock entry point.
 
+Combat balance in stock content is also tied back to these health thresholds rather than tuned in isolation. The shared damage tiers seeded by `CombatSeeder` are calibrated so that a standard-quality weapon at nominal strength produces ordinary hits in the routine wound bands, while dedicated finishing moves remain exceptional relative to the stock severity ranges used by the default human strategies.
+
 ## Tuning Surfaces
 The current runtime exposes health tuning in two different ways, depending on where the behavior lives.
 

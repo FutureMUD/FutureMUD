@@ -360,6 +360,10 @@ public partial class AnimalSeeder
 					{
 						issues.Add($"Attack loadout {loadoutKey} has an alias attack without target aliases.");
 					}
+					else if (attack.BodypartAliases.Any(string.IsNullOrWhiteSpace))
+					{
+						issues.Add($"Attack loadout {loadoutKey} has a blank alias bodypart target.");
+					}
 				}
 			}
 
@@ -371,6 +375,31 @@ public partial class AnimalSeeder
 					{
 						issues.Add($"Attack loadout {loadoutKey} references unknown venom profile {attack.VenomProfileKey}.");
 					}
+
+					if (string.IsNullOrWhiteSpace(attack.AttackShapeName))
+					{
+						issues.Add($"Attack loadout {loadoutKey} has a venom attack without an attack shape.");
+					}
+
+					if (string.IsNullOrWhiteSpace(attack.CombatMessage))
+					{
+						issues.Add($"Attack loadout {loadoutKey} has a venom attack without a combat message.");
+					}
+
+					if (attack.MaximumQuantity <= 0)
+					{
+						issues.Add($"Attack loadout {loadoutKey} has a venom attack with a non-positive quantity.");
+					}
+
+					if (attack.MinimumWoundSeverity < 0)
+					{
+						issues.Add($"Attack loadout {loadoutKey} has a venom attack with a negative minimum wound severity.");
+					}
+
+					if (attack.TargetBodypartAliases.Any(string.IsNullOrWhiteSpace))
+					{
+						issues.Add($"Attack loadout {loadoutKey} has a venom attack with a blank target alias.");
+					}
 				}
 			}
 		}
@@ -380,6 +409,16 @@ public partial class AnimalSeeder
 			if (!profile.Effects.Any())
 			{
 				issues.Add($"Venom profile {profileKey} has no effects.");
+			}
+
+			if (profile.IntensityPerGram <= 0)
+			{
+				issues.Add($"Venom profile {profileKey} must have a positive intensity per gram.");
+			}
+
+			if (profile.RelativeMetabolisationRate <= 0)
+			{
+				issues.Add($"Venom profile {profileKey} must have a positive metabolisation rate.");
 			}
 		}
 

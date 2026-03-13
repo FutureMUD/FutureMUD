@@ -100,6 +100,7 @@ This matters because:
 - exoskeletal or part-light families can intentionally omit bones without failing validation
 - new arthropod, crustacean, reptilian, and amphibian bodies can be checked for completeness using rules appropriate to their morphology
 - the stock serpentine body now seeds explicit skull and vertebra bones plus a distinct tail limb so the serpent audit matches live runtime anatomy
+- anatomy audits now tolerate duplicate aliases across a `CountsAs` chain by preferring the most specific body definition, which is required for layered aquatic crustacean bodies
 
 ### Venom and attack seeding
 Animal venoms are now seeded as reusable drug-backed venom profiles with per-profile effect rows.

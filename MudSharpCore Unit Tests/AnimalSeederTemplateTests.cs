@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Health;
+using MudSharp.Models;
 
 namespace MudSharp_Unit_Tests;
 
@@ -71,6 +73,22 @@ public class AnimalSeederTemplateTests
 		var serpent = AnimalSeeder.BodyAuditProfilesForTesting["serpent"];
 		CollectionAssert.Contains(serpent.RequiredBones.ToList(), "cavertebrae");
 		CollectionAssert.Contains(serpent.RequiredLimbs.ToList(), "Tail");
+	}
+
+	[TestMethod]
+	public void BuildAuditPartLookup_DuplicateInheritedAliases_PrefersMostSpecificBody()
+	{
+		var parts = new List<BodypartProto>
+		{
+			new() { BodyId = 2, Name = "carapace", Description = "base carapace" },
+			new() { BodyId = 1, Name = "carapace", Description = "derived carapace" },
+			new() { BodyId = 2, Name = "mouth", Description = "base mouth" }
+		};
+
+		var lookup = AnimalSeeder.BuildAuditPartLookup(new long[] { 1, 2 }, parts);
+
+		Assert.AreEqual("derived carapace", lookup["carapace"].Description);
+		Assert.AreEqual("base mouth", lookup["mouth"].Description);
 	}
 
 	[TestMethod]

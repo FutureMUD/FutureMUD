@@ -486,7 +486,7 @@ public partial class AnimalSeeder
 		}
 
 		var parts = _context.BodypartProtos.Where(x => bodies.Contains(x.BodyId)).ToList();
-		var partLookup = parts.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var partLookup = BuildAuditPartLookup(bodies, parts);
 		var limbNames = _context.Limbs.Where(x => bodies.Contains(x.RootBodyId)).Select(x => x.Name)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -515,5 +515,18 @@ public partial class AnimalSeeder
 			throw new InvalidOperationException(
 				$"Body {body.Name} failed anatomy audit {auditKey}. Missing: {string.Join(", ", missing)}");
 		}
+	}
+
+	internal static IReadOnlyDictionary<string, BodypartProto> BuildAuditPartLookup(
+		IReadOnlyList<long> bodies,
+		IEnumerable<BodypartProto> parts)
+	{
+		var bodyOrder = bodies
+			.Select((id, index) => (id, index))
+			.ToDictionary(x => x.id, x => x.index);
+		return parts
+			.OrderBy(x => bodyOrder[x.BodyId])
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
 	}
 }

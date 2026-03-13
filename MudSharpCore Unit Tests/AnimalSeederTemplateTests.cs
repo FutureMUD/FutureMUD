@@ -73,6 +73,10 @@ public class AnimalSeederTemplateTests
 		var serpent = AnimalSeeder.BodyAuditProfilesForTesting["serpent"];
 		CollectionAssert.Contains(serpent.RequiredBones.ToList(), "cavertebrae");
 		CollectionAssert.Contains(serpent.RequiredLimbs.ToList(), "Tail");
+
+		var fish = AnimalSeeder.BodyAuditProfilesForTesting["fish"];
+		CollectionAssert.Contains(fish.RequiredBodyparts.ToList(), "rgill");
+		CollectionAssert.Contains(fish.RequiredBones.ToList(), "cavertebrae");
 	}
 
 	[TestMethod]

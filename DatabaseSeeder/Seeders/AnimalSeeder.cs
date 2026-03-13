@@ -4860,6 +4860,29 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		_context.SaveChanges();
 
+		#region Bones
+
+		AddBone(fishProto, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 200,
+			"Compact Bone");
+		AddBone(fishProto, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		AddBone(fishProto, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		AddBone(fishProto, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		AddBone(fishProto, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		_context.SaveChanges();
+
+		AddBoneInternal("fskull", "head", 100);
+		AddBoneInternal("cvertebrae", "neck", 100);
+		AddBoneInternal("dvertebrae", "uback", 100);
+		AddBoneInternal("lvertebrae", "lback", 100);
+		AddBoneInternal("cavertebrae", "peduncle", 100);
+		_context.SaveChanges();
+
+		#endregion
+
 		#region Organs
 
 		AddOrgan(fishProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1, stunModifier: 1.0);
@@ -4900,6 +4923,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddOrganCoverage("uspinalcord", "neck", 2, true);
 		AddOrganCoverage("mspinalcord", "uback", 10, true);
 		AddOrganCoverage("lspinalcord", "lback", 10, true);
+		AddOrganCoverage("lspinalcord", "peduncle", 10);
 
 		AddOrganCoverage("liver", "abdomen", 33, true);
 		AddOrganCoverage("spleen", "abdomen", 20, true);
@@ -4918,6 +4942,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddOrganCoverage("lkidney", "lback", 20, true);
 		AddOrganCoverage("rkidney", "belly", 5);
 		AddOrganCoverage("lkidney", "belly", 5);
+
+		AddBoneCover("fskull", "brain", 100);
+		AddBoneCover("cvertebrae", "uspinalcord", 100);
+		AddBoneCover("dvertebrae", "mspinalcord", 100);
+		AddBoneCover("lvertebrae", "lspinalcord", 100);
+		AddBoneCover("cavertebrae", "lspinalcord", 100);
 		_context.SaveChanges();
 
 		#endregion

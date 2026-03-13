@@ -122,8 +122,8 @@ public partial class AnimalSeeder
 			["fish"] = new(
 				"fish",
 				AnimalBoneExpectation.Required,
-				["abdomen", "head", "mouth", "peduncle", "caudalfin"],
-				["brain", "heart", "liver", "stomach", "sintestines", "lintestines", "rgill", "lgill"],
+				["abdomen", "head", "mouth", "peduncle", "caudalfin", "rgill", "lgill"],
+				["brain", "heart", "liver", "stomach", "sintestines", "lintestines"],
 				["fskull", "cvertebrae", "dvertebrae", "lvertebrae", "cavertebrae"],
 				["Torso", "Head", "Tail"]
 			),

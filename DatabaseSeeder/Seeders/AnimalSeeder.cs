@@ -4576,12 +4576,36 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			Alignment.Front, Orientation.Low, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(wormProto, "tail", "tail", "tail", BodypartTypeEnum.Wear, "lbody", Alignment.Rear,
-			Orientation.Lowest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso", true,
+			Orientation.Lowest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Tail", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 
 		#endregion
 
 		_context.SaveChanges();
+
+		#region Bones
+
+		AddBone(serpentProto, "fskull", "frontal skull bone", BodypartTypeEnum.NonImmobilisingBone, 200,
+			"Compact Bone");
+		AddBone(serpentProto, "cvertebrae", "cervical vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		AddBone(serpentProto, "dvertebrae", "dorsal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		AddBone(serpentProto, "lvertebrae", "lumbar vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		AddBone(serpentProto, "cavertebrae", "caudal vertebrae", BodypartTypeEnum.NonImmobilisingBone, 100,
+			"Compact Bone");
+		_context.SaveChanges();
+
+		AddBoneInternal("fskull", "head", 100);
+		AddBoneInternal("cvertebrae", "neck", 100);
+		AddBoneInternal("dvertebrae", "ubody", 100);
+		AddBoneInternal("lvertebrae", "mbody", 100);
+		AddBoneInternal("lvertebrae", "lbody", 100, false);
+		AddBoneInternal("cavertebrae", "tail", 100);
+		_context.SaveChanges();
+
+		#endregion
 
 		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Organs...");
 
@@ -4638,6 +4662,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		AddOrganCoverage("rkidney", "lbody", 20, true);
 		AddOrganCoverage("lkidney", "lbody", 20, true);
+
+		AddBoneCover("fskull", "brain", 100);
+		AddBoneCover("cvertebrae", "spinalcord", 100);
+		AddBoneCover("dvertebrae", "spinalcord", 100);
+		AddBoneCover("lvertebrae", "spinalcord", 100);
+		AddBoneCover("cavertebrae", "spinalcord", 100);
 		_context.SaveChanges();
 
 		#endregion
@@ -4677,6 +4707,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		AddLimb("Torso", LimbType.Torso, "ubody", 1.0, 1.0);
 		AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0);
+		AddLimb("Tail", LimbType.Appendage, "tail", 0.5, 0.5);
 		_context.SaveChanges();
 
 		foreach (var limb in limbs.Values)

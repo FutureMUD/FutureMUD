@@ -67,6 +67,10 @@ public class AnimalSeederTemplateTests
 		CollectionAssert.Contains(cephalopod.RequiredBodyparts.ToList(), "arm8");
 		Assert.AreEqual(AnimalSeeder.AnimalBoneExpectation.Forbidden, cephalopod.BoneExpectation,
 			"Cephalopods should not require bones.");
+
+		var serpent = AnimalSeeder.BodyAuditProfilesForTesting["serpent"];
+		CollectionAssert.Contains(serpent.RequiredBones.ToList(), "cavertebrae");
+		CollectionAssert.Contains(serpent.RequiredLimbs.ToList(), "Tail");
 	}
 
 	[TestMethod]

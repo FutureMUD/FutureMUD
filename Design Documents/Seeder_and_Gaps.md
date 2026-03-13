@@ -99,6 +99,7 @@ This matters because:
 - endoskeletal families explicitly require key bones, organs, limbs, and bodyparts
 - exoskeletal or part-light families can intentionally omit bones without failing validation
 - new arthropod, crustacean, reptilian, and amphibian bodies can be checked for completeness using rules appropriate to their morphology
+- the stock serpentine body now seeds explicit skull and vertebra bones plus a distinct tail limb so the serpent audit matches live runtime anatomy
 
 ### Venom and attack seeding
 Animal venoms are now seeded as reusable drug-backed venom profiles with per-profile effect rows.

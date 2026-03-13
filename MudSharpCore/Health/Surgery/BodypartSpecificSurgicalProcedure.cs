@@ -30,12 +30,18 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
 
 	protected bool IsPermissableBodypart(IBodypart bodypart)
 	{
-		if (_targetPartsForbidden)
+		return MatchesPermissableBodypart(_targetedParts, _targetPartsForbidden, bodypart);
+	}
+
+	internal static bool MatchesPermissableBodypart(IEnumerable<IBodypart> targetedParts, bool targetPartsForbidden,
+		IBodypart bodypart)
+	{
+		if (targetPartsForbidden)
 		{
-			return !_targetedParts.Contains(bodypart);
+			return !targetedParts.Any(x => bodypart.CountsAs(x));
 		}
 
-		return _targetedParts.Contains(bodypart);
+		return targetedParts.Any(x => bodypart.CountsAs(x));
 	}
 
 	protected override string SaveDefinition()

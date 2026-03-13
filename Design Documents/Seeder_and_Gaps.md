@@ -17,6 +17,7 @@ The health system is not seeded from only one place.
 | `HumanSeeder` | Seeds human health strategies, corpse models, blood models, population blood models, race defaults, chargen needs settings, and breathing-related race flags | This is where a large amount of practical health setup currently lives |
 | `AnimalSeeder` | Seeds animal corpse models, health strategies, blood models, population blood models, race defaults, and multiple breathing model assignments | Also carries a large amount of effective health setup |
 | `MythicalAnimalSeeder` | Seeds mythic beasts and hybrid folk using the same stock health strategies, corpse models, combat question set, and compatible body frameworks established by `HumanSeeder` and `AnimalSeeder` | Keeps the mythical catalogue separate from the old disabled `FantasySeeder` while still reusing the anatomy and medical compatibility infrastructure where practical |
+| `RobotSeeder` | Seeds robot bodies, robot races, robot-specific health strategies, robot liquids and materials, robot corpse models, robot knowledges, and robot maintenance procedures | Rerunnable package that reuses humanoid and selected animal body layouts for compatibility with stock gear and anatomy-aware systems |
 | `CoreDataSeeder` | Seeds the stock `GameItem` health strategy and some related static strings such as death messaging | Important for item damage support |
 | `ItemSeeder` | Seeds named medical and health-adjacent items such as bandages, splints, tourniquets, suturing tools, prosthetics, and cannula items | Low-tech medical play is well represented here |
 | `UsefulSeeder` | Seeds many medical component prototypes, including treatment items, cannula definitions, IV support, and prosthetic components | More component-heavy than `ItemSeeder` |
@@ -157,6 +158,64 @@ That includes reuse of stock profiles such as:
 - frames
 - race-specific person-word profiles
 
+## Robot Seeder Coverage
+### Verified current state
+`RobotSeeder` is now the stock package for robotic bodies, robotic races, and robot-specific medical content.
+
+The seeder currently:
+
+- installs as a rerunnable package rather than extending the one-shot `HealthSeeder`
+- requires the stock humanoid, avian, toed quadruped, arachnid, and insectoid body infrastructure before installation
+- seeds robot-specific liquids, materials, armour types, corpse models, a stamina-recovery prog, robot knowledges, and robot-only procedures
+- seeds both a sentient articulated robot strategy based on `RobotHealthStrategy` and a utility-construct strategy based on `BrainConstructHealthStrategy`
+- skips already-present bodies, races, strategies, and procedures so the package can be safely re-run on worlds that already imported part of the catalogue
+
+### Body reuse strategy
+The package prefers to reuse existing stock body semantics wherever that preserves compatibility.
+
+Current reuse patterns include:
+
+- `Robot Humanoid` as a child of `Humanoid`, preserving the stock humanoid shell for clothing, armour, and similar bodypart-aware systems
+- dedicated humanoid-derived variants for spider crawler, circular-saw hands, pneumatic-hammer hands, sword hands, winged frames, jet frames, mandible heads, wheels, tracks, and cyborgs
+- reuse of stock `Toed Quadruped`, `Arachnid`, and `Insectoid` source anatomies for robot dog, spider-crawler lower bodies, and robot cockroach content
+- `CountsAs` mappings on cloned or substituted robot bodyparts so surgery, wear, and other anatomy-aware logic can continue to target the intended baseline chassis
+
+### Stock robot catalogue
+The seeded robot race catalogue currently includes:
+
+- articulated humanoid robots
+- humanoid spider-crawler, circular-saw, pneumatic-hammer, sword-hand, winged, jet, mandible, wheeled, tracked, and cyborg variants
+- a roomba-style utility robot
+- a small tracked utility robot
+- a robot dog
+- a robot cockroach
+
+The stock robot line also seeds robot-appropriate internals and body defaults:
+
+- positronic brains
+- power cores
+- speech synthesizers where the chassis is meant to vocalise
+- sensor arrays for robot perception
+- hydraulic fluid or machine oil as the circulatory liquid
+- no sweat, no breathing, and high-stamina defaults through the seeded races and bodies
+
+### Stock robot procedures
+`RobotSeeder` now seeds a robot maintenance suite parallel to the organic surgery catalogue.
+
+The current stock robotics procedures include:
+
+- diagnostics
+- maintenance examination
+- exploratory maintenance
+- leak control
+- chassis closure
+- robot organ extraction
+- robot organ replacement
+- limb detachment
+- limb reattachment
+
+Those procedures target the stock robot base bodies, and the runtime `CountsAs` checks now allow derived wheel, track, and similar variants to match the intended maintenance procedures without duplicating every definition per variant.
+
 ## Dedicated Health Seeder State
 ### Verified current state
 `HealthSeeder` is currently enabled.
@@ -293,8 +352,8 @@ The following table separates runtime capability from stock seeding.
 | `GameItemHealthStrategy` | Seeded | Seeded in `CoreDataSeeder` |
 | `SimpleLivingHealthStrategy` | Not stock seeded | Runtime class exists |
 | `ConstructHealthStrategy` | Not stock seeded | Runtime class exists |
-| `BrainConstructHealthStrategy` | Not stock seeded | Runtime class exists |
-| `RobotHealthStrategy` | Not stock seeded | Runtime class exists |
+| `BrainConstructHealthStrategy` | Seeded | Used by the `Robot Utility Construct` stock strategy |
+| `RobotHealthStrategy` | Seeded | Used by the articulated robot stock strategy installed by `RobotSeeder` |
 | `Simple` infection | Runtime implemented | Reached through organic wound logic rather than a named stock seeding block |
 | `Gangrene` infection | Runtime implemented | Reached through infection progression rather than dedicated stock content |
 | `Necrotic`, `Infectious`, `FungalGrowth` infection types | Runtime implemented | Concrete infection classes now exist, but stock seeding still does little to showcase them |
@@ -325,11 +384,14 @@ The following findings are directly verified in code and matter when describing 
 - `SimpleOrganicWound` and `BoneFracture` both support anti-inflammatory treatment through bodypart-scoped pain-reduction effects.
 - `ConfigureImplantInterfaceProcedure` now reports the correct procedure enum.
 - `SurgicalProcedure` now enforces `TargetBodyType` when checking whether a procedure can be started, so human and quadruped surgical content can coexist safely.
+- Robot bodies can now be stock seeded rather than existing only as a runtime capability, and robot surgery targeting now honours `CountsAs` mappings for derived chassis parts.
+- `SensorArray` is now a first-class organ type in the runtime and the stock robot line uses it for robot perception while retaining eyes and ears as compatible external parts.
+- `RobotHealthStrategy` bleed and prompt text now use the configured robot circulatory liquid name instead of assuming hydraulic fluid in all cases.
 
 ## Supported but Unseeded
 These are verified runtime features that exist in the codebase but are not broadly reflected in the stock seeding.
 
-- advanced health strategy families for constructs, robots, and simpler living models
+- advanced health strategy families for constructs and simpler living models
 - expanded strategy tuning XML for health thresholds, bleed handling, hypoxia, blood recovery, kidney waste, and spleen cleanup
 - non-decaying corpse models
 - high-tech medical items such as defibrillators, rebreathers, breathing filters, external organs, and complex implants
@@ -350,5 +412,6 @@ The most important practical consequences are:
 
 - a lot of effective health setup lives outside `HealthSeeder`
 - the stock repo now includes a release-ready medical seeder with tech-level surgery, drugs, and basic mammal veterinary support
+- the stock repo also now includes a rerunnable robot package that seeds robot chassis, robot races, robot health strategies, and robot maintenance procedures
 - low-tech treatment and prosthetic play are well represented in seeded items
 - higher-tech medical play is mostly a runtime capability awaiting fuller stock content

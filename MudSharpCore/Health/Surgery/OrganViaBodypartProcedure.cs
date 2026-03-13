@@ -192,12 +192,18 @@ public abstract class OrganViaBodypartProcedure : SurgicalProcedure
 			return true;
 		}
 
-		if (_targetPartsForbidden)
+		return MatchesPermissableOrganTarget(_targetedParts, _targetPartsForbidden, organ);
+	}
+
+	internal static bool MatchesPermissableOrganTarget(IEnumerable<IBodypart> targetedParts, bool targetPartsForbidden,
+		IOrganProto organ)
+	{
+		if (targetPartsForbidden)
 		{
-			return !_targetedParts.Contains(organ);
+			return !targetedParts.Any(x => organ.CountsAs(x));
 		}
 
-		return _targetedParts.Contains(organ);
+		return targetedParts.Any(x => organ.CountsAs(x));
 	}
 
 	protected override string SaveDefinition()

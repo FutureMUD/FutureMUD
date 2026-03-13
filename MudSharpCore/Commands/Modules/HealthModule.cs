@@ -2615,6 +2615,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 				typeof(EsophagusProto),
 				typeof(IntestinesProto),
 				typeof(EarProto),
+				typeof(SensorArray),
 				typeof(SpeechSynthesizer)
 			};
 
@@ -2666,6 +2667,9 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 						continue;
 					case nameof(EarProto):
 						strings.Add($"Ears: {targetAsCharacter.Body.OrganFunction<EarProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(SensorArray):
+						strings.Add($"Sensor Array: {targetAsCharacter.Body.OrganFunction<SensorArray>().ToString("P2", actor).ColourValue()}");
 						continue;
 					case nameof(SpeechSynthesizer):
 						strings.Add($"Speech Synthesizer: {targetAsCharacter.Body.OrganFunction<SpeechSynthesizer>().ToString("P2", actor).ColourValue()}");

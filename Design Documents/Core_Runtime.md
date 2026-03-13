@@ -65,6 +65,8 @@ For characters, damage handling is not a single subtraction. The body implementa
 
 The resulting wound object stores both original and current damage, plus current pain, stun, shock, bleed status, lodged items, and treatment state.
 
+For the stock robot line, anatomy routing now includes robot-only organ families such as positronic brains, power cores, speech synthesizers, and sensor arrays. Those organs are still routed through the ordinary bodypart graph, which is what lets robot bodies keep humanoid or animal-compatible external shells while replacing the internals.
+
 ### Blood and Organ Function
 The body runtime continuously tracks more than visible wounds:
 
@@ -76,6 +78,8 @@ The body runtime continuously tracks more than visible wounds:
 Temperature imbalance now participates in this same layer. Mild and moderate stages remain mostly symptomatic, but severe and especially critical hypothermia or hyperthermia apply organ-function penalties through the effect system. That means thermal injury is reversible while exposure is corrected, but can still become fatal if a body is left in critical extremes for long enough.
 
 This is why medical commands such as `vitals`, `triage`, and surgery are meaningful. They are reading and acting on underlying simulated state, not only on visible wound descriptions.
+
+Robot perception now also lives in this same organ-function layer. When a body has one or more `SensorArray` organs, sight and hearing are gated by sensor-array function rather than by eye and ear organ function alone. The external eye and ear bodyparts still matter for targeting, descriptions, and worn-item interactions, but the robot's actual perception pipeline follows the sensor array.
 
 ### Health Ticks and Status
 Health is advanced over time, not only when a wound is created.
@@ -120,8 +124,8 @@ Each strategy is responsible for:
 | `GameItemHealthStrategy` | Game items | Damage model for items that can be wounded or broken | Seeded in `CoreDataSeeder` |
 | `SimpleLivingHealthStrategy` | Characters | Simpler living-organic runtime alternative | Runtime support only in stock repo |
 | `ConstructHealthStrategy` | Characters or entities | Nonliving construct model | Runtime support only in stock repo |
-| `BrainConstructHealthStrategy` | Characters or entities | Construct model with brain-style vital targeting | Runtime support only in stock repo |
-| `RobotHealthStrategy` | Characters or entities | Mechanical or synthetic model with robot wound semantics | Runtime support only in stock repo |
+| `BrainConstructHealthStrategy` | Characters or entities | Construct model with brain-style vital targeting | Seeded for stock robot utility constructs |
+| `RobotHealthStrategy` | Characters or entities | Mechanical or synthetic model with robot wound semantics | Seeded for the articulated stock robot line |
 | `BaseHealthStrategy` | Shared base | Shared implementation infrastructure, not a stock selectable endpoint by itself | Not seeded directly |
 
 ### Builder surface
@@ -173,6 +177,7 @@ The wound model cares about sequence and local state. Examples:
 - Wounds must generally be trauma-controlled before they can be closed.
 - Bone fractures must be relocated before non-surgical immobilization is valid.
 - Robot wounds use fluid-leak and repair semantics rather than organic infection and antiseptic logic.
+- Robot wounds do not contribute pain, while robot status still hinges on organ function, stun, fluid loss, positronic-brain integrity, and power-core integrity.
 
 This gives FutureMUD a deliberately procedural medical game loop instead of a flat "use heal item" mechanic.
 

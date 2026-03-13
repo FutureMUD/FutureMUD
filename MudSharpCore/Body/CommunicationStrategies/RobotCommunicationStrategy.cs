@@ -52,64 +52,9 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
     public override bool CanVocalise(IBody body, AudioVolume volume)
     {
         var synthFunction = body.OrganFunction<SpeechSynthesizer>();
-        switch (volume)
+        if (!HasSpeechSynthesizerFunctionForVolume(synthFunction, volume))
         {
-            case AudioVolume.Silent:
-                if (synthFunction < 0.1)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.Faint:
-                if (synthFunction < 0.2)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.Quiet:
-                if (synthFunction < 0.3)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.Decent:
-                if (synthFunction < 0.5)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.Loud:
-                if (synthFunction < 0.65)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.VeryLoud:
-                if (synthFunction < 0.8)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.ExtremelyLoud:
-                if (synthFunction < 0.9)
-                {
-                    return false;
-                }
-
-                break;
-            case AudioVolume.DangerouslyLoud:
-                if (synthFunction < 1.0)
-                {
-                    return false;
-                }
-
-                break;
+            return false;
         }
 
         return CanVocalise(body);
@@ -118,64 +63,9 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
     public override string WhyCannotVocalise(IBody body, AudioVolume volume)
     {
         var synthFunction = body.OrganFunction<SpeechSynthesizer>();
-        switch (volume)
+        if (!HasSpeechSynthesizerFunctionForVolume(synthFunction, volume))
         {
-            case AudioVolume.Silent:
-                if (synthFunction < 0.1)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.Faint:
-                if (synthFunction < 0.2)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.Quiet:
-                if (synthFunction < 0.3)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.Decent:
-                if (synthFunction < 0.5)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.Loud:
-                if (synthFunction < 0.65)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.VeryLoud:
-                if (synthFunction < 0.8)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.ExtremelyLoud:
-                if (synthFunction < 0.9)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
-            case AudioVolume.DangerouslyLoud:
-                if (synthFunction < 1.0)
-                {
-                    return "You are lacking speech synthesizer function for a vocalisation of that volume.";
-                }
-
-                break;
+            return "You are lacking speech synthesizer function for a vocalisation of that volume.";
         }
 
         return WhyCannotVocalise(body);
@@ -194,5 +84,26 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
         }
 
         return PermitLanguageOptions.PermitLanguage;
+    }
+
+    internal static bool HasSpeechSynthesizerFunctionForVolume(double synthFunction, AudioVolume volume)
+    {
+        return synthFunction >= RequiredSpeechSynthesizerFunction(volume);
+    }
+
+    internal static double RequiredSpeechSynthesizerFunction(AudioVolume volume)
+    {
+        return volume switch
+        {
+            AudioVolume.Silent => 0.1,
+            AudioVolume.Faint => 0.2,
+            AudioVolume.Quiet => 0.3,
+            AudioVolume.Decent => 0.5,
+            AudioVolume.Loud => 0.65,
+            AudioVolume.VeryLoud => 0.8,
+            AudioVolume.ExtremelyLoud => 0.9,
+            AudioVolume.DangerouslyLoud => 1.0,
+            _ => 0.0
+        };
     }
 }

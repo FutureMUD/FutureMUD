@@ -35,6 +35,7 @@ public static class BodypartExtensions
 			case BodypartTypeEnum.PositronicBrain:
 			case BodypartTypeEnum.PowerCore:
 			case BodypartTypeEnum.SpeechSynthesizer:
+			case BodypartTypeEnum.SensorArray:
 				return true;
 			default:
 				return false;

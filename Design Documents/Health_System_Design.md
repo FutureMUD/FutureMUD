@@ -36,12 +36,12 @@ This design makes health heavily simulation-oriented. The system cares about whe
 ## Subsystem Map
 | Subsystem | Core runtime types | Player or admin surface | Stock seeded defaults |
 | --- | --- | --- | --- |
-| Bodies and anatomy | `IBody`, race bodypart and organ definitions, `Body`, `BodyBiology` | Character health, wound visibility, organ function, death, severing | Seeded mainly in `HumanSeeder` and `AnimalSeeder` |
-| Health strategies | `IHealthStrategy`, strategy classes in `MudSharpCore/Health/Strategies` | Governs damage conversion, severity, prompts, healing, status | `BrainHitpoints`, `ComplexLiving`, and `GameItem` are stock seeded |
-| Wounds | `IWound`, `SimpleOrganicWound`, `BoneFracture`, `RobotWound` | `wounds`, `wound`, treatment commands, healing ticks | Organic and fracture play are stock reachable; robot support exists in runtime |
+| Bodies and anatomy | `IBody`, race bodypart and organ definitions, `Body`, `BodyBiology` | Character health, wound visibility, organ function, death, severing | Seeded mainly in `HumanSeeder`, `AnimalSeeder`, and `RobotSeeder` |
+| Health strategies | `IHealthStrategy`, strategy classes in `MudSharpCore/Health/Strategies` | Governs damage conversion, severity, prompts, healing, status | `BrainHitpoints`, `ComplexLiving`, `Robot`, `BrainConstruct`, and `GameItem` all have stock seeded entries |
+| Wounds | `IWound`, `SimpleOrganicWound`, `BoneFracture`, `RobotWound` | `wounds`, `wound`, treatment commands, healing ticks | Organic, fracture, and robot play are all now stock reachable |
 | Infections | `IInfection`, `Infection`, `SimpleInfection`, `InfectiousInfection`, `NecroticInfection`, `FungalInfection`, `Gangrene` | Wound tags, infection progression, antibiotics, antifungal handling, spread, and tissue damage | No broad content seeding beyond whatever wounds and treatments enable |
 | Treatments | `ITreatment`, `TreatmentGameItemComponent`, `TreatmentType` | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Bandages, splints, sutures, prosthetics, cannulae seeded in item seeders |
-| Surgery | `ISurgicalProcedure`, procedure classes and phases | `surgery`, implant commands, medical knowledges and checks | `HealthSeeder` now installs a release-ready tech-level surgery set, including optional basic mammal veterinary procedures when stock animal bodies are present |
+| Surgery | `ISurgicalProcedure`, procedure classes and phases | `surgery`, implant commands, medical knowledges and checks | `HealthSeeder` installs the stock organic surgery set, and `RobotSeeder` installs the stock robot maintenance suite |
 | Drugs | `IDrug`, `Drug`, `BodyDrugs`, drug effects | Drug dosing, metabolism, builder editing, medical items, adrenaline support, and paralysis | `HealthSeeder` now installs a broader stock catalogue spanning low-tech remedies through modern pharmaceuticals |
 | Breathing | `IBreathingStrategy`, breathing strategy classes | Suffocation, held breath, rebreathers, breathable fluids | Human and animal seeders assign breathing models |
 | Needs | `INeedsModel`, needs model classes, need effects | Hunger, thirst, alcohol, water, no-needs cases | `NoNeeds` is explicitly seeded in several default paths |
@@ -103,6 +103,8 @@ Builders and administrators currently configure or consume health through:
 
 One important current-state fact is that the dedicated `HealthSeeder` is now enabled. In practice, stock health behavior is still assembled across multiple seeders rather than coming from one medical step alone, but surgery and drugs now have a release-ready stock entry point.
 
+Another important current-state fact is that robot health is no longer only a dormant runtime capability. The stock repo now seeds robot races, robot bodies, robot strategies, robot corpse models, and robot maintenance procedures through `RobotSeeder`, while still reusing the existing humanoid and selected animal body semantics for compatibility.
+
 Combat balance in stock content is also tied back to these health thresholds rather than tuned in isolation. The shared damage tiers seeded by `CombatSeeder` are calibrated so that a standard-quality weapon at nominal strength produces ordinary hits in the routine wound bands, while dedicated finishing moves remain exceptional relative to the stock severity ranges used by the default human strategies.
 
 ## Tuning Surfaces
@@ -122,7 +124,7 @@ Strategy builder UX now follows two additional conventions:
 Important current examples include:
 
 - `BrainHitpoints`, `Construct`, and `BrainConstruct` critical injury thresholds.
-- `Robot` bleed-message cooldown, power-core critical threshold, and hydraulic paralysis threshold.
+- `Robot` bleed-message cooldown, power-core critical threshold, hydraulic-fluid paralysis threshold, and prompt handling for the race-configured circulatory liquid.
 - `SimpleLiving` and `ComplexLiving` bleed-message cooldowns, internal-bleed decay settings, airway and digestive blood symptom thresholds, cardiac and hypoxia thresholds, contaminant cleanup rates, blood regeneration rates, and critical-injury breakpoints.
 - `ComplexLiving` kidney-waste and spleen-cleanup thresholds, plus the chance of aggravating an existing fracture when fresh bone-breaking damage lands on the same bone.
 

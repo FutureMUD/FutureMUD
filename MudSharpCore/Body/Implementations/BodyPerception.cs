@@ -57,7 +57,13 @@ public partial class Body
 			return false;
 		}
 
-		if (OrganFunction<EarProto>() <= 0.0)
+		var hasSensorArrays = Bodyparts.OfType<SensorArray>().Any();
+		if (!SensorArrayAllowsPerception(hasSensorArrays, OrganFunction<SensorArray>()))
+		{
+			return false;
+		}
+
+		if (!hasSensorArrays && OrganFunction<EarProto>() <= 0.0)
 		{
 			return false;
 		}
@@ -79,6 +85,14 @@ public partial class Body
 	{
 		get
 		{
+			var multiplier = CombinedEffectsOfType<IVisionLimitEffect>()
+				.Aggregate(1.0, (sum, x) => sum * x.VisionMultiplier);
+
+			if (Bodyparts.OfType<SensorArray>().Any())
+			{
+				return multiplier * Math.Max(0.0, Math.Min(1.0, OrganFunction<SensorArray>()));
+			}
+
 			var numberOfEyes = 0.0;
 			var eyes = Bodyparts.OfType<EyeProto>().ToList();
 			foreach (var eye in eyes)
@@ -103,9 +117,6 @@ public partial class Body
 			{
 				numberOfEyes /= 2.0;
 			}
-
-			var multiplier = CombinedEffectsOfType<IVisionLimitEffect>()
-				.Aggregate(1.0, (sum, x) => sum * x.VisionMultiplier);
 
 			return multiplier * (numberOfEyes >= 2.0 ? 1.0 : numberOfEyes / 2.0);
 		}
@@ -140,30 +151,33 @@ public partial class Body
 
 		var visionExemptThing = thing is IExit || (thing is IGameItem gi && IsInInventory(gi));
 		var perceiverThing = thing as IPerceiver;
+		var hasSensorArrays = Bodyparts.OfType<SensorArray>().Any();
 
-		// Require at least 1 eye to see unless things are in your inventory or are cell exits
-		var eyes = Bodyparts.OfType<EyeProto>().ToList();
 		if (!visionExemptThing)
 		{
-			if (AffectedBy<IBlindnessEffect>())
+			if (hasSensorArrays)
 			{
-				return false;
+				if (!SensorArrayAllowsPerception(true, OrganFunction<SensorArray>()))
+				{
+					return false;
+				}
 			}
-
-			if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
-																   eyes.All(
-AffectedBy<IBodypartIneffectiveEffect>) ||
-																   eyes.All(x => Prosthetics.Any(
-y => x.DownstreamOfPart(
-		y.TargetBodypart) &&
-!y.Functional)) ||
-																   eyes.All(x => WornItemsFor(x)
-.Any(
-   y => y
-		   .IsItemType<IBlindfold>())))
-			   )
+			else
 			{
-				return false;
+				// Require at least 1 eye to see unless things are in your inventory or are cell exits
+				var eyes = Bodyparts.OfType<EyeProto>().ToList();
+				if (AffectedBy<IBlindnessEffect>())
+				{
+					return false;
+				}
+
+				if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
+																   eyes.All(AffectedBy<IBodypartIneffectiveEffect>) ||
+																   eyes.All(x => Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && !y.Functional)) ||
+																   eyes.All(x => WornItemsFor(x).Any(y => y.IsItemType<IBlindfold>()))))
+				{
+					return false;
+				}
 			}
 		}
 
@@ -187,7 +201,7 @@ y => x.DownstreamOfPart(
 				!ColocatedWith(perceiverThing) &&
 				Actor.Merits.OfType<IMyopiaMerit>().Any(x =>
 					x.Applies(Actor) && (!x.CorrectedByGlasses ||
-										 eyes.Any(y => !WornItemsFor(y).Any(z => z.IsItemType<ICorrectMyopia>()))))
+										 Bodyparts.OfType<EyeProto>().Any(y => !WornItemsFor(y).Any(z => z.IsItemType<ICorrectMyopia>()))))
 			)
 			{
 				return false;
@@ -204,6 +218,11 @@ y => x.DownstreamOfPart(
 
 		return thing.HiddenFromPerception(Actor,
 			Actor.GetPerception(Actor.NaturalPerceptionTypes) & PerceptionTypes.AllVisual, flags);
+	}
+
+	internal static bool SensorArrayAllowsPerception(bool hasSensorArrays, double sensorArrayFunction)
+	{
+		return !hasSensorArrays || sensorArrayFunction > 0.0;
 	}
 
 	public bool CanSee(ICell cell, ICellExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)

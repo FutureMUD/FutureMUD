@@ -18,7 +18,7 @@ The `HealthModule` command set is the main interaction layer for live medical pl
 | Inspection and assessment | `vitals`, `health`, `wounds`, `wound`, `triage` | Read visible health state, pulse and breathing, or deeper wound information |
 | Bedside wound care | `bind`, `cleanwounds`, `suture`, `tend`, `relocate`, `dislodge`, `repair` | Stabilize bleeding, clean or close wounds, tend healing, relocate bones, remove lodged objects, repair robot-like injuries |
 | Item-mediated drug delivery | `apply`, `inject` | Use held items such as creams and syringes to deliver drugs through targeted bodypart interactions |
-| Surgery and implants | `surgery` | Run formal procedures and manage implant systems |
+| Surgery and implants | `surgery` | Run formal procedures, robot maintenance procedures, and implant systems |
 | Rescue medicine | `cpr`, `defibrillate` | Attempt to restore breathing or circulation when a patient is non-responsive |
 | Administrative or force tools | `infect`, `cure`, `sever`, `unsever`, `exsanguinate`, `installimplant`, `powerimplant`, `connectimplants`, `implants` | Directly manipulate health state for testing, administration, or special gameplay flows |
 
@@ -46,7 +46,7 @@ That allows the same wound logic to work with many item definitions, while build
 | `Relocation` | `BoneFracture` | `relocate` | `RelocateBoneCheck`, `RelocatingBone` effect | Handles relocation of displaced fractures, including when the operator targets an external bodypart that contains the broken bone |
 | `Set` | `BoneFracture` | Item-driven immobilization | Splints, casts, or other immobilizing items | Implemented as item support; `BoneFracture.Treat` explicitly rejects direct `Set` calls |
 | `SurgicalSet` | `BoneFracture` | Surgery | `SurgicalSetCheck`, surgical procedure support | Reinforces or surgically sets fractures |
-| `Repair` | `RobotWound`, item-health paths | `repair` | Repair tools and repair-capable items | Mechanical analogue to organic closure and healing |
+| `Repair` | `RobotWound`, item-health paths | `repair` | Repair tools and repair-capable items | Mechanical analogue to organic closure and healing; this is the bedside layer, not the full robot surgery replacement path |
 | `Mend` | Organic, fracture, robot, and other wound paths where supported | Usually magical or special recovery effects | Healing checks and non-mundane effects | Represents supernatural or otherwise exceptional recovery |
 | `AntiInflammatory` | `SimpleOrganicWound`, `BoneFracture` | `tend` when suitable treatment items are available | Bodypart-scoped `AntiInflammatoryTreatment` effect, anti-inflammatory-capable treatment items, currently resolved with `CleanWoundCheck` quality logic in the wound-care flow | Reduces pain and swelling without closing damage, and persists as a timed saving effect on the treated bodypart |
 
@@ -66,6 +66,13 @@ Common fracture sequence:
 1. Relocate the fracture.
 2. Immobilize it with `Set`, or surgically reinforce it with `SurgicalSet`.
 3. Allow healing ticks to progress.
+
+Common robot sequence:
+
+1. Stabilize fluid leakage with `Trauma` or `repair`, depending on what the wound currently allows.
+2. Remove lodged debris if needed.
+3. Use bedside `repair` for ordinary mechanical damage that does not require opened chassis access.
+4. Escalate to robot surgery when the job requires exploratory access, chassis closure, limb detachment or reattachment, or organ extraction and replacement.
 
 That sequencing is one of the main gameplay-design choices in the subsystem.
 
@@ -97,9 +104,36 @@ This makes surgery much more data-driven than ordinary wound treatment.
 | Implant surgery | `InstallImplantProcedure`, `RemoveImplantProcedure`, `ConfigureImplantPowerProcedure`, `ConfigureImplantInterfaceProcedure` | Install and configure implant systems |
 
 ### Seeder relationship
-Stock surgery content is authored in `HealthSeeder`, including knowledges, procedures, procedure phases, and tech-level variants. The stock seeder is now enabled and installs a release-ready surgery set for the selected tech level, with optional mammal veterinary procedures when the stock quadruped body exists.
+Stock surgery content is now authored in two places:
+
+- `HealthSeeder` installs the organic human and veterinary catalogue, including knowledges, procedures, procedure phases, and tech-level variants
+- `RobotSeeder` installs robot knowledges and the stock robot maintenance suite for articulated, quadruped, insectoid, and utility robot bodies
 
 The seeded surgery matrix is detailed in [Seeder_and_Gaps.md](./Seeder_and_Gaps.md).
+
+### Robot maintenance suite
+The stock robot procedures are intentionally parallel to the organic surgery model rather than a separate ad hoc repair minigame.
+
+The current seeded robot suite covers:
+
+- diagnostics
+- maintenance examination
+- exploratory maintenance
+- leak control
+- chassis closure
+- robot organ extraction
+- robot organ replacement
+- limb detachment
+- limb reattachment
+
+These procedures target the robot base bodies installed by `RobotSeeder`. Because the runtime now honours `CountsAs` when matching procedure bodyparts and organs, wheel, track, and similar derived chassis variants can use the intended stock robot procedures without needing duplicate definitions per race.
+
+### Bedside repair versus robot surgery
+The stock repo now has a clearer split between robot bedside care and robot surgery:
+
+- `repair` remains the ordinary bedside command for robot wounds and other repair-capable damage states
+- robot surgery is for opened-chassis work, formal leak control, diagnostic access, organ swaps, and major assembly changes
+- organic surgery definitions do not substitute for robot surgery, and robot procedures target robot-compatible body prototypes rather than the human or veterinary bodies
 
 ### Verified partial areas
 Current surgery-related observations that matter for design:

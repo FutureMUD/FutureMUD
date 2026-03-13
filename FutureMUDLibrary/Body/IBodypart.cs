@@ -47,6 +47,7 @@ namespace MudSharp.Body {
         BonyDrapeable = 32,
         BonyGrabbingWielding = 33,
         NonImmobilisingBonyDrapeable = 34,
+        SensorArray = 35,
     }
     
     public interface IBodypart : IKeywordedItem, IDescribable, IHaveFuturemud, ISaveable, ILateInitialisingItem {

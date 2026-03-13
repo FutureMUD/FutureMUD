@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -365,35 +366,49 @@ public class RobotHealthStrategy : BaseHealthStrategy
 	public override HealthTickResult EvaluateStatus(IHaveWounds thing)
 	{
 		var charOwner = (ICharacter)thing;
-		if (charOwner.State.HasFlag(CharacterState.Dead))
+		var lossOfConsciousnessEffect = charOwner.Body.EffectsOfType<ILossOfConsciousnessEffect>().FirstOrDefault(x => x.Applies());
+		return EvaluateStatusFromVitals(
+			charOwner.State.HasFlag(CharacterState.Dead),
+			charOwner.Body.OrganFunction<PositronicBrain>(),
+			lossOfConsciousnessEffect?.UnconType,
+			charOwner.Body.OrganFunction<PowerCore>(),
+			charOwner.Body.CurrentBloodVolumeLitres,
+			HydraulicFluidParalysisThreshold,
+			thing.Wounds.Sum(x => x.CurrentStun),
+			MaximumStunExpression.Evaluate(charOwner),
+			charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()));
+	}
+
+	internal static HealthTickResult EvaluateStatusFromVitals(bool isDead, double brainActivity,
+		HealthTickResult? lossOfConsciousnessType, double powerCoreFunction, double currentBloodVolumeLitres,
+		double hydraulicFluidParalysisThreshold, double totalStun, double maxStun, bool preventPassOut)
+	{
+		if (isDead)
 		{
 			return HealthTickResult.Dead;
 		}
 
-		var brainActivity = charOwner.Body.OrganFunction<PositronicBrain>();
-		if (brainActivity <= 0)
+		if (brainActivity <= 0.0)
 		{
 			return HealthTickResult.Dead;
 		}
 
-		if (charOwner.Body.EffectsOfType<ILossOfConsciousnessEffect>().Any(x => x.Applies()))
+		if (lossOfConsciousnessType.HasValue)
 		{
-			return charOwner.Body.EffectsOfType<ILossOfConsciousnessEffect>().First(x => x.Applies()).UnconType;
+			return lossOfConsciousnessType.Value;
 		}
 
-		if (charOwner.Body.OrganFunction<PowerCore>() <= 0.0)
+		if (powerCoreFunction <= 0.0)
 		{
 			return HealthTickResult.Unconscious;
 		}
 
-		if (charOwner.Body.CurrentBloodVolumeLitres <= HydraulicFluidParalysisThreshold)
+		if (currentBloodVolumeLitres <= hydraulicFluidParalysisThreshold)
 		{
 			return HealthTickResult.Paralyzed;
 		}
 
-		var maxStun = MaximumStunExpression.Evaluate(charOwner);
-		if (thing.Wounds.Sum(x => x.CurrentStun) >= maxStun &&
-		    !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
+		if (totalStun >= maxStun && !preventPassOut)
 		{
 			return HealthTickResult.Unconscious;
 		}
@@ -483,36 +498,12 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			sb.Append(" and have ");
 		}
 
-		if (bloodlossRatio >= 0.95)
+		var fluidLossDescription = FluidLossDescriptionForPrompt(
+			bloodlossRatio,
+			charOwner.Race.BloodLiquid?.Name);
+		if (!string.IsNullOrEmpty(fluidLossDescription))
 		{
-		}
-		else if (bloodlossRatio >= 0.80)
-		{
-			sb.Append($"{"very minor hydraulic fluid loss".Colour(Telnet.Yellow)}");
-		}
-		else if (bloodlossRatio >= 0.65)
-		{
-			sb.Append($"{"minor hydraulic fluid loss".Colour(Telnet.Yellow)}");
-		}
-		else if (bloodlossRatio >= 0.5)
-		{
-			sb.Append($"{"moderate hydraulic fluid loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.35)
-		{
-			sb.Append($"{"major hydraulic fluid loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.2)
-		{
-			sb.Append($"{"severe hydraulic fluid loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.1)
-		{
-			sb.Append($"{"critical hydraulic fluid loss".Colour(Telnet.Red)}");
-		}
-		else
-		{
-			sb.Append($"{"hyper-critical hydraulic fluid loss".Colour(Telnet.Red)}");
+			sb.Append(fluidLossDescription);
 		}
 
 		sb.Append(">");
@@ -584,7 +575,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			sb.Append("      ");
 		}
 
-		sb.Append(" / Hydraulics: ");
+		sb.Append($" / {CirculatoryFluidPromptLabel(charOwner.Race.BloodLiquid?.Name)}: ");
 		if (bloodlossRatio >= 0.95)
 		{
 			sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Bold}**{Telnet.White.Bold}**{Telnet.RESETALL}");
@@ -648,5 +639,63 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		}
 
 		return sb.ToString();
+	}
+
+	internal static string CirculatoryFluidName(string? liquidName)
+	{
+		return string.IsNullOrWhiteSpace(liquidName)
+			? "circulatory fluid"
+			: liquidName.ToLowerInvariant();
+	}
+
+	internal static string CirculatoryFluidPromptLabel(string? liquidName)
+	{
+		if (string.IsNullOrWhiteSpace(liquidName))
+		{
+			return "Hydraulics";
+		}
+
+		return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(liquidName.ToLowerInvariant());
+	}
+
+	internal static string FluidLossDescriptionForPrompt(double bloodlossRatio, string? liquidName)
+	{
+		var fluidName = CirculatoryFluidName(liquidName);
+		if (bloodlossRatio >= 0.95)
+		{
+			return string.Empty;
+		}
+
+		if (bloodlossRatio >= 0.80)
+		{
+			return $"very minor {fluidName} loss".Colour(Telnet.Yellow);
+		}
+
+		if (bloodlossRatio >= 0.65)
+		{
+			return $"minor {fluidName} loss".Colour(Telnet.Yellow);
+		}
+
+		if (bloodlossRatio >= 0.5)
+		{
+			return $"moderate {fluidName} loss".Colour(Telnet.Red);
+		}
+
+		if (bloodlossRatio >= 0.35)
+		{
+			return $"major {fluidName} loss".Colour(Telnet.Red);
+		}
+
+		if (bloodlossRatio >= 0.2)
+		{
+			return $"severe {fluidName} loss".Colour(Telnet.Red);
+		}
+
+		if (bloodlossRatio >= 0.1)
+		{
+			return $"critical {fluidName} loss".Colour(Telnet.Red);
+		}
+
+		return $"hyper-critical {fluidName} loss".Colour(Telnet.Red);
 	}
 }

@@ -963,6 +963,8 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 				return new PowerCore(proto, gameworld);
 			case BodypartTypeEnum.SpeechSynthesizer:
 				return new SpeechSynthesizer(proto, gameworld);
+			case BodypartTypeEnum.SensorArray:
+				return new SensorArray(proto, gameworld);
 			case BodypartTypeEnum.Joint:
 				return new JointProto(proto, gameworld);
 			case BodypartTypeEnum.Fin:

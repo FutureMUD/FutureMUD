@@ -22,7 +22,7 @@ internal enum SeedCombatHitVerb
 
 internal static class CombatSeederMessageStyleHelper
 {
-	private const string CombatSeederName = "Combat Seeder";
+	private const string CombatSeederName = "Combat";
 	private const string CombatSeederMessageStyleChoice = "messagestyle";
 
 	internal static SeedCombatMessageStyle Parse(string? value)

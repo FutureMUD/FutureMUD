@@ -360,6 +360,11 @@ public partial class AnimalSeeder
 		AddLimb("Tail", LimbType.Appendage, "abdomen", 0.5, 0.5);
 		AddLimb("Right Claw", LimbType.Arm, "rclaw");
 		AddLimb("Left Claw", LimbType.Arm, "lclaw");
+		for (var i = 1; i <= 4; i++)
+		{
+			AddLimb($"Right Leg {i}", LimbType.Leg, $"rleg{i}");
+			AddLimb($"Left Leg {i}", LimbType.Leg, $"lleg{i}");
+		}
 		_context.SaveChanges();
 
 		foreach (var limb in limbs.Values)

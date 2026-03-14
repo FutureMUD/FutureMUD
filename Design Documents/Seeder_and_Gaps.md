@@ -34,6 +34,7 @@ The seeder now treats message style as a shared concern instead of duplicating p
 - append defense success and failure clauses
 - join hit-location follow-up text
 - keep standalone ranged, grapple, clinch, and coup-de-grace strings punctuated correctly
+- lets later non-human seeders reuse the recorded `Combat Seeder` message-style choice from `SeederChoice` instead of re-asking once combat setup has already been chosen
 
 This matters because the runtime does not display seeded messages verbatim in every case. The current engine assembles many exchanges from multiple seeded fragments:
 
@@ -75,6 +76,7 @@ The stock animal seeding path is now organized around:
 - reusable template data for race definitions, attack loadouts, venom profiles, height and weight models, description packs, and anatomy audit profiles
 - a smaller core builder layer that still handles EF creation of bodies, organs, bones, attacks, liquids, and drugs
 - race-specific ethnicity-dependent description progs are generated only after the owning race and ethnicities have been saved, so seeded progs always reference persistent IDs
+- all three stock non-human health strategies are now seeded every time (`Non-Human HP`, `Non-Human HP Plus`, and `Non-Human Full Model`), while the selected answer only controls which one becomes the default for races created in that run
 
 ### Stock body and race coverage
 The stock seeder now covers a broader set of body families than the earlier animal pass.
@@ -135,6 +137,7 @@ The seeder currently:
 
 - reuses the shared non-human seeder questionnaire so builders answer the same health-model and combat-message prompts they already see for stock animals
 - requires the human and animal body and characteristic infrastructure before installation, so mythic races inherit compatible corpse models, breathing setup, attacks, and body semantics
+- resolves its selected default non-human strategy through the same canonical strategy-name mapping used by `AnimalSeeder`, so the stock animal and mythic packages no longer drift on `HP Plus` versus `Full Model` naming
 - now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, and plantfolk, so the separate `FantasySeeder` is no longer needed
 - installs incrementally, skipping any already-present mythic race entries instead of treating partial overlap as a fatal blocker
 
@@ -169,7 +172,7 @@ That includes reuse of stock profiles such as:
 The seeder currently:
 
 - installs as a rerunnable package rather than extending the one-shot `HealthSeeder`
-- requires the stock humanoid, avian, toed quadruped, arachnid, and insectoid body infrastructure before installation
+- requires the stock humanoid, toed quadruped, arachnid, and insectoid body infrastructure before installation, while avian-backed robot variants are now optional
 - seeds robot-specific liquids, materials, armour types, corpse models, a stamina-recovery prog, robot knowledges, and robot-only procedures
 - seeds both a sentient articulated robot strategy based on `RobotHealthStrategy` and a utility-construct strategy based on `BrainConstructHealthStrategy`
 - skips already-present bodies, races, strategies, and procedures so the package can be safely re-run on worlds that already imported part of the catalogue
@@ -181,6 +184,7 @@ Current reuse patterns include:
 
 - `Robot Humanoid` as a child of `Humanoid`, preserving the stock humanoid shell for clothing, armour, and similar bodypart-aware systems
 - dedicated humanoid-derived variants for spider crawler, circular-saw hands, pneumatic-hammer hands, sword hands, winged frames, jet frames, mandible heads, wheels, tracks, and cyborgs
+- winged and jet frames are now soft dependencies on the stock `Avian` body and are skipped rather than blocking the entire robot package when avian anatomy is absent
 - reuse of stock `Toed Quadruped`, `Arachnid`, and `Insectoid` source anatomies for robot dog, spider-crawler lower bodies, and robot cockroach content
 - `CountsAs` mappings on cloned or substituted robot bodyparts so surgery, wear, and other anatomy-aware logic can continue to target the intended baseline chassis
 

@@ -1,11 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using DatabaseSeeder.Seeders;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Database;
+using MudSharp.Models;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class CombatSeederMessageStyleHelperTests
 {
+	private static FuturemudDatabaseContext BuildContext()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString())
+			.Options;
+		return new FuturemudDatabaseContext(options);
+	}
+
 	[TestMethod]
 	public void FormatAttackMessage_SentenceStyle_AddsSingleTerminalFullStop()
 	{
@@ -72,5 +86,92 @@ public class CombatSeederMessageStyleHelperTests
 			CombatSeederMessageStyleHelper.FormatStandaloneMessage("@ stand|stands and {0} $2 at $1"),
 			"fire|fires");
 		Assert.AreEqual("@ stand|stands and fire|fires $2 at $1.", ranged);
+	}
+
+	[TestMethod]
+	public void GetRecordedChoice_CombatSeederHistory_ReturnsLatestRecordedAnswer()
+	{
+		using var context = BuildContext();
+		context.SeederChoices.AddRange(
+			new SeederChoice
+			{
+				Id = 1,
+				Seeder = "Combat Seeder",
+				Choice = "messagestyle",
+				Answer = "sentences",
+				Version = "1.0.0",
+				DateTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc)
+			},
+			new SeederChoice
+			{
+				Id = 2,
+				Seeder = "Combat Seeder",
+				Choice = "messagestyle",
+				Answer = "sparse",
+				Version = "1.0.0",
+				DateTime = new DateTime(2026, 3, 2, 0, 0, 0, DateTimeKind.Utc)
+			},
+			new SeederChoice
+			{
+				Id = 3,
+				Seeder = "Animal Seeder",
+				Choice = "messagestyle",
+				Answer = "compact",
+				Version = "1.0.0",
+				DateTime = new DateTime(2026, 3, 3, 0, 0, 0, DateTimeKind.Utc)
+			});
+		context.SaveChanges();
+
+		Assert.AreEqual("sparse", CombatSeederMessageStyleHelper.GetRecordedChoice(context));
+	}
+
+	[TestMethod]
+	public void MergeQuestionAnswersWithRecordedChoice_MissingMessagestyle_AddsCombatSeederAnswer()
+	{
+		using var context = BuildContext();
+		context.SeederChoices.Add(new SeederChoice
+		{
+			Id = 1,
+			Seeder = "Combat Seeder",
+			Choice = "messagestyle",
+			Answer = "sparse",
+			Version = "1.0.0",
+			DateTime = new DateTime(2026, 3, 2, 0, 0, 0, DateTimeKind.Utc)
+		});
+		context.SaveChanges();
+
+		var answers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["model"] = "full"
+		};
+
+		var effectiveAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, answers);
+
+		Assert.AreEqual("sparse", effectiveAnswers["messagestyle"]);
+		Assert.AreEqual("full", effectiveAnswers["model"]);
+	}
+
+	[TestMethod]
+	public void NonHumanSeederQuestions_MessagestyleFilter_UsesCombatSeederChoiceWhenPresent()
+	{
+		using var context = BuildContext();
+		var question = NonHumanSeederQuestions.GetQuestions().First(x => x.Id == "messagestyle");
+
+		Assert.IsTrue(question.Filter(context, new Dictionary<string, string>()),
+			"Without a recorded combat seeder choice, the non-human seeder should still ask the question.");
+
+		context.SeederChoices.Add(new SeederChoice
+		{
+			Id = 1,
+			Seeder = "Combat Seeder",
+			Choice = "messagestyle",
+			Answer = "compact",
+			Version = "1.0.0",
+			DateTime = new DateTime(2026, 3, 2, 0, 0, 0, DateTimeKind.Utc)
+		});
+		context.SaveChanges();
+
+		Assert.IsFalse(question.Filter(context, new Dictionary<string, string>()),
+			"Once the combat seeder has recorded a message style, non-human seeders should reuse it instead of re-asking.");
 	}
 }

@@ -144,9 +144,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			       context.CharacteristicDefinitions.Any(x => x.Name == profile)) &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
-		       context.HealthStrategies.Any(x => x.Name == "Non-Human HP") &&
-		       context.HealthStrategies.Any(x => x.Name == "Non-Human HP Plus") &&
-		       context.HealthStrategies.Any(x => x.Name == "Non-Human Full Model");
+		       NonHumanSeederHealthStrategyHelper.AllStrategyNames.All(name =>
+			       context.HealthStrategies.Any(x => x.Name == name));
 	}
 
 	private void LoadSharedSeederData(IReadOnlyDictionary<string, string> answers)
@@ -186,13 +185,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			.AsEnumerable()
 			.First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
 
-		_healthStrategy = answers["model"].ToLowerInvariant() switch
-		{
-			"hp" => _context.HealthStrategies.First(x => x.Name == "Non-Human HP"),
-			"hpplus" => _context.HealthStrategies.First(x => x.Name == "Non-Human HP Plus"),
-			"full" => _context.HealthStrategies.First(x => x.Name == "Non-Human Full Model"),
-			_ => throw new InvalidOperationException($"Unknown health model choice {answers["model"]}.")
-		};
+		_healthStrategy = _context.HealthStrategies.First(x =>
+			x.Name == NonHumanSeederHealthStrategyHelper.GetStrategyName(answers["model"]));
 	}
 
 	private Dictionary<string, BodyProto> BuildBodyCatalogue(IEnumerable<MythicalRaceTemplate> templatesToSeed)

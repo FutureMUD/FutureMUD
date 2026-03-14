@@ -51,6 +51,11 @@ public partial class RobotSeeder
 	{
 		foreach (var template in Templates.Values)
 		{
+			if (!bodyCatalogue.TryGetValue(template.BodyKey, out var body))
+			{
+				continue;
+			}
+
 			if (_context.Races.Any(x => x.Name == template.Name))
 			{
 				continue;
@@ -60,7 +65,7 @@ public partial class RobotSeeder
 			{
 				Name = template.Name,
 				Description = template.Description,
-				BaseBody = bodyCatalogue[template.BodyKey],
+				BaseBody = body,
 				AllowedGenders = _humanRace.AllowedGenders,
 				ParentRace = template.ParentRaceName is null
 					? null

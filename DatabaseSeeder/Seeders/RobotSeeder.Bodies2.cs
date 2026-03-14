@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body;
@@ -46,17 +47,19 @@ public partial class RobotSeeder
 
 	private BodyProto CreateWingedRobotBody()
 	{
+		var avianBody = _avianBody ?? throw new InvalidOperationException("Winged Robot requires the Avian body.");
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
 		var body = CloneBody("Winged Robot", source, source);
-		SeederBodyUtilities.CloneBodypartSubtree(_context, _avianBody, body, "rwingbase", "uback");
-		SeederBodyUtilities.CloneBodypartSubtree(_context, _avianBody, body, "lwingbase", "uback");
-		AddMissingBodyMovement(_avianBody, body);
+		SeederBodyUtilities.CloneBodypartSubtree(_context, avianBody, body, "rwingbase", "uback");
+		SeederBodyUtilities.CloneBodypartSubtree(_context, avianBody, body, "lwingbase", "uback");
+		AddMissingBodyMovement(avianBody, body);
 		ConfigureRobotBodyMaterials(body, false);
 		return body;
 	}
 
 	private BodyProto CreateJetRobotBody()
 	{
+		var avianBody = _avianBody ?? throw new InvalidOperationException("Jet Robot requires the Avian body.");
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
 		var body = CloneBody("Jet Robot", source, source);
 		AddBodypart(body, "rjet", "right jet pod", "Jet Pod", BodypartTypeEnum.Wing, "uback",
@@ -67,7 +70,7 @@ public partial class RobotSeeder
 			significant: true);
 		AddLimbPart(body, "rupperarm", "rjet");
 		AddLimbPart(body, "lupperarm", "ljet");
-		AddMissingBodyMovement(_avianBody, body);
+		AddMissingBodyMovement(avianBody, body);
 		ConfigureRobotBodyMaterials(body, false);
 		return body;
 	}

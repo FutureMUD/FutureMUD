@@ -29,8 +29,16 @@ public partial class RobotSeeder
 		bodies["Circular Saw Robot"] = GetOrCreateBody("Circular Saw Robot", CreateCircularSawBody, summary);
 		bodies["Pneumatic Hammer Robot"] = GetOrCreateBody("Pneumatic Hammer Robot", CreatePneumaticHammerBody, summary);
 		bodies["Sword-Hand Robot"] = GetOrCreateBody("Sword-Hand Robot", CreateSwordHandBody, summary);
-		bodies["Winged Robot"] = GetOrCreateBody("Winged Robot", CreateWingedRobotBody, summary);
-		bodies["Jet Robot"] = GetOrCreateBody("Jet Robot", CreateJetRobotBody, summary);
+		if (CanSeedOptionalBody("Winged Robot"))
+		{
+			bodies["Winged Robot"] = GetOrCreateBody("Winged Robot", CreateWingedRobotBody, summary);
+		}
+
+		if (CanSeedOptionalBody("Jet Robot"))
+		{
+			bodies["Jet Robot"] = GetOrCreateBody("Jet Robot", CreateJetRobotBody, summary);
+		}
+
 		bodies["Mandible Robot"] = GetOrCreateBody("Mandible Robot", CreateMandibleRobotBody, summary);
 		bodies["Wheeled Robot"] = GetOrCreateBody("Wheeled Robot", CreateWheeledRobotBody, summary);
 		bodies["Tracked Robot"] = GetOrCreateBody("Tracked Robot", CreateTrackedRobotBody, summary);
@@ -41,6 +49,12 @@ public partial class RobotSeeder
 		bodies["Robot Cockroach"] = GetOrCreateBody("Robot Cockroach", CreateRobotCockroachBody, summary);
 
 		return bodies;
+	}
+
+	private bool CanSeedOptionalBody(string bodyName)
+	{
+		return _context.BodyProtos.Any(x => x.Name == bodyName) ||
+		       (_avianBody is not null && CanSupportBodyKey(new[] { "Avian" }, bodyName));
 	}
 
 	private BodyProto GetOrCreateBody(string name, Func<BodyProto> factory, RobotSeedSummary summary)

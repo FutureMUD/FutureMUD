@@ -92,8 +92,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
 		ResetSeeder();
 		SetupCorpseModel();
 		SeedCombatStrategies();
-		_questionAnswers = questionAnswers;
-		_sever = questionAnswers.ContainsKey("sever") && questionAnswers["sever"].ToLowerInvariant().In("yes", "y");
+		_questionAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+		_sever = _questionAnswers.ContainsKey("sever") && _questionAnswers["sever"].ToLowerInvariant().In("yes", "y");
 
 		var firsttime = _context.TraitExpressions.All(x => x.Name != "Non-Human Max HP Formula");
 
@@ -128,7 +128,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
 			.First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
 		context.SaveChanges();
 
-		var strategy = SetupHealthModel(context, questionAnswers, hpExpression, hpTick, secondaryTrait);
+		var strategy = SetupHealthModel(context, _questionAnswers, hpExpression, hpTick, secondaryTrait);
 
 		#endregion
 
@@ -926,73 +926,72 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		TraitExpression hpExpression, TraitExpression hpTick, TraitDefinition secondaryTrait)
 	{
 		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Health Models...");
-		HealthStrategy strategy;
-		switch (questionAnswers["model"].ToLowerInvariant())
+		var hpStrategy = new HealthStrategy
 		{
-			case "hp":
-				strategy = new HealthStrategy
-				{
-					Name = "Non-Human HP",
-					Type = "BrainHitpoints",
-					Definition =
-						$"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression><PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty><LodgeDamageExpression>max(0, damage-15)</LodgeDamageExpression> <SeverityRanges> <Severity value=\"0\" lower=\"-1\" upper=\"0\"/> <Severity value=\"1\" lower=\"0\" upper=\"2\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\"/> </SeverityRanges><CheckHeart>false</CheckHeart> <UseHypoxiaDamage>false</UseHypoxiaDamage><KnockoutOnCritical>true</KnockoutOnCritical><KnockoutDuration>240</KnockoutDuration></Definition>"
-				};
-				break;
-			case "hpplus":
-				strategy = new HealthStrategy
-				{
-					Name = "Non-Human HP",
-					Type = "BrainHitpoints",
-					Definition =
-						$"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression><PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty><LodgeDamageExpression>max(0,damage-15)</LodgeDamageExpression> <SeverityRanges> <Severity value=\"0\" lower=\"-1\" upper=\"0\"/> <Severity value=\"1\" lower=\"0\" upper=\"2\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\"/> </SeverityRanges> <CheckHeart>true</CheckHeart> <UseHypoxiaDamage>true</UseHypoxiaDamage><KnockoutOnCritical>true</KnockoutOnCritical><KnockoutDuration>240</KnockoutDuration> </Definition>"
-				};
-				break;
-			case "full":
+			Name = NonHumanSeederHealthStrategyHelper.HpStrategyName,
+			Type = "BrainHitpoints",
+			Definition =
+				$"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression><PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty><LodgeDamageExpression>max(0, damage-15)</LodgeDamageExpression> <SeverityRanges> <Severity value=\"0\" lower=\"-1\" upper=\"0\"/> <Severity value=\"1\" lower=\"0\" upper=\"2\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\"/> </SeverityRanges><CheckHeart>false</CheckHeart> <UseHypoxiaDamage>false</UseHypoxiaDamage><KnockoutOnCritical>true</KnockoutOnCritical><KnockoutDuration>240</KnockoutDuration></Definition>"
+		};
+		context.HealthStrategies.Add(hpStrategy);
 
-				var stunExpression = new TraitExpression
-				{
-					Name = "Non-Human Max Stun Formula",
-					Expression = $"100+(con:{_healthTrait.Id}+wil:{secondaryTrait.Id})/2"
-				};
-				context.TraitExpressions.Add(stunExpression);
+		var hpPlusStrategy = new HealthStrategy
+		{
+			Name = NonHumanSeederHealthStrategyHelper.HpPlusStrategyName,
+			Type = "BrainHitpoints",
+			Definition =
+				$"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression><PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty><LodgeDamageExpression>max(0,damage-15)</LodgeDamageExpression> <SeverityRanges> <Severity value=\"0\" lower=\"-1\" upper=\"0\"/> <Severity value=\"1\" lower=\"0\" upper=\"2\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\"/> </SeverityRanges> <CheckHeart>true</CheckHeart> <UseHypoxiaDamage>true</UseHypoxiaDamage><KnockoutOnCritical>true</KnockoutOnCritical><KnockoutDuration>240</KnockoutDuration> </Definition>"
+		};
+		context.HealthStrategies.Add(hpPlusStrategy);
 
-				var painExpression = new TraitExpression
-				{
-					Name = "Non-Human Max Pain Formula",
-					Expression = $"100+wil:{secondaryTrait.Id}"
-				};
-				context.TraitExpressions.Add(painExpression);
+		var stunExpression = new TraitExpression
+		{
+			Name = "Non-Human Max Stun Formula",
+			Expression = $"100+(con:{_healthTrait.Id}+wil:{secondaryTrait.Id})/2"
+		};
+		context.TraitExpressions.Add(stunExpression);
 
-				var stunTick = new TraitExpression
-				{
-					Name = "Non-Human Stun Heal Per Tick",
-					Expression = $"100+con:{_healthTrait.Id}"
-				};
-				context.TraitExpressions.Add(stunTick);
+		var painExpression = new TraitExpression
+		{
+			Name = "Non-Human Max Pain Formula",
+			Expression = $"100+wil:{secondaryTrait.Id}"
+		};
+		context.TraitExpressions.Add(painExpression);
 
-				var painTick = new TraitExpression
-				{
-					Name = "Non-Human Pain Heal Per Tick",
-					Expression = $"100+con:{_healthTrait.Id}"
-				};
-				context.TraitExpressions.Add(painTick);
-				context.SaveChanges();
-				strategy = new HealthStrategy
-				{
-					Name = "Non-Human Health Model",
-					Type = "ComplexLiving",
-					Definition =
-						$"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <MaximumStunExpression>{stunExpression.Id}</MaximumStunExpression> <MaximumPainExpression>{painExpression.Id}</MaximumPainExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression> <HealingTickStunExpression>{stunTick.Id}</HealingTickStunExpression> <HealingTickPainExpression>{painTick.Id}</HealingTickPainExpression> <LodgeDamageExpression>max(0, damage - 30)</LodgeDamageExpression> <PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty> <PercentageStunPerPenalty>0.2</PercentageStunPerPenalty> <PercentagePainPerPenalty>0.2</PercentagePainPerPenalty> <SeverityRanges> <Severity value=\"0\" lower=\"-2\" upper=\"-1\" lowerpec=\"-100\" upperperc=\"0\"/> <Severity value=\"1\" lower=\"-1\" upper=\"2\" lowerpec=\"0\" upperperc=\"0.4\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\" lowerpec=\"0.4\" upperperc=\"0.55\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\" lowerpec=\"0.55\" upperperc=\"0.65\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\" lowerpec=\"0.65\" upperperc=\"0.75\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\" lowerpec=\"0.75\" upperperc=\"0.85\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\" lowerpec=\"0.85\" upperperc=\"0.9\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\" lowerpec=\"0.9\" upperperc=\"0.95\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\" lowerpec=\"0.95\" upperperc=\"100\"/> </SeverityRanges> </Definition>"
-				};
-				break;
-			default:
-				throw new ArgumentOutOfRangeException();
-		}
+		var stunTick = new TraitExpression
+		{
+			Name = "Non-Human Stun Heal Per Tick",
+			Expression = $"100+con:{_healthTrait.Id}"
+		};
+		context.TraitExpressions.Add(stunTick);
 
-		context.HealthStrategies.Add(strategy);
-		_healthStrategy = strategy;
+		var painTick = new TraitExpression
+		{
+			Name = "Non-Human Pain Heal Per Tick",
+			Expression = $"100+con:{_healthTrait.Id}"
+		};
+		context.TraitExpressions.Add(painTick);
+		context.SaveChanges();
+
+		var fullStrategy = new HealthStrategy
+		{
+			Name = NonHumanSeederHealthStrategyHelper.FullStrategyName,
+			Type = "ComplexLiving",
+			Definition =
+				$"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <MaximumStunExpression>{stunExpression.Id}</MaximumStunExpression> <MaximumPainExpression>{painExpression.Id}</MaximumPainExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression> <HealingTickStunExpression>{stunTick.Id}</HealingTickStunExpression> <HealingTickPainExpression>{painTick.Id}</HealingTickPainExpression> <LodgeDamageExpression>max(0, damage - 30)</LodgeDamageExpression> <PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty> <PercentageStunPerPenalty>0.2</PercentageStunPerPenalty> <PercentagePainPerPenalty>0.2</PercentagePainPerPenalty> <SeverityRanges> <Severity value=\"0\" lower=\"-2\" upper=\"-1\" lowerpec=\"-100\" upperperc=\"0\"/> <Severity value=\"1\" lower=\"-1\" upper=\"2\" lowerpec=\"0\" upperperc=\"0.4\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\" lowerpec=\"0.4\" upperperc=\"0.55\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\" lowerpec=\"0.55\" upperperc=\"0.65\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\" lowerpec=\"0.65\" upperperc=\"0.75\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\" lowerpec=\"0.75\" upperperc=\"0.85\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\" lowerpec=\"0.85\" upperperc=\"0.9\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\" lowerpec=\"0.9\" upperperc=\"0.95\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\" lowerpec=\"0.95\" upperperc=\"100\"/> </SeverityRanges> </Definition>"
+		};
+		context.HealthStrategies.Add(fullStrategy);
+
+		_healthStrategy = questionAnswers["model"].ToLowerInvariant() switch
+		{
+			"hp" => hpStrategy,
+			"hpplus" => hpPlusStrategy,
+			"full" => fullStrategy,
+			_ => throw new ArgumentOutOfRangeException()
+		};
+
 		_context.SaveChanges();
-		return strategy;
+		return _healthStrategy;
 	}
 
 	private void SetupHeightWeightModels()

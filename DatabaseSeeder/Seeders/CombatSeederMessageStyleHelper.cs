@@ -1,6 +1,9 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using MudSharp.Database;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -19,6 +22,9 @@ internal enum SeedCombatHitVerb
 
 internal static class CombatSeederMessageStyleHelper
 {
+	private const string CombatSeederName = "Combat Seeder";
+	private const string CombatSeederMessageStyleChoice = "messagestyle";
+
 	internal static SeedCombatMessageStyle Parse(string? value)
 	{
 		return value?.Trim().ToLowerInvariant() switch
@@ -44,6 +50,38 @@ internal static class CombatSeederMessageStyleHelper
 	internal static string FormatStandaloneMessage(string message)
 	{
 		return EnsureTerminalPunctuation(message, '.');
+	}
+
+	internal static string? GetRecordedChoice(FuturemudDatabaseContext context)
+	{
+		return context.SeederChoices
+			.Where(x => x.Seeder == CombatSeederName && x.Choice == CombatSeederMessageStyleChoice)
+			.OrderByDescending(x => x.DateTime)
+			.ThenByDescending(x => x.Id)
+			.Select(x => x.Answer)
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+	}
+
+	internal static IReadOnlyDictionary<string, string> MergeQuestionAnswersWithRecordedChoice(
+		FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		if (questionAnswers.ContainsKey(CombatSeederMessageStyleChoice))
+		{
+			return questionAnswers;
+		}
+
+		var recordedChoice = GetRecordedChoice(context);
+		if (string.IsNullOrWhiteSpace(recordedChoice))
+		{
+			return questionAnswers;
+		}
+
+		var effectiveAnswers = new Dictionary<string, string>(questionAnswers, StringComparer.OrdinalIgnoreCase)
+		{
+			[CombatSeederMessageStyleChoice] = recordedChoice
+		};
+		return effectiveAnswers;
 	}
 
 	internal static string BuildDefenseSuccess(SeedCombatMessageStyle style, string clause)

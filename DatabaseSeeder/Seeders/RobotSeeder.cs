@@ -39,6 +39,11 @@ public partial class RobotSeeder : IDatabaseSeeder
 		"Barge",
 		"Hoof Stomp Smash"
 	];
+	private static readonly HashSet<string> AvianDependentBodyKeys = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Winged Robot",
+		"Jet Robot"
+	};
 
 	private readonly Dictionary<string, Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
 	private readonly Dictionary<string, MudSharp.Models.Knowledge> _knowledges = new(StringComparer.OrdinalIgnoreCase);
@@ -48,7 +53,7 @@ public partial class RobotSeeder : IDatabaseSeeder
 	private Race _humanRace = null!;
 	private Race _humanoidRace = null!;
 	private BodyProto _humanoidBody = null!;
-	private BodyProto _avianBody = null!;
+	private BodyProto? _avianBody;
 	private BodyProto _toedQuadrupedBody = null!;
 	private BodyProto _insectoidBody = null!;
 	private BodyProto _arachnidBody = null!;
@@ -140,7 +145,12 @@ public partial class RobotSeeder : IDatabaseSeeder
 			"Robot Diagnostics (Utility)"
 		};
 
-		if (Templates.Keys.All(name => context.Races.Any(x => x.Name == name)) &&
+		var availableBodyNames = context.BodyProtos.Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var installableTemplates = Templates.Values
+			.Where(template => CanSupportBodyKey(availableBodyNames, template.BodyKey))
+			.ToList();
+
+		if (installableTemplates.All(template => context.Races.Any(x => x.Name == template.Name)) &&
 		    requiredBodies.All(name => context.BodyProtos.Any(x => x.Name == name)) &&
 		    requiredStrategies.All(name => context.HealthStrategies.Any(x => x.Name == name)) &&
 		    requiredKnowledges.All(name => context.Knowledges.Any(x => x.Name == name)) &&
@@ -154,7 +164,7 @@ public partial class RobotSeeder : IDatabaseSeeder
 
 	private static bool HasPrerequisites(FuturemudDatabaseContext context)
 	{
-		var requiredBodies = new[] { "Humanoid", "Avian", "Toed Quadruped", "Insectoid", "Arachnid" };
+		var requiredBodies = new[] { "Humanoid", "Toed Quadruped", "Insectoid", "Arachnid" };
 		var requiredRaces = new[] { "Human", "Humanoid" };
 		var requiredProfiles = new[]
 		{
@@ -188,7 +198,7 @@ public partial class RobotSeeder : IDatabaseSeeder
 		_humanRace = _context.Races.First(x => x.Name == "Human");
 		_humanoidRace = _context.Races.First(x => x.Name == "Humanoid");
 		_humanoidBody = _context.BodyProtos.First(x => x.Name == "Humanoid");
-		_avianBody = _context.BodyProtos.First(x => x.Name == "Avian");
+		_avianBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Avian");
 		_toedQuadrupedBody = _context.BodyProtos.First(x => x.Name == "Toed Quadruped");
 		_insectoidBody = _context.BodyProtos.First(x => x.Name == "Insectoid");
 		_arachnidBody = _context.BodyProtos.First(x => x.Name == "Arachnid");
@@ -220,5 +230,17 @@ public partial class RobotSeeder : IDatabaseSeeder
 		{
 			_tags[tag.Name] = tag;
 		}
+	}
+
+	internal static bool CanSupportBodyKeyForTesting(IReadOnlyCollection<string> availableBodyNames, string bodyKey)
+	{
+		return CanSupportBodyKey(availableBodyNames, bodyKey);
+	}
+
+	private static bool CanSupportBodyKey(IReadOnlyCollection<string> availableBodyNames, string bodyKey)
+	{
+		return !AvianDependentBodyKeys.Contains(bodyKey) ||
+		       availableBodyNames.Contains("Avian") ||
+		       availableBodyNames.Contains(bodyKey);
 	}
 }

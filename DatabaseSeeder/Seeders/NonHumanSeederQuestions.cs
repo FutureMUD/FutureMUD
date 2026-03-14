@@ -77,7 +77,7 @@ Combat messages can be presented in a number of different styles. Fundamentally,
 You can change your decision later, you're just going to have to go and edit your combat messages (mostly the defenses) to match the style you want. One advantage to doing Sentences or Sparse is that you can easily colour whole elements if you prefer (some people prefer not to of course).
 
 You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ",
-				(context, answers) => true,
+				(context, answers) => string.IsNullOrWhiteSpace(CombatSeederMessageStyleHelper.GetRecordedChoice(context)),
 				(answer, context) =>
 				{
 					return (answer.EqualToAny("compact", "sentences", "sparse"),

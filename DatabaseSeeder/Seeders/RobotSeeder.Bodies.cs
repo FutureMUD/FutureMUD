@@ -231,11 +231,12 @@ public partial class RobotSeeder
 	{
 		var aliases = _context.BodypartProtos
 			.Where(x => x.BodyId == body.Id)
-			.Where(x => x.IsOrgan == 1 || x.BodypartType.In(
-				(int)BodypartTypeEnum.Bone,
-				(int)BodypartTypeEnum.NonImmobilisingBone,
-				(int)BodypartTypeEnum.MinorBone,
-				(int)BodypartTypeEnum.MinorNonImobilisingBone))
+			.Where(x => 
+				x.IsOrgan == 1 ||
+				x.BodypartType == (int)BodypartTypeEnum.Bone ||
+				x.BodypartType == (int)BodypartTypeEnum.NonImmobilisingBone ||
+				x.BodypartType == (int)BodypartTypeEnum.MinorBone ||
+				x.BodypartType == (int)BodypartTypeEnum.MinorNonImobilisingBone)
 			.Select(x => x.Name)
 			.ToList();
 		SeederBodyUtilities.RemoveBodyparts(_context, body, aliases);

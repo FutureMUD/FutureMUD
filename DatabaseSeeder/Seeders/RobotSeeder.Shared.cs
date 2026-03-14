@@ -201,13 +201,13 @@ public partial class RobotSeeder
 			"@ slam|slams a pneumatic hammer into $1.");
 		EnsureAttackClone("Sword-Hand Lunge", "Claw High Swipe", "Sword Blade",
 			"@ lunge|lunges at $1 with a sword-hand.");
-		EnsureAttackClone("Wing Buffet", "Barge", "Wing",
+		EnsureAttackClone("Wing Buffet", "Animal Barge", "Wing",
 			"@ buffet|buffets $1 with an articulated wing.");
-		EnsureAttackClone("Jet Ram", "Barge", "Jet Pod",
+		EnsureAttackClone("Jet Ram", "Animal Barge", "Jet Pod",
 			"@ ram|rams into $1 with a roaring jet pod.");
 		EnsureAttackClone("Mandible Shear", "Mandible Bite", "Mandible",
 			"@ shear|shears at $1 with snapping mandibles.");
-		EnsureAttackClone("Wheel Ram", "Barge", "Wheel",
+		EnsureAttackClone("Wheel Ram", "Animal Barge", "Wheel",
 			"@ ram|rams $1 with a drive wheel.");
 		EnsureAttackClone("Track Grind", "Hoof Stomp Smash", "Track",
 			"@ grind|grinds into $1 with a track assembly.");

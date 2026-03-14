@@ -36,7 +36,7 @@ public partial class RobotSeeder : IDatabaseSeeder
 		"Claw Low Swipe",
 		"Claw High Swipe",
 		"Mandible Bite",
-		"Barge",
+		"Animal Barge",
 		"Hoof Stomp Smash"
 	];
 	private static readonly HashSet<string> AvianDependentBodyKeys = new(StringComparer.OrdinalIgnoreCase)
@@ -180,15 +180,21 @@ public partial class RobotSeeder : IDatabaseSeeder
 			"Person Word"
 		};
 		var requiredProgs = new[] { "AlwaysTrue", "AlwaysFalse" };
+		var hasBodies = requiredBodies.All(body => context.BodyProtos.Any(x => x.Name == body));
+		var hasRaces = requiredRaces.All(race => context.Races.Any(x => x.Name == race));
+		var hasRequiredProfiles = requiredProfiles.All(profile =>
+				   context.CharacteristicProfiles.Any(x => x.Name == profile) ||
+				   context.CharacteristicDefinitions.Any(x => x.Name == profile));
+		var hasProgs = requiredProgs.All(prog => context.FutureProgs.Any(x => x.FunctionName == prog));
+		var hasTools = RequiredToolTags.All(tag => context.Tags.Any(x => x.Name == tag));
+		var hasAttacks = RequiredPrerequisiteAttackNames.All(attack => context.WeaponAttacks.Any(x => x.Name == attack));
 
-		return requiredBodies.All(body => context.BodyProtos.Any(x => x.Name == body)) &&
-		       requiredRaces.All(race => context.Races.Any(x => x.Name == race)) &&
-		       requiredProfiles.All(profile =>
-			       context.CharacteristicProfiles.Any(x => x.Name == profile) ||
-			       context.CharacteristicDefinitions.Any(x => x.Name == profile)) &&
-		       requiredProgs.All(prog => context.FutureProgs.Any(x => x.FunctionName == prog)) &&
-		       RequiredToolTags.All(tag => context.Tags.Any(x => x.Name == tag)) &&
-		       RequiredPrerequisiteAttackNames.All(attack => context.WeaponAttacks.Any(x => x.Name == attack)) &&
+		return hasBodies &&
+		       hasRaces &&
+		       hasRequiredProfiles &&
+		       hasProgs &&
+		       hasTools &&
+		       hasAttacks &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse");
 	}

@@ -105,6 +105,7 @@ This matters because:
 - anatomy audits now tolerate duplicate aliases across a `CountsAs` chain by preferring the most specific body definition, which is required for layered aquatic crustacean bodies
 - the stock piscine body now seeds its axial bones explicitly, and fish audits treat gills as gill bodyparts rather than internal organs to match the runtime anatomy model
 - the stock decapod and malacostracan bodies now do the same for their gill clusters, and both stock crustacean layouts seed an explicit soft underbelly bodypart for ventral targeting
+- layered body clones now also carry forward limb memberships from inherited `CountsAs` limbs, which keeps reptilian and anuran paw or claw additions attached to the correct foreleg and hindleg limbs at runtime
 
 ### Venom and attack seeding
 Animal venoms are now seeded as reusable drug-backed venom profiles with per-profile effect rows.

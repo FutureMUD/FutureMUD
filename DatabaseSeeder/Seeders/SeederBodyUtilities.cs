@@ -39,6 +39,7 @@ internal static class SeederBodyUtilities
 		ApplyCountAsMappings(context, sourcePartLookup, clonedParts);
 		CloneSharedBodyRelationships(context, clonedParts.Keys, clonedParts);
 		CloneLimbs(context, source, target, clonedParts);
+		CloneInheritedLimbMemberships(context, source, clonedParts);
 		CloneBodypartGroupDescribers(context, source, target, clonedParts);
 
 		if (cloneAdditionalUsages)
@@ -462,6 +463,87 @@ internal static class SeederBodyUtilities
 					BodypartProto = clonedSpinalPart
 				});
 			}
+		}
+	}
+
+	private static void CloneInheritedLimbMemberships(
+		FuturemudDatabaseContext context,
+		BodyProto source,
+		IReadOnlyDictionary<long, BodypartProto> clonedParts)
+	{
+		var inheritedBodyIds = new HashSet<long>();
+		var currentBody = source;
+		while (currentBody.CountsAsId is long parentId)
+		{
+			if (!inheritedBodyIds.Add(parentId))
+			{
+				break;
+			}
+
+			currentBody = context.BodyProtos.Find(parentId);
+			if (currentBody is null)
+			{
+				break;
+			}
+		}
+
+		if (!inheritedBodyIds.Any())
+		{
+			return;
+		}
+
+		var inheritedLimbs = context.Limbs
+			.Where(x => inheritedBodyIds.Contains(x.RootBodyId))
+			.ToList();
+		if (!inheritedLimbs.Any())
+		{
+			return;
+		}
+
+		var inheritedLimbIds = inheritedLimbs.Select(x => x.Id).ToList();
+		var sourcePartIds = clonedParts.Keys.ToList();
+		var existingBodypartLinks = context.LimbsBodypartProto
+			.Where(x => inheritedLimbIds.Contains(x.LimbId))
+			.ToList()
+			.Select(x => (x.LimbId, x.BodypartProtoId))
+			.ToHashSet();
+		foreach (var bodypartLink in context.LimbsBodypartProto
+			         .Where(x => inheritedLimbIds.Contains(x.LimbId) && sourcePartIds.Contains(x.BodypartProtoId))
+			         .ToList())
+		{
+			var clonedBodypart = clonedParts[bodypartLink.BodypartProtoId];
+			if (!existingBodypartLinks.Add((bodypartLink.LimbId, clonedBodypart.Id)))
+			{
+				continue;
+			}
+
+			context.LimbsBodypartProto.Add(new LimbBodypartProto
+			{
+				LimbId = bodypartLink.LimbId,
+				BodypartProto = clonedBodypart
+			});
+		}
+
+		var existingSpinalLinks = context.LimbsSpinalParts
+			.Where(x => inheritedLimbIds.Contains(x.LimbId))
+			.ToList()
+			.Select(x => (x.LimbId, x.BodypartProtoId))
+			.ToHashSet();
+		foreach (var spinalLink in context.LimbsSpinalParts
+			         .Where(x => inheritedLimbIds.Contains(x.LimbId) && sourcePartIds.Contains(x.BodypartProtoId))
+			         .ToList())
+		{
+			var clonedSpinalPart = clonedParts[spinalLink.BodypartProtoId];
+			if (!existingSpinalLinks.Add((spinalLink.LimbId, clonedSpinalPart.Id)))
+			{
+				continue;
+			}
+
+			context.LimbsSpinalParts.Add(new LimbsSpinalPart
+			{
+				LimbId = spinalLink.LimbId,
+				BodypartProto = clonedSpinalPart
+			});
 		}
 	}
 

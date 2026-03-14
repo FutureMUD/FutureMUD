@@ -93,6 +93,25 @@ internal static class SeederBodyUtilities
 		context.SaveChanges();
 	}
 
+	internal static IReadOnlyDictionary<string, IReadOnlyList<BodypartProto>> BuildBodypartAliasLookup(
+		IEnumerable<BodypartProto> parts)
+	{
+		return parts
+			.OrderBy(x => x.DisplayOrder ?? 0)
+			.ThenBy(x => x.Id)
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(
+				x => x.Key,
+				x => (IReadOnlyList<BodypartProto>)x.ToList(),
+				StringComparer.OrdinalIgnoreCase);
+	}
+
+	internal static IReadOnlyDictionary<string, BodypartProto> BuildBodypartLookup(IEnumerable<BodypartProto> parts)
+	{
+		return BuildBodypartAliasLookup(parts)
+			.ToDictionary(x => x.Key, x => x.Value[0], StringComparer.OrdinalIgnoreCase);
+	}
+
 	public static IReadOnlyDictionary<long, BodypartProto> CloneBodypartSubtree(
 		FuturemudDatabaseContext context,
 		BodyProto sourceBody,
@@ -104,18 +123,21 @@ internal static class SeederBodyUtilities
 	{
 		var sourceLookup = context.BodypartProtos
 			.Where(x => x.BodyId == sourceBody.Id)
-			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-		if (!sourceLookup.TryGetValue(sourceRootAlias, out var sourceRoot))
+			.ToList();
+		var sourcePartsByAlias = BuildBodypartAliasLookup(sourceLookup);
+		var sourceParts = sourcePartsByAlias.Values.SelectMany(x => x).ToList();
+		var sourcePartLookup = BuildBodypartLookup(sourceParts);
+		if (!sourcePartLookup.TryGetValue(sourceRootAlias, out var sourceRoot))
 		{
 			throw new InvalidOperationException($"Could not find bodypart alias {sourceRootAlias} on body {sourceBody.Name}.");
 		}
 
-		var bodyPartIds = sourceLookup.Values.Select(x => x.Id).ToHashSet();
+		var bodyPartIds = sourceParts.Select(x => x.Id).ToHashSet();
 		var upstreams = context.BodypartProtoBodypartProtoUpstream
 			.Where(x => bodyPartIds.Contains(x.Child) && bodyPartIds.Contains(x.Parent))
 			.ToList();
 		var subtreeIds = ExpandSubtree(sourceRoot.Id, upstreams);
-		var parts = sourceLookup.Values
+		var parts = sourceParts
 			.Where(x => subtreeIds.Contains(x.Id))
 			.OrderBy(x => x.DisplayOrder ?? 0)
 			.ThenBy(x => x.Id)
@@ -140,7 +162,8 @@ internal static class SeederBodyUtilities
 
 		var targetLookup = context.BodypartProtos
 			.Where(x => x.BodyId == targetBody.Id)
-			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+			.ToList();
+		var targetPartLookup = BuildBodypartLookup(targetLookup);
 
 		foreach (var upstream in upstreams.Where(x => subtreeIds.Contains(x.Child)))
 		{
@@ -160,7 +183,7 @@ internal static class SeederBodyUtilities
 			}
 
 			if (upstream.Child == sourceRoot.Id && targetParentAlias is not null &&
-			    targetLookup.TryGetValue(targetParentAlias, out var targetParent))
+			    targetPartLookup.TryGetValue(targetParentAlias, out var targetParent))
 			{
 				context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
 				{
@@ -190,7 +213,7 @@ internal static class SeederBodyUtilities
 		var bodyParts = context.BodypartProtos
 			.Where(x => x.BodyId == body.Id)
 			.ToList();
-		var partLookup = bodyParts.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var partLookup = BuildBodypartAliasLookup(bodyParts);
 		var upstreams = context.BodypartProtoBodypartProtoUpstream
 			.Where(x => bodyParts.Select(y => y.Id).Contains(x.Child) && bodyParts.Select(y => y.Id).Contains(x.Parent))
 			.ToList();
@@ -198,14 +221,17 @@ internal static class SeederBodyUtilities
 
 		foreach (var alias in aliasSet)
 		{
-			if (!partLookup.TryGetValue(alias, out var part))
+			if (!partLookup.TryGetValue(alias, out var partsForAlias))
 			{
 				continue;
 			}
 
-			foreach (var id in ExpandSubtree(part.Id, upstreams))
+			foreach (var part in partsForAlias)
 			{
-				removeIds.Add(id);
+				foreach (var id in ExpandSubtree(part.Id, upstreams))
+				{
+					removeIds.Add(id);
+				}
 			}
 		}
 
@@ -535,9 +561,9 @@ internal sealed class SeedBodyBuilder
 	{
 		_context = context;
 		_body = body;
-		_parts = _context.BodypartProtos
-			.Where(x => x.BodyId == body.Id)
-			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		_parts = SeederBodyUtilities.BuildBodypartLookup(_context.BodypartProtos
+			.Where(x => x.BodyId == body.Id))
+			.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
 	}
 
 	public BodypartProto AddBodypart(

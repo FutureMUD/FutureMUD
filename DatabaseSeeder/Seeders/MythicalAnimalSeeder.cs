@@ -168,7 +168,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		_animalCorpse = _context.CorpseModels.First(x => x.Name == "Organic Animal Corpse");
 		_blood = _context.Liquids.First(x => x.Name == "blood");
 		_sweat = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
-		_breathableAir = _context.Gases.AsEnumerable().First(x => x.Name.Contains("air", StringComparison.OrdinalIgnoreCase));
+		_breathableAir = _context.Gases.AsEnumerable().First(x => x.Name.Contains("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase));
 		_defaultPopulationBloodModel = _humanRace.Ethnicities.FirstOrDefault()?.PopulationBloodModel ??
 		                               _context.PopulationBloodModels.FirstOrDefault();
 		_personWordDefinition = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");
@@ -474,22 +474,26 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			.Where(x => x.LimbId == limb.Id)
 			.Select(x => x.BodypartProtoId)
 			.ToHashSet();
-		var lookup = _context.BodypartProtos
+		var lookup = SeederBodyUtilities.BuildBodypartAliasLookup(_context.BodypartProtos
 			.Where(x => x.BodyId == body.Id && aliases.Contains(x.Name))
-			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+			.ToList());
 
 		foreach (var alias in aliases)
 		{
-			if (!lookup.TryGetValue(alias, out var part) || existing.Contains(part.Id))
+			if (!lookup.TryGetValue(alias, out var matchingParts))
 			{
 				continue;
 			}
 
-			_context.LimbsBodypartProto.Add(new LimbBodypartProto
+			foreach (var part in matchingParts.Where(x => !existing.Contains(x.Id)))
 			{
-				Limb = limb,
-				BodypartProto = part
-			});
+				_context.LimbsBodypartProto.Add(new LimbBodypartProto
+				{
+					Limb = limb,
+					BodypartProto = part
+				});
+				existing.Add(part.Id);
+			}
 		}
 
 		_context.SaveChanges();
@@ -497,13 +501,14 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private void AddLimb(BodyProto body, string name, LimbType type, string rootAlias, params string[] aliases)
 	{
-		var bodyparts = _context.BodypartProtos
+		var bodyparts = SeederBodyUtilities.BuildBodypartAliasLookup(_context.BodypartProtos
 			.Where(x => x.BodyId == body.Id && aliases.Contains(x.Name))
-			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-		if (!bodyparts.TryGetValue(rootAlias, out var root))
+			.ToList());
+		if (!bodyparts.TryGetValue(rootAlias, out var rootParts))
 		{
 			return;
 		}
+		var root = rootParts[0];
 
 		var limb = new Limb
 		{
@@ -516,19 +521,23 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		};
 		_context.Limbs.Add(limb);
 		_context.SaveChanges();
+		var addedPartIds = new HashSet<long>();
 
 		foreach (var alias in aliases)
 		{
-			if (!bodyparts.TryGetValue(alias, out var part))
+			if (!bodyparts.TryGetValue(alias, out var matchingParts))
 			{
 				continue;
 			}
 
-			_context.LimbsBodypartProto.Add(new LimbBodypartProto
+			foreach (var part in matchingParts.Where(x => addedPartIds.Add(x.Id)))
 			{
-				Limb = limb,
-				BodypartProto = part
-			});
+				_context.LimbsBodypartProto.Add(new LimbBodypartProto
+				{
+					Limb = limb,
+					BodypartProto = part
+				});
+			}
 		}
 
 		_context.SaveChanges();
@@ -986,6 +995,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		return _context.BodypartProtos
 			.Where(x => bodyIds.Contains(x.BodyId) && x.Name == alias)
 			.OrderBy(x => x.BodyId == body.Id ? 0 : 1)
+			.ThenBy(x => x.DisplayOrder ?? 0)
+			.ThenBy(x => x.Id)
 			.FirstOrDefault();
 	}
 }

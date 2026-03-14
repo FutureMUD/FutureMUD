@@ -1,6 +1,7 @@
 using System.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Models;
 
 namespace MudSharp_Unit_Tests;
 
@@ -12,6 +13,26 @@ public class MythicalAnimalSeederTemplateTests
 	{
 		var issues = MythicalAnimalSeeder.ValidateTemplateCatalogForTesting();
 		Assert.AreEqual(0, issues.Count, string.Join("\n", issues));
+	}
+
+	[TestMethod]
+	public void BuildBodypartAliasLookup_DuplicateAliases_GroupsAndOrdersDeterministically()
+	{
+		var parts = new[]
+		{
+			new BodypartProto { Id = 3, Name = "tail", DisplayOrder = 20 },
+			new BodypartProto { Id = 2, Name = "tail", DisplayOrder = 10 },
+			new BodypartProto { Id = 1, Name = "tail", DisplayOrder = 10 },
+			new BodypartProto { Id = 4, Name = "head", DisplayOrder = 5 }
+		};
+
+		var groupedLookup = SeederBodyUtilities.BuildBodypartAliasLookup(parts);
+		CollectionAssert.AreEqual(new long[] { 1, 2, 3 }, groupedLookup["tail"].Select(x => x.Id).ToArray(),
+			"Duplicate aliases should be retained in stable display-order then id order.");
+
+		var lookup = SeederBodyUtilities.BuildBodypartLookup(parts);
+		Assert.AreEqual(1L, lookup["tail"].Id,
+			"Single-part lookups should resolve duplicate aliases to the earliest stable entry.");
 	}
 
 	[TestMethod]

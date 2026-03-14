@@ -140,6 +140,7 @@ The seeder currently:
 - resolves its selected default non-human strategy through the same canonical strategy-name mapping used by `AnimalSeeder`, so the stock animal and mythic packages no longer drift on `HP Plus` versus `Full Model` naming
 - now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, and plantfolk, so the separate `FantasySeeder` is no longer needed
 - installs incrementally, skipping any already-present mythic race entries instead of treating partial overlap as a fatal blocker
+- resolves duplicate bodypart aliases deterministically while composing hybrid bodies or reusing partially seeded bodies, so reruns no longer fail while building limb and parent-part lookups
 
 ### Body reuse strategy
 The package prefers to reuse existing stock bodies wherever that does not require a major compromise.

@@ -393,6 +393,7 @@ The exception details were as follows:
 		while (true)
 		{
 			"Please type #3yes#F or #3no#F: ".WriteLineConsole();
+			Console.WriteLine();
 			var answer = Console.ReadLine();
 			if (answer.EqualToAny("yes", "y"))
 			{

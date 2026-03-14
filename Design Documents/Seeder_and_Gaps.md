@@ -104,6 +104,7 @@ This matters because:
 - the stock serpentine body now seeds explicit skull and vertebra bones plus a distinct tail limb so the serpent audit matches live runtime anatomy
 - anatomy audits now tolerate duplicate aliases across a `CountsAs` chain by preferring the most specific body definition, which is required for layered aquatic crustacean bodies
 - the stock piscine body now seeds its axial bones explicitly, and fish audits treat gills as gill bodyparts rather than internal organs to match the runtime anatomy model
+- the stock decapod and malacostracan bodies now do the same for their gill clusters, and both stock crustacean layouts seed an explicit soft underbelly bodypart for ventral targeting
 
 ### Venom and attack seeding
 Animal venoms are now seeded as reusable drug-backed venom profiles with per-profile effect rows.

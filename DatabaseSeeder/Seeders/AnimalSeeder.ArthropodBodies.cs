@@ -178,6 +178,9 @@ public partial class AnimalSeeder
 		AddBodypart(crabProto, "carapace", "carapace", "Body", BodypartTypeEnum.Wear, null, Alignment.Front,
 			Orientation.Centre, 60, -1, 100, order++, "chitin", SizeCategory.Small, "Torso", true, isVital: true,
 			implantSpace: 2, stunMultiplier: 0.2);
+		AddBodypart(crabProto, "underbelly", "soft underbelly", "belly", BodypartTypeEnum.Wear, "carapace",
+			Alignment.Irrelevant, Orientation.Lowest, 30, -1, 45, order++, "Flesh", SizeCategory.Small, "Torso", true,
+			isVital: true, stunMultiplier: 0.2);
 		AddBodypart(crabProto, "mouth", "mouthparts", "Mandible", BodypartTypeEnum.Mouth, "carapace",
 			Alignment.Front, Orientation.Low, 15, -1, 15, order++, "chitin", SizeCategory.Tiny, "Head", false);
 		AddBodypart(crabProto, "reye", "right eye", "Compound Eye", BodypartTypeEnum.Eye, "carapace",
@@ -200,19 +203,22 @@ public partial class AnimalSeeder
 			AddBodypart(crabProto, $"lleg{i}", $"left leg {i}", "Upper Leg", BodypartTypeEnum.Standing, "carapace",
 				Alignment.Left, Orientation.Low, 20, -1, 12, order++, "chitin", SizeCategory.Small, $"Left Leg {i}");
 		}
+		AddBodypart(crabProto, "gillcluster", "gill cluster", "gill", BodypartTypeEnum.Gill, "underbelly",
+			Alignment.Irrelevant, Orientation.Low, 15, -1, 20, order++, "Flesh", SizeCategory.Small, "Torso", true,
+			isVital: true, stunMultiplier: 1.0);
 
 		_context.SaveChanges();
 
 		AddOrgan(crabProto, "brain", "brain", BodypartTypeEnum.Brain, 0.4, 15, 0.0, 0.2, 0.1);
 		AddOrgan(crabProto, "heart", "heart", BodypartTypeEnum.Heart, 0.4, 15, 0.0, 0.3, 0.3);
 		AddOrgan(crabProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 0.5, 15, 0.0, 0.3, 0.2);
-		AddOrgan(crabProto, "gillcluster", "gill cluster", BodypartTypeEnum.Gill, 0.5, 15, 0.0, 0.3, 0.2);
 		AddOrganCoverage("brain", "carapace", 30, true);
 		AddOrganCoverage("brain", "reye", 20);
 		AddOrganCoverage("brain", "leye", 20);
-		AddOrganCoverage("heart", "carapace", 40, true);
-		AddOrganCoverage("stomach", "carapace", 40, true);
-		AddOrganCoverage("gillcluster", "carapace", 35, true);
+		AddOrganCoverage("heart", "underbelly", 40, true);
+		AddOrganCoverage("heart", "carapace", 20);
+		AddOrganCoverage("stomach", "underbelly", 45, true);
+		AddOrganCoverage("stomach", "carapace", 15);
 		_context.SaveChanges();
 
 		foreach (var (child, parent) in _cachedBodypartUpstreams)
@@ -263,6 +269,8 @@ public partial class AnimalSeeder
 
 		AddBodypartGroupDescriberShape(crabProto, "body", "The whole body of a crab",
 			("Body", 1, 1),
+			("belly", 0, 1),
+			("gill", 0, 1),
 			("Mandible", 0, 1)
 		);
 		AddBodypartGroupDescriberShape(crabProto, "claws", "The claws of a crab",
@@ -276,6 +284,12 @@ public partial class AnimalSeeder
 		);
 		AddBodypartGroupDescriberShape(crabProto, "antennae", "The antennae of a crab",
 			("Antenna", 2, 2)
+		);
+		AddBodypartGroupDescriberDirect(crabProto, "underbelly", "The soft underbelly of a crab",
+			("underbelly", true)
+		);
+		AddBodypartGroupDescriberDirect(crabProto, "gills", "The gill cluster of a crab",
+			("gillcluster", true)
 		);
 
 		_context.SaveChanges();
@@ -291,6 +305,9 @@ public partial class AnimalSeeder
 			Orientation.Centre, 55, -1, 100, order++, "chitin", SizeCategory.Small, "Torso", true, isVital: true);
 		AddBodypart(body, "abdomen", "abdomen", "Body", BodypartTypeEnum.Wear, "carapace", Alignment.Rear,
 			Orientation.Low, 45, -1, 70, order++, "chitin", SizeCategory.Small, "Tail", true, isVital: true);
+		AddBodypart(body, "underbelly", "soft underbelly", "belly", BodypartTypeEnum.Wear, "carapace",
+			Alignment.Irrelevant, Orientation.Lowest, 25, -1, 35, order++, "Flesh", SizeCategory.Small, "Torso", true,
+			isVital: true, stunMultiplier: 0.2);
 		AddBodypart(body, "tailfan", "tail fan", "Tail", BodypartTypeEnum.Fin, "abdomen", Alignment.Rear,
 			Orientation.Low, 20, 30, 20, order++, "chitin", SizeCategory.Small, "Tail");
 		AddBodypart(body, "mouth", "mouthparts", "Mandible", BodypartTypeEnum.Mouth, "carapace",
@@ -314,19 +331,22 @@ public partial class AnimalSeeder
 			AddBodypart(body, $"lleg{i}", $"left leg {i}", "Upper Leg", BodypartTypeEnum.Standing, "carapace",
 				Alignment.Left, Orientation.Low, 15, -1, 10, order++, "chitin", SizeCategory.Small, $"Left Leg {i}");
 		}
+		AddBodypart(body, "gillcluster", "gill cluster", "gill", BodypartTypeEnum.Gill, "underbelly",
+			Alignment.Irrelevant, Orientation.Low, 10, -1, 18, order++, "Flesh", SizeCategory.Small, "Torso", true,
+			isVital: true, stunMultiplier: 1.0);
 
 		_context.SaveChanges();
 
 		AddOrgan(body, "brain", "brain", BodypartTypeEnum.Brain, 0.3, 10, 0.0, 0.2, 0.1);
 		AddOrgan(body, "heart", "heart", BodypartTypeEnum.Heart, 0.3, 10, 0.0, 0.3, 0.3);
 		AddOrgan(body, "stomach", "stomach", BodypartTypeEnum.Stomach, 0.4, 10, 0.0, 0.3, 0.2);
-		AddOrgan(body, "gillcluster", "gill cluster", BodypartTypeEnum.Gill, 0.4, 10, 0.0, 0.3, 0.2);
 		AddOrganCoverage("brain", "carapace", 25, true);
 		AddOrganCoverage("brain", "reye", 20);
 		AddOrganCoverage("brain", "leye", 20);
-		AddOrganCoverage("heart", "carapace", 30, true);
-		AddOrganCoverage("stomach", "abdomen", 45, true);
-		AddOrganCoverage("gillcluster", "carapace", 30, true);
+		AddOrganCoverage("heart", "underbelly", 30, true);
+		AddOrganCoverage("heart", "carapace", 15);
+		AddOrganCoverage("stomach", "underbelly", 35, true);
+		AddOrganCoverage("stomach", "abdomen", 20);
 		_context.SaveChanges();
 
 		foreach (var (child, parent) in _cachedBodypartUpstreams)
@@ -377,6 +397,8 @@ public partial class AnimalSeeder
 
 		AddBodypartGroupDescriberShape(body, "body", "The whole body of a crustacean",
 			("Body", 1, 2),
+			("belly", 0, 1),
+			("gill", 0, 1),
 			("Tail", 0, 1),
 			("Mandible", 0, 1)
 		);
@@ -388,6 +410,12 @@ public partial class AnimalSeeder
 		);
 		AddBodypartGroupDescriberShape(body, "antennae", "The antennae of a crustacean",
 			("Antenna", 2, 2)
+		);
+		AddBodypartGroupDescriberDirect(body, "underbelly", "The soft underbelly of a crustacean",
+			("underbelly", true)
+		);
+		AddBodypartGroupDescriberDirect(body, "gills", "The gill cluster of a crustacean",
+			("gillcluster", true)
 		);
 
 		_context.SaveChanges();

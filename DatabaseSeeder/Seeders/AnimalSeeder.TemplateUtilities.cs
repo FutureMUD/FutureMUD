@@ -106,8 +106,8 @@ public partial class AnimalSeeder
 			["decapod"] = new(
 				"decapod",
 				AnimalBoneExpectation.Forbidden,
-				["carapace", "mouth", "rclaw", "lclaw", "rleg1", "lleg4"],
-				["brain", "heart", "stomach", "gillcluster"],
+				["carapace", "underbelly", "gillcluster", "mouth", "rclaw", "lclaw", "rleg1", "lleg4"],
+				["brain", "heart", "stomach"],
 				[],
 				["Torso", "Head", "Right Claw", "Left Claw", "Right Leg 1", "Left Leg 4"]
 			),
@@ -130,8 +130,8 @@ public partial class AnimalSeeder
 			["malacostracan"] = new(
 				"malacostracan",
 				AnimalBoneExpectation.Forbidden,
-				["carapace", "abdomen", "tailfan", "rclaw", "lclaw"],
-				["brain", "heart", "stomach", "gillcluster"],
+				["carapace", "abdomen", "underbelly", "gillcluster", "tailfan", "rclaw", "lclaw"],
+				["brain", "heart", "stomach"],
 				[],
 				["Torso", "Tail", "Right Claw", "Left Claw"]
 			),

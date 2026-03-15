@@ -3,6 +3,7 @@
 using System;
 using DatabaseSeeder;
 using System.Linq;
+using System.Reflection;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -82,8 +83,12 @@ public class RobotSeederTemplateTests
 			FunctionName = functionName,
 			FunctionComment = $"{functionName} test prog",
 			FunctionText = "return true;",
+			ReturnType = 0,
 			Category = "Tests",
-			Subcategory = "RobotSeeder"
+			Subcategory = "RobotSeeder",
+			Public = true,
+			AcceptsAnyParameters = false,
+			StaticType = 0
 		};
 	}
 
@@ -108,6 +113,13 @@ public class RobotSeederTemplateTests
 			Definition = "<Definition />",
 			Type = "SimpleCorpseModel"
 		};
+	}
+
+	private static void SetPrivateField<T>(RobotSeeder seeder, string fieldName, T value)
+	{
+		var field = typeof(RobotSeeder).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(field, $"Could not find private field {fieldName} on {nameof(RobotSeeder)}.");
+		field.SetValue(seeder, value);
 	}
 
 	[TestMethod]
@@ -356,5 +368,119 @@ public class RobotSeederTemplateTests
 
 		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, result,
 			"The robot seeder should no longer hard-fail when avian anatomy is absent.");
+	}
+
+	[TestMethod]
+	public void CloneBody_SourceWithCountsAsAncestor_CreatesSelfContainedFlattenedRobotBody()
+	{
+		using var context = BuildContext();
+		var shape = new BodypartShape { Id = 1, Name = "plate" };
+		var material = new Material
+		{
+			Id = 1,
+			Name = "alloy",
+			MaterialDescription = "alloy",
+			Density = 1.0,
+			Organic = false,
+			Type = 0,
+			ThermalConductivity = 1.0,
+			ElectricalConductivity = 1.0,
+			SpecificHeatCapacity = 1.0,
+			SolventVolumeRatio = 0.0,
+			ResidueSdesc = "residue",
+			ResidueDesc = "residue",
+			ResidueColour = "grey",
+			Absorbency = 0.0
+		};
+		var armour = new ArmourType
+		{
+			Id = 1,
+			Name = "plating",
+			Definition = "<ArmourType />"
+		};
+		var recoveryProg = CreateFutureProg(1, "RobotRecovery");
+		context.BodypartShapes.Add(shape);
+		context.Materials.Add(material);
+		context.ArmourTypes.Add(armour);
+		context.FutureProgs.Add(recoveryProg);
+
+		var baseBody = CreateBodyProto(1, "Quadruped", "paws", "paw");
+		baseBody.StaminaRecoveryProgId = recoveryProg.Id;
+		baseBody.MinimumLegsToStand = 4;
+		baseBody.MinimumWingsToFly = 0;
+		var derivedBody = CreateBodyProto(2, "Toed Quadruped", "paws", "paw");
+		derivedBody.StaminaRecoveryProgId = recoveryProg.Id;
+		derivedBody.MinimumLegsToStand = 4;
+		derivedBody.MinimumWingsToFly = 0;
+		derivedBody.CountsAs = baseBody;
+		context.BodyProtos.AddRange(baseBody, derivedBody);
+		context.SaveChanges();
+
+		var torso = new BodypartProto
+		{
+			Id = 1,
+			Body = baseBody,
+			Name = "torso",
+			Description = "torso",
+			BodypartShape = shape,
+			BodypartType = 0,
+			Alignment = 0,
+			Location = 0,
+			RelativeHitChance = 100,
+			SeveredThreshold = 10,
+			MaxLife = 10,
+			DisplayOrder = 1,
+			DefaultMaterial = material,
+			ArmourType = armour,
+			Size = 0,
+			IsCore = true,
+			Significant = true,
+			ImplantSpace = 0.0,
+			ImplantSpaceOccupied = 0.0
+		};
+		var paw = new BodypartProto
+		{
+			Id = 2,
+			Body = derivedBody,
+			Name = "paw",
+			Description = "paw",
+			BodypartShape = shape,
+			BodypartType = 0,
+			Alignment = 0,
+			Location = 0,
+			RelativeHitChance = 50,
+			SeveredThreshold = 10,
+			MaxLife = 10,
+			DisplayOrder = 2,
+			DefaultMaterial = material,
+			ArmourType = armour,
+			Size = 0,
+			IsCore = true,
+			Significant = true,
+			ImplantSpace = 0.0,
+			ImplantSpaceOccupied = 0.0
+		};
+		context.BodypartProtos.AddRange(torso, paw);
+		context.SaveChanges();
+
+		var seeder = new RobotSeeder();
+		SetPrivateField(seeder, "_context", context);
+		SetPrivateField(seeder, "_robotStaminaRecoveryProg", recoveryProg);
+
+		var cloneMethod = typeof(RobotSeeder).GetMethod("CloneBody", BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(cloneMethod, "Could not find the private CloneBody helper.");
+
+		var clonedBody = (BodyProto)cloneMethod.Invoke(seeder, new object[] { "Robot Quadruped", derivedBody })!;
+		Assert.IsNull(clonedBody.CountsAsId,
+			"Robot full-clone bodies should be self-contained so the runtime does not append the donor body's anatomy a second time.");
+
+		var clonedParts = context.BodypartProtos
+			.Where(x => x.BodyId == clonedBody.Id)
+			.OrderBy(x => x.DisplayOrder)
+			.ToList();
+		CollectionAssert.AreEquivalent(new[] { "torso", "paw" }, clonedParts.Select(x => x.Name).ToArray());
+		Assert.IsTrue(clonedParts.All(x => x.BodyId == clonedBody.Id));
+		Assert.AreEqual(baseBody.Id, clonedParts.Single(x => x.Name == "torso").CountAsId);
+		Assert.AreEqual(paw.Id, clonedParts.Single(x => x.Name == "paw").CountAsId);
 	}
 }

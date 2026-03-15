@@ -191,7 +191,7 @@ The package prefers to reuse existing stock body semantics wherever that preserv
 
 Current reuse patterns include:
 
-- `Robot Humanoid` as a child of `Humanoid`, preserving the stock humanoid shell for clothing, armour, and similar bodypart-aware systems
+- self-contained flattened robot full-clone bodies for humanoid, quadruped, insectoid, and derived chassis variants so fresh-seeded robot anatomy does not inherit and duplicate the donor shell at runtime
 - dedicated humanoid-derived variants for spider crawler, circular-saw hands, pneumatic-hammer hands, sword hands, winged frames, jet frames, mandible heads, wheels, tracks, and cyborgs
 - winged and jet frames are now soft dependencies on the stock `Avian` body and are skipped rather than blocking the entire robot package when avian anatomy is absent
 - reuse of stock `Toed Quadruped`, `Arachnid`, and `Insectoid` source anatomies for robot dog, spider-crawler lower bodies, and robot cockroach content

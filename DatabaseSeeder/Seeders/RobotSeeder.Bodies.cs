@@ -108,7 +108,7 @@ public partial class RobotSeeder
 
 	private BodyProto CreateRobotHumanoidBody()
 	{
-		var body = CloneBody("Robot Humanoid", _humanoidBody, _humanoidBody);
+		var body = CloneBody("Robot Humanoid", _humanoidBody);
 		ConfigureRobotBodyMaterials(body, false);
 		AddRobotHumanoidOrgans(body);
 		EnsureDefaultSmashingBodypart(body, "rhand");
@@ -117,7 +117,7 @@ public partial class RobotSeeder
 
 	private BodyProto CreateRobotQuadrupedBody()
 	{
-		var body = CloneBody("Robot Quadruped", _toedQuadrupedBody, _toedQuadrupedBody);
+		var body = CloneBody("Robot Quadruped", _toedQuadrupedBody);
 		RemoveOrganicInternals(body);
 		ConfigureRobotBodyMaterials(body, true);
 		AddQuadrupedRobotOrgans(body);
@@ -127,7 +127,7 @@ public partial class RobotSeeder
 
 	private BodyProto CreateRobotInsectoidBody()
 	{
-		var body = CloneBody("Robot Insectoid", _insectoidBody, _insectoidBody);
+		var body = CloneBody("Robot Insectoid", _insectoidBody);
 		RemoveOrganicInternals(body);
 		ConfigureRobotBodyMaterials(body, true);
 		AddInsectoidRobotOrgans(body);
@@ -190,12 +190,12 @@ public partial class RobotSeeder
 		return body;
 	}
 
-	private BodyProto CloneBody(string newName, BodyProto source, BodyProto? countsAs)
+	private BodyProto CloneBody(string newName, BodyProto source)
 	{
 		var body = new BodyProto
 		{
 			Name = newName,
-			CountsAs = countsAs,
+			CountsAs = null,
 			ConsiderString = source.ConsiderString,
 			WielderDescriptionPlural = source.WielderDescriptionPlural,
 			WielderDescriptionSingle = source.WielderDescriptionSingle,
@@ -210,8 +210,8 @@ public partial class RobotSeeder
 		_context.BodyProtos.Add(body);
 		_context.SaveChanges();
 
-		SeederBodyUtilities.CloneBodyDefinition(_context, source, body);
-		SeederBodyUtilities.CloneBodyPositionsAndSpeeds(_context, source, body);
+		SeederBodyUtilities.CloneFlattenedBodyDefinition(_context, source, body);
+		SeederBodyUtilities.CloneFlattenedBodyPositionsAndSpeeds(_context, source, body);
 		ApplyAliasCountAs(body, source);
 		CopyDefaultSmashingBodypart(body, source);
 		return body;
@@ -219,16 +219,27 @@ public partial class RobotSeeder
 
 	private void ApplyAliasCountAs(BodyProto targetBody, BodyProto sourceBody)
 	{
-		var sourceParts = _context.BodypartProtos
-			.Where(x => x.BodyId == sourceBody.Id)
-			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var sourceParts = new Dictionary<string, BodypartProto>(StringComparer.OrdinalIgnoreCase);
+		var sourceBodies = new Stack<BodyProto>();
+		BodyProto? currentBody = sourceBody;
+		while (currentBody is not null)
+		{
+			sourceBodies.Push(currentBody);
+			currentBody = currentBody.CountsAsId.HasValue
+				? _context.BodyProtos.Find(currentBody.CountsAsId.Value)
+				: null;
+		}
+
+		while (sourceBodies.Count > 0)
+		{
+			foreach (var sourcePart in _context.BodypartProtos.Where(x => x.BodyId == sourceBodies.Pop().Id).ToList())
+			{
+				sourceParts[sourcePart.Name] = sourcePart;
+			}
+		}
+
 		foreach (var part in _context.BodypartProtos.Where(x => x.BodyId == targetBody.Id).ToList())
 		{
-			if (part.CountAsId.HasValue)
-			{
-				continue;
-			}
-
 			if (!sourceParts.TryGetValue(part.Name, out var sourcePart))
 			{
 				continue;

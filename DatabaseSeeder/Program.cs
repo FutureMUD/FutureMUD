@@ -21,8 +21,8 @@ internal class Program
 	{
 		if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 		{
-			Console.WindowWidth = (int)(Console.LargestWindowWidth * 0.75);
-			Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.75);
+			Console.WindowWidth = (int)(Console.LargestWindowWidth * 0.85);
+			Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.85);
 		}
 		string password = "", user = "", database = "";
 		var version = Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0);
@@ -368,7 +368,7 @@ The exception details were as follows:
 			.UseLazyLoadingProxies().UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options);
 		var shouldseed = seeder.ShouldSeedData(context);
 		Console.Clear();
-		$"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}\n\n#3{seeder.FullDescription.Wrap(120, "\t")}#F\n"
+		$"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}\n\n#3{seeder.FullDescription.Wrap(90, "\t")}#F\n"
 			.WriteLineConsole();
 
 		switch (shouldseed)
@@ -436,7 +436,7 @@ The exception details were as follows:
 					errorText = "";
 				}
 
-				question.Question.Wrap(120).WriteLineConsole();
+				question.Question.Wrap(90).WriteLineConsole();
 				Console.WriteLine();
 				Console.Write("> ");
 				var answer = Console.ReadLine();

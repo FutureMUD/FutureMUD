@@ -35,8 +35,14 @@ public class OrganStabilisationProcedure : OrganViaBodypartProcedure
 	protected override void LoadFromDB(MudSharp.Models.SurgicalProcedure procedure)
 	{
 		base.LoadFromDB(procedure);
-		_requiresUnconsciousPatient =
-			bool.Parse(XElement.Parse(procedure.Definition).Attribute("requireunconcious")?.Value ?? "true");
+		if (string.IsNullOrEmpty(procedure.Definition))
+		{
+			_requiresUnconsciousPatient = true;
+		}
+		else
+		{
+			_requiresUnconsciousPatient = bool.Parse(XElement.Parse(procedure.Definition).Attribute("requireunconcious")?.Value ?? "true");
+		}
 	}
 
 	#endregion

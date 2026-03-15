@@ -388,7 +388,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 			AddPrimitiveOrganExtraction("Organ Extraction", "organ extraction", "Medicine", "Human Medicine", _humanBody,
 				-5.0);
 			AddPrimitiveOrganRepair("Crude Organ Repair", "organ repair", "Medicine", "Human Medicine", _humanBody, -5.0,
-				"A crude attempt to pack, trim, and secure damaged internal organs.", string.Empty);
+				"A crude attempt to pack, trim, and secure damaged internal organs.", "<Surgery requireunconcious='true'/>");
 			AddPrimitiveOrganRepair("Trepanation", "trepanation", "Medicine", "Human Medicine", _humanBody, -3.5,
 				"A specialised primitive cranial procedure used to relieve pressure and work on the brain.",
 				GetDefinitionForTargets(_humanBody, HumanBrainTargets));

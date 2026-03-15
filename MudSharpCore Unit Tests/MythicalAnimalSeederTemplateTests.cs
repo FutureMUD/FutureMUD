@@ -1,6 +1,9 @@
+using System;
 using System.Linq;
 using DatabaseSeeder.Seeders;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Database;
 using MudSharp.Models;
 
 namespace MudSharp_Unit_Tests;
@@ -8,6 +11,14 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MythicalAnimalSeederTemplateTests
 {
+	private static FuturemudDatabaseContext BuildContext()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString())
+			.Options;
+		return new FuturemudDatabaseContext(options);
+	}
+
 	[TestMethod]
 	public void ValidateTemplateCatalogForTesting_CurrentCatalog_HasNoIssues()
 	{
@@ -33,6 +44,332 @@ public class MythicalAnimalSeederTemplateTests
 		var lookup = SeederBodyUtilities.BuildBodypartLookup(parts);
 		Assert.AreEqual(1L, lookup["tail"].Id,
 			"Single-part lookups should resolve duplicate aliases to the earliest stable entry.");
+	}
+
+	[TestMethod]
+	public void GetExternalBodypartsWithoutLimbCoverage_MissingHornMembership_ReturnsUncoveredHorn()
+	{
+		using var context = BuildContext();
+		var body = new BodyProto
+		{
+			Id = 1,
+			Name = "Horned Humanoid",
+			ConsiderString = "a horned humanoid",
+			WielderDescriptionSingle = "hand",
+			WielderDescriptionPlural = "hands",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var neck = new BodypartProto
+		{
+			Id = 10,
+			Body = body,
+			BodyId = body.Id,
+			Name = "neck",
+			Description = "neck",
+			BodypartType = 0,
+			IsOrgan = 0
+		};
+		var horn = new BodypartProto
+		{
+			Id = 11,
+			Body = body,
+			BodyId = body.Id,
+			Name = "rhorn",
+			Description = "right horn",
+			BodypartType = 0,
+			IsOrgan = 0
+		};
+		var headLimb = new Limb
+		{
+			Id = 100,
+			Name = "Head",
+			RootBody = body,
+			RootBodyId = body.Id,
+			RootBodypart = neck,
+			RootBodypartId = neck.Id
+		};
+
+		context.BodyProtos.Add(body);
+		context.BodypartProtos.AddRange(neck, horn);
+		context.Limbs.Add(headLimb);
+		context.LimbsBodypartProto.Add(new LimbBodypartProto
+		{
+			Limb = headLimb,
+			LimbId = headLimb.Id,
+			BodypartProto = neck,
+			BodypartProtoId = neck.Id
+		});
+		context.SaveChanges();
+
+		var uncoveredParts = SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(context, body);
+		CollectionAssert.AreEqual(new[] { "rhorn" }, uncoveredParts.Select(x => x.Name).ToArray(),
+			"Unattached horn bodyparts should be flagged by the seeder audit.");
+
+		context.LimbsBodypartProto.Add(new LimbBodypartProto
+		{
+			Limb = headLimb,
+			LimbId = headLimb.Id,
+			BodypartProto = horn,
+			BodypartProtoId = horn.Id
+		});
+		context.SaveChanges();
+
+		Assert.AreEqual(0, SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(context, body).Count,
+			"Once the horn is attached to the head limb, the audit should pass.");
+	}
+
+	[TestMethod]
+	public void GetExternalBodypartsWithoutLimbCoverage_MissingWingMembership_ReturnsUncoveredWing()
+	{
+		using var context = BuildContext();
+		var body = new BodyProto
+		{
+			Id = 2,
+			Name = "Eastern Dragon",
+			ConsiderString = "an eastern dragon",
+			WielderDescriptionSingle = "mouth",
+			WielderDescriptionPlural = "mouths",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var wingBase = new BodypartProto
+		{
+			Id = 20,
+			Body = body,
+			BodyId = body.Id,
+			Name = "rwingbase",
+			Description = "right wing base",
+			BodypartType = 0,
+			IsOrgan = 0
+		};
+		var wing = new BodypartProto
+		{
+			Id = 21,
+			Body = body,
+			BodyId = body.Id,
+			Name = "rwing",
+			Description = "right wing",
+			BodypartType = 0,
+			IsOrgan = 0
+		};
+		var wingLimb = new Limb
+		{
+			Id = 200,
+			Name = "Right Wing",
+			RootBody = body,
+			RootBodyId = body.Id,
+			RootBodypart = wingBase,
+			RootBodypartId = wingBase.Id
+		};
+
+		context.BodyProtos.Add(body);
+		context.BodypartProtos.AddRange(wingBase, wing);
+		context.Limbs.Add(wingLimb);
+		context.LimbsBodypartProto.Add(new LimbBodypartProto
+		{
+			Limb = wingLimb,
+			LimbId = wingLimb.Id,
+			BodypartProto = wingBase,
+			BodypartProtoId = wingBase.Id
+		});
+		context.SaveChanges();
+
+		var uncoveredParts = SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(context, body);
+		CollectionAssert.AreEqual(new[] { "rwing" }, uncoveredParts.Select(x => x.Name).ToArray(),
+			"Unattached wing bodyparts should be flagged by the seeder audit.");
+
+		context.LimbsBodypartProto.Add(new LimbBodypartProto
+		{
+			Limb = wingLimb,
+			LimbId = wingLimb.Id,
+			BodypartProto = wing,
+			BodypartProtoId = wing.Id
+		});
+		context.SaveChanges();
+
+		Assert.AreEqual(0, SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(context, body).Count,
+			"Once the wing is attached to the wing limb, the audit should pass.");
+	}
+
+	[TestMethod]
+	public void RemoveBodyparts_ClonedHindlegSubtree_RemovesDescendantsFromClone()
+	{
+		using var context = BuildContext();
+		var source = new BodyProto
+		{
+			Id = 3,
+			Name = "Quadruped",
+			ConsiderString = "a quadruped",
+			WielderDescriptionSingle = "mouth",
+			WielderDescriptionPlural = "mouths",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var target = new BodyProto
+		{
+			Id = 4,
+			Name = "Hippocamp",
+			ConsiderString = "a hippocamp",
+			WielderDescriptionSingle = "mouth",
+			WielderDescriptionPlural = "mouths",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var back = new BodypartProto
+		{
+			Id = 30,
+			Body = source,
+			BodyId = source.Id,
+			Name = "lback",
+			Description = "lower back",
+			BodypartType = 0,
+			IsOrgan = 0,
+			DisplayOrder = 1
+		};
+		var upperHindleg = new BodypartProto
+		{
+			Id = 31,
+			Body = source,
+			BodyId = source.Id,
+			Name = "ruhindleg",
+			Description = "right upper hindleg",
+			BodypartType = 0,
+			IsOrgan = 0,
+			DisplayOrder = 2
+		};
+		var knee = new BodypartProto
+		{
+			Id = 32,
+			Body = source,
+			BodyId = source.Id,
+			Name = "rrknee",
+			Description = "right rear knee",
+			BodypartType = 0,
+			IsOrgan = 0,
+			DisplayOrder = 3
+		};
+		var lowerHindleg = new BodypartProto
+		{
+			Id = 33,
+			Body = source,
+			BodyId = source.Id,
+			Name = "rlhindleg",
+			Description = "right lower hindleg",
+			BodypartType = 0,
+			IsOrgan = 0,
+			DisplayOrder = 4
+		};
+		var hock = new BodypartProto
+		{
+			Id = 34,
+			Body = source,
+			BodyId = source.Id,
+			Name = "rrhock",
+			Description = "right rear hock",
+			BodypartType = 0,
+			IsOrgan = 0,
+			DisplayOrder = 5
+		};
+
+		context.BodyProtos.AddRange(source, target);
+		context.BodypartProtos.AddRange(back, upperHindleg, knee, lowerHindleg, hock);
+		context.SaveChanges();
+
+		context.BodypartProtoBodypartProtoUpstream.AddRange(
+			new BodypartProtoBodypartProtoUpstream
+			{
+				ChildNavigation = upperHindleg,
+				ParentNavigation = back
+			},
+			new BodypartProtoBodypartProtoUpstream
+			{
+				ChildNavigation = knee,
+				ParentNavigation = upperHindleg
+			},
+			new BodypartProtoBodypartProtoUpstream
+			{
+				ChildNavigation = lowerHindleg,
+				ParentNavigation = knee
+			},
+			new BodypartProtoBodypartProtoUpstream
+			{
+				ChildNavigation = hock,
+				ParentNavigation = lowerHindleg
+			});
+
+		var torsoLimb = new Limb
+		{
+			Id = 300,
+			Name = "Torso",
+			RootBody = source,
+			RootBodyId = source.Id,
+			RootBodypart = back,
+			RootBodypartId = back.Id
+		};
+		var hindlegLimb = new Limb
+		{
+			Id = 301,
+			Name = "Right Hindleg",
+			RootBody = source,
+			RootBodyId = source.Id,
+			RootBodypart = upperHindleg,
+			RootBodypartId = upperHindleg.Id
+		};
+
+		context.Limbs.AddRange(torsoLimb, hindlegLimb);
+		context.LimbsBodypartProto.AddRange(
+			new LimbBodypartProto
+			{
+				Limb = torsoLimb,
+				LimbId = torsoLimb.Id,
+				BodypartProto = back,
+				BodypartProtoId = back.Id
+			},
+			new LimbBodypartProto
+			{
+				Limb = hindlegLimb,
+				LimbId = hindlegLimb.Id,
+				BodypartProto = upperHindleg,
+				BodypartProtoId = upperHindleg.Id
+			},
+			new LimbBodypartProto
+			{
+				Limb = hindlegLimb,
+				LimbId = hindlegLimb.Id,
+				BodypartProto = knee,
+				BodypartProtoId = knee.Id
+			},
+			new LimbBodypartProto
+			{
+				Limb = hindlegLimb,
+				LimbId = hindlegLimb.Id,
+				BodypartProto = lowerHindleg,
+				BodypartProtoId = lowerHindleg.Id
+			},
+			new LimbBodypartProto
+			{
+				Limb = hindlegLimb,
+				LimbId = hindlegLimb.Id,
+				BodypartProto = hock,
+				BodypartProtoId = hock.Id
+			});
+		context.SaveChanges();
+
+		SeederBodyUtilities.CloneBodyDefinition(context, source, target);
+		SeederBodyUtilities.RemoveBodyparts(context, target, ["ruhindleg"]);
+
+		CollectionAssert.AreEqual(
+			new[] { "lback" },
+			context.BodypartProtos
+				.Where(x => x.BodyId == target.Id)
+				.OrderBy(x => x.DisplayOrder ?? 0)
+				.ThenBy(x => x.Id)
+				.Select(x => x.Name)
+				.ToArray(),
+			"Removing a cloned hindleg root should also remove its cloned knee, lower hindleg, and hock descendants.");
+		Assert.AreEqual(0, SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(context, target).Count,
+			"Removing a cloned subtree should not leave uncovered descendant bodyparts behind.");
 	}
 
 	[TestMethod]

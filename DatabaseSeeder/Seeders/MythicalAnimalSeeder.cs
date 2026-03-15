@@ -189,9 +189,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			x.Name == NonHumanSeederHealthStrategyHelper.GetStrategyName(answers["model"]));
 	}
 
-	private Dictionary<string, BodyProto> BuildBodyCatalogue(IEnumerable<MythicalRaceTemplate> templatesToSeed)
+	private Dictionary<string, BodyProto> BuildBodyCatalogue(IEnumerable<MythicalRaceTemplate> templates)
 	{
-		var requiredBodyKeys = templatesToSeed
+		var requiredBodyKeys = templates
 			.Select(x => x.BodyKey)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		var bodies = new Dictionary<string, BodyProto>(StringComparer.OrdinalIgnoreCase);
@@ -269,54 +269,99 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private BodyProto GetOrCreateBody(string name, Func<BodyProto> factory)
 	{
-		return _context.BodyProtos.FirstOrDefault(x => x.Name == name) ?? factory();
+		var existingBody = _context.BodyProtos.FirstOrDefault(x => x.Name == name);
+		if (existingBody is not null)
+		{
+			return existingBody;
+		}
+
+		var body = factory();
+		RepairAndValidateCustomBody(body);
+		return body;
 	}
 
 	private BodyProto CreateHornedHumanoidBody()
 	{
 		var body = CreateFullCloneBody("Horned Humanoid", _organicHumanoidBody);
-		AddHumanoidHorns(body);
+		PopulateHornedHumanoidBody(body);
 		return body;
 	}
 
 	private BodyProto CreateWingedHumanoidBody()
 	{
 		var body = CreateFullCloneBody("Winged Humanoid", _organicHumanoidBody, minimumWingsToFly: 2);
+		PopulateWingedHumanoidBody(body);
+		return body;
+	}
+
+	private void PopulateHornedHumanoidBody(BodyProto body)
+	{
+		PopulateFullCloneBody(body, _organicHumanoidBody);
+		AddHumanoidHorns(body);
+	}
+
+	private void PopulateWingedHumanoidBody(BodyProto body)
+	{
+		PopulateFullCloneBody(body, _organicHumanoidBody, minimumWingsToFly: 2);
 		AddAvianWings(body);
 		AddFlyMovement(body);
-		return body;
 	}
 
 	private BodyProto CreateNagaBody()
 	{
 		var body = CreateFullCloneBody("Naga", _organicHumanoidBody, minimumLegsToStand: 0);
+		PopulateNagaBody(body);
+		return body;
+	}
+
+	private void PopulateNagaBody(BodyProto body)
+	{
+		PopulateFullCloneBody(body, _organicHumanoidBody, minimumLegsToStand: 0);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _vermiformBody, body, "ubody", "groin", cloneLimbs: false);
 		AddLimb(body, "Tail", LimbType.Appendage, "ubody", "ubody", "mbody", "lbody", "tail");
 		AddSwimMovement(body);
-		return body;
 	}
 
 	private BodyProto CreateEasternDragonBody()
 	{
 		var body = CreateQuadrupedBody("Eastern Dragon");
-		AddToedFeet(body);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhorn", "lhorn", "rwingbase", "lwingbase"]);
+		PopulateEasternDragonBody(body);
 		return body;
+	}
+
+	private void PopulateEasternDragonBody(BodyProto body)
+	{
+		PopulateQuadrupedBody(body);
+		AddToedFeet(body);
+		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhorn", "lhorn", "rwingbase", "lwingbase", "rwing", "lwing"]);
 	}
 
 	private BodyProto CreateMermaidBody()
 	{
 		var body = CreateFullCloneBody("Mermaid", _organicHumanoidBody, minimumLegsToStand: 0);
+		PopulateMermaidBody(body);
+		return body;
+	}
+
+	private void PopulateMermaidBody(BodyProto body)
+	{
+		PopulateFullCloneBody(body, _organicHumanoidBody, minimumLegsToStand: 0);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _piscineBody, body, "peduncle", "groin");
 		AddSwimMovement(body);
-		return body;
 	}
 
 	private BodyProto CreateCentaurBody()
 	{
 		var body = CreateFullCloneBody("Centaur", _organicHumanoidBody, minimumLegsToStand: 4);
+		PopulateCentaurBody(body);
+		return body;
+	}
+
+	private void PopulateCentaurBody(BodyProto body)
+	{
+		PopulateFullCloneBody(body, _organicHumanoidBody, minimumLegsToStand: 4);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "ruforeleg", "abdomen");
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "luforeleg", "abdomen");
@@ -324,52 +369,95 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "luhindleg", "groin");
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "utail", "lback");
 		AddHooves(body, includeFront: true, includeRear: true);
-		return body;
 	}
 
 	private BodyProto CreateGriffinBody()
 	{
 		var body = CreateQuadrupedBody("Griffin");
+		PopulateGriffinBody(body);
+		return body;
+	}
+
+	private void PopulateGriffinBody(BodyProto body)
+	{
+		PopulateQuadrupedBody(body);
 		AddToedFeet(body);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["neck"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _avianBody, body, "neck", "uback");
-		return body;
+		SeederBodyUtilities.RemoveBodyparts(_context, body,
+			["rjaw", "ljaw", "muzzle", "rhorn", "lhorn", "horn", "rantler", "lantler", "rtusk", "ltusk"]);
+		EnsureLimb(body, "Head", LimbType.Head, "neck",
+			"neck", "bneck", "throat", "head", "bhead", "rcheek", "lcheek", "reyesocket", "leyesocket",
+			"reye", "leye", "rear", "lear", "beak", "tongue", "nose");
 	}
 
 	private BodyProto CreateHippogriffBody()
 	{
 		var body = CreateQuadrupedBody("Hippogriff");
+		PopulateHippogriffBody(body);
+		return body;
+	}
+
+	private void PopulateHippogriffBody(BodyProto body)
+	{
+		PopulateQuadrupedBody(body);
 		AddHooves(body, includeFront: true, includeRear: true);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["neck"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _avianBody, body, "neck", "uback");
-		return body;
+		SeederBodyUtilities.RemoveBodyparts(_context, body,
+			["rjaw", "ljaw", "muzzle", "rhorn", "lhorn", "horn", "rantler", "lantler", "rtusk", "ltusk"]);
+		EnsureLimb(body, "Head", LimbType.Head, "neck",
+			"neck", "bneck", "throat", "head", "bhead", "rcheek", "lcheek", "reyesocket", "leyesocket",
+			"reye", "leye", "rear", "lear", "beak", "tongue", "nose");
 	}
 
 	private BodyProto CreateManticoreBody()
 	{
 		var body = CreateQuadrupedBody("Manticore");
+		PopulateManticoreBody(body);
+		return body;
+	}
+
+	private void PopulateManticoreBody(BodyProto body)
+	{
+		PopulateQuadrupedBody(body);
 		AddToedFeet(body);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _scorpionBody, body, "stinger", "ltail", cloneLimbs: false);
 		AddBodypartsToLimb(body, "Tail", "stinger");
-		return body;
 	}
 
 	private BodyProto CreateWyvernBody()
 	{
 		var body = CreateFullCloneBody("Wyvern", _avianBody);
+		PopulateWyvernBody(body);
+		return body;
+	}
+
+	private void PopulateWyvernBody(BodyProto body)
+	{
+		PopulateFullCloneBody(body, _avianBody);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["neck"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "neck", "uback");
-		return body;
+		EnsureLimb(body, "Head", LimbType.Head, "neck",
+			"neck", "bneck", "throat", "head", "bhead", "rjaw", "ljaw", "rcheek", "lcheek", "reyesocket",
+			"leyesocket", "reye", "leye", "rear", "lear", "muzzle", "mouth", "tongue", "nose", "rhorn",
+			"lhorn", "horn", "rantler", "lantler", "rtusk", "ltusk");
 	}
 
 	private BodyProto CreateHippocampBody()
 	{
 		var body = CreateQuadrupedBody("Hippocamp", minimumLegsToStand: 2);
+		PopulateHippocampBody(body);
+		return body;
+	}
+
+	private void PopulateHippocampBody(BodyProto body)
+	{
+		PopulateQuadrupedBody(body, minimumLegsToStand: 2);
 		AddHooves(body, includeFront: true, includeRear: false);
 		SeederBodyUtilities.RemoveBodyparts(_context, body, ["ruhindleg", "luhindleg"]);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _piscineBody, body, "peduncle", "lback");
 		AddSwimMovement(body);
-		return body;
 	}
 
 	private BodyProto CreateQuadrupedBody(string name, int? minimumLegsToStand = null)
@@ -379,9 +467,19 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			_quadrupedBody.MinimumWingsToFly,
 			_quadrupedBody.WielderDescriptionSingle,
 			_quadrupedBody.WielderDescriptionPlural);
+		return body;
+	}
+
+	private void PopulateQuadrupedBody(BodyProto body, int? minimumLegsToStand = null)
+	{
+		ConfigureBodyShell(body, _quadrupedBody,
+			minimumLegsToStand ?? _quadrupedBody.MinimumLegsToStand,
+			_quadrupedBody.MinimumWingsToFly,
+			_quadrupedBody.WielderDescriptionSingle,
+			_quadrupedBody.WielderDescriptionPlural);
+		SeederBodyUtilities.ClearBodyDefinition(_context, body);
 		SeederBodyUtilities.CloneBodyDefinition(_context, _quadrupedBody, body);
 		SeederBodyUtilities.CloneBodyPositionsAndSpeeds(_context, _quadrupedBody, body);
-		return body;
 	}
 
 	private BodyProto CreateFullCloneBody(string name, BodyProto source, int? minimumLegsToStand = null,
@@ -392,31 +490,44 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			minimumWingsToFly ?? source.MinimumWingsToFly,
 			source.WielderDescriptionSingle,
 			source.WielderDescriptionPlural);
-		SeederBodyUtilities.CloneBodyDefinition(_context, source, body);
-		SeederBodyUtilities.CloneBodyPositionsAndSpeeds(_context, source, body);
 		return body;
 	}
 
 	private BodyProto CreateBodyShell(string name, BodyProto source, int minimumLegsToStand, int minimumWingsToFly,
 		string wielderSingle, string wielderPlural)
 	{
-		var body = new BodyProto
-		{
-			Id = _nextBodyProtoId++,
-			Name = name,
-			ConsiderString = source.ConsiderString,
-			WielderDescriptionSingle = wielderSingle,
-			WielderDescriptionPlural = wielderPlural,
-			StaminaRecoveryProgId = source.StaminaRecoveryProgId,
-			MinimumLegsToStand = minimumLegsToStand,
-			MinimumWingsToFly = minimumWingsToFly,
-			LegDescriptionPlural = source.LegDescriptionPlural,
-			LegDescriptionSingular = source.LegDescriptionSingular,
-			WearSizeParameter = source.WearSizeParameter
-		};
+		var body = new BodyProto { Id = _nextBodyProtoId++, Name = name };
+		ConfigureBodyShell(body, source, minimumLegsToStand, minimumWingsToFly, wielderSingle, wielderPlural);
 		_context.BodyProtos.Add(body);
 		_context.SaveChanges();
 		return body;
+	}
+
+	private void ConfigureBodyShell(BodyProto body, BodyProto source, int minimumLegsToStand, int minimumWingsToFly,
+		string wielderSingle, string wielderPlural)
+	{
+		body.ConsiderString = source.ConsiderString;
+		body.WielderDescriptionSingle = wielderSingle;
+		body.WielderDescriptionPlural = wielderPlural;
+		body.StaminaRecoveryProgId = source.StaminaRecoveryProgId;
+		body.MinimumLegsToStand = minimumLegsToStand;
+		body.MinimumWingsToFly = minimumWingsToFly;
+		body.LegDescriptionPlural = source.LegDescriptionPlural;
+		body.LegDescriptionSingular = source.LegDescriptionSingular;
+		body.WearSizeParameter = source.WearSizeParameter;
+	}
+
+	private void PopulateFullCloneBody(BodyProto body, BodyProto source, int? minimumLegsToStand = null,
+		int? minimumWingsToFly = null)
+	{
+		ConfigureBodyShell(body, source,
+			minimumLegsToStand ?? source.MinimumLegsToStand,
+			minimumWingsToFly ?? source.MinimumWingsToFly,
+			source.WielderDescriptionSingle,
+			source.WielderDescriptionPlural);
+		SeederBodyUtilities.ClearBodyDefinition(_context, body);
+		SeederBodyUtilities.CloneFlattenedBodyDefinition(_context, source, body);
+		SeederBodyUtilities.CloneFlattenedBodyPositionsAndSpeeds(_context, source, body);
 	}
 
 	private void AddAvianWings(BodyProto body)
@@ -429,6 +540,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 	{
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "rhorn", "head", cloneLimbs: false);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "lhorn", "head", cloneLimbs: false);
+		AddBodypartsToLimb(body, "Head", "rhorn", "lhorn");
 	}
 
 	private void AddToedFeet(BodyProto body)
@@ -497,6 +609,93 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		}
 
 		_context.SaveChanges();
+	}
+
+	private int RepairAndValidateCustomBody(BodyProto body)
+	{
+		switch (body.Name)
+		{
+			case "Horned Humanoid":
+				AddBodypartsToLimb(body, "Head", "rhorn", "lhorn");
+				break;
+			case "Winged Humanoid":
+				AddBodypartsToLimb(body, "Right Wing", "rwingbase", "rwing");
+				AddBodypartsToLimb(body, "Left Wing", "lwingbase", "lwing");
+				break;
+			case "Naga":
+				AddBodypartsToLimb(body, "Tail", "ubody", "mbody", "lbody", "tail");
+				break;
+			case "Mermaid":
+				AddBodypartsToLimb(body, "Tail", "peduncle", "caudalfin");
+				break;
+			case "Centaur":
+				AddBodypartsToLimb(body, "Right Foreleg", "rfhoof", "rffrog");
+				AddBodypartsToLimb(body, "Left Foreleg", "lfhoof", "lffrog");
+				AddBodypartsToLimb(body, "Right Hindleg", "rrhoof", "rrfrog");
+				AddBodypartsToLimb(body, "Left Hindleg", "lrhoof", "lrfrog");
+				AddBodypartsToLimb(body, "Tail", "utail", "mtail", "ltail");
+				break;
+			case "Eastern Dragon":
+			case "Manticore":
+				AddBodypartsToLimb(body, "Right Foreleg", "rfpaw", "rfclaw");
+				AddBodypartsToLimb(body, "Left Foreleg", "lfpaw", "lfclaw");
+				AddBodypartsToLimb(body, "Right Hindleg", "rrpaw", "rrclaw", "rrdewclaw");
+				AddBodypartsToLimb(body, "Left Hindleg", "lrpaw", "lrclaw", "lrdewclaw");
+				break;
+			case "Griffin":
+				EnsureLimb(body, "Head", LimbType.Head, "neck",
+					"neck", "bneck", "throat", "head", "bhead", "rcheek", "lcheek", "reyesocket", "leyesocket",
+					"reye", "leye", "rear", "lear", "beak", "tongue", "nose", "mouth");
+				AddBodypartsToLimb(body, "Right Foreleg", "rfpaw", "rfclaw");
+				AddBodypartsToLimb(body, "Left Foreleg", "lfpaw", "lfclaw");
+				AddBodypartsToLimb(body, "Right Hindleg", "rrpaw", "rrclaw", "rrdewclaw");
+				AddBodypartsToLimb(body, "Left Hindleg", "lrpaw", "lrclaw", "lrdewclaw");
+				break;
+			case "Hippogriff":
+				EnsureLimb(body, "Head", LimbType.Head, "neck",
+					"neck", "bneck", "throat", "head", "bhead", "rcheek", "lcheek", "reyesocket", "leyesocket",
+					"reye", "leye", "rear", "lear", "beak", "tongue", "nose", "mouth");
+				AddBodypartsToLimb(body, "Right Foreleg", "rfhoof", "rffrog");
+				AddBodypartsToLimb(body, "Left Foreleg", "lfhoof", "lffrog");
+				AddBodypartsToLimb(body, "Right Hindleg", "rrhoof", "rrfrog");
+				AddBodypartsToLimb(body, "Left Hindleg", "lrhoof", "lrfrog");
+				break;
+			case "Wyvern":
+				EnsureLimb(body, "Head", LimbType.Head, "neck",
+					"neck", "bneck", "throat", "head", "bhead", "rjaw", "ljaw", "rcheek", "lcheek", "reyesocket",
+					"leyesocket", "reye", "leye", "rear", "lear", "muzzle", "mouth", "tongue", "nose", "rhorn",
+					"lhorn", "horn", "rantler", "lantler", "rtusk", "ltusk");
+				AddBodypartsToLimb(body, "Right Wing", "rwingbase", "rwing");
+				AddBodypartsToLimb(body, "Left Wing", "lwingbase", "lwing");
+				break;
+			case "Hippocamp":
+				AddBodypartsToLimb(body, "Right Foreleg", "rfhoof", "rffrog");
+				AddBodypartsToLimb(body, "Left Foreleg", "lfhoof", "lffrog");
+				AddBodypartsToLimb(body, "Tail", "peduncle", "caudalfin");
+				break;
+		}
+
+		AddBodypartsToLimb(body, "Tail", "stinger");
+
+		var uncoveredParts = SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(_context, body);
+		if (uncoveredParts.Any())
+		{
+			throw new InvalidOperationException(
+				$"Mythical body {body.Name} has external bodyparts without limb coverage: {string.Join(", ", uncoveredParts.Select(x => x.Name))}");
+		}
+
+		return 0;
+	}
+
+	private void EnsureLimb(BodyProto body, string limbName, LimbType limbType, string rootAlias, params string[] aliases)
+	{
+		if (_context.Limbs.Any(x => x.RootBodyId == body.Id && x.Name == limbName))
+		{
+			AddBodypartsToLimb(body, limbName, aliases);
+			return;
+		}
+
+		AddLimb(body, limbName, limbType, rootAlias, aliases);
 	}
 
 	private void AddLimb(BodyProto body, string name, LimbType type, string rootAlias, params string[] aliases)

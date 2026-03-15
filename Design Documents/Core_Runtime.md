@@ -49,6 +49,14 @@ Health is built on the race and body prototype systems. A race selects:
 - blood model and population blood model
 - corpse model
 - breathing model
+
+Stock seeded body layouts now use two distinct patterns:
+
+- additive `CountsAs` layering when a derived body should inherit all parent anatomy unchanged
+- flattened cloned anatomy when a seeder-built variant needs to remove, replace, or reroute parent bodyparts and limbs
+
+That flattening step must copy the full ancestor chain's bodyparts, organ relationships, limb definitions, and movement data into the concrete body prototype so every external bodypart still resolves to a limb at runtime.
+Direct cloned bodies also need to preserve bodypart upstream links so later subtree removals in hybrid seed templates delete the full branch rather than leaving uncovered descendants behind.
 - default health strategy
 
 This makes biology highly data-dependent before any wound logic is even reached.

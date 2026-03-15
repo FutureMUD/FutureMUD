@@ -37,6 +37,7 @@ internal static class SeederBodyUtilities
 
 		context.SaveChanges();
 		ApplyCountAsMappings(context, sourcePartLookup, clonedParts);
+		CloneBodypartUpstreams(context, sourcePartLookup.Keys, clonedParts);
 		CloneSharedBodyRelationships(context, clonedParts.Keys, clonedParts);
 		CloneLimbs(context, source, target, clonedParts);
 		CloneInheritedLimbMemberships(context, source, clonedParts);
@@ -94,6 +95,184 @@ internal static class SeederBodyUtilities
 		context.SaveChanges();
 	}
 
+	public static void CloneFlattenedBodyDefinition(
+		FuturemudDatabaseContext context,
+		BodyProto source,
+		BodyProto target,
+		IEnumerable<string>? excludedAliases = null,
+		bool cloneAdditionalUsages = true)
+	{
+		var bodyChain = GetBodyChain(context, source);
+		var bodyOrder = bodyChain
+			.Select((body, index) => (body.Id, index))
+			.ToDictionary(x => x.Id, x => x.index);
+		var excluded = new HashSet<string>(excludedAliases ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+		var bodyIds = bodyChain.Select(x => x.Id).ToList();
+		var sourceParts = context.BodypartProtos
+			.Where(x => bodyIds.Contains(x.BodyId))
+			.AsEnumerable()
+			.OrderBy(x => bodyOrder[x.BodyId])
+			.ThenBy(x => x.DisplayOrder ?? 0)
+			.ThenBy(x => x.Id)
+			.ToList();
+		var sourcePartLookup = sourceParts.ToDictionary(x => x.Id);
+		var clonedParts = new Dictionary<long, BodypartProto>();
+
+		foreach (var sourcePart in sourceParts.Where(x => !excluded.Contains(x.Name)))
+		{
+			var clonedPart = CloneBodypart(sourcePart, target);
+			context.BodypartProtos.Add(clonedPart);
+			clonedParts[sourcePart.Id] = clonedPart;
+		}
+
+		context.SaveChanges();
+		ApplyCountAsMappings(context, sourcePartLookup, clonedParts);
+		CloneBodypartUpstreams(context, sourcePartLookup.Keys, clonedParts);
+		CloneSharedBodyRelationships(context, sourcePartLookup.Keys, clonedParts);
+		CloneFlattenedLimbs(context, bodyIds, target, clonedParts);
+
+		if (cloneAdditionalUsages)
+		{
+			var existingUsages = new HashSet<(long BodypartId, string Usage)>();
+			foreach (var usage in context.BodyProtosAdditionalBodyparts
+				         .Where(x => bodyIds.Contains(x.BodyProtoId))
+				         .ToList())
+			{
+				if (!clonedParts.TryGetValue(usage.BodypartId, out var clonedBodypart))
+				{
+					continue;
+				}
+
+				if (!existingUsages.Add((clonedBodypart.Id, usage.Usage)))
+				{
+					continue;
+				}
+
+				context.BodyProtosAdditionalBodyparts.Add(new BodyProtosAdditionalBodyparts
+				{
+					BodyProto = target,
+					Bodypart = clonedBodypart,
+					Usage = usage.Usage
+				});
+			}
+		}
+
+		context.SaveChanges();
+	}
+
+	public static void CloneFlattenedBodyPositionsAndSpeeds(
+		FuturemudDatabaseContext context,
+		BodyProto source,
+		BodyProto target)
+	{
+		var bodyChain = GetBodyChain(context, source);
+		var bodyOrder = bodyChain
+			.Select((body, index) => (body.Id, index))
+			.ToDictionary(x => x.Id, x => x.index);
+		var bodyIds = bodyChain.Select(x => x.Id).ToList();
+
+		foreach (var positionId in context.BodyProtosPositions
+			         .Where(x => bodyIds.Contains(x.BodyProtoId))
+					 .AsEnumerable()
+			         .OrderBy(x => bodyOrder[x.BodyProtoId])
+			         .ThenBy(x => x.Position)
+			         .Select(x => x.Position)
+			         .Distinct()
+			         .ToList())
+		{
+			context.BodyProtosPositions.Add(new BodyProtosPositions
+			{
+				BodyProto = target,
+				Position = positionId
+			});
+		}
+
+		var selectedSpeeds = new Dictionary<string, MoveSpeed>(StringComparer.OrdinalIgnoreCase);
+		foreach (var speed in context.MoveSpeeds
+			         .Where(x => bodyIds.Contains(x.BodyProtoId))
+					 .AsEnumerable()
+					 .OrderBy(x => bodyOrder[x.BodyProtoId])
+			         .ThenBy(x => x.Id)
+			         .ToList())
+		{
+			selectedSpeeds[speed.Alias] = speed;
+		}
+
+		var nextSpeedId = context.MoveSpeeds.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
+		foreach (var speed in selectedSpeeds.Values
+			         .OrderBy(x => bodyOrder[x.BodyProtoId])
+			         .ThenBy(x => x.Id))
+		{
+			context.MoveSpeeds.Add(new MoveSpeed
+			{
+				Id = nextSpeedId++,
+				BodyProto = target,
+				PositionId = speed.PositionId,
+				Alias = speed.Alias,
+				FirstPersonVerb = speed.FirstPersonVerb,
+				ThirdPersonVerb = speed.ThirdPersonVerb,
+				PresentParticiple = speed.PresentParticiple,
+				Multiplier = speed.Multiplier,
+				StaminaMultiplier = speed.StaminaMultiplier
+			});
+		}
+
+		context.SaveChanges();
+	}
+
+	public static void ClearBodyDefinition(FuturemudDatabaseContext context, BodyProto body)
+	{
+		foreach (var speed in context.MoveSpeeds.Where(x => x.BodyProtoId == body.Id).ToList())
+		{
+			context.MoveSpeeds.Remove(speed);
+		}
+
+		foreach (var position in context.BodyProtosPositions.Where(x => x.BodyProtoId == body.Id).ToList())
+		{
+			context.BodyProtosPositions.Remove(position);
+		}
+
+		foreach (var usage in context.BodyProtosAdditionalBodyparts.Where(x => x.BodyProtoId == body.Id).ToList())
+		{
+			context.BodyProtosAdditionalBodyparts.Remove(usage);
+		}
+
+		foreach (var bodyLink in context.BodypartGroupDescribersBodyProtos.Where(x => x.BodyProtoId == body.Id).ToList())
+		{
+			context.BodypartGroupDescribersBodyProtos.Remove(bodyLink);
+		}
+
+		var aliases = context.BodypartProtos
+			.Where(x => x.BodyId == body.Id)
+			.Select(x => x.Name)
+			.AsEnumerable()
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+		if (aliases.Any())
+		{
+			RemoveBodyparts(context, body, aliases);
+		}
+
+		var limbIds = context.Limbs.Where(x => x.RootBodyId == body.Id).Select(x => x.Id).ToList();
+		foreach (var limbPart in context.LimbsBodypartProto.Where(x => limbIds.Contains(x.LimbId)).ToList())
+		{
+			context.LimbsBodypartProto.Remove(limbPart);
+		}
+
+		foreach (var spinalPart in context.LimbsSpinalParts.Where(x => limbIds.Contains(x.LimbId)).ToList())
+		{
+			context.LimbsSpinalParts.Remove(spinalPart);
+		}
+
+		foreach (var limb in context.Limbs.Where(x => x.RootBodyId == body.Id).ToList())
+		{
+			context.Limbs.Remove(limb);
+		}
+
+		body.DefaultSmashingBodypartId = null;
+		context.SaveChanges();
+	}
+
 	internal static IReadOnlyDictionary<string, IReadOnlyList<BodypartProto>> BuildBodypartAliasLookup(
 		IEnumerable<BodypartProto> parts)
 	{
@@ -111,6 +290,62 @@ internal static class SeederBodyUtilities
 	{
 		return BuildBodypartAliasLookup(parts)
 			.ToDictionary(x => x.Key, x => x.Value[0], StringComparer.OrdinalIgnoreCase);
+	}
+
+	public static IReadOnlyList<BodypartProto> GetExternalBodypartsWithoutLimbCoverage(
+		FuturemudDatabaseContext context,
+		BodyProto body)
+	{
+		static bool IsBoneType(BodypartProto part)
+		{
+			return ((BodypartTypeEnum)part.BodypartType) switch
+			{
+				BodypartTypeEnum.Bone => true,
+				BodypartTypeEnum.NonImmobilisingBone => true,
+				BodypartTypeEnum.MinorBone => true,
+				BodypartTypeEnum.MinorNonImobilisingBone => true,
+				_ => false
+			};
+		}
+
+		var bodyIds = GetBodyAndAncestorIds(context, body);
+		var bodyIdSet = bodyIds.ToHashSet();
+		var parts = context.BodypartProtos
+			.Where(x => bodyIdSet.Contains(x.BodyId))
+			.ToList();
+		if (!parts.Any())
+		{
+			return [];
+		}
+
+		var externalParts = parts
+			.Where(x => !IsBoneType(x) && x.IsOrgan == 0)
+			.OrderBy(x => bodyIds.IndexOf(x.BodyId))
+			.ThenBy(x => x.DisplayOrder ?? 0)
+			.ThenBy(x => x.Id)
+			.ToList();
+		if (!externalParts.Any())
+		{
+			return [];
+		}
+
+		var limbIds = context.Limbs
+			.Where(x => bodyIdSet.Contains(x.RootBodyId))
+			.Select(x => x.Id)
+			.ToList();
+		if (!limbIds.Any())
+		{
+			return externalParts;
+		}
+
+		var linkedBodypartIds = context.LimbsBodypartProto
+			.Where(x => limbIds.Contains(x.LimbId))
+			.Select(x => x.BodypartProtoId)
+			.ToHashSet();
+
+		return externalParts
+			.Where(x => !linkedBodypartIds.Contains(x.Id))
+			.ToList();
 	}
 
 	public static IReadOnlyDictionary<long, BodypartProto> CloneBodypartSubtree(
@@ -345,6 +580,32 @@ internal static class SeederBodyUtilities
 		};
 	}
 
+	private static List<BodyProto> GetBodyChain(FuturemudDatabaseContext context, BodyProto body)
+	{
+		var bodies = new List<BodyProto>();
+		var visited = new HashSet<long>();
+		BodyProto? currentBody = body;
+
+		while (currentBody is not null && visited.Add(currentBody.Id))
+		{
+			bodies.Add(currentBody);
+			currentBody = currentBody.CountsAsId.HasValue
+				? context.BodyProtos.Find(currentBody.CountsAsId.Value)
+				: null;
+		}
+
+		bodies.Reverse();
+		return bodies;
+	}
+
+	private static List<long> GetBodyAndAncestorIds(FuturemudDatabaseContext context, BodyProto body)
+	{
+		return GetBodyChain(context, body)
+			.Select(x => x.Id)
+			.Reverse()
+			.ToList();
+	}
+
 	private static void ApplyCountAsMappings(
 		FuturemudDatabaseContext context,
 		IReadOnlyDictionary<long, BodypartProto> sourcePartLookup,
@@ -370,6 +631,32 @@ internal static class SeederBodyUtilities
 		context.SaveChanges();
 	}
 
+	private static void CloneBodypartUpstreams(
+		FuturemudDatabaseContext context,
+		IEnumerable<long> sourcePartIds,
+		IReadOnlyDictionary<long, BodypartProto> clonedParts)
+	{
+		var partIds = sourcePartIds.ToHashSet();
+		foreach (var upstream in context.BodypartProtoBodypartProtoUpstream
+			         .Where(x => partIds.Contains(x.Child) && partIds.Contains(x.Parent))
+			         .ToList())
+		{
+			if (!clonedParts.TryGetValue(upstream.Child, out var child) ||
+			    !clonedParts.TryGetValue(upstream.Parent, out var parent))
+			{
+				continue;
+			}
+
+			context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+			{
+				ChildNavigation = child,
+				ParentNavigation = parent
+			});
+		}
+
+		context.SaveChanges();
+	}
+
 	private static void CloneSharedBodyRelationships(
 		FuturemudDatabaseContext context,
 		IEnumerable<long> sourcePartIds,
@@ -381,6 +668,11 @@ internal static class SeederBodyUtilities
 			         .Where(x => clonedPartIds.Contains(x.BodypartProtoId) && clonedPartIds.Contains(x.InternalPartId))
 			         .ToList())
 		{
+			if (!clonedParts.ContainsKey(internalInfo.BodypartProtoId) || !clonedParts.ContainsKey(internalInfo.InternalPartId))
+			{
+				continue;
+			}
+
 			context.BodypartInternalInfos.Add(new BodypartInternalInfos
 			{
 				BodypartProto = clonedParts[internalInfo.BodypartProtoId],
@@ -395,6 +687,11 @@ internal static class SeederBodyUtilities
 			         .Where(x => clonedPartIds.Contains(x.BoneId) && clonedPartIds.Contains(x.OrganId))
 			         .ToList())
 		{
+			if (!clonedParts.ContainsKey(coverage.BoneId) || !clonedParts.ContainsKey(coverage.OrganId))
+			{
+				continue;
+			}
+
 			context.BoneOrganCoverages.Add(new BoneOrganCoverage
 			{
 				Bone = clonedParts[coverage.BoneId],
@@ -464,6 +761,79 @@ internal static class SeederBodyUtilities
 				});
 			}
 		}
+	}
+
+	private static void CloneFlattenedLimbs(
+		FuturemudDatabaseContext context,
+		IEnumerable<long> bodyIds,
+		BodyProto target,
+		IReadOnlyDictionary<long, BodypartProto> clonedParts)
+	{
+		var sourceBodyIds = bodyIds.ToList();
+		var bodyOrder = sourceBodyIds
+			.Select((id, index) => (id, index))
+			.ToDictionary(x => x.id, x => x.index);
+		var limbMap = new Dictionary<long, Limb>();
+
+		foreach (var sourceLimb in context.Limbs
+			         .Where(x => sourceBodyIds.Contains(x.RootBodyId))
+					 .AsEnumerable() 
+			         .OrderBy(x => bodyOrder[x.RootBodyId])
+			         .ThenBy(x => x.Id)
+			         .ToList())
+		{
+			if (!clonedParts.TryGetValue(sourceLimb.RootBodypartId, out var clonedRoot))
+			{
+				continue;
+			}
+
+			var clonedLimb = new Limb
+			{
+				Name = sourceLimb.Name,
+				LimbType = sourceLimb.LimbType,
+				RootBody = target,
+				RootBodypart = clonedRoot,
+				LimbDamageThresholdMultiplier = sourceLimb.LimbDamageThresholdMultiplier,
+				LimbPainThresholdMultiplier = sourceLimb.LimbPainThresholdMultiplier
+			};
+			context.Limbs.Add(clonedLimb);
+			limbMap[sourceLimb.Id] = clonedLimb;
+		}
+
+		context.SaveChanges();
+
+		foreach (var sourceLimbId in limbMap.Keys)
+		{
+			foreach (var bodypart in context.LimbsBodypartProto.Where(x => x.LimbId == sourceLimbId).ToList())
+			{
+				if (!clonedParts.TryGetValue(bodypart.BodypartProtoId, out var clonedBodypart))
+				{
+					continue;
+				}
+
+				context.LimbsBodypartProto.Add(new LimbBodypartProto
+				{
+					Limb = limbMap[sourceLimbId],
+					BodypartProto = clonedBodypart
+				});
+			}
+
+			foreach (var spinalPart in context.LimbsSpinalParts.Where(x => x.LimbId == sourceLimbId).ToList())
+			{
+				if (!clonedParts.TryGetValue(spinalPart.BodypartProtoId, out var clonedSpinalPart))
+				{
+					continue;
+				}
+
+				context.LimbsSpinalParts.Add(new LimbsSpinalPart
+				{
+					Limb = limbMap[sourceLimbId],
+					BodypartProto = clonedSpinalPart
+				});
+			}
+		}
+
+		context.SaveChanges();
 	}
 
 	private static void CloneInheritedLimbMemberships(

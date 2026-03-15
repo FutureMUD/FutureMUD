@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Combat;
 using MudSharp.Health;
 using MudSharp.Models;
 
@@ -36,21 +37,52 @@ public class AnimalSeederTemplateTests
 	{
 		var birdLoadout = AnimalSeeder.AttackLoadoutsForTesting["bird-small"];
 		CollectionAssert.AreEquivalent(
-			new[] { "beakpeck", "talonstrike" },
+			new[] { "beakpeck", "talonstrike", "beakbite" },
 			birdLoadout.ShapeMatchedAttacks.Select(x => x.AttackKey).ToArray(),
-			"Small birds should peck and strike with talons.");
+			"Small birds should keep both free-fighting and clinch-capable avian attacks.");
 
 		var insectLoadout = AnimalSeeder.AttackLoadoutsForTesting["insect-stinger"];
 		Assert.IsTrue(insectLoadout.ShapeMatchedAttacks.Any(x => x.AttackKey == "mandiblebite"),
 			"Stinging insects should still have a mundane mandible attack.");
+		Assert.IsTrue(insectLoadout.ShapeMatchedAttacks.Any(x => x.AttackKey == "headram"),
+			"Stinging insects should now have a non-clinch fallback attack.");
 		Assert.IsTrue(insectLoadout.VenomAttacks?.Any(x => x.VenomProfileKey == "irritant") == true,
 			"Stinging insects should seed irritant venom.");
 
 		var whaleLoadout = AnimalSeeder.AttackLoadoutsForTesting["baleen-whale"];
+		Assert.IsTrue(whaleLoadout.ShapeMatchedAttacks.Any(x => x.AttackKey == "headbutt"),
+			"Baleen whales should now have a clinch-capable fallback attack.");
 		Assert.IsTrue(whaleLoadout.AliasAttacks?.Any(x => x.AttackKey == "headram") == true,
 			"Baleen whales should have a head ram attack.");
 		Assert.IsTrue(whaleLoadout.AliasAttacks?.Any(x => x.AttackKey == "tailslap") == true,
 			"Baleen whales should have a tail slap attack.");
+	}
+
+	[TestMethod]
+	public void AttackLoadoutsForTesting_AllStockLoadouts_HaveClinchAndNonClinchCoverage()
+	{
+		foreach (var (key, loadout) in AnimalSeeder.AttackLoadoutsForTesting)
+		{
+			var attackKeys = loadout.ShapeMatchedAttacks
+				.Select(x => x.AttackKey)
+				.Concat(loadout.AliasAttacks?.Select(x => x.AttackKey) ?? Enumerable.Empty<string>())
+				.ToList();
+			var hasClinch = attackKeys.Any(x => x is "bite" or "carnivoreclinchbite" or "carnivoreclinchhighbite" or
+				"carnivoreclinchhighestbite" or "herbivorebite" or "smallbite" or "smalllowbite" or "fishbite" or
+				"fishquickbite" or "headbutt" or "beakbite" or "fangbite" or "mandiblebite" or "clawclamp") ||
+			                (loadout.VenomAttacks?.Any(x => x.MoveType == BuiltInCombatMoveType.EnvenomingAttackClinch) ?? false);
+			var hasNonClinch = attackKeys.Any(x => x is "carnivorebite" or "carnivoresmashbite" or "carnivorelowbite" or
+				"carnivorehighbite" or "carnivorelowestbite" or "carnivoredownbite" or "herbivoresmashbite" or
+				"smallsmashbite" or "smalldownedbite" or "clawswipe" or "clawsmashswipe" or "clawlowswipe" or
+				"clawhighswipe" or "hoofstomp" or "hoofstompsmash" or "barge" or "bargesmash" or "clinchbarge" or
+				"gorehorn" or "goreantler" or "goretusk" or "tusksweep" or "crabpinch" or "sharkbite" or
+				"sharkreelbite" or "beakpeck" or "talonstrike" or "arachnidclaw" or "headram" or "tailslap" or
+				"tendrillash") ||
+			               (loadout.VenomAttacks?.Any(x => x.MoveType != BuiltInCombatMoveType.EnvenomingAttackClinch) ?? false);
+
+			Assert.IsTrue(hasClinch, $"Attack loadout {key} should include a clinch-capable attack.");
+			Assert.IsTrue(hasNonClinch, $"Attack loadout {key} should include a non-clinch attack.");
+		}
 	}
 
 	[TestMethod]

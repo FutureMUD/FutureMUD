@@ -80,6 +80,7 @@ public partial class RobotSeeder
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
 		var body = CloneBody("Mandible Robot", source, source);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _insectoidBody, body, "mandibles", "mouth");
+		AddLimbPart(body, "neck", "mandibles");
 		ConfigureRobotBodyMaterials(body, false);
 		return body;
 	}
@@ -95,8 +96,8 @@ public partial class RobotSeeder
 		var leftWheel = AddBodypart(body, "lwheel", "left wheel assembly", "Wheel", BodypartTypeEnum.Standing, "lshin",
 			Alignment.Left, Orientation.Lowest, 80, 80, 100, 1001, _chassisAlloy, _robotPlatingArmour, SizeCategory.Small,
 			countAs: FindBodypartOnBody(source, "lfoot"));
-		AddLimbPart(body, "rthigh", "rwheel");
-		AddLimbPart(body, "lthigh", "lwheel");
+		AddLimbPart(body, "rhip", "rwheel");
+		AddLimbPart(body, "lhip", "lwheel");
 		body.LegDescriptionSingular = "wheel";
 		body.LegDescriptionPlural = "wheels";
 		body.DefaultSmashingBodypart = rightWheel;
@@ -115,8 +116,8 @@ public partial class RobotSeeder
 		var leftTrack = AddBodypart(body, "ltrack", "left track pod", "Track", BodypartTypeEnum.Standing, "lshin",
 			Alignment.Left, Orientation.Lowest, 80, 90, 120, 1001, _chassisAlloy, _robotPlatingArmour, SizeCategory.Small,
 			countAs: FindBodypartOnBody(source, "lfoot"));
-		AddLimbPart(body, "rthigh", "rtrack");
-		AddLimbPart(body, "lthigh", "ltrack");
+		AddLimbPart(body, "rhip", "rtrack");
+		AddLimbPart(body, "lhip", "ltrack");
 		body.LegDescriptionSingular = "track pod";
 		body.LegDescriptionPlural = "track pods";
 		body.DefaultSmashingBodypart = rightTrack;

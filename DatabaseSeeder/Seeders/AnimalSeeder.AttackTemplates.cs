@@ -41,10 +41,10 @@ public partial class AnimalSeeder
 		return new Dictionary<string, AnimalAttackLoadoutTemplate>(StringComparer.OrdinalIgnoreCase)
 		{
 			["nuisance-bite"] = new(
-				[ShapeAttack("smallbite", ItemQuality.Terrible), ShapeAttack("smalllowbite", ItemQuality.Terrible)]
+				[ShapeAttack("smallbite", ItemQuality.Terrible), ShapeAttack("smalllowbite", ItemQuality.Terrible), ShapeAttack("smallsmashbite", ItemQuality.Terrible)]
 			),
 			["small-herbivore"] = new(
-				[ShapeAttack("smallbite", ItemQuality.ExtremelyBad)]
+				[ShapeAttack("smallbite", ItemQuality.ExtremelyBad), ShapeAttack("smallsmashbite", ItemQuality.Terrible)]
 			),
 			["small-predator"] = new(
 				[
@@ -73,7 +73,8 @@ public partial class AnimalSeeder
 				[
 					ShapeAttack("carnivorebite", ItemQuality.Poor),
 					ShapeAttack("carnivoresmashbite", ItemQuality.Poor),
-					ShapeAttack("carnivorelowbite", ItemQuality.Poor)
+					ShapeAttack("carnivorelowbite", ItemQuality.Poor),
+					ShapeAttack("bite", ItemQuality.Poor)
 				],
 				[
 					AliasAttack("clawlowswipe", ItemQuality.Bad, "rfclaw", "lfclaw", "rrclaw", "lrclaw")
@@ -106,6 +107,7 @@ public partial class AnimalSeeder
 			["bear"] = new(
 				[
 					ShapeAttack("carnivorebite", ItemQuality.VeryGood),
+					ShapeAttack("bite", ItemQuality.Standard),
 					ShapeAttack("barge", ItemQuality.Standard),
 					ShapeAttack("bargesmash", ItemQuality.Standard)
 				],
@@ -159,6 +161,7 @@ public partial class AnimalSeeder
 			["hippo"] = new(
 				[
 					ShapeAttack("carnivorebite", ItemQuality.Great),
+					ShapeAttack("bite", ItemQuality.Good),
 					ShapeAttack("barge", ItemQuality.VeryGood),
 					ShapeAttack("bargesmash", ItemQuality.VeryGood)
 				]
@@ -183,22 +186,25 @@ public partial class AnimalSeeder
 			["fish"] = new(
 				[
 					ShapeAttack("fishbite", ItemQuality.Substandard),
-					ShapeAttack("fishquickbite", ItemQuality.Substandard)
+					ShapeAttack("fishquickbite", ItemQuality.Substandard),
+					ShapeAttack("headram", ItemQuality.Terrible)
 				]
 			),
 			["shark"] = new(
 				[
 					ShapeAttack("sharkbite", ItemQuality.Great),
-					ShapeAttack("sharkreelbite", ItemQuality.Great)
+					ShapeAttack("sharkreelbite", ItemQuality.Great),
+					ShapeAttack("bite", ItemQuality.Standard)
 				]
 			),
-			["crab-small"] = new([ShapeAttack("crabpinch", ItemQuality.Bad)]),
-			["crab-large"] = new([ShapeAttack("crabpinch", ItemQuality.Substandard)]),
-			["crab-giant"] = new([ShapeAttack("crabpinch", ItemQuality.Great)]),
+			["crab-small"] = new([ShapeAttack("crabpinch", ItemQuality.Bad), ShapeAttack("clawclamp", ItemQuality.Terrible)]),
+			["crab-large"] = new([ShapeAttack("crabpinch", ItemQuality.Substandard), ShapeAttack("clawclamp", ItemQuality.Poor)]),
+			["crab-giant"] = new([ShapeAttack("crabpinch", ItemQuality.Great), ShapeAttack("clawclamp", ItemQuality.Standard)]),
 			["cephalopod"] = new(
 				[
 					ShapeAttack("fishbite", ItemQuality.Bad),
-					ShapeAttack("fishquickbite", ItemQuality.Bad)
+					ShapeAttack("fishquickbite", ItemQuality.Bad),
+					ShapeAttack("headram", ItemQuality.Terrible)
 				]
 			),
 			["pinniped"] = new(
@@ -217,7 +223,8 @@ public partial class AnimalSeeder
 			["orca"] = new(
 				[
 					ShapeAttack("sharkbite", ItemQuality.Heroic),
-					ShapeAttack("sharkreelbite", ItemQuality.Heroic)
+					ShapeAttack("sharkreelbite", ItemQuality.Heroic),
+					ShapeAttack("bite", ItemQuality.Good)
 				],
 				[AliasAttack("headram", ItemQuality.Standard, "head")]
 			),
@@ -229,51 +236,51 @@ public partial class AnimalSeeder
 				[AliasAttack("headram", ItemQuality.Standard, "head")]
 			),
 			["baleen-whale"] = new(
-				[],
+				[ShapeAttack("headbutt", ItemQuality.Good)],
 				[
 					AliasAttack("headram", ItemQuality.Good, "head"),
 					AliasAttack("tailslap", ItemQuality.Good, "tail", "fluke", "peduncle")
 				]
 			),
 			["bird-small"] = new(
-				[ShapeAttack("beakpeck", ItemQuality.Bad), ShapeAttack("talonstrike", ItemQuality.Bad)]
+				[ShapeAttack("beakpeck", ItemQuality.Bad), ShapeAttack("talonstrike", ItemQuality.Bad), ShapeAttack("beakbite", ItemQuality.Terrible)]
 			),
 			["bird-fowl"] = new(
-				[ShapeAttack("beakpeck", ItemQuality.Poor), ShapeAttack("talonstrike", ItemQuality.Poor)]
+				[ShapeAttack("beakpeck", ItemQuality.Poor), ShapeAttack("talonstrike", ItemQuality.Poor), ShapeAttack("beakbite", ItemQuality.Terrible)]
 			),
 			["bird-raptor"] = new(
-				[ShapeAttack("beakpeck", ItemQuality.Standard), ShapeAttack("talonstrike", ItemQuality.Standard)]
+				[ShapeAttack("beakpeck", ItemQuality.Standard), ShapeAttack("talonstrike", ItemQuality.Standard), ShapeAttack("beakbite", ItemQuality.Poor)]
 			),
 			["bird-flightless"] = new(
-				[ShapeAttack("beakpeck", ItemQuality.Substandard), ShapeAttack("talonstrike", ItemQuality.Substandard)],
+				[ShapeAttack("beakpeck", ItemQuality.Substandard), ShapeAttack("talonstrike", ItemQuality.Substandard), ShapeAttack("beakbite", ItemQuality.Terrible)],
 				[AliasAttack("headram", ItemQuality.Substandard, "head")]
 			),
 			["serpent-constrictor"] = new(
-				[ShapeAttack("fangbite", ItemQuality.Standard)]
+				[ShapeAttack("fangbite", ItemQuality.Standard), ShapeAttack("headram", ItemQuality.Bad)]
 			),
 			["serpent-neurotoxic"] = new(
-				[ShapeAttack("fangbite", ItemQuality.Standard)],
+				[ShapeAttack("fangbite", ItemQuality.Standard), ShapeAttack("headram", ItemQuality.Bad)],
 				null,
 				[
 					VenomAttack("Bite", "Fang", "@ strike|strikes with a quick bite at $1", "neurotoxic", 0.004, 2, "fangs")
 				]
 			),
 			["serpent-hemotoxic"] = new(
-				[ShapeAttack("fangbite", ItemQuality.Standard)],
+				[ShapeAttack("fangbite", ItemQuality.Standard), ShapeAttack("headram", ItemQuality.Bad)],
 				null,
 				[
 					VenomAttack("Bite", "Fang", "@ rear|rears back and drive|drives &0's fangs into $1", "hemotoxic", 0.006, 2, "fangs")
 				]
 			),
 			["serpent-cytotoxic"] = new(
-				[ShapeAttack("fangbite", ItemQuality.Standard)],
+				[ShapeAttack("fangbite", ItemQuality.Standard), ShapeAttack("headram", ItemQuality.Bad)],
 				null,
 				[
 					VenomAttack("Bite", "Fang", "@ lash|lashes forward and sink|sinks &0's fangs into $1", "cytotoxic", 0.005, 2, "fangs")
 				]
 			),
 			["jellyfish"] = new(
-				[],
+				[ShapeAttack("tendrillash", ItemQuality.Terrible)],
 				null,
 				[
 					new AnimalVenomAttackTemplate(
@@ -294,9 +301,9 @@ public partial class AnimalSeeder
 					)
 				]
 			),
-			["insect-mandible"] = new([ShapeAttack("mandiblebite", ItemQuality.Bad)]),
+			["insect-mandible"] = new([ShapeAttack("mandiblebite", ItemQuality.Bad), ShapeAttack("headram", ItemQuality.Terrible)]),
 			["insect-stinger"] = new(
-				[ShapeAttack("mandiblebite", ItemQuality.Poor)],
+				[ShapeAttack("mandiblebite", ItemQuality.Poor), ShapeAttack("headram", ItemQuality.Terrible)],
 				null,
 				[
 					new AnimalVenomAttackTemplate(
@@ -355,17 +362,19 @@ public partial class AnimalSeeder
 			["reptile"] = new(
 				[
 					ShapeAttack("carnivorebite", ItemQuality.Bad),
-					ShapeAttack("clawlowswipe", ItemQuality.Bad)
+					ShapeAttack("clawlowswipe", ItemQuality.Bad),
+					ShapeAttack("bite", ItemQuality.Terrible)
 				]
 			),
 			["crocodilian"] = new(
-				[ShapeAttack("sharkbite", ItemQuality.Standard)],
+				[ShapeAttack("sharkbite", ItemQuality.Standard), ShapeAttack("bite", ItemQuality.Poor)],
 				[AliasAttack("tailslap", ItemQuality.Standard, "utail", "mtail", "ltail", "tail")]
 			),
 			["chelonian"] = new(
 				[
 					ShapeAttack("beakpeck", ItemQuality.Poor),
-					ShapeAttack("clawlowswipe", ItemQuality.Terrible)
+					ShapeAttack("clawlowswipe", ItemQuality.Terrible),
+					ShapeAttack("beakbite", ItemQuality.Terrible)
 				]
 			),
 			["anuran"] = new(

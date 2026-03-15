@@ -128,6 +128,7 @@ Current stock expectations include:
 - hoofed herbivores and charge animals carrying hoof stomp coverage instead of relying only on barge or gore attacks
 - aquatic, avian, arthropod, reptile, and arachnid families using family-specific prose rather than near-duplicate bite text
 - alias-driven natural attacks validating both attack keys and plausible bodypart aliases for the intended morphology
+- every stock animal loadout now exposing at least one clinch-usable natural attack and at least one non-clinch natural attack, with template and unit-test coverage plus generic fallback bashes, clamps, pecks, or lashes where a family previously only covered one side
 
 Venom attacks are now kept more clearly separate from pure damage moves. The stock jellyfish, serpent, spider, insect, and scorpion venom attacks use moderate direct damage, family-appropriate prose, and smaller quantity or wound-severity gates than a raw lethality-only profile would imply.
 
@@ -143,6 +144,7 @@ The seeder currently:
 - now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, and plantfolk, so the separate `FantasySeeder` is no longer needed
 - installs incrementally, skipping any already-present mythic race entries instead of treating partial overlap as a fatal blocker
 - resolves duplicate bodypart aliases deterministically while composing hybrid bodies or reusing partially seeded bodies, so reruns no longer fail while building limb and parent-part lookups
+- seeds at least one clinch-capable and one non-clinch natural attack for every mythic race, including previously attackless sapient forms such as myconids, plantfolk, owlkin, and avian people, with template and unit-test coverage rather than live seeder hard-fails
 
 ### Body reuse strategy
 The package prefers to reuse existing stock bodies wherever that does not require a major compromise.
@@ -178,6 +180,10 @@ The seeder currently:
 - requires the stock humanoid, toed quadruped, arachnid, and insectoid body infrastructure before installation, while avian-backed robot variants are now optional
 - seeds robot-specific liquids, materials, armour types, corpse models, a stamina-recovery prog, robot knowledges, and robot-only procedures
 - seeds both a sentient articulated robot strategy based on `RobotHealthStrategy` and a utility-construct strategy based on `BrainConstructHealthStrategy`
+- seeds all stock attribute definitions onto robot races instead of relying on inherited human race rows being populated in the current EF context
+- seeds a selectable `Robot` culture backed by the stock `Simple` name culture and robot-themed random-name profiles
+- constrains all robot races to neuter-only except for the cyborg/mechanical-human line, which continues to inherit the human gender matrix
+- keeps every robot race on at least one clinch-usable and one non-clinch natural attack through template and unit-test coverage, and corrects utility-frame attack clones that were previously copied from non-combat smash-only donors
 - skips already-present bodies, races, strategies, and procedures so the package can be safely re-run on worlds that already imported part of the catalogue
 
 ### Body reuse strategy
@@ -190,6 +196,7 @@ Current reuse patterns include:
 - winged and jet frames are now soft dependencies on the stock `Avian` body and are skipped rather than blocking the entire robot package when avian anatomy is absent
 - reuse of stock `Toed Quadruped`, `Arachnid`, and `Insectoid` source anatomies for robot dog, spider-crawler lower bodies, and robot cockroach content
 - `CountsAs` mappings on cloned or substituted robot bodyparts so surgery, wear, and other anatomy-aware logic can continue to target the intended baseline chassis
+- explicit limb-membership mapping for grafted mandibles and substituted wheel or track assemblies so derived robot frames still initialise cleanly on a fresh install
 
 ### Stock robot catalogue
 The seeded robot race catalogue currently includes:
@@ -400,6 +407,7 @@ The following findings are directly verified in code and matter when describing 
 - Robot bodies can now be stock seeded rather than existing only as a runtime capability, and robot surgery targeting now honours `CountsAs` mappings for derived chassis parts.
 - `SensorArray` is now a first-class organ type in the runtime and the stock robot line uses it for robot perception while retaining eyes and ears as compatible external parts.
 - `RobotHealthStrategy` bleed and prompt text now use the configured robot circulatory liquid name instead of assuming hydraulic fluid in all cases.
+- Stock humanoid robot races now seed dedicated short and full entity-description patterns, and the stock `IsHumanoid*` description progs are scoped to `Organic Humanoid` so mechanical chassis do not pick human characteristic descriptions.
 
 ## Supported but Unseeded
 These are verified runtime features that exist in the codebase but are not broadly reflected in the stock seeding.

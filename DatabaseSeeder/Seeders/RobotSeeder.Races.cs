@@ -2,6 +2,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Body.Traits;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -56,81 +58,83 @@ public partial class RobotSeeder
 				continue;
 			}
 
-			if (_context.Races.Any(x => x.Name == template.Name))
+			var race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+			if (race is null)
 			{
-				continue;
+				race = new Race
+				{
+					Name = template.Name,
+					Description = template.Description,
+					BaseBody = body,
+					AllowedGenders = template.UsesHumanGenders
+						? _humanRace.AllowedGenders
+						: $"{(short)Gender.Neuter}",
+					ParentRace = template.ParentRaceName is null
+						? null
+						: _context.Races.FirstOrDefault(x => x.Name == template.ParentRaceName),
+					AttributeBonusProg = _humanRace.AttributeBonusProg,
+					AttributeTotalCap = _humanRace.AttributeTotalCap,
+					IndividualAttributeCap = _humanRace.IndividualAttributeCap,
+					DiceExpression = _humanRace.DiceExpression,
+					IlluminationPerceptionMultiplier = 1.0,
+					AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
+					CorpseModel = template.UsesHumanoidCharacteristics ? _robotHumanoidCorpse : _robotAnimalCorpse,
+					DefaultHealthStrategy = _context.HealthStrategies.First(x => x.Name == template.HealthStrategyName),
+					CanUseWeapons = template.CanUseWeapons,
+					CanAttack = true,
+					CanDefend = true,
+					NaturalArmourType = template.Size <= SizeCategory.Small ? _robotLightPlatingArmour : _robotPlatingArmour,
+					NaturalArmourMaterial = _chassisAlloy,
+					NaturalArmourQuality = 4,
+					BloodLiquid = _context.Liquids.First(x => x.Name == template.BloodLiquidName),
+					NeedsToBreathe = false,
+					SweatLiquid = null,
+					SweatRateInLitresPerMinute = 0.0,
+					SizeStanding = (int)template.Size,
+					SizeProne = (int)template.Size,
+					SizeSitting = (int)template.Size,
+					CommunicationStrategyType = "robot",
+					DefaultHandedness = _humanRace.DefaultHandedness,
+					HandednessOptions = template.CanUseWeapons ? _humanRace.HandednessOptions : "1 3",
+					MaximumDragWeightExpression = $"str:{_strengthTrait.Id}*50000",
+					MaximumLiftWeightExpression = $"str:{_strengthTrait.Id}*15000",
+					BloodModel = _humanRace.BloodModel,
+					RaceUsesStamina = true,
+					CanEatCorpses = false,
+					EatCorpseEmoteText = string.Empty,
+					CanEatMaterialsOptIn = false,
+					BiteWeight = 1000,
+					TemperatureRangeFloor = -50,
+					TemperatureRangeCeiling = 120,
+					BodypartSizeModifier = 0,
+					BodypartHealthMultiplier = 1.15,
+					BreathingModel = "simple",
+					BreathingVolumeExpression = "0",
+					HoldBreathLengthExpression = "999999",
+					CanClimb = template.CanClimb,
+					CanSwim = template.CanSwim,
+					MinimumSleepingPosition = _humanRace.MinimumSleepingPosition,
+					ChildAge = _humanRace.ChildAge,
+					YouthAge = _humanRace.YouthAge,
+					YoungAdultAge = _humanRace.YoungAdultAge,
+					AdultAge = _humanRace.AdultAge,
+					ElderAge = _humanRace.ElderAge,
+					VenerableAge = _humanRace.VenerableAge,
+					DefaultHeightWeightModelMale = _humanRace.DefaultHeightWeightModelMale,
+					DefaultHeightWeightModelFemale = _humanRace.DefaultHeightWeightModelFemale,
+					DefaultHeightWeightModelNeuter = _humanRace.DefaultHeightWeightModelNeuter ?? _humanRace.DefaultHeightWeightModelMale,
+					DefaultHeightWeightModelNonBinary = _humanRace.DefaultHeightWeightModelNonBinary ?? _humanRace.DefaultHeightWeightModelFemale,
+					HungerRate = 0.0,
+					ThirstRate = 0.0,
+					TrackIntensityVisual = _humanRace.TrackIntensityVisual,
+					TrackIntensityOlfactory = 0.0,
+					TrackingAbilityVisual = _humanRace.TrackingAbilityVisual,
+					TrackingAbilityOlfactory = 0.0
+				};
+				_context.Races.Add(race);
+				_context.SaveChanges();
+				summary.RacesAdded++;
 			}
-
-			var race = new Race
-			{
-				Name = template.Name,
-				Description = template.Description,
-				BaseBody = body,
-				AllowedGenders = _humanRace.AllowedGenders,
-				ParentRace = template.ParentRaceName is null
-					? null
-					: _context.Races.FirstOrDefault(x => x.Name == template.ParentRaceName),
-				AttributeBonusProg = _humanRace.AttributeBonusProg,
-				AttributeTotalCap = _humanRace.AttributeTotalCap,
-				IndividualAttributeCap = _humanRace.IndividualAttributeCap,
-				DiceExpression = _humanRace.DiceExpression,
-				IlluminationPerceptionMultiplier = 1.0,
-				AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
-				CorpseModel = template.UsesHumanoidCharacteristics ? _robotHumanoidCorpse : _robotAnimalCorpse,
-				DefaultHealthStrategy = _context.HealthStrategies.First(x => x.Name == template.HealthStrategyName),
-				CanUseWeapons = template.CanUseWeapons,
-				CanAttack = true,
-				CanDefend = true,
-				NaturalArmourType = template.Size <= SizeCategory.Small ? _robotLightPlatingArmour : _robotPlatingArmour,
-				NaturalArmourMaterial = _chassisAlloy,
-				NaturalArmourQuality = 4,
-				BloodLiquid = _context.Liquids.First(x => x.Name == template.BloodLiquidName),
-				NeedsToBreathe = false,
-				SweatLiquid = null,
-				SweatRateInLitresPerMinute = 0.0,
-				SizeStanding = (int)template.Size,
-				SizeProne = (int)template.Size,
-				SizeSitting = (int)template.Size,
-				CommunicationStrategyType = "robot",
-				DefaultHandedness = _humanRace.DefaultHandedness,
-				HandednessOptions = template.CanUseWeapons ? _humanRace.HandednessOptions : "1 3",
-				MaximumDragWeightExpression = $"str:{_strengthTrait.Id}*50000",
-				MaximumLiftWeightExpression = $"str:{_strengthTrait.Id}*15000",
-				BloodModel = _humanRace.BloodModel,
-				RaceUsesStamina = true,
-				CanEatCorpses = false,
-				EatCorpseEmoteText = string.Empty,
-				CanEatMaterialsOptIn = false,
-				BiteWeight = 1000,
-				TemperatureRangeFloor = -50,
-				TemperatureRangeCeiling = 120,
-				BodypartSizeModifier = 0,
-				BodypartHealthMultiplier = 1.15,
-				BreathingModel = "simple",
-				BreathingVolumeExpression = "0",
-				HoldBreathLengthExpression = "999999",
-				CanClimb = template.CanClimb,
-				CanSwim = template.CanSwim,
-				MinimumSleepingPosition = _humanRace.MinimumSleepingPosition,
-				ChildAge = _humanRace.ChildAge,
-				YouthAge = _humanRace.YouthAge,
-				YoungAdultAge = _humanRace.YoungAdultAge,
-				AdultAge = _humanRace.AdultAge,
-				ElderAge = _humanRace.ElderAge,
-				VenerableAge = _humanRace.VenerableAge,
-				DefaultHeightWeightModelMale = _humanRace.DefaultHeightWeightModelMale,
-				DefaultHeightWeightModelFemale = _humanRace.DefaultHeightWeightModelFemale,
-				DefaultHeightWeightModelNeuter = _humanRace.DefaultHeightWeightModelNeuter ?? _humanRace.DefaultHeightWeightModelMale,
-				DefaultHeightWeightModelNonBinary = _humanRace.DefaultHeightWeightModelNonBinary ?? _humanRace.DefaultHeightWeightModelFemale,
-				HungerRate = 0.0,
-				ThirstRate = 0.0,
-				TrackIntensityVisual = _humanRace.TrackIntensityVisual,
-				TrackIntensityOlfactory = 0.0,
-				TrackingAbilityVisual = _humanRace.TrackingAbilityVisual,
-				TrackingAbilityOlfactory = 0.0
-			};
-			_context.Races.Add(race);
-			_context.SaveChanges();
 
 			CopyRaceAttributes(race);
 			if (template.UsesHumanoidCharacteristics)
@@ -141,20 +145,24 @@ public partial class RobotSeeder
 			else
 			{
 				SeedSimpleEthnicity(race, template);
-				SeedDefaultDescriptions(race, template);
 			}
 
+			SeedDefaultDescriptions(race, template);
 			SeedRacialBodypartUsages(race, template);
 			SeedNaturalAttacks(race, template);
-			summary.RacesAdded++;
 		}
 	}
 
 	private void CopyRaceAttributes(Race race)
 	{
-		foreach (var attribute in _humanRace.RacesAttributes)
+		var humanHealthAttributes = _context.RacesAttributes
+			.Where(x => x.RaceId == _humanRace.Id)
+			.ToDictionary(x => x.AttributeId, x => x.IsHealthAttribute);
+		foreach (var attribute in _context.TraitDefinitions
+			         .Where(x => x.Type == (int)TraitType.Attribute)
+			         .ToList())
 		{
-			if (_context.RacesAttributes.Any(x => x.RaceId == race.Id && x.AttributeId == attribute.AttributeId))
+			if (_context.RacesAttributes.Any(x => x.RaceId == race.Id && x.AttributeId == attribute.Id))
 			{
 				continue;
 			}
@@ -162,8 +170,8 @@ public partial class RobotSeeder
 			_context.RacesAttributes.Add(new RacesAttributes
 			{
 				Race = race,
-				Attribute = attribute.Attribute,
-				IsHealthAttribute = attribute.IsHealthAttribute
+				Attribute = attribute,
+				IsHealthAttribute = humanHealthAttributes.GetValueOrDefault(attribute.Id)
 			});
 		}
 
@@ -212,6 +220,7 @@ public partial class RobotSeeder
 		};
 		_context.Ethnicities.Add(ethnicity);
 		_context.SaveChanges();
+		ApplyRobotNameCultures(ethnicity);
 
 		AddEthnicityCharacteristic(ethnicity, "Eye Colour", "All Eye Colours");
 		AddEthnicityCharacteristic(ethnicity, "Eye Shape", "All Eye Shapes");

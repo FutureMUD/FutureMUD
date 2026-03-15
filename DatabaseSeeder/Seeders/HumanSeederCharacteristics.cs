@@ -9,6 +9,24 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class HumanSeeder
 {
+	internal const string LegacyHumanoidDescriptionRaceCondition = "SameRace(@ch.Race, ToRace(\"Humanoid\"))";
+	internal const string OrganicHumanoidDescriptionRaceCondition =
+		"SameRace(@ch.Race, ToRace(\"Organic Humanoid\"))";
+
+	internal static string UpdateHumanoidDescriptionProgScope(string functionText)
+	{
+		return functionText.Replace(
+			LegacyHumanoidDescriptionRaceCondition,
+			OrganicHumanoidDescriptionRaceCondition);
+	}
+
+	private static string BuildOrganicHumanoidDescriptionProgText(string? additionalCondition = null)
+	{
+		return string.IsNullOrWhiteSpace(additionalCondition)
+			? $"return {OrganicHumanoidDescriptionRaceCondition}"
+			: $"return {OrganicHumanoidDescriptionRaceCondition} and {additionalCondition}";
+	}
+
 	private void SetupCharacteristics(bool useDistinctive, Race humanRace)
 	{
 		#region Shapes
@@ -558,7 +576,7 @@ public partial class HumanSeeder
 			FunctionComment = "True if the character is a type of humanoid",
 			ReturnType = 4,
 			StaticType = 0,
-			FunctionText = "return SameRace(@ch.Race, ToRace(\"Humanoid\"))"
+			FunctionText = BuildOrganicHumanoidDescriptionProgText()
 		};
 		humanProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -577,8 +595,8 @@ public partial class HumanSeeder
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText = useNB
-				? "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.Gender != ToGender(\"male\")"
-				: "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.Gender == ToGender(\"female\")"
+				? BuildOrganicHumanoidDescriptionProgText("@ch.Gender != ToGender(\"male\")")
+				: BuildOrganicHumanoidDescriptionProgText("@ch.Gender == ToGender(\"female\")")
 		};
 		humanFemaleProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -598,8 +616,8 @@ public partial class HumanSeeder
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText = useNB
-				? "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.Gender != ToGender(\"female\")"
-				: "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.Gender == ToGender(\"male\")"
+				? BuildOrganicHumanoidDescriptionProgText("@ch.Gender != ToGender(\"female\")")
+				: BuildOrganicHumanoidDescriptionProgText("@ch.Gender == ToGender(\"male\")")
 		};
 		humanMaleProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -619,7 +637,7 @@ public partial class HumanSeeder
 				"True if the character is a type of humanoid and is male or non-binary. Used for facial hair characteristics.",
 			ReturnType = 4,
 			StaticType = 0,
-			FunctionText = "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.Gender != ToGender(\"female\")"
+			FunctionText = BuildOrganicHumanoidDescriptionProgText("@ch.Gender != ToGender(\"female\")")
 		};
 		humanNonFemaleProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -737,7 +755,7 @@ return @bmi > 24 and @bmi < 35"
 			FunctionComment = "Determines if the character is a baby of a humanoid race.",
 			ReturnType = 4,
 			StaticType = 0,
-			FunctionText = "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.Age < 1"
+			FunctionText = BuildOrganicHumanoidDescriptionProgText("@ch.Age < 1")
 		};
 		isBabyProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -757,8 +775,7 @@ return @bmi > 24 and @bmi < 35"
 			FunctionComment = "Determines if the character is a toddler of a humanoid race.",
 			ReturnType = 4,
 			StaticType = 0,
-			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.AgeCategory == \"Baby\" and @ch.Age >= 1"
+			FunctionText = BuildOrganicHumanoidDescriptionProgText("@ch.AgeCategory == \"Baby\" and @ch.Age >= 1")
 		};
 		isToddlerProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -778,7 +795,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.AgeCategory == \"Child\" and @ch.Gender != ToGender(\"Female\")"
+				BuildOrganicHumanoidDescriptionProgText("@ch.AgeCategory == \"Child\" and @ch.Gender != ToGender(\"Female\")")
 		};
 		isBoyProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -798,7 +815,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.AgeCategory == \"Child\" and @ch.Gender != ToGender(\"Male\")"
+				BuildOrganicHumanoidDescriptionProgText("@ch.AgeCategory == \"Child\" and @ch.Gender != ToGender(\"Male\")")
 		};
 		isGirlProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -817,7 +834,7 @@ return @bmi > 24 and @bmi < 35"
 			FunctionComment = "Determines if the character can pick humanoid child descriptions.",
 			ReturnType = 4,
 			StaticType = 0,
-			FunctionText = "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.AgeCategory == \"Child\""
+			FunctionText = BuildOrganicHumanoidDescriptionProgText("@ch.AgeCategory == \"Child\"")
 		};
 		isChildProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -836,7 +853,7 @@ return @bmi > 24 and @bmi < 35"
 			FunctionComment = "Determines if the character can pick gender neutral humanoid youth descriptions.",
 			ReturnType = 4,
 			StaticType = 0,
-			FunctionText = "return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.AgeCategory == \"Youth\""
+			FunctionText = BuildOrganicHumanoidDescriptionProgText("@ch.AgeCategory == \"Youth\"")
 		};
 		isYouthProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -856,7 +873,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Youth\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Female\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Youth\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Female\")")
 		};
 		isYoungManProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -876,7 +893,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Youth\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Male\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Youth\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Male\")")
 		};
 		isYoungWomanProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -896,7 +913,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Youth\" or @ch.AgeCategory == \"YoungAdult\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Youth\" or @ch.AgeCategory == \"YoungAdult\")")
 		};
 		isYoungAdultProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -916,7 +933,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Adult\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Female\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Adult\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Female\")")
 		};
 		isAdultManProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -936,7 +953,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Adult\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Male\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Adult\" or @ch.AgeCategory == \"YoungAdult\") and @ch.Gender != ToGender(\"Male\")")
 		};
 		isAdultWomanProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -956,7 +973,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Adult\" or @ch.AgeCategory == \"YoungAdult\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Adult\" or @ch.AgeCategory == \"YoungAdult\")")
 		};
 		isAdultProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -976,7 +993,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Elder\" or @ch.AgeCategory == \"Venerable\") and @ch.Gender != ToGender(\"Female\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Elder\" or @ch.AgeCategory == \"Venerable\") and @ch.Gender != ToGender(\"Female\")")
 		};
 		isOldManProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -996,7 +1013,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Elder\" or @ch.AgeCategory == \"Venerable\") and @ch.Gender != ToGender(\"Male\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Elder\" or @ch.AgeCategory == \"Venerable\") and @ch.Gender != ToGender(\"Male\")")
 		};
 		isOldWomanProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
@@ -1016,7 +1033,7 @@ return @bmi > 24 and @bmi < 35"
 			ReturnType = 4,
 			StaticType = 0,
 			FunctionText =
-				"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and (@ch.AgeCategory == \"Elder\" or @ch.AgeCategory == \"Venerable\")"
+				BuildOrganicHumanoidDescriptionProgText("(@ch.AgeCategory == \"Elder\" or @ch.AgeCategory == \"Venerable\")")
 		};
 		isOldPersonProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{

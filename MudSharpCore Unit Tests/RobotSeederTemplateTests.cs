@@ -151,6 +151,53 @@ public class RobotSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void TemplatesForTesting_HumanoidRobotDescriptions_AreDefinedAndDistinctive()
+	{
+		var expectations = new[]
+		{
+			("Robot Humanoid", "service robot", "sensor-packed head"),
+			("Spider Crawler Robot", "crawler robot", "crawler base"),
+			("Circular Saw Robot", "circular-saw", "circular saws"),
+			("Pneumatic Hammer Robot", "hammer-armed", "pneumatic hammers"),
+			("Sword-Hand Robot", "sword-handed", "monoblade sword"),
+			("Winged Robot", "winged", "articulated wings"),
+			("Jet Robot", "jet-backed", "jet pods"),
+			("Mandible Robot", "mandible-faced", "shearing mandibles"),
+			("Wheeled Robot", "wheeled", "wheel assemblies"),
+			("Tracked Robot", "tracked", "track pods")
+		};
+
+		foreach (var (name, shortSnippet, fullSnippet) in expectations)
+		{
+			var template = RobotSeeder.TemplatesForTesting[name];
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.ShortDescriptionPattern),
+				$"{name} should define a stock short description pattern.");
+			Assert.IsFalse(string.IsNullOrWhiteSpace(template.FullDescriptionPattern),
+				$"{name} should define a stock full description pattern.");
+			StringAssert.Contains(template.ShortDescriptionPattern!, shortSnippet);
+			StringAssert.Contains(template.FullDescriptionPattern!, fullSnippet);
+		}
+
+		Assert.IsTrue(string.IsNullOrWhiteSpace(RobotSeeder.TemplatesForTesting["Cyborg"].ShortDescriptionPattern),
+			"Cyborgs should continue to use the organic humanoid description path.");
+	}
+
+	[TestMethod]
+	public void HumanSeeder_OrganicHumanoidDescriptionScope_ExcludesMechanicalHumanoids()
+	{
+		Assert.AreEqual(
+			"SameRace(@ch.Race, ToRace(\"Organic Humanoid\"))",
+			HumanSeeder.OrganicHumanoidDescriptionRaceCondition);
+
+		var updated = HumanSeeder.UpdateHumanoidDescriptionProgScope(
+			"return SameRace(@ch.Race, ToRace(\"Humanoid\")) and @ch.AgeCategory == \"Adult\"");
+
+		StringAssert.Contains(updated, "Organic Humanoid");
+		Assert.IsFalse(updated.Contains("ToRace(\"Humanoid\")"),
+			"Humanoid description progs should no longer scope against the mechanical humanoid parent race.");
+	}
+
+	[TestMethod]
 	public void TemplatesForTesting_MobilityVariants_ExposeExpectedFlavourAndLiquids()
 	{
 		var spider = RobotSeeder.TemplatesForTesting["Spider Crawler Robot"];
@@ -174,6 +221,31 @@ public class RobotSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void CustomLimbMembershipsForTesting_DerivedRobotBodies_MapExpectedAssemblies()
+	{
+		CollectionAssert.AreEquivalent(
+			new[] { "Mandible Robot", "Tracked Robot", "Wheeled Robot" },
+			RobotSeeder.CustomLimbMembershipsForTesting.Keys.ToArray(),
+			"The robot seeder should explicitly map every derived assembly that is grafted onto an existing limb.");
+
+		var mandibleMappings = RobotSeeder.CustomLimbMembershipsForTesting["Mandible Robot"].ToArray();
+		Assert.AreEqual(1, mandibleMappings.Length);
+		Assert.AreEqual("neck", mandibleMappings[0].LimbRootAlias);
+		Assert.AreEqual("mandibles", mandibleMappings[0].PartAlias);
+
+		CollectionAssert.AreEquivalent(
+			new[] { "rhip:rwheel", "lhip:lwheel" },
+			RobotSeeder.CustomLimbMembershipsForTesting["Wheeled Robot"]
+				.Select(x => $"{x.LimbRootAlias}:{x.PartAlias}")
+				.ToArray());
+		CollectionAssert.AreEquivalent(
+			new[] { "rhip:rtrack", "lhip:ltrack" },
+			RobotSeeder.CustomLimbMembershipsForTesting["Tracked Robot"]
+				.Select(x => $"{x.LimbRootAlias}:{x.PartAlias}")
+				.ToArray());
+	}
+
+	[TestMethod]
 	public void TemplatesForTesting_Cyborg_RemainsOnlyPlayableRobotRace()
 	{
 		var playableRaces = RobotSeeder.TemplatesForTesting
@@ -186,6 +258,32 @@ public class RobotSeederTemplateTests
 			"Cyborgs should retain the humanoid characteristic matrix.");
 		Assert.AreEqual("Human", RobotSeeder.TemplatesForTesting["Cyborg"].ParentRaceName,
 			"Cyborgs should inherit from the human race line for presentation purposes.");
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_GenderAndAttackCoverage_FollowRobotRules()
+	{
+		Assert.IsTrue(RobotSeeder.TemplatesForTesting["Cyborg"].UsesHumanGenders,
+			"Cyborgs should remain the only robot race using the human gender matrix.");
+		Assert.IsTrue(
+			RobotSeeder.TemplatesForTesting
+				.Where(x => x.Key != "Cyborg")
+				.All(x => !x.Value.UsesHumanGenders),
+			"All non-mechanical-human robot races should be neuter-only.");
+
+		foreach (var (name, template) in RobotSeeder.TemplatesForTesting)
+		{
+			Assert.IsTrue(
+				template.Attacks.Any(x => x.AttackName is "Elbow" or "Bite" or "Mandible Shear" or "Wheel Grind Close" or
+					"Track Crush" or "Mandible Bite"),
+				$"Robot race {name} should expose a clinch-capable natural attack.");
+			Assert.IsTrue(
+				template.Attacks.Any(x => x.AttackName is "Jab" or "Cross" or "Hook" or "Circular Saw Slash" or
+					"Pneumatic Hammer Blow" or "Sword-Hand Lunge" or "Wing Buffet" or "Jet Ram" or "Wheel Ram" or
+					"Track Grind" or "Snap Kick" or "Carnivore Bite" or "Claw Low Swipe" or "Claw High Swipe" or
+					"Mandible Snap"),
+				$"Robot race {name} should expose a non-clinch natural attack.");
+		}
 	}
 
 	[TestMethod]
@@ -247,7 +345,7 @@ public class RobotSeederTemplateTests
 			CreateWeaponAttack(8, "Claw Low Swipe"),
 			CreateWeaponAttack(9, "Claw High Swipe"),
 			CreateWeaponAttack(10, "Mandible Bite"),
-			CreateWeaponAttack(11, "Barge"),
+			CreateWeaponAttack(11, "Animal Barge"),
 			CreateWeaponAttack(12, "Hoof Stomp Smash"));
 		context.CorpseModels.AddRange(
 			CreateCorpseModel(1, "Organic Human Corpse"),

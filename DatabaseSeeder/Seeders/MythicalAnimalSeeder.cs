@@ -7,6 +7,7 @@ using System.Text;
 using DatabaseSeeder.Seeders;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
+using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;

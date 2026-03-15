@@ -446,27 +446,39 @@ public class MythicalAnimalSeederTemplateTests
 		Assert.IsTrue(
 			unicorn.BodypartUsages?.Any(x => x.BodypartAlias == "horn" && x.Usage == "general") == true,
 			"Unicorns should expose their horn as a general-purpose additional bodypart.");
-		CollectionAssert.AreEquivalent(
-			new[] { "Hoof Stomp", "Horn Gore" },
-			unicorn.Attacks.Select(x => x.AttackName).ToArray(),
-			"Unicorns should stomp and gore.");
+		CollectionAssert.Contains(unicorn.Attacks.Select(x => x.AttackName).ToList(), "Bite");
+		CollectionAssert.Contains(unicorn.Attacks.Select(x => x.AttackName).ToList(), "Horn Gore");
 
 		var pegasus = MythicalAnimalSeeder.TemplatesForTesting["Pegasus"];
 		CollectionAssert.AreEquivalent(
 			new[] { "rwingbase", "lwingbase", "rwing", "lwing" },
 			pegasus.BodypartUsages!.Select(x => x.BodypartAlias).ToArray(),
 			"Pegasi should expose both wing roots and both wings.");
+		CollectionAssert.Contains(pegasus.Attacks.Select(x => x.AttackName).ToList(), "Bite");
 
 		var pegacorn = MythicalAnimalSeeder.TemplatesForTesting["Pegacorn"];
-		CollectionAssert.AreEquivalent(
-			new[] { "Hoof Stomp", "Horn Gore" },
-			pegacorn.Attacks.Select(x => x.AttackName).ToArray(),
-			"Pegacorns should preserve the combined pegasus and unicorn attack profile.");
+		CollectionAssert.Contains(pegacorn.Attacks.Select(x => x.AttackName).ToList(), "Bite");
+		CollectionAssert.Contains(pegacorn.Attacks.Select(x => x.AttackName).ToList(), "Horn Gore");
 
 		var phoenix = MythicalAnimalSeeder.TemplatesForTesting["Phoenix"];
 		CollectionAssert.AreEquivalent(
-			new[] { "Beak Peck", "Talon Strike" },
+			new[] { "Beak Peck", "Beak Bite", "Talon Strike" },
 			phoenix.Attacks.Select(x => x.AttackName).ToArray(),
-			"Phoenixes should keep the avian peck and talon loadout.");
+			"Phoenixes should keep the avian peck, clinch beak strike, and talon loadout.");
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_AllMythicRaces_HaveClinchAndNonClinchAttacks()
+	{
+		foreach (var (name, template) in MythicalAnimalSeeder.TemplatesForTesting)
+		{
+			Assert.IsTrue(
+				template.Attacks.Any(x => x.AttackName is "Bite" or "Beak Bite" or "Herbivore Bite" or "Elbow"),
+				$"Mythical race {name} should expose at least one clinch-capable natural attack.");
+			Assert.IsTrue(
+				template.Attacks.Any(x => x.AttackName is "Carnivore Bite" or "Claw Swipe" or "Horn Gore" or "Tail Slap" or
+					"Beak Peck" or "Hoof Stomp" or "Head Ram" or "Talon Strike" or "Jab"),
+				$"Mythical race {name} should expose at least one non-clinch natural attack.");
+		}
 	}
 }

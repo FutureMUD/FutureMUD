@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body;
+using MudSharp.Combat;
 using MudSharp.Models;
 
 namespace DatabaseSeeder.Seeders;
@@ -245,6 +246,7 @@ public partial class AnimalSeeder
 		};
 		var validAttackKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
+			"bite",
 			"carnivorebite",
 			"carnivoresmashbite",
 			"carnivorelowbite",
@@ -278,13 +280,68 @@ public partial class AnimalSeeder
 			"fishquickbite",
 			"sharkbite",
 			"sharkreelbite",
+			"headbutt",
 			"beakpeck",
+			"beakbite",
 			"talonstrike",
 			"fangbite",
 			"mandiblebite",
+			"clawclamp",
 			"arachnidclaw",
 			"headram",
-			"tailslap"
+			"tailslap",
+			"tendrillash"
+		};
+		var clinchCapableAttackKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"bite",
+			"carnivoreclinchbite",
+			"carnivoreclinchhighbite",
+			"carnivoreclinchhighestbite",
+			"herbivorebite",
+			"smallbite",
+			"smalllowbite",
+			"fishbite",
+			"fishquickbite",
+			"headbutt",
+			"beakbite",
+			"fangbite",
+			"mandiblebite",
+			"clawclamp"
+		};
+		var nonClinchCapableAttackKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"carnivorebite",
+			"carnivoresmashbite",
+			"carnivorelowbite",
+			"carnivorehighbite",
+			"carnivorelowestbite",
+			"carnivoredownbite",
+			"herbivoresmashbite",
+			"smallsmashbite",
+			"smalldownedbite",
+			"clawswipe",
+			"clawsmashswipe",
+			"clawlowswipe",
+			"clawhighswipe",
+			"hoofstomp",
+			"hoofstompsmash",
+			"barge",
+			"bargesmash",
+			"clinchbarge",
+			"gorehorn",
+			"goreantler",
+			"goretusk",
+			"tusksweep",
+			"crabpinch",
+			"sharkbite",
+			"sharkreelbite",
+			"beakpeck",
+			"talonstrike",
+			"arachnidclaw",
+			"headram",
+			"tailslap",
+			"tendrillash"
 		};
 
 		foreach (var (raceName, template) in RaceTemplates)
@@ -401,6 +458,24 @@ public partial class AnimalSeeder
 						issues.Add($"Attack loadout {loadoutKey} has a venom attack with a blank target alias.");
 					}
 				}
+			}
+
+			var allAttackKeys = loadout.ShapeMatchedAttacks
+				.Select(x => x.AttackKey)
+				.Concat(loadout.AliasAttacks?.Select(x => x.AttackKey) ?? Enumerable.Empty<string>())
+				.ToList();
+			var hasClinchAttack = allAttackKeys.Any(clinchCapableAttackKeys.Contains) ||
+			                      (loadout.VenomAttacks?.Any(x => x.MoveType == BuiltInCombatMoveType.EnvenomingAttackClinch) ?? false);
+			var hasNonClinchAttack = allAttackKeys.Any(nonClinchCapableAttackKeys.Contains) ||
+			                         (loadout.VenomAttacks?.Any(x => x.MoveType != BuiltInCombatMoveType.EnvenomingAttackClinch) ?? false);
+			if (!hasClinchAttack)
+			{
+				issues.Add($"Attack loadout {loadoutKey} must include at least one clinch-usable attack.");
+			}
+
+			if (!hasNonClinchAttack)
+			{
+				issues.Add($"Attack loadout {loadoutKey} must include at least one non-clinch attack.");
 			}
 		}
 

@@ -10,6 +10,29 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class RobotSeeder
 {
+	private void EnsureOrganicHumanoidDescriptionProgScope()
+	{
+		var dirty = false;
+		foreach (var prog in _context.FutureProgs
+			         .Where(x => x.Subcategory == "Descriptions" && x.FunctionName.StartsWith("IsHumanoid"))
+			         .ToList())
+		{
+			var updatedText = HumanSeeder.UpdateHumanoidDescriptionProgScope(prog.FunctionText);
+			if (updatedText == prog.FunctionText)
+			{
+				continue;
+			}
+
+			prog.FunctionText = updatedText;
+			dirty = true;
+		}
+
+		if (dirty)
+		{
+			_context.SaveChanges();
+		}
+	}
+
 	private void SeedSimpleEthnicity(Race race, RobotRaceTemplate template)
 	{
 		if (_context.Ethnicities.Any(x => x.ParentRaceId == race.Id && x.Name == $"{template.Name} Stock"))
@@ -30,6 +53,9 @@ public partial class RobotSeeder
 			TolerableTemperatureCeilingEffect = 0
 		});
 		_context.SaveChanges();
+		ApplyRobotNameCultures(_context.Ethnicities.First(x =>
+			x.ParentRaceId == race.Id &&
+			x.Name == $"{template.Name} Stock"));
 	}
 
 	private void AddEthnicityCharacteristic(Ethnicity ethnicity, string definitionName, string profileName)
@@ -125,47 +151,72 @@ public partial class RobotSeeder
 			return;
 		}
 
-		if (_context.FutureProgs.Any(x => x.FunctionName == $"Is{race.Name.CollapseString()}"))
+		var prog = EnsureRaceDescriptionApplicabilityProg(race);
+		EnsureEntityDescriptionPattern(prog, 0, template.ShortDescriptionPattern);
+		EnsureEntityDescriptionPattern(prog, 1, template.FullDescriptionPattern);
+		_context.SaveChanges();
+	}
+
+	private FutureProg EnsureRaceDescriptionApplicabilityProg(Race race)
+	{
+		var functionName = $"Is{race.Name.CollapseString()}";
+		var prog = _context.FutureProgs.FirstOrDefault(x => x.FunctionName == functionName);
+		if (prog is null)
 		{
+			prog = new FutureProg
+			{
+				FunctionName = functionName
+			};
+			_context.FutureProgs.Add(prog);
+		}
+
+		prog.Category = "Character";
+		prog.Subcategory = "Descriptions";
+		prog.FunctionComment = $"True if the character is a {race.Name}";
+		prog.ReturnType = (long)ProgVariableTypes.Boolean;
+		prog.StaticType = 0;
+		prog.AcceptsAnyParameters = false;
+		prog.Public = true;
+		prog.FunctionText = $"return @ch.Race == ToRace(\"{race.Name}\")";
+
+		if (!prog.FutureProgsParameters.Any(x => x.ParameterIndex == 0))
+		{
+			prog.FutureProgsParameters.Add(new FutureProgsParameter
+			{
+				FutureProg = prog,
+				ParameterIndex = 0,
+				ParameterName = "ch",
+				ParameterType = (long)ProgVariableTypes.Toon
+			});
+		}
+
+		_context.SaveChanges();
+		return prog;
+	}
+
+	private void EnsureEntityDescriptionPattern(FutureProg prog, int type, string pattern)
+	{
+		var existingPatterns = _context.EntityDescriptionPatterns
+			.Where(x => x.ApplicabilityProgId == prog.Id && x.Type == type)
+			.OrderBy(x => x.Id)
+			.ToList();
+
+		if (!existingPatterns.Any())
+		{
+			_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+			{
+				Type = type,
+				ApplicabilityProg = prog,
+				RelativeWeight = 100,
+				Pattern = pattern
+			});
 			return;
 		}
 
-		var prog = new FutureProg
+		foreach (var existing in existingPatterns)
 		{
-			FunctionName = $"Is{race.Name.CollapseString()}",
-			Category = "Character",
-			Subcategory = "Descriptions",
-			FunctionComment = $"True if the character is a {race.Name}",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			StaticType = 0,
-			AcceptsAnyParameters = false,
-			Public = true,
-			FunctionText = $"return @ch.Race == ToRace(\"{race.Name}\")"
-		};
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Toon
-		});
-		_context.FutureProgs.Add(prog);
-		_context.SaveChanges();
-
-		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
-		{
-			Type = 0,
-			ApplicabilityProg = prog,
-			RelativeWeight = 100,
-			Pattern = template.ShortDescriptionPattern
-		});
-		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
-		{
-			Type = 1,
-			ApplicabilityProg = prog,
-			RelativeWeight = 100,
-			Pattern = template.FullDescriptionPattern
-		});
-		_context.SaveChanges();
+			existing.RelativeWeight = 100;
+			existing.Pattern = pattern;
+		}
 	}
 }

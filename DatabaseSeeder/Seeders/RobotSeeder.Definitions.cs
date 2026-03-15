@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 
 namespace DatabaseSeeder.Seeders;
@@ -29,7 +30,8 @@ public partial class RobotSeeder
 		string? ShortDescriptionPattern,
 		string? FullDescriptionPattern,
 		IReadOnlyList<RobotAttackBindingTemplate> Attacks,
-		IReadOnlyList<RobotBodypartUsageTemplate>? BodypartUsages = null);
+		IReadOnlyList<RobotBodypartUsageTemplate>? BodypartUsages = null,
+		bool UsesHumanGenders = false);
 
 	private static readonly IReadOnlyDictionary<string, RobotRaceTemplate> Templates =
 		new Dictionary<string, RobotRaceTemplate>(StringComparer.OrdinalIgnoreCase)
@@ -47,8 +49,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a humanoid service robot",
+				"This humanoid robot is built on an articulated plated chassis with dexterous hands and a sensor-packed head designed for general tool use.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -70,8 +72,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a spider-legged crawler robot",
+				"This robot mounts a humanoid upper chassis atop a sprawling multi-legged crawler base, letting it scuttle low and steady on articulated legs.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -102,8 +104,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a circular-saw worker robot",
+				"This worker-frame robot carries circular saws in place of hands, with a rugged torso and heavy lower limbs braced for cutting work.",
 				[
 					new("Circular Saw Slash", "rsaw", "lsaw"),
 					new("Elbow", "relbow", "lelbow"),
@@ -127,8 +129,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a hammer-armed demolition robot",
+				"This demolition robot ends in paired pneumatic hammers rather than hands, its reinforced frame built to absorb recoil and deliver crushing strikes.",
 				[
 					new("Pneumatic Hammer Blow", "rhammer", "lhammer"),
 					new("Elbow", "relbow", "lelbow"),
@@ -152,8 +154,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a sword-handed combat robot",
+				"This combat chassis replaces both hands with monoblade sword assemblies, giving its otherwise humanoid frame a deliberately martial silhouette.",
 				[
 					new("Sword-Hand Lunge", "rblade", "lblade"),
 					new("Elbow", "relbow", "lelbow"),
@@ -177,8 +179,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a winged humanoid robot",
+				"This humanoid robot carries broad articulated wings across its back, with a balanced plated frame designed for gliding lifts and punishing wing strikes.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -207,8 +209,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a jet-backed humanoid robot",
+				"This humanoid robot mounts paired vector-thrust jet pods where wings would sit, giving its angular chassis a sleek, flight-capable profile.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -235,8 +237,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				true,
 				false,
-				null,
-				null,
+				"a mandible-faced predator robot",
+				"This predatory robot has a humanoid frame crowned by a sensor head whose lower face opens into heavy shearing mandibles.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -261,8 +263,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				false,
 				false,
-				null,
-				null,
+				"a wheeled humanoid robot",
+				"This humanoid robot rides on paired wheel assemblies instead of legs below the hips, its upper chassis built to steer and balance at speed.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -288,8 +290,8 @@ public partial class RobotSeeder
 				SizeCategory.Normal,
 				false,
 				false,
-				null,
-				null,
+				"a tracked humanoid robot",
+				"This humanoid robot replaces legs with compact armoured track pods, giving its sturdy upper chassis a low, relentless stance.",
 				[
 					new("Jab", "rhand", "lhand"),
 					new("Cross", "rhand", "lhand"),
@@ -324,7 +326,9 @@ public partial class RobotSeeder
 					new("Elbow", "relbow", "lelbow"),
 					new("Bite", "mouth"),
 					new("Snap Kick", "rfoot", "lfoot")
-				]),
+				],
+				null,
+				true),
 			["Roomba Robot"] = new(
 				"Roomba Robot",
 				"Roomba Robot",
@@ -341,7 +345,8 @@ public partial class RobotSeeder
 				"a compact wheeled robot",
 				"This compact robot is built around a low, circular chassis with intake vents, drive wheels, and a sensor cluster tucked into its shell.",
 				[
-					new("Wheel Ram", "rdrivewheel", "ldrivewheel")
+					new("Wheel Ram", "rdrivewheel", "ldrivewheel"),
+					new("Wheel Grind Close", "rdrivewheel", "ldrivewheel")
 				],
 				[
 					new("rdrivewheel", "general"),
@@ -363,7 +368,8 @@ public partial class RobotSeeder
 				"a tracked utility robot",
 				"This squat utility robot rides on short track units braced around a hardened service chassis and a swivelling sensor pod.",
 				[
-					new("Track Grind", "rtrack", "ltrack")
+					new("Track Grind", "rtrack", "ltrack"),
+					new("Track Crush", "rtrack", "ltrack")
 				],
 				[
 					new("rtrack", "general"),
@@ -386,6 +392,7 @@ public partial class RobotSeeder
 				"This robotic hound combines a reinforced quadruped frame with a sensor-rich head and a servo-driven jaw built for grip and pursuit.",
 				[
 					new("Carnivore Bite", "mouth"),
+					new("Bite", "mouth"),
 					new("Claw Low Swipe", "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
 					new("Claw High Swipe", "rfclaw", "lfclaw", "rrclaw", "lrclaw")
 				],
@@ -412,7 +419,8 @@ public partial class RobotSeeder
 				"a cockroach-shaped robot",
 				"This small robotic insect has a segmented shell, darting legs, and a sensor-laden head between its antennae.",
 				[
-					new("Mandible Bite", "mandibles")
+					new("Mandible Bite", "mandibles"),
+					new("Mandible Snap", "mandibles")
 				],
 				[
 					new("mandibles", "general"),
@@ -472,9 +480,26 @@ public partial class RobotSeeder
 				issues.Add($"Template {template.Name} has an attack with no bound bodyparts.");
 			}
 
+			if (!template.Attacks.Any(x => RobotNonClinchAttackNames.Contains(x.AttackName)))
+			{
+				issues.Add($"Template {template.Name} must expose at least one non-clinch natural attack.");
+			}
+
+			if (!template.Attacks.Any(x => RobotClinchAttackNames.Contains(x.AttackName)))
+			{
+				issues.Add($"Template {template.Name} must expose at least one clinch natural attack.");
+			}
+
 			if (template.UsesHumanoidCharacteristics && template.ParentRaceName is null)
 			{
 				issues.Add($"Humanoid template {template.Name} should inherit from a humanoid parent race.");
+			}
+
+			if (!template.Name.EqualTo("Cyborg") &&
+			    (string.IsNullOrWhiteSpace(template.ShortDescriptionPattern) ||
+			     string.IsNullOrWhiteSpace(template.FullDescriptionPattern)))
+			{
+				issues.Add($"Template {template.Name} should define stock description patterns.");
 			}
 		}
 
@@ -486,4 +511,33 @@ public partial class RobotSeeder
 
 		return issues;
 	}
+
+	private static readonly HashSet<string> RobotNonClinchAttackNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Jab",
+		"Cross",
+		"Hook",
+		"Circular Saw Slash",
+		"Pneumatic Hammer Blow",
+		"Sword-Hand Lunge",
+		"Wing Buffet",
+		"Jet Ram",
+		"Wheel Ram",
+		"Track Grind",
+		"Snap Kick",
+		"Carnivore Bite",
+		"Claw Low Swipe",
+		"Claw High Swipe",
+		"Mandible Snap"
+	};
+
+	private static readonly HashSet<string> RobotClinchAttackNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Elbow",
+		"Bite",
+		"Mandible Shear",
+		"Wheel Grind Close",
+		"Track Crush",
+		"Mandible Bite"
+	};
 }

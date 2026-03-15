@@ -199,6 +199,7 @@ public partial class MythicalAnimalSeeder
 				"This colossal draconic beast combines a heavily muscled quadrupedal frame with broad wings, curving horns and a predator's jaws.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Legendary, "mouth"),
+					Attack("Bite", ItemQuality.Good, "mouth"),
 					Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Horn Gore", ItemQuality.Great, "rhorn", "lhorn"),
 					Attack("Tail Slap", ItemQuality.Good, "ltail")
@@ -227,6 +228,7 @@ public partial class MythicalAnimalSeeder
 				"This imposing mythic predator bears a hooked avian beak and far-seeing eyes above a leonine quadruped body built for bounding flight and savage pounces.",
 				[
 					Attack("Beak Peck", ItemQuality.Good, "beak"),
+					Attack("Beak Bite", ItemQuality.Standard, "beak"),
 					Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Tail Slap", ItemQuality.Standard, "ltail")
 				]
@@ -242,6 +244,7 @@ public partial class MythicalAnimalSeeder
 				"This powerful hybrid has an avian head and beating wings set atop an equine frame, with hoofed legs built equally for galloping starts and airborne strikes.",
 				[
 					Attack("Beak Peck", ItemQuality.Standard, "beak"),
+					Attack("Beak Bite", ItemQuality.Poor, "beak"),
 					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof")
 				]
 			),
@@ -255,6 +258,7 @@ public partial class MythicalAnimalSeeder
 				"a unicorn",
 				"This elegant, equine myth-beast carries itself with the poise of a fine horse, its singular horn and bright, intelligent eyes marking it as something far stranger.",
 				[
+					Attack("Bite", ItemQuality.Bad, "mouth"),
 					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
 					Attack("Horn Gore", ItemQuality.Good, "horn")
 				],
@@ -272,7 +276,9 @@ public partial class MythicalAnimalSeeder
 				"a pegasus",
 				"This broad-winged equine is all coiled athletic power, its feathered wings and strong hooves making it as dangerous in the air as on the ground.",
 				[
-					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof")
+					Attack("Bite", ItemQuality.Bad, "mouth"),
+					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
+					Attack("Head Ram", ItemQuality.Standard, "head")
 				],
 				[
 					Usage("rwingbase", "general"),
@@ -291,7 +297,8 @@ public partial class MythicalAnimalSeeder
 				"Minotaurs are broad, horned humanoids with a bestial cast to their features and physiques.",
 				[
 					Attack("Horn Gore", ItemQuality.Standard, "rhorn", "lhorn"),
-					Attack("Head Ram", ItemQuality.Standard, "head")
+					Attack("Head Ram", ItemQuality.Standard, "head"),
+					Attack("Elbow", ItemQuality.Standard, "relbow", "lelbow")
 				],
 				["minotaur"],
 				[
@@ -310,6 +317,7 @@ public partial class MythicalAnimalSeeder
 				"This immense draconic predator combines a serpentine cast and a powerful quadrupedal frame, with taloned feet, a long body and a sweeping tail in place of wings.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Legendary, "mouth"),
+					Attack("Bite", ItemQuality.Good, "mouth"),
 					Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Tail Slap", ItemQuality.Good, "ltail")
 				],
@@ -328,6 +336,7 @@ public partial class MythicalAnimalSeeder
 				"Naga are humanoid from the waist up, with serpentine lower bodies and a sinuous, coiled bearing.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Standard, "mouth"),
+					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Tail Slap", ItemQuality.Standard, "tail")
 				],
 				["naga"],
@@ -343,6 +352,7 @@ public partial class MythicalAnimalSeeder
 				"Merfolk have human torsos and arms paired with powerful piscine tails built for swimming.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Bad, "mouth"),
+					Attack("Bite", ItemQuality.Bad, "mouth"),
 					Attack("Tail Slap", ItemQuality.Good, "caudalfin")
 				],
 				["merfolk"]
@@ -358,6 +368,7 @@ public partial class MythicalAnimalSeeder
 				"This winged predator couples a leonine quadruped body and raking claws with a barbed stinger poised at the end of its tail.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Tail Slap", ItemQuality.Good, "ltail")
 				],
@@ -380,6 +391,7 @@ public partial class MythicalAnimalSeeder
 				"This draconic flyer stands on powerful taloned legs beneath a scaled torso, its jaws and whipping tail making close quarters especially dangerous.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
 					Attack("Tail Slap", ItemQuality.Standard, "tail")
 				]
@@ -395,6 +407,7 @@ public partial class MythicalAnimalSeeder
 				"This majestic firebird has an avian frame and proud bearing, its whole presence suggesting heat, renewal and dangerous beauty.",
 				[
 					Attack("Beak Peck", ItemQuality.Good, "beak"),
+					Attack("Beak Bite", ItemQuality.Standard, "beak"),
 					Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons")
 				]
 			),
@@ -409,6 +422,7 @@ public partial class MythicalAnimalSeeder
 				"This huge serpent drapes itself in heavy coils and watches with an unsettling, predatory stillness that makes its sudden strikes all the worse.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Tail Slap", ItemQuality.Standard, "tail")
 				]
 			),
@@ -423,6 +437,7 @@ public partial class MythicalAnimalSeeder
 				"This wiry, ill-tempered creature has an avian body and a reptilian cast to its features, all sharp beak, clawed feet and restless hostility.",
 				[
 					Attack("Beak Peck", ItemQuality.Standard, "beak"),
+					Attack("Beak Bite", ItemQuality.Terrible, "beak"),
 					Attack("Talon Strike", ItemQuality.Standard, "rtalons", "ltalons")
 				]
 			),
@@ -450,7 +465,8 @@ public partial class MythicalAnimalSeeder
 				LongLivedHumanoid(),
 				"Selkies are graceful seal-folk who can move comfortably between shore and sea.",
 				[
-					Attack("Carnivore Bite", ItemQuality.Bad, "mouth")
+					Attack("Carnivore Bite", ItemQuality.Bad, "mouth"),
+					Attack("Bite", ItemQuality.Bad, "mouth")
 				],
 				["selkie"]
 			),
@@ -464,7 +480,10 @@ public partial class MythicalAnimalSeeder
 				"Myconids are humanoid fungal folk with broad caps, soft flesh and an unsettlingly quiet demeanor.",
 				"a myconid",
 				"This stooped fungus-being has a humanoid shape but a cap-like head and an organic, spongy texture that marks it as something far removed from ordinary flesh.",
-				[],
+				[
+					Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
+					Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
+				],
 				additionalCharacteristics:
 				[
 					Characteristic("Fungus Colour", "white", "brown", "red", "purple")
@@ -480,7 +499,10 @@ public partial class MythicalAnimalSeeder
 				"Plantfolk are humanoid vegetative beings of bark, fibre and leaf.",
 				"a plantfolk",
 				"This plant-being stands in a recognisably humanoid form, but bark-like surfaces, fibrous growths and living greenery make every motion seem rooted in the natural world.",
-				[]
+				[
+					Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
+					Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
+				]
 			),
 			["Owlkin"] = HumanoidRace(
 				"Owlkin",
@@ -490,7 +512,10 @@ public partial class MythicalAnimalSeeder
 				"Human Female",
 				LongLivedHumanoid(),
 				"Owlkin are feathered, winged people with a keen gaze and a marked avian cast.",
-				[],
+				[
+					Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
+					Attack("Elbow", ItemQuality.Standard, "relbow", "lelbow")
+				],
 				["owlkin"],
 				[
 					Usage("rwingbase", "general"),
@@ -509,7 +534,10 @@ public partial class MythicalAnimalSeeder
 				"Human Female",
 				LongLivedHumanoid(),
 				"Avian people are broad-winged birdfolk whose forms remain largely humanoid aside from their wings and avian features.",
-				[],
+				[
+					Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
+					Attack("Elbow", ItemQuality.Standard, "relbow", "lelbow")
+				],
 				["birdfolk", "avian"],
 				[
 					Usage("rwingbase", "general"),
@@ -530,7 +558,8 @@ public partial class MythicalAnimalSeeder
 				"Centaurs combine human torsos and arms with a four-legged equine lower body.",
 				[
 					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
-					Attack("Head Ram", ItemQuality.Standard, "head")
+					Attack("Head Ram", ItemQuality.Standard, "head"),
+					Attack("Elbow", ItemQuality.Standard, "relbow", "lelbow")
 				],
 				["centaur"]
 			),
@@ -544,6 +573,7 @@ public partial class MythicalAnimalSeeder
 				"a pegacorn",
 				"This mythic equine bears both sweeping feathered wings and a singular horn, giving it the grace of a unicorn and the power of a pegasus.",
 				[
+					Attack("Bite", ItemQuality.Bad, "mouth"),
 					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
 					Attack("Horn Gore", ItemQuality.Good, "horn")
 				],
@@ -583,14 +613,36 @@ public partial class MythicalAnimalSeeder
 		var validAttackNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			"Carnivore Bite",
+			"Bite",
 			"Claw Swipe",
 			"Horn Gore",
 			"Tail Slap",
 			"Beak Peck",
+			"Beak Bite",
 			"Hoof Stomp",
 			"Head Ram",
 			"Talon Strike",
-			"Herbivore Bite"
+			"Herbivore Bite",
+			"Jab",
+			"Elbow"
+		};
+		var nonClinchAttackNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"Carnivore Bite",
+			"Claw Swipe",
+			"Horn Gore",
+			"Tail Slap",
+			"Beak Peck",
+			"Head Ram",
+			"Talon Strike",
+			"Jab"
+		};
+		var clinchAttackNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"Bite",
+			"Beak Bite",
+			"Herbivore Bite",
+			"Elbow"
 		};
 
 		if (Templates.Count != 22)
@@ -608,6 +660,23 @@ public partial class MythicalAnimalSeeder
 			if (!template.Attacks.All(x => validAttackNames.Contains(x.AttackName)))
 			{
 				issues.Add($"Race {name} references an unsupported attack name.");
+			}
+
+			if (template.Attacks.Count == 0)
+			{
+				issues.Add($"Race {name} must expose at least one natural attack.");
+			}
+			else
+			{
+				if (!template.Attacks.Any(x => nonClinchAttackNames.Contains(x.AttackName)))
+				{
+					issues.Add($"Race {name} must expose at least one non-clinch natural attack.");
+				}
+
+				if (!template.Attacks.Any(x => clinchAttackNames.Contains(x.AttackName)))
+				{
+					issues.Add($"Race {name} must expose at least one clinch natural attack.");
+				}
 			}
 
 			if (template.HumanoidVariety)

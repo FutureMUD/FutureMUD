@@ -197,7 +197,7 @@ public partial class RobotSeeder
 
 		EnsureAttackClone("Circular Saw Slash", "Claw High Swipe", "Circular Saw",
 			"@ carve|carves into $1 with a whining circular saw.");
-		EnsureAttackClone("Pneumatic Hammer Blow", "Hoof Stomp Smash", "Hammer Head",
+		EnsureAttackClone("Pneumatic Hammer Blow", "Animal Barge", "Hammer Head",
 			"@ slam|slams a pneumatic hammer into $1.");
 		EnsureAttackClone("Sword-Hand Lunge", "Claw High Swipe", "Sword Blade",
 			"@ lunge|lunges at $1 with a sword-hand.");
@@ -209,8 +209,14 @@ public partial class RobotSeeder
 			"@ shear|shears at $1 with snapping mandibles.");
 		EnsureAttackClone("Wheel Ram", "Animal Barge", "Wheel",
 			"@ ram|rams $1 with a drive wheel.");
-		EnsureAttackClone("Track Grind", "Hoof Stomp Smash", "Track",
+		EnsureAttackClone("Track Grind", "Animal Barge", "Track",
 			"@ grind|grinds into $1 with a track assembly.");
+		EnsureAttackClone("Wheel Grind Close", "Bite", "Wheel",
+			"@ grind|grinds a drive wheel into $1 at point-blank range.");
+		EnsureAttackClone("Track Crush", "Bite", "Track",
+			"@ crush|crushes into $1 with a churning track assembly.");
+		EnsureAttackClone("Mandible Snap", "Claw High Swipe", "Mandible",
+			"@ snap|snaps razor mandibles at $1.");
 
 		_context.SaveChanges();
 	}

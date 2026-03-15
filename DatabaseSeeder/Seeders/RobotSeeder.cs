@@ -76,6 +76,7 @@ public partial class RobotSeeder : IDatabaseSeeder
 	private ArmourType _robotInternalArmour = null!;
 	private CorpseModel _robotHumanoidCorpse = null!;
 	private CorpseModel _robotAnimalCorpse = null!;
+	private Culture _robotCulture = null!;
 	private FutureProg _robotStaminaRecoveryProg = null!;
 	private HealthStrategy _robotArticulatedStrategy = null!;
 	private HealthStrategy _robotUtilityStrategy = null!;
@@ -109,8 +110,10 @@ public partial class RobotSeeder : IDatabaseSeeder
 		_context.Database.BeginTransaction();
 
 		SeedSharedRobotContent();
+		EnsureOrganicHumanoidDescriptionProgScope();
 		var bodyCatalogue = EnsureBodyCatalogue(summary);
 		SeedKnowledges();
+		SeedRobotCulture();
 		SeedRaces(bodyCatalogue, summary);
 		SeedRobotProcedures(bodyCatalogue, summary);
 

@@ -14,6 +14,16 @@ public partial class RobotSeeder
 {
 	private static readonly string[] HumanoidRobotOrganAliases = ["powercore", "positronicbrain", "sensorarray", "speechsynth"];
 	private static readonly string[] NonSpeakingRobotOrganAliases = ["powercore", "positronicbrain", "sensorarray"];
+	private static readonly IReadOnlyDictionary<string, IReadOnlyList<(string LimbRootAlias, string PartAlias)>> CustomRobotLimbMemberships =
+		new Dictionary<string, IReadOnlyList<(string LimbRootAlias, string PartAlias)>>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Mandible Robot"] = [("neck", "mandibles")],
+			["Wheeled Robot"] = [("rhip", "rwheel"), ("lhip", "lwheel")],
+			["Tracked Robot"] = [("rhip", "rtrack"), ("lhip", "ltrack")]
+		};
+
+	internal static IReadOnlyDictionary<string, IReadOnlyList<(string LimbRootAlias, string PartAlias)>> CustomLimbMembershipsForTesting =>
+		CustomRobotLimbMemberships;
 
 	private Dictionary<string, BodyProto> EnsureBodyCatalogue(RobotSeedSummary summary)
 	{
@@ -66,8 +76,34 @@ public partial class RobotSeeder
 		}
 
 		var created = factory();
+		ValidateRobotBody(created);
 		summary.BodiesAdded++;
 		return created;
+	}
+
+	private void ValidateRobotBody(BodyProto body)
+	{
+		ApplyCustomLimbMemberships(body);
+
+		var uncoveredParts = SeederBodyUtilities.GetExternalBodypartsWithoutLimbCoverage(_context, body);
+		if (uncoveredParts.Any())
+		{
+			throw new InvalidOperationException(
+				$"Robot body {body.Name} has external bodyparts without limb coverage: {string.Join(", ", uncoveredParts.Select(x => x.Name))}");
+		}
+	}
+
+	private void ApplyCustomLimbMemberships(BodyProto body)
+	{
+		if (!CustomRobotLimbMemberships.TryGetValue(body.Name, out var mappings))
+		{
+			return;
+		}
+
+		foreach (var (limbRootAlias, partAlias) in mappings)
+		{
+			AddLimbPart(body, limbRootAlias, partAlias);
+		}
 	}
 
 	private BodyProto CreateRobotHumanoidBody()

@@ -1537,8 +1537,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			var talonShape = _context.BodypartShapes.First(x => x.Name == "Talon");
 			var fangShape = _context.BodypartShapes.First(x => x.Name == "Fang");
 			var mandibleShape = _context.BodypartShapes.First(x => x.Name == "Mandible");
+			var mouthShape = _context.BodypartShapes.First(x => x.Name == "Mouth");
 			var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
 			var tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
+			var tendrilShape = _context.BodypartShapes.First(x => x.Name == "Tendril");
 			var clawShape = _context.BodypartShapes.First(x => x.Name == "Claw");
 
 			var attackAddendum = _questionAnswers["messagestyle"].ToLowerInvariant() switch
@@ -1564,16 +1566,37 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 					MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 					Alignment.Front, Orientation.Low, 3.0, 0.7, fangShape, _snakeBiteDamage,
 					$"@ dart|darts in and try|tries to bite $1 with &0's {{0}}{attackAddendum}", DamageType.Bite);
+			_attacks["bite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Bite") ??
+				AddAttack("Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Bite, Difficulty.VeryHard, Difficulty.Normal, Difficulty.ExtremelyHard,
+					Difficulty.VeryHard, Alignment.Front, Orientation.High, 3.0, 1.4, mouthShape, ramDamage,
+					$"@ lean|leans in and try|tries to bite $1{attackAddendum}", DamageType.Bite);
+			_attacks["headbutt"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Headbutt") ??
+				AddAttack("Headbutt", BuiltInCombatMoveType.StaggeringBlowClinch,
+					MeleeWeaponVerb.Strike, Difficulty.VeryHard, Difficulty.VeryHard, Difficulty.ExtremelyHard,
+					Difficulty.VeryHard, Alignment.Front, Orientation.Highest, 5.0, 1.0, headShape, ramDamage,
+					$"@ jerk|jerks forward and crack|cracks &0's head into $1{attackAddendum}", DamageType.Crushing,
+					additionalInfo: ((int)Difficulty.Hard).ToString());
 			_attacks["mandiblebite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Mandible Bite") ??
 				AddAttack("Mandible Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 					MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
 					Alignment.Front, Orientation.Centre, 1.5, 0.4, mandibleShape, mandibleDamage,
 					$"@ snap|snaps &0's {{0}} at $1{attackAddendum}", DamageType.Shearing);
+			_attacks["beakbite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Beak Bite") ??
+				AddAttack("Beak Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.ExtremelyHard, Difficulty.Easy,
+					Alignment.Front, Orientation.High, 2.5, 0.6, beakShape, peckDamage,
+					$"@ dart|darts in close and jab|jabs &0's beak into $1{attackAddendum}", DamageType.Piercing);
 			_attacks["arachnidclaw"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Arachnid Claw") ??
 				AddAttack("Arachnid Claw", BuiltInCombatMoveType.NaturalWeaponAttack,
 					MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 					Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, _context.TraitExpressions.First(x => x.Name == "Animal Claw Damage"),
 					$"@ lash|lashes out with &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+			_attacks["clawclamp"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Claw Clamp") ??
+				AddAttack("Claw Clamp", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Claw, Difficulty.Easy, Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.Easy,
+					Alignment.FrontRight, Orientation.Centre, 2.5, 0.7, clawShape, mandibleDamage,
+					$"@ clamp|clamps &0's {{0}} onto $1{attackAddendum}", DamageType.Shearing);
 			_attacks["headram"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Head Ram") ??
 				AddAttack("Head Ram", BuiltInCombatMoveType.StaggeringBlowUnarmed,
 					MeleeWeaponVerb.Strike, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
@@ -1586,6 +1609,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 					Alignment.Rear, Orientation.Centre, 4.5, 1.1, tailShape, ramDamage,
 					$"@ whip|whips &0's tail around at $1{attackAddendum}", DamageType.Crushing,
 					additionalInfo: ((int)Difficulty.Normal).ToString());
+			_attacks["tendrillash"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tendril Lash") ??
+				AddAttack("Tendril Lash", BuiltInCombatMoveType.NaturalWeaponAttack,
+					MeleeWeaponVerb.Sweep, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
+					Alignment.Front, Orientation.Centre, 3.5, 0.5, tendrilShape, peckDamage,
+					$"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular);
 		}
 		else
 		{
@@ -1720,6 +1748,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			var mandibleShape = _context.BodypartShapes.First(x => x.Name == "Mandible");
 			var headShape = _context.BodypartShapes.First(x => x.Name == "Head");
 			var tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
+			var tendrilShape = _context.BodypartShapes.First(x => x.Name == "Tendril");
 
 			var attackAddendum =
 				CombatSeederMessageStyleHelper.AttackSuffix(
@@ -1868,6 +1897,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Low, 2.0, 0.3, mouthshape, fishBite,
 				$"@ flash|flashes in and nip|nips at $1{attackAddendum}", DamageType.Bite);
+			_attacks["bite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Bite") ??
+				AddAttack("Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Bite, Difficulty.VeryHard, Difficulty.Normal, Difficulty.ExtremelyHard,
+					Difficulty.VeryHard, Alignment.Front, Orientation.High, 3.0, 1.4, mouthshape, carnivoreBite,
+					$"@ lean|leans in and try|tries to bite $1{attackAddendum}", DamageType.Bite);
 			_attacks["sharkbite"] = AddAttack("Shark Bite", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Centre, 4.0, 1.0, mouthshape, sharkBite,
@@ -1886,10 +1920,21 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.High, 2.5, 0.7, beakShape, peckDamage,
 				$"@ dart|darts forward and peck|pecks sharply at $1 with &0's {{0}}{attackAddendum}", DamageType.Piercing);
+			_attacks["beakbite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Beak Bite") ??
+				AddAttack("Beak Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.ExtremelyHard, Difficulty.Easy,
+					Alignment.Front, Orientation.High, 2.5, 0.6, beakShape, peckDamage,
+					$"@ dart|darts in close and jab|jabs &0's beak into $1{attackAddendum}", DamageType.Piercing);
 			_attacks["talonstrike"] = AddAttack("Talon Strike", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Claw, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Low, 3.5, 0.9, talonShape, talonDamage,
 				$"@ rake|rakes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
+			_attacks["headbutt"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Headbutt") ??
+				AddAttack("Headbutt", BuiltInCombatMoveType.StaggeringBlowClinch,
+					MeleeWeaponVerb.Strike, Difficulty.VeryHard, Difficulty.VeryHard, Difficulty.ExtremelyHard,
+					Difficulty.VeryHard, Alignment.Front, Orientation.Highest, 5.0, 1.0, headShape, ramDamage,
+					$"@ jerk|jerks forward and crack|cracks &0's head into $1{attackAddendum}", DamageType.Crushing,
+					additionalInfo: ((int)Difficulty.Hard).ToString());
 			_attacks["fangbite"] = AddAttack("Fang Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
 				Alignment.Front, Orientation.Low, 3.0, 0.7, fangShape, _snakeBiteDamage,
@@ -1898,6 +1943,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				MeleeWeaponVerb.Bite, Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy,
 				Alignment.Front, Orientation.Centre, 1.5, 0.4, mandibleShape, mandibleDamage,
 				$"@ clamp|clamps &0's {{0}} on $1{attackAddendum}", DamageType.Shearing);
+			_attacks["clawclamp"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Claw Clamp") ??
+				AddAttack("Claw Clamp", BuiltInCombatMoveType.ClinchUnarmedAttack,
+					MeleeWeaponVerb.Claw, Difficulty.Easy, Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.Easy,
+					Alignment.FrontRight, Orientation.Centre, 2.5, 0.7, clawShape, mandibleDamage,
+					$"@ clamp|clamps &0's {{0}} onto $1{attackAddendum}", DamageType.Shearing);
 			_attacks["arachnidclaw"] = AddAttack("Arachnid Claw", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, clawDamage,
@@ -1912,6 +1962,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				Alignment.Rear, Orientation.Centre, 4.5, 1.1, tailShape, ramDamage,
 				$"@ whip|whips &0's tail across $1{attackAddendum}", DamageType.Crushing,
 				additionalInfo: ((int)Difficulty.Normal).ToString());
+			_attacks["tendrillash"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tendril Lash") ??
+				AddAttack("Tendril Lash", BuiltInCombatMoveType.NaturalWeaponAttack,
+					MeleeWeaponVerb.Sweep, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
+					Alignment.Front, Orientation.Centre, 3.5, 0.5, tendrilShape, peckDamage,
+					$"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular);
 		}
 	}
 
@@ -8835,5 +8890,6 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		{ BodyProto = jellyfishProto, Position = 16 }); // Swimming
 		_context.SaveChanges();
 	}
+
 	#endregion
 }

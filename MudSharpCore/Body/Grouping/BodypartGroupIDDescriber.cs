@@ -213,6 +213,11 @@ public class BodypartGroupIDDescriber : BodypartGroupDescriber
 
 	#region IBodypartGroupDescriber Members
 
+	private bool MatchesPrototype(IBodypart part, IBodypart prototype)
+	{
+		return part == prototype || part.CountsAs(prototype);
+	}
+
 	public override BodypartGroupResult Match(IEnumerable<IBodypart> parts)
 	{
 		if (!Prototypes.Any())
@@ -220,9 +225,9 @@ public class BodypartGroupIDDescriber : BodypartGroupDescriber
 			return new BodypartGroupResult(false, 0);
 		}
 
-		var matches = parts.Where(part => Prototypes.ContainsKey(part)).ToList();
+		var matches = parts.Where(part => Prototypes.Keys.Any(x => MatchesPrototype(part, x))).ToList();
 
-		if (Prototypes.Where(x => x.Value).Any(x => matches.All(y => y != x.Key)))
+		if (Prototypes.Where(x => x.Value).Any(x => matches.All(y => !MatchesPrototype(y, x.Key))))
 		{
 			return new BodypartGroupResult(false, 0);
 		}

@@ -14,6 +14,73 @@ public partial class RobotSeeder
 {
 	private static readonly string[] HumanoidRobotOrganAliases = ["powercore", "positronicbrain", "sensorarray", "speechsynth"];
 	private static readonly string[] NonSpeakingRobotOrganAliases = ["powercore", "positronicbrain", "sensorarray"];
+	private static readonly string[] HumanoidHandRemovalAliases =
+	[
+		"rhand",
+		"rthumb",
+		"rindexfinger",
+		"rmiddlefinger",
+		"rringfinger",
+		"rpinkyfinger",
+		"lhand",
+		"lthumb",
+		"lindexfinger",
+		"lmiddlefinger",
+		"lringfinger",
+		"lpinkyfinger"
+	];
+	private static readonly string[] HumanoidLowerLegRemovalAliases =
+	[
+		"rankle",
+		"rheel",
+		"rfoot",
+		"rbigtoe",
+		"rindextoe",
+		"rmiddletoe",
+		"rringtoe",
+		"rpinkytoe",
+		"lankle",
+		"lheel",
+		"lfoot",
+		"lbigtoe",
+		"lindextoe",
+		"lmiddletoe",
+		"lringtoe",
+		"lpinkytoe"
+	];
+	private static readonly string[] HumanoidFullLegRemovalAliases =
+	[
+		"rhip",
+		"rthigh",
+		"rthighback",
+		"rknee",
+		"rkneeback",
+		"rshin",
+		"rcalf",
+		"rankle",
+		"rheel",
+		"rfoot",
+		"rbigtoe",
+		"rindextoe",
+		"rmiddletoe",
+		"rringtoe",
+		"rpinkytoe",
+		"lhip",
+		"lthigh",
+		"lthighback",
+		"lknee",
+		"lkneeback",
+		"lshin",
+		"lcalf",
+		"lankle",
+		"lheel",
+		"lfoot",
+		"lbigtoe",
+		"lindextoe",
+		"lmiddletoe",
+		"lringtoe",
+		"lpinkytoe"
+	];
 	private static readonly IReadOnlyDictionary<string, IReadOnlyList<(string LimbRootAlias, string PartAlias)>> CustomRobotLimbMemberships =
 		new Dictionary<string, IReadOnlyList<(string LimbRootAlias, string PartAlias)>>(StringComparer.OrdinalIgnoreCase)
 		{
@@ -108,7 +175,8 @@ public partial class RobotSeeder
 
 	private BodyProto CreateRobotHumanoidBody()
 	{
-		var body = CloneBody("Robot Humanoid", _humanoidBody);
+		var body = CreateInheritedBody("Robot Humanoid", _humanoidBody, cloneSourceDefinition: true);
+		ApplyAliasCountAs(body, _humanoidBody);
 		ConfigureRobotBodyMaterials(body, false);
 		AddRobotHumanoidOrgans(body);
 		EnsureDefaultSmashingBodypart(body, "rhand");
@@ -214,6 +282,41 @@ public partial class RobotSeeder
 		SeederBodyUtilities.CloneFlattenedBodyPositionsAndSpeeds(_context, source, body);
 		ApplyAliasCountAs(body, source);
 		CopyDefaultSmashingBodypart(body, source);
+		return body;
+	}
+
+	private BodyProto CreateInheritedBody(
+		string newName,
+		BodyProto source,
+		int? minimumLegsToStand = null,
+		int? minimumWingsToFly = null,
+		bool cloneSourceDefinition = false)
+	{
+		var body = new BodyProto
+		{
+			Name = newName,
+			CountsAs = source,
+			ConsiderString = source.ConsiderString,
+			WielderDescriptionPlural = source.WielderDescriptionPlural,
+			WielderDescriptionSingle = source.WielderDescriptionSingle,
+			StaminaRecoveryProgId = _robotStaminaRecoveryProg.Id,
+			MinimumLegsToStand = minimumLegsToStand ?? source.MinimumLegsToStand,
+			MinimumWingsToFly = minimumWingsToFly ?? source.MinimumWingsToFly,
+			LegDescriptionSingular = source.LegDescriptionSingular,
+			LegDescriptionPlural = source.LegDescriptionPlural,
+			WearSizeParameter = source.WearSizeParameter,
+			NameForTracking = string.IsNullOrWhiteSpace(source.NameForTracking) ? "robot" : source.NameForTracking
+		};
+		_context.BodyProtos.Add(body);
+		_context.SaveChanges();
+
+		AddMissingBodyMovement(source, body);
+		if (cloneSourceDefinition)
+		{
+			SeederBodyUtilities.CloneBodyDefinition(_context, source, body, cloneAdditionalUsages: false,
+				cloneGroupDescribers: false);
+		}
+
 		return body;
 	}
 

@@ -153,6 +153,8 @@ Current reuse patterns include:
 
 - direct reuse of stock `Organic Humanoid`, `Ungulate`, `Toed Quadruped`, `Avian`, and `Serpentine` bodies for races that fit those shapes closely
 - dedicated hybrid bodies for centaurs, merfolk, naga, griffins, hippogriffs, manticores, wyverns, hippocamps, and winged or horned humanoids
+- humanoid-form hybrids now keep `CountsAs` links back to `Organic Humanoid` and layer only their extra anatomy plus explicit inherited-part removals, so stock humanoid wear profiles and bodypart group describers continue to apply without duplicating the humanoid catalogue per variant
+- direct bodypart-group describers now match inherited override parts via `CountsAs`, which keeps humanoid descriptive grouping intact even when a child body swaps in robot or mythic override parts
 - humanoid-parent races for minotaurs, naga, merfolk, selkies, owlkin, avian people, and centaurs so they can leverage the same characteristic and description ecosystem as humans
 
 ### Variation and chargen implications
@@ -191,11 +193,13 @@ The package prefers to reuse existing stock body semantics wherever that preserv
 
 Current reuse patterns include:
 
-- self-contained flattened robot full-clone bodies for humanoid, quadruped, insectoid, and derived chassis variants so fresh-seeded robot anatomy does not inherit and duplicate the donor shell at runtime
+- non-humanoid robot frames still use self-contained clone bodies where wear-profile reuse is irrelevant
+- humanoid robot chassis now keep `CountsAs(Humanoid)` inheritance for wear-profile and bodypart-group compatibility, with the articulated robot shell provided by child-body overrides and explicit inherited-part removals rather than flattening away the humanoid parent link
+- inherited humanoid robot overrides therefore keep stock humanoid wear profiles and direct bodypart-group describers usable without seeding duplicate copies of those definitions per chassis
 - dedicated humanoid-derived variants for spider crawler, circular-saw hands, pneumatic-hammer hands, sword hands, winged frames, jet frames, mandible heads, wheels, tracks, and cyborgs
 - winged and jet frames are now soft dependencies on the stock `Avian` body and are skipped rather than blocking the entire robot package when avian anatomy is absent
 - reuse of stock `Toed Quadruped`, `Arachnid`, and `Insectoid` source anatomies for robot dog, spider-crawler lower bodies, and robot cockroach content
-- `CountsAs` mappings on cloned or substituted robot bodyparts so surgery, wear, and other anatomy-aware logic can continue to target the intended baseline chassis
+- `CountsAs` mappings on robot override or substituted bodyparts so surgery, wear, and other anatomy-aware logic can continue to target the intended baseline chassis
 - explicit limb-membership mapping for grafted mandibles and substituted wheel or track assemblies so derived robot frames still initialise cleanly on a fresh install
 
 ### Stock robot catalogue

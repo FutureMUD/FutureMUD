@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body;
@@ -202,7 +203,8 @@ public partial class RobotSeeder
 			return;
 		}
 
-		var limb = _context.Limbs.FirstOrDefault(x => x.RootBodyId == body.Id && x.RootBodypartId == root.Id);
+		var bodyIds = SeederBodyUtilities.GetBodyAndAncestorIds(_context, body);
+		var limb = _context.Limbs.FirstOrDefault(x => bodyIds.Contains(x.RootBodyId) && x.RootBodypartId == root.Id);
 		if (limb is null)
 		{
 			return;
@@ -234,6 +236,40 @@ public partial class RobotSeeder
 
 	private BodypartProto? FindBodypartOnBody(BodyProto body, string alias)
 	{
-		return _context.BodypartProtos.FirstOrDefault(x => x.BodyId == body.Id && x.Name == alias);
+		return SeederBodyUtilities.FindBodypartOnBodyOrAncestors(_context, body, alias);
+	}
+
+	private void AddBodypartRemoval(BodyProto body, params string[] aliases)
+	{
+		var dirty = false;
+		foreach (var alias in aliases.Distinct(StringComparer.OrdinalIgnoreCase))
+		{
+			var bodypart = FindBodypartOnBody(body, alias);
+			if (bodypart is null)
+			{
+				continue;
+			}
+
+			if (_context.BodyProtosAdditionalBodyparts.Any(x =>
+				    x.BodyProtoId == body.Id &&
+				    x.BodypartId == bodypart.Id &&
+				    x.Usage == "remove"))
+			{
+				continue;
+			}
+
+			_context.BodyProtosAdditionalBodyparts.Add(new BodyProtosAdditionalBodyparts
+			{
+				BodyProto = body,
+				Bodypart = bodypart,
+				Usage = "remove"
+			});
+			dirty = true;
+		}
+
+		if (dirty)
+		{
+			_context.SaveChanges();
+		}
 	}
 }

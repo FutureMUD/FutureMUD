@@ -20,6 +20,40 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class MythicalAnimalSeeder : IDatabaseSeeder
 {
+	private static readonly string[] HumanoidFullLegRemovalAliases =
+	[
+		"rhip",
+		"rthigh",
+		"rthighback",
+		"rknee",
+		"rkneeback",
+		"rshin",
+		"rcalf",
+		"rankle",
+		"rheel",
+		"rfoot",
+		"rbigtoe",
+		"rindextoe",
+		"rmiddletoe",
+		"rringtoe",
+		"rpinkytoe",
+		"lhip",
+		"lthigh",
+		"lthighback",
+		"lknee",
+		"lkneeback",
+		"lshin",
+		"lcalf",
+		"lankle",
+		"lheel",
+		"lfoot",
+		"lbigtoe",
+		"lindextoe",
+		"lmiddletoe",
+		"lringtoe",
+		"lpinkytoe"
+	];
+
 	private FuturemudDatabaseContext _context = null!;
 	private Race _humanRace = null!;
 	private Race _organicHumanoidRace = null!;
@@ -283,42 +317,51 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private BodyProto CreateHornedHumanoidBody()
 	{
-		var body = CreateFullCloneBody("Horned Humanoid", _organicHumanoidBody);
+		var body = CreateInheritedBodyShell("Horned Humanoid", _organicHumanoidBody);
 		PopulateHornedHumanoidBody(body);
 		return body;
 	}
 
 	private BodyProto CreateWingedHumanoidBody()
 	{
-		var body = CreateFullCloneBody("Winged Humanoid", _organicHumanoidBody, minimumWingsToFly: 2);
+		var body = CreateInheritedBodyShell("Winged Humanoid", _organicHumanoidBody, minimumWingsToFly: 2);
 		PopulateWingedHumanoidBody(body);
 		return body;
 	}
 
 	private void PopulateHornedHumanoidBody(BodyProto body)
 	{
-		PopulateFullCloneBody(body, _organicHumanoidBody);
+		ConfigureBodyShell(body, _organicHumanoidBody,
+			_organicHumanoidBody.MinimumLegsToStand,
+			_organicHumanoidBody.MinimumWingsToFly,
+			_organicHumanoidBody.WielderDescriptionSingle,
+			_organicHumanoidBody.WielderDescriptionPlural);
 		AddHumanoidHorns(body);
 	}
 
 	private void PopulateWingedHumanoidBody(BodyProto body)
 	{
-		PopulateFullCloneBody(body, _organicHumanoidBody, minimumWingsToFly: 2);
+		ConfigureBodyShell(body, _organicHumanoidBody,
+			_organicHumanoidBody.MinimumLegsToStand,
+			2,
+			_organicHumanoidBody.WielderDescriptionSingle,
+			_organicHumanoidBody.WielderDescriptionPlural);
 		AddAvianWings(body);
 		AddFlyMovement(body);
 	}
 
 	private BodyProto CreateNagaBody()
 	{
-		var body = CreateFullCloneBody("Naga", _organicHumanoidBody, minimumLegsToStand: 0);
+		var body = CreateInheritedBodyShell("Naga", _organicHumanoidBody, minimumLegsToStand: 0);
 		PopulateNagaBody(body);
 		return body;
 	}
 
 	private void PopulateNagaBody(BodyProto body)
 	{
-		PopulateFullCloneBody(body, _organicHumanoidBody, minimumLegsToStand: 0);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
+		ConfigureBodyShell(body, _organicHumanoidBody, 0, _organicHumanoidBody.MinimumWingsToFly,
+			_organicHumanoidBody.WielderDescriptionSingle, _organicHumanoidBody.WielderDescriptionPlural);
+		AddBodypartRemoval(body, HumanoidFullLegRemovalAliases);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _vermiformBody, body, "ubody", "groin", cloneLimbs: false);
 		AddLimb(body, "Tail", LimbType.Appendage, "ubody", "ubody", "mbody", "lbody", "tail");
 		AddSwimMovement(body);
@@ -340,30 +383,32 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private BodyProto CreateMermaidBody()
 	{
-		var body = CreateFullCloneBody("Mermaid", _organicHumanoidBody, minimumLegsToStand: 0);
+		var body = CreateInheritedBodyShell("Mermaid", _organicHumanoidBody, minimumLegsToStand: 0);
 		PopulateMermaidBody(body);
 		return body;
 	}
 
 	private void PopulateMermaidBody(BodyProto body)
 	{
-		PopulateFullCloneBody(body, _organicHumanoidBody, minimumLegsToStand: 0);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
+		ConfigureBodyShell(body, _organicHumanoidBody, 0, _organicHumanoidBody.MinimumWingsToFly,
+			_organicHumanoidBody.WielderDescriptionSingle, _organicHumanoidBody.WielderDescriptionPlural);
+		AddBodypartRemoval(body, HumanoidFullLegRemovalAliases);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _piscineBody, body, "peduncle", "groin");
 		AddSwimMovement(body);
 	}
 
 	private BodyProto CreateCentaurBody()
 	{
-		var body = CreateFullCloneBody("Centaur", _organicHumanoidBody, minimumLegsToStand: 4);
+		var body = CreateInheritedBodyShell("Centaur", _organicHumanoidBody, minimumLegsToStand: 4);
 		PopulateCentaurBody(body);
 		return body;
 	}
 
 	private void PopulateCentaurBody(BodyProto body)
 	{
-		PopulateFullCloneBody(body, _organicHumanoidBody, minimumLegsToStand: 4);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
+		ConfigureBodyShell(body, _organicHumanoidBody, 4, _organicHumanoidBody.MinimumWingsToFly,
+			_organicHumanoidBody.WielderDescriptionSingle, _organicHumanoidBody.WielderDescriptionPlural);
+		AddBodypartRemoval(body, HumanoidFullLegRemovalAliases);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "ruforeleg", "abdomen");
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "luforeleg", "abdomen");
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "ruhindleg", "groin");
@@ -504,6 +549,26 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		return body;
 	}
 
+	private BodyProto CreateInheritedBodyShell(string name, BodyProto source, int? minimumLegsToStand = null,
+		int? minimumWingsToFly = null)
+	{
+		var body = new BodyProto
+		{
+			Id = _nextBodyProtoId++,
+			Name = name,
+			CountsAs = source
+		};
+		ConfigureBodyShell(body, source,
+			minimumLegsToStand ?? source.MinimumLegsToStand,
+			minimumWingsToFly ?? source.MinimumWingsToFly,
+			source.WielderDescriptionSingle,
+			source.WielderDescriptionPlural);
+		_context.BodyProtos.Add(body);
+		_context.SaveChanges();
+		SeederBodyUtilities.CloneBodyPositionsAndSpeeds(_context, source, body);
+		return body;
+	}
+
 	private void ConfigureBodyShell(BodyProto body, BodyProto source, int minimumLegsToStand, int minimumWingsToFly,
 		string wielderSingle, string wielderPlural)
 	{
@@ -577,7 +642,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private void AddBodypartsToLimb(BodyProto body, string limbName, params string[] aliases)
 	{
-		var limb = _context.Limbs.FirstOrDefault(x => x.RootBodyId == body.Id && x.Name == limbName);
+		var limb = FindLimbOnBody(body, limbName);
 		if (limb is null)
 		{
 			return;
@@ -587,8 +652,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			.Where(x => x.LimbId == limb.Id)
 			.Select(x => x.BodypartProtoId)
 			.ToHashSet();
+		var bodyIds = SeederBodyUtilities.GetBodyAndAncestorIds(_context, body);
 		var lookup = SeederBodyUtilities.BuildBodypartAliasLookup(_context.BodypartProtos
-			.Where(x => x.BodyId == body.Id && aliases.Contains(x.Name))
+			.Where(x => bodyIds.Contains(x.BodyId) && aliases.Contains(x.Name))
 			.ToList());
 
 		foreach (var alias in aliases)
@@ -690,7 +756,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private void EnsureLimb(BodyProto body, string limbName, LimbType limbType, string rootAlias, params string[] aliases)
 	{
-		if (_context.Limbs.Any(x => x.RootBodyId == body.Id && x.Name == limbName))
+		if (FindLimbOnBody(body, limbName) is not null)
 		{
 			AddBodypartsToLimb(body, limbName, aliases);
 			return;
@@ -701,8 +767,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private void AddLimb(BodyProto body, string name, LimbType type, string rootAlias, params string[] aliases)
 	{
+		var bodyIds = SeederBodyUtilities.GetBodyAndAncestorIds(_context, body);
 		var bodyparts = SeederBodyUtilities.BuildBodypartAliasLookup(_context.BodypartProtos
-			.Where(x => x.BodyId == body.Id && aliases.Contains(x.Name))
+			.Where(x => bodyIds.Contains(x.BodyId) && aliases.Contains(x.Name))
 			.ToList());
 		if (!bodyparts.TryGetValue(rootAlias, out var rootParts))
 		{
@@ -741,6 +808,17 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		}
 
 		_context.SaveChanges();
+	}
+
+	private Limb? FindLimbOnBody(BodyProto body, string limbName)
+	{
+		var bodyIds = SeederBodyUtilities.GetBodyAndAncestorIds(_context, body);
+		return _context.Limbs
+			.Where(x => bodyIds.Contains(x.RootBodyId) && x.Name == limbName)
+			.AsEnumerable()
+			.OrderBy(x => bodyIds.IndexOf(x.RootBodyId))
+			.ThenBy(x => x.Id)
+			.FirstOrDefault();
 	}
 
 	private void AddFlyMovement(BodyProto body)
@@ -1184,19 +1262,40 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private BodypartProto? FindBodypartOnBody(BodyProto body, string alias)
 	{
-		var bodyIds = new List<long> { body.Id };
-		var counted = body.CountsAs;
-		while (counted is not null)
+		return SeederBodyUtilities.FindBodypartOnBodyOrAncestors(_context, body, alias);
+	}
+
+	private void AddBodypartRemoval(BodyProto body, params string[] aliases)
+	{
+		var dirty = false;
+		foreach (var alias in aliases.Distinct(StringComparer.OrdinalIgnoreCase))
 		{
-			bodyIds.Add(counted.Id);
-			counted = counted.CountsAs;
+			var bodypart = FindBodypartOnBody(body, alias);
+			if (bodypart is null)
+			{
+				continue;
+			}
+
+			if (_context.BodyProtosAdditionalBodyparts.Any(x =>
+				    x.BodyProtoId == body.Id &&
+				    x.BodypartId == bodypart.Id &&
+				    x.Usage == "remove"))
+			{
+				continue;
+			}
+
+			_context.BodyProtosAdditionalBodyparts.Add(new BodyProtosAdditionalBodyparts
+			{
+				BodyProto = body,
+				Bodypart = bodypart,
+				Usage = "remove"
+			});
+			dirty = true;
 		}
 
-		return _context.BodypartProtos
-			.Where(x => bodyIds.Contains(x.BodyId) && x.Name == alias)
-			.OrderBy(x => x.BodyId == body.Id ? 0 : 1)
-			.ThenBy(x => x.DisplayOrder ?? 0)
-			.ThenBy(x => x.Id)
-			.FirstOrDefault();
+		if (dirty)
+		{
+			_context.SaveChanges();
+		}
 	}
 }

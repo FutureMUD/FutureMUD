@@ -14,8 +14,8 @@ public partial class RobotSeeder
 	private BodyProto CreateSpiderCrawlerBody()
 	{
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody("Spider Crawler Robot", source);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhip", "lhip"]);
+		var body = CreateInheritedBody("Spider Crawler Robot", source, minimumLegsToStand: 4);
+		AddBodypartRemoval(body, HumanoidFullLegRemovalAliases);
 		foreach (var alias in new[] { "rleg1", "lleg1", "rleg2", "lleg2", "rleg3", "lleg3", "rleg4", "lleg4" })
 		{
 			SeederBodyUtilities.CloneBodypartSubtree(_context, _arachnidBody, body, alias, "abdomen");
@@ -49,7 +49,7 @@ public partial class RobotSeeder
 	{
 		var avianBody = _avianBody ?? throw new InvalidOperationException("Winged Robot requires the Avian body.");
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody("Winged Robot", source);
+		var body = CreateInheritedBody("Winged Robot", source, minimumWingsToFly: 2);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, avianBody, body, "rwingbase", "uback");
 		SeederBodyUtilities.CloneBodypartSubtree(_context, avianBody, body, "lwingbase", "uback");
 		AddMissingBodyMovement(avianBody, body);
@@ -61,7 +61,7 @@ public partial class RobotSeeder
 	{
 		var avianBody = _avianBody ?? throw new InvalidOperationException("Jet Robot requires the Avian body.");
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody("Jet Robot", source);
+		var body = CreateInheritedBody("Jet Robot", source, minimumWingsToFly: 2);
 		AddBodypart(body, "rjet", "right jet pod", "Jet Pod", BodypartTypeEnum.Wing, "uback",
 			Alignment.Right, Orientation.High, 50, 50, 70, 1000, _chassisAlloy, _robotPlatingArmour, SizeCategory.Small,
 			significant: true);
@@ -78,7 +78,7 @@ public partial class RobotSeeder
 	private BodyProto CreateMandibleRobotBody()
 	{
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody("Mandible Robot", source);
+		var body = CreateInheritedBody("Mandible Robot", source);
 		SeederBodyUtilities.CloneBodypartSubtree(_context, _insectoidBody, body, "mandibles", "mouth");
 		AddLimbPart(body, "neck", "mandibles");
 		ConfigureRobotBodyMaterials(body, false);
@@ -88,8 +88,8 @@ public partial class RobotSeeder
 	private BodyProto CreateWheeledRobotBody()
 	{
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody("Wheeled Robot", source);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rankle", "lankle"]);
+		var body = CreateInheritedBody("Wheeled Robot", source);
+		AddBodypartRemoval(body, HumanoidLowerLegRemovalAliases);
 		var rightWheel = AddBodypart(body, "rwheel", "right wheel assembly", "Wheel", BodypartTypeEnum.Standing, "rshin",
 			Alignment.Right, Orientation.Lowest, 80, 80, 100, 1000, _chassisAlloy, _robotPlatingArmour, SizeCategory.Small,
 			countAs: FindBodypartOnBody(source, "rfoot"));
@@ -108,8 +108,8 @@ public partial class RobotSeeder
 	private BodyProto CreateTrackedRobotBody()
 	{
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody("Tracked Robot", source);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rankle", "lankle"]);
+		var body = CreateInheritedBody("Tracked Robot", source);
+		AddBodypartRemoval(body, HumanoidLowerLegRemovalAliases);
 		var rightTrack = AddBodypart(body, "rtrack", "right track pod", "Track", BodypartTypeEnum.Standing, "rshin",
 			Alignment.Right, Orientation.Lowest, 80, 90, 120, 1000, _chassisAlloy, _robotPlatingArmour, SizeCategory.Small,
 			countAs: FindBodypartOnBody(source, "rfoot"));
@@ -128,7 +128,7 @@ public partial class RobotSeeder
 	private BodyProto CreateCyborgHumanoidBody()
 	{
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		return CloneBody("Cyborg Humanoid", source);
+		return CreateInheritedBody("Cyborg Humanoid", source);
 	}
 
 	private BodyProto CreateRoombaBody()
@@ -169,8 +169,8 @@ public partial class RobotSeeder
 		string attachmentDescription, string shapeName)
 	{
 		var source = _context.BodyProtos.First(x => x.Name == "Robot Humanoid");
-		var body = CloneBody(bodyName, source);
-		SeederBodyUtilities.RemoveBodyparts(_context, body, ["rhand", "lhand"]);
+		var body = CreateInheritedBody(bodyName, source);
+		AddBodypartRemoval(body, HumanoidHandRemovalAliases);
 		AddBodypart(body, rightAlias, $"right {attachmentDescription}", shapeName, BodypartTypeEnum.Wear, "rwrist",
 			Alignment.Right, Orientation.Appendage, 45, 45, 60, 1000, _chassisAlloy, _robotPlatingArmour,
 			SizeCategory.Small);

@@ -36,6 +36,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 	protected readonly List<IOrganProto> _organs = new();
 	protected readonly List<IBone> _bones = new();
 	protected readonly List<IExternalBodypart> _externals = new();
+	protected readonly List<long> _bodypartRemovalIds = new();
 
 	private bool _limbsInitialised;
 
@@ -87,6 +88,10 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		{
 			_bodypartGroupDescribers.Add(game.BodypartGroupDescriptionRules.Get(rule.BodypartGroupDescriberId));
 		}
+
+		_bodypartRemovalIds.AddRange(proto.BodyProtosAdditionalBodyparts
+			.Where(x => x.Usage.EqualTo("remove"))
+			.Select(x => x.BodypartId));
 
 		WielderDescriptionPlural = proto.WielderDescriptionPlural;
 		WielderDescriptionSingular = proto.WielderDescriptionSingle;
@@ -345,6 +350,28 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		                                 Gameworld.BodyPrototypes.Get(_countsAsId.Value).CountsAs(bodyPrototype));
 	}
 
+	private IEnumerable<IBodypart> BodypartRemovals =>
+		_bodypartRemovalIds
+			.Select(x => Gameworld.BodypartPrototypes.Get(x))
+			.OfType<IBodypart>();
+
+	private static void AddSpecificBodyparts(List<IBodypart> parts, IEnumerable<IBodypart> additions)
+	{
+		foreach (var part in additions)
+		{
+			parts.RemoveAll(x => x != part && (part.CountsAs(x) || x.Name.EqualTo(part.Name)));
+			parts.Add(part);
+		}
+	}
+
+	private static void ApplyBodypartRemovals(List<IBodypart> parts, IEnumerable<IBodypart> removals)
+	{
+		foreach (var part in removals)
+		{
+			parts.RemoveAll(x => x == part || x.CountsAs(part) || x.DownstreamOfPart(part));
+		}
+	}
+
 	public IEnumerable<IBodypart> BodypartsFor(IRace race, Gender gender)
 	{
 		if (_cachedBodypartDictionary.ContainsKey((race, gender)))
@@ -359,20 +386,22 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 			parts.AddRange(parent.BodypartsFor(race, gender));
 		}
 
-		parts.AddRange(_coreBodyparts);
-		parts.AddRange(race?.BodypartAdditions ?? Enumerable.Empty<IBodypart>());
+		AddSpecificBodyparts(parts, _coreBodyparts);
+		AddSpecificBodyparts(parts, race?.BodypartAdditions ?? Enumerable.Empty<IBodypart>());
 
 		switch (gender)
 		{
 			case Gender.Male:
-				parts.AddRange(_maleOnlyAdditions);
-				parts.AddRange(race?.MaleOnlyAdditions ?? Enumerable.Empty<IBodypart>());
+				AddSpecificBodyparts(parts, _maleOnlyAdditions);
+				AddSpecificBodyparts(parts, race?.MaleOnlyAdditions ?? Enumerable.Empty<IBodypart>());
 				break;
 			case Gender.Female:
-				parts.AddRange(_femaleOnlyAdditions);
-				parts.AddRange(race?.FemaleOnlyAdditions ?? Enumerable.Empty<IBodypart>());
+				AddSpecificBodyparts(parts, _femaleOnlyAdditions);
+				AddSpecificBodyparts(parts, race?.FemaleOnlyAdditions ?? Enumerable.Empty<IBodypart>());
 				break;
 		}
+
+		ApplyBodypartRemovals(parts, BodypartRemovals);
 
 		foreach (var part in race?.BodypartRemovals ?? Enumerable.Empty<IBodypart>())
 		{

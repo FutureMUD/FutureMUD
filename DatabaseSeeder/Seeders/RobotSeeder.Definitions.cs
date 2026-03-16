@@ -33,6 +33,18 @@ public partial class RobotSeeder
 		IReadOnlyList<RobotBodypartUsageTemplate>? BodypartUsages = null,
 		bool UsesHumanGenders = false);
 
+	private static IReadOnlyList<RobotBodypartUsageTemplate> WithNonCyborgNippleRemovals(
+		params RobotBodypartUsageTemplate[] usages)
+	{
+		return usages
+			.Concat(
+			[
+				new RobotBodypartUsageTemplate("rnipple", "remove"),
+				new RobotBodypartUsageTemplate("lnipple", "remove")
+			])
+			.ToArray();
+	}
+
 	private static readonly IReadOnlyDictionary<string, RobotRaceTemplate> Templates =
 		new Dictionary<string, RobotRaceTemplate>(StringComparer.OrdinalIgnoreCase)
 		{
@@ -58,7 +70,8 @@ public partial class RobotSeeder
 					new("Elbow", "relbow", "lelbow"),
 					new("Bite", "mouth"),
 					new("Snap Kick", "rfoot", "lfoot")
-				]),
+				],
+				WithNonCyborgNippleRemovals()),
 			["Spider Crawler Robot"] = new(
 				"Spider Crawler Robot",
 				"Spider Crawler Robot",
@@ -81,16 +94,15 @@ public partial class RobotSeeder
 					new("Elbow", "relbow", "lelbow"),
 					new("Bite", "mouth")
 				],
-				[
-					new("rleg1", "general"),
-					new("lleg1", "general"),
-					new("rleg2", "general"),
-					new("lleg2", "general"),
-					new("rleg3", "general"),
-					new("lleg3", "general"),
-					new("rleg4", "general"),
-					new("lleg4", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rleg1", "general"),
+					new RobotBodypartUsageTemplate("lleg1", "general"),
+					new RobotBodypartUsageTemplate("rleg2", "general"),
+					new RobotBodypartUsageTemplate("lleg2", "general"),
+					new RobotBodypartUsageTemplate("rleg3", "general"),
+					new RobotBodypartUsageTemplate("lleg3", "general"),
+					new RobotBodypartUsageTemplate("rleg4", "general"),
+					new RobotBodypartUsageTemplate("lleg4", "general"))),
 			["Circular Saw Robot"] = new(
 				"Circular Saw Robot",
 				"Circular Saw Robot",
@@ -112,10 +124,9 @@ public partial class RobotSeeder
 					new("Bite", "mouth"),
 					new("Snap Kick", "rfoot", "lfoot")
 				],
-				[
-					new("rsaw", "general"),
-					new("lsaw", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rsaw", "general"),
+					new RobotBodypartUsageTemplate("lsaw", "general"))),
 			["Pneumatic Hammer Robot"] = new(
 				"Pneumatic Hammer Robot",
 				"Pneumatic Hammer Robot",
@@ -137,10 +148,9 @@ public partial class RobotSeeder
 					new("Bite", "mouth"),
 					new("Snap Kick", "rfoot", "lfoot")
 				],
-				[
-					new("rhammer", "general"),
-					new("lhammer", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rhammer", "general"),
+					new RobotBodypartUsageTemplate("lhammer", "general"))),
 			["Sword-Hand Robot"] = new(
 				"Sword-Hand Robot",
 				"Sword-Hand Robot",
@@ -162,10 +172,9 @@ public partial class RobotSeeder
 					new("Bite", "mouth"),
 					new("Snap Kick", "rfoot", "lfoot")
 				],
-				[
-					new("rblade", "general"),
-					new("lblade", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rblade", "general"),
+					new RobotBodypartUsageTemplate("lblade", "general"))),
 			["Winged Robot"] = new(
 				"Winged Robot",
 				"Winged Robot",
@@ -190,12 +199,11 @@ public partial class RobotSeeder
 					new("Snap Kick", "rfoot", "lfoot"),
 					new("Wing Buffet", "rwing", "lwing")
 				],
-				[
-					new("rwingbase", "general"),
-					new("lwingbase", "general"),
-					new("rwing", "general"),
-					new("lwing", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rwingbase", "general"),
+					new RobotBodypartUsageTemplate("lwingbase", "general"),
+					new RobotBodypartUsageTemplate("rwing", "general"),
+					new RobotBodypartUsageTemplate("lwing", "general"))),
 			["Jet Robot"] = new(
 				"Jet Robot",
 				"Jet Robot",
@@ -220,10 +228,9 @@ public partial class RobotSeeder
 					new("Snap Kick", "rfoot", "lfoot"),
 					new("Jet Ram", "rjet", "ljet")
 				],
-				[
-					new("rjet", "general"),
-					new("ljet", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rjet", "general"),
+					new RobotBodypartUsageTemplate("ljet", "general"))),
 			["Mandible Robot"] = new(
 				"Mandible Robot",
 				"Mandible Robot",
@@ -247,9 +254,8 @@ public partial class RobotSeeder
 					new("Mandible Shear", "mandibles"),
 					new("Snap Kick", "rfoot", "lfoot")
 				],
-				[
-					new("mandibles", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("mandibles", "general"))),
 			["Wheeled Robot"] = new(
 				"Wheeled Robot",
 				"Wheeled Robot",
@@ -273,10 +279,9 @@ public partial class RobotSeeder
 					new("Bite", "mouth"),
 					new("Wheel Ram", "rwheel", "lwheel")
 				],
-				[
-					new("rwheel", "general"),
-					new("lwheel", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rwheel", "general"),
+					new RobotBodypartUsageTemplate("lwheel", "general"))),
 			["Tracked Robot"] = new(
 				"Tracked Robot",
 				"Tracked Robot",
@@ -300,10 +305,9 @@ public partial class RobotSeeder
 					new("Bite", "mouth"),
 					new("Track Grind", "rtrack", "ltrack")
 				],
-				[
-					new("rtrack", "general"),
-					new("ltrack", "general")
-				]),
+				WithNonCyborgNippleRemovals(
+					new RobotBodypartUsageTemplate("rtrack", "general"),
+					new RobotBodypartUsageTemplate("ltrack", "general"))),
 			["Cyborg"] = new(
 				"Cyborg",
 				"Cyborg Humanoid",

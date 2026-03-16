@@ -47,6 +47,131 @@ public class MythicalAnimalSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void GetEffectiveBodyparts_OverrideAndRemoval_UsesMostSpecificRemainingParts()
+	{
+		using var context = BuildContext();
+		var parent = new BodyProto
+		{
+			Id = 10,
+			Name = "Humanoid",
+			ConsiderString = "a humanoid",
+			WielderDescriptionSingle = "hand",
+			WielderDescriptionPlural = "hands",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var child = new BodyProto
+		{
+			Id = 11,
+			Name = "Robot Humanoid",
+			CountsAs = parent,
+			ConsiderString = "a robot",
+			WielderDescriptionSingle = "hand",
+			WielderDescriptionPlural = "hands",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		context.BodyProtos.AddRange(parent, child);
+		context.SaveChanges();
+
+		var parentTorso = new BodypartProto { Id = 100, Body = parent, BodyId = parent.Id, Name = "torso", Description = "torso", BodypartType = 0, IsOrgan = 0, DisplayOrder = 1 };
+		var parentHand = new BodypartProto { Id = 101, Body = parent, BodyId = parent.Id, Name = "rhand", Description = "right hand", BodypartType = 0, IsOrgan = 0, DisplayOrder = 2 };
+		var childTorso = new BodypartProto { Id = 110, Body = child, BodyId = child.Id, Name = "torso", Description = "robot torso", BodypartType = 0, IsOrgan = 0, DisplayOrder = 1, CountAs = parentTorso };
+		var childHand = new BodypartProto { Id = 111, Body = child, BodyId = child.Id, Name = "rhand", Description = "robot hand", BodypartType = 0, IsOrgan = 0, DisplayOrder = 2, CountAs = parentHand };
+		context.BodypartProtos.AddRange(parentTorso, parentHand, childTorso, childHand);
+		context.SaveChanges();
+
+		context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+		{
+			ChildNavigation = parentHand,
+			ParentNavigation = parentTorso
+		});
+		context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+		{
+			ChildNavigation = childHand,
+			ParentNavigation = childTorso
+		});
+		context.BodyProtosAdditionalBodyparts.Add(new BodyProtosAdditionalBodyparts
+		{
+			BodyProto = child,
+			Bodypart = childHand,
+			Usage = "remove"
+		});
+		context.SaveChanges();
+
+		var effectiveParts = SeederBodyUtilities.GetEffectiveBodyparts(context, child);
+		CollectionAssert.AreEqual(new[] { "torso" }, effectiveParts.Select(x => x.Name).ToArray(),
+			"Effective body composition should keep the child torso override and remove the inherited hand subtree.");
+		Assert.AreEqual(childTorso.Id, effectiveParts.Single().Id,
+			"The most specific child override should replace the inherited parent bodypart.");
+	}
+
+	[TestMethod]
+	public void CloneBodypartSubtree_TargetParentOnAncestor_AttachesToInheritedParent()
+	{
+		using var context = BuildContext();
+		var parent = new BodyProto
+		{
+			Id = 20,
+			Name = "Organic Humanoid",
+			ConsiderString = "a humanoid",
+			WielderDescriptionSingle = "hand",
+			WielderDescriptionPlural = "hands",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var child = new BodyProto
+		{
+			Id = 21,
+			Name = "Winged Humanoid",
+			CountsAs = parent,
+			ConsiderString = "a winged humanoid",
+			WielderDescriptionSingle = "hand",
+			WielderDescriptionPlural = "hands",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		var source = new BodyProto
+		{
+			Id = 22,
+			Name = "Avian",
+			ConsiderString = "an avian",
+			WielderDescriptionSingle = "claw",
+			WielderDescriptionPlural = "claws",
+			LegDescriptionSingular = "leg",
+			LegDescriptionPlural = "legs"
+		};
+		context.BodyProtos.AddRange(parent, child, source);
+		context.SaveChanges();
+
+		var parentBack = new BodypartProto { Id = 200, Body = parent, BodyId = parent.Id, Name = "uback", Description = "upper back", BodypartType = 0, IsOrgan = 0, DisplayOrder = 1 };
+		var sourceBack = new BodypartProto { Id = 201, Body = source, BodyId = source.Id, Name = "uback", Description = "avian upper back", BodypartType = 0, IsOrgan = 0, DisplayOrder = 1 };
+		var wingBase = new BodypartProto { Id = 202, Body = source, BodyId = source.Id, Name = "rwingbase", Description = "right wing base", BodypartType = 0, IsOrgan = 0, DisplayOrder = 2 };
+		var wing = new BodypartProto { Id = 203, Body = source, BodyId = source.Id, Name = "rwing", Description = "right wing", BodypartType = 0, IsOrgan = 0, DisplayOrder = 3 };
+		context.BodypartProtos.AddRange(parentBack, sourceBack, wingBase, wing);
+		context.SaveChanges();
+
+		context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+		{
+			ChildNavigation = wingBase,
+			ParentNavigation = sourceBack
+		});
+		context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
+		{
+			ChildNavigation = wing,
+			ParentNavigation = wingBase
+		});
+		context.SaveChanges();
+
+		var clonedParts = SeederBodyUtilities.CloneBodypartSubtree(context, source, child, "rwingbase", "uback");
+		var clonedWingBase = clonedParts[wingBase.Id];
+		var upstream = context.BodypartProtoBodypartProtoUpstream.Single(x => x.Child == clonedWingBase.Id);
+
+		Assert.AreEqual(parentBack.Id, upstream.Parent,
+			"Cloned subtrees should be able to attach to a parent bodypart inherited through the CountsAs chain.");
+	}
+
+	[TestMethod]
 	public void GetExternalBodypartsWithoutLimbCoverage_MissingHornMembership_ReturnsUncoveredHorn()
 	{
 		using var context = BuildContext();

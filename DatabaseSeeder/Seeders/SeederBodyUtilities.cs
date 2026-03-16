@@ -17,7 +17,8 @@ internal static class SeederBodyUtilities
 		BodyProto source,
 		BodyProto target,
 		IEnumerable<string>? excludedAliases = null,
-		bool cloneAdditionalUsages = true)
+		bool cloneAdditionalUsages = true,
+		bool cloneGroupDescribers = true)
 	{
 		var excluded = new HashSet<string>(excludedAliases ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
 		var sourceParts = context.BodypartProtos
@@ -41,7 +42,10 @@ internal static class SeederBodyUtilities
 		CloneSharedBodyRelationships(context, clonedParts.Keys, clonedParts);
 		CloneLimbs(context, source, target, clonedParts);
 		CloneInheritedLimbMemberships(context, source, clonedParts);
-		CloneBodypartGroupDescribers(context, source, target, clonedParts);
+		if (cloneGroupDescribers)
+		{
+			CloneBodypartGroupDescribers(context, source, target, clonedParts);
+		}
 
 		if (cloneAdditionalUsages)
 		{
@@ -310,9 +314,7 @@ internal static class SeederBodyUtilities
 
 		var bodyIds = GetBodyAndAncestorIds(context, body);
 		var bodyIdSet = bodyIds.ToHashSet();
-		var parts = context.BodypartProtos
-			.Where(x => bodyIdSet.Contains(x.BodyId))
-			.ToList();
+		var parts = GetEffectiveBodyparts(context, body);
 		if (!parts.Any())
 		{
 			return [];
@@ -346,6 +348,70 @@ internal static class SeederBodyUtilities
 		return externalParts
 			.Where(x => !linkedBodypartIds.Contains(x.Id))
 			.ToList();
+	}
+
+	internal static IReadOnlyList<BodypartProto> GetEffectiveBodyparts(
+		FuturemudDatabaseContext context,
+		BodyProto body)
+	{
+		var effectiveParts = new List<BodypartProto>();
+		foreach (var currentBody in GetBodyChain(context, body))
+		{
+			var currentParts = context.BodypartProtos
+				.Where(x => x.BodyId == currentBody.Id)
+				.OrderBy(x => x.DisplayOrder ?? 0)
+				.ThenBy(x => x.Id)
+				.ToList();
+
+			foreach (var part in currentParts)
+			{
+				effectiveParts.RemoveAll(x =>
+					x.Id == part.CountAsId ||
+					x.Name.Equals(part.Name, StringComparison.OrdinalIgnoreCase));
+				effectiveParts.Add(part);
+			}
+
+			var removals = context.BodyProtosAdditionalBodyparts
+				.Where(x => x.BodyProtoId == currentBody.Id && x.Usage == "remove")
+				.Select(x => x.BodypartId)
+				.ToList();
+			if (!removals.Any())
+			{
+				continue;
+			}
+
+			var effectivePartIds = effectiveParts.Select(x => x.Id).ToHashSet();
+			var upstreams = context.BodypartProtoBodypartProtoUpstream
+				.Where(x => effectivePartIds.Contains(x.Child) && effectivePartIds.Contains(x.Parent))
+				.ToList();
+			var removeIds = new HashSet<long>();
+			foreach (var removalId in removals.Where(effectivePartIds.Contains))
+			{
+				foreach (var id in ExpandSubtree(removalId, upstreams))
+				{
+					removeIds.Add(id);
+				}
+			}
+
+			effectiveParts.RemoveAll(x => removeIds.Contains(x.Id));
+		}
+
+		return effectiveParts;
+	}
+
+	internal static BodypartProto? FindBodypartOnBodyOrAncestors(
+		FuturemudDatabaseContext context,
+		BodyProto body,
+		string alias)
+	{
+		var bodyIds = GetBodyAndAncestorIds(context, body);
+		return context.BodypartProtos
+			.Where(x => bodyIds.Contains(x.BodyId) && x.Name == alias)
+			.AsEnumerable()
+			.OrderBy(x => bodyIds.IndexOf(x.BodyId))
+			.ThenBy(x => x.DisplayOrder ?? 0)
+			.ThenBy(x => x.Id)
+			.FirstOrDefault();
 	}
 
 	public static IReadOnlyDictionary<long, BodypartProto> CloneBodypartSubtree(
@@ -396,11 +462,6 @@ internal static class SeederBodyUtilities
 		context.SaveChanges();
 		ApplyCountAsMappings(context, partLookupById, clonedParts);
 
-		var targetLookup = context.BodypartProtos
-			.Where(x => x.BodyId == targetBody.Id)
-			.ToList();
-		var targetPartLookup = BuildBodypartLookup(targetLookup);
-
 		foreach (var upstream in upstreams.Where(x => subtreeIds.Contains(x.Child)))
 		{
 			if (!clonedParts.TryGetValue(upstream.Child, out var child))
@@ -419,7 +480,7 @@ internal static class SeederBodyUtilities
 			}
 
 			if (upstream.Child == sourceRoot.Id && targetParentAlias is not null &&
-			    targetPartLookup.TryGetValue(targetParentAlias, out var targetParent))
+			    FindBodypartOnBodyOrAncestors(context, targetBody, targetParentAlias) is { } targetParent)
 			{
 				context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
 				{
@@ -598,7 +659,7 @@ internal static class SeederBodyUtilities
 		return bodies;
 	}
 
-	private static List<long> GetBodyAndAncestorIds(FuturemudDatabaseContext context, BodyProto body)
+	internal static List<long> GetBodyAndAncestorIds(FuturemudDatabaseContext context, BodyProto body)
 	{
 		return GetBodyChain(context, body)
 			.Select(x => x.Id)

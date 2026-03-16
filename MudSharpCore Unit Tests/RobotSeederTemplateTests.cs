@@ -7,6 +7,9 @@ using System.Reflection;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using MudSharp.Body;
+using MudSharp.Body.Grouping;
 using MudSharp.Database;
 using MudSharp.Models;
 
@@ -151,7 +154,7 @@ public class RobotSeederTemplateTests
 			sawRobot.Attacks.Select(x => x.AttackName).ToArray());
 		CollectionAssert.AreEquivalent(
 			new[] { "rsaw", "lsaw" },
-			sawRobot.BodypartUsages!.Select(x => x.BodypartAlias).ToArray());
+			sawRobot.BodypartUsages!.Where(x => x.Usage == "general").Select(x => x.BodypartAlias).ToArray());
 
 		var hammerRobot = RobotSeeder.TemplatesForTesting["Pneumatic Hammer Robot"];
 		Assert.IsFalse(hammerRobot.CanUseWeapons, "Hammer-hand robots should not retain normal weapon handling.");
@@ -215,21 +218,21 @@ public class RobotSeederTemplateTests
 		var spider = RobotSeeder.TemplatesForTesting["Spider Crawler Robot"];
 		CollectionAssert.AreEquivalent(
 			new[] { "rleg1", "lleg1", "rleg2", "lleg2", "rleg3", "lleg3", "rleg4", "lleg4" },
-			spider.BodypartUsages!.Select(x => x.BodypartAlias).ToArray(),
+			spider.BodypartUsages!.Where(x => x.Usage == "general").Select(x => x.BodypartAlias).ToArray(),
 			"Spider crawlers should expose all crawler legs as flavour bodyparts.");
 
 		var wheeled = RobotSeeder.TemplatesForTesting["Wheeled Robot"];
 		Assert.IsFalse(wheeled.CanClimb, "Wheeled robots should not be seeded as climbers.");
 		CollectionAssert.AreEquivalent(
 			new[] { "rwheel", "lwheel" },
-			wheeled.BodypartUsages!.Select(x => x.BodypartAlias).ToArray());
+			wheeled.BodypartUsages!.Where(x => x.Usage == "general").Select(x => x.BodypartAlias).ToArray());
 
 		var trackedUtility = RobotSeeder.TemplatesForTesting["Tracked Utility Robot"];
 		Assert.AreEqual("machine oil", trackedUtility.BloodLiquidName,
 			"Utility robots should use machine oil as their circulatory fluid.");
 		CollectionAssert.AreEquivalent(
 			new[] { "rtrack", "ltrack" },
-			trackedUtility.BodypartUsages!.Select(x => x.BodypartAlias).ToArray());
+			trackedUtility.BodypartUsages!.Where(x => x.Usage == "general").Select(x => x.BodypartAlias).ToArray());
 	}
 
 	[TestMethod]
@@ -270,6 +273,54 @@ public class RobotSeederTemplateTests
 			"Cyborgs should retain the humanoid characteristic matrix.");
 		Assert.AreEqual("Human", RobotSeeder.TemplatesForTesting["Cyborg"].ParentRaceName,
 			"Cyborgs should inherit from the human race line for presentation purposes.");
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_NonCyborgHumanoidRobots_RemoveNipples()
+	{
+		var humanoidRobotTemplates = RobotSeeder.TemplatesForTesting.Values
+			.Where(x => x.BodyKey is "Robot Humanoid" or "Spider Crawler Robot" or "Circular Saw Robot" or
+			            "Pneumatic Hammer Robot" or "Sword-Hand Robot" or "Winged Robot" or "Jet Robot" or
+			            "Mandible Robot" or "Wheeled Robot" or "Tracked Robot")
+			.ToList();
+
+		Assert.IsTrue(humanoidRobotTemplates.All(x => x.BodypartUsages is not null),
+			"Every non-cyborg humanoid robot template should now explicitly record its nipple removals.");
+		Assert.IsTrue(humanoidRobotTemplates.All(x =>
+			x.BodypartUsages!.Any(y => y.BodypartAlias == "rnipple" && y.Usage == "remove") &&
+			x.BodypartUsages!.Any(y => y.BodypartAlias == "lnipple" && y.Usage == "remove")),
+			"Non-cyborg humanoid robot templates should remove both inherited nipples.");
+		var cyborgTemplate = RobotSeeder.TemplatesForTesting["Cyborg"];
+		Assert.IsTrue(
+			cyborgTemplate.BodypartUsages is null ||
+			cyborgTemplate.BodypartUsages.All(x => x.Usage != "remove"),
+			"Cyborgs should be the only humanoid robot line that retains inherited nipples.");
+	}
+
+	[TestMethod]
+	public void BodypartGroupIDDescriber_Match_InheritedOverridePart_MatchesParentPrototype()
+	{
+		var describer = new BodypartGroupIDDescriber(new MudSharp.Models.BodypartGroupDescriber
+		{
+			Id = 1,
+			DescribedAs = "hand pair",
+			Comment = string.Empty
+		}, new Mock<MudSharp.Framework.IFuturemud>().Object);
+		var parentPart = new Mock<IBodypart>();
+		var childOverride = new Mock<IBodypart>();
+		childOverride.Setup(x => x.CountsAs(parentPart.Object)).Returns(true);
+
+		var field = typeof(BodypartGroupIDDescriber).GetField("Prototypes", BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.IsNotNull(field, "Could not find the direct bodypart prototype lookup.");
+		var prototypes = (System.Collections.Generic.Dictionary<IBodypart, bool>)field.GetValue(describer)!;
+		prototypes[parentPart.Object] = true;
+
+		var result = describer.Match([childOverride.Object]);
+
+		Assert.IsTrue(result.IsMatch,
+			"Inherited override bodyparts should satisfy direct group describers when they CountAs the parent prototype.");
+		Assert.AreEqual(1, result.MatchScore);
+		CollectionAssert.AreEqual(new[] { childOverride.Object }, result.Matches);
 	}
 
 	[TestMethod]
@@ -370,117 +421,4 @@ public class RobotSeederTemplateTests
 			"The robot seeder should no longer hard-fail when avian anatomy is absent.");
 	}
 
-	[TestMethod]
-	public void CloneBody_SourceWithCountsAsAncestor_CreatesSelfContainedFlattenedRobotBody()
-	{
-		using var context = BuildContext();
-		var shape = new BodypartShape { Id = 1, Name = "plate" };
-		var material = new Material
-		{
-			Id = 1,
-			Name = "alloy",
-			MaterialDescription = "alloy",
-			Density = 1.0,
-			Organic = false,
-			Type = 0,
-			ThermalConductivity = 1.0,
-			ElectricalConductivity = 1.0,
-			SpecificHeatCapacity = 1.0,
-			SolventVolumeRatio = 0.0,
-			ResidueSdesc = "residue",
-			ResidueDesc = "residue",
-			ResidueColour = "grey",
-			Absorbency = 0.0
-		};
-		var armour = new ArmourType
-		{
-			Id = 1,
-			Name = "plating",
-			Definition = "<ArmourType />"
-		};
-		var recoveryProg = CreateFutureProg(1, "RobotRecovery");
-		context.BodypartShapes.Add(shape);
-		context.Materials.Add(material);
-		context.ArmourTypes.Add(armour);
-		context.FutureProgs.Add(recoveryProg);
-
-		var baseBody = CreateBodyProto(1, "Quadruped", "paws", "paw");
-		baseBody.StaminaRecoveryProgId = recoveryProg.Id;
-		baseBody.MinimumLegsToStand = 4;
-		baseBody.MinimumWingsToFly = 0;
-		var derivedBody = CreateBodyProto(2, "Toed Quadruped", "paws", "paw");
-		derivedBody.StaminaRecoveryProgId = recoveryProg.Id;
-		derivedBody.MinimumLegsToStand = 4;
-		derivedBody.MinimumWingsToFly = 0;
-		derivedBody.CountsAs = baseBody;
-		context.BodyProtos.AddRange(baseBody, derivedBody);
-		context.SaveChanges();
-
-		var torso = new BodypartProto
-		{
-			Id = 1,
-			Body = baseBody,
-			Name = "torso",
-			Description = "torso",
-			BodypartShape = shape,
-			BodypartType = 0,
-			Alignment = 0,
-			Location = 0,
-			RelativeHitChance = 100,
-			SeveredThreshold = 10,
-			MaxLife = 10,
-			DisplayOrder = 1,
-			DefaultMaterial = material,
-			ArmourType = armour,
-			Size = 0,
-			IsCore = true,
-			Significant = true,
-			ImplantSpace = 0.0,
-			ImplantSpaceOccupied = 0.0
-		};
-		var paw = new BodypartProto
-		{
-			Id = 2,
-			Body = derivedBody,
-			Name = "paw",
-			Description = "paw",
-			BodypartShape = shape,
-			BodypartType = 0,
-			Alignment = 0,
-			Location = 0,
-			RelativeHitChance = 50,
-			SeveredThreshold = 10,
-			MaxLife = 10,
-			DisplayOrder = 2,
-			DefaultMaterial = material,
-			ArmourType = armour,
-			Size = 0,
-			IsCore = true,
-			Significant = true,
-			ImplantSpace = 0.0,
-			ImplantSpaceOccupied = 0.0
-		};
-		context.BodypartProtos.AddRange(torso, paw);
-		context.SaveChanges();
-
-		var seeder = new RobotSeeder();
-		SetPrivateField(seeder, "_context", context);
-		SetPrivateField(seeder, "_robotStaminaRecoveryProg", recoveryProg);
-
-		var cloneMethod = typeof(RobotSeeder).GetMethod("CloneBody", BindingFlags.Instance | BindingFlags.NonPublic);
-		Assert.IsNotNull(cloneMethod, "Could not find the private CloneBody helper.");
-
-		var clonedBody = (BodyProto)cloneMethod.Invoke(seeder, new object[] { "Robot Quadruped", derivedBody })!;
-		Assert.IsNull(clonedBody.CountsAsId,
-			"Robot full-clone bodies should be self-contained so the runtime does not append the donor body's anatomy a second time.");
-
-		var clonedParts = context.BodypartProtos
-			.Where(x => x.BodyId == clonedBody.Id)
-			.OrderBy(x => x.DisplayOrder)
-			.ToList();
-		CollectionAssert.AreEquivalent(new[] { "torso", "paw" }, clonedParts.Select(x => x.Name).ToArray());
-		Assert.IsTrue(clonedParts.All(x => x.BodyId == clonedBody.Id));
-		Assert.AreEqual(baseBody.Id, clonedParts.Single(x => x.Name == "torso").CountAsId);
-		Assert.AreEqual(paw.Id, clonedParts.Single(x => x.Name == "paw").CountAsId);
-	}
 }

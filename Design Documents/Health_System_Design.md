@@ -169,3 +169,53 @@ Use this document set in two passes:
 
 1. Read this head document to get the mental model and subsystem boundaries.
 2. Use the linked sub-documents to drill into runtime detail, player interactions, adjacent systems, and seeder state.
+# Addendum: Fire and Corrosive Contact
+
+## Fire Profiles
+
+The health system now supports combat-driven burning via `FireProfile` and the `OnFire` effect.
+
+`FireProfile` defines:
+
+- damage type
+- damage / pain / stun per tick
+- thermal load per tick
+- spread chance
+- minimum atmospheric oxidation
+- self-oxidising behavior
+- extinguish tags
+
+`OnFire` is a scheduled effect that:
+
+- applies periodic burning damage
+- escalates thermal imbalance / hyperthermia pressure
+- stops when the local atmosphere cannot sustain the profile unless the profile is self-oxidising
+- can spread to nearby perceivables
+
+## Atmospheric Support
+
+`IGas` and `Gas` now expose `OxidationFactor`. This value is used by burning effects to determine whether ongoing combustion can continue in a given cell atmosphere.
+
+## Corrosive / Contact Liquids
+
+Liquids can now define `SurfaceReactionInfo`, loaded into `ILiquidSurfaceReaction` entries. These reactions are tag-driven and are evaluated during:
+
+- `LiquidContamination` ticks for items
+- `BodyLiquidContamination` ticks for bodies
+
+Each reaction can apply:
+
+- damage
+- pain
+- stun
+
+This allows effects such as acids attacking flesh but not glass, holy water harming specific tagged creatures, or custom race/material vulnerabilities using existing contamination delivery.
+
+## Persistence Changes
+
+Health-adjacent persistence now includes:
+
+- `Gases.OxidationFactor`
+- `Liquids.SurfaceReactionInfo`
+
+The attack system also stores `WeaponAttacks.OnUseProgId`, which is relevant for cooldown-driven elemental attacks such as breath weapons.

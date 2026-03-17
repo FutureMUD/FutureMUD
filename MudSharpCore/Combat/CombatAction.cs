@@ -28,6 +28,7 @@ public abstract class CombatAction : SaveableItem
 	public double BaseDelay { get; set; }
 	public double Weighting { get; set; }
 	public IFutureProg UsabilityProg { get; set; }
+	public IFutureProg OnUseAttackProg { get; set; }
 	protected readonly List<IPositionState> _requiredPositionStates = new();
 	public IEnumerable<IPositionState> RequiredPositionStates => _requiredPositionStates;
 
@@ -57,6 +58,13 @@ public abstract class CombatAction : SaveableItem
 			case "usability prog":
 			case "usability futureprog":
 				return BuildingCommandProg(actor, command);
+			case "onuse":
+			case "onuseprog":
+			case "on use":
+			case "on use prog":
+			case "onusefutureprog":
+			case "on use futureprog":
+				return BuildingCommandOnUseProg(actor, command);
 			case "intention":
 				return BuildingCommandIntention(actor, command);
 			case "delay":
@@ -202,6 +210,47 @@ public abstract class CombatAction : SaveableItem
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This {ActionTypeName} will now use the prog {UsabilityProg.FunctionName.Colour(Telnet.Cyan)} to control whether it is a valid {ActionTypeName} or not.");
+		return true;
+	}
+
+	private bool BuildingCommandOnUseProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You can either specify a prog to fire when this {ActionTypeName} is used, or {"none".ColourCommand()} to clear an existing one.");
+			return false;
+		}
+
+		if (command.Peek().EqualTo("none"))
+		{
+			OnUseAttackProg = null;
+			actor.OutputHandler.Send($"This {ActionTypeName} will no longer fire any prog when used.");
+			Changed = true;
+			return true;
+		}
+
+		var prog = long.TryParse(command.PopSpeech(), out var value)
+			? Gameworld.FutureProgs.Get(value)
+			: Gameworld.FutureProgs.GetByName(command.Last);
+		if (prog == null)
+		{
+			actor.OutputHandler.Send("There is no such prog.");
+			return false;
+		}
+
+		if (!prog.MatchesParameters(new[]
+			    { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character }))
+		{
+			actor.OutputHandler.Send(
+				$"You must specify a prog that accepts parameters character (attacker), item (weapon), character (target).");
+			return false;
+		}
+
+		OnUseAttackProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This {ActionTypeName} will now fire the prog {OnUseAttackProg.FunctionName.Colour(Telnet.Cyan)} whenever it is used.");
 		return true;
 	}
 

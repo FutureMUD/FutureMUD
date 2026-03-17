@@ -6643,6 +6643,16 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		AddCombatMessage(Standalone("@ {0} $2 at $1 as &0 fall|falls back"), null, BuiltInCombatMoveType.SkirmishAndFire, 1.0, 1,
 			null, null);
 		AddCombatMessage(Standalone("@ {0} $2 at $1"), null, BuiltInCombatMoveType.RangedWeaponAttack, 1.0, 1, null, null);
+		AddCombatMessage(Standalone("@ unleash|unleashes &0's {0} at $1"), null,
+			BuiltInCombatMoveType.RangedNaturalAttack, 1.0, 1, null, null);
+		AddCombatMessage(Standalone("@ exhale|exhales &0's {0} at $1"), null,
+			BuiltInCombatMoveType.BreathWeaponAttack, 1.0, 1, null, null);
+		AddCombatMessage(Standalone("@ spit|spits &0's {0} at $1"), null,
+			BuiltInCombatMoveType.SpitNaturalAttack, 1.0, 1, null, null);
+		AddCombatMessage(Standalone("@ hurl|hurls &0's {0} at $1"), null,
+			BuiltInCombatMoveType.ExplosiveNaturalAttack, 1.0, 1, null, null);
+		AddCombatMessage(Standalone("@ buffet|buffets $1 with &0's {0}"), null,
+			BuiltInCombatMoveType.BuffetingNaturalAttack, 1.0, 1, null, null);
 		AddCombatMessage(Standalone("@ aim|aims $2 at $1"), Standalone("@ continue|continues to aim $2 at $1"),
 			BuiltInCombatMoveType.AimRangedWeapon, 1.0, 1, null, null);
 		AddCombatMessage(Standalone("$0 attempt|attempts to coup-de-grace $1 with a blow to &1's {0} from $2"), null,
@@ -7907,9 +7917,23 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			switch (check)
 			{
 				case CheckType.NaturalWeaponAttack:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 					AddCheck(check,
 						new TraitExpression
 							{ Expression = $"brawl:{(skills.GetValueOrDefault("Brawling") ?? skills["Brawl"]).Id}" },
+						template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.BreathWeaponSwoop:
+					AddCheck(check,
+						new TraitExpression
+						{
+							Expression =
+								$"(0.5 * brawl:{(skills.GetValueOrDefault("Brawling") ?? skills["Brawl"]).Id}) + (0.5 * fly:{(skills.GetValueOrDefault("Flying") ?? skills.GetValueOrDefault("Fly") ?? skills.GetValueOrDefault("Athletics") ?? skills.Values.First()).Id})"
+						},
 						template.Id, Difficulty.Impossible);
 					continue;
 				case CheckType.DodgeCheck:

@@ -1,0 +1,14 @@
+using System.Collections.Generic;
+using MudSharp.Framework;
+using MudSharp.Health;
+
+namespace MudSharp.Form.Material;
+
+public interface ILiquidSurfaceReaction
+{
+	IEnumerable<ITag> TargetTags { get; }
+	DamageType DamageType { get; }
+	double DamagePerTick { get; }
+	double PainPerTick { get; }
+	double StunPerTick { get; }
+}

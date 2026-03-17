@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +35,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		_name = dbitem.Name;
 		Verb = (MeleeWeaponVerb)dbitem.Verb;
 		UsabilityProg = Gameworld.FutureProgs.Get(dbitem.FutureProgId ?? 0);
+		OnUseAttackProg = Gameworld.FutureProgs.Get(dbitem.OnUseProgId ?? 0);
 		Profile = new SimpleDamageProfile(dbitem, Gameworld);
 		MoveType = (BuiltInCombatMoveType)dbitem.MoveType;
 		Intentions = (CombatMoveIntentions)dbitem.Intentions;
@@ -158,6 +159,16 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 			case BuiltInCombatMoveType.EnvenomingAttack:
 			case BuiltInCombatMoveType.EnvenomingAttackClinch:
 				return new EnvenomingAttack(attack, gameworld);
+			case BuiltInCombatMoveType.RangedNaturalAttack:
+				return new RangedNaturalAttack(attack, gameworld);
+			case BuiltInCombatMoveType.BreathWeaponAttack:
+				return new BreathWeaponAttack(attack, gameworld);
+			case BuiltInCombatMoveType.SpitNaturalAttack:
+				return new SpitAttack(attack, gameworld);
+			case BuiltInCombatMoveType.ExplosiveNaturalAttack:
+				return new ExplosiveRangedAttack(attack, gameworld);
+			case BuiltInCombatMoveType.BuffetingNaturalAttack:
+				return new BuffetingRangedAttack(attack, gameworld);
 			default:
 				return new WeaponAttack(attack, gameworld);
 		}
@@ -185,6 +196,16 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 			case BuiltInCombatMoveType.EnvenomingAttack:
 			case BuiltInCombatMoveType.EnvenomingAttackClinch:
 				return new EnvenomingAttack(gameworld, type);
+			case BuiltInCombatMoveType.RangedNaturalAttack:
+				return new RangedNaturalAttack(gameworld, type);
+			case BuiltInCombatMoveType.BreathWeaponAttack:
+				return new BreathWeaponAttack(gameworld, type);
+			case BuiltInCombatMoveType.SpitNaturalAttack:
+				return new SpitAttack(gameworld, type);
+			case BuiltInCombatMoveType.ExplosiveNaturalAttack:
+				return new ExplosiveRangedAttack(gameworld, type);
+			case BuiltInCombatMoveType.BuffetingNaturalAttack:
+				return new BuffetingRangedAttack(gameworld, type);
 			default:
 				return new WeaponAttack(gameworld, type);
 		}
@@ -212,6 +233,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		dbitem.DamageType = (int)Profile.DamageType;
 		dbitem.ExertionLevel = (int)ExertionLevel;
 		dbitem.FutureProgId = UsabilityProg?.Id;
+		dbitem.OnUseProgId = OnUseAttackProg?.Id;
 		dbitem.HandednessOptions = (int)HandednessOptions;
 		dbitem.Intentions = (long)Intentions;
 		dbitem.MoveType = (int)MoveType;
@@ -258,6 +280,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 	#3verb <verb>#0 - sets the attack verb (used in messaging)
 	#3angle <angle in degrees>#0 - sets the base angle the attack hits at, which can affect armour. Use 90 degrees if you don't know what you're doing.
 	#3prog <prog>#0 - a prog taking character, item, character as parameters and returning a boolean, to determine whether this attack can be used
+	#3onuse <prog|none>#0 - a prog taking character, item, character as parameters that fires when this attack is used
 	#3bodypart <part shape>#0 - sets a bodypart shape this attack is typically associated with, e.g. hand, teeth, etc
 	#3intention <intention1> [<intention2>...<intentionn>]#0 - toggles the specified attack intentions
 	#3damage <name|id>#0 - sets a nominated expression as the damage expression
@@ -477,7 +500,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		Profile.BaseAngleOfIncidence = value.DegreesToRadians();
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This attack's base angle of incidence is now {$"{value.ToString("N3", actor)}°".Colour(Telnet.Green)}.");
+			$"This attack's base angle of incidence is now {$"{value.ToString("N3", actor)}Â°".Colour(Telnet.Green)}.");
 		return true;
 	}
 
@@ -794,7 +817,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Difficulty: {Profile.BaseAttackerDifficulty.Describe().Colour(Telnet.Green)}",
 			$"Base Stamina: {StaminaCost.ToString("N3", actor).Colour(Telnet.Green)}",
-			$"Angle: {$"{Profile.BaseAngleOfIncidence.RadiansToDegrees().ToString("N2", actor)}°".Colour(Telnet.Green)}"
+			$"Angle: {$"{Profile.BaseAngleOfIncidence.RadiansToDegrees().ToString("N2", actor)}Â°".Colour(Telnet.Green)}"
 		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Dodge: {Profile.BaseDodgeDifficulty.Describe().Colour(Telnet.Green)}",
@@ -816,6 +839,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 			$"Usability Prog: {(UsabilityProg != null ? $"{UsabilityProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {UsabilityProg.Id}'") : "None".Colour(Telnet.Red))}",
 			$"Bodypart: {BodypartShape?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}"
 		);
+		sb.AppendLine($"On Use Prog: {(OnUseAttackProg != null ? $"{OnUseAttackProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {OnUseAttackProg.Id}'") : "None".Colour(Telnet.Red))}");
 		sb.AppendLine($"Intentions: {Intentions.Describe()}");
 		sb.AppendLine();
 		sb.AppendLine(
@@ -863,6 +887,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 				DamageType = (int)Profile.DamageType,
 				ExertionLevel = (int)ExertionLevel,
 				FutureProgId = UsabilityProg?.Id,
+				OnUseProgId = OnUseAttackProg?.Id,
 				HandednessOptions = (int)HandednessOptions,
 				Intentions = (long)Intentions,
 				MoveType = (int)MoveType,

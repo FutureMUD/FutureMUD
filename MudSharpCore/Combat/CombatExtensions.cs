@@ -1045,6 +1045,11 @@ public static class CombatExtensions
 			case BuiltInCombatMoveType.SwoopAttack:
 			case BuiltInCombatMoveType.EnvenomingAttack:
 			case BuiltInCombatMoveType.EnvenomingAttackClinch:
+			case BuiltInCombatMoveType.RangedNaturalAttack:
+			case BuiltInCombatMoveType.BreathWeaponAttack:
+			case BuiltInCombatMoveType.SpitNaturalAttack:
+			case BuiltInCombatMoveType.ExplosiveNaturalAttack:
+			case BuiltInCombatMoveType.BuffetingNaturalAttack:
 				return true;
 			default:
 				return false;
@@ -1127,6 +1132,16 @@ public static class CombatExtensions
 				return "Skirmish and Fire";
 			case BuiltInCombatMoveType.RangedWeaponAttack:
 				return "Ranged Weapon Attack";
+			case BuiltInCombatMoveType.RangedNaturalAttack:
+				return "Ranged Natural Attack";
+			case BuiltInCombatMoveType.BreathWeaponAttack:
+				return "Breath Weapon Attack";
+			case BuiltInCombatMoveType.SpitNaturalAttack:
+				return "Spit Attack";
+			case BuiltInCombatMoveType.ExplosiveNaturalAttack:
+				return "Explosive Natural Attack";
+			case BuiltInCombatMoveType.BuffetingNaturalAttack:
+				return "Buffeting Natural Attack";
 			case BuiltInCombatMoveType.AimRangedWeapon:
 				return "Aim Ranged Weapon";
 			case BuiltInCombatMoveType.CoupDeGrace:

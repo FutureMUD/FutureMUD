@@ -57,6 +57,16 @@ public static class CombatMoveFactory
 				return new UnbalancingBlowUnarmedMove(assailant, attack, target, true);
 			case BuiltInCombatMoveType.ScreechAttack:
 				return new ScreechAttackMove(assailant, attack, null);
+			case BuiltInCombatMoveType.RangedNaturalAttack:
+				return new RangedNaturalAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.BreathWeaponAttack:
+				return new BreathWeaponAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.SpitNaturalAttack:
+				return new SpitAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.ExplosiveNaturalAttack:
+				return new ExplosiveNaturalAttackMove(assailant, attack, target);
+			case BuiltInCombatMoveType.BuffetingNaturalAttack:
+				return new BuffetingRangedAttackMove(assailant, attack, target);
 			case BuiltInCombatMoveType.DownedAttackUnarmed:
 				return new UnarmedDownedMeleeAttack(assailant, attack, target);
 			case BuiltInCombatMoveType.StrangleAttack:

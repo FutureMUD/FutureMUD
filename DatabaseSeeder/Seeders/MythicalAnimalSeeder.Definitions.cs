@@ -199,10 +199,12 @@ public partial class MythicalAnimalSeeder
 				"This colossal draconic beast combines a heavily muscled quadrupedal frame with broad wings, curving horns and a predator's jaws.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Legendary, "mouth"),
+					Attack("Dragonfire Breath", ItemQuality.Legendary, "mouth"),
 					Attack("Bite", ItemQuality.Good, "mouth"),
 					Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Horn Gore", ItemQuality.Great, "rhorn", "lhorn"),
-					Attack("Tail Slap", ItemQuality.Good, "ltail")
+					Attack("Tail Slap", ItemQuality.Good, "ltail"),
+					Attack("Wing Buffet", ItemQuality.Good, "rwingbase", "lwingbase")
 				],
 				[
 					Usage("rhorn", "general"),
@@ -230,7 +232,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Beak Peck", ItemQuality.Good, "beak"),
 					Attack("Beak Bite", ItemQuality.Standard, "beak"),
 					Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
-					Attack("Tail Slap", ItemQuality.Standard, "ltail")
+					Attack("Tail Slap", ItemQuality.Standard, "ltail"),
+					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
 				]
 			),
 			["Hippogriff"] = BeastRace(
@@ -245,7 +248,8 @@ public partial class MythicalAnimalSeeder
 				[
 					Attack("Beak Peck", ItemQuality.Standard, "beak"),
 					Attack("Beak Bite", ItemQuality.Poor, "beak"),
-					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof")
+					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
+					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
 				]
 			),
 			["Unicorn"] = BeastRace(
@@ -278,7 +282,8 @@ public partial class MythicalAnimalSeeder
 				[
 					Attack("Bite", ItemQuality.Bad, "mouth"),
 					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
-					Attack("Head Ram", ItemQuality.Standard, "head")
+					Attack("Head Ram", ItemQuality.Standard, "head"),
+					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
 				],
 				[
 					Usage("rwingbase", "general"),
@@ -317,6 +322,7 @@ public partial class MythicalAnimalSeeder
 				"This immense draconic predator combines a serpentine cast and a powerful quadrupedal frame, with taloned feet, a long body and a sweeping tail in place of wings.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Legendary, "mouth"),
+					Attack("Dragonfire Breath", ItemQuality.Legendary, "mouth"),
 					Attack("Bite", ItemQuality.Good, "mouth"),
 					Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Tail Slap", ItemQuality.Good, "ltail")
@@ -370,7 +376,9 @@ public partial class MythicalAnimalSeeder
 					Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
 					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
-					Attack("Tail Slap", ItemQuality.Good, "ltail")
+					Attack("Tail Slap", ItemQuality.Good, "ltail"),
+					Attack("Tail Spike", ItemQuality.Good, "stinger"),
+					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
 				],
 				[
 					Usage("rwingbase", "general"),
@@ -391,9 +399,11 @@ public partial class MythicalAnimalSeeder
 				"This draconic flyer stands on powerful taloned legs beneath a scaled torso, its jaws and whipping tail making close quarters especially dangerous.",
 				[
 					Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+					Attack("Dragonfire Breath", ItemQuality.Good, "mouth"),
 					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
-					Attack("Tail Slap", ItemQuality.Standard, "tail")
+					Attack("Tail Slap", ItemQuality.Standard, "tail"),
+					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
 				]
 			),
 			["Phoenix"] = BeastRace(
@@ -617,11 +627,14 @@ public partial class MythicalAnimalSeeder
 			"Claw Swipe",
 			"Horn Gore",
 			"Tail Slap",
+			"Dragonfire Breath",
 			"Beak Peck",
 			"Beak Bite",
 			"Hoof Stomp",
 			"Head Ram",
 			"Talon Strike",
+			"Wing Buffet",
+			"Tail Spike",
 			"Herbivore Bite",
 			"Jab",
 			"Elbow"
@@ -632,9 +645,12 @@ public partial class MythicalAnimalSeeder
 			"Claw Swipe",
 			"Horn Gore",
 			"Tail Slap",
+			"Dragonfire Breath",
 			"Beak Peck",
 			"Head Ram",
 			"Talon Strike",
+			"Wing Buffet",
+			"Tail Spike",
 			"Jab"
 		};
 		var clinchAttackNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

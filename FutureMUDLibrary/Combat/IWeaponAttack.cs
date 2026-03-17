@@ -22,6 +22,7 @@ namespace MudSharp.Combat {
 		IBodypartShape BodypartShape { get; set; }
 		IDamageProfile Profile { get; set; }
 		IFutureProg UsabilityProg { get; set; }
+		IFutureProg OnUseAttackProg { get; set; }
 		Orientation Orientation { get; set; }
 		Alignment Alignment { get; set; }
 		AttackHandednessOptions HandednessOptions { get; set; }

@@ -351,6 +351,17 @@ public abstract class CombatBase : ICombat
 		// Do nothing
 	}
 
+	protected virtual void FireOnUseProg(ICombatMove move)
+	{
+		if (move is not IWeaponAttackMove attackMove)
+		{
+			return;
+		}
+
+		attackMove.Attack.OnUseAttackProg?.Execute(move.Assailant, attackMove.Weapon?.Parent,
+			attackMove.CharacterTargets.FirstOrDefault());
+	}
+
 	public virtual void CombatAction(IPerceiver perceiver, ICombatMove move)
 	{
 		perceiver.RemoveAllEffects(x => x is IEndOnCombatMove e && e.CausesToEnd(move), true);
@@ -376,6 +387,7 @@ public abstract class CombatBase : ICombat
 
 		perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
 		var targetResponse = move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
+		FireOnUseProg(move);
 		var result = move.ResolveMove(targetResponse);
 		HandleCombatResult(perceiver, move, targetResponse, result);
 

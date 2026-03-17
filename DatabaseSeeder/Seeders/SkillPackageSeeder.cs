@@ -764,6 +764,12 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 						templates["Skill Check"].Id, Difficulty.Impossible);
 					continue;
 				case CheckType.NaturalWeaponAttack:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.BreathWeaponSwoop:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 				case CheckType.DodgeCheck:
 				case CheckType.ParryCheck:
 				case CheckType.BlockCheck:

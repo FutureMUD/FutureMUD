@@ -290,7 +290,12 @@ public partial class AnimalSeeder
 			"arachnidclaw",
 			"headram",
 			"tailslap",
-			"tendrillash"
+			"tendrillash",
+			"llamaspit",
+			"dragonfirebreath",
+			"wingbuffet",
+			"tailspike",
+			"bombardierspray"
 		};
 		var clinchCapableAttackKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
@@ -341,7 +346,12 @@ public partial class AnimalSeeder
 			"arachnidclaw",
 			"headram",
 			"tailslap",
-			"tendrillash"
+			"tendrillash",
+			"llamaspit",
+			"dragonfirebreath",
+			"wingbuffet",
+			"tailspike",
+			"bombardierspray"
 		};
 
 		foreach (var (raceName, template) in RaceTemplates)

@@ -39,6 +39,7 @@ namespace MudSharp.Models
         public string AdditionalInfo { get; set; }
         public int HandednessOptions { get; set; }
         public string RequiredPositionStateIds { get; set; }
+        public long? OnUseProgId { get; set; }
 
         public virtual TraitExpression DamageExpression { get; set; }
         public virtual FutureProg FutureProg { get; set; }

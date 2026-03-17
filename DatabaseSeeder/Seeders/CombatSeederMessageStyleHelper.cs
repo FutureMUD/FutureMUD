@@ -22,7 +22,7 @@ internal enum SeedCombatHitVerb
 
 internal static class CombatSeederMessageStyleHelper
 {
-	private const string CombatSeederName = "Combat";
+	private static readonly string[] CombatSeederNames = ["Combat", "Combat Seeder"];
 	private const string CombatSeederMessageStyleChoice = "messagestyle";
 
 	internal static SeedCombatMessageStyle Parse(string? value)
@@ -55,7 +55,7 @@ internal static class CombatSeederMessageStyleHelper
 	internal static string? GetRecordedChoice(FuturemudDatabaseContext context)
 	{
 		return context.SeederChoices
-			.Where(x => x.Seeder == CombatSeederName && x.Choice == CombatSeederMessageStyleChoice)
+			.Where(x => CombatSeederNames.Contains(x.Seeder) && x.Choice == CombatSeederMessageStyleChoice)
 			.OrderByDescending(x => x.DateTime)
 			.ThenByDescending(x => x.Id)
 			.Select(x => x.Answer)

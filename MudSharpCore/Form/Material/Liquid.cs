@@ -12,6 +12,7 @@ using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Units;
 using MudSharp.Models;
+using System.Xml.Linq;
 
 namespace MudSharp.Form.Material;
 
@@ -28,6 +29,7 @@ public class Liquid : Fluid, ILiquid
 	private long? _solventId;
 	private long? _gasFormId;
 	private IGas _gasForm;
+	private readonly List<ILiquidSurfaceReaction> _surfaceReactions = new();
 
 	public ILiquid Clone(string newName)
 	{
@@ -59,6 +61,7 @@ public class Liquid : Fluid, ILiquid
 		BoilingPoint = rhs.BoilingPoint;
 		ResidueVolumePercentage = rhs.ResidueVolumePercentage;
 		RelativeEnthalpy = rhs.RelativeEnthalpy;
+		_surfaceReactions.AddRange(rhs.SurfaceReactions.Select(x => new LiquidSurfaceReaction(x, gameworld: Gameworld)));
 
 		using (new FMDB())
 		{
@@ -104,7 +107,8 @@ public class Liquid : Fluid, ILiquid
 				InjectionConsequence = (int)InjectionConsequence,
 				ResidueVolumePercentage = ResidueVolumePercentage,
 				RelativeEnthalpy = RelativeEnthalpy,
-				GasFormId = _gasFormId
+				GasFormId = _gasFormId,
+				SurfaceReactionInfo = SaveSurfaceReactions()
 			};
 			FMDB.Context.Liquids.Add(dbitem);
 			foreach (var tag in Tags)
@@ -182,7 +186,8 @@ public class Liquid : Fluid, ILiquid
 				InjectionConsequence = (int)InjectionConsequence,
 				ResidueVolumePercentage = ResidueVolumePercentage,
 				RelativeEnthalpy = RelativeEnthalpy,
-				GasFormId = _gasFormId
+				GasFormId = _gasFormId,
+				SurfaceReactionInfo = SaveSurfaceReactions()
 			};
 			FMDB.Context.Liquids.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -225,6 +230,7 @@ public class Liquid : Fluid, ILiquid
 		ResidueVolumePercentage = liquid.ResidueVolumePercentage;
 		RelativeEnthalpy = liquid.RelativeEnthalpy;
 		_gasFormId = liquid.GasFormId;
+		LoadSurfaceReactions(liquid.SurfaceReactionInfo);
 
 		if (liquid.DraughtProgId.HasValue)
 		{
@@ -291,6 +297,35 @@ public class Liquid : Fluid, ILiquid
 	public double ResidueVolumePercentage { get; set; }
 
 	public double RelativeEnthalpy { get; set; }
+	public IEnumerable<ILiquidSurfaceReaction> SurfaceReactions => _surfaceReactions;
+
+	private string SaveSurfaceReactions()
+	{
+		return new XElement("Reactions",
+			from reaction in _surfaceReactions
+			select new XElement("Reaction",
+				new XAttribute("DamageType", (int)reaction.DamageType),
+				new XAttribute("DamagePerTick", reaction.DamagePerTick),
+				new XAttribute("PainPerTick", reaction.PainPerTick),
+				new XAttribute("StunPerTick", reaction.StunPerTick),
+				new XElement("Tags", reaction.TargetTags.Select(x => new XElement("Tag", x.Id))))
+		).ToString();
+	}
+
+	private void LoadSurfaceReactions(string xml)
+	{
+		_surfaceReactions.Clear();
+		if (string.IsNullOrWhiteSpace(xml))
+		{
+			return;
+		}
+
+		var root = XElement.Parse(xml);
+		foreach (var reaction in root.Elements("Reaction"))
+		{
+			_surfaceReactions.Add(new LiquidSurfaceReaction(reaction, Gameworld));
+		}
+	}
 
 	public ILiquid CountsAsLiquid
 	{
@@ -1289,6 +1324,7 @@ public class Liquid : Fluid, ILiquid
 		dbitem.VagueTasteText = VagueTasteText;
 		dbitem.InjectionConsequence = (int)InjectionConsequence;
 		dbitem.GasFormId = _gasFormId;
+		dbitem.SurfaceReactionInfo = SaveSurfaceReactions();
 		FMDB.Context.LiquidsTags.RemoveRange(dbitem.LiquidsTags);
 		foreach (var tag in Tags)
 		{

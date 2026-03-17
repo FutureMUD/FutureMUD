@@ -32,6 +32,7 @@ namespace MudSharp.Models
         public double Viscosity { get; set; }
         public long? DrugId { get; set; }
         public double DrugGramsPerUnitVolume { get; set; }
+        public double OxidationFactor { get; set; }
         public virtual Drug Drug { get; set; }
 
         public virtual Gas CountAs { get; set; }

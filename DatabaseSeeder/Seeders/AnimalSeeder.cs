@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
@@ -1105,6 +1107,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
 			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Counter, requiredMinimumAim: 0.5,
 			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Swooper", description: "Fully automatic flying hunter designed for creatures that dive through enemies with breath and wing attacks", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: true, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: true, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.AlwaysPursue,
+			melee: CombatStrategyMode.Swooper, ranged: CombatStrategyMode.Swooper,
+			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.4,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
 		SeedCombatStrategy(name: "Wimpy Animal", description: "Fully automatic wimpy designed for use with animals", weaponUse: 0.0, naturalUse: 0.1, auxilliaryUse: 0.9, preferFavourite: false,
 			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: false, pursuit: PursuitMode.NeverPursue,
 			melee: CombatStrategyMode.Flee, ranged: CombatStrategyMode.Flee,
@@ -1753,6 +1761,107 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			var attackAddendum =
 				CombatSeederMessageStyleHelper.AttackSuffix(
 					CombatSeederMessageStyleHelper.Parse(_questionAnswers["messagestyle"]));
+			var defaultWater = _context.Liquids.FirstOrDefault(x => x.Name == "water") ?? _freshWaters.Last();
+			var animalSpittle = _context.Liquids.FirstOrDefault(x => x.Name == "animal spittle");
+			if (animalSpittle is null)
+			{
+				animalSpittle = new Liquid
+				{
+					Name = "animal spittle",
+					Description = "spittle",
+					LongDescription = "a cloudy, stringy animal spittle",
+					TasteText = "It tastes rank and faintly salty.",
+					VagueTasteText = "It tastes rank and faintly salty.",
+					SmellText = "It smells of musk and stale saliva.",
+					VagueSmellText = "It smells faintly musky.",
+					TasteIntensity = 60,
+					SmellIntensity = 30,
+					AlcoholLitresPerLitre = 0,
+					WaterLitresPerLitre = 0.98,
+					FoodSatiatedHoursPerLitre = 0,
+					DrinkSatiatedHoursPerLitre = 0,
+					Viscosity = 1.2,
+					Density = 1.0,
+					Organic = true,
+					ThermalConductivity = 0.609,
+					ElectricalConductivity = 0.005,
+					SpecificHeatCapacity = 4181,
+					FreezingPoint = -2,
+					BoilingPoint = 100,
+					DisplayColour = "bold green",
+					DampDescription = "It is slimed with spittle",
+					WetDescription = "It is wet with spittle",
+					DrenchedDescription = "It is drenched in spittle",
+					DampShortDescription = "(slimed)",
+					WetShortDescription = "(spat on)",
+					DrenchedShortDescription = "(drenched in spit)",
+					SolventId = defaultWater.Id,
+					CountAsId = defaultWater.Id,
+					SolventVolumeRatio = 1,
+					InjectionConsequence = (int)LiquidInjectionConsequence.Harmful,
+					ResidueVolumePercentage = 0.05
+				};
+				_context.Liquids.Add(animalSpittle);
+				_context.SaveChanges();
+			}
+
+			string RangedAttackData(int rangeInRooms, RangedScatterType scatterType) =>
+				new XElement("Data",
+					new XElement("RangeInRooms", rangeInRooms),
+					new XElement("ScatterType", scatterType.ToString())
+				).ToString();
+
+			string SpitAttackData(int rangeInRooms, RangedScatterType scatterType, long liquidId, double maximumQuantity) =>
+				new XElement("Data",
+					new XElement("RangeInRooms", rangeInRooms),
+					new XElement("ScatterType", scatterType.ToString()),
+					new XElement("Liquid", liquidId),
+					new XElement("MaximumQuantity", maximumQuantity)
+				).ToString();
+
+			string BreathAttackData(int rangeInRooms, RangedScatterType scatterType, int additionalTargets,
+				int bodypartsPerTarget, double igniteChance, string fireName, double damagePerTick, double painPerTick,
+				double stunPerTick, double thermalLoadPerTick, double spreadChance, double minimumOxidation,
+				bool selfOxidising) =>
+				new XElement("Data",
+					new XElement("RangeInRooms", rangeInRooms),
+					new XElement("ScatterType", scatterType.ToString()),
+					new XElement("AdditionalTargetLimit", additionalTargets),
+					new XElement("BodypartsHitPerTarget", bodypartsPerTarget),
+					new XElement("IgniteChance", igniteChance),
+					new XElement("FireProfile",
+						new XElement("Name", new XCData(fireName)),
+						new XElement("DamageType", (int)DamageType.Burning),
+						new XElement("DamagePerTick", damagePerTick),
+						new XElement("PainPerTick", painPerTick),
+						new XElement("StunPerTick", stunPerTick),
+						new XElement("ThermalLoadPerTick", thermalLoadPerTick),
+						new XElement("SpreadChance", spreadChance),
+						new XElement("MinimumOxidation", minimumOxidation),
+						new XElement("SelfOxidising", selfOxidising),
+						new XElement("TickFrequencySeconds", 10),
+						new XElement("ExtinguishTags")))
+				.ToString();
+
+			string ExplosiveAttackData(int rangeInRooms, RangedScatterType scatterType, SizeCategory explosionSize,
+				Proximity maximumProximity) =>
+				new XElement("Data",
+					new XElement("RangeInRooms", rangeInRooms),
+					new XElement("ScatterType", scatterType.ToString()),
+					new XElement("ExplosionSize", explosionSize.ToString()),
+					new XElement("MaximumProximity", maximumProximity.ToString())
+				).ToString();
+
+			string BuffetingAttackData(int rangeInRooms, RangedScatterType scatterType, int maximumPushDistance,
+				double offensiveAdvantagePerDegree, double defensiveAdvantagePerDegree, bool inflictsDamage) =>
+				new XElement("Data",
+					new XElement("RangeInRooms", rangeInRooms),
+					new XElement("ScatterType", scatterType.ToString()),
+					new XElement("MaximumPushDistance", maximumPushDistance),
+					new XElement("OffensiveAdvantagePerDegree", offensiveAdvantagePerDegree),
+					new XElement("DefensiveAdvantagePerDegree", defensiveAdvantagePerDegree),
+					new XElement("InflictsDamage", inflictsDamage)
+				).ToString();
 
 			_attacks["carnivorebite"] = AddAttack("Carnivore Bite", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Difficulty.Easy,
@@ -1967,6 +2076,41 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 					MeleeWeaponVerb.Sweep, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
 					Alignment.Front, Orientation.Centre, 3.5, 0.5, tendrilShape, peckDamage,
 					$"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular);
+			_attacks["llamaspit"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Llama Spit") ??
+				AddAttack("Llama Spit", BuiltInCombatMoveType.SpitNaturalAttack,
+					MeleeWeaponVerb.Blast, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Front, Orientation.High, 2.0, 0.9, mouthshape, peckDamage,
+					$"@ rear|rears back and spit|spits a foul gobbet at $1{attackAddendum}", DamageType.Chemical,
+					intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+					additionalInfo: SpitAttackData(1, RangedScatterType.Arcing, animalSpittle.Id, 0.025));
+			_attacks["dragonfirebreath"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Dragonfire Breath") ??
+				AddAttack("Dragonfire Breath", BuiltInCombatMoveType.BreathWeaponAttack,
+					MeleeWeaponVerb.Blast, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Front, Orientation.High, 10.0, 1.6, mouthshape, smashDamage,
+					$"@ rear|rears up and unleash|unleashes a roaring cone of dragonfire at $1{attackAddendum}", DamageType.Burning,
+					intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Burning | CombatMoveIntentions.Hard | CombatMoveIntentions.Slow,
+					additionalInfo: BreathAttackData(2, RangedScatterType.Light, 3, 2, 0.35, "Dragonfire", 0.45, 0.35, 0.1, 2.5, 0.2, 0.05, true));
+			_attacks["wingbuffet"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Wing Buffet") ??
+				AddAttack("Wing Buffet", BuiltInCombatMoveType.BuffetingNaturalAttack,
+					MeleeWeaponVerb.Sweep, Difficulty.Normal, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Front, Orientation.Centre, 5.0, 1.2, shoulderShape, ramDamage,
+					$"@ beat|beats &0's wings and buffet|buffets $1 with a crashing gust{attackAddendum}", DamageType.Crushing,
+					intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Advantage | CombatMoveIntentions.Disadvantage,
+					additionalInfo: BuffetingAttackData(1, RangedScatterType.Light, 1, 0.1, 0.15, true));
+			_attacks["tailspike"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tail Spike") ??
+				AddAttack("Tail Spike", BuiltInCombatMoveType.RangedNaturalAttack,
+					MeleeWeaponVerb.Stab, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Rear, Orientation.Centre, 3.0, 0.8, tailShape, peckDamage,
+					$"@ snap|snaps &0's tail and launch|launches a wicked spike at $1{attackAddendum}", DamageType.Piercing,
+					intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Fast,
+					additionalInfo: RangedAttackData(2, RangedScatterType.Ballistic));
+			_attacks["bombardierspray"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Bombardier Spray") ??
+				AddAttack("Bombardier Spray", BuiltInCombatMoveType.ExplosiveNaturalAttack,
+					MeleeWeaponVerb.Blast, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+					Alignment.Rear, Orientation.Centre, 2.0, 0.8, mandibleShape, peckDamage,
+					$"@ vent|vents a crackling chemical burst toward $1{attackAddendum}", DamageType.Burning,
+					intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Burning | CombatMoveIntentions.Fast,
+					additionalInfo: ExplosiveAttackData(1, RangedScatterType.Arcing, SizeCategory.VerySmall, Proximity.Immediate));
 		}
 	}
 

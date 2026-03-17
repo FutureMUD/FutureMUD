@@ -3366,6 +3366,7 @@ namespace MudSharp.Database
 				entity.Property(e => e.DrugId).HasColumnType("bigint(20)");
 
 				entity.Property(e => e.DrugGramsPerUnitVolume).HasDefaultValueSql("'0.0'");
+				entity.Property(e => e.OxidationFactor).HasDefaultValueSql("'1.0'");
 
 				entity.Property(e => e.ElectricalConductivity).HasDefaultValueSql("'0.000005'");
 
@@ -4678,6 +4679,11 @@ namespace MudSharp.Database
 				entity.Property(e => e.SolventVolumeRatio).HasDefaultValueSql("'1'");
 
 				entity.Property(e => e.SpecificHeatCapacity).HasDefaultValueSql("'4181'");
+
+				entity.Property(e => e.SurfaceReactionInfo)
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.TasteIntensity).HasDefaultValueSql("'100'");
 

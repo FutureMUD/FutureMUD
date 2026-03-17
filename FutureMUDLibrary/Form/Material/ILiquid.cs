@@ -73,6 +73,7 @@ namespace MudSharp.Form.Material {
         string WetShortDescription { get; }
         string DrenchedShortDescription { get; }
         LiquidInjectionConsequence InjectionConsequence { get; }
+        System.Collections.Generic.IEnumerable<ILiquidSurfaceReaction> SurfaceReactions { get; }
         bool LiquidCountsAs(ILiquid otherLiquid);
         ItemQuality LiquidCountsAsQuality(ILiquid otherLiquid);
         ILiquid Clone(string newName);

@@ -269,6 +269,12 @@ Again, the choices you make here can be fixed later so don't stress it too great
 				case CheckType.MedicalExaminationCheck:
 				case CheckType.LocksmithingCheck:
 				case CheckType.NaturalWeaponAttack:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.BreathWeaponSwoop:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 				case CheckType.DodgeCheck:
 				case CheckType.ParryCheck:
 				case CheckType.BlockCheck:

@@ -48,7 +48,7 @@ public partial class AnimalSeeder
 				"Its antennae and purposeful gait make it look wholly given over to work.",
 				"It hurries with the single-minded discipline of a colony creature.",
 				"nest tunnel and colony mound"));
-		yield return Insect("Beetle", "Insectoid", SizeCategory.VerySmall, 0.1, "Insect", "insect-mandible",
+		yield return Insect("Beetle", "Insectoid", SizeCategory.VerySmall, 0.1, "Insect", "bombardier-beetle",
 			InsectPack("a beetle grub", "a young beetle", "a beetle",
 				"It is armoured and compact, the body protected by hard shell and jointed legs.",
 				"Its casing makes it seem more like a moving seed or stone than a vulnerable animal.",

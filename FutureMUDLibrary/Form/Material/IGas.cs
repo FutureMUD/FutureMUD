@@ -6,6 +6,7 @@ namespace MudSharp.Form.Material {
         ItemQuality CountsAsQuality { get; }
         ILiquid LiquidForm { get; }
         double CondensationTemperature { get; }
+        double OxidationFactor { get; }
         bool GasCountAs(IGas otherLiquid);
         IGas Clone(string newName);
     }

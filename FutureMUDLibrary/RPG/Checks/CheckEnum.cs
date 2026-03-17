@@ -180,6 +180,12 @@ namespace MudSharp.RPG.Checks {
                 FleeMovementMountedCheck = 174, // Applied to determine speed bonuses when fleeing while mounted
                 PursuitMovementUnmountedCheck = 175, // Applied to determine speed bonuses when chasing on foot
                 PursuitMovementMountedCheck = 176, // Applied to determine speed bonuses when chasing while mounted
+                RangedNaturalAttack = 177,
+                BreathWeaponAttack = 178,
+                BreathWeaponSwoop = 179,
+                SpitNaturalAttack = 180,
+                ExplosiveNaturalAttack = 181,
+                BuffetingNaturalAttack = 182,
         }
 
 	public enum FailIfTraitMissingType {
@@ -309,6 +315,12 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.CheatAtCoinFlip:
 				case CheckType.SearchForTracksByScentScheck:
 				case CheckType.SearchForTracksCheck:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.BreathWeaponSwoop:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 					return true;
 			}
 			return false;
@@ -415,6 +427,12 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.TakedownCheck:
 				case CheckType.WrenchAttackCheck:
 				case CheckType.AuxiliaryMoveCheck:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.BreathWeaponSwoop:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 					return true;
 				default:
 					return false;
@@ -479,6 +497,12 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.TakedownCheck:
 				case CheckType.WrenchAttackCheck:
 				case CheckType.AuxiliaryMoveCheck:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.BreathWeaponSwoop:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 				case CheckType.ProsecuteLegalCase:
 					return true;
 				default:
@@ -575,6 +599,12 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.DrawingImprovementCheck:
 				case CheckType.ClimbTreetoTreeCheck:
 				case CheckType.SearchForTracksCheck:
+				case CheckType.RangedNaturalAttack:
+				case CheckType.BreathWeaponAttack:
+				case CheckType.BreathWeaponSwoop:
+				case CheckType.SpitNaturalAttack:
+				case CheckType.ExplosiveNaturalAttack:
+				case CheckType.BuffetingNaturalAttack:
 					return true;
 			}
 

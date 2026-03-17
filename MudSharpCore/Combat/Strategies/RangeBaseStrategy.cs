@@ -136,6 +136,46 @@ public abstract class RangeBaseStrategy : StrategyBase
 		};
 	}
 
+	protected virtual ICombatMove ResponseToRangedNaturalAttack(IRangedAttackMove move, IWeaponAttackMove weaponMove,
+		ICharacter defender)
+	{
+		if (defender.Cover != null)
+		{
+			return new HelplessDefenseMove { Assailant = defender };
+		}
+
+		var assailant = move.Assailant;
+		var shield =
+			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
+			        .FirstMax(x => x.ShieldType.BlockBonus);
+		var shieldBonus = shield != null
+			? BlockMove.GetBlockBonus(weaponMove, defender.Body.AlignmentOf(shield.Parent), shield)
+			: 0;
+		var finalBlockDifficulty = weaponMove.Attack.Profile.BaseBlockDifficulty.ApplyBonus(shieldBonus);
+		var finalDodgeDifficulty = weaponMove.Attack.Profile.BaseDodgeDifficulty;
+
+		var finalBlockTargetNumber = defender.Gameworld.GetCheck(CheckType.BlockCheck)
+		                               .TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
+		var finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck)
+		                               .TargetNumber(defender, finalDodgeDifficulty, null, assailant);
+
+		var canBlock = shield is not null &&
+		               weaponMove.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible &&
+		               defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
+		var canDodge = defender.RidingMount is null &&
+		               weaponMove.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible &&
+		               defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender));
+
+		if (!canBlock && !canDodge)
+		{
+			return new HelplessDefenseMove { Assailant = defender };
+		}
+
+		return canBlock && finalBlockTargetNumber >= finalDodgeTargetNumber
+			? new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+			: new DodgeRangeMove { Assailant = defender };
+	}
+
 	public override ICombatMove ResponseToMove(ICombatMove move, IPerceiver defender, IPerceiver assailant)
 	{
 		if (!(defender is ICharacter defenseCharacter))
@@ -169,6 +209,11 @@ public abstract class RangeBaseStrategy : StrategyBase
 		if (move is IRangedWeaponAttackMove rwam)
 		{
 			return ResponseToRangedWeaponAttack(rwam, defenseCharacter);
+		}
+
+		if (move is IRangedAttackMove ram && move is IWeaponAttackMove wam)
+		{
+			return ResponseToRangedNaturalAttack(ram, wam, defenseCharacter);
 		}
 
 		if (move is ChargeToMeleeMove chargeToMeleeMove)

@@ -60,6 +60,7 @@ namespace MudSharp.Models
 		public double RelativeEnthalpy { get; set; }
 		public long? GasFormId { get; set; }
 		public bool LeaveResidueInRooms { get; set; }
+		public string SurfaceReactionInfo { get; set; }
 
 		public virtual Liquid CountAs { get; set; }
 		public virtual Material DriedResidue { get; set; }

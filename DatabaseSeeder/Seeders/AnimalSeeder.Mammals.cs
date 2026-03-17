@@ -248,7 +248,7 @@ public partial class AnimalSeeder
 				"crags, rough pasture and broken hills"),
 			"Goats", usages: hornedFemale);
 		yield return Mammal("Llama", "Llama", "Ungulate", SizeCategory.Normal, 1.0, "Large Ungulate",
-			"stock-mammal", "herbivore-charge",
+			"stock-mammal", "camelid-spitter",
 			MammalPack("a cria", "a young male llama", "a young female llama", "a male llama", "a female llama",
 				"It is long-necked and narrow-faced, with a thick woolly coat and large watchful eyes.",
 				"Its upright neck and neatly placed feet give it a wary, elegant silhouette.",
@@ -256,7 +256,7 @@ public partial class AnimalSeeder
 				"high pasture, dry plain and mountain track"),
 			"Llamas", usages: udder);
 		yield return Mammal("Alpaca", "Alpaca", "Ungulate", SizeCategory.Normal, 0.8, "Large Ungulate",
-			"stock-mammal", "herbivore-charge",
+			"stock-mammal", "camelid-spitter",
 			MammalPack("a cria", "a young male alpaca", "a young female alpaca", "a male alpaca", "a female alpaca",
 				"It is smaller and fluffier than a llama, with a dense soft fleece and compact body.",
 				"Its rounded face and oversized eyes give it a gentle, almost toy-like look.",

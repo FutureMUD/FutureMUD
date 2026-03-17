@@ -31,6 +31,7 @@ public class Gas : Fluid, IGas
 		_liquidFormId = gas.PrecipitateId;
 		Drug = Gameworld.Drugs.Get(gas.DrugId ?? 0);
 		DrugGramsPerUnitVolume = gas.DrugGramsPerUnitVolume;
+		OxidationFactor = gas.OxidationFactor;
 	}
 
 	public Gas(string name, IFuturemud gameworld) : base(name, MaterialBehaviourType.Gas, gameworld)
@@ -60,7 +61,8 @@ public class Gas : Fluid, IGas
 				VagueSmellText = VagueSmellText,
 				Viscosity = Viscosity,
 				DrugId = Drug?.Id,
-				DrugGramsPerUnitVolume = DrugGramsPerUnitVolume
+				DrugGramsPerUnitVolume = DrugGramsPerUnitVolume,
+				OxidationFactor = OxidationFactor
 			};
 			FMDB.Context.Gases.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -96,7 +98,8 @@ public class Gas : Fluid, IGas
 				VagueSmellText = VagueSmellText,
 				Viscosity = Viscosity,
 				DrugId = Drug?.Id,
-				DrugGramsPerUnitVolume = DrugGramsPerUnitVolume
+				DrugGramsPerUnitVolume = DrugGramsPerUnitVolume,
+				OxidationFactor = OxidationFactor
 			};
 			FMDB.Context.Gases.Add(dbitem);
 
@@ -245,6 +248,7 @@ public class Gas : Fluid, IGas
 	#endregion
 
 	public ItemQuality CountsAsQuality { get; set; }
+	public double OxidationFactor { get; set; } = 1.0;
 
 	private long? _liquidFormId;
 	private ILiquid _liquidForm;
@@ -318,6 +322,7 @@ public class Gas : Fluid, IGas
 		dbitem.DrugId = Drug?.Id;
 		dbitem.DrugGramsPerUnitVolume = DrugGramsPerUnitVolume;
 		dbitem.Viscosity = Viscosity;
+		dbitem.OxidationFactor = OxidationFactor;
 		dbitem.SmellIntensity = SmellIntensity;
 		dbitem.SmellText = SmellText;
 		dbitem.VagueSmellText = VagueSmellText;
@@ -346,7 +351,8 @@ public class Gas : Fluid, IGas
 	#3countsas none#0 - clears a counts-as gas
 	#3quality <quality>#0 - sets the maximum quality of the gas when counting-as
 	#3condensation <temp>|none#0 - sets or clears the temperature at which this gas becomes a liquid
-	#3liquid <liquid>|none#0 - sets or clears the liquid form of this gas";
+	#3liquid <liquid>|none#0 - sets or clears the liquid form of this gas
+	#3oxidation <value>#0 - sets the oxidation factor of this gas, where 1.0 is normal air";
 
 	#endregion
 
@@ -376,9 +382,32 @@ public class Gas : Fluid, IGas
 			case "boilingtemperature":
 			case "boilingtemp":
 				return BuildingCommandCondensationTemperature(actor, command);
+			case "oxidation":
+			case "oxidationfactor":
+				return BuildingCommandOxidationFactor(actor, command);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandOxidationFactor(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What oxidation factor should this gas have?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
+		{
+			actor.OutputHandler.Send("You must enter a non-negative number.");
+			return false;
+		}
+
+		OxidationFactor = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This gas now has an oxidation factor of {OxidationFactor.ToString("N3", actor).ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandCondensationTemperature(ICharacter actor, StringStack command)
@@ -522,6 +551,7 @@ public class Gas : Fluid, IGas
 			$"Liquid Form: {LiquidForm?.Name.Colour(LiquidForm.DisplayColour) ?? "None".Colour(Telnet.Red)}",
 			$"Display Colour: {DisplayColour.Name.Colour(DisplayColour)}"
 		});
+		sb.AppendLine($"Oxidation Factor: {OxidationFactor.ToString("N3", actor).ColourValue()}");
 
 		sb.AppendLine(
 			$"Thermal Conductivity: {$"{ThermalConductivity.ToString("N9", actor)} Watts/Kelvin".ColourValue()}");

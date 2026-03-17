@@ -9128,6 +9128,11 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
 
+                    b.Property<double>("OxidationFactor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValueSql("'1.0'");
+
                     b.Property<long?>("PrecipitateId")
                         .HasColumnType("bigint(20)");
 
@@ -10724,6 +10729,12 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double")
                         .HasDefaultValueSql("'4181'");
+
+                    b.Property<string>("SurfaceReactionInfo")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceReactionInfo"), "utf8");
 
                     b.Property<double>("TasteIntensity")
                         .ValueGeneratedOnAdd()
@@ -16148,6 +16159,9 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8mb4_unicode_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<long?>("OnUseProgId")
+                        .HasColumnType("bigint(20)");
 
                     b.Property<int>("Orientation")
                         .HasColumnType("int(11)");

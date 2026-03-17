@@ -18,6 +18,7 @@ using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Effects.Concrete;
@@ -115,6 +116,9 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
 	/// </summary>
 	public override void ExpireEffect()
 	{
+		LiquidSurfaceReactionHelper.ApplyToCharacter((ICharacter)BodyOwner.Actor, Bodyparts, ContaminatingLiquid)
+		                         .ProcessPassiveWounds();
+
 		//Decay down one stage of quanity (drenched->wet->damp->gone)
 		//TODO: The decay/message thresholds should probably be tunable at some point
 		//TODO: The tick frequency of the LiquidContamination effects should be tunable. Could be tunable

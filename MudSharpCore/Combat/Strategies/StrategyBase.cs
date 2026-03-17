@@ -785,7 +785,12 @@ public abstract class StrategyBase : ICombatStrategy
 		var possibleAttacks =
 			combatant.Race
 			         .UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false,
-				         BuiltInCombatMoveType.ScreechAttack).ToList();
+				         BuiltInCombatMoveType.ScreechAttack,
+				         BuiltInCombatMoveType.RangedNaturalAttack,
+				         BuiltInCombatMoveType.BreathWeaponAttack,
+				         BuiltInCombatMoveType.SpitNaturalAttack,
+				         BuiltInCombatMoveType.ExplosiveNaturalAttack,
+				         BuiltInCombatMoveType.BuffetingNaturalAttack).ToList();
 		var attacks = possibleAttacks
 		              .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
 		              .ToList();

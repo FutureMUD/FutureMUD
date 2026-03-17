@@ -1623,6 +1623,8 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.MoveType).HasColumnType("int(11)");
 
+				entity.Property(e => e.OnUseProgId).HasColumnType("bigint(20)");
+
 				entity.Property(e => e.Name)
 					.HasColumnType("text")
 					.HasCharSet("utf8mb4")

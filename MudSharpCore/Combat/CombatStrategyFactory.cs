@@ -51,7 +51,7 @@ public class CombatStrategyFactory
 			case CombatStrategyMode.MeleeMagic:
 				return Strategies.MeleeMagicStrategy.Instance;
 			case CombatStrategyMode.Swooper:
-				// return Strategies.SwooperStrategy.Instance;
+				return Strategies.SwooperStrategy.Instance;
 			default:
 				throw new NotImplementedException("Unknown CombatStrategyMode in CombatStrategyFactory.GetStrategy: " +
 				                                  mode.Describe());

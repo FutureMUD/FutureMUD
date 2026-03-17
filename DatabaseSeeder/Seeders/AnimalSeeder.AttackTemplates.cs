@@ -141,6 +141,14 @@ public partial class AnimalSeeder
 					ShapeAttack("tusksweep", ItemQuality.Substandard)
 				]
 			),
+			["camelid-spitter"] = new(
+				[
+					ShapeAttack("herbivorebite", ItemQuality.Standard),
+					ShapeAttack("barge", ItemQuality.Poor),
+					ShapeAttack("bargesmash", ItemQuality.Poor),
+					ShapeAttack("llamaspit", ItemQuality.Standard)
+				]
+			),
 			["antlered-herbivore"] = new(
 				[
 					ShapeAttack("herbivorebite", ItemQuality.Standard),
@@ -302,6 +310,13 @@ public partial class AnimalSeeder
 				]
 			),
 			["insect-mandible"] = new([ShapeAttack("mandiblebite", ItemQuality.Bad), ShapeAttack("headram", ItemQuality.Terrible)]),
+			["bombardier-beetle"] = new(
+				[
+					ShapeAttack("mandiblebite", ItemQuality.Bad),
+					ShapeAttack("headram", ItemQuality.Terrible),
+					ShapeAttack("bombardierspray", ItemQuality.Standard)
+				]
+			),
 			["insect-stinger"] = new(
 				[ShapeAttack("mandiblebite", ItemQuality.Poor), ShapeAttack("headram", ItemQuality.Terrible)],
 				null,

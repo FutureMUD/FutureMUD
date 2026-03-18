@@ -303,7 +303,13 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 					BuiltInCombatMoveType.EnvenomingAttackClinch,
 					BuiltInCombatMoveType.UnbalancingBlowClinch,
 					BuiltInCombatMoveType.StaggeringBlowClinch,
-					BuiltInCombatMoveType.SwoopAttackUnarmed).Select(x => x.Attack).Distinct()
+					BuiltInCombatMoveType.SwoopAttackUnarmed,
+					BuiltInCombatMoveType.RangedNaturalAttack,
+					BuiltInCombatMoveType.BreathWeaponAttack,
+					BuiltInCombatMoveType.SpitNaturalAttack,
+					BuiltInCombatMoveType.ExplosiveNaturalAttack,
+					BuiltInCombatMoveType.BuffetingNaturalAttack
+				).Select(x => x.Attack).Distinct()
 				select new List<string>
 				{
 					attack.Name,

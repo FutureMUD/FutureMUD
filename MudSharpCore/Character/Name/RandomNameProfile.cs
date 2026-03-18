@@ -93,7 +93,8 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 			var dbitem = new Models.RandomNameProfile
 			{
 				Name = newName,
-				Gender = (short)rhs.Gender,
+				NameCultureId = rhs.Culture.Id,
+                Gender = (short)rhs.Gender,
 				UseForChargenSuggestionsProgId = rhs._useForChargenSuggestionsProg?.Id
 			};
 			foreach (var expression in rhs._nameUsageDiceExpressionsDictionary)

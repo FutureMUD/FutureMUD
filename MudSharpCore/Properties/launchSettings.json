@@ -13,7 +13,7 @@
     },
     "LabMUD": {
       "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=labmud_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=labmud_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     },
     "Nez DBO": {
       "commandName": "Project",
@@ -33,7 +33,7 @@
     },
     "Demo": {
       "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     },
     "Uriel": {
       "commandName": "Project",
@@ -57,11 +57,11 @@
     },
     "Rome": {
       "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=rome_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=rome_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     },
     "Damnatio": {
       "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=damnatio_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=damnatio_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     },
     "MyMUD": {
       "commandName": "Project",
@@ -69,7 +69,7 @@
     },
     "The Crew": {
       "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=thecrew;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=thecrew;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

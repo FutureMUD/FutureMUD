@@ -65,11 +65,6 @@ namespace MudSharp.Combat {
         StandAndFire,
         SkirmishAndFire,
         RangedWeaponAttack,
-        RangedNaturalAttack,
-        BreathWeaponAttack,
-        SpitNaturalAttack,
-        ExplosiveNaturalAttack,
-        BuffetingNaturalAttack,
         AimRangedWeapon,
         CoupDeGrace,
         Rescue,
@@ -104,7 +99,12 @@ namespace MudSharp.Combat {
         SwoopAttackUnarmed,
         EnvenomingAttack,
         EnvenomingAttackClinch,
-        AuxiliaryMove
+        AuxiliaryMove,
+        RangedNaturalAttack,
+        BreathWeaponAttack,
+        SpitNaturalAttack,
+        ExplosiveNaturalAttack,
+        BuffetingNaturalAttack,
     }
 
     public enum WeaponClassification {

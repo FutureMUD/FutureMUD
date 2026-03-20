@@ -583,6 +583,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
 		CloneBodyPositionsAndSpeeds(insectBody, scorpionBody);
 		CloneBodyPositionsAndSpeeds(toedQuadruped, reptilianBody);
 		CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
+		ApplyDefaultCombatSettingsToSeededRaces();
 
 		context.Database.CommitTransaction();
 
@@ -1035,6 +1036,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			CombatMoveIntentions forbiddenIntentions = CombatMoveIntentions.None,
 			CombatMoveIntentions preferredIntentions = CombatMoveIntentions.None)
 	{
+		if (_context.CharacterCombatSettings.Any(x => x.Name == name))
+		{
+			return;
+		}
+
 		var strategy = new CharacterCombatSetting
 		{
 			Name = name,
@@ -3843,7 +3849,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			}
 		}
 
-		var race = new Race
+			var race = new Race
 		{
 			Name = name,
 			Description = string.IsNullOrWhiteSpace(description)
@@ -3859,6 +3865,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AvailabilityProg = _alwaysFalse,
 			CorpseModel = model,
 			DefaultHealthStrategy = _healthStrategy,
+			DefaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, raceTemplate?.CombatStrategyKey ?? "Beast Brawler"),
 			CanUseWeapons = true,
 			CanAttack = true,
 			CanDefend = true,
@@ -9032,6 +9039,28 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		{ BodyProto = jellyfishProto, Position = 18 }); // Flying
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
 		{ BodyProto = jellyfishProto, Position = 16 }); // Swimming
+		_context.SaveChanges();
+	}
+
+	private void ApplyDefaultCombatSettingsToSeededRaces()
+	{
+		foreach (var template in RaceTemplates.Values)
+		{
+			var race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+			if (race is null)
+			{
+				continue;
+			}
+
+			var setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
+			if (race.DefaultCombatSettingId == setting.Id)
+			{
+				continue;
+			}
+
+			race.DefaultCombatSetting = setting;
+		}
+
 		_context.SaveChanges();
 	}
 

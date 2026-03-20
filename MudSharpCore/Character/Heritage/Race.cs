@@ -122,7 +122,8 @@ public partial class Race : SaveableItem, IRace
 			{
 				CanAttack = ParentRace.CombatSettings.CanAttack,
 				CanDefend = ParentRace.CombatSettings.CanDefend,
-				CanUseWeapons = ParentRace.CombatSettings.CanUseWeapons
+				CanUseWeapons = ParentRace.CombatSettings.CanUseWeapons,
+				DefaultCombatSetting = ParentRace.CombatSettings.DefaultCombatSetting
 			};
 
 			NaturalArmourType = ParentRace.NaturalArmourType;
@@ -221,7 +222,8 @@ public partial class Race : SaveableItem, IRace
 			{
 				CanAttack = true,
 				CanDefend = true,
-				CanUseWeapons = false
+				CanUseWeapons = false,
+				DefaultCombatSetting = null
 			};
 
 			NaturalArmourQuality = ItemQuality.Standard;
@@ -280,6 +282,7 @@ public partial class Race : SaveableItem, IRace
 				AvailabilityProgId = AvailabilityProg?.Id,
 				CorpseModelId = CorpseModel.Id,
 				DefaultHealthStrategyId = DefaultHealthStrategy.Id,
+				DefaultCombatSettingId = CombatSettings.DefaultCombatSetting?.Id,
 				CanUseWeapons = CombatSettings.CanUseWeapons,
 				CanAttack = CombatSettings.CanAttack,
 				CanDefend = CombatSettings.CanDefend,
@@ -457,7 +460,8 @@ public partial class Race : SaveableItem, IRace
 		{
 			CanAttack = race.CanAttack,
 			CanDefend = race.CanDefend,
-			CanUseWeapons = race.CanUseWeapons
+			CanUseWeapons = race.CanUseWeapons,
+			DefaultCombatSetting = Gameworld.CharacterCombatSettings.Get(race.DefaultCombatSettingId ?? 0)
 		};
 
 		NaturalArmourType = Gameworld.ArmourTypes.Get(race.NaturalArmourTypeId ?? 0);
@@ -615,7 +619,8 @@ public partial class Race : SaveableItem, IRace
 		{
 			CanAttack = rhs.CombatSettings.CanAttack,
 			CanDefend = rhs.CombatSettings.CanDefend,
-			CanUseWeapons = rhs.CombatSettings.CanUseWeapons
+			CanUseWeapons = rhs.CombatSettings.CanUseWeapons,
+			DefaultCombatSetting = rhs.CombatSettings.DefaultCombatSetting
 		};
 
 		NaturalArmourType = rhs.NaturalArmourType;
@@ -725,6 +730,7 @@ public partial class Race : SaveableItem, IRace
 				AvailabilityProgId = AvailabilityProg?.Id,
 				CorpseModelId = CorpseModel.Id,
 				DefaultHealthStrategyId = DefaultHealthStrategy.Id,
+				DefaultCombatSettingId = CombatSettings.DefaultCombatSetting?.Id,
 				CanUseWeapons = CombatSettings.CanUseWeapons,
 				CanAttack = CombatSettings.CanAttack,
 				CanDefend = CombatSettings.CanDefend,
@@ -1148,6 +1154,7 @@ public partial class Race : SaveableItem, IRace
 		dbitem.AvailabilityProgId = AvailabilityProg?.Id;
 		dbitem.CorpseModelId = CorpseModel.Id;
 		dbitem.DefaultHealthStrategyId = DefaultHealthStrategy.Id;
+		dbitem.DefaultCombatSettingId = CombatSettings.DefaultCombatSetting?.Id;
 		dbitem.CanUseWeapons = CombatSettings.CanUseWeapons;
 		dbitem.CanAttack = CombatSettings.CanAttack;
 		dbitem.CanDefend = CombatSettings.CanDefend;

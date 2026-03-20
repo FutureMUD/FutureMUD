@@ -33,6 +33,17 @@ public class AnimalSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void RaceTemplatesForTesting_CombatStrategyKeys_MapRepresentativeAnimalsToExpectedStyles()
+	{
+		Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Rabbit"].CombatStrategyKey);
+		Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Cheetah"].CombatStrategyKey);
+		Assert.AreEqual("Beast Artillery", AnimalSeeder.RaceTemplatesForTesting["Llama"].CombatStrategyKey);
+		Assert.AreEqual("Beast Swooper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
+		Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
+		Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
+	}
+
+	[TestMethod]
 	public void AttackLoadoutsForTesting_NewAnimalGroups_HaveExpectedAttacks()
 	{
 		var birdLoadout = AnimalSeeder.AttackLoadoutsForTesting["bird-small"];

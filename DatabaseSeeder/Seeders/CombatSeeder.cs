@@ -7150,24 +7150,28 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var humanProg = context.FutureProgs.First(predicate: x => x.FunctionName == "IsHumanoid");
-        var humanPCProg = new FutureProg
+        var humanPCProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "IsHumanoidPC");
+        if (humanPCProg is null)
         {
-            FunctionName = "IsHumanoidPC",
-            Category = "Character",
-            Subcategory = "Descriptions",
-            FunctionComment = "True if the character is a type of humanoid and is a PC",
-            ReturnType = 4,
-            StaticType = 0,
-            FunctionText = """SameRace(@ch.Race, ToRace("Humanoid")) and @ch.PC"""
-        };
-        humanPCProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = humanPCProg,
-            ParameterIndex = 0,
-            ParameterType = 8200,
-            ParameterName = "ch"
-        });
-        context.FutureProgs.Add(humanPCProg);
+	        humanPCProg = new FutureProg
+	        {
+	            FunctionName = "IsHumanoidPC",
+	            Category = "Character",
+	            Subcategory = "Descriptions",
+	            FunctionComment = "True if the character is a type of humanoid and is a PC",
+	            ReturnType = 4,
+	            StaticType = 0,
+	            FunctionText = """SameRace(@ch.Race, ToRace("Humanoid")) and @ch.PC"""
+	        };
+	        humanPCProg.FutureProgsParameters.Add(new FutureProgsParameter
+	        {
+	            FutureProg = humanPCProg,
+	            ParameterIndex = 0,
+	            ParameterType = 8200,
+	            ParameterName = "ch"
+	        });
+	        context.FutureProgs.Add(humanPCProg);
+        }
 
         void SeedCombatStrategy(string name, string description, double weaponUse, double naturalUse,
 			double auxilliaryUse, bool preferFavourite, bool preferArmed, bool preferNonContact, bool preferShields,
@@ -7182,6 +7186,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			CombatMoveIntentions preferredIntentions = CombatMoveIntentions.None,
 			FutureProg? prog = null)
 		{
+			if (context.CharacterCombatSettings.Any(x => x.Name == name))
+			{
+				return;
+			}
+
 			var strategy = new CharacterCombatSetting
 			{
 				Name = name,
@@ -7960,7 +7969,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			SeedUnarmedCombatMessage(context, questionAnswers);
 
 		// Seed Combat Strategies
-		if (!context.CharacterCombatSettings.Any()) SeedCombatStrategies(context, questionAnswers);
+		SeedCombatStrategies(context, questionAnswers);
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Brawler");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Clincher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Behemoth");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Skirmisher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Swooper");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Artillery");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Coward");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Brawler");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Skirmisher");
+		CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Artillery");
 
 		// Set up shield types
 		if (!context.ShieldTypes.Any()) SeedShields(context, questionAnswers, skills);

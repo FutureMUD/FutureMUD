@@ -20,7 +20,8 @@ public partial class AnimalSeeder
 			string loadout,
 			AnimalDescriptionPack pack,
 			AnimalBreathingMode breathingMode,
-			bool canClimb = false)
+			bool canClimb = false,
+			string combatStrategyKey = "Beast Brawler")
 		{
 			return new AnimalRaceTemplate(
 				name,
@@ -48,7 +49,9 @@ public partial class AnimalSeeder
 					"Pinniped" => "pinniped",
 					"Cetacean" => "cetacean",
 					_ => null
-				}
+				},
+				null,
+				combatStrategyKey
 			);
 		}
 
@@ -89,7 +92,8 @@ public partial class AnimalSeeder
 				"Its mouth of teeth and cold unblinking eyes leave no doubt that it is an apex predator.",
 				"It carries itself with the remorseless calm of something that expects to eat what it catches.",
 				"open sea and dark water"),
-			AnimalBreathingMode.Saltwater);
+			AnimalBreathingMode.Saltwater,
+			combatStrategyKey: "Beast Brawler");
 
 		yield return Aquatic("Small Crab", "Small Crab", "Decapod", SizeCategory.VerySmall, 0.2, "Crab", "crab-small",
 			AquaticPack("a tiny crab larva", "a young small crab", "a small crab",
@@ -97,21 +101,24 @@ public partial class AnimalSeeder
 				"Its claws are tiny but very real, and its body is mostly armour and irritation.",
 				"It skitters with prickly sideways certainty.",
 				"tidal rock, shoreline pool and shallow reef"),
-			AnimalBreathingMode.Saltwater);
+			AnimalBreathingMode.Saltwater,
+			combatStrategyKey: "Beast Clincher");
 		yield return Aquatic("Crab", "Crab", "Decapod", SizeCategory.Small, 0.6, "Crab", "crab-large",
 			AquaticPack("a crab larva", "a young crab", "a crab",
 				"It is broad-shelled and low to the ground, with stalked eyes and heavy claws.",
 				"Its carapace and stance make it look like a piece of hostile shoreline come to life.",
 				"It skitters sideways with abrupt mechanical decisiveness.",
 				"reef, mangrove and tidal flat"),
-			AnimalBreathingMode.Saltwater);
+			AnimalBreathingMode.Saltwater,
+			combatStrategyKey: "Beast Clincher");
 		yield return Aquatic("Giant Crab", "Giant Crab", "Decapod", SizeCategory.Normal, 1.2, "Large Crab", "crab-giant",
 			AquaticPack("a giant crab larva", "a young giant crab", "a giant crab",
 				"It is enormous for a crab, all shell, claw and stubborn lateral movement.",
 				"Its claws are large enough to be taken seriously by anything close enough to see them.",
 				"It has the blunt confidence of a creature that trusts its armour.",
 				"reef shelf and deep tidal cave"),
-			AnimalBreathingMode.Saltwater);
+			AnimalBreathingMode.Saltwater,
+			combatStrategyKey: "Beast Clincher");
 		yield return Aquatic("Lobster", "Lobster", "Malacostracan", SizeCategory.Small, 0.6, "Crustacean", "crab-large",
 			AquaticPack("a lobster larva", "a young lobster", "a lobster",
 				"It is long-bodied and armoured, with heavy claws and a muscular tail fan.",
@@ -147,7 +154,8 @@ public partial class AnimalSeeder
 				"Its body is delicate-looking, but the drifting tentacles promise a sting out of all proportion to its substance.",
 				"It pulses and drifts with eerie, indifferent grace.",
 				"open water and current"),
-			AnimalBreathingMode.Partless);
+			AnimalBreathingMode.Partless,
+			combatStrategyKey: "Beast Artillery");
 
 		yield return Aquatic("Octopus", "Octopus", "Cephalopod", SizeCategory.Small, 0.4, "Cephalopod", "cephalopod",
 			AquaticPack("a young octopus", "a young octopus", "an octopus",
@@ -155,21 +163,23 @@ public partial class AnimalSeeder
 				"Its suckered limbs and changing skin make it look too adaptable and too aware for comfort.",
 				"It seems to think before it moves, and that alone is unsettling.",
 				"reef, wreck and rocky sea floor"),
-			AnimalBreathingMode.Saltwater, true);
+			AnimalBreathingMode.Saltwater, true, "Beast Clincher");
 		yield return Aquatic("Squid", "Squid", "Cephalopod", SizeCategory.Small, 0.4, "Cephalopod", "cephalopod",
 			AquaticPack("a young squid", "a young squid", "a squid",
 				"It is narrow-bodied and swift, with fins along the mantle and a crown of arms at the front.",
 				"Its shape is that of a creature built for jetting bursts of speed and sudden turns.",
 				"It always seems one moment away from vanishing into darker water.",
 				"open sea and deep current"),
-			AnimalBreathingMode.Saltwater);
+			AnimalBreathingMode.Saltwater,
+			combatStrategyKey: "Beast Clincher");
 		yield return Aquatic("Giant Squid", "Giant Squid", "Cephalopod", SizeCategory.Large, 1.0, "Giant Cephalopod", "cephalopod",
 			AquaticPack("a young giant squid", "a young giant squid", "a giant squid",
 				"It is an outsized cephalopod, all long mantle, heavy arms and impossible dark eyes.",
 				"Its scale alone turns an already alien body plan into something bordering on monstrous.",
 				"It suggests abyssal depth and cold water where light does not matter much.",
 				"deep ocean and black water"),
-			AnimalBreathingMode.Saltwater);
+			AnimalBreathingMode.Saltwater,
+			combatStrategyKey: "Beast Clincher");
 
 		yield return Aquatic("Sea Lion", "Sea Lion", "Pinniped", SizeCategory.Normal, 0.8, "Pinniped", "pinniped",
 			AquaticPack("a sea lion pup", "a young sea lion", "a sea lion",
@@ -199,34 +209,39 @@ public partial class AnimalSeeder
 				"Its eyes and posture give it an impression of curiosity that most fish never approach.",
 				"It moves with confident playful intelligence.",
 				"open coastal water and warm current"),
-			AnimalBreathingMode.Blowhole);
+			AnimalBreathingMode.Blowhole,
+			combatStrategyKey: "Beast Skirmisher");
 		yield return Aquatic("Porpoise", "Porpoise", "Cetacean", SizeCategory.Normal, 0.8, "Dolphin", "dolphin",
 			AquaticPack("a porpoise calf", "a young porpoise", "a porpoise",
 				"It is shorter and more compact than a dolphin, with a neat blunt head and dark smooth skin.",
 				"Its body is streamlined without looking delicate, built for fast efficient movement through chill water.",
 				"It surfaces and dives with understated assurance.",
 				"coastal current and cool sea"),
-			AnimalBreathingMode.Blowhole);
+			AnimalBreathingMode.Blowhole,
+			combatStrategyKey: "Beast Skirmisher");
 		yield return Aquatic("Orca", "Orca", "Cetacean", SizeCategory.Large, 1.6, "Small Whale", "orca",
 			AquaticPack("an orca calf", "a young orca", "an orca",
 				"It is black-and-white and powerfully built, with a massive jawline and heavy tail stock.",
 				"Its markings are striking, but its size and confidence are what truly dominate the eye.",
 				"It cuts through the water with top-predator certainty.",
 				"cold current and open sea"),
-			AnimalBreathingMode.Blowhole);
+			AnimalBreathingMode.Blowhole,
+			combatStrategyKey: "Beast Behemoth");
 		yield return Aquatic("Baleen Whale", "Baleen Whale", "Cetacean", SizeCategory.VeryLarge, 2.0, "Large Whale", "baleen-whale",
 			AquaticPack("a whale calf", "a young whale", "a baleen whale",
 				"It is enormous, smooth-backed and impossibly heavy even by marine standards.",
 				"Its size is its most striking feature, overwhelming any detail of fin, eye or jaw.",
 				"It moves like weather given flesh.",
 				"deep sea and migratory water"),
-			AnimalBreathingMode.Blowhole);
+			AnimalBreathingMode.Blowhole,
+			combatStrategyKey: "Beast Behemoth");
 		yield return Aquatic("Toothed Whale", "Toothed Whale", "Cetacean", SizeCategory.VeryLarge, 2.0, "Large Whale", "toothed-whale",
 			AquaticPack("a whale calf", "a young whale", "a toothed whale",
 				"It is huge and deep-bodied, with a blunt skull and muscular flukes.",
 				"Its jaw and head proportions mark it as a hunter rather than a placid filter-feeder.",
 				"It advances through the sea with grim, inexorable power.",
 				"deep ocean and pelagic current"),
-			AnimalBreathingMode.Blowhole);
+			AnimalBreathingMode.Blowhole,
+			combatStrategyKey: "Beast Behemoth");
 	}
 }

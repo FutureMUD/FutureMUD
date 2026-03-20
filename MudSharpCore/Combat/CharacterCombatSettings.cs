@@ -41,6 +41,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				RequiredIntentions = (long)CombatMoveIntentions.None,
 				GlobalTemplate = false,
 				AvailabilityProgId = Gameworld.AlwaysTrueProg.Id,
+				PriorityProgId = null,
 				WeaponUsePercentage = 1,
 				MagicUsePercentage = 0,
 				PsychicUsePercentage = 0,
@@ -91,6 +92,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				CharacterOwnerId = characterOwner?.Id,
 				Description = settingToCopy.Description,
 				AvailabilityProgId = settingToCopy.AvailabilityProg?.Id,
+				PriorityProgId = settingToCopy.PriorityProg?.Id,
 				ClassificationsAllowed = settingToCopy.ClassificationsAllowed.Select(x => ((int)x).ToString())
 				                                      .ListToString(separator: " ",
 					                                      conjunction: ""),
@@ -144,6 +146,11 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 	///     The availability prog, if set, restricts access to a global character combat settings
 	/// </summary>
 	public IFutureProg AvailabilityProg { get; set; }
+
+	/// <summary>
+	///     The priority prog, if set, influences default selection among valid global templates
+	/// </summary>
+	public IFutureProg PriorityProg { get; set; }
 
 	/// <summary>
 	///     If true, this Character Combat Settings is a global setting and cannot be modified by a player
@@ -292,6 +299,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 		_name = setting.Name;
 		Description = setting.Description;
 		AvailabilityProg = gameworld?.FutureProgs.Get(setting.AvailabilityProgId ?? 0);
+		PriorityProg = gameworld?.FutureProgs.Get(setting.PriorityProgId ?? 0);
 		GlobalTemplate = setting.GlobalTemplate;
 		CharacterOwnerId = setting.CharacterOwnerId;
 		WeaponUsePercentage = setting.WeaponUsePercentage;
@@ -359,6 +367,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 			dbitem.Name = Name;
 			dbitem.Description = Description;
 			dbitem.AvailabilityProgId = AvailabilityProg?.Id;
+			dbitem.PriorityProgId = PriorityProg?.Id;
 			dbitem.GlobalTemplate = GlobalTemplate;
 			dbitem.CharacterOwnerId = CharacterOwnerId;
 			dbitem.WeaponUsePercentage = WeaponUsePercentage;
@@ -440,6 +449,11 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 			(GlobalTemplate && AvailabilityProg?.Execute<bool?>(who) != false);
 	}
 
+	public double PriorityFor(ICharacter who)
+	{
+		return PriorityProg?.ExecuteDouble(0.0, who) ?? 0.0;
+	}
+
 	public string Show(ICharacter voyeur)
 	{
 		var sb = new StringBuilder();
@@ -454,6 +468,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				$"Global: {(GlobalTemplate ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}",
 				$"Owner: {CharacterOwnerId?.ToString("N0", voyeur).Colour(Telnet.Green) ?? "None"}",
 				$"Availability Prog: {(AvailabilityProg != null ? string.Format(voyeur, "{0} (#{1:N0})".FluentTagMXP("send", $"href='show futureprog {AvailabilityProg.Id}'"), AvailabilityProg.FunctionName, AvailabilityProg.Id) : "None".Colour(Telnet.Red))}");
+			sb.AppendLine($"Priority Prog: {(PriorityProg != null ? string.Format(voyeur, "{0} (#{1:N0})".FluentTagMXP("send", $"href='show futureprog {PriorityProg.Id}'"), PriorityProg.FunctionName, PriorityProg.Id) : "None".Colour(Telnet.Red))}");
 		}
 
 		sb.AppendLine();

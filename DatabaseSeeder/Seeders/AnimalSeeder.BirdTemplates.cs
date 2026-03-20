@@ -17,7 +17,8 @@ public partial class AnimalSeeder
 			string model,
 			string loadout,
 			AnimalDescriptionPack pack,
-			string? description = null)
+			string? description = null,
+			string combatStrategyKey = "Beast Skirmisher")
 		{
 			return new AnimalRaceTemplate(
 				name,
@@ -35,7 +36,9 @@ public partial class AnimalSeeder
 				false,
 				AnimalBreathingMode.Simple,
 				null,
-				"avian"
+				"avian",
+				null,
+				combatStrategyKey
 			);
 		}
 
@@ -86,25 +89,29 @@ public partial class AnimalSeeder
 				"It is squat and earth-toned, with rounded wings and a neat compact body.",
 				"Its markings are ideal for melting into dry grass and leaf litter.",
 				"It looks much happier running under cover than taking to the air.",
-				"grassland and scrub undergrowth"));
+				"grassland and scrub undergrowth"),
+			combatStrategyKey: "Beast Coward");
 		yield return Bird("Duck", SizeCategory.Small, 0.2, "Waterfowl", "bird-fowl",
 			BirdPack("a duckling", "a young drake", "a duck",
 				"It is broad-billed and web-footed, with water-shedding plumage and a low-slung body.",
 				"Its bill and feet make its life on water obvious at a glance.",
 				"It carries itself with a comic, practical assurance.",
-				"pond, marsh and slow river"));
+				"pond, marsh and slow river"),
+			combatStrategyKey: "Beast Brawler");
 		yield return Bird("Goose", SizeCategory.Small, 0.4, "Waterfowl", "bird-fowl",
 			BirdPack("a gosling", "a young goose", "a goose",
 				"It is long-necked and broad-bodied, with a heavy bill and strong webbed feet.",
 				"Its reach and angry hiss suggest that it is much more formidable than its shape first implies.",
 				"It looks argumentative even at rest.",
-				"lake edge, marsh pasture and open water"));
+				"lake edge, marsh pasture and open water"),
+			combatStrategyKey: "Beast Brawler");
 		yield return Bird("Swan", SizeCategory.Small, 0.4, "Waterfowl", "bird-fowl",
 			BirdPack("a cygnet", "a young swan", "a swan",
 				"It is long-necked and elegantly proportioned, clothed in clean layered plumage.",
 				"Its broad wings and poised carriage give it a regal, almost theatrical profile.",
 				"It glides or stalks with deliberate grace.",
-				"lake, broad river and ornamental water"));
+				"lake, broad river and ornamental water"),
+			combatStrategyKey: "Beast Brawler");
 		yield return Bird("Grouse", SizeCategory.Small, 0.2, "Small Bird", "bird-fowl",
 			BirdPack("a grouse chick", "a young grouse", "a grouse",
 				"It is round-bodied and heavily feathered, marked in mottled browns and greys.",
@@ -122,13 +129,15 @@ public partial class AnimalSeeder
 				"It is compact and practical, with a thick body, short wings and sturdy scratching feet.",
 				"Its comb, wattles and blunt beak give it an unmistakably domestic look.",
 				"It fusses and scratches with constant barnyard purpose.",
-				"yard, coop and farmstead"));
+				"yard, coop and farmstead"),
+			combatStrategyKey: "Beast Brawler");
 		yield return Bird("Turkey", SizeCategory.Small, 0.35, "Waterfowl", "bird-fowl",
 			BirdPack("a poult", "a young turkey", "a turkey",
 				"It is broad and heavy, with a fan-like tail and powerful legs.",
 				"Its bare head and fleshy wattles give it an oddly severe look.",
 				"It struts with a mixture of caution and bluster.",
-				"woodland edge and rough pasture"));
+				"woodland edge and rough pasture"),
+			combatStrategyKey: "Beast Brawler");
 		yield return Bird("Seagull", SizeCategory.Small, 0.2, "Small Bird", "bird-small",
 			BirdPack("a gull chick", "a young gull", "a gull",
 				"It is light-bodied and strong-winged, with a sharp bill and webbed feet.",
@@ -140,7 +149,8 @@ public partial class AnimalSeeder
 				"It is long-winged and ocean-built, with a sturdy bill and narrow body.",
 				"Its immense wings suggest a creature that belongs more to the wind than to the earth.",
 				"It gives the impression of effortless distance and cold salt air.",
-				"open ocean and lonely cliff rookery"));
+				"open ocean and lonely cliff rookery"),
+			combatStrategyKey: "Beast Swooper");
 		yield return Bird("Heron", SizeCategory.Small, 0.2, "Wader", "bird-small",
 			BirdPack("a heron chick", "a young heron", "a heron",
 				"It is narrow-bodied and long-necked, with immense legs and a dagger bill.",
@@ -194,43 +204,50 @@ public partial class AnimalSeeder
 				"It is tall and long-legged, clothed in shaggy weatherproof feathers.",
 				"Its narrow head and powerful thighs make it look built for speed over rough ground.",
 				"It seems more likely to outrun danger than to rise above it.",
-				"scrubland and open plain"));
+				"scrubland and open plain"),
+			combatStrategyKey: "Beast Behemoth");
 		yield return Bird("Ostrich", SizeCategory.Normal, 0.8, "Flightless Bird", "bird-flightless",
 			BirdPack("an ostrich chick", "a young ostrich", "an ostrich",
 				"It is huge, long-necked and massively legged, its body topped by soft black-and-white plumage.",
 				"Its feet and legs are terrifyingly strong for any creature willing to stand in kicking distance.",
 				"It carries itself with wary hauteur and tremendous athletic tension.",
-				"savannah and dry open plain"));
+				"savannah and dry open plain"),
+			combatStrategyKey: "Beast Behemoth");
 		yield return Bird("Moa", SizeCategory.Normal, 0.8, "Flightless Bird", "bird-flightless",
 			BirdPack("a moa chick", "a young moa", "a moa",
 				"It is immense and heavy-bodied, with stout legs and a thick neck.",
 				"It has the grounded, prehistoric solidity of a bird that never needed the sky.",
 				"It lumbers with powerful, long-paced strides.",
-				"open forest and grassy upland"));
+				"open forest and grassy upland"),
+			combatStrategyKey: "Beast Behemoth");
 		yield return Bird("Vulture", SizeCategory.Small, 0.35, "Raptor", "bird-raptor",
 			BirdPack("a vulture chick", "a young vulture", "a vulture",
 				"It is broad-winged and bare-headed, with a hooked bill and a hunched stance.",
 				"Its naked head and deep chest make it look purpose-built for feeding where others would balk.",
 				"It has the patient circling assurance of a scavenger with time on its side.",
-				"cliff, thermal and arid plain"));
+				"cliff, thermal and arid plain"),
+			combatStrategyKey: "Beast Swooper");
 		yield return Bird("Hawk", SizeCategory.Small, 0.35, "Raptor", "bird-raptor",
 			BirdPack("a hawk chick", "a young hawk", "a hawk",
 				"It is sharp-winged and compact, with bright predatory eyes and a hooked bill.",
 				"Its talons and chest look built for sudden impact and secure killing grip.",
 				"It seems alert to every movement around it.",
-				"woodland edge, hill country and open field"));
+				"woodland edge, hill country and open field"),
+			combatStrategyKey: "Beast Swooper");
 		yield return Bird("Eagle", SizeCategory.Normal, 0.7, "Raptor", "bird-raptor",
 			BirdPack("an eaglet", "a young eagle", "an eagle",
 				"It is broad-winged and heavy-bodied, with a fierce hooked bill and enormous talons.",
 				"Its head and shoulders carry the hard, imperial line of a dominant aerial predator.",
 				"It watches the world with remorseless patience.",
-				"mountain, cliff and open sky"));
+				"mountain, cliff and open sky"),
+			combatStrategyKey: "Beast Swooper");
 		yield return Bird("Falcon", SizeCategory.Small, 0.35, "Raptor", "bird-raptor",
 			BirdPack("a falcon chick", "a young falcon", "a falcon",
 				"It is streamlined and narrow-winged, with a small hooked bill and an athlete's frame.",
 				"Its wings and body together suggest sudden acceleration more than lingering soar.",
 				"It looks taut, precise and built for devastating speed.",
-				"cliff face, open plain and high air"));
+				"cliff face, open plain and high air"),
+			combatStrategyKey: "Beast Swooper");
 		yield return Bird("Woodpecker", SizeCategory.Small, 0.35, "Small Bird", "bird-small",
 			BirdPack("a woodpecker chick", "a young woodpecker", "a woodpecker",
 				"It is compact and upright, with a chisel beak and climbing feet.",
@@ -242,7 +259,8 @@ public partial class AnimalSeeder
 				"It is broad-headed and soft-feathered, with a round face and great front-facing eyes.",
 				"Its silent plumage and hooked beak make it look like a patient engine of nocturnal death.",
 				"It gives off an eerie stillness even when awake.",
-				"forest, ruin and moonlit field"));
+				"forest, ruin and moonlit field"),
+			combatStrategyKey: "Beast Swooper");
 		yield return Bird("Kingfisher", SizeCategory.Small, 0.35, "Small Bird", "bird-small",
 			BirdPack("a kingfisher chick", "a young kingfisher", "a kingfisher",
 				"It is neat and jewel-bright, with a large head and long pointed bill.",

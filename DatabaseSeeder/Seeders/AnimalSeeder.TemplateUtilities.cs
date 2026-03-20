@@ -356,6 +356,15 @@ public partial class AnimalSeeder
 
 		foreach (var (raceName, template) in RaceTemplates)
 		{
+			if (string.IsNullOrWhiteSpace(template.CombatStrategyKey))
+			{
+				issues.Add($"Race {raceName} is missing a combat strategy key.");
+			}
+			else if (!CombatStrategySeederHelper.IsKnownStrategyName(template.CombatStrategyKey))
+			{
+				issues.Add($"Race {raceName} references unknown combat strategy {template.CombatStrategyKey}.");
+			}
+
 			if (!AgeProfiles.ContainsKey(template.AgeProfileKey))
 			{
 				issues.Add($"Race {raceName} uses unknown age profile {template.AgeProfileKey}.");

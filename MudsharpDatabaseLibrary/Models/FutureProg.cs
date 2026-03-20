@@ -13,6 +13,7 @@ namespace MudSharp.Models
             ChannelsChannelListenerProg = new HashSet<Channel>();
             ChannelsChannelSpeakerProg = new HashSet<Channel>();
             CharacterCombatSettings = new HashSet<CharacterCombatSetting>();
+            CharacterCombatSettingsPriorityProg = new HashSet<CharacterCombatSetting>();
             CharacterIntroTemplates = new HashSet<CharacterIntroTemplate>();
             CharacteristicValues = new HashSet<CharacteristicValue>();
             ChargenAdvices = new HashSet<ChargenAdvice>();
@@ -85,6 +86,7 @@ namespace MudSharp.Models
         public virtual ICollection<Channel> ChannelsChannelListenerProg { get; set; }
         public virtual ICollection<Channel> ChannelsChannelSpeakerProg { get; set; }
         public virtual ICollection<CharacterCombatSetting> CharacterCombatSettings { get; set; }
+        public virtual ICollection<CharacterCombatSetting> CharacterCombatSettingsPriorityProg { get; set; }
         public virtual ICollection<CharacterIntroTemplate> CharacterIntroTemplates { get; set; }
         public virtual ICollection<CharacteristicValue> CharacteristicValues { get; set; }
         public virtual ICollection<ChargenAdvice> ChargenAdvices { get; set; }

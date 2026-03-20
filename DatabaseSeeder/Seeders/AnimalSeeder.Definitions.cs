@@ -152,7 +152,8 @@ public partial class AnimalSeeder
 		AnimalBreathingMode BreathingMode = AnimalBreathingMode.Simple,
 		string? BloodProfileKey = null,
 		string? BodyAuditKey = null,
-		IReadOnlyList<AnimalBodypartUsageTemplate>? AdditionalBodypartUsages = null
+		IReadOnlyList<AnimalBodypartUsageTemplate>? AdditionalBodypartUsages = null,
+		string CombatStrategyKey = "Beast Brawler"
 	);
 
 	internal static IReadOnlyDictionary<string, AnimalAgeProfileTemplate> AgeProfilesForTesting => AgeProfiles;

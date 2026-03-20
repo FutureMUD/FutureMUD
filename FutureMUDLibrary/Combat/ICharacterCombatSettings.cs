@@ -54,6 +54,11 @@ namespace MudSharp.Combat
 		IFutureProg AvailabilityProg { get; set; }
 
 		/// <summary>
+		///     The priority prog, if set, controls which valid global combat setting should be selected by default
+		/// </summary>
+		IFutureProg PriorityProg { get; set; }
+
+		/// <summary>
 		///     If true, this Character Combat Settings is a global setting and cannot be modified by a player
 		/// </summary>
 		bool GlobalTemplate { get; set; }
@@ -154,6 +159,7 @@ namespace MudSharp.Combat
 		bool RemoveClassification(WeaponClassification classification);
 		bool ClearClassifications();
 		bool CanUse(ICharacter who);
+		double PriorityFor(ICharacter who);
 		string Show(ICharacter voyeur);
 		void SetName(string name);
 	}

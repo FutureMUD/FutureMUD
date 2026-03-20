@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -14,6 +15,7 @@ namespace MudSharp.NPC.Templates {
         string NPCTemplateType { get; }
         IFutureProg? OnLoadProg { get; }
         IHealthStrategy? HealthStrategy { get; }
+        ICharacterCombatSettings? DefaultCombatSetting { get; }
         List<IArtificialIntelligence> ArtificialIntelligences { get; }
         ICharacterTemplate GetCharacterTemplate(ICell? cell = null);
         ICharacter CreateNewCharacter(ICell location);

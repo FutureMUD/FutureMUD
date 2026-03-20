@@ -178,6 +178,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
 	#3subclass <subclass>#0 - sets the subclass of  this NPC (if using subclasses)
 	#3role <which>#0 - toggles this NPC having a particular role
 	#3merit <which>#0 - toggles this NPC having a particular merit
+	#3combatsetting <which>#0 - sets the default combat setting override for this NPC
+	#3combatsetting none#0 - clears the combat setting override
 	#3knowledge <which>#0 - toggles this NPC having a particular knowledge
 	#3randomise#0 - randomises the descriptions, name and characteristics of this NPC
 	#3onload <prog>#0 - sets a prog to be run on-load of the NPC
@@ -303,7 +305,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
 				{
 					$"Class: {SelectedRoles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Class).Name.Colour(Telnet.Green)}",
 					$"Subclass: {(SelectedRoles.Any(x => x.RoleType == ChargenRoleType.Subclass) ? SelectedRoles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Subclass).Name.Colour(Telnet.Green) : "None".Colour(Telnet.Red))}",
-					$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}"
+					$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}",
+					$"Combat Setting: {DefaultCombatSetting?.Name.ColourName() ?? "Default".ColourCommand()}"
 				}.ArrangeStringsOntoLines(3, (uint)actor.LineFormatLength));
 			}
 
@@ -400,6 +403,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 			sb.AppendLine();
 			sb.AppendLine($"OnLoadProg: {OnLoadProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+			sb.AppendLine($"Default Combat Setting: {DefaultCombatSetting?.Name.ColourName() ?? "None".Colour(Telnet.Red)}");
 
 			sb.AppendLine("AI Routines:");
 			sb.AppendLine();
@@ -727,6 +731,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			new XElement("Definition", 
 				new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
 				new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
+				new XElement("DefaultCombatSetting", DefaultCombatSetting?.Id ?? 0L),
 				new XElement("SelectedSdesc", new XCData(SelectedSdesc ?? "")),
 				new XElement("SelectedFullDesc", new XCData(SelectedFullDesc ?? "")),
 				new XElement("SelectedRace", SelectedRace?.Id ?? -1),

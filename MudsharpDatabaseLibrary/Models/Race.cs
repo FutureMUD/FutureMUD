@@ -37,6 +37,7 @@ namespace MudSharp.Models
 		public long? AvailabilityProgId { get; set; }
 		public long CorpseModelId { get; set; }
 		public long DefaultHealthStrategyId { get; set; }
+		public long? DefaultCombatSettingId { get; set; }
 		public bool CanUseWeapons { get; set; }
 		public bool CanAttack { get; set; }
 		public bool CanDefend { get; set; }
@@ -100,6 +101,7 @@ namespace MudSharp.Models
 		public virtual Liquid BloodLiquid { get; set; }
 		public virtual BloodModel BloodModel { get; set; }
 		public virtual CorpseModel CorpseModel { get; set; }
+		public virtual CharacterCombatSetting DefaultCombatSetting { get; set; }
 		public virtual HealthStrategy DefaultHealthStrategy { get; set; }
 		public virtual Material NaturalArmourMaterial { get; set; }
 		public virtual ArmourType NaturalArmourType { get; set; }

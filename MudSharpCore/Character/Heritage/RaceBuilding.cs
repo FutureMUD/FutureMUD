@@ -56,6 +56,8 @@ public partial class Race
 	#3canattack#0 - toggles the race being able to use attacks
 	#3candefend#0 - toggles the race being able to dodge/parry/block
 	#3canuseweapons#0 - toggles the race being able to use weapons (if it has wielding parts)
+	#3combatsetting <setting>#0 - sets the default combat setting for this race
+	#3combatsetting none#0 - clears the combat setting override
 
 	#6Physical Properties#0
 
@@ -215,6 +217,9 @@ public partial class Race
 				return BuildingCommandCanDefend(actor);
 			case "canuseweapons":
 				return BuildingCommandCanUseWeapons(actor);
+			case "combatsetting":
+			case "combat":
+				return BuildingCommandCombatSetting(actor, command);
 			case "age":
 				return BuildingCommandAge(actor, command);
 			case "characteristic":
@@ -1708,6 +1713,43 @@ public partial class Race
 		return true;
 	}
 
+	private bool BuildingCommandCombatSetting(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a global combat setting, or use {"none".ColourCommand()} to clear the override.");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CombatSettings.DefaultCombatSetting = null;
+			Changed = true;
+			actor.OutputHandler.Send("This race will now use global combat-setting defaults.");
+			return true;
+		}
+
+		var setting = long.TryParse(command.SafeRemainingArgument, out var value)
+			? Gameworld.CharacterCombatSettings.Get(value)
+			: Gameworld.CharacterCombatSettings.GetByName(command.SafeRemainingArgument);
+		if (setting is null)
+		{
+			actor.OutputHandler.Send($"There is no combat setting identified by {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		if (!setting.GlobalTemplate)
+		{
+			actor.OutputHandler.Send("Races can only use global combat settings as defaults.");
+			return false;
+		}
+
+		CombatSettings.DefaultCombatSetting = setting;
+		Changed = true;
+		actor.OutputHandler.Send($"This race will now use {setting.Name.ColourName()} as its default combat setting.");
+		return true;
+	}
+
 	private bool BuildingCommandArmourMaterial(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -2531,6 +2573,7 @@ public partial class Race
 			$"Can Defend: {CombatSettings.CanDefend.ToString().Colour(Telnet.Green)}",
 			$"Use Weapons: {CombatSettings.CanUseWeapons.ToString().Colour(Telnet.Green)}"
 		);
+		sb.AppendLine($"Default Combat Setting: {CombatSettings.DefaultCombatSetting?.Name.ColourName() ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine();
 		sb.AppendLine("Breathable Fluids".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();

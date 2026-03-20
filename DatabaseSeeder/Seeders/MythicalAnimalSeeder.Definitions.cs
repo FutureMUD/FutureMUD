@@ -58,7 +58,8 @@ public partial class MythicalAnimalSeeder
 		IReadOnlyList<MythicalBodypartUsageTemplate>? BodypartUsages = null,
 		IReadOnlyList<string>? PersonWords = null,
 		string? FacialHairProfileName = null,
-		IReadOnlyList<MythicalCharacteristicTemplate>? AdditionalCharacteristics = null
+		IReadOnlyList<MythicalCharacteristicTemplate>? AdditionalCharacteristics = null,
+		string CombatStrategyKey = "Beast Brawler"
 	);
 
 	internal static IReadOnlyDictionary<string, MythicalRaceTemplate> TemplatesForTesting => Templates;
@@ -93,7 +94,8 @@ public partial class MythicalAnimalSeeder
 			bool canClimb = false,
 			bool canSwim = true,
 			bool playable = false,
-			IReadOnlyList<MythicalCharacteristicTemplate>? additionalCharacteristics = null)
+			IReadOnlyList<MythicalCharacteristicTemplate>? additionalCharacteristics = null,
+			string combatStrategyKey = "Beast Brawler")
 			=> new(
 				name,
 				bodyKey,
@@ -113,7 +115,8 @@ public partial class MythicalAnimalSeeder
 				usages,
 				null,
 				null,
-				additionalCharacteristics
+				additionalCharacteristics,
+				combatStrategyKey
 			);
 		static MythicalRaceTemplate HumanoidRace(
 			string name,
@@ -128,7 +131,8 @@ public partial class MythicalAnimalSeeder
 			IReadOnlyList<MythicalBodypartUsageTemplate>? usages = null,
 			bool canClimb = false,
 			bool canSwim = true,
-			string? facialHairProfile = null)
+			string? facialHairProfile = null,
+			string combatStrategyKey = "Melee (Auto)")
 			=> new(
 				name,
 				bodyKey,
@@ -147,7 +151,9 @@ public partial class MythicalAnimalSeeder
 				attacks,
 				usages,
 				personWords,
-				facialHairProfile
+				facialHairProfile,
+				null,
+				combatStrategyKey
 			);
 		static MythicalRaceTemplate SapientRace(
 			string name,
@@ -163,7 +169,8 @@ public partial class MythicalAnimalSeeder
 			IReadOnlyList<MythicalBodypartUsageTemplate>? usages = null,
 			bool canClimb = false,
 			bool canSwim = true,
-			IReadOnlyList<MythicalCharacteristicTemplate>? additionalCharacteristics = null)
+			IReadOnlyList<MythicalCharacteristicTemplate>? additionalCharacteristics = null,
+			string combatStrategyKey = "Melee (Auto)")
 			=> new(
 				name,
 				bodyKey,
@@ -183,7 +190,8 @@ public partial class MythicalAnimalSeeder
 				usages,
 				null,
 				null,
-				additionalCharacteristics
+				additionalCharacteristics,
+				combatStrategyKey
 			);
 
 		return new Dictionary<string, MythicalRaceTemplate>(StringComparer.OrdinalIgnoreCase)
@@ -217,7 +225,8 @@ public partial class MythicalAnimalSeeder
 				additionalCharacteristics:
 				[
 					Characteristic("Scale Colour", "red", "green", "black", "gold")
-				]
+				],
+				combatStrategyKey: "Beast Artillery"
 			),
 			["Griffin"] = BeastRace(
 				"Griffin",
@@ -234,7 +243,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
 					Attack("Tail Slap", ItemQuality.Standard, "ltail"),
 					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
-				]
+				],
+				combatStrategyKey: "Beast Swooper"
 			),
 			["Hippogriff"] = BeastRace(
 				"Hippogriff",
@@ -250,7 +260,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Beak Bite", ItemQuality.Poor, "beak"),
 					Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
 					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
-				]
+				],
+				combatStrategyKey: "Beast Swooper"
 			),
 			["Unicorn"] = BeastRace(
 				"Unicorn",
@@ -268,7 +279,8 @@ public partial class MythicalAnimalSeeder
 				],
 				[
 					Usage("horn", "general")
-				]
+				],
+				combatStrategyKey: "Beast Behemoth"
 			),
 			["Pegasus"] = BeastRace(
 				"Pegasus",
@@ -290,7 +302,8 @@ public partial class MythicalAnimalSeeder
 					Usage("lwingbase", "general"),
 					Usage("rwing", "general"),
 					Usage("lwing", "general")
-				]
+				],
+				combatStrategyKey: "Beast Swooper"
 			),
 			["Minotaur"] = HumanoidRace(
 				"Minotaur",
@@ -330,7 +343,8 @@ public partial class MythicalAnimalSeeder
 				additionalCharacteristics:
 				[
 					Characteristic("Scale Colour", "red", "green", "black", "gold")
-				]
+				],
+				combatStrategyKey: "Beast Artillery"
 			),
 			["Naga"] = HumanoidRace(
 				"Naga",
@@ -346,7 +360,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Tail Slap", ItemQuality.Standard, "tail")
 				],
 				["naga"],
-				canClimb: true
+				canClimb: true,
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Mermaid"] = HumanoidRace(
 				"Mermaid",
@@ -361,7 +376,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Bite", ItemQuality.Bad, "mouth"),
 					Attack("Tail Slap", ItemQuality.Good, "caudalfin")
 				],
-				["merfolk"]
+				["merfolk"],
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Manticore"] = BeastRace(
 				"Manticore",
@@ -386,7 +402,8 @@ public partial class MythicalAnimalSeeder
 					Usage("rwing", "general"),
 					Usage("lwing", "general"),
 					Usage("stinger", "general")
-				]
+				],
+				combatStrategyKey: "Beast Artillery"
 			),
 			["Wyvern"] = BeastRace(
 				"Wyvern",
@@ -404,7 +421,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
 					Attack("Tail Slap", ItemQuality.Standard, "tail"),
 					Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
-				]
+				],
+				combatStrategyKey: "Beast Artillery"
 			),
 			["Phoenix"] = BeastRace(
 				"Phoenix",
@@ -419,7 +437,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Beak Peck", ItemQuality.Good, "beak"),
 					Attack("Beak Bite", ItemQuality.Standard, "beak"),
 					Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons")
-				]
+				],
+				combatStrategyKey: "Beast Swooper"
 			),
 			["Basilisk"] = BeastRace(
 				"Basilisk",
@@ -434,7 +453,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
 					Attack("Bite", ItemQuality.Standard, "mouth"),
 					Attack("Tail Slap", ItemQuality.Standard, "tail")
-				]
+				],
+				combatStrategyKey: "Beast Clincher"
 			),
 			["Cockatrice"] = BeastRace(
 				"Cockatrice",
@@ -449,7 +469,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Beak Peck", ItemQuality.Standard, "beak"),
 					Attack("Beak Bite", ItemQuality.Terrible, "beak"),
 					Attack("Talon Strike", ItemQuality.Standard, "rtalons", "ltalons")
-				]
+				],
+				combatStrategyKey: "Beast Swooper"
 			),
 			["Hippocamp"] = BeastRace(
 				"Hippocamp",
@@ -464,7 +485,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Herbivore Bite", ItemQuality.Standard, "mouth"),
 					Attack("Hoof Stomp", ItemQuality.Standard, "rfhoof", "lfhoof"),
 					Attack("Tail Slap", ItemQuality.Good, "caudalfin")
-				]
+				],
+				combatStrategyKey: "Beast Behemoth"
 			),
 			["Selkie"] = HumanoidRace(
 				"Selkie",
@@ -478,7 +500,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Carnivore Bite", ItemQuality.Bad, "mouth"),
 					Attack("Bite", ItemQuality.Bad, "mouth")
 				],
-				["selkie"]
+				["selkie"],
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Myconid"] = SapientRace(
 				"Myconid",
@@ -497,7 +520,8 @@ public partial class MythicalAnimalSeeder
 				additionalCharacteristics:
 				[
 					Characteristic("Fungus Colour", "white", "brown", "red", "purple")
-				]
+				],
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Plantfolk"] = SapientRace(
 				"Plantfolk",
@@ -512,7 +536,8 @@ public partial class MythicalAnimalSeeder
 				[
 					Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
 					Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
-				]
+				],
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Owlkin"] = HumanoidRace(
 				"Owlkin",
@@ -534,7 +559,8 @@ public partial class MythicalAnimalSeeder
 					Usage("lwing", "general")
 				],
 				canClimb: true,
-				facialHairProfile: "No_Facial_Hair"
+				facialHairProfile: "No_Facial_Hair",
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Avian Person"] = HumanoidRace(
 				"Avian Person",
@@ -556,7 +582,8 @@ public partial class MythicalAnimalSeeder
 					Usage("lwing", "general")
 				],
 				canClimb: true,
-				facialHairProfile: "No_Facial_Hair"
+				facialHairProfile: "No_Facial_Hair",
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Centaur"] = HumanoidRace(
 				"Centaur",
@@ -571,7 +598,8 @@ public partial class MythicalAnimalSeeder
 					Attack("Head Ram", ItemQuality.Standard, "head"),
 					Attack("Elbow", ItemQuality.Standard, "relbow", "lelbow")
 				],
-				["centaur"]
+				["centaur"],
+				combatStrategyKey: "Melee (Auto)"
 			),
 			["Pegacorn"] = BeastRace(
 				"Pegacorn",
@@ -593,7 +621,8 @@ public partial class MythicalAnimalSeeder
 					Usage("lwingbase", "general"),
 					Usage("rwing", "general"),
 					Usage("lwing", "general")
-				]
+				],
+				combatStrategyKey: "Beast Swooper"
 			)
 		};
 	}
@@ -668,6 +697,15 @@ public partial class MythicalAnimalSeeder
 
 		foreach (var (name, template) in Templates)
 		{
+			if (string.IsNullOrWhiteSpace(template.CombatStrategyKey))
+			{
+				issues.Add($"Mythical race {name} is missing a combat strategy key.");
+			}
+			else if (!CombatStrategySeederHelper.IsKnownStrategyName(template.CombatStrategyKey))
+			{
+				issues.Add($"Mythical race {name} references unknown combat strategy {template.CombatStrategyKey}.");
+			}
+
 			if (!validBodyKeys.Contains(template.BodyKey))
 			{
 				issues.Add($"Race {name} uses unknown body key {template.BodyKey}.");

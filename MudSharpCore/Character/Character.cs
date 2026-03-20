@@ -280,9 +280,7 @@ public partial class Character : PerceiverItem, ICharacter
 		Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
 		Body.RecalculateItemHelpers();
 		_noSave = false;
-		CombatSettings = Gameworld.CharacterCombatSettings.FirstOrDefault(
-							 x => x.GlobalTemplate && x.AvailabilityProg?.Execute<bool?>(this) == true) ??
-						 Gameworld.CharacterCombatSettings.FirstOrDefault(x => x.GlobalTemplate);
+		CombatSettings = CharacterCombatSettingsResolver.ResolveFallback(this);
 
 		var hooks = Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
 		foreach (var hook in hooks)
@@ -1668,9 +1666,7 @@ public partial class Character : PerceiverItem, ICharacter
 		LoadProjects(character);
 		Body.LoadInventory(character.Body);
 		CombatSettings = Gameworld.CharacterCombatSettings.Get(character.CurrentCombatSettingId ?? 0) ??
-						 Gameworld.CharacterCombatSettings.FirstOrDefault(
-							 x => x.GlobalTemplate && x.AvailabilityProg?.Execute<bool?>(this) == true) ??
-						 Gameworld.CharacterCombatSettings.FirstOrDefault(x => x.GlobalTemplate);
+						 CharacterCombatSettingsResolver.ResolveFallback(this);
 		_preferredDefenseType = (DefenseType)character.PreferredDefenseType;
 
 		foreach (var item in character.ActiveJobs)

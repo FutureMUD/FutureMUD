@@ -213,16 +213,24 @@ new Emote("$0 %0|stop|stops here.", actor, group);
 ## Notes
 - When in doubt, defer to this file unless overridden at a lower level.
 
-## Instructions for Codex
+## Instructions for Codex when Working in Windows
 
-To compile the project locally or in automated checks:
+Use Windows-native `dotnet` commands directly rather than the Linux shell scripts.
 
-1. Run `scripts/setup.sh` once to install the .NET 9 SDK in `~/.dotnet`.
-2. Use `scripts/test.sh` to build the main engine project.
-3. Use `scripts/test-unit-core.sh` for the default unit-test pass. This is the "Core" suite that should be run for most changes that warrant unit-test verification.
-4. Use `scripts/test-unit-climate.sh` only for climate/weather special cases, such as changes under `DatabaseSeeder/Seeders/WeatherSeeder*`, `MudSharpCore/Climate/`, or weather-statistics export/analysis code, or when the user explicitly asks for the extended suite.
+1. Run `dotnet restore MudSharp.sln` when package state needs refreshing.
+2. For normal engine verification, prefer targeted project builds instead of `dotnet build MudSharp.sln`.
+3. Build the main engine with `dotnet build MudSharpCore/MudSharpCore.csproj -c Debug -p:NoWarn=NU1902%3BNU1510`.
+4. Build the seeder with `dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug -p:NoWarn=NU1902%3BNU1510`.
+5. Run the default core unit-test pass with `dotnet test "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj" -c Debug -p:NoWarn=NU1902%3BNU1510`.
+6. Use the climate/weather test project only for climate-specific work or when explicitly requested.
 
-`test.sh` sets `DOTNET_EnableWindowsTargeting` so the build succeeds on Linux.
+Notes:
+
+- The solution includes `FutureMUD_Analyzers.Vsix`, which depends on Visual Studio SDK targets and may fail under plain `dotnet build` on machines without the Visual Studio extension toolchain installed.
+- Because of that VSIX dependency, a full solution build is not the default verification path for Codex on Windows.
+- Suppressing `NU1902` and `NU1510` in local verification commands is acceptable unless the task is specifically about package auditing or dependency hygiene.
+
+## Instructions for Codex when Changing Subsystems with Design Documents
 
 When changing a subsystem that has a design document in `Design Documents/`:
 

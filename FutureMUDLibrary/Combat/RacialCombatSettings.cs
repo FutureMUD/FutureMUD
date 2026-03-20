@@ -1,7 +1,10 @@
-﻿namespace MudSharp.Combat {
-    public class RacialCombatSettings {
-        public bool CanUseWeapons { get; set; }
-        public bool CanAttack { get; set; }
-        public bool CanDefend { get; set; }
-    }
+namespace MudSharp.Combat
+{
+	public class RacialCombatSettings
+	{
+		public bool CanUseWeapons { get; set; }
+		public bool CanAttack { get; set; }
+		public bool CanDefend { get; set; }
+		public ICharacterCombatSettings DefaultCombatSetting { get; set; }
+	}
 }

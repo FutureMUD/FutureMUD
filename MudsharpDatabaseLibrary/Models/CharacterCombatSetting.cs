@@ -10,6 +10,7 @@ namespace MudSharp.Models
 		public string Description { get; set; }
 		public bool GlobalTemplate { get; set; }
 		public long? AvailabilityProgId { get; set; }
+		public long? PriorityProgId { get; set; }
 		public long? CharacterOwnerId { get; set; }
 		public double WeaponUsePercentage { get; set; }
 		public double MagicUsePercentage { get; set; }
@@ -47,5 +48,6 @@ namespace MudSharp.Models
 
 		public virtual FutureProg AvailabilityProg { get; set; }
 		public virtual Character CharacterOwner { get; set; }
+		public virtual FutureProg PriorityProg { get; set; }
 	}
 }

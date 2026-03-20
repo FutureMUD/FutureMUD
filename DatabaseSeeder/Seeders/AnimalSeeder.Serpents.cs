@@ -12,7 +12,7 @@ public partial class AnimalSeeder
 	private static IEnumerable<AnimalRaceTemplate> GetSerpentRaceTemplates()
 	{
 		static AnimalRaceTemplate Snake(string name, SizeCategory size, double health, string loadout, string description,
-			string feature, string behaviour, string habitat)
+			string feature, string behaviour, string habitat, string combatStrategyKey = "Beast Clincher")
 		{
 			return new AnimalRaceTemplate(
 				name,
@@ -32,7 +32,9 @@ public partial class AnimalSeeder
 				false,
 				AnimalBreathingMode.Simple,
 				null,
-				"serpent"
+				"serpent",
+				null,
+				combatStrategyKey
 			);
 		}
 
@@ -80,7 +82,8 @@ public partial class AnimalSeeder
 			"It is long, clean-scaled and unnervingly elegant, its body all speed and reach.",
 			"Its narrow coffin-shaped head gives it a hard, severe silhouette.",
 			"It has a tense, predatory quickness that suggests lightning-fast violence.",
-			"dry woodland and warm savannah");
+			"dry woodland and warm savannah",
+			"Beast Skirmisher");
 		yield return Snake("Coral Snake", SizeCategory.Small, 0.2, "serpent-neurotoxic",
 			"It is slim and brilliantly banded, its scales arranged in warning colours too vivid to ignore.",
 			"Its beauty feels deliberate, almost theatrical, like a banner for its own danger.",

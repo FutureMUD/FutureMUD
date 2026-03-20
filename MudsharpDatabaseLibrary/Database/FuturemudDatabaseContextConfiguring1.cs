@@ -2475,6 +2475,8 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.PreferredWeaponSetup).HasColumnType("int(11)");
 
+				entity.Property(e => e.PriorityProgId).HasColumnType("bigint(20)");
+
 				entity.Property(e => e.PursuitMode)
 					.HasColumnType("int(11)")
 					.HasDefaultValueSql("'1'");
@@ -2494,6 +2496,12 @@ namespace MudSharp.Database
 					.HasForeignKey(d => d.AvailabilityProgId)
 					.OnDelete(DeleteBehavior.SetNull)
 					.HasConstraintName("FK_CharacterCombatSettings_FutureProgs");
+
+				entity.HasOne(d => d.PriorityProg)
+					.WithMany(p => p.CharacterCombatSettingsPriorityProg)
+					.HasForeignKey(d => d.PriorityProgId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_CharacterCombatSettings_PriorityProg");
 
 				entity.HasOne(d => d.CharacterOwner)
 					.WithMany(p => p.CharacterCombatSettings)

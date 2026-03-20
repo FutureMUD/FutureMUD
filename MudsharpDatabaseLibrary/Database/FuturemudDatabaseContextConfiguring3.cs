@@ -1830,6 +1830,8 @@ namespace MudSharp.Database
 					.HasColumnType("bigint(20)");
 				entity.Property(e => e.DefaultHeightWeightModelNonBinaryId)
 					.HasColumnType("bigint(20)");
+				entity.Property(e => e.DefaultCombatSettingId)
+					.HasColumnType("bigint(20)");
 
 				entity.HasOne(d => d.DefaultHeightWeightModelMale)
 					.WithMany()
@@ -1889,6 +1891,12 @@ namespace MudSharp.Database
 					.HasForeignKey(d => d.DefaultHealthStrategyId)
 					.OnDelete(DeleteBehavior.ClientSetNull)
 					.HasConstraintName("FK_Races_HealthStrategies");
+
+				entity.HasOne(d => d.DefaultCombatSetting)
+					.WithMany()
+					.HasForeignKey(d => d.DefaultCombatSettingId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_Races_CharacterCombatSettings");
 
 				entity.HasOne(d => d.NaturalArmourMaterial)
 					.WithMany(p => p.Races)

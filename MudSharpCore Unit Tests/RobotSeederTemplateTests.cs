@@ -145,6 +145,16 @@ public class RobotSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void TemplatesForTesting_CombatStrategyKeys_MapRepresentativeRobotsToExpectedStyles()
+	{
+		Assert.AreEqual("Melee (Auto)", RobotSeeder.TemplatesForTesting["Robot Humanoid"].CombatStrategyKey);
+		Assert.AreEqual("Construct Brawler", RobotSeeder.TemplatesForTesting["Circular Saw Robot"].CombatStrategyKey);
+		Assert.AreEqual("Construct Skirmisher", RobotSeeder.TemplatesForTesting["Roomba Robot"].CombatStrategyKey);
+		Assert.AreEqual("Construct Brawler", RobotSeeder.TemplatesForTesting["Robot Dog"].CombatStrategyKey);
+		Assert.AreEqual("Construct Skirmisher", RobotSeeder.TemplatesForTesting["Robot Cockroach"].CombatStrategyKey);
+	}
+
+	[TestMethod]
 	public void TemplatesForTesting_AttachmentVariants_UseIntegratedWeaponBodies()
 	{
 		var sawRobot = RobotSeeder.TemplatesForTesting["Circular Saw Robot"];

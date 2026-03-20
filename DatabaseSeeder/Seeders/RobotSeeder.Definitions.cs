@@ -31,7 +31,11 @@ public partial class RobotSeeder
 		string? FullDescriptionPattern,
 		IReadOnlyList<RobotAttackBindingTemplate> Attacks,
 		IReadOnlyList<RobotBodypartUsageTemplate>? BodypartUsages = null,
-		bool UsesHumanGenders = false);
+		bool UsesHumanGenders = false,
+		string combatStrategyKey = "Construct Brawler")
+	{
+		public string CombatStrategyKey => combatStrategyKey;
+	}
 
 	private static IReadOnlyList<RobotBodypartUsageTemplate> WithNonCyborgNippleRemovals(
 		params RobotBodypartUsageTemplate[] usages)
@@ -71,7 +75,8 @@ public partial class RobotSeeder
 					new("Bite", "mouth"),
 					new("Snap Kick", "rfoot", "lfoot")
 				],
-				WithNonCyborgNippleRemovals()),
+				WithNonCyborgNippleRemovals(),
+				combatStrategyKey: "Melee (Auto)"),
 			["Spider Crawler Robot"] = new(
 				"Spider Crawler Robot",
 				"Spider Crawler Robot",
@@ -102,7 +107,8 @@ public partial class RobotSeeder
 					new RobotBodypartUsageTemplate("rleg3", "general"),
 					new RobotBodypartUsageTemplate("lleg3", "general"),
 					new RobotBodypartUsageTemplate("rleg4", "general"),
-					new RobotBodypartUsageTemplate("lleg4", "general"))),
+					new RobotBodypartUsageTemplate("lleg4", "general")),
+				combatStrategyKey: "Melee (Auto)"),
 			["Circular Saw Robot"] = new(
 				"Circular Saw Robot",
 				"Circular Saw Robot",
@@ -126,7 +132,8 @@ public partial class RobotSeeder
 				],
 				WithNonCyborgNippleRemovals(
 					new RobotBodypartUsageTemplate("rsaw", "general"),
-					new RobotBodypartUsageTemplate("lsaw", "general"))),
+					new RobotBodypartUsageTemplate("lsaw", "general")),
+				combatStrategyKey: "Construct Brawler"),
 			["Pneumatic Hammer Robot"] = new(
 				"Pneumatic Hammer Robot",
 				"Pneumatic Hammer Robot",
@@ -150,7 +157,8 @@ public partial class RobotSeeder
 				],
 				WithNonCyborgNippleRemovals(
 					new RobotBodypartUsageTemplate("rhammer", "general"),
-					new RobotBodypartUsageTemplate("lhammer", "general"))),
+					new RobotBodypartUsageTemplate("lhammer", "general")),
+				combatStrategyKey: "Construct Brawler"),
 			["Sword-Hand Robot"] = new(
 				"Sword-Hand Robot",
 				"Sword-Hand Robot",
@@ -174,7 +182,8 @@ public partial class RobotSeeder
 				],
 				WithNonCyborgNippleRemovals(
 					new RobotBodypartUsageTemplate("rblade", "general"),
-					new RobotBodypartUsageTemplate("lblade", "general"))),
+					new RobotBodypartUsageTemplate("lblade", "general")),
+				combatStrategyKey: "Construct Brawler"),
 			["Winged Robot"] = new(
 				"Winged Robot",
 				"Winged Robot",
@@ -203,7 +212,8 @@ public partial class RobotSeeder
 					new RobotBodypartUsageTemplate("rwingbase", "general"),
 					new RobotBodypartUsageTemplate("lwingbase", "general"),
 					new RobotBodypartUsageTemplate("rwing", "general"),
-					new RobotBodypartUsageTemplate("lwing", "general"))),
+					new RobotBodypartUsageTemplate("lwing", "general")),
+				combatStrategyKey: "Melee (Auto)"),
 			["Jet Robot"] = new(
 				"Jet Robot",
 				"Jet Robot",
@@ -230,7 +240,8 @@ public partial class RobotSeeder
 				],
 				WithNonCyborgNippleRemovals(
 					new RobotBodypartUsageTemplate("rjet", "general"),
-					new RobotBodypartUsageTemplate("ljet", "general"))),
+					new RobotBodypartUsageTemplate("ljet", "general")),
+				combatStrategyKey: "Melee (Auto)"),
 			["Mandible Robot"] = new(
 				"Mandible Robot",
 				"Mandible Robot",
@@ -255,7 +266,8 @@ public partial class RobotSeeder
 					new("Snap Kick", "rfoot", "lfoot")
 				],
 				WithNonCyborgNippleRemovals(
-					new RobotBodypartUsageTemplate("mandibles", "general"))),
+					new RobotBodypartUsageTemplate("mandibles", "general")),
+				combatStrategyKey: "Melee (Auto)"),
 			["Wheeled Robot"] = new(
 				"Wheeled Robot",
 				"Wheeled Robot",
@@ -281,7 +293,8 @@ public partial class RobotSeeder
 				],
 				WithNonCyborgNippleRemovals(
 					new RobotBodypartUsageTemplate("rwheel", "general"),
-					new RobotBodypartUsageTemplate("lwheel", "general"))),
+					new RobotBodypartUsageTemplate("lwheel", "general")),
+				combatStrategyKey: "Melee (Auto)"),
 			["Tracked Robot"] = new(
 				"Tracked Robot",
 				"Tracked Robot",
@@ -307,7 +320,8 @@ public partial class RobotSeeder
 				],
 				WithNonCyborgNippleRemovals(
 					new RobotBodypartUsageTemplate("rtrack", "general"),
-					new RobotBodypartUsageTemplate("ltrack", "general"))),
+					new RobotBodypartUsageTemplate("ltrack", "general")),
+				combatStrategyKey: "Melee (Auto)"),
 			["Cyborg"] = new(
 				"Cyborg",
 				"Cyborg Humanoid",
@@ -332,7 +346,8 @@ public partial class RobotSeeder
 					new("Snap Kick", "rfoot", "lfoot")
 				],
 				null,
-				true),
+				true,
+				"Melee (Auto)"),
 			["Roomba Robot"] = new(
 				"Roomba Robot",
 				"Roomba Robot",
@@ -355,7 +370,8 @@ public partial class RobotSeeder
 				[
 					new("rdrivewheel", "general"),
 					new("ldrivewheel", "general")
-				]),
+				],
+				combatStrategyKey: "Construct Skirmisher"),
 			["Tracked Utility Robot"] = new(
 				"Tracked Utility Robot",
 				"Tracked Utility Robot",
@@ -378,7 +394,8 @@ public partial class RobotSeeder
 				[
 					new("rtrack", "general"),
 					new("ltrack", "general")
-				]),
+				],
+				combatStrategyKey: "Construct Brawler"),
 			["Robot Dog"] = new(
 				"Robot Dog",
 				"Robot Dog",
@@ -406,7 +423,8 @@ public partial class RobotSeeder
 					new("lfpaw", "general"),
 					new("rrpaw", "general"),
 					new("lrpaw", "general")
-				]),
+				],
+				combatStrategyKey: "Construct Brawler"),
 			["Robot Cockroach"] = new(
 				"Robot Cockroach",
 				"Robot Cockroach",
@@ -430,7 +448,8 @@ public partial class RobotSeeder
 					new("mandibles", "general"),
 					new("rantenna", "general"),
 					new("lantenna", "general")
-				])
+				],
+				combatStrategyKey: "Construct Skirmisher")
 		};
 
 	internal static IReadOnlyDictionary<string, RobotRaceTemplate> TemplatesForTesting => Templates;
@@ -459,6 +478,15 @@ public partial class RobotSeeder
 
 		foreach (var template in Templates.Values)
 		{
+			if (string.IsNullOrWhiteSpace(template.CombatStrategyKey))
+			{
+				issues.Add($"Template {template.Name} is missing a combat strategy key.");
+			}
+			else if (!CombatStrategySeederHelper.IsKnownStrategyName(template.CombatStrategyKey))
+			{
+				issues.Add($"Template {template.Name} references unknown combat strategy {template.CombatStrategyKey}.");
+			}
+
 			if (!validBodyKeys.Contains(template.BodyKey))
 			{
 				issues.Add($"Template {template.Name} references unknown body key {template.BodyKey}.");

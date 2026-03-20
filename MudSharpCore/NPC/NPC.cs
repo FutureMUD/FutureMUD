@@ -43,6 +43,11 @@ public class NPC : Character.Character, INPC
 		: base(dbchar, gameworld)
 	{
 		LoadNPCFromDB(npc);
+		if (dbchar.CurrentCombatSettingId == null || Gameworld.CharacterCombatSettings.Get(dbchar.CurrentCombatSettingId.Value) is null)
+		{
+			CombatSettings = MudSharp.Combat.CharacterCombatSettingsResolver.ResolveFallback(this, Template);
+		}
+
 		var controller = new NPCController();
 		controller.UpdateControlFocus(this);
 		SilentAssumeControl(controller);
@@ -56,6 +61,7 @@ public class NPC : Character.Character, INPC
 	{
 		_AIs.AddRange(npcTemplate.ArtificialIntelligences);
 		Template = npcTemplate;
+		CombatSettings = MudSharp.Combat.CharacterCombatSettingsResolver.ResolveFallback(this, Template);
 		var controller = new NPCController();
 		controller.UpdateControlFocus(this);
 		SilentAssumeControl(controller);

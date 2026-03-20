@@ -297,8 +297,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			game.LoadButchering(); // Depends on LoadTags, LoadFutureProgs, LoadBodies
 			game.LoadBloodtypes();
 			game.LoadWeaponTypes(); // Should come before GameItemComponentProtos
-			game.LoadRaces(); // Depends on LoadBloodtypes, LoadCorpseModels, LoadHealthStrategies and LoadTraits, LoadArmourTypes, LoadWeaponTypes
-			game.LoadBoards(); // Must come before GameItemComponentProtos
+			game.LoadRaces(); // Depends on LoadBloodtypes, LoadCorpseModels, LoadHealthStrategies, LoadTraits, LoadArmourTypes, LoadWeaponTypes, and LoadCharacterCombatSettings
+            game.LoadBoards(); // Must come before GameItemComponentProtos
 			// Game Item Related Loads
 			game.LoadWearProfiles(); // Depends on LoadBodies
 			game.LoadStackDecorators();

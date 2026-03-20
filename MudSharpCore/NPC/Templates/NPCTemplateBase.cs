@@ -11,6 +11,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
+using MudSharp.Combat;
 using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
@@ -37,6 +38,12 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 		if (element != null)
 		{
 			HealthStrategy = gameworld.HealthStrategies.Get(long.Parse(element.Value));
+		}
+
+		element = definition.Element("DefaultCombatSetting");
+		if (element != null)
+		{
+			DefaultCombatSetting = gameworld.CharacterCombatSettings.Get(long.Parse(element.Value));
 		}
 
 		foreach (var ai in template.NpctemplatesArtificalIntelligences)
@@ -91,10 +98,15 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 			case "healthstrategy":
 			case "health":
 				return BuildingCommandHealthStrategy(actor, command);
+			case "combatsetting":
+			case "combat":
+				return BuildingCommandCombatSetting(actor, command);
 			default:
 				actor.OutputHandler.Send($@"{HelpText}
 	#3onload <prog>#0 - adds an onload prog to this NPC
 	#3onload clear#0 - clears an onload prog
+	#3combatsetting <setting>#0 - sets the default combat setting for this NPC
+	#3combatsetting none#0 - clears the combat setting override
 	#3ai add <which>#0 - adds an AI routine to this NPC
 	#3ai remove <which>#0 - removes an AI routine from this NPC".SubstituteANSIColour());
 				return false;
@@ -143,6 +155,43 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 			default:
 				throw new NotSupportedException();
 		}
+	}
+
+	private bool BuildingCommandCombatSetting(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a global combat setting, or use {"none".ColourCommand()} to clear the override.");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			DefaultCombatSetting = null;
+			Changed = true;
+			actor.OutputHandler.Send("This NPC Template will now use racial or global combat-setting defaults.");
+			return true;
+		}
+
+		var setting = long.TryParse(command.SafeRemainingArgument, out var value)
+			? Gameworld.CharacterCombatSettings.Get(value)
+			: Gameworld.CharacterCombatSettings.GetByName(command.SafeRemainingArgument);
+		if (setting is null)
+		{
+			actor.OutputHandler.Send($"There is no combat setting identified by {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		if (!setting.GlobalTemplate)
+		{
+			actor.OutputHandler.Send("NPC Templates can only use global combat settings as defaults.");
+			return false;
+		}
+
+		DefaultCombatSetting = setting;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC Template will now use {setting.Name.ColourName()} as its default combat setting.");
+		return true;
 	}
 
 	private bool BuildingCommandOnLoadProg(ICharacter actor, StringStack command)
@@ -306,6 +355,7 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	public IFutureProg? OnLoadProg { get; set; }
 	public IHealthStrategy? HealthStrategy { get; set; }
+	public ICharacterCombatSettings? DefaultCombatSetting { get; set; }
 
 	public abstract INPCTemplate Clone(ICharacter builder);
 

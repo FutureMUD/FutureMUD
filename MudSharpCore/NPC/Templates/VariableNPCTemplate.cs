@@ -241,6 +241,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			new XElement("Definition", 
 				new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
 				new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
+				new XElement("DefaultCombatSetting", DefaultCombatSetting?.Id ?? 0L),
 				new XElement("GenderChances", new object[]
 				{
 					from item in _genderChances
@@ -538,7 +539,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 			{
 				$"Class: {_roles.First(x => x.RoleType == ChargenRoleType.Class).Name.Colour(Telnet.Green)}",
 				$"Subclass: {_roles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Subclass)?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}",
-				$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}"
+				$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}",
+				$"Combat Setting: {DefaultCombatSetting?.Name.ColourName() ?? "Default".ColourCommand()}"
 			}.ArrangeStringsOntoLines(3, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 		}
 
@@ -654,6 +656,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 
 		sb.AppendLine();
 		sb.AppendLine($"OnLoadProg: {OnLoadProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Default Combat Setting: {DefaultCombatSetting?.Name.ColourName() ?? "None".Colour(Telnet.Red)}");
 
 		sb.AppendLine("AI Routines:");
 		sb.AppendLine();
@@ -773,6 +776,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 	#3ai remove <which>#0 - removes an AI routine from this NPC
 	#3healthstrategy <which>#0 - sets an overriding health strategy
 	#3healthstrategy none#0 - resets the health strategy to racial default
+	#3combatsetting <which>#0 - sets the default combat setting override for this NPC
+	#3combatsetting none#0 - clears the combat setting override
 	#3accent <which>#0 - toggles an accent being permitted
 	#3accent <language> <which>#0 - alternative way of toggling an accent
 	#3accent <language> all#0 - resets to all accents valid for the specified language";

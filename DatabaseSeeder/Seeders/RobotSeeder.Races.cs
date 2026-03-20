@@ -51,6 +51,11 @@ public partial class RobotSeeder
 
 	private void SeedRaces(IReadOnlyDictionary<string, BodyProto> bodyCatalogue, RobotSeedSummary summary)
 	{
+		string CombatStrategyFor(RobotRaceTemplate template)
+		{
+			return template.CanUseWeapons ? "Melee (Auto)" : template.CombatStrategyKey;
+		}
+
 		foreach (var template in Templates.Values)
 		{
 			if (!bodyCatalogue.TryGetValue(template.BodyKey, out var body))
@@ -80,6 +85,7 @@ public partial class RobotSeeder
 					AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
 					CorpseModel = template.UsesHumanoidCharacteristics ? _robotHumanoidCorpse : _robotAnimalCorpse,
 					DefaultHealthStrategy = _context.HealthStrategies.First(x => x.Name == template.HealthStrategyName),
+					DefaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, CombatStrategyFor(template)),
 					CanUseWeapons = template.CanUseWeapons,
 					CanAttack = true,
 					CanDefend = true,
@@ -134,6 +140,14 @@ public partial class RobotSeeder
 				_context.Races.Add(race);
 				_context.SaveChanges();
 				summary.RacesAdded++;
+			}
+			else
+			{
+				var defaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, CombatStrategyFor(template));
+				if (race.DefaultCombatSettingId != defaultCombatSetting.Id)
+				{
+					race.DefaultCombatSetting = defaultCombatSetting;
+				}
 			}
 
 			CopyRaceAttributes(race);

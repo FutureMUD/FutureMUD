@@ -3093,6 +3093,7 @@ The syntax to use this command is as follows:");
 	#3desc <description>#0  - Change the description
 	#3global#0              - Toggle the Global flag (admin only)
 	#3availprog <progID>#0  - Configure the Availability Prog (admin only)
+	#3priorityprog <progID>#0 - Configure the Priority Prog (admin only)
 	#3classifications <classifications>#0 - Designated weapon classifications legal for this Combat Config
 	#3character <id>#0      - Reassign a Combat Config to a character
 	#3aim <percentage>#0    - The percentage of aim before you auto-shoot
@@ -3793,20 +3794,10 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 			return;
 		}
 
-		var prog = long.TryParse(command.PopSpeech(), out var value)
-			? actor.Gameworld.FutureProgs.Get(value)
-			: actor.Gameworld.FutureProgs.GetByName(command.Last);
-
-		if (prog == null)
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			new[] { ProgVariableTypes.Character }).LookupProg();
+		if (prog is null)
 		{
-			actor.Send(StringUtilities.HMark + "There is no such prog for you to set as the Availability Prog.");
-			return;
-		}
-
-		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
-		{
-			actor.Send(StringUtilities.HMark +
-					   "Only progs that accept a single character parameter are eligible for Availability Progs.");
 			return;
 		}
 
@@ -3815,6 +3806,43 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 
 		actor.Send(StringUtilities.HMark +
 				   $"AvailProg for {actor.CombatSettings.Name} set to: {prog.FunctionName} (#{prog.Id}).");
+	}
+
+	private static void CombatConfigPriorityProg(ICharacter actor, StringStack command)
+	{
+		if (!actor.IsAdministrator())
+		{
+			actor.Send(StringUtilities.HMark + "Permission denied.".Colour(Telnet.BoldRed));
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.Send(StringUtilities.HMark + "Syntax: combat config priorityprog <progID>");
+			return;
+		}
+
+		if (command.PeekSpeech().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+		{
+			actor.CombatSettings.PriorityProg = null;
+			actor.CombatSettings.Changed = true;
+			actor.Send(StringUtilities.HMark +
+					   $"Priority prog for {actor.CombatSettings.Name} cleared.".Colour(Telnet.BoldGreen));
+			return;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Number,
+			new[] { ProgVariableTypes.Toon }).LookupProg();
+		if (prog is null)
+		{
+			return;
+		}
+
+		actor.CombatSettings.PriorityProg = prog;
+		actor.CombatSettings.Changed = true;
+
+		actor.Send(StringUtilities.HMark +
+				   $"Priority prog for {actor.CombatSettings.Name} set to: {prog.FunctionName} (#{prog.Id}).");
 	}
 
 	private static void CombatConfigCharacter(ICharacter actor, StringStack command)
@@ -4233,6 +4261,9 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				break;
 			case "availprog":
 				CombatConfigAvailProg(actor, command);
+				break;
+			case "priorityprog":
+				CombatConfigPriorityProg(actor, command);
 				break;
 			case "character":
 				CombatConfigCharacter(actor, command);

@@ -519,6 +519,17 @@ public class MythicalAnimalSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void TemplatesForTesting_CombatStrategyKeys_MapRepresentativeMythicRacesToExpectedStyles()
+	{
+		Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Dragon"].CombatStrategyKey);
+		Assert.AreEqual("Beast Swooper", MythicalAnimalSeeder.TemplatesForTesting["Griffin"].CombatStrategyKey);
+		Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].CombatStrategyKey);
+		Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Basilisk"].CombatStrategyKey);
+		Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
+		Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
+	}
+
+	[TestMethod]
 	public void TemplatesForTesting_HumanoidVarietyRaces_MatchExpectedCatalogue()
 	{
 		var humanoidVarietyRaces = MythicalAnimalSeeder.TemplatesForTesting

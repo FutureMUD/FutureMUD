@@ -105,6 +105,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			.ToList();
 		if (templatesToSeed.Count == 0)
 		{
+			ApplyDefaultCombatSettingsToSeededRaces();
 			_context.Database.CommitTransaction();
 			return "Mythical races are already installed.";
 		}
@@ -116,6 +117,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			SeedRace(template, bodyLookup[template.BodyKey]);
 		}
 
+		ApplyDefaultCombatSettingsToSeededRaces();
 		_context.SaveChanges();
 		_context.Database.CommitTransaction();
 		var skippedCount = Templates.Count - templatesToSeed.Count;
@@ -902,6 +904,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
 			CorpseModel = usesHumanoidDefaults ? _humanoidCorpse : _animalCorpse,
 			DefaultHealthStrategy = _healthStrategy,
+			DefaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey),
 			CanUseWeapons = template.CanUseWeapons,
 			CanAttack = true,
 			CanDefend = true,
@@ -975,6 +978,28 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		if (!template.HumanoidVariety)
 		{
 			SeedDefaultDescriptions(race, template);
+		}
+
+		_context.SaveChanges();
+	}
+
+	private void ApplyDefaultCombatSettingsToSeededRaces()
+	{
+		foreach (var template in Templates.Values)
+		{
+			var race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+			if (race is null)
+			{
+				continue;
+			}
+
+			var setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
+			if (race.DefaultCombatSettingId == setting.Id)
+			{
+				continue;
+			}
+
+			race.DefaultCombatSetting = setting;
 		}
 
 		_context.SaveChanges();

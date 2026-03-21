@@ -411,6 +411,52 @@ public partial class AnimalSeeder
 			ValidateDescriptionVariants(raceName, template.DescriptionPack.JuvenileFemale, 1, issues);
 			ValidateDescriptionVariants(raceName, template.DescriptionPack.AdultMale, 2, issues);
 			ValidateDescriptionVariants(raceName, template.DescriptionPack.AdultFemale, 2, issues);
+
+			if (!SeederDescriptionHelpers.HasMinimumParagraphs(BuildRaceDescriptionForTesting(template)))
+			{
+				issues.Add($"Race {raceName} should build a three-paragraph race description.");
+			}
+
+			if (!SeederDescriptionHelpers.HasMinimumParagraphs(BuildEthnicityDescriptionForTesting(raceName, raceName)))
+			{
+				issues.Add($"Race {raceName} should build a three-paragraph stock ethnicity description.");
+			}
+		}
+
+		foreach (var dogEthnicity in new[]
+		         {
+			         "Terrier",
+			         "Setter",
+			         "Pointer",
+			         "Retriever",
+			         "Spaniel",
+			         "Water Dog",
+			         "Sighthound",
+			         "Scenthound",
+			         "Bulldog",
+			         "Mastiff",
+			         "Herding Dog",
+			         "Lap Dog",
+			         "Mongrel"
+		         })
+		{
+			if (!SeederDescriptionHelpers.HasMinimumParagraphs(BuildEthnicityDescriptionForTesting("Dog", dogEthnicity)))
+			{
+				issues.Add($"Dog ethnicity {dogEthnicity} should build a three-paragraph description.");
+			}
+		}
+
+		foreach (var bearEthnicity in new[] { "Black Bear", "Moon Bear", "Brown Bear", "Polar Bear" })
+		{
+			if (!SeederDescriptionHelpers.HasMinimumParagraphs(BuildEthnicityDescriptionForTesting("Bear", bearEthnicity)))
+			{
+				issues.Add($"Bear ethnicity {bearEthnicity} should build a three-paragraph description.");
+			}
+		}
+
+		if (!SeederDescriptionHelpers.HasMinimumParagraphs(AnimalCultureDescriptionForTesting))
+		{
+			issues.Add("Animal culture should define a three-paragraph description.");
 		}
 
 		foreach (var (loadoutKey, loadout) in AttackLoadouts)

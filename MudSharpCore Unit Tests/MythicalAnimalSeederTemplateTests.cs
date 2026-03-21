@@ -11,6 +11,13 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MythicalAnimalSeederTemplateTests
 {
+	private static int ParagraphCount(string text)
+	{
+		return text
+			.Split(["\r\n\r\n", "\n\n"], StringSplitOptions.RemoveEmptyEntries)
+			.Length;
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -616,5 +623,23 @@ public class MythicalAnimalSeederTemplateTests
 					"Beak Peck" or "Hoof Stomp" or "Head Ram" or "Talon Strike" or "Jab"),
 				$"Mythical race {name} should expose at least one non-clinch natural attack.");
 		}
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_Descriptions_UseThreeParagraphProseAndHumanoidOverlayVariants()
+	{
+		var dragon = MythicalAnimalSeeder.TemplatesForTesting["Dragon"];
+		Assert.IsNotNull(dragon.DescriptionVariants);
+		Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(dragon)));
+		Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(dragon)));
+		StringAssert.Contains(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(dragon), "broad wings, curving horns");
+		StringAssert.Contains(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(dragon), "overlapping scales");
+
+		var centaur = MythicalAnimalSeeder.TemplatesForTesting["Centaur"];
+		Assert.IsNotNull(centaur.OverlayDescriptionVariants);
+		Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(centaur)));
+		Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(centaur)));
+		StringAssert.Contains(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(centaur), "powerful equine lower body");
+		StringAssert.Contains(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(centaur), "broad horse-frame");
 	}
 }

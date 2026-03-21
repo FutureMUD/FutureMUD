@@ -298,4 +298,20 @@ public class CombatSettingResolverTests
 		Assert.AreSame(provisional, character.CombatSettings);
 		saveManager.Verify(x => x.Add(It.IsAny<ISaveable>()), Times.Never);
 	}
+
+	[TestMethod]
+	public void RevalidateCombatSettingsAfterInitialisation_NoValidatedSetting_ClearsProvisionalAndQueuesSave()
+	{
+		var provisional = CreateSetting(10, "Provisional", 0).Object;
+		var rejected = CreateSetting(20, "Rejected", 100, canUse: false).Object;
+		var saveManager = new Mock<ISaveManager>();
+		var world = CreateWorldWithSaveManager([provisional, rejected], saveManager);
+		var character = LifecycleTestCharacter.Create(world.Object, CreateRace(rejected));
+
+		character.ApplyProvisional(provisional);
+		character.CompleteInitialisation(123);
+
+		Assert.IsNull(character.CombatSettings);
+		saveManager.Verify(x => x.Add(character), Times.Once);
+	}
 }

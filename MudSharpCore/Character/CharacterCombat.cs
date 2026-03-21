@@ -69,7 +69,7 @@ public partial class Character
 		}
 
 		_combatSettingsNeedsIdRevalidation = false;
-		var resolved = ResolveCombatSettingsAfterInitialisation() ?? _combatSettings;
+		var resolved = ResolveCombatSettingsAfterInitialisation();
 		if (ReferenceEquals(resolved, _combatSettings))
 		{
 			return;

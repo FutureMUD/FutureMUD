@@ -34,6 +34,7 @@ using MudSharp.TimeAndDate.Time;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Form.Material;
+using System.Collections;
 
 namespace MudSharp.Commands.Modules;
 
@@ -544,8 +545,59 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		{
 			return "null";
 		}
+		
+		if (returnType.IsCollection)
+		{
+            var sb = new StringBuilder();
+            var baseType = returnType.WithoutContainerModifiers();
+			sb.AppendLine($"a collection of type {baseType.Describe().Colour(Telnet.VariableGreen)}");
+			sb.AppendLine("[");
+			var collection = result as IList ?? new List<object>();
 
-		switch (returnType.LegacyCode)
+            foreach (var item in collection)
+			{
+				sb.AppendLine($"\t{DescribeProgVariable(actor, baseType, item)}");
+			}
+            sb.AppendLine("]");
+			return sb.ToString();
+        }
+
+		if (returnType.IsDictionary)
+		{
+            var sb = new StringBuilder();
+            var baseType = returnType.WithoutContainerModifiers();
+            sb.AppendLine($"a dictionary of type {baseType.Describe().Colour(Telnet.VariableGreen)}");
+            sb.AppendLine("[");
+            var collection = result as Dictionary<string,object> ?? new Dictionary<string, object>();
+
+            foreach (var item in collection)
+            {
+                sb.AppendLine($"\t{item.Key}: {DescribeProgVariable(actor, baseType, item.Value)}");
+            }
+            sb.AppendLine("]");
+            return sb.ToString();
+        }
+
+        if (returnType.IsCollectionDictionary)
+        {
+            var sb = new StringBuilder();
+            var baseType = returnType.WithoutContainerModifiers();
+            sb.AppendLine($"a collection dictionary of type {baseType.Describe().Colour(Telnet.VariableGreen)}");
+            sb.AppendLine("[");
+			var collections = result as CollectionDictionary<string, object> ?? new CollectionDictionary<string, object>();
+            foreach (var collection in collections)
+            {
+				sb.AppendLine($"\t{collection.Value}:");
+				foreach (var item in collection.Value)
+				{
+                    sb.AppendLine($"\t{DescribeProgVariable(actor, baseType, item)}");
+                }
+            }
+            sb.AppendLine("]");
+            return sb.ToString();
+        }
+
+        switch (returnType.LegacyCode)
 		{
 			case ProgVariableTypeCode.Boolean:
 				return ((bool)result).ToColouredString();

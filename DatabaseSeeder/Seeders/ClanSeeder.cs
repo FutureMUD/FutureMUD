@@ -10,8 +10,51 @@ using MudSharp.TimeAndDate.Intervals;
 
 namespace DatabaseSeeder.Seeders;
 
-public class ClanSeeder : IDatabaseSeeder
+public partial class ClanSeeder : IDatabaseSeeder
 {
+	private const string TemplateCloneElectorateAllMembersCanNominateProgName =
+		"TemplateCloneElectorate_AllMembers_CanNominate";
+	private const string TemplateCloneElectorateAllMembersWhyCantNominateProgName =
+		"TemplateCloneElectorate_AllMembers_WhyCantNominate";
+	private const string TemplateCloneElectorateAllMembersVotesProgName =
+		"TemplateCloneElectorate_AllMembers_Votes";
+	private const string TemplateCloneElectorateCouncillorCanNominateProgName =
+		"TemplateCloneElectorate_Councillor_CanNominate";
+	private const string TemplateCloneElectorateCouncillorWhyCantNominateProgName =
+		"TemplateCloneElectorate_Councillor_WhyCantNominate";
+	private const string TemplateCloneElectorateCouncillorVotesProgName =
+		"TemplateCloneElectorate_Councillor_Votes";
+	private const string TemplateCloneElectorateBoardCanNominateProgName =
+		"TemplateCloneElectorate_Board_CanNominate";
+	private const string TemplateCloneElectorateBoardWhyCantNominateProgName =
+		"TemplateCloneElectorate_Board_WhyCantNominate";
+	private const string TemplateCloneElectorateBoardVotesProgName =
+		"TemplateCloneElectorate_Board_Votes";
+
+	private static readonly IReadOnlyList<string> TemplateClanNames =
+	[
+		"Feudalism Template",
+		"Peerage Template",
+		"Monastic Order Template",
+		"Chivalric Order Template",
+		"Roman Legion Template",
+		"Council Template",
+		"Gang Template",
+		"UK Police Template",
+		"Army Template",
+		"Roman City Template",
+		"Naval Organisation Template",
+		"Air Force Template",
+		"Local Government Template - Popular Mayor",
+		"Local Government Template - Councillor Mayor",
+		"Company Template",
+		"Mercenary Company Template",
+		"Infantry Company Template",
+		"Battalion Template",
+		"Capital Ship Template",
+		"Age of Sail Ship Template"
+	];
+
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
 		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
@@ -70,13 +113,24 @@ public class ClanSeeder : IDatabaseSeeder
 			context.SaveChanges();
 		}
 
+		EnsureTemplateElectionPlaceholderProgs(context);
+
 		var count = context.Clans.Count();
 		SetupRomanCity(context, questionAnswers);
 		SetupRomanMilitary(context, questionAnswers);
 		SetupMilitaryClan(context, questionAnswers);
+		SetupNavalOrganisationClan(context, questionAnswers);
+		SetupAirForceClan(context, questionAnswers);
 		SetupUKPoliceOrganisation(context, questionAnswers);
 		SetupGangClan(context, questionAnswers);
 		SetupCouncilClan(context, questionAnswers);
+		SetupLocalGovernmentTemplates(context, questionAnswers);
+		SetupCompanyClan(context, questionAnswers);
+		SetupMercenaryCompanyClan(context, questionAnswers);
+		SetupInfantryCompanyClan(context, questionAnswers);
+		SetupBattalionClan(context, questionAnswers);
+		SetupCapitalShipClan(context, questionAnswers);
+		SetupAgeOfSailShipClan(context, questionAnswers);
 		SetupKnightlyOrder(context, questionAnswers);
 		SetupMonasticOrder(context, questionAnswers);
 		SetupPeerage(context, questionAnswers);
@@ -93,18 +147,7 @@ public class ClanSeeder : IDatabaseSeeder
 
 		if (context.Clans.Any())
 		{
-			if (
-				context.Clans.All(x => x.Name != "Feudalism Template") ||
-				context.Clans.All(x => x.Name != "Peerage Template") || 
-				context.Clans.All(x => x.Name != "Monastic Order Template") ||
-				context.Clans.All(x => x.Name != "Chivalric Order Template") ||
-				context.Clans.All(x => x.Name != "Roman Legion Template") ||
-				context.Clans.All(x => x.Name != "Council Template") ||
-				context.Clans.All(x => x.Name != "Gang Template") ||
-				context.Clans.All(x => x.Name != "UK Police Template") ||
-				context.Clans.All(x => x.Name != "Army Template") ||
-				context.Clans.All(x => x.Name != "Roman City Template")
-			)
+			if (TemplateClanNames.Any(name => context.Clans.All(x => x.Name != name)))
 			{
 				return ShouldSeedResult.ExtraPackagesAvailable;
 			}
@@ -126,6 +169,68 @@ Even if you don't choose to use these clans directly as templates, they can be u
 The core seeder, time seeder and currency seeder are all prerequisites for this package.
 
 This package can be run multiple times as I add more options.";
+
+	private void EnsureTemplateElectionPlaceholderProgs(FuturemudDatabaseContext context)
+	{
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateAllMembersCanNominateProgName,
+			"Template placeholder prog used for clone-time all-member nomination rebinding.",
+			ProgVariableTypes.Boolean, "return false");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateAllMembersWhyCantNominateProgName,
+			"Template placeholder prog used for clone-time all-member nomination failure rebinding.",
+			ProgVariableTypes.Text, @"return ""This template election rule should be rebound when cloned.""");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateAllMembersVotesProgName,
+			"Template placeholder prog used for clone-time all-member vote rebinding.",
+			ProgVariableTypes.Number, "return 0");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateCouncillorCanNominateProgName,
+			"Template placeholder prog used for clone-time councillor electorate rebinding.",
+			ProgVariableTypes.Boolean, "return false");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateCouncillorWhyCantNominateProgName,
+			"Template placeholder prog used for clone-time councillor electorate failure rebinding.",
+			ProgVariableTypes.Text, @"return ""This template election rule should be rebound when cloned.""");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateCouncillorVotesProgName,
+			"Template placeholder prog used for clone-time councillor vote rebinding.",
+			ProgVariableTypes.Number, "return 0");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateBoardCanNominateProgName,
+			"Template placeholder prog used for clone-time board electorate rebinding.",
+			ProgVariableTypes.Boolean, "return false");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateBoardWhyCantNominateProgName,
+			"Template placeholder prog used for clone-time board electorate failure rebinding.",
+			ProgVariableTypes.Text, @"return ""This template election rule should be rebound when cloned.""");
+		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateBoardVotesProgName,
+			"Template placeholder prog used for clone-time board vote rebinding.",
+			ProgVariableTypes.Number, "return 0");
+	}
+
+	private void EnsureTemplateElectionPlaceholderProg(FuturemudDatabaseContext context, string functionName,
+		string functionComment, ProgVariableTypes returnType, string functionText)
+	{
+		if (context.FutureProgs.Any(x => x.FunctionName == functionName))
+		{
+			return;
+		}
+
+		var prog = new FutureProg
+		{
+			FunctionName = functionName,
+			Category = "Clan",
+			Subcategory = "Template Clone",
+			FunctionComment = functionComment,
+			ReturnType = (long)returnType,
+			AcceptsAnyParameters = false,
+			Public = false,
+			StaticType = (int)FutureProgStaticType.NotStatic,
+			FunctionText = functionText
+		};
+		prog.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = prog,
+			ParameterIndex = 0,
+			ParameterType = (long)ProgVariableTypes.Character,
+			ParameterName = "ch"
+		});
+		context.FutureProgs.Add(prog);
+		context.SaveChanges();
+	}
 
 	private void SetupFeudalism(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
@@ -2937,9 +3042,10 @@ This package can be run multiple times as I add more options.";
 	private void SetupMilitaryClan(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
-
-		if (context.Clans.Any(x => x.Name == "Army Template"))
+		var existingClan = context.Clans.FirstOrDefault(x => x.Name == "Army Template");
+		if (existingClan != null)
 		{
+			AddArmyGeneralStaffAppointments(context, existingClan);
 			return;
 		}
 
@@ -3279,6 +3385,7 @@ This package can be run multiple times as I add more options.";
 			{ Appointment = appointment, Order = 0, Title = "General of the Army" });
 		context.Appointments.Add(appointment);
 		context.SaveChanges();
+		AddArmyGeneralStaffAppointments(context, clan);
 	}
 
 	private void SetupRomanCity(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
+using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
@@ -61,7 +62,7 @@ public class NPC : Character.Character, INPC
 	{
 		_AIs.AddRange(npcTemplate.ArtificialIntelligences);
 		Template = npcTemplate;
-		CombatSettings = MudSharp.Combat.CharacterCombatSettingsResolver.ResolveFallback(this, Template);
+		SetCombatSettingsProvisional(MudSharp.Combat.CharacterCombatSettingsResolver.ResolveProvisional(this, Template));
 		var controller = new NPCController();
 		controller.UpdateControlFocus(this);
 		SilentAssumeControl(controller);
@@ -211,6 +212,11 @@ public class NPC : Character.Character, INPC
 		var item = (Tuple<object, Models.Npc>)dbitem;
 		base.SetIDFromDatabase(item.Item1);
 		_npcID = item.Item2.Id;
+	}
+
+	protected override ICharacterCombatSettings ResolveCombatSettingsAfterInitialisation()
+	{
+		return MudSharp.Combat.CharacterCombatSettingsResolver.ResolveFallback(this, Template);
 	}
 
 	#region Overrides of Character

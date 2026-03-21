@@ -28,20 +28,54 @@ namespace MudSharp.Character;
 public partial class Character
 {
 	private ICharacterCombatSettings _combatSettings;
+	private bool _combatSettingsNeedsIdRevalidation;
+
+	private void SetCombatSettingsInternal(ICharacterCombatSettings value, bool markChanged)
+	{
+		_combatSettings = value;
+		if (Combat != null && value != null)
+		{
+			CombatStrategyMode = MeleeRange ? value.PreferredMeleeMode : value.PreferredRangedMode;
+		}
+
+		if (markChanged)
+		{
+			Changed = true;
+		}
+	}
 
 	public override ICharacterCombatSettings CombatSettings
 	{
 		get => _combatSettings;
-		set
-		{
-			_combatSettings = value;
-			if (Combat != null)
-			{
-				CombatStrategyMode = MeleeRange ? value.PreferredMeleeMode : value.PreferredRangedMode;
-			}
+		set => SetCombatSettingsInternal(value, true);
+	}
 
-			Changed = true;
+	protected void SetCombatSettingsProvisional(ICharacterCombatSettings value)
+	{
+		SetCombatSettingsInternal(value, false);
+		_combatSettingsNeedsIdRevalidation = true;
+	}
+
+	protected virtual ICharacterCombatSettings ResolveCombatSettingsAfterInitialisation()
+	{
+		return CharacterCombatSettingsResolver.ResolveFallback(this);
+	}
+
+	protected void RevalidateCombatSettingsAfterInitialisation()
+	{
+		if (!_combatSettingsNeedsIdRevalidation)
+		{
+			return;
 		}
+
+		_combatSettingsNeedsIdRevalidation = false;
+		var resolved = ResolveCombatSettingsAfterInitialisation() ?? _combatSettings;
+		if (ReferenceEquals(resolved, _combatSettings))
+		{
+			return;
+		}
+
+		CombatSettings = resolved;
 	}
 
 	public int CombatBurdenOffense { get; set; }

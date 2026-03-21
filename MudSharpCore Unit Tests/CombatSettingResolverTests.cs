@@ -4,12 +4,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
+using MudSharp.Body;
 using MudSharp.NPC.Templates;
 
 namespace MudSharp_Unit_Tests;
@@ -93,6 +97,65 @@ public class CombatSettingResolverTests
 		return character.Object;
 	}
 
+	private sealed class LifecycleTestCharacter : MudSharp.Character.Character
+	{
+		private static readonly FieldInfo GameworldBackingField =
+			typeof(LateKeywordedInitialisingItem).GetField("<Gameworld>k__BackingField",
+				BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+		private LifecycleTestCharacter() : base(null!, null!, true)
+		{
+		}
+
+		public static LifecycleTestCharacter Create(IFuturemud gameworld, IRace? race)
+		{
+			var character = (LifecycleTestCharacter)RuntimeHelpers.GetUninitializedObject(typeof(LifecycleTestCharacter));
+			GameworldBackingField.SetValue(character, gameworld);
+			var body = new Mock<IBody>();
+			body.SetupGet(x => x.Race).Returns(race);
+			character.Body = body.Object;
+			return character;
+		}
+
+		public void ApplyProvisional(ICharacterCombatSettings setting)
+		{
+			SetCombatSettingsProvisional(setting);
+		}
+
+		public void CompleteInitialisation(long id)
+		{
+			_id = id;
+			RevalidateCombatSettingsAfterInitialisation();
+		}
+
+		protected override ICharacterCombatSettings ResolveCombatSettingsAfterInitialisation()
+		{
+			return CharacterCombatSettingsResolver.ResolveFallback(this);
+		}
+	}
+
+	private static Mock<IFuturemud> CreateWorldWithSaveManager(IEnumerable<ICharacterCombatSettings> settings,
+		Mock<ISaveManager> saveManager)
+	{
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.CharacterCombatSettings).Returns(new TestAll<ICharacterCombatSettings>(settings));
+		world.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+		return world;
+	}
+
+	private static IRace CreateRace(ICharacterCombatSettings? raceDefault)
+	{
+		var race = new Mock<IRace>();
+		race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
+		{
+			CanAttack = true,
+			CanDefend = true,
+			CanUseWeapons = true,
+			DefaultCombatSetting = raceDefault
+		});
+		return race.Object;
+	}
+
 	[TestMethod]
 	public void ResolveFallback_ValidNpcTemplateOverride_BeatsRaceAndGlobalPriority()
 	{
@@ -170,5 +233,69 @@ public class CombatSettingResolverTests
 		var result = CharacterCombatSettingsResolver.ResolveFallback(character);
 
 		Assert.AreSame(lowerId, result);
+	}
+
+	[TestMethod]
+	public void ResolveProvisional_NpcThenRaceThenLowestIdGlobal_UsesNonValidatingOrder()
+	{
+		var globalHigherId = CreateSetting(20, "Global", 200).Object;
+		var globalLowerId = CreateSetting(10, "LowerIdGlobal", 100).Object;
+		var raceSetting = CreateSetting(30, "Race", 0).Object;
+		var npcSetting = CreateSetting(40, "Npc", 0).Object;
+		var character = CreateCharacter([globalHigherId, globalLowerId, raceSetting, npcSetting], raceSetting);
+		var template = new Mock<INPCTemplate>();
+		template.SetupGet(x => x.DefaultCombatSetting).Returns(npcSetting);
+
+		Assert.AreSame(npcSetting, CharacterCombatSettingsResolver.ResolveProvisional(character, template.Object));
+		Assert.AreSame(raceSetting, CharacterCombatSettingsResolver.ResolveProvisional(CreateCharacter([globalHigherId, globalLowerId, raceSetting], raceSetting)));
+		Assert.AreSame(globalLowerId, CharacterCombatSettingsResolver.ResolveProvisional(CreateCharacter([globalHigherId, globalLowerId])));
+	}
+
+	[TestMethod]
+	public void ResolveProvisional_DoesNotInvokeAvailabilityOrPriorityValidation()
+	{
+		var setting = new Mock<ICharacterCombatSettings>();
+		setting.SetupGet(x => x.Id).Returns(10);
+		setting.SetupGet(x => x.Name).Returns("Global");
+		setting.SetupGet(x => x.FrameworkItemType).Returns("CharacterCombatSetting");
+		setting.SetupGet(x => x.GlobalTemplate).Returns(true);
+		var character = CreateCharacter([setting.Object]);
+
+		var result = CharacterCombatSettingsResolver.ResolveProvisional(character);
+
+		Assert.AreSame(setting.Object, result);
+		setting.Verify(x => x.CanUse(It.IsAny<ICharacter>()), Times.Never);
+		setting.Verify(x => x.PriorityFor(It.IsAny<ICharacter>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void RevalidateCombatSettingsAfterInitialisation_DifferentFinalSetting_QueuesSave()
+	{
+		var provisional = CreateSetting(10, "Provisional", 0).Object;
+		var final = CreateSetting(20, "Final", 10).Object;
+		var saveManager = new Mock<ISaveManager>();
+		var world = CreateWorldWithSaveManager([provisional, final], saveManager);
+		var character = LifecycleTestCharacter.Create(world.Object, CreateRace(null));
+
+		character.ApplyProvisional(provisional);
+		character.CompleteInitialisation(123);
+
+		Assert.AreSame(final, character.CombatSettings);
+		saveManager.Verify(x => x.Add(character), Times.Once);
+	}
+
+	[TestMethod]
+	public void RevalidateCombatSettingsAfterInitialisation_UnchangedFinalSetting_DoesNotQueueSave()
+	{
+		var provisional = CreateSetting(10, "Provisional", 0).Object;
+		var saveManager = new Mock<ISaveManager>();
+		var world = CreateWorldWithSaveManager([provisional], saveManager);
+		var character = LifecycleTestCharacter.Create(world.Object, CreateRace(provisional));
+
+		character.ApplyProvisional(provisional);
+		character.CompleteInitialisation(123);
+
+		Assert.AreSame(provisional, character.CombatSettings);
+		saveManager.Verify(x => x.Add(It.IsAny<ISaveable>()), Times.Never);
 	}
 }

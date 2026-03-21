@@ -280,6 +280,7 @@ public partial class Character : PerceiverItem, ICharacter
 		Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
 		Body.RecalculateItemHelpers();
 		_noSave = false;
+		SetCombatSettingsProvisional(CharacterCombatSettingsResolver.ResolveProvisional(this));
 
 		var hooks = Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
 		foreach (var hook in hooks)
@@ -289,8 +290,7 @@ public partial class Character : PerceiverItem, ICharacter
 
 		CurrentStamina = MaximumStamina;
 		Gameworld.SaveManager.AddInitialisation(this);
-        CombatSettings = CharacterCombatSettingsResolver.ResolveFallback(this);
-    }
+	}
 
 	public override InitialisationPhase InitialisationPhase => InitialisationPhase.First;
 
@@ -1356,6 +1356,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
+		RevalidateCombatSettingsAfterInitialisation();
 	}
 
 	public override object DatabaseInsert()

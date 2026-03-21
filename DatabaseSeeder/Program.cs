@@ -438,20 +438,27 @@ The exception details were as follows:
 		{
 			if (!question.Filter(context, answers)) continue;
 
+			var errorText = "";
 			var rememberedAnswer = SeederAnswerMemory.GetRememberedAnswer(context, seeder, question, answers);
 			if (question.AutoReuseLastAnswer && !string.IsNullOrWhiteSpace(rememberedAnswer))
 			{
-				answers[question.Id] = rememberedAnswer;
-				Console.Clear();
-				Console.ForegroundColor = ConsoleColor.Cyan;
-				topline.WriteLineConsole();
-				Console.ForegroundColor = ConsoleColor.White;
-				Console.WriteLine($"Reusing previous answer for {question.Id}: {rememberedAnswer}");
-				Thread.Sleep(1000);
-				continue;
+				var (success, error) = question.Validator(rememberedAnswer, context);
+				if (success)
+				{
+					answers[question.Id] = rememberedAnswer;
+					Console.Clear();
+					Console.ForegroundColor = ConsoleColor.Cyan;
+					topline.WriteLineConsole();
+					Console.ForegroundColor = ConsoleColor.White;
+					Console.WriteLine($"Reusing previous answer for {question.Id}: {rememberedAnswer}");
+					Thread.Sleep(1000);
+					continue;
+				}
+
+				errorText =
+					$"The previously remembered answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(error) ? "" : $"\n{error}")}";
 			}
 
-			var errorText = "";
 			while (true)
 			{
 				Console.Clear();

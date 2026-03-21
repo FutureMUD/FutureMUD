@@ -40,6 +40,25 @@ namespace MudSharp.Commands.Modules;
 
 public class ClanModule : Module<ICharacter>
 {
+	private const string TemplateCloneElectorateAllMembersCanNominateProgName =
+		"TemplateCloneElectorate_AllMembers_CanNominate";
+	private const string TemplateCloneElectorateAllMembersWhyCantNominateProgName =
+		"TemplateCloneElectorate_AllMembers_WhyCantNominate";
+	private const string TemplateCloneElectorateAllMembersVotesProgName =
+		"TemplateCloneElectorate_AllMembers_Votes";
+	private const string TemplateCloneElectorateCouncillorCanNominateProgName =
+		"TemplateCloneElectorate_Councillor_CanNominate";
+	private const string TemplateCloneElectorateCouncillorWhyCantNominateProgName =
+		"TemplateCloneElectorate_Councillor_WhyCantNominate";
+	private const string TemplateCloneElectorateCouncillorVotesProgName =
+		"TemplateCloneElectorate_Councillor_Votes";
+	private const string TemplateCloneElectorateBoardCanNominateProgName =
+		"TemplateCloneElectorate_Board_CanNominate";
+	private const string TemplateCloneElectorateBoardWhyCantNominateProgName =
+		"TemplateCloneElectorate_Board_WhyCantNominate";
+	private const string TemplateCloneElectorateBoardVotesProgName =
+		"TemplateCloneElectorate_Board_Votes";
+
 	private ClanModule()
 		: base("Clan")
 	{
@@ -4119,13 +4138,18 @@ Your next payday is {3}.
 				Alias = aliasText,
 				Name = nameText,
 				FullName = nameText,
-				Description = "An undescribed clan.",
+				Description = clan.Description,
 				CalendarId = clan.Calendar.Id,
 				PayIntervalType = (int)clan.PayInterval.Type,
 				PayIntervalModifier = clan.PayInterval.IntervalAmount,
 				PayIntervalOther = clan.PayInterval.Modifier,
 				PayIntervalReferenceDate = clan.Calendar.CurrentDate.GetDateString(),
-				PayIntervalReferenceTime = clan.NextPay.Time.GetTimeString()
+				PayIntervalReferenceTime = clan.NextPay.Time.GetTimeString(),
+				ShowClanMembersInWho = clan.ShowClanMembersInWho,
+				ShowFamousMembersInNotables = clan.ShowFamousMembersInNotables,
+				Sphere = clan.Sphere,
+				MaximumPeriodsOfUncollectedBackPay = clan.MaximumPeriodsOfUncollectedBackPay,
+				OnPayProgId = clan.OnPayProg?.Id
 			};
 			FMDB.Context.Clans.Add(dbclan);
 
@@ -4149,6 +4173,7 @@ Your next payday is {3}.
 				dbrank.Name = rank.Name;
 				dbrank.RankPath = rank.RankPath;
 				dbrank.RankNumber = rank.RankNumber;
+				dbrank.FameType = (int)rank.FameType;
 				if (rank.InsigniaGameItem != null)
 				{
 					dbrank.InsigniaGameItemId = rank.InsigniaGameItem.Id;
@@ -4156,26 +4181,29 @@ Your next payday is {3}.
 				}
 
 				dbrank.Privileges = (long)rank.Privileges;
+				var order = 0;
 				foreach (var address in rank.TitlesAndProgs)
 				{
 					var dbrankaddress = new RanksTitle();
 					dbrankaddress.Title = address.Item2;
-					dbrankaddress.Order = 0;
+					dbrankaddress.Order = order++;
 					dbrankaddress.FutureProgId = address.Item1?.Id;
 					dbrankaddress.Rank = dbrank;
 					FMDB.Context.RanksTitles.Add(dbrankaddress);
 				}
 
+				order = 0;
 				foreach (var abbreviation in rank.AbbreviationsAndProgs)
 				{
 					var dbrankabbrev = new RanksAbbreviations();
 					dbrankabbrev.Abbreviation = abbreviation.Item2;
-					dbrankabbrev.Order = 0;
+					dbrankabbrev.Order = order++;
 					dbrankabbrev.FutureProgId = abbreviation.Item1?.Id;
 					dbrankabbrev.Rank = dbrank;
 					FMDB.Context.RanksAbbreviations.Add(dbrankabbrev);
 				}
 
+				order = 0;
 				foreach (var paygrade in rank.Paygrades)
 				{
 					var dbrankpaygrade = new RanksPaygrade();
@@ -4183,17 +4211,39 @@ Your next payday is {3}.
 					dbrankpaygrade.Paygrade =
 						dbclan.Paygrades.First(
 							x => x.Name == paygrade.Name);
+					dbrankpaygrade.Order = order++;
 					FMDB.Context.RanksPaygrades.Add(dbrankpaygrade);
 				}
 			}
 
 			var stagedAppointments = new List<Tuple<Appointment, string>>();
+			var clonedAppointments = new List<(IAppointment SourceAppointment, Appointment DbAppointment)>();
 			foreach (var appointment in clan.Appointments)
 			{
 				var dbappointment = new Appointment();
 				dbappointment.Name = appointment.Name;
 				dbappointment.Clan = dbclan;
 				dbappointment.Privileges = (long)appointment.Privileges;
+				dbappointment.FameType = (int)appointment.FameType;
+				dbappointment.MaximumSimultaneousHolders = appointment.MaximumSimultaneousHolders;
+				dbappointment.IsAppointedByElection = appointment.IsAppointedByElection;
+				dbappointment.ElectionTermMinutes =
+					appointment.IsAppointedByElection ? appointment.ElectionTerm.TotalMinutes : null;
+				dbappointment.ElectionLeadTimeMinutes =
+					appointment.IsAppointedByElection ? appointment.ElectionLeadTime.TotalMinutes : null;
+				dbappointment.NominationPeriodMinutes =
+					appointment.IsAppointedByElection ? appointment.NominationPeriod.TotalMinutes : null;
+				dbappointment.VotingPeriodMinutes =
+					appointment.IsAppointedByElection ? appointment.VotingPeriod.TotalMinutes : null;
+				dbappointment.MaximumConsecutiveTerms =
+					appointment.IsAppointedByElection ? appointment.MaximumConsecutiveTerms : null;
+				dbappointment.MaximumTotalTerms =
+					appointment.IsAppointedByElection ? appointment.MaximumTotalTerms : null;
+				dbappointment.IsSecretBallot =
+					appointment.IsAppointedByElection ? appointment.IsSecretBallot : null;
+				dbappointment.CanNominateProgId = appointment.CanNominateProg?.Id;
+				dbappointment.WhyCantNominateProgId = appointment.WhyCantNominateProg?.Id;
+				dbappointment.NumberOfVotesProgId = appointment.NumberOfVotesProg?.Id;
 				if (appointment.InsigniaGameItem != null)
 				{
 					dbappointment.InsigniaGameItemId = appointment.InsigniaGameItem.Id;
@@ -4225,21 +4275,23 @@ Your next payday is {3}.
 				}
 
 				FMDB.Context.Appointments.Add(dbappointment);
+				var order = 0;
 				foreach (var abbreviation in appointment.AbbreviationsAndProgs)
 				{
 					var dbabbrev = new AppointmentsAbbreviations();
 					dbabbrev.Abbreviation = abbreviation.Item2;
-					dbabbrev.Order = 0;
+					dbabbrev.Order = order++;
 					dbabbrev.FutureProgId = abbreviation.Item1?.Id;
 					dbabbrev.Appointment = dbappointment;
 					FMDB.Context.AppointmentsAbbreviations.Add(dbabbrev);
 				}
 
+				order = 0;
 				foreach (var address in appointment.TitlesAndProgs)
 				{
 					var dbaddress = new AppointmentsTitles();
 					dbaddress.Title = address.Item2;
-					dbaddress.Order = 0;
+					dbaddress.Order = order++;
 					dbaddress.FutureProgId = address.Item1?.Id;
 					dbaddress.Appointment = dbappointment;
 					FMDB.Context.AppointmentsTitles.Add(dbaddress);
@@ -4249,6 +4301,8 @@ Your next payday is {3}.
 				{
 					stagedAppointments.Add(Tuple.Create(dbappointment, appointment.ParentPosition.Name));
 				}
+
+				clonedAppointments.Add((appointment, dbappointment));
 			}
 
 			foreach (var appointment in stagedAppointments)
@@ -4258,6 +4312,8 @@ Your next payday is {3}.
 						x => x.Name == appointment.Item2);
 			}
 
+			FMDB.Context.SaveChanges();
+			RebindTemplateElectionPlaceholderProgs(actor, clan, dbclan, clonedAppointments);
 			FMDB.Context.SaveChanges();
 			var newClan = new Community.Clan(dbclan, actor.Gameworld);
 			newClan.FinaliseLoad(dbclan, Enumerable.Empty<Models.ClanMembership>());
@@ -4296,6 +4352,161 @@ Your next payday is {3}.
 				newClan.FullName.TitleCase().Colour(Telnet.Cyan), newClan.Alias.Colour(Telnet.Green),
 				clan.FullName.TitleCase().Colour(Telnet.Cyan));
 		}
+	}
+
+	private static void RebindTemplateElectionPlaceholderProgs(ICharacter actor, IClan sourceClan, Models.Clan clonedClan,
+		IEnumerable<(IAppointment SourceAppointment, Appointment DbAppointment)> appointments)
+	{
+		foreach (var (sourceAppointment, dbAppointment) in appointments)
+		{
+			if (!sourceAppointment.IsAppointedByElection)
+			{
+				continue;
+			}
+
+			var rebindMode = GetTemplateElectionRebindMode(sourceAppointment.CanNominateProg?.FunctionName,
+				sourceAppointment.NumberOfVotesProg?.FunctionName);
+			if (rebindMode == TemplateElectionRebindMode.None)
+			{
+				continue;
+			}
+
+			var canNominateText = BuildTemplateElectionCanNominateText(clonedClan.Id, rebindMode);
+			var whyCantNominateText = BuildTemplateElectionWhyText(rebindMode);
+			var numberOfVotesText = BuildTemplateElectionVotesText(clonedClan.Id, rebindMode);
+
+			var canNominateProg = CreateAndRegisterCloneElectionProg(actor,
+				$"CloneElectionCanNominate_{clonedClan.Id}_{dbAppointment.Id}",
+				$"Generated nomination eligibility prog for {dbAppointment.Name} in cloned clan {clonedClan.FullName}.",
+				ProgVariableTypes.Boolean, canNominateText);
+			var whyCantNominateProg = CreateAndRegisterCloneElectionProg(actor,
+				$"CloneElectionWhyCantNominate_{clonedClan.Id}_{dbAppointment.Id}",
+				$"Generated nomination failure explanation prog for {dbAppointment.Name} in cloned clan {clonedClan.FullName}.",
+				ProgVariableTypes.Text, whyCantNominateText);
+			var numberOfVotesProg = CreateAndRegisterCloneElectionProg(actor,
+				$"CloneElectionVotes_{clonedClan.Id}_{dbAppointment.Id}",
+				$"Generated voting eligibility prog for {dbAppointment.Name} in cloned clan {clonedClan.FullName}.",
+				ProgVariableTypes.Number, numberOfVotesText);
+
+			dbAppointment.CanNominateProgId = canNominateProg.Id;
+			dbAppointment.WhyCantNominateProgId = whyCantNominateProg.Id;
+			dbAppointment.NumberOfVotesProgId = numberOfVotesProg.Id;
+		}
+	}
+
+	private static MudSharp.Models.FutureProg CreateAndRegisterCloneElectionProg(ICharacter actor, string functionName,
+		string functionComment, ProgVariableTypes returnType, string functionText)
+	{
+		var dbprog = new MudSharp.Models.FutureProg
+		{
+			FunctionName = functionName,
+			FunctionComment = functionComment,
+			FunctionText = functionText,
+			ReturnType = (long)returnType,
+			Category = "Clan",
+			Subcategory = "Template Clone",
+			Public = false,
+			AcceptsAnyParameters = false,
+			StaticType = (int)FutureProgStaticType.NotStatic
+		};
+		dbprog.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = dbprog,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterType = (long)ProgVariableTypes.Character
+		});
+		FMDB.Context.FutureProgs.Add(dbprog);
+		FMDB.Context.SaveChanges();
+
+		var runtimeProg = new MudSharp.FutureProg.FutureProg(dbprog, actor.Gameworld);
+		if (!runtimeProg.Compile())
+		{
+			throw new InvalidOperationException(
+				$"Generated clone election prog {functionName} failed to compile: {runtimeProg.CompileError}");
+		}
+
+		actor.Gameworld.Add(runtimeProg);
+		return dbprog;
+	}
+
+	private static string BuildTemplateElectionCanNominateText(long clanId, TemplateElectionRebindMode mode)
+	{
+		return mode switch
+		{
+			TemplateElectionRebindMode.AllMembers => $"return IsClanMember(@ch, ToClan({clanId}))",
+			TemplateElectionRebindMode.Councillor =>
+				$"return IsClanMember(@ch, ToClan({clanId}), ToRank(ToClan({clanId}), \"Councillor\"))",
+			TemplateElectionRebindMode.Board =>
+				$"return IsClanMember(@ch, ToClan({clanId}), ToRank(ToClan({clanId}), \"Board\"))",
+			_ => "return false"
+		};
+	}
+
+	private static string BuildTemplateElectionVotesText(long clanId, TemplateElectionRebindMode mode)
+	{
+		return mode switch
+		{
+			TemplateElectionRebindMode.AllMembers => $@"if (IsClanMember(@ch, ToClan({clanId})))
+ return 1
+end if
+return 0",
+			TemplateElectionRebindMode.Councillor => $@"if (IsClanMember(@ch, ToClan({clanId}), ToRank(ToClan({clanId}), ""Councillor"")))
+ return 1
+end if
+return 0",
+			TemplateElectionRebindMode.Board => $@"if (IsClanMember(@ch, ToClan({clanId}), ToRank(ToClan({clanId}), ""Board"")))
+ return 1
+end if
+return 0",
+			_ => "return 0"
+		};
+	}
+
+	private static string BuildTemplateElectionWhyText(TemplateElectionRebindMode mode)
+	{
+		return mode switch
+		{
+			TemplateElectionRebindMode.AllMembers =>
+				@"return ""Only members of this clan may nominate for this office.""",
+			TemplateElectionRebindMode.Councillor =>
+				@"return ""Only councillors may nominate for this office.""",
+			TemplateElectionRebindMode.Board =>
+				@"return ""Only board members may nominate for this office.""",
+			_ => @"return ""You are not eligible to nominate for this office."""
+		};
+	}
+
+	private static TemplateElectionRebindMode GetTemplateElectionRebindMode(string canNominateProgName,
+		string numberOfVotesProgName)
+	{
+		if (canNominateProgName == TemplateCloneElectorateAllMembersCanNominateProgName &&
+		    numberOfVotesProgName == TemplateCloneElectorateAllMembersVotesProgName)
+		{
+			return TemplateElectionRebindMode.AllMembers;
+		}
+
+		if (canNominateProgName == TemplateCloneElectorateCouncillorCanNominateProgName &&
+		    numberOfVotesProgName == TemplateCloneElectorateCouncillorVotesProgName)
+		{
+			return TemplateElectionRebindMode.Councillor;
+		}
+
+		if (canNominateProgName == TemplateCloneElectorateBoardCanNominateProgName &&
+		    numberOfVotesProgName == TemplateCloneElectorateBoardVotesProgName)
+		{
+			return TemplateElectionRebindMode.Board;
+		}
+
+		return TemplateElectionRebindMode.None;
+	}
+
+	private enum TemplateElectionRebindMode
+	{
+		None,
+		AllMembers,
+		Councillor,
+		Board
 	}
 
 	private static void ClanCreateRank(ICharacter actor, StringStack command)

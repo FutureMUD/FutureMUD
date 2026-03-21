@@ -12,6 +12,7 @@ namespace DatabaseSeeder.Seeders;
 public class CelestialSeeder : IDatabaseSeeder
 {
 	private static readonly Regex DateValidationRegex = new(@"\d+(-|/|\s)\w+(-|/|\s)\d+", RegexOptions.IgnoreCase);
+	public bool SafeToRunMoreThanOnce => true;
 
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -131,7 +132,7 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 	public string Tagline => "Sets up Suns, Moons, etc";
 
 	public string FullDescription =>
-		"This seeder will set up celestial objects such as suns, moons, parent planets etc. Options will be expanded as they are added to the engine. You will probably want to go into the XML for the generated objects and edit some parameters.";
+		"This seeder will set up celestial objects such as suns, moons, parent planets etc. It is intended to be additive, so reruns can install more stock celestial packages as they become available. You will probably want to go into the XML for the generated objects and edit some parameters.";
 
 	private void SetupSun(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{

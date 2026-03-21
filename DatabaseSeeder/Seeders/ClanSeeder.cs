@@ -12,6 +12,7 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ClanSeeder : IDatabaseSeeder
 {
+	public bool SafeToRunMoreThanOnce => true;
 	private const string TemplateCloneElectorateAllMembersCanNominateProgName =
 		"TemplateCloneElectorate_AllMembers_CanNominate";
 	private const string TemplateCloneElectorateAllMembersWhyCantNominateProgName =

@@ -16,5 +16,17 @@ Interactive installer that seeds initial database data and configuration for a n
 * Interactions occur via the console; keep prompts and output clear for users.
 * Register new seeders in `Program` so they are included in the workflow.
 
+## Seeder Policy
+- Treat repeatability as a first-class design concern. New or modified seeders should declare honest repeatability and update semantics through the seeder metadata, not only through prose or warning colors.
+- Prefer additive installs and deterministic lookup-and-upsert behavior over one-shot seeders whenever the stock data has stable ownership boundaries.
+- Ask as few questions as practical. If multiple stock options can coexist safely, prefer installing multiple options over forcing an early fork in the setup flow.
+- Reuse prior answers through shared answer keys and the generic `SeederChoice` answer-memory flow instead of ad hoc per-seeder lookup code.
+- Keep prerequisite checks explicit and specific. Prefer describing what is missing over returning a generic blocked state with no user guidance.
+- When a seeder cannot yet be safely rerun, document that clearly in both metadata and design docs rather than implying support through `ExtraPackagesAvailable` alone.
+- Foundational and high-complexity seeders should not invent bespoke repeatability patterns. Extend the shared framework first, then convert the seeder.
+
+## Seeder Strategy Reference
+- The full repeatability strategy, audit matrix, and backlog live in [../Design Documents/DatabaseSeeder_Repeatability_Strategy.md](../Design%20Documents/DatabaseSeeder_Repeatability_Strategy.md).
+
 ## Notes
 - All modules inherit both the solution-level and project-level rules unless explicitly overridden.

@@ -10,6 +10,8 @@ namespace DatabaseSeeder.Seeders;
 
 public class CurrencySeeder : IDatabaseSeeder
 {
+	public bool SafeToRunMoreThanOnce => true;
+
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
 		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
@@ -96,7 +98,7 @@ Please make your choice: ",
 	public string Tagline => "Set up a currency (or currencies) for your game";
 
 	public string FullDescription =>
-		"This package sets up everything you need to get a currency in game. This is required for some of the clan templates.";
+		"This package sets up everything you need to get a currency in game. It is intended to be additive, so reruns can install more stock currency packages. This is required for some of the clan templates.";
 
 	private void SeedDollars(FuturemudDatabaseContext context, ICollection<string> errors)
 	{

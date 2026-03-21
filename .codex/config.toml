@@ -1,1 +1,11 @@
 sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+writable_roots = [
+  "C:\\Users\\luker\\OneDrive\\source\\repos\\FutureMUD",
+  "C:\\Users\\CodexSandboxOffline\\.dotnet",
+  "C:\\Users\\CodexSandboxOffline\\AppData\\Local\\Temp",
+  "C:\\Users\\luker\\.nuget\\packages",
+  "C:\\Users\\luker\\AppData\\Roaming\\NuGet",
+  "C:\\Users\\luker\\AppData\\Local\\Microsoft\\dotnet"
+]

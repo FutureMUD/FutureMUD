@@ -6,12 +6,6 @@ name = "FutureMUD"
 script = '''
 name = "FutureMUD"
 
-setup_script = """
-dotnet --info
-dotnet restore ./FutureMUD.sln
-dotnet build ./FutureMUD.sln -c Debug --no-restore
-"""
-
 [[actions]]
 name = "Restore"
 icon = "package"
@@ -46,4 +40,39 @@ icon = "trash"
 script = """
 dotnet clean ./FutureMUD.sln
 """
+'''
+
+[setup.win32]
+script = '''
+$dotnetCliHome = Join-Path $env:APPDATA 'NuGet'
+$nugetPackages = Join-Path $env:USERPROFILE '.nuget\packages'
+$toolPath = Join-Path $dotnetCliHome '.dotnet\tools'
+
+[Environment]::SetEnvironmentVariable('DOTNET_CLI_HOME', $dotnetCliHome, 'User')
+[Environment]::SetEnvironmentVariable('NUGET_PACKAGES', $nugetPackages, 'User')
+
+$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+$pathParts = @($userPath -split ';' | Where-Object { $_ })
+if ($pathParts -notcontains $toolPath) {
+	$pathParts += $toolPath
+	[Environment]::SetEnvironmentVariable('Path', ($pathParts -join ';'), 'User')
+}
+
+$env:DOTNET_CLI_HOME = $dotnetCliHome
+$env:NUGET_PACKAGES = $nugetPackages
+$env:PATH = "$toolPath;$env:PATH"
+$env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
+$env:DOTNET_NOLOGO = '1'
+
+$globalTools = dotnet tool list --global 2>$null
+if ($globalTools -match '\bdotnet-ef\b') {
+	dotnet tool update --global dotnet-ef
+} else {
+	dotnet tool install --global dotnet-ef
+}
+
+dotnet --info
+dotnet restore .\MudSharp.sln
+dotnet build .\MudSharpCore\MudSharpCore.csproj -c Debug
+dotnet build .\DatabaseSeeder\DatabaseSeeder.csproj -c Debug
 '''

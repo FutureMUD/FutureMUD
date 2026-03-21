@@ -7,5 +7,8 @@ writable_roots = [
   "C:\\Users\\CodexSandboxOffline\\AppData\\Local\\Temp",
   "C:\\Users\\luker\\.nuget\\packages",
   "C:\\Users\\luker\\AppData\\Roaming\\NuGet",
-  "C:\\Users\\luker\\AppData\\Local\\Microsoft\\dotnet"
+  "C:\\Users\\luker\\AppData\\Local\\Microsoft\\dotnet",
+  "C:\\Users\\CodexSandboxOnline\\.dotnet",
+  "C:\\Users\\CodexSandboxOnline\\AppData\\Local\\Temp"
 ]
+network_access = true

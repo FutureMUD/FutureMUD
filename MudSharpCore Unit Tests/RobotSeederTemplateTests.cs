@@ -18,6 +18,13 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class RobotSeederTemplateTests
 {
+	private static int ParagraphCount(string text)
+	{
+		return text
+			.Split(["\r\n\r\n", "\n\n"], StringSplitOptions.RemoveEmptyEntries)
+			.Length;
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -176,35 +183,44 @@ public class RobotSeederTemplateTests
 	}
 
 	[TestMethod]
-	public void TemplatesForTesting_HumanoidRobotDescriptions_AreDefinedAndDistinctive()
+	public void TemplatesForTesting_RobotDescriptionVariants_AreDefinedAndDistinctive()
 	{
-		var expectations = new[]
-		{
-			("Robot Humanoid", "service robot", "sensor-packed head"),
-			("Spider Crawler Robot", "crawler robot", "crawler base"),
-			("Circular Saw Robot", "circular-saw", "circular saws"),
-			("Pneumatic Hammer Robot", "hammer-armed", "pneumatic hammers"),
-			("Sword-Hand Robot", "sword-handed", "monoblade sword"),
-			("Winged Robot", "winged", "articulated wings"),
-			("Jet Robot", "jet-backed", "jet pods"),
-			("Mandible Robot", "mandible-faced", "shearing mandibles"),
-			("Wheeled Robot", "wheeled", "wheel assemblies"),
-			("Tracked Robot", "tracked", "track pods")
-		};
+		var robotHumanoid = RobotSeeder.TemplatesForTesting["Robot Humanoid"];
+		Assert.IsNotNull(robotHumanoid.DescriptionVariants);
+		Assert.AreEqual(2, robotHumanoid.DescriptionVariants!.Count);
+		StringAssert.Contains(robotHumanoid.DescriptionVariants[0].ShortDescription, "service robot");
+		StringAssert.Contains(robotHumanoid.DescriptionVariants[0].FullDescription, "sensor-packed head");
 
-		foreach (var (name, shortSnippet, fullSnippet) in expectations)
-		{
-			var template = RobotSeeder.TemplatesForTesting[name];
-			Assert.IsFalse(string.IsNullOrWhiteSpace(template.ShortDescriptionPattern),
-				$"{name} should define a stock short description pattern.");
-			Assert.IsFalse(string.IsNullOrWhiteSpace(template.FullDescriptionPattern),
-				$"{name} should define a stock full description pattern.");
-			StringAssert.Contains(template.ShortDescriptionPattern!, shortSnippet);
-			StringAssert.Contains(template.FullDescriptionPattern!, fullSnippet);
-		}
+		var roomba = RobotSeeder.TemplatesForTesting["Roomba Robot"];
+		Assert.IsNotNull(roomba.DescriptionVariants);
+		Assert.AreEqual(2, roomba.DescriptionVariants!.Count);
+		StringAssert.Contains(roomba.DescriptionVariants[1].ShortDescription, "maintenance robot");
+		StringAssert.Contains(roomba.DescriptionVariants[1].FullDescription, "hidden drive wheels");
 
-		Assert.IsTrue(string.IsNullOrWhiteSpace(RobotSeeder.TemplatesForTesting["Cyborg"].ShortDescriptionPattern),
-			"Cyborgs should continue to use the organic humanoid description path.");
+		var cyborg = RobotSeeder.TemplatesForTesting["Cyborg"];
+		Assert.IsNull(cyborg.DescriptionVariants,
+			"Cyborgs should use the humanoid overlay path rather than standalone construct variants.");
+		Assert.IsNotNull(cyborg.OverlayDescriptionVariants);
+		Assert.AreEqual(2, cyborg.OverlayDescriptionVariants!.Count);
+		StringAssert.Contains(cyborg.OverlayDescriptionVariants[0].ShortDescription, "cyborg");
+		StringAssert.Contains(cyborg.OverlayDescriptionVariants[0].FullDescription, "human-passing shell");
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_RobotRaceEthnicityAndCultureDescriptions_AreThreeParagraphs()
+	{
+		var robotHumanoid = RobotSeeder.TemplatesForTesting["Robot Humanoid"];
+		Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildRaceDescriptionForTesting(robotHumanoid)));
+		Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildEthnicityDescriptionForTesting(robotHumanoid)));
+		StringAssert.Contains(RobotSeeder.BuildRaceDescriptionForTesting(robotHumanoid), "articulated plated chassis");
+
+		var cyborg = RobotSeeder.TemplatesForTesting["Cyborg"];
+		Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildRaceDescriptionForTesting(cyborg)));
+		Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildEthnicityDescriptionForTesting(cyborg)));
+		StringAssert.Contains(RobotSeeder.BuildEthnicityDescriptionForTesting(cyborg), "mimics human flesh and posture closely");
+
+		Assert.AreEqual(3, ParagraphCount(RobotSeeder.RobotCultureDescriptionForTesting));
+		StringAssert.Contains(RobotSeeder.RobotCultureDescriptionForTesting, "machine societies");
 	}
 
 	[TestMethod]

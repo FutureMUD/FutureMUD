@@ -12,6 +12,13 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class RobotSeeder
 {
+	internal static string RobotCultureDescriptionForTesting =>
+		SeederDescriptionHelpers.JoinParagraphs(
+			"The stock Robot culture represents machine societies or service populations that identify through designation, chassis role, serial nickname or storied moniker rather than through inherited family structures.",
+			"It assumes a culture shaped by manufacture, maintenance, duty cycles and networked memory. Even when individual robots develop personality, the baseline remains one of designed purpose, serial continuity and practical naming conventions that suit records as much as conversation.",
+			"For builders and players, this culture is the bridge between anonymous machine stock and recognisable robotic identity. It supports sentient constructs that need social texture without forcing them into an organic model of kinship, lineage or personal presentation."
+		);
+
 	private static readonly IReadOnlyDictionary<Gender, string[]> RobotNameProfiles =
 		new Dictionary<Gender, string[]>
 		{
@@ -28,8 +35,7 @@ public partial class RobotSeeder
 		_robotCulture = _context.Cultures.FirstOrDefault(x => x.Name == "Robot") ?? new Culture
 		{
 			Name = "Robot",
-			Description =
-				"This culture is used by robotic characters that identify by simple designations, service names, or storied robot monikers.",
+			Description = RobotCultureDescriptionForTesting,
 			PersonWordMale = "Robot",
 			PersonWordFemale = "Robot",
 			PersonWordNeuter = "Robot",

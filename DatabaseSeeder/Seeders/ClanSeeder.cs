@@ -12,6 +12,8 @@ namespace DatabaseSeeder.Seeders;
 
 public class ClanSeeder : IDatabaseSeeder
 {
+	public bool SafeToRunMoreThanOnce => true;
+
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
 		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>

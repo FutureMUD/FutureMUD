@@ -296,7 +296,6 @@ The exception details were as follows:
 					.Select(x => Activator.CreateInstance(x))
 					.OfType<IDatabaseSeeder>()
 					.Where(x => x.Enabled)
-					.OrderBy(x => x.SortOrder)
 					.ToList()
 				;
 
@@ -308,33 +307,26 @@ The exception details were as follows:
 			}
 
 			var i = 1;
+			List<(IDatabaseSeeder Seeder, SeederAssessment Assessment)> assessedSeeders;
 			using (var context = new FuturemudDatabaseContext(
 					   new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseLazyLoadingProxies()
 						   .UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options))
 			{
-				seeders.First().ShouldSeedData(context);
+				assessedSeeders = seeders
+					.Select(seeder => (Seeder: seeder, Assessment: seeder.AssessSeedData(context)))
+					.OrderBy(x => GetMenuSortRank(x.Assessment.Status))
+					.ThenBy(x => x.Seeder.SortOrder)
+					.ThenBy(x => x.Seeder.Name)
+					.ToList();
+
 				Console.Clear();
 				Console.WriteLine("Please enter the number of the package you wish to import, or QUIT to exit: ");
 				Console.WriteLine();
-				foreach (var seeder in seeders)
+				foreach (var assessedSeeder in assessedSeeders)
 				{
-					switch (seeder.ShouldSeedData(context))
-					{
-						case ShouldSeedResult.MayAlreadyBeInstalled:
-							Console.ForegroundColor = ConsoleColor.Yellow;
-							break;
-						case ShouldSeedResult.PrerequisitesNotMet:
-							Console.ForegroundColor = ConsoleColor.DarkRed;
-							break;
-						case ShouldSeedResult.ReadyToInstall:
-							Console.ForegroundColor = ConsoleColor.Green;
-							break;
-						case ShouldSeedResult.ExtraPackagesAvailable:
-							Console.ForegroundColor = ConsoleColor.Cyan;
-							break;
-					}
-
-					Console.WriteLine($"{i++}) [{seeder.Name:20}] {seeder.Tagline}");
+					Console.ForegroundColor = GetAssessmentColour(assessedSeeder.Assessment.Status);
+					Console.WriteLine(
+						$"{i++}) [{assessedSeeder.Seeder.Name:20}] [{GetAssessmentLabel(assessedSeeder.Assessment.Status),-8}] {assessedSeeder.Seeder.Tagline}");
 					Console.ForegroundColor = ConsoleColor.White;
 				}
 			}
@@ -345,9 +337,10 @@ The exception details were as follows:
 			if (choice.EqualToAny("quit", "q", "exit", "stop")) return;
 
 			var pick = uint.TryParse(choice, out var value)
-				? seeders.ElementAtOrDefault((int)value - 1)
-				: seeders.FirstOrDefault(x => x.Name.EqualTo(choice)) ??
-				  seeders.FirstOrDefault(x => x.Name.StartsWith(choice, StringComparison.OrdinalIgnoreCase));
+				? assessedSeeders.ElementAtOrDefault((int)value - 1).Seeder
+				: assessedSeeders.Select(x => x.Seeder).FirstOrDefault(x => x.Name.EqualTo(choice)) ??
+				  assessedSeeders.Select(x => x.Seeder)
+					  .FirstOrDefault(x => x.Name.StartsWith(choice, StringComparison.OrdinalIgnoreCase));
 
 			if (pick == null)
 			{
@@ -366,27 +359,52 @@ The exception details were as follows:
 		Console.WriteLine("Loading package...");
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseLazyLoadingProxies().UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options);
-		var shouldseed = seeder.ShouldSeedData(context);
+		var assessment = seeder.AssessSeedData(context);
 		Console.Clear();
 		$"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}\n\n#3{seeder.FullDescription.Wrap(90, "\t")}#F\n"
 			.WriteLineConsole();
 
-		switch (shouldseed)
-		{
-			case ShouldSeedResult.PrerequisitesNotMet:
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine(
-					"Warning: Package is reporting its prerequisites are not met and that it should not be used on your database. Proceed with caution.");
-				Console.ForegroundColor = ConsoleColor.White;
-				break;
-			case ShouldSeedResult.MayAlreadyBeInstalled:
-				if (seeder.SafeToRunMoreThanOnce) break;
+		Console.ForegroundColor = GetAssessmentColour(assessment.Status);
+		Console.WriteLine($"Status: {GetAssessmentLabel(assessment.Status)}");
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine(assessment.Explanation);
+		Console.WriteLine();
 
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine(
-					"Warning: Package is reporting it may already be installed. It is not advised to run this seeder.");
-				Console.ForegroundColor = ConsoleColor.White;
-				break;
+		if (assessment.MissingPrerequisites.Any())
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Missing prerequisites:");
+			foreach (var prerequisite in assessment.MissingPrerequisites)
+			{
+				Console.WriteLine($" - {prerequisite}");
+			}
+
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine();
+		}
+
+		if (assessment.Warnings.Any())
+		{
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			foreach (var warning in assessment.Warnings)
+			{
+				Console.WriteLine($"Warning: {warning}");
+			}
+
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine();
+		}
+
+		if (assessment.Notes.Any())
+		{
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			foreach (var note in assessment.Notes)
+			{
+				Console.WriteLine(note);
+			}
+
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine();
 		}
 
 		Console.WriteLine("Do you want to install this package?");
@@ -412,12 +430,26 @@ The exception details were as follows:
 	private static void DoSeederQuestions(FuturemudDatabaseContext context, IDatabaseSeeder seeder)
 	{
 		var answers = new DictionaryWithDefault<string, string>();
+		var questions = seeder.Questions.ToList();
 		var banner = $"Initial Setup questions for the {seeder.Name} seeder";
 		var topline =
 			$"╔{new string('═', banner.Length + 2)}╗\n║ {banner} ║\n╚{new string('═', banner.Length + 2)}╝\n";
-		foreach (var question in seeder.SeederQuestions)
+		foreach (var question in questions)
 		{
 			if (!question.Filter(context, answers)) continue;
+
+			var rememberedAnswer = SeederAnswerMemory.GetRememberedAnswer(context, seeder, question, answers);
+			if (question.AutoReuseLastAnswer && !string.IsNullOrWhiteSpace(rememberedAnswer))
+			{
+				answers[question.Id] = rememberedAnswer;
+				Console.Clear();
+				Console.ForegroundColor = ConsoleColor.Cyan;
+				topline.WriteLineConsole();
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.WriteLine($"Reusing previous answer for {question.Id}: {rememberedAnswer}");
+				Thread.Sleep(1000);
+				continue;
+			}
 
 			var errorText = "";
 			while (true)
@@ -439,7 +471,7 @@ The exception details were as follows:
 				question.Question.Wrap(90).WriteLineConsole();
 				Console.WriteLine();
 				Console.Write("> ");
-				var answer = Console.ReadLine();
+				var answer = Console.ReadLine() ?? string.Empty;
 				if (answer.EqualToAny("quit", "back", "exit")) return;
 
 				var (success, error) = question.Validator(answer, context);
@@ -460,17 +492,43 @@ The exception details were as follows:
 		Console.WriteLine(result);
 		var version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
 		var now = DateTime.UtcNow;
-		foreach (var item in answers)
-		{
-			context.SeederChoices.Add(new MudSharp.Models.SeederChoice
-			{
-				Version = version,
-				Seeder = seeder.Name,
-				Choice = item.Key,
-				Answer = item.Value,
-				DateTime = now
-			});
-		}
+		SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
 		context.SaveChanges();
+	}
+
+	private static int GetMenuSortRank(SeederAssessmentStatus status)
+	{
+		return status switch
+		{
+			SeederAssessmentStatus.ReadyToInstall => 0,
+			SeederAssessmentStatus.UpdateAvailable => 1,
+			SeederAssessmentStatus.AdditiveInstallAvailable => 2,
+			SeederAssessmentStatus.InstalledCurrent => 3,
+			_ => 4
+		};
+	}
+
+	private static ConsoleColor GetAssessmentColour(SeederAssessmentStatus status)
+	{
+		return status switch
+		{
+			SeederAssessmentStatus.Blocked => ConsoleColor.DarkRed,
+			SeederAssessmentStatus.ReadyToInstall => ConsoleColor.Green,
+			SeederAssessmentStatus.AdditiveInstallAvailable => ConsoleColor.Cyan,
+			SeederAssessmentStatus.UpdateAvailable => ConsoleColor.Yellow,
+			_ => ConsoleColor.DarkYellow
+		};
+	}
+
+	private static string GetAssessmentLabel(SeederAssessmentStatus status)
+	{
+		return status switch
+		{
+			SeederAssessmentStatus.Blocked => "Blocked",
+			SeederAssessmentStatus.ReadyToInstall => "Ready",
+			SeederAssessmentStatus.AdditiveInstallAvailable => "Additive",
+			SeederAssessmentStatus.UpdateAvailable => "Update",
+			_ => "Current"
+		};
 	}
 }

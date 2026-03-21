@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,13 +29,13 @@ internal class IsClanMemberFunction : BuiltInFunction
 		IFunction rankFunction = null, appointmentFunction = null, paygradeFunction = null;
 		if (thirdFunction != null)
 		{
-			switch (thirdFunction.ReturnType)
+			switch (thirdFunction.ReturnType.LegacyCode)
 			{
-				case ProgVariableTypes.ClanRank:
+				case ProgVariableTypeCode.ClanRank:
 					rankFunction = thirdFunction;
 					paygradeFunction = ParameterFunctions.ElementAtOrDefault(3);
 					break;
-				case ProgVariableTypes.ClanAppointment:
+				case ProgVariableTypeCode.ClanAppointment:
 					appointmentFunction = thirdFunction;
 					break;
 			}

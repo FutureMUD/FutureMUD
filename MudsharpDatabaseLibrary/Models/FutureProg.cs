@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MudSharp.Models
 {
@@ -73,12 +74,19 @@ namespace MudSharp.Models
         public string FunctionName { get; set; }
         public string FunctionComment { get; set; }
         public string FunctionText { get; set; }
-        public long ReturnType { get; set; }
+        public string ReturnTypeDefinition { get; set; }
         public string Category { get; set; }
         public string Subcategory { get; set; }
         public bool Public { get; set; }
         public bool AcceptsAnyParameters { get; set; }
         public int StaticType { get; set; }
+
+        [NotMapped]
+        public long ReturnType
+        {
+            get => ProgVariableTypeStorageConverter.ToLegacyLong(ReturnTypeDefinition);
+            set => ReturnTypeDefinition = ProgVariableTypeStorageConverter.FromLegacyLong(value);
+        }
 
         public virtual ICollection<AppointmentsAbbreviations> AppointmentsAbbreviations { get; set; }
         public virtual ICollection<AppointmentsTitles> AppointmentsTitles { get; set; }

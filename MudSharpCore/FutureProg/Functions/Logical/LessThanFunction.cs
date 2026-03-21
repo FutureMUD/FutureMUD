@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
 
@@ -24,20 +24,20 @@ internal class LessThanFunction : BinaryFunction
 			return StatementResult.Error;
 		}
 
-		switch (LHS.ReturnType & ~ProgVariableTypes.Literal)
+		switch ((LHS.ReturnType & ~ProgVariableTypes.Literal).LegacyCode)
 		{
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				Result = new BooleanVariable((decimal)LHS.Result.GetObject < (decimal)RHS.Result.GetObject);
 				break;
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				Result = new BooleanVariable((TimeSpan)LHS.Result.GetObject < (TimeSpan)RHS.Result.GetObject);
 				break;
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				Result =
 					new BooleanVariable((System.DateTime)LHS.Result.GetObject <
 					                    (System.DateTime)RHS.Result.GetObject);
 				break;
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				Result = new BooleanVariable((MudDateTime)LHS.Result.GetObject < (MudDateTime)RHS.Result.GetObject);
 				break;
 		}

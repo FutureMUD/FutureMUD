@@ -5347,7 +5347,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 		#region Smokeables
 		var saveChangesRequired = false;
-		if (!context.VariableDefinitions.Any(x => x.OwnerType == 8 && x.Property == "nicotineuntil"))
+		var characterTypeDefinition = ProgVariableTypes.Character.ToStorageString();
+		if (!context.VariableDefinitions.Any(x => x.OwnerTypeDefinition == characterTypeDefinition && x.Property == "nicotineuntil"))
 		{
 			context.VariableDefinitions.Add(new VariableDefinition
 			{
@@ -5358,7 +5359,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			saveChangesRequired = true;
 		}
 
-		if (!context.VariableDefaults.Any(x => x.OwnerType == 8 && x.Property == "nicotineuntil"))
+		if (!context.VariableDefaults.Any(x => x.OwnerTypeDefinition == characterTypeDefinition && x.Property == "nicotineuntil"))
 		{
 			context.VariableDefaults.Add(new VariableDefault
 			{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -552,9 +552,9 @@ public static class FunctionHelper
 			var lhs = (IFunction)lhsCompileInfo.CompiledStatement;
 			var rhs = (IFunction)rhsCompileInfo.CompiledStatement;
 
-			switch (lhs.ReturnType & ~ProgVariableTypes.Literal)
+			switch ((lhs.ReturnType & ~ProgVariableTypes.Literal).LegacyCode)
 			{
-				case ProgVariableTypes.Number:
+				case ProgVariableTypeCode.Number:
 					if (!rhs.ReturnType.CompatibleWith(ProgVariableTypes.Number) &&
 					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 					{
@@ -593,7 +593,7 @@ public static class FunctionHelper
 							throw new NotSupportedException();
 					}
 
-				case ProgVariableTypes.Text:
+				case ProgVariableTypeCode.Text:
 					if (binaryOperators.MatchedSplitString != "+")
 					{
 						return compileInfoFactory.CreateError("Text functions can only use the + binary operator.",
@@ -620,7 +620,7 @@ public static class FunctionHelper
 									? rhs
 									: new ToTextFunction(new List<IFunction> { rhs })), lineNumber);
 
-				case ProgVariableTypes.DateTime:
+				case ProgVariableTypeCode.DateTime:
 					if (binaryOperators.MatchedSplitString != "+" && binaryOperators.MatchedSplitString != "-")
 					{
 						return
@@ -665,7 +665,7 @@ public static class FunctionHelper
 							throw new NotSupportedException();
 					}
 
-				case ProgVariableTypes.MudDateTime:
+				case ProgVariableTypeCode.MudDateTime:
 					if (binaryOperators.MatchedSplitString != "+" && binaryOperators.MatchedSplitString != "-")
 					{
 						return
@@ -711,7 +711,7 @@ public static class FunctionHelper
 							throw new NotSupportedException();
 					}
 
-				case ProgVariableTypes.TimeSpan:
+				case ProgVariableTypeCode.TimeSpan:
 
 					switch (binaryOperators.MatchedSplitString)
 					{
@@ -835,11 +835,11 @@ public static class FunctionHelper
 
 			var returnType = ProgVariable.DotReferenceReturnTypeFor(lhs.ReturnType, dotReferences.RHS);
 
-			switch (returnType)
+			switch (returnType.LegacyCode)
 			{
-				case ProgVariableTypes.Error:
+				case ProgVariableTypeCode.Error:
 					return compileInfoFactory.CreateError($"Property was not valid: {dotReferences.RHS}", lineNumber);
-				case ProgVariableTypes.Void:
+				case ProgVariableTypeCode.Void:
 					return compileInfoFactory.CreateError("Functions cannot return void.", lineNumber);
 			}
 

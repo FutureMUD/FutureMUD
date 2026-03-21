@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Events
@@ -14,10 +12,10 @@ namespace MudSharp.Events
 
         public IEnumerable<ProgVariableTypes> ProgTypes { get; }
 
-        public EventInfoAttribute(string description, string[] parameterTypes, string[] parameterNames, ProgVariableTypes[] progTypes) {
+        public EventInfoAttribute(string description, string[] parameterTypes, string[] parameterNames, ProgVariableTypeCode[] progTypes) {
             Description = description;
             Parameters = parameterTypes.Zip(parameterNames, (type, name) => (type, name)).ToList();
-            ProgTypes = progTypes;
+            ProgTypes = progTypes.Select(x => ProgVariableTypes.FromLegacyLong((long)x)).ToList();
         }
     }
 }

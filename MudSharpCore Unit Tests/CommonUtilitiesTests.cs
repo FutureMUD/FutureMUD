@@ -192,14 +192,14 @@ public class CommonUtilitiesTests
 
 		Assert.AreEqual(RoomLayer.GroundLevel, rlvalue, "Expected \"0\" to return RoomLayer.GroundLevel");
 
-		if (!"Terrain".TryParseEnum<ProgVariableTypes>(out var fpvalue))
+			if (!ProgVariableTypes.TryParse("Terrain", out var fpvalue))
 		{
 			Assert.Fail("\"Terrain\" argument failed to return a value");
 		}
 
 		Assert.AreEqual(ProgVariableTypes.Terrain, fpvalue, "Expected \"Terrain\" to return FutureProgVariableTypes.Terrain");
 
-		if (!"4398046511104".TryParseEnum<ProgVariableTypes>(out fpvalue))
+			if (!ProgVariableTypes.TryParse("4398046511104", out fpvalue))
 		{
 			Assert.Fail("\"Terrain\" argument failed to return a value");
 		}

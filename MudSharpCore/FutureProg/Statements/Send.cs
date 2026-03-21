@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -281,10 +281,10 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 
 		if (TargetFunction != null)
 		{
-			switch (TargetFunction.ReturnType)
+			switch (TargetFunction.ReturnType.LegacyCode)
 			{
-				case ProgVariableTypes.Character:
-				case ProgVariableTypes.Item:
+				case ProgVariableTypeCode.Character:
+				case ProgVariableTypeCode.Item:
 					switch (Range)
 					{
 						case OutputRange.Personal:
@@ -296,7 +296,7 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 					}
 
 					break;
-				case ProgVariableTypes.Location:
+				case ProgVariableTypeCode.Location:
 					if (Range == OutputRange.Local)
 					{
 						((ILocation)TargetFunction.Result.GetObject).Handle(output);
@@ -314,8 +314,8 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 					}
 
 					throw new NotSupportedException();
-				case ProgVariableTypes.Shard:
-				case ProgVariableTypes.Zone:
+				case ProgVariableTypeCode.Shard:
+				case ProgVariableTypeCode.Zone:
 					((ILocation)TargetFunction.Result.GetObject).Handle(output);
 					break;
 				default:

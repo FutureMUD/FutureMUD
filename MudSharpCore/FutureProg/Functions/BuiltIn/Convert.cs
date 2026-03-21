@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -347,13 +347,13 @@ internal class ConvertFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		switch (ParameterFunctions[0].ReturnType)
+		switch (ParameterFunctions[0].ReturnType.LegacyCode)
 		{
-			case ProgVariableTypes.MagicResourceHaver:
-			case ProgVariableTypes.Perceivable:
-			case ProgVariableTypes.Perceiver:
-			case ProgVariableTypes.Anything:
-			case ProgVariableTypes.ReferenceType:
+			case ProgVariableTypeCode.MagicResourceHaver:
+			case ProgVariableTypeCode.Perceivable:
+			case ProgVariableTypeCode.Perceiver:
+			case ProgVariableTypeCode.Anything:
+			case ProgVariableTypeCode.ReferenceType:
 				Result = result;
 				return StatementResult.Normal;
 		}

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -105,7 +105,7 @@ public class SensePower : MagicPowerBase
 
 		PowerDistance = powerDistance;
 
-		if (!Utilities.TryParseEnum<ProgVariableTypes>(
+		if (!ProgVariableTypes.TryParse(
 				definition.Element("SenseType")?.Value ??
 				throw new ApplicationException($"Missing SenseType element in SensePower definition {Id}"),
 				out var senseType))
@@ -176,9 +176,9 @@ public class SensePower : MagicPowerBase
 
 		TargetDifficultyProg = targetDifficultyProg;
 
-		switch (senseType)
+		switch (senseType.LegacyCode)
 		{
-			case ProgVariableTypes.Perceivable:
+			case ProgVariableTypeCode.Perceivable:
 				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Perceivable }))
 				{
 					throw new ApplicationException(
@@ -192,7 +192,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case ProgVariableTypes.Perceiver:
+			case ProgVariableTypeCode.Perceiver:
 				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Perceiver }))
 				{
 					throw new ApplicationException(
@@ -206,7 +206,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case ProgVariableTypes.Character:
+			case ProgVariableTypeCode.Character:
 				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Character }))
 				{
 					throw new ApplicationException(
@@ -220,7 +220,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case ProgVariableTypes.Item:
+			case ProgVariableTypeCode.Item:
 				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Item }))
 				{
 					throw new ApplicationException(
@@ -296,10 +296,10 @@ public class SensePower : MagicPowerBase
 
 		var targets = new List<(IPerceivable Target, ICell Location, RoomLayer Layer)>();
 
-		switch (SenseType)
+		switch (SenseType.LegacyCode)
 		{
-			case ProgVariableTypes.Perceivable:
-			case ProgVariableTypes.Perceiver:
+			case ProgVariableTypeCode.Perceivable:
+			case ProgVariableTypeCode.Perceiver:
 				switch (PowerDistance)
 				{
 					case MagicPowerDistance.SameLocationOnly:
@@ -360,7 +360,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case ProgVariableTypes.Character:
+			case ProgVariableTypeCode.Character:
 				switch (PowerDistance)
 				{
 					case MagicPowerDistance.SameLocationOnly:
@@ -404,7 +404,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case ProgVariableTypes.Item:
+			case ProgVariableTypeCode.Item:
 				switch (PowerDistance)
 				{
 					case MagicPowerDistance.SameLocationOnly:

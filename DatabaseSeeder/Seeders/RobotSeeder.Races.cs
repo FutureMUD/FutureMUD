@@ -69,7 +69,7 @@ public partial class RobotSeeder
 				race = new Race
 				{
 					Name = template.Name,
-					Description = template.Description,
+					Description = BuildRaceDescriptionForTesting(template),
 					BaseBody = body,
 					AllowedGenders = template.UsesHumanGenders
 						? _humanRace.AllowedGenders
@@ -223,7 +223,7 @@ public partial class RobotSeeder
 		var ethnicity = new Ethnicity
 		{
 			Name = $"{template.Name} Stock",
-			ChargenBlurb = template.Description,
+			ChargenBlurb = BuildEthnicityDescriptionForTesting(template),
 			AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
 			ParentRace = race,
 			EthnicGroup = template.Name,

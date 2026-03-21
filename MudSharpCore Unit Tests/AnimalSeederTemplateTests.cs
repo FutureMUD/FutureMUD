@@ -11,6 +11,13 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AnimalSeederTemplateTests
 {
+	private static int ParagraphCount(string text)
+	{
+		return text
+			.Split(["\r\n\r\n", "\n\n"], System.StringSplitOptions.RemoveEmptyEntries)
+			.Length;
+	}
+
 	[TestMethod]
 	public void ValidateTemplateCatalogForTesting_CurrentCatalog_HasNoIssues()
 	{
@@ -41,6 +48,25 @@ public class AnimalSeederTemplateTests
 		Assert.AreEqual("Beast Swooper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
 		Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
 		Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
+	}
+
+	[TestMethod]
+	public void StockDescriptions_RaceEthnicityAndCulture_AreThreeParagraphsAndRepresentative()
+	{
+		var dogRaceDescription = AnimalSeeder.BuildRaceDescriptionForTesting(AnimalSeeder.RaceTemplatesForTesting["Dog"]);
+		Assert.AreEqual(3, ParagraphCount(dogRaceDescription));
+		StringAssert.Contains(dogRaceDescription, "Adults are most often represented");
+
+		var dogEthnicityDescription = AnimalSeeder.BuildEthnicityDescriptionForTesting("Dog", "Retriever");
+		Assert.AreEqual(3, ParagraphCount(dogEthnicityDescription));
+		StringAssert.Contains(dogEthnicityDescription, "downed game");
+
+		var bearEthnicityDescription = AnimalSeeder.BuildEthnicityDescriptionForTesting("Bear", "Brown Bear");
+		Assert.AreEqual(3, ParagraphCount(bearEthnicityDescription));
+		StringAssert.Contains(bearEthnicityDescription, "hump-backed shoulder power");
+
+		Assert.AreEqual(3, ParagraphCount(AnimalSeeder.AnimalCultureDescriptionForTesting));
+		StringAssert.Contains(AnimalSeeder.AnimalCultureDescriptionForTesting, "instinct, territory, routine");
 	}
 
 	[TestMethod]

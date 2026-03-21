@@ -892,7 +892,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		var race = new Race
 		{
 			Name = template.Name,
-			Description = template.Description,
+			Description = BuildRaceDescriptionForTesting(template),
 			BaseBody = body,
 			AllowedGenders = usesHumanoidDefaults ? _organicHumanoidRace.AllowedGenders : "2 3",
 			ParentRace = template.HumanoidVariety ? _organicHumanoidRace : null,
@@ -1010,7 +1010,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		var ethnicity = new Ethnicity
 		{
 			Name = $"{template.Name} Stock",
-			ChargenBlurb = template.Description,
+			ChargenBlurb = BuildEthnicityDescriptionForTesting(template),
 			AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
 			ParentRace = race,
 			EthnicGroup = template.Name,
@@ -1242,47 +1242,102 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 	private void SeedDefaultDescriptions(Race race, MythicalRaceTemplate template)
 	{
-		if (template.ShortDescriptionPattern is null || template.FullDescriptionPattern is null)
+		var variants = template.HumanoidVariety
+			? template.OverlayDescriptionVariants
+			: template.DescriptionVariants;
+		if (variants == null || variants.Count == 0)
 		{
 			return;
 		}
 
-		var prog = new FutureProg
-		{
-			FunctionName = $"Is{race.Name.CollapseString()}",
-			Category = "Character",
-			Subcategory = "Descriptions",
-			FunctionComment = $"True if the character is a {race.Name}",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			StaticType = 0,
-			AcceptsAnyParameters = false,
-			Public = true,
-			FunctionText = $"return @ch.Race == ToRace(\"{race.Name}\")"
-		};
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Toon
-		});
-		_context.FutureProgs.Add(prog);
+		var prog = EnsureRaceDescriptionApplicabilityProg(race);
+		EnsureDescriptionVariants(prog, variants, !template.HumanoidVariety);
 		_context.SaveChanges();
+	}
 
-		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+	private FutureProg EnsureRaceDescriptionApplicabilityProg(Race race)
+	{
+		var functionName = $"Is{race.Name.CollapseString()}";
+		var prog = _context.FutureProgs.FirstOrDefault(x => x.FunctionName == functionName);
+		if (prog is null)
 		{
-			Type = 0,
-			ApplicabilityProg = prog,
-			RelativeWeight = 100,
-			Pattern = template.ShortDescriptionPattern
-		});
-		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+			prog = new FutureProg
+			{
+				FunctionName = functionName
+			};
+			_context.FutureProgs.Add(prog);
+		}
+
+		prog.Category = "Character";
+		prog.Subcategory = "Descriptions";
+		prog.FunctionComment = $"True if the character is a {race.Name}";
+		prog.ReturnType = (long)ProgVariableTypes.Boolean;
+		prog.StaticType = 0;
+		prog.AcceptsAnyParameters = false;
+		prog.Public = true;
+		prog.FunctionText = $"return @ch.Race == ToRace(\"{race.Name}\")";
+
+		if (!prog.FutureProgsParameters.Any(x => x.ParameterIndex == 0))
 		{
-			Type = 1,
-			ApplicabilityProg = prog,
-			RelativeWeight = 100,
-			Pattern = template.FullDescriptionPattern
-		});
+			prog.FutureProgsParameters.Add(new FutureProgsParameter
+			{
+				FutureProg = prog,
+				ParameterIndex = 0,
+				ParameterName = "ch",
+				ParameterType = (long)ProgVariableTypes.Toon
+			});
+		}
+
+		_context.SaveChanges();
+		return prog;
+	}
+
+	private void EnsureDescriptionVariants(FutureProg prog, IEnumerable<StockDescriptionVariant> variants,
+		bool replaceExisting)
+	{
+		var variantList = variants.ToList();
+		if (replaceExisting)
+		{
+			var existing = _context.EntityDescriptionPatterns
+				.Where(x => x.ApplicabilityProgId == prog.Id && (x.Type == 0 || x.Type == 1))
+				.ToList();
+			if (existing.Any())
+			{
+				_context.EntityDescriptionPatterns.RemoveRange(existing);
+				_context.SaveChanges();
+			}
+		}
+
+		foreach (var variant in variantList)
+		{
+			if (!_context.EntityDescriptionPatterns.Any(x =>
+				    x.ApplicabilityProgId == prog.Id &&
+				    x.Type == 0 &&
+				    x.Pattern == variant.ShortDescription))
+			{
+				_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+				{
+					Type = 0,
+					ApplicabilityProg = prog,
+					RelativeWeight = 100,
+					Pattern = variant.ShortDescription
+				});
+			}
+
+			if (!_context.EntityDescriptionPatterns.Any(x =>
+				    x.ApplicabilityProgId == prog.Id &&
+				    x.Type == 1 &&
+				    x.Pattern == variant.FullDescription))
+			{
+				_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+				{
+					Type = 1,
+					ApplicabilityProg = prog,
+					RelativeWeight = 100,
+					Pattern = variant.FullDescription
+				});
+			}
+		}
 	}
 
 	private BodypartProto? FindBodypartOnBody(BodyProto body, string alias)

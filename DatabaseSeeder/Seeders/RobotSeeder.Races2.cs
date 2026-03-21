@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -43,7 +44,7 @@ public partial class RobotSeeder
 		_context.Ethnicities.Add(new Ethnicity
 		{
 			Name = $"{template.Name} Stock",
-			ChargenBlurb = template.Description,
+			ChargenBlurb = BuildEthnicityDescriptionForTesting(template),
 			AvailabilityProg = template.Playable ? _alwaysTrue : _alwaysFalse,
 			ParentRace = race,
 			EthnicGroup = template.Name,
@@ -146,14 +147,16 @@ public partial class RobotSeeder
 
 	private void SeedDefaultDescriptions(Race race, RobotRaceTemplate template)
 	{
-		if (template.ShortDescriptionPattern is null || template.FullDescriptionPattern is null)
+		var variants = template.UsesHumanoidCharacteristics
+			? template.OverlayDescriptionVariants
+			: template.DescriptionVariants;
+		if (variants == null || variants.Count == 0)
 		{
 			return;
 		}
 
 		var prog = EnsureRaceDescriptionApplicabilityProg(race);
-		EnsureEntityDescriptionPattern(prog, 0, template.ShortDescriptionPattern);
-		EnsureEntityDescriptionPattern(prog, 1, template.FullDescriptionPattern);
+		EnsureEntityDescriptionPatterns(prog, variants, !template.UsesHumanoidCharacteristics);
 		_context.SaveChanges();
 	}
 
@@ -194,29 +197,53 @@ public partial class RobotSeeder
 		return prog;
 	}
 
-	private void EnsureEntityDescriptionPattern(FutureProg prog, int type, string pattern)
+	private void EnsureEntityDescriptionPatterns(FutureProg prog, IEnumerable<StockDescriptionVariant> variants,
+		bool replaceExisting)
 	{
-		var existingPatterns = _context.EntityDescriptionPatterns
-			.Where(x => x.ApplicabilityProgId == prog.Id && x.Type == type)
+		if (replaceExisting)
+		{
+			var existingPatterns = _context.EntityDescriptionPatterns
+				.Where(x => x.ApplicabilityProgId == prog.Id && (x.Type == 0 || x.Type == 1))
+				.ToList();
+			if (existingPatterns.Any())
+			{
+				_context.EntityDescriptionPatterns.RemoveRange(existingPatterns);
+				_context.SaveChanges();
+			}
+		}
+
+		var existingShortPatterns = _context.EntityDescriptionPatterns
+			.Where(x => x.ApplicabilityProgId == prog.Id && x.Type == 0)
+			.OrderBy(x => x.Id)
+			.ToList();
+		var existingFullPatterns = _context.EntityDescriptionPatterns
+			.Where(x => x.ApplicabilityProgId == prog.Id && x.Type == 1)
 			.OrderBy(x => x.Id)
 			.ToList();
 
-		if (!existingPatterns.Any())
+		foreach (var variant in variants)
 		{
-			_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+			if (!existingShortPatterns.Any(x => x.Pattern == variant.ShortDescription))
 			{
-				Type = type,
-				ApplicabilityProg = prog,
-				RelativeWeight = 100,
-				Pattern = pattern
-			});
-			return;
-		}
+				_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+				{
+					Type = 0,
+					ApplicabilityProg = prog,
+					RelativeWeight = 100,
+					Pattern = variant.ShortDescription
+				});
+			}
 
-		foreach (var existing in existingPatterns)
-		{
-			existing.RelativeWeight = 100;
-			existing.Pattern = pattern;
+			if (!existingFullPatterns.Any(x => x.Pattern == variant.FullDescription))
+			{
+				_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
+				{
+					Type = 1,
+					ApplicabilityProg = prog,
+					RelativeWeight = 100,
+					Pattern = variant.FullDescription
+				});
+			}
 		}
 	}
 }

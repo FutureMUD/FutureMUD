@@ -161,7 +161,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
 		var animalCulture = new Culture
 		{
 			Name = "Animal",
-			Description = "This is a culture for wild animals.",
+			Description = AnimalCultureDescriptionForTesting,
 			PersonWordMale = "Animal",
 			PersonWordFemale = "Animal",
 			PersonWordIndeterminate = "Animal",
@@ -3415,202 +3415,64 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		switch (race.Name)
 		{
 			case "Dog":
-				_context.Ethnicities.Add(new Ethnicity
+				foreach (var (name, group) in new[]
+				         {
+					         ("Terrier", "Terrier"),
+					         ("Setter", "Setter"),
+					         ("Pointer", "Pointer"),
+					         ("Retriever", "Retriever"),
+					         ("Spaniel", "Spaniel"),
+					         ("Water Dog", "Water Dog"),
+					         ("Sighthound", "Hound"),
+					         ("Scenthound", "Hound"),
+					         ("Bulldog", "Bulldog"),
+					         ("Mastiff", "Mastiff"),
+					         ("Herding Dog", "Herding Dog"),
+					         ("Lap Dog", "Lap Dog"),
+					         ("Mongrel", "Mongrel")
+				         })
 				{
-					ParentRace = race,
-					Name = "Terrier",
-					ChargenBlurb =
-						"Terriers are a small, wiry and generally fearless breed of dog originally bred to hunt vermin. They are excellent diggers and have an eager nature.",
-					EthnicGroup = "Terrier",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Setter",
-					ChargenBlurb =
-						"Setters are a type of hunting dog originally bred to assist with the hunting of birds. They tend to be very intelligent and disciplined dogs. They hold their head high in the air rather than following ground scents and will pause and 'set' themselves in position upon encountering their prey, indicating to their hunter master that they are ready to flush out the game.",
-					EthnicGroup = "Setter",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Pointer",
-					ChargenBlurb =
-						"Pointers are a type of hunting dog bred to alert their owner to the precise position of their prey. They have a powerful instinct to 'point' at prey by freezing and pointing their muzzle in the direction of their quarry. This allows the hunter to shoot at a target they might not otherwise be able to see.",
-					EthnicGroup = "Pointer",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Retriever",
-					ChargenBlurb =
-						"Retrievers are a type of hunting dog that were bred to return wounded or dead game to their master without damaging it. They are generally larger, with a soft mouth and a loyal disposition that aims to please. Due to their good nature and the ease of training them they are also perennially popular pets.",
-					EthnicGroup = "Retriever",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Spaniel",
-					ChargenBlurb =
-						"Spaniels are a type of hunting dog originally bred for flushing out game from dense brush. They are known for their distinctive long silky coats and big droopy ears. The smaller members of the type are often used as lapdogs, where their qualities such as intelligence, affection and alertness are highly sought after.",
-					EthnicGroup = "Spaniel",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Water Dog",
-					ChargenBlurb =
-						"Water dogs are a type of hunting dog with a strong desire to swim. They are often kept as companions aboard boats where they are used to retrieve items that fall overboard, but they are also used as retrievers for the hunting of water fowl and even for retrieving missed arrows. Some breeds of water dog are ornamental and bred as companions, such as the poodle.",
-					EthnicGroup = "Water Dog",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Sighthound",
-					ChargenBlurb =
-						"Sighthounds are a type of hound bred for speed, visual acuity and endurance. They are typically long-legged with long, narrow snouts. They have an extremely flexible back and are very agile. ",
-					EthnicGroup = "Hound",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Scenthound",
-					ChargenBlurb =
-						"Scenthounds are a type of hound bred for their almost unparallelled ability to track prey by smell. Typically low to the ground and with large, droopy ears, wet lips and a deep, loud bark. They can be taught to recognise a variety of scents.",
-					EthnicGroup = "Hound",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Bulldog",
-					ChargenBlurb =
-						"Bulldogs are a type of dog originally bred for fighting, with a short, stocky build and a brachycephalic muzzle. They are typically very loyal to their masters but mistrustful of strangers and therefore make good guard dogs.",
-					EthnicGroup = "Bulldog",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Mastiff",
-					ChargenBlurb =
-						"Mastiffs are a type of dog historically kept as guard dogs and occasionally dogs of war. They tend to be among the larger breeds of dogs, with large feet and broad, flat faces and short, pendant-shaped ears.",
-					EthnicGroup = "Mastiff",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Herding Dog",
-					ChargenBlurb =
-						"Herding dogs are a type of dogs bred to herd livestock. They typically have been bred to preserve some of their predatory instincts such as nipping at the heels of larger animals, but are also trained for obedience and intelligence. They are excellent companion dogs and are readily trainable.",
-					EthnicGroup = "Herding Dog",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Lap Dog",
-					ChargenBlurb =
-						"Lap dogs are a type of dogs that cuts across various other traditional types where the dogs have been bred to be small and inclined to sit in the laps of their owners. These breeds typically show a high degree of neoteny (meaning they retain many puppy-like features and behaviours into adulthood) and also tend to be short-muzzled and big-eyed.",
-					EthnicGroup = "Lap Dog",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Mongrel",
-					ChargenBlurb =
-						"A mongrel is a dog that has been bred from a mixture of unrelated purebreds that does not otherwise fall into a recognised crossbred type. They may show some distinct features of one breed or they may be very hard to identify. Typically they are healthier and longer lived than other dog breeds though they may lack some of the trainability and focused usefulness of the purebreeds.",
-					EthnicGroup = "Mongrel",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
+					_context.Ethnicities.Add(new Ethnicity
+					{
+						ParentRace = race,
+						Name = name,
+						ChargenBlurb = BuildEthnicityDescriptionForTesting(race.Name, name),
+						EthnicGroup = group,
+						TolerableTemperatureFloorEffect = 0,
+						TolerableTemperatureCeilingEffect = 0,
+						PopulationBloodModel = model
+					});
+				}
+
 				break;
 			case "Bear":
-				_context.Ethnicities.Add(new Ethnicity
+				foreach (var (name, floor, ceiling) in new[]
+				         {
+					         ("Black Bear", 0.0, 0.0),
+					         ("Moon Bear", 0.0, 0.0),
+					         ("Brown Bear", -10.0, 0.0),
+					         ("Polar Bear", -30.0, -10.0)
+				         })
 				{
-					ParentRace = race,
-					Name = "Black Bear",
-					ChargenBlurb =
-						"Black Bears are a small, omnivorous species of bear. They are typically cautious in nature compared to some of their cousins.",
-					EthnicGroup = "Black Bear",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Moon Bear",
-					ChargenBlurb =
-						"Moon bears are a medium-sized black bear with a distinctive crescent-moon shaped white patch of fur on their chest. They tend to live in arboreal environments.",
-					EthnicGroup = "Moon Bear",
-					TolerableTemperatureFloorEffect = 0,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Brown Bear",
-					ChargenBlurb =
-						"Brown bears, also sometimes called Grizzly bears, are large and somewhat territorial bears. They are the largest terrestrial carnivores by mass.",
-					EthnicGroup = "Brown Bear",
-					TolerableTemperatureFloorEffect = -10,
-					TolerableTemperatureCeilingEffect = 0,
-					PopulationBloodModel = model
-				});
-				_context.Ethnicities.Add(new Ethnicity
-				{
-					ParentRace = race,
-					Name = "Polar Bear",
-					ChargenBlurb =
-						"Polar bears are a white-coated species of bear adapted to live in arctic environments. They have a surprising tolerance to cold temperatures, are almost exclusively carnivorous, and are extraordinarily dangerous.",
-					EthnicGroup = "Polar Bear",
-					TolerableTemperatureFloorEffect = -30,
-					TolerableTemperatureCeilingEffect = -10,
-					PopulationBloodModel = model
-				});
+					_context.Ethnicities.Add(new Ethnicity
+					{
+						ParentRace = race,
+						Name = name,
+						ChargenBlurb = BuildEthnicityDescriptionForTesting(race.Name, name),
+						EthnicGroup = name,
+						TolerableTemperatureFloorEffect = floor,
+						TolerableTemperatureCeilingEffect = ceiling,
+						PopulationBloodModel = model
+					});
+				}
+
 				break;
 			default:
 				_context.Ethnicities.Add(new Ethnicity
 				{
 					ParentRace = race,
 					Name = race.Name,
-					ChargenBlurb = $"The ordinary, common form of {race.Name.A_An()}.",
+					ChargenBlurb = BuildEthnicityDescriptionForTesting(race.Name, race.Name),
 					EthnicGroup = "Common",
 					TolerableTemperatureFloorEffect = 0,
 					TolerableTemperatureCeilingEffect = 0,
@@ -3626,6 +3488,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 	{
 		var model = _defaultCorpseModel;
 		TryGetRaceTemplate(name, out var raceTemplate);
+		var seededDescription = raceTemplate is not null
+			? BuildRaceDescriptionForTesting(raceTemplate)
+			: description;
 		int childage, youthage, youngadultage, adultage, elderage, venerableage;
 		if (raceTemplate is not null && AgeProfiles.TryGetValue(raceTemplate.AgeProfileKey, out var ageProfile))
 		{

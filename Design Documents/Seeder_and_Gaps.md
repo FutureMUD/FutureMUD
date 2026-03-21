@@ -93,6 +93,17 @@ Current seeded morphology groups include:
 - arachnids and scorpions
 - starter reptilian and anuran bodies for lizards, geckos, iguanas, chelonians, crocodilians, frogs, and toads
 
+### Stock prose coverage
+The stock animal catalogue now seeds richer presentation prose alongside its anatomical content.
+
+Current prose expectations include:
+
+- every stock animal race building a three-paragraph long description instead of a single flat summary
+- every seeded stock ethnicity and the seeded `Animal` culture using the same three-paragraph minimum
+- race prose separating physical profile, behaviour or ecological role, and the way people usually interpret or use the species
+- stock ethnicity blurbs for dog breeds, bear lines, and default/common animal lines now reading as distinct lineage descriptions instead of near-duplicate parent-race text
+- stock short and full entity-description patterns drawing from richer adult, juvenile, and baby packs rather than falling back to minimal `a <race>` style placeholders
+
 ### Anatomy validation
 Animal anatomy seeding now uses family-specific audit profiles rather than one implicit mammal-centric assumption.
 
@@ -172,6 +183,8 @@ That includes reuse of stock profiles such as:
 - frames
 - race-specific person-word profiles
 
+Humanoid-form mythic races now also keep race-specific stock overlay description variants. That means centaurs, naga, merfolk, selkies, owlkin, avian people, and similar hybrids still benefit from the broader humanoid characteristic system, but their seeded short and full descriptions now explicitly foreground the mythic anatomy of the race instead of reading like generic organic-humanoid text.
+
 ## Robot Seeder Coverage
 ### Verified current state
 `RobotSeeder` is now the stock package for robotic bodies, robotic races, and robot-specific medical content.
@@ -220,6 +233,16 @@ The stock robot line also seeds robot-appropriate internals and body defaults:
 - sensor arrays for robot perception
 - hydraulic fluid or machine oil as the circulatory liquid
 - no sweat, no breathing, and high-stamina defaults through the seeded races and bodies
+
+### Stock prose coverage
+Robot seeding now treats descriptive prose as first-class stock data rather than a thin afterthought.
+
+Current prose expectations include:
+
+- every robot race, seeded robot ethnicity, and the seeded `Robot` culture now building a three-paragraph long description
+- non-cyborg chassis using multiple stock short and full description variants keyed to chassis identity and role instead of a single minimal stock pattern
+- the playable `Cyborg` line continuing to use the humanoid characteristic ecosystem while layering race-specific overlay variants that emphasise the synthetic shell and uneasy human-passing presentation
+- representative unit-test coverage for a standard chassis, a utility chassis, and the cyborg overlay path
 
 ### Stock robot procedures
 `RobotSeeder` now seeds a robot maintenance suite parallel to the organic surgery catalogue.
@@ -411,7 +434,7 @@ The following findings are directly verified in code and matter when describing 
 - Robot bodies can now be stock seeded rather than existing only as a runtime capability, and robot surgery targeting now honours `CountsAs` mappings for derived chassis parts.
 - `SensorArray` is now a first-class organ type in the runtime and the stock robot line uses it for robot perception while retaining eyes and ears as compatible external parts.
 - `RobotHealthStrategy` bleed and prompt text now use the configured robot circulatory liquid name instead of assuming hydraulic fluid in all cases.
-- Stock humanoid robot races now seed dedicated short and full entity-description patterns, and the stock `IsHumanoid*` description progs are scoped to `Organic Humanoid` so mechanical chassis do not pick human characteristic descriptions.
+- Stock animal, mythic, and robot catalogues now seed richer three-paragraph race and ethnicity prose, while mythic humanoids and cyborgs use race-specific overlay variants so humanoid description systems no longer collapse them into generic organic presentation.
 
 ## Supported but Unseeded
 These are verified runtime features that exist in the codebase but are not broadly reflected in the stock seeding.

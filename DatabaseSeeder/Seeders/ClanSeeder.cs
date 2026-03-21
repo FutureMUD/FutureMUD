@@ -3042,9 +3042,10 @@ This package can be run multiple times as I add more options.";
 	private void SetupMilitaryClan(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
-
-		if (context.Clans.Any(x => x.Name == "Army Template"))
+		var existingClan = context.Clans.FirstOrDefault(x => x.Name == "Army Template");
+		if (existingClan != null)
 		{
+			AddArmyGeneralStaffAppointments(context, existingClan);
 			return;
 		}
 

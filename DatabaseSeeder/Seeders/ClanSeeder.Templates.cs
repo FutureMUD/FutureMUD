@@ -257,6 +257,9 @@ public partial class ClanSeeder
 		var ranks = context.Ranks
 			.Where(x => x.ClanId == clan.Id)
 			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var existingAppointments = context.Appointments
+			.Where(x => x.ClanId == clan.Id)
+			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 		var memberPrivileges = MemberPrivileges();
 		var staffPrivileges = BattalionStaffPrivileges() |
 		                     (long)(ClanPrivilegeType.CanIncreasePaygrade | ClanPrivilegeType.CanDecreasePaygrade);
@@ -270,28 +273,41 @@ public partial class ClanSeeder
 		var sergeantMajor = ranks["Sergeant Major"];
 		var captain = ranks["Captain"];
 
-		var commandingOfficer = AddAppointment(context, clan, "Commanding Officer", "CO", commandPrivileges, colonel,
-			colonel);
-		AddAppointment(context, clan, "Executive Officer", "XO", commandPrivileges, lieutenantColonel, colonel,
+		Appointment EnsureArmyAppointment(string name, string abbreviation, long privileges, Rank minimumRank,
+			Rank minimumRankToAppoint, Appointment? parent = null)
+		{
+			if (existingAppointments.TryGetValue(name, out var existingAppointment))
+			{
+				return existingAppointment;
+			}
+
+			var appointment = AddAppointment(context, clan, name, abbreviation, privileges, minimumRank,
+				minimumRankToAppoint, parent);
+			existingAppointments[name] = appointment;
+			return appointment;
+		}
+
+		var commandingOfficer = EnsureArmyAppointment("Commanding Officer", "CO", commandPrivileges, colonel, colonel);
+		EnsureArmyAppointment("Executive Officer", "XO", commandPrivileges, lieutenantColonel, colonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "Command Sergeant Major", "CSM",
+		EnsureArmyAppointment("Command Sergeant Major", "CSM",
 			staffPrivileges | (long)(ClanPrivilegeType.CanAppoint | ClanPrivilegeType.CanDismiss), sergeantMajor,
 			lieutenantColonel, commandingOfficer);
-		AddAppointment(context, clan, "S1 Personnel Officer", "S1", staffPrivileges, major, lieutenantColonel,
+		EnsureArmyAppointment("S1 Personnel Officer", "S1", staffPrivileges, major, lieutenantColonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "S2 Intelligence Officer", "S2", staffPrivileges, major, lieutenantColonel,
+		EnsureArmyAppointment("S2 Intelligence Officer", "S2", staffPrivileges, major, lieutenantColonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "S3 Operations Officer", "S3", staffPrivileges, major, lieutenantColonel,
+		EnsureArmyAppointment("S3 Operations Officer", "S3", staffPrivileges, major, lieutenantColonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "S4 Logistics Officer", "S4", staffPrivileges, major, lieutenantColonel,
+		EnsureArmyAppointment("S4 Logistics Officer", "S4", staffPrivileges, major, lieutenantColonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "S5 Plans Officer", "S5", staffPrivileges, major, lieutenantColonel,
+		EnsureArmyAppointment("S5 Plans Officer", "S5", staffPrivileges, major, lieutenantColonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "S6 Communications Officer", "S6", staffPrivileges, major, lieutenantColonel,
+		EnsureArmyAppointment("S6 Communications Officer", "S6", staffPrivileges, major, lieutenantColonel,
 			commandingOfficer);
-		AddAppointment(context, clan, "Chaplain", "Chap", memberPrivileges, captain, major, commandingOfficer);
-		AddAppointment(context, clan, "Judge Advocate", "JAG", staffPrivileges, captain, major, commandingOfficer);
-		AddAppointment(context, clan, "Theatre Commander", "THCOM", (long)ClanPrivilegeType.All, general, general);
+		EnsureArmyAppointment("Chaplain", "Chap", memberPrivileges, captain, major, commandingOfficer);
+		EnsureArmyAppointment("Judge Advocate", "JAG", staffPrivileges, captain, major, commandingOfficer);
+		EnsureArmyAppointment("Theatre Commander", "THCOM", (long)ClanPrivilegeType.All, general, general);
 	}
 
 	private void SetupNavalOrganisationClan(FuturemudDatabaseContext context,

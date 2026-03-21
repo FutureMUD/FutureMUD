@@ -58,6 +58,8 @@ public class ClanModule : Module<ICharacter>
 		"TemplateCloneElectorate_Board_WhyCantNominate";
 	private const string TemplateCloneElectorateBoardVotesProgName =
 		"TemplateCloneElectorate_Board_Votes";
+	private const string CloneElectionCanNominateProgPrefix = "CloneElectionCanNominate_";
+	private const string CloneElectionVotesProgPrefix = "CloneElectionVotes_";
 
 	private ClanModule()
 		: base("Clan")
@@ -4365,7 +4367,9 @@ Your next payday is {3}.
 			}
 
 			var rebindMode = GetTemplateElectionRebindMode(sourceAppointment.CanNominateProg?.FunctionName,
-				sourceAppointment.NumberOfVotesProg?.FunctionName);
+				sourceAppointment.CanNominateProg?.FunctionText,
+				sourceAppointment.NumberOfVotesProg?.FunctionName,
+				sourceAppointment.NumberOfVotesProg?.FunctionText);
 			if (rebindMode == TemplateElectionRebindMode.None)
 			{
 				continue;
@@ -4478,7 +4482,7 @@ return 0",
 	}
 
 	private static TemplateElectionRebindMode GetTemplateElectionRebindMode(string canNominateProgName,
-		string numberOfVotesProgName)
+		string canNominateProgText, string numberOfVotesProgName, string numberOfVotesProgText)
 	{
 		if (canNominateProgName == TemplateCloneElectorateAllMembersCanNominateProgName &&
 		    numberOfVotesProgName == TemplateCloneElectorateAllMembersVotesProgName)
@@ -4496,6 +4500,41 @@ return 0",
 		    numberOfVotesProgName == TemplateCloneElectorateBoardVotesProgName)
 		{
 			return TemplateElectionRebindMode.Board;
+		}
+
+		if ((canNominateProgName?.StartsWith(CloneElectionCanNominateProgPrefix,
+			     StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+		    (numberOfVotesProgName?.StartsWith(CloneElectionVotesProgPrefix,
+			     StringComparison.InvariantCultureIgnoreCase) ?? false))
+		{
+			var inferredMode = InferTemplateElectionRebindModeFromProgText(canNominateProgText, numberOfVotesProgText);
+			if (inferredMode != TemplateElectionRebindMode.None)
+			{
+				return inferredMode;
+			}
+		}
+
+		return TemplateElectionRebindMode.None;
+	}
+
+	private static TemplateElectionRebindMode InferTemplateElectionRebindModeFromProgText(string canNominateProgText,
+		string numberOfVotesProgText)
+	{
+		var combinedText = $"{canNominateProgText}\n{numberOfVotesProgText}";
+		if (combinedText.IndexOf(@"""Councillor""", StringComparison.InvariantCultureIgnoreCase) != -1)
+		{
+			return TemplateElectionRebindMode.Councillor;
+		}
+
+		if (combinedText.IndexOf(@"""Board""", StringComparison.InvariantCultureIgnoreCase) != -1)
+		{
+			return TemplateElectionRebindMode.Board;
+		}
+
+		if (combinedText.IndexOf("IsClanMember(@ch, ToClan(", StringComparison.InvariantCultureIgnoreCase) != -1 &&
+		    combinedText.IndexOf("ToRank(", StringComparison.InvariantCultureIgnoreCase) == -1)
+		{
+			return TemplateElectionRebindMode.AllMembers;
 		}
 
 		return TemplateElectionRebindMode.None;

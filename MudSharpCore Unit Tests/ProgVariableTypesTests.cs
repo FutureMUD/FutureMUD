@@ -69,4 +69,10 @@ public class ProgVariableTypesTests
 		Assert.IsTrue(ProgVariableTypes.TryParse("v1:408", out var storageType));
 		Assert.AreEqual(ProgVariableTypes.Character | ProgVariableTypes.Collection, storageType);
 	}
+
+	[TestMethod]
+	public void TryParse_RejectsNegativeLegacyValues()
+	{
+		Assert.IsFalse(ProgVariableTypes.TryParse("-1", out _));
+	}
 }

@@ -189,6 +189,11 @@ public static class ProgVariableTypeRegistry
 
 		if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var legacy))
 		{
+			if (legacy < 0)
+			{
+				return false;
+			}
+
 			type = ProgVariableTypes.FromLegacyLong(legacy);
 			return true;
 		}

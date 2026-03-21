@@ -1165,7 +1165,7 @@ div.function-generalhelp {
 
 		foreach (var type in ProgVariableTypes.Anything
 													.GetAllFlags()
-													.OrderBy(x => x is ProgVariableTypes.Collection or ProgVariableTypes.CollectionDictionary or ProgVariableTypes.Dictionary)
+													.OrderBy(x => x.LegacyCode is ProgVariableTypeCode.Collection or ProgVariableTypeCode.CollectionDictionary or ProgVariableTypeCode.Dictionary)
 													.ThenBy(x => x.Describe())
 													.ToList())
 		{

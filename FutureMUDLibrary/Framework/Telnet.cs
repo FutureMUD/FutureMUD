@@ -56,14 +56,14 @@ namespace MudSharp.Framework {
 		public const string BOLDORANGE = "\x1B[38;5;202m";
 		public const string PINK = "\x1B[38;5;183m";
 		public const string BOLDPINK = "\x1B[38;5;171m";
-		public const string KEYWORDBLUE = "\x1B[38;2;86;156;214m";
-		public const string KEYWORDPINK = "\x1B[38;2;238;130;238m";
-		public const string FUNCTIONYELLOW = "\x1B[38;2;220;220;170m";
-		public const string VARIABLECYAN = "\x1B[38;2;156;220;254m";
-		public const string TEXTRED = "\x1B[38;2;214;157;133m";
-		public const string VARIABLEGREEN = "\x1B[38;2;184;215;163m";
+        public const string KEYWORDBLUE = "\x1B[38;2;86;156;214m";
+        public const string KEYWORDPINK = "\x1B[38;2;238;130;238m";
+        public const string FUNCTIONYELLOW = "\x1B[38;2;220;220;170m";
+        public const string VARIABLECYAN = "\x1B[38;2;156;220;254m";
+        public const string TEXTRED = "\x1B[38;2;214;157;133m";
+        public const string VARIABLEGREEN = "\x1B[38;2;184;215;163m";
 
-		public const string BLACKBACKGROUND = "\x1B[40m";
+        public const string BLACKBACKGROUND = "\x1B[40m";
 		public const string REDBACKGROUND = "\x1B[41m";
 		public const string GREENBACKGROUND = "\x1B[42m";
 		public const string YELLOWBACKGROUND = "\x1B[43m";
@@ -83,17 +83,17 @@ namespace MudSharp.Framework {
 		public const string BOLDBLACKBACKGROUND = "\x1B[1;40m";
 		public const string PINKBACKGROUND = "\x1B[48;5;183m";
 		public const string BOLDPINKBACKGROUND = "\x1B[48;5;171m";
-		public const string KEYWORDBLUEBACKGROUND = "\x1B[48;2;86;156;214m";
-		public const string KEYWORDPINKBACKGROUND = "\x1B[48;2;238;130;238m";
-		public const string FUNCTIONYELLOWBACKGROUND = "\x1B[48;2;220;220;170m";
-		public const string VARIABLECYANBACKGROUND = "\x1B[48;2;156;220;254m";
-		public const string TEXTREDBACKGROUND = "\x1B[48;2;214;157;133m";
-		public const string VARIABLEGREENBACKGROUND = "\x1B[48;2;184;215;163m";
+        public const string KEYWORDBLUEBACKGROUND = "\x1B[48;2;86;156;214m";
+        public const string KEYWORDPINKBACKGROUND = "\x1B[48;2;238;130;238m";
+        public const string FUNCTIONYELLOWBACKGROUND = "\x1B[48;2;220;220;170m";
+        public const string VARIABLECYANBACKGROUND = "\x1B[48;2;156;220;254m";
+        public const string TEXTREDBACKGROUND = "\x1B[48;2;214;157;133m";
+        public const string VARIABLEGREENBACKGROUND = "\x1B[48;2;184;215;163m";
 
-		/// <summary>
-		///     Interpret as command
-		/// </summary>
-		public const byte IAC = 0xFF;
+        /// <summary>
+        ///     Interpret as command
+        /// </summary>
+        public const byte IAC = 0xFF;
 
 		/// <summary>
 		///     Indicates the desire to begin performing, or confirmation that you are now performing, the indicated option.

@@ -1499,10 +1499,13 @@ namespace MudSharp.Database
 
 			modelBuilder.Entity<VariableDefault>(entity =>
 			{
-				entity.HasKey(e => new { e.OwnerType, e.Property })
+				entity.HasKey(e => new { e.OwnerTypeDefinition, e.Property })
 					.HasName("PRIMARY");
 
-				entity.Property(e => e.OwnerType).HasColumnType("bigint(20)");
+				entity.Property(e => e.OwnerTypeDefinition)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.Property)
 					.HasColumnType("varchar(50)")
@@ -1518,25 +1521,34 @@ namespace MudSharp.Database
 
 			modelBuilder.Entity<VariableDefinition>(entity =>
 			{
-				entity.HasKey(e => new { e.OwnerType, e.Property })
+				entity.HasKey(e => new { e.OwnerTypeDefinition, e.Property })
 					.HasName("PRIMARY");
 
-				entity.Property(e => e.OwnerType).HasColumnType("bigint(20)");
+				entity.Property(e => e.OwnerTypeDefinition)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.Property)
 					.HasColumnType("varchar(50)")
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 
-				entity.Property(e => e.ContainedType).HasColumnType("bigint(20)");
+				entity.Property(e => e.ContainedTypeDefinition)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 			});
 
 			modelBuilder.Entity<VariableValue>(entity =>
 			{
-				entity.HasKey(e => new { e.ReferenceType, e.ReferenceId, e.ReferenceProperty })
+				entity.HasKey(e => new { e.ReferenceTypeDefinition, e.ReferenceId, e.ReferenceProperty })
 					.HasName("PRIMARY");
 
-				entity.Property(e => e.ReferenceType).HasColumnType("bigint(20)");
+				entity.Property(e => e.ReferenceTypeDefinition)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.ReferenceId).HasColumnType("bigint(20)");
 
@@ -1551,7 +1563,10 @@ namespace MudSharp.Database
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 
-				entity.Property(e => e.ValueType).HasColumnType("bigint(20)");
+				entity.Property(e => e.ValueTypeDefinition)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 			});
 
 			modelBuilder.Entity<WeaponAttack>(entity =>

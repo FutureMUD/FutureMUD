@@ -50,12 +50,14 @@ namespace Futuremud_Configuration_Tool.UI {
             DefinitionComboBox.SelectedItem = oldSelectedItem;
 
             oldSelectedItem = FutureProgComboBox.SelectedItem;
+            var booleanTypeDefinition = MudSharp.FutureProg.ProgVariableTypes.Boolean.ToStorageString();
+            var chargenTypeDefinition = MudSharp.FutureProg.ProgVariableTypes.Chargen.ToStorageString();
             FutureProgComboBox.ItemsSource =
-                new BindingList<object>(new object[] { Converters.FutureProgNullableConverter.DummyProg }.Concat(Context.FutureProgs.ToList().Where(
+                new BindingList<object>(new object[] { Converters.FutureProgNullableConverter.DummyProg }.Concat(Context.FutureProgs.Where(
                     x =>
-                        x.ReturnType == (long) FutureProgVariableTypes.Boolean &&
-                        x.FutureProgs_Parameters.Select(y => y.ParameterType)
-                            .SequenceEqual(new[] {(long) FutureProgVariableTypes.Chargen}))).ToList());
+                        x.ReturnTypeDefinition == booleanTypeDefinition &&
+                        x.FutureProgs_Parameters.Select(y => y.ParameterTypeDefinition)
+                            .SequenceEqual(new[] { chargenTypeDefinition })).ToList());
             FutureProgComboBox.SelectedItem = oldSelectedItem;
 
             ItemViewGrid.DataContext = SelectionListBox.SelectedItem;

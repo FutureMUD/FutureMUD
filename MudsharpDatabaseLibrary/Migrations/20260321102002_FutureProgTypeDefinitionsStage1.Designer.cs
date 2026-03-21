@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260321102002_FutureProgTypeDefinitionsStage1")]
+    partial class FutureProgTypeDefinitionsStage1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -8427,6 +8430,10 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("FunctionText"), "utf8mb4");
 
+                    b.Property<long>("LegacyReturnType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("ReturnType");
+
                     b.Property<ulong>("Public")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
@@ -8461,6 +8468,10 @@ namespace MudSharp.Migrations
 
                     b.Property<int>("ParameterIndex")
                         .HasColumnType("int(11)");
+
+                    b.Property<long>("LegacyParameterType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("ParameterType");
 
                     b.Property<string>("ParameterName")
                         .IsRequired()
@@ -16029,11 +16040,9 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VariableDefault", b =>
                 {
-                    b.Property<string>("OwnerTypeDefinition")
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OwnerTypeDefinition"), "utf8");
+                    b.Property<long>("LegacyOwnerType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("OwnerType");
 
                     b.Property<string>("Property")
                         .HasColumnType("varchar(50)")
@@ -16048,7 +16057,13 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DefaultValue"), "utf8");
 
-                    b.HasKey("OwnerTypeDefinition", "Property")
+                    b.Property<string>("OwnerTypeDefinition")
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OwnerTypeDefinition"), "utf8");
+
+                    b.HasKey("LegacyOwnerType", "Property")
                         .HasName("PRIMARY");
 
                     b.ToTable("VariableDefaults");
@@ -16056,11 +16071,9 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VariableDefinition", b =>
                 {
-                    b.Property<string>("OwnerTypeDefinition")
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OwnerTypeDefinition"), "utf8");
+                    b.Property<long>("LegacyOwnerType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("OwnerType");
 
                     b.Property<string>("Property")
                         .HasColumnType("varchar(50)")
@@ -16074,7 +16087,17 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ContainedTypeDefinition"), "utf8");
 
-                    b.HasKey("OwnerTypeDefinition", "Property")
+                    b.Property<long>("LegacyContainedType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("ContainedType");
+
+                    b.Property<string>("OwnerTypeDefinition")
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OwnerTypeDefinition"), "utf8");
+
+                    b.HasKey("LegacyOwnerType", "Property")
                         .HasName("PRIMARY");
 
                     b.ToTable("VariableDefinitions");
@@ -16082,11 +16105,9 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VariableValue", b =>
                 {
-                    b.Property<string>("ReferenceTypeDefinition")
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ReferenceTypeDefinition"), "utf8");
+                    b.Property<long>("LegacyReferenceType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("ReferenceType");
 
                     b.Property<long>("ReferenceId")
                         .HasColumnType("bigint(20)");
@@ -16096,6 +16117,16 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ReferenceProperty"), "utf8");
+
+                    b.Property<long>("LegacyValueType")
+                        .HasColumnType("bigint(20)")
+                        .HasColumnName("ValueType");
+
+                    b.Property<string>("ReferenceTypeDefinition")
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ReferenceTypeDefinition"), "utf8");
 
                     b.Property<string>("ValueDefinition")
                         .IsRequired()
@@ -16110,7 +16141,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ValueTypeDefinition"), "utf8");
 
-                    b.HasKey("ReferenceTypeDefinition", "ReferenceId", "ReferenceProperty")
+                    b.HasKey("LegacyReferenceType", "ReferenceId", "ReferenceProperty")
                         .HasName("PRIMARY");
 
                     b.ToTable("VariableValues");

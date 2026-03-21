@@ -27,7 +27,9 @@ namespace Futuremud_Configuration_Tool.UI {
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
             if (e.NewValue != null) {
-                FutureProgComboBox.ItemsSource = new BindingList<object>(new object[] { Converters.FutureProgNullableConverter.DummyProg }.Concat(MudSharp.Database.FMDB.Context.FutureProgs.Where(x => x.ReturnType == (long)FutureProgVariableTypes.Boolean && x.FutureProgs_Parameters.Count == 1 && x.FutureProgs_Parameters.FirstOrDefault().ParameterType == (long)FutureProgVariableTypes.Number)).ToList());
+                var booleanTypeDefinition = MudSharp.FutureProg.ProgVariableTypes.Boolean.ToStorageString();
+                var numberTypeDefinition = MudSharp.FutureProg.ProgVariableTypes.Number.ToStorageString();
+                FutureProgComboBox.ItemsSource = new BindingList<object>(new object[] { Converters.FutureProgNullableConverter.DummyProg }.Concat(MudSharp.Database.FMDB.Context.FutureProgs.Where(x => x.ReturnTypeDefinition == booleanTypeDefinition && x.FutureProgs_Parameters.Count == 1 && x.FutureProgs_Parameters.FirstOrDefault().ParameterTypeDefinition == numberTypeDefinition)).ToList());
                 ElementListBox.ItemsSource = ((FME.CurrencyDescriptionPattern)DataContext).CurrencyDescriptionPatternElements;
                 ElementListBox.SelectedIndex = 0;
             }

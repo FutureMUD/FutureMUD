@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -33,13 +33,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		_types = new Dictionary<ProgVariableTypes, Dictionary<string, ProgVariableTypes>>();
 		using (new FMDB())
 		{
-			foreach (var item in FMDB.Context.VariableDefinitions.AsEnumerable().GroupBy(x => x.OwnerType))
+			foreach (var item in FMDB.Context.VariableDefinitions.AsEnumerable().GroupBy(x => x.OwnerTypeDefinition))
 			{
-				var type = (ProgVariableTypes)item.Key;
+				var type = ProgVariableTypes.FromStorageString(item.Key);
 				var newDict = new Dictionary<string, ProgVariableTypes>();
 				foreach (var sub in item)
 				{
-					newDict[sub.Property] = (ProgVariableTypes)sub.ContainedType;
+					newDict[sub.Property] = ProgVariableTypes.FromStorageString(sub.ContainedTypeDefinition);
 				}
 
 				_types[type] = newDict;
@@ -49,23 +49,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		_defaultValues = new Dictionary<ProgVariableTypes, Dictionary<string, IVariableValue>>();
 		using (new FMDB())
 		{
-			foreach (var item in FMDB.Context.VariableDefaults.AsEnumerable().GroupBy(x => x.OwnerType))
+			foreach (var item in FMDB.Context.VariableDefaults.AsEnumerable().GroupBy(x => x.OwnerTypeDefinition))
 			{
-				var type = (ProgVariableTypes)item.Key;
+				var type = ProgVariableTypes.FromStorageString(item.Key);
 				var newDict = new Dictionary<string, IVariableValue>();
 				foreach (var sub in item)
 				{
 					IVariableValue newValue;
 					var valueType = _types[type][sub.Property];
-					switch (valueType)
+					switch (valueType.LegacyCode)
 					{
-						case ProgVariableTypes.Boolean:
-						case ProgVariableTypes.Gender:
-						case ProgVariableTypes.Text:
-						case ProgVariableTypes.Number:
-						case ProgVariableTypes.TimeSpan:
-						case ProgVariableTypes.DateTime:
-						case ProgVariableTypes.MudDateTime:
+						case ProgVariableTypeCode.Boolean:
+						case ProgVariableTypeCode.Gender:
+						case ProgVariableTypeCode.Text:
+						case ProgVariableTypeCode.Number:
+						case ProgVariableTypeCode.TimeSpan:
+						case ProgVariableTypeCode.DateTime:
+						case ProgVariableTypeCode.MudDateTime:
 							newValue = new ValueVariableValue(XElement.Parse(sub.DefaultValue), valueType, gameworld);
 							break;
 						default:
@@ -104,17 +104,17 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 			foreach (var item in FMDB.Context.VariableValues)
 			{
-				var type = (ProgVariableTypes)item.ValueType;
+				var type = ProgVariableTypes.FromStorageString(item.ValueTypeDefinition);
 				IVariableValue newValue;
-				switch (type)
+				switch (type.LegacyCode)
 				{
-					case ProgVariableTypes.Boolean:
-					case ProgVariableTypes.Gender:
-					case ProgVariableTypes.Text:
-					case ProgVariableTypes.Number:
-					case ProgVariableTypes.DateTime:
-					case ProgVariableTypes.TimeSpan:
-					case ProgVariableTypes.MudDateTime:
+					case ProgVariableTypeCode.Boolean:
+					case ProgVariableTypeCode.Gender:
+					case ProgVariableTypeCode.Text:
+					case ProgVariableTypeCode.Number:
+					case ProgVariableTypeCode.DateTime:
+					case ProgVariableTypeCode.TimeSpan:
+					case ProgVariableTypeCode.MudDateTime:
 						newValue = new ValueVariableValue(XElement.Parse(item.ValueDefinition), type, gameworld);
 						break;
 					default:
@@ -135,7 +135,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 					new VariableReference
 					{
 						ID = item.ReferenceId,
-						Type = (ProgVariableTypes)item.ReferenceType,
+						Type = ProgVariableTypes.FromStorageString(item.ReferenceTypeDefinition),
 						VariableName = item.ReferenceProperty
 					}] = newValue;
 			}
@@ -152,14 +152,18 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 			foreach (var item in _changedTypes)
 			{
-				var dbitem = FMDB.Context.VariableDefinitions.Find((long)item.Item1, item.Item2);
+				var dbitem = FMDB.Context.VariableDefinitions.Find(item.Item1.ToStorageString(), item.Item2);
 				if (dbitem == null)
 				{
-					dbitem = new Models.VariableDefinition { OwnerType = (long)item.Item1, Property = item.Item2 };
+					dbitem = new Models.VariableDefinition
+					{
+						OwnerTypeDefinition = item.Item1.ToStorageString(),
+						Property = item.Item2
+					};
 					FMDB.Context.VariableDefinitions.Add(dbitem);
 				}
 
-				dbitem.ContainedType = (long)_types[item.Item1][item.Item2];
+				dbitem.ContainedTypeDefinition = _types[item.Item1][item.Item2].ToStorageString();
 			}
 
 			FMDB.Context.SaveChanges();
@@ -167,10 +171,14 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 			foreach (var item in _changedDefaults)
 			{
-				var dbitem = FMDB.Context.VariableDefaults.Find((long)item.Item1, item.Item2);
+				var dbitem = FMDB.Context.VariableDefaults.Find(item.Item1.ToStorageString(), item.Item2);
 				if (dbitem == null)
 				{
-					dbitem = new Models.VariableDefault { OwnerType = (long)item.Item1, Property = item.Item2 };
+					dbitem = new Models.VariableDefault
+					{
+						OwnerTypeDefinition = item.Item1.ToStorageString(),
+						Property = item.Item2
+					};
 					FMDB.Context.VariableDefaults.Add(dbitem);
 				}
 
@@ -182,21 +190,21 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 			foreach (var item in _changedReferences)
 			{
-				var dbitem = FMDB.Context.VariableValues.Find((long)item.Type, item.ID, item.VariableName);
+				var dbitem = FMDB.Context.VariableValues.Find(item.Type.ToStorageString(), item.ID, item.VariableName);
 				if (dbitem == null)
 				{
 					dbitem = new Models.VariableValue
 					{
 						ReferenceId = item.ID,
 						ReferenceProperty = item.VariableName,
-						ReferenceType = (long)item.Type
+						ReferenceTypeDefinition = item.Type.ToStorageString()
 					};
 					FMDB.Context.VariableValues.Add(dbitem);
 				}
 
 				var value = _values[item];
 				dbitem.ValueDefinition = value.SaveToXml().ToString();
-				dbitem.ValueType = (long)value.Type;
+				dbitem.ValueTypeDefinition = value.Type.ToStorageString();
 			}
 
 			FMDB.Context.SaveChanges();
@@ -246,13 +254,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 				return null;
 			}
 
-			switch (variable.Type)
+			switch (variable.Type.LegacyCode)
 			{
-				case ProgVariableTypes.Gender:
-				case ProgVariableTypes.Number:
-				case ProgVariableTypes.Text:
-				case ProgVariableTypes.Boolean:
-				case ProgVariableTypes.Error:
+				case ProgVariableTypeCode.Gender:
+				case ProgVariableTypeCode.Number:
+				case ProgVariableTypeCode.Text:
+				case ProgVariableTypeCode.Boolean:
+				case ProgVariableTypeCode.Error:
 					return null;
 			}
 
@@ -289,15 +297,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			UnderlyingType = type ^ ProgVariableTypes.Collection;
 			foreach (var element in root.Elements("var"))
 			{
-				switch (UnderlyingType)
+				switch (UnderlyingType.LegacyCode)
 				{
-					case ProgVariableTypes.Number:
-					case ProgVariableTypes.Text:
-					case ProgVariableTypes.Boolean:
-					case ProgVariableTypes.Gender:
-					case ProgVariableTypes.DateTime:
-					case ProgVariableTypes.TimeSpan:
-					case ProgVariableTypes.MudDateTime:
+					case ProgVariableTypeCode.Number:
+					case ProgVariableTypeCode.Text:
+					case ProgVariableTypeCode.Boolean:
+					case ProgVariableTypeCode.Gender:
+					case ProgVariableTypeCode.DateTime:
+					case ProgVariableTypeCode.TimeSpan:
+					case ProgVariableTypeCode.MudDateTime:
 						Collection.Add(new ValueVariableValue(element, UnderlyingType, gameworld));
 						break;
 					default:
@@ -356,15 +364,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			foreach (var element in root.Elements("value"))
 			{
 				var key = element.Element("key").Value;
-				switch (UnderlyingType)
+				switch (UnderlyingType.LegacyCode)
 				{
-					case ProgVariableTypes.Number:
-					case ProgVariableTypes.Text:
-					case ProgVariableTypes.Boolean:
-					case ProgVariableTypes.Gender:
-					case ProgVariableTypes.DateTime:
-					case ProgVariableTypes.TimeSpan:
-					case ProgVariableTypes.MudDateTime:
+					case ProgVariableTypeCode.Number:
+					case ProgVariableTypeCode.Text:
+					case ProgVariableTypeCode.Boolean:
+					case ProgVariableTypeCode.Gender:
+					case ProgVariableTypeCode.DateTime:
+					case ProgVariableTypeCode.TimeSpan:
+					case ProgVariableTypeCode.MudDateTime:
 						foreach (var sub in element.Elements("var"))
 						{
 							Dictionary.Add(key, new ValueVariableValue(sub, UnderlyingType, gameworld));
@@ -439,15 +447,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			UnderlyingType = type ^ ProgVariableTypes.Collection;
 			foreach (var element in root.Elements("value"))
 			{
-				switch (UnderlyingType)
+				switch (UnderlyingType.LegacyCode)
 				{
-					case ProgVariableTypes.Number:
-					case ProgVariableTypes.Text:
-					case ProgVariableTypes.Boolean:
-					case ProgVariableTypes.Gender:
-					case ProgVariableTypes.DateTime:
-					case ProgVariableTypes.TimeSpan:
-					case ProgVariableTypes.MudDateTime:
+					case ProgVariableTypeCode.Number:
+					case ProgVariableTypeCode.Text:
+					case ProgVariableTypeCode.Boolean:
+					case ProgVariableTypeCode.Gender:
+					case ProgVariableTypeCode.DateTime:
+					case ProgVariableTypeCode.TimeSpan:
+					case ProgVariableTypeCode.MudDateTime:
 						Dictionary.Add(element.Element("key").Value,
 							new ValueVariableValue(element.Element("var"), UnderlyingType, gameworld));
 						break;
@@ -510,27 +518,27 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 				root = root.Element("var");
 			}
 
-			switch (type)
+			switch (type.LegacyCode)
 			{
-				case ProgVariableTypes.Boolean:
+				case ProgVariableTypeCode.Boolean:
 					Value = bool.Parse(root.Value);
 					break;
-				case ProgVariableTypes.Gender:
+				case ProgVariableTypeCode.Gender:
 					Value = (Gender)short.Parse(root.Value);
 					break;
-				case ProgVariableTypes.Number:
+				case ProgVariableTypeCode.Number:
 					Value = decimal.Parse(root.Value);
 					break;
-				case ProgVariableTypes.Text:
+				case ProgVariableTypeCode.Text:
 					Value = root.Value;
 					break;
-				case ProgVariableTypes.TimeSpan:
+				case ProgVariableTypeCode.TimeSpan:
 					Value = TimeSpan.Parse(root.Value, CultureInfo.InvariantCulture);
 					break;
-				case ProgVariableTypes.DateTime:
+				case ProgVariableTypeCode.DateTime:
 					Value = DateTime.Parse(root.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 					break;
-				case ProgVariableTypes.MudDateTime:
+				case ProgVariableTypeCode.MudDateTime:
 					Value = new MudDateTime(root.Value, gameworld);
 					break;
 			}
@@ -559,23 +567,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 				return new NullVariable(Type);
 			}
 
-			switch (Type)
+			switch (Type.LegacyCode)
 			{
-				case ProgVariableTypes.Number:
+				case ProgVariableTypeCode.Number:
 					return new NumberVariable((decimal)Value);
-				case ProgVariableTypes.Text:
+				case ProgVariableTypeCode.Text:
 					return new TextVariable((string)Value);
-				case ProgVariableTypes.Boolean:
+				case ProgVariableTypeCode.Boolean:
 					return new BooleanVariable((bool)Value);
-				case ProgVariableTypes.Gender:
+				case ProgVariableTypeCode.Gender:
 					return new GenderVariable((Gender)Value);
-				case ProgVariableTypes.TimeSpan:
+				case ProgVariableTypeCode.TimeSpan:
 					return new TimeSpanVariable((TimeSpan)Value);
-				case ProgVariableTypes.DateTime:
+				case ProgVariableTypeCode.DateTime:
 					return new DateTimeVariable((DateTime)Value);
-				case ProgVariableTypes.MudDateTime:
+				case ProgVariableTypeCode.MudDateTime:
 					return (MudDateTime)Value;
-				case ProgVariableTypes.LiquidMixture:
+				case ProgVariableTypeCode.LiquidMixture:
 					return new LiquidMixture(XElement.Parse(Value.ToString()), game);
 			}
 
@@ -584,11 +592,11 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		public XElement SaveToXml()
 		{
-			switch (Type)
+			switch (Type.LegacyCode)
 			{
-				case ProgVariableTypes.DateTime:
+				case ProgVariableTypeCode.DateTime:
 					return new XElement("var", ((DateTime)Value).ToString(CultureInfo.InvariantCulture));
-				case ProgVariableTypes.MudDateTime:
+				case ProgVariableTypeCode.MudDateTime:
 					return new XElement("var", ((MudDateTime)Value).GetDateTimeString());
 			}
 
@@ -628,93 +636,93 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		public IProgVariable GetVariable(IFuturemud game)
 		{
-			switch (Type)
+			switch (Type.LegacyCode)
 			{
-				case ProgVariableTypes.Character:
+				case ProgVariableTypeCode.Character:
 					return game.TryGetCharacter(ID, true);
-				case ProgVariableTypes.Item:
+				case ProgVariableTypeCode.Item:
 					return game.Items.Get(ID);
-				case ProgVariableTypes.Location:
+				case ProgVariableTypeCode.Location:
 					return game.Cells.Get(ID);
-				case ProgVariableTypes.Zone:
+				case ProgVariableTypeCode.Zone:
 					return game.Zones.Get(ID);
-				case ProgVariableTypes.Shard:
+				case ProgVariableTypeCode.Shard:
 					return game.Shards.Get(ID);
-				case ProgVariableTypes.Race:
+				case ProgVariableTypeCode.Race:
 					return game.Races.Get(ID);
-				case ProgVariableTypes.Culture:
+				case ProgVariableTypeCode.Culture:
 					return game.Cultures.Get(ID);
-				case ProgVariableTypes.Trait:
+				case ProgVariableTypeCode.Trait:
 					return game.Traits.Get(ID);
-				case ProgVariableTypes.Currency:
+				case ProgVariableTypeCode.Currency:
 					return game.Currencies.Get(ID);
-				case ProgVariableTypes.Clan:
+				case ProgVariableTypeCode.Clan:
 					return game.Clans.Get(ID);
-				case ProgVariableTypes.ClanRank:
+				case ProgVariableTypeCode.ClanRank:
 					return game.Clans.SelectMany(x => x.Ranks).FirstOrDefault(x => x.Id == ID);
-				case ProgVariableTypes.ClanPaygrade:
+				case ProgVariableTypeCode.ClanPaygrade:
 					return game.Clans.SelectMany(x => x.Paygrades).FirstOrDefault(x => x.Id == ID);
-				case ProgVariableTypes.ClanAppointment:
+				case ProgVariableTypeCode.ClanAppointment:
 					return game.Clans.SelectMany(x => x.Appointments).FirstOrDefault(x => x.Id == ID);
-				case ProgVariableTypes.Language:
+				case ProgVariableTypeCode.Language:
 					return game.Languages.Get(ID);
-				case ProgVariableTypes.Accent:
+				case ProgVariableTypeCode.Accent:
 					return game.Accents.Get(ID);
-				case ProgVariableTypes.Merit:
+				case ProgVariableTypeCode.Merit:
 					return game.Merits.Get(ID);
-				case ProgVariableTypes.Calendar:
+				case ProgVariableTypeCode.Calendar:
 					return game.Calendars.Get(ID);
-				case ProgVariableTypes.Clock:
+				case ProgVariableTypeCode.Clock:
 					return game.Clocks.Get(ID);
-				case ProgVariableTypes.Knowledge:
+				case ProgVariableTypeCode.Knowledge:
 					return game.Knowledges.Get(ID);
-				case ProgVariableTypes.Role:
+				case ProgVariableTypeCode.Role:
 					return game.Roles.Get(ID);
-				case ProgVariableTypes.Ethnicity:
+				case ProgVariableTypeCode.Ethnicity:
 					return game.Ethnicities.Get(ID);
-				case ProgVariableTypes.Drug:
+				case ProgVariableTypeCode.Drug:
 					return game.Drugs.Get(ID);
-				case ProgVariableTypes.WeatherEvent:
+				case ProgVariableTypeCode.WeatherEvent:
 					return game.WeatherEvents.Get(ID);
-				case ProgVariableTypes.Shop:
+				case ProgVariableTypeCode.Shop:
 					return game.Shops.Get(ID);
-				case ProgVariableTypes.Merchandise:
+				case ProgVariableTypeCode.Merchandise:
 					return game.Shops.SelectMany(x => x.Merchandises).FirstOrDefault(x => x.Id == ID);
-				case ProgVariableTypes.Project:
+				case ProgVariableTypeCode.Project:
 					return game.ActiveProjects.Get(ID);
-				case ProgVariableTypes.OverlayPackage:
+				case ProgVariableTypeCode.OverlayPackage:
 					return game.CellOverlayPackages.Get(ID);
-				case ProgVariableTypes.Terrain:
+				case ProgVariableTypeCode.Terrain:
 					return game.Terrains.Get(ID);
-				case ProgVariableTypes.Solid:
+				case ProgVariableTypeCode.Solid:
 					return game.Materials.Get(ID);
-				case ProgVariableTypes.Liquid:
+				case ProgVariableTypeCode.Liquid:
 					return game.Liquids.Get(ID);
-				case ProgVariableTypes.Gas:
+				case ProgVariableTypeCode.Gas:
 					return game.Gases.Get(ID);
-				case ProgVariableTypes.MagicCapability:
+				case ProgVariableTypeCode.MagicCapability:
 					return game.MagicCapabilities.Get(ID);
-				case ProgVariableTypes.MagicSchool:
+				case ProgVariableTypeCode.MagicSchool:
 					return game.MagicSchools.Get(ID);
-				case ProgVariableTypes.MagicSpell:
+				case ProgVariableTypeCode.MagicSpell:
 					return game.MagicSpells.Get(ID);
-				case ProgVariableTypes.Bank:
+				case ProgVariableTypeCode.Bank:
 					return game.Banks.Get(ID);
-				case ProgVariableTypes.BankAccount:
+				case ProgVariableTypeCode.BankAccount:
 					return game.BankAccounts.Get(ID);
-				case ProgVariableTypes.BankAccountType:
+				case ProgVariableTypeCode.BankAccountType:
 					return game.BankAccountTypes.Get(ID);
-				case ProgVariableTypes.LegalAuthority:
+				case ProgVariableTypeCode.LegalAuthority:
 					return game.LegalAuthorities.Get(ID);
-				case ProgVariableTypes.Law:
+				case ProgVariableTypeCode.Law:
 					return game.Laws.Get(ID);
-				case ProgVariableTypes.Crime:
+				case ProgVariableTypeCode.Crime:
 					return game.Crimes.Get(ID);
-				case ProgVariableTypes.Script:
+				case ProgVariableTypeCode.Script:
 					return game.Scripts.Get(ID);
-				case ProgVariableTypes.Writing:
+				case ProgVariableTypeCode.Writing:
 					return game.Writings.Get(ID);
-				case ProgVariableTypes.Area:
+				case ProgVariableTypeCode.Area:
 					return game.Areas.Get(ID);
 				default:
 					return null;
@@ -909,20 +917,20 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			return new CollectionDictionaryVariableValue { Dictionary = collection };
 		}
 
-		switch (type)
+		switch (type.LegacyCode)
 		{
-			case ProgVariableTypes.Error:
-			case ProgVariableTypes.Exit:
-			case ProgVariableTypes.Chargen:
-			case ProgVariableTypes.Effect:
+			case ProgVariableTypeCode.Error:
+			case ProgVariableTypeCode.Exit:
+			case ProgVariableTypeCode.Chargen:
+			case ProgVariableTypeCode.Effect:
 				return null;
-			case ProgVariableTypes.Boolean:
-			case ProgVariableTypes.Gender:
-			case ProgVariableTypes.Number:
-			case ProgVariableTypes.Text:
-			case ProgVariableTypes.TimeSpan:
-			case ProgVariableTypes.DateTime:
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.Boolean:
+			case ProgVariableTypeCode.Gender:
+			case ProgVariableTypeCode.Number:
+			case ProgVariableTypeCode.Text:
+			case ProgVariableTypeCode.TimeSpan:
+			case ProgVariableTypeCode.DateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				return new ValueVariableValue { Type = type, Value = value.GetObject };
 			default:
 				return new ReferenceVariableValue
@@ -1020,20 +1028,20 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		if (ProgVariableTypes.ValueType.HasFlag(variableType))
 		{
-			switch (variableType)
+			switch (variableType.LegacyCode)
 			{
-				case ProgVariableTypes.Boolean:
+				case ProgVariableTypeCode.Boolean:
 					defaultDictionary[variable.ToLowerInvariant()] =
 						new ValueVariableValue { Type = variableType, Value = defaultValue is bool bv && bv };
 					break;
-				case ProgVariableTypes.Text:
+				case ProgVariableTypeCode.Text:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is string sv ? sv : ""
 					};
 					break;
-				case ProgVariableTypes.Number:
+				case ProgVariableTypeCode.Number:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
@@ -1041,28 +1049,28 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 							defaultValue is int iv ? (decimal)iv : 0.0M
 					};
 					break;
-				case ProgVariableTypes.Gender:
+				case ProgVariableTypeCode.Gender:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is Gender gv ? gv : Gender.Indeterminate
 					};
 					break;
-				case ProgVariableTypes.TimeSpan:
+				case ProgVariableTypeCode.TimeSpan:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is TimeSpan tsv ? tsv : TimeSpan.FromTicks(0)
 					};
 					break;
-				case ProgVariableTypes.DateTime:
+				case ProgVariableTypeCode.DateTime:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is DateTime dtv ? dtv : DateTime.MinValue
 					};
 					break;
-				case ProgVariableTypes.MudDateTime:
+				case ProgVariableTypeCode.MudDateTime:
 					defaultDictionary[variable.ToLowerInvariant()] =
 						new ValueVariableValue { Type = variableType, Value = defaultValue };
 					break;
@@ -1151,24 +1159,24 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			return false;
 		}
 
-		switch (type ^ ProgVariableTypes.Literal)
+		switch ((type ^ ProgVariableTypes.Literal).LegacyCode)
 		{
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				// All string values are valid
 				return true;
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				// Timespans use a regex rather than the built in tryparse
 				return FunctionHelper.TimespanRegex.IsMatch(value);
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal,
 					out var dtValue);
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				return double.TryParse(value, out var dValue);
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				return Enum.TryParse(value, true, out Gender gValue);
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				return bool.TryParse(value, out var bValue);
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				return MudDateTime.TryParse(value, Gameworld, out var mdtValue);
 		}
 

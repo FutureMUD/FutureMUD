@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.FutureProg;
 
 #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -24,165 +24,166 @@ public record AIStorytellerCustomToolCallParameterDefinition
 	public AIStorytellerCustomToolCallParameterDefinition(string name, string description, ProgVariableTypes type)
 	{
 		Name = name;
-		switch (type)
+		switch (type.LegacyCode)
 		{
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				Type = "string";
 				Description = description;
 				break;
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				Type = "double";
 				Description = description;
 				break;
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				Type = "boolean";
 				Description = description;
 				break;
-			case ProgVariableTypes.Character:
+			case ProgVariableTypeCode.Character:
 				Type = "int64";
 				Description = $"The ID number of a character. {description}";
 				break;
-			case ProgVariableTypes.Location:
+			case ProgVariableTypeCode.Location:
 				Type = "int64";
 				Description = $"The ID number of a room location. {description}";
 				break;
-			case ProgVariableTypes.Item:
+			case ProgVariableTypeCode.Item:
 				break;
-			case ProgVariableTypes.Shard:
+			case ProgVariableTypeCode.Shard:
 				break;
-			case ProgVariableTypes.Error:
+			case ProgVariableTypeCode.Error:
 				break;
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				break;
-			case ProgVariableTypes.Zone:
+			case ProgVariableTypeCode.Zone:
 				break;
-			case ProgVariableTypes.Collection:
+			case ProgVariableTypeCode.Collection:
 				break;
-			case ProgVariableTypes.Race:
+			case ProgVariableTypeCode.Race:
 				break;
-			case ProgVariableTypes.Culture:
+			case ProgVariableTypeCode.Culture:
 				break;
-			case ProgVariableTypes.Chargen:
+			case ProgVariableTypeCode.Chargen:
 				break;
-			case ProgVariableTypes.Trait:
+			case ProgVariableTypeCode.Trait:
 				break;
-			case ProgVariableTypes.Clan:
+			case ProgVariableTypeCode.Clan:
 				break;
-			case ProgVariableTypes.ClanRank:
+			case ProgVariableTypeCode.ClanRank:
 				break;
-			case ProgVariableTypes.ClanAppointment:
+			case ProgVariableTypeCode.ClanAppointment:
 				break;
-			case ProgVariableTypes.ClanPaygrade:
+			case ProgVariableTypeCode.ClanPaygrade:
 				break;
-			case ProgVariableTypes.Currency:
+			case ProgVariableTypeCode.Currency:
 				break;
-			case ProgVariableTypes.Exit:
+			case ProgVariableTypeCode.Exit:
 				break;
-			case ProgVariableTypes.Literal:
+			case ProgVariableTypeCode.Literal:
 				break;
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				break;
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				break;
-			case ProgVariableTypes.Language:
+			case ProgVariableTypeCode.Language:
 				break;
-			case ProgVariableTypes.Accent:
+			case ProgVariableTypeCode.Accent:
 				break;
-			case ProgVariableTypes.Merit:
+			case ProgVariableTypeCode.Merit:
 				break;
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				break;
-			case ProgVariableTypes.Calendar:
+			case ProgVariableTypeCode.Calendar:
 				break;
-			case ProgVariableTypes.Clock:
+			case ProgVariableTypeCode.Clock:
 				break;
-			case ProgVariableTypes.Effect:
+			case ProgVariableTypeCode.Effect:
 				break;
-			case ProgVariableTypes.Knowledge:
+			case ProgVariableTypeCode.Knowledge:
 				break;
-			case ProgVariableTypes.Role:
+			case ProgVariableTypeCode.Role:
 				break;
-			case ProgVariableTypes.Ethnicity:
+			case ProgVariableTypeCode.Ethnicity:
 				break;
-			case ProgVariableTypes.Drug:
+			case ProgVariableTypeCode.Drug:
 				break;
-			case ProgVariableTypes.WeatherEvent:
+			case ProgVariableTypeCode.WeatherEvent:
 				break;
-			case ProgVariableTypes.Shop:
+			case ProgVariableTypeCode.Shop:
 				break;
-			case ProgVariableTypes.Merchandise:
+			case ProgVariableTypeCode.Merchandise:
 				break;
-			case ProgVariableTypes.Outfit:
+			case ProgVariableTypeCode.Outfit:
 				break;
-			case ProgVariableTypes.OutfitItem:
+			case ProgVariableTypeCode.OutfitItem:
 				break;
-			case ProgVariableTypes.Project:
+			case ProgVariableTypeCode.Project:
 				break;
-			case ProgVariableTypes.OverlayPackage:
+			case ProgVariableTypeCode.OverlayPackage:
 				break;
-			case ProgVariableTypes.Terrain:
+			case ProgVariableTypeCode.Terrain:
 				break;
-			case ProgVariableTypes.Solid:
+			case ProgVariableTypeCode.Solid:
 				break;
-			case ProgVariableTypes.Liquid:
+			case ProgVariableTypeCode.Liquid:
 				break;
-			case ProgVariableTypes.Gas:
+			case ProgVariableTypeCode.Gas:
 				break;
-			case ProgVariableTypes.Dictionary:
+			case ProgVariableTypeCode.Dictionary:
 				break;
-			case ProgVariableTypes.CollectionDictionary:
+			case ProgVariableTypeCode.CollectionDictionary:
 				break;
-			case ProgVariableTypes.MagicSpell:
+			case ProgVariableTypeCode.MagicSpell:
 				break;
-			case ProgVariableTypes.MagicSchool:
+			case ProgVariableTypeCode.MagicSchool:
 				break;
-			case ProgVariableTypes.MagicCapability:
+			case ProgVariableTypeCode.MagicCapability:
 				break;
-			case ProgVariableTypes.Bank:
+			case ProgVariableTypeCode.Bank:
 				break;
-			case ProgVariableTypes.BankAccount:
+			case ProgVariableTypeCode.BankAccount:
 				break;
-			case ProgVariableTypes.BankAccountType:
+			case ProgVariableTypeCode.BankAccountType:
 				break;
-			case ProgVariableTypes.LegalAuthority:
+			case ProgVariableTypeCode.LegalAuthority:
 				break;
-			case ProgVariableTypes.Law:
+			case ProgVariableTypeCode.Law:
 				break;
-			case ProgVariableTypes.Crime:
+			case ProgVariableTypeCode.Crime:
 				break;
-			case ProgVariableTypes.Market:
+			case ProgVariableTypeCode.Market:
 				break;
-			case ProgVariableTypes.MarketCategory:
+			case ProgVariableTypeCode.MarketCategory:
 				break;
-			case ProgVariableTypes.LiquidMixture:
+			case ProgVariableTypeCode.LiquidMixture:
 				break;
-			case ProgVariableTypes.Script:
+			case ProgVariableTypeCode.Script:
 				break;
-			case ProgVariableTypes.Writing:
+			case ProgVariableTypeCode.Writing:
 				break;
-			case ProgVariableTypes.Area:
+			case ProgVariableTypeCode.Area:
 				break;
-			case ProgVariableTypes.CollectionItem:
+			case ProgVariableTypeCode.CollectionItem:
 				break;
-			case ProgVariableTypes.Perceivable:
+			case ProgVariableTypeCode.Perceivable:
 				break;
-			case ProgVariableTypes.Perceiver:
+			case ProgVariableTypeCode.Perceiver:
 				break;
-			case ProgVariableTypes.MagicResourceHaver:
+			case ProgVariableTypeCode.MagicResourceHaver:
 				break;
-			case ProgVariableTypes.ReferenceType:
+			case ProgVariableTypeCode.ReferenceType:
 				break;
-			case ProgVariableTypes.ValueType:
+			case ProgVariableTypeCode.ValueType:
 				break;
-			case ProgVariableTypes.Anything:
+			case ProgVariableTypeCode.Anything:
 				break;
-			case ProgVariableTypes.Toon:
+			case ProgVariableTypeCode.Toon:
 				break;
-			case ProgVariableTypes.Tagged:
+			case ProgVariableTypeCode.Tagged:
 				break;
-			case ProgVariableTypes.Material:
+			case ProgVariableTypeCode.Material:
 				break;
 		}
 	}
 }
+
 

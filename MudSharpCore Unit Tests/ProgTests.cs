@@ -243,9 +243,9 @@ return @item");
 	[TestMethod]
 	public void TestGetTypeByName()
 	{
-		foreach (var type in Enum.GetValues<ProgVariableTypes>())
+		foreach (var type in ProgVariableTypes.Anything.GetAllFlags())
 		{
-			if (type is ProgVariableTypes.Error or ProgVariableTypes.Void or ProgVariableTypes.Dictionary or ProgVariableTypes.Collection or ProgVariableTypes.CollectionDictionary)
+			if (type.LegacyCode is ProgVariableTypeCode.Error or ProgVariableTypeCode.Void or ProgVariableTypeCode.Dictionary or ProgVariableTypeCode.Collection or ProgVariableTypeCode.CollectionDictionary)
 			{
 				continue;
 			}

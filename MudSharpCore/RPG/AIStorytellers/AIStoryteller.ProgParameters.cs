@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -68,19 +68,19 @@ public partial class AIStoryteller
 			};
 		}
 
-		return type switch
+		return type.LegacyCode switch
 		{
-			ProgVariableTypes.Boolean => new Dictionary<string, object>
+			ProgVariableTypeCode.Boolean => new Dictionary<string, object>
 			{
 				["type"] = "boolean",
 				["description"] = description
 			},
-			ProgVariableTypes.Number => new Dictionary<string, object>
+			ProgVariableTypeCode.Number => new Dictionary<string, object>
 			{
 				["type"] = "number",
 				["description"] = description
 			},
-			ProgVariableTypes.Effect => new Dictionary<string, object>
+			ProgVariableTypeCode.Effect => new Dictionary<string, object>
 			{
 				["type"] = "object",
 				["description"] = description,
@@ -104,33 +104,33 @@ public partial class AIStoryteller
 				},
 				["required"] = new[] { "EffectId" }
 			},
-			ProgVariableTypes.Gender => new Dictionary<string, object>
+			ProgVariableTypeCode.Gender => new Dictionary<string, object>
 			{
 				["type"] = "string",
 				["description"] =
 					$"{description} Valid values are male, female, neuter, non-binary or indeterminate."
 			},
-			ProgVariableTypes.DateTime => new Dictionary<string, object>
+			ProgVariableTypeCode.DateTime => new Dictionary<string, object>
 			{
 				["type"] = "string",
 				["description"] = $"{description} Use an ISO-8601 datetime string."
 			},
-			ProgVariableTypes.TimeSpan => new Dictionary<string, object>
+			ProgVariableTypeCode.TimeSpan => new Dictionary<string, object>
 			{
 				["type"] = "string",
 				["description"] = $"{description} Use a TimeSpan string such as 00:30:00."
 			},
-			ProgVariableTypes.MudDateTime => new Dictionary<string, object>
+			ProgVariableTypeCode.MudDateTime => new Dictionary<string, object>
 			{
 				["type"] = "string",
 				["description"] = $"{description} Use a parseable mud datetime string such as never or a saved datetime value."
 			},
-			ProgVariableTypes.Text => new Dictionary<string, object>
+			ProgVariableTypeCode.Text => new Dictionary<string, object>
 			{
 				["type"] = "string",
 				["description"] = description
 			},
-			ProgVariableTypes.Outfit => new Dictionary<string, object>
+			ProgVariableTypeCode.Outfit => new Dictionary<string, object>
 			{
 				["type"] = "object",
 				["description"] = description,
@@ -149,7 +149,7 @@ public partial class AIStoryteller
 				},
 				["required"] = new[] { "OwnerCharacterId", "OutfitName" }
 			},
-			ProgVariableTypes.OutfitItem => new Dictionary<string, object>
+			ProgVariableTypeCode.OutfitItem => new Dictionary<string, object>
 			{
 				["type"] = "object",
 				["description"] = description,
@@ -406,9 +406,9 @@ public partial class AIStoryteller
 			return true;
 		}
 
-		switch (type)
+		switch (type.LegacyCode)
 		{
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				if (element.ValueKind == JsonValueKind.True || element.ValueKind == JsonValueKind.False)
 				{
 					convertedValue = element.GetBoolean();
@@ -427,7 +427,7 @@ public partial class AIStoryteller
 				convertedValue = null;
 				error = "Expected boolean argument.";
 				return false;
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				if (element.ValueKind == JsonValueKind.Number && element.TryGetDecimal(out var numberValue))
 				{
 					convertedValue = numberValue;
@@ -446,13 +446,13 @@ public partial class AIStoryteller
 				convertedValue = null;
 				error = "Expected numeric argument.";
 				return false;
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				convertedValue = element.ValueKind == JsonValueKind.String
 					? element.GetString() ?? string.Empty
 					: element.ToString();
 				error = string.Empty;
 				return true;
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				if (TryResolveGenderArgument(element, out var gender, out error))
 				{
 					convertedValue = gender;
@@ -461,7 +461,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				if (TryResolveTimeSpanArgument(element, out var timeSpan, out error))
 				{
 					convertedValue = timeSpan;
@@ -470,7 +470,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				if (TryResolveDateTimeArgument(element, out var dateTime, out error))
 				{
 					convertedValue = dateTime;
@@ -479,7 +479,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				if (TryResolveMudDateTimeArgument(element, out var mudDateTime, out error))
 				{
 					convertedValue = mudDateTime;
@@ -488,7 +488,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Shard:
+			case ProgVariableTypeCode.Shard:
 				if (TryResolveShardArgument(element, out var shard, out error))
 				{
 					convertedValue = shard;
@@ -497,7 +497,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Zone:
+			case ProgVariableTypeCode.Zone:
 				if (TryResolveZoneArgument(element, out var zone, out error))
 				{
 					convertedValue = zone;
@@ -506,7 +506,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Race:
+			case ProgVariableTypeCode.Race:
 				if (TryResolveRaceArgument(element, out var race, out error))
 				{
 					convertedValue = race;
@@ -515,7 +515,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Culture:
+			case ProgVariableTypeCode.Culture:
 				if (TryResolveCultureArgument(element, out var culture, out error))
 				{
 					convertedValue = culture;
@@ -524,7 +524,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Trait:
+			case ProgVariableTypeCode.Trait:
 				if (TryResolveTraitArgument(element, out var trait, out error))
 				{
 					convertedValue = trait;
@@ -533,7 +533,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Clan:
+			case ProgVariableTypeCode.Clan:
 				if (TryResolveClanArgument(element, out var clan, out error))
 				{
 					convertedValue = clan;
@@ -542,7 +542,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Ethnicity:
+			case ProgVariableTypeCode.Ethnicity:
 				if (TryResolveEthnicityArgument(element, out var ethnicity, out error))
 				{
 					convertedValue = ethnicity;
@@ -551,7 +551,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.ClanRank:
+			case ProgVariableTypeCode.ClanRank:
 				if (TryResolveClanRankArgument(element, out var clanRank, out error))
 				{
 					convertedValue = clanRank;
@@ -560,7 +560,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.ClanAppointment:
+			case ProgVariableTypeCode.ClanAppointment:
 				if (TryResolveClanAppointmentArgument(element, out var clanAppointment, out error))
 				{
 					convertedValue = clanAppointment;
@@ -569,7 +569,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.ClanPaygrade:
+			case ProgVariableTypeCode.ClanPaygrade:
 				if (TryResolveClanPaygradeArgument(element, out var clanPaygrade, out error))
 				{
 					convertedValue = clanPaygrade;
@@ -578,7 +578,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Currency:
+			case ProgVariableTypeCode.Currency:
 				if (TryResolveCurrencyArgument(element, out var currency, out error))
 				{
 					convertedValue = currency;
@@ -587,7 +587,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Exit:
+			case ProgVariableTypeCode.Exit:
 				if (TryResolveExitArgument(element, out var exit, out error))
 				{
 					convertedValue = exit;
@@ -596,7 +596,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Language:
+			case ProgVariableTypeCode.Language:
 				if (TryResolveLanguageArgument(element, out var language, out error))
 				{
 					convertedValue = language;
@@ -605,7 +605,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Accent:
+			case ProgVariableTypeCode.Accent:
 				if (TryResolveAccentArgument(element, out var accent, out error))
 				{
 					convertedValue = accent;
@@ -614,7 +614,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Merit:
+			case ProgVariableTypeCode.Merit:
 				if (TryResolveMeritArgument(element, out var merit, out error))
 				{
 					convertedValue = merit;
@@ -623,7 +623,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Calendar:
+			case ProgVariableTypeCode.Calendar:
 				if (TryResolveCalendarArgument(element, out var calendar, out error))
 				{
 					convertedValue = calendar;
@@ -632,7 +632,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Clock:
+			case ProgVariableTypeCode.Clock:
 				if (TryResolveClockArgument(element, out var clock, out error))
 				{
 					convertedValue = clock;
@@ -641,7 +641,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Knowledge:
+			case ProgVariableTypeCode.Knowledge:
 				if (TryResolveKnowledgeArgument(element, out var knowledge, out error))
 				{
 					convertedValue = knowledge;
@@ -650,7 +650,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Role:
+			case ProgVariableTypeCode.Role:
 				if (TryResolveRoleArgument(element, out var role, out error))
 				{
 					convertedValue = role;
@@ -659,7 +659,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Drug:
+			case ProgVariableTypeCode.Drug:
 				if (TryResolveDrugArgument(element, out var drug, out error))
 				{
 					convertedValue = drug;
@@ -668,7 +668,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Shop:
+			case ProgVariableTypeCode.Shop:
 				if (TryResolveShopArgument(element, out var shop, out error))
 				{
 					convertedValue = shop;
@@ -677,7 +677,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Effect:
+			case ProgVariableTypeCode.Effect:
 				if (TryResolveEffectArgument(element, out var effect, out error))
 				{
 					convertedValue = effect;
@@ -686,7 +686,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.Outfit:
+			case ProgVariableTypeCode.Outfit:
 				if (TryResolveOutfitArgument(element, out var outfit, out error))
 				{
 					convertedValue = outfit;
@@ -695,7 +695,7 @@ public partial class AIStoryteller
 
 				convertedValue = null;
 				return false;
-			case ProgVariableTypes.OutfitItem:
+			case ProgVariableTypeCode.OutfitItem:
 				if (TryResolveOutfitItemArgument(element, out var outfitItem, out error))
 				{
 					convertedValue = outfitItem;
@@ -713,40 +713,40 @@ public partial class AIStoryteller
 			return false;
 		}
 
-		convertedValue = type switch
+		convertedValue = type.LegacyCode switch
 		{
-			ProgVariableTypes.Character or ProgVariableTypes.Toon => Gameworld.TryGetCharacter(id, true),
-			ProgVariableTypes.Item => Gameworld.Items.Get(id),
-			ProgVariableTypes.Location => Gameworld.Cells.Get(id),
-			ProgVariableTypes.WeatherEvent => Gameworld.WeatherEvents.Get(id),
-			ProgVariableTypes.Merchandise => Gameworld.Shops
+			ProgVariableTypeCode.Character or ProgVariableTypeCode.Toon => Gameworld.TryGetCharacter(id, true),
+			ProgVariableTypeCode.Item => Gameworld.Items.Get(id),
+			ProgVariableTypeCode.Location => Gameworld.Cells.Get(id),
+			ProgVariableTypeCode.WeatherEvent => Gameworld.WeatherEvents.Get(id),
+			ProgVariableTypeCode.Merchandise => Gameworld.Shops
 				.SelectMany(x => x.Merchandises)
 				.FirstOrDefault(x => x.Id == id),
-			ProgVariableTypes.Script => Gameworld.Scripts.Get(id),
-			ProgVariableTypes.Writing => Gameworld.Writings.Get(id),
-			ProgVariableTypes.OverlayPackage => Gameworld.CellOverlayPackages.Get(id),
-			ProgVariableTypes.Terrain => Gameworld.Terrains.Get(id),
-			ProgVariableTypes.Solid => Gameworld.Materials.Get(id),
-			ProgVariableTypes.Liquid => Gameworld.Liquids.Get(id),
-			ProgVariableTypes.Gas => Gameworld.Gases.Get(id),
-			ProgVariableTypes.Material => (object?)Gameworld.Materials.Get(id) ?? (object?)Gameworld.Liquids.Get(id) ??
+			ProgVariableTypeCode.Script => Gameworld.Scripts.Get(id),
+			ProgVariableTypeCode.Writing => Gameworld.Writings.Get(id),
+			ProgVariableTypeCode.OverlayPackage => Gameworld.CellOverlayPackages.Get(id),
+			ProgVariableTypeCode.Terrain => Gameworld.Terrains.Get(id),
+			ProgVariableTypeCode.Solid => Gameworld.Materials.Get(id),
+			ProgVariableTypeCode.Liquid => Gameworld.Liquids.Get(id),
+			ProgVariableTypeCode.Gas => Gameworld.Gases.Get(id),
+			ProgVariableTypeCode.Material => (object?)Gameworld.Materials.Get(id) ?? (object?)Gameworld.Liquids.Get(id) ??
 			                              Gameworld.Gases.Get(id),
-			ProgVariableTypes.MagicSchool => Gameworld.MagicSchools.Get(id),
-			ProgVariableTypes.MagicCapability => Gameworld.MagicCapabilities.Get(id),
-			ProgVariableTypes.MagicSpell => Gameworld.MagicSpells.Get(id),
-			ProgVariableTypes.Bank => Gameworld.Banks.Get(id),
-			ProgVariableTypes.BankAccount => Gameworld.BankAccounts.Get(id),
-			ProgVariableTypes.BankAccountType => Gameworld.BankAccountTypes.Get(id),
-			ProgVariableTypes.Project => Gameworld.ActiveProjects.Get(id),
-			ProgVariableTypes.Law => Gameworld.Laws.Get(id),
-			ProgVariableTypes.LegalAuthority => Gameworld.LegalAuthorities.Get(id),
-			ProgVariableTypes.Market => Gameworld.Markets.Get(id),
-			ProgVariableTypes.MarketCategory => Gameworld.MarketCategories.Get(id),
-			ProgVariableTypes.Crime => Gameworld.Crimes.Get(id),
-			ProgVariableTypes.Area => Gameworld.Areas.Get(id),
-			ProgVariableTypes.Tagged => (object?)Gameworld.Cells.Get(id) ?? (object?)Gameworld.Items.Get(id) ??
+			ProgVariableTypeCode.MagicSchool => Gameworld.MagicSchools.Get(id),
+			ProgVariableTypeCode.MagicCapability => Gameworld.MagicCapabilities.Get(id),
+			ProgVariableTypeCode.MagicSpell => Gameworld.MagicSpells.Get(id),
+			ProgVariableTypeCode.Bank => Gameworld.Banks.Get(id),
+			ProgVariableTypeCode.BankAccount => Gameworld.BankAccounts.Get(id),
+			ProgVariableTypeCode.BankAccountType => Gameworld.BankAccountTypes.Get(id),
+			ProgVariableTypeCode.Project => Gameworld.ActiveProjects.Get(id),
+			ProgVariableTypeCode.Law => Gameworld.Laws.Get(id),
+			ProgVariableTypeCode.LegalAuthority => Gameworld.LegalAuthorities.Get(id),
+			ProgVariableTypeCode.Market => Gameworld.Markets.Get(id),
+			ProgVariableTypeCode.MarketCategory => Gameworld.MarketCategories.Get(id),
+			ProgVariableTypeCode.Crime => Gameworld.Crimes.Get(id),
+			ProgVariableTypeCode.Area => Gameworld.Areas.Get(id),
+			ProgVariableTypeCode.Tagged => (object?)Gameworld.Cells.Get(id) ?? (object?)Gameworld.Items.Get(id) ??
 			                            Gameworld.Terrains.Get(id),
-			ProgVariableTypes.Perceivable or ProgVariableTypes.Perceiver or ProgVariableTypes.MagicResourceHaver =>
+			ProgVariableTypeCode.Perceivable or ProgVariableTypeCode.Perceiver or ProgVariableTypeCode.MagicResourceHaver =>
 				(object?)Gameworld.TryGetCharacter(id, true) ?? (object?)Gameworld.Items.Get(id) ??
 				Gameworld.Cells.Get(id),
 			_ => null
@@ -1730,3 +1730,4 @@ public partial class AIStoryteller
 
 
 }
+

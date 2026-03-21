@@ -2817,7 +2817,11 @@ namespace MudSharp.Database
 					.HasColumnType("bit(1)")
 					.HasDefaultValueSql("b'0'");
 
-				entity.Property(e => e.ReturnType).HasColumnType("bigint(20)");
+				entity.Property(e => e.ReturnTypeDefinition)
+					.IsRequired()
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.StaticType).HasColumnType("int(11)");
 
@@ -2845,7 +2849,11 @@ namespace MudSharp.Database
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 
-				entity.Property(e => e.ParameterType).HasColumnType("bigint(20)");
+				entity.Property(e => e.ParameterTypeDefinition)
+					.IsRequired()
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.HasOne(d => d.FutureProg)
 					.WithMany(p => p.FutureProgsParameters)

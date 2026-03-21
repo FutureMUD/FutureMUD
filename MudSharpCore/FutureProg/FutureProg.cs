@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -75,9 +75,6 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	private static readonly Regex _commentRegex = new(@"^\s*(?:--|//|').*$", RegexOptions.IgnoreCase);
 
-	private static readonly Regex _getTypeCollectionRegex =
-		new(@"^(?<base>.+) (?<modifier>collection dictionary|collection|dictionary|collectiondictionary)$", RegexOptions.IgnoreCase);
-
 	private readonly List<IStatement> _statements = new();
 
 	private string _functionText;
@@ -107,10 +104,10 @@ public class FutureProg : SaveableItem, IFutureProg
 		CompileError = string.Empty;
 		Category = prog.Category;
 		Subcategory = prog.Subcategory;
-		ReturnType = (ProgVariableTypes)prog.ReturnType;
+		ReturnType = ProgVariableTypes.FromStorageString(prog.ReturnTypeDefinition);
 		NamedParameters =
 			prog.FutureProgsParameters.OrderBy(x => x.ParameterIndex)
-				.Select(x => Tuple.Create((ProgVariableTypes)x.ParameterType, x.ParameterName))
+				.Select(x => Tuple.Create(ProgVariableTypes.FromStorageString(x.ParameterTypeDefinition), x.ParameterName))
 				.ToList();
 		Public = prog.Public;
 		ColouriseFunctionText();
@@ -644,7 +641,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		dbitem.FunctionComment = FunctionComment;
 		dbitem.FunctionText = FunctionText;
 		dbitem.Public = Public;
-		dbitem.ReturnType = (long)ReturnType;
+		dbitem.ReturnTypeDefinition = ReturnType.ToStorageString();
 		dbitem.Category = Category;
 		dbitem.Subcategory = Subcategory;
 		dbitem.AcceptsAnyParameters = AcceptsAnyParameters;
@@ -659,7 +656,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			dbparam.FutureProg = dbitem;
 			dbparam.ParameterIndex = index++;
 			dbparam.ParameterName = item.Item2;
-			dbparam.ParameterType = (long)item.Item1;
+			dbparam.ParameterTypeDefinition = item.Item1.ToStorageString();
 		}
 
 		FMDB.Context.SaveChanges();
@@ -668,241 +665,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public static ProgVariableTypes GetTypeByName(string name)
 	{
-		var returnType = ProgVariableTypes.Void;
-
-		if (_getTypeCollectionRegex.IsMatch(name))
-		{
-			var match = _getTypeCollectionRegex.Match(name);
-			switch (match.Groups["modifier"].Value.ToLowerInvariant())
-			{
-				case "collection":
-					returnType |= ProgVariableTypes.Collection;
-					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
-					break;
-				case "dictionary":
-					returnType |= ProgVariableTypes.Dictionary;
-					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
-					break;
-				case "collectiondictionary":
-				case "collection dictionary":
-					returnType |= ProgVariableTypes.CollectionDictionary;
-					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
-					break;
-			}
-		}
-
-		switch (name.ToLowerInvariant())
-		{
-			case "text":
-				returnType |= ProgVariableTypes.Text;
-				break;
-			case "number":
-				returnType |= ProgVariableTypes.Number;
-				break;
-			case "bool":
-			case "boolean":
-				returnType |= ProgVariableTypes.Boolean;
-				break;
-			case "character":
-				returnType |= ProgVariableTypes.Character;
-				break;
-			case "location":
-			case "cell":
-				returnType |= ProgVariableTypes.Location;
-				break;
-			case "zone":
-				returnType |= ProgVariableTypes.Zone;
-				break;
-			case "shard":
-				returnType |= ProgVariableTypes.Shard;
-				break;
-			case "item":
-				returnType |= ProgVariableTypes.Item;
-				break;
-			case "gender":
-				returnType |= ProgVariableTypes.Gender;
-				break;
-			case "race":
-				returnType |= ProgVariableTypes.Race;
-				break;
-			case "culture":
-				returnType |= ProgVariableTypes.Culture;
-				break;
-			case "chargen":
-				returnType |= ProgVariableTypes.Chargen;
-				break;
-			case "trait":
-				returnType |= ProgVariableTypes.Trait;
-				break;
-			case "clan":
-				returnType |= ProgVariableTypes.Clan;
-				break;
-			case "rank":
-				returnType |= ProgVariableTypes.ClanRank;
-				break;
-			case "paygrade":
-				returnType |= ProgVariableTypes.ClanPaygrade;
-				break;
-			case "appointment":
-				returnType |= ProgVariableTypes.ClanAppointment;
-				break;
-			case "currency":
-				returnType |= ProgVariableTypes.Currency;
-				break;
-			case "exit":
-				returnType |= ProgVariableTypes.Exit;
-				break;
-			case "perceivable":
-				returnType |= ProgVariableTypes.Perceivable;
-				break;
-			case "perceiver":
-				returnType |= ProgVariableTypes.Perceiver;
-				break;
-			case "collectionitem":
-				returnType |= ProgVariableTypes.CollectionItem;
-				break;
-			case "toon":
-				returnType |= ProgVariableTypes.Toon;
-				break;
-			case "datetime":
-				returnType |= ProgVariableTypes.DateTime;
-				break;
-			case "timespan":
-				returnType |= ProgVariableTypes.TimeSpan;
-				break;
-			case "language":
-				returnType |= ProgVariableTypes.Language;
-				break;
-			case "accent":
-				returnType |= ProgVariableTypes.Accent;
-				break;
-			case "merit":
-				returnType |= ProgVariableTypes.Merit;
-				break;
-			case "muddatetime":
-			case "muddate":
-			case "mudtime":
-				returnType |= ProgVariableTypes.MudDateTime;
-				break;
-			case "calendar":
-				returnType |= ProgVariableTypes.Calendar;
-				break;
-			case "clock":
-				returnType |= ProgVariableTypes.Clock;
-				break;
-			case "effect":
-				returnType |= ProgVariableTypes.Effect;
-				break;
-			case "knowledge":
-				returnType |= ProgVariableTypes.Knowledge;
-				break;
-			case "role":
-				returnType |= ProgVariableTypes.Role;
-				break;
-			case "ethnicity":
-				returnType |= ProgVariableTypes.Ethnicity;
-				break;
-			case "drug":
-				returnType |= ProgVariableTypes.Drug;
-				break;
-			case "weatherevent":
-				returnType |= ProgVariableTypes.WeatherEvent;
-				break;
-			case "tagged":
-				returnType |= ProgVariableTypes.Tagged;
-				break;
-			case "shop":
-				returnType |= ProgVariableTypes.Shop;
-				break;
-			case "merchandise":
-			case "merch":
-				returnType |= ProgVariableTypes.Merchandise;
-				break;
-			case "magicresourcehaver":
-			case "mrh":
-				returnType |= ProgVariableTypes.MagicResourceHaver;
-				break;
-			case "outfit":
-				returnType |= ProgVariableTypes.Outfit;
-				break;
-			case "outfititem":
-				returnType |= ProgVariableTypes.OutfitItem;
-				break;
-			case "project":
-				returnType |= ProgVariableTypes.Project;
-				break;
-			case "overlaypackage":
-				returnType |= ProgVariableTypes.OverlayPackage;
-				break;
-			case "terrain":
-				returnType |= ProgVariableTypes.Terrain;
-				break;
-			case "material":
-				returnType |= ProgVariableTypes.Material;
-				break;
-			case "solid":
-				returnType |= ProgVariableTypes.Solid;
-				break;
-			case "liquid":
-				returnType |= ProgVariableTypes.Liquid;
-				break;
-			case "gas":
-				returnType |= ProgVariableTypes.Gas;
-				break;
-			case "magicschool":
-			case "school":
-				returnType |= ProgVariableTypes.MagicSchool;
-				break;
-			case "magicspell":
-			case "spell":
-				returnType |= ProgVariableTypes.MagicSpell;
-				break;
-			case "magiccapability":
-			case "capability":
-				returnType |= ProgVariableTypes.MagicCapability;
-				break;
-			case "bank":
-				returnType |= ProgVariableTypes.Bank;
-				break;
-			case "bankaccount":
-				returnType |= ProgVariableTypes.BankAccount;
-				break;
-			case "bankaccounttype":
-				returnType |= ProgVariableTypes.BankAccountType;
-				break;
-			case "legalauthority":
-				returnType |= ProgVariableTypes.LegalAuthority;
-				break;
-			case "law":
-				returnType |= ProgVariableTypes.Law;
-				break;
-			case "crime":
-				returnType |= ProgVariableTypes.Crime;
-				break;
-			case "market":
-				returnType |= ProgVariableTypes.Market;
-				break;
-			case "marketcategory":
-				returnType |= ProgVariableTypes.MarketCategory;
-				break;
-			case "script":
-				returnType |= ProgVariableTypes.Script;
-				break;
-			case "writing":
-				returnType |= ProgVariableTypes.Writing;
-				break;
-			case "area":
-				returnType |= ProgVariableTypes.Area;
-				break;
-			case "liquidmixture":
-				returnType |= ProgVariableTypes.LiquidMixture;
-				break;
-			default:
-				returnType = ProgVariableTypes.Error;
-				break;
-		}
-
-		return returnType;
+		return ProgVariableTypes.TryParse(name, out var returnType) ? returnType : ProgVariableTypes.Error;
 	}
 
 	public static ICompileInfo CompileNextStatement(IEnumerable<string> lines,
@@ -1036,9 +799,9 @@ public class FutureProg : SaveableItem, IFutureProg
 			return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(values), underlyingType);
 		}
 
-		switch (type)
+		switch (type.LegacyCode)
 		{
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				if (value is Enum evalue)
 				{
 					return new TextVariable(evalue.DescribeEnum(true));
@@ -1056,7 +819,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 				return new TextVariable(value.ToString());
 
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				if (value is Enum)
 				{
 					try
@@ -1071,16 +834,16 @@ public class FutureProg : SaveableItem, IFutureProg
 
 				return new NumberVariable(Convert.ToDecimal(value));
 
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				return new BooleanVariable(Convert.ToBoolean(value));
 
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				return new GenderVariable((Gender)(value as short? ?? 0));
 
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				return new DateTimeVariable((DateTime)value);
 
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				return new TimeSpanVariable((TimeSpan)value);
 
 			default:
@@ -1365,105 +1128,105 @@ public class FutureProg : SaveableItem, IFutureProg
 
 		var type = variable.Type & ~ProgVariableTypes.Literal;
 		var thing = variable.GetObject as IFrameworkItem;
-		switch (type)
+		switch (type.LegacyCode)
 		{
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				return $"\"{variable.GetObject}\"";
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				return ((decimal)variable.GetObject).ToString("N", voyeur);
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				return ((bool)variable.GetObject).ToString(voyeur);
-			case ProgVariableTypes.Character:
+			case ProgVariableTypeCode.Character:
 				var ch = (ICharacter)variable;
 				return
 					$"Character #{ch.Id.ToString("N0", voyeur)} ({ch.PersonalName.GetName(NameStyle.FullWithNickname)}) - {ch.HowSeen(voyeur)}";
-			case ProgVariableTypes.Location:
+			case ProgVariableTypeCode.Location:
 				var cell = (ICell)variable;
 				return $"Cell #{cell.Id.ToString("N0", voyeur)}: {cell.CurrentOverlay.CellName}";
-			case ProgVariableTypes.Item:
+			case ProgVariableTypeCode.Item:
 				var item = (IGameItem)variable;
 				return
 					$"Item #{item.Id.ToString("N0", voyeur)} Proto {item.Prototype.Id.ToString("N0", voyeur)}r{item.Prototype.RevisionNumber.ToString("N0", voyeur)} - {item.HowSeen(voyeur)}";
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				return Gendering.Get((Gender)variable.GetObject).GenderClass();
-			case ProgVariableTypes.Shard:
+			case ProgVariableTypeCode.Shard:
 				return $"Shard #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Zone:
+			case ProgVariableTypeCode.Zone:
 				return $"Zone #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Race:
+			case ProgVariableTypeCode.Race:
 				return $"Race #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Culture:
+			case ProgVariableTypeCode.Culture:
 				return $"Culture #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Chargen:
+			case ProgVariableTypeCode.Chargen:
 				var chargen = (Chargen)variable.GetObject;
 				return
 					$"Chargen #{chargen.Id} - {chargen.SelectedName?.GetName(NameStyle.FullWithNickname) ?? "Unnamed"}";
-			case ProgVariableTypes.Trait:
+			case ProgVariableTypeCode.Trait:
 				return $"Trait #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Clan:
+			case ProgVariableTypeCode.Clan:
 				return $"Clan #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.ClanRank:
+			case ProgVariableTypeCode.ClanRank:
 				return $"Clan Rank #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.ClanAppointment:
+			case ProgVariableTypeCode.ClanAppointment:
 				return $"Clan Appointment #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.ClanPaygrade:
+			case ProgVariableTypeCode.ClanPaygrade:
 				return $"Clan Paygrade #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Currency:
+			case ProgVariableTypeCode.Currency:
 				return $"Currency #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Exit:
+			case ProgVariableTypeCode.Exit:
 				var exit = (ICellExit)variable.GetObject;
 				return
 					$"Exit #{exit.Exit.Id} - {exit.OutboundMovementSuffix} from {exit.Origin.CurrentOverlay.CellName} to {exit.Destination.CurrentOverlay.CellName}";
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				return ((DateTime)variable.GetObject).GetLocalDateString(voyeur?.Account ?? DummyAccount.Instance);
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				return ((TimeSpan)variable.GetObject).Describe(voyeur);
-			case ProgVariableTypes.Language:
+			case ProgVariableTypeCode.Language:
 				return $"Language #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Accent:
+			case ProgVariableTypeCode.Accent:
 				return $"Accent #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Merit:
+			case ProgVariableTypeCode.Merit:
 				return $"Merit #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				var mdt = (MudDateTime)variable.GetObject;
 				return mdt.GetDateTimeString();
-			case ProgVariableTypes.Calendar:
+			case ProgVariableTypeCode.Calendar:
 				return $"Calendar #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Clock:
+			case ProgVariableTypeCode.Clock:
 				return $"Clock #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Effect:
+			case ProgVariableTypeCode.Effect:
 				var effect = (IEffectSubtype)variable.GetObject;
 				return $"Effect #{effect.Id} - {effect.Describe(voyeur)}";
-			case ProgVariableTypes.Knowledge:
+			case ProgVariableTypeCode.Knowledge:
 				return $"Knowledge #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Role:
+			case ProgVariableTypeCode.Role:
 				return $"Role #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Ethnicity:
+			case ProgVariableTypeCode.Ethnicity:
 				return $"Ethnicity #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Drug:
+			case ProgVariableTypeCode.Drug:
 				return $"Drug #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.WeatherEvent:
+			case ProgVariableTypeCode.WeatherEvent:
 				return $"WeatherEvent #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Perceivable:
+			case ProgVariableTypeCode.Perceivable:
 				return $"Perceivable {thing.Id} type {thing.FrameworkItemType}";
-			case ProgVariableTypes.Perceiver:
+			case ProgVariableTypeCode.Perceiver:
 				return $"Perceiver {thing.Id} type {thing.FrameworkItemType}";
-			case ProgVariableTypes.MagicResourceHaver:
+			case ProgVariableTypeCode.MagicResourceHaver:
 				return $"MagicResourceHaver {thing.Id} type {thing.FrameworkItemType}";
-			case ProgVariableTypes.Shop:
+			case ProgVariableTypeCode.Shop:
 				return $"Shop {thing.Id} \"{thing.Name}\"";
-			case ProgVariableTypes.Merchandise:
+			case ProgVariableTypeCode.Merchandise:
 				return $"Merchandise {thing.Id} \"{thing.Name}\"";
-			case ProgVariableTypes.Outfit:
+			case ProgVariableTypeCode.Outfit:
 				return $"Outfit {thing.Id} \"{thing.Name}\"";
-			case ProgVariableTypes.LiquidMixture:
+			case ProgVariableTypeCode.LiquidMixture:
 				return $"Liquid Mixture {((LiquidMixture)variable.GetObject).ColouredLiquidDescription}";
-			case ProgVariableTypes.Area:
+			case ProgVariableTypeCode.Area:
 				return $"Area #{thing.Id} - {thing.Name}";
-			case ProgVariableTypes.Writing:
+			case ProgVariableTypeCode.Writing:
 				var writing = (IWriting)thing;
 				return $"Writing #{thing.Id} - {writing.DescribeInLook(null)}";
-			case ProgVariableTypes.Script:
+			case ProgVariableTypeCode.Script:
 				return $"Script #{thing.Id} - {thing.Name}";
 		}
 

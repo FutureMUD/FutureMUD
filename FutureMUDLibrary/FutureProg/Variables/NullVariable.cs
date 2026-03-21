@@ -30,37 +30,25 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         private static Type GetUnderlyingType(ProgVariableTypes type) {
-            switch (type) {
-                case ProgVariableTypes.Boolean:
-                    return typeof(bool);
-                case ProgVariableTypes.Number:
-                    return typeof(decimal);
-                case ProgVariableTypes.Text:
-                    return typeof(string);
-                case ProgVariableTypes.TimeSpan:
-                    return typeof(TimeSpan);
-                case ProgVariableTypes.DateTime:
-                    return typeof(DateTime);
-                default:
-                    throw new NotImplementedException();
-            }
+            return type.ExactKind switch {
+                ProgTypeKind.Boolean => typeof(bool),
+                ProgTypeKind.Number => typeof(decimal),
+                ProgTypeKind.Text => typeof(string),
+                ProgTypeKind.TimeSpan => typeof(TimeSpan),
+                ProgTypeKind.DateTime => typeof(DateTime),
+                _ => throw new NotImplementedException()
+            };
         }
 
         private static object GetDefaultFor(ProgVariableTypes type) {
-            switch (type) {
-                case ProgVariableTypes.Boolean:
-                    return default(bool);
-                case ProgVariableTypes.Number:
-                    return default(decimal);
-                case ProgVariableTypes.Text:
-                    return default(string);
-                case ProgVariableTypes.TimeSpan:
-                    return default(TimeSpan);
-                case ProgVariableTypes.DateTime:
-                    return default(DateTime);
-                default:
-                    return null;
-            }
+            return type.ExactKind switch {
+                ProgTypeKind.Boolean => default(bool),
+                ProgTypeKind.Number => default(decimal),
+                ProgTypeKind.Text => default(string),
+                ProgTypeKind.TimeSpan => default(TimeSpan),
+                ProgTypeKind.DateTime => default(DateTime),
+                _ => null
+            };
         }
 
         public override IProgVariable GetProperty(string property) {

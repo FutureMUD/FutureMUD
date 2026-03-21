@@ -30,7 +30,7 @@ public class FunctionCompilerInformation
 		IEnumerable<string> parameterHelp = null,
 		string functionHelp = null,
 		string category = "Uncategorised",
-		ProgVariableTypes returnType = ProgVariableTypes.Error,
+		ProgVariableTypes? returnType = null,
 		Func<IEnumerable<ProgVariableTypes>, IFuturemud, bool> filterFunction = null)
 	{
 		FunctionName = functionName;
@@ -40,7 +40,7 @@ public class FunctionCompilerInformation
 		ParameterHelp = parameterHelp;
 		FunctionHelp = functionHelp;
 		Category = category;
-		ReturnType = returnType;
+		ReturnType = returnType ?? ProgVariableTypes.Error;
 		if (filterFunction == null)
 		{
 			CompilerFilterFunction = (x, y) => true;

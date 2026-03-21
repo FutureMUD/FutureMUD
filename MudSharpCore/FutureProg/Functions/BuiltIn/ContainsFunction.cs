@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,40 +53,40 @@ internal class ContainsFunction : BuiltInFunction
 		}
 
 		var iResult = itemFunction.Result;
-		switch (itemFunction.ReturnType & ~ProgVariableTypes.Literal)
+		switch ((itemFunction.ReturnType & ~ProgVariableTypes.Literal).LegacyCode)
 		{
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				var targetBool = (bool?)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject as bool? == targetBool));
 				break;
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				var targetNumber = (decimal?)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject as decimal? == targetNumber));
 				break;
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				var targetText = (string)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => string.Equals(x.GetObject as string, targetText,
 						StringComparison.InvariantCultureIgnoreCase)));
 				break;
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				var targetGender = (Gender?)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject as Gender? == targetGender));
 				break;
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				var targetDateTime = (System.DateTime?)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => (x.GetObject as System.DateTime?)?.Equals(targetDateTime) ?? false));
 				break;
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				var targetTimeSpan = (TimeSpan?)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => (x.GetObject as TimeSpan?)?.Equals(targetTimeSpan) ?? false));
 				break;
-			case ProgVariableTypes.MudDateTime:
+			case ProgVariableTypeCode.MudDateTime:
 				var targetMudDateTime = (MudDateTime)iResult?.GetObject;
 				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => (x.GetObject as MudDateTime)?.Equals(targetMudDateTime) ?? false));

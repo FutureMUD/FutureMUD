@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg.Variables;
 
@@ -24,33 +24,33 @@ internal class EqualityFunction : BinaryFunction
 			return StatementResult.Error;
 		}
 
-		switch (LHS.ReturnType & ~ProgVariableTypes.Literal)
+		switch ((LHS.ReturnType & ~ProgVariableTypes.Literal).LegacyCode)
 		{
-			case ProgVariableTypes.Boolean:
+			case ProgVariableTypeCode.Boolean:
 				Result =
 					new BooleanVariable((bool)(LHS?.Result?.GetObject ?? false) ==
 					                    (bool)(RHS?.Result?.GetObject ?? false));
 				break;
-			case ProgVariableTypes.Number:
+			case ProgVariableTypeCode.Number:
 				Result = new BooleanVariable((decimal)(LHS?.Result?.GetObject ?? decimal.MinValue) ==
 				                             (decimal)(RHS?.Result?.GetObject ?? decimal.MinValue));
 				break;
-			case ProgVariableTypes.Text:
+			case ProgVariableTypeCode.Text:
 				Result =
 					new BooleanVariable(string.Equals((string)LHS?.Result?.GetObject,
 						(string)RHS?.Result?.GetObject, StringComparison.InvariantCultureIgnoreCase));
 				break;
-			case ProgVariableTypes.Gender:
+			case ProgVariableTypeCode.Gender:
 				Result = new BooleanVariable((Gender)(LHS?.Result?.GetObject ?? Gender.Indeterminate) ==
 				                             (Gender)(RHS?.Result?.GetObject ?? Gender.Indeterminate));
 				break;
-			case ProgVariableTypes.DateTime:
+			case ProgVariableTypeCode.DateTime:
 				Result =
 					new BooleanVariable(
 						((System.DateTime)(LHS?.Result?.GetObject ?? System.DateTime.MinValue)).Equals(
 							(System.DateTime)(RHS?.Result?.GetObject ?? System.DateTime.MinValue)));
 				break;
-			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypeCode.TimeSpan:
 				Result =
 					new BooleanVariable(((TimeSpan)LHS.Result.GetObject).Equals((TimeSpan)RHS.Result.GetObject));
 				break;

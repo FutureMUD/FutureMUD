@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.FutureProg;
@@ -33,25 +34,45 @@ internal static class SeederRepeatabilityHelper
 
 	public static T EnsureEntity<T>(
 		DbSet<T> set,
-		Func<T, bool> predicate,
+		Expression<Func<T, bool>> predicate,
 		Func<T> create)
 		where T : class
 	{
-		return set.Local.FirstOrDefault(predicate) ??
+		var localPredicate = predicate.Compile();
+		return set.Local.FirstOrDefault(localPredicate) ??
 		       set.FirstOrDefault(predicate) ??
+		       create();
+	}
+
+	public static T EnsureEntity<T>(
+		DbSet<T> set,
+		Func<T, bool> localPredicate,
+		Expression<Func<T, bool>> queryPredicate,
+		Func<T> create)
+		where T : class
+	{
+		return set.Local.FirstOrDefault(localPredicate) ??
+		       set.FirstOrDefault(queryPredicate) ??
 		       create();
 	}
 
 	public static T EnsureNamedEntity<T>(
 		DbSet<T> set,
 		string name,
-		Func<T, string> nameSelector,
+		Expression<Func<T, string>> nameSelector,
 		Func<T> create)
 		where T : class
 	{
+		var localSelector = nameSelector.Compile();
+		var parameter = nameSelector.Parameters[0];
+		var queryPredicate = Expression.Lambda<Func<T, bool>>(
+			Expression.Equal(nameSelector.Body, Expression.Constant(name, typeof(string))),
+			parameter);
+
 		return EnsureEntity(
 			set,
-			x => string.Equals(nameSelector(x), name, StringComparison.OrdinalIgnoreCase),
+			x => string.Equals(localSelector(x), name, StringComparison.OrdinalIgnoreCase),
+			queryPredicate,
 			create);
 	}
 
@@ -130,10 +151,14 @@ internal static class SeederRepeatabilityHelper
 		}
 	}
 
-	public static void EnsureLink<TLink>(DbSet<TLink> set, Func<TLink, bool> predicate, Func<TLink> create)
+	public static void EnsureLink<TLink>(
+		DbSet<TLink> set,
+		Expression<Func<TLink, bool>> predicate,
+		Func<TLink> create)
 		where TLink : class
 	{
-		if (set.Local.Any(predicate) || set.Any(predicate))
+		var localPredicate = predicate.Compile();
+		if (set.Local.Any(localPredicate) || set.Any(predicate))
 		{
 			return;
 		}

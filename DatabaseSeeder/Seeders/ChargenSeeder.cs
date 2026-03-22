@@ -694,21 +694,31 @@ return 10",
 		context.SaveChanges();
 
 		foreach (var stage in stageDependencies)
-		foreach (var dependency in stage.Value)
 		{
-			if (context.ChargenScreenStoryboardDependentStages.Any(x =>
-				    x.OwnerId == stage.Key.Id &&
-				    x.Dependency == (int)dependency))
+			var desiredDependencies = stage.Value
+				.Select(x => (int)x)
+				.ToHashSet();
+			var existingDependencies = context.ChargenScreenStoryboardDependentStages
+				.Where(x => x.OwnerId == stage.Key.Id)
+				.ToList();
+
+			foreach (var existing in existingDependencies.Where(x => !desiredDependencies.Contains(x.Dependency)))
 			{
-				continue;
+				context.ChargenScreenStoryboardDependentStages.Remove(existing);
 			}
 
-			context.ChargenScreenStoryboardDependentStages.Add(new ChargenScreenStoryboardDependentStage
+			var existingDependencyIds = existingDependencies
+				.Select(x => x.Dependency)
+				.ToHashSet();
+			foreach (var dependency in desiredDependencies.Where(x => !existingDependencyIds.Contains(x)))
 			{
-				Owner = stage.Key,
-				OwnerId = stage.Key.Id,
-				Dependency = (int)dependency
-			});
+				context.ChargenScreenStoryboardDependentStages.Add(new ChargenScreenStoryboardDependentStage
+				{
+					Owner = stage.Key,
+					OwnerId = stage.Key.Id,
+					Dependency = dependency
+				});
+			}
 		}
 		context.SaveChanges();
 

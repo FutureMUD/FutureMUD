@@ -155,7 +155,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			switch (type)
 			{
 				case EventType.TenSecondTick:
-				case EventType.CharacterEnterCellFinishWitness:
+				case EventType.CharacterEnterCellWitness:
 					return true;
 			}
 		}

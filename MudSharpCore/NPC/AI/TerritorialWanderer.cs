@@ -96,7 +96,7 @@ public class TerritorialWanderer : PathingAIBase
 
 	private bool BuildingCommandChance(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished || command.SafeRemainingArgument.TryParsePercentage(out var value) || value < 0.0 || value > 1.0)
+		if (command.IsFinished || !TryParseWanderChance(command.SafeRemainingArgument, out var value))
 		{
 			actor.OutputHandler.Send(
 				$"You must supply a valid percentage between {0.0.ToString("P0", actor).ColourValue()} and {1.0.ToString("P0", actor).ColourValue()}");
@@ -108,6 +108,16 @@ public class TerritorialWanderer : PathingAIBase
 		actor.OutputHandler.Send(
 			$"This AI will now have a {value.ToString("P2", actor).ColourValue()} chance of wandering every minute.");
 		return true;
+	}
+
+	internal static bool TryParseWanderChance(string text, out double value)
+	{
+		if (!text.TryParsePercentage(out value))
+		{
+			return false;
+		}
+
+		return value >= 0.0 && value <= 1.0;
 	}
 
 	private bool BuildingCommandWander(ICharacter actor, StringStack command)

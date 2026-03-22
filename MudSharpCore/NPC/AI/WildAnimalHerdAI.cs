@@ -73,8 +73,9 @@ public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 
 	public override XElement SaveReaction(WildAnimalHerdState state)
 	{
-		return new XElement("Reaction", 
-			new XElement("state", (int)state),
+		return new XElement("Reaction",
+			new XAttribute("state", (int)state),
+			new XAttribute("type", "emote"),
 			new XElement("Role", (int)_targetEmoterRole),
 			new XElement("Delay", _delayDiceExpression),
 			from emote in _emoteTexts
@@ -130,7 +131,8 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 	public override XElement SaveReaction(WildAnimalHerdState state)
 	{
 		return new XElement("Reaction",
-			new XElement("state", (int)state),
+			new XAttribute("state", (int)state),
+			new XAttribute("type", "flee"),
 			new XElement("Role", (int)_targetEmoterRole),
 			new XElement("Delay", _delayDiceExpression),
 			new XElement("ExitProg", _directionEvaluationProg?.Id ?? 0),
@@ -211,7 +213,8 @@ public class WildAnimalAttackReaction : WildAnimalHerdAIReaction
 	public override XElement SaveReaction(WildAnimalHerdState state)
 	{
 		return new XElement("Reaction",
-			new XElement("state", (int)state),
+			new XAttribute("state", (int)state),
+			new XAttribute("type", "attack"),
 			new XElement("Delay", _delayDiceExpression),
 			from emote in _emoteTexts
 			select new XElement("Emote", new XCData(emote))
@@ -352,6 +355,58 @@ public class WildAnimalHerdAI : PathingAIBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("WildAnimalHerd", (ai, gameworld) => new WildAnimalHerdAI(ai, gameworld));
+		RegisterAIBuilderInformation("wildanimalherd",
+			(gameworld, name) => new WildAnimalHerdAI(gameworld, name),
+			new WildAnimalHerdAI().HelpText);
+	}
+
+	public override bool IsReadyToBeUsed => _positionStateWhenResting is not null;
+
+	protected override string TypeHelpText =>
+		@"	#3This is a legacy advanced AI type.#0
+	#3You can create it from the normal builder flow, but the recommended workflow is to clone and tune a seeded example.#0";
+
+	private static string InferReactionType(XElement reactionElement)
+	{
+		if (reactionElement.Attribute("type") is not null)
+		{
+			return reactionElement.Attribute("type")!.Value;
+		}
+
+		if (reactionElement.Element("ExitProg") is not null)
+		{
+			return "flee";
+		}
+
+		return reactionElement.Element("Role") is not null ? "emote" : "attack";
+	}
+
+	private static IFutureProg LoadOptionalProg(XElement root, string elementName, IFuturemud gameworld)
+	{
+		var element = root.Element(elementName);
+		if (element is null || string.IsNullOrWhiteSpace(element.Value) || element.Value == "0")
+		{
+			return null;
+		}
+
+		return long.TryParse(element.Value, out var value)
+			? gameworld.FutureProgs.Get(value)
+			: gameworld.FutureProgs.GetByName(element.Value);
+	}
+
+	private static void ValidateOptionalProg(IFutureProg prog, ArtificialIntelligence ai, string elementName,
+		ProgVariableTypes returnType, params ProgVariableTypes[] parameters)
+	{
+		if (prog is null)
+		{
+			return;
+		}
+
+		if (!prog.ReturnType.CompatibleWith(returnType) || !prog.MatchesParameters(parameters))
+		{
+			throw new ApplicationException(
+				$"{elementName} was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return {returnType.Describe()} and accept {parameters.Select(x => x.Describe()).ListToString()} as parameters.");
+		}
 	}
 
 	protected override string SaveToXml()
@@ -409,6 +464,7 @@ public class WildAnimalHerdAI : PathingAIBase
 		foreach (var sub in element.Elements())
 		{
 			var state = (WildAnimalHerdState)int.Parse(sub.Attribute("state")?.Value ??
+			                                           sub.Element("state")?.Value ??
 													   throw new ApplicationException(
 														   "Expected a state attribute for the Reaction element in WildAnimalHerdAI."));
 			if (!Enum.IsDefined(typeof(WildAnimalHerdState), state))
@@ -419,7 +475,7 @@ public class WildAnimalHerdAI : PathingAIBase
 
 			try
 			{
-				switch (sub.Attribute("type")?.Value)
+				switch (InferReactionType(sub))
 				{
 					case "emote":
 						_stateReactionDictionary[state] = new WildAnimalHerdEmoteReaction(sub);
@@ -741,223 +797,58 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		element = root.Element("PositionStateWhenResting");
-		if (element == null)
+		if (!long.TryParse(element?.Value, out var value) ||
+		    (_positionStateWhenResting = PositionState.GetState(value)) is null)
 		{
-			throw new ApplicationException(
-				$"WildAnimalHerdAI {ai.Id} \"{ai.Name}\" did not have a PositionStateWhenResting element.");
+			_positionStateWhenResting = PositionStanding.Instance;
 		}
 
-		try
-		{
-			_positionStateWhenResting = PositionState.GetState(long.Parse(element.Value));
-			if (_positionStateWhenResting == null)
-			{
-				throw new ApplicationException(
-					$"WildAnimalHerdAI {ai.Id} \"{ai.Name}\" specified an invalid PositionState in its PositionStateWhenResting element.");
-			}
-		}
-		catch (ArgumentNullException)
-		{
-			throw new ApplicationException(
-				$"WildAnimalHerdAI {ai.Id} \"{ai.Name}\" had a PositionStateWhenResting element that was empty.");
-		}
-		catch (FormatException)
-		{
-			throw new ApplicationException(
-				$"WildAnimalHerdAI {ai.Id} \"{ai.Name}\" had a PositionStateWhenResting element that was not a number 0 or greater.");
-		}
-		catch (OverflowException)
-		{
-			throw new ApplicationException(
-				$"WildAnimalHerdAI {ai.Id} \"{ai.Name}\" had a PositionStateWhenResting element that was not a number 0 or greater.");
-		}
+		_willMoveIntoRoomProg = LoadOptionalProg(root, "WillMoveIntoRoomProg", Gameworld);
+		ValidateOptionalProg(_willMoveIntoRoomProg, ai, "WillMoveIntoRoomProg",
+			ProgVariableTypes.Boolean,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Location,
+			ProgVariableTypes.Number);
 
-		element = root.Element("WillMoveIntoRoomProg");
-		if (element == null)
-		{
-			throw new ApplicationException(
-				$"No WillMoveIntoRoomProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
+		_escalateThreatProg = LoadOptionalProg(root, "EscalateThreatProg", Gameworld);
+		ValidateOptionalProg(_escalateThreatProg, ai, "EscalateThreatProg",
+			ProgVariableTypes.Boolean,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character | ProgVariableTypes.Collection,
+			ProgVariableTypes.Character | ProgVariableTypes.Collection,
+			ProgVariableTypes.Number);
 
-		_willMoveIntoRoomProg = long.TryParse(element.Value, out var value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_willMoveIntoRoomProg == null)
-		{
-			throw new ApplicationException(
-				$"WillMoveIntoRoomProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
+		_considersThreatProg = LoadOptionalProg(root, "ConsidersThreatProg", Gameworld);
+		ValidateOptionalProg(_considersThreatProg, ai, "ConsidersThreatProg",
+			ProgVariableTypes.Boolean,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character);
 
-		if (!_willMoveIntoRoomProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
-			!_willMoveIntoRoomProg.MatchesParameters(new[]
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Location,
-				ProgVariableTypes.Number
-			}))
-		{
-			throw new ApplicationException(
-				$"WillMoveIntoRoomProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Location, Number as parameters.");
-		}
+		_herdRoleProg = LoadOptionalProg(root, "HerdRoleProg", Gameworld);
+		ValidateOptionalProg(_herdRoleProg, ai, "HerdRoleProg",
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Character);
 
-		element = root.Element("EscalateThreatProg");
-		if (element == null)
-		{
-			throw new ApplicationException($"No EscalateThreatProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
+		_fightOrFlightProg = LoadOptionalProg(root, "FightOrFlightProg", Gameworld);
+		ValidateOptionalProg(_fightOrFlightProg, ai, "FightOrFlightProg",
+			ProgVariableTypes.Boolean,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character | ProgVariableTypes.Collection,
+			ProgVariableTypes.Character | ProgVariableTypes.Collection,
+			ProgVariableTypes.Character);
 
-		_escalateThreatProg = long.TryParse(element.Value, out value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_escalateThreatProg == null)
-		{
-			throw new ApplicationException(
-				$"EscalateThreatProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
+		_willMoveCalmProg = LoadOptionalProg(root, "WillMoveCalmProg", Gameworld);
+		ValidateOptionalProg(_willMoveCalmProg, ai, "WillMoveCalmProg",
+			ProgVariableTypes.Boolean,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Exit);
 
-		if (!_escalateThreatProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
-			!_escalateThreatProg.MatchesParameters(new[]
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				ProgVariableTypes.Number
-			}))
-		{
-			throw new ApplicationException(
-				$"EscalateThreatProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Character Collection, Character Collection, Number as parameters.");
-		}
-
-		element = root.Element("ConsidersThreatProg");
-		if (element == null)
-		{
-			throw new ApplicationException($"No ConsidersThreatProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		_considersThreatProg = long.TryParse(element.Value, out value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_considersThreatProg == null)
-		{
-			throw new ApplicationException(
-				$"ConsidersThreatProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		if (!_considersThreatProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
-			!_considersThreatProg.MatchesParameters(new[]
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Character
-			}))
-		{
-			throw new ApplicationException(
-				$"ConsidersThreatProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Character as parameters.");
-		}
-
-		element = root.Element("HerdRoleProg");
-		if (element == null)
-		{
-			throw new ApplicationException($"No HerdRoleProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		_herdRoleProg = long.TryParse(element.Value, out value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_herdRoleProg == null)
-		{
-			throw new ApplicationException($"HerdRoleProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		if (!_herdRoleProg.ReturnType.CompatibleWith(ProgVariableTypes.Text) || !_herdRoleProg.MatchesParameters(
-				new[]
-				{
-					ProgVariableTypes.Character
-				}))
-		{
-			throw new ApplicationException(
-				$"HerdRoleProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Text and accept Character as a parameter.");
-		}
-
-		element = root.Element("FightOrFlightProg");
-		if (element == null)
-		{
-			throw new ApplicationException($"No FightOrFlightProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		_fightOrFlightProg = long.TryParse(element.Value, out value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_fightOrFlightProg == null)
-		{
-			throw new ApplicationException(
-				$"FightOrFlightProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		if (!_fightOrFlightProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
-			!_fightOrFlightProg.MatchesParameters(new[]
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				ProgVariableTypes.Character
-			}))
-		{
-			throw new ApplicationException(
-				$"FightOrFlightProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Character, Character Collection, Character Collection, Character as parameters.");
-		}
-
-		element = root.Element("WillMoveCalmProg");
-		if (element == null)
-		{
-			throw new ApplicationException($"No WillMoveCalmProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		_willMoveCalmProg = long.TryParse(element.Value, out value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_willMoveCalmProg == null)
-		{
-			throw new ApplicationException($"WillMoveCalmProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		if (!_willMoveCalmProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
-			!_willMoveCalmProg.MatchesParameters(new[]
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Exit
-			}))
-		{
-			throw new ApplicationException(
-				$"WillMoveCalmProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Exit as parameters.");
-		}
-
-		element = root.Element("WillMoveAgitatedProg");
-		if (element == null)
-		{
-			throw new ApplicationException(
-				$"No WillMoveAgitatedProg element in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		_willMoveAgitatedProg = long.TryParse(element.Value, out value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(element.Value);
-		if (_willMoveAgitatedProg == null)
-		{
-			throw new ApplicationException(
-				$"WillMoveAgitatedProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
-		}
-
-		if (!_willMoveAgitatedProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
-			!_willMoveAgitatedProg.MatchesParameters(new[]
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Exit
-			}))
-		{
-			throw new ApplicationException(
-				$"WillMoveAgitatedProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Exit as parameters.");
-		}
+		_willMoveAgitatedProg = LoadOptionalProg(root, "WillMoveAgitatedProg", Gameworld);
+		ValidateOptionalProg(_willMoveAgitatedProg, ai, "WillMoveAgitatedProg",
+			ProgVariableTypes.Boolean,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Exit);
 	}
 
 	private WildAnimalHerdAI()
@@ -967,6 +858,21 @@ public class WildAnimalHerdAI : PathingAIBase
 
 	private WildAnimalHerdAI(IFuturemud gameworld, string name) : base(gameworld, name, "WildAnimalHerd")
 	{
+		_positionStateWhenResting = PositionStanding.Instance;
+		_threatAwarenessDistance = 5;
+		_minimumDistanceForOutsiders = 2;
+		_maximumDistanceForOutsiders = 4;
+		_maximumHerdDispersement = 10;
+		_randomEchoChancePerMinute = 0.0;
+		_sentryScanChancePerMinute = 0.05;
+		_fleersWillEngageInCombatIfCornered = false;
+		_activeTimes.AddRange(Enum.GetValues<TimeOfDay>());
+		OpenDoors = false;
+		UseKeys = false;
+		UseDoorguards = false;
+		CloseDoorsBehind = false;
+		MoveEvenIfObstructionInWay = false;
+		SmashLockedDoors = false;
 		DatabaseInitialise();
 	}
 
@@ -983,7 +889,7 @@ public class WildAnimalHerdAI : PathingAIBase
 	{
 		bool EvaluateFunc(ICharacter target)
 		{
-			return _considersThreatProg.Execute<bool?>(character, target) == true;
+			return _considersThreatProg?.Execute<bool?>(character, target) == true;
 		}
 
 		return character
@@ -1243,7 +1149,7 @@ public class WildAnimalHerdAI : PathingAIBase
 					var validZone = effect.HerdLeader.Location
 										  .CellsAndDistancesInVicinity(_maximumDistanceForOutsiders,
 											  SuitabilityFunction,
-											  cell => _willMoveIntoRoomProg.Execute<bool?>(character, cell, state) !=
+										  cell => _willMoveIntoRoomProg?.Execute<bool?>(character, cell, state) !=
 													  false)
 										  .Where(x => x.Item2 >= _minimumDistanceForOutsiders)
 										  .OrderBy(x => x.Item1.EstimatedDirectDistanceTo(character.Location))
@@ -1560,7 +1466,7 @@ public class WildAnimalHerdAI : PathingAIBase
 												 IEnumerable<ICellExit>>()
 											 .ContainedDirections();
 			var potentialExits = alpha.Location.ExitsFor(alpha)
-									  .Where(x => _willMoveIntoRoomProg.Execute<bool?>(alpha, x.Destination, state) !=
+									  .Where(x => _willMoveIntoRoomProg?.Execute<bool?>(alpha, x.Destination, state) !=
 												  false)
 									  .ToList();
 			var preferredExits = potentialExits.Where(x => directions.Contains(x.OutboundDirection)).ToList();
@@ -1721,7 +1627,7 @@ public class WildAnimalHerdAI : PathingAIBase
 		var stressors = GetStressors(character, herd);
 		var roles = GetHerdRoles(character);
 		var escapes = character.Location.ExitsFor(character)
-							   .Where(x => _willMoveAgitatedProg.Execute<bool?>(character, x) == true).ToList();
+							   .Where(x => _willMoveAgitatedProg?.Execute<bool?>(character, x) != false).ToList();
 		var chosenEscape = escapes.GetRandomElement();
 
 		void TryEngageInCombat(ICharacter animal)
@@ -1746,7 +1652,7 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		// Fight reaction
-		if (_fightOrFlightProg.Execute<bool?>(leader, character, herd, stressors, aggressor) == true)
+		if (_fightOrFlightProg?.Execute<bool?>(leader, character, herd, stressors, aggressor) == true)
 		{
 			var fighters = roles.Where(x => IsFighter(x.Role, effect.State)).ToList();
 			foreach (var fighter in fighters)
@@ -1877,7 +1783,7 @@ public class WildAnimalHerdAI : PathingAIBase
 	private bool EscalateThreat(ICharacter character, List<INPC> herd, List<ICharacter> stressors,
 		WildAnimalHerdState current)
 	{
-		return _escalateThreatProg.Execute<bool?>(character, herd, stressors, current) ?? false;
+		return _escalateThreatProg?.Execute<bool?>(character, herd, stressors, current) ?? false;
 	}
 
 	private WildAnimalHerdRole StringToRole(string text)
@@ -1909,7 +1815,7 @@ public class WildAnimalHerdAI : PathingAIBase
 						 .CellsInVicinity(_maximumHerdDispersement, false, false).ToList();
 		var potentialHerd = herdExtent
 							.SelectMany(x => x.Characters.OfType<INPC>().Where(y => y.AIs.Contains(this)))
-							.Select(x => (Animal: x, SuggestedRole: StringToRole(_herdRoleProg.Execute<string>(x))))
+							.Select(x => (Animal: x, SuggestedRole: StringToRole(_herdRoleProg?.Execute<string>(x))))
 							.ToList();
 
 		WildAnimalHerdEffect leadereffect;
@@ -2045,7 +1951,7 @@ public class WildAnimalHerdAI : PathingAIBase
 
 	private bool ConsidersThreat(ICharacter animal, ICharacter potentialThreat)
 	{
-		return _considersThreatProg.Execute<bool?>(animal, potentialThreat) ?? false;
+		return _considersThreatProg?.Execute<bool?>(animal, potentialThreat) ?? false;
 	}
 
 	public override bool HandlesEvent(params EventType[] types)

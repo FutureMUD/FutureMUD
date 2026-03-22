@@ -171,7 +171,7 @@ Each concrete AI class normally registers:
 
 If a class registers only the database loader, it can load existing rows but cannot be created from the `ai edit new ...` builder workflow.
 
-`WildAnimalHerdAI` is the important current example of that special case.
+That was previously true of `WildAnimalHerdAI`, but it is now builder-registered as well. It remains a more advanced legacy AI than most of the catalogue, but it no longer has a creation-path gap.
 
 #### Group AI Types
 `GroupAITypeFactory.InitialiseGroupAITypes()` scans for `IGroupAIType` implementers that expose a public static `RegisterGroupAIType()` method.
@@ -438,14 +438,18 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | --- | --- | --- | --- |
 | `AggressivePatherAI` | Yes | Prog-target pathing AI that hunts for attack targets and engages with delay/emote support | Aggressive classification |
 | `AggressorAI` | Yes | Simple immediate aggression against prog-selected targets | Aggressive classification |
+| `ArborealWandererAI` | Yes | Tree-dwelling movement AI that prefers arboreal layers and only descends when explicitly allowed | Built on `PathingAIBase` plus multi-layer pathing |
+| `ArenaParticipantAI` | Yes | Arena-aware combat AI that handles preparation, ambush options, and opponent-only targeting inside arena events | Keeps arena rules out of the general aggressor family |
 | `CombatEndAI` | Yes | Controls truce acceptance and post-incapacitation combat ending behavior | Reactive combat cleanup layer |
 | `CommandableAI` | Yes | Lets players command NPCs subject to prog checks and banned-command rules | Good for guards, servants, followers |
+| `DenBuilderAI` | Yes | Craft-backed den or nest builder that claims a home cell and can defend it | Uses persisted per-NPC home/anchor state |
 | `DoorguardAI` | Yes | Manages NPCs who respond to knocks, open/close doors, and enforce door access rules | Strongly tied to doors and command timing |
 | `EnforcerAI` | Yes | Legal-authority AI that identifies and reacts to wanted criminals | Heavy legal-system integration |
 | `FlyingWanderer` | Yes | Movement AI for flying creatures that wander through valid rooms/layers | Movement-focused specialization |
 | `IdleEmoterAI` | Yes | Periodic idle-emote generator | Lightweight ambience AI |
 | `JudgeAI` | Yes | Courtroom/legal progression AI built on top of `EnforcerAI` | Specialized judicial behavior |
 | `LawyerAI` | Yes | Pathing/hiring/court-participation AI for lawyers | Legal-service specialization |
+| `LairScavengerAI` | Yes | Full scavenger AI that collects items and returns them to a remembered lair/home | Reuses the same persisted home-base state as `DenBuilderAI` |
 | `MountAI` | Yes | Mount/rider permission and control logic | Implements `IMountableAI` |
 | `PathToLocationAI` | Yes | Prog-target pathing AI that travels to resolved locations | Generic destination-following behavior |
 | `ReactAI` | Yes | Lightweight event-to-prog/emote reaction layer | Supports named reactions such as greet, farewell, weather, gift, damage, hide |
@@ -459,7 +463,7 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `TerritorialWanderer` | Yes | Territory-seeking and territory-maintaining wanderer AI | Also used by spawner open-territory placement |
 | `TrackingAggressorAI` | Yes | Aggression AI that can track enemies over distance | Aggressive classification and pathing-heavy |
 | `WandererAI` | Yes | Core wandering AI for non-flying movers | General-purpose locomotion package |
-| `WildAnimalHerdAI` | No, load-only | Complex herd/animal behavior with its own role, threat, and reaction model | Important special case: loader is registered, builder creation is not |
+| `WildAnimalHerdAI` | Yes | Complex herd/animal behavior with its own role, threat, and reaction model | Still a legacy/advanced AI, but now creatable through the normal builder workflow |
 | `ArtificialIntelligenceBase` | Not applicable | Shared base class | Not a concrete AI type |
 | `PathingAIBase` | Not applicable | Shared movement/pathing base | Not a concrete AI type |
 | `PathingAIWithProgTargetsBase` | Not applicable | Shared prog-target pathing base | Not a concrete AI type |
@@ -467,11 +471,11 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 ### Reading the Current AI Set
 The current AI roster clusters into a few families:
 
-- aggression and combat: `AggressorAI`, `AggressivePatherAI`, `SemiAggressiveAI`, `TrackingAggressorAI`, `CombatEndAI`, `RescuerAI`, `SparPartnerAI`
-- movement and territory: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TerritorialWanderer`
+- aggression and combat: `AggressorAI`, `AggressivePatherAI`, `SemiAggressiveAI`, `TrackingAggressorAI`, `ArenaParticipantAI`, `CombatEndAI`, `RescuerAI`, `SparPartnerAI`
+- movement and territory: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TerritorialWanderer`, `ArborealWandererAI`
 - service/content roles: `DoorguardAI`, `ShopkeeperAI`, `LawyerAI`, `JudgeAI`, `EnforcerAI`, `MountAI`, `CommandableAI`
 - ambience and lightweight reactions: `IdleEmoterAI`, `ReactAI`, `StealthAI`, `SelfCareAI`
-- animal/specialized behavior: `WildAnimalHerdAI`, `ScavengeAI`
+- animal/specialized behavior: `WildAnimalHerdAI`, `ScavengeAI`, `DenBuilderAI`, `LairScavengerAI`
 
 ## Group AI Catalogue
 ### Current Group Types
@@ -644,8 +648,8 @@ If the behavior depends on:
 
 then it likely belongs in group AI rather than duplicated per-NPC AI.
 
-### 10. `WildAnimalHerdAI` is a special case
-`WildAnimalHerdAI` is more complex and more stateful than the ordinary builder-created AI set, and it currently lacks normal builder registration. Treat it as a legacy/advanced implementation, not as the default pattern to copy.
+### 10. `WildAnimalHerdAI` is still a special case
+`WildAnimalHerdAI` is now builder-creatable, but it is still more complex and more stateful than the ordinary AI set. Treat it as a legacy/advanced implementation, not as the default pattern to copy.
 
 ### 11. Group AI template edits are immediate
 Because `IGroupAITemplate` is non-revisable, changes affect live behavior immediately. That is powerful, but it also means builders need to be careful with edits to progs, emotes, and type changes.
@@ -678,67 +682,52 @@ Examples: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TrackingAggressor
 
 Examples: grazer herds and predator families.
 
-## Logical Next Steps
-This section mixes new candidate AI types with gaps or limitations in the existing set. The first list is "things that plausibly should exist". The second list is "things that already exist but look incomplete, under-exposed, or hard to extend".
+## Recently Closed Runtime Gaps
+The following individual-AI gaps described in earlier revisions of this document are now implemented:
 
-### Candidate New Types
-#### Combat arena participant AI
-There is a strong case for an arena-specialized AI that can:
+### Arena-combat specialization
+`ArenaParticipantAI` now provides an arena-specific combat family that:
 
-- equip itself before or during arena prep
-- scan for valid enemies in an arena event
-- close to engage when a target is visible
-- move intelligently when no enemy is currently visible
-- optionally apply stealth or ambush logic
+- only activates while the NPC is attached to arena preparation/participation state
+- limits targeting to opponents in the same arena event on other sides
+- handles pre-fight preparation such as weapon-ready and optional ambush/hide behavior
+- uses pathing to pursue arena opponents when they are not currently visible
 
-This is different from existing aggressive AI because the arena domain has its own event timing, participant lifecycle, and likely pre-combat equipment/setup concerns.
+### Den-building and lair ownership
+`DenBuilderAI` now provides a craft-backed den or nest builder that:
 
-#### Nest- or den-building animal AI
-There is also a clear gap for an animal AI that:
+- chooses and remembers a home cell per NPC
+- starts or resumes a configured den craft at that home cell
+- can identify and remember a den anchor item once the build is complete
+- can optionally defend the claimed den via a prog
 
-- creates a nest/base via the craft system
-- treats that crafted structure as home
-- combines home-building with territorial behavior around the resulting nest/base
+This is supported by a persisted per-NPC home-base effect (`NpcHomeBaseEffect`) that stores the home cell and optional anchor item without leaking that state onto shared AI definitions.
 
-This would extend the current territorial family in a more simulation-heavy direction.
+### Arboreal specialization
+`ArborealWandererAI` now fills the tree-dwelling movement gap by:
 
-#### Arboreal/tree-dwelling critter AI
-The current movement family covers ground wandering and flying, but not creatures that strongly prefer tree layers and only reluctantly descend.
+- preferring configured tree-capable layers
+- wandering among cells whose terrain supports arboreal layers
+- descending only when an explicit descent prog allows it
 
-An arboreal AI should likely:
+### True lair-return scavenging
+`ScavengeAI` remains the legacy "evaluate and trigger a scavenging prog" AI.
 
-- prefer elevated or tree-appropriate layers
-- move between tree-rich cells
-- descend only for food, threat response, or scripted exceptions
-- support species-specific hesitation around ground-level movement
+`LairScavengerAI` is now the fuller scavenger implementation that:
 
-#### True scavenger/lair-return scavenger AI
-`ScavengeAI` is legacy-limited. A fuller scavenger AI should:
+- actively evaluates and collects visible items
+- reuses the persisted home/lair state from `DenBuilderAI` when available
+- falls back to a configured home-location prog otherwise
+- returns scavenged items to the lair and deposits or drops them there
 
-- actively pick up items
-- filter what it will collect
-- claim a lair/base/home location
-- return collected items there
-- optionally cache, hoard, or sort by item category
+### Existing-type fixes landed during this pass
+- `WildAnimalHerdAI` now has normal builder registration and safer defaults for newly created instances.
+- `AggressivePatherAI` and `TrackingAggressorAI` now subscribe correctly to `CharacterEnterCellWitness`.
+- `TerritorialWanderer` now accepts valid percentage input for the `chance` builder command.
+- `ScavengeAI` now validates and displays `OnScavengeItemProg` correctly.
 
-### Current Gaps and Limitations
-#### `WildAnimalHerdAI` builder gap
-`WildAnimalHerdAI` is loadable but not registered for normal builder creation. That makes it harder to discover, document, and extend safely.
-
-#### `ScavengeAI` is narrower than its name suggests
-Today it is closer to "evaluate and trigger a scavenging prog" than "simulate a real scavenger creature". Its current name sets expectations it does not fully meet.
-
-#### Missing arboreal specialization
-The runtime has strong ground-wander and flying paths, but no stock tree-dwelling movement package.
-
-#### Missing lair/base ownership patterns
-There is no obvious stock AI that claims, maintains, stocks, and defends a home base using crafted outputs as persistent anchors.
-
-#### Missing arena-combat specialization
-General aggression exists, but arena participation has enough special rules that it likely wants a distinct AI family rather than accumulated special cases inside existing aggressor types.
-
-#### Group action enum is broader than stock behaviors
-`GroupAction` contains values such as `MoveFood`, `FindMate`, and `Mate`, but the stock group types do not appear to exploit the whole enum surface. That suggests room either for richer types or for pruning/clarifying intended future use.
+### Remaining out-of-scope note
+The group-AI runtime still has room to exploit more of the broader `GroupAction` surface, but that is separate from the individual-AI work described here.
 
 ## Practical Extension Strategy
 When adding new AI, the safest progression is usually:

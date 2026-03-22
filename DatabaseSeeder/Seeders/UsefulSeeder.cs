@@ -21,6 +21,32 @@ namespace DatabaseSeeder.Seeders;
 
 public class UsefulSeeder : IDatabaseSeeder
 {
+	private static readonly string[] StockAiExampleNames =
+	[
+		"CommandableOwner",
+		"CommandableClanOutranks",
+		"BasicDoorguard",
+		"SparPartner",
+		"RandomWanderer",
+		"AggressiveToAllOtherSpecies",
+		"RescueClanBrothers",
+		"VerminScavenge",
+		"TrackingAggressiveToAllOtherSpecies",
+		"BasicSelfCare",
+		"ExampleArenaParticipant",
+		"ExampleArborealWanderer",
+		"ExampleDenBuilder",
+		"ExampleLairScavenger"
+	];
+
+	private static readonly string[] StockItemMarkers =
+	[
+		"Container_Table",
+		"Insulation_Minor",
+		"Destroyable_Misc",
+		"Torch_Infinite"
+	];
+
 	public bool SafeToRunMoreThanOnce => true;
 
 	public IEnumerable<(string Id, string Question,
@@ -30,15 +56,9 @@ public class UsefulSeeder : IDatabaseSeeder
 			Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
 			Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
 		{
-			("ai", "Do you want to install some basic AIs?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner"),
-				(answer, context) =>
-				{
-					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-					return (false, "Invalid answer");
-				}),
-			("ai2", "Do you want to install some further examples of AIs?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => context.ArtificialIntelligences.All(x => x.Type != "Rescuer"),
+			("ai",
+				"Do you want to install the stock AI example package? This includes repeatable command, combat, scavenging and wandering examples, plus the newer arena, arboreal, den-builder and lair-scavenger samples.\n\nPlease answer #3yes#f or #3no#f: ",
+				(context, questions) => ClassifyAiPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -124,9 +144,7 @@ public class UsefulSeeder : IDatabaseSeeder
 			SeedTags(context, errors);
 		}
 
-		if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAIPart1(context, errors);
-
-		if (questionAnswers["ai2"].EqualToAny("yes", "y")) SeedAIPart2(context, errors);
+		if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAIExamples(context, errors);
 
 		if (questionAnswers["items"].EqualToAny("yes", "y"))
 		{
@@ -164,31 +182,14 @@ public class UsefulSeeder : IDatabaseSeeder
 	{
 		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (!context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") &&
-			!context.ArtificialIntelligences.All(x => x.Name != "Rescuer") &&
-			context.Terrains.Count() > 1 &&
-			!context.GameItemComponentProtos.All(x => x.Name != "Container_Table") &&
-			!context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") &&
-			!context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") &&
-			!context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite") &&
-			!context.Tags.All(x => x.Name != "Functions"))
-		{
-			return ShouldSeedResult.MayAlreadyBeInstalled;
-		}
-
-		if (context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") ||
-			context.ArtificialIntelligences.All(x => x.Name != "Rescuer") ||
-			context.Terrains.Count() <= 1 ||
-			context.GameItemComponentProtos.All(x => x.Name != "Container_Table") ||
-			context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") ||
-			context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") ||
-			context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite") ||
-			context.Tags.All(x => x.Name != "Functions"))
-		{
-			return ShouldSeedResult.ExtraPackagesAvailable;
-		}
-
-		return ShouldSeedResult.ReadyToInstall;
+		return CombinePackageStates(
+			ClassifyAiPackagePresence(context),
+			context.Terrains.Count() > 1 ? ShouldSeedResult.MayAlreadyBeInstalled : ShouldSeedResult.ReadyToInstall,
+			SeederRepeatabilityHelper.ClassifyByPresence(
+				StockItemMarkers.Select(marker => context.GameItemComponentProtos.Any(x => x.Name == marker))),
+			context.Tags.Any(x => x.Name == "Functions")
+				? ShouldSeedResult.MayAlreadyBeInstalled
+				: ShouldSeedResult.ReadyToInstall);
 	}
 
 	public int SortOrder => 200;
@@ -207,6 +208,29 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	private Account _dbaccount => _context.Accounts.First();
 
 	private Dictionary<string, GameItemComponentProto> _itemProtos = new(StringComparer.OrdinalIgnoreCase);
+
+	internal static ShouldSeedResult ClassifyAiPackagePresence(FuturemudDatabaseContext context)
+	{
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+			StockAiExampleNames.Select(name => context.ArtificialIntelligences.Any(x => x.Name == name)));
+	}
+
+	internal static IReadOnlyCollection<string> StockAiExampleNamesForTesting => StockAiExampleNames;
+
+	private static ShouldSeedResult CombinePackageStates(params ShouldSeedResult[] packageStates)
+	{
+		if (packageStates.All(x => x == ShouldSeedResult.ReadyToInstall))
+		{
+			return ShouldSeedResult.ReadyToInstall;
+		}
+
+		if (packageStates.All(x => x == ShouldSeedResult.MayAlreadyBeInstalled))
+		{
+			return ShouldSeedResult.MayAlreadyBeInstalled;
+		}
+
+		return ShouldSeedResult.ExtraPackagesAvailable;
+	}
 
 	private GameItemComponentProto AddGameItemComponent(FuturemudDatabaseContext context, GameItemComponentProto component)
 	{
@@ -6315,6 +6339,471 @@ end if",
 		context.SaveChanges();
 	}
 
+	private void SeedAIExamples(FuturemudDatabaseContext context, ICollection<string> errors)
+	{
+		var alwaysTrue = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue");
+		var alwaysFalse = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysFalse");
+		if (alwaysTrue is null || alwaysFalse is null)
+		{
+			errors.Add(
+				"Could not seed AI examples because the prerequisite AlwaysTrue or AlwaysFalse FutureProg was missing.");
+			return;
+		}
+
+		EnsureVariableDefinition(context, ProgVariableTypes.Character, "npcownerid", ProgVariableTypes.Number);
+		EnsureVariableDefault(context, ProgVariableTypes.Character, "npcownerid", "<var>0</var>");
+
+		var ownerProg = EnsureAiProg(
+			context,
+			"IsOwnerCanCommand",
+			"Commands",
+			ProgVariableTypes.Boolean,
+			"Determines if the character has been set as the owner of an NPC.",
+			"""
+			var ownerid as number
+			ownerid = ifnull(getregister(@tch, "npcownerid"), 0)
+			return ownerid == @ch.Id
+			""",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Character, "tch"),
+			(ProgVariableTypes.Text, "cmd"));
+		var cantCommandOwnerProg = EnsureAiProg(
+			context,
+			"WhyCantCommandNPCOwnerAI",
+			"Commands",
+			ProgVariableTypes.Text,
+			"Returns an error message when a player cannot command an NPC they do not own.",
+			@"return ""You are not the owner of "" + HowSeen(@ch, @tch, false, true) + "" and so you cannot issue commands.""",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Character, "tch"),
+			(ProgVariableTypes.Text, "cmd"));
+		var outranksProg = EnsureAiProg(
+			context,
+			"OutranksCanCommand",
+			"Commands",
+			ProgVariableTypes.Boolean,
+			"Determines if the character outranks the NPC in any clan and can therefore command them.",
+			"""
+			foreach (clan in @tch.clans)
+				if (outranks(@ch, @tch, @clan))
+					return true
+				end if
+			end foreach
+			return false
+			""",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Character, "tch"),
+			(ProgVariableTypes.Text, "cmd"));
+		var cantCommandOutrankProg = EnsureAiProg(
+			context,
+			"WhyCantCommandNPCClanOutranks",
+			"Commands",
+			ProgVariableTypes.Text,
+			"Returns an error message when a player cannot command an NPC they do not outrank.",
+			@"return ""You do not outrank "" + HowSeen(@ch, @tch, false, true) + "" in any clans.""",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Character, "tch"),
+			(ProgVariableTypes.Text, "cmd"));
+		var doorguardWillOpen = EnsureAiProg(
+			context,
+			"DoorguardWillOpenDoor",
+			"Doorguard",
+			ProgVariableTypes.Boolean,
+			"Determines whether a doorguard will open a door for a person.",
+			"return isclanbrother(@guard, @ch)",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var doorguardDelay = EnsureAiProg(
+			context,
+			"DoorguardActionDelay",
+			"Doorguard",
+			ProgVariableTypes.Number,
+			"A delay in milliseconds between the action that triggers the doorguard and them taking the action.",
+			"return 40+random(1,40)",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var doorguardCloseDelay = EnsureAiProg(
+			context,
+			"DoorguardCloseDelay",
+			"Doorguard",
+			ProgVariableTypes.Number,
+			"A delay in milliseconds between opening the door and closing the door.",
+			"return 10000",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var doorguardOpenDoor = EnsureAiProg(
+			context,
+			"DoorguardOpenDoor",
+			"Doorguard",
+			ProgVariableTypes.Void,
+			"The actual action for the doorguard to take when opening the door.",
+			"""
+			// Assumes doorguard has a key in their inventory
+			force @guard ("emote move|moves to open the door for ~" + bestkeyword(@guard, @ch))
+			force @guard ("unlock " + @exit.keyword)
+			force @guard ("open " + @exit.keyword)
+			""",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var doorguardCloseDoor = EnsureAiProg(
+			context,
+			"DoorguardCloseDoor",
+			"Doorguard",
+			ProgVariableTypes.Void,
+			"The actual action for the doorguard to take when closing the door.",
+			"""
+			// Assumes doorguard has a key in their inventory
+			force @guard ("emote move|moves to close the door")
+			force @guard ("close " + @exit.keyword)
+			force @guard ("lock " + @exit.keyword)
+			""",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var doorguardWontOpen = EnsureAiProg(
+			context,
+			"DoorguardWontOpen",
+			"Doorguard",
+			ProgVariableTypes.Void,
+			"An action for the doorguard to take if someone nods or knocks but they cannot let them in.",
+			"""
+			if (isnull(@exit) or @exit.Origin == @guard.Location)
+				force @guard ("tell " + bestkeyword(@guard, @ch) + " I'm not allowed to let you through")
+			else
+				force @guard ("yell I'm not allowed to let you through")
+			end if
+			""",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var doorguardWitnessStop = EnsureAiProg(
+			context,
+			"DoorguardWitnessStop",
+			"Doorguard",
+			ProgVariableTypes.Void,
+			"An action for the doorguard to take if someone walks into a closed door.",
+			"""
+			if (@DoorguardWillOpenDoor(@guard, @ch, @exit))
+				force @guard ("tell " + bestkeyword(@guard, @ch) + " Give me a nod and I'll open the door for you")
+			end if
+			""",
+			(ProgVariableTypes.Character, "guard"),
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Exit, "exit"));
+		var aggressorWillAttack = EnsureAiProg(
+			context,
+			"TargetIsOtherRace",
+			"Aggressor",
+			ProgVariableTypes.Boolean,
+			"Determines whether the aggressor will attack someone.",
+			"return @ch.Race != @tch.Race",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Character, "tch"));
+		var rescuerWillRescue = EnsureAiProg(
+			context,
+			"RescuerWillRescue",
+			"Combat",
+			ProgVariableTypes.Boolean,
+			"Determines whether a rescuer will rescue someone who is being attacked.",
+			"return isclanbrother(@rescuer, @target)",
+			(ProgVariableTypes.Character, "rescuer"),
+			(ProgVariableTypes.Character, "target"));
+		var verminWillScavenge = EnsureAiProg(
+			context,
+			"VerminWillScavenge",
+			"Vermin",
+			ProgVariableTypes.Boolean,
+			"Determines whether a vermin AI will scavenge an item.",
+			"return @item.isholdable and (@item.isfood or @item.iscorpse)",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Item, "item"));
+		var verminOnScavenge = EnsureAiProg(
+			context,
+			"VerminOnScavenge",
+			"Vermin",
+			ProgVariableTypes.Void,
+			"Fires when a scavenger AI decides to scavenge an item.",
+			"""force @ch ("eat " + BestKeyword(@ch, @item))""",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Item, "item"));
+		var lairFallbackHome = EnsureAiProg(
+			context,
+			"LairScavengerFallbackHome",
+			"Scavenger",
+			ProgVariableTypes.Location,
+			"Returns the NPC's current location as a fallback lair until it claims a den.",
+			"return @ch.Location",
+			(ProgVariableTypes.Character, "ch"));
+
+		context.SaveChanges();
+
+		EnsureArtificialIntelligence(
+			context,
+			"CommandableOwner",
+			"Commandable",
+			new XElement("Definition",
+				new XElement("CanCommandProg", ownerProg.Id),
+				new XElement("WhyCannotCommandProg", cantCommandOwnerProg.Id),
+				new XElement("CommandIssuedEmote", "You issue the following command to $1: {0}"),
+				new XElement("BannedCommands",
+					new XElement("BannedCommand", "ignoreforce"),
+					new XElement("BannedCommand", "return"))).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"CommandableClanOutranks",
+			"Commandable",
+			new XElement("Definition",
+				new XElement("CanCommandProg", outranksProg.Id),
+				new XElement("WhyCannotCommandProg", cantCommandOutrankProg.Id),
+				new XElement("CommandIssuedEmote", "You issue the following command to $1: {0}"),
+				new XElement("BannedCommands",
+					new XElement("BannedCommand", "ignoreforce"),
+					new XElement("BannedCommand", "return"))).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"BasicDoorguard",
+			"Doorguard",
+			new XElement("Definition",
+				new XElement("WillOpenDoorForProg", doorguardWillOpen.Id),
+				new XElement("WontOpenDoorForActionProg", doorguardWontOpen.Id),
+				new XElement("OpenDoorActionProg", doorguardOpenDoor.Id),
+				new XElement("CloseDoorActionProg", doorguardCloseDoor.Id),
+				new XElement("BaseDelayProg", doorguardDelay.Id),
+				new XElement("OpenCloseDelayProg", doorguardCloseDelay.Id),
+				new XElement("OnWitnessDoorStopProg", doorguardWitnessStop.Id),
+				new XElement("RespectGameRulesForOpeningDoors", false),
+				new XElement("OwnSideOnly", false),
+				new XElement("Social",
+					new XAttribute("Trigger", "nod"),
+					new XAttribute("TargettedOnly", true),
+					new XAttribute("Direction", false))).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"SparPartner",
+			"CombatEnd",
+			new XElement("Definition",
+				new XElement("WillAcceptTruce", alwaysTrue.Id),
+				new XElement("WillAcceptTargetIncapacitated", alwaysTrue.Id),
+				new XElement("OnOfferedTruce", 0),
+				new XElement("OnTargetIncapacitated", 0),
+				new XElement("OnNoNaturalTargets", 0)).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"RandomWanderer",
+			"Wanderer",
+			new XElement("Definition",
+				new XElement("FutureProg", alwaysTrue.Id),
+				new XElement("WanderTimeDiceExpression", "1d40+100"),
+				new XElement("TargetBody", 0),
+				new XElement("TargetSpeed", 0),
+				new XElement("EmoteText", new XCData(string.Empty))).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"AggressiveToAllOtherSpecies",
+			"Aggressor",
+			new XElement("Definition",
+				new XElement("WillAttackProg", aggressorWillAttack.Id),
+				new XElement("EngageDelayDiceExpression", "1d200+200"),
+				new XElement("EngageEmote", new XCData("@ move|moves aggressively towards $1"))).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"RescueClanBrothers",
+			"Rescuer",
+			new XElement("Definition",
+				new XElement("IsFriendProg", rescuerWillRescue.Id)).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"VerminScavenge",
+			"Scavenge",
+			new XElement("Definition",
+				new XElement("WillScavengeItemProg", verminWillScavenge.Id),
+				new XElement("OnScavengeItemProg", verminOnScavenge.Id),
+				new XElement("ScavengeDelayDiceExpression", "1d30+30")).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"TrackingAggressiveToAllOtherSpecies",
+			"TrackingAggressor",
+			new XElement("Definition",
+				new XElement("WillAttackProg", aggressorWillAttack.Id),
+				new XElement("EngageDelayDiceExpression", "1d200+200"),
+				new XElement("EngageEmote", new XCData("@ move|moves aggressively towards $1")),
+				new XElement("MaximumRange", 2),
+				new XElement("PathingEnabledProg", alwaysTrue.Id),
+				new XElement("OpenDoors", false),
+				new XElement("UseKeys", false),
+				new XElement("SmashLockedDoors", false),
+				new XElement("CloseDoorsBehind", false),
+				new XElement("UseDoorguards", false),
+				new XElement("MoveEvenIfObstructionInWay", false)).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"BasicSelfCare",
+			"SelfCare",
+			new XElement("Definition",
+				new XElement("BindingDelayDiceExpression", "3000+1d2000"),
+				new XElement("BleedingEmoteDelayDiceExpression", "3000+1d2000"),
+				new XElement("BleedingEmote", new XCData(@"@ shout|shouts out, ""I'm bleeding!"""))).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"ExampleArenaParticipant",
+			"ArenaParticipant",
+			new XElement("Definition",
+				new XElement("UseAmbushMode", true),
+				new XElement("HideDuringPreparation", true),
+				new XElement("UseSubtleSneak", true),
+				new XElement("EngageDelayDiceExpression", new XCData("1d200+200")),
+				new XElement("EngageEmote", new XCData("@ stalk|stalks into position against $1")),
+				new XElement("OpenDoors", true),
+				new XElement("UseKeys", false),
+				new XElement("SmashLockedDoors", false),
+				new XElement("CloseDoorsBehind", false),
+				new XElement("UseDoorguards", false),
+				new XElement("MoveEvenIfObstructionInWay", false)).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"ExampleArborealWanderer",
+			"ArborealWanderer",
+			new XElement("Definition",
+				new XElement("WillWanderIntoCellProg", alwaysTrue.Id),
+				new XElement("IsWanderingProg", alwaysTrue.Id),
+				new XElement("AllowDescentProg", alwaysFalse.Id),
+				new XElement("WanderTimeDiceExpression", new XCData("1d180+180")),
+				new XElement("EmoteText", new XCData("@ spring|springs from branch to branch.")),
+				new XElement("PreferredTreeLayer", (int)RoomLayer.HighInTrees),
+				new XElement("SecondaryTreeLayer", (int)RoomLayer.InTrees),
+				new XElement("OpenDoors", false),
+				new XElement("UseKeys", false),
+				new XElement("SmashLockedDoors", false),
+				new XElement("CloseDoorsBehind", false),
+				new XElement("UseDoorguards", false),
+				new XElement("MoveEvenIfObstructionInWay", false)).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"ExampleDenBuilder",
+			"DenBuilder",
+			new XElement("Definition",
+				new XElement("DenCraftId", 0),
+				new XElement("DenSiteProg", alwaysTrue.Id),
+				new XElement("BuildEnabledProg", alwaysTrue.Id),
+				new XElement("WillDefendDenProg", alwaysFalse.Id),
+				new XElement("AnchorItemProg", 0),
+				new XElement("OpenDoors", false),
+				new XElement("UseKeys", false),
+				new XElement("SmashLockedDoors", false),
+				new XElement("CloseDoorsBehind", false),
+				new XElement("UseDoorguards", false),
+				new XElement("MoveEvenIfObstructionInWay", false)).ToString());
+		EnsureArtificialIntelligence(
+			context,
+			"ExampleLairScavenger",
+			"LairScavenger",
+			new XElement("Definition",
+				new XElement("WillScavengeItemProg", verminWillScavenge.Id),
+				new XElement("ScavengingEnabledProg", alwaysTrue.Id),
+				new XElement("HomeLocationProg", lairFallbackHome.Id),
+				new XElement("OpenDoors", false),
+				new XElement("UseKeys", false),
+				new XElement("SmashLockedDoors", false),
+				new XElement("CloseDoorsBehind", false),
+				new XElement("UseDoorguards", false),
+				new XElement("MoveEvenIfObstructionInWay", false)).ToString());
+
+		context.SaveChanges();
+	}
+
+	internal void SeedAIExamplesForTesting(FuturemudDatabaseContext context)
+	{
+		SeedAIExamples(context, new List<string>());
+	}
+
+	private static void EnsureVariableDefinition(FuturemudDatabaseContext context, ProgVariableTypes ownerType,
+		string property, ProgVariableTypes containedType)
+	{
+		var definition = context.VariableDefinitions.Local
+			                 .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property) ??
+		                 context.VariableDefinitions.AsEnumerable()
+			                 .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property);
+		if (definition is null)
+		{
+			definition = new VariableDefinition
+			{
+				OwnerType = (long)ownerType,
+				Property = property,
+				ContainedType = (long)containedType
+			};
+			context.VariableDefinitions.Add(definition);
+			return;
+		}
+
+		definition.OwnerType = (long)ownerType;
+		definition.Property = property;
+		definition.ContainedType = (long)containedType;
+	}
+
+	private static void EnsureVariableDefault(FuturemudDatabaseContext context, ProgVariableTypes ownerType,
+		string property, string defaultValue)
+	{
+		var variableDefault = context.VariableDefaults.Local
+			                      .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property) ??
+		                      context.VariableDefaults.AsEnumerable()
+			                      .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property);
+		if (variableDefault is null)
+		{
+			variableDefault = new VariableDefault
+			{
+				OwnerType = (long)ownerType,
+				Property = property,
+				DefaultValue = defaultValue
+			};
+			context.VariableDefaults.Add(variableDefault);
+			return;
+		}
+
+		variableDefault.OwnerType = (long)ownerType;
+		variableDefault.Property = property;
+		variableDefault.DefaultValue = defaultValue;
+	}
+
+	private static FutureProg EnsureAiProg(FuturemudDatabaseContext context, string functionName, string subcategory,
+		ProgVariableTypes returnType, string comment, string text,
+		params (ProgVariableTypes Type, string Name)[] parameters)
+	{
+		return SeederRepeatabilityHelper.EnsureProg(
+			context,
+			functionName,
+			"AI",
+			subcategory,
+			returnType,
+			comment,
+			text,
+			true,
+			false,
+			FutureProgStaticType.NotStatic,
+			parameters);
+	}
+
+	private static void EnsureArtificialIntelligence(FuturemudDatabaseContext context, string name, string type,
+		string definition)
+	{
+		var ai = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.ArtificialIntelligences,
+			name,
+			x => x.Name,
+			() =>
+			{
+				var created = new ArtificialIntelligence();
+				context.ArtificialIntelligences.Add(created);
+				return created;
+			});
+
+		ai.Name = name;
+		ai.Type = type;
+		ai.Definition = definition;
+	}
 
 	private DictionaryWithDefault<string, MudSharp.Models.Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
 

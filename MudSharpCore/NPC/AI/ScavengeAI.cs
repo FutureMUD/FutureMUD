@@ -66,7 +66,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		sb.AppendLine($"Type: {AIType.ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine($"Will Scavenge Prog: {WillScavengeItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"On Scavenge Prog: {WillScavengeItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"On Scavenge Prog: {OnScavengeItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Delay Seconds Prog: {ScavengeDelayDiceExpression.ColourCommand()}");
 		return sb.ToString();
 	}
@@ -179,21 +179,10 @@ public class ScavengeAI : ArtificialIntelligenceBase
 				$"AI {Id} pointed to a WillScavengeItem Prog that was not correct - {root.Element("WillScavengeItemProg").Value}.");
 		}
 
-		if (WillScavengeItemProg.ReturnType != ProgVariableTypes.Boolean)
+		if (!IsValidWillScavengeProg(WillScavengeItemProg))
 		{
 			throw new ApplicationException(
-				$"AI {Id} WillScavengeItem prog returns {WillScavengeItemProg.ReturnType.Describe()} - expected Boolean");
-		}
-
-		if (
-			!WillScavengeItemProg.MatchesParameters(new List<ProgVariableTypes>
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Item
-			}))
-		{
-			throw new ApplicationException(
-				$"AI {Id} WillScavengeItem prog does not accept the right parameters - should be character, item");
+				$"AI {Id} WillScavengeItem prog was not compatible with the expected boolean return type and character,item parameters.");
 		}
 
 		OnScavengeItemProg =
@@ -201,21 +190,16 @@ public class ScavengeAI : ArtificialIntelligenceBase
 				? Gameworld.FutureProgs.Get(value)
 				: Gameworld.FutureProgs.GetByName(root.Element("OnScavengeItemProg").Value);
 
-		if (WillScavengeItemProg == null)
+		if (OnScavengeItemProg == null)
 		{
 			throw new ApplicationException(
 				$"AI {Id} pointed to a OnScavengeItemProg Prog that was not correct - {root.Element("OnScavengeItemProg").Value}.");
 		}
 
-		if (
-			!WillScavengeItemProg.MatchesParameters(new List<ProgVariableTypes>
-			{
-				ProgVariableTypes.Character,
-				ProgVariableTypes.Item
-			}))
+		if (!IsValidOnScavengeProg(OnScavengeItemProg))
 		{
 			throw new ApplicationException(
-				$"AI {Id} OnScavengeItemProg prog does not accept the right parameters - should be character, item");
+				$"AI {Id} OnScavengeItemProg was not compatible with the expected void return type and character,item parameters.");
 		}
 
 		ScavengeDelayDiceExpression = root.Element("ScavengeDelayDiceExpression").Value;
@@ -223,6 +207,26 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		{
 			($"AI {Id} had an illegal dice expression.").WriteLineConsole();
 		}
+	}
+
+	internal static bool IsValidWillScavengeProg(IFutureProg prog)
+	{
+		return prog.ReturnType == ProgVariableTypes.Boolean &&
+		       prog.MatchesParameters(new List<ProgVariableTypes>
+		       {
+			       ProgVariableTypes.Character,
+			       ProgVariableTypes.Item
+		       });
+	}
+
+	internal static bool IsValidOnScavengeProg(IFutureProg prog)
+	{
+		return prog.ReturnType == ProgVariableTypes.Void &&
+		       prog.MatchesParameters(new List<ProgVariableTypes>
+		       {
+			       ProgVariableTypes.Character,
+			       ProgVariableTypes.Item
+		       });
 	}
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)

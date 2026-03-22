@@ -27,7 +27,7 @@ Those belong in `MudSharpCore`.
 ## Adding or Changing an `EventType`
 When you add or change an event:
 
-1. add or update the enum member in `EventTypeEnum.cs`
+1. add or update the enum member in `EventTypeEnum.cs`, always adding new members to the end of the enum to preserve existing values
 2. add or update `EventInfoAttribute`
 3. make sure the description matches real runtime behavior
 4. make sure the parameter names and parameter order match real runtime behavior

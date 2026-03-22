@@ -37,29 +37,12 @@ public partial class CultureSeeder
 
 	private RandomNameProfile AddRandomNameProfile(string name, Gender gender, NameCulture culture)
 	{
-		var random = new RandomNameProfile
-		{
-			Name = name,
-			Gender = (short)gender,
-			NameCulture = culture
-		};
-		_context.RandomNameProfiles.Add(random);
-		_context.SaveChanges();
-		return random;
+		return EnsureRandomNameProfile(name, gender, culture);
 	}
 
 	private NameCulture AddNameCulture(string name, string definition)
 	{
-		var culture = new NameCulture
-		{
-			Name = name,
-			Definition = definition
-		};
-		_context.NameCultures.Add(culture);
-		_context.SaveChanges();
-
-		_nameCultures[name] = culture;
-		return culture;
+		return EnsureNameCulture(name, definition);
 	}
 
 	private NameCulture AddNameCulture<T, U>(string name, string regex, T elements, U patterns)
@@ -88,63 +71,24 @@ public partial class CultureSeeder
 				)
 			)
 		).ToString();
-		var culture = new NameCulture
-		{
-			Name = name,
-			Definition = definition
-		};
-		_context.NameCultures.Add(culture);
-		_context.SaveChanges();
-
-		_nameCultures[name] = culture;
-		return culture;
+		return EnsureNameCulture(name, definition);
 	}
 
 	private void SeedSimple(FuturemudDatabaseContext context)
 	{
-		var simpleName = new NameCulture
-		{
-			Name = "Simple",
-			Definition =
-				@"<NameCulture><Patterns>     <Pattern Style=""0"" Text=""{0}"" Params=""0""/>     <Pattern Style=""1"" Text=""{0}"" Params=""0""/>     <Pattern Style=""2"" Text=""{0}"" Params=""0""/>     <Pattern Style=""3"" Text=""{0}"" Params=""0""/>     <Pattern Style=""4"" Text=""{0}"" Params=""0""/>     <Pattern Style=""5"" Text=""{0}"" Params=""0""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Name""><![CDATA[You are known by a single name, and this name defines who you are to those who know you. You should select a name that is appropriate to your chosen culture.]]></Element>   </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w '-]+)$]]></NameEntryRegex> </NameCulture>"
-		};
-		context.NameCultures.Add(simpleName);
-		context.SaveChanges();
+		var simpleName = AddNameCulture("Simple",
+			@"<NameCulture><Patterns>     <Pattern Style=""0"" Text=""{0}"" Params=""0""/>     <Pattern Style=""1"" Text=""{0}"" Params=""0""/>     <Pattern Style=""2"" Text=""{0}"" Params=""0""/>     <Pattern Style=""3"" Text=""{0}"" Params=""0""/>     <Pattern Style=""4"" Text=""{0}"" Params=""0""/>     <Pattern Style=""5"" Text=""{0}"" Params=""0""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Name""><![CDATA[You are known by a single name, and this name defines who you are to those who know you. You should select a name that is appropriate to your chosen culture.]]></Element>   </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w '-]+)$]]></NameEntryRegex> </NameCulture>");
 
-		var simpleTwoName = new NameCulture
-		{
-			Name = "Given and Family",
-			Definition =
-				@"<NameCulture><Patterns>     <Pattern Style=""0"" Text=""{0}"" Params=""0""/>    <Pattern Style=""1"" Text=""{0} {1}"" Params=""0,6""/>    <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,6""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""6""/>    <Pattern Style=""5"" Text=""{0} {1}"" Params=""0,6""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is a name given to you by your parents.]]></Element>   <Element Usage=""6"" MinimumCount=""1"" MaximumCount=""1"" Name=""Family Name""><![CDATA[Your family name is likely the same name as one or both of your parents' family name.]]></Element> </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)\s+(?<surname>[\w '-]+)$]]></NameEntryRegex> </NameCulture>"
-		};
-		context.NameCultures.Add(simpleTwoName);
-		context.SaveChanges();
+		AddNameCulture("Given and Family",
+			@"<NameCulture><Patterns>     <Pattern Style=""0"" Text=""{0}"" Params=""0""/>    <Pattern Style=""1"" Text=""{0} {1}"" Params=""0,6""/>    <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,6""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""6""/>    <Pattern Style=""5"" Text=""{0} {1}"" Params=""0,6""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is a name given to you by your parents.]]></Element>   <Element Usage=""6"" MinimumCount=""1"" MaximumCount=""1"" Name=""Family Name""><![CDATA[Your family name is likely the same name as one or both of your parents' family name.]]></Element> </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)\s+(?<surname>[\w '-]+)$]]></NameEntryRegex> </NameCulture>");
 
-		var simplePatronym = new NameCulture
-		{
-			Name = "Given and Patronym",
-			Definition =
-				@"<NameCulture><Patterns><Pattern Style=""0"" Text=""{0}"" Params=""0""/><Pattern Style=""1"" Text=""{0} {1}"" Params=""0,7""/>    <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,7""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""7""/>    <Pattern Style=""5"" Text=""{0} {1}"" Params=""0,7""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is a name given to you by your parents.]]></Element>   <Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[Your patronym is used to help identify you with a family. It is usually formed from your father's name (or husband, if married).]]></Element> </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)\s+(?<patronym>[\w '-]+)$]]></NameEntryRegex> </NameCulture>"
-		};
-		context.NameCultures.Add(simplePatronym);
-		context.SaveChanges();
+		AddNameCulture("Given and Patronym",
+			@"<NameCulture><Patterns><Pattern Style=""0"" Text=""{0}"" Params=""0""/><Pattern Style=""1"" Text=""{0} {1}"" Params=""0,7""/>    <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,7""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""7""/>    <Pattern Style=""5"" Text=""{0} {1}"" Params=""0,7""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is a name given to you by your parents.]]></Element>   <Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[Your patronym is used to help identify you with a family. It is usually formed from your father's name (or husband, if married).]]></Element> </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)\s+(?<patronym>[\w '-]+)$]]></NameEntryRegex> </NameCulture>");
 
-		var simpleToponym = new NameCulture
-		{
-			Name = "Given and Toponym",
-			Definition =
-				@"<NameCulture><Patterns><Pattern Style=""0"" Text=""{0}"" Params=""0""/><Pattern Style=""1"" Text=""{0} {1}"" Params=""0,13""/>    <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,13""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""13""/>    <Pattern Style=""5"" Text=""{0} {1}"" Params=""0,13""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is a name given to you by your parents.]]></Element>   <Element Usage=""13"" MinimumCount=""1"" MaximumCount=""1"" Name=""Toponym""><![CDATA[Your toponym is used to show where you have come from. It is typically your place of birth or origin. It is often in the form of 'of <place>', for example, 'of Avon River']]></Element> </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)\s+(?<toponym>[\w '-]+)$]]></NameEntryRegex> </NameCulture>"
-		};
-		context.NameCultures.Add(simpleToponym);
-		context.SaveChanges();
+		AddNameCulture("Given and Toponym",
+			@"<NameCulture><Patterns><Pattern Style=""0"" Text=""{0}"" Params=""0""/><Pattern Style=""1"" Text=""{0} {1}"" Params=""0,13""/>    <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,13""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""13""/>    <Pattern Style=""5"" Text=""{0} {1}"" Params=""0,13""/>   </Patterns>   <Elements>     <Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is a name given to you by your parents.]]></Element>   <Element Usage=""13"" MinimumCount=""1"" MaximumCount=""1"" Name=""Toponym""><![CDATA[Your toponym is used to show where you have come from. It is typically your place of birth or origin. It is often in the form of 'of <place>', for example, 'of Avon River']]></Element> </Elements>   <NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)\s+(?<toponym>[\w '-]+)$]]></NameEntryRegex> </NameCulture>");
 
-		var random = new RandomNameProfile
-		{
-			Name = "Wild Animal (Male)",
-			Gender = (short)Gender.Male,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		var random = AddRandomNameProfile("Wild Animal (Male)", Gender.Male, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,
@@ -160,13 +104,7 @@ public partial class CultureSeeder
 		});
 		context.SaveChanges();
 
-		random = new RandomNameProfile
-		{
-			Name = "Wild Animal (Female)",
-			Gender = (short)Gender.Female,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		random = AddRandomNameProfile("Wild Animal (Female)", Gender.Female, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,
@@ -182,13 +120,7 @@ public partial class CultureSeeder
 		});
 		context.SaveChanges();
 
-		random = new RandomNameProfile
-		{
-			Name = "Wild Animal (Neuter)",
-			Gender = (short)Gender.Neuter,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		random = AddRandomNameProfile("Wild Animal (Neuter)", Gender.Neuter, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,
@@ -204,13 +136,7 @@ public partial class CultureSeeder
 		});
 		context.SaveChanges();
 
-		random = new RandomNameProfile
-		{
-			Name = "Dog (Male)",
-			Gender = (short)Gender.Male,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		random = AddRandomNameProfile("Dog (Male)", Gender.Male, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,
@@ -261,13 +187,7 @@ public partial class CultureSeeder
 		AddRandomNameElement(random, NameUsage.BirthName, "Zeus", 100);
 		context.SaveChanges();
 
-		random = new RandomNameProfile
-		{
-			Name = "Dog (Female)",
-			Gender = (short)Gender.Female,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		random = AddRandomNameProfile("Dog (Female)", Gender.Female, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,
@@ -311,13 +231,7 @@ public partial class CultureSeeder
 		AddRandomNameElement(random, NameUsage.BirthName, "Lady", 100);
 		context.SaveChanges();
 
-		random = new RandomNameProfile
-		{
-			Name = "Elephant (Male)",
-			Gender = (short)Gender.Male,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		random = AddRandomNameProfile("Elephant (Male)", Gender.Male, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,
@@ -393,13 +307,7 @@ public partial class CultureSeeder
 
 		context.SaveChanges();
 
-		random = new RandomNameProfile
-		{
-			Name = "Elephant (Female)",
-			Gender = (short)Gender.Female,
-			NameCulture = simpleName
-		};
-		context.RandomNameProfiles.Add(random);
+		random = AddRandomNameProfile("Elephant (Female)", Gender.Female, simpleName);
 		context.RandomNameProfilesDiceExpressions.Add(new RandomNameProfilesDiceExpressions
 		{
 			RandomNameProfile = random,

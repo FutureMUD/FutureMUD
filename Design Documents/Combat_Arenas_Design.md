@@ -34,6 +34,7 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - Pari-mutuel settlement now guarantees a winning bettor never receives less than their staked amount; arena takeout is applied only to the losing side(s) pool.
 - NPC full-restore paths now explicitly clear `PainTolerance` effects so reused arena NPCs do not carry boosted pass-out thresholds into future bouts.
 - Staged participant placement now uses randomized, evenly spaced side start anchors across arena floor cells so opposing teams start as far apart as possible while varying room assignments between bouts.
+- `ArenaSeeder` now treats the named stock arena package as rerunnable: helper progs, combatant classes, event types, and event sides are refreshed in place by stable names, while room wiring, finances, schedules, ratings, and live event data remain builder-owned runtime state.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).

@@ -10,6 +10,16 @@ namespace DatabaseSeeder.Seeders;
 
 public class SkillSeeder : SkillSeederBase
 {
+	private static readonly string[] SharedSkillSeederMarkers =
+	[
+		"Skill Check",
+		"Language Check",
+		"General Skill",
+		"Language Skill",
+		"Skill Improver",
+		"Language Improver"
+	];
+
 	public override
 		IEnumerable<(string Id, string Question,
 			Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -129,20 +139,40 @@ Again, the choices you make here can be fixed later so don't stress it too great
 	private void SeedChecks(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var branching = questionAnswers["branching"].EqualToAny("yes", "y");
-		SeedCheckTemplates(context, branching);
+		var templates = SeedCheckTemplates(context, branching);
+
+		static string ResolveTemplateName(long templateId)
+		{
+			return templateId switch
+			{
+				1 => "Skill Check",
+				3 => "Skill Check No Improvement",
+				4 => "Language Check",
+				5 => "Perception Check",
+				6 => "Branch Check",
+				7 => "Passive Perception Check",
+				8 => "Capability Check",
+				9 => "Project Check",
+				10 => "Bonus Absent Check",
+				11 => "Health Check",
+				12 => "Static Check",
+				_ => "Skill Check"
+			};
+		}
 
 		void AddCheck(CheckType type, TraitExpression expression, long templateId,
 			Difficulty maximumImprovementDifficulty)
 		{
-			context.TraitExpressions.Add(expression);
-			context.SaveChanges();
-			context.Checks.Add(new Check
-			{
-				Type = (int)type,
-				CheckTemplateId = templateId,
-				MaximumDifficultyForImprovement = (int)maximumImprovementDifficulty,
-				TraitExpression = expression
-			});
+			var expressionName = string.IsNullOrWhiteSpace(expression.Name)
+				? (type == CheckType.None ? "Default Fallback Check" : $"{type.DescribeEnum(true)}")
+				: expression.Name;
+			EnsureCheck(
+				context,
+				type,
+				expressionName,
+				expression.Expression,
+				templates[ResolveTemplateName(templateId)].Id,
+				maximumImprovementDifficulty);
 			context.SaveChanges();
 		}
 
@@ -427,11 +457,10 @@ Again, the choices you make here can be fixed later so don't stress it too great
 					var langAttribute = context.TraitDefinitions.FirstOrDefault(x =>
 						x.Name == langAttrText) ?? context.TraitDefinitions.First(x =>
 						x.Alias == langAttrText);
-					languageCap = new TraitExpression
-					{
-						Name = $"{questionAnswers["examplelanguage"]} Skill Cap",
-						Expression = $"10 + (9.5 * {langAttribute.Alias.ToLowerInvariant()}:{langAttribute.Id})"
-					};
+					languageCap = EnsureTraitExpression(
+						context,
+						$"{questionAnswers["examplelanguage"]} Skill Cap",
+						$"10 + (9.5 * {langAttribute.Alias.ToLowerInvariant()}:{langAttribute.Id})");
 				}
 
 				var attrText = questionAnswers["skillattribute"];
@@ -441,62 +470,43 @@ Again, the choices you make here can be fixed later so don't stress it too great
 									x.Alias == attrText);
 				foreach (var skill in skills)
 				{
-					var cap = new TraitExpression
-					{
-						Name = $"{skill} Skill Cap",
-						Expression = $"min(99, 5.5 * {attribute.Alias.ToLowerInvariant()}:{attribute.Id})"
-					};
-					context.TraitExpressions.Add(cap);
-					skillsCaps[skill] = cap;
+					skillsCaps[skill] = EnsureTraitExpression(
+						context,
+						$"{skill} Skill Cap",
+						$"min(99, 5.5 * {attribute.Alias.ToLowerInvariant()}:{attribute.Id})");
 				}
 
 				break;
 			case "class":
 				if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
 				{
-					languageCap = new TraitExpression
-					{
-						Name = $"{questionAnswers["examplelanguage"]} Skill Cap",
-						Expression = "130 + ({learned class=wizard,merchant} * 60)"
-					};
-
-					context.TraitExpressions.Add(languageCap);
+					languageCap = EnsureTraitExpression(
+						context,
+						$"{questionAnswers["examplelanguage"]} Skill Cap",
+						"130 + ({learned class=wizard,merchant} * 60)");
 				}
 
 				foreach (var skill in skills)
 				{
-					var cap = new TraitExpression
-					{
-						Name = $"{skill} Skill Cap",
-						Expression =
-							"30 + ({martials class=warrior,ranger,barbarian} * 30) + ({rogues class=thief,bard,} * 10)"
-					};
-					context.TraitExpressions.Add(cap);
-					skillsCaps[skill] = cap;
+					skillsCaps[skill] = EnsureTraitExpression(
+						context,
+						$"{skill} Skill Cap",
+						"30 + ({martials class=warrior,ranger,barbarian} * 30) + ({rogues class=thief,bard,} * 10)");
 				}
 
 				break;
 			case "flat":
 				if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
 				{
-					languageCap = new TraitExpression
-					{
-						Name = $"{questionAnswers["examplelanguage"]} Skill Cap",
-						Expression = "200"
-					};
-
-					context.TraitExpressions.Add(languageCap);
+					languageCap = EnsureTraitExpression(
+						context,
+						$"{questionAnswers["examplelanguage"]} Skill Cap",
+						"200");
 				}
 
 				foreach (var skill in skills)
 				{
-					var cap = new TraitExpression
-					{
-						Name = $"{skill} Skill Cap",
-						Expression = "70"
-					};
-					context.TraitExpressions.Add(cap);
-					skillsCaps[skill] = cap;
+					skillsCaps[skill] = EnsureTraitExpression(context, $"{skill} Skill Cap", "70");
 				}
 
 				break;
@@ -509,23 +519,25 @@ Again, the choices you make here can be fixed later so don't stress it too great
 
 		foreach (var skill in skills)
 		{
-			context.Add(new TraitDefinition
+			var alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
+			var alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
+			EnsureSkillDefinition(context, skill, trait =>
 			{
-				Name = skill,
-				Type = 0,
-				DecoratorId = general.Id,
-				TraitGroup = "General",
-				AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-				TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
-				LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-				TeachDifficulty = 7,
-				LearnDifficulty = 7,
-				Hidden = false,
-				Expression = skillsCaps[skill],
-				ImproverId = generalImprover.Id,
-				DerivedType = 0,
-				ChargenBlurb = string.Empty,
-				BranchMultiplier = 1.0
+				trait.Type = 0;
+				trait.DecoratorId = general.Id;
+				trait.TraitGroup = "General";
+				trait.AvailabilityProg = alwaysTrue;
+				trait.TeachableProg = alwaysFalse;
+				trait.LearnableProg = alwaysTrue;
+				trait.TeachDifficulty = 7;
+				trait.LearnDifficulty = 7;
+				trait.Hidden = false;
+				trait.Expression = skillsCaps[skill];
+				trait.ExpressionId = skillsCaps[skill].Id;
+				trait.ImproverId = generalImprover.Id;
+				trait.DerivedType = 0;
+				trait.ChargenBlurb = string.Empty;
+				trait.BranchMultiplier = 1.0;
 			});
 			context.SaveChanges();
 		}
@@ -533,52 +545,47 @@ Again, the choices you make here can be fixed later so don't stress it too great
 
 		if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
 		{
-			var languageSkill = new TraitDefinition
+			var alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
+			var alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
+			var languageSkill = EnsureSkillDefinition(context, "Admin", trait =>
 			{
-				Name = "Admin",
-				Type = 0,
-				DecoratorId = languageDecorator.Id,
-				TraitGroup = "Language",
-				AvailabilityProg = context.FutureProgs.First(x =>
-					x.FunctionName == "AlwaysTrue"),
-				TeachableProg = context.FutureProgs.First(x =>
-					x.FunctionName == "AlwaysFalse"),
-				LearnableProg = context.FutureProgs.First(x =>
-					x.FunctionName == "AlwaysTrue"),
-				TeachDifficulty = 7,
-				LearnDifficulty = 7,
-				Hidden = false,
-				Expression = languageCap,
-				ImproverId = languageImprover.Id,
-				DerivedType = 0,
-				ChargenBlurb = string.Empty,
-				BranchMultiplier = 0.1
-			};
-			context.Add(languageSkill);
+				trait.Type = 0;
+				trait.DecoratorId = languageDecorator.Id;
+				trait.TraitGroup = "Language";
+				trait.AvailabilityProg = alwaysTrue;
+				trait.TeachableProg = alwaysFalse;
+				trait.LearnableProg = alwaysTrue;
+				trait.TeachDifficulty = 7;
+				trait.LearnDifficulty = 7;
+				trait.Hidden = false;
+				trait.Expression = languageCap;
+				trait.ExpressionId = languageCap?.Id;
+				trait.ImproverId = languageImprover.Id;
+				trait.DerivedType = 0;
+				trait.ChargenBlurb = string.Empty;
+				trait.BranchMultiplier = 0.1;
+			});
 			context.SaveChanges();
 
-			var language = new Language
+			var language = EnsureLanguage(context, questionAnswers["examplelanguage"], language =>
 			{
-				Name = questionAnswers["examplelanguage"],
-				LinkedTrait = languageSkill,
-				UnknownLanguageDescription = "an unknown language",
-				LanguageObfuscationFactor = 0.1,
-				DifficultyModel = context.LanguageDifficultyModels.First().Id
-			};
-			context.Languages.Add(language);
+				language.LinkedTrait = languageSkill;
+				language.LinkedTraitId = languageSkill.Id;
+				language.UnknownLanguageDescription = "an unknown language";
+				language.LanguageObfuscationFactor = 0.1;
+				language.DifficultyModel = context.LanguageDifficultyModels.First().Id;
+			});
 			context.SaveChanges();
-			var accent = new Accent
+			var accent = EnsureAccent(context, language, "foreign", current =>
 			{
-				Name = "foreign",
-				Language = language,
-				Suffix = "with a foreign accent",
-				VagueSuffix = "with a foreign accent",
-				Difficulty = (int)Difficulty.Normal,
-				Description = "This is the accent of a non-native speaker who is just beginning to learn the language",
-				Group = "foreign"
-			};
+				current.Suffix = "with a foreign accent";
+				current.VagueSuffix = "with a foreign accent";
+				current.Difficulty = (int)Difficulty.Normal;
+				current.Description = "This is the accent of a non-native speaker who is just beginning to learn the language";
+				current.Group = "foreign";
+			});
 			language.DefaultLearnerAccent = accent;
-			context.Accents.Add(accent);
+			language.DefaultLearnerAccentId = accent.Id;
 			context.SaveChanges();
 		}
 	}
@@ -589,8 +596,26 @@ Again, the choices you make here can be fixed later so don't stress it too great
 		if (!context.Accounts.Any() || context.TraitDefinitions.All(x => x.Type != 1))
 			return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.TraitDefinitions.Any(x => x.Type == 0)) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.TraitDefinitions.Any(x => x.Name == "Admin Speech") ||
+		    context.Languages.Any(x => x.Name == "Admin Speech"))
+		{
+			return ShouldSeedResult.MayAlreadyBeInstalled;
+		}
 
-		return ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+		[
+			context.CheckTemplates.Any(x => x.Name == "Skill Check"),
+			context.CheckTemplates.Any(x => x.Name == "Language Check"),
+			context.TraitDecorators.Any(x => x.Name == "General Skill"),
+			context.TraitDecorators.Any(x => x.Name == "Language Skill"),
+			context.Improvers.Any(x => x.Name == "Skill Improver"),
+			context.Improvers.Any(x => x.Name == "Language Improver"),
+			context.TraitDefinitions.Any(x => x.Name == "Admin") ||
+			(SharedSkillSeederMarkers.All(marker =>
+				context.CheckTemplates.Any(x => x.Name == marker) ||
+				context.TraitDecorators.Any(x => x.Name == marker) ||
+				context.Improvers.Any(x => x.Name == marker)) &&
+			 context.TraitDefinitions.Any(x => x.Type == 0))
+		]);
 	}
 }

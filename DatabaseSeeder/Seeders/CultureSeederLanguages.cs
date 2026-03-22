@@ -15,57 +15,15 @@ public partial class CultureSeeder
 
 	public void AddLanguage(string name, string unknownDescription, FutureProg? canSelectProg = null)
 	{
-		var decorator = _context.TraitDecorators.First(x => x.Name == "Language Skill");
-		var improver = _context.Improvers.First(x => x.Name == "Language Improver");
-		var capFormula = _context.Languages.FirstOrDefault()?.LinkedTrait.Expression.Expression ??
-						 $"10+(9.5 * {_intelligenceTrait.Alias}:{_intelligenceTrait.Id})";
-		var expression = new TraitExpression { Name = $"{name} Skill Cap", Expression = capFormula };
-
-		var trait = new TraitDefinition
-		{
-			Name = name,
-			Type = 0,
-			DecoratorId = decorator.Id,
-			TraitGroup = "Language",
-			AvailabilityProg = canSelectProg ?? _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-			TeachableProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
-			LearnableProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-			TeachDifficulty = 7,
-			LearnDifficulty = 7,
-			Hidden = false,
-			Expression = expression,
-			ImproverId = improver.Id,
-			DerivedType = 0,
-			ChargenBlurb = string.Empty,
-			BranchMultiplier = 0.1
-		};
-		_context.TraitDefinitions.Add(trait);
-		_context.SaveChanges();
-
-		var language = new Language
-		{
-			Name = name,
-			UnknownLanguageDescription = unknownDescription,
-			LanguageObfuscationFactor = 0.1,
-			DifficultyModel = 1,
-			LinkedTrait = trait
-		};
-		_context.Languages.Add(language);
-		_context.SaveChanges();
-		_languages[name] = language;
-
-		var accent = new Accent
-		{
-			Name = "Foreign",
-			Suffix = "with a foreign accent",
-			VagueSuffix = "with a foreign accent",
-			Difficulty = (int)Difficulty.Normal,
-			Description = $"The heavily-foreign accent of a non-native learner of the {name} language",
-			Group = "Foreign",
-			Language = language
-		};
-		_context.Accents.Add(accent);
-		_context.SaveChanges();
+		var language = EnsureLanguage(name, unknownDescription, canSelectProg);
+		var accent = EnsureAccent(
+			language,
+			"Foreign",
+			"with a foreign accent",
+			"with a foreign accent",
+			(int)Difficulty.Normal,
+			$"The heavily-foreign accent of a non-native learner of the {name} language",
+			"Foreign");
 		language.DefaultLearnerAccent = accent;
 		_context.SaveChanges();
 	}
@@ -73,53 +31,18 @@ public partial class CultureSeeder
 	private void AddAccent(string language, string name, string suffix, string vague, int difficulty,
 		string description, string group, FutureProg? prog = null)
 	{
-		_context.Accents.Add(new Accent
-		{
-			Name = name.TitleCase(),
-			Suffix = suffix,
-			VagueSuffix = vague,
-			Difficulty = difficulty,
-			Description = description,
-			Group = group,
-			Language = _languages[language],
-			ChargenAvailabilityProgId = prog?.Id
-		});
-		_context.SaveChanges();
+		EnsureAccent(_languages[language], name, suffix, vague, difficulty, description, group, prog);
 	}
 
 	private void AddAccent(string language, string name, string suffix, string vague, Difficulty difficulty,
 		string description, string group, FutureProg? prog = null)
 	{
-		_context.Accents.Add(new Accent
-		{
-			Name = name.TitleCase(),
-			Suffix = suffix,
-			VagueSuffix = vague,
-			Difficulty = (int)difficulty,
-			Description = description,
-			Group = group,
-			Language = _languages[language],
-			ChargenAvailabilityProgId = prog?.Id
-		});
-		_context.SaveChanges();
+		EnsureAccent(_languages[language], name, suffix, vague, (int)difficulty, description, group, prog);
 	}
 
 	private void AddMutualIntelligability(string from, string to, Difficulty difficulty, bool twoWay = false)
 	{
-		_context.MutualIntelligabilities.Add(new MutualIntelligability
-		{
-			TargetLanguage = _languages[from],
-			ListenerLanguage = _languages[to],
-			IntelligabilityDifficulty = (int)difficulty
-		});
-		if (twoWay)
-			_context.MutualIntelligabilities.Add(new MutualIntelligability
-			{
-				TargetLanguage = _languages[to],
-				ListenerLanguage = _languages[from],
-				IntelligabilityDifficulty = (int)difficulty
-			});
-		_context.SaveChanges();
+		EnsureMutualIntelligability(from, to, difficulty, twoWay);
 	}
 
 	public void AddScript(string name, string known, string unknown, string description, string subtype, double length,
@@ -136,57 +59,20 @@ public partial class CultureSeeder
 		sb.AppendLine("end switch");
 		sb.AppendLine("return false");
 
-		var prog = new FutureProg
-		{
-			FunctionName = $"CanPick{name.Replace("-", "").Replace(" ", "")}ScriptKnowledge",
-			FunctionComment =
-				$"Controls whether someone can pick the {name} script knowledge during character creation. Will let them pick it if they have one of the language skills that the script is designed for.",
-			FunctionText = sb.ToString(),
-			ReturnType = 4,
-			Category = "Knowledges",
-			Subcategory = "Scripts",
-			Public = true,
-			AcceptsAnyParameters = false,
-			StaticType = 0
-		};
-		_context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{ FutureProg = prog, ParameterIndex = 0, ParameterName = "ch", ParameterType = 8200 });
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{ FutureProg = prog, ParameterIndex = 1, ParameterName = "skill", ParameterType = 16384 });
-		_context.SaveChanges();
-
-		var knowledge = new Knowledge
-		{
-			Name = $"{name} Script",
-			Description = $"Knowledge of the use of the {name} Script",
-			LongDescription = description,
-			Type = "Script",
-			Subtype = subtype,
-			LearnableType = (int)(LearnableType.LearnableAtChargen | LearnableType.LearnableFromTeacher),
-			LearnDifficulty = (int)Difficulty.VeryHard,
-			TeachDifficulty = (int)Difficulty.VeryHard,
-			LearningSessionsRequired = 10,
-			CanAcquireProg = prog,
-			CanLearnProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue")
-		};
-		_context.Knowledges.Add(knowledge);
-		_context.SaveChanges();
-
-		var script = new Script
-		{
-			Name = name,
-			DocumentLengthModifier = length,
-			InkUseModifier = ink,
-			KnownScriptDescription = known,
-			UnknownScriptDescription = unknown,
-			KnowledgeId = knowledge.Id
-		};
-		_context.Scripts.Add(script);
-		foreach (var language in languages)
-			script.ScriptsDesignedLanguages.Add(new ScriptsDesignedLanguage
-				{ Script = script, Language = _languages[language] });
-		_context.SaveChanges();
+		var prog = SeederRepeatabilityHelper.EnsureProg(
+			_context,
+			$"CanPick{name.Replace("-", "").Replace(" ", "")}ScriptKnowledge",
+			"Knowledges",
+			"Scripts",
+			ProgVariableTypes.Boolean,
+			$"Controls whether someone can pick the {name} script knowledge during character creation. Will let them pick it if they have one of the language skills that the script is designed for.",
+			sb.ToString(),
+			true,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Chargen, "ch"),
+			(ProgVariableTypes.Trait, "skill"));
+		EnsureScript(name, known, unknown, description, subtype, length, ink, prog, languages);
 	}
 
 	private void SeedMiddleEarthLanguages()

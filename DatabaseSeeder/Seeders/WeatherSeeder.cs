@@ -147,6 +147,16 @@ sealed class WeatherSeederEventCatalog
 
 public partial class WeatherSeeder: IDatabaseSeeder
 {
+	private static readonly string[] StockWeatherEventNames = ["HumidStill", "RainBreeze", "SnowWind"];
+	private static readonly string[] StockSeasonNames = ["temperate_mid_winter", "temperate_mid_summer", "temperate_mid_autumn"];
+	private static readonly string[] StockClimateModelNames = ["Temperate", "Oceanic Temperate", "Humid Subtropical"];
+	private static readonly string[] StockRegionalClimateNames =
+	[
+		"Oceanic Temperate Northern Hemisphere",
+		"Humid Subtropical Northern Hemisphere",
+		"Mediterranean Northern Hemisphere"
+	];
+
 	static Regex TempVariationRegex = new("(?:Freezing|VeryCold|Cold|Cool|Cooler|Warmer|Warm|Hot|VeryHot|Sweltering)$");
 	static Regex CloudVariationRegex = new("^(?:Cloudy|Overcast)");
 	private static readonly string[] ClimateSeasonGroups = { "Winter", "Spring", "Summer", "Autumn" };
@@ -359,34 +369,40 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 			string? countsAs,
 			string defaultTransition)
 		{
-			var weatherEvent = new WeatherEvent
-			{
-				Name = name,
-				WeatherDescription = description,
-				WeatherRoomAddendum = roomAddendum,
-				TemperatureEffect = temp,
-				PrecipitationTemperatureEffect = precipTemp,
-				WindTemperatureEffect = windTemp,
-				Precipitation = (int)precipitationLevel,
-				Wind = (int)windLevel,
-				ObscuresViewOfSky = obscureSky,
-				PermittedAtNight = night,
-				PermittedAtDawn = dawn,
-				PermittedAtMorning = morning,
-				PermittedAtAfternoon = afternoon,
-				PermittedAtDusk = dusk,
-				WeatherEventType = UseRainEvents ? (precipitationLevel.IsRaining() ? "rain" : "simple") : "simple",
-				AdditionalInfo = "" // This is set later
-			};
+			var weatherEvent = SeederRepeatabilityHelper.EnsureNamedEntity(
+				context.WeatherEvents,
+				name,
+				x => x.Name,
+				() =>
+				{
+					var created = new WeatherEvent();
+					context.WeatherEvents.Add(created);
+					return created;
+				});
+			weatherEvent.Name = name;
+			weatherEvent.WeatherDescription = description;
+			weatherEvent.WeatherRoomAddendum = roomAddendum;
+			weatherEvent.TemperatureEffect = temp;
+			weatherEvent.PrecipitationTemperatureEffect = precipTemp;
+			weatherEvent.WindTemperatureEffect = windTemp;
+			weatherEvent.Precipitation = (int)precipitationLevel;
+			weatherEvent.Wind = (int)windLevel;
+			weatherEvent.ObscuresViewOfSky = obscureSky;
+			weatherEvent.PermittedAtNight = night;
+			weatherEvent.PermittedAtDawn = dawn;
+			weatherEvent.PermittedAtMorning = morning;
+			weatherEvent.PermittedAtAfternoon = afternoon;
+			weatherEvent.PermittedAtDusk = dusk;
+			weatherEvent.WeatherEventType = UseRainEvents ? (precipitationLevel.IsRaining() ? "rain" : "simple") : "simple";
+			weatherEvent.AdditionalInfo = "";
 			if (countsAs is not null)
 			{
 				weatherEvent.CountsAs = eventsByName[countsAs];
 			}
 
 			defaultTransitions[weatherEvent] = defaultTransition;
-			eventsByName.Add(name, weatherEvent);
-			eventsByDescriptor.Add(CreateEventDescriptor(precipitationLevel, windLevel, temperatureVariation, windVariation, cloudVariation), weatherEvent);
-			context.WeatherEvents.Add(weatherEvent);
+			eventsByName[name] = weatherEvent;
+			eventsByDescriptor[CreateEventDescriptor(precipitationLevel, windLevel, temperatureVariation, windVariation, cloudVariation)] = weatherEvent;
 		}
 
 		void AddEventWithTempVariations(
@@ -830,15 +846,28 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 	private static void CreateRegionalClimate(FuturemudDatabaseContext context, List<Season> seasons, ClimateModel climateModel, WeatherSeederClimateProfile profile)
 	{
 		#region Regional Climate
-		var regionalClimate = new RegionalClimate
+		var regionalClimateName = $"{profile.RegionalClimatePrefix} Northern Hemisphere";
+		var regionalClimate = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.RegionalClimates,
+			regionalClimateName,
+			x => x.Name,
+			() =>
+			{
+				var created = new RegionalClimate();
+				context.RegionalClimates.Add(created);
+				return created;
+			});
+		regionalClimate.Name = regionalClimateName;
+		regionalClimate.Description = BuildRegionalClimateDescription(profile);
+		regionalClimate.ClimateModelId = climateModel.Id;
+		regionalClimate.TemperatureFluctuationStandardDeviation = EstimateTemperatureFluctuationStandardDeviation(profile);
+		regionalClimate.TemperatureFluctuationPeriodMinutes =
+			(int)Math.Round(EstimateTemperatureFluctuationPeriod(profile).TotalMinutes);
+
+		foreach (var existing in context.RegionalClimatesSeasons.Where(x => x.RegionalClimateId == regionalClimate.Id).ToList())
 		{
-			Name = $"{profile.RegionalClimatePrefix} Northern Hemisphere",
-			Description = BuildRegionalClimateDescription(profile),
-			ClimateModelId = climateModel.Id,
-			TemperatureFluctuationStandardDeviation = EstimateTemperatureFluctuationStandardDeviation(profile),
-			TemperatureFluctuationPeriodMinutes = (int)Math.Round(EstimateTemperatureFluctuationPeriod(profile).TotalMinutes)
-		};
-		context.RegionalClimates.Add(regionalClimate);
+			context.RegionalClimatesSeasons.Remove(existing);
+		}
 
 		foreach (var season in seasons)
 		{
@@ -1318,15 +1347,31 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 			}
 		}
 
-		var temperateModel = new ClimateModel
+		var temperateModel = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.ClimateModels,
+			profile.ClimateModelName,
+			x => x.Name,
+			() =>
+			{
+				var created = new ClimateModel();
+				context.ClimateModels.Add(created);
+				return created;
+			});
+		temperateModel.Name = profile.ClimateModelName;
+		temperateModel.Description = BuildClimateModelDescription(profile);
+		temperateModel.MinuteProcessingInterval = 10;
+		temperateModel.MinimumMinutesBetweenFlavourEchoes = 60;
+		temperateModel.MinuteFlavourEchoChance = 0.01;
+		temperateModel.Type = "terrestrial";
+		foreach (var existing in temperateModel.ClimateModelSeasons.ToList())
 		{
-			Name = profile.ClimateModelName,
-			Description = BuildClimateModelDescription(profile),
-			MinuteProcessingInterval = 10,
-			MinimumMinutesBetweenFlavourEchoes = 60,
-			MinuteFlavourEchoChance = 0.01,
-			Type = "terrestrial"
-		};
+			foreach (var seasonEvent in existing.SeasonEvents.ToList())
+			{
+				existing.SeasonEvents.Remove(seasonEvent);
+			}
+
+			temperateModel.ClimateModelSeasons.Remove(existing);
+		}
 		foreach (var season in seasons)
 		{
 			var cms = new ClimateModelSeason
@@ -1360,7 +1405,6 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 			}
 		}
 
-		context.ClimateModels.Add(temperateModel);
 		return temperateModel;
 	}
 
@@ -2376,15 +2420,21 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
 		void AddSeason(string name, string group, string displayName, int celestialDayOnset)
 		{
-			var season = new Season
-			{
-				Name = name,
-				DisplayName = displayName,
-				SeasonGroup = group,
-				CelestialId = celestial.Id,
-				CelestialDayOnset = celestialDayOnset
-			};
-			_context.Seasons.Add(season);
+			var season = SeederRepeatabilityHelper.EnsureNamedEntity(
+				_context.Seasons,
+				name,
+				x => x.Name,
+				() =>
+				{
+					var created = new Season();
+					_context.Seasons.Add(created);
+					return created;
+				});
+			season.Name = name;
+			season.DisplayName = displayName;
+			season.SeasonGroup = group;
+			season.CelestialId = celestial.Id;
+			season.CelestialDayOnset = celestialDayOnset;
 			seasons.Add(season);
 		}
 
@@ -2411,9 +2461,13 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
 		if (!context.Celestials.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.ClimateModels.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
-
-		return ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+		[
+			StockWeatherEventNames.All(name => context.WeatherEvents.Any(x => x.Name == name)),
+			StockSeasonNames.All(name => context.Seasons.Any(x => x.Name == name)),
+			StockClimateModelNames.All(name => context.ClimateModels.Any(x => x.Name == name)),
+			StockRegionalClimateNames.All(name => context.RegionalClimates.Any(x => x.Name == name))
+		]);
 	}
 
 	#endregion

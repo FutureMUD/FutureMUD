@@ -13,6 +13,13 @@ namespace DatabaseSeeder.Seeders;
 
 public class LawSeeder : IDatabaseSeeder
 {
+	private static readonly string[] StockAuthorityMarkers =
+	[
+		"Enforcer",
+		"Witness",
+		"Assault"
+	];
+
 	public FuturemudDatabaseContext Context { get; private set; }
 	public IReadOnlyDictionary<string, string> QuestionAnswers { get; private set; }
 	public string AuthorityName { get; private set; }
@@ -188,9 +195,113 @@ Please enter your penalty unit: ", (context, answers) => true,
 	{
 		if (!context.Accounts.Any() || !context.Currencies.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.LegalAuthorities.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+			context.LegalAuthorities.Select(authority =>
+					StockAuthorityMarkers.Any(marker =>
+						authority.LegalClasses.Any(x => x.Name == marker) ||
+						authority.EnforcementAuthorities.Any(x => x.Name == marker) ||
+						authority.Laws.Any(x => x.Name == marker)))
+				.DefaultIfEmpty(false));
+	}
 
-		return ShouldSeedResult.ReadyToInstall;
+	private FutureProg EnsureLawProg(
+		string functionName,
+		string comment,
+		ProgVariableTypes returnType,
+		string text,
+		params (ProgVariableTypes Type, string Name)[] parameters)
+	{
+		var prog = SeederRepeatabilityHelper.EnsureProg(
+			Context,
+			functionName,
+			"Law",
+			AuthorityName.CollapseString(),
+			returnType,
+			comment,
+			text,
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			parameters);
+		Context.SaveChanges();
+		return prog;
+	}
+
+	private LegalClass EnsureLegalClass(
+		string name,
+		int priority,
+		bool canBeDetained,
+		FutureProg membershipProg)
+	{
+		var legalClass = SeederRepeatabilityHelper.EnsureEntity(
+			Context.LegalClasses,
+			x => x.LegalAuthorityId == Authority.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new LegalClass();
+				Context.LegalClasses.Add(created);
+				return created;
+			});
+
+		legalClass.Name = name;
+		legalClass.LegalAuthority = Authority;
+		legalClass.MembershipProg = membershipProg;
+		legalClass.CanBeDetainedUntilFinesPaid = canBeDetained;
+		legalClass.LegalClassPriority = priority;
+		return legalClass;
+	}
+
+	private WitnessProfile EnsureWitnessProfile(string name)
+	{
+		return SeederRepeatabilityHelper.EnsureNamedEntity(
+			Context.WitnessProfiles,
+			name,
+			x => x.Name,
+			() =>
+			{
+				var created = new WitnessProfile();
+				Context.WitnessProfiles.Add(created);
+				return created;
+			});
+	}
+
+	private EnforcementAuthority EnsureEnforcementAuthority(
+		string name,
+		bool canAccuse,
+		bool canForgive,
+		bool canConvict,
+		int priority,
+		FutureProg filterProg)
+	{
+		var authority = SeederRepeatabilityHelper.EnsureEntity(
+			Context.EnforcementAuthorities,
+			x => x.LegalAuthorityId == Authority.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new EnforcementAuthority();
+				Context.EnforcementAuthorities.Add(created);
+				return created;
+			});
+
+		authority.Name = name;
+		authority.LegalAuthority = Authority;
+		authority.CanAccuse = canAccuse;
+		authority.CanForgive = canForgive;
+		authority.CanConvict = canConvict;
+		authority.Priority = priority;
+		authority.FilterProg = filterProg;
+
+		foreach (var existing in authority.EnforcementAuthoritiesArrestableLegalClasses.ToList())
+		{
+			Context.Remove(existing);
+		}
+
+		foreach (var existing in authority.EnforcementAuthoritiesAccusableClasses.ToList())
+		{
+			Context.Remove(existing);
+		}
+
+		return authority;
 	}
 
 	public int SortOrder => 5000;
@@ -212,103 +323,58 @@ Please enter your penalty unit: ", (context, answers) => true,
 		else
 			currency = context.Currencies.First(x => x.Name == questionAnswers["currency"]);
 
-		var authority = new LegalAuthority
-		{
-			Name = AuthorityName,
-			CurrencyId = currency.Id,
-			AutomaticallyConvict = false,
-			AutomaticConvictionTime = 60 * 60 * 24,
-			PlayersKnowTheirCrimes = true
-		};
-		context.LegalAuthorities.Add(authority);
+		var authority = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.LegalAuthorities,
+			AuthorityName,
+			x => x.Name,
+			() =>
+			{
+				var created = new LegalAuthority();
+				context.LegalAuthorities.Add(created);
+				return created;
+			});
+		authority.Name = AuthorityName;
+		authority.CurrencyId = currency.Id;
+		authority.AutomaticallyConvict = false;
+		authority.AutomaticConvictionTime = 60 * 60 * 24;
+		authority.PlayersKnowTheirCrimes = true;
 		context.SaveChanges();
 		Authority = authority;
 
 		#region Progs
 
-		var onreleaseprog = new FutureProg
-		{
-			FunctionName = $"OnRelease{AuthorityName.CollapseString()}",
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "Executed when a character is released from prison or custody",
-			ReturnType = 0,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = ""
-		};
-
-		onreleaseprog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = onreleaseprog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = 8200
-		});
-		context.FutureProgs.Add(onreleaseprog);
+		var onreleaseprog = EnsureLawProg(
+			$"OnRelease{AuthorityName.CollapseString()}",
+			"Executed when a character is released from prison or custody",
+			ProgVariableTypes.Void,
+			string.Empty,
+			(ProgVariableTypes.Character, "ch"));
 		authority.OnReleaseProg = onreleaseprog;
 		ProgLookup["onrelease"] = onreleaseprog;
 
-		var onholdprog = new FutureProg
-		{
-			FunctionName = $"OnIncarcerate{AuthorityName.CollapseString()}",
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "Executed when a character is incarcerated (held in custody)",
-			ReturnType = 0,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = ""
-		};
-
-		onholdprog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = onholdprog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = 8200
-		});
-		context.FutureProgs.Add(onholdprog);
+		var onholdprog = EnsureLawProg(
+			$"OnIncarcerate{AuthorityName.CollapseString()}",
+			"Executed when a character is incarcerated (held in custody)",
+			ProgVariableTypes.Void,
+			string.Empty,
+			(ProgVariableTypes.Character, "ch"));
 		authority.OnHoldProg = onholdprog;
 		ProgLookup["onhold"] = onholdprog;
 
-		var onimprisonprog = new FutureProg
-		{
-			FunctionName = $"OnImprison{AuthorityName.CollapseString()}",
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "Executed when a character is sentenced to a prison term",
-			ReturnType = 0,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = ""
-		};
-
-		onimprisonprog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = onimprisonprog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = 8200
-		});
-		context.FutureProgs.Add(onimprisonprog);
+		var onimprisonprog = EnsureLawProg(
+			$"OnImprison{AuthorityName.CollapseString()}",
+			"Executed when a character is sentenced to a prison term",
+			ProgVariableTypes.Void,
+			string.Empty,
+			(ProgVariableTypes.Character, "ch"));
 		authority.OnImprisonProg = onimprisonprog;
 		ProgLookup["onimprison"] = onimprisonprog;
 
-		var bailprog = new FutureProg
-		{
-			FunctionName = $"BailCalculation{AuthorityName.CollapseString()}",
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "Determines the bail payment for a particular crime",
-			ReturnType = 2,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"// This is an example of how you could split up your bail amounts
+		var bailprog = EnsureLawProg(
+			$"BailCalculation{AuthorityName.CollapseString()}",
+			"Determines the bail payment for a particular crime",
+			ProgVariableTypes.Number,
+			@"// This is an example of how you could split up your bail amounts
 if (@crime.ismajorcrime)
   return 0
 end if
@@ -318,49 +384,19 @@ end if
 if (@crime.ismoralcrime)
   return 0
 end if
-return 0"
-		};
-
-		bailprog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = bailprog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = 8200
-		});
-		bailprog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = bailprog,
-			ParameterIndex = 1,
-			ParameterName = "crime",
-			ParameterType = (long)ProgVariableTypes.Crime
-		});
-		context.FutureProgs.Add(bailprog);
+			return 0",
+			(ProgVariableTypes.Character, "ch"),
+			(ProgVariableTypes.Crime, "crime"));
 		authority.BailCalculationProg = bailprog;
 		context.SaveChanges();
 		ProgLookup["bail"] = bailprog;
 
-		var isongoodbehaviourprog = new FutureProg
-		{
-			FunctionName = $"IsOnGoodBehaviour{AuthorityName.CollapseString()}",
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "True if a character has a good behaviour bond",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = $"return OnGoodBehaviourBond(@ch, ToLegalAuthority({authority.Id}))"
-		};
-
-		isongoodbehaviourprog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = isongoodbehaviourprog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Character
-		});
-		context.FutureProgs.Add(isongoodbehaviourprog);
+		var isongoodbehaviourprog = EnsureLawProg(
+			$"IsOnGoodBehaviour{AuthorityName.CollapseString()}",
+			"True if a character has a good behaviour bond",
+			ProgVariableTypes.Boolean,
+			$"return OnGoodBehaviourBond(@ch, ToLegalAuthority({authority.Id}))",
+			(ProgVariableTypes.Character, "ch"));
 		ProgLookup["isgood"] = isongoodbehaviourprog;
 
 		#endregion
@@ -408,89 +444,67 @@ return 0"
 	private void AddWitnessProfile(string name, double reliability, double baseReportChance,
 		IEnumerable<TimeOfDay> activeTimes, IEnumerable<string> ignoreOffenders, IEnumerable<string> ignoreVictims)
 	{
-		var profile = new WitnessProfile
+		var profile = EnsureWitnessProfile(name);
+		profile.Name = name;
+		profile.MinimumSkillToDetermineBiases = 30;
+		profile.MinimumSkillToDetermineTimeOfDay = 30;
+		profile.ReportingReliability = reliability;
+		profile.BaseReportingChanceMorning = baseReportChance * (activeTimes.Contains(TimeOfDay.Morning) ? 1 : 0.33);
+		profile.BaseReportingChanceAfternoon = baseReportChance * (activeTimes.Contains(TimeOfDay.Afternoon) ? 1 : 0.33);
+		profile.BaseReportingChanceDawn = baseReportChance * (activeTimes.Contains(TimeOfDay.Dawn) ? 1 : 0.33);
+		profile.BaseReportingChanceDusk = baseReportChance * (activeTimes.Contains(TimeOfDay.Dusk) ? 1 : 0.33);
+		profile.BaseReportingChanceNight = baseReportChance * (activeTimes.Contains(TimeOfDay.Night) ? 1 : 0.33);
+		profile.IdentityKnownProg = EnsureLawProg(
+			$"{name.CollapseString()}KnowsIdentity",
+			"Determines if VNPC witnesses know the identity of a criminal or only their characteristics",
+			ProgVariableTypes.Boolean,
+			@"// You could consider checking a character's ethnicity, culture, merits, clan affiliations, skills, reputation (could be stored as a register variable) etc
+return true",
+			(ProgVariableTypes.Character, "criminal"));
+		profile.ReportingMultiplierProg = EnsureLawProg(
+			$"{name.CollapseString()}ReportMultiplier",
+			"A multiplier to the base reporting chance for an individual",
+			ProgVariableTypes.Number,
+			@"// You could consider checking a character's ethnicity, culture, merits, clan affiliations, skills, reputation (could be stored as a register variable) etc
+return 1.0",
+			(ProgVariableTypes.Character, "criminal"),
+			(ProgVariableTypes.Character, "victim"),
+			(ProgVariableTypes.Crime, "crime"));
+
+		foreach (var existing in profile.WitnessProfilesCooperatingAuthorities.ToList())
 		{
-			Name = name,
-			MinimumSkillToDetermineBiases = 30,
-			MinimumSkillToDetermineTimeOfDay = 30,
-			ReportingReliability = reliability,
-			BaseReportingChanceMorning = baseReportChance * (activeTimes.Contains(TimeOfDay.Morning) ? 1 : 0.33),
-			BaseReportingChanceAfternoon = baseReportChance * (activeTimes.Contains(TimeOfDay.Morning) ? 1 : 0.33),
-			BaseReportingChanceDawn = baseReportChance * (activeTimes.Contains(TimeOfDay.Morning) ? 1 : 0.33),
-			BaseReportingChanceDusk = baseReportChance * (activeTimes.Contains(TimeOfDay.Morning) ? 1 : 0.33),
-			BaseReportingChanceNight = baseReportChance * (activeTimes.Contains(TimeOfDay.Morning) ? 1 : 0.33)
-		};
-		Context.WitnessProfiles.Add(profile);
+			Context.WitnessProfilesCooperatingAuthorities.Remove(existing);
+		}
+
+		foreach (var existing in profile.WitnessProfilesIgnoredCriminalClasses.ToList())
+		{
+			Context.WitnessProfilesIgnoredCriminalClasses.Remove(existing);
+		}
+
+		foreach (var existing in profile.WitnessProfilesIgnoredVictimClasses.ToList())
+		{
+			Context.WitnessProfilesIgnoredVictimClasses.Remove(existing);
+		}
 
 		profile.WitnessProfilesCooperatingAuthorities.Add(new WitnessProfilesCooperatingAuthorities
 			{ LegalAuthority = Authority, WitnessProfile = profile });
 		foreach (var item in ignoreOffenders)
+		{
 			profile.WitnessProfilesIgnoredCriminalClasses.Add(new WitnessProfilesIgnoredCriminalClasses
 			{
 				LegalClass = Classes[item],
 				WitnessProfile = profile
 			});
+		}
+
 		foreach (var item in ignoreVictims)
+		{
 			profile.WitnessProfilesIgnoredVictimClasses.Add(new WitnessProfilesIgnoredVictimClasses
 			{
 				LegalClass = Classes[item],
 				WitnessProfile = profile
 			});
-
-		var knownProg = new FutureProg
-		{
-			FunctionName = $"{name.CollapseString()}KnowsIdentity",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment =
-				"Determines if VNPC witnesses know the identity of a criminal or only their characteristics",
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText =
-				@"// You could consider checking a character's ethnicity, culture, merits, clan affiliations, skills, reputation (could be stored as a register variable) etc
-return true"
-		};
-		Context.FutureProgs.Add(knownProg);
-		knownProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = knownProg, ParameterIndex = 0, ParameterName = "criminal",
-			ParameterType = (long)ProgVariableTypes.Character
-		});
-		profile.IdentityKnownProg = knownProg;
-
-		var multiplierProg = new FutureProg
-		{
-			FunctionName = $"{name.CollapseString()}ReportMultiplier",
-			ReturnType = (long)ProgVariableTypes.Number,
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "A multiplier to the base reporting chance for an individual",
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText =
-				@"// You could consider checking a character's ethnicity, culture, merits, clan affiliations, skills, reputation (could be stored as a register variable) etc
-return 1.0"
-		};
-		Context.FutureProgs.Add(multiplierProg);
-		multiplierProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = multiplierProg, ParameterIndex = 0, ParameterName = "criminal",
-			ParameterType = (long)ProgVariableTypes.Character
-		});
-		multiplierProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = multiplierProg, ParameterIndex = 1, ParameterName = "victim",
-			ParameterType = (long)ProgVariableTypes.Character
-		});
-		multiplierProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = multiplierProg, ParameterIndex = 2, ParameterName = "crime",
-			ParameterType = (long)ProgVariableTypes.Crime
-		});
-		profile.ReportingMultiplierProg = multiplierProg;
+		}
 	}
 
 	private void SetupWitnesses()
@@ -793,38 +807,14 @@ return true"
 	private void SetupEnforcers()
 	{
 		var separatepowers = QuestionAnswers["separatepowers"].EqualToAny("y", "yes");
-		var enforcerProg = new FutureProg
-		{
-			FunctionName = $"IsEnforcer{AuthorityName.CollapseString()}",
-			Category = "Law",
-			Subcategory = AuthorityName.CollapseString(),
-			FunctionComment = "Determines if a character is an enforcer",
-			ReturnType = 4,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = "return false"
-		};
-		enforcerProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = enforcerProg,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Character
-		});
-		Context.FutureProgs.Add(enforcerProg);
+		var enforcerProg = EnsureLawProg(
+			$"IsEnforcer{AuthorityName.CollapseString()}",
+			"Determines if a character is an enforcer",
+			ProgVariableTypes.Boolean,
+			"return false",
+			(ProgVariableTypes.Character, "ch"));
 
-		var enforcer = new EnforcementAuthority
-		{
-			Name = "Enforcer",
-			CanAccuse = true,
-			CanForgive = true,
-			CanConvict = !separatepowers,
-			LegalAuthority = Authority,
-			FilterProg = enforcerProg,
-			Priority = 0
-		};
-		Context.EnforcementAuthorities.Add(enforcer);
+		var enforcer = EnsureEnforcementAuthority("Enforcer", true, true, !separatepowers, 0, enforcerProg);
 		foreach (var legalClass in Classes)
 			switch (legalClass.Key)
 			{
@@ -856,38 +846,14 @@ return true"
 
 		if (separatepowers)
 		{
-			enforcerProg = new FutureProg
-			{
-				FunctionName = $"IsJudge{AuthorityName.CollapseString()}",
-				Category = "Law",
-				Subcategory = AuthorityName.CollapseString(),
-				FunctionComment = "Determines if a character is a judge",
-				ReturnType = 4,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = "return false"
-			};
-			enforcerProg.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = enforcerProg,
-				ParameterIndex = 0,
-				ParameterName = "ch",
-				ParameterType = (long)ProgVariableTypes.Character
-			});
-			Context.FutureProgs.Add(enforcerProg);
+			enforcerProg = EnsureLawProg(
+				$"IsJudge{AuthorityName.CollapseString()}",
+				"Determines if a character is a judge",
+				ProgVariableTypes.Boolean,
+				"return false",
+				(ProgVariableTypes.Character, "ch"));
 
-			enforcer = new EnforcementAuthority
-			{
-				Name = "Judge",
-				CanAccuse = false,
-				CanForgive = false,
-				CanConvict = true,
-				LegalAuthority = Authority,
-				FilterProg = enforcerProg,
-				Priority = 1
-			};
-			Context.EnforcementAuthorities.Add(enforcer);
+			enforcer = EnsureEnforcementAuthority("Judge", false, false, true, 1, enforcerProg);
 			foreach (var legalClass in Classes)
 				switch (legalClass.Key)
 				{
@@ -923,38 +889,14 @@ return true"
 		// Military-specific Enforcers
 		if (Classes.ContainsKey("soldier") || Classes.ContainsKey("officer"))
 		{
-			enforcerProg = new FutureProg
-			{
-				FunctionName = $"IsMilitaryEnforcer{AuthorityName.CollapseString()}",
-				Category = "Law",
-				Subcategory = AuthorityName.CollapseString(),
-				FunctionComment = "Determines if a character is a military enforcer",
-				ReturnType = 4,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = "return false"
-			};
-			enforcerProg.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = enforcerProg,
-				ParameterIndex = 0,
-				ParameterName = "ch",
-				ParameterType = (long)ProgVariableTypes.Character
-			});
-			Context.FutureProgs.Add(enforcerProg);
+			enforcerProg = EnsureLawProg(
+				$"IsMilitaryEnforcer{AuthorityName.CollapseString()}",
+				"Determines if a character is a military enforcer",
+				ProgVariableTypes.Boolean,
+				"return false",
+				(ProgVariableTypes.Character, "ch"));
 
-			enforcer = new EnforcementAuthority
-			{
-				Name = "Military Enforcer",
-				CanAccuse = true,
-				CanForgive = true,
-				CanConvict = !separatepowers,
-				LegalAuthority = Authority,
-				FilterProg = enforcerProg,
-				Priority = 2
-			};
-			Context.EnforcementAuthorities.Add(enforcer);
+			enforcer = EnsureEnforcementAuthority("Military Enforcer", true, true, !separatepowers, 2, enforcerProg);
 			foreach (var legalClass in Classes)
 				switch (legalClass.Key)
 				{
@@ -976,38 +918,14 @@ return true"
 
 			if (separatepowers)
 			{
-				enforcerProg = new FutureProg
-				{
-					FunctionName = $"IsMilitaryJudge{AuthorityName.CollapseString()}",
-					Category = "Law",
-					Subcategory = AuthorityName.CollapseString(),
-					FunctionComment = "Determines if a character is a military judge",
-					ReturnType = 4,
-					AcceptsAnyParameters = false,
-					Public = false,
-					StaticType = 0,
-					FunctionText = "return false"
-				};
-				enforcerProg.FutureProgsParameters.Add(new FutureProgsParameter
-				{
-					FutureProg = enforcerProg,
-					ParameterIndex = 0,
-					ParameterName = "ch",
-					ParameterType = (long)ProgVariableTypes.Character
-				});
-				Context.FutureProgs.Add(enforcerProg);
+				enforcerProg = EnsureLawProg(
+					$"IsMilitaryJudge{AuthorityName.CollapseString()}",
+					"Determines if a character is a military judge",
+					ProgVariableTypes.Boolean,
+					"return false",
+					(ProgVariableTypes.Character, "ch"));
 
-				enforcer = new EnforcementAuthority
-				{
-					Name = "Military Judge",
-					CanAccuse = false,
-					CanForgive = false,
-					CanConvict = true,
-					LegalAuthority = Authority,
-					FilterProg = enforcerProg,
-					Priority = 3
-				};
-				Context.EnforcementAuthorities.Add(enforcer);
+				enforcer = EnsureEnforcementAuthority("Military Judge", false, false, true, 3, enforcerProg);
 				foreach (var legalClass in Classes)
 					switch (legalClass.Key)
 					{
@@ -1033,38 +951,14 @@ return true"
 		// Noble-specific enforcers
 		if (Classes.ContainsKey("noble") || Classes.ContainsKey("sovereign"))
 		{
-			enforcerProg = new FutureProg
-			{
-				FunctionName = $"IsNobleEnforcer{AuthorityName.CollapseString()}",
-				Category = "Law",
-				Subcategory = AuthorityName.CollapseString(),
-				FunctionComment = "Determines if a character is a noble enforcer",
-				ReturnType = 4,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = "return false"
-			};
-			enforcerProg.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = enforcerProg,
-				ParameterIndex = 0,
-				ParameterName = "ch",
-				ParameterType = (long)ProgVariableTypes.Character
-			});
-			Context.FutureProgs.Add(enforcerProg);
+			enforcerProg = EnsureLawProg(
+				$"IsNobleEnforcer{AuthorityName.CollapseString()}",
+				"Determines if a character is a noble enforcer",
+				ProgVariableTypes.Boolean,
+				"return false",
+				(ProgVariableTypes.Character, "ch"));
 
-			enforcer = new EnforcementAuthority
-			{
-				Name = "Noble Enforcer",
-				CanAccuse = true,
-				CanForgive = true,
-				CanConvict = !separatepowers,
-				LegalAuthority = Authority,
-				FilterProg = enforcerProg,
-				Priority = 2
-			};
-			Context.EnforcementAuthorities.Add(enforcer);
+			enforcer = EnsureEnforcementAuthority("Noble Enforcer", true, true, !separatepowers, 2, enforcerProg);
 			foreach (var legalClass in Classes)
 				switch (legalClass.Key)
 				{
@@ -1098,38 +992,14 @@ return true"
 
 			if (separatepowers)
 			{
-				enforcerProg = new FutureProg
-				{
-					FunctionName = $"IsNobleJudge{AuthorityName.CollapseString()}",
-					Category = "Law",
-					Subcategory = AuthorityName.CollapseString(),
-					FunctionComment = "Determines if a character is a noble judge",
-					ReturnType = 4,
-					AcceptsAnyParameters = false,
-					Public = false,
-					StaticType = 0,
-					FunctionText = "return false"
-				};
-				enforcerProg.FutureProgsParameters.Add(new FutureProgsParameter
-				{
-					FutureProg = enforcerProg,
-					ParameterIndex = 0,
-					ParameterName = "ch",
-					ParameterType = (long)ProgVariableTypes.Character
-				});
-				Context.FutureProgs.Add(enforcerProg);
+				enforcerProg = EnsureLawProg(
+					$"IsNobleJudge{AuthorityName.CollapseString()}",
+					"Determines if a character is a noble judge",
+					ProgVariableTypes.Boolean,
+					"return false",
+					(ProgVariableTypes.Character, "ch"));
 
-				enforcer = new EnforcementAuthority
-				{
-					Name = "Noble Judge",
-					CanAccuse = false,
-					CanForgive = false,
-					CanConvict = true,
-					LegalAuthority = Authority,
-					FilterProg = enforcerProg,
-					Priority = 3
-				};
-				Context.EnforcementAuthorities.Add(enforcer);
+				enforcer = EnsureEnforcementAuthority("Noble Judge", false, false, true, 3, enforcerProg);
 				foreach (var legalClass in Classes)
 					switch (legalClass.Key)
 					{
@@ -1561,8 +1431,17 @@ return true"
 					continue;
 			}
 
-			Context.LegalClasses.Add(legalClass);
-			Context.FutureProgs.Add(classProg);
+			classProg = EnsureLawProg(
+				classProg.FunctionName,
+				classProg.FunctionComment,
+				(ProgVariableTypes)classProg.ReturnType,
+				classProg.FunctionText,
+				(ProgVariableTypes.Character, "ch"));
+			legalClass = EnsureLegalClass(
+				legalClass.Name,
+				legalClass.LegalClassPriority,
+				legalClass.CanBeDetainedUntilFinesPaid,
+				classProg);
 			classes[className] = legalClass;
 			ProgLookup[$"is{className}"] = classProg;
 		}
@@ -1621,20 +1500,36 @@ return true"
 		}
 
 
-		var law = new Law
+		var law = SeederRepeatabilityHelper.EnsureEntity(
+			Context.Set<Law>(),
+			x => x.LegalAuthorityId == Authority.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new Law();
+				Context.Add(created);
+				return created;
+			});
+		law.Name = name;
+		law.LegalAuthority = Authority;
+		law.CrimeType = (int)type;
+		law.CanBeAppliedAutomatically = context.Automatic;
+		law.CanBeArrested = context.CanBeArrested;
+		law.CanBeOfferedBail = context.CanBeOfferedBail;
+		law.DoNotAutomaticallyApplyRepeats = context.NoRepeats;
+		law.EnforcementPriority = DefaultEnforcementPriority(type);
+		law.ActivePeriod = DefaultActivePeriod(type).TotalSeconds;
+		law.EnforcementStrategy = enforcement.DescribeEnum();
+		law.PunishmentStrategy = punishmentStrategy;
+		foreach (var existing in law.LawsVictimClasses.ToList())
 		{
-			Name = name,
-			LegalAuthority = Authority,
-			CrimeType = (int)type,
-			CanBeAppliedAutomatically = context.Automatic,
-			CanBeArrested = context.CanBeArrested,
-			CanBeOfferedBail = context.CanBeOfferedBail,
-			DoNotAutomaticallyApplyRepeats = context.NoRepeats,
-			EnforcementPriority = DefaultEnforcementPriority(type),
-			ActivePeriod = DefaultActivePeriod(type).TotalSeconds,
-			EnforcementStrategy = enforcement.DescribeEnum(),
-			PunishmentStrategy = punishmentStrategy
-		};
+			Context.LawsVictimClasses.Remove(existing);
+		}
+
+		foreach (var existing in law.LawsOffenderClasses.ToList())
+		{
+			Context.LawsOffenderClasses.Remove(existing);
+		}
+
 		foreach (var @class in victims)
 			law.LawsVictimClasses.Add(new LawsVictimClasses
 			{
@@ -1647,7 +1542,6 @@ return true"
 				Law = law,
 				LegalClass = Classes[@class]
 			});
-		Context.Add(law);
 	}
 
 	protected void SetupLaws()

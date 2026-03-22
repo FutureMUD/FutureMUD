@@ -250,7 +250,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 			"mission" => "mission",
 			"republicain" => "republicain",
 			"tranquility" => "tranquility",
-			"latin-ancient" => "roman",
+			"latin-ancient" => "julian",
 			"latin-7day" => "julian",
 			"latin-8day" => "julian",
 			"julian" => "julian",
@@ -290,9 +290,6 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 			});
 
 		clock.Definition = definition;
-		clock.Seconds = 0;
-		clock.Minutes = 0;
-		clock.Hours = 0;
 		return clock;
 	}
 

@@ -17,6 +17,8 @@ public class ArenaSeeder : IDatabaseSeeder
 	private const string EligibilityProgName = "ArenaAlwaysEligible";
 	private const string OutfitProgName = "ArenaDefaultOutfit";
 	private const string IntroProgName = "ArenaStandardIntro";
+	private static readonly string[] StockArenaCombatantClasses = ["Gladiator", "Pit Fighter"];
+	private static readonly string[] StockArenaEventTypes = ["Duel", "Team Skirmish"];
 
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -85,127 +87,60 @@ builders can expand upon. Physical rooms for the arena still need to be construc
 
 			context.SaveChanges();
 
-			var arena = new Arena
-			{
-				Name = arenaName,
-				EconomicZoneId = zone.Id,
-				CurrencyId = zone.CurrencyId,
-				BankAccountId = null,
-				VirtualBalance = 0.0m,
-				SignupEcho = "@ sign|signs up for the upcoming bout.",
-				CreatedAt = now,
-				IsDeleted = false
-			};
-			context.Arenas.Add(arena);
+			var arena = SeederRepeatabilityHelper.EnsureNamedEntity(
+				context.Arenas,
+				arenaName,
+				x => x.Name,
+				() =>
+				{
+					var created = new Arena();
+					context.Arenas.Add(created);
+					return created;
+				});
+			arena.Name = arenaName;
+			arena.EconomicZoneId = zone.Id;
+			arena.CurrencyId = zone.CurrencyId;
+			arena.SignupEcho = "@ sign|signs up for the upcoming bout.";
+			arena.IsDeleted = false;
+			arena.CreatedAt = arena.CreatedAt == default ? now : arena.CreatedAt;
 			context.SaveChanges();
 
 			var combatantClasses = new List<ArenaCombatantClass>
 			{
-				new()
-				{
-					ArenaId = arena.Id,
-					Name = "Gladiator",
-					Description = "A well-rounded combatant suitable for the seeded arena formats.",
-					EligibilityProgId = eligibilityProg.Id,
-					ResurrectNpcOnDeath = true
-				},
-				new()
-				{
-					ArenaId = arena.Id,
-					Name = "Pit Fighter",
-					Description = "An aggressive archetype for team skirmishes or showcase bouts.",
-					EligibilityProgId = eligibilityProg.Id,
-					ResurrectNpcOnDeath = true
-				}
+				EnsureCombatantClass(context, arena, "Gladiator",
+					"A well-rounded combatant suitable for the seeded arena formats.", eligibilityProg.Id),
+				EnsureCombatantClass(context, arena, "Pit Fighter",
+					"An aggressive archetype for team skirmishes or showcase bouts.", eligibilityProg.Id)
 			};
-			context.ArenaCombatantClasses.AddRange(combatantClasses);
 			context.SaveChanges();
 
-			var duelEvent = new ArenaEventType
-			{
-				ArenaId = arena.Id,
-				Name = "Duel",
-				BringYourOwn = true,
-				RegistrationDurationSeconds = 600,
-				PreparationDurationSeconds = 120,
-				TimeLimitSeconds = 900,
-				BettingModel = (int)BettingModel.FixedOdds,
-				AppearanceFee = 0.0m,
-				VictoryFee = 0.0m,
-				IntroProgId = introProg.Id
-			};
-
-			var skirmishEvent = new ArenaEventType
-			{
-				ArenaId = arena.Id,
-				Name = "Team Skirmish",
-				BringYourOwn = true,
-				RegistrationDurationSeconds = 900,
-				PreparationDurationSeconds = 180,
-				TimeLimitSeconds = 1200,
-				BettingModel = (int)BettingModel.PariMutuel,
-				AppearanceFee = 0.0m,
-				VictoryFee = 0.0m,
-				IntroProgId = introProg.Id
-			};
-
-			context.ArenaEventTypes.AddRange(duelEvent, skirmishEvent);
+			var duelEvent = EnsureEventType(context, arena, "Duel", true, 600, 120, 900,
+				(int)BettingModel.FixedOdds, introProg.Id);
+			var skirmishEvent = EnsureEventType(context, arena, "Team Skirmish", true, 900, 180, 1200,
+				(int)BettingModel.PariMutuel, introProg.Id);
 			context.SaveChanges();
 
 			var duelSides = new List<ArenaEventTypeSide>
 			{
-				new()
-				{
-					ArenaEventTypeId = duelEvent.Id,
-					Index = 0,
-					Capacity = 1,
-					Policy = (int)ArenaSidePolicy.Open,
-					AllowNpcSignup = true,
-					AutoFillNpc = false,
-					OutfitProgId = outfitProg.Id
-				},
-				new()
-				{
-					ArenaEventTypeId = duelEvent.Id,
-					Index = 1,
-					Capacity = 1,
-					Policy = (int)ArenaSidePolicy.Open,
-					AllowNpcSignup = true,
-					AutoFillNpc = false,
-					OutfitProgId = outfitProg.Id
-				}
+				EnsureEventTypeSide(context, duelEvent, 0, 1, outfitProg.Id),
+				EnsureEventTypeSide(context, duelEvent, 1, 1, outfitProg.Id)
 			};
-
 			var skirmishSides = new List<ArenaEventTypeSide>
 			{
-				new()
-				{
-					ArenaEventTypeId = skirmishEvent.Id,
-					Index = 0,
-					Capacity = 2,
-					Policy = (int)ArenaSidePolicy.Open,
-					AllowNpcSignup = true,
-					AutoFillNpc = false,
-					OutfitProgId = outfitProg.Id
-				},
-				new()
-				{
-					ArenaEventTypeId = skirmishEvent.Id,
-					Index = 1,
-					Capacity = 2,
-					Policy = (int)ArenaSidePolicy.Open,
-					AllowNpcSignup = true,
-					AutoFillNpc = false,
-					OutfitProgId = outfitProg.Id
-				}
+				EnsureEventTypeSide(context, skirmishEvent, 0, 2, outfitProg.Id),
+				EnsureEventTypeSide(context, skirmishEvent, 1, 2, outfitProg.Id)
 			};
-
-			context.ArenaEventTypeSides.AddRange(duelSides);
-			context.ArenaEventTypeSides.AddRange(skirmishSides);
 			context.SaveChanges();
 
 			foreach (var side in duelSides.Concat(skirmishSides))
 			{
+				foreach (var existing in context.ArenaEventTypeSideAllowedClasses
+					         .Where(x => x.ArenaEventTypeSideId == side.Id)
+					         .ToList())
+				{
+					context.ArenaEventTypeSideAllowedClasses.Remove(existing);
+				}
+
 				foreach (var cls in combatantClasses)
 				{
 					context.ArenaEventTypeSideAllowedClasses.Add(new ArenaEventTypeSideAllowedClass
@@ -241,12 +176,15 @@ builders can expand upon. Physical rooms for the arena still need to be construc
 			return ShouldSeedResult.PrerequisitesNotMet;
 		}
 
-		if (context.Arenas.Any(x => x.Name == DefaultArenaName))
-		{
-			return ShouldSeedResult.MayAlreadyBeInstalled;
-		}
-
-		return ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+		[
+			context.Arenas.Any(x => x.Name == DefaultArenaName),
+			context.ArenaCombatantClasses.Any(x => StockArenaCombatantClasses.Contains(x.Name)),
+			context.ArenaEventTypes.Any(x => StockArenaEventTypes.Contains(x.Name)),
+			context.FutureProgs.Any(x => x.FunctionName == EligibilityProgName),
+			context.FutureProgs.Any(x => x.FunctionName == OutfitProgName),
+			context.FutureProgs.Any(x => x.FunctionName == IntroProgName)
+		]);
 	}
 
 	private static EconomicZone ResolveEconomicZone(FuturemudDatabaseContext context,
@@ -309,38 +247,88 @@ builders can expand upon. Physical rooms for the arena still need to be construc
 		string subcategory, ProgVariableTypes returnType, string comment, string text,
 		params (ProgVariableTypes Type, string Name)[] parameters)
 	{
-		var prog = context.FutureProgs.FirstOrDefault(x => x.FunctionName == functionName);
-		if (prog != null)
-		{
-			return prog;
-		}
+		return SeederRepeatabilityHelper.EnsureProg(
+			context,
+			functionName,
+			category,
+			subcategory,
+			returnType,
+			comment,
+			text,
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			parameters);
+	}
 
-		prog = new FutureProg
-		{
-			FunctionName = functionName,
-			FunctionComment = comment,
-			FunctionText = text,
-			ReturnType = (long)returnType,
-			Category = category,
-			Subcategory = subcategory,
-			Public = false,
-			AcceptsAnyParameters = false,
-			StaticType = (int)FutureProgStaticType.NotStatic
-		};
-
-		for (var index = 0; index < parameters.Length; index++)
-		{
-			var (type, name) = parameters[index];
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
+	private static ArenaCombatantClass EnsureCombatantClass(FuturemudDatabaseContext context, Arena arena, string name,
+		string description, long eligibilityProgId)
+	{
+		var combatantClass = SeederRepeatabilityHelper.EnsureEntity(
+			context.ArenaCombatantClasses,
+			x => x.ArenaId == arena.Id && x.Name == name,
+			() =>
 			{
-				ParameterIndex = index,
-				ParameterType = (long)type,
-				ParameterName = name,
-				FutureProg = prog
+				var created = new ArenaCombatantClass();
+				context.ArenaCombatantClasses.Add(created);
+				return created;
 			});
-		}
 
-		context.FutureProgs.Add(prog);
-		return prog;
+		combatantClass.ArenaId = arena.Id;
+		combatantClass.Name = name;
+		combatantClass.Description = description;
+		combatantClass.EligibilityProgId = eligibilityProgId;
+		combatantClass.ResurrectNpcOnDeath = true;
+		return combatantClass;
+	}
+
+	private static ArenaEventType EnsureEventType(FuturemudDatabaseContext context, Arena arena, string name,
+		bool bringYourOwn, int registrationSeconds, int preparationSeconds, int? timeLimitSeconds, int bettingModel,
+		long introProgId)
+	{
+		var eventType = SeederRepeatabilityHelper.EnsureEntity(
+			context.ArenaEventTypes,
+			x => x.ArenaId == arena.Id && x.Name == name,
+			() =>
+			{
+				var created = new ArenaEventType();
+				context.ArenaEventTypes.Add(created);
+				return created;
+			});
+
+		eventType.ArenaId = arena.Id;
+		eventType.Name = name;
+		eventType.BringYourOwn = bringYourOwn;
+		eventType.RegistrationDurationSeconds = registrationSeconds;
+		eventType.PreparationDurationSeconds = preparationSeconds;
+		eventType.TimeLimitSeconds = timeLimitSeconds;
+		eventType.BettingModel = bettingModel;
+		eventType.AppearanceFee = 0.0m;
+		eventType.VictoryFee = 0.0m;
+		eventType.IntroProgId = introProgId;
+		return eventType;
+	}
+
+	private static ArenaEventTypeSide EnsureEventTypeSide(FuturemudDatabaseContext context, ArenaEventType eventType,
+		int index, int capacity, long outfitProgId)
+	{
+		var side = SeederRepeatabilityHelper.EnsureEntity(
+			context.ArenaEventTypeSides,
+			x => x.ArenaEventTypeId == eventType.Id && x.Index == index,
+			() =>
+			{
+				var created = new ArenaEventTypeSide();
+				context.ArenaEventTypeSides.Add(created);
+				return created;
+			});
+
+		side.ArenaEventTypeId = eventType.Id;
+		side.Index = index;
+		side.Capacity = capacity;
+		side.Policy = (int)ArenaSidePolicy.Open;
+		side.AllowNpcSignup = true;
+		side.AutoFillNpc = false;
+		side.OutfitProgId = outfitProgId;
+		return side;
 	}
 }

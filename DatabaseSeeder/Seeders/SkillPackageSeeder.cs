@@ -11,6 +11,16 @@ namespace DatabaseSeeder.Seeders;
 
 internal class SkillPackageSeeder : SkillSeederBase
 {
+	private static readonly string[] SharedSkillSeederMarkers =
+	[
+		"Skill Check",
+		"Language Check",
+		"General Skill",
+		"Language Skill",
+		"Skill Improver",
+		"Language Improver"
+	];
+
 	#region Implementation of IDatabaseSeeder
 
 	public override
@@ -455,16 +465,14 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 		void AddCheck(CheckType type, TraitExpression expression, long templateId,
 			Difficulty maximumImprovementDifficulty)
 		{
-			expression.Name = type == CheckType.None ? "Default Fallback Check" : $"{type.DescribeEnum(true)} Formula";
-			context.TraitExpressions.Add(expression);
-			context.SaveChanges();
-			context.Checks.Add(new Check
-			{
-				Type = (int)type,
-				CheckTemplateId = templateId,
-				MaximumDifficultyForImprovement = (int)maximumImprovementDifficulty,
-				TraitExpression = expression
-			});
+			var expressionName = type == CheckType.None ? "Default Fallback Check" : $"{type.DescribeEnum(true)} Formula";
+			EnsureCheck(
+				context,
+				type,
+				expressionName,
+				expression.Expression,
+				templateId,
+				maximumImprovementDifficulty);
 			context.SaveChanges();
 		}
 
@@ -1099,82 +1107,71 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 		var alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
 		var now = DateTime.UtcNow;
 
-		var cap = new TraitExpression
-		{
-			Name = "Admin Speech Skill Cap",
-			Expression = ""
-		};
+		var capExpression = string.Empty;
 		switch (questionAnswers["skillcapmodel"].ToLowerInvariant())
 		{
 			case "rpi":
-				cap.Expression = $"10 + 9.5 * {intAttribute.Alias}:{intAttribute.Id}";
+				capExpression = $"10 + 9.5 * {intAttribute.Alias}:{intAttribute.Id}";
 				break;
 			case "class":
-				cap.Expression = "200";
+				capExpression = "200";
 				break;
 			case "flat":
-				cap.Expression = "200";
+				capExpression = "200";
 				break;
 			default:
 				goto case "rpi";
 		}
 
-		context.TraitExpressions.Add(cap);
+		var cap = EnsureTraitExpression(context, "Admin Speech Skill Cap", capExpression);
 		context.SaveChanges();
 
-		var skill = new TraitDefinition
+		var skill = EnsureSkillDefinition(context, "Admin Speech", skill =>
 		{
-			Name = "Admin Speech",
-			Type = 0,
-			DecoratorId = decorators["Language"].Id,
-			TraitGroup = "Language",
-			DerivedType = 0,
-			ExpressionId = cap.Id,
-			ImproverId = languageImprover.Id,
-			Hidden = false,
-			ChargenBlurb = string.Empty,
-			BranchMultiplier = 0.1,
-			TeachDifficulty = 7,
-			LearnDifficulty = 7,
-			AvailabilityProg = alwaysFalse,
-			LearnableProg = alwaysTrue,
-			TeachableProg = alwaysFalse
-		};
-		context.TraitDefinitions.Add(skill);
+			skill.Type = 0;
+			skill.DecoratorId = decorators["Language"].Id;
+			skill.TraitGroup = "Language";
+			skill.DerivedType = 0;
+			skill.ExpressionId = cap.Id;
+			skill.Expression = cap;
+			skill.ImproverId = languageImprover.Id;
+			skill.Hidden = false;
+			skill.ChargenBlurb = string.Empty;
+			skill.BranchMultiplier = 0.1;
+			skill.TeachDifficulty = 7;
+			skill.LearnDifficulty = 7;
+			skill.AvailabilityProg = alwaysFalse;
+			skill.LearnableProg = alwaysTrue;
+			skill.TeachableProg = alwaysFalse;
+		});
 		context.SaveChanges();
-		var language = new Language
+		var language = EnsureLanguage(context, "Admin Speech", language =>
 		{
-			Name = "Admin Speech",
-			LinkedTrait = skill,
-			UnknownLanguageDescription = "an unknown language",
-			LanguageObfuscationFactor = 0.1,
-			DifficultyModel = context.LanguageDifficultyModels.First().Id
-		};
-		context.Languages.Add(language);
+			language.LinkedTrait = skill;
+			language.LinkedTraitId = skill.Id;
+			language.UnknownLanguageDescription = "an unknown language";
+			language.LanguageObfuscationFactor = 0.1;
+			language.DifficultyModel = context.LanguageDifficultyModels.First().Id;
+		});
 		context.SaveChanges();
-		var accent = new Accent
+		EnsureAccent(context, language, "native", accent =>
 		{
-			Name = "native",
-			Language = language,
-			Suffix = "with a native accent",
-			VagueSuffix = "with a native accent",
-			Difficulty = (int)Difficulty.Normal,
-			Description = "This is the accent of a native speaker who grew up learning the language",
-			Group = "native"
-		};
-		context.Accents.Add(accent);
-		accent = new Accent
+			accent.Suffix = "with a native accent";
+			accent.VagueSuffix = "with a native accent";
+			accent.Difficulty = (int)Difficulty.Normal;
+			accent.Description = "This is the accent of a native speaker who grew up learning the language";
+			accent.Group = "native";
+		});
+		var foreignAccent = EnsureAccent(context, language, "foreign", accent =>
 		{
-			Name = "foreign",
-			Language = language,
-			Suffix = "with a foreign accent",
-			VagueSuffix = "with a foreign accent",
-			Difficulty = (int)Difficulty.Normal,
-			Description = "This is the accent of a non-native speaker who is just beginning to learn the language",
-			Group = "foreign"
-		};
-		context.Accents.Add(accent);
-		language.DefaultLearnerAccent = accent;
+			accent.Suffix = "with a foreign accent";
+			accent.VagueSuffix = "with a foreign accent";
+			accent.Difficulty = (int)Difficulty.Normal;
+			accent.Description = "This is the accent of a non-native speaker who is just beginning to learn the language";
+			accent.Group = "foreign";
+		});
+		language.DefaultLearnerAccent = foreignAccent;
+		language.DefaultLearnerAccentId = foreignAccent.Id;
 		context.SaveChanges();
 	}
 
@@ -1256,65 +1253,59 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 
 		void AddSkill(SkillDetails details)
 		{
-			var cap = new TraitExpression
-			{
-				Name = $"{(gerund ? details.GerundName : details.ImperativeName)} Skill Cap",
-				Expression = ""
-			};
+			var skillName = gerund ? details.GerundName : details.ImperativeName;
+			var capExpression = string.Empty;
 			switch (questionAnswers["skillcapmodel"].ToLowerInvariant())
 			{
 				case "rpi":
-					cap.Expression = ReplaceAttributeReferences(details.Formula);
+					capExpression = ReplaceAttributeReferences(details.Formula);
 					break;
 				case "class":
-					cap.Expression = "70 + ({example class=wizard,fighter} * 30)";
+					capExpression = "70 + ({example class=wizard,fighter} * 30)";
 					break;
 				case "flat":
-					cap.Expression = "70";
+					capExpression = "70";
 					break;
 				default:
 					goto case "rpi";
 			}
 
-			context.TraitExpressions.Add(cap);
+			var cap = EnsureTraitExpression(context, $"{skillName} Skill Cap", capExpression);
 			context.SaveChanges();
 
-			var skill = new TraitDefinition
+			var skill = EnsureSkillDefinition(context, skillName, skill =>
 			{
-				Name = gerund ? details.GerundName : details.ImperativeName,
-				Type = 0,
-				DecoratorId = decorators[details.Decorator].Id,
-				TraitGroup = details.Group,
-				DerivedType = 0,
-				ExpressionId = cap.Id,
-				ImproverId = generalImprover.Id,
-				Hidden = false,
-				ChargenBlurb = string.Empty,
-				BranchMultiplier = details.BranchMultiplier,
-				TeachDifficulty = 7,
-				LearnDifficulty = 7,
-				AvailabilityProg = details.Available ? alwaysTrue : alwaysFalse,
-				LearnableProg = alwaysTrue,
-				TeachableProg = alwaysFalse
-			};
-			context.TraitDefinitions.Add(skill);
+				skill.Type = 0;
+				skill.DecoratorId = decorators[details.Decorator].Id;
+				skill.TraitGroup = details.Group;
+				skill.DerivedType = 0;
+				skill.ExpressionId = cap.Id;
+				skill.Expression = cap;
+				skill.ImproverId = generalImprover.Id;
+				skill.Hidden = false;
+				skill.ChargenBlurb = string.Empty;
+				skill.BranchMultiplier = details.BranchMultiplier;
+				skill.TeachDifficulty = 7;
+				skill.LearnDifficulty = 7;
+				skill.AvailabilityProg = details.Available ? alwaysTrue : alwaysFalse;
+				skill.LearnableProg = alwaysTrue;
+				skill.TeachableProg = alwaysFalse;
+			});
 			context.SaveChanges();
 			skills[details.ImperativeName] = skill;
 
 			if (!string.IsNullOrEmpty(details.HelpFile))
 			{
-				var help = new Helpfile
+				EnsureHelpfile(context, skill.Name, help =>
 				{
-					Name = skill.Name,
-					Category = "Skills",
-					Subcategory = details.Group,
-					TagLine = $"Help for the {skill.Name} skill",
-					PublicText = details.HelpFile.Replace("$0", skill.Name),
-					Keywords = $"skill {skill.Name}",
-					LastEditedBy = "System",
-					LastEditedDate = now
-				};
-				context.Helpfiles.Add(help);
+					help.Category = "Skills";
+					help.Subcategory = details.Group;
+					help.TagLine = $"Help for the {skill.Name} skill";
+					help.PublicText = details.HelpFile.Replace("$0", skill.Name);
+					help.Keywords = $"skill {skill.Name}";
+					help.LastEditedBy = "System";
+					help.LastEditedDate = now;
+				});
 				context.SaveChanges();
 			}
 		}
@@ -1359,9 +1350,28 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 		if (!context.Accounts.Any() || context.TraitDefinitions.All(x => x.Type != 1))
 			return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.TraitDefinitions.Any(x => x.Type == 0)) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.TraitDefinitions.Any(x => x.Name == "Admin") ||
+		    (context.TraitDefinitions.Any(x => x.Type == 0) &&
+		     !context.TraitDefinitions.Any(x => x.Name == "Admin Speech") &&
+		     SharedSkillSeederMarkers.Any(marker =>
+			     context.CheckTemplates.Any(x => x.Name == marker) ||
+			     context.TraitDecorators.Any(x => x.Name == marker) ||
+			     context.Improvers.Any(x => x.Name == marker))))
+		{
+			return ShouldSeedResult.MayAlreadyBeInstalled;
+		}
 
-		return ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+		[
+			context.CheckTemplates.Any(x => x.Name == "Skill Check"),
+			context.CheckTemplates.Any(x => x.Name == "Language Check"),
+			context.TraitDecorators.Any(x => x.Name == "General Skill"),
+			context.TraitDecorators.Any(x => x.Name == "Language Skill"),
+			context.Improvers.Any(x => x.Name == "Skill Improver"),
+			context.Improvers.Any(x => x.Name == "Language Improver"),
+			context.TraitDefinitions.Any(x => x.Name == "Admin Speech"),
+			context.Languages.Any(x => x.Name == "Admin Speech")
+		]);
 	}
 
 	public override int SortOrder => 11;

@@ -270,6 +270,7 @@ That matters because it means:
 - the repo automatically offers a stock surgery framework for the selected medical tech level
 - the stock repo now ships a broader default drug catalogue instead of only two example drugs
 - the seeder can optionally install basic veterinary content for stock mammal bodies alongside the human set
+- the seeder now reruns conservatively: same-tech reruns repair stock procedures, phases, knowledges, and drugs in place, while higher-tech reruns add or refresh higher-tech stock content without deleting lower-tech content
 - human surgery target definitions now resolve external limb aliases through the `Organic Humanoid` to `Humanoid` `CountsAs` chain, while organ-targeted procedures still resolve directly on `Organic Humanoid`
 - the stock human leg amputation definitions now target the current humanoid lower-leg aliases (`lshin` and `rshin`) rather than the older `llowerleg` and `rlowerleg` names
 - core race and item health defaults are still assembled across multiple seeders rather than only here

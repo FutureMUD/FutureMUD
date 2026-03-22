@@ -13,6 +13,40 @@ namespace DatabaseSeeder.Seeders;
 
 public class ChargenSeeder : IDatabaseSeeder
 {
+	private static readonly (ChargenStage Stage, string Type)[] StockChargenStages =
+	[
+		(ChargenStage.Welcome, "WelcomeScreen"),
+		(ChargenStage.SelectRace, "RacePicker"),
+		(ChargenStage.SelectCulture, "CulturePicker"),
+		(ChargenStage.SelectGender, "GenderPicker"),
+		(ChargenStage.SelectHandedness, "HandednessPicker"),
+		(ChargenStage.SelectBirthday, "BirthdayPicker"),
+		(ChargenStage.SelectHeight, "HeightPicker"),
+		(ChargenStage.SelectWeight, "WeightPicker"),
+		(ChargenStage.SelectName, "NamePicker"),
+		(ChargenStage.SelectSkills, "SkillPicker"),
+		(ChargenStage.SelectSkills, "SkillCostPicker"),
+		(ChargenStage.SelectDescription, "DescriptionPicker"),
+		(ChargenStage.SelectStartingLocation, "StartingLocationPicker"),
+		(ChargenStage.SelectNotes, "NotePicker"),
+		(ChargenStage.Submit, "Submit"),
+		(ChargenStage.Menu, "Menu")
+	];
+
+	private static readonly string[] StockChargenProgNames =
+	[
+		"MaximumAgeChargen",
+		"MinimumAgeChargen",
+		"MaximumHeightChargen",
+		"MinimumHeightChargen",
+		"MaximumWeightChargen",
+		"MinimumWeightChargen",
+		"ChargenFreeSkills",
+		"ChargenNumberOfSkillPicks",
+		"ChargenNumberOfKnowledgePicks",
+		"ChargenFreeKnowledges"
+	];
+
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
 		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
@@ -184,46 +218,58 @@ Please answer #3yes#f or #3no#f: ",
 			var pluralisingWord = ss.Last;
 			var plural =
 				$"{ss.Memory.Take(ss.Memory.Count() - 1).ListToCommaSeparatedValues(" ")} {pluralisingWord.Pluralise()}";
-			var resource = new ChargenResource
-			{
-				Name = name,
-				PluralName = plural,
-				Alias = split[1].Trim().ToLowerInvariant(),
-				MinimumTimeBetweenAwards = 43200,
-				MaximumNumberAwardedPerAward = 1,
-				PermissionLevelRequiredToAward = (int)PermissionLevel.JuniorAdmin,
-				PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.SeniorAdmin,
-				ShowToPlayerInScore = true,
-				MaximumResourceFormula = "-1",
-				Type = "Simple",
-				TextDisplayedToPlayerOnAward =
-					$"Congratulations, you have been awarded {Name.A_An()} for your excellent conduct.",
-				TextDisplayedToPlayerOnDeduct =
-					$"You have been penalised for improper behaviour, and have had {Name.A_An()} deducted from your account."
-			};
+			var resource = SeederRepeatabilityHelper.EnsureEntity(
+				context.ChargenResources,
+				x => string.Equals(x.Alias, split[1].Trim(), StringComparison.OrdinalIgnoreCase) ||
+				     string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+				() =>
+				{
+					var created = new ChargenResource();
+					context.ChargenResources.Add(created);
+					return created;
+				});
+			resource.Name = name;
+			resource.PluralName = plural;
+			resource.Alias = split[1].Trim().ToLowerInvariant();
+			resource.MinimumTimeBetweenAwards = 43200;
+			resource.MaximumNumberAwardedPerAward = 1;
+			resource.PermissionLevelRequiredToAward = (int)PermissionLevel.JuniorAdmin;
+			resource.PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.SeniorAdmin;
+			resource.ShowToPlayerInScore = true;
+			resource.MaximumResourceFormula = "-1";
+			resource.Type = "Simple";
+			resource.TextDisplayedToPlayerOnAward =
+				$"Congratulations, you have been awarded {Name.A_An()} for your excellent conduct.";
+			resource.TextDisplayedToPlayerOnDeduct =
+				$"You have been penalised for improper behaviour, and have had {Name.A_An()} deducted from your account.";
 			rppresource = resource;
-			context.ChargenResources.Add(resource);
 		}
 
 		var bpresource = default(ChargenResource);
 		if (questionAnswers["bp"].EqualToAny("yes", "y"))
 		{
-			var resource = new ChargenResource
-			{
-				Name = "Build Point",
-				PluralName = "Build Points",
-				Alias = "bp",
-				MinimumTimeBetweenAwards = 15,
-				MaximumNumberAwardedPerAward = 5,
-				PermissionLevelRequiredToAward = (int)PermissionLevel.Founder,
-				PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.Founder,
-				ShowToPlayerInScore = true,
-				Type = "Regenerating",
-				MaximumResourceFormula = "1000",
-				TextDisplayedToPlayerOnAward = "You have been awarded build points",
-				TextDisplayedToPlayerOnDeduct = "You have been penalised build points"
-			};
-			context.ChargenResources.Add(resource);
+			var resource = SeederRepeatabilityHelper.EnsureEntity(
+				context.ChargenResources,
+				x => string.Equals(x.Alias, "bp", StringComparison.OrdinalIgnoreCase) ||
+				     string.Equals(x.Name, "Build Point", StringComparison.OrdinalIgnoreCase),
+				() =>
+				{
+					var created = new ChargenResource();
+					context.ChargenResources.Add(created);
+					return created;
+				});
+			resource.Name = "Build Point";
+			resource.PluralName = "Build Points";
+			resource.Alias = "bp";
+			resource.MinimumTimeBetweenAwards = 15;
+			resource.MaximumNumberAwardedPerAward = 5;
+			resource.PermissionLevelRequiredToAward = (int)PermissionLevel.Founder;
+			resource.PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.Founder;
+			resource.ShowToPlayerInScore = true;
+			resource.Type = "Regenerating";
+			resource.MaximumResourceFormula = "1000";
+			resource.TextDisplayedToPlayerOnAward = "You have been awarded build points";
+			resource.TextDisplayedToPlayerOnDeduct = "You have been penalised build points";
 			bpresource = resource;
 		}
 
@@ -234,56 +280,48 @@ Please answer #3yes#f or #3no#f: ",
 
 		#region Progs
 
-		var prog = new FutureProg
+		FutureProg EnsureChargenProg(
+			string functionName,
+			string subcategory,
+			ProgVariableTypes returnType,
+			string comment,
+			string text,
+			params (ProgVariableTypes Type, string Name)[] parameters)
 		{
-			FunctionName = "MaximumAgeChargen",
-			Category = "Chargen",
-			Subcategory = "Age",
-			FunctionComment = "Used to determine the maximum age for characters in character creation",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"return @ch.Race.VenerableAge * 1.1"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
+			return SeederRepeatabilityHelper.EnsureProg(
+				context,
+				functionName,
+				"Chargen",
+				subcategory,
+				returnType,
+				comment,
+				text,
+				false,
+				false,
+				FutureProgStaticType.NotStatic,
+				parameters);
+		}
 
-		prog = new FutureProg
-		{
-			FunctionName = "MinimumAgeChargen",
-			Category = "Chargen",
-			Subcategory = "Age",
-			FunctionComment = "Used to determine the minimum age for characters in character creation",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"return @ch.Race.YoungAdultAge"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "MaximumHeightChargen",
-			Category = "Chargen",
-			Subcategory = "Height",
-			FunctionComment =
-				"Used to determine the maximum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"// You will need to expand this as you add new playable races
+		EnsureChargenProg(
+			"MaximumAgeChargen",
+			"Age",
+			ProgVariableTypes.Number,
+			"Used to determine the maximum age for characters in character creation",
+			@"return @ch.Race.VenerableAge * 1.1",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"MinimumAgeChargen",
+			"Age",
+			ProgVariableTypes.Number,
+			"Used to determine the minimum age for characters in character creation",
+			@"return @ch.Race.YoungAdultAge",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"MaximumHeightChargen",
+			"Height",
+			ProgVariableTypes.Number,
+			"Used to determine the maximum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
+			@"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
 	if (@ch.Gender == ToGender(""Male""))
@@ -294,27 +332,14 @@ switch (@ch.Race)
 	  return 203
 	end if
 end switch
-return 200"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "MinimumHeightChargen",
-			Category = "Chargen",
-			Subcategory = "Height",
-			FunctionComment =
-				"Used to determine the minimum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"// You will need to expand this as you add new playable races
+return 200",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"MinimumHeightChargen",
+			"Height",
+			ProgVariableTypes.Number,
+			"Used to determine the minimum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
+			@"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
 	if (@ch.Gender == ToGender(""Male""))
@@ -325,27 +350,14 @@ switch (@ch.Race)
 	  return 145
 	end if
 end switch
-return 149"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "MaximumWeightChargen",
-			Category = "Chargen",
-			Subcategory = "Weight",
-			FunctionComment =
-				"Used to determine the maximum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"// You will need to expand this as you add new playable races
+return 149",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"MaximumWeightChargen",
+			"Weight",
+			ProgVariableTypes.Number,
+			"Used to determine the maximum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
+			@"// You will need to expand this as you add new playable races
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
@@ -353,27 +365,14 @@ switch (@ch.Race)
   default
 	bmi = 50
 end switch
-return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "MinimumWeightChargen",
-			Category = "Chargen",
-			Subcategory = "Weight",
-			FunctionComment =
-				"Used to determine the minimum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"// You will need to expand this as you add new playable races
+return (((@ch.Height / 100) ^ 2) * @bmi) * 1000",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"MinimumWeightChargen",
+			"Weight",
+			ProgVariableTypes.Number,
+			"Used to determine the minimum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
+			@"// You will need to expand this as you add new playable races
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
@@ -381,26 +380,14 @@ switch (@ch.Race)
   default
 	bmi = 16
 end switch
-return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "ChargenFreeSkills",
-			Category = "Chargen",
-			Subcategory = "Skills",
-			FunctionComment = "Returns a list of skills that a character gets for free",
-			ReturnType = (int)(ProgVariableTypes.Trait | ProgVariableTypes.Collection),
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"var skills as trait collection
+return (((@ch.Height / 100) ^ 2) * @bmi) * 1000",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"ChargenFreeSkills",
+			"Skills",
+			ProgVariableTypes.Trait | ProgVariableTypes.Collection,
+			"Returns a list of skills that a character gets for free",
+			@"var skills as trait collection
 // Universal Skills (usually perception, athletics, that kind of stuff)
 // additem skills ToTrait(""Skill Name"")
 
@@ -415,69 +402,29 @@ end switch
 
 // Merits-Based, Culture-Based, Role-Based, etc etc
 
-return @skills"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "ChargenNumberOfSkillPicks",
-			Category = "Chargen",
-			Subcategory = "Skills",
-			FunctionComment = "Determines the number of skill picks that are given at character creation",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"return 5"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "ChargenNumberOfKnowledgePicks",
-			Category = "Chargen",
-			Subcategory = "Knowledges",
-			FunctionComment = "Determines the number of knowledge picks that are given at character creation",
-			ReturnType = (int)ProgVariableTypes.Number,
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"return 1"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)ProgVariableTypes.Trait
-		});
-
-		prog = new FutureProg
-		{
-			FunctionName = "ChargenFreeKnowledges",
-			Category = "Chargen",
-			Subcategory = "Skills",
-			FunctionComment = "Returns a list of knowledges that a character gets for free",
-			ReturnType = (long)(ProgVariableTypes.Knowledge | ProgVariableTypes.Collection),
-			AcceptsAnyParameters = false,
-			Public = false,
-			StaticType = 0,
-			FunctionText = @"var knowledges as knowledge collection
+return @skills",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"ChargenNumberOfSkillPicks",
+			"Skills",
+			ProgVariableTypes.Number,
+			"Determines the number of skill picks that are given at character creation",
+			@"return 5",
+			(ProgVariableTypes.Toon, "ch"));
+		EnsureChargenProg(
+			"ChargenNumberOfKnowledgePicks",
+			"Knowledges",
+			ProgVariableTypes.Number,
+			"Determines the number of knowledge picks that are given at character creation",
+			@"return 1",
+			(ProgVariableTypes.Toon, "ch"),
+			(ProgVariableTypes.Trait, "trait"));
+		EnsureChargenProg(
+			"ChargenFreeKnowledges",
+			"Skills",
+			ProgVariableTypes.Knowledge | ProgVariableTypes.Collection,
+			"Returns a list of knowledges that a character gets for free",
+			@"var knowledges as knowledge collection
 // If you have any surgerical procedures you need to add the related knowledge based on those skills
 // if (@ch.Skills.Any(x, @x.Name == ""Surgery""))
 //   additem knowledges ToKnowledge(""SurgicalKnowledge"")
@@ -491,171 +438,69 @@ return @skills"
 // end if
 
 // You can also add clan-based, racial, merit-based etc or anything you can think of
-return @knowledges"
-		};
-		context.FutureProgs.Add(prog);
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)ProgVariableTypes.Toon
-		});
+return @knowledges",
+			(ProgVariableTypes.Toon, "ch"));
 
 		if (questionAnswers["attributemode"].EqualTo("points"))
 		{
-			prog = new FutureProg
-			{
-				FunctionName = "MaximumAttributeBoosts",
-				Category = "Chargen",
-				Subcategory = "Attributes",
-				FunctionComment =
-					"Determines the maximum number of boosts that may be put into a single attribute at character creation time",
-				ReturnType = (int)ProgVariableTypes.Number,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = questionAnswers["bp"].EqualToAny("y", "yes") ? @"return 10" : "return 6"
-			};
-			context.FutureProgs.Add(prog);
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)ProgVariableTypes.Toon
-			});
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)ProgVariableTypes.Trait
-			});
-
-			prog = new FutureProg
-			{
-				FunctionName = "MaximumFreeAttributeBoosts",
-				Category = "Chargen",
-				Subcategory = "Attributes",
-				FunctionComment =
-					"Determines the maximum number of free boosts that may be put into a single attribute at character creation time without paying any build points",
-				ReturnType = (int)ProgVariableTypes.Number,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = @"return 6"
-			};
-			context.FutureProgs.Add(prog);
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)ProgVariableTypes.Toon
-			});
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)ProgVariableTypes.Trait
-			});
-
-			prog = new FutureProg
-			{
-				FunctionName = "MaximumAttributeMinuses",
-				Category = "Chargen",
-				Subcategory = "Attributes",
-				FunctionComment =
-					"Determines the maximum number of times that a single attribute may be penalised at character creation time",
-				ReturnType = (int)ProgVariableTypes.Number,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = @"return 3"
-			};
-			context.FutureProgs.Add(prog);
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)ProgVariableTypes.Toon
-			});
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)ProgVariableTypes.Trait
-			});
-
-			prog = new FutureProg
-			{
-				FunctionName = "FreeAttributeBoosts",
-				Category = "Chargen",
-				Subcategory = "Attributes",
-				FunctionComment =
-					"Determines the number of free (no build points) boosts to attributes at character creation time",
-				ReturnType = (int)ProgVariableTypes.Number,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = @"return 12"
-			};
-			context.FutureProgs.Add(prog);
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)ProgVariableTypes.Toon
-			});
-
-			prog = new FutureProg
-			{
-				FunctionName = "AttributeBaseValue",
-				Category = "Chargen",
-				Subcategory = "Attributes",
-				FunctionComment =
-					"Determines the starting value of an attribute before boosts at character creation time, excluding racial bonuses which are added separately",
-				ReturnType = (int)ProgVariableTypes.Number,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText = @"return 10"
-			};
-			context.FutureProgs.Add(prog);
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)ProgVariableTypes.Toon
-			});
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)ProgVariableTypes.Trait
-			});
+			EnsureChargenProg(
+				"MaximumAttributeBoosts",
+				"Attributes",
+				ProgVariableTypes.Number,
+				"Determines the maximum number of boosts that may be put into a single attribute at character creation time",
+				questionAnswers["bp"].EqualToAny("y", "yes") ? @"return 10" : "return 6",
+				(ProgVariableTypes.Toon, "ch"),
+				(ProgVariableTypes.Trait, "trait"));
+			EnsureChargenProg(
+				"MaximumFreeAttributeBoosts",
+				"Attributes",
+				ProgVariableTypes.Number,
+				"Determines the maximum number of free boosts that may be put into a single attribute at character creation time without paying any build points",
+				@"return 6",
+				(ProgVariableTypes.Toon, "ch"),
+				(ProgVariableTypes.Trait, "trait"));
+			EnsureChargenProg(
+				"MaximumAttributeMinuses",
+				"Attributes",
+				ProgVariableTypes.Number,
+				"Determines the maximum number of times that a single attribute may be penalised at character creation time",
+				@"return 3",
+				(ProgVariableTypes.Toon, "ch"),
+				(ProgVariableTypes.Trait, "trait"));
+			EnsureChargenProg(
+				"FreeAttributeBoosts",
+				"Attributes",
+				ProgVariableTypes.Number,
+				"Determines the number of free (no build points) boosts to attributes at character creation time",
+				@"return 12",
+				(ProgVariableTypes.Toon, "ch"));
+			EnsureChargenProg(
+				"AttributeBaseValue",
+				"Attributes",
+				ProgVariableTypes.Number,
+				"Determines the starting value of an attribute before boosts at character creation time, excluding racial bonuses which are added separately",
+				@"return 10",
+				(ProgVariableTypes.Toon, "ch"),
+				(ProgVariableTypes.Trait, "trait"));
 		}
 
 		if (questionAnswers["skillmode"].EqualTo("boosts"))
 		{
-			prog = new FutureProg
-			{
-				FunctionName = "ChargenSkillBoostCost",
-				Category = "Chargen",
-				Subcategory = "Skills",
-				FunctionComment = "Determines the base cost of boosts to individual skills",
-				ReturnType = (int)ProgVariableTypes.Number,
-				AcceptsAnyParameters = false,
-				Public = false,
-				StaticType = 0,
-				FunctionText =
-					@"// This is just an example of how you might set this up. The limit is your own imagination.
+			EnsureChargenProg(
+				"ChargenSkillBoostCost",
+				"Skills",
+				ProgVariableTypes.Number,
+				"Determines the base cost of boosts to individual skills",
+				@"// This is just an example of how you might set this up. The limit is your own imagination.
 if (@skill.Group == ""Combat"")
   return 15
 end if
 if (@skill.Group == ""Language"")
   return 5
 end if
-return 10"
-			};
-			context.FutureProgs.Add(prog);
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)ProgVariableTypes.Toon
-			});
-			prog.FutureProgsParameters.Add(new FutureProgsParameter
-			{
-				FutureProg = prog, ParameterIndex = 1, ParameterName = "skill",
-				ParameterType = (int)ProgVariableTypes.Trait
-			});
+return 10",
+				(ProgVariableTypes.Toon, "ch"),
+				(ProgVariableTypes.Trait, "skill"));
 		}
 
 		context.SaveChanges();
@@ -667,21 +512,28 @@ return 10"
 		var stages = new Dictionary<ChargenStage, ChargenScreenStoryboard>();
 		var stageDependencies = new CollectionDictionary<ChargenScreenStoryboard, ChargenStage>();
 		var order = 0;
-		var nextId = 1L;
 
 		void AddStage(ChargenStage stage, string type, ChargenStage nextStage, string definition,
 			params ChargenStage[] dependencies)
 		{
-			var storyboard = new ChargenScreenStoryboard
+			var storyboard = SeederRepeatabilityHelper.EnsureEntity(
+				context.ChargenScreenStoryboards,
+				x => x.ChargenStage == (int)stage &&
+				     string.Equals(x.ChargenType, type, StringComparison.OrdinalIgnoreCase),
+				() =>
+				{
+					var created = new ChargenScreenStoryboard();
+					context.ChargenScreenStoryboards.Add(created);
+					return created;
+				});
+			storyboard.ChargenStage = (int)stage;
+			storyboard.ChargenType = type;
+			storyboard.Order = order;
+			storyboard.NextStage = (int)nextStage;
+			if (string.IsNullOrWhiteSpace(storyboard.StageDefinition))
 			{
-				Id = nextId++,
-				ChargenStage = (int)stage,
-				ChargenType = type,
-				Order = order,
-				NextStage = (int)nextStage,
-				StageDefinition = definition
-			};
-			context.ChargenScreenStoryboards.Add(storyboard);
+				storyboard.StageDefinition = definition;
+			}
 			stages[stage] = storyboard;
 			stageDependencies.AddRange(storyboard, dependencies);
 			order += 10;
@@ -811,19 +663,25 @@ return 10"
 		AddStage(ChargenStage.SelectDescription, "DescriptionPicker", ChargenStage.SelectStartingLocation,
 			$"<Screen><SDescBlurb><![CDATA[Your short description is how you are seen by other people when performing actions, for example, #5a short, blue-eyed youth#0.]]></SDescBlurb>   <FullDescBlurb><![CDATA[Your full description is how you are seen when people look directly at you, and provides a more detailed overview of your appearance.]]></FullDescBlurb>   <AllowCustomDescription>{(questionAnswers["customdescs"].EqualToAny("yes", "y") ? "true" : "false")}</AllowCustomDescription>   <AllowEntityDescriptionPatterns>true</AllowEntityDescriptionPatterns></Screen>",
 			ChargenStage.SelectCharacteristics);
-		var role = new ChargenRole
-		{
-			Name = "Default Starting Location",
-			Type = (int)ChargenRoleType.StartingLocation,
-			PosterId = 1,
-			MaximumNumberAlive = 0,
-			MaximumNumberTotal = 0,
-			ChargenBlurb = "This is the default starting location that has not been described.",
-			Expired = false,
-			MinimumAuthorityToApprove = 0,
-			MinimumAuthorityToView = 0
-		};
-		context.ChargenRoles.Add(role);
+		var role = SeederRepeatabilityHelper.EnsureEntity(
+			context.ChargenRoles,
+			x => x.Type == (int)ChargenRoleType.StartingLocation &&
+			     string.Equals(x.Name, "Default Starting Location", StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new ChargenRole();
+				context.ChargenRoles.Add(created);
+				return created;
+			});
+		role.Name = "Default Starting Location";
+		role.Type = (int)ChargenRoleType.StartingLocation;
+		role.PosterId = 1;
+		role.MaximumNumberAlive = 0;
+		role.MaximumNumberTotal = 0;
+		role.ChargenBlurb = "This is the default starting location that has not been described.";
+		role.Expired = false;
+		role.MinimumAuthorityToApprove = 0;
+		role.MinimumAuthorityToView = 0;
 		context.SaveChanges();
 		AddStage(ChargenStage.SelectStartingLocation, "StartingLocationPicker", ChargenStage.SelectNotes,
 			@$"<Screen><Blurb><![CDATA[Your must now select a starting location for your character. This reflects where your character will begin once in the game, but does not mean you are restricted to only that area.]]>    </Blurb>   <Locations>     <Location>       <Name>Guest Lounge</Name>       <Blurb><![CDATA[As you have not yet set up any other starting areas, the default starting area will be the guest lounge.]]></Blurb>       <Location>1</Location>       <Role>{role.Id}</Role><OnCommenceProg>0</OnCommenceProg>     </Location></Locations>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
@@ -836,9 +694,32 @@ return 10"
 		context.SaveChanges();
 
 		foreach (var stage in stageDependencies)
-		foreach (var dependency in stage.Value)
-			stage.Key.DependentStages.Add(new ChargenScreenStoryboardDependentStage
-				{ Owner = stage.Key, Dependency = (int)dependency });
+		{
+			var desiredDependencies = stage.Value
+				.Select(x => (int)x)
+				.ToHashSet();
+			var existingDependencies = context.ChargenScreenStoryboardDependentStages
+				.Where(x => x.OwnerId == stage.Key.Id)
+				.ToList();
+
+			foreach (var existing in existingDependencies.Where(x => !desiredDependencies.Contains(x.Dependency)))
+			{
+				context.ChargenScreenStoryboardDependentStages.Remove(existing);
+			}
+
+			var existingDependencyIds = existingDependencies
+				.Select(x => x.Dependency)
+				.ToHashSet();
+			foreach (var dependency in desiredDependencies.Where(x => !existingDependencyIds.Contains(x)))
+			{
+				context.ChargenScreenStoryboardDependentStages.Add(new ChargenScreenStoryboardDependentStage
+				{
+					Owner = stage.Key,
+					OwnerId = stage.Key.Id,
+					Dependency = dependency
+				});
+			}
+		}
 		context.SaveChanges();
 
 		#endregion
@@ -851,9 +732,16 @@ return 10"
 	{
 		if (!context.Races.Any(x => x.Name == "Human")) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.ChargenScreenStoryboards.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
-
-		return ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+			StockChargenStages.Select(stage =>
+				context.ChargenScreenStoryboards.Any(x =>
+					x.ChargenStage == (int)stage.Stage &&
+					x.ChargenType == stage.Type))
+				.Concat(StockChargenProgNames.Select(name =>
+					context.FutureProgs.Any(x => x.FunctionName == name)))
+				.Append(context.ChargenRoles.Any(x =>
+					x.Type == (int)ChargenRoleType.StartingLocation &&
+					x.Name == "Default Starting Location")));
 	}
 
 	public int SortOrder => 100;

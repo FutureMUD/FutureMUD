@@ -26,6 +26,37 @@ namespace DatabaseSeeder.Seeders
 			"Scalpel",
 			"Surgical Suture Needle"
 		];
+		private static readonly string[] StockHealthKnowledges =
+		[
+			"Medicine",
+			"Chiurgery",
+			"Physical Medicine",
+			"Diagnostic Medicine",
+			"Clinical Medicine",
+			"Surgery",
+			"Animal Medicine",
+			"Veterinary Medicine",
+			"Veterinary Chiurgery",
+			"Veterinary Surgery"
+		];
+		private static readonly string[] StockHealthProcedures =
+		[
+			"Triage",
+			"Exploratory Surgery",
+			"Arm Amputation",
+			"Leg Amputation",
+			"Digit Amputation",
+			"Trauma Control",
+			"Organ Extraction",
+			"Bone Setting",
+			"Stitch Up"
+		];
+		private static readonly string[] StockHealthDrugs =
+		[
+			"Willow Bark Tea",
+			"Laudanum",
+			"General Anaesthetic"
+		];
 
 		private static readonly string[] HumanArmParts =
 		[
@@ -203,10 +234,20 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 
 			if (context.SurgicalProcedures.Any())
 			{
-				return ShouldSeedResult.MayAlreadyBeInstalled;
+				return SeederRepeatabilityHelper.ClassifyByPresence(
+				[
+					StockHealthKnowledges.Any(name => context.Knowledges.Any(x => x.Name == name)),
+					StockHealthProcedures.Any(name => context.SurgicalProcedures.Any(x => x.Name == name)),
+					StockHealthDrugs.Any(name => context.Drugs.Any(x => x.Name == name))
+				]);
 			}
 
-			return ShouldSeedResult.ReadyToInstall;
+			return SeederRepeatabilityHelper.ClassifyByPresence(
+			[
+				StockHealthKnowledges.Any(name => context.Knowledges.Any(x => x.Name == name)),
+				StockHealthProcedures.Any(name => context.SurgicalProcedures.Any(x => x.Name == name)),
+				StockHealthDrugs.Any(name => context.Drugs.Any(x => x.Name == name))
+			]);
 		}
 
 		private static string NormaliseTechLevel(string answer)
@@ -227,22 +268,28 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 		private void AddKnowledge(string name, string type, string subType, int sessions, Difficulty difficulty,
 			string description, string longDescription)
 		{
-			var knowledge = new MudSharp.Models.Knowledge
-			{
-				Name = name,
-				Type = type,
-				Subtype = subType,
-				Description = description,
-				LongDescription = longDescription,
-				LearnableType = (int)(LearnableType.LearnableFromTeacher | LearnableType.LearnableAtChargen),
-				LearnDifficulty = (int)difficulty,
-				TeachDifficulty = (int)difficulty,
-				LearningSessionsRequired = sessions,
-				CanAcquireProg = AlwaysTrueProg,
-				CanLearnProg = AlwaysTrueProg
-			};
+			var knowledge = SeederRepeatabilityHelper.EnsureNamedEntity(
+				_context.Knowledges,
+				name,
+				x => x.Name,
+				() =>
+				{
+					var created = new MudSharp.Models.Knowledge();
+					_context.Knowledges.Add(created);
+					return created;
+				});
 
-			_context.Knowledges.Add(knowledge);
+			knowledge.Name = name;
+			knowledge.Type = type;
+			knowledge.Subtype = subType;
+			knowledge.Description = description;
+			knowledge.LongDescription = longDescription;
+			knowledge.LearnableType = (int)(LearnableType.LearnableFromTeacher | LearnableType.LearnableAtChargen);
+			knowledge.LearnDifficulty = (int)difficulty;
+			knowledge.TeachDifficulty = (int)difficulty;
+			knowledge.LearningSessionsRequired = sessions;
+			knowledge.CanAcquireProg = AlwaysTrueProg;
+			knowledge.CanLearnProg = AlwaysTrueProg;
 			_knowledges[name] = knowledge;
 		}
 
@@ -1344,23 +1391,34 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 			double baseCheckBonus, long knowledgeId, CheckType check, string gerund, string emote, string description,
 			string definition, BodyProto targetBody)
 		{
-			var procedure = new MudSharp.Models.SurgicalProcedure
-			{
-				Name = name,
-				ProcedureName = procedureName,
-				Procedure = (int)type,
-				MedicalSchool = school,
-				BaseCheckBonus = baseCheckBonus,
-				KnowledgeRequiredId = knowledgeId,
-				ProcedureBeginEmote = emote,
-				ProcedureGerund = gerund,
-				ProcedureDescriptionEmote = description,
-				Check = (int)check,
-				Definition = definition,
-				TargetBodyTypeId = targetBody.Id
-			};
+			var procedure = SeederRepeatabilityHelper.EnsureNamedEntity(
+				_context.SurgicalProcedures,
+				name,
+				x => x.Name,
+				() =>
+				{
+					var created = new MudSharp.Models.SurgicalProcedure();
+					_context.SurgicalProcedures.Add(created);
+					return created;
+				});
 
-			_context.SurgicalProcedures.Add(procedure);
+			foreach (var phase in procedure.SurgicalProcedurePhases.ToList())
+			{
+				_context.SurgicalProcedurePhases.Remove(phase);
+			}
+
+			procedure.Name = name;
+			procedure.ProcedureName = procedureName;
+			procedure.Procedure = (int)type;
+			procedure.MedicalSchool = school;
+			procedure.BaseCheckBonus = baseCheckBonus;
+			procedure.KnowledgeRequiredId = knowledgeId;
+			procedure.ProcedureBeginEmote = emote;
+			procedure.ProcedureGerund = gerund;
+			procedure.ProcedureDescriptionEmote = description;
+			procedure.Check = (int)check;
+			procedure.Definition = definition;
+			procedure.TargetBodyTypeId = targetBody.Id;
 			_procedures[name] = procedure;
 		}
 
@@ -1778,15 +1836,27 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 		private Drug AddDrug(string name, double intensityPerGram, double relativeMetabolisationRate, DrugVector vectors,
 			params (DrugType Type, double Intensity, string AdditionalEffects)[] effects)
 		{
-			var drug = new Drug
-			{
-				Name = name,
-				IntensityPerGram = intensityPerGram,
-				RelativeMetabolisationRate = relativeMetabolisationRate,
-				DrugVectors = (int)vectors
-			};
+			var drug = SeederRepeatabilityHelper.EnsureNamedEntity(
+				_context.Drugs,
+				name,
+				x => x.Name,
+				() =>
+				{
+					var created = new Drug();
+					_context.Drugs.Add(created);
+					return created;
+				});
 
-			_context.Drugs.Add(drug);
+			drug.Name = name;
+			drug.IntensityPerGram = intensityPerGram;
+			drug.RelativeMetabolisationRate = relativeMetabolisationRate;
+			drug.DrugVectors = (int)vectors;
+			_context.SaveChanges();
+
+			foreach (var intensity in _context.DrugsIntensities.Where(x => x.DrugId == drug.Id).ToList())
+			{
+				_context.DrugsIntensities.Remove(intensity);
+			}
 			_context.SaveChanges();
 
 			foreach (var effect in effects)

@@ -30,44 +30,7 @@ public partial class CultureSeeder
 		double tempFloor = 0.0, double tempCeiling = 0.0, string subgroup = "", FutureProg? available = null,
 		string description = "")
 	{
-		var ethnicity = new Ethnicity
-		{
-			Name = name,
-			ParentRace = race,
-			ChargenBlurb = description,
-			EthnicGroup = group,
-			EthnicSubgroup = subgroup,
-			PopulationBloodModel = _bloodModels[bloodGroup],
-			TolerableTemperatureFloorEffect = tempFloor,
-			TolerableTemperatureCeilingEffect = tempCeiling,
-			AvailabilityProg = available ?? _alwaysTrueProg
-		};
-		_ethnicities[name] = ethnicity;
-		_context.Ethnicities.Add(ethnicity);
-		_context.SaveChanges();
-
-		var prog = new FutureProg
-		{
-			FunctionName = $"IsEthnicity{name.CollapseString()}",
-			FunctionComment = $"Determines whether someone is the {name} ethnicity",
-			FunctionText = $"return @ch.Ethnicity == ToEthnicity({ethnicity.Id})",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			Category = "Character",
-			Subcategory = "Ethnicity",
-			Public = true,
-			AcceptsAnyParameters = false,
-			StaticType = 0
-		};
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Toon
-		});
-		_context.FutureProgs.Add(prog);
-		_context.SaveChanges();
-		_ethnicProgs[name] = prog;
+		EnsureEthnicity(race, name, group, bloodGroup, tempFloor, tempCeiling, subgroup, available, description);
 	}
 
 	public void AddEthnicityVariable(string ethnicity, string feature, string profile)
@@ -110,117 +73,28 @@ public partial class CultureSeeder
 	public void AddCulture(string name, string nameCulture, string description, FutureProg? available = null,
 		FutureProg? skillProg = null, Calendar? calendar = null)
 	{
-		var culture = new Culture
-		{
-			Name = name,
-			Description = description,
-			TolerableTemperatureCeilingEffect = 0.0,
-			TolerableTemperatureFloorEffect = 0.0,
-			AvailabilityProg = available ?? _alwaysTrueProg,
-			PrimaryCalendarId = calendar?.Id ?? 1,
-			SkillStartingValueProg = skillProg ?? _skillStartProg,
-			PersonWordFemale = "Woman",
-			PersonWordIndeterminate = "Person",
-			PersonWordMale = "Man",
-			PersonWordNeuter = "Person"
-		};
-		_context.Cultures.Add(culture);
-		var nc = _context.NameCultures.First(x => x.Name == nameCulture);
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = nc, Gender = (short)Gender.Male });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = nc, Gender = (short)Gender.Female });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = nc, Gender = (short)Gender.Neuter });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = nc, Gender = (short)Gender.NonBinary });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = nc, Gender = (short)Gender.Indeterminate });
-
-		_context.SaveChanges();
-		_cultures[name] = culture;
-
-		var prog = new FutureProg
-		{
-			FunctionName = $"IsCulture{name.CollapseString()}",
-			FunctionComment = $"Determines whether someone is the {name} culture",
-			FunctionText = $"return @ch.Culture == ToCulture({culture.Id})",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			Category = "Character",
-			Subcategory = "Culture",
-			Public = true,
-			AcceptsAnyParameters = false,
-			StaticType = 0
-		};
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Toon
-		});
-		_context.FutureProgs.Add(prog);
-		_context.SaveChanges();
-		_cultureProgs[name] = prog;
+		var culture = EnsureCulture(name, description, available, skillProg, calendar);
+		ReplaceCultureNameLinks(
+			culture,
+			(Gender.Male, nameCulture),
+			(Gender.Female, nameCulture),
+			(Gender.Neuter, nameCulture),
+			(Gender.NonBinary, nameCulture),
+			(Gender.Indeterminate, nameCulture));
 	}
 
 	public void AddCulture(string name, string nameCultureMale, string nameCultureFemale, string description,
 		FutureProg? available = null, FutureProg? skillProg = null,
 		Calendar? calendar = null)
 	{
-		var culture = new Culture
-		{
-			Name = name,
-			Description = description,
-			TolerableTemperatureCeilingEffect = 0.0,
-			TolerableTemperatureFloorEffect = 0.0,
-			AvailabilityProg = available ?? _alwaysTrueProg,
-			PrimaryCalendarId = calendar?.Id ?? 1,
-			SkillStartingValueProg = skillProg ?? _skillStartProg,
-			PersonWordFemale = "Woman",
-			PersonWordIndeterminate = "Person",
-			PersonWordMale = "Man",
-			PersonWordNeuter = "Person"
-		};
-		_context.Cultures.Add(culture);
-		var ncMale = _context.NameCultures.First(x => x.Name == nameCultureMale);
-		var ncFemale = _context.NameCultures.First(x => x.Name == nameCultureFemale);
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = ncMale, Gender = (short)Gender.Male });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = ncFemale, Gender = (short)Gender.Female });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = ncMale, Gender = (short)Gender.Neuter });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = ncFemale, Gender = (short)Gender.NonBinary });
-		culture.CulturesNameCultures.Add(new CulturesNameCultures
-			{ Culture = culture, NameCulture = ncMale, Gender = (short)Gender.Indeterminate });
-
-		_context.SaveChanges();
-		_cultures[name] = culture;
-
-		var prog = new FutureProg
-		{
-			FunctionName = $"IsCulture{name.CollapseString()}",
-			FunctionComment = $"Determines whether someone is the {name} culture",
-			FunctionText = $"return @ch.Culture == ToCulture({culture.Id})",
-			ReturnType = (long)ProgVariableTypes.Boolean,
-			Category = "Character",
-			Subcategory = "Culture",
-			Public = true,
-			AcceptsAnyParameters = false,
-			StaticType = 0
-		};
-		prog.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = prog,
-			ParameterIndex = 0,
-			ParameterName = "ch",
-			ParameterType = (long)ProgVariableTypes.Toon
-		});
-		_context.FutureProgs.Add(prog);
-		_context.SaveChanges();
-		_cultureProgs[name] = prog;
+		var culture = EnsureCulture(name, description, available, skillProg, calendar);
+		ReplaceCultureNameLinks(
+			culture,
+			(Gender.Male, nameCultureMale),
+			(Gender.Female, nameCultureFemale),
+			(Gender.Neuter, nameCultureMale),
+			(Gender.NonBinary, nameCultureFemale),
+			(Gender.Indeterminate, nameCultureMale));
 	}
 
 
@@ -2577,135 +2451,161 @@ Romanised Barbarians adopt Roman names and depending on the era they may be able
 	private (Liquid BloodLiquid, Liquid SweatLiquid, Material
 		DriedBlood, Material DriedSweat) CreateBloodAndSweat(string racialDescriptor)
 	{
-		var driedBlood = new Material
-		{
-			Name = $"Dried {racialDescriptor} Blood",
-			MaterialDescription = "dried blood",
-			Density = 1520,
-			Organic = true,
-			Type = 0,
-			BehaviourType = 19,
-			ThermalConductivity = 0.2,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 1000,
-			ImpactYield = 1000,
-			ImpactStrainAtYield = 2,
-			ShearFracture = 1000,
-			ShearYield = 1000,
-			ShearStrainAtYield = 2,
-			YoungsModulus = 0.1,
-			SolventId = 1,
-			SolventVolumeRatio = 4,
-			ResidueDesc = "It is covered in {0}dried blood",
-			ResidueColour = "red",
-			Absorbency = 0
-		};
-		_context.Materials.Add(driedBlood);
-		var blood = new Liquid
-		{
-			Name = $"{racialDescriptor} Blood",
-			Description = "blood",
-			LongDescription = "a virtually opaque dark red fluid",
-			TasteText = "It has a sharply metallic, umami taste",
-			VagueTasteText = "It has a metallic taste",
-			SmellText = "It has a metallic, coppery smell",
-			VagueSmellText = "It has a faintly metallic smell",
-			TasteIntensity = 200,
-			SmellIntensity = 10,
-			AlcoholLitresPerLitre = 0,
-			WaterLitresPerLitre = 0.8,
-			DrinkSatiatedHoursPerLitre = 6,
-			FoodSatiatedHoursPerLitre = 4,
-			Viscosity = 1,
-			Density = 1,
-			Organic = true,
-			ThermalConductivity = 0.609,
-			ElectricalConductivity = 0.005,
-			SpecificHeatCapacity = 4181,
-			FreezingPoint = -20,
-			BoilingPoint = 100,
-			DisplayColour = "bold red",
-			DampDescription = "It is damp with blood",
-			WetDescription = "It is wet with blood",
-			DrenchedDescription = "It is drenched with blood",
-			DampShortDescription = "(blood damp)",
-			WetShortDescription = "(bloody)",
-			DrenchedShortDescription = "(blood drenched)",
-			SolventId = 1,
-			SolventVolumeRatio = 5,
-			InjectionConsequence = (int)LiquidInjectionConsequence.BloodReplacement,
-			ResidueVolumePercentage = 0.05,
-			DriedResidue = driedBlood
-		};
-		_context.Liquids.Add(blood);
+		var driedBlood = SeederRepeatabilityHelper.EnsureNamedEntity(
+			_context.Materials,
+			$"Dried {racialDescriptor} Blood",
+			x => x.Name,
+			() =>
+			{
+				var created = new Material();
+				_context.Materials.Add(created);
+				return created;
+			});
+		driedBlood.Name = $"Dried {racialDescriptor} Blood";
+		driedBlood.MaterialDescription = "dried blood";
+		driedBlood.Density = 1520;
+		driedBlood.Organic = true;
+		driedBlood.Type = 0;
+		driedBlood.BehaviourType = 19;
+		driedBlood.ThermalConductivity = 0.2;
+		driedBlood.ElectricalConductivity = 0.0001;
+		driedBlood.SpecificHeatCapacity = 420;
+		driedBlood.IgnitionPoint = 555.3722;
+		driedBlood.HeatDamagePoint = 412.0389;
+		driedBlood.ImpactFracture = 1000;
+		driedBlood.ImpactYield = 1000;
+		driedBlood.ImpactStrainAtYield = 2;
+		driedBlood.ShearFracture = 1000;
+		driedBlood.ShearYield = 1000;
+		driedBlood.ShearStrainAtYield = 2;
+		driedBlood.YoungsModulus = 0.1;
+		driedBlood.SolventId = 1;
+		driedBlood.SolventVolumeRatio = 4;
+		driedBlood.ResidueDesc = "It is covered in {0}dried blood";
+		driedBlood.ResidueColour = "red";
+		driedBlood.Absorbency = 0;
 
-		var driedSweat = new Material
-		{
-			Name = $"Dried {racialDescriptor} Sweat",
-			MaterialDescription = "dried sweat",
-			Density = 1520,
-			Organic = true,
-			Type = 0,
-			BehaviourType = 19,
-			ThermalConductivity = 0.2,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 1000,
-			ImpactYield = 1000,
-			ImpactStrainAtYield = 2,
-			ShearFracture = 1000,
-			ShearYield = 1000,
-			ShearStrainAtYield = 2,
-			YoungsModulus = 0.1,
-			SolventId = 1,
-			SolventVolumeRatio = 3,
-			ResidueDesc = "It is covered in {0}dried sweat",
-			ResidueColour = "yellow",
-			Absorbency = 0
-		};
-		_context.Materials.Add(driedSweat);
-		var sweat = new Liquid
-		{
-			Name = $"{racialDescriptor} Sweat",
-			Description = "sweat",
-			LongDescription = "a relatively clear, translucent fluid that smells strongly of body odor",
-			TasteText = "It tastes like a pungent, salty lick of someone's underarms",
-			VagueTasteText = "It tastes very unpleasant, like underarm stench",
-			SmellText = "It has the sharp, pungent smell of body odor",
-			VagueSmellText = "It has the sharp, pungent smell of body odor",
-			TasteIntensity = 200,
-			SmellIntensity = 200,
-			AlcoholLitresPerLitre = 0,
-			WaterLitresPerLitre = 0.95,
-			DrinkSatiatedHoursPerLitre = 5,
-			FoodSatiatedHoursPerLitre = 0,
-			Viscosity = 1,
-			Density = 1,
-			Organic = true,
-			ThermalConductivity = 0.609,
-			ElectricalConductivity = 0.005,
-			SpecificHeatCapacity = 4181,
-			FreezingPoint = -20,
-			BoilingPoint = 100,
-			DisplayColour = "yellow",
-			DampDescription = "It is damp with sweat",
-			WetDescription = "It is wet and smelly with sweat",
-			DrenchedDescription = "It is soaking wet and smelly with sweat",
-			DampShortDescription = "(sweat-damp)",
-			WetShortDescription = "(sweaty)",
-			DrenchedShortDescription = "(sweat-drenched)",
-			SolventId = 1,
-			SolventVolumeRatio = 5,
-			InjectionConsequence = (int)LiquidInjectionConsequence.Harmful,
-			ResidueVolumePercentage = 0.05,
-			DriedResidue = driedSweat
-		};
-		_context.Liquids.Add(sweat);
+		var blood = SeederRepeatabilityHelper.EnsureNamedEntity(
+			_context.Liquids,
+			$"{racialDescriptor} Blood",
+			x => x.Name,
+			() =>
+			{
+				var created = new Liquid();
+				_context.Liquids.Add(created);
+				return created;
+			});
+		blood.Name = $"{racialDescriptor} Blood";
+		blood.Description = "blood";
+		blood.LongDescription = "a virtually opaque dark red fluid";
+		blood.TasteText = "It has a sharply metallic, umami taste";
+		blood.VagueTasteText = "It has a metallic taste";
+		blood.SmellText = "It has a metallic, coppery smell";
+		blood.VagueSmellText = "It has a faintly metallic smell";
+		blood.TasteIntensity = 200;
+		blood.SmellIntensity = 10;
+		blood.AlcoholLitresPerLitre = 0;
+		blood.WaterLitresPerLitre = 0.8;
+		blood.DrinkSatiatedHoursPerLitre = 6;
+		blood.FoodSatiatedHoursPerLitre = 4;
+		blood.Viscosity = 1;
+		blood.Density = 1;
+		blood.Organic = true;
+		blood.ThermalConductivity = 0.609;
+		blood.ElectricalConductivity = 0.005;
+		blood.SpecificHeatCapacity = 4181;
+		blood.FreezingPoint = -20;
+		blood.BoilingPoint = 100;
+		blood.DisplayColour = "bold red";
+		blood.DampDescription = "It is damp with blood";
+		blood.WetDescription = "It is wet with blood";
+		blood.DrenchedDescription = "It is drenched with blood";
+		blood.DampShortDescription = "(blood damp)";
+		blood.WetShortDescription = "(bloody)";
+		blood.DrenchedShortDescription = "(blood drenched)";
+		blood.SolventId = 1;
+		blood.SolventVolumeRatio = 5;
+		blood.InjectionConsequence = (int)LiquidInjectionConsequence.BloodReplacement;
+		blood.ResidueVolumePercentage = 0.05;
+		blood.DriedResidue = driedBlood;
+
+		var driedSweat = SeederRepeatabilityHelper.EnsureNamedEntity(
+			_context.Materials,
+			$"Dried {racialDescriptor} Sweat",
+			x => x.Name,
+			() =>
+			{
+				var created = new Material();
+				_context.Materials.Add(created);
+				return created;
+			});
+		driedSweat.Name = $"Dried {racialDescriptor} Sweat";
+		driedSweat.MaterialDescription = "dried sweat";
+		driedSweat.Density = 1520;
+		driedSweat.Organic = true;
+		driedSweat.Type = 0;
+		driedSweat.BehaviourType = 19;
+		driedSweat.ThermalConductivity = 0.2;
+		driedSweat.ElectricalConductivity = 0.0001;
+		driedSweat.SpecificHeatCapacity = 420;
+		driedSweat.IgnitionPoint = 555.3722;
+		driedSweat.HeatDamagePoint = 412.0389;
+		driedSweat.ImpactFracture = 1000;
+		driedSweat.ImpactYield = 1000;
+		driedSweat.ImpactStrainAtYield = 2;
+		driedSweat.ShearFracture = 1000;
+		driedSweat.ShearYield = 1000;
+		driedSweat.ShearStrainAtYield = 2;
+		driedSweat.YoungsModulus = 0.1;
+		driedSweat.SolventId = 1;
+		driedSweat.SolventVolumeRatio = 3;
+		driedSweat.ResidueDesc = "It is covered in {0}dried sweat";
+		driedSweat.ResidueColour = "yellow";
+		driedSweat.Absorbency = 0;
+
+		var sweat = SeederRepeatabilityHelper.EnsureNamedEntity(
+			_context.Liquids,
+			$"{racialDescriptor} Sweat",
+			x => x.Name,
+			() =>
+			{
+				var created = new Liquid();
+				_context.Liquids.Add(created);
+				return created;
+			});
+		sweat.Name = $"{racialDescriptor} Sweat";
+		sweat.Description = "sweat";
+		sweat.LongDescription = "a relatively clear, translucent fluid that smells strongly of body odor";
+		sweat.TasteText = "It tastes like a pungent, salty lick of someone's underarms";
+		sweat.VagueTasteText = "It tastes very unpleasant, like underarm stench";
+		sweat.SmellText = "It has the sharp, pungent smell of body odor";
+		sweat.VagueSmellText = "It has the sharp, pungent smell of body odor";
+		sweat.TasteIntensity = 200;
+		sweat.SmellIntensity = 200;
+		sweat.AlcoholLitresPerLitre = 0;
+		sweat.WaterLitresPerLitre = 0.95;
+		sweat.DrinkSatiatedHoursPerLitre = 5;
+		sweat.FoodSatiatedHoursPerLitre = 0;
+		sweat.Viscosity = 1;
+		sweat.Density = 1;
+		sweat.Organic = true;
+		sweat.ThermalConductivity = 0.609;
+		sweat.ElectricalConductivity = 0.005;
+		sweat.SpecificHeatCapacity = 4181;
+		sweat.FreezingPoint = -20;
+		sweat.BoilingPoint = 100;
+		sweat.DisplayColour = "yellow";
+		sweat.DampDescription = "It is damp with sweat";
+		sweat.WetDescription = "It is wet and smelly with sweat";
+		sweat.DrenchedDescription = "It is soaking wet and smelly with sweat";
+		sweat.DampShortDescription = "(sweat-damp)";
+		sweat.WetShortDescription = "(sweaty)";
+		sweat.DrenchedShortDescription = "(sweat-drenched)";
+		sweat.SolventId = 1;
+		sweat.SolventVolumeRatio = 5;
+		sweat.InjectionConsequence = (int)LiquidInjectionConsequence.Harmful;
+		sweat.ResidueVolumePercentage = 0.05;
+		sweat.DriedResidue = driedSweat;
 		_context.SaveChanges();
 
 		return (blood, sweat, driedBlood, driedSweat);
@@ -2717,7 +2617,21 @@ Romanised Barbarians adopt Roman names and depending on the era they may be able
 		var humanoid = _context.Races.First(x => x.Name == "Organic Humanoid");
 		var personDef = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");
 
-		_context.FutureProgs.First(x => x.FunctionName == "MaximumHeightChargen").FunctionText =
+		void SetStockChargenSizeProg(string functionName, string stockText)
+		{
+			var prog = _context.FutureProgs.First(x => x.FunctionName == functionName);
+			if (!string.IsNullOrWhiteSpace(prog.FunctionText) &&
+			    !prog.FunctionText.Contains("You will need to expand this as you add new playable races",
+				    StringComparison.Ordinal) &&
+			    !prog.FunctionText.Contains("Stock Middle-Earth chargen size override", StringComparison.Ordinal))
+			{
+				return;
+			}
+
+			prog.FunctionText = $"// Stock Middle-Earth chargen size override\r\n{stockText}";
+		}
+
+		SetStockChargenSizeProg("MaximumHeightChargen",
 			@"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
@@ -2778,8 +2692,8 @@ switch (@ch.Race)
 	  return 510
 	end if
 end switch
-return 200";
-		_context.FutureProgs.First(x => x.FunctionName == "MaximumWeightChargen").FunctionText =
+return 200");
+		SetStockChargenSizeProg("MaximumWeightChargen",
 			@"// You will need to expand this as you add new playable races
 var bmi as number
 switch (@ch.Race)
@@ -2798,8 +2712,8 @@ switch (@ch.Race)
   default
 	bmi = 50
 end switch
-return (((@ch.Height / 100) ^ 2) * @bmi) * 1000";
-		_context.FutureProgs.First(x => x.FunctionName == "MinimumHeightChargen").FunctionText =
+return (((@ch.Height / 100) ^ 2) * @bmi) * 1000");
+		SetStockChargenSizeProg("MinimumHeightChargen",
 			@"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
@@ -2860,8 +2774,8 @@ switch (@ch.Race)
 	  return 300
 	end if
 end switch
-return 100";
-		_context.FutureProgs.First(x => x.FunctionName == "MinimumWeightChargen").FunctionText =
+return 100");
+		SetStockChargenSizeProg("MinimumWeightChargen",
 			@"// You will need to expand this as you add new playable races
 var bmi as number
 switch (@ch.Race)
@@ -2880,7 +2794,7 @@ switch (@ch.Race)
   default
 	bmi = 16
 end switch
-return (((@ch.Height / 100) ^ 2) * @bmi) * 1000";
+return (((@ch.Height / 100) ^ 2) * @bmi) * 1000");
 
 		FutureProg CreateVariantAgeProg(FutureProg baseProg,
 			Race race)

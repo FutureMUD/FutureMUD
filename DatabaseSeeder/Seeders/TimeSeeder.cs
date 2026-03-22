@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -10,6 +11,24 @@ namespace DatabaseSeeder.Seeders;
 
 public class TimeSeeder : IDatabaseSeeder
 {
+	private static readonly string[] StockCalendarAliases =
+	[
+		"gregorian",
+		"julian",
+		"middle-earth",
+		"tranquility",
+		"republicain",
+		"mission",
+		"roman",
+		"dwarven",
+		"shire-reckoning",
+		"stewards-reckoning",
+		"new-reckoning",
+		"orc-reckoning",
+		"rivendell",
+		"kings-reckoning"
+	];
+
 	public IEnumerable<(string Id, string Question,
 		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
 		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
@@ -107,28 +126,13 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		context.Database.BeginTransaction();
-		var clock = new Clock
-		{
-			Definition =
-				@$"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>{int.Parse(questionAnswers["secondsmultiplier"])}</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>",
-			Seconds = 0,
-			Minutes = 0,
-			Hours = 0
-		};
-		context.Clocks.Add(clock);
-		context.SaveChanges();
-
-		var utc = new Timezone
-		{
-			Name = "UTC",
-			Description = "Universal Time Clock (UTC)",
-			Clock = clock,
-			OffsetHours = 0,
-			OffsetMinutes = 0
-		};
-		context.Timezones.Add(utc);
+		var clock = EnsureClock(
+			context,
+			$@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>{int.Parse(questionAnswers["secondsmultiplier"])}</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>");
+		var utc = EnsureTimezone(context, clock, "UTC", "Universal Time Clock (UTC)", 0, 0);
 		context.SaveChanges();
 		clock.PrimaryTimezoneId = utc.Id;
+		var primaryCalendarAlias = ResolvePrimaryCalendarAlias(questionAnswers["mode"]);
 
 		switch (questionAnswers["mode"].ToLowerInvariant())
 		{
@@ -166,10 +170,9 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 				SetupMissionCalendar(context, clock, questionAnswers);
 				break;
 			case "republicain":
-				clock = new Clock
-				{
-					Definition =
-						@$"<Clock>  
+				clock = EnsureClock(
+					context,
+					$@"<Clock>  
 	<Alias>Decimal</Alias>
 	<Description>Decimal Clock</Description>
 	<ShortDisplayString>$jh$mm$ss</ShortDisplayString>
@@ -196,23 +199,9 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 		<CrudeTimeInterval text=""afternoon"" Lower=""5"" Upper=""7""/>
 		<CrudeTimeInterval text=""evening"" Lower=""7"" Upper=""9""/>
 	</CrudeTimeIntervals>
-</Clock>",
-					Seconds = 0,
-					Minutes = 0,
-					Hours = 0
-				};
-				context.Clocks.Add(clock);
-				context.SaveChanges();
+</Clock>");
 
-				utc = new Timezone
-				{
-					Name = "PMT",
-					Description = "Paris Mean Time (PMT)",
-					Clock = clock,
-					OffsetHours = 0,
-					OffsetMinutes = 0
-				};
-				context.Timezones.Add(utc);
+				utc = EnsureTimezone(context, clock, "PMT", "Paris Mean Time (PMT)", 0, 0);
 				context.SaveChanges();
 				clock.PrimaryTimezoneId = utc.Id;
 				SetupFrenchRepublican(context, clock, questionAnswers);
@@ -223,24 +212,9 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 
 		context.SaveChanges();
 
-		foreach (var shard in context.Shards.Include(x => x.Zones).ToList())
-		{
-			if (!context.ShardsCalendars.Any(x => x.ShardId == shard.Id))
-				context.ShardsCalendars.Add(new ShardsCalendars
-					{ Shard = shard, CalendarId = context.Calendars.First().Id });
-
-			if (!context.ShardsClocks.Any(x => x.ShardId == shard.Id))
-			{
-				context.ShardsClocks.Add(new ShardsClocks { Shard = shard, ClockId = context.Clocks.First().Id });
-				foreach (var zone in shard.Zones)
-					if (!context.ZonesTimezones.Any(x => x.ZoneId == zone.Id))
-						context.ZonesTimezones.Add(new ZonesTimezones
-						{
-							Zone = zone, ClockId = context.Clocks.First().Id,
-							TimezoneId = context.Timezones.First(x => x.ClockId == context.Clocks.First().Id).Id
-						});
-			}
-		}
+		var primaryCalendar = context.Calendars.First(x =>
+			string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase));
+		SyncShardAndZoneTimeBindings(context, primaryCalendar, clock, utc);
 
 		context.SaveChanges();
 		context.Database.CommitTransaction();
@@ -252,9 +226,13 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 	{
 		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.Clocks.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
-
-		return ShouldSeedResult.ReadyToInstall;
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+		[
+			context.Clocks.Any(x => ClockAlias(x.Definition) == "UTC"),
+			context.Timezones.Any(x => x.Name == "UTC"),
+			context.Calendars.Any(x =>
+				StockCalendarAliases.Contains(CalendarAlias(x.Definition) ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+		]);
 	}
 
 	public int SortOrder => 5;
@@ -263,7 +241,146 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 
 	public string FullDescription =>
 		"This seeder will set up a clock, timezones and a calendar. It is necessary to have at least one calendar before you can make any cultures, which is a pre-requisite for having characters in game. If you want to do a custom calendar that is not listed in the options that are presented to you, I recommend you choose one anyway and then modify the XML yourself. It should be fairly straightforward but feel free to hit me up for any help.";
-	
+
+	private static string ResolvePrimaryCalendarAlias(string mode)
+	{
+		return mode.Trim().ToLowerInvariant() switch
+		{
+			"middle-earth" => "eldarin-quenya",
+			"mission" => "mission",
+			"republicain" => "republicain",
+			"tranquility" => "tranquility",
+			"latin-ancient" => "julian",
+			"latin-7day" => "julian",
+			"latin-8day" => "julian",
+			"julian" => "julian",
+			_ => "gregorian"
+		};
+	}
+
+	private static string? ClockAlias(string definition)
+	{
+		return TryReadElementValue(definition, "Alias");
+	}
+
+	private static string? CalendarAlias(string definition)
+	{
+		return TryReadElementValue(definition, "alias");
+	}
+
+	private static string? TryReadElementValue(string definition, string elementName)
+	{
+		var root = XElement.Parse(definition);
+		return root.Descendants()
+			.FirstOrDefault(x => x.Name.LocalName.Equals(elementName, StringComparison.OrdinalIgnoreCase))
+			?.Value;
+	}
+
+	private static Clock EnsureClock(FuturemudDatabaseContext context, string definition)
+	{
+		var alias = ClockAlias(definition) ?? throw new InvalidOperationException("Clock definitions must declare an alias.");
+		var clock = SeederRepeatabilityHelper.EnsureEntity(
+			context.Clocks,
+			x => string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new Clock();
+				context.Clocks.Add(created);
+				return created;
+			});
+
+		clock.Definition = definition;
+		return clock;
+	}
+
+	private static Timezone EnsureTimezone(FuturemudDatabaseContext context, Clock clock, string name, string description,
+		int offsetHours, int offsetMinutes)
+	{
+		var timezone = SeederRepeatabilityHelper.EnsureEntity(
+			context.Timezones,
+			x => x.ClockId == clock.Id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new Timezone();
+				context.Timezones.Add(created);
+				return created;
+			});
+
+		timezone.Name = name;
+		timezone.Description = description;
+		timezone.Clock = clock;
+		timezone.ClockId = clock.Id;
+		timezone.OffsetHours = offsetHours;
+		timezone.OffsetMinutes = offsetMinutes;
+		return timezone;
+	}
+
+	private static Calendar EnsureCalendar(FuturemudDatabaseContext context, Clock clock, string date, string definition)
+	{
+		var alias = CalendarAlias(definition) ??
+		            throw new InvalidOperationException("Calendar definitions must declare an alias.");
+		var calendar = SeederRepeatabilityHelper.EnsureEntity(
+			context.Calendars,
+			x => string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase),
+			() =>
+			{
+				var created = new Calendar();
+				context.Calendars.Add(created);
+				return created;
+			});
+
+		calendar.FeedClockId = clock.Id;
+		calendar.Date = date;
+		calendar.Definition = definition;
+		return calendar;
+	}
+
+	private static void SyncShardAndZoneTimeBindings(FuturemudDatabaseContext context, Calendar calendar, Clock clock,
+		Timezone timezone)
+	{
+		foreach (var shard in context.Shards.Include(x => x.Zones).ToList())
+		{
+			var shardCalendar = context.ShardsCalendars.FirstOrDefault(x => x.ShardId == shard.Id);
+			if (shardCalendar is null)
+			{
+				context.ShardsCalendars.Add(new ShardsCalendars { Shard = shard, CalendarId = calendar.Id });
+			}
+			else
+			{
+				shardCalendar.CalendarId = calendar.Id;
+			}
+
+			var shardClock = context.ShardsClocks.FirstOrDefault(x => x.ShardId == shard.Id);
+			if (shardClock is null)
+			{
+				context.ShardsClocks.Add(new ShardsClocks { Shard = shard, ClockId = clock.Id });
+			}
+			else
+			{
+				shardClock.ClockId = clock.Id;
+			}
+
+			foreach (var zone in shard.Zones)
+			{
+				var zoneTimezone = context.ZonesTimezones.FirstOrDefault(x => x.ZoneId == zone.Id);
+				if (zoneTimezone is null)
+				{
+					context.ZonesTimezones.Add(new ZonesTimezones
+					{
+						Zone = zone,
+						ClockId = clock.Id,
+						TimezoneId = timezone.Id
+					});
+				}
+				else
+				{
+					zoneTimezone.ClockId = clock.Id;
+					zoneTimezone.TimezoneId = timezone.Id;
+				}
+			}
+		}
+	}
+
 	private void SetupMissionCalendar(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var calendar = new Calendar
@@ -408,7 +525,7 @@ Several cultural and operational observances are tied to the Mission Calendar, t
   <intercalarymonths/>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -621,7 +738,7 @@ It was designed in part to remove all religious and royalist influences from the
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -857,7 +974,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -1054,7 +1171,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 
 		// Eldarin Sindarin
@@ -1216,7 +1333,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 
 		// King's Reckoning Quenya
@@ -1447,7 +1564,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 
 		// King's Reckoning Sindarin
@@ -1678,7 +1795,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 
 		// Shire Reckoning
@@ -1911,7 +2028,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 
 		// Steward's Reckoning Quenya
@@ -2166,7 +2283,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 
 		// Steward's Reckoning Sindarin
@@ -2421,7 +2538,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -2713,7 +2830,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </intercalarymonths>
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -2931,7 +3048,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths />
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -3111,7 +3228,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths />
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 
@@ -3311,7 +3428,7 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths />
 </calendar>"
 		};
-		context.Calendars.Add(calendar);
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
 		context.SaveChanges();
 	}
 }

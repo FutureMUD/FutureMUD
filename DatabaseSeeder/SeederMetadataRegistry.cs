@@ -22,12 +22,14 @@ public static class SeederMetadataRegistry
 				OwnershipSummary: "Creates accounts and core world records that are not yet tracked for safe repeatability."
 			),
 			nameof(TimeSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
 				],
-				RerunSummary: "Currently treated as a one-shot calendar and clock bootstrap."
+				RerunSummary: "Reruns reuse the stock time package by canonical clock, timezone, and calendar identities.",
+				UpdateSummary: "Reruns repair or complete stock clocks, calendars, timezones, and shard/zone bindings without deleting older setups.",
+				OwnershipSummary: "Seeder-owned time records are tracked by stable names and aliases."
 			),
 			nameof(CelestialSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Additive,
@@ -47,20 +49,25 @@ public static class SeederMetadataRegistry
 				RerunSummary: "Attribute setup is intentionally treated as a one-shot design choice unless a later plan approves repeatability."
 			),
 			nameof(SkillPackageSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
 					Requirement("Attributes must already be seeded.", context => context.TraitDefinitions.Any(x => x.Type == 1))
-				]
+				],
+				RerunSummary: "Reruns reuse the stock skill package templates, improvers, admin language, checks, and seeded skills by stable names.",
+				UpdateSummary: "This remains an alternative to the Skill Example seeder, not a companion package.",
+				OwnershipSummary: "Stock skill-package records are keyed by check type, template name, decorator name, improver name, and seeded trait/language names."
 			),
 			nameof(SkillSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
 					Requirement("Attributes must already be seeded.", context => context.TraitDefinitions.Any(x => x.Type == 1))
-				]
+				],
+				RerunSummary: "Reruns reuse the shared skill scaffolding and example records by stable names.",
+				UpdateSummary: "This remains an alternative to the full Skill Package seeder, not a companion package."
 			),
 			nameof(CurrencySeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Additive,
@@ -99,15 +106,18 @@ public static class SeederMetadataRegistry
 				RerunSummary: "Currently treated as a one-shot combat bootstrap pending modular reconciliation work."
 			),
 			nameof(ChargenSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human"))
-				]
+				],
+				RerunSummary: "Reruns reuse stock chargen resources, helper progs, storyboard stages, and the default starting-location role by stable keys.",
+				UpdateSummary: "Existing storyboard XML is preserved when a matching storyboard already exists; reruns focus on repairing missing stock screens and dependencies.",
+				OwnershipSummary: "Chargen storyboards are tracked by stage and screen type, and helper progs are tracked by function name."
 			),
 			nameof(CultureSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human")),
 					Requirement("A skill decorator must already exist.", context => context.TraitDecorators.Any(x => x.Name.Contains("Skill"))),
@@ -115,11 +125,13 @@ public static class SeederMetadataRegistry
 				]
 			),
 			nameof(ArenaSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("At least one economic zone must exist.", context => context.EconomicZones.Any())
-				]
+				],
+				RerunSummary: "Reruns reuse the same named arena package and refresh stock-owned combatant classes, event types, event sides, and helper progs.",
+				UpdateSummary: "Live arena configuration such as room links, finances, schedules, ratings, and events is preserved."
 			),
 			nameof(UsefulSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Idempotent,
@@ -140,15 +152,17 @@ public static class SeederMetadataRegistry
 				UpdateSummary: "Reruns reuse and update existing stock storyteller sample records."
 			),
 			nameof(HealthSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
 					Requirement("The Human seeder must have installed Organic Humanoid.", context => context.Races.Any(x => x.Name == "Organic Humanoid")),
 					Requirement("Required stock medical tool tags must exist.", context =>
 						new[] { "Scalpel", "Bonesaw", "Forceps", "Arterial Clamp", "Surgical Suture Needle" }
 							.All(tag => context.Tags.Any(x => x.Name == tag)))
-				]
+				],
+				RerunSummary: "Reruns reuse stock medical knowledges, procedures, phases, and drugs by stable names.",
+				UpdateSummary: "Forward-only upgrades add or refresh higher-tech stock content without removing lower-tech content."
 			),
 			nameof(AnimalSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.OneShot,
@@ -181,12 +195,14 @@ public static class SeederMetadataRegistry
 				RerunSummary: "Reruns install missing stock mythic races without duplicating existing entries."
 			),
 			nameof(WeatherSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
 					Requirement("The Celestial seeder must have installed at least one celestial object.", context => context.Celestials.Any())
-				]
+				],
+				RerunSummary: "Reruns reuse the canonical weather catalog, seasons, climate models, and regional climates by stable names.",
+				UpdateSummary: "Reruns refresh stock climate definitions without auto-retargeting runtime weather controllers or duplicating northern/southern climate rows."
 			),
 			nameof(RobotSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Idempotent,
@@ -225,8 +241,8 @@ public static class SeederMetadataRegistry
 				]
 			),
 			nameof(LawSeeder) => new SeederMetadata(
-				SeederRepeatabilityMode.OneShot,
-				SeederUpdateCapability.None,
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
 				[
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
 					Requirement("The Currency seeder must have installed at least one currency.", context => context.Currencies.Any())

@@ -103,6 +103,8 @@ Builders and administrators currently configure or consume health through:
 
 One important current-state fact is that the dedicated `HealthSeeder` is now enabled. In practice, stock health behavior is still assembled across multiple seeders rather than coming from one medical step alone, but surgery and drugs now have a release-ready stock entry point.
 
+Another important current-state fact is that `HealthSeeder` now behaves as a rerunnable stock package rather than a strict one-shot bootstrap. The seeded medical knowledges, procedures, phases, and drugs are reused by stable names, same-tech reruns repair missing stock rows in place, and higher-tech reruns add or refresh higher-tech stock content without deleting lower-tech content.
+
 Another important current-state fact is that robot health is no longer only a dormant runtime capability. The stock repo now seeds robot races, robot bodies, robot strategies, robot corpse models, and robot maintenance procedures through `RobotSeeder`, while still reusing the existing humanoid and selected animal body semantics for compatibility.
 
 Combat balance in stock content is also tied back to these health thresholds rather than tuned in isolation. The shared damage tiers seeded by `CombatSeeder` are calibrated so that a standard-quality weapon at nominal strength produces ordinary hits in the routine wound bands, while dedicated finishing moves remain exceptional relative to the stock severity ranges used by the default human strategies.

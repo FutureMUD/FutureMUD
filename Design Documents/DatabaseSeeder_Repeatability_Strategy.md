@@ -33,38 +33,43 @@ This document is based on verified code behavior in the current stock repo, not 
 - `FullReconcile`: the seeder can fully reconcile stock-owned records against current stock definitions.
 
 ## Verified Current Baseline
-- Only `AIStorytellerSeeder`, `UsefulSeeder`, `MythicalAnimalSeeder`, and `RobotSeeder` explicitly set `SafeToRunMoreThanOnce`.
-- `CelestialSeeder`, `CurrencySeeder`, and `ClanSeeder` already behave like additive rerun packages in the menu flow, but they were not originally flagged as safe and relied on ambiguous UI.
-- Shared answer reuse was previously limited to combat message style via `SeederChoice` and `CombatSeederMessageStyleHelper`.
-- Critical seeders still use coarse installed-state checks such as `Accounts.Any()`, `WeaponAttacks.Any()`, `ClimateModels.Any()`, `ChargenScreenStoryboards.Any()`, or `SurgicalProcedures.Any()`.
-- Duplicate `SortOrder` values existed in the live menu flow, which made ordering unstable whenever multiple seeders shared the same numeric order.
-- `ExtraPackagesAvailable` was shown by color but not explained clearly in the package detail view.
+- Phase 1 is verified complete in code:
+  - generic seeder metadata and structured assessment states are live
+  - shared answer reuse is live through `SeederChoice`-backed shared answer keys
+  - the menu and package-detail UI now explain blocked, ready, additive rerun, update-available, and current states
+  - additive rerun messaging is wired through seeder metadata rather than only color
+  - contributor guidance for repeatability now lives in `DatabaseSeeder/AGENTS.md`
+- `AIStorytellerSeeder`, `UsefulSeeder`, `MythicalAnimalSeeder`, `RobotSeeder`, `CelestialSeeder`, `CurrencySeeder`, and `ClanSeeder` now explicitly set `SafeToRunMoreThanOnce`.
+- Shared answer reuse is no longer combat-only. The live shared-answer wave covers combat message style, damage randomness, human health model, and non-human health model.
+- Many legacy seeders still rely on coarse installed-state checks such as `Accounts.Any()`, `WeaponAttacks.Any()`, `ClimateModels.Any()`, `ChargenScreenStoryboards.Any()`, or `SurgicalProcedures.Any()`. Phase 2 is the wave intended to replace those with deterministic stock-key detection.
+- Duplicate `SortOrder` values were previously unstable in the menu flow; the structured assessment/menu work now gives that ordering deterministic tie-breaking.
+- Weather/climate regression coverage already exists in `MudSharpCore Climate Tests`, centered on `WeatherSeederOceanicClimateTests.cs` / `WeatherSeederClimateTests`, and should continue to carry the simulation-regression side of seeder verification.
 
 ## Seeder Audit Matrix
 | Seeder | Sort | Current prerequisite logic | Current rerun signal | Current answer reuse | Current duplicate / update behavior | Current repair ability | Target classification | Complexity | Recommended next action |
 | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- |
 | `CoreDataSeeder` | 0 | No prerequisite beyond database itself | `MayAlreadyBeInstalled` if any account exists | None | Coarse gate on `Accounts.Any()` | None | `OneShot` / `None` until separate design | High | Create dedicated canonical-record plan before repeatability work |
-| `TimeSeeder` | 5 | Requires an account | `MayAlreadyBeInstalled` if any clock exists | None | Coarse gate on `Clocks.Any()` | None | `OneShot` now, target repeatable later | Medium | Convert to deterministic calendar/clock lookup-and-upsert in a later wave |
+| `TimeSeeder` | 5 | Requires an account | Deterministic stock-key check on canonical seeded clocks/calendars/timezones | None | Upserts seeded calendars, clocks, timezones, and shard links by stable stock names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Keep adding focused rerun tests for changed-answer world-time updates |
 | `CelestialSeeder` | 6 | Requires an account | `Ready`/`ExtraPackagesAvailable`/`MayAlreadyBeInstalled` by celestial count | None | Additive by count, no explicit reconciliation | None | `Additive` / `InstallMissing` | Low | Keep additive semantics, improve messaging and docs |
 | `AttributeSeeder` | 10 | Requires an account | `MayAlreadyBeInstalled` if any attribute trait exists | None | Coarse gate on trait type | None | Intentional `OneShot` / `None` | Low | Document as deliberate one-shot for now |
-| `SkillPackageSeeder` | 11 | Requires account and attribute traits | `MayAlreadyBeInstalled` if skill traits already exist | None | Coarse gate on skill trait existence | None | `OneShot` now, target repeatable later | Medium | Move to deterministic skill-package reconciliation in medium wave |
-| `SkillSeeder` | 11 | Requires account and attribute traits | `MayAlreadyBeInstalled` if skill traits already exist | None | Coarse gate on skill trait existence | None | `OneShot` now, target repeatable later | Medium | Same as `SkillPackageSeeder`; evaluate merge or shared infrastructure |
+| `SkillPackageSeeder` | 11 | Requires account and attribute traits | Deterministic stock-key check on package-owned skills/language scaffolding | None | Upserts package skills, checks, decorators, improvers, and language scaffolding by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Preserve mutual exclusivity with `SkillSeeder` and add repeatability coverage |
+| `SkillSeeder` | 11 | Requires account and attribute traits | Deterministic stock-key check on example-skill markers | None | Upserts example skills, checks, and sample language records by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Preserve alternative-path warning semantics and add repeatability coverage |
 | `CurrencySeeder` | 20 | Requires an account | `ExtraPackagesAvailable` if any currency exists | None | Additive by currency presence | None | `Additive` / `InstallMissing` | Low | Present clearly as additive rerun package |
 | `HumanSeeder` | 50 | Requires account, skill traits, and calendars | `MayAlreadyBeInstalled` if `Humanoid` race exists | Human health-model answer can now be shared | Coarse gate on a single race name despite large seeded graph | None | `OneShot` / `None` until dedicated plan | High | Separate design for canonical humanoid ownership and safe upsert rules |
 | `ClanSeeder` | 50 | Requires account, clock, and currency | `ExtraPackagesAvailable` if some templates missing | None | Additive by named template presence | None | `Additive` / `InstallMissing` | Low | Keep additive semantics, improve messaging and docs |
 | `CombatSeeder` | 90 | Requires `Human` race | `MayAlreadyBeInstalled` if any weapon attack exists | Combat message style and damage randomness can now be shared | Coarse gate on `WeaponAttacks.Any()` despite many subpackages | None | `OneShot` / `None` until dedicated plan | High | Split into internal subpackages and design modular reconciliation |
-| `ChargenSeeder` | 100 | Requires `Human` race | `MayAlreadyBeInstalled` if any chargen storyboard exists | None | Coarse gate on `ChargenScreenStoryboards.Any()` | None | `OneShot` now, target repeatable later | Medium | Move to storyboard-by-key reconciliation in medium wave |
-| `CultureSeeder` | 101 | Requires `Human`, skill decorators, and `MaximumHeightChargen` prog | `MayAlreadyBeInstalled` if any random-name profile exists | None | Coarse gate on any name profile | None | `OneShot` now, target repeatable later | Medium | Convert to deterministic culture-pack reconciliation |
-| `ArenaSeeder` | 110 | Requires an economic zone | `MayAlreadyBeInstalled` if default arena exists | None | Single named arena guard | None | `OneShot` now, target repeatable later | Medium | Convert to named stock arena reconciliation |
+| `ChargenSeeder` | 100 | Requires `Human` race | Deterministic stock-key check on seeded stages/progs/resources | None | Upserts chargen resources, helper progs, roles, and storyboard graphs by stable keys | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Add storyboard rerun tests and keep preserving builder-authored screen definitions |
+| `CultureSeeder` | 101 | Requires `Human`, skill decorators, and chargen size progs | Deterministic stock-key check on seeded simple name cultures/profile markers and pack markers | None | Upserts simple name cultures, random profiles, languages, scripts, ethnicities, cultures, and stock blood/sweat materials by stable names | Repairs seeded stock records in place | `Idempotent` / `RepairExisting` | Medium | Finish deeper race-specific Middle-earth rerun coverage and chargen-size-prog preservation tests |
+| `ArenaSeeder` | 110 | Requires an economic zone | Deterministic named-arena stock-key check | None | Upserts named stock arena scaffold, classes, sides, event types, and helper progs | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Add same-name rerun tests and keep live arena runtime data builder-owned |
 | `UsefulSeeder` / `Kickstart` | 200 | Requires an account | `ExtraPackagesAvailable` or `MayAlreadyBeInstalled` based on package parts | None before framework; now generic memory is available | Installs missing package parts and avoids duplicates for tracked content | No deliberate repair path | `Idempotent` / `InstallMissing` | Medium | Audit subpackages more deeply and document exact ownership boundaries |
 | `AIStorytellerSeeder` | 215 | Requires an account | `ExtraPackagesAvailable` for partial install, `MayAlreadyBeInstalled` when full | None | Reuses and updates existing sample storyteller records by name/function name | Yes, for stock sample records | `Idempotent` / `RepairExisting` | Low | Keep as reference implementation for repair-capable packages |
-| `HealthSeeder` | 250 | Requires account, `Organic Humanoid`, and tool tags | `MayAlreadyBeInstalled` if any surgical procedure exists | None | Coarse gate on `SurgicalProcedures.Any()` | None | `OneShot` now, target repeatable later | Medium | Convert procedures, knowledges, and stock drugs to deterministic upsert |
+| `HealthSeeder` | 250 | Requires account, `Organic Humanoid`, and tool tags | Deterministic stock-key check on seeded procedures/knowledges/drugs | None | Upserts stock procedures, phases, knowledges, targets, and drugs by stable names | Repairs seeded package in place with forward-only tech upgrades | `Idempotent` / `RepairExisting` | Medium | Add primitive-to-modern rerun coverage |
 | `AnimalSeeder` | 300 | Requires `Humanoid` body and `Simple` name culture | `MayAlreadyBeInstalled` if `Quadruped Base` exists | Non-human health model, damage randomness, and combat message style are now shareable | Coarse gate on one body name despite very large seeded graph | None | `OneShot` / `None` until dedicated plan | High | Separate design for animal graph ownership, templates, and modular reconciliation |
-| `WeatherSeeder` | 300 | Requires account and at least one celestial | `MayAlreadyBeInstalled` if any climate model exists | None | Coarse gate on `ClimateModels.Any()` | None | `OneShot` now, target repeatable later | Medium | Convert climate templates and stock weather records to deterministic upsert |
+| `WeatherSeeder` | 300 | Requires account and at least one celestial | Deterministic stock-key check on seeded climate/weather markers | None | Upserts stock weather events, seasons, climate models, regional climates, and rain settings by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Keep controller assignment builder-owned and expand regression coverage only where needed |
 | `MythicalAnimalSeeder` | 302 | Requires human and animal body frameworks, corpse models, characteristic profiles, and non-human strategies | `MayAlreadyBeInstalled` only when all stock mythic races exist | Non-human health model, damage randomness, and combat message style are now shareable | Installs incrementally and skips existing stock mythic races | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
 | `RobotSeeder` | 305 | Requires humanoid and animal body frameworks, characteristic profiles, corpse models, tool tags, progs, and prerequisite attacks | `MayAlreadyBeInstalled` only when all tracked robot content exists | None | Installs incrementally and skips existing stock robot records | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
 | `ItemSeeder` | 400 | Requires Useful item component prerequisites | Always `ReadyToInstall` once prerequisites exist | None | No installed-state guard despite large stock content surface | None | `OneShot` / `None` until dedicated plan | High | Create explicit stock package ownership model before declaring rerun support |
-| `LawSeeder` | 5000 | Requires account and currency | `MayAlreadyBeInstalled` if any legal authority exists | None | Coarse gate on `LegalAuthorities.Any()` | None | `OneShot` now, target repeatable later | Medium | Convert authorities, classes, and stock laws to deterministic upsert |
+| `LawSeeder` | 5000 | Requires account and currency | Deterministic stock-key check within legal authorities | None | Upserts named authorities, legal classes, witness profiles, enforcement groups, and stock laws by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Add same-authority rerun tests and confirm live runtime references stay intact |
 
 ## Current Buckets
 ### Explicit rerunnable baseline
@@ -72,6 +77,15 @@ This document is based on verified code behavior in the current stock repo, not 
 - `UsefulSeeder`
 - `MythicalAnimalSeeder`
 - `RobotSeeder`
+- `TimeSeeder`
+- `SkillPackageSeeder`
+- `SkillSeeder`
+- `ChargenSeeder`
+- `CultureSeeder`
+- `HealthSeeder`
+- `WeatherSeeder`
+- `ArenaSeeder`
+- `LawSeeder`
 
 ### Additive but originally ambiguous
 - `CelestialSeeder`
@@ -85,15 +99,6 @@ This document is based on verified code behavior in the current stock repo, not 
 - `CoreDataSeeder`
 - `HumanSeeder`
 - `CombatSeeder`
-- `TimeSeeder`
-- `WeatherSeeder`
-- `ChargenSeeder`
-- `CultureSeeder`
-- `SkillPackageSeeder`
-- `SkillSeeder`
-- `HealthSeeder`
-- `ArenaSeeder`
-- `LawSeeder`
 - `ItemSeeder`
 - `AnimalSeeder`
 
@@ -126,7 +131,7 @@ This document is based on verified code behavior in the current stock repo, not 
 - Prefer central registries and shared framework code over mass rewriting every seeder at once.
 
 ## Backlog and Conversion Order
-### Phase 1: completed in this pass
+### Phase 1: verified complete
 - Add generic seeder metadata and assessment framework.
 - Add generic question enrichment and shared answer memory.
 - Update the menu and package-detail UI to use structured assessment states.

@@ -15,6 +15,8 @@ using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework.Revision;
 using MudSharp.Models;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Economy.Shops;
 
@@ -744,7 +746,24 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 		sb.AppendLine($"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
 
-		// TODO - sales
+		var matchingDeals = Shop.Deals
+			.Where(x => x.AppliesToMerchandise(this))
+			.OrderBy(x => x.Name)
+			.ToList();
+		if (matchingDeals.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Deals:");
+			foreach (var deal in matchingDeals)
+			{
+				var dealType = deal is ShopDeal shopDeal ? shopDeal.DescribeType(actor) : deal.DealType.DescribeEnum().ColourName();
+				var expiry = deal.Expiry.Date is null
+					? "Never".ColourValue()
+					: deal.Expiry.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue();
+				sb.AppendLine(
+					$"\t#{deal.Id.ToString("N0", actor)} {deal.Name.ColourName()} - {dealType}, {ShopDeal.DescribePercentage(deal.PriceAdjustmentPercentage, actor)}, applies to {deal.Applicability.DescribeEnum().ColourName()}, expires {expiry}");
+			}
+		}
 
 		if (actor.IsAdministrator())
 		{

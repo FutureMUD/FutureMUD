@@ -34,7 +34,7 @@ using System.Numerics;
 
 namespace MudSharp.Economy.Shops;
 
-public abstract class Shop : SaveableItem, IShop
+public abstract partial class Shop : SaveableItem, IShop
 {
 	public static void DoAutopayShopTaxes(IFuturemud gameworld)
 	{
@@ -126,6 +126,11 @@ public abstract class Shop : SaveableItem, IShop
 		foreach (var item in shop.Merchandises)
 		{
 			_merchandises.Add(new Merchandise(item, this, gameworld));
+		}
+
+		foreach (var item in shop.ShopDeals)
+		{
+			_deals.Add(new ShopDeal(item, this, gameworld));
 		}
 
 		foreach (var item in shop.ShopTransactionRecords)
@@ -526,7 +531,7 @@ public abstract class Shop : SaveableItem, IShop
 								 ?.ToString() ?? "of an unknown reason");
 		}
 
-		var price = merchandise!.EffectivePrice * merchandise.BaseBuyModifier * item.Quantity;
+		var price = GetPriceCalculation(actor, merchandise!, item.Quantity, ShopDealApplicability.Buy).TotalPrice;
 
 		switch (method)
 		{
@@ -611,11 +616,12 @@ public abstract class Shop : SaveableItem, IShop
 	public void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item)
 	{
 		item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
-		var price = merchandise.EffectivePrice * merchandise.BaseBuyModifier * item.Quantity;
+		var calculation = GetPriceCalculation(actor, merchandise, item.Quantity, ShopDealApplicability.Buy);
+		var price = calculation.TotalPrice;
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ sell|sells $1 to {Name.TitleCase().ColourName()} for $2.", actor, actor, item, new DummyPerceivable(Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()))));
 		AddTransaction(new TransactionRecord(ShopTransactionType.Purchase, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-			 price * -1, 0.0M, merchandise));
+			 calculation.TotalPretaxPrice * -1, calculation.IncludedTax, merchandise));
 		_stockedMerchandise.Add(merchandise, item.Id);
 		_stockedMerchandiseCounts.Add(merchandise, item.Quantity);
 		item.InInventoryOf?.Take(item);
@@ -783,9 +789,11 @@ public abstract class Shop : SaveableItem, IShop
 			item.GetItemType<IStackable>().Quantity -= quantity;
 		}
 		
-		var (price, tax) = PriceAndTaxForMerchandise(null, merchandise, quantity);
+		var calculation = GetPriceCalculation(null, merchandise, quantity);
+		var price = calculation.TotalPrice;
+		var tax = calculation.IncludedTax;
 		AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency, Currency.FindCoinsForAmount(price, out _)));
-		AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this, CurrentLocations.First().DateTime(), null, price - tax, tax, merchandise));
+		AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this, CurrentLocations.First().DateTime(), null, calculation.TotalPretaxPrice, tax, merchandise));
 		EconomicZone.ReportSalesTaxCollected(this, tax);
 		
 		RecalculateStockedItems(merchandise, quantity);
@@ -845,27 +853,36 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		RecalculateStockedItems(merchandise, quantity);
-		decimal price = 0.0M, tax = 0.0M;
+		decimal price = 0.0M, tax = 0.0M, pretax = 0.0M;
 		switch (method)
 		{
 			case ShopCashPayment cash:
-				(price, tax) = PriceAndTaxForMerchandise(actor, merchandise, quantity);
+				var cashCalculation = GetPriceCalculation(actor, merchandise, quantity);
+				price = cashCalculation.TotalPrice;
+				tax = cashCalculation.IncludedTax;
+				pretax = cashCalculation.TotalPretaxPrice;
 				ExpectedCashBalance += price;
 				break;
 			case LineOfCreditPayment loc:
-				(price, tax) = PriceAndTaxForMerchandise(
+				var locCalculation = GetPriceCalculation(
 					loc.Account.IsAccountOwner(actor)
 						? actor
 						: Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity);
+				price = locCalculation.TotalPrice;
+				tax = locCalculation.IncludedTax;
+				pretax = locCalculation.TotalPretaxPrice;
 				break;
 			case BankPayment bp:
-				(price, tax) = PriceAndTaxForMerchandise(actor, merchandise, quantity);
+				var bankCalculation = GetPriceCalculation(actor, merchandise, quantity);
+				price = bankCalculation.TotalPrice;
+				tax = bankCalculation.IncludedTax;
+				pretax = bankCalculation.TotalPretaxPrice;
 				break;
 		}
 
 		method.TakePayment(price);
 		AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this,
-			actor.Location.DateTime(), actor, price - tax, tax, merchandise));
+			actor.Location.DateTime(), actor, pretax, tax, merchandise));
 		EconomicZone.ReportSalesTaxCollected(this, tax);
 
 		var couldnothold = false;
@@ -1092,30 +1109,21 @@ public abstract class Shop : SaveableItem, IShop
 
 	public decimal PriceForMerchandise(ICharacter actor, IMerchandise merchandise, int quantity)
 	{
-		// TODO - volume deals
-		var tax = EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor))
-							  .Sum(x => x.TaxValue(merchandise, actor));
-		return Math.Truncate((merchandise.EffectivePrice + tax) * quantity);
+		return GetPriceCalculation(actor, merchandise, quantity).TotalPrice;
 	}
 
 	public (decimal Price, decimal Tax) PriceAndTaxForMerchandise(ICharacter actor, IMerchandise merchandise,
 		int quantity)
 	{
-		// TODO - volume deals
-		var tax = Math.Round(
-			EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor)).Sum(x => x.TaxValue(merchandise, actor)),
-			0, MidpointRounding.AwayFromZero);
-		return (Math.Truncate((merchandise.EffectivePrice + tax) * quantity), Math.Truncate(tax * quantity));
+		var calculation = GetPriceCalculation(actor, merchandise, quantity);
+		return (calculation.TotalPrice, calculation.IncludedTax);
 	}
 
 	public (decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor,
 		IMerchandise merchandise)
 	{
-		var tax = Math.Round(
-			EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor)).Sum(x => x.TaxValue(merchandise, actor)),
-			0, MidpointRounding.AwayFromZero);
-		return (merchandise.EffectivePrice + tax, tax, false);
-		// TODO volume deals
+		var calculation = GetPriceCalculation(actor, merchandise, 1);
+		return (calculation.TotalPrice, calculation.IncludedTax, calculation.VolumeDealsExist);
 	}
 
 	public void PriceAdjustmentForMerchandise(IMerchandise merchandise, decimal oldValue, ICharacter actor)
@@ -1138,7 +1146,7 @@ public abstract class Shop : SaveableItem, IShop
 
 	public void ShowDeals(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null)
 	{
-		actor.OutputHandler.Send("Coming soon.");
+		actor.OutputHandler.Send(ShowDealsInternal(actor, purchaser, merchandise), false);
 	}
 
 	public void ShowList(ICharacter actor, ICharacter purchaser, string keyword)
@@ -1171,7 +1179,7 @@ public abstract class Shop : SaveableItem, IShop
 					merch.Key.ListDescription.ColourObject(),
 					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
 					Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
-					priceInfo.VolumeDealsExist.ToString(actor),
+					DescribeDealSummary(merch.Key, purchaser, actor),
 					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
 					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
 			},
@@ -1182,7 +1190,7 @@ public abstract class Shop : SaveableItem, IShop
 					"Description",
 					"Price",
 					"Included Tax",
-					"Deals?",
+					"Deals",
 					"Variants?",
 					"Stock"
 			},
@@ -1206,7 +1214,7 @@ public abstract class Shop : SaveableItem, IShop
 					merch.Key.Name,
 					merch.Key.ListDescription.ColourObject(),
 					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
-					priceInfo.VolumeDealsExist.ToString(actor),
+					DescribeDealSummary(merch.Key, purchaser, actor),
 					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
 					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
 			},
@@ -1216,7 +1224,7 @@ public abstract class Shop : SaveableItem, IShop
 					"Name",
 					"Description",
 					"Price",
-					"Deals?",
+					"Deals",
 					"Variants?",
 					"Stock"
 			},
@@ -1271,7 +1279,7 @@ public abstract class Shop : SaveableItem, IShop
 					merch.Key.ListDescription.ColourObject(),
 					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
 					Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
-					priceInfo.VolumeDealsExist.ToString(actor),
+					DescribeDealSummary(merch.Key, purchaser, actor),
 					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
 					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
 				},
@@ -1282,7 +1290,7 @@ public abstract class Shop : SaveableItem, IShop
 					"Description",
 					"Price",
 					"Included Tax",
-					"Deals?",
+					"Deals",
 					"Variants?",
 					"Stock"
 				},
@@ -1306,7 +1314,7 @@ public abstract class Shop : SaveableItem, IShop
 					merch.Key.Name,
 					merch.Key.ListDescription.ColourObject(),
 					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
-					priceInfo.VolumeDealsExist.ToString(actor),
+					DescribeDealSummary(merch.Key, purchaser, actor),
 					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
 					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
 				},
@@ -1316,7 +1324,7 @@ public abstract class Shop : SaveableItem, IShop
 					"Name",
 					"Description",
 					"Price",
-					"Deals?",
+					"Deals",
 					"Variants?",
 					"Stock"
 				},

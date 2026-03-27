@@ -167,6 +167,7 @@ public abstract class SalesTaxBase : SaveableItem, ISalesTax
 	public IFutureProg ApplicabilityProg { get; private set; }
 	public abstract bool Applies(IMerchandise merchandise, ICharacter purchaser);
 	public abstract decimal TaxValue(IMerchandise merchandise, ICharacter purchaser);
+	public abstract decimal TaxValue(IMerchandise merchandise, ICharacter purchaser, decimal saleValue);
 
 	public void Delete()
 	{

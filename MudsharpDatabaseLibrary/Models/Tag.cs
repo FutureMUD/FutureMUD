@@ -14,6 +14,7 @@ namespace MudSharp.Models
             LiquidsTags = new HashSet<LiquidsTags>();
             MaterialsTags = new HashSet<MaterialsTags>();
             RaceButcheryProfiles = new HashSet<RaceButcheryProfile>();
+            ShopDeals = new HashSet<ShopDeal>();
         }
 
         public string Name { get; set; }
@@ -30,5 +31,6 @@ namespace MudSharp.Models
         public virtual ICollection<LiquidsTags> LiquidsTags { get; set; }
         public virtual ICollection<MaterialsTags> MaterialsTags { get; set; }
         public virtual ICollection<RaceButcheryProfile> RaceButcheryProfiles { get; set; }
+        public virtual ICollection<ShopDeal> ShopDeals { get; set; }
     }
 }

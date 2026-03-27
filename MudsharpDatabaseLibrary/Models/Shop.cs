@@ -9,6 +9,7 @@ namespace MudSharp.Models
 		{
 			EconomicZoneShopTaxes = new HashSet<EconomicZoneShopTax>();
 			Merchandises = new HashSet<Merchandise>();
+			ShopDeals = new HashSet<ShopDeal>();
 			ShopFinancialPeriodResults = new HashSet<ShopFinancialPeriodResult>();
 			ShopTransactionRecords = new HashSet<ShopTransactionRecord>();
 			ShopsStoreroomCells = new HashSet<ShopsStoreroomCell>();
@@ -49,5 +50,6 @@ namespace MudSharp.Models
 		public virtual ICollection<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
 		public virtual ICollection<ShopsTill> ShopsTills { get; set; }
 		public virtual ICollection<LineOfCreditAccount> LineOfCreditAccounts { get; set; }
+		public virtual ICollection<ShopDeal> ShopDeals { get; set; }
 	}
 }

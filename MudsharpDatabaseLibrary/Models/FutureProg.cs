@@ -52,6 +52,7 @@ namespace MudSharp.Models
             RanksAbbreviations = new HashSet<RanksAbbreviations>();
             RanksTitles = new HashSet<RanksTitle>();
             ShopsCanShopProg = new HashSet<Shop>();
+            ShopDeals = new HashSet<ShopDeal>();
             ShopsWhyCannotShopProg = new HashSet<Shop>();
             Socials = new HashSet<Social>();
             SurgicalProcedurePhases = new HashSet<SurgicalProcedurePhase>();
@@ -132,6 +133,7 @@ namespace MudSharp.Models
         public virtual ICollection<RanksAbbreviations> RanksAbbreviations { get; set; }
         public virtual ICollection<RanksTitle> RanksTitles { get; set; }
         public virtual ICollection<Shop> ShopsCanShopProg { get; set; }
+        public virtual ICollection<ShopDeal> ShopDeals { get; set; }
         public virtual ICollection<Shop> ShopsWhyCannotShopProg { get; set; }
         public virtual ICollection<Social> Socials { get; set; }
         public virtual ICollection<SurgicalProcedurePhase> SurgicalProcedurePhases { get; set; }

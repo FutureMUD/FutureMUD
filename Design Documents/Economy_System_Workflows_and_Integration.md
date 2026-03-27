@@ -1,0 +1,283 @@
+# FutureMUD Economy System: Workflows and Integration
+
+## Scope
+This document explains how builders and engine contributors work with the current economy system in practice.
+
+It is written for a mixed audience:
+
+- builders and admins who need to stand up or tune an economy
+- contributors who need to add new economy features without bypassing existing patterns
+
+Where guidance is based directly on current command and runtime behavior, it is presented as verified current state. Where guidance describes the safest extension path for future work, it is presented as inferred implementation guidance.
+
+## Working With the Economy Today
+The current economy implementation is rich, but most of it is not seed-driven. In practice, builders work with it through admin commands, editable-item workflows, and ordinary world-building content such as cells, items, progs, and clans.
+
+### Primary command surfaces
+| Surface | Current responsibility |
+| --- | --- |
+| `EconomyModule` | currencies, coins, banks, shops, auctions, jobs, markets, market influences, market categories, market populations, shoppers, player-facing buy and sell operations |
+| `PropertyModule` | property sale, lease, ownership, keys, and conveyancing-facing workflows |
+| `EditableItemHelperEconomy` | standardized admin creation and editing flows for property, auction houses, banks, coins, and shoppers |
+
+### Practical implication
+Most economy content is authored as world data, not hard-coded content. The engine supplies the abstractions and workflows, and builders connect them to a specific world through:
+
+- chosen currencies
+- cells
+- item prototypes
+- clans
+- FutureProgs
+- market category tags
+- bank accounts and payment items
+
+## Minimum Viable Economy Setup
+The current runtime supports a lot of optional depth, but the minimum viable path is smaller.
+
+### Recommended build order
+1. Seed or create at least one currency.
+2. Create at least one economic zone and confirm its reference clock, calendar, interval, and currency.
+3. Add any initial sales or profit taxes to that zone.
+4. Create a bank if the world needs account-backed payments, property ownership, shop floats, or auction settlement.
+5. Add bank account types before expecting players, clans, or shops to use accounts meaningfully.
+6. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
+7. Add market categories and a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
+8. Add shoppers and market populations if the world should simulate background demand.
+9. Add job-finding cells, jobs, and employers if the world will use the employment system.
+10. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
+
+### Why this order fits the current implementation
+- currencies are prerequisites for almost every downstream object
+- economic zones are the tax and time hub
+- banks unlock multiple other systems, including payment instruments and property administration
+- markets, shoppers, and jobs all assume earlier layers already exist
+- property and auctions depend heavily on cells, banks, and world-specific content
+
+## What Builders Still Need To Hand-Build
+Even with the existing abstractions, much of the economy remains world-authored content rather than ready-made stock configuration.
+
+### Currently hand-built in most worlds
+- economic zones
+- tax regimes
+- banks and account types
+- exchange rates and currency reserves
+- shops and their staffing
+- merchandise catalogs
+- payment-item prototypes and bank-payment items
+- market categories and market assignment strategy
+- market populations and stress-threshold progs
+- shopper selection and item-choice progs
+- auction houses
+- property portfolios and location mapping
+- jobs, employers, and eligibility logic
+
+### Why hand-building still dominates
+The runtime is generic by design. Most of these systems depend on world-specific choices that the engine cannot safely assume:
+
+- which cells matter
+- which clans exist
+- which items are sold
+- who can open what account
+- what counts as demand in a specific setting
+- how much simulation depth the world actually wants
+
+## Builder Workflow by Subsystem
+### Currencies and Coins
+Builders can:
+
+- seed stock currencies through `CurrencySeeder`
+- create new currencies and coins through economy admin commands
+- edit divisions, abbreviations, and description patterns
+- set global-base conversion so cross-currency comparisons remain possible
+
+Practical note:
+
+- currency design is not only cosmetic
+- regex abbreviations determine what players can type successfully
+- description patterns determine how values are surfaced all across the engine
+
+### Economic Zones and Taxes
+Builders use economic zones to define:
+
+- the local administrative currency
+- the financial-period cadence
+- tax policy
+- the cells used for conveyancing and job-finding
+- the clan, if any, that controls the zone
+
+Tax creation is type-driven through the registered tax families, so the current builder workflow is already aligned with the factory pattern in the runtime.
+
+### Banks and Bank Account Types
+Banks are a natural early investment if the world intends to use:
+
+- shops with bank-backed balances
+- bank payment items
+- property ownership or rent collection
+- auctions
+- clan finances
+
+Current builder-facing bank work includes:
+
+- creating the bank itself
+- adding branches
+- configuring exchange rates and reserves
+- creating account types
+- attaching open and close permission progs
+- tuning fees, interest, and payment-item limits
+
+### Markets, Categories, Influences, Populations, and Shoppers
+The market system becomes useful when the world wants more than fixed shop pricing.
+
+Current builder steps usually include:
+
+- define market categories
+- create one or more markets per economic region
+- add market influence templates or live influences
+- define market populations and their spending needs
+- create shoppers, usually `SimpleShopper`, with scripted selection behavior
+- point relevant shops at a market for pricing purposes
+
+The population and shopper layers are where FutureProg dependence becomes especially important.
+
+### Shops, Merchandise, Line of Credit, and Payment Methods
+Shops are one of the most configuration-heavy economy subsystems.
+
+Practical builder work currently includes:
+
+- choose permanent versus transient shop behavior
+- assign the economic zone and optional market
+- set up bank accounts if the shop should hold money outside loose cash
+- define merchandise rows and their pricing behavior
+- configure stocking, display containers, and restock behavior
+- configure line-of-credit accounts if credit sales should be allowed
+- decide what payment methods the world wants players to use
+
+Current payment methods already support:
+
+- physical cash
+- other cash handling paths
+- bank-payment items backed by bank accounts
+- line of credit
+
+### Auctions
+Auction houses currently fit worlds that want formal auction spaces separate from ordinary shops.
+
+Builders need:
+
+- a cell for the auction house
+- an economic zone
+- a settlement account
+
+### Property and Employment
+Property and jobs both depend strongly on world layout and institutions.
+
+Property builders need:
+
+- cells mapped into properties
+- an economic zone
+- owners or ownership rules
+- sale or lease setup
+- conveyancing cells so the player-facing workflow is discoverable
+
+Job builders need:
+
+- an employer
+- a zone with job-finding cells
+- pay currency and pay model
+- an eligibility prog
+
+## Integration Guidance for Future Features
+This section is inferred implementation guidance based on current patterns.
+
+### Adding a New Tax Type
+Safest current pattern:
+
+1. extend the appropriate tax base or interface
+2. persist any new fields in database models and migrations
+3. register the type in `TaxFactory`
+4. surface it through the existing economic-zone builder flow
+
+Why this fits the current design:
+
+- economic zones already create taxes by registered type name
+- taxes are already treated as policy objects rather than hard-coded branches
+
+### Adding a New Shopper Type
+Safest current pattern:
+
+1. subclass `ShopperBase`
+2. register database and builder loaders through the existing loader registration mechanism
+3. keep shopper-specific configuration self-contained in the shopper definition payload
+4. reuse existing market and shop abstractions rather than embedding direct purchase logic elsewhere
+
+### Adding a New Payment Method
+Safest current pattern:
+
+1. implement or extend `IPaymentMethod` handling in the runtime
+2. wire the new payment path into shop command parsing and validation
+3. add an item component if the method needs a physical in-world instrument
+4. keep shop logic consuming the abstract payment method instead of special-casing one venue
+
+Current examples to emulate:
+
+- `BankPayment`
+- `CashPayment`
+- `LineOfCreditPayment`
+
+### Adding New Market Influence or Template Types
+There are two current extension strategies:
+
+- stay within the existing market influence data model and add new content through builder workflows
+- extend runtime influence behavior only if the current impact model is genuinely insufficient
+
+In both cases, preserve the separation between:
+
+- reusable templates
+- live influences applied to a market
+
+### Adding New Currency Patterns
+Currency extension should generally stay pattern-driven.
+
+Safest current pattern:
+
+- add or tune divisions and regex abbreviations
+- add or tune description patterns and elements
+- keep display logic inside currency pattern objects rather than scattering formatting code into consumers
+
+### Adding Shop-Adjacent or Property-Adjacent Systems
+If a future feature touches commerce, ownership, or taxation, it should usually integrate with the existing economy hub instead of inventing a parallel flow.
+
+Good current integration anchors are:
+
+- economic zones for time, tax, and locality
+- bank accounts for stored value and settlement
+- shops for retail movement and transaction records
+- property for formal location ownership
+- FutureProg for permission and selection policies
+
+## Verified Current Limits That Matter During Integration
+These are not hypothetical concerns. They affect how safe it is to integrate new features right now.
+
+### Volume deals are not live
+The shop API shape anticipates deals, but the runtime does not currently implement them. New shop-adjacent work should not assume that `ShowDeals()` or deal-specific price flags reflect live behavior.
+
+### Estates are not a safe ownership hook
+The estate subsystem should not currently be used as a ready-made ownership framework. Its unresolved blocker is broader item ownership, not only inheritance logic.
+
+### Seeder depth is narrow
+If a new feature depends on the broader economy existing out of the box, it will probably need either:
+
+- new seeder work
+- a builder workflow that can tolerate a mostly manual economy setup
+
+## Suggested Contributor Checklist
+This is inferred workflow guidance, but it matches the current implementation well.
+
+When extending the economy:
+
+1. decide whether the new behavior belongs in an existing bounded context or a new one
+2. add or adjust interfaces only when the capability is genuinely cross-project
+3. update persistence and migrations for new runtime state
+4. integrate with existing factories, loaders, or editable-item helpers where possible
+5. expose builder-facing workflows rather than requiring raw database edits
+6. update the economy design docs when runtime behavior or command surface changes

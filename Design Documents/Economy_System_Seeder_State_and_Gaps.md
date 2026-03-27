@@ -1,0 +1,264 @@
+# FutureMUD Economy System: Seeder State and Gaps
+
+## Scope
+This document explains:
+
+1. what economy content is currently seeded
+2. what economy content could be added to the seeder relatively easily from the current implementation
+3. what economy content exists in runtime but is a poor seeder candidate without more design work
+4. the highest-priority current gaps in the economy subsystem
+
+This document deliberately separates verified current state from recommended future direction.
+
+## Current Seeder Reality
+### Verified current state
+`CurrencySeeder` is the only dedicated economy seeder in the current repository.
+
+What it currently provides:
+
+- stock currency packages such as dollars, pounds, fantasy, roman, bits, and Gondor
+- stock divisions, coins, description patterns, and parsing abbreviations
+- supporting FutureProg content for some currency pattern applicability
+- additive rerun behavior so multiple currencies can coexist
+
+### What is not currently seeded as a dedicated economy package
+- economic zones
+- taxes
+- banks
+- bank account types
+- markets
+- market categories
+- market influence templates
+- market populations
+- shoppers
+- shops
+- auction houses
+- property
+- employment data
+
+### Practical implication
+The runtime implementation is much broader than the seeder coverage. Most of the economy is therefore:
+
+- runtime-ready
+- builder-editable
+- persistable
+- not yet packaged into stock world-generation content
+
+## Seeder Opportunity Matrix
+The classifications below are conservative. "Easy" means the current implementation already provides enough structure that seeding the content would be mainly packaging and dependency work, not a new product design problem.
+
+| Candidate | Classification | Why it is seed-friendly or not |
+| --- | --- | --- |
+| Additional currency packs and pattern packs | Easy | The runtime model is mature, persistence exists, `CurrencySeeder` already establishes the pattern, and currencies are mostly self-contained content |
+| Economic-zone templates | Easy | Economic zones already have a stable constructor and persistence model, and their core fields are clear even if world-specific cells still need follow-up tuning |
+| Stock tax presets | Easy | Tax creation is factory-driven, stock tax types already exist, and common presets can be seeded as content without changing runtime architecture |
+| Bank templates | Easy | Banks already have stable persistence, builder support, and explicit child collections for branches, rates, reserves, and account types |
+| Bank account type templates | Easy | Account types have a stable constructor, clear persistence model, and mature builder-facing configuration for fees, interest, and permission progs |
+| Stock market categories | Easy | Categories are light-weight, persisted, and intended as reusable classification content |
+| Stock market influence templates | Easy | Templates already exist as a separate persisted concept and are a natural seed-data candidate |
+| Stock market populations | Easy | The runtime model is already data-driven, with persisted need and stress definitions plus optional progs |
+| Stock shopper templates, especially `SimpleShopper` | Easy | Shopper loaders are registered by type, shopper definitions are persisted, and `SimpleShopper` already externalizes its behavior into configured progs |
+| Markets tied to seeded economic zones | Possible | Runtime support is ready, but useful seeded markets still need decisions about zones, categories, and price-policy defaults |
+| Jobs tied to seeded employers or clans | Possible | Runtime support exists, but good stock jobs require seeded institutions, currencies, and reusable eligibility progs |
+| Auction houses | Possible | The runtime is ready, but auction houses depend on chosen cells and settlement accounts, so they are best seeded only once a world layout exists |
+| Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design |
+| Properties | Poor candidate without more design work | Property is location-specific, owner-specific, and strongly coupled to the world's map and institutions |
+| Estates | Poor candidate without more design work | The subsystem is intentionally unimplemented pending a trustworthy item-ownership model |
+
+## Easy Seeder Candidates in More Detail
+### Additional currency packs and pattern packs
+This is the clearest economy seeding win because:
+
+- a dedicated seeder already exists
+- the data model is explicit and content-heavy rather than behavior-heavy
+- currencies are useful in almost every world
+- additive install behavior is already normal here
+
+### Economic-zone templates
+This is a good candidate for stock presets rather than one canonical answer.
+
+Examples of feasible seed content from the current implementation:
+
+- a no-tax frontier zone
+- a simple retail-tax zone
+- a zone with short financial periods for fast-moving economies
+- a clan-controlled zone template with sane defaults
+
+Why it is seed-friendly now:
+
+- the core state is persisted already
+- the constructor already establishes a financial period
+- the zone's policy role is clear
+- cells can be left for builder customization even if the zone shell is seeded
+
+### Stock tax presets
+Current runtime support already distinguishes tax family from tax content.
+
+That makes it straightforward to seed examples such as:
+
+- flat retail tax
+- VAT-style tax
+- gross-profit tax
+- net-profit tax
+
+Why it is seed-friendly now:
+
+- tax types are factory-registered
+- applicability is already prog-gated where needed
+- taxes are naturally attached to economic zones as content
+
+### Bank templates and account-type templates
+These are practical seeding candidates because the runtime model is already explicit about what a bank needs and what an account type controls.
+
+Feasible stock examples:
+
+- high-street bank
+- clan treasury bank
+- merchant credit bank
+- basic checking account
+- savings account
+- high-fee mercantile account
+
+Why they are seed-friendly now:
+
+- stable constructors exist
+- builder-facing abstractions already exist
+- persistence is complete
+- account-type policy is already data-driven
+
+### Stock market categories, influence templates, populations, and shoppers
+The market and shopper subsystems are also good seeder targets because they are already designed as configurable data plus progs.
+
+Feasible seed content:
+
+- basic food, luxury, industrial, and raw-material categories
+- event-style influence templates such as famine, bumper harvest, embargo, or caravan surge
+- sample populations representing urban, rural, or military demand
+- reusable `SimpleShopper` templates representing frugal, ordinary, or luxury-biased shoppers
+
+Why they are seed-friendly now:
+
+- categories and templates are reusable content by design
+- market population needs and stress thresholds are already serialized data
+- shopper behavior is explicitly configured through progs rather than baked into code paths
+
+## Possible but World-Dependent Seeder Candidates
+### Markets tied to seeded economic zones
+These are technically straightforward but need a world-level decision about:
+
+- how many economic zones exist
+- what categories matter
+- what price multipliers feel appropriate
+
+### Jobs tied to seeded employers
+Jobs could be seeded effectively if they are bundled with:
+
+- seeded clans or employers
+- stock eligibility progs
+- default pay currencies
+
+Without that surrounding content, seeded jobs risk becoming disconnected examples rather than useful stock data.
+
+### Auction houses
+Auction houses need:
+
+- a real cell
+- a real settlement account
+- a clear place in the world's commercial geography
+
+So they are practical only once the seeding workflow can reference world-specific cells and accounts safely.
+
+## Poor Candidates Without More Design Work
+### Shops
+Shops are feature-rich, but good stock shops are not just a matter of creating records.
+
+A useful shop needs:
+
+- a location strategy
+- stockrooms and tills
+- chosen item prototypes
+- merchandise setup
+- payment-item policy
+- staffing expectations
+- optional market linkage
+
+This is all possible, but it stops being "easy seeding" and starts becoming opinionated world construction.
+
+### Properties
+Properties are even more world-specific because the seeded content would need to answer:
+
+- which cells belong to which property
+- who owns them at install time
+- what is for sale
+- what is for lease
+- how keys and access are distributed
+
+### Estates
+Estates are a poor seeder candidate because they are blocked by a product-design problem, not by lack of seed packaging.
+
+The current blocker is a trustworthy ownership model for arbitrary items. Until that exists, seeded estate content would only dress a subsystem that cannot currently settle its central question correctly.
+
+## Major Gaps and Priorities
+### Estates are intentionally unimplemented
+This should be treated as an unresolved design prerequisite, not as a normal backlog item.
+
+The key blocker is not claim timing or payout mechanics. It is deciding what counts as a deceased character's property with enough fidelity that the game does not produce bad outcomes in ordinary MUD play.
+
+Important adjacent implications:
+
+- clan or organisational ownership of issued items
+- crime-system theft detection and property assumptions
+- minimizing false positives when players move, borrow, stash, share, or handle items in expected ways
+
+The existing code confirms the subsystem is not live, but the more important truth is that the missing ownership model is the reason it is not live.
+
+### Economic-zone calendar reassignment is currently broken
+The current builder path for changing the economic-zone calendar sets up the accept flow and then throws `NotImplementedException`.
+
+That makes this a concrete runtime defect in an exposed admin workflow rather than a theoretical gap.
+
+### Shop deals and volume pricing are placeholder-only
+The current shop runtime exposes deal-related surfaces, but:
+
+- `ShowDeals()` currently reports "Coming soon."
+- price methods contain explicit `TODO` markers for volume deals
+- detailed price info currently always reports no live volume deals
+
+This matters because the API and UI shape imply a capability that the runtime does not yet actually provide.
+
+### Seeder coverage is much narrower than runtime coverage
+The codebase already contains far more economy runtime than stock seeding. That gap matters because:
+
+- builders must hand-author much of the economy even in otherwise seeded worlds
+- new economy-dependent features cannot assume stock world support
+- documentation and seeding strategy need to stay aligned so this does not look more complete than it is
+
+### Automated test coverage is extremely thin
+The current economy test coverage is concentrated in `ShopTests.cs`.
+
+There is little or no automated coverage for:
+
+- currency parsing and description behavior
+- bank fees, account permissions, and transfers
+- tax calculation and financial-period rollover
+- markets, populations, influences, and shoppers
+- property workflows
+- auctions
+- job lifecycle behavior
+
+This is a high-priority quality gap because the economy subsystem is heavily stateful and cross-cutting.
+
+### Currency description-pattern persistence needs review
+`CurrencyDescriptionPattern.Save()` currently leaves a `TODO` marker after saving the parent record fields.
+
+That does not by itself prove data loss, but it does mark a persistence path that should be reviewed before treating the currency pattern editing surface as fully mature.
+
+## Recommended Documentation Posture
+This is inferred guidance for future maintainers.
+
+When extending the seeder side of the economy:
+
+- prefer packaging mature, data-driven economy objects first
+- avoid seeding world-specific retail or property content until the seeder has a clean story for cells, items, and institutions
+- treat estates as blocked on ownership design, not as a normal seeding omission
+- keep the economy design docs updated whenever new seeder support changes the practical setup path

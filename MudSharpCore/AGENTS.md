@@ -24,6 +24,13 @@ Implements the core FutureMUD game engine and console server handling gameplay, 
 * Prefer asynchronous patterns for networking and long-running operations.
 * Use the engine's logging abstractions rather than `Console.WriteLine` for output.
 
+## Economy Documentation Reference
+* For economy runtime work, consult and update:
+  * `../Design Documents/Economy_System_Runtime.md`
+  * `../Design Documents/Economy_System_Workflows_and_Integration.md`
+  * `../Design Documents/Economy_System_Seeder_State_and_Gaps.md`
+* This applies to changes in `MudSharpCore/Economy`, economy command modules, economy-related FutureProg functions, and economy-related game-item or effect integrations.
+
 ## Notes
 
 * All modules inherit both the solution-level and project-level rules unless explicitly overridden.

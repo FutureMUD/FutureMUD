@@ -611,6 +611,7 @@ public abstract class Shop : SaveableItem, IShop
 	public void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item)
 	{
 		item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
+		item.SetOwner(this);
 		var price = merchandise.EffectivePrice * merchandise.BaseBuyModifier * item.Quantity;
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ sell|sells $1 to {Name.TitleCase().ColourName()} for $2.", actor, actor, item, new DummyPerceivable(Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()))));
 		AddTransaction(new TransactionRecord(ShopTransactionType.Purchase, Currency, this,
@@ -841,6 +842,7 @@ public abstract class Shop : SaveableItem, IShop
 			item.InInventoryOf?.Take(item);
 			item.ContainedIn?.Take(item);
 			item.Location?.Extract(item);
+			item.SetOwner(actor);
 			_stockedMerchandise.Remove(merchandise, item.Id);
 		}
 

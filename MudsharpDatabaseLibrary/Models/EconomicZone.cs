@@ -15,6 +15,7 @@ namespace MudSharp.Models
             EconomicZoneTaxes = new HashSet<EconomicZoneTax>();
             Properties = new HashSet<Property>();
             ConveyancingLocations = new HashSet<ConveyancingLocation>();
+            Estates = new HashSet<Estate>();
             JobListings = new HashSet<JobListing>();
             JobFindingLocations = new HashSet<JobFindingLocation>();
             Shoppers = new HashSet<Shopper>();
@@ -36,6 +37,8 @@ namespace MudSharp.Models
         public int IntervalAmount { get; set; }
         public decimal TotalRevenueHeld { get; set; }
         public long? ControllingClanId { get; set; }
+        public string EstateDefaultDiscoverTime { get; set; }
+        public string EstateClaimPeriodLength { get; set; }
 
         public virtual Currency Currency { get; set; }
         public virtual FinancialPeriod CurrentFinancialPeriod { get; set; }
@@ -49,6 +52,7 @@ namespace MudSharp.Models
         public virtual ICollection<ShopFinancialPeriodResult> ShopFinancialPeriodResults { get; set; }
         public virtual ICollection<Shop> Shops { get; set; }
         public virtual ICollection<EconomicZoneTax> EconomicZoneTaxes { get; set; }
+        public virtual ICollection<Estate> Estates { get; set; }
         public virtual ICollection<Property> Properties { get; set; }
         public virtual ICollection<ConveyancingLocation> ConveyancingLocations { get; set; }
         public virtual ICollection<JobFindingLocation> JobFindingLocations { get; set; }

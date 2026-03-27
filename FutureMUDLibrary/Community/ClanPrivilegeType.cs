@@ -37,5 +37,6 @@ namespace MudSharp.Community {
         CanReportDead = 1 << 29,
         CanManageClanJobs = 1 << 30,
         CanManageClanVassals = 1 << 31,
+        CanManageEstates = 1L << 32,
     }
 }

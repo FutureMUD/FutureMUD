@@ -247,6 +247,45 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public int Quantity => GetItemType<IStackable>()?.Quantity ?? 1;
 
+	private FrameworkItemReference _ownerReference;
+	private IFrameworkItem _owner;
+
+	public IFrameworkItem Owner
+	{
+		get
+		{
+			if (_owner == null && _ownerReference != null)
+			{
+				_owner = _ownerReference.GetItem;
+			}
+
+			return _owner;
+		}
+	}
+
+	public bool HasOwner => _ownerReference != null;
+
+	public bool IsOwnedBy(IFrameworkItem owner)
+	{
+		return _ownerReference?.Equals(owner) == true;
+	}
+
+	public void SetOwner(IFrameworkItem owner)
+	{
+		_owner = owner;
+		_ownerReference = owner == null
+			? null
+			: new FrameworkItemReference(owner.Id, owner.FrameworkItemType, Gameworld);
+		Changed = true;
+	}
+
+	public void ClearOwner()
+	{
+		_owner = null;
+		_ownerReference = null;
+		Changed = true;
+	}
+
 	public event PerceivableEvent OnRemovedFromLocation;
 
 	public event InventoryChangeEvent OnInventoryChange;
@@ -339,6 +378,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		dbitem.MaterialId = _overrideMaterial?.Id ?? 0;
 		dbitem.Size = (int)Size;
 		dbitem.ContainerId = ContainedIn?.Id;
+		dbitem.OwnerId = _ownerReference?.Id;
+		dbitem.OwnerType = _ownerReference?.FrameworkItemType;
 		dbitem.Condition = Condition;
 		dbitem.RoomLayer = (int)RoomLayer;
 		dbitem.SkinId = _skinId;
@@ -536,6 +577,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			PositionId = (int)PositionUndefined.Instance.Id,
 			PositionModifier = (int)PositionModifier.None,
 			EffectData = SaveEffects().ToString(),
+			OwnerId = _ownerReference?.Id,
+			OwnerType = _ownerReference?.FrameworkItemType
 		};
 		SaveMorphProgress(dbitem);
 		FMDB.Context.GameItems.Add(dbitem);
@@ -756,6 +799,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		_overrideMaterial = game.Materials.Get(item.MaterialId);
 		_roomLayer = (RoomLayer)item.RoomLayer;
 		_skinId = item.SkinId;
+		if (item.OwnerId.HasValue && !string.IsNullOrWhiteSpace(item.OwnerType))
+		{
+			_ownerReference = new FrameworkItemReference(item.OwnerId.Value, item.OwnerType, game);
+		}
 		foreach (var component in item.GameItemComponents)
 		{
 			_components.Add(
@@ -874,6 +921,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		PositionEmote = rhs.PositionEmote;
 		_condition = rhs.Condition;
 		Location = rhs.Location;
+		_ownerReference = rhs._ownerReference == null
+			? null
+			: new FrameworkItemReference(rhs._ownerReference.Id, rhs._ownerReference.FrameworkItemType, rhs.Gameworld);
+		_owner = rhs._owner;
 		foreach (var component in rhs._components)
 		{
 			_components.Add(component.Copy(this, temporary));

@@ -145,6 +145,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IDrug> _drugs = new();
 	private readonly All<IDream> _dreams = new();
 	private readonly All<IElection> _elections = new();
+	private readonly All<IEstate> _estates = new();
 
 	private readonly All<IEntityDescriptionPattern> _entityDescriptionPatterns =
 		new();
@@ -540,6 +541,7 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IShop> Shops => _shops;
 
 	public IUneditableAll<IEconomicZone> EconomicZones => _economicZones;
+	public IUneditableAll<IEstate> Estates => _estates;
 
 	public IUneditableAll<IGroupAITemplate> GroupAITemplates => _groupAITemplates;
 

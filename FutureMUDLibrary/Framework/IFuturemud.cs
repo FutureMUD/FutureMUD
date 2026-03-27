@@ -263,6 +263,7 @@ namespace MudSharp.Framework
 		IUneditableAll<IAuxiliaryCombatAction> AuxiliaryCombatActions { get; }
 		IUneditableAll<IShop> Shops { get; }
 		IUneditableAll<IEconomicZone> EconomicZones { get; }
+		IUneditableAll<IEstate> Estates { get; }
 		IUneditableAll<IGroupAITemplate> GroupAITemplates { get; }
 		IUneditableAll<IGroupAI> GroupAIs { get; }
 		IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts { get; }
@@ -402,6 +403,7 @@ namespace MudSharp.Framework
 		void Add(IActiveJob job);
 		void Add(IAuctionHouse auctionHouse);
 		void Add(IProperty property);
+		void Add(IEstate estate);
 		void Add(IGameItemSkin skin);
 		void Add(IBank bank);
 		void Add(IBankAccount account);
@@ -556,6 +558,7 @@ namespace MudSharp.Framework
 		void Destroy(IActiveJob job);
 		void Destroy(IAuctionHouse auctionHouse);
 		void Destroy(IProperty property);
+		void Destroy(IEstate estate);
 		void Destroy(IPatrol patrol);
 		void Destroy(IMagicSpell spell);
 		void Destroy(ILineOfCreditAccount account);

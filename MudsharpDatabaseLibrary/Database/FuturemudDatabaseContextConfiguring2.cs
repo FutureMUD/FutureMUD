@@ -1857,6 +1857,16 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.ControllingClanId).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.EstateClaimPeriodLength)
+					.HasColumnType("varchar(200)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.Property(e => e.EstateDefaultDiscoverTime)
+					.HasColumnType("varchar(200)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
 				entity.Property(e => e.CurrentFinancialPeriodId).HasColumnType("bigint(20)");
 
 				entity.Property(e => e.IntervalAmount)
@@ -3197,6 +3207,13 @@ namespace MudSharp.Database
 				entity.Property(e => e.Condition).HasDefaultValueSql("'1'");
 
 				entity.Property(e => e.ContainerId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.OwnerId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.OwnerType)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.EffectData)
 					.IsRequired()

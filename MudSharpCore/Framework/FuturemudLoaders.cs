@@ -1050,6 +1050,27 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
 		count = shops.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Shop" : "Shops");
+
+		ConsoleUtilities.WriteLine("\nLoading #5Estates#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+		var estates = FMDB.Context.Estates
+			.Include(x => x.EstateAssets)
+			.Include(x => x.EstateClaims)
+			.AsSplitQuery()
+			.AsNoTracking()
+			.ToList();
+		foreach (var estate in estates)
+		{
+			_estates.Add(new Economy.Estates.Estate(estate, this));
+		}
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		count = estates.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Estate" : "Estates");
 	}
 
 

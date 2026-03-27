@@ -28,6 +28,7 @@ using MudSharp.Economy;
 using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Estates;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Markets;
 using MudSharp.Economy.Payment;
@@ -97,6 +98,79 @@ internal class EconomyModule : Module<ICharacter>
 				CountItem(contained, results, sb, voyeur, item);
 			}
 		}
+	}
+
+	private static bool CanManageEstate(ICharacter actor, IEstate estate)
+	{
+		if (actor.IsAdministrator())
+		{
+			return true;
+		}
+
+		var clan = estate.EconomicZone.ControllingClan;
+		return clan != null &&
+		       actor.ClanMemberships.Any(x =>
+			       !x.IsArchivedMembership &&
+			       x.Clan == clan &&
+			       x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageEstates));
+	}
+
+	private static bool CanViewEstate(ICharacter actor, IEstate estate)
+	{
+		return CanManageEstate(actor, estate) ||
+		       estate.Inheritor == actor ||
+		       estate.Claims.Any(x => x.Claimant == actor) ||
+		       estate.EstateStatus != EstateStatus.Undiscovered;
+	}
+
+	private static IEstate GetEstateById(ICharacter actor, string text)
+	{
+		return long.TryParse(text, out var value)
+			? actor.Gameworld.Estates.Get(value)
+			: null;
+	}
+
+	private static IClan GetClanByIdOrName(ICharacter actor, string text)
+	{
+		if (long.TryParse(text, out var value))
+		{
+			return actor.Gameworld.Clans.Get(value);
+		}
+
+		return actor.Gameworld.Clans.GetByName(text) ??
+		       actor.Gameworld.Clans.FirstOrDefault(x => x.Alias.EqualTo(text));
+	}
+
+	private static ICharacter GetCharacterByIdOrName(ICharacter actor, string text)
+	{
+		if (long.TryParse(text, out var value))
+		{
+			return actor.Gameworld.TryGetCharacter(value, true);
+		}
+
+		return actor.TargetActor(text) ??
+		       actor.Gameworld.Characters.GetByIdOrName(text) ??
+		       actor.Gameworld.Characters.GetByPersonalName(text);
+	}
+
+	private static string DescribeFrameworkItem(ICharacter actor, IFrameworkItem item)
+	{
+		return item switch
+		{
+			null => "None".ColourError(),
+			ICharacter character => character.PersonalName.GetName(NameStyle.FullName).ColourName(),
+			IClan clan => clan.FullName.ColourName(),
+			IGameItem gameItem => gameItem.HowSeen(actor,
+				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+			IBankAccount account => $"{account.Bank.Code.ColourName()}:{account.AccountNumber.ToString("N0", actor).ColourValue()}",
+			IProperty property => property.Name.ColourName(),
+			_ => $"{item.Name.ColourName()} ({item.FrameworkItemType.ColourValue()})"
+		};
+	}
+
+	private static string DescribeEstateStatus(EstateStatus status)
+	{
+		return status.DescribeEnum().ColourValue();
 	}
 
 	[PlayerCommand("Count", "count")]
@@ -5136,10 +5210,13 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		var items = unclaimed.Select(x => x.AuctionItem.Item).ToList();
-		foreach (var item in items)
+		foreach (var item in unclaimed)
 		{
-			item.Login();
+			item.AuctionItem.Item.Login();
+			item.AuctionItem.Item.SetOwner(item.WinningBid?.Bidder ?? actor);
 		}
+
+		var items = unclaimed.Select(x => x.AuctionItem.Item).ToList();
 
 		IGameItem givenItem = null;
 		if (items.Count > 1)
@@ -5666,6 +5743,636 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	public const string HeirHelp = @"The heir command lets you choose who should receive the remainder of your estate when you die.
+
+The syntax for this command is as follows:
+
+	#3heir#0 - shows your current heir
+	#3heir <character>#0 - sets a character as your heir
+	#3heir clan <clan>#0 - sets a clan as your heir
+	#3heir clear#0 - clears your current heir";
+
+	[PlayerCommand("Heir", "heir")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoCombatCommand]
+	[HelpInfo("heir", HeirHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Heir(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				actor.EstateHeir == null
+					? "You have not nominated any heir for your estate."
+					: $"Your estate heir is currently {DescribeFrameworkItem(actor, actor.EstateHeir)}.");
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualToAny("clear", "none", "remove"))
+		{
+			actor.EstateHeir = null;
+			actor.OutputHandler.Send("You clear your estate heir nomination.");
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualTo("clan"))
+		{
+			ss.PopSpeech();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which clan do you want to nominate as your heir?");
+				return;
+			}
+
+			var clan = GetClanByIdOrName(actor, ss.SafeRemainingArgument);
+			if (clan == null)
+			{
+				actor.OutputHandler.Send("There is no such clan.");
+				return;
+			}
+
+			actor.EstateHeir = clan;
+			actor.OutputHandler.Send($"You nominate {clan.FullName.ColourName()} as your estate heir.");
+			return;
+		}
+
+		var target = GetCharacterByIdOrName(actor, ss.SafeRemainingArgument);
+		if (target == null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		if (target == actor)
+		{
+			actor.OutputHandler.Send("Naming yourself as your heir would not achieve much.");
+			return;
+		}
+
+		actor.EstateHeir = target;
+		actor.OutputHandler.Send(
+			$"You nominate {target.PersonalName.GetName(NameStyle.FullName).ColourName()} as your estate heir.");
+	}
+
+	public const string OwnershipHelp = @"The ownership command is used to inspect and manage durable ownership of items.
+
+The syntax for this command is as follows:
+
+	#3ownership show <item>#0 - shows who owns an item
+	#3ownership claim <item>#0 - claims ownership of an unowned item
+	#3ownership clan <clan> <item>#0 - marks an item as clan-owned public property
+	#3ownership clear <item>#0 - clears an item's owner (admin only)
+	#3ownership set character <character> <item>#0 - sets an item's owner to a character (admin only)
+	#3ownership set clan <clan> <item>#0 - sets an item's owner to a clan (admin only)";
+
+	[PlayerCommand("Ownership", "ownership", "owner")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoCombatCommand]
+	[HelpInfo("ownership", OwnershipHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Ownership(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(OwnershipHelp.SubstituteANSIColour());
+			return;
+		}
+
+		switch (ss.PopForSwitch())
+		{
+			case "show":
+			case "view":
+				OwnershipShow(actor, ss);
+				return;
+			case "claim":
+				OwnershipClaim(actor, ss);
+				return;
+			case "clan":
+				OwnershipClan(actor, ss);
+				return;
+			case "clear":
+				OwnershipClear(actor, ss);
+				return;
+			case "set":
+				OwnershipSet(actor, ss);
+				return;
+			default:
+				OwnershipShow(actor, ss.GetUndo());
+				return;
+		}
+	}
+
+	private static void OwnershipShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to inspect ownership for?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			item.HasOwner
+				? $"{item.HowSeen(actor)} is owned by {DescribeFrameworkItem(actor, item.Owner)}."
+				: $"{item.HowSeen(actor)} is currently unowned.");
+	}
+
+	private static void OwnershipClaim(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to claim ownership of?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		if (item.HasOwner)
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor)} already has a registered owner.");
+			return;
+		}
+
+		item.SetOwner(actor);
+		actor.OutputHandler.Send($"You claim ownership of {item.HowSeen(actor)}.");
+	}
+
+	private static void OwnershipClan(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which clan do you want to set as the owner?");
+			return;
+		}
+
+		var clan = GetClanByIdOrName(actor, ss.PopSpeech());
+		if (clan == null)
+		{
+			actor.OutputHandler.Send("There is no such clan.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to mark as clan-owned?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		var canManageClanProperty = actor.IsAdministrator() ||
+		                            actor.ClanMemberships.Any(x =>
+			                            !x.IsArchivedMembership &&
+			                            x.Clan == clan &&
+			                            x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty));
+		if (!canManageClanProperty)
+		{
+			actor.OutputHandler.Send($"You do not have permission to manage property for {clan.FullName.ColourName()}.");
+			return;
+		}
+
+		if (item.HasOwner && item.Owner != clan && !actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor)} already has a different registered owner.");
+			return;
+		}
+
+		item.SetOwner(clan);
+		actor.OutputHandler.Send($"You mark {item.HowSeen(actor)} as property of {clan.FullName.ColourName()}.");
+	}
+
+	private static void OwnershipClear(ICharacter actor, StringStack ss)
+	{
+		if (!actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send("Only administrators can forcibly clear item ownership.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to clear ownership for?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		item.ClearOwner();
+		actor.OutputHandler.Send($"You clear the registered owner of {item.HowSeen(actor)}.");
+	}
+
+	private static void OwnershipSet(ICharacter actor, StringStack ss)
+	{
+		if (!actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send("Only administrators can forcibly set item ownership.");
+			return;
+		}
+
+		switch (ss.PopForSwitch())
+		{
+			case "character":
+			case "char":
+				OwnershipSetCharacter(actor, ss);
+				return;
+			case "clan":
+				OwnershipSetClan(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send("You must specify either character or clan as the ownership target type.");
+				return;
+		}
+	}
+
+	private static void OwnershipSetCharacter(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character should own the item?");
+			return;
+		}
+
+		var target = GetCharacterByIdOrName(actor, ss.PopSpeech());
+		if (target == null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to assign?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		item.SetOwner(target);
+		actor.OutputHandler.Send(
+			$"You set {DescribeFrameworkItem(actor, target)} as the owner of {item.HowSeen(actor)}.");
+	}
+
+	private static void OwnershipSetClan(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which clan should own the item?");
+			return;
+		}
+
+		var clan = GetClanByIdOrName(actor, ss.PopSpeech());
+		if (clan == null)
+		{
+			actor.OutputHandler.Send("There is no such clan.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to assign?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such item here.");
+			return;
+		}
+
+		item.SetOwner(clan);
+		actor.OutputHandler.Send(
+			$"You set {clan.FullName.ColourName()} as the owner of {item.HowSeen(actor)}.");
+	}
+
+	public const string EstateHelp = @"The estate command is used to review probate estates, submit claims, and adjudicate them if you have authority in the relevant economic zone.
+
+The syntax for this command is as follows:
+
+	#3estate list#0 - lists estates you can currently see
+	#3estate show <id>#0 - shows details of a particular estate
+	#3estate claim <id> <amount> <reason>#0 - submits a claim against an estate
+	#3estate approve <estate> <claim> [reason]#0 - approves an estate claim
+	#3estate reject <estate> <claim> <reason>#0 - rejects an estate claim
+	#3estate finalise <id>#0 - finalises an estate immediately";
+
+	[PlayerCommand("Estate", "estate", "estates")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoCombatCommand]
+	[HelpInfo("estate", EstateHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Estate(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				EstateList(actor, ss);
+				return;
+			case "show":
+			case "view":
+				EstateShow(actor, ss);
+				return;
+			case "claim":
+				EstateClaim(actor, ss);
+				return;
+			case "approve":
+				EstateAssess(actor, ss, true);
+				return;
+			case "reject":
+				EstateAssess(actor, ss, false);
+				return;
+			case "finalise":
+			case "finalize":
+				EstateFinalise(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(EstateHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void EstateList(ICharacter actor, StringStack ss)
+	{
+		var estates = actor.Gameworld.Estates.Where(x => CanViewEstate(actor, x)).ToList();
+		if (!estates.Any())
+		{
+			actor.OutputHandler.Send("There are no estates available for you to review.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from estate in estates
+			orderby estate.EstateStatus, estate.EconomicZone.Name, estate.Id
+			select new List<string>
+			{
+				estate.Id.ToString("N0", actor),
+				estate.Character != null
+					? estate.Character.PersonalName.GetName(NameStyle.FullName)
+					: "Unknown",
+				estate.EconomicZone.Name,
+				estate.EstateStatus.DescribeEnum(),
+				estate.Claims.Count().ToString("N0", actor),
+				estate.Assets.Count().ToString("N0", actor),
+				estate.Inheritor == null ? "Zone Default" : DescribeFrameworkItem(actor, estate.Inheritor)
+			},
+			new List<string>
+			{
+				"ID",
+				"Deceased",
+				"Zone",
+				"Status",
+				"Claims",
+				"Assets",
+				"Heir"
+			},
+			actor,
+			Telnet.Yellow));
+	}
+
+	private static void EstateShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate do you want to inspect?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.SafeRemainingArgument);
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!CanViewEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to view that estate.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Estate #{estate.Id.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine(
+			$"Deceased: {(estate.Character != null ? estate.Character.PersonalName.GetName(NameStyle.FullName).ColourName() : "Unknown".ColourError())}");
+		sb.AppendLine($"Economic Zone: {estate.EconomicZone.Name.ColourName()}");
+		sb.AppendLine($"Status: {DescribeEstateStatus(estate.EstateStatus)}");
+		sb.AppendLine($"Inheritor: {(estate.Inheritor == null ? "Zone Default".ColourValue() : DescribeFrameworkItem(actor, estate.Inheritor))}");
+		sb.AppendLine($"Estate Started: {estate.EstateStartTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
+		if (estate.FinalisationDate != null)
+		{
+			sb.AppendLine($"Finalisation Date: {estate.FinalisationDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Assets:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from asset in estate.Assets
+			select new List<string>
+			{
+				asset.Id.ToString("N0", actor),
+				asset.Asset.FrameworkItemType,
+				DescribeFrameworkItem(actor, asset.Asset),
+				asset.IsPresumedOwnership.ToColouredString(),
+				asset.IsTransferred.ToColouredString(),
+				asset.IsLiquidated.ToColouredString(),
+				asset.LiquidatedValue.HasValue
+					? estate.EconomicZone.Currency.Describe(asset.LiquidatedValue.Value, CurrencyDescriptionPatternType.ShortDecimal)
+					: ""
+			},
+			new List<string>
+			{
+				"ID",
+				"Type",
+				"Asset",
+				"Presumed",
+				"Transferred",
+				"Liquidated",
+				"Value"
+			},
+			actor,
+			Telnet.Green));
+
+		sb.AppendLine();
+		sb.AppendLine("Claims:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from claim in estate.Claims
+			orderby claim.IsSecured descending, claim.ClaimDate
+			select new List<string>
+			{
+				claim.Id.ToString("N0", actor),
+				DescribeFrameworkItem(actor, claim.Claimant),
+				estate.EconomicZone.Currency.Describe(claim.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+				claim.Status.DescribeEnum(),
+				claim.IsSecured.ToColouredString(),
+				claim.TargetItem == null ? "" : DescribeFrameworkItem(actor, claim.TargetItem),
+				claim.Reason
+			},
+			new List<string>
+			{
+				"ID",
+				"Claimant",
+				"Amount",
+				"Status",
+				"Secured",
+				"Target",
+				"Reason"
+			},
+			actor,
+			Telnet.Cyan));
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void EstateClaim(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate do you want to make a claim against?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.PopSpeech());
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (estate.EstateStatus != EstateStatus.ClaimPhase)
+		{
+			actor.OutputHandler.Send("That estate is not currently accepting claims.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"How much is your claim? Amounts must be in {estate.EconomicZone.Currency.Name.ColourName()}.");
+			return;
+		}
+
+		if (!estate.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var amount) || amount <= 0.0M)
+		{
+			actor.OutputHandler.Send("That is not a valid positive claim amount.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What is the reason for your claim?");
+			return;
+		}
+
+		var reason = ss.SafeRemainingArgument;
+		estate.AddClaim(new EstateClaim(estate, actor, amount, reason, ClaimStatus.NotAssessed, false));
+		actor.OutputHandler.Send(
+			$"You submit a claim against estate #{estate.Id.ToString("N0", actor)} for {estate.EconomicZone.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+	}
+
+	private static void EstateAssess(ICharacter actor, StringStack ss, bool approve)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which estate contains the claim you want to {(approve ? "approve" : "reject")}?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.PopSpeech());
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to adjudicate claims for that estate.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which claim do you want to {(approve ? "approve" : "reject")}?");
+			return;
+		}
+
+		if (!long.TryParse(ss.PopSpeech(), out var claimId))
+		{
+			actor.OutputHandler.Send("You must specify a numeric claim ID.");
+			return;
+		}
+
+		var claim = estate.Claims.FirstOrDefault(x => x.Id == claimId);
+		if (claim == null)
+		{
+			actor.OutputHandler.Send("That estate has no such claim.");
+			return;
+		}
+
+		claim.Status = approve ? ClaimStatus.Approved : ClaimStatus.Rejected;
+		claim.StatusReason = ss.IsFinished ? null : ss.SafeRemainingArgument;
+		estate.UpdateClaim(claim);
+		actor.OutputHandler.Send(
+			$"You {(approve ? "approve" : "reject")} claim #{claim.Id.ToString("N0", actor)} on estate #{estate.Id.ToString("N0", actor)}.");
+	}
+
+	private static void EstateFinalise(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate do you want to finalise?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.SafeRemainingArgument);
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to finalise that estate.");
+			return;
+		}
+
+		if (estate.EstateStatus == EstateStatus.Finalised || estate.EstateStatus == EstateStatus.Cancelled)
+		{
+			actor.OutputHandler.Send("That estate has already reached a terminal status.");
+			return;
+		}
+
+		estate.Finalise();
+		actor.OutputHandler.Send($"You finalise estate #{estate.Id.ToString("N0", actor)}.");
 	}
 
 	#endregion

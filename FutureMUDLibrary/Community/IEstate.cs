@@ -28,25 +28,44 @@ namespace MudSharp.Community
 		Approved
 	}
 
-	public record EstateClaim
+	public interface IEstateClaim : IFrameworkItem, ISaveable
 	{
-		public ICharacter Claimant { get; init; }
-		public decimal Amount { get; init; }
-		public string Reason { get; init; }
-		public ClaimStatus Status { get; init; }
-		[CanBeNull] public string StatusReason { get; init; }
+		IEstate Estate { get; }
+		IFrameworkItem Claimant { get; }
+		[CanBeNull] IFrameworkItem TargetItem { get; }
+		decimal Amount { get; set; }
+		string Reason { get; set; }
+		ClaimStatus Status { get; set; }
+		[CanBeNull] string StatusReason { get; set; }
+		bool IsSecured { get; }
+		MudDateTime ClaimDate { get; }
+	}
+
+	public interface IEstateAsset : IFrameworkItem, ISaveable
+	{
+		IEstate Estate { get; }
+		IFrameworkItem Asset { get; }
+		bool IsPresumedOwnership { get; }
+		bool IsTransferred { get; set; }
+		bool IsLiquidated { get; set; }
+		decimal? LiquidatedValue { get; set; }
 	}
 
 	public interface IEstate : IFrameworkItem, ISaveable
 	{
 		IEconomicZone EconomicZone { get; }
 		ICharacter Character { get; }
+		[CanBeNull] IFrameworkItem Inheritor { get; }
 		EstateStatus EstateStatus { get; set; }
+		MudDateTime EstateStartTime { get; }
 		[CanBeNull] MudDateTime FinalisationDate { get; set; }
-		IEnumerable<EstateClaim> Claims { get; }
-		void AddClaim(EstateClaim claim);
-		void RemoveClaim(EstateClaim claim);
-		void UpdateClaim(EstateClaim claim);
+		IEnumerable<IEstateClaim> Claims { get; }
+		IEnumerable<IEstateAsset> Assets { get; }
+		void AddClaim(IEstateClaim claim);
+		void RemoveClaim(IEstateClaim claim);
+		void UpdateClaim(IEstateClaim claim);
+		void AddAsset(IEstateAsset asset);
+		void RemoveAsset(IEstateAsset asset);
 		bool CheckStatus();
 		void Finalise();
 	}

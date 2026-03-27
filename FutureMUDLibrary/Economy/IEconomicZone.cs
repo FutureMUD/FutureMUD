@@ -40,6 +40,7 @@ namespace MudSharp.Economy
 		void ReportSalesTaxCollected(IShop shop, decimal amount);
 		IEnumerable<(IFinancialPeriod Period, decimal TotalTaxRevenue)> HistoricalRevenues { get; }
 		FinancialPeriodResult FinancialPeriodResultForShop(IShop shop, IFinancialPeriod period);
+		decimal TotalRevenueHeld { get; set; }
 
 
 		IEnumerable<IEstate> Estates { get; }

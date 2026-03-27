@@ -61,6 +61,16 @@ public class FrameworkItemReference
 					return Gameworld.TryGetCharacter(Id, true);
 				case "GameItem":
 					return Gameworld.TryGetItem(Id);
+				case "Estate":
+					return Gameworld.Estates.Get(Id);
+				case "Bank":
+					return Gameworld.Banks.Get(Id);
+				case "BankAccount":
+					return Gameworld.BankAccounts.Get(Id);
+				case "LineOfCreditAccount":
+					return Gameworld.LineOfCreditAccounts.Get(Id);
+				case "Property":
+					return Gameworld.Properties.Get(Id);
 				case "Shop":
 					return Gameworld.Shops.Get(Id);
 				case "Clan":

@@ -573,6 +573,8 @@ public partial class Character : PerceiverItem, ICharacter
 
 		dbchar.ShortTermPlan = ShortTermPlan;
 		dbchar.LongTermPlan = LongTermPlan;
+		dbchar.EstateHeirId = _estateHeirReference?.Id;
+		dbchar.EstateHeirType = _estateHeirReference?.FrameworkItemType;
 		dbchar.CurrentCombatSettingId = CombatSettings?.Id;
 		dbchar.PreferredDefenseType = (int)PreferredDefenseType;
 
@@ -1582,6 +1584,11 @@ public partial class Character : PerceiverItem, ICharacter
 		NeedsModel = NeedsModelFactory.LoadNeedsModel(character, this);
 		LongTermPlan = character.LongTermPlan;
 		ShortTermPlan = character.ShortTermPlan;
+		if (character.EstateHeirId.HasValue && !string.IsNullOrWhiteSpace(character.EstateHeirType))
+		{
+			_estateHeirReference = new FrameworkItemReference(character.EstateHeirId.Value, character.EstateHeirType,
+				Gameworld);
+		}
 
 		foreach (var knowledge in character.CharacterKnowledges.ToList())
 		{
@@ -2528,6 +2535,30 @@ public partial class Character : PerceiverItem, ICharacter
 		set
 		{
 			_shortTermPlan = value;
+			Changed = true;
+		}
+	}
+
+	private FrameworkItemReference _estateHeirReference;
+	private IFrameworkItem _estateHeir;
+
+	public IFrameworkItem EstateHeir
+	{
+		get
+		{
+			if (_estateHeir == null && _estateHeirReference != null)
+			{
+				_estateHeir = _estateHeirReference.GetItem;
+			}
+
+			return _estateHeir;
+		}
+		set
+		{
+			_estateHeir = value;
+			_estateHeirReference = value == null
+				? null
+				: new FrameworkItemReference(value.Id, value.FrameworkItemType, Gameworld);
 			Changed = true;
 		}
 	}

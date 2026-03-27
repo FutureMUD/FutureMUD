@@ -869,6 +869,83 @@ Finally, you can filter the output of list by a keyword with #3list <keyword>#0.
 		actor.Send(listable.ShowList(actor, ss.SafeRemainingArgument ?? ""));
 	}
 
+	[PlayerCommand("Deals", "deals")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoCombatCommand]
+	[NoHideCommand]
+	[HelpInfo("deals",
+		@"The deals command shows active deals in the current shop.
+
+The syntax for this command is as follows:
+
+	#3deals#0 - shows all active deals in the current shop
+	#3deals <item>#0 - shows the active deals for a specific merchandise item
+	#3deals ~<account> [<item>]#0 - shows deals and eligibility as if using a line of credit account",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Deals(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!shop.IsTrading || (shop as ITransientShop)?.CurrentStall?.IsTrading == false)
+		{
+			actor.OutputHandler.Send("This shop is not currently trading.");
+			return;
+		}
+
+		ILineOfCreditAccount account = null;
+		IMerchandise merch = null;
+		while (!ss.IsFinished)
+		{
+			var arg = ss.PopSpeech();
+			if (arg[0] == '~')
+			{
+				arg = arg.RemoveFirstCharacter();
+				account = shop.LineOfCreditAccounts.FirstOrDefault(x => x.Name.EqualTo(arg));
+				if (account == null)
+				{
+					actor.OutputHandler.Send("There is no such line of credit account associated with this shop.");
+					return;
+				}
+
+				switch (account.IsAuthorisedToUse(actor, 0.0M))
+				{
+					case LineOfCreditAuthorisationFailureReason.None:
+					case LineOfCreditAuthorisationFailureReason.AccountOverbalanced:
+					case LineOfCreditAuthorisationFailureReason.UserOverbalanced:
+						break;
+					case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
+						actor.OutputHandler.Send("You are not an authorised user of that account.");
+						return;
+					case LineOfCreditAuthorisationFailureReason.AccountSuspended:
+						actor.OutputHandler.Send("That account has been suspended.");
+						return;
+					default:
+						actor.OutputHandler.Send("There is a problem with that account.");
+						return;
+				}
+
+				continue;
+			}
+
+			merch = shop.StockedMerchandise.GetFromItemListByKeyword(arg, actor) ??
+			        shop.Merchandises.GetFromItemListByKeywordIncludingNames(arg, actor);
+			if (merch is null)
+			{
+				actor.OutputHandler.Send("There is no such merchandise profile in this shop.");
+				return;
+			}
+		}
+
+		var purchaser = account?.IsAccountOwner(actor) == false
+			? actor.Gameworld.TryGetCharacter(account.AccountOwnerId, true)
+			: actor;
+		shop.ShowDeals(actor, purchaser, merch);
+	}
+
 	[PlayerCommand("Preview", "preview")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
@@ -1419,6 +1496,10 @@ The syntax for this command is as follows:
 			case "merchandise":
 				ShopMerchandise(actor, ss);
 				return;
+			case "deal":
+			case "deals":
+				ShopDeals(actor, ss);
+				return;
 			case "set":
 				ShopSet(actor, ss);
 				return;
@@ -1525,6 +1606,7 @@ The syntax for this command is as follows:
 	#3shop bank <account>#0 - sets the bank account for the shop
 	#3shop bank none#0 - sets this shop to no longer use a bank account
 	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
+	#3shop deals <other args>#0 - edits shop deals. See #3SHOP DEALS HELP#0.
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
 	#3shop reprice <%>#0 - reprices all merchandise by the specified percentage
@@ -1558,6 +1640,7 @@ The syntax for this command is as follows:
 	#3shop bank <account>#0 - sets the bank account for the shop
 	#3shop bank none#0 - sets this shop to no longer use a bank account
 	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
+	#3shop deals <other args>#0 - edits shop deals. See #3SHOP DEALS HELP#0.
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
 	#3shop reprice <%>#0 - reprices all merchandise by the specified percentage
@@ -3990,6 +4073,297 @@ Additionally, you can use the following shop admin subcommands:
 				merch.DefaultMerchandiseForItem.ToColouredString()
 			},
 			new[] { "Id", "Name", "List Description", "Price", "On Display", "In Store", "Default?" },
+			actor.LineFormatLength,
+			truncatableColumnIndex: 1,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode
+		));
+	}
+
+	private static bool CanManageShopDeals(ICharacter actor, IShop shop)
+	{
+		return actor.IsAdministrator() || shop.IsManager(actor) || shop.IsProprietor(actor);
+	}
+
+	private static void ShopDeals(ICharacter actor, StringStack ss)
+	{
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "list":
+				ShopDealsList(actor, ss);
+				return;
+			case "show":
+				ShopDealsShow(actor, ss);
+				return;
+			case "edit":
+				ShopDealsEdit(actor, ss);
+				return;
+			case "new":
+				ShopDealsNew(actor, ss);
+				return;
+			case "delete":
+				ShopDealsDelete(actor, ss);
+				return;
+			case "set":
+				ShopDealsSet(actor, ss);
+				return;
+			case "close":
+				ShopDealsClose(actor);
+				return;
+			default:
+				ShopDealsHelp(actor);
+				return;
+		}
+	}
+
+	private static void ShopDealsClose(ICharacter actor)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		var editing = actor.EffectsOfType<BuilderEditingEffect<IShopDeal>>()
+			.FirstOrDefault(x => x.EditingItem.Shop == shop);
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not editing any shop deals for your current shop.");
+			return;
+		}
+
+		actor.RemoveEffect(editing);
+		actor.OutputHandler.Send("You are no longer editing any shop deals for your current shop.");
+	}
+
+	private const string ShopDealsHelpText = @"You can use the following subcommands for working with shop deals:
+	#1Note: All SHOP DEALS commands must be done from a room within the shop.#0
+
+	#3shop deals list#0 - lists all shop deals
+	#3shop deals show <deal>#0 - shows information about the specified deal
+	#3shop deals edit <deal>#0 - opens a deal for editing
+	#3shop deals edit#0 - shows the currently edited deal
+	#3shop deals new <name>#0 - creates a new deal
+	#3shop deals delete#0 - deletes the currently edited deal
+	#3shop deals close#0 - closes the deal you are editing
+	#3shop deals set name <name>#0 - renames a deal
+	#3shop deals set type sale|volume <quantity>#0 - sets the deal type
+	#3shop deals set target all|merchandise <record>|tag <tag>#0 - sets the target
+	#3shop deals set adjustment <signed %>#0 - sets the signed price change
+	#3shop deals set applies sell|buy|both#0 - sets whether the deal affects buying, selling or both
+	#3shop deals set prog clear|<prog>#0 - sets the shopper eligibility prog
+	#3shop deals set cumulative#0 - toggles whether the deal stacks
+	#3shop deals set expires never|<datetime>#0 - sets an expiry
+	#3shop deals set expiresin <timespan>#0 - sets a relative expiry";
+
+	private static void ShopDealsHelp(ICharacter actor)
+	{
+		actor.OutputHandler.Send(ShopDealsHelpText.SubstituteANSIColour());
+	}
+
+	private static void ShopDealsSet(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!CanManageShopDeals(actor, shop))
+		{
+			actor.OutputHandler.Send("Only managers, proprietors or administrators can edit shop deals.");
+			return;
+		}
+
+		var editing = actor.EffectsOfType<BuilderEditingEffect<IShopDeal>>()
+			.FirstOrDefault(x => x.EditingItem.Shop == shop);
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not currently editing any shop deals for your current shop.");
+			return;
+		}
+
+		editing.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void ShopDealsDelete(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!CanManageShopDeals(actor, shop))
+		{
+			actor.OutputHandler.Send("Only managers, proprietors or administrators can delete shop deals.");
+			return;
+		}
+
+		var editing = actor.EffectsOfType<BuilderEditingEffect<IShopDeal>>()
+			.FirstOrDefault(x => x.EditingItem.Shop == shop);
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not currently editing any shop deals for your current shop.");
+			return;
+		}
+
+		var record = editing.EditingItem;
+		actor.OutputHandler.Send(
+			$"Are you sure that you want to delete the shop deal {record.Name.ColourName()}?\nUse {"accept".ColourCommand()} to proceed or {"decline".ColourCommand()} to change your mind.");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			AcceptAction = text =>
+			{
+				actor.OutputHandler.Send($"You delete the shop deal {record.Name.ColourName()}.");
+				record.Shop.RemoveDeal(record);
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send($"You decide against deleting the shop deal {record.Name.ColourName()}.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send($"You decide against deleting the shop deal {record.Name.ColourName()}.");
+			},
+			DescriptionString = "Deleting a shop deal",
+			Keywords = new List<string> { "deal", "delete" }
+		}), TimeSpan.FromSeconds(120));
+	}
+
+	private static void ShopDealsNew(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!CanManageShopDeals(actor, shop))
+		{
+			actor.OutputHandler.Send("Only managers, proprietors or administrators can create shop deals.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this new shop deal?");
+			return;
+		}
+
+		var deal = new ShopDeal(shop, ss.SafeRemainingArgument);
+		shop.AddDeal(deal);
+		actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IShopDeal>>());
+		actor.AddEffect(new BuilderEditingEffect<IShopDeal>(actor) { EditingItem = deal });
+		actor.OutputHandler.Send($"You create a new shop deal called {deal.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void ShopDealsEdit(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!CanManageShopDeals(actor, shop))
+		{
+			actor.OutputHandler.Send("Only managers, proprietors or administrators can edit shop deals.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			var editing = actor.EffectsOfType<BuilderEditingEffect<IShopDeal>>()
+				.FirstOrDefault(x => x.EditingItem.Shop == shop);
+			if (editing is null)
+			{
+				actor.OutputHandler.Send("Which shop deal would you like to edit?");
+				return;
+			}
+
+			editing.EditingItem.ShowToBuilder(actor);
+			return;
+		}
+
+		var text = ss.PopSpeech();
+		var deal = shop.Deals.GetById(text) ??
+		           shop.Deals.FirstOrDefault(x => x.Name.EqualTo(text));
+		if (deal is null)
+		{
+			actor.OutputHandler.Send("There is no shop deal like that for you to edit.");
+			return;
+		}
+
+		actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IShopDeal>>());
+		actor.AddEffect(new BuilderEditingEffect<IShopDeal>(actor) { EditingItem = deal });
+		actor.OutputHandler.Send($"You are now editing the shop deal {deal.Name.ColourName()}.");
+	}
+
+	private static void ShopDealsShow(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!CanManageShopDeals(actor, shop))
+		{
+			actor.OutputHandler.Send("Only managers, proprietors or administrators can view shop deals.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			var editing = actor.EffectsOfType<BuilderEditingEffect<IShopDeal>>()
+				.FirstOrDefault(x => x.EditingItem.Shop == shop);
+			if (editing is null)
+			{
+				actor.OutputHandler.Send("Which shop deal would you like to view?");
+				return;
+			}
+
+			editing.EditingItem.ShowToBuilder(actor);
+			return;
+		}
+
+		var text = ss.PopSpeech();
+		var deal = shop.Deals.GetById(text) ??
+		           shop.Deals.FirstOrDefault(x => x.Name.EqualTo(text));
+		if (deal is null)
+		{
+			actor.OutputHandler.Send("There is no shop deal like that for you to view.");
+			return;
+		}
+
+		deal.ShowToBuilder(actor);
+	}
+
+	private static void ShopDealsList(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!CanManageShopDeals(actor, shop))
+		{
+			actor.OutputHandler.Send("Only managers, proprietors or administrators can view shop deals.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from deal in shop.Deals
+			orderby deal.Id
+			select new[]
+			{
+				deal.Id.ToString("N0", actor),
+				deal.Name,
+				deal is ShopDeal shopDeal ? shopDeal.DescribeType(actor) : deal.DealType.DescribeEnum().ColourName(),
+				deal is ShopDeal targetDeal ? targetDeal.DescribeTarget(actor) : deal.TargetType.DescribeEnum().ColourName(),
+				ShopDeal.DescribePercentage(deal.PriceAdjustmentPercentage, actor),
+				deal.Applicability.DescribeEnum().ColourName(),
+				deal.IsCumulative.ToColouredString(),
+				deal.Expiry.Date is null
+					? "Never".ColourValue()
+					: deal.Expiry.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()
+			},
+			new[] { "Id", "Name", "Type", "Target", "Adjustment", "Applies", "Stacks", "Expiry" },
 			actor.LineFormatLength,
 			truncatableColumnIndex: 1,
 			colour: Telnet.Green,

@@ -389,6 +389,7 @@ namespace MudSharp.Database
 		public virtual DbSet<ShardsClocks> ShardsClocks { get; set; }
 		public virtual DbSet<ShieldType> ShieldTypes { get; set; }
 		public virtual DbSet<ShopFinancialPeriodResult> ShopFinancialPeriodResults { get; set; }
+		public virtual DbSet<ShopDeal> ShopDeals { get; set; }
 		public virtual DbSet<ShopTransactionRecord> ShopTransactionRecords { get; set; }
 		public virtual DbSet<Shop> Shops { get; set; }
 		public virtual DbSet<Shopper> Shoppers { get; set; }

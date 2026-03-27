@@ -52,6 +52,11 @@ public class ValueAddedTax : SalesTaxBase
 		return merchandise.EffectivePrice * Rate;
 	}
 
+	public override decimal TaxValue(IMerchandise merchandise, ICharacter purchaser, decimal saleValue)
+	{
+		return saleValue * Rate;
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.EconomicZoneTaxes.Find(Id);

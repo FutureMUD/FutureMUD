@@ -37,6 +37,7 @@ namespace MudSharp.Models
         public int IntervalAmount { get; set; }
         public decimal TotalRevenueHeld { get; set; }
         public long? ControllingClanId { get; set; }
+        public long? EstateAuctionHouseId { get; set; }
         public string EstateDefaultDiscoverTime { get; set; }
         public string EstateClaimPeriodLength { get; set; }
 
@@ -45,6 +46,7 @@ namespace MudSharp.Models
         public virtual Calendar ReferenceCalendar { get; set; }
         public virtual Clock ReferenceClock { get; set; }
         public virtual Clan ControllingClan { get; set; }
+        public virtual AuctionHouse EstateAuctionHouse { get; set; }
         public virtual Timezone ReferenceClockNavigation { get; set; }
         public virtual ICollection<EconomicZoneRevenue> EconomicZoneRevenues { get; set; }
         public virtual ICollection<EconomicZoneShopTax> EconomicZoneShopTaxes { get; set; }

@@ -123,7 +123,7 @@ public partial class Character
 			Location.Insert(corpse);
 		}
 
-		Estate.CreateEstatesForCharacterDeath(this).ToList();
+		MudSharp.Economy.Estates.Estate.CreateEstatesForCharacterDeath(this).ToList();
 
 		Location.Leave(this);
 

@@ -28,6 +28,7 @@ namespace MudSharp.Economy.Property
 		IEnumerable<ICell> PropertyLocations { get; }
 		string DetailedDescription { get; }
 		MudDateTime LastChangeOfOwnership { get; }
+		decimal LastSaleValue { get; set; }
 		[CanBeNull] IPropertySaleOrder SaleOrder { get; set; }
 		[CanBeNull] IPropertyLeaseOrder LeaseOrder { get; set; }
 		[CanBeNull] IPropertyLease Lease { get; set; }

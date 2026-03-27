@@ -18,6 +18,7 @@ namespace MudSharp.Community
 		Cancelled,
 		Undiscovered,
 		ClaimPhase,
+		Liquidating,
 		Finalised
 	}
 
@@ -67,6 +68,10 @@ namespace MudSharp.Community
 		void AddAsset(IEstateAsset asset);
 		void RemoveAsset(IEstateAsset asset);
 		bool CheckStatus();
+		bool StartLiquidation();
+		bool TryCreateAuctionListing(IAuctionHouse auctionHouse, IEstateAsset asset, decimal reservePrice, decimal? buyoutPrice);
+		void RecordAuctionCompletion(AuctionItem item, [CanBeNull] AuctionBid winningBid);
+		bool HasPendingLiquidationLots { get; }
 		void Finalise();
 	}
 }

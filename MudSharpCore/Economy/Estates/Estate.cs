@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Economy.Banking;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -250,6 +251,24 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		{
 			if (EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime >= FinalisationDate)
 			{
+				if (Claims.Any(x => x.Status == ClaimStatus.Approved))
+				{
+					StartLiquidation();
+				}
+				else
+				{
+					Finalise();
+				}
+				return true;
+			}
+
+			return false;
+		}
+
+		if (EstateStatus == EstateStatus.Liquidating)
+		{
+			if (CanFinaliseLiquidation())
+			{
 				Finalise();
 				return true;
 			}
@@ -271,6 +290,130 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		return false;
 	}
 
+	public bool StartLiquidation()
+	{
+		EstateStatus = EstateStatus.Liquidating;
+		FinalisationDate = null;
+		Changed = true;
+
+		foreach (var asset in Assets.Where(x => !x.IsTransferred).ToList())
+		{
+			switch (asset.Asset)
+			{
+				case IBankAccount account:
+				{
+					var value = Math.Max(0.0M, account.CurrentBalance);
+					if (value > 0.0M)
+					{
+						account.WithdrawFromTransaction(value, $"Estate liquidation for character {Character.Id}");
+						account.Bank.CurrencyReserves[account.Currency] -= value;
+						account.Bank.Changed = true;
+					}
+
+					account.SetStatus(BankAccountStatus.Closed);
+					asset.IsLiquidated = true;
+					asset.LiquidatedValue = value;
+					break;
+				}
+				case IGameItem item:
+					item.SetOwner(this);
+					break;
+				case IProperty property:
+					if (!property.PropertyOwners.Any(x => x.Owner == this))
+					{
+						property.SellProperty(this);
+					}
+
+					break;
+			}
+		}
+
+		var auctionHouse = EconomicZone.EstateAuctionHouse;
+		if (auctionHouse == null)
+		{
+			return false;
+		}
+
+		foreach (var asset in Assets.Where(AssetNeedsAuctionListing).ToList())
+		{
+			TryCreateAuctionListing(auctionHouse, asset, DefaultReservePrice(asset), null);
+		}
+
+		return true;
+	}
+
+	public bool TryCreateAuctionListing(IAuctionHouse auctionHouse, IEstateAsset asset, decimal reservePrice,
+		decimal? buyoutPrice)
+	{
+		if (EstateStatus != EstateStatus.Liquidating || auctionHouse == null || reservePrice <= 0.0M)
+		{
+			return false;
+		}
+
+		if (auctionHouse.EconomicZone != EconomicZone || !CanCreateAuctionListing(asset, auctionHouse))
+		{
+			return false;
+		}
+
+		switch (asset.Asset)
+		{
+			case IGameItem item:
+				item.SetOwner(this);
+				item.ContainedIn?.Take(item);
+				item.InInventoryOf?.Take(item);
+				item.Location?.Extract(item);
+				break;
+			case IProperty property:
+				if (!property.PropertyOwners.Any(x => x.Owner == this))
+				{
+					property.SellProperty(this);
+				}
+
+				break;
+			default:
+				return false;
+		}
+
+		auctionHouse.AddAuctionItem(new AuctionItem
+		{
+			Asset = asset.Asset,
+			Seller = this,
+			PayoutTarget = this,
+			ListingDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
+			FinishingDateTime =
+				new MudDateTime(auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) +
+				auctionHouse.DefaultListingTime,
+			MinimumPrice = reservePrice,
+			BuyoutPrice = buyoutPrice > reservePrice ? buyoutPrice : null
+		});
+		return true;
+	}
+
+	public void RecordAuctionCompletion(AuctionItem item, AuctionBid winningBid)
+	{
+		var asset = FindAsset(item.Asset);
+		if (asset == null)
+		{
+			return;
+		}
+
+		if (winningBid != null)
+		{
+			asset.IsLiquidated = true;
+			asset.LiquidatedValue = winningBid.Bid;
+			return;
+		}
+
+		asset.IsLiquidated = false;
+		asset.LiquidatedValue = null;
+	}
+
+	public bool HasPendingLiquidationLots =>
+		(EconomicZone.EstateAuctionHouse != null &&
+		 EconomicZone.EstateAuctionHouse.ActiveAuctionItems.Any(x => x.IsSeller(this))) ||
+		(EconomicZone.EstateAuctionHouse != null &&
+		 EconomicZone.EstateAuctionHouse.UnclaimedItems.Any(x => x.AuctionItem.IsSeller(this)));
+
 	public void Finalise()
 	{
 		var inheritor = ResolveInheritor();
@@ -284,15 +427,22 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		}
 		else
 		{
+			if (EstateStatus != EstateStatus.Liquidating)
+			{
+				if (!StartLiquidation())
+				{
+					return;
+				}
+			}
+
+			if (!CanFinaliseLiquidation())
+			{
+				return;
+			}
+
 			var distributableCash = Assets.OfType<EstateAsset>()
 				.Where(x => x.IsLiquidated && x.LiquidatedValue.HasValue)
 				.Sum(x => x.LiquidatedValue.Value);
-
-			distributableCash += Assets
-				.Select(x => x.Asset)
-				.OfType<IBankAccount>()
-				.Where(x => x.CurrentBalance > 0.0M)
-				.Sum(x => x.CurrentBalance);
 
 			var paidClaims = 0.0M;
 			foreach (var claim in approvedClaims
@@ -337,6 +487,83 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 	private IFrameworkItem ResolveInheritor()
 	{
 		return Inheritor ?? EconomicZone.ControllingClan;
+	}
+
+	private IEstateAsset FindAsset(IFrameworkItem item)
+	{
+		return Assets.FirstOrDefault(x => x.Asset.FrameworkItemEquals(item.Id, item.FrameworkItemType));
+	}
+
+	private bool AssetNeedsAuctionListing(IEstateAsset asset)
+	{
+		if (asset.IsTransferred || asset.IsLiquidated)
+		{
+			return false;
+		}
+
+		if (asset.Asset is not IGameItem && asset.Asset is not IProperty)
+		{
+			return false;
+		}
+
+		var auctionHouse = EconomicZone.EstateAuctionHouse;
+		if (auctionHouse == null)
+		{
+			return true;
+		}
+
+		return !auctionHouse.ActiveAuctionItems.Any(x =>
+			       x.IsSeller(this) &&
+			       x.Asset.FrameworkItemEquals(asset.Asset.Id, asset.Asset.FrameworkItemType)) &&
+		       !auctionHouse.UnclaimedItems.Any(x =>
+			       x.AuctionItem.IsSeller(this) &&
+			       x.AuctionItem.Asset.FrameworkItemEquals(asset.Asset.Id, asset.Asset.FrameworkItemType)) &&
+		       !auctionHouse.AuctionResults.Any(x =>
+			       x.SellerId == Id &&
+			       x.SellerType.EqualTo(FrameworkItemType) &&
+			       x.AssetId == asset.Asset.Id &&
+			       x.AssetType.EqualTo(asset.Asset.FrameworkItemType));
+	}
+
+	private bool CanCreateAuctionListing(IEstateAsset asset, IAuctionHouse auctionHouse)
+	{
+		if (asset.IsTransferred || asset.IsLiquidated)
+		{
+			return false;
+		}
+
+		if (asset.Asset is not IGameItem && asset.Asset is not IProperty)
+		{
+			return false;
+		}
+
+		return !auctionHouse.ActiveAuctionItems.Any(x =>
+			       x.IsSeller(this) &&
+			       x.Asset.FrameworkItemEquals(asset.Asset.Id, asset.Asset.FrameworkItemType)) &&
+		       !auctionHouse.UnclaimedItems.Any(x =>
+			       x.AuctionItem.IsSeller(this) &&
+			       x.AuctionItem.Asset.FrameworkItemEquals(asset.Asset.Id, asset.Asset.FrameworkItemType));
+	}
+
+	private bool CanFinaliseLiquidation()
+	{
+		if (HasPendingLiquidationLots)
+		{
+			return false;
+		}
+
+		return !Assets.Any(AssetNeedsAuctionListing);
+	}
+
+	private decimal DefaultReservePrice(IEstateAsset asset)
+	{
+		return asset.Asset switch
+		{
+			IProperty property => property.LastSaleValue,
+			IGameItem item => item.Prototype.CostInBaseCurrency /
+			                  EconomicZone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
+			_ => 0.0M
+		};
 	}
 
 	private void TransferAsset(IEstateAsset asset, IFrameworkItem inheritor)

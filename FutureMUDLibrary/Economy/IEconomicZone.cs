@@ -48,6 +48,7 @@ namespace MudSharp.Economy
 		void RemoveEstate(IEstate estate);
 		MudTimeSpan EstateDefaultDiscoverTime { get; }
 		MudTimeSpan EstateClaimPeriodLength { get; }
+		IAuctionHouse EstateAuctionHouse { get; }
 
 		IEnumerable<ICell> ConveyancingCells { get; }
 		IEnumerable<ICell> JobFindingCells { get; }

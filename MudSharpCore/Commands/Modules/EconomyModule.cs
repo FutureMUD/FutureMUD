@@ -130,6 +130,13 @@ internal class EconomyModule : Module<ICharacter>
 			: null;
 	}
 
+	private static IEstateAsset GetEstateAssetById(IEstate estate, string text)
+	{
+		return long.TryParse(text, out var value)
+			? estate.Assets.FirstOrDefault(x => x.Id == value)
+			: null;
+	}
+
 	private static IClan GetClanByIdOrName(ICharacter actor, string text)
 	{
 		if (long.TryParse(text, out var value))
@@ -171,6 +178,97 @@ internal class EconomyModule : Module<ICharacter>
 	private static string DescribeEstateStatus(EstateStatus status)
 	{
 		return status.DescribeEnum().ColourValue();
+	}
+
+	private static string DescribeAuctionLot(ICharacter actor, AuctionItem item)
+	{
+		return item.Asset switch
+		{
+			IGameItem gameItem => gameItem.HowSeen(actor,
+				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+			IProperty property => property.Name.ColourName(),
+			_ => item.Asset.Name.ColourName()
+		};
+	}
+
+	private static bool CanManageAuctionLot(ICharacter actor, AuctionItem item)
+	{
+		if (actor.IsAdministrator())
+		{
+			return true;
+		}
+
+		if (item.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType))
+		{
+			return true;
+		}
+
+		return item.Seller is IEstate estate && CanManageEstate(actor, estate);
+	}
+
+	private static IEnumerable<AuctionItem> ActiveEstateAuctionLots(IEstate estate)
+	{
+		return estate.EconomicZone.EstateAuctionHouse?.ActiveAuctionItems.Where(x => x.IsSeller(estate)) ??
+		       Enumerable.Empty<AuctionItem>();
+	}
+
+	private static IEnumerable<UnclaimedAuctionItem> UnclaimedEstateAuctionLots(IEstate estate)
+	{
+		return estate.EconomicZone.EstateAuctionHouse?.UnclaimedItems.Where(x => x.AuctionItem.IsSeller(estate)) ??
+		       Enumerable.Empty<UnclaimedAuctionItem>();
+	}
+
+	private static IEnumerable<AuctionResult> EstateAuctionResults(IEstate estate)
+	{
+		return estate.EconomicZone.EstateAuctionHouse?.AuctionResults.Where(x =>
+			       x.SellerId == estate.Id &&
+			       x.SellerType.EqualTo(estate.FrameworkItemType)) ??
+		       Enumerable.Empty<AuctionResult>();
+	}
+
+	private static decimal DefaultEstateReservePrice(IEstate estate, IEstateAsset asset)
+	{
+		return asset.Asset switch
+		{
+			IProperty property => property.LastSaleValue,
+			IGameItem item => item.Prototype.CostInBaseCurrency /
+			                  estate.EconomicZone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
+			_ => 0.0M
+		};
+	}
+
+	private static bool TryGetEstateAuctionPrices(ICharacter actor, IEstate estate, IEstateAsset asset, StringStack ss,
+		out decimal reservePrice, out decimal? buyoutPrice)
+	{
+		reservePrice = DefaultEstateReservePrice(estate, asset);
+		buyoutPrice = null;
+		if (ss.IsFinished)
+		{
+			return reservePrice > 0.0M;
+		}
+
+		if (!estate.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out reservePrice) || reservePrice <= 0.0M)
+		{
+			actor.OutputHandler.Send(
+				$"You must specify a positive reserve price in {estate.EconomicZone.Currency.Name.ColourName()}.");
+			return false;
+		}
+
+		if (ss.IsFinished)
+		{
+			return true;
+		}
+
+		if (!estate.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var parsedBuyout) ||
+		    parsedBuyout <= reservePrice)
+		{
+			actor.OutputHandler.Send(
+				$"You must specify a buyout price in {estate.EconomicZone.Currency.Name.ColourName()} that is higher than the reserve price.");
+			return false;
+		}
+
+		buyoutPrice = parsedBuyout;
+		return true;
 	}
 
 	[PlayerCommand("Count", "count")]
@@ -5044,13 +5142,13 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
 The syntax for using this command is as follows:
 
-	#3auction preview <item>#0 - view an item currently being auctioned
+	#3auction preview <lot>#0 - view an auction lot currently being auctioned
 	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
-	#3auction bid <item> <bid>#0 - makes a bid on an item
-	#3auction buyout <item>#0 - pays the buyout price on an item
-	#3auction claim#0 - claims all items won or not sold
+	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
+	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
+	#3auction claim#0 - claims all movable items won or not sold
 	#3auction refund#0 - claims all money owed for unsuccessful bids
-	#3auction cancel <item>#0 - cancels an item up for auction";
+	#3auction cancel <lot>#0 - cancels an auction lot";
 
 	public const string AuctionHelpAdmins = @"This command is used to create and edit auction houses.
 
@@ -5068,19 +5166,18 @@ The syntax for using this command is as follows:
 	#3auction set bank <bank code>:<accn>#0 - changes the bank account for revenues
 	#3auction set time <time period>#0 - sets the amount of time auctions run for
 	#3auction set location#0 - changes the location of the auction house to the current cell
-	#3auction claimfor <id>#0 - claims all items for a specific character ID
 
 There is also the player version of the command, which is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
 
 The syntax for using this command is as follows:
 
-	#3auction preview <item>#0 - view an item currently being auctioned
+	#3auction preview <lot>#0 - view an auction lot currently being auctioned
 	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
-	#3auction bid <item> <bid>#0 - makes a bid on an item
-	#3auction buyout <item>#0 - pays the buyout price on an item
-	#3auction claim#0 - claims all items won or not sold
+	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
+	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
+	#3auction claim#0 - claims all movable items won or not sold
 	#3auction refund#0 - claims all money owed for unsuccessful bids
-	#3auction cancel <item>#0 - cancels an item up for auction
+	#3auction cancel <lot>#0 - cancels an auction lot
 
 Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
@@ -5158,45 +5255,48 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
 		if (!actor.IsAdministrator())
 		{
-			if (item.ListingCharacterId != actor.Id)
+			if (!CanManageAuctionLot(actor, item))
 			{
 				actor.OutputHandler.Send(
-					$"You were not the one who listed {item.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)}, so you cannot cancel its sale.");
+					$"You are not authorised to cancel the sale of {DescribeAuctionLot(actor, item)}.");
 				return;
 			}
 
 			if (auctionHouse.AuctionBids[item].Count > 0)
 			{
 				actor.OutputHandler.Send(
-					$"Unfortunately you cannot cancel the sale of {item.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} as there have already been bids placed.");
+					$"Unfortunately you cannot cancel the sale of {DescribeAuctionLot(actor, item)} as there have already been bids placed.");
 				return;
 			}
 		}
 
 		auctionHouse.CancelItem(item);
+		actor.OutputHandler.Send(
+			$"You cancel the auction of {DescribeAuctionLot(actor, item)} with {auctionHouse.Name.ColourName()}.");
+		if (item.Item == null)
+		{
+			return;
+		}
+
 		var gameitem = item.Item;
 		gameitem.Login();
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
-			$"@ cancel|cancels the auction of $1 with {auctionHouse.Name.ColourName()}.", actor, actor, gameitem)));
-		if (actor.Body.CanGet(gameitem, 0))
+		if (item.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType) && actor.Body.CanGet(gameitem, 0))
 		{
 			actor.Body.Get(gameitem, silent: true);
+			return;
 		}
-		else
-		{
-			gameitem.RoomLayer = actor.RoomLayer;
-			actor.Location.Insert(gameitem);
-			gameitem.SetPosition(PositionUndefined.Instance, PositionModifier.Before, actor, null);
-			actor.OutputHandler.Send(
-				$"You were unable to pick up {gameitem.HowSeen(actor)}, so it is on the ground at your feet.");
-		}
+
+		gameitem.RoomLayer = actor.RoomLayer;
+		auctionHouse.AuctionHouseCell.Insert(gameitem);
 	}
 
 	private static void AuctionClaim(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
 	{
 		var unclaimed = auctionHouse.UnclaimedItems.Where(x =>
-										x.WinningBid?.Bidder == actor || (x.WinningBid == null &&
-																		  x.AuctionItem.ListingCharacterId == actor.Id))
+										x.AuctionItem.Item != null &&
+										(x.WinningBid?.Bidder == actor ||
+										 (x.WinningBid == null &&
+										  x.AuctionItem.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType))))
 									.ToList();
 		if (!unclaimed.Any())
 		{
@@ -5209,14 +5309,13 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			auctionHouse.ClaimItem(item.AuctionItem);
 		}
 
-		var items = unclaimed.Select(x => x.AuctionItem.Item).ToList();
 		foreach (var item in unclaimed)
 		{
-			item.AuctionItem.Item.Login();
+			item.AuctionItem.Item!.Login();
 			item.AuctionItem.Item.SetOwner(item.WinningBid?.Bidder ?? actor);
 		}
 
-		var items = unclaimed.Select(x => x.AuctionItem.Item).ToList();
+		var items = unclaimed.Select(x => x.AuctionItem.Item!).ToList();
 
 		IGameItem givenItem = null;
 		if (items.Count > 1)
@@ -5363,15 +5462,15 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 				item.Drop(null);
 				auctionHouse.AddAuctionItem(new AuctionItem
 				{
-					BankAccount = accountTarget,
+					Asset = item,
+					Seller = actor,
+					PayoutTarget = accountTarget,
 					ListingDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
 					FinishingDateTime =
 						new MudDateTime(auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) +
 						auctionHouse.DefaultListingTime,
-					Item = item,
 					MinimumPrice = price,
-					BuyoutPrice = buyout > 0.0M ? buyout : null,
-					ListingCharacterId = actor.Id
+					BuyoutPrice = buyout > 0.0M ? buyout : null
 				});
 			},
 			RejectAction = text =>
@@ -5404,7 +5503,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		if (!item.BuyoutPrice.HasValue)
 		{
 			actor.OutputHandler.Send(
-				$"{item.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} does not have a buyout price.");
+				$"{DescribeAuctionLot(actor, item)} does not have a buyout price.");
 			return;
 		}
 
@@ -5449,9 +5548,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		});
 		var moneyDescription = currency.Describe(amount, CurrencyDescriptionPatternType.Short)
 									   .ColourValue();
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
-			$"@ pay|pays out the buyout price of $2 on $1 at {auctionHouse.Name.ColourName()}.", actor, actor,
-			item.Item, new DummyPerceivable(moneyDescription))));
+		actor.OutputHandler.Send(
+			$"You pay the buyout price of {moneyDescription} on {DescribeAuctionLot(actor, item)} at {auctionHouse.Name.ColourName()}.");
 
 		if (change > 0.0M)
 		{
@@ -5473,7 +5571,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
 	private static void AuctionRefund(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
 	{
-		var owed = auctionHouse.CharacterRefundsOwed[actor.Id];
+		var owed = auctionHouse.BidderRefundsOwed[actor.Id];
 		if (owed <= 0.0M)
 		{
 			actor.OutputHandler.Send($"{auctionHouse.Name.ColourName()} does not owe you any refunds.");
@@ -5526,7 +5624,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What bid do you want to make on {item.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreCanSee)}.");
+				$"What bid do you want to make on {DescribeAuctionLot(actor, item)}.");
 			return;
 		}
 
@@ -5543,7 +5641,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		if (amount <= nextBidMinimum)
 		{
 			actor.OutputHandler.Send(
-				$"Your bid for {item.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} must be higher than {currency.Describe(nextBidMinimum, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+				$"Your bid for {DescribeAuctionLot(actor, item)} must be higher than {currency.Describe(nextBidMinimum, CurrencyDescriptionPatternType.Short).ColourValue()}.");
 			return;
 		}
 
@@ -5587,9 +5685,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
 		var moneyDescription = currency.Describe(amount, CurrencyDescriptionPatternType.Short)
 									   .ColourValue();
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
-			$"@ bid|bids $2 on $1 at {auctionHouse.Name.ColourName()}.", actor, actor, item.Item,
-			new DummyPerceivable(moneyDescription))));
+		actor.OutputHandler.Send(
+			$"You bid {moneyDescription} on {DescribeAuctionLot(actor, item)} at {auctionHouse.Name.ColourName()}.");
 
 		if (change > 0.0M)
 		{
@@ -5625,11 +5722,17 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"Previewing {item.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreCanSee)}");
+		sb.AppendLine($"Previewing {DescribeAuctionLot(actor, item)}");
 		sb.AppendLine();
-		sb.AppendLine(item.Item.HowSeen(actor, type: DescriptionType.Full,
-			flags: PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreCanSee));
+		if (item.Asset is IGameItem gameItem)
+		{
+			sb.AppendLine(gameItem.HowSeen(actor, type: DescriptionType.Full,
+				flags: PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreCanSee));
+		}
+		else if (item.Asset is IProperty property)
+		{
+			sb.AppendLine(property.PreviewProperty(actor));
+		}
 		sb.AppendLine();
 		sb.AppendLine(
 			$"Current Price: {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.CurrentBid(item).IfZero(item.MinimumPrice), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
@@ -5666,8 +5769,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		{
 			var cmd = ss.PopSpeech();
 			listings = listings.Where(x =>
-				x.Item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreCanSee)
-				 .Contains(cmd, StringComparison.InvariantCultureIgnoreCase)).ToList();
+				x.Asset.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase)).ToList();
 			if (listings.Count == 0)
 			{
 				actor.OutputHandler.Send($"There are no auction listings with the keyword {cmd.ColourCommand()}.");
@@ -5677,14 +5779,14 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
 		var psb = new StringBuilder();
 
-		if (auctionHouse.CharacterRefundsOwed[actor.Id] > 0)
+		if (auctionHouse.BidderRefundsOwed[actor.Id] > 0)
 		{
 			psb.AppendLine(
-				$"\nThe auction house owes you {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.CharacterRefundsOwed[actor.Id], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in refunds.\nType {"AUCTION REFUND".MXPSend("auction refund", "Click to send AUCTION REFUND to the MUD")} to claim your money.");
+				$"\nThe auction house owes you {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.BidderRefundsOwed[actor.Id], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in refunds.\nType {"AUCTION REFUND".MXPSend("auction refund", "Click to send AUCTION REFUND to the MUD")} to claim your money.");
 		}
 
 		var unclaimed = auctionHouse.UnclaimedItems.Where(x =>
-										(x.AuctionItem.ListingCharacterId == actor.Id && x.WinningBid == null) ||
+										(x.AuctionItem.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType) && x.WinningBid == null) ||
 										x.WinningBid?.BidderId == actor.Id
 									)
 									.ToList();
@@ -5712,8 +5814,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			select new List<string>
 			{
 				(i++).ToString("N0", actor),
-				listing.Item.HowSeen(actor,
-					flags: PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreCanSee),
+				DescribeAuctionLot(actor, listing),
 				auctionHouse.AuctionBids[listing].Count.ToString("N0", actor),
 				auctionHouse.EconomicZone.Currency.Describe(
 					auctionHouse.AuctionBids[listing].Select(x => x.Bid).DefaultIfEmpty(listing.MinimumPrice).Max(),
@@ -6073,7 +6174,7 @@ The syntax for this command is as follows:
 			$"You set {clan.FullName.ColourName()} as the owner of {item.HowSeen(actor)}.");
 	}
 
-	public const string EstateHelp = @"The estate command is used to review probate estates, submit claims, and adjudicate them if you have authority in the relevant economic zone.
+public const string EstateHelp = @"The estate command is used to review probate estates, submit claims, and adjudicate them if you have authority in the relevant economic zone.
 
 The syntax for this command is as follows:
 
@@ -6082,6 +6183,8 @@ The syntax for this command is as follows:
 	#3estate claim <id> <amount> <reason>#0 - submits a claim against an estate
 	#3estate approve <estate> <claim> [reason]#0 - approves an estate claim
 	#3estate reject <estate> <claim> <reason>#0 - rejects an estate claim
+	#3estate listasset <estate> <asset> [<reserve>] [<buyout>]#0 - manually lists an estate asset on the zone probate auction house
+	#3estate relist <estate> <asset> [<reserve>] [<buyout>]#0 - relists an unsold estate asset
 	#3estate finalise <id>#0 - finalises an estate immediately";
 
 	[PlayerCommand("Estate", "estate", "estates")]
@@ -6108,6 +6211,13 @@ The syntax for this command is as follows:
 				return;
 			case "reject":
 				EstateAssess(actor, ss, false);
+				return;
+			case "listasset":
+			case "auction":
+				EstateAuctionAsset(actor, ss, false);
+				return;
+			case "relist":
+				EstateAuctionAsset(actor, ss, true);
 				return;
 			case "finalise":
 			case "finalize":
@@ -6179,16 +6289,37 @@ The syntax for this command is as follows:
 		}
 
 		var sb = new StringBuilder();
+		var auctionHouse = estate.EconomicZone.EstateAuctionHouse;
+		var activeLots = ActiveEstateAuctionLots(estate).ToList();
+		var unclaimedLots = UnclaimedEstateAuctionLots(estate).ToList();
+		var auctionResults = EstateAuctionResults(estate)
+			.OrderByDescending(x => x.ResultDateTime)
+			.ToList();
 		sb.AppendLine($"Estate #{estate.Id.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
 		sb.AppendLine(
 			$"Deceased: {(estate.Character != null ? estate.Character.PersonalName.GetName(NameStyle.FullName).ColourName() : "Unknown".ColourError())}");
 		sb.AppendLine($"Economic Zone: {estate.EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Status: {DescribeEstateStatus(estate.EstateStatus)}");
 		sb.AppendLine($"Inheritor: {(estate.Inheritor == null ? "Zone Default".ColourValue() : DescribeFrameworkItem(actor, estate.Inheritor))}");
+		sb.AppendLine($"Estate Auction House: {(auctionHouse == null ? "None Configured".ColourError() : auctionHouse.Name.ColourName())}");
 		sb.AppendLine($"Estate Started: {estate.EstateStartTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
 		if (estate.FinalisationDate != null)
 		{
 			sb.AppendLine($"Finalisation Date: {estate.FinalisationDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
+		}
+
+		if (estate.EstateStatus == EstateStatus.Liquidating)
+		{
+			if (auctionHouse == null)
+			{
+				sb.AppendLine("Liquidation Error: No probate auction house is configured for this estate's economic zone."
+					.ColourError());
+			}
+			else
+			{
+				sb.AppendLine(
+					$"Liquidation Progress: {activeLots.Count.ToString("N0", actor).ColourValue()} active lots, {unclaimedLots.Count.ToString("N0", actor).ColourValue()} unclaimed lots, {auctionResults.Count.ToString("N0", actor).ColourValue()} completed results.");
+			}
 		}
 
 		sb.AppendLine();
@@ -6220,6 +6351,66 @@ The syntax for this command is as follows:
 			actor,
 			Telnet.Green));
 
+		if (activeLots.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Active Liquidation Lots:");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from lot in activeLots
+				select new List<string>
+				{
+					lot.Asset.Id.ToString("N0", actor),
+					lot.LotType.DescribeEnum(),
+					DescribeAuctionLot(actor, lot),
+					estate.EconomicZone.Currency.Describe(lot.MinimumPrice, CurrencyDescriptionPatternType.ShortDecimal),
+					lot.BuyoutPrice.HasValue
+						? estate.EconomicZone.Currency.Describe(lot.BuyoutPrice.Value,
+							CurrencyDescriptionPatternType.ShortDecimal)
+						: "",
+					auctionHouse.AuctionBids[lot].Count.ToString("N0", actor),
+					lot.FinishingDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short)
+				},
+				new List<string>
+				{
+					"Asset",
+					"Type",
+					"Lot",
+					"Reserve",
+					"Buyout",
+					"Bids",
+					"Ends"
+				},
+				actor,
+				Telnet.Magenta));
+		}
+
+		if (unclaimedLots.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Unclaimed Liquidation Lots:");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from lot in unclaimedLots
+				select new List<string>
+				{
+					lot.AuctionItem.Asset.Id.ToString("N0", actor),
+					lot.AuctionItem.LotType.DescribeEnum(),
+					DescribeAuctionLot(actor, lot.AuctionItem),
+					lot.WinningBid == null
+						? "Unsold".ColourError()
+						: estate.EconomicZone.Currency.Describe(lot.WinningBid.Bid,
+							CurrencyDescriptionPatternType.ShortDecimal)
+				},
+				new List<string>
+				{
+					"Asset",
+					"Type",
+					"Lot",
+					"Outcome"
+				},
+				actor,
+				Telnet.Red));
+		}
+
 		sb.AppendLine();
 		sb.AppendLine("Claims:");
 		sb.AppendLine(StringUtilities.GetTextTable(
@@ -6247,6 +6438,37 @@ The syntax for this command is as follows:
 			},
 			actor,
 			Telnet.Cyan));
+
+		if (auctionResults.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Liquidation Results:");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from result in auctionResults
+				select new List<string>
+				{
+					result.AssetId.ToString("N0", actor),
+					result.AssetType,
+					result.AssetDescription,
+					result.Sold.ToColouredString(),
+					estate.EconomicZone.Currency.Describe(result.SalePrice,
+						CurrencyDescriptionPatternType.ShortDecimal),
+					result.ResultDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+					result.PaidOutAtTime.ToColouredString()
+				},
+				new List<string>
+				{
+					"Asset",
+					"Type",
+					"Description",
+					"Sold",
+					"Price",
+					"Date",
+					"Paid"
+				},
+				actor,
+				Telnet.Yellow));
+		}
 
 		actor.OutputHandler.Send(sb.ToString());
 	}
@@ -6344,6 +6566,110 @@ The syntax for this command is as follows:
 			$"You {(approve ? "approve" : "reject")} claim #{claim.Id.ToString("N0", actor)} on estate #{estate.Id.ToString("N0", actor)}.");
 	}
 
+	private static void EstateAuctionAsset(ICharacter actor, StringStack ss, bool relist)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which estate do you want to {(relist ? "relist an asset from" : "list an asset from")}?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.PopSpeech());
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to manage liquidation for that estate.");
+			return;
+		}
+
+		if (estate.EstateStatus != EstateStatus.Liquidating)
+		{
+			actor.OutputHandler.Send("That estate is not currently in the liquidation phase.");
+			return;
+		}
+
+		var auctionHouse = estate.EconomicZone.EstateAuctionHouse;
+		if (auctionHouse == null)
+		{
+			actor.OutputHandler.Send(
+				$"{estate.EconomicZone.Name.ColourName()} does not have a probate auction house configured.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate asset do you want to list?");
+			return;
+		}
+
+		var asset = GetEstateAssetById(estate, ss.PopSpeech());
+		if (asset == null)
+		{
+			actor.OutputHandler.Send("That estate has no such asset.");
+			return;
+		}
+
+		if (asset.Asset is not IGameItem && asset.Asset is not IProperty)
+		{
+			actor.OutputHandler.Send("Only items and properties can be listed on an auction house.");
+			return;
+		}
+
+		if (asset.IsTransferred || asset.IsLiquidated)
+		{
+			actor.OutputHandler.Send("That asset has already been transferred or liquidated.");
+			return;
+		}
+
+		var hasActiveListing = ActiveEstateAuctionLots(estate).Any(x =>
+			x.Asset.FrameworkItemEquals(asset.Asset.Id, asset.Asset.FrameworkItemType)) ||
+		                       UnclaimedEstateAuctionLots(estate).Any(x =>
+			                       x.AuctionItem.Asset.FrameworkItemEquals(asset.Asset.Id,
+				                       asset.Asset.FrameworkItemType));
+		if (hasActiveListing)
+		{
+			actor.OutputHandler.Send("That asset is already tied up in an active or unclaimed liquidation lot.");
+			return;
+		}
+
+		if (relist)
+		{
+			var priorUnsoldResult = EstateAuctionResults(estate).Any(x =>
+				x.AssetId == asset.Asset.Id &&
+				x.AssetType.EqualTo(asset.Asset.FrameworkItemType) &&
+				!x.Sold);
+			if (!priorUnsoldResult)
+			{
+				actor.OutputHandler.Send("That asset does not have a prior unsold liquidation result to relist.");
+				return;
+			}
+		}
+
+		if (!TryGetEstateAuctionPrices(actor, estate, asset, ss, out var reservePrice, out var buyoutPrice))
+		{
+			if (ss.IsFinished && reservePrice <= 0.0M)
+			{
+				actor.OutputHandler.Send("That asset does not have a suitable default reserve price; specify one explicitly.");
+			}
+
+			return;
+		}
+
+		if (!estate.TryCreateAuctionListing(auctionHouse, asset, reservePrice, buyoutPrice))
+		{
+			actor.OutputHandler.Send("You could not create a liquidation listing for that estate asset.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You {(relist ? "relist" : "list")} {DescribeFrameworkItem(actor, asset.Asset)} on {auctionHouse.Name.ColourName()} with a reserve of {estate.EconomicZone.Currency.Describe(reservePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}{(buyoutPrice.HasValue ? $" and a buyout of {estate.EconomicZone.Currency.Describe(buyoutPrice.Value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}" : "")}.");
+	}
+
 	private static void EstateFinalise(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -6371,8 +6697,31 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		var originalStatus = estate.EstateStatus;
 		estate.Finalise();
-		actor.OutputHandler.Send($"You finalise estate #{estate.Id.ToString("N0", actor)}.");
+		if (estate.EstateStatus == EstateStatus.Finalised)
+		{
+			actor.OutputHandler.Send($"You finalise estate #{estate.Id.ToString("N0", actor)}.");
+			return;
+		}
+
+		if (estate.EstateStatus == EstateStatus.Liquidating && originalStatus != EstateStatus.Liquidating)
+		{
+			actor.OutputHandler.Send(
+				$"Estate #{estate.Id.ToString("N0", actor)} has entered liquidation and is awaiting auction completion.");
+			return;
+		}
+
+		if (estate.EstateStatus == EstateStatus.Liquidating)
+		{
+			actor.OutputHandler.Send(estate.EconomicZone.EstateAuctionHouse == null
+				? $"Estate #{estate.Id.ToString("N0", actor)} cannot finalise because {estate.EconomicZone.Name.ColourName()} has no probate auction house configured."
+				: $"Estate #{estate.Id.ToString("N0", actor)} cannot finalise yet because liquidation lots are still pending.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"Estate #{estate.Id.ToString("N0", actor)} did not change status from {DescribeEstateStatus(originalStatus)}.");
 	}
 
 	#endregion

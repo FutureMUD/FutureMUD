@@ -237,3 +237,20 @@ When changing a subsystem that has a design document in `Design Documents/`:
 1. Update the relevant design document(s) as part of the same task.
 2. Ensure the document reflects the new runtime behavior, command surface, and persistence implications.
 3. Call out the documentation update in your task summary.
+
+## Economy Design Document Reference
+
+When changing economy-related systems, treat the following documents as the primary design references and keep them in sync with the code:
+
+- `Design Documents/Economy_System_Runtime.md`
+- `Design Documents/Economy_System_Workflows_and_Integration.md`
+- `Design Documents/Economy_System_Seeder_State_and_Gaps.md`
+
+For the purposes of this instruction, "economy-related" includes work in or directly coupled to:
+
+- `MudSharp.Economy`
+- economy commands and editable-item helpers
+- economy-related FutureProg functions
+- economy game-item components and effects
+- economy persistence models and migrations
+- economy seeder content

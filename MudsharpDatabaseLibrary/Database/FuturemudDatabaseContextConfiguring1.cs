@@ -2861,6 +2861,13 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.EstateHeirId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.EstateHeirType)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
 				entity.Property(e => e.CurrentAccentId).HasColumnType("bigint(20)");
 
 				entity.Property(e => e.CurrentCombatSettingId).HasColumnType("bigint(20)");

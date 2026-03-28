@@ -11,6 +11,7 @@ using MudSharp.Database;
 using MudSharp.Email;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
+using MudSharp.Economy.Estates;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -121,6 +122,8 @@ public partial class Character
 			corpse.RoomLayer = RoomLayer;
 			Location.Insert(corpse);
 		}
+
+		MudSharp.Economy.Estates.Estate.CreateEstatesForCharacterDeath(this).ToList();
 
 		Location.Leave(this);
 

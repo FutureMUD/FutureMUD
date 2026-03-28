@@ -40,6 +40,7 @@ namespace MudSharp.Economy
 		void ReportSalesTaxCollected(IShop shop, decimal amount);
 		IEnumerable<(IFinancialPeriod Period, decimal TotalTaxRevenue)> HistoricalRevenues { get; }
 		FinancialPeriodResult FinancialPeriodResultForShop(IShop shop, IFinancialPeriod period);
+		decimal TotalRevenueHeld { get; set; }
 
 
 		IEnumerable<IEstate> Estates { get; }
@@ -47,6 +48,7 @@ namespace MudSharp.Economy
 		void RemoveEstate(IEstate estate);
 		MudTimeSpan EstateDefaultDiscoverTime { get; }
 		MudTimeSpan EstateClaimPeriodLength { get; }
+		IAuctionHouse EstateAuctionHouse { get; }
 
 		IEnumerable<ICell> ConveyancingCells { get; }
 		IEnumerable<ICell> JobFindingCells { get; }

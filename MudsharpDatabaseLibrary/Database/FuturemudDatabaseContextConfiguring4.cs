@@ -2403,6 +2403,11 @@ namespace MudSharp.Database
 				entity.Property(e => e.BankAccountTypeId).HasColumnType("bigint(20)");
 				entity.Property(e => e.AccountOwnerCharacterId).HasColumnType("bigint(20)");
 				entity.Property(e => e.AccountOwnerClanId).HasColumnType("bigint(20)");
+				entity.Property(e => e.AccountOwnerFrameworkItemId).HasColumnType("bigint(20)");
+				entity.Property(e => e.AccountOwnerFrameworkItemType)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 				entity.Property(e => e.AccountOwnerShopId).HasColumnType("bigint(20)");
 				entity.Property(e => e.NominatedBenefactorAccountId).HasColumnType("bigint(20)");
 
@@ -2447,6 +2452,123 @@ namespace MudSharp.Database
 					.HasForeignKey(e => e.NominatedBenefactorAccountId)
 					.HasConstraintName("FK_BankAccounts_BankAccounts")
 					.OnDelete(DeleteBehavior.Cascade);
+			});
+
+			modelBuilder.Entity<Estate>(entity =>
+			{
+				entity.ToTable("Estates");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+				entity.HasIndex(e => e.EconomicZoneId)
+					.HasDatabaseName("FK_Estates_EconomicZones_idx");
+
+				entity.HasIndex(e => e.CharacterId)
+					.HasDatabaseName("FK_Estates_Characters_idx");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
+				entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+				entity.Property(e => e.EstateStatus).HasColumnType("int(11)");
+				entity.Property(e => e.EstateStartTime)
+					.IsRequired()
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.FinalisationDate)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.InheritorId).HasColumnType("bigint(20)");
+				entity.Property(e => e.InheritorType)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.HasOne(e => e.EconomicZone)
+					.WithMany(e => e.Estates)
+					.HasForeignKey(e => e.EconomicZoneId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_Estates_EconomicZones");
+
+				entity.HasOne(e => e.Character)
+					.WithMany()
+					.HasForeignKey(e => e.CharacterId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_Estates_Characters");
+			});
+
+			modelBuilder.Entity<EstateAsset>(entity =>
+			{
+				entity.ToTable("EstateAssets");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+				entity.HasIndex(e => e.EstateId)
+					.HasDatabaseName("FK_EstateAssets_Estates_idx");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.EstateId).HasColumnType("bigint(20)");
+				entity.Property(e => e.FrameworkItemId).HasColumnType("bigint(20)");
+				entity.Property(e => e.FrameworkItemType)
+					.IsRequired()
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.IsPresumedOwnership).HasColumnType("bit(1)");
+				entity.Property(e => e.IsTransferred).HasColumnType("bit(1)");
+				entity.Property(e => e.IsLiquidated).HasColumnType("bit(1)");
+				entity.Property(e => e.LiquidatedValue).HasColumnType("decimal(58,29)");
+
+				entity.HasOne(e => e.Estate)
+					.WithMany(e => e.EstateAssets)
+					.HasForeignKey(e => e.EstateId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_EstateAssets_Estates");
+			});
+
+			modelBuilder.Entity<EstateClaim>(entity =>
+			{
+				entity.ToTable("EstateClaims");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+				entity.HasIndex(e => e.EstateId)
+					.HasDatabaseName("FK_EstateClaims_Estates_idx");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.EstateId).HasColumnType("bigint(20)");
+				entity.Property(e => e.ClaimantId).HasColumnType("bigint(20)");
+				entity.Property(e => e.ClaimantType)
+					.IsRequired()
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.TargetId).HasColumnType("bigint(20)");
+				entity.Property(e => e.TargetType)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+				entity.Property(e => e.Reason)
+					.IsRequired()
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.ClaimStatus).HasColumnType("int(11)");
+				entity.Property(e => e.StatusReason)
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.IsSecured).HasColumnType("bit(1)");
+				entity.Property(e => e.ClaimDate)
+					.IsRequired()
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.HasOne(e => e.Estate)
+					.WithMany(e => e.EstateClaims)
+					.HasForeignKey(e => e.EstateId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_EstateClaims_Estates");
 			});
 
 			modelBuilder.Entity<BankAccountType>(entity =>

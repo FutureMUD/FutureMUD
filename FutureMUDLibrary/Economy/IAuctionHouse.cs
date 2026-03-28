@@ -12,10 +12,17 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.Economy.Property;
 using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy
 {
+	public enum AuctionLotType
+	{
+		Item,
+		Property
+	}
+
 	public record AuctionBid
 	{
 		public long BidderId { get; init; }
@@ -47,24 +54,47 @@ namespace MudSharp.Economy
 
 	public record AuctionItem : IKeyworded
 	{
-		public IGameItem Item { get; init; }
-		public long ListingCharacterId { get; init; }
+		public IFrameworkItem Asset { get; init; }
+		public IFrameworkItem Seller { get; init; }
+		[CanBeNull] public IFrameworkItem PayoutTarget { get; init; }
 		public decimal MinimumPrice { get; init; }
 		public decimal? BuyoutPrice { get; init; }
 		public MudDateTime ListingDateTime { get; init; }
 		public MudDateTime FinishingDateTime { get; init; }
-		public IBankAccount BankAccount { get; init; }
+
+		public AuctionLotType LotType => Asset switch
+		{
+			IProperty => AuctionLotType.Property,
+			_ => AuctionLotType.Item
+		};
+
+		[CanBeNull] public IGameItem Item => Asset as IGameItem;
+		[CanBeNull] public IProperty Property => Asset as IProperty;
+
+		public bool IsSeller(IFrameworkItem? seller)
+		{
+			return seller != null &&
+			       Seller.FrameworkItemType.Equals(seller.FrameworkItemType, StringComparison.OrdinalIgnoreCase) &&
+			       Seller.Id == seller.Id;
+		}
 
 		public XElement SaveToXml(IEnumerable<AuctionBid> bids)
 		{
 			return new XElement("ActiveItem",
-				new XAttribute("character", ListingCharacterId),
-				new XAttribute("item", Item.Id),
+				new XAttribute("kind", LotType.ToString()),
+				new XAttribute("assetid", Asset.Id),
+				new XAttribute("assettype", Asset.FrameworkItemType),
+				new XAttribute("sellerid", Seller.Id),
+				new XAttribute("sellertype", Seller.FrameworkItemType),
+				new XAttribute("payoutid", PayoutTarget?.Id ?? 0L),
+				new XAttribute("payouttype", PayoutTarget?.FrameworkItemType ?? "None"),
+				new XAttribute("character", Seller is ICharacter ch ? ch.Id : 0L),
+				new XAttribute("item", Item?.Id ?? 0L),
 				new XAttribute("price", MinimumPrice),
 				new XAttribute("buyout", BuyoutPrice.HasValue ? BuyoutPrice.Value : "none"),
 				new XAttribute("list", ListingDateTime.GetDateTimeString()),
 				new XAttribute("finish", FinishingDateTime.GetDateTimeString()),
-				new XAttribute("account", BankAccount.Id),
+				new XAttribute("account", PayoutTarget is IBankAccount account ? account.Id : 0L),
 				from bid in bids
 				select bid.SaveToXml()
 			);
@@ -72,20 +102,36 @@ namespace MudSharp.Economy
 
 		#region Implementation of IKeyworded
 
-		public IEnumerable<string> Keywords => Item.Keywords;
+		public IEnumerable<string> Keywords => Asset switch
+		{
+			IKeyworded keyworded => keyworded.Keywords,
+			_ => Enumerable.Empty<string>()
+		};
 		public IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 		{
-			return Item.GetKeywordsFor(voyeur);
+			return Asset switch
+			{
+				IKeyworded keyworded => keyworded.GetKeywordsFor(voyeur),
+				_ => Enumerable.Empty<string>()
+			};
 		}
 
 		public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 		{
-			return Item.HasKeyword(targetKeyword, voyeur, abbreviated, useContainsOverStartsWith);
+			return Asset switch
+			{
+				IKeyworded keyworded => keyworded.HasKeyword(targetKeyword, voyeur, abbreviated, useContainsOverStartsWith),
+				_ => false
+			};
 		}
 
 		public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 		{
-			return Item.HasKeywords(targetKeywords, voyeur, abbreviated, useContainsOverStartsWith);
+			return Asset switch
+			{
+				IKeyworded keyworded => keyworded.HasKeywords(targetKeywords, voyeur, abbreviated, useContainsOverStartsWith),
+				_ => false
+			};
 		}
 
 		#endregion
@@ -107,26 +153,36 @@ namespace MudSharp.Economy
 
 	public record AuctionResult
 	{
-		public long ItemId { get; init; }
-		public string ItemDescription { get; init; }
+		public long AssetId { get; init; }
+		public string AssetType { get; init; }
+		public string AssetDescription { get; init; }
 		public bool Sold { get; init; }
 		public decimal SalePrice { get; init; }
 		public MudDateTime ResultDateTime { get; init; }
-		public long ListingCharacterId { get; init; }
+		public long SellerId { get; init; }
+		public string SellerType { get; init; }
+		public long? PayoutTargetId { get; init; }
+		public string PayoutTargetType { get; init; }
 		public long SoldToId { get; init; }
 		public bool PaidOutAtTime { get; init; }
 
 		public XElement SaveToXml()
 		{
 			return new XElement("Result",
-				new XAttribute("itemid", ItemId),
-				new XAttribute("character", ListingCharacterId),
+				new XAttribute("itemid", AssetId),
+				new XAttribute("assetid", AssetId),
+				new XAttribute("assettype", AssetType),
+				new XAttribute("character", SellerType.Equals("Character", StringComparison.OrdinalIgnoreCase) ? SellerId : 0L),
+				new XAttribute("sellerid", SellerId),
+				new XAttribute("sellertype", SellerType),
+				new XAttribute("payoutid", PayoutTargetId ?? 0L),
+				new XAttribute("payouttype", PayoutTargetType ?? "None"),
 				new XAttribute("soldto", SoldToId),
 				new XAttribute("sold", Sold),
 				new XAttribute("price", SalePrice),
 				new XAttribute("paid", PaidOutAtTime),
 				new XElement("Date", ResultDateTime.GetDateTimeString()),
-				new XElement("Description", new XCData(ItemDescription))
+				new XElement("Description", new XCData(AssetDescription))
 			);
 		}
 	}
@@ -143,7 +199,7 @@ namespace MudSharp.Economy
 		IEnumerable<UnclaimedAuctionItem> UnclaimedItems { get; }
 		IEnumerable<AuctionItem> ActiveAuctionItems { get; }
 		CollectionDictionary<AuctionItem,AuctionBid> AuctionBids { get; }
-		DecimalCounter<long> CharacterRefundsOwed { get; }
+		DecimalCounter<long> BidderRefundsOwed { get; }
 		void AddAuctionItem(AuctionItem item);
 		void AddBid(AuctionItem item, AuctionBid bid);
 		void ClaimItem(AuctionItem item);

@@ -793,6 +793,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_properties.Add(property);
 	}
 
+	public void Add(IEstate estate)
+	{
+		_estates.Add(estate);
+	}
+
 	public void Add(IBank bank)
 	{
 		_banks.Add(bank);
@@ -1711,6 +1716,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(IProperty property)
 	{
 		_properties.Remove(property);
+	}
+
+	public void Destroy(IEstate estate)
+	{
+		_estates.Remove(estate);
 	}
 
 	public void Destroy(IPatrol patrol)

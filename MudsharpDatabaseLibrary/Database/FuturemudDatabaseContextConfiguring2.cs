@@ -1850,12 +1850,24 @@ namespace MudSharp.Database
 					.HasDatabaseName("FK_EconomicZones_Timezones_idx");
 
 				entity.HasIndex(e => e.ControllingClanId).HasDatabaseName("FK_EconomicZones_ControllingClans_idx");
+				entity.HasIndex(e => e.EstateAuctionHouseId).HasDatabaseName("FK_EconomicZones_EstateAuctionHouses_idx");
 
 				entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
 				entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
 
 				entity.Property(e => e.ControllingClanId).HasColumnType("bigint(20)");
+				entity.Property(e => e.EstateAuctionHouseId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.EstateClaimPeriodLength)
+					.HasColumnType("varchar(200)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.Property(e => e.EstateDefaultDiscoverTime)
+					.HasColumnType("varchar(200)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.CurrentFinancialPeriodId).HasColumnType("bigint(20)");
 
@@ -1934,6 +1946,12 @@ namespace MudSharp.Database
 				.HasForeignKey(d => d.ControllingClanId)
 				.OnDelete(DeleteBehavior.ClientSetNull)
 				.HasConstraintName("FK_EconomicZones_ControllingClans");
+
+				entity.HasOne(d => d.EstateAuctionHouse)
+					.WithMany()
+					.HasForeignKey(d => d.EstateAuctionHouseId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_EconomicZones_EstateAuctionHouses");
 			});
 
 			modelBuilder.Entity<ConveyancingLocation>(entity =>
@@ -3197,6 +3215,13 @@ namespace MudSharp.Database
 				entity.Property(e => e.Condition).HasDefaultValueSql("'1'");
 
 				entity.Property(e => e.ContainerId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.OwnerId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.OwnerType)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.EffectData)
 					.IsRequired()

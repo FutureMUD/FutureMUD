@@ -31,6 +31,8 @@ namespace MudSharp.Models
         public long MaterialId { get; set; }
         public int Size { get; set; }
         public long? ContainerId { get; set; }
+        public long? OwnerId { get; set; }
+        public string OwnerType { get; set; }
         public int PositionId { get; set; }
         public int PositionModifier { get; set; }
         public long? PositionTargetId { get; set; }

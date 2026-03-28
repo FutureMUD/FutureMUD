@@ -7,11 +7,15 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Community;
 using MudSharp.Database;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Estates;
+using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.GameItems;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -21,6 +25,26 @@ namespace MudSharp.Economy.Auctions;
 
 public class AuctionHouse : SaveableItem, IAuctionHouse
 {
+	private XElement SaveDefinition()
+	{
+		return new XElement("Definition",
+			from result in AuctionResults
+			select result.SaveToXml(),
+			from item in ActiveAuctionItems
+			select item.SaveToXml(AuctionBids[item]),
+			from item in UnclaimedItems
+			select item.SaveToXml(AuctionBids[item.AuctionItem]),
+			from item in BidderRefundsOwed
+			select new XElement("Refund", new XAttribute("character", item.Key),
+				new XAttribute("amount", item.Value)),
+			from item in _sellerPaymentsOwed.Where(x => x.Value > 0.0M)
+			select new XElement("SellerPayment",
+				new XAttribute("targetid", item.Key.Id),
+				new XAttribute("targettype", item.Key.Type),
+				new XAttribute("amount", item.Value))
+		);
+	}
+
 	public AuctionHouse(IEconomicZone zone, string name, ICell cell, IBankAccount account)
 	{
 		Gameworld = zone.Gameworld;
@@ -42,18 +66,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 				AuctionListingFeeFlat = AuctionListingFeeFlat,
 				AuctionListingFeeRate = AuctionListingFeeRate,
 				AuctionHouseCellId = cell.Id,
-				Definition =
-					new XElement("Definition",
-						from result in AuctionResults
-						select result.SaveToXml(),
-						from item in ActiveAuctionItems
-						select item.SaveToXml(AuctionBids[item]),
-						from item in UnclaimedItems
-						select item.SaveToXml(AuctionBids[item.AuctionItem]),
-						from item in CharacterRefundsOwed
-						select new XElement("Refund", new XAttribute("character", item.Key),
-							new XAttribute("amount", item.Value))
-					).ToString()
+				Definition = SaveDefinition().ToString()
 			};
 			FMDB.Context.AuctionHouses.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -68,8 +81,185 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		response.RejectWithReason($"That room is the auction house location for auction house #{Id:N0} ({Name.ColourName()})");
 	}
 
+	private static IFrameworkItem LoadFrameworkItem(IFuturemud gameworld, long id, string type)
+	{
+		if (id == 0 || string.IsNullOrWhiteSpace(type) || type.EqualTo("none"))
+		{
+			return null;
+		}
+
+		return new FrameworkItemReference(id, type, gameworld).GetItem;
+	}
+
+	private AuctionItem LoadAuctionItem(XElement item)
+	{
+		var assetId = long.Parse(item.Attribute("assetid")?.Value ?? item.Attribute("item")?.Value ?? "0");
+		var assetType = item.Attribute("assettype")?.Value ?? "GameItem";
+		var sellerId = long.Parse(item.Attribute("sellerid")?.Value ?? item.Attribute("character")?.Value ?? "0");
+		var sellerType = item.Attribute("sellertype")?.Value ??
+		                 (item.Attribute("character") != null ? "Character" : "None");
+		var payoutId = long.Parse(item.Attribute("payoutid")?.Value ?? item.Attribute("account")?.Value ?? "0");
+		var payoutType = item.Attribute("payouttype")?.Value ??
+		                 (item.Attribute("account") != null ? "BankAccount" : "None");
+		var asset = assetType.EqualTo("Property")
+			? (IFrameworkItem)Gameworld.Properties.Get(assetId)
+			: Gameworld.TryGetItem(assetId, true);
+		var seller = LoadFrameworkItem(Gameworld, sellerId, sellerType);
+		var payoutTarget = LoadFrameworkItem(Gameworld, payoutId, payoutType);
+		if (asset == null || seller == null)
+		{
+			return null;
+		}
+
+		return new AuctionItem
+		{
+			Asset = asset,
+			Seller = seller,
+			PayoutTarget = payoutTarget,
+			MinimumPrice = decimal.Parse(item.Attribute("price").Value),
+			BuyoutPrice =
+				item.Attribute("buyout").Value.Equals("none", StringComparison.InvariantCultureIgnoreCase)
+					? null
+					: decimal.Parse(item.Attribute("buyout").Value),
+			ListingDateTime = new MudDateTime(item.Attribute("list").Value, Gameworld),
+			FinishingDateTime = new MudDateTime(item.Attribute("finish").Value, Gameworld)
+		};
+	}
+
+	private static AuctionBid LoadBid(XElement bid, IFuturemud gameworld)
+	{
+		return new AuctionBid
+		{
+			BidderId = long.Parse(bid.Attribute("bidder").Value),
+			Bid = decimal.Parse(bid.Attribute("bid").Value),
+			BidDateTime = new MudDateTime(bid.Attribute("date").Value, gameworld)
+		};
+	}
+
+	private string DescribeLot(AuctionItem item, IPerceiver voyeur)
+	{
+		return item.Asset switch
+		{
+			IGameItem gameItem => gameItem.HowSeen(voyeur,
+				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+			IProperty property => property.Name.ColourName(),
+			_ => item.Asset.Name.ColourName()
+		};
+	}
+
+	private string DescribeLotPlain(AuctionItem item)
+	{
+		return item.Asset switch
+		{
+			IGameItem gameItem => gameItem.HowSeen(gameItem, colour: false,
+				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+			IProperty property => property.Name,
+			_ => item.Asset.Name
+		};
+	}
+
+	private bool TryPaySeller(AuctionItem item, decimal amount)
+	{
+		if (amount <= 0.0M)
+		{
+			return true;
+		}
+
+		return TryPaySellerTarget(item.PayoutTarget ?? item.Seller, amount, DescribeLotPlain(item));
+	}
+
+	private bool TryPaySellerTarget(IFrameworkItem payoutTarget, decimal amount, string assetDescription)
+	{
+		if (amount <= 0.0M || payoutTarget == null)
+		{
+			return true;
+		}
+
+		if (payoutTarget is IEstate estate)
+		{
+			if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
+			{
+				return false;
+			}
+
+			ProfitsBankAccount.WithdrawFromTransaction(amount,
+				$"Auction proceeds held for estate #{estate.Id} from {assetDescription}");
+			ProfitsBankAccount.Bank.CurrencyReserves[ProfitsBankAccount.Currency] -= amount;
+			ProfitsBankAccount.Bank.Changed = true;
+			return true;
+		}
+
+		if (payoutTarget is IBankAccount account)
+		{
+			if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
+			{
+				return false;
+			}
+
+			ProfitsBankAccount.WithdrawFromTransfer(amount, account.Bank.Code, account.AccountNumber,
+				$"Payment for successful auction of {assetDescription}");
+			account.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code, ProfitsBankAccount.AccountNumber,
+				$"Proceeds from a successful auction of {assetDescription} with {Name}");
+			return true;
+		}
+
+		var payoutAccount = Gameworld.BankAccounts.FirstOrDefault(x =>
+			x.AccountStatus == BankAccountStatus.Active &&
+			x.Currency == EconomicZone.Currency &&
+			x.IsAccountOwner(payoutTarget));
+		if (payoutAccount != null)
+		{
+			if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
+			{
+				return false;
+			}
+
+			ProfitsBankAccount.WithdrawFromTransfer(amount, payoutAccount.Bank.Code, payoutAccount.AccountNumber,
+				$"Payment for successful auction of {assetDescription}");
+			payoutAccount.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code,
+				ProfitsBankAccount.AccountNumber,
+				$"Proceeds from a successful auction of {assetDescription} with {Name}");
+			return true;
+		}
+
+		return false;
+	}
+
+	private void QueueSellerPayment(AuctionItem item, decimal amount)
+	{
+		var payoutTarget = item.PayoutTarget ?? item.Seller;
+		if (payoutTarget == null || amount <= 0.0M)
+		{
+			return;
+		}
+
+		_sellerPaymentsOwed[(payoutTarget.Id, payoutTarget.FrameworkItemType)] += amount;
+		Changed = true;
+	}
+
+	private void RetrySellerPayments()
+	{
+		foreach (var payment in _sellerPaymentsOwed.Where(x => x.Value > 0.0M).ToList())
+		{
+			var target = LoadFrameworkItem(Gameworld, payment.Key.Id, payment.Key.Type);
+			if (target == null)
+			{
+				continue;
+			}
+
+			if (!TryPaySellerTarget(target, payment.Value, $"deferred auction proceeds from {Name}"))
+			{
+				continue;
+			}
+
+			_sellerPaymentsOwed.Remove(payment.Key);
+			Changed = true;
+		}
+	}
+
 	private void AuctionTick()
 	{
+		RetrySellerPayments();
 		var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		var finished = ActiveAuctionItems.Where(x => x.FinishingDateTime <= now).ToList();
 		foreach (var item in finished)
@@ -77,51 +267,65 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			var winningBid = CurrentAuctionBid(item);
 			if (winningBid == null)
 			{
-				AuctionHouseCell.Handle(new EmoteOutput(new Emote(
-					$"The auction for $0 has ended. There were no bids placed on the item.", item.Item, item.Item)));
+				AuctionHouseCell.Handle(
+					$"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended without any bids.");
 			}
 			else
 			{
-				AuctionHouseCell.Handle(new EmoteOutput(new Emote(
-					$"The auction for $0 has ended. The winning bid was $1.", item.Item, item.Item,
-					new DummyPerceivable(EconomicZone.Currency.Describe(CurrentBid(item),
-						CurrencyDescriptionPatternType.ShortDecimal)))));
+				AuctionHouseCell.Handle(
+					$"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended with a winning bid of {EconomicZone.Currency.Describe(CurrentBid(item), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
 			}
 
 			_activeAuctionItems.Remove(item);
-			_unclaimedItems.Add(new UnclaimedAuctionItem
-			{
-				AuctionItem = item,
-				WinningBid = winningBid
-			});
 
 			var paid = true;
 			if (winningBid != null)
 			{
-				if (ProfitsBankAccount.CanWithdraw(winningBid.Bid, true).Truth)
+				paid = TryPaySeller(item, winningBid.Bid);
+				if (!paid)
 				{
-					ProfitsBankAccount.WithdrawFromTransfer(winningBid.Bid, item.BankAccount.Bank.Code,
-						item.BankAccount.AccountNumber, $"Payment for successful auction of {item.Item.Name}");
-					item.BankAccount.DepositFromTransfer(winningBid.Bid, ProfitsBankAccount.Bank.Code,
-						ProfitsBankAccount.AccountNumber,
-						$"Proceeds from a successful auction with of {item.Item.Name} with {Name}");
+					QueueSellerPayment(item, winningBid.Bid);
 				}
-				else
-				{
-					paid = false;
-					CharacterRefundsOwed[item.ListingCharacterId] += winningBid.Bid;
-				}
+			}
+
+			if (item.Seller is IEstate estateSeller)
+			{
+				estateSeller.RecordAuctionCompletion(item, winningBid);
+			}
+
+			switch (item.Asset)
+			{
+				case IProperty property when winningBid != null:
+					property.TransferProperty(winningBid.Bidder, winningBid.Bid);
+					break;
+				case IGameItem when winningBid != null:
+					_unclaimedItems.Add(new UnclaimedAuctionItem
+					{
+						AuctionItem = item,
+						WinningBid = winningBid
+					});
+					break;
+				case IGameItem when winningBid == null && item.Seller is not IEstate:
+					_unclaimedItems.Add(new UnclaimedAuctionItem
+					{
+						AuctionItem = item,
+						WinningBid = null
+					});
+					break;
 			}
 
 			_auctionResults.Add(new AuctionResult
 			{
-				ItemId = item.Item.Id,
-				ItemDescription = item.Item.HowSeen(item.Item, colour: false,
-					flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+				AssetId = item.Asset.Id,
+				AssetType = item.Asset.FrameworkItemType,
+				AssetDescription = DescribeLotPlain(item),
 				Sold = winningBid != null,
 				SalePrice = winningBid?.Bid ?? 0.0M,
 				ResultDateTime = now,
-				ListingCharacterId = item.ListingCharacterId,
+				SellerId = item.Seller.Id,
+				SellerType = item.Seller.FrameworkItemType,
+				PayoutTargetId = item.PayoutTarget?.Id,
+				PayoutTargetType = item.PayoutTarget?.FrameworkItemType,
 				SoldToId = winningBid?.BidderId ?? 0L,
 				PaidOutAtTime = paid
 			});
@@ -148,33 +352,30 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		{
 			_auctionResults.Add(new AuctionResult
 			{
-				ItemId = long.Parse(result.Attribute("itemid").Value),
+				AssetId = long.Parse(result.Attribute("assetid")?.Value ?? result.Attribute("itemid")?.Value ?? "0"),
+				AssetType = result.Attribute("assettype")?.Value ?? "GameItem",
 				Sold = bool.Parse(result.Attribute("sold").Value),
 				SoldToId = long.Parse(result.Attribute("soldto").Value),
 				ResultDateTime = new MudDateTime(result.Element("Date").Value, Gameworld),
 				SalePrice = decimal.Parse(result.Attribute("price").Value),
-				ItemDescription = result.Element("Description").Value,
-				ListingCharacterId = long.Parse(result.Attribute("character").Value),
+				AssetDescription = result.Element("Description").Value,
+				SellerId = long.Parse(result.Attribute("sellerid")?.Value ?? result.Attribute("character")?.Value ?? "0"),
+				SellerType = result.Attribute("sellertype")?.Value ??
+				             (result.Attribute("character") != null ? "Character" : "None"),
+				PayoutTargetId = long.Parse(result.Attribute("payoutid")?.Value ?? "0") switch
+				{
+					0L => null,
+					var value => value
+				},
+				PayoutTargetType = result.Attribute("payouttype")?.Value,
 				PaidOutAtTime = bool.Parse(result.Attribute("paid").Value)
 			});
 		}
 
 		foreach (var item in definition.Elements("ActiveItem"))
 		{
-			var auctionItem = new AuctionItem
-			{
-				Item = Gameworld.TryGetItem(long.Parse(item.Attribute("item").Value), true),
-				MinimumPrice = decimal.Parse(item.Attribute("price").Value),
-				BuyoutPrice =
-					item.Attribute("buyout").Value.Equals("none", StringComparison.InvariantCultureIgnoreCase)
-						? null
-						: decimal.Parse(item.Attribute("buyout").Value),
-				ListingDateTime = new MudDateTime(item.Attribute("list").Value, Gameworld),
-				FinishingDateTime = new MudDateTime(item.Attribute("finish").Value, Gameworld),
-				BankAccount = Gameworld.BankAccounts.Get(long.Parse(item.Attribute("account").Value)),
-				ListingCharacterId = long.Parse(item.Attribute("character").Value)
-			};
-			if (auctionItem.Item is null)
+			var auctionItem = LoadAuctionItem(item);
+			if (auctionItem == null)
 			{
 				continue;
 			}
@@ -183,45 +384,23 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 			foreach (var bid in item.Elements("Bid"))
 			{
-				AuctionBids.Add(auctionItem, new AuctionBid
-				{
-					BidderId = long.Parse(bid.Attribute("bidder").Value),
-					Bid = decimal.Parse(bid.Attribute("bid").Value),
-					BidDateTime = new MudDateTime(bid.Attribute("date").Value, Gameworld)
-				});
+				AuctionBids.Add(auctionItem, LoadBid(bid, Gameworld));
 			}
 		}
 
 		foreach (var unclaimed in definition.Elements("Unclaimed"))
 		{
 			var item = unclaimed.Element("ActiveItem");
-			var auctionItem = new AuctionItem
-			{
-				Item = Gameworld.TryGetItem(long.Parse(item.Attribute("item").Value), true),
-				MinimumPrice = decimal.Parse(item.Attribute("price").Value),
-				BuyoutPrice =
-					item.Attribute("buyout").Value.Equals("none", StringComparison.InvariantCultureIgnoreCase)
-						? null
-						: decimal.Parse(item.Attribute("buyout").Value),
-				ListingDateTime = new MudDateTime(item.Attribute("list").Value, Gameworld),
-				FinishingDateTime = new MudDateTime(item.Attribute("finish").Value, Gameworld),
-				BankAccount = Gameworld.BankAccounts.Get(long.Parse(item.Attribute("account").Value)),
-				ListingCharacterId = long.Parse(item.Attribute("character").Value)
-			};
+			var auctionItem = LoadAuctionItem(item);
 
-			if (auctionItem.Item is null)
+			if (auctionItem == null)
 			{
 				continue;
 			}
 
 			foreach (var bid in item.Elements("Bid"))
 			{
-				AuctionBids.Add(auctionItem, new AuctionBid
-				{
-					BidderId = long.Parse(bid.Attribute("bidder").Value),
-					Bid = decimal.Parse(bid.Attribute("bid").Value),
-					BidDateTime = new MudDateTime(bid.Attribute("date").Value, Gameworld)
-				});
+				AuctionBids.Add(auctionItem, LoadBid(bid, Gameworld));
 			}
 
 			if (unclaimed.Element("NoBids") == null)
@@ -230,12 +409,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 				_unclaimedItems.Add(new UnclaimedAuctionItem
 				{
 					AuctionItem = auctionItem,
-					WinningBid = new AuctionBid
-					{
-						BidderId = long.Parse(bid.Attribute("bidder").Value),
-						Bid = decimal.Parse(bid.Attribute("bid").Value),
-						BidDateTime = new MudDateTime(bid.Attribute("date").Value, Gameworld)
-					}
+					WinningBid = LoadBid(bid, Gameworld)
 				});
 			}
 			else
@@ -250,8 +424,16 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 		foreach (var refund in definition.Elements("Refund"))
 		{
-			CharacterRefundsOwed[long.Parse(refund.Attribute("character").Value)] =
+			BidderRefundsOwed[long.Parse(refund.Attribute("character").Value)] =
 				decimal.Parse(refund.Attribute("amount").Value);
+		}
+
+		foreach (var payment in definition.Elements("SellerPayment"))
+		{
+			_sellerPaymentsOwed[(
+				long.Parse(payment.Attribute("targetid").Value),
+				payment.Attribute("targettype").Value
+			)] = decimal.Parse(payment.Attribute("amount").Value);
 		}
 	}
 
@@ -273,18 +455,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		dbitem.AuctionListingFeeRate = AuctionListingFeeRate;
 		dbitem.ProfitsBankAccountId = ProfitsBankAccount.Id;
 		dbitem.DefaultListingTime = DefaultListingTime.TotalSeconds;
-		dbitem.Definition =
-			new XElement("Definition",
-				from result in AuctionResults
-				select result.SaveToXml(),
-				from item in ActiveAuctionItems
-				select item.SaveToXml(AuctionBids[item]),
-				from item in UnclaimedItems
-				select item.SaveToXml(AuctionBids[item.AuctionItem]),
-				from item in CharacterRefundsOwed
-				select new XElement("Refund", new XAttribute("character", item.Key),
-					new XAttribute("amount", item.Value))
-			).ToString();
+		dbitem.Definition = SaveDefinition().ToString();
 		Changed = false;
 	}
 
@@ -320,7 +491,8 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 	public IEnumerable<AuctionItem> ActiveAuctionItems => _activeAuctionItems;
 
 	public CollectionDictionary<AuctionItem, AuctionBid> AuctionBids { get; } = new();
-	public DecimalCounter<long> CharacterRefundsOwed { get; } = new();
+	public DecimalCounter<long> BidderRefundsOwed { get; } = new();
+	private readonly DecimalCounter<(long Id, string Type)> _sellerPaymentsOwed = new();
 
 	public void AddAuctionItem(AuctionItem item)
 	{
@@ -333,7 +505,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		var highestExistingBid = AuctionBids[item].FirstMax(x => x.Bid);
 		if (highestExistingBid != null)
 		{
-			CharacterRefundsOwed[highestExistingBid.BidderId] += highestExistingBid.Bid;
+			BidderRefundsOwed[highestExistingBid.BidderId] += highestExistingBid.Bid;
 		}
 
 		AuctionBids.Add(item, bid);
@@ -351,7 +523,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 	public bool ClaimRefund(ICharacter actor)
 	{
-		var owed = CharacterRefundsOwed[actor.Id];
+		var owed = BidderRefundsOwed[actor.Id];
 		if (!ProfitsBankAccount.CanWithdraw(owed, false).Truth)
 		{
 			return false;
@@ -360,7 +532,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		ProfitsBankAccount.WithdrawFromTransaction(owed, "Refund for failed bid");
 		ProfitsBankAccount.Bank.CurrencyReserves[ProfitsBankAccount.Currency] -= owed;
 		ProfitsBankAccount.Bank.Changed = true;
-		CharacterRefundsOwed[actor.Id] = 0.0M;
+		BidderRefundsOwed[actor.Id] = 0.0M;
 		Changed = true;
 		return true;
 	}
@@ -372,7 +544,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		var highestExistingBid = AuctionBids[item].FirstMax(x => x.Bid);
 		if (highestExistingBid != null)
 		{
-			CharacterRefundsOwed[highestExistingBid.BidderId] += highestExistingBid.Bid;
+			BidderRefundsOwed[highestExistingBid.BidderId] += highestExistingBid.Bid;
 		}
 
 		AuctionBids.Remove(item);
@@ -613,11 +785,13 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		sb.AppendLine(
 			$"Bank Account Balance: {EconomicZone.Currency.Describe(ProfitsBankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(
-			$"Refunds Owed: {EconomicZone.Currency.Describe(CharacterRefundsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			$"Refunds Owed: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine(
+			$"Seller Proceeds Owed: {EconomicZone.Currency.Describe(_sellerPaymentsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(
 			$"Pending Payments: {EconomicZone.Currency.Describe(ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(
-			$"Total Commitments: {EconomicZone.Currency.Describe(CharacterRefundsOwed.Sum(x => x.Value) + ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			$"Total Commitments: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value) + _sellerPaymentsOwed.Sum(x => x.Value) + ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Unclaimed Items: {UnclaimedItems.Count().ToString("N0", actor).ColourValue()}");
 		return sb.ToString();
 	}

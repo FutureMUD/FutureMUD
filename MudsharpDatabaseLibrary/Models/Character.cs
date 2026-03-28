@@ -94,6 +94,8 @@ public partial class Character
 	public string NameInfo { get; set; }
 	public int RoomLayer { get; set; }
 	public bool NoMercy { get; set; }
+	public long? EstateHeirId { get; set; }
+	public string EstateHeirType { get; set; }
 
 	public virtual Account Account { get; set; }
 	public virtual Body Body { get; set; }

@@ -28,6 +28,7 @@ namespace MudSharp.Economy.Property
 		IEnumerable<ICell> PropertyLocations { get; }
 		string DetailedDescription { get; }
 		MudDateTime LastChangeOfOwnership { get; }
+		decimal LastSaleValue { get; set; }
 		[CanBeNull] IPropertySaleOrder SaleOrder { get; set; }
 		[CanBeNull] IPropertyLeaseOrder LeaseOrder { get; set; }
 		[CanBeNull] IPropertyLease Lease { get; set; }
@@ -42,6 +43,7 @@ namespace MudSharp.Economy.Property
                 bool ApplyCriminalCodeInProperty { get; set; }
 		string PreviewProperty(ICharacter voyeur);
 		void SellProperty(IFrameworkItem newOwner);
+		void TransferProperty(IFrameworkItem newOwner, decimal? transferValue = null);
 		void DivestOwnership(IPropertyOwner owner, decimal percentage, IFrameworkItem newOwnerItem);
 
 		bool IsAuthorisedOwner(ICharacter who);

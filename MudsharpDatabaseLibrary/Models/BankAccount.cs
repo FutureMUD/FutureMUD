@@ -22,6 +22,8 @@ namespace MudSharp.Models
 		public long? AccountOwnerCharacterId { get; set; }
 		public long? AccountOwnerClanId { get; set; }
 		public long? AccountOwnerShopId { get; set; }
+		public long? AccountOwnerFrameworkItemId { get; set; }
+		public string AccountOwnerFrameworkItemType { get; set; }
 		public long? NominatedBenefactorAccountId { get; set; }
 		public string AccountCreationDate { get; set; }
 		public int AccountStatus { get; set; }

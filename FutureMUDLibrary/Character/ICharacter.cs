@@ -327,6 +327,7 @@ namespace MudSharp.Character {
 		bool IsPlayerCharacter { get; }
 		string LongTermPlan { get; set; }
 		string ShortTermPlan { get; set; }
+		IFrameworkItem EstateHeir { get; set; }
 		/// <summary>
 		/// A manually and voluntarily set degree by which all difficulties are staged up, to go easy on someone
 		/// </summary>

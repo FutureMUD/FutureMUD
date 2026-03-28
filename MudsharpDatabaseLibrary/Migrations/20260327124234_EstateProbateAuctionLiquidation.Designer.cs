@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260327124234_EstateProbateAuctionLiquidation")]
+    partial class EstateProbateAuctionLiquidation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -15095,76 +15098,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Shops");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ShopDeal", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Applicability")
-                        .HasColumnType("int(11)");
-
-                    b.Property<int>("DealType")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long?>("EligibilityProgId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("ExpiryDateTime")
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ExpiryDateTime"), "utf8");
-
-                    b.Property<ulong>("IsCumulative")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit(1)")
-                        .HasDefaultValue(1ul);
-
-                    b.Property<long?>("MerchandiseId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int?>("MinimumQuantity")
-                        .HasColumnType("int(11)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.Property<decimal>("PriceAdjustmentPercentage")
-                        .HasColumnType("decimal(58,29)");
-
-                    b.Property<long>("ShopId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("TagId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("TargetType")
-                        .HasColumnType("int(11)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EligibilityProgId")
-                        .HasDatabaseName("FK_ShopDeals_FutureProgs_idx");
-
-                    b.HasIndex("MerchandiseId")
-                        .HasDatabaseName("FK_ShopDeals_Merchandises_idx");
-
-                    b.HasIndex("ShopId")
-                        .HasDatabaseName("FK_ShopDeals_Shops_idx");
-
-                    b.HasIndex("TagId")
-                        .HasDatabaseName("FK_ShopDeals_Tags_idx");
-
-                    b.ToTable("ShopDeals", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.ShopFinancialPeriodResult", b =>
                 {
                     b.Property<long>("EconomicZoneId")
@@ -24008,42 +23941,6 @@ namespace MudSharp.Migrations
                     b.Navigation("WorkshopCell");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ShopDeal", b =>
-                {
-                    b.HasOne("MudSharp.Models.FutureProg", "EligibilityProg")
-                        .WithMany("ShopDeals")
-                        .HasForeignKey("EligibilityProgId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_ShopDeals_FutureProgs");
-
-                    b.HasOne("MudSharp.Models.Merchandise", "Merchandise")
-                        .WithMany("ShopDeals")
-                        .HasForeignKey("MerchandiseId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_ShopDeals_Merchandises");
-
-                    b.HasOne("MudSharp.Models.Shop", "Shop")
-                        .WithMany("ShopDeals")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_ShopDeals_Shops");
-
-                    b.HasOne("MudSharp.Models.Tag", "Tag")
-                        .WithMany("ShopDeals")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_ShopDeals_Tags");
-
-                    b.Navigation("EligibilityProg");
-
-                    b.Navigation("Merchandise");
-
-                    b.Navigation("Shop");
-
-                    b.Navigation("Tag");
-                });
-
             modelBuilder.Entity("MudSharp.Models.ShopFinancialPeriodResult", b =>
                 {
                     b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
@@ -25760,8 +25657,6 @@ namespace MudSharp.Migrations
 
                     b.Navigation("RanksTitles");
 
-                    b.Navigation("ShopDeals");
-
                     b.Navigation("ShopsCanShopProg");
 
                     b.Navigation("ShopsWhyCannotShopProg");
@@ -26059,11 +25954,6 @@ namespace MudSharp.Migrations
                     b.Navigation("RacesEdibleMaterials");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.Merchandise", b =>
-                {
-                    b.Navigation("ShopDeals");
-                });
-
             modelBuilder.Entity("MudSharp.Models.Merit", b =>
                 {
                     b.Navigation("ChargenRolesMerits");
@@ -26325,8 +26215,6 @@ namespace MudSharp.Migrations
 
                     b.Navigation("Merchandises");
 
-                    b.Navigation("ShopDeals");
-
                     b.Navigation("ShopFinancialPeriodResults");
 
                     b.Navigation("ShopTransactionRecords");
@@ -26368,8 +26256,6 @@ namespace MudSharp.Migrations
                     b.Navigation("MaterialsTags");
 
                     b.Navigation("RaceButcheryProfiles");
-
-                    b.Navigation("ShopDeals");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Terrain", b =>

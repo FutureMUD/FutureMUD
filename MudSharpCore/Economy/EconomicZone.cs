@@ -44,7 +44,16 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	public IZone ZoneForTimePurposes { get; private set; }
 	public bool PermitTaxableLosses { get; private set; }
 	public decimal OutstandingTaxesOwed { get; private set; }
-	public decimal TotalRevenueHeld { get; private set; }
+	private decimal _totalRevenueHeld;
+	public decimal TotalRevenueHeld
+	{
+		get => _totalRevenueHeld;
+		set
+		{
+			_totalRevenueHeld = value;
+			Changed = true;
+		}
+	}
 	private readonly List<(IFinancialPeriod Period, decimal TotalTaxRevenue)> _historicalRevenues = new();
 
 	public IEnumerable<(IFinancialPeriod Period, decimal TotalTaxRevenue)> HistoricalRevenues =>
@@ -60,6 +69,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
 	private long? _controllingClanId;
 	private IClan _controllingClan;
+	private long? _estateAuctionHouseId;
+	private IAuctionHouse _estateAuctionHouse;
 
 	public IClan ControllingClan
 	{
@@ -99,6 +110,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		FinancialPeriodTimezone = zone.TimeZone(FinancialPeriodReferenceClock);
 		FinancialPeriodReferenceTime =
 			new MudTime(0, 0, 0, FinancialPeriodTimezone, FinancialPeriodReferenceClock, false);
+		EstateDefaultDiscoverTime = MudTimeSpan.FromDays(28);
+		EstateClaimPeriodLength = MudTimeSpan.FromDays(14);
 		using (new FMDB())
 		{
 			var dbitem = new Models.EconomicZone
@@ -115,6 +128,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				ReferenceCalendarId = FinancialPeriodReferenceCalendar.Id,
 				ReferenceClockId = FinancialPeriodReferenceClock.Id,
 				ReferenceTime = FinancialPeriodReferenceTime.GetTimeString(),
+				EstateAuctionHouseId = null,
+				EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
+				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText,
 				ZoneForTimePurposesId = ZoneForTimePurposes.Id
 			};
 			FMDB.Context.EconomicZones.Add(dbitem);
@@ -159,6 +175,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		_name = zone.Name;
 		Currency = Gameworld.Currencies.Get(zone.CurrencyId);
 		_controllingClanId = zone.ControllingClanId;
+		_estateAuctionHouseId = zone.EstateAuctionHouseId;
 		foreach (var period in zone.FinancialPeriods)
 		{
 			_financialPeriods.Add(new FinancialPeriod(period, this, gameworld));
@@ -169,6 +186,12 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		PreviousFinancialPeriodsToKeep = zone.PreviousFinancialPeriodsToKeep;
 		ZoneForTimePurposes = gameworld.Zones.Get(zone.ZoneForTimePurposesId);
 		PermitTaxableLosses = zone.PermitTaxableLosses;
+		EstateDefaultDiscoverTime = !string.IsNullOrWhiteSpace(zone.EstateDefaultDiscoverTime)
+			? MudTimeSpan.Parse(zone.EstateDefaultDiscoverTime)
+			: MudTimeSpan.FromDays(28);
+		EstateClaimPeriodLength = !string.IsNullOrWhiteSpace(zone.EstateClaimPeriodLength)
+			? MudTimeSpan.Parse(zone.EstateClaimPeriodLength)
+			: MudTimeSpan.FromDays(14);
 		FinancialPeriodInterval = new RecurringInterval
 		{
 			IntervalAmount = zone.IntervalAmount,
@@ -281,6 +304,30 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		{
 			bank.ReferenceDateOnDateChanged();
 		}
+
+		foreach (var estate in Estates.ToList())
+		{
+			estate.CheckStatus();
+		}
+	}
+
+	public IAuctionHouse EstateAuctionHouse
+	{
+		get
+		{
+			if (_estateAuctionHouse == null && _estateAuctionHouseId.HasValue)
+			{
+				_estateAuctionHouse = Gameworld.AuctionHouses.Get(_estateAuctionHouseId.Value);
+			}
+
+			return _estateAuctionHouse;
+		}
+		private set
+		{
+			_estateAuctionHouse = value;
+			_estateAuctionHouseId = value?.Id;
+			Changed = true;
+		}
 	}
 
 	public IEconomicZone Clone(string newName)
@@ -304,7 +351,10 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				PreviousFinancialPeriodsToKeep = PreviousFinancialPeriodsToKeep,
 				ReferenceCalendarId = FinancialPeriodReferenceCalendar.Id,
 				ReferenceClockId = FinancialPeriodReferenceClock.Id,
-				ReferenceTime = FinancialPeriodReferenceTime.GetTimeString()
+				ReferenceTime = FinancialPeriodReferenceTime.GetTimeString(),
+				EstateAuctionHouseId = EstateAuctionHouse?.Id,
+				EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
+				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText
 			};
 
 			foreach (var tax in olditem.EconomicZoneTaxes)
@@ -343,6 +393,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		dbitem.ReferenceCalendarId = FinancialPeriodReferenceCalendar.Id;
 		dbitem.ReferenceClockId = FinancialPeriodReferenceClock.Id;
 		dbitem.ReferenceTime = FinancialPeriodReferenceTime.GetTimeString();
+		dbitem.EstateAuctionHouseId = EstateAuctionHouse?.Id;
+		dbitem.EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText;
+		dbitem.EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText;
 
 		FMDB.Context.EconomicZoneRevenues.RemoveRange(dbitem.EconomicZoneRevenues);
 		foreach (var item in _historicalRevenues)
@@ -639,6 +692,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3forgive <shop> all#0 - forgives all owing taxes for a shop
 	#3shops#0 - lists all shops in this economic zone
 	#3shop <which>#0 - shows tax information about a shop in the zone
+	#3estatediscovery <time>#0 - sets how long estates remain undiscovered before probate opens
+	#3estateclaimperiod <time>#0 - sets how long claims remain open on discovered estates
+	#3estateauctionhouse <which>|none#0 - sets the default auction house for estate liquidation
 	#3taxinfo#0 - shows you information about tax revenues in this zone";
 
 	public string ClanHelpInfo => @"You can use the following options with this command:
@@ -656,6 +712,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3forgive <shop> all#0 - forgives all owing taxes for a shop
 	#3shops#0 - lists all shops in this economic zone
 	#3shop <which>#0 - shows tax information about a shop in the zone
+	#3estatediscovery <time>#0 - sets how long estates remain undiscovered before probate opens
+	#3estateclaimperiod <time>#0 - sets how long claims remain open on discovered estates
+	#3estateauctionhouse <which>|none#0 - sets the default auction house for estate liquidation
 	#3taxinfo#0 - shows you information about tax revenues in this zone";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -699,6 +758,18 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				return BuildingCommandEndFinancialPeriod(actor, command);
 			case "shop":
 				return BuildingCommandShop(actor, command);
+			case "estatediscovery":
+			case "estatediscover":
+			case "discovery":
+				return BuildingCommandEstateDiscovery(actor, command);
+			case "estateclaimperiod":
+			case "estateclaims":
+			case "claimperiod":
+				return BuildingCommandEstateClaimPeriod(actor, command);
+			case "estateauctionhouse":
+			case "estateauction":
+			case "probateauction":
+				return BuildingCommandEstateAuctionHouse(actor, command);
 			case "taxinfo":
 				return BuildingCommandTaxInfo(actor, command);
 			default:
@@ -728,6 +799,18 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				return BuildingCommandShop(actor, command);
 			case "shops":
 				return BuildingCommandShops(actor);
+			case "estatediscovery":
+			case "estatediscover":
+			case "discovery":
+				return BuildingCommandEstateDiscovery(actor, command);
+			case "estateclaimperiod":
+			case "estateclaims":
+			case "claimperiod":
+				return BuildingCommandEstateClaimPeriod(actor, command);
+			case "estateauctionhouse":
+			case "estateauction":
+			case "probateauction":
+				return BuildingCommandEstateAuctionHouse(actor, command);
 			case "taxinfo":
 			case "tax":
 				return BuildingCommandTaxInfo(actor, command);
@@ -808,6 +891,85 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			actor,
 			Telnet.FunctionYellow));
 		actor.OutputHandler.Send(sb.ToString());
+		return true;
+	}
+
+	private bool BuildingCommandEstateDiscovery(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How long should estates in this economic zone remain undiscovered before probate opens?");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var value) || (TimeSpan)value <= TimeSpan.Zero)
+		{
+			actor.OutputHandler.Send("That is not a valid positive amount of time.");
+			return false;
+		}
+
+		EstateDefaultDiscoverTime = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"Estates in the {Name.ColourName()} economic zone will now remain undiscovered for {value.Describe(actor).ColourValue()} before claims open.");
+		return true;
+	}
+
+	private bool BuildingCommandEstateClaimPeriod(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How long should claims remain open for discovered estates in this economic zone?");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var value) || (TimeSpan)value <= TimeSpan.Zero)
+		{
+			actor.OutputHandler.Send("That is not a valid positive amount of time.");
+			return false;
+		}
+
+		EstateClaimPeriodLength = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"Discovered estates in the {Name.ColourName()} economic zone will now remain open to claims for {value.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandEstateAuctionHouse(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which auction house should this economic zone use for estate liquidation?");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear"))
+		{
+			EstateAuctionHouse = null;
+			actor.OutputHandler.Send(
+				$"The {Name.ColourName()} economic zone will no longer use any default auction house for estate liquidation.");
+			return true;
+		}
+
+		var house = long.TryParse(command.SafeRemainingArgument, out var value)
+			? Gameworld.AuctionHouses.Get(value)
+			: Gameworld.AuctionHouses.GetByName(command.SafeRemainingArgument);
+		if (house == null)
+		{
+			actor.OutputHandler.Send("There is no such auction house.");
+			return false;
+		}
+
+		if (house.EconomicZone != this)
+		{
+			actor.OutputHandler.Send("That auction house does not belong to this economic zone.");
+			return false;
+		}
+
+		EstateAuctionHouse = house;
+		actor.OutputHandler.Send(
+			$"The {Name.ColourName()} economic zone will now use {house.Name.ColourName()} for estate liquidation.");
 		return true;
 	}
 
@@ -1497,6 +1659,10 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		sb.AppendLine($"Calendar: {FinancialPeriodReferenceCalendar.Name.ColourValue()}");
 		sb.AppendLine(
 			$"Financial Period Interval: {FinancialPeriodInterval.Describe(FinancialPeriodReferenceCalendar).ColourValue()}");
+		sb.AppendLine($"Estate Discovery Delay: {EstateDefaultDiscoverTime.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Estate Claim Period: {EstateClaimPeriodLength.Describe(actor).ColourValue()}");
+		sb.AppendLine(
+			$"Estate Auction House: {EstateAuctionHouse?.Name.ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Taxable Losses Permitted: {PermitTaxableLosses.ToColouredString()}");
 		sb.AppendLine(
 			$"# Financial Periods to Keep: {PreviousFinancialPeriodsToKeep.ToString("N0", actor).ColourValue()}");

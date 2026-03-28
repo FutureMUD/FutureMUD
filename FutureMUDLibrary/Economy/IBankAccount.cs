@@ -34,8 +34,10 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IProgVariable
 	bool IsAccountOwner(ICharacter character);
 	bool IsAccountOwner(IClan clan);
 	bool IsAccountOwner(IShop shop);
+	bool IsAccountOwner(IFrameworkItem owner);
 	bool IsAuthorisedAccountUser(ICharacter character);
 	IFrameworkItem AccountOwner { get; }
+	void SetAccountOwner(IFrameworkItem owner);
 	void SetName(string name);
 
 	bool IsAuthorisedPaymentItem(IBankPaymentItem item);

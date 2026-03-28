@@ -814,55 +814,31 @@ public class BankAccountType : SaveableItem, IBankAccountType
 
 	public IBankAccount OpenAccount(ICharacter actor)
 	{
-		using (new FMDB())
-		{
-			var newAccount = new Models.BankAccount
-			{
-				BankId = Bank.Id,
-				Name = Name.CollapseString(),
-				BankAccountTypeId = Id,
-				AccountCreationDate = Bank.EconomicZone.ZoneForTimePurposes
-				                          .DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar)
-				                          .GetDateTimeString(),
-				AccountNumber = Bank.BankAccounts.Select(x => x.AccountNumber).DefaultIfEmpty(0).Max() + 1,
-				AccountStatus = (int)BankAccountStatus.Active,
-				CurrentBalance = 0.0M,
-				CurrentMonthFees = 0.0M,
-				CurrentMonthInterest = 0.0M,
-				AccountOwnerCharacterId = actor.Id
-			};
-			FMDB.Context.BankAccounts.Add(newAccount);
-			FMDB.Context.SaveChanges();
-			return new BankAccount(newAccount, Bank);
-		}
+		return OpenAccount((IFrameworkItem)actor);
 	}
 
 	public IBankAccount OpenAccount(IClan clan)
 	{
-		using (new FMDB())
-		{
-			var newAccount = new Models.BankAccount
-			{
-				BankId = Bank.Id,
-				Name = Name.CollapseString(),
-				BankAccountTypeId = Id,
-				AccountCreationDate = Bank.EconomicZone.ZoneForTimePurposes
-				                          .DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar)
-				                          .GetDateTimeString(),
-				AccountNumber = Bank.BankAccounts.Select(x => x.AccountNumber).DefaultIfEmpty(0).Max() + 1,
-				AccountStatus = (int)BankAccountStatus.Active,
-				CurrentBalance = 0.0M,
-				CurrentMonthFees = 0.0M,
-				CurrentMonthInterest = 0.0M,
-				AccountOwnerClanId = clan.Id
-			};
-			FMDB.Context.BankAccounts.Add(newAccount);
-			FMDB.Context.SaveChanges();
-			return new BankAccount(newAccount, Bank);
-		}
+		return OpenAccount((IFrameworkItem)clan);
 	}
 
 	public IBankAccount OpenAccount(IShop shop)
+	{
+		return OpenAccount((IFrameworkItem)shop);
+	}
+
+	public (bool Truth, string Reason) CanOpenAccount(IFrameworkItem owner)
+	{
+		return owner switch
+		{
+			ICharacter actor => CanOpenAccount(actor),
+			IClan clan => CanOpenAccount(clan),
+			IShop shop => CanOpenAccount(shop),
+			_ => (true, string.Empty)
+		};
+	}
+
+	public IBankAccount OpenAccount(IFrameworkItem owner)
 	{
 		using (new FMDB())
 		{
@@ -879,7 +855,11 @@ public class BankAccountType : SaveableItem, IBankAccountType
 				CurrentBalance = 0.0M,
 				CurrentMonthFees = 0.0M,
 				CurrentMonthInterest = 0.0M,
-				AccountOwnerShopId = shop.Id
+				AccountOwnerFrameworkItemId = owner.Id,
+				AccountOwnerFrameworkItemType = owner.FrameworkItemType,
+				AccountOwnerCharacterId = owner is ICharacter ch ? ch.Id : null,
+				AccountOwnerClanId = owner is IClan clan ? clan.Id : null,
+				AccountOwnerShopId = owner is IShop shop ? shop.Id : null
 			};
 			FMDB.Context.BankAccounts.Add(newAccount);
 			FMDB.Context.SaveChanges();

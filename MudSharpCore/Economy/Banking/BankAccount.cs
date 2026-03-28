@@ -41,6 +41,26 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 		_characterOwnerId = dbitem.AccountOwnerCharacterId;
 		_clanOwnerId = dbitem.AccountOwnerClanId;
 		_shopOwnerId = dbitem.AccountOwnerShopId;
+		if (dbitem.AccountOwnerFrameworkItemId.HasValue &&
+		    !string.IsNullOrWhiteSpace(dbitem.AccountOwnerFrameworkItemType))
+		{
+			_accountOwnerReference =
+				new FrameworkItemReference(dbitem.AccountOwnerFrameworkItemId.Value,
+					dbitem.AccountOwnerFrameworkItemType, Gameworld);
+		}
+		else if (_characterOwnerId.HasValue)
+		{
+			_accountOwnerReference = new FrameworkItemReference(_characterOwnerId.Value, "Character", Gameworld);
+		}
+		else if (_clanOwnerId.HasValue)
+		{
+			_accountOwnerReference = new FrameworkItemReference(_clanOwnerId.Value, "Clan", Gameworld);
+		}
+		else if (_shopOwnerId.HasValue)
+		{
+			_accountOwnerReference = new FrameworkItemReference(_shopOwnerId.Value, "Shop", Gameworld);
+		}
+
 		_nominatedBenefactor = dbitem.NominatedBenefactorAccountId;
 		if (AccountStatus != BankAccountStatus.Closed)
 		{
@@ -69,9 +89,12 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 		dbitem.BankAccountTypeId = BankAccountType.Id;
 		dbitem.CurrentMonthInterest = CurrentMonthInterest;
 		dbitem.CurrentMonthFees = CurrentMonthFees;
+		SyncLegacyOwnerFields();
 		dbitem.AccountOwnerCharacterId = _characterOwnerId;
 		dbitem.AccountOwnerClanId = _clanOwnerId;
 		dbitem.AccountOwnerShopId = _shopOwnerId;
+		dbitem.AccountOwnerFrameworkItemId = _accountOwnerReference?.Id;
+		dbitem.AccountOwnerFrameworkItemType = _accountOwnerReference?.FrameworkItemType;
 		dbitem.NominatedBenefactorAccountId = _nominatedBenefactor;
 		dbitem.AuthorisedBankPaymentItems =
 			_authorisedPaymentItems.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
@@ -92,52 +115,85 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 	private long? _characterOwnerId;
 	private long? _clanOwnerId;
 	private long? _shopOwnerId;
+	private FrameworkItemReference _accountOwnerReference;
+	private IFrameworkItem _accountOwner;
 
 	public bool IsAccountOwner(ICharacter character)
 	{
-		return character.Id == _characterOwnerId;
+		return IsAccountOwner((IFrameworkItem)character);
 	}
 
 	public bool IsAccountOwner(IClan clan)
 	{
-		return clan.Id == _clanOwnerId;
+		return IsAccountOwner((IFrameworkItem)clan);
 	}
 
 	public bool IsAccountOwner(IShop shop)
 	{
-		return shop.Id == _shopOwnerId;
+		return IsAccountOwner((IFrameworkItem)shop);
+	}
+
+	public bool IsAccountOwner(IFrameworkItem owner)
+	{
+		return _accountOwnerReference?.Equals(owner) == true;
 	}
 
 	public IFrameworkItem AccountOwner
 	{
 		get
 		{
-			if (_characterOwnerId.HasValue)
+			if (_accountOwner == null && _accountOwnerReference != null)
 			{
-				return Gameworld.TryGetCharacter(_characterOwnerId.Value, true);
+				_accountOwner = _accountOwnerReference.GetItem;
 			}
 
-			if (_clanOwnerId.HasValue)
-			{
-				return Gameworld.Clans.Get(_clanOwnerId.Value);
-			}
-
-			if (_shopOwnerId.HasValue)
-			{
-				return Gameworld.Shops.Get(_shopOwnerId.Value);
-			}
-
-			throw new ApplicationException("There was no account owner set for a bank account.");
+			return _accountOwner ?? throw new ApplicationException("There was no account owner set for a bank account.");
 		}
+	}
+
+	public void SetAccountOwner(IFrameworkItem owner)
+	{
+		_accountOwner = owner;
+		_accountOwnerReference = owner == null
+			? null
+			: new FrameworkItemReference(owner.Id, owner.FrameworkItemType, Gameworld);
+		SyncLegacyOwnerFields();
+		Changed = true;
 	}
 
 	public bool IsAuthorisedAccountUser(ICharacter character)
 	{
-		return character.Id == _characterOwnerId ||
-		       (_shopOwnerId != null && Gameworld.Shops.Get(_shopOwnerId.Value)?.IsManager(character) == true) ||
-		       (_clanOwnerId != null && Gameworld.Clans.Get(_clanOwnerId.Value)?.Memberships
-		                                         .FirstOrDefault(x => x.MemberId == character.Id)?.NetPrivileges
-		                                         .HasFlag(ClanPrivilegeType.CanManageBankAccounts) == true);
+		if (IsAccountOwner(character))
+		{
+			return true;
+		}
+
+		return AccountOwner switch
+		{
+			IShop shop => shop.IsManager(character),
+			IClan clan => clan.Memberships.FirstOrDefault(x => x.MemberId == character.Id)?.NetPrivileges
+				.HasFlag(ClanPrivilegeType.CanManageBankAccounts) == true,
+			_ => false
+		};
+	}
+
+	private void SyncLegacyOwnerFields()
+	{
+		_characterOwnerId = null;
+		_clanOwnerId = null;
+		_shopOwnerId = null;
+		switch (_accountOwnerReference?.FrameworkItemType)
+		{
+			case "Character":
+				_characterOwnerId = _accountOwnerReference.Id;
+				break;
+			case "Clan":
+				_clanOwnerId = _accountOwnerReference.Id;
+				break;
+			case "Shop":
+				_shopOwnerId = _accountOwnerReference.Id;
+				break;
+		}
 	}
 
 	private HashSet<long> _authorisedPaymentItems = new();
@@ -510,28 +566,24 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 			sb.AppendLine($"Status: {AccountStatus.DescribeEnum().Colour(Telnet.Red)}");
 		}
 
-		if (_characterOwnerId.HasValue)
+		switch (AccountOwner)
 		{
-			if (_characterOwnerId.Value == actor.Id)
-			{
+			case ICharacter charOwner when charOwner.Id == actor.Id:
 				sb.AppendLine($"Owner: {"You".ColourCharacter()}");
-			}
-			else
-			{
-				var charOwner = Gameworld.TryGetCharacter(_characterOwnerId.Value, true);
+				break;
+			case ICharacter charOwner:
 				sb.AppendLine(
 					$"Owner: {charOwner.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreLoadThings)} ({charOwner.PersonalName.GetName(Character.Name.NameStyle.FullName).ColourName()})");
-			}
-		}
-		else if (_shopOwnerId.HasValue)
-		{
-			var shop = Gameworld.Shops.Get(_shopOwnerId.Value);
-			sb.AppendLine($"Owner: {shop.Name.ColourName()} (Shop)");
-		}
-		else if (_clanOwnerId.HasValue)
-		{
-			var clan = Gameworld.Clans.Get(_clanOwnerId.Value);
-			sb.AppendLine($"Owner: {clan.FullName.ColourName()} (Clan)");
+				break;
+			case IShop shop:
+				sb.AppendLine($"Owner: {shop.Name.ColourName()} (Shop)");
+				break;
+			case IClan clan:
+				sb.AppendLine($"Owner: {clan.FullName.ColourName()} (Clan)");
+				break;
+			default:
+				sb.AppendLine($"Owner: {AccountOwner.FrameworkItemType.ColourName()} #{AccountOwner.Id.ToString("N0", actor)}");
+				break;
 		}
 
 		sb.AppendLine($"Fees: See {$"bank preview {BankAccountType.Name.ToLowerInvariant()}".MXPSend()}");

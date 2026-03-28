@@ -13,10 +13,12 @@ public interface IBankAccountType : IFrameworkItem, IEditableItem, ISaveable, IP
 	(bool Truth, string Reason) CanOpenAccount(ICharacter actor);
 	(bool Truth, string Reason) CanOpenAccount(IClan clan);
 	(bool Truth, string Reason) CanOpenAccount(IShop shop);
+	(bool Truth, string Reason) CanOpenAccount(IFrameworkItem owner);
 	(bool Truth, string Reason) CanCloseAccount(ICharacter actor, IBankAccount account);
 	IBankAccount OpenAccount(ICharacter actor);
 	IBankAccount OpenAccount(IClan clan);
 	IBankAccount OpenAccount(IShop shop);
+	IBankAccount OpenAccount(IFrameworkItem owner);
 	IBank Bank { get; }
 	string ShowToCustomer(ICharacter actor);
 	string CustomerDescription { get; }

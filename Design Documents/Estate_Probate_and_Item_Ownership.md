@@ -1,0 +1,164 @@
+# Estate Probate and Item Ownership
+
+## Scope
+
+This document describes the current runtime behaviour for estate probate, item ownership, and the connected command surface that was added to the economy subsystem.
+
+The implementation is intentionally zone-local. A deceased character may generate multiple estates, with one estate per economic zone that contains relevant assets.
+
+## Probate Lifecycle
+
+- When a character dies, the death path creates estates automatically.
+- A separate estate is created for each economic zone that receives captured assets.
+- If the same character dies again before an earlier estate in that zone is finalised or cancelled, the existing open estate is reused instead of creating a duplicate probate case.
+- Estates begin in `Undiscovered`.
+- After the owning economic zone's `EstateDefaultDiscoverTime` expires, the estate moves to `ClaimPhase`.
+- After the owning economic zone's `EstateClaimPeriodLength` expires:
+  - estates with no approved claims finalise directly;
+  - estates with approved claims move to `Liquidating`.
+- Liquidating estates do not finalise until their estate auction lots have completed and there are no active or unclaimed liquidation lots remaining.
+- Sold-but-unclaimed estate item lots do not block estate finalisation once the sale has completed and proceeds have been recorded.
+- Economic zones now persist both timing values and evaluate estate status progression during their normal calendar day update hook.
+
+## Captured Assets
+
+The current death capture pass collects the following into the relevant zone estate:
+
+- Properties owned by the deceased in that economic zone.
+- Bank accounts owned by the deceased whose bank belongs to that economic zone.
+- Items on the deceased body when the death occurs in a zone that can be resolved.
+
+Item capture follows conservative ownership rules:
+
+- If an item already has a registered owner and that owner is not the deceased, it is excluded from the estate.
+- If an item has no registered owner and is on the deceased, it is added as a presumed-ownership estate asset.
+- If an item is known to be owned by the deceased, it is added as a normal estate asset.
+
+## Claims
+
+Claims are now first-class persistent records attached to estates.
+
+Each claim records:
+
+- claimant as a generic framework item reference;
+- optional target asset reference;
+- amount;
+- reason;
+- secured flag;
+- assessment status and optional status reason;
+- claim date.
+
+System-generated secured claims are currently created for:
+
+- negative bank account positions and accrued account fees;
+- outstanding line-of-credit balances.
+
+Player claims are submitted with the `estate claim` command during the claim phase. Claims can then be approved or rejected by administrators or members of the economic zone's controlling clan who hold the `CanManageEstates` privilege.
+
+## Finalisation
+
+The current finalisation flow behaves as follows:
+
+- If there are no approved claims, estate assets are transferred in kind to the nominated heir.
+- If no heir is nominated, the controlling clan of the economic zone is used as the fallback inheritor.
+- If there are approved claims, the estate enters `Liquidating`.
+- Positive bank balances are withdrawn immediately into the estate liquidation pool and the underlying bank accounts are closed.
+- Non-cash assets are listed on the economic zone's configured probate auction house.
+- Administrators and controlling-clan members with `CanManageEstates` can manually list or relist liquidation assets with custom reserve and buyout prices.
+- If an auction lot sells:
+  - sold item lots transfer item ownership to the winning bidder when claimed;
+  - sold property lots transfer ownership immediately through a direct ownership-transfer path that does not require a property sale order;
+  - sale proceeds are routed automatically into the estate liquidation pool.
+- If an auction lot fails to sell, the asset remains with the estate and is eligible for manual relisting or in-kind transfer when liquidation closes.
+- When liquidation closes, the estate computes available distributable cash from liquidated assets.
+- Approved claims are paid in secured-first order up to the available distributable cash.
+- Secured bank-account claims are settled against the underlying bank account debt rather than being routed to generic zone revenue.
+- Any residual amount is routed to the inheritor where a suitable bank account exists, otherwise it falls back to economic-zone revenue.
+- Assets that have not been liquidated are still transferred in kind at finalisation.
+
+## Item Ownership
+
+Game items now have durable generic ownership references.
+
+Supported owners currently include:
+
+- characters;
+- clans;
+- shops;
+- estates.
+
+Ownership is stamped automatically in these known flows:
+
+- shop purchases set the buyer as the owner;
+- selling items to a shop sets the shop as the owner;
+- claiming auction items now sets ownership to the winning bidder, or back to the seller if the item was unsold;
+- estate transfers set the inheritor as the owner for transferred items.
+
+## Command Surface
+
+### `heir`
+
+Players can manage their nominated heir:
+
+- `heir`
+- `heir <character>`
+- `heir clan <clan>`
+- `heir clear`
+
+### `ownership`
+
+Players and staff can inspect and manage item ownership:
+
+- `ownership show <item>`
+- `ownership claim <item>` for currently unowned items only
+- `ownership clan <clan> <item>` for clan-managed public property
+- `ownership clear <item>` admin only
+- `ownership set character <character> <item>` admin only
+- `ownership set clan <clan> <item>` admin only
+
+### `estate`
+
+Probate interaction is provided through:
+
+- `estate list`
+- `estate show <id>`
+- `estate claim <id> <amount> <reason>`
+- `estate approve <estate> <claim> [reason]`
+- `estate reject <estate> <claim> <reason>`
+- `estate listasset <estate> <asset> [<reserve>] [<buyout>]`
+- `estate relist <estate> <asset> [<reserve>] [<buyout>]`
+- `estate finalise <id>`
+
+`estate show` now also surfaces liquidation progress, active liquidation lots, unclaimed liquidation lots, completed liquidation results, and a visible error if the economic zone has no probate auction house configured.
+
+## Economic Zone Configuration
+
+Economic zones now persist and expose probate timings through builder commands:
+
+- `estatediscovery <time>`
+- `estateclaimperiod <time>`
+- `estateauctionhouse <which>|none`
+
+Those values are shown in the economic zone's `show` output and are saved with the zone.
+
+## Persistence
+
+The following persistence changes back the feature:
+
+- `GameItem` now stores a generic owner reference.
+- `BankAccount` now stores a generic framework-item owner reference alongside legacy owner columns.
+- `Character` now stores a generic estate heir reference.
+- `EconomicZone` now stores estate discovery and claim timing values plus a default probate auction house reference.
+- New tables/models exist for `Estate`, `EstateAsset`, and `EstateClaim`.
+- The migration backfills generic bank-account ownership from legacy character, clan, and shop owner columns.
+
+## Auction Integration
+
+Auction integration is now estate-aware:
+
+- auction lots can represent either items or properties;
+- auction seller identity and payout targets are generic framework-item references rather than character-only references;
+- seller proceeds that cannot be paid immediately are persisted as owed balances and retried automatically by the auction house;
+- auction XML persists both the new generic seller/asset metadata and legacy item/character attributes for compatibility with existing saved definitions;
+- estate liquidation uses the economic zone's probate auction house for automatic liquidation listings;
+- ordinary fixed-price property sales still continue to use `PropertySaleOrder` rather than the auction-house subsystem.

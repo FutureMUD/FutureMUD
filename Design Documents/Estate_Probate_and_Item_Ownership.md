@@ -94,6 +94,12 @@ Ownership is stamped automatically in these known flows:
 - claiming auction items now sets ownership to the winning bidder, or back to the seller if the item was unsold;
 - estate transfers set the inheritor as the owner for transferred items.
 
+Ownership inspection is privacy-aware for ordinary players:
+
+- administrators can still see exact owners;
+- players can see themselves and clan owners explicitly;
+- other character or system owners are intentionally obscured as `someone`.
+
 ## Command Surface
 
 ### `heir`
@@ -105,16 +111,26 @@ Players can manage their nominated heir:
 - `heir clan <clan>`
 - `heir clear`
 
+Additional runtime notes:
+
+- `heir` with no further arguments reports the currently nominated heir, if any;
+- character heirs must be nominated through normal present-room targeting rather than by global ID or offline-name lookup;
+- clan heirs still use normal clan lookup.
+
 ### `ownership`
 
 Players and staff can inspect and manage item ownership:
 
+- `ownership` or `own` shows visible items on the character and in the room, including visible nested contents, and respects closed opaque container visibility rules
 - `ownership show <item>`
 - `ownership claim <item>` for currently unowned items only
+- `ownership claim deep [<held item>]` claims all held items, or one held item, plus contained items recursively when they are currently unowned
 - `ownership clan <clan> <item>` for clan-managed public property
 - `ownership clear <item>` admin only
 - `ownership set character <character> <item>` admin only
 - `ownership set clan <clan> <item>` admin only
+
+When ordinary players inspect a specific item or list ownership, exact owners are only shown for themselves and clans they can identify; other owners are reported generically as `someone` unless the viewer is an administrator.
 
 ### `estate`
 
@@ -162,3 +178,7 @@ Auction integration is now estate-aware:
 - auction XML persists both the new generic seller/asset metadata and legacy item/character attributes for compatibility with existing saved definitions;
 - estate liquidation uses the economic zone's probate auction house for automatic liquidation listings;
 - ordinary fixed-price property sales still continue to use `PropertySaleOrder` rather than the auction-house subsystem.
+
+## Property Key Reclaiming
+
+Property key reclamation now detaches returned key items from any prior inventory, container, or room location before they are handed back to the claimant or grouped into a bundle. This prevents stale containment references from surviving across saves and triggering duplicate-item protection on reload.

@@ -249,11 +249,16 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 
 	public void SetContents(IEnumerable<IGameItem> items)
 	{
-		_contents.AddRange(items);
-		foreach (var item in _contents)
+		foreach (var item in items.Distinct())
 		{
+			item.ContainedIn?.Take(item);
+			item.InInventoryOf?.Take(item);
+			item.Location?.Extract(item);
+			_contents.Add(item);
 			item.ContainedIn = Parent;
 		}
+
+		Changed = true;
 	}
 
 	public string ContentsPreposition => "in";

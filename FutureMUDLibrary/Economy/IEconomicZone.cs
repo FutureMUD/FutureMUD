@@ -52,6 +52,9 @@ namespace MudSharp.Economy
 
 		IEnumerable<ICell> ConveyancingCells { get; }
 		IEnumerable<ICell> JobFindingCells { get; }
+		IEnumerable<ICell> ProbateOfficeCells { get; }
+		ICell MorgueOfficeCell { get; }
+		ICell MorgueStorageCell { get; }
 
 		bool BuildingCommandFromClanCommand(ICharacter actor, StringStack command);
 		IEconomicZone Clone(string newName);

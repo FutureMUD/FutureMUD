@@ -44,6 +44,7 @@ namespace MudSharp.RPG.Law
 		IEnumerable<ICrime> StaleCrimes { get; }
 		IEnumerable<ICrime> UnknownCrimes { get; }
 		IEnumerable<ICrime> ResolvedCrimes { get; }
+		IEnumerable<ICorpseRecoveryReport> CorpseRecoveryReports { get; }
 
 		IEnumerable<ICrime> KnownCrimesForIndividual(ICharacter individual);
 		IEnumerable<ICrime> UnknownCrimesForIndividual(ICharacter individual);
@@ -58,6 +59,8 @@ namespace MudSharp.RPG.Law
 		void AccuseCrime(ICrime crime);
 		void RemoveCrime(ICrime crime);
 		void FinaliseCrime(ICrime crime);
+		ICorpseRecoveryReport ReportCorpse(IGameItem corpse, IEconomicZone zone, ICharacter reporter);
+		ICorpseRecoveryReport ActiveCorpseRecoveryReport(IGameItem corpse);
 
 		bool PlayersKnowTheirCrimes { get; }
 		TimeSpan AutomaticConvictionTime { get; }

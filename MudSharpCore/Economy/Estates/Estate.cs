@@ -135,7 +135,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		return estates.Values;
 	}
 
-	private static IEconomicZone DetermineZone(IFuturemud gameworld, ICell cell)
+	public static IEconomicZone DetermineZone(IFuturemud gameworld, ICell cell)
 	{
 		return gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(cell))?.EconomicZone ??
 		       gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(cell))?.EconomicZone ??
@@ -292,6 +292,20 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		Changed = true;
 	}
 
+	public bool OpenProbate()
+	{
+		if (EstateStatus != EstateStatus.Undiscovered)
+		{
+			return false;
+		}
+
+		EstateStatus = EstateStatus.ClaimPhase;
+		FinalisationDate = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime +
+		                   EconomicZone.EstateClaimPeriodLength;
+		Changed = true;
+		return true;
+	}
+
 	public bool CheckStatus()
 	{
 		if (EstateStatus == EstateStatus.Finalised || EstateStatus == EstateStatus.Cancelled)
@@ -332,11 +346,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		    EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime >=
 		    EstateStartTime + EconomicZone.EstateDefaultDiscoverTime)
 		{
-			EstateStatus = EstateStatus.ClaimPhase;
-			FinalisationDate = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime +
-			                   EconomicZone.EstateClaimPeriodLength;
-			Changed = true;
-			return true;
+			return OpenProbate();
 		}
 
 		return false;

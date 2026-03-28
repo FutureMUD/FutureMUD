@@ -91,7 +91,7 @@ The classifications below are conservative. "Easy" means the current implementat
 | Auction houses | Possible | The runtime is ready, but auction houses depend on chosen cells and settlement accounts, so they are best seeded only once a world layout exists |
 | Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design |
 | Properties | Poor candidate without more design work | Property is location-specific, owner-specific, and strongly coupled to the world's map and institutions |
-| Estates | Poor candidate without more design work | The subsystem is intentionally unimplemented pending a trustworthy item-ownership model |
+| Estates and morgues | Poor candidate without more design work | The runtime now exists, but setup still depends on world-specific cells, clans, legal authorities, auction houses, and ownership expectations |
 
 ## Easy Seeder Candidates in More Detail
 ### Additional currency packs and pattern packs
@@ -227,14 +227,19 @@ Properties are even more world-specific because the seeded content would need to
 - what is for lease
 - how keys and access are distributed
 
-### Estates
-Estates are a poor seeder candidate because they are blocked by a product-design problem, not by lack of seed packaging.
+### Estates and Morgues
+Estates and morgues remain a poor seeder candidate, but for a different reason than before: the runtime exists and is operational, yet the configuration is highly institutional and map-specific.
 
-The current blocker is a trustworthy ownership model for arbitrary items. Until that exists, seeded estate content would only dress a subsystem that cannot currently settle its central question correctly.
+Seed content cannot safely guess:
+
+- which economic zones should expose probate offices
+- where morgue offices and storage rooms belong on the map
+- which legal authorities should answer corpse-recovery reports
+- what clans, auction houses, and heirs should sit behind local probate practice
 
 ## Major Gaps and Priorities
-### Estates are intentionally unimplemented
-This should be treated as an unresolved design prerequisite, not as a normal backlog item.
+### Estates are no longer blocked, but still not stock-seed friendly
+The current gap is builder packaging, not subsystem existence.
 
 The key blocker is not claim timing or payout mechanics. It is deciding what counts as a deceased character's property with enough fidelity that the game does not produce bad outcomes in ordinary MUD play.
 
@@ -295,5 +300,5 @@ When extending the seeder side of the economy:
 - prefer packaging mature, data-driven economy objects first
 - keep additive and repairable behavior for stock-owned economy packages whenever stable names make that safe
 - avoid seeding world-specific retail or property content until the seeder has a clean story for cells, items, and institutions
-- treat estates as blocked on ownership design, not as a normal seeding omission
+- treat probate and morgue seeding as a world-integration problem rather than a missing runtime feature
 - keep the economy design docs updated whenever new seeder support changes the practical setup path

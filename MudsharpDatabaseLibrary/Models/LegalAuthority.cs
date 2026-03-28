@@ -17,6 +17,7 @@ namespace MudSharp.Models
             LegalAuthorityJailCells = new HashSet<LegalAuthorityJailCell>();
             Patrols = new HashSet<Patrol>();
             Fines = new HashSet<LegalAuthorityFine>();
+            CorpseRecoveryReports = new HashSet<CorpseRecoveryReport>();
         }
 
         public long Id { get; set; }
@@ -51,6 +52,7 @@ namespace MudSharp.Models
         public virtual ICollection<LegalAuthorityJailCell> LegalAuthorityJailCells { get; set; }
         public virtual ICollection<Patrol> Patrols { get; set; }
         public virtual ICollection<LegalAuthorityFine> Fines { get; set; }
+        public virtual ICollection<CorpseRecoveryReport> CorpseRecoveryReports { get; set; }
         public virtual Cell PreparingLocation { get; set; }
         public virtual Cell MarshallingLocation { get; set; }
         public virtual Cell EnforcerStowingLocation { get; set; }

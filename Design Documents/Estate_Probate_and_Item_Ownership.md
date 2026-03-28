@@ -13,6 +13,8 @@ The implementation is intentionally zone-local. A deceased character may generat
 - If the same character dies again before an earlier estate in that zone is finalised or cancelled, the existing open estate is reused instead of creating a duplicate probate case.
 - Estates begin in `Undiscovered`.
 - After the owning economic zone's `EstateDefaultDiscoverTime` expires, the estate moves to `ClaimPhase`.
+- Administrators or authorised zone managers can move an `Undiscovered` estate directly into `ClaimPhase` with `estate open <id>`.
+- Morgue intake also opens probate immediately rather than waiting for the discovery timer.
 - After the owning economic zone's `EstateClaimPeriodLength` expires:
   - estates with no approved claims finalise directly;
   - estates with approved claims move to `Liquidating`.
@@ -127,19 +129,46 @@ Probate interaction is provided through:
 - `estate reject <estate> <claim> <reason>`
 - `estate listasset <estate> <asset> [<reserve>] [<buyout>]`
 - `estate relist <estate> <asset> [<reserve>] [<buyout>]`
+- `estate open <id>`
 - `estate finalise <id>`
 
 `estate show` now also surfaces liquidation progress, active liquidation lots, unclaimed liquidation lots, completed liquidation results, and a visible error if the economic zone has no probate auction house configured.
+
+All non-admin player use of the `estate` command now requires standing in a probate office configured on the relevant economic zone. LOOK output in those cells includes a reminder that the `ESTATE` command is available there. Administrators and estate managers remain exempt from the location restriction.
 
 ## Economic Zone Configuration
 
 Economic zones now persist and expose probate timings through builder commands:
 
+- `probate`
+- `morgueoffice <here|none>`
+- `morguestorage <here|none>`
 - `estatediscovery <time>`
 - `estateclaimperiod <time>`
 - `estateauctionhouse <which>|none`
 
 Those values are shown in the economic zone's `show` output and are saved with the zone.
+
+## Morgues and Corpse Recovery
+
+Economic zones can now define both:
+
+- a morgue office cell for player interaction;
+- a morgue storage cell for corpse and belongings custody.
+
+Players report bodies with `report body <corpse>`. The local legal authority for the corpse's zone creates a corpse-recovery job and dispatches a patrol when resources are available. On successful pickup:
+
+- the corpse is moved into the economic zone's morgue storage room;
+- possessions are stripped from the corpse and packed into a belongings bundle;
+- probate is opened immediately for the deceased's estate in that zone.
+
+The public command surface is `morgue`, and it only works from a morgue office:
+
+- `morgue list`
+- `morgue claim corpse <which>`
+- `morgue claim item <which>`
+
+Claiming a corpse is limited to administrators, estate managers, and the direct inheritor. Claiming items from morgue bundles is limited to items already marked as owned by the claiming character.
 
 ## Persistence
 
@@ -148,8 +177,9 @@ The following persistence changes back the feature:
 - `GameItem` now stores a generic owner reference.
 - `BankAccount` now stores a generic framework-item owner reference alongside legacy owner columns.
 - `Character` now stores a generic estate heir reference.
-- `EconomicZone` now stores estate discovery and claim timing values plus a default probate auction house reference.
+- `EconomicZone` now stores estate discovery and claim timing values, probate office cells, morgue office/storage cells, and a default probate auction house reference.
 - New tables/models exist for `Estate`, `EstateAsset`, and `EstateClaim`.
+- New tables/models exist for corpse-recovery jobs and probate office locations.
 - The migration backfills generic bank-account ownership from legacy character, clan, and shop owner columns.
 
 ## Auction Integration

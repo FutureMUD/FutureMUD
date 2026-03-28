@@ -1952,6 +1952,18 @@ namespace MudSharp.Database
 					.HasForeignKey(d => d.EstateAuctionHouseId)
 					.OnDelete(DeleteBehavior.SetNull)
 					.HasConstraintName("FK_EconomicZones_EstateAuctionHouses");
+
+				entity.HasOne(d => d.MorgueOfficeLocation)
+					.WithMany()
+					.HasForeignKey(d => d.MorgueOfficeLocationId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_EconomicZones_MorgueOfficeLocations");
+
+				entity.HasOne(d => d.MorgueStorageLocation)
+					.WithMany()
+					.HasForeignKey(d => d.MorgueStorageLocationId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_EconomicZones_MorgueStorageLocations");
 			});
 
 			modelBuilder.Entity<ConveyancingLocation>(entity =>
@@ -1992,6 +2004,83 @@ namespace MudSharp.Database
 					.HasForeignKey(e => e.CellId)
 					.OnDelete(DeleteBehavior.Cascade)
 					.HasConstraintName("FK_JobFindingLocations_Cells");
+			});
+
+			modelBuilder.Entity<CorpseRecoveryReport>(entity =>
+			{
+				entity.ToTable("CorpseRecoveryReports");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.LegalAuthorityId).HasColumnType("bigint(20)");
+				entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
+				entity.Property(e => e.CorpseId).HasColumnType("bigint(20)");
+				entity.Property(e => e.SourceCellId).HasColumnType("bigint(20)");
+				entity.Property(e => e.DestinationCellId).HasColumnType("bigint(20)");
+				entity.Property(e => e.ReporterId).HasColumnType("bigint(20)");
+				entity.Property(e => e.AssignedPatrolId).HasColumnType("bigint(20)");
+				entity.Property(e => e.Status).HasColumnType("int(11)");
+
+				entity.HasOne(e => e.LegalAuthority)
+					.WithMany(e => e.CorpseRecoveryReports)
+					.HasForeignKey(e => e.LegalAuthorityId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CorpseRecoveryReports_LegalAuthorities");
+
+				entity.HasOne(e => e.EconomicZone)
+					.WithMany()
+					.HasForeignKey(e => e.EconomicZoneId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CorpseRecoveryReports_EconomicZones");
+
+				entity.HasOne(e => e.Corpse)
+					.WithMany()
+					.HasForeignKey(e => e.CorpseId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CorpseRecoveryReports_GameItems");
+
+				entity.HasOne(e => e.SourceCell)
+					.WithMany()
+					.HasForeignKey(e => e.SourceCellId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CorpseRecoveryReports_SourceCells");
+
+				entity.HasOne(e => e.DestinationCell)
+					.WithMany()
+					.HasForeignKey(e => e.DestinationCellId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CorpseRecoveryReports_DestinationCells");
+
+				entity.HasOne(e => e.Reporter)
+					.WithMany()
+					.HasForeignKey(e => e.ReporterId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_CorpseRecoveryReports_Characters");
+
+				entity.HasOne(e => e.AssignedPatrol)
+					.WithMany()
+					.HasForeignKey(e => e.AssignedPatrolId)
+					.OnDelete(DeleteBehavior.SetNull)
+					.HasConstraintName("FK_CorpseRecoveryReports_Patrols");
+			});
+
+			modelBuilder.Entity<ProbateLocation>(entity =>
+			{
+				entity.ToTable("ProbateLocations");
+				entity.HasKey(e => new { e.EconomicZoneId, e.CellId }).HasName("PRIMARY");
+				entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
+				entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+
+				entity.HasOne(e => e.EconomicZone)
+					.WithMany(e => e.ProbateLocations)
+					.HasForeignKey(e => e.EconomicZoneId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_ProbateLocations_EconomicZones");
+
+				entity.HasOne(e => e.Cell)
+					.WithMany()
+					.HasForeignKey(e => e.CellId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_ProbateLocations_Cells");
 			});
 
 			modelBuilder.Entity<EditableItem>(entity =>

@@ -134,6 +134,11 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			_finePaymentDueDates.Add(fine.CharacterId, new MudDateTime(fine.PaymentRequiredBy, Gameworld));
 		}
 
+		foreach (var report in dbitem.CorpseRecoveryReports)
+		{
+			_corpseRecoveryReports.Add(new CorpseRecoveryReport(report, gameworld));
+		}
+
 		CalculateLawLookup();
 		CalculateKnownCrimeLookup();
 		CalculateUnknownCrimeLookup();

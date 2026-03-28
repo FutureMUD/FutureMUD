@@ -31,6 +31,7 @@ namespace MudSharp.RPG.Law
         DateTime LastArrivedTime { get; set; }
         ICharacter ActiveEnforcementTarget { get; set; }
         ICrime ActiveEnforcementCrime { get; set; }
+        ICorpseRecoveryReport ActiveCorpseRecoveryReport { get; set; }
 
         void AbortPatrol();
         void CompletePatrol();

@@ -131,6 +131,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				EstateAuctionHouseId = null,
 				EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
 				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText,
+				MorgueOfficeLocationId = null,
+				MorgueStorageLocationId = null,
 				ZoneForTimePurposesId = ZoneForTimePurposes.Id
 			};
 			FMDB.Context.EconomicZones.Add(dbitem);
@@ -176,6 +178,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		Currency = Gameworld.Currencies.Get(zone.CurrencyId);
 		_controllingClanId = zone.ControllingClanId;
 		_estateAuctionHouseId = zone.EstateAuctionHouseId;
+		_morgueOfficeCell = gameworld.Cells.Get(zone.MorgueOfficeLocationId ?? 0);
+		_morgueStorageCell = gameworld.Cells.Get(zone.MorgueStorageLocationId ?? 0);
 		foreach (var period in zone.FinancialPeriods)
 		{
 			_financialPeriods.Add(new FinancialPeriod(period, this, gameworld));
@@ -296,6 +300,32 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			cell.CellRequestsDeletion -= JobCellRequestsDeletion;
 			cell.CellRequestsDeletion += JobCellRequestsDeletion;
 		}
+
+		foreach (var location in zone.ProbateLocations)
+		{
+			var cell = Gameworld.Cells.Get(location.CellId);
+#if DEBUG
+			if (cell == null)
+			{
+				throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+			}
+#endif
+			_probateOfficeCells.Add(cell);
+			cell.CellRequestsDeletion -= ProbateCellRequestsDeletion;
+			cell.CellRequestsDeletion += ProbateCellRequestsDeletion;
+		}
+
+		if (_morgueOfficeCell != null)
+		{
+			_morgueOfficeCell.CellRequestsDeletion -= MorgueOfficeCellRequestsDeletion;
+			_morgueOfficeCell.CellRequestsDeletion += MorgueOfficeCellRequestsDeletion;
+		}
+
+		if (_morgueStorageCell != null)
+		{
+			_morgueStorageCell.CellRequestsDeletion -= MorgueStorageCellRequestsDeletion;
+			_morgueStorageCell.CellRequestsDeletion += MorgueStorageCellRequestsDeletion;
+		}
 	}
 
 	private void ReferenceCalendarOnDaysUpdated()
@@ -354,7 +384,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				ReferenceTime = FinancialPeriodReferenceTime.GetTimeString(),
 				EstateAuctionHouseId = EstateAuctionHouse?.Id,
 				EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
-				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText
+				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText,
+				MorgueOfficeLocationId = MorgueOfficeCell?.Id,
+				MorgueStorageLocationId = MorgueStorageCell?.Id
 			};
 
 			foreach (var tax in olditem.EconomicZoneTaxes)
@@ -396,6 +428,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		dbitem.EstateAuctionHouseId = EstateAuctionHouse?.Id;
 		dbitem.EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText;
 		dbitem.EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText;
+		dbitem.MorgueOfficeLocationId = MorgueOfficeCell?.Id;
+		dbitem.MorgueStorageLocationId = MorgueStorageCell?.Id;
 
 		FMDB.Context.EconomicZoneRevenues.RemoveRange(dbitem.EconomicZoneRevenues);
 		foreach (var item in _historicalRevenues)
@@ -437,6 +471,16 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		foreach (var location in JobFindingCells)
 		{
 			dbitem.JobFindingLocations.Add(new JobFindingLocation
+			{
+				CellId = location.Id,
+				EconomicZoneId = Id
+			});
+		}
+
+		FMDB.Context.ProbateLocations.RemoveRange(dbitem.ProbateLocations);
+		foreach (var location in ProbateOfficeCells)
+		{
+			dbitem.ProbateLocations.Add(new ProbateLocation
 			{
 				CellId = location.Id,
 				EconomicZoneId = Id
@@ -688,6 +732,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3profittax <which> <...>#0 - edit properties of a particular tax
 	#3realty#0 - toggles your current location as a conveyancing/realty location
 	#3jobs#0 - toggles your current location as a job listing and finding location
+	#3probate#0 - toggles your current location as a probate office
+	#3morgueoffice <here|none>#0 - sets or clears the morgue office for this economic zone
+	#3morguestorage <here|none>#0 - sets or clears the morgue storage room for this economic zone
 	#3forgive <shop> <amount>#0 - forgives a certain amount of owing tax for a shop (excess gives credits)
 	#3forgive <shop> all#0 - forgives all owing taxes for a shop
 	#3shops#0 - lists all shops in this economic zone
@@ -751,6 +798,13 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			case "job":
 			case "jobs":
 				return BuildingCommandJobs(actor, command);
+			case "probate":
+			case "probateoffice":
+				return BuildingCommandProbate(actor, command);
+			case "morgueoffice":
+				return BuildingCommandMorgueOffice(actor, command);
+			case "morguestorage":
+				return BuildingCommandMorgueStorage(actor, command);
 			case "forgive":
 			case "forgivetaxes":
 				return BuildingCommandForgiveTaxes(actor, command);
@@ -1626,6 +1680,23 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		_jobFindingCells.Remove((ICell)sender);
 	}
 
+	private void ProbateCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_probateOfficeCells.Remove((ICell)sender);
+	}
+
+	private void MorgueOfficeCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_morgueOfficeCell = null;
+		Changed = true;
+	}
+
+	private void MorgueStorageCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_morgueStorageCell = null;
+		Changed = true;
+	}
+
 	private bool BuildingCommandJobs(ICharacter actor, StringStack command)
 	{
 		if (_jobFindingCells.Contains(actor.Location))
@@ -1645,6 +1716,70 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		}
 
 		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandProbate(ICharacter actor, StringStack command)
+	{
+		if (_probateOfficeCells.Contains(actor.Location))
+		{
+			actor.OutputHandler.Send(
+				"Your current location is no longer a probate office in this economic zone.");
+			_probateOfficeCells.Remove(actor.Location);
+			actor.Location.CellRequestsDeletion -= ProbateCellRequestsDeletion;
+		}
+		else
+		{
+			actor.OutputHandler.Send(
+				"Your current location is now a probate office in this economic zone.");
+			_probateOfficeCells.Add(actor.Location);
+			actor.Location.CellRequestsDeletion -= ProbateCellRequestsDeletion;
+			actor.Location.CellRequestsDeletion += ProbateCellRequestsDeletion;
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandMorgueOffice(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || command.PeekSpeech().EqualTo("here"))
+		{
+			MorgueOfficeCell = actor.Location;
+			actor.OutputHandler.Send(
+				$"{actor.Location.GetFriendlyReference(actor)} is now the morgue office for this economic zone.");
+			return true;
+		}
+
+		if (!command.PeekSpeech().EqualTo("none") && !command.PeekSpeech().EqualTo("clear"))
+		{
+			actor.OutputHandler.Send("You must specify either HERE or NONE.");
+			return false;
+		}
+
+		MorgueOfficeCell = null;
+		actor.OutputHandler.Send("This economic zone no longer has a morgue office configured.");
+		return true;
+	}
+
+	private bool BuildingCommandMorgueStorage(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || command.PeekSpeech().EqualTo("here"))
+		{
+			MorgueStorageCell = actor.Location;
+			actor.OutputHandler.Send(
+				$"{actor.Location.GetFriendlyReference(actor)} is now the morgue storage room for this economic zone.");
+			return true;
+		}
+
+		if (!command.PeekSpeech().EqualTo("none") && !command.PeekSpeech().EqualTo("clear"))
+		{
+			actor.OutputHandler.Send("You must specify either HERE or NONE.");
+			return false;
+		}
+
+		MorgueStorageCell = null;
+		actor.OutputHandler.Send("This economic zone no longer has a morgue storage room configured.");
 		return true;
 	}
 
@@ -1710,6 +1845,17 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			sb.AppendLine($"\t{location.GetFriendlyReference(actor)}");
 		}
 
+		sb.AppendLine();
+		sb.AppendLine("Probate Office Locations:");
+		foreach (var location in ProbateOfficeCells)
+		{
+			sb.AppendLine($"\t{location.GetFriendlyReference(actor)}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine($"Morgue Office: {MorgueOfficeCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
+		sb.AppendLine($"Morgue Storage: {MorgueStorageCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
+
 		return sb.ToString();
 	}
 
@@ -1744,4 +1890,53 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
 	private readonly List<ICell> _jobFindingCells = new();
 	public IEnumerable<ICell> JobFindingCells => _jobFindingCells;
+
+	private readonly List<ICell> _probateOfficeCells = new();
+	public IEnumerable<ICell> ProbateOfficeCells => _probateOfficeCells;
+
+	private ICell _morgueOfficeCell;
+	public ICell MorgueOfficeCell
+	{
+		get => _morgueOfficeCell;
+		private set
+		{
+			if (_morgueOfficeCell != null)
+			{
+				_morgueOfficeCell.CellRequestsDeletion -= MorgueOfficeCellRequestsDeletion;
+			}
+
+			_morgueOfficeCell = value;
+
+			if (_morgueOfficeCell != null)
+			{
+				_morgueOfficeCell.CellRequestsDeletion -= MorgueOfficeCellRequestsDeletion;
+				_morgueOfficeCell.CellRequestsDeletion += MorgueOfficeCellRequestsDeletion;
+			}
+
+			Changed = true;
+		}
+	}
+
+	private ICell _morgueStorageCell;
+	public ICell MorgueStorageCell
+	{
+		get => _morgueStorageCell;
+		private set
+		{
+			if (_morgueStorageCell != null)
+			{
+				_morgueStorageCell.CellRequestsDeletion -= MorgueStorageCellRequestsDeletion;
+			}
+
+			_morgueStorageCell = value;
+
+			if (_morgueStorageCell != null)
+			{
+				_morgueStorageCell.CellRequestsDeletion -= MorgueStorageCellRequestsDeletion;
+				_morgueStorageCell.CellRequestsDeletion += MorgueStorageCellRequestsDeletion;
+			}
+
+			Changed = true;
+		}
+	}
 }

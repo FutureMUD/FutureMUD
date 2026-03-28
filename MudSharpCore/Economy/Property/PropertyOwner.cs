@@ -121,6 +121,9 @@ public class PropertyOwner : SaveableItem, IPropertyOwner, ILazyLoadDuringIdleTi
 	private readonly FrameworkItemReference _ownerReference;
 	private IFrameworkItem _owner;
 
+	public long OwnerId => _ownerReference.Id;
+	public string OwnerFrameworkItemType => _ownerReference.FrameworkItemType;
+
 	public IFrameworkItem Owner
 	{
 		get

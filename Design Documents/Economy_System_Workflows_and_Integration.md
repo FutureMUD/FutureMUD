@@ -184,6 +184,10 @@ Builders need:
 - an economic zone
 - a settlement account
 
+Contributor note:
+
+- boot-time auction reconstruction now resolves seller and payout references in a post-character finalisation pass rather than in the constructor path
+
 ### Property and Employment
 Property and jobs both depend strongly on world layout and institutions.
 
@@ -194,6 +198,10 @@ Property builders need:
 - owners or ownership rules
 - sale or lease setup
 - conveyancing cells so the player-facing workflow is discoverable
+
+Contributor note:
+
+- sale-order and lease-order consent loading must compare property owners by stored owner id and owner type rather than dereferencing `PropertyOwner.Owner` during boot
 
 Job builders need:
 
@@ -238,6 +246,14 @@ Current examples to emulate:
 
 - `BankPayment`
 - `CashPayment`
+
+### Adding Pre-NPC Economy Loads That Reference Characters
+Safest current pattern:
+
+1. keep persisted references as raw ids and framework-item types during constructor load
+2. do not call `TryGetCharacter(...)` in any loader that runs before `LoadNPCs()`
+3. if the object must resolve character-backed references during boot, implement `IPostCharacterLoadFinalisable` and perform that work in `FinaliseLoading()`
+4. keep the deferred finalisation idempotent so repeated calls are harmless during tests or recovery code
 - `LineOfCreditPayment`
 
 ### Adding New Market Influence or Template Types

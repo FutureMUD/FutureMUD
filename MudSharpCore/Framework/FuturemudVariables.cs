@@ -64,6 +64,7 @@ using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.ScriptedEvents;
+using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
@@ -1064,6 +1065,9 @@ public sealed partial class Futuremud : IDisposable
 	}
 
 	private readonly Dictionary<string, bool> _staticBools = new();
+	private CharacterMaterialisationBootPhase _characterMaterialisationBootPhase =
+		CharacterMaterialisationBootPhase.Allowed;
+	private readonly List<IPostCharacterLoadFinalisable> _postCharacterLoadFinalisables = new();
 
 	public bool GetStaticBool(string whichConfiguration)
 	{

@@ -34,6 +34,8 @@ The economy system is loaded late in the boot sequence, after the world, future 
 - `LoadEconomy()` runs late, after crafts and before markets, legal, jobs, and world items.
 - `LoadMarkets()` runs immediately after `LoadEconomy()`.
 - `LoadJobs()` runs after `LoadEconomy()`.
+- new character materialisation is explicitly blocked during boot until `LoadNPCs()` begins, so pre-NPC loaders must not force a fresh `TryGetCharacter(...)` from the database.
+- economy or other pre-NPC loaders that genuinely need character-dependent resolution must defer that work through `IPostCharacterLoadFinalisable.FinaliseLoading()`, which now runs immediately after `LoadNPCs()`.
 
 ### Verified current scheduled runtime hooks
 - market populations receive an hourly heartbeat through the scheduler
@@ -216,6 +218,10 @@ The current implementation ties property to:
 - conveyancing cells where player workflows are surfaced
 - bank-account backed money movement for sale or rent collection
 
+Verified load-time constraint:
+
+- property owner consent reconstruction for sale and lease orders matches owners by raw owner id plus owner type, not by dereferencing `PropertyOwner.Owner`
+
 Property therefore sits at the boundary between economy, clans, law, access control, and building.
 
 ### Auctions
@@ -227,6 +233,7 @@ Current verified runtime characteristics:
 - it is tied to a specific cell
 - it routes proceeds into a bank account
 - it is surfaced through economy commands rather than being embedded into shops
+- persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available
 
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.
 

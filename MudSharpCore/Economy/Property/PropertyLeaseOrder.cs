@@ -46,7 +46,8 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 			var ownerId = long.Parse(element.Attribute("id").Value);
 			var ownerType = element.Attribute("type").Value;
 			var owner = property.PropertyOwners.FirstOrDefault(x =>
-				x.Owner.FrameworkItemEquals(ownerId, ownerType));
+				x.OwnerId == ownerId &&
+				x.OwnerFrameworkItemType.EqualTo(ownerType));
 			if (owner == null)
 			{
 #if DEBUG
@@ -97,8 +98,8 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 				FeeIncreasePercentageAfterLeaseTerm = FeeIncreasePercentageAfterLeaseTerm,
 				PropertyOwnerConsentInfo = new XElement("Owners",
 						from owner in _propertyOwnerConsent
-						select new XElement("Owner", new XAttribute("id", owner.Key.Owner.Id),
-							new XAttribute("type", owner.Key.Owner.FrameworkItemType),
+						select new XElement("Owner", new XAttribute("id", owner.Key.OwnerId),
+							new XAttribute("type", owner.Key.OwnerFrameworkItemType),
 							new XAttribute("consent", owner.Value))
 					)
 					.ToString()
@@ -147,8 +148,8 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
                 dbitem.ListedForLease = _listedForLease;
 		dbitem.PropertyOwnerConsentInfo = new XElement("Owners",
 				from owner in _propertyOwnerConsent
-				select new XElement("Owner", new XAttribute("id", owner.Key.Owner.Id),
-					new XAttribute("type", owner.Key.Owner.FrameworkItemType), new XAttribute("consent", owner.Value))
+				select new XElement("Owner", new XAttribute("id", owner.Key.OwnerId),
+					new XAttribute("type", owner.Key.OwnerFrameworkItemType), new XAttribute("consent", owner.Value))
 			)
 			.ToString();
 		Changed = false;

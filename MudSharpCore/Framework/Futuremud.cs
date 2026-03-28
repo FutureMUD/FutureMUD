@@ -1462,6 +1462,53 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		return _checksIDs.ContainsKey(type) ? Checks.Get(_checksIDs[type]) : Checks.Get(_checksIDs[CheckType.None]);
 	}
 
+	public void RegisterPostCharacterLoadFinalisable(IPostCharacterLoadFinalisable finalisable)
+	{
+		if (finalisable == null)
+		{
+			return;
+		}
+
+		if (_characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Allowed &&
+		    SaveManager?.MudBootingMode == true)
+		{
+			finalisable.FinaliseLoading();
+			return;
+		}
+
+		if (_postCharacterLoadFinalisables.Contains(finalisable))
+		{
+			return;
+		}
+
+		_postCharacterLoadFinalisables.Add(finalisable);
+	}
+
+	internal CharacterMaterialisationBootPhase CharacterMaterialisationBootPhase =>
+		_characterMaterialisationBootPhase;
+
+	internal void SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase phase)
+	{
+		_characterMaterialisationBootPhase = phase;
+	}
+
+	internal void FinalisePostCharacterLoadObjects()
+	{
+		if (!_postCharacterLoadFinalisables.Any())
+		{
+			return;
+		}
+
+		ConsoleUtilities.WriteLine("#EFinalising post-character boot loaders...#0");
+		foreach (var item in _postCharacterLoadFinalisables.ToList())
+		{
+			item.FinaliseLoading();
+		}
+
+		_postCharacterLoadFinalisables.Clear();
+		ConsoleUtilities.WriteLine("#ADone Finalising post-character boot loaders.#0");
+	}
+
 	/// <summary>
 	///     Returns a character if they exist, but if they do not, loads them but does not add them to the game world
 	/// </summary>
@@ -1487,12 +1534,18 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 		if (_cachedActors.Has(id))
 		{
-			if (useCachedValues)
+			if (useCachedValues || _characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Disallowed)
 			{
 				return _cachedActors.Get(id);
 			}
 
 			_cachedActors.RemoveAll(x => x.Id == id);
+		}
+
+		if (_characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Disallowed)
+		{
+			throw new InvalidOperationException(
+				$"Character #{id:N0} cannot be materialised before jobs and NPCs have loaded.");
 		}
 
 		using (new FMDB())

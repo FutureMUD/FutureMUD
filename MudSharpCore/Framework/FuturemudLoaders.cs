@@ -161,6 +161,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 	void IFuturemudLoader.LoadFromDatabase()
 	{
 		SaveManager.MudBootingMode = true;
+		SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Disallowed);
 		var sw = new Stopwatch();
 		sw.Start();
 		GameStatistics = new GameStatistics(this) { LastBootTime = DateTime.UtcNow };
@@ -347,7 +348,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			game.LoadLegal(); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs
 			game.LoadJobs(); // Needs to come after LoadEconomy
 			game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
+			SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
 			game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
+			FinalisePostCharacterLoadObjects();
 			game.LoadGroupAIs(); // Needs to come after LoadNPCs
 			ExitManager.PreloadCriticalExits(); // Needs to come after LoadGameItemProtos
 			ReleasePrimedGameItems();

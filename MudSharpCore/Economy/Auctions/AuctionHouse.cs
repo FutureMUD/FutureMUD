@@ -23,8 +23,10 @@ using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy.Auctions;
 
-public class AuctionHouse : SaveableItem, IAuctionHouse
+public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinalisable
 {
+	private sealed record PendingAuctionItemLoad(XElement Item, bool IsUnclaimed, AuctionBid? WinningBid);
+
 	private XElement SaveDefinition()
 	{
 		return new XElement("Definition",
@@ -124,6 +126,40 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			ListingDateTime = new MudDateTime(item.Attribute("list").Value, Gameworld),
 			FinishingDateTime = new MudDateTime(item.Attribute("finish").Value, Gameworld)
 		};
+	}
+
+	private void AddLoadedAuctionItem(AuctionItem auctionItem, IEnumerable<XElement> bids)
+	{
+		_activeAuctionItems.Add(auctionItem);
+		foreach (var bid in bids)
+		{
+			AuctionBids.Add(auctionItem, LoadBid(bid, Gameworld));
+		}
+	}
+
+	private void AddLoadedUnclaimedAuctionItem(AuctionItem auctionItem, IEnumerable<XElement> bids, AuctionBid? winningBid)
+	{
+		foreach (var bid in bids)
+		{
+			AuctionBids.Add(auctionItem, LoadBid(bid, Gameworld));
+		}
+
+		_unclaimedItems.Add(new UnclaimedAuctionItem
+		{
+			AuctionItem = auctionItem,
+			WinningBid = winningBid
+		});
+	}
+
+	private void LogSkippedAuctionLoad(XElement item, string listType)
+	{
+		var assetId = item.Attribute("assetid")?.Value ?? item.Attribute("item")?.Value ?? "0";
+		var assetType = item.Attribute("assettype")?.Value ?? "GameItem";
+		var sellerId = item.Attribute("sellerid")?.Value ?? item.Attribute("character")?.Value ?? "0";
+		var sellerType = item.Attribute("sellertype")?.Value ??
+		                 (item.Attribute("character") != null ? "Character" : "None");
+		ConsoleUtilities.WriteLine(
+			$"#1Warning: Skipping {listType} auction entry in auction house #{Id:N0} ({Name}) because {assetType} #{assetId} or {sellerType} #{sellerId} could not be resolved after character loading.#0");
 	}
 
 	private static AuctionBid LoadBid(XElement bid, IFuturemud gameworld)
@@ -374,52 +410,23 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 		foreach (var item in definition.Elements("ActiveItem"))
 		{
-			var auctionItem = LoadAuctionItem(item);
-			if (auctionItem == null)
-			{
-				continue;
-			}
-
-			_activeAuctionItems.Add(auctionItem);
-
-			foreach (var bid in item.Elements("Bid"))
-			{
-				AuctionBids.Add(auctionItem, LoadBid(bid, Gameworld));
-			}
+			_pendingAuctionItemLoads.Add(new PendingAuctionItemLoad(new XElement(item), false, null));
 		}
 
 		foreach (var unclaimed in definition.Elements("Unclaimed"))
 		{
 			var item = unclaimed.Element("ActiveItem");
-			var auctionItem = LoadAuctionItem(item);
-
-			if (auctionItem == null)
+			if (item == null)
 			{
 				continue;
 			}
 
-			foreach (var bid in item.Elements("Bid"))
-			{
-				AuctionBids.Add(auctionItem, LoadBid(bid, Gameworld));
-			}
-
-			if (unclaimed.Element("NoBids") == null)
-			{
-				var bid = unclaimed.Element("Bid");
-				_unclaimedItems.Add(new UnclaimedAuctionItem
-				{
-					AuctionItem = auctionItem,
-					WinningBid = LoadBid(bid, Gameworld)
-				});
-			}
-			else
-			{
-				_unclaimedItems.Add(new UnclaimedAuctionItem
-				{
-					AuctionItem = auctionItem,
-					WinningBid = null
-				});
-			}
+			_pendingAuctionItemLoads.Add(new PendingAuctionItemLoad(
+				new XElement(item),
+				true,
+				unclaimed.Element("NoBids") == null && unclaimed.Element("Bid") is XElement bid
+					? LoadBid(bid, Gameworld)
+					: null));
 		}
 
 		foreach (var refund in definition.Elements("Refund"))
@@ -435,6 +442,36 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 				payment.Attribute("targettype").Value
 			)] = decimal.Parse(payment.Attribute("amount").Value);
 		}
+
+		Gameworld.RegisterPostCharacterLoadFinalisable(this);
+	}
+
+	public void FinaliseLoading()
+	{
+		if (!_pendingAuctionItemLoads.Any())
+		{
+			return;
+		}
+
+		foreach (var pending in _pendingAuctionItemLoads)
+		{
+			var auctionItem = LoadAuctionItem(pending.Item);
+			if (auctionItem == null)
+			{
+				LogSkippedAuctionLoad(pending.Item, pending.IsUnclaimed ? "unclaimed" : "active");
+				continue;
+			}
+
+			if (pending.IsUnclaimed)
+			{
+				AddLoadedUnclaimedAuctionItem(auctionItem, pending.Item.Elements("Bid"), pending.WinningBid);
+				continue;
+			}
+
+			AddLoadedAuctionItem(auctionItem, pending.Item.Elements("Bid"));
+		}
+
+		_pendingAuctionItemLoads.Clear();
 	}
 
 	#region Overrides of FrameworkItem
@@ -489,6 +526,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 	private readonly List<AuctionItem> _activeAuctionItems = new();
 	public IEnumerable<AuctionItem> ActiveAuctionItems => _activeAuctionItems;
+	private readonly List<PendingAuctionItemLoad> _pendingAuctionItemLoads = new();
 
 	public CollectionDictionary<AuctionItem, AuctionBid> AuctionBids { get; } = new();
 	public DecimalCounter<long> BidderRefundsOwed { get; } = new();

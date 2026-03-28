@@ -521,6 +521,7 @@ namespace MudSharp.Framework
 		void Add(IMarketInfluenceTemplate item);
 		void Add(IMarketInfluence item);
 		void Add(IMarketPopulation item);
+		void RegisterPostCharacterLoadFinalisable(IPostCharacterLoadFinalisable finalisable);
 
 		ICheck GetCheck(CheckType type);
 

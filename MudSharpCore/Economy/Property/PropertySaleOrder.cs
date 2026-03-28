@@ -22,6 +22,7 @@ public class PropertySaleOrder : SaveableItem, IPropertySaleOrder
 		_reservePrice = dbitem.ReservePrice;
 		_startOfListing = new MudDateTime(dbitem.StartOfListing, Gameworld);
 		_durationOfListing = TimeSpan.FromDays(dbitem.DurationOfListingDays);
+		_orderStatus = (PropertySaleOrderStatus)dbitem.OrderStatus;
 		foreach (var element in XElement.Parse(dbitem.PropertyOwnerConsentInfo).Elements("Owner"))
 		{
 			var ownerId = long.Parse(element.Attribute("id").Value);

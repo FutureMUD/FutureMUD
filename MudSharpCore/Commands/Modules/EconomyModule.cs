@@ -206,6 +206,74 @@ internal class EconomyModule : Module<ICharacter>
 		};
 	}
 
+	private static string DescribeOwnershipForViewer(ICharacter actor, IGameItem item)
+	{
+		if (!item.HasOwner)
+		{
+			return "Unowned".ColourError();
+		}
+
+		if (actor.IsAdministrator())
+		{
+			return DescribeFrameworkItem(actor, item.Owner);
+		}
+
+		return item.Owner switch
+		{
+			ICharacter character when character == actor => "You".ColourName(),
+			IClan clan => clan.FullName.ColourName(),
+			_ => "someone"
+		};
+	}
+
+	private static bool CanInspectContainedItems(ICharacter actor, IGameItem item)
+	{
+		if (actor.IsAdministrator())
+		{
+			return true;
+		}
+
+		var container = item.GetItemType<IContainer>();
+		if (container == null)
+		{
+			return false;
+		}
+
+		if (container.Transparent)
+		{
+			return true;
+		}
+
+		return item.GetItemType<IOpenable>()?.IsOpen == true;
+	}
+
+	private static void AppendOwnershipRows(ICharacter actor, ICollection<List<string>> rows, IEnumerable<IGameItem> items,
+		string rootLocation, IGameItem containingItem = null)
+	{
+		foreach (var item in items)
+		{
+			if (!actor.IsAdministrator() && !actor.CanSee(item))
+			{
+				continue;
+			}
+
+			rows.Add(new List<string>
+			{
+				containingItem == null ? rootLocation : $"In {containingItem.HowSeen(actor)}",
+				item.HowSeen(actor),
+				DescribeOwnershipForViewer(actor, item)
+			});
+
+			if (CanInspectContainedItems(actor, item))
+			{
+				foreach (var container in item.GetItemTypes<IContainer>())
+				{
+					AppendOwnershipRows(actor, rows, container.Contents, rootLocation, item);
+				}
+			}
+		}
+	}
+
 	private static string DescribeEstateStatus(EstateStatus status)
 	{
 		return status.DescribeEnum().ColourValue();
@@ -6289,7 +6357,7 @@ The syntax for this command is as follows:
 	protected static void Heir(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished)
+		if (ss.IsFinished || ss.PeekSpeech().EqualToAny("show", "view", "current"))
 		{
 			actor.OutputHandler.Send(
 				actor.EstateHeir == null
@@ -6326,10 +6394,10 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var target = GetCharacterByIdOrName(actor, ss.SafeRemainingArgument);
+		var target = actor.TargetActor(ss.SafeRemainingArgument);
 		if (target == null)
 		{
-			actor.OutputHandler.Send("There is no such character.");
+			actor.OutputHandler.Send("You can only nominate someone present with you as your estate heir.");
 			return;
 		}
 
@@ -6348,14 +6416,16 @@ The syntax for this command is as follows:
 
 The syntax for this command is as follows:
 
+	#3ownership#0 - lists visible items on your person and in the room together with their ownership status
 	#3ownership show <item>#0 - shows who owns an item
 	#3ownership claim <item>#0 - claims ownership of an unowned item
+	#3ownership claim deep [<held item>]#0 - claims everything you are holding, or one held item, plus all contents recursively
 	#3ownership clan <clan> <item>#0 - marks an item as clan-owned public property
 	#3ownership clear <item>#0 - clears an item's owner (admin only)
 	#3ownership set character <character> <item>#0 - sets an item's owner to a character (admin only)
 	#3ownership set clan <clan> <item>#0 - sets an item's owner to a clan (admin only)";
 
-	[PlayerCommand("Ownership", "ownership", "owner")]
+	[PlayerCommand("Ownership", "ownership", "owner", "own")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
 	[HelpInfo("ownership", OwnershipHelp, AutoHelp.HelpArgOrNoArg)]
@@ -6364,7 +6434,7 @@ The syntax for this command is as follows:
 		var ss = new StringStack(command.RemoveFirstWord());
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send(OwnershipHelp.SubstituteANSIColour());
+			OwnershipSummary(actor);
 			return;
 		}
 
@@ -6392,6 +6462,31 @@ The syntax for this command is as follows:
 		}
 	}
 
+	private static void OwnershipSummary(ICharacter actor)
+	{
+		var onPersonRows = new List<List<string>>();
+		AppendOwnershipRows(actor, onPersonRows, actor.Body.ExternalItems, "Person");
+
+		var roomRows = new List<List<string>>();
+		AppendOwnershipRows(actor, roomRows,
+			actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x)),
+			"Room");
+
+		var sb = new StringBuilder();
+		sb.AppendLine("Ownership on your person:");
+		sb.AppendLine(onPersonRows.Any()
+			? StringUtilities.GetTextTable(onPersonRows, new List<string> { "Where", "Item", "Owner" }, actor,
+				Telnet.Yellow)
+			: "\tNone.");
+		sb.AppendLine();
+		sb.AppendLine("Ownership in the room:");
+		sb.AppendLine(roomRows.Any()
+			? StringUtilities.GetTextTable(roomRows, new List<string> { "Where", "Item", "Owner" }, actor,
+				Telnet.Yellow)
+			: "\tNone.");
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
 	private static void OwnershipShow(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -6409,12 +6504,19 @@ The syntax for this command is as follows:
 
 		actor.OutputHandler.Send(
 			item.HasOwner
-				? $"{item.HowSeen(actor)} is owned by {DescribeFrameworkItem(actor, item.Owner)}."
+				? $"{item.HowSeen(actor)} is owned by {DescribeOwnershipForViewer(actor, item)}."
 				: $"{item.HowSeen(actor)} is currently unowned.");
 	}
 
 	private static void OwnershipClaim(ICharacter actor, StringStack ss)
 	{
+		if (ss.PeekSpeech().EqualTo("deep"))
+		{
+			ss.PopSpeech();
+			OwnershipClaimDeep(actor, ss);
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("Which item do you want to claim ownership of?");
@@ -6436,6 +6538,59 @@ The syntax for this command is as follows:
 
 		item.SetOwner(actor);
 		actor.OutputHandler.Send($"You claim ownership of {item.HowSeen(actor)}.");
+	}
+
+	private static void OwnershipClaimDeep(ICharacter actor, StringStack ss)
+	{
+		var rootItems = ss.IsFinished
+			? actor.Body.HeldOrWieldedItems.ToList()
+			: new List<IGameItem> { actor.TargetHeldItem(ss.SafeRemainingArgument) };
+		if (rootItems.Any(x => x == null))
+		{
+			actor.OutputHandler.Send("You are not holding anything like that.");
+			return;
+		}
+
+		if (!rootItems.Any())
+		{
+			actor.OutputHandler.Send("You are not holding anything that can be deep-claimed.");
+			return;
+		}
+
+		var claimed = new List<IGameItem>();
+		var alreadyOwned = new List<IGameItem>();
+		foreach (var item in rootItems.SelectMany(x => x.DeepItems).Distinct())
+		{
+			if (item.HasOwner)
+			{
+				alreadyOwned.Add(item);
+				continue;
+			}
+
+			item.SetOwner(actor);
+			claimed.Add(item);
+		}
+
+		if (!claimed.Any())
+		{
+			actor.OutputHandler.Send(
+				alreadyOwned.Any()
+					? "Everything in that deep-claim selection already has a registered owner."
+					: "There was nothing available to claim.");
+			return;
+		}
+
+		var summary = new StringBuilder();
+		summary.Append(
+			$"You deep-claim {claimed.Count.ToString("N0", actor).ColourValue()} item{"s".Pluralise(claimed.Count != 1)}");
+		if (alreadyOwned.Any())
+		{
+			summary.Append(
+				$" and skip {alreadyOwned.Count.ToString("N0", actor).ColourValue()} that already had owner{"s".Pluralise(alreadyOwned.Count != 1)}");
+		}
+
+		summary.Append(".");
+		actor.OutputHandler.Send(summary.ToString());
 	}
 
 	private static void OwnershipClan(ICharacter actor, StringStack ss)

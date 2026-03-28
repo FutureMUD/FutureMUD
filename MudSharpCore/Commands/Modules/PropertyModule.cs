@@ -527,6 +527,9 @@ The following commands are specific to those who own a property (or who are mana
         foreach (var key in keys)
         {
             key.GameItem.Login();
+            key.GameItem.ContainedIn?.Take(key.GameItem);
+            key.GameItem.InInventoryOf?.Take(key.GameItem);
+            key.GameItem.Location?.Extract(key.GameItem);
             key.IsReturned = false;
         }
 
@@ -541,6 +544,7 @@ The following commands are specific to those who own a property (or who are mana
             actor.Gameworld.Add(givenItem);
         }
 
+        givenItem.RoomLayer = actor.RoomLayer;
         if (actor.Body.CanGet(givenItem, 0))
         {
             actor.Body.Get(givenItem, silent: true);

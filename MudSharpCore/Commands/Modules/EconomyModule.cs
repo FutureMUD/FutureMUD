@@ -221,7 +221,7 @@ internal class EconomyModule : Module<ICharacter>
 	{
 		foreach (var item in items)
 		{
-			if (!actor.IsAdministrator() && containingItem == null && !actor.CanSee(item))
+			if (!actor.IsAdministrator() && !actor.CanSee(item))
 			{
 				continue;
 			}

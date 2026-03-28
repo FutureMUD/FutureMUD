@@ -30,5 +30,6 @@ namespace MudSharp.Models
 
         public virtual GameItem PreferredDisplayContainer { get; set; }
         public virtual Shop Shop { get; set; }
+        public virtual ICollection<ShopDeal> ShopDeals { get; set; }
     }
 }

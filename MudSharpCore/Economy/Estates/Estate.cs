@@ -18,7 +18,13 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 {
 	public static IEnumerable<IEstate> CreateEstatesForCharacterDeath(ICharacter character)
 	{
-		var estates = new Dictionary<long, Estate>();
+		var estates = character.Gameworld.Estates
+			.Where(x => x.Character == character &&
+			            x.EstateStatus != EstateStatus.Finalised &&
+			            x.EstateStatus != EstateStatus.Cancelled)
+			.OfType<Estate>()
+			.GroupBy(x => x.EconomicZone.Id)
+			.ToDictionary(x => x.Key, x => x.OrderBy(y => y.EstateStartTime).First());
 
 		Estate GetEstate(IEconomicZone zone)
 		{
@@ -31,20 +37,67 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			return estate;
 		}
 
+		static bool AssetMatches(IEstateAsset asset, IFrameworkItem target)
+		{
+			return asset.Asset.FrameworkItemEquals(target.Id, target.FrameworkItemType);
+		}
+
+		static bool ClaimMatches(IEstateClaim claim, IFrameworkItem claimant, decimal amount, string reason,
+			bool isSecured, IFrameworkItem targetItem)
+		{
+			if (!claim.Claimant.FrameworkItemEquals(claimant.Id, claimant.FrameworkItemType) ||
+			    claim.Amount != amount ||
+			    !claim.Reason.EqualTo(reason) ||
+			    claim.IsSecured != isSecured)
+			{
+				return false;
+			}
+
+			if (targetItem == null)
+			{
+				return claim.TargetItem == null;
+			}
+
+			return claim.TargetItem != null &&
+			       claim.TargetItem.FrameworkItemEquals(targetItem.Id, targetItem.FrameworkItemType);
+		}
+
+		static void AddAssetIfMissing(Estate estate, IFrameworkItem asset, bool presumedOwnership)
+		{
+			if (estate.Assets.Any(x => AssetMatches(x, asset)))
+			{
+				return;
+			}
+
+			estate.AddAsset(new EstateAsset(estate, asset, presumedOwnership));
+		}
+
+		static void AddClaimIfMissing(Estate estate, IFrameworkItem claimant, decimal amount, string reason,
+			bool isSecured, IFrameworkItem targetItem = null)
+		{
+			if (estate.Claims.Any(x => ClaimMatches(x, claimant, amount, reason, isSecured, targetItem)))
+			{
+				return;
+			}
+
+			estate.AddClaim(new EstateClaim(estate, claimant, amount, reason, ClaimStatus.NotAssessed, isSecured,
+				targetItem));
+		}
+
 		foreach (var property in character.Gameworld.Properties.Where(x => x.PropertyOwners.Any(y => y.Owner == character)))
 		{
-			GetEstate(property.EconomicZone).AddAsset(new EstateAsset(GetEstate(property.EconomicZone), property, false));
+			AddAssetIfMissing(GetEstate(property.EconomicZone), property, false);
 		}
 
 		foreach (var account in character.Gameworld.BankAccounts.Where(x => x.IsAccountOwner(character)))
 		{
 			var estate = GetEstate(account.Bank.EconomicZone);
-			estate.AddAsset(new EstateAsset(estate, account, false));
+			AddAssetIfMissing(estate, account, false);
 			var securedAmount = Math.Max(0.0M, account.CurrentMonthFees + Math.Max(0.0M, account.CurrentBalance * -1.0M));
 			if (securedAmount > 0.0M)
 			{
-				estate.AddClaim(new EstateClaim(estate, account.Bank, securedAmount,
-					$"Secured bank debt for account {account.AccountReference}", ClaimStatus.NotAssessed, true, account));
+				AddClaimIfMissing(estate, account.Bank, securedAmount,
+					$"Secured bank debt for account {account.AccountReference}", true, account);
 			}
 		}
 
@@ -59,8 +112,8 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			var estate = GetEstate(zone);
 			if (loc.OutstandingBalance > 0.0M)
 			{
-				estate.AddClaim(new EstateClaim(estate, loc, loc.OutstandingBalance,
-					$"Outstanding line of credit debt for {loc.AccountName}", ClaimStatus.NotAssessed, true));
+				AddClaimIfMissing(estate, loc, loc.OutstandingBalance,
+					$"Outstanding line of credit debt for {loc.AccountName}", true);
 			}
 		}
 
@@ -75,7 +128,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 					continue;
 				}
 
-				estate.AddAsset(new EstateAsset(estate, item, !item.HasOwner));
+				AddAssetIfMissing(estate, item, !item.HasOwner);
 			}
 		}
 
@@ -457,7 +510,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 					break;
 				}
 
-				RouteFunds(payout, claim.Claimant, $"Estate claim #{claim.Id} for character {Character.Id}");
+				RouteFunds(payout, ResolveClaimRecipient(claim), $"Estate claim #{claim.Id} for character {Character.Id}");
 				paidClaims += payout;
 			}
 
@@ -489,6 +542,15 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 	private IFrameworkItem ResolveInheritor()
 	{
 		return Inheritor ?? EconomicZone.ControllingClan;
+	}
+
+	private IFrameworkItem ResolveClaimRecipient(IEstateClaim claim)
+	{
+		return claim.Claimant switch
+		{
+			IBank when claim.TargetItem is IBankAccount account => account,
+			_ => claim.Claimant
+		};
 	}
 
 	private IEstateAsset FindAsset(IFrameworkItem item)
@@ -616,6 +678,13 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		{
 			case IBankAccount account:
 				account.DepositFromTransaction(amount, reference);
+				return;
+			case ILineOfCreditAccount lineOfCredit:
+				lineOfCredit.PayoffAccount(amount);
+				return;
+			case IBank bank:
+				bank.CurrencyReserves[bank.PrimaryCurrency] += amount;
+				bank.Changed = true;
 				return;
 			case IFrameworkItem frameworkItem:
 			{

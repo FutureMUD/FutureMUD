@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260327103014_ShopDeals")]
+    partial class ShopDeals
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2203,15 +2206,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("AccountOwnerClanId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("AccountOwnerFrameworkItemId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("AccountOwnerFrameworkItemType")
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AccountOwnerFrameworkItemType"), "utf8");
-
                     b.Property<long?>("AccountOwnerShopId")
                         .HasColumnType("bigint(20)");
 
@@ -4100,15 +4094,6 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EffectData"), "utf8");
-
-                    b.Property<long?>("EstateHeirId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("EstateHeirType")
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EstateHeirType"), "utf8");
 
                     b.Property<double>("FoodSatiatedHours")
                         .HasColumnType("double");
@@ -7360,21 +7345,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CurrentFinancialPeriodId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("EstateAuctionHouseId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("EstateClaimPeriodLength")
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EstateClaimPeriodLength"), "utf8");
-
-                    b.Property<string>("EstateDefaultDiscoverTime")
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EstateDefaultDiscoverTime"), "utf8");
-
                     b.Property<int>("IntervalAmount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
@@ -7439,9 +7409,6 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CurrentFinancialPeriodId")
                         .HasDatabaseName("FK_EconomicZones_FinancialPeriods_idx");
-
-                    b.HasIndex("EstateAuctionHouseId")
-                        .HasDatabaseName("FK_EconomicZones_EstateAuctionHouses_idx");
 
                     b.HasIndex("ReferenceCalendarId")
                         .HasDatabaseName("FK_EconomicZones_Calendars_idx");
@@ -7889,167 +7856,6 @@ namespace MudSharp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EntityDescriptions");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.Estate", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("CharacterId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("EconomicZoneId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("EstateStartTime")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EstateStartTime"), "utf8");
-
-                    b.Property<int>("EstateStatus")
-                        .HasColumnType("int(11)");
-
-                    b.Property<string>("FinalisationDate")
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("FinalisationDate"), "utf8");
-
-                    b.Property<long?>("InheritorId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("InheritorType")
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InheritorType"), "utf8");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("CharacterId")
-                        .HasDatabaseName("FK_Estates_Characters_idx");
-
-                    b.HasIndex("EconomicZoneId")
-                        .HasDatabaseName("FK_Estates_EconomicZones_idx");
-
-                    b.ToTable("Estates", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.EstateAsset", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("EstateId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("FrameworkItemId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("FrameworkItemType")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("FrameworkItemType"), "utf8");
-
-                    b.Property<ulong>("IsLiquidated")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<ulong>("IsPresumedOwnership")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<ulong>("IsTransferred")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<decimal?>("LiquidatedValue")
-                        .HasColumnType("decimal(58,29)");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("EstateId")
-                        .HasDatabaseName("FK_EstateAssets_Estates_idx");
-
-                    b.ToTable("EstateAssets", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.EstateClaim", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(58,29)");
-
-                    b.Property<string>("ClaimDate")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ClaimDate"), "utf8");
-
-                    b.Property<int>("ClaimStatus")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long>("ClaimantId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("ClaimantType")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ClaimantType"), "utf8");
-
-                    b.Property<long>("EstateId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<ulong>("IsSecured")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Reason"), "utf8");
-
-                    b.Property<string>("StatusReason")
-                        .HasColumnType("text")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StatusReason"), "utf8");
-
-                    b.Property<long?>("TargetId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("TargetType")
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TargetType"), "utf8");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("EstateId")
-                        .HasDatabaseName("FK_EstateClaims_Estates_idx");
-
-                    b.ToTable("EstateClaims", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EthnicitiesCharacteristics", b =>
@@ -8786,15 +8592,6 @@ namespace MudSharp.Migrations
 
                     b.Property<int?>("MorphTimeRemaining")
                         .HasColumnType("int(11)");
-
-                    b.Property<long?>("OwnerId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("OwnerType")
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OwnerType"), "utf8");
 
                     b.Property<string>("PositionEmote")
                         .HasColumnType("text")
@@ -20697,12 +20494,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_EconomicZones_FinancialPeriods");
 
-                    b.HasOne("MudSharp.Models.AuctionHouse", "EstateAuctionHouse")
-                        .WithMany()
-                        .HasForeignKey("EstateAuctionHouseId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_EconomicZones_EstateAuctionHouses");
-
                     b.HasOne("MudSharp.Models.Calendar", "ReferenceCalendar")
                         .WithMany("EconomicZones")
                         .HasForeignKey("ReferenceCalendarId")
@@ -20726,8 +20517,6 @@ namespace MudSharp.Migrations
                     b.Navigation("Currency");
 
                     b.Navigation("CurrentFinancialPeriod");
-
-                    b.Navigation("EstateAuctionHouse");
 
                     b.Navigation("ReferenceCalendar");
 
@@ -20970,51 +20759,6 @@ namespace MudSharp.Migrations
                     b.Navigation("EntityDescription");
 
                     b.Navigation("Pattern");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.Estate", b =>
-                {
-                    b.HasOne("MudSharp.Models.Character", "Character")
-                        .WithMany()
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Estates_Characters");
-
-                    b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
-                        .WithMany("Estates")
-                        .HasForeignKey("EconomicZoneId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Estates_EconomicZones");
-
-                    b.Navigation("Character");
-
-                    b.Navigation("EconomicZone");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.EstateAsset", b =>
-                {
-                    b.HasOne("MudSharp.Models.Estate", "Estate")
-                        .WithMany("EstateAssets")
-                        .HasForeignKey("EstateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_EstateAssets_Estates");
-
-                    b.Navigation("Estate");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.EstateClaim", b =>
-                {
-                    b.HasOne("MudSharp.Models.Estate", "Estate")
-                        .WithMany("EstateClaims")
-                        .HasForeignKey("EstateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_EstateClaims_Estates");
-
-                    b.Navigation("Estate");
                 });
 
             modelBuilder.Entity("MudSharp.Models.EthnicitiesCharacteristics", b =>
@@ -25550,8 +25294,6 @@ namespace MudSharp.Migrations
 
                     b.Navigation("EconomicZoneTaxes");
 
-                    b.Navigation("Estates");
-
                     b.Navigation("FinancialPeriods");
 
                     b.Navigation("JobFindingLocations");
@@ -25618,13 +25360,6 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.EntityDescriptions", b =>
                 {
                     b.Navigation("EntityDescriptionPatternsEntityDescriptions");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.Estate", b =>
-                {
-                    b.Navigation("EstateAssets");
-
-                    b.Navigation("EstateClaims");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Ethnicity", b =>

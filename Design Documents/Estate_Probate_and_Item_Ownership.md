@@ -10,6 +10,7 @@ The implementation is intentionally zone-local. A deceased character may generat
 
 - When a character dies, the death path creates estates automatically.
 - A separate estate is created for each economic zone that receives captured assets.
+- If the same character dies again before an earlier estate in that zone is finalised or cancelled, the existing open estate is reused instead of creating a duplicate probate case.
 - Estates begin in `Undiscovered`.
 - After the owning economic zone's `EstateDefaultDiscoverTime` expires, the estate moves to `ClaimPhase`.
 - After the owning economic zone's `EstateClaimPeriodLength` expires:
@@ -71,6 +72,7 @@ The current finalisation flow behaves as follows:
 - If an auction lot fails to sell, the asset remains with the estate and is eligible for manual relisting or in-kind transfer when liquidation closes.
 - When liquidation closes, the estate computes available distributable cash from liquidated assets.
 - Approved claims are paid in secured-first order up to the available distributable cash.
+- Secured bank-account claims are settled against the underlying bank account debt rather than being routed to generic zone revenue.
 - Any residual amount is routed to the inheritor where a suitable bank account exists, otherwise it falls back to economic-zone revenue.
 - Assets that have not been liquidated are still transferred in kind at finalisation.
 

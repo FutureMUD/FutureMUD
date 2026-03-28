@@ -27,6 +27,12 @@ Houses the Entity Framework Core `DbContext`, models, and migrations for the Fut
 * Apply migrations explicitly with `dotnet ef database update --project MudsharpDatabaseLibrary/MudsharpDatabaseLibrary.csproj --startup-project MudSharpCore/MudSharpCore.csproj` when you need to update a development database outside the normal application startup path.
 * After generating or removing a migration, verify that all three artifacts changed together: the migration `.cs`, the matching `.Designer.cs`, and `FutureMUDContextModelSnapshot.cs`.
 
+## Economy Persistence Reference
+* When changing economy persistence models or migrations, consult and update:
+  * `../Design Documents/Economy_System_Runtime.md`
+  * `../Design Documents/Economy_System_Seeder_State_and_Gaps.md`
+* This applies to currencies, banks, economic zones, taxes, markets, shoppers, shops, property, auctions, employment, and any future estate persistence work.
+
 ## Notes
 
 * All modules inherit both the solution-level and project-level rules unless explicitly overridden.

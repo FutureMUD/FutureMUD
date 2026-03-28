@@ -48,6 +48,11 @@ public class FlatSalesTax : SalesTaxBase
 		return Rate;
 	}
 
+	public override decimal TaxValue(IMerchandise merchandise, ICharacter purchaser, decimal saleValue)
+	{
+		return Rate;
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.EconomicZoneTaxes.Find(Id);

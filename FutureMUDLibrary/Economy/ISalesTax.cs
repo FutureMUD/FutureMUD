@@ -15,6 +15,7 @@ namespace MudSharp.Economy
         string MerchantDescription { get; }
         bool Applies(IMerchandise merchandise, ICharacter purchaser);
         decimal TaxValue(IMerchandise merchandise, ICharacter purchaser);
+        decimal TaxValue(IMerchandise merchandise, ICharacter purchaser, decimal saleValue);
         void Delete();
     }
 }

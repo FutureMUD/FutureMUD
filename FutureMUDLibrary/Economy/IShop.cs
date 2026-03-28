@@ -31,6 +31,7 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 	bool IsClockedIn(ICharacter actor);
 	IEnumerable<ICharacter> EmployeesOnDuty { get; }
 	IEnumerable<IMerchandise> Merchandises { get; }
+	IEnumerable<IShopDeal> Deals { get; }
 	[CanBeNull] IBankAccount BankAccount { get; set; }
 	void CheckFloat();
 	IEnumerable<ICell> CurrentLocations { get; }
@@ -71,6 +72,8 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 	void SetProprietor(ICharacter actor, bool isProprietor);
 	void AddMerchandise(IMerchandise merchandise);
 	void RemoveMerchandise(IMerchandise merchandise);
+	void AddDeal(IShopDeal deal);
+	void RemoveDeal(IShopDeal deal);
 	(int OnFloorCount, int InStockroomCount) StocktakeMerchandise(IMerchandise whichMerchandise);
 	Dictionary<IMerchandise, (int OnFloorCount, int InStockroomCount)> StocktakeAllMerchandise();
 	void AddTransaction(ITransactionRecord record);
@@ -88,6 +91,7 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 	(bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
 	IEnumerable<IGameItem> Buy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
 	(decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
+	IShopPriceCalculation GetPriceCalculation(ICharacter actor, IMerchandise merchandise, int quantity, ShopDealApplicability applicability = ShopDealApplicability.Sell);
 	decimal PriceForMerchandise(ICharacter actor, IMerchandise merchandise, int quantity);
 	(decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor, IMerchandise merchandise);
 	(bool Truth, string Reason) CanSell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item);

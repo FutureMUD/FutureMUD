@@ -89,6 +89,13 @@ public class InvestigationPatrolStrategy : PatrolStrategyBase
 			path = patrol.PatrolLeader.PathBetween(report.SourceCell, 50, PathSearch.IgnorePresenceOfDoors).ToList();
 			if (!path.Any())
 			{
+				if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+				{
+					report.MarkFailed();
+					patrol.ActiveCorpseRecoveryReport = null;
+					patrol.CompletePatrol();
+				}
+
 				return;
 			}
 		}

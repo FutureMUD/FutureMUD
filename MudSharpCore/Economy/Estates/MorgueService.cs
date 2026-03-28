@@ -27,8 +27,14 @@ public static class MorgueService
 			return estate;
 		}
 
-		return Estate.CreateEstatesForCharacterDeath(deceased)
-			.First(x => x.EconomicZone == zone);
+		estate = Estate.CreateEstatesForCharacterDeath(deceased)
+			.FirstOrDefault(x => x.EconomicZone == zone);
+		if (estate != null)
+		{
+			return estate;
+		}
+
+		return new Estate(zone, deceased, deceased.EstateHeir);
 	}
 
 	public static IEstate IntakeCorpse(IEconomicZone zone, IGameItem corpseItem)

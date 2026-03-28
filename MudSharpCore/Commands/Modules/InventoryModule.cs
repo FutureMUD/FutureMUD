@@ -2445,8 +2445,14 @@ The possible syntaxes for this command are:
 			coveringItems = target.Body.DirectWornItems.ToList();
 		}
 
-		void BeginStrip()
+		void BeginStrip(bool grantTemporaryConsent = false)
 		{
+			var stripDuration = TimeSpanForStrip(coveringItems);
+			if (grantTemporaryConsent)
+			{
+				target.AddEffect(new BeDressedEffect(target, actor), stripDuration + TimeSpan.FromSeconds(5));
+			}
+
 			actor.OutputHandler.Handle(
 				new MixedEmoteOutput(new Emote($"@ begin|begins stripping off $0's gear", actor, target),
 					flags: OutputFlags.SuppressObscured).Append(emote));
@@ -2462,7 +2468,7 @@ The possible syntaxes for this command are:
 						return;
 					}
 				}
-			}, "stripping off gear", "general", "stripping off gear"), TimeSpanForStrip(coveringItems));
+			}, "stripping off gear", "general", "stripping off gear"), stripDuration);
 		}
 
 		if (target.WillingToPermitInventoryManipulation(actor))
@@ -2476,7 +2482,7 @@ The possible syntaxes for this command are:
 			target.Send(
 				$"You must type {"accept".Colour(Telnet.Yellow)} to permit them to do so, or {"decline".Colour(Telnet.Yellow)} to decline.");
 			target.AddEffect(new Accept(target, new GenericProposal(
-				perc => { BeginStrip(); },
+				perc => { BeginStrip(true); },
 				perc =>
 				{
 					target.OutputHandler.Handle(

@@ -169,7 +169,6 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			_assets.Add(new EstateAsset(asset, this));
 		}
 
-		Gameworld.Add(this);
 		EconomicZone.AddEstate(this);
 		Gameworld.SaveManager.AddLazyLoad(this);
 	}

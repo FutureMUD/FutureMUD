@@ -77,6 +77,22 @@ public static class SeederMetadataRegistry
 				],
 				RerunSummary: "Designed as an additive package for installing more stock currencies."
 			),
+			nameof(EconomySeeder) => new SeederMetadata(
+				SeederRepeatabilityMode.Additive,
+				SeederUpdateCapability.RepairExisting,
+				[
+					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+					Requirement("The Currency seeder must have installed at least one currency.", context => context.Currencies.Any()),
+					Requirement("The Time seeder must have installed at least one clock and calendar.", context => context.Clocks.Any() && context.Calendars.Any()),
+					Requirement("At least one physical zone must exist.", context => context.Zones.Any()),
+					Requirement("UsefulSeeder market tags must already exist.", context =>
+						context.Tags.Any(x => x.Name == "Market") &&
+						context.Tags.Any(x => x.Parent != null && x.Parent.Name == "Market"))
+				],
+				RerunSummary: "Reruns install missing stock economy packages for other eras and can restore missing stock-owned market categories, influence templates, populations, shoppers, and helper progs.",
+				UpdateSummary: "Rerunning the same era refreshes the seeded template market, populations, shopper definitions, and stress helper progs without creating duplicates.",
+				OwnershipSummary: "Stock economy content is tracked by stable era-specific names plus a shared EconomySeeder prefix for helper records."
+			),
 			nameof(ClanSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Additive,
 				SeederUpdateCapability.InstallMissing,

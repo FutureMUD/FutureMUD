@@ -12,37 +12,65 @@ This document deliberately separates verified current state from recommended fut
 
 ## Current Seeder Reality
 ### Verified current state
-`CurrencySeeder` is the only dedicated economy seeder in the current repository.
+The current repository has two dedicated economy seeders:
 
-What it currently provides:
+- `CurrencySeeder`
+- `EconomySeeder`
+
+`CurrencySeeder` currently provides:
 
 - stock currency packages such as dollars, pounds, fantasy, roman, bits, and Gondor
 - stock divisions, coins, description patterns, and parsing abbreviations
 - supporting FutureProg content for some currency pattern applicability
 - additive rerun behavior so multiple currencies can coexist
 
+`EconomySeeder` currently provides one stock economy template package per selected era. Each run creates or repairs:
+
+- a new stock `EconomicZone` shell tied to a chosen currency and physical zone
+- a stock market attached to that zone
+- market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags
+- a reusable library of external market influence templates grouped by sector family
+- era-specific market populations, including priestly and monastic households
+- population-stress influence templates and their helper FutureProgs
+- one seeded `SimpleShopper` per seeded population, with user-selected budget scale
+
+The current stock eras are:
+
+- Classical Age
+- Feudal Age
+- Medieval Age
+- Early Modern Age
+
+Current prerequisites for `EconomySeeder` are:
+
+- at least one account
+- at least one currency
+- at least one clock and calendar
+- at least one physical zone
+- existing `UsefulSeeder` market tags
+
+Current rerun behavior for `EconomySeeder` is additive and repair-friendly:
+
+- rerunning the same era refreshes stock-owned categories, templates, populations, shoppers, and helper progs without duplicating them
+- running a different era installs another stock package alongside the existing one
+- deleting a stock-owned asset and rerunning restores it if the canonical seeded name still belongs to the package
+
 ### What is not currently seeded as a dedicated economy package
-- economic zones
 - taxes
 - banks
 - bank account types
-- markets
-- market categories
-- market influence templates
-- market populations
-- shoppers
 - shops
 - auction houses
 - property
 - employment data
 
 ### Practical implication
-The runtime implementation is much broader than the seeder coverage. Most of the economy is therefore:
+The runtime implementation is still broader than the seeder coverage. Much of the economy is therefore:
 
 - runtime-ready
 - builder-editable
 - persistable
-- not yet packaged into stock world-generation content
+- only partially packaged into stock world-generation content
 
 ## Seeder Opportunity Matrix
 The classifications below are conservative. "Easy" means the current implementation already provides enough structure that seeding the content would be mainly packaging and dependency work, not a new product design problem.
@@ -58,7 +86,7 @@ The classifications below are conservative. "Easy" means the current implementat
 | Stock market influence templates | Easy | Templates already exist as a separate persisted concept and are a natural seed-data candidate |
 | Stock market populations | Easy | The runtime model is already data-driven, with persisted need and stress definitions plus optional progs |
 | Stock shopper templates, especially `SimpleShopper` | Easy | Shopper loaders are registered by type, shopper definitions are persisted, and `SimpleShopper` already externalizes its behavior into configured progs |
-| Markets tied to seeded economic zones | Possible | Runtime support is ready, but useful seeded markets still need decisions about zones, categories, and price-policy defaults |
+| Markets tied to seeded economic zones | Easy | A stock baseline now exists through `EconomySeeder`, although builders still need to decide how many zones and markets their live world should ultimately keep |
 | Jobs tied to seeded employers or clans | Possible | Runtime support exists, but good stock jobs require seeded institutions, currencies, and reusable eligibility progs |
 | Auction houses | Possible | The runtime is ready, but auction houses depend on chosen cells and settlement accounts, so they are best seeded only once a world layout exists |
 | Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design |
@@ -131,10 +159,10 @@ The market and shopper subsystems are also good seeder targets because they are 
 
 Feasible seed content:
 
-- basic food, luxury, industrial, and raw-material categories
-- event-style influence templates such as famine, bumper harvest, embargo, or caravan surge
-- sample populations representing urban, rural, or military demand
-- reusable `SimpleShopper` templates representing frugal, ordinary, or luxury-biased shoppers
+- broad food, seasonings, medicine, writing-material, luxury, industrial, military, logistics, and raw-material categories
+- event-style influence templates such as harvest failure, bumper harvest, embargo, caravan surplus, piracy, mining trouble, and war mobilisation
+- sample populations representing commoners, merchants, martial households, priestly households, monastic households, literate middling households in later eras, and elites across multiple historical eras
+- reusable `SimpleShopper` templates seeded as live stock shoppers with scale-adjusted budgets
 
 Why they are seed-friendly now:
 
@@ -142,9 +170,15 @@ Why they are seed-friendly now:
 - market population needs and stress thresholds are already serialized data
 - shopper behavior is explicitly configured through progs rather than baked into code paths
 
+Current stock package limits:
+
+- the seeder creates a template market, not a complete retail economy
+- the seeded shopper progs are intentionally broad and tag-driven rather than world-specific retail logic
+- the seeded populations are builder-friendly archetypes, not a claim of historical simulation completeness
+
 ## Possible but World-Dependent Seeder Candidates
 ### Markets tied to seeded economic zones
-These are technically straightforward but need a world-level decision about:
+The stock template now proves this path is technically straightforward, but live-world adoption still needs a world-level decision about:
 
 - how many economic zones exist
 - what categories matter
@@ -227,7 +261,7 @@ The current shop runtime exposes deal-related surfaces, but:
 This matters because the API and UI shape imply a capability that the runtime does not yet actually provide.
 
 ### Seeder coverage is much narrower than runtime coverage
-The codebase already contains far more economy runtime than stock seeding. That gap matters because:
+The codebase still contains more economy runtime than stock seeding. That gap matters because:
 
 - builders must hand-author much of the economy even in otherwise seeded worlds
 - new economy-dependent features cannot assume stock world support
@@ -259,6 +293,7 @@ This is inferred guidance for future maintainers.
 When extending the seeder side of the economy:
 
 - prefer packaging mature, data-driven economy objects first
+- keep additive and repairable behavior for stock-owned economy packages whenever stable names make that safe
 - avoid seeding world-specific retail or property content until the seeder has a clean story for cells, items, and institutions
 - treat estates as blocked on ownership design, not as a normal seeding omission
 - keep the economy design docs updated whenever new seeder support changes the practical setup path

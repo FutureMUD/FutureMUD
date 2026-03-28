@@ -56,6 +56,14 @@ public static class SeederQuestionRegistry
 			[BuildKey(nameof(HumanSeeder), "model")] = new(
 				SharedAnswerKey: "human-health-model",
 				AutoReuseLastAnswer: true
+			),
+			[BuildKey(nameof(EconomySeeder), "era")] = new(
+				SharedAnswerKey: "economy-era",
+				AutoReuseLastAnswer: true
+			),
+			[BuildKey(nameof(EconomySeeder), "shopper-scale")] = new(
+				SharedAnswerKey: "economy-shopper-scale",
+				AutoReuseLastAnswer: true
 			)
 		};
 

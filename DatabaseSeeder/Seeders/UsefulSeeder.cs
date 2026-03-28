@@ -7553,6 +7553,9 @@ end if",
 		AddTag(context, "Staple Food", "Nourishment");
 		AddTag(context, "Standard Food", "Nourishment");
 		AddTag(context, "Luxury Food", "Nourishment");
+		AddTag(context, "Seasonings", "Nourishment");
+		AddTag(context, "Salt", "Seasonings");
+		AddTag(context, "Spices", "Seasonings");
 
 		AddTag(context, "Clothing", "Market");
 		AddTag(context, "Simple Clothing", "Clothing");
@@ -7629,6 +7632,12 @@ end if",
 		AddTag(context, "Simple Medicine", "Medicine");
 		AddTag(context, "Standard Medicine", "Medicine");
 		AddTag(context, "High-Quality Medicine", "Medicine");
+
+		AddTag(context, "Writing Materials", "Market");
+		AddTag(context, "Wax Tablets", "Writing Materials");
+		AddTag(context, "Parchment", "Writing Materials");
+		AddTag(context, "Paper", "Writing Materials");
+		AddTag(context, "Ink", "Writing Materials");
 
 		AddTag(context, "Warehousing", "Market");
 

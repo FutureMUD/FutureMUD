@@ -11,7 +11,7 @@ It is written for a mixed audience:
 Where guidance is based directly on current command and runtime behavior, it is presented as verified current state. Where guidance describes the safest extension path for future work, it is presented as inferred implementation guidance.
 
 ## Working With the Economy Today
-The current economy implementation is rich, but most of it is not seed-driven. In practice, builders work with it through admin commands, editable-item workflows, and ordinary world-building content such as cells, items, progs, and clans.
+The current economy implementation is rich and only partially seed-driven. In practice, builders combine stock seed packages with admin commands, editable-item workflows, and ordinary world-building content such as cells, items, progs, and clans.
 
 ### Primary command surfaces
 | Surface | Current responsibility |
@@ -31,24 +31,31 @@ Most economy content is authored as world data, not hard-coded content. The engi
 - market category tags
 - bank accounts and payment items
 
+The current stock seeder path now covers two useful starting points:
+
+- `CurrencySeeder` for currencies, divisions, coins, and parsing/description patterns
+- `EconomySeeder` for a template economic zone shell, one market, market categories derived from `UsefulSeeder` market tags, stock influence templates, broader era-specific populations including priestly and monastic households, and matching `SimpleShopper` records
+
 ## Minimum Viable Economy Setup
 The current runtime supports a lot of optional depth, but the minimum viable path is smaller.
 
 ### Recommended build order
 1. Seed or create at least one currency.
-2. Create at least one economic zone and confirm its reference clock, calendar, interval, and currency.
-3. Add any initial sales or profit taxes to that zone.
-4. Create a bank if the world needs account-backed payments, property ownership, shop floats, or auction settlement.
-5. Add bank account types before expecting players, clans, or shops to use accounts meaningfully.
-6. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
-7. Add market categories and a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
-8. Add shoppers and market populations if the world should simulate background demand.
-9. Add job-finding cells, jobs, and employers if the world will use the employment system.
-10. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
+2. Seed `UsefulSeeder` market tags if the world wants the stock economy template package.
+3. Run `EconomySeeder` if a builder-facing template market, populations, and shoppers would save setup time.
+4. Review the seeded economic zone, market categories, populations, and shoppers and adjust them to fit the world's real geography, item tags, and intended simulation depth.
+5. Add any initial sales or profit taxes to each live economic zone.
+6. Create a bank if the world needs account-backed payments, property ownership, shop floats, or auction settlement.
+7. Add bank account types before expecting players, clans, or shops to use accounts meaningfully.
+8. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
+9. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
+10. Add job-finding cells, jobs, and employers if the world will use the employment system.
+11. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
 
 ### Why this order fits the current implementation
 - currencies are prerequisites for almost every downstream object
 - economic zones are the tax and time hub
+- the stock economy package depends on `UsefulSeeder` market tags plus the earlier time and currency layers
 - banks unlock multiple other systems, including payment instruments and property administration
 - markets, shoppers, and jobs all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
@@ -57,16 +64,15 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 Even with the existing abstractions, much of the economy remains world-authored content rather than ready-made stock configuration.
 
 ### Currently hand-built in most worlds
-- economic zones
 - tax regimes
 - banks and account types
 - exchange rates and currency reserves
 - shops and their staffing
 - merchandise catalogs
 - payment-item prototypes and bank-payment items
-- market categories and market assignment strategy
-- market populations and stress-threshold progs
-- shopper selection and item-choice progs
+- live economic-zone layout and market assignment strategy
+- world-specific market populations and stress-threshold tuning
+- shopper selection and item-choice progs beyond the stock tag-driven templates
 - auction houses
 - property portfolios and location mapping
 - jobs, employers, and eligibility logic
@@ -86,6 +92,7 @@ The runtime is generic by design. Most of these systems depend on world-specific
 Builders can:
 
 - seed stock currencies through `CurrencySeeder`
+- seed a stock economy template package through `EconomySeeder`
 - create new currencies and coins through economy admin commands
 - edit divisions, abbreviations, and description patterns
 - set global-base conversion so cross-currency comparisons remain possible
@@ -130,14 +137,23 @@ The market system becomes useful when the world wants more than fixed shop prici
 
 Current builder steps usually include:
 
-- define market categories
+- optionally start from the seeded template market created by `EconomySeeder`
+- review or extend the generated market categories that follow `UsefulSeeder` market tags
 - create one or more markets per economic region
 - add market influence templates or live influences
-- define market populations and their spending needs
-- create shoppers, usually `SimpleShopper`, with scripted selection behavior
+- define or tune market populations and their spending needs
+- create or tune shoppers, usually `SimpleShopper`, with scripted selection behavior
 - point relevant shops at a market for pricing purposes
 
 The population and shopper layers are where FutureProg dependence becomes especially important.
+
+Practical note on the stock seeder package:
+
+- the seeded market is a starting template, not a claim that the world should only have one market
+- the seeded external templates are intended to be balanced examples and can be reused or edited
+- the seeded population stress hooks already demonstrate the begin/end influence pattern through stock FutureProgs
+- the seeded populations assume medicine is a universal household need and now use seasonings tags such as `Salt` and `Spices` plus writing-material tags such as `Wax Tablets`, `Parchment`, `Paper`, and `Ink` where appropriate
+- the seeded shopper progs assume goods are tagged with the same market tags used by the generated categories
 
 ### Shops, Merchandise, Line of Credit, and Payment Methods
 Shops are one of the most configuration-heavy economy subsystems.
@@ -265,7 +281,7 @@ The shop API shape anticipates deals, but the runtime does not currently impleme
 The estate subsystem should not currently be used as a ready-made ownership framework. Its unresolved blocker is broader item ownership, not only inheritance logic.
 
 ### Seeder depth is narrow
-If a new feature depends on the broader economy existing out of the box, it will probably need either:
+If a new feature depends on the broader economy existing out of the box, it will probably still need either:
 
 - new seeder work
 - a builder workflow that can tolerate a mostly manual economy setup

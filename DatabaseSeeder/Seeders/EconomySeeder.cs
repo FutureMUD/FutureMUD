@@ -1,0 +1,1835 @@
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Xml.Linq;
+using MudSharp.Database;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.Models;
+using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Intervals;
+using CultureInfo = System.Globalization.CultureInfo;
+
+namespace DatabaseSeeder.Seeders;
+
+public class EconomySeeder : IDatabaseSeeder
+{
+	private const string MarketRootTagName = "Market";
+	private const string CategoryPrefix = "Economy Category";
+	private const string ZoneSuffix = "Economy Template Zone";
+	private const string MarketSuffix = "Economy Template Market";
+	private const string DefaultMarketPriceFormula =
+		"if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))";
+	private const string HelperProgPrefix = "EconomySeeder";
+
+	private static readonly IReadOnlyList<EraDefinition> EraDefinitions =
+	[
+		new(
+			"Classical Age",
+			"Classical Age",
+			[
+				new PopulationBlueprint(
+					"Urban Poor",
+					"City labourers and dependants with little margin for hardship and a constant need for staples, salt, cheap remedies and basic household goods.",
+					7200,
+					PopulationArchetype.Commoner,
+					[
+						new PopulationNeedBlueprint("Staple Food", 185m, 8),
+						new PopulationNeedBlueprint("Salt", 14m, 4),
+						new PopulationNeedBlueprint("Simple Medicine", 18m, 3),
+						new PopulationNeedBlueprint("Simple Clothing", 48m, 5),
+						new PopulationNeedBlueprint("Lighting", 18m, 2),
+						new PopulationNeedBlueprint("Simple Wares", 24m, 3),
+						new PopulationNeedBlueprint("Beer", 16m, 1)
+					]),
+				new PopulationBlueprint(
+					"Rural Smallholders",
+					"Subsistence-minded smallholders who still spend on tools, cloth, salt, remedies and a little market produce.",
+					5600,
+					PopulationArchetype.Rural,
+					[
+						new PopulationNeedBlueprint("Staple Food", 165m, 7),
+						new PopulationNeedBlueprint("Standard Food", 42m, 3),
+						new PopulationNeedBlueprint("Salt", 12m, 4),
+						new PopulationNeedBlueprint("Simple Medicine", 16m, 3),
+						new PopulationNeedBlueprint("Simple Clothing", 40m, 4),
+						new PopulationNeedBlueprint("Primitive Tools", 44m, 5),
+						new PopulationNeedBlueprint("Lighting", 14m, 1),
+						new PopulationNeedBlueprint("Combustion Heating", 12m, 1)
+					]),
+				new PopulationBlueprint(
+					"Artisan-Merchant Households",
+					"Urban craft and trading households who buy better food, seasonings, remedies, wares and productive equipment.",
+					1800,
+					PopulationArchetype.Merchant,
+					[
+						new PopulationNeedBlueprint("Standard Food", 175m, 6),
+						new PopulationNeedBlueprint("Salt", 16m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 22m, 3),
+						new PopulationNeedBlueprint("Standard Clothing", 84m, 5),
+						new PopulationNeedBlueprint("Standard Wares", 76m, 5),
+						new PopulationNeedBlueprint("Standard Furniture", 46m, 3),
+						new PopulationNeedBlueprint("Simple Tools", 58m, 6),
+						new PopulationNeedBlueprint("Transportation", 28m, 2),
+						new PopulationNeedBlueprint("Wine", 22m, 1)
+					]),
+				new PopulationBlueprint(
+					"Soldiery",
+					"Professional troops and camp followers whose spending leans toward equipment, preserved food, simple remedies and ready drink.",
+					1300,
+					PopulationArchetype.Martial,
+					[
+						new PopulationNeedBlueprint("Standard Food", 185m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 26m, 4),
+						new PopulationNeedBlueprint("Military Uniforms", 78m, 5),
+						new PopulationNeedBlueprint("Weapons", 60m, 7),
+						new PopulationNeedBlueprint("Armour", 42m, 5),
+						new PopulationNeedBlueprint("Ammunition", 28m, 4),
+						new PopulationNeedBlueprint("Beer", 22m, 2)
+					]),
+				new PopulationBlueprint(
+					"Temple Priesthood",
+					"Temple and civic priestly households who maintain respectable dress, ritual goods, lighting, wine and better remedies.",
+					540,
+					PopulationArchetype.Clergy,
+					[
+						new PopulationNeedBlueprint("Standard Food", 150m, 5),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 24m, 4),
+						new PopulationNeedBlueprint("Standard Clothing", 68m, 5),
+						new PopulationNeedBlueprint("Lighting", 24m, 4),
+						new PopulationNeedBlueprint("Standard Wares", 32m, 3),
+						new PopulationNeedBlueprint("Wax Tablets", 18m, 2),
+						new PopulationNeedBlueprint("Ink", 8m, 1),
+						new PopulationNeedBlueprint("Wine", 16m, 2),
+						new PopulationNeedBlueprint("Luxury Decorations", 18m, 2)
+					]),
+				new PopulationBlueprint(
+					"Monastic Orders",
+					"Disciplined communal households who spend modestly but steadily on staples, remedies, light and simple domestic supplies.",
+					460,
+					PopulationArchetype.Monastic,
+					[
+						new PopulationNeedBlueprint("Staple Food", 150m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 24m, 5),
+						new PopulationNeedBlueprint("Simple Clothing", 34m, 4),
+						new PopulationNeedBlueprint("Lighting", 22m, 4),
+						new PopulationNeedBlueprint("Simple Wares", 18m, 2),
+						new PopulationNeedBlueprint("Simple Furniture", 18m, 2),
+						new PopulationNeedBlueprint("Wax Tablets", 10m, 1),
+						new PopulationNeedBlueprint("Ink", 6m, 1),
+						new PopulationNeedBlueprint("Wine", 8m, 1)
+					]),
+				new PopulationBlueprint(
+					"Patrician Elite",
+					"Landed and civic elites with a taste for luxury imports, refined food, rich seasonings, advanced remedies and visible household display.",
+					280,
+					PopulationArchetype.Elite,
+					[
+						new PopulationNeedBlueprint("Luxury Food", 280m, 8),
+						new PopulationNeedBlueprint("Spices", 40m, 4),
+						new PopulationNeedBlueprint("High-Quality Medicine", 48m, 4),
+						new PopulationNeedBlueprint("Luxury Clothing", 220m, 7),
+						new PopulationNeedBlueprint("Luxury Furniture", 160m, 5),
+						new PopulationNeedBlueprint("Luxury Decorations", 120m, 4),
+						new PopulationNeedBlueprint("Wax Tablets", 22m, 2),
+						new PopulationNeedBlueprint("Ink", 12m, 1),
+						new PopulationNeedBlueprint("Luxury Drinks", 84m, 3),
+						new PopulationNeedBlueprint("Transportation", 55m, 2)
+					])
+			]),
+		new(
+			"Feudal Age",
+			"Feudal Age",
+			[
+				new PopulationBlueprint(
+					"Peasantry",
+					"Village peasants focused on staples, salt, simple remedies, coarse clothing, firewood and inexpensive household wares.",
+					7600,
+					PopulationArchetype.Commoner,
+					[
+						new PopulationNeedBlueprint("Staple Food", 190m, 8),
+						new PopulationNeedBlueprint("Salt", 14m, 4),
+						new PopulationNeedBlueprint("Simple Medicine", 18m, 3),
+						new PopulationNeedBlueprint("Simple Clothing", 42m, 5),
+						new PopulationNeedBlueprint("Combustion Heating", 28m, 3),
+						new PopulationNeedBlueprint("Lighting", 16m, 2),
+						new PopulationNeedBlueprint("Simple Wares", 20m, 2)
+					]),
+				new PopulationBlueprint(
+					"Manor Households",
+					"Stewarded rural households that spend on food, seasonings, remedies, heating and the tools that keep estates running.",
+					950,
+					PopulationArchetype.Rural,
+					[
+						new PopulationNeedBlueprint("Standard Food", 175m, 6),
+						new PopulationNeedBlueprint("Salt", 16m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 18m, 3),
+						new PopulationNeedBlueprint("Standard Clothing", 68m, 5),
+						new PopulationNeedBlueprint("Combustion Heating", 34m, 3),
+						new PopulationNeedBlueprint("Simple Furniture", 36m, 2),
+						new PopulationNeedBlueprint("Simple Tools", 48m, 6),
+						new PopulationNeedBlueprint("Mule Haulage", 20m, 1)
+					]),
+				new PopulationBlueprint(
+					"Itinerant Tradesfolk",
+					"Travelling or market-town tradesfolk whose spending favours food, seasonings, remedies, tools, transport and middling comforts.",
+					1400,
+					PopulationArchetype.Merchant,
+					[
+						new PopulationNeedBlueprint("Standard Food", 160m, 6),
+						new PopulationNeedBlueprint("Salt", 16m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 22m, 3),
+						new PopulationNeedBlueprint("Standard Clothing", 72m, 5),
+						new PopulationNeedBlueprint("Simple Tools", 62m, 7),
+						new PopulationNeedBlueprint("Transportation", 30m, 3),
+						new PopulationNeedBlueprint("Standard Wares", 48m, 3),
+						new PopulationNeedBlueprint("Beer", 18m, 1)
+					]),
+				new PopulationBlueprint(
+					"Retainers",
+					"Household men-at-arms and armed retainers who spend on kit, food, salting stores, simple medicine and practical clothing.",
+					1100,
+					PopulationArchetype.Martial,
+					[
+						new PopulationNeedBlueprint("Standard Food", 170m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 24m, 4),
+						new PopulationNeedBlueprint("Military Uniforms", 68m, 5),
+						new PopulationNeedBlueprint("Weapons", 52m, 7),
+						new PopulationNeedBlueprint("Armour", 38m, 5),
+						new PopulationNeedBlueprint("Simple Clothing", 32m, 3),
+						new PopulationNeedBlueprint("Beer", 18m, 1)
+					]),
+				new PopulationBlueprint(
+					"Parish Priesthood",
+					"Parish and chapel households that sustain respectable dress, medicine, altar light, wine and practical devotional goods.",
+					520,
+					PopulationArchetype.Clergy,
+					[
+						new PopulationNeedBlueprint("Standard Food", 148m, 5),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 22m, 4),
+						new PopulationNeedBlueprint("Standard Clothing", 64m, 5),
+						new PopulationNeedBlueprint("Lighting", 24m, 4),
+						new PopulationNeedBlueprint("Standard Wares", 28m, 2),
+						new PopulationNeedBlueprint("Parchment", 18m, 2),
+						new PopulationNeedBlueprint("Ink", 10m, 1),
+						new PopulationNeedBlueprint("Wine", 18m, 2),
+						new PopulationNeedBlueprint("Standard Decorations", 16m, 2)
+					]),
+				new PopulationBlueprint(
+					"Monastic Orders",
+					"Monastic communities with modest but reliable spending on staples, salt, medicines, light and simple workshop goods.",
+					430,
+					PopulationArchetype.Monastic,
+					[
+						new PopulationNeedBlueprint("Staple Food", 152m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 26m, 5),
+						new PopulationNeedBlueprint("Simple Clothing", 32m, 4),
+						new PopulationNeedBlueprint("Lighting", 24m, 4),
+						new PopulationNeedBlueprint("Simple Wares", 18m, 2),
+						new PopulationNeedBlueprint("Simple Tools", 20m, 2),
+						new PopulationNeedBlueprint("Parchment", 12m, 1),
+						new PopulationNeedBlueprint("Ink", 8m, 1),
+						new PopulationNeedBlueprint("Simple Furniture", 16m, 1)
+					]),
+				new PopulationBlueprint(
+					"Noble Elite",
+					"High-status secular households who maintain prestige through quality food, rich seasonings, household display and better medicine.",
+					260,
+					PopulationArchetype.Elite,
+					[
+						new PopulationNeedBlueprint("Luxury Food", 265m, 8),
+						new PopulationNeedBlueprint("Spices", 36m, 4),
+						new PopulationNeedBlueprint("High-Quality Medicine", 44m, 4),
+						new PopulationNeedBlueprint("Luxury Clothing", 205m, 7),
+						new PopulationNeedBlueprint("Luxury Furniture", 145m, 4),
+						new PopulationNeedBlueprint("Luxury Decorations", 108m, 4),
+						new PopulationNeedBlueprint("Parchment", 20m, 2),
+						new PopulationNeedBlueprint("Ink", 12m, 1),
+						new PopulationNeedBlueprint("Wine", 56m, 2),
+						new PopulationNeedBlueprint("Transportation", 46m, 1)
+					])
+			]),
+		new(
+			"Medieval Age",
+			"Medieval Age",
+			[
+				new PopulationBlueprint(
+					"Rural Peasants",
+					"Ordinary peasants whose market spend is dominated by staples, salt, simple remedies, cloth and fuel.",
+					7100,
+					PopulationArchetype.Commoner,
+					[
+						new PopulationNeedBlueprint("Staple Food", 182m, 8),
+						new PopulationNeedBlueprint("Salt", 14m, 4),
+						new PopulationNeedBlueprint("Simple Medicine", 18m, 3),
+						new PopulationNeedBlueprint("Simple Clothing", 40m, 5),
+						new PopulationNeedBlueprint("Combustion Heating", 26m, 3),
+						new PopulationNeedBlueprint("Lighting", 16m, 2),
+						new PopulationNeedBlueprint("Simple Wares", 20m, 2)
+					]),
+				new PopulationBlueprint(
+					"Town Artisans",
+					"Workshop households buying reliable food, salt, decent clothing, medicines, wares and the tools of their trade.",
+					2200,
+					PopulationArchetype.Merchant,
+					[
+						new PopulationNeedBlueprint("Standard Food", 158m, 6),
+						new PopulationNeedBlueprint("Salt", 16m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 20m, 3),
+						new PopulationNeedBlueprint("Standard Clothing", 76m, 5),
+						new PopulationNeedBlueprint("Simple Tools", 56m, 7),
+						new PopulationNeedBlueprint("Standard Wares", 60m, 4),
+						new PopulationNeedBlueprint("Standard Furniture", 38m, 2),
+						new PopulationNeedBlueprint("Lighting", 22m, 2)
+					]),
+				new PopulationBlueprint(
+					"Guild-Merchant Households",
+					"Prosperous guild and merchant families whose spending reaches into seasonings, medicines, transport, luxury drink and better wares.",
+					1100,
+					PopulationArchetype.Merchant,
+					[
+						new PopulationNeedBlueprint("Standard Food", 172m, 6),
+						new PopulationNeedBlueprint("Spices", 24m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 28m, 3),
+						new PopulationNeedBlueprint("Standard Clothing", 88m, 5),
+						new PopulationNeedBlueprint("Standard Wares", 76m, 4),
+						new PopulationNeedBlueprint("Paper", 14m, 1),
+						new PopulationNeedBlueprint("Ink", 10m, 1),
+						new PopulationNeedBlueprint("Transportation", 32m, 3),
+						new PopulationNeedBlueprint("Luxury Drinks", 30m, 2),
+						new PopulationNeedBlueprint("High-Quality Tools", 44m, 4)
+					]),
+				new PopulationBlueprint(
+					"Garrison Men-At-Arms",
+					"Permanent guards and soldiers with steady demand for equipment, food, preserved staples, field medicine, clothing and drink.",
+					1350,
+					PopulationArchetype.Martial,
+					[
+						new PopulationNeedBlueprint("Standard Food", 176m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 26m, 4),
+						new PopulationNeedBlueprint("Military Uniforms", 72m, 5),
+						new PopulationNeedBlueprint("Weapons", 56m, 7),
+						new PopulationNeedBlueprint("Armour", 40m, 5),
+						new PopulationNeedBlueprint("Ammunition", 26m, 4),
+						new PopulationNeedBlueprint("Beer", 18m, 1)
+					]),
+				new PopulationBlueprint(
+					"Parish Clergy",
+					"Parish clergy and cathedral prebends who spend on respectable food, medicines, vesture, candles and liturgical goods.",
+					560,
+					PopulationArchetype.Clergy,
+					[
+						new PopulationNeedBlueprint("Standard Food", 154m, 5),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 24m, 4),
+						new PopulationNeedBlueprint("Standard Clothing", 70m, 5),
+						new PopulationNeedBlueprint("Lighting", 26m, 4),
+						new PopulationNeedBlueprint("Standard Wares", 30m, 2),
+						new PopulationNeedBlueprint("Parchment", 18m, 2),
+						new PopulationNeedBlueprint("Ink", 12m, 1),
+						new PopulationNeedBlueprint("Wine", 18m, 2),
+						new PopulationNeedBlueprint("Standard Decorations", 18m, 2)
+					]),
+				new PopulationBlueprint(
+					"Monastic Orders",
+					"Monastic foundations with disciplined communal spending on food, salt, remedies, candlelight, furnishings and workshop supplies.",
+					470,
+					PopulationArchetype.Monastic,
+					[
+						new PopulationNeedBlueprint("Staple Food", 158m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Simple Medicine", 28m, 5),
+						new PopulationNeedBlueprint("Simple Clothing", 34m, 4),
+						new PopulationNeedBlueprint("Lighting", 26m, 4),
+						new PopulationNeedBlueprint("Simple Wares", 18m, 2),
+						new PopulationNeedBlueprint("Simple Tools", 24m, 2),
+						new PopulationNeedBlueprint("Parchment", 12m, 1),
+						new PopulationNeedBlueprint("Ink", 8m, 1),
+						new PopulationNeedBlueprint("Simple Furniture", 18m, 1)
+					]),
+				new PopulationBlueprint(
+					"Noble Elite",
+					"High-born households with demand for luxuries, display goods, seasonings and high quality medicines.",
+					240,
+					PopulationArchetype.Elite,
+					[
+						new PopulationNeedBlueprint("Luxury Food", 272m, 8),
+						new PopulationNeedBlueprint("Spices", 38m, 4),
+						new PopulationNeedBlueprint("High-Quality Medicine", 46m, 4),
+						new PopulationNeedBlueprint("Luxury Clothing", 214m, 7),
+						new PopulationNeedBlueprint("Luxury Decorations", 118m, 4),
+						new PopulationNeedBlueprint("Luxury Furniture", 150m, 4),
+						new PopulationNeedBlueprint("Paper", 18m, 2),
+						new PopulationNeedBlueprint("Ink", 12m, 1),
+						new PopulationNeedBlueprint("Luxury Drinks", 54m, 2),
+						new PopulationNeedBlueprint("Transportation", 48m, 1)
+					])
+			]),
+		new(
+			"Early Modern Age",
+			"Early Modern Age",
+			[
+				new PopulationBlueprint(
+					"Labourers",
+					"Daily-wage labourers whose spending remains tightly focused on bread, salt, simple medicine, fuel, clothing and cheap drink.",
+					7400,
+					PopulationArchetype.Commoner,
+					[
+						new PopulationNeedBlueprint("Staple Food", 188m, 8),
+						new PopulationNeedBlueprint("Salt", 16m, 4),
+						new PopulationNeedBlueprint("Simple Medicine", 20m, 3),
+						new PopulationNeedBlueprint("Simple Clothing", 44m, 5),
+						new PopulationNeedBlueprint("Combustion Heating", 28m, 3),
+						new PopulationNeedBlueprint("Lighting", 20m, 2),
+						new PopulationNeedBlueprint("Beer", 18m, 1)
+					]),
+				new PopulationBlueprint(
+					"Middling Households",
+					"Comfort-seeking households of clerks, craftsmen and small masters with regular purchases across food, medicines and practical goods.",
+					2600,
+					PopulationArchetype.Merchant,
+					[
+						new PopulationNeedBlueprint("Standard Food", 170m, 6),
+						new PopulationNeedBlueprint("Salt", 16m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 24m, 3),
+						new PopulationNeedBlueprint("Standard Clothing", 82m, 5),
+						new PopulationNeedBlueprint("Standard Wares", 68m, 4),
+						new PopulationNeedBlueprint("Standard Furniture", 46m, 3),
+						new PopulationNeedBlueprint("Paper", 16m, 1),
+						new PopulationNeedBlueprint("Ink", 10m, 1),
+						new PopulationNeedBlueprint("Simple Tools", 36m, 3),
+						new PopulationNeedBlueprint("Lighting", 24m, 2)
+					]),
+				new PopulationBlueprint(
+					"Merchant And Professional Class",
+					"Established urban households buying quality wares, seasonings, medicines, transport, luxuries and better productive tools.",
+					900,
+					PopulationArchetype.Merchant,
+					[
+						new PopulationNeedBlueprint("Standard Food", 182m, 6),
+						new PopulationNeedBlueprint("Spices", 28m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 32m, 4),
+						new PopulationNeedBlueprint("Standard Clothing", 98m, 5),
+						new PopulationNeedBlueprint("High-Quality Tools", 58m, 4),
+						new PopulationNeedBlueprint("Paper", 20m, 2),
+						new PopulationNeedBlueprint("Ink", 14m, 1),
+						new PopulationNeedBlueprint("Transportation", 40m, 3),
+						new PopulationNeedBlueprint("Luxury Drinks", 36m, 2),
+						new PopulationNeedBlueprint("Luxury Decorations", 42m, 2)
+					]),
+				new PopulationBlueprint(
+					"Standing Soldiery",
+					"Regular soldiers and sailors who keep demand high for arms, kit, medicines, preserved food, uniforms and durable practical goods.",
+					1200,
+					PopulationArchetype.Martial,
+					[
+						new PopulationNeedBlueprint("Standard Food", 182m, 6),
+						new PopulationNeedBlueprint("Salt", 16m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 30m, 4),
+						new PopulationNeedBlueprint("Military Uniforms", 76m, 5),
+						new PopulationNeedBlueprint("Weapons", 60m, 7),
+						new PopulationNeedBlueprint("Armour", 28m, 3),
+						new PopulationNeedBlueprint("Ammunition", 34m, 6),
+						new PopulationNeedBlueprint("Standard Clothing", 24m, 2)
+					]),
+				new PopulationBlueprint(
+					"Parish Clergy",
+					"Parish clergy and learned church households who spend on respectable food, medicine, vesture, candles and modest comforts.",
+					520,
+					PopulationArchetype.Clergy,
+					[
+						new PopulationNeedBlueprint("Standard Food", 160m, 5),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 28m, 4),
+						new PopulationNeedBlueprint("Standard Clothing", 74m, 5),
+						new PopulationNeedBlueprint("Lighting", 28m, 4),
+						new PopulationNeedBlueprint("Standard Wares", 32m, 2),
+						new PopulationNeedBlueprint("Paper", 18m, 2),
+						new PopulationNeedBlueprint("Ink", 12m, 1),
+						new PopulationNeedBlueprint("Tea", 18m, 2),
+						new PopulationNeedBlueprint("Standard Decorations", 18m, 1)
+					]),
+				new PopulationBlueprint(
+					"Monastic Foundations",
+					"Monastic and charitable foundations with steady communal spending on staples, medicines, light and simple workshop supplies.",
+					390,
+					PopulationArchetype.Monastic,
+					[
+						new PopulationNeedBlueprint("Staple Food", 164m, 6),
+						new PopulationNeedBlueprint("Salt", 14m, 3),
+						new PopulationNeedBlueprint("Standard Medicine", 30m, 5),
+						new PopulationNeedBlueprint("Simple Clothing", 34m, 4),
+						new PopulationNeedBlueprint("Lighting", 28m, 4),
+						new PopulationNeedBlueprint("Simple Wares", 18m, 2),
+						new PopulationNeedBlueprint("Standard Tools", 26m, 2),
+						new PopulationNeedBlueprint("Paper", 14m, 1),
+						new PopulationNeedBlueprint("Ink", 10m, 1),
+						new PopulationNeedBlueprint("Simple Furniture", 16m, 1)
+					]),
+				new PopulationBlueprint(
+					"Gentry Elite",
+					"Gentry and courtly households with persistent demand for luxuries, seasonings, superior medicine, display goods and refined consumption.",
+					220,
+					PopulationArchetype.Elite,
+					[
+						new PopulationNeedBlueprint("Luxury Food", 286m, 8),
+						new PopulationNeedBlueprint("Spices", 42m, 4),
+						new PopulationNeedBlueprint("High-Quality Medicine", 52m, 4),
+						new PopulationNeedBlueprint("Luxury Clothing", 226m, 7),
+						new PopulationNeedBlueprint("Luxury Furniture", 164m, 4),
+						new PopulationNeedBlueprint("Luxury Decorations", 132m, 4),
+						new PopulationNeedBlueprint("Paper", 24m, 2),
+						new PopulationNeedBlueprint("Ink", 16m, 1),
+						new PopulationNeedBlueprint("Luxury Drinks", 68m, 2),
+						new PopulationNeedBlueprint("Transportation", 56m, 1)
+					])
+			])
+	];
+
+	private static readonly IReadOnlyList<SectorInfluenceBlueprint> ExternalInfluenceBlueprints =
+	[
+		new(
+			"Harvest Failure",
+			["Essentials"],
+			-0.28,
+			0.08,
+			era => era switch
+			{
+				"Classical Age" => "Poor yields from estates and market gardens shrink everyday supply.",
+				"Feudal Age" => "A poor harvest on demesne and village lands tightens everyday supply.",
+				"Medieval Age" => "A failed harvest across the countryside tightens everyday supply.",
+				_ => "A string of poor harvests reduces the flow of basic necessities."
+			},
+			era => $"{era} harvest losses squeeze the essentials trade."),
+		new(
+			"Unseasonable Weather",
+			["Essentials"],
+			-0.14,
+			0.12,
+			era => era switch
+			{
+				"Classical Age" => "Unseasonable storms and cold increase demand for food, fuel and basic care.",
+				"Feudal Age" => "Untimely frosts and soaking rains lift demand for food, fuel and simple remedies.",
+				"Medieval Age" => "Cold snaps and relentless rain lift demand for food, heating and simple care.",
+				_ => "Wild seasonal swings increase demand for food, heating and common remedies."
+			},
+			era => $"{era} weather shocks push up essentials demand."),
+		new(
+			"River Trade Disruption",
+			["Essentials"],
+			-0.18,
+			0.05,
+			era => era switch
+			{
+				"Classical Age" => "Blocked river traffic and delayed barges cut the easy flow of staple goods.",
+				"Feudal Age" => "Flooded crossings and bandit-haunted roads delay staple deliveries.",
+				"Medieval Age" => "Broken bridges and unsafe roads slow staple deliveries into town.",
+				_ => "Transport delays slow the arrival of bulk essentials."
+			},
+			era => $"{era} transport trouble pinches basic supply."),
+		new(
+			"Bumper Harvest",
+			["Essentials"],
+			0.30,
+			-0.04,
+			era => era switch
+			{
+				"Classical Age" => "Healthy crops and steady shipments flood the market with staples.",
+				"Feudal Age" => "Strong yields across manor and village lands flood the market with staples.",
+				"Medieval Age" => "Strong harvests fill granaries and make staples easy to find.",
+				_ => "Excellent harvests make staples plentiful and comparatively cheap."
+			},
+			era => $"{era} bumper yields ease prices on essentials."),
+		new(
+			"Caravan Surplus",
+			["Essentials"],
+			0.18,
+			-0.06,
+			era => era switch
+			{
+				"Classical Age" => "A run of well-escorted caravans leaves storehouses unusually full.",
+				"Feudal Age" => "Several laden caravans arrive close together, swelling staple stocks.",
+				"Medieval Age" => "Merchants arrive in force and staple stocks pile up in town.",
+				_ => "A glut of inbound carriers leaves storehouses unexpectedly full."
+			},
+			era => $"{era} trade arrivals create an essentials glut."),
+		new(
+			"Mild Season",
+			["Essentials"],
+			0.08,
+			-0.10,
+			era => era switch
+			{
+				"Classical Age" => "Fair weather reduces the urgency around food preservation, fuel and simple remedies.",
+				"Feudal Age" => "A mild season takes the edge off fuel and household necessity demand.",
+				"Medieval Age" => "A mild season softens demand for fuel, food reserves and common remedies.",
+				_ => "Easy weather softens immediate demand for everyday necessities."
+			},
+			era => $"{era} mild weather softens essentials demand."),
+		new(
+			"Festival Season",
+			["Lifestyle"],
+			-0.06,
+			0.18,
+			era => era switch
+			{
+				"Classical Age" => "Games, feasts and civic festivals drive extra purchases of clothing, wares and drink.",
+				"Feudal Age" => "Feasts and holy days lift demand for clothes, wares and drink.",
+				"Medieval Age" => "Fair days, marriages and feast days boost demand for everyday luxuries.",
+				_ => "A busy social season lifts demand for lifestyle goods and celebratory spending."
+			},
+			era => $"{era} festivities tighten lifestyle markets."),
+		new(
+			"Imported Fashion Shortfall",
+			["Lifestyle"],
+			-0.16,
+			0.08,
+			era => era switch
+			{
+				"Classical Age" => "Fine dyes, perfumes and imported household goods arrive in reduced quantity.",
+				"Feudal Age" => "Prestige cloth, spices and imported finery arrive in reduced quantity.",
+				"Medieval Age" => "Fine cloth, ornaments and imported luxuries arrive in reduced quantity.",
+				_ => "Fashionable imports and prestige goods arrive in noticeably smaller lots."
+			},
+			era => $"{era} luxury imports arrive short."),
+		new(
+			"Aristocratic Buying Frenzy",
+			["Lifestyle"],
+			-0.04,
+			0.22,
+			era => era switch
+			{
+				"Classical Age" => "Elite patronage surges, chasing better food, drink, clothes and furnishings.",
+				"Feudal Age" => "Courtly spending surges, chasing better drink, cloth and household display goods.",
+				"Medieval Age" => "Noble and guild patronage surges, chasing fine cloth, drink and display goods.",
+				_ => "Fashion-conscious elites increase their spending on visible comforts and luxuries."
+			},
+			era => $"{era} elite patronage lifts lifestyle demand."),
+		new(
+			"Merchant Overstock",
+			["Lifestyle"],
+			0.22,
+			-0.08,
+			era => era switch
+			{
+				"Classical Age" => "Warehouses fill with unsold cloth, wares and drink after a speculative buying run.",
+				"Feudal Age" => "Merchants are left long on cloth, wares and drink after overbuying.",
+				"Medieval Age" => "Merchants are left with crowded stalls and too many middling luxuries.",
+				_ => "Merchants overbought and now need to clear lifestyle stock."
+			},
+			era => $"{era} merchants are overstocked on lifestyle goods."),
+		new(
+			"Quiet Social Season",
+			["Lifestyle"],
+			0.08,
+			-0.16,
+			era => era switch
+			{
+				"Classical Age" => "A lull in social events reduces spending on drink, clothing and household display.",
+				"Feudal Age" => "A quiet season reduces spending on better drink, clothing and display goods.",
+				"Medieval Age" => "A quieter social calendar reduces discretionary spending on lifestyle goods.",
+				_ => "A quiet season cools discretionary spending on social and lifestyle goods."
+			},
+			era => $"{era} quieter social life eases lifestyle demand."),
+		new(
+			"Foreign Luxury Influx",
+			["Lifestyle"],
+			0.18,
+			-0.05,
+			era => era switch
+			{
+				"Classical Age" => "A convoy of imported luxuries arrives all at once, swelling fashionable supply.",
+				"Feudal Age" => "A rare but rich train of imported luxuries swells fashionable supply.",
+				"Medieval Age" => "Foreign luxuries arrive in abundance and undercut recent prices.",
+				_ => "Imported prestige goods arrive in unusual volume and cool recent prices."
+			},
+			era => $"{era} imported luxuries swell the lifestyle market."),
+		new(
+			"Local War",
+			["Martial"],
+			-0.08,
+			0.34,
+			era => era switch
+			{
+				"Classical Age" => "A local campaign increases demand for arms, armour and military supplies.",
+				"Feudal Age" => "Mustered levies increase demand for arms, armour and military supplies.",
+				"Medieval Age" => "A local war sharply increases demand for arms, armour and military stores.",
+				_ => "A war scare sharply increases demand for weapons, ammunition and military stores."
+			},
+			era => $"{era} conflict drives up martial demand."),
+		new(
+			"Border Raiding",
+			["Martial"],
+			-0.04,
+			0.20,
+			era => era switch
+			{
+				"Classical Age" => "Repeated raids keep local buyers in the market for arms and armour.",
+				"Feudal Age" => "Repeated raiding keeps local buyers in the market for arms and armour.",
+				"Medieval Age" => "Frontier raiding keeps households and garrisons buying military goods.",
+				_ => "Insecurity on the frontier keeps buyers focused on weapons and powder."
+			},
+			era => $"{era} raiding keeps martial demand elevated."),
+		new(
+			"Arms Embargo",
+			["Martial"],
+			-0.22,
+			0.06,
+			era => era switch
+			{
+				"Classical Age" => "Regional restrictions sharply reduce the inflow of arms and armour.",
+				"Feudal Age" => "Restrictions on armourers and weapon traders sharply reduce inflow.",
+				"Medieval Age" => "Restrictions on armourers and merchants sharply reduce martial supply.",
+				_ => "Embargoes and inspections sharply reduce the inflow of martial goods."
+			},
+			era => $"{era} restrictions choke off martial supply."),
+		new(
+			"Peace Dividend",
+			["Martial"],
+			0.20,
+			-0.22,
+			era => era switch
+			{
+				"Classical Age" => "An easing security situation leaves arsenals and smithies with slack demand.",
+				"Feudal Age" => "The end of campaigning leaves armourers and fletchers with slack demand.",
+				"Medieval Age" => "An easing security situation leaves martial workshops with slack demand.",
+				_ => "A calmer political climate leaves martial workshops with slack demand."
+			},
+			era => $"{era} peace eases martial prices."),
+		new(
+			"Armoury Surplus",
+			["Martial"],
+			0.24,
+			-0.06,
+			era => era switch
+			{
+				"Classical Age" => "Stockpiles of arms and armour are released onto the market.",
+				"Feudal Age" => "Stored arms and armour are released onto the market.",
+				"Medieval Age" => "Old stock from armouries and workshops floods the market.",
+				_ => "Stored arms and powder hit the market in unusual volume."
+			},
+			era => $"{era} surplus military stock cools prices."),
+		new(
+			"Disbanded Levies",
+			["Martial"],
+			0.12,
+			-0.14,
+			era => era switch
+			{
+				"Classical Age" => "Demobilised troops spend less on military upkeep and sell off equipment.",
+				"Feudal Age" => "Disbanded levies spend less on military upkeep and sell off equipment.",
+				"Medieval Age" => "Demobilised troops reduce martial demand and release kit to market.",
+				_ => "Demobilisation reduces martial demand and frees up spare kit."
+			},
+			era => $"{era} demobilisation cools martial demand."),
+		new(
+			"Road And Port Trouble",
+			["Logistics"],
+			-0.18,
+			0.08,
+			era => era switch
+			{
+				"Classical Age" => "Silted quays and unsafe roads strain freight and storage capacity.",
+				"Feudal Age" => "Unsafe roads and poor crossings strain haulage and storage capacity.",
+				"Medieval Age" => "Broken bridges and port delays strain haulage and warehousing.",
+				_ => "Port delays and road trouble strain freight and storage capacity."
+			},
+			era => $"{era} transport trouble tightens logistics markets."),
+		new(
+			"Piracy And Banditry",
+			["Logistics"],
+			-0.12,
+			0.12,
+			era => era switch
+			{
+				"Classical Age" => "Piracy and brigandage make carrying goods noticeably more costly.",
+				"Feudal Age" => "Banditry and petty piracy make carrying goods noticeably more costly.",
+				"Medieval Age" => "Banditry and piracy make moving and storing goods more expensive.",
+				_ => "Predation on the roads and sea makes moving and storing goods more expensive."
+			},
+			era => $"{era} insecurity lifts logistics demand and costs."),
+		new(
+			"Forced Requisitioning",
+			["Logistics"],
+			-0.10,
+			0.16,
+			era => era switch
+			{
+				"Classical Age" => "Authorities commandeer carriers and storage for official use.",
+				"Feudal Age" => "Lords commandeer carriers and storage for official use.",
+				"Medieval Age" => "Authorities commandeer carriers and storehouses for urgent use.",
+				_ => "Officials requisition wagons, ships and storage for urgent use."
+			},
+			era => $"{era} requisitioning strains logistics capacity."),
+		new(
+			"Clear Roads",
+			["Logistics"],
+			0.18,
+			-0.06,
+			era => era switch
+			{
+				"Classical Age" => "Safe roads and reliable schedules increase carrying capacity.",
+				"Feudal Age" => "Safe roads and open crossings increase carrying capacity.",
+				"Medieval Age" => "Reliable roads and ports increase carrying capacity.",
+				_ => "Open roads and efficient ports increase carrying capacity."
+			},
+			era => $"{era} safer routes ease logistics prices."),
+		new(
+			"Harbour Boom",
+			["Logistics"],
+			0.14,
+			-0.10,
+			era => era switch
+			{
+				"Classical Age" => "A busy season of successful shipping leaves hauliers and storehouses chasing work.",
+				"Feudal Age" => "A busy shipping season leaves carriers and storehouses chasing work.",
+				"Medieval Age" => "Strong throughput leaves carriers and warehousing with spare capacity.",
+				_ => "Strong port throughput leaves freight and warehousing with spare capacity."
+			},
+			era => $"{era} shipping success expands logistics supply."),
+		new(
+			"Idle Carrier Fleets",
+			["Logistics"],
+			0.12,
+			-0.14,
+			era => era switch
+			{
+				"Classical Age" => "Too many carriers compete for too little trade.",
+				"Feudal Age" => "Too many carriers compete for too little trade.",
+				"Medieval Age" => "Too many carriers compete for too little custom.",
+				_ => "Carrier capacity outstrips demand and prices soften."
+			},
+			era => $"{era} excess carrier capacity cools logistics demand."),
+		new(
+			"Mining Strike",
+			["Industry"],
+			-0.24,
+			0.06,
+			era => era switch
+			{
+				"Classical Age" => "Disruption at mines and foundries reduces the supply of useful materials and tools.",
+				"Feudal Age" => "Disruption at pits and smithies reduces the supply of useful materials and tools.",
+				"Medieval Age" => "Disruption at pits and workshops reduces the supply of useful materials and tools.",
+				_ => "Disruption at mines and workshops reduces the supply of materials and productive tools."
+			},
+			era => $"{era} industrial disruption tightens materials supply."),
+		new(
+			"Great Building Works",
+			["Industry"],
+			-0.08,
+			0.22,
+			era => era switch
+			{
+				"Classical Age" => "Ambitious public works lift demand for stone, metal, timber and tools.",
+				"Feudal Age" => "A wave of castle, bridge and hall works lifts demand for material and tools.",
+				"Medieval Age" => "A wave of major building works lifts demand for material and tools.",
+				_ => "Major construction and expansion works lift demand for material and tools."
+			},
+			era => $"{era} building works drive industrial demand."),
+		new(
+			"Guild Input Scarcity",
+			["Industry"],
+			-0.14,
+			0.10,
+			era => era switch
+			{
+				"Classical Age" => "Key workshop inputs become scarce and craftsmen bid harder for supply.",
+				"Feudal Age" => "Key workshop inputs become scarce and craftsmen bid harder for supply.",
+				"Medieval Age" => "Guild workshops bid harder for scarce raw inputs.",
+				_ => "Manufacturers bid harder for scarce raw inputs."
+			},
+			era => $"{era} workshop input shortages raise industrial prices."),
+		new(
+			"Rich Vein Discovery",
+			["Industry"],
+			0.24,
+			-0.06,
+			era => era switch
+			{
+				"Classical Age" => "A rich source of timber, ore or clay swells industrial supply.",
+				"Feudal Age" => "A rich source of timber, ore or clay swells industrial supply.",
+				"Medieval Age" => "A rich source of timber, ore or clay swells industrial supply.",
+				_ => "A rich source of timber, ore or mineral swells industrial supply."
+			},
+			era => $"{era} new extraction successes swell material supply."),
+		new(
+			"Guild Overproduction",
+			["Industry"],
+			0.16,
+			-0.10,
+			era => era switch
+			{
+				"Classical Age" => "Workshops overshoot demand and tool and material prices soften.",
+				"Feudal Age" => "Workshops overshoot demand and tool and material prices soften.",
+				"Medieval Age" => "Guild workshops overshoot demand and prices soften.",
+				_ => "Manufacturers overshoot demand and prices soften."
+			},
+			era => $"{era} overproduction cools industrial demand."),
+		new(
+			"Forest Bounty",
+			["Industry"],
+			0.14,
+			-0.08,
+			era => era switch
+			{
+				"Classical Age" => "Abundant timber and charcoal leave workshops with easier access to inputs.",
+				"Feudal Age" => "Abundant timber and charcoal leave workshops with easier access to inputs.",
+				"Medieval Age" => "Abundant timber and fuel leave workshops with easier access to inputs.",
+				_ => "Abundant timber and fuel leave workshops with easier access to inputs."
+			},
+			era => $"{era} abundant inputs ease industrial prices.")
+	];
+
+	private static readonly IReadOnlyList<StressLevelDefinition> StressLevels =
+	[
+		new("Strained", 0.12m, 0.05, -0.18, -0.08, -0.06, 0.05, 0.04),
+		new("Hardship", 0.28m, 0.10, -0.40, -0.18, -0.16, 0.10, 0.08),
+		new("Crisis", 0.50m, 0.18, -0.72, -0.30, -0.24, 0.16, 0.14)
+	];
+
+	private static readonly IReadOnlyDictionary<string, string> FamilySectorMap =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Nourishment"] = "Essentials",
+			["Domestic Heating"] = "Essentials",
+			["Lighting"] = "Essentials",
+			["Medicine"] = "Essentials",
+			["Writing Materials"] = "Lifestyle",
+			["Clothing"] = "Lifestyle",
+			["Intoxicants"] = "Lifestyle",
+			["Luxury Drinks"] = "Lifestyle",
+			["Household Goods"] = "Lifestyle",
+			["Military Goods"] = "Martial",
+			["Transportation"] = "Logistics",
+			["Warehousing"] = "Logistics",
+			["Professional Tools"] = "Industry",
+			["Raw Materials"] = "Industry"
+		};
+
+	private static readonly IReadOnlyDictionary<string, (double Under, double Over)> FamilyElasticityMap =
+		new Dictionary<string, (double Under, double Over)>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Nourishment"] = (0.38, 0.34),
+			["Domestic Heating"] = (0.48, 0.42),
+			["Lighting"] = (0.46, 0.40),
+			["Medicine"] = (0.62, 0.52),
+			["Writing Materials"] = (0.68, 0.60),
+			["Clothing"] = (0.58, 0.52),
+			["Intoxicants"] = (0.70, 0.62),
+			["Luxury Drinks"] = (0.78, 0.72),
+			["Household Goods"] = (0.64, 0.58),
+			["Military Goods"] = (0.88, 0.82),
+			["Transportation"] = (0.66, 0.58),
+			["Warehousing"] = (0.44, 0.40),
+			["Professional Tools"] = (0.62, 0.58),
+			["Raw Materials"] = (0.56, 0.52)
+		};
+
+	public bool SafeToRunMoreThanOnce => true;
+
+	public IEnumerable<(string Id, string Question,
+		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+	[
+		("era",
+			@"Which stock economy era package do you want to install?
+
+#BClassical Age#F
+#BFeudal Age#F
+#BMedieval Age#F
+#BEarly Modern Age#F
+
+Please make your choice: ",
+			(context, _) => true,
+			(answer, _) => EraDefinitions.Any(x => x.DisplayName.EqualTo(answer)) ? (true, string.Empty) : (false, "You must choose one of the listed era options.")),
+		("currency",
+			"Which currency should this stock economy zone use? You may enter either the currency ID or name.",
+			(context, _) => context.Currencies.Count() > 1,
+			ValidateCurrencyChoice),
+		("zone",
+			"Which physical zone should supply the clock/calendar bindings for this stock economy zone? You may enter either the zone ID or name.",
+			(context, _) => context.Zones.Count() > 1,
+			ValidateZoneChoice),
+		("shopper-scale",
+			@"How much money should the stock shoppers spend each cycle?
+
+#BLow#F
+#BStandard#F
+#BHigh#F
+
+Please make your choice: ",
+			(context, _) => true,
+			(answer, _) => answer.EqualToAny("low", "standard", "high") ? (true, string.Empty) : (false, "You must choose Low, Standard or High."))
+	];
+
+	public int SortOrder => 25;
+	public string Name => "Economy";
+	public string Tagline => "Installs a stock economic zone shell, market categories, influences, populations and shoppers";
+	public string FullDescription =>
+		@"This package installs a builder-friendly economy template for one historical era at a time. It creates a stock economic zone shell, a market, market categories tied to the UsefulSeeder market tags, a library of reusable market influence templates, era-specific market populations, and matching virtual shoppers.
+
+It is intended to be additive across eras and safe to rerun to restore or refresh missing stock-owned economy records.";
+
+	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		context.Database.BeginTransaction();
+
+		var era = ResolveEra(questionAnswers);
+		var currency = ResolveCurrency(context, questionAnswers);
+		var zone = ResolveZone(context, questionAnswers);
+		var shopperScale = ResolveShopperScale(questionAnswers);
+
+		var marketRoot = context.Tags.First(x => x.Name == MarketRootTagName);
+		var marketTags = GetMarketDescendantTags(context, marketRoot).ToList();
+		var categoriesByTagId = EnsureMarketCategories(context, marketTags);
+		var supportProgs = EnsureSupportProgs(context);
+		context.SaveChanges();
+
+		var economicZone = EnsureEconomicZone(context, era, zone, currency);
+		context.SaveChanges();
+
+		var market = EnsureMarket(context, era, economicZone, categoriesByTagId.Values);
+		context.SaveChanges();
+
+		var categoryContext = BuildCategoryContext(context, marketRoot, marketTags, categoriesByTagId);
+		EnsureExternalInfluenceTemplates(context, era, categoryContext, supportProgs.AlwaysKnownProg);
+		context.SaveChanges();
+
+		var populationContext = EnsurePopulationsAndStressTemplates(
+			context,
+			era,
+			market,
+			categoryContext,
+			supportProgs.AlwaysKnownProg);
+		context.SaveChanges();
+
+		EnsureShoppers(
+			context,
+			era,
+			economicZone,
+			populationContext,
+			shopperScale,
+			supportProgs);
+		context.SaveChanges();
+
+		context.Database.CommitTransaction();
+		return "The operation completed successfully.";
+	}
+
+	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
+	{
+		if (!context.Accounts.Any() ||
+		    !context.Currencies.Any() ||
+		    !context.Zones.Any() ||
+		    !context.Clocks.Any() ||
+		    !context.Calendars.Any())
+		{
+			return ShouldSeedResult.PrerequisitesNotMet;
+		}
+
+		if (!context.Tags.Any(x => x.Name == MarketRootTagName) ||
+		    !context.Tags.Any(x => x.Parent != null && x.Parent.Name == MarketRootTagName))
+		{
+			return ShouldSeedResult.PrerequisitesNotMet;
+		}
+
+		var installedEraCount = EraDefinitions.Count(era =>
+			context.EconomicZones.Any(x => x.Name == EconomicZoneName(era)) &&
+			context.Markets.Any(x => x.Name == MarketName(era)));
+
+		var anyStockInstalled = installedEraCount > 0 ||
+		                        context.MarketInfluenceTemplates.Any(x => x.Name.StartsWith($"{HelperProgPrefix} ", StringComparison.OrdinalIgnoreCase));
+		if (!anyStockInstalled)
+		{
+			return ShouldSeedResult.ReadyToInstall;
+		}
+
+		var marketRoot = context.Tags.First(x => x.Name == MarketRootTagName);
+		var descendantCount = GetMarketDescendantTags(context, marketRoot).Count();
+		var seededCategoryCount = context.MarketCategories.Count(x => x.Description.StartsWith(CategoryPrefix));
+		var expectedExternalTemplateCount = installedEraCount * ExternalInfluenceBlueprints.Count;
+
+		var hasAllSharedCategories = seededCategoryCount >= descendantCount;
+		var hasAllEraPackages = installedEraCount == EraDefinitions.Count;
+		var hasExternalTemplates = context.MarketInfluenceTemplates.Count(x =>
+			x.Name.StartsWith($"{HelperProgPrefix} External ", StringComparison.OrdinalIgnoreCase)) >= expectedExternalTemplateCount;
+
+		return hasAllSharedCategories && hasAllEraPackages && hasExternalTemplates
+			? ShouldSeedResult.MayAlreadyBeInstalled
+			: ShouldSeedResult.ExtraPackagesAvailable;
+	}
+
+	private static (bool Success, string error) ValidateCurrencyChoice(string answer, FuturemudDatabaseContext context)
+	{
+		return ResolveCurrencyOrNull(context, answer) is not null
+			? (true, string.Empty)
+			: (false, "That is not a valid currency ID or name.");
+	}
+
+	private static (bool Success, string error) ValidateZoneChoice(string answer, FuturemudDatabaseContext context)
+	{
+		return ResolveZoneOrNull(context, answer) is not null
+			? (true, string.Empty)
+			: (false, "That is not a valid zone ID or name.");
+	}
+
+	private static EraDefinition ResolveEra(IReadOnlyDictionary<string, string> answers)
+	{
+		var answer = answers["era"];
+		return EraDefinitions.First(x => x.DisplayName.EqualTo(answer));
+	}
+
+	private static Currency ResolveCurrency(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> answers)
+	{
+		return answers.TryGetValue("currency", out var text)
+			? ResolveCurrencyOrNull(context, text) ?? context.Currencies.OrderBy(x => x.Id).First()
+			: context.Currencies.OrderBy(x => x.Id).First();
+	}
+
+	private static Currency? ResolveCurrencyOrNull(FuturemudDatabaseContext context, string answer)
+	{
+		return long.TryParse(answer, out var value)
+			? context.Currencies.FirstOrDefault(x => x.Id == value)
+			: context.Currencies.FirstOrDefault(x => x.Name.Equals(answer, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static Zone ResolveZone(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> answers)
+	{
+		return answers.TryGetValue("zone", out var text)
+			? ResolveZoneOrNull(context, text) ?? context.Zones.OrderBy(x => x.Id).First()
+			: context.Zones.OrderBy(x => x.Id).First();
+	}
+
+	private static Zone? ResolveZoneOrNull(FuturemudDatabaseContext context, string answer)
+	{
+		return long.TryParse(answer, out var value)
+			? context.Zones.FirstOrDefault(x => x.Id == value)
+			: context.Zones.FirstOrDefault(x => x.Name.Equals(answer, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static decimal ResolveShopperScale(IReadOnlyDictionary<string, string> answers)
+	{
+		return answers["shopper-scale"].ToLowerInvariant() switch
+		{
+			"low" => 0.75m,
+			"high" => 1.50m,
+			_ => 1.00m
+		};
+	}
+
+	private static IEnumerable<Tag> GetMarketDescendantTags(FuturemudDatabaseContext context, Tag marketRoot)
+	{
+		var tags = context.Tags.ToList();
+		var byParent = tags
+			.Where(x => x.ParentId.HasValue)
+			.GroupBy(x => x.ParentId!.Value)
+			.ToDictionary(x => x.Key, x => x.OrderBy(y => y.Name).ToList());
+		var queue = new Queue<Tag>(byParent.TryGetValue(marketRoot.Id, out var firstLevel) ? firstLevel : []);
+		while (queue.Count > 0)
+		{
+			var current = queue.Dequeue();
+			yield return current;
+			if (!byParent.TryGetValue(current.Id, out var children))
+			{
+				continue;
+			}
+
+			foreach (var child in children)
+			{
+				queue.Enqueue(child);
+			}
+		}
+	}
+
+	private static Dictionary<long, MarketCategory> EnsureMarketCategories(FuturemudDatabaseContext context, IEnumerable<Tag> tags)
+	{
+		var allTags = context.Tags.ToList();
+		var result = new Dictionary<long, MarketCategory>();
+		foreach (var tag in tags.OrderBy(x => x.Name))
+		{
+			var familyName = ResolveTopFamilyName(tag, allTags);
+			var elasticity = FamilyElasticityMap.TryGetValue(familyName, out var value)
+				? value
+				: (Under: 0.60, Over: 0.55);
+			var category = SeederRepeatabilityHelper.EnsureNamedEntity(
+				context.MarketCategories,
+				tag.Name,
+				x => x.Name,
+				() =>
+				{
+					var created = new MarketCategory();
+					context.MarketCategories.Add(created);
+					return created;
+				});
+
+			category.Name = tag.Name;
+			category.Description = $"{CategoryPrefix}: items carrying the {tag.Name} market tag.";
+			category.ElasticityFactorBelow = elasticity.Under;
+			category.ElasticityFactorAbove = elasticity.Over;
+			category.Tags = new XElement("Tags", new XElement("Tag", tag.Id)).ToString();
+			result[tag.Id] = category;
+		}
+
+		return result;
+	}
+
+	private static SupportProgSet EnsureSupportProgs(FuturemudDatabaseContext context)
+	{
+		var alwaysKnownProg = SeederRepeatabilityHelper.EnsureProg(
+			context,
+			$"{HelperProgPrefix}AlwaysKnown",
+			"Economy",
+			"Seeder",
+			ProgVariableTypes.Boolean,
+			"Seeder helper prog that always reports a market influence as known.",
+			"return true;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "character"));
+
+		var shopProg = SeederRepeatabilityHelper.EnsureProg(
+			context,
+			$"{HelperProgPrefix}AnyShop",
+			"Economy",
+			"Seeder",
+			ProgVariableTypes.Boolean,
+			"Seeder helper shopper prog that accepts any qualifying shop in the shopper's zone.",
+			"return true;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Shop, "shop"));
+
+		var shopWeightProg = SeederRepeatabilityHelper.EnsureProg(
+			context,
+			$"{HelperProgPrefix}AnyShopWeight",
+			"Economy",
+			"Seeder",
+			ProgVariableTypes.Number,
+			"Seeder helper shopper prog that weights all qualifying shops equally.",
+			"return 1;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Shop, "shop"));
+
+		return new SupportProgSet(alwaysKnownProg, shopProg, shopWeightProg);
+	}
+
+	private static EconomicZone EnsureEconomicZone(FuturemudDatabaseContext context, EraDefinition era, Zone zone, Currency currency)
+	{
+		var (clockId, calendarId, timezoneName, hours, minutes, seconds) = ResolveZoneTimeBinding(context, zone);
+		var economicZone = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.EconomicZones,
+			EconomicZoneName(era),
+			x => x.Name,
+			() =>
+			{
+				var created = new EconomicZone();
+				context.EconomicZones.Add(created);
+				return created;
+			});
+
+		economicZone.Name = EconomicZoneName(era);
+		economicZone.CurrencyId = currency.Id;
+		economicZone.ZoneForTimePurposesId = zone.Id;
+		economicZone.ReferenceClockId = clockId;
+		economicZone.ReferenceCalendarId = calendarId;
+		economicZone.ReferenceTime = $"{timezoneName} {hours}:{minutes}:{seconds}";
+		economicZone.IntervalType = (int)IntervalType.Monthly;
+		economicZone.IntervalAmount = 1;
+		economicZone.IntervalModifier = 0;
+		economicZone.PreviousFinancialPeriodsToKeep = 24;
+		economicZone.PermitTaxableLosses = false;
+		economicZone.OutstandingTaxesOwed = 0.0m;
+		economicZone.TotalRevenueHeld = 0.0m;
+		economicZone.ControllingClanId = null;
+		economicZone.CurrentFinancialPeriodId = null;
+		economicZone.EstateAuctionHouseId = null;
+		economicZone.EstateDefaultDiscoverTime = MudTimeSpan.FromDays(28).GetRoundTripParseText;
+		economicZone.EstateClaimPeriodLength = MudTimeSpan.FromDays(14).GetRoundTripParseText;
+		return economicZone;
+	}
+
+	private static (long ClockId, long? CalendarId, string TimezoneName, int Hours, int Minutes, int Seconds) ResolveZoneTimeBinding(
+		FuturemudDatabaseContext context,
+		Zone zone)
+	{
+		var shardClockId = context.ShardsClocks
+			.Where(x => x.ShardId == zone.ShardId)
+			.Select(x => (long?)x.ClockId)
+			.FirstOrDefault();
+		var clock = shardClockId.HasValue
+			? context.Clocks.First(x => x.Id == shardClockId.Value)
+			: context.Clocks.OrderBy(x => x.Id).First();
+		var calendarId = context.ShardsCalendars
+			.Where(x => x.ShardId == zone.ShardId)
+			.Select(x => (long?)x.CalendarId)
+			.FirstOrDefault() ?? context.Calendars.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+		var timezoneId = context.ZonesTimezones
+			.Where(x => x.ZoneId == zone.Id && x.ClockId == clock.Id)
+			.Select(x => (long?)x.TimezoneId)
+			.FirstOrDefault() ?? clock.PrimaryTimezoneId;
+		var timezoneName = context.Timezones.FirstOrDefault(x => x.Id == timezoneId)?.Name ?? "UTC";
+		return (clock.Id, calendarId, timezoneName, clock.Hours, clock.Minutes, clock.Seconds);
+	}
+
+	private static Market EnsureMarket(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		EconomicZone economicZone,
+		IEnumerable<MarketCategory> categories)
+	{
+		var market = SeederRepeatabilityHelper.EnsureNamedEntity(
+			context.Markets,
+			MarketName(era),
+			x => x.Name,
+			() =>
+			{
+				var created = new Market();
+				context.Markets.Add(created);
+				return created;
+			});
+
+		market.Name = MarketName(era);
+		market.Description =
+			$"A builder-facing stock market for the {era.DisplayName} economy template. It is intended as a starting point rather than a finished world economy.";
+		market.EconomicZoneId = economicZone.Id;
+		market.MarketPriceFormula = DefaultMarketPriceFormula;
+		market.MarketCategories ??= new HashSet<MarketCategory>();
+		SeederRepeatabilityHelper.ReplaceChildCollection(
+			market.MarketCategories,
+			categories.OrderBy(x => x.Name).ToList(),
+			x => x.Id);
+		return market;
+	}
+
+	private static CategoryContext BuildCategoryContext(
+		FuturemudDatabaseContext context,
+		Tag marketRoot,
+		IReadOnlyCollection<Tag> descendantTags,
+		IReadOnlyDictionary<long, MarketCategory> categoriesByTagId)
+	{
+		var tagsById = context.Tags.ToList().ToDictionary(x => x.Id);
+		var tagsByName = descendantTags.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var categoriesByName = categoriesByTagId.Values.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var categorySectorMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+		var categoriesBySector = new Dictionary<string, List<MarketCategory>>(StringComparer.OrdinalIgnoreCase);
+		foreach (var tag in descendantTags)
+		{
+			var familyName = ResolveTopFamilyName(tag, tagsById);
+			var sector = FamilySectorMap.TryGetValue(familyName, out var mappedSector)
+				? mappedSector
+				: "Lifestyle";
+			categorySectorMap[tag.Name] = sector;
+			if (!categoriesBySector.ContainsKey(sector))
+			{
+				categoriesBySector[sector] = [];
+			}
+
+			categoriesBySector[sector].Add(categoriesByTagId[tag.Id]);
+		}
+
+		return new CategoryContext(marketRoot, tagsById, tagsByName, categoriesByName, categorySectorMap, categoriesBySector);
+	}
+
+	private static void EnsureExternalInfluenceTemplates(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		CategoryContext categoryContext,
+		FutureProg alwaysKnownProg)
+	{
+		foreach (var blueprint in ExternalInfluenceBlueprints)
+		{
+			var affectedCategories = blueprint.Sectors
+				.SelectMany(sector => categoryContext.CategoriesBySector.TryGetValue(sector, out var categories) ? categories : [])
+				.DistinctBy(x => x.Id)
+				.OrderBy(x => x.Name)
+				.ToList();
+			if (!affectedCategories.Any())
+			{
+				continue;
+			}
+
+			var template = SeederRepeatabilityHelper.EnsureNamedEntity(
+				context.MarketInfluenceTemplates,
+				ExternalTemplateName(era, blueprint),
+				x => x.Name,
+				() =>
+				{
+					var created = new MarketInfluenceTemplate();
+					context.MarketInfluenceTemplates.Add(created);
+					return created;
+				});
+
+			template.Name = ExternalTemplateName(era, blueprint);
+			template.TemplateSummary = blueprint.SummaryFactory(era.DisplayName);
+			template.Description = blueprint.DescriptionFactory(era.DisplayName);
+			template.CharacterKnowsAboutInfluenceProgId = alwaysKnownProg.Id;
+			template.Impacts = SaveImpacts(affectedCategories.Select(category => new MarketImpactValue(
+				category.Id,
+				blueprint.SupplyImpact,
+				blueprint.DemandImpact)));
+		}
+	}
+
+	private static PopulationContext EnsurePopulationsAndStressTemplates(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		Market market,
+		CategoryContext categoryContext,
+		FutureProg alwaysKnownProg)
+	{
+		var stressTemplatesByPopulation = new Dictionary<string, List<StressTemplateContext>>(StringComparer.OrdinalIgnoreCase);
+		foreach (var blueprint in era.Populations)
+		{
+			var populationName = PopulationName(era, blueprint);
+			var stressTemplates = new List<StressTemplateContext>();
+			foreach (var level in StressLevels)
+			{
+				var templateName = StressTemplateName(era, blueprint, level);
+				var impactedCategories = BuildStressImpacts(blueprint, level, categoryContext).ToList();
+				var template = SeederRepeatabilityHelper.EnsureNamedEntity(
+					context.MarketInfluenceTemplates,
+					templateName,
+					x => x.Name,
+					() =>
+					{
+						var created = new MarketInfluenceTemplate();
+						context.MarketInfluenceTemplates.Add(created);
+						return created;
+					});
+
+				template.Name = templateName;
+				template.TemplateSummary = $"{level.DisplayName} stress state for {populationName}.";
+				template.Description =
+					$"{populationName} has entered a {level.DisplayName.ToLowerInvariant()} state. Households cut discretionary spending and focus harder on immediate survival needs.";
+				template.CharacterKnowsAboutInfluenceProgId = alwaysKnownProg.Id;
+				template.Impacts = SaveImpacts(impactedCategories);
+				stressTemplates.Add(new StressTemplateContext(level, templateName));
+			}
+
+			stressTemplatesByPopulation[populationName] = stressTemplates;
+		}
+
+		var populations = new List<PopulationSeedContext>();
+		foreach (var blueprint in era.Populations)
+		{
+			var populationName = PopulationName(era, blueprint);
+			var stressProgs = EnsureStressProgs(context, era, blueprint, stressTemplatesByPopulation[populationName]);
+			var population = SeederRepeatabilityHelper.EnsureNamedEntity(
+				context.MarketPopulations,
+				populationName,
+				x => x.Name,
+				() =>
+				{
+					var created = new MarketPopulation();
+					context.MarketPopulations.Add(created);
+					return created;
+				});
+
+			population.Name = populationName;
+			population.Description = blueprint.Description;
+			population.PopulationScale = blueprint.PopulationScale;
+			population.MarketId = market.Id;
+			population.MarketPopulationNeeds = SaveNeeds(blueprint.Needs
+				.Select(need => new MarketNeedValue(
+					categoryContext.CategoriesByName[need.CategoryName].Id,
+					need.BaseExpenditure)));
+			population.MarketStressPoints = SaveStressPoints(stressProgs);
+
+			populations.Add(new PopulationSeedContext(blueprint, populationName, stressProgs));
+		}
+
+		return new PopulationContext(populations);
+	}
+
+	private static IEnumerable<MarketImpactValue> BuildStressImpacts(
+		PopulationBlueprint blueprint,
+		StressLevelDefinition level,
+		CategoryContext categoryContext)
+	{
+		var impacts = new Dictionary<long, MarketImpactValue>();
+		void SetImpact(string categoryName, double demandImpact)
+		{
+			if (!categoryContext.CategoriesByName.TryGetValue(categoryName, out var category))
+			{
+				return;
+			}
+
+			impacts[category.Id] = new MarketImpactValue(category.Id, 0.0, demandImpact);
+		}
+
+		foreach (var need in blueprint.Needs)
+		{
+			var sector = categoryContext.CategorySectorMap.TryGetValue(need.CategoryName, out var value)
+				? value
+				: "Lifestyle";
+			var demandImpact = sector switch
+			{
+				"Essentials" => level.EssentialDemandImpact,
+				"Industry" => level.IndustryDemandImpact,
+				"Logistics" => level.LogisticsDemandImpact,
+				"Martial" => blueprint.Archetype == PopulationArchetype.Martial
+					? level.MartialDemandImpact
+					: level.IndustryDemandImpact / 2.0,
+				_ => need.CategoryName.Contains("Luxury", StringComparison.OrdinalIgnoreCase)
+					? level.LuxuryDemandImpactFor(blueprint.Archetype)
+					: level.LifestyleDemandImpactFor(blueprint.Archetype)
+			};
+
+			SetImpact(need.CategoryName, demandImpact);
+		}
+
+		SetImpact("Staple Food", Math.Max(level.EssentialDemandImpact, 0.08));
+		SetImpact("Salt", Math.Max(level.EssentialDemandImpact / 2.0, 0.04));
+		SetImpact("Simple Clothing", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		SetImpact("Simple Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		SetImpact("Standard Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		SetImpact("High-Quality Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.04));
+		SetImpact("Combustion Heating", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		SetImpact("Lighting", Math.Max(level.HeatAndMedicineDemandImpact / 2.0, 0.03));
+
+		return impacts.Values.OrderBy(x => x.CategoryId).ToList();
+	}
+
+	private static IReadOnlyList<StressPointValue> EnsureStressProgs(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		PopulationBlueprint blueprint,
+		IEnumerable<StressTemplateContext> stressTemplates)
+	{
+		var results = new List<StressPointValue>();
+		var populationName = PopulationName(era, blueprint);
+		foreach (var template in stressTemplates.OrderBy(x => x.Level.Threshold))
+		{
+			var startProg = SeederRepeatabilityHelper.EnsureProg(
+				context,
+				StressStartProgName(era, blueprint, template.Level),
+				"Economy",
+				"Seeder",
+				ProgVariableTypes.Void,
+				$"Starts the {template.Level.DisplayName} market stress template for {populationName}.",
+				$"BeginInfluence(@market.id, \"{template.TemplateName}\")",
+				false,
+				false,
+				FutureProgStaticType.NotStatic,
+				(ProgVariableTypes.Number, "populationid"),
+				(ProgVariableTypes.Boolean, "rising"),
+				(ProgVariableTypes.Market, "market"));
+
+			var endProg = SeederRepeatabilityHelper.EnsureProg(
+				context,
+				StressEndProgName(era, blueprint, template.Level),
+				"Economy",
+				"Seeder",
+				ProgVariableTypes.Void,
+				$"Ends the {template.Level.DisplayName} market stress template for {populationName}.",
+				$"EndInfluenceByTemplate(@market.id, \"{template.TemplateName}\")",
+				false,
+				false,
+				FutureProgStaticType.NotStatic,
+				(ProgVariableTypes.Number, "populationid"),
+				(ProgVariableTypes.Boolean, "rising"),
+				(ProgVariableTypes.Market, "market"));
+
+			results.Add(new StressPointValue(
+				template.Level.DisplayName,
+				$"{populationName} is {template.Level.DisplayName.ToLowerInvariant()}, curbing discretionary consumption and concentrating spending on essentials.",
+				template.Level.Threshold,
+				startProg.Id,
+				endProg.Id));
+		}
+
+		return results;
+	}
+
+	private static void EnsureShoppers(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		EconomicZone economicZone,
+		PopulationContext populationContext,
+		decimal shopperScale,
+		SupportProgSet supportProgs)
+	{
+		var nextShopOffsets = new[] { 2, 6, 10, 14, 18 };
+		for (var index = 0; index < populationContext.Populations.Count; index++)
+		{
+			var population = populationContext.Populations[index];
+			var buyProg = EnsurePopulationBuyProg(context, era, population.Blueprint);
+			var itemWeightProg = EnsurePopulationItemWeightProg(context, era, population.Blueprint);
+			var shopper = SeederRepeatabilityHelper.EnsureNamedEntity(
+				context.Shoppers,
+				ShopperName(era, population.Blueprint),
+				x => x.Name,
+				() =>
+				{
+					var created = new Shopper();
+					context.Shoppers.Add(created);
+					return created;
+				});
+
+			var budget = decimal.Round(population.Blueprint.BaseBudget * shopperScale, 2, MidpointRounding.AwayFromZero);
+			shopper.Name = ShopperName(era, population.Blueprint);
+			shopper.EconomicZoneId = economicZone.Id;
+			shopper.Type = "simple";
+			shopper.Interval = new RecurringInterval
+			{
+				IntervalAmount = 1,
+				Modifier = 0,
+				Type = IntervalType.Daily
+			}.ToString();
+			shopper.NextDate = BuildMudDateTimeString(
+				economicZone.ReferenceCalendarId ?? 0,
+				context.Calendars.First(x => x.Id == economicZone.ReferenceCalendarId).Date,
+				economicZone.ReferenceClockId,
+				ExtractTimezoneName(economicZone.ReferenceTime),
+				nextShopOffsets[index % nextShopOffsets.Length],
+				0,
+				0);
+			shopper.Definition = new XElement("Shopper",
+				new XElement("BudgetPerShop", budget.ToString(CultureInfo.InvariantCulture)),
+				new XElement("WillShopAtShopProg", supportProgs.AcceptAnyShopProg.Id),
+				new XElement("ShopSelectionWeightProg", supportProgs.EqualShopWeightProg.Id),
+				new XElement("WillBuyItemProg", buyProg.Id),
+				new XElement("ItemBuyWeightProg", itemWeightProg.Id),
+				new XElement("SkipEmptyShops", true)).ToString();
+		}
+	}
+
+	private static FutureProg EnsurePopulationBuyProg(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		PopulationBlueprint blueprint)
+	{
+		var condition = string.Join(" or ", blueprint.Needs
+			.Select(x => $"@item.tags.Any(tag, @tag == \"{x.CategoryName}\")"));
+		return SeederRepeatabilityHelper.EnsureProg(
+			context,
+			PopulationBuyProgName(era, blueprint),
+			"Economy",
+			"Seeder",
+			ProgVariableTypes.Boolean,
+			$"Determines whether the {ShopperName(era, blueprint)} will buy an item.",
+			$"return {condition};",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Item, "item"),
+			(ProgVariableTypes.Merchandise, "merchandise"),
+			(ProgVariableTypes.Number, "price"));
+	}
+
+	private static FutureProg EnsurePopulationItemWeightProg(
+		FuturemudDatabaseContext context,
+		EraDefinition era,
+		PopulationBlueprint blueprint)
+	{
+		var lines = new List<string>
+		{
+			"var weight as number",
+			"weight = 1"
+		};
+
+		foreach (var need in blueprint.Needs.OrderByDescending(x => x.Weight).ThenBy(x => x.CategoryName))
+		{
+			lines.Add($"if (@item.tags.Any(tag, @tag == \"{need.CategoryName}\"))");
+			lines.Add($"\tweight = @weight + {need.Weight}");
+			lines.Add("end if");
+		}
+
+		lines.Add("return @weight");
+		return SeederRepeatabilityHelper.EnsureProg(
+			context,
+			PopulationItemWeightProgName(era, blueprint),
+			"Economy",
+			"Seeder",
+			ProgVariableTypes.Number,
+			$"Weights purchases for the {ShopperName(era, blueprint)} using the seeded market tags.",
+			string.Join("\n", lines),
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Item, "item"),
+			(ProgVariableTypes.Merchandise, "merchandise"),
+			(ProgVariableTypes.Number, "price"));
+	}
+
+	private static string SaveImpacts(IEnumerable<MarketImpactValue> impacts)
+	{
+		return new XElement("Impacts",
+			impacts.Select(impact => new XElement("Impact",
+				new XAttribute("demand", impact.DemandImpact.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("supply", impact.SupplyImpact.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("category", impact.CategoryId)))).ToString();
+	}
+
+	private static string SaveNeeds(IEnumerable<MarketNeedValue> needs)
+	{
+		return new XElement("Needs",
+			needs.Select(need => new XElement("Need",
+				new XAttribute("category", need.CategoryId),
+				new XAttribute("expenditure", need.BaseExpenditure.ToString(CultureInfo.InvariantCulture))))).ToString();
+	}
+
+	private static string SaveStressPoints(IEnumerable<StressPointValue> stressPoints)
+	{
+		return new XElement("Stresses",
+			stressPoints.Select(point => new XElement("Stress",
+				new XAttribute("stress", point.Threshold.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("onstart", point.OnStartProgId),
+				new XAttribute("onend", point.OnEndProgId),
+				new XAttribute("name", point.Name),
+				new XCData(point.Description)))).ToString();
+	}
+
+	private static string ResolveTopFamilyName(Tag tag, IReadOnlyDictionary<long, Tag> tagsById)
+	{
+		var current = tag;
+		while (current.ParentId.HasValue && tagsById.TryGetValue(current.ParentId.Value, out var parent))
+		{
+			if (parent.Name.Equals(MarketRootTagName, StringComparison.OrdinalIgnoreCase))
+			{
+				return current.Name;
+			}
+
+			current = parent;
+		}
+
+		return current.Name;
+	}
+
+	private static string ResolveTopFamilyName(Tag tag, IReadOnlyCollection<Tag> allTags)
+	{
+		return ResolveTopFamilyName(tag, allTags.ToDictionary(x => x.Id));
+	}
+
+	private static string EconomicZoneName(EraDefinition era) => $"{era.DisplayName} {ZoneSuffix}";
+	private static string MarketName(EraDefinition era) => $"{era.DisplayName} {MarketSuffix}";
+	private static string ExternalTemplateName(EraDefinition era, SectorInfluenceBlueprint blueprint) =>
+		$"{HelperProgPrefix} External {era.DisplayName} {blueprint.Name}";
+	private static string PopulationName(EraDefinition era, PopulationBlueprint blueprint) =>
+		$"{era.DisplayName} {blueprint.Name}";
+	private static string StressTemplateName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level) =>
+		$"{HelperProgPrefix} Stress {PopulationName(era, blueprint)} {level.DisplayName}";
+	private static string StressStartProgName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level) =>
+		$"{HelperProgPrefix} Start {PopulationName(era, blueprint)} {level.DisplayName}";
+	private static string StressEndProgName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level) =>
+		$"{HelperProgPrefix} End {PopulationName(era, blueprint)} {level.DisplayName}";
+	private static string ShopperName(EraDefinition era, PopulationBlueprint blueprint) =>
+		$"{PopulationName(era, blueprint)} Shopper";
+	private static string PopulationBuyProgName(EraDefinition era, PopulationBlueprint blueprint) =>
+		$"{HelperProgPrefix} Buy {PopulationName(era, blueprint)}";
+	private static string PopulationItemWeightProgName(EraDefinition era, PopulationBlueprint blueprint) =>
+		$"{HelperProgPrefix} Weight {PopulationName(era, blueprint)}";
+
+	private static string ExtractTimezoneName(string referenceTime)
+	{
+		var split = referenceTime.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+		return split.Length > 0 ? split[0] : "UTC";
+	}
+
+	private static string BuildMudDateTimeString(
+		long calendarId,
+		string date,
+		long clockId,
+		string timezoneName,
+		int hours,
+		int minutes,
+		int seconds)
+	{
+		return $"{calendarId}_{date}_{clockId}_{timezoneName} {hours}:{minutes}:{seconds}";
+	}
+
+	private sealed record EraDefinition(string Key, string DisplayName, IReadOnlyList<PopulationBlueprint> Populations);
+
+	private sealed record PopulationBlueprint(
+		string Name,
+		string Description,
+		int PopulationScale,
+		PopulationArchetype Archetype,
+		IReadOnlyList<PopulationNeedBlueprint> Needs)
+	{
+		public decimal BaseBudget => decimal.Round(Needs.Sum(x => x.BaseExpenditure) * Archetype switch
+		{
+			PopulationArchetype.Commoner => 0.18m,
+			PopulationArchetype.Rural => 0.19m,
+			PopulationArchetype.Merchant => 0.28m,
+			PopulationArchetype.Martial => 0.29m,
+			PopulationArchetype.Clergy => 0.26m,
+			PopulationArchetype.Monastic => 0.22m,
+			PopulationArchetype.Elite => 0.34m,
+			_ => 0.18m
+		}, 2, MidpointRounding.AwayFromZero);
+	}
+
+	private sealed record PopulationNeedBlueprint(string CategoryName, decimal BaseExpenditure, int Weight);
+	private sealed record SectorInfluenceBlueprint(
+		string Name,
+		IReadOnlyList<string> Sectors,
+		double SupplyImpact,
+		double DemandImpact,
+		Func<string, string> DescriptionFactory,
+		Func<string, string> SummaryFactory);
+	private sealed record StressLevelDefinition(
+		string DisplayName,
+		decimal Threshold,
+		double EssentialDemandImpact,
+		double LuxuryDemandImpact,
+		double IndustryDemandImpact,
+		double LogisticsDemandImpact,
+		double MartialDemandImpact,
+		double HeatAndMedicineDemandImpact)
+	{
+		public double LifestyleDemandImpactFor(PopulationArchetype archetype)
+		{
+			return archetype == PopulationArchetype.Elite
+				? LuxuryDemandImpact * 0.65
+				: LuxuryDemandImpact * 0.85;
+		}
+
+		public double LuxuryDemandImpactFor(PopulationArchetype archetype)
+		{
+			return archetype == PopulationArchetype.Elite
+				? LuxuryDemandImpact * 0.75
+				: LuxuryDemandImpact;
+		}
+	}
+
+	private enum PopulationArchetype
+	{
+		Commoner,
+		Rural,
+		Merchant,
+		Martial,
+		Clergy,
+		Monastic,
+		Elite
+	}
+
+	private sealed record SupportProgSet(FutureProg AlwaysKnownProg, FutureProg AcceptAnyShopProg, FutureProg EqualShopWeightProg);
+	private sealed record CategoryContext(
+		Tag MarketRoot,
+		IReadOnlyDictionary<long, Tag> TagsById,
+		IReadOnlyDictionary<string, Tag> TagsByName,
+		IReadOnlyDictionary<string, MarketCategory> CategoriesByName,
+		IReadOnlyDictionary<string, string> CategorySectorMap,
+		IReadOnlyDictionary<string, List<MarketCategory>> CategoriesBySector);
+	private sealed record MarketImpactValue(long CategoryId, double SupplyImpact, double DemandImpact);
+	private sealed record MarketNeedValue(long CategoryId, decimal BaseExpenditure);
+	private sealed record StressPointValue(string Name, string Description, decimal Threshold, long OnStartProgId, long OnEndProgId);
+	private sealed record StressTemplateContext(StressLevelDefinition Level, string TemplateName);
+	private sealed record PopulationSeedContext(PopulationBlueprint Blueprint, string PopulationName, IReadOnlyList<StressPointValue> StressPoints);
+	private sealed record PopulationContext(IReadOnlyList<PopulationSeedContext> Populations);
+}

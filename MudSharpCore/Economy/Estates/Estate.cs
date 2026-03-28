@@ -321,7 +321,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				case IProperty property:
 					if (!property.PropertyOwners.Any(x => x.Owner == this))
 					{
-						property.SellProperty(this);
+						property.TransferProperty(this);
 					}
 
 					break;
@@ -366,7 +366,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			case IProperty property:
 				if (!property.PropertyOwners.Any(x => x.Owner == this))
 				{
-					property.SellProperty(this);
+					property.TransferProperty(this);
 				}
 
 				break;
@@ -412,7 +412,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		(EconomicZone.EstateAuctionHouse != null &&
 		 EconomicZone.EstateAuctionHouse.ActiveAuctionItems.Any(x => x.IsSeller(this))) ||
 		(EconomicZone.EstateAuctionHouse != null &&
-		 EconomicZone.EstateAuctionHouse.UnclaimedItems.Any(x => x.AuctionItem.IsSeller(this)));
+		 EconomicZone.EstateAuctionHouse.UnclaimedItems.Any(x =>
+			 x.AuctionItem.IsSeller(this) &&
+			 x.WinningBid == null));
 
 	public void Finalise()
 	{
@@ -579,7 +581,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				asset.IsTransferred = true;
 				break;
 			case IProperty property when inheritor != null:
-				property.SellProperty(inheritor);
+				property.TransferProperty(inheritor);
 				asset.IsTransferred = true;
 				break;
 		}

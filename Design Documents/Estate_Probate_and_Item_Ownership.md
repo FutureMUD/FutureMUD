@@ -16,6 +16,7 @@ The implementation is intentionally zone-local. A deceased character may generat
   - estates with no approved claims finalise directly;
   - estates with approved claims move to `Liquidating`.
 - Liquidating estates do not finalise until their estate auction lots have completed and there are no active or unclaimed liquidation lots remaining.
+- Sold-but-unclaimed estate item lots do not block estate finalisation once the sale has completed and proceeds have been recorded.
 - Economic zones now persist both timing values and evaluate estate status progression during their normal calendar day update hook.
 
 ## Captured Assets
@@ -65,7 +66,7 @@ The current finalisation flow behaves as follows:
 - Administrators and controlling-clan members with `CanManageEstates` can manually list or relist liquidation assets with custom reserve and buyout prices.
 - If an auction lot sells:
   - sold item lots transfer item ownership to the winning bidder when claimed;
-  - sold property lots transfer ownership immediately through the normal property sale path;
+  - sold property lots transfer ownership immediately through a direct ownership-transfer path that does not require a property sale order;
   - sale proceeds are routed automatically into the estate liquidation pool.
 - If an auction lot fails to sell, the asset remains with the estate and is eligible for manual relisting or in-kind transfer when liquidation closes.
 - When liquidation closes, the estate computes available distributable cash from liquidated assets.
@@ -155,6 +156,7 @@ Auction integration is now estate-aware:
 
 - auction lots can represent either items or properties;
 - auction seller identity and payout targets are generic framework-item references rather than character-only references;
+- seller proceeds that cannot be paid immediately are persisted as owed balances and retried automatically by the auction house;
 - auction XML persists both the new generic seller/asset metadata and legacy item/character attributes for compatibility with existing saved definitions;
 - estate liquidation uses the economic zone's probate auction house for automatic liquidation listings;
 - ordinary fixed-price property sales still continue to use `PropertySaleOrder` rather than the auction-house subsystem.

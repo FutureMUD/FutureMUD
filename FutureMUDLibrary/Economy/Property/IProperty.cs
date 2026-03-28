@@ -43,6 +43,7 @@ namespace MudSharp.Economy.Property
                 bool ApplyCriminalCodeInProperty { get; set; }
 		string PreviewProperty(ICharacter voyeur);
 		void SellProperty(IFrameworkItem newOwner);
+		void TransferProperty(IFrameworkItem newOwner, decimal? transferValue = null);
 		void DivestOwnership(IPropertyOwner owner, decimal percentage, IFrameworkItem newOwnerItem);
 
 		bool IsAuthorisedOwner(ICharacter who);

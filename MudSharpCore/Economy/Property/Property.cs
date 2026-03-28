@@ -911,10 +911,30 @@ public class Property : SaveableItem, IProperty
 
 	public void SellProperty(IFrameworkItem newOwner)
 	{
-		var so = SaleOrder;
+		TransferPropertyInternal(newOwner, SaleOrder?.ReservePrice, true);
+	}
+
+	public void TransferProperty(IFrameworkItem newOwner, decimal? transferValue = null)
+	{
+		TransferPropertyInternal(newOwner, transferValue, false);
+	}
+
+	private void TransferPropertyInternal(IFrameworkItem newOwner, decimal? transferValue, bool requireSaleOrder)
+	{
+		var saleOrder = SaleOrder;
+		if (requireSaleOrder && saleOrder == null)
+		{
+			throw new InvalidOperationException(
+				$"Attempted to sell property #{Id:N0} without an active sale order.");
+		}
+
 		SaleOrder = null;
 		LastChangeOfOwnership = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-		LastSaleValue = so!.ReservePrice;
+		if (transferValue.HasValue)
+		{
+			LastSaleValue = transferValue.Value;
+		}
+
 		foreach (var owner in PropertyOwners)
 		{
 			owner.Delete();
@@ -922,7 +942,7 @@ public class Property : SaveableItem, IProperty
 
 		_propertyOwners.Clear();
 		_propertyOwners.Add(new PropertyOwner(newOwner, 1.0M, null, this));
-		so!.Delete();
+		saleOrder?.Delete();
 		LeaseOrder?.ChangeConsentDueToSale(_propertyOwners[0]);
 		if (Lease is null)
 		{

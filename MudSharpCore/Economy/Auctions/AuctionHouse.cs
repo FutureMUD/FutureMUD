@@ -36,6 +36,11 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			select item.SaveToXml(AuctionBids[item.AuctionItem]),
 			from item in BidderRefundsOwed
 			select new XElement("Refund", new XAttribute("character", item.Key),
+				new XAttribute("amount", item.Value)),
+			from item in _sellerPaymentsOwed.Where(x => x.Value > 0.0M)
+			select new XElement("SellerPayment",
+				new XAttribute("targetid", item.Key.Id),
+				new XAttribute("targettype", item.Key.Type),
 				new XAttribute("amount", item.Value))
 		);
 	}
@@ -160,7 +165,17 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			return true;
 		}
 
-		if (item.PayoutTarget is IEstate estate)
+		return TryPaySellerTarget(item.PayoutTarget ?? item.Seller, amount, DescribeLotPlain(item));
+	}
+
+	private bool TryPaySellerTarget(IFrameworkItem payoutTarget, decimal amount, string assetDescription)
+	{
+		if (amount <= 0.0M || payoutTarget == null)
+		{
+			return true;
+		}
+
+		if (payoutTarget is IEstate estate)
 		{
 			if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
 			{
@@ -168,13 +183,13 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			}
 
 			ProfitsBankAccount.WithdrawFromTransaction(amount,
-				$"Auction proceeds held for estate #{estate.Id} from {DescribeLotPlain(item)}");
+				$"Auction proceeds held for estate #{estate.Id} from {assetDescription}");
 			ProfitsBankAccount.Bank.CurrencyReserves[ProfitsBankAccount.Currency] -= amount;
 			ProfitsBankAccount.Bank.Changed = true;
 			return true;
 		}
 
-		if (item.PayoutTarget is IBankAccount account)
+		if (payoutTarget is IBankAccount account)
 		{
 			if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
 			{
@@ -182,39 +197,69 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			}
 
 			ProfitsBankAccount.WithdrawFromTransfer(amount, account.Bank.Code, account.AccountNumber,
-				$"Payment for successful auction of {DescribeLotPlain(item)}");
+				$"Payment for successful auction of {assetDescription}");
 			account.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code, ProfitsBankAccount.AccountNumber,
-				$"Proceeds from a successful auction of {DescribeLotPlain(item)} with {Name}");
+				$"Proceeds from a successful auction of {assetDescription} with {Name}");
 			return true;
 		}
 
-		if (item.PayoutTarget != null)
+		var payoutAccount = Gameworld.BankAccounts.FirstOrDefault(x =>
+			x.AccountStatus == BankAccountStatus.Active &&
+			x.Currency == EconomicZone.Currency &&
+			x.IsAccountOwner(payoutTarget));
+		if (payoutAccount != null)
 		{
-			var payoutAccount = Gameworld.BankAccounts.FirstOrDefault(x =>
-				x.AccountStatus == BankAccountStatus.Active &&
-				x.Currency == EconomicZone.Currency &&
-				x.IsAccountOwner(item.PayoutTarget));
-			if (payoutAccount != null)
+			if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
 			{
-				if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
-				{
-					return false;
-				}
-
-				ProfitsBankAccount.WithdrawFromTransfer(amount, payoutAccount.Bank.Code, payoutAccount.AccountNumber,
-					$"Payment for successful auction of {DescribeLotPlain(item)}");
-				payoutAccount.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code,
-					ProfitsBankAccount.AccountNumber,
-					$"Proceeds from a successful auction of {DescribeLotPlain(item)} with {Name}");
-				return true;
+				return false;
 			}
+
+			ProfitsBankAccount.WithdrawFromTransfer(amount, payoutAccount.Bank.Code, payoutAccount.AccountNumber,
+				$"Payment for successful auction of {assetDescription}");
+			payoutAccount.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code,
+				ProfitsBankAccount.AccountNumber,
+				$"Proceeds from a successful auction of {assetDescription} with {Name}");
+			return true;
 		}
 
 		return false;
 	}
 
+	private void QueueSellerPayment(AuctionItem item, decimal amount)
+	{
+		var payoutTarget = item.PayoutTarget ?? item.Seller;
+		if (payoutTarget == null || amount <= 0.0M)
+		{
+			return;
+		}
+
+		_sellerPaymentsOwed[(payoutTarget.Id, payoutTarget.FrameworkItemType)] += amount;
+		Changed = true;
+	}
+
+	private void RetrySellerPayments()
+	{
+		foreach (var payment in _sellerPaymentsOwed.Where(x => x.Value > 0.0M).ToList())
+		{
+			var target = LoadFrameworkItem(Gameworld, payment.Key.Id, payment.Key.Type);
+			if (target == null)
+			{
+				continue;
+			}
+
+			if (!TryPaySellerTarget(target, payment.Value, $"deferred auction proceeds from {Name}"))
+			{
+				continue;
+			}
+
+			_sellerPaymentsOwed.Remove(payment.Key);
+			Changed = true;
+		}
+	}
+
 	private void AuctionTick()
 	{
+		RetrySellerPayments();
 		var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		var finished = ActiveAuctionItems.Where(x => x.FinishingDateTime <= now).ToList();
 		foreach (var item in finished)
@@ -237,6 +282,10 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			if (winningBid != null)
 			{
 				paid = TryPaySeller(item, winningBid.Bid);
+				if (!paid)
+				{
+					QueueSellerPayment(item, winningBid.Bid);
+				}
 			}
 
 			if (item.Seller is IEstate estateSeller)
@@ -247,7 +296,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			switch (item.Asset)
 			{
 				case IProperty property when winningBid != null:
-					property.SellProperty(winningBid.Bidder);
+					property.TransferProperty(winningBid.Bidder, winningBid.Bid);
 					break;
 				case IGameItem when winningBid != null:
 					_unclaimedItems.Add(new UnclaimedAuctionItem
@@ -378,6 +427,14 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			BidderRefundsOwed[long.Parse(refund.Attribute("character").Value)] =
 				decimal.Parse(refund.Attribute("amount").Value);
 		}
+
+		foreach (var payment in definition.Elements("SellerPayment"))
+		{
+			_sellerPaymentsOwed[(
+				long.Parse(payment.Attribute("targetid").Value),
+				payment.Attribute("targettype").Value
+			)] = decimal.Parse(payment.Attribute("amount").Value);
+		}
 	}
 
 	#region Overrides of FrameworkItem
@@ -435,6 +492,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 	public CollectionDictionary<AuctionItem, AuctionBid> AuctionBids { get; } = new();
 	public DecimalCounter<long> BidderRefundsOwed { get; } = new();
+	private readonly DecimalCounter<(long Id, string Type)> _sellerPaymentsOwed = new();
 
 	public void AddAuctionItem(AuctionItem item)
 	{
@@ -729,9 +787,11 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		sb.AppendLine(
 			$"Refunds Owed: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(
+			$"Seller Proceeds Owed: {EconomicZone.Currency.Describe(_sellerPaymentsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine(
 			$"Pending Payments: {EconomicZone.Currency.Describe(ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(
-			$"Total Commitments: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value) + ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			$"Total Commitments: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value) + _sellerPaymentsOwed.Sum(x => x.Value) + ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Unclaimed Items: {UnclaimedItems.Count().ToString("N0", actor).ColourValue()}");
 		return sb.ToString();
 	}

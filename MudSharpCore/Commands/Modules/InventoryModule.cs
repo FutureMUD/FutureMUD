@@ -1973,7 +1973,7 @@ The possible syntaxes for this command are:
 			}
 		}
 
-		var target = actor.TargetActor(ss.PopSpeech());
+		var target = actor.TargetActorOrCorpse(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You dont see anyone like that to strip.");

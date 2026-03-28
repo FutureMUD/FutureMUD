@@ -48,7 +48,7 @@ This late-load design matters because much of the economy depends on other loade
 - future progs gate account eligibility, shopper behavior, markets, and tax filters
 - item prototypes are needed for merchandise, payment items, and stocked goods
 - clans can own accounts, control economic zones, and hold property
-- cells are needed for branches, auction houses, conveyancing, job-finding, stockrooms, tills, and shop stalls
+- cells are needed for branches, auction houses, conveyancing, job-finding, probate offices, morgue offices, morgue storage, stockrooms, tills, and shop stalls
 
 ## Subsystem Map
 ### Currency
@@ -82,6 +82,8 @@ An economic zone currently owns or exposes:
 - the reference calendar, clock, time, and time zone used for financial periods
 - conveyancing cells for property workflows
 - job-finding cells for employment workflows
+- probate-office cells for estate workflows
+- a morgue office cell and morgue storage cell for corpse custody workflows
 - a controlling clan
 - estate settings and estate collection hooks
 
@@ -259,29 +261,34 @@ Job listings currently include:
 The system is integrated with job-finding cells on economic zones and with command workflows in `EconomyModule`.
 
 ### Estates
-Estates should currently be treated as intentionally unimplemented rather than merely unfinished.
+Estates are now a live persisted subsystem.
 
-Verified code state:
+Verified current runtime behavior:
 
-- `Estate.Save()` throws `NotImplementedException`
-- `Estate.Finalise()` throws `NotImplementedException`
-- there is no matching persistence model or migration layer for estates in the current database library
+- death creates or reuses one open estate per economic zone that receives captured assets
+- estates advance from `Undiscovered` to `ClaimPhase` on the zone discovery timer or immediately through `estate open <id>`
+- all non-admin player-facing estate interaction is gated to probate-office cells configured on the economic zone
+- claims, assessment, liquidation, auction integration, and finalisation all persist through the database layer
+- item ownership is part of the runtime path for estate transfer and morgue recovery rather than a missing prerequisite
 
-The more important design reality is that the subsystem lacks its core prerequisite: a trustworthy general model for item ownership.
+The estate system remains intentionally conservative about item capture:
 
-The easy parts already exist or are conceptually straightforward:
+- items already owned by someone other than the deceased are excluded from the estate
+- unowned items on the deceased are included as presumed ownership
+- known deceased-owned items are included as direct estate assets
 
-- bank account ownership
-- property ownership
-- claim windows and estate timing
+### Morgues and Corpse Recovery
+Economic zones now expose a two-room morgue model:
 
-The unsolved part is deciding what counts as a person's property for arbitrary items without producing theft or inheritance outcomes that feel wrong in normal MUD play. That problem is adjacent to:
+- morgue office for public command interaction
+- morgue storage for corpse and belongings custody
 
-- clan or organisational ownership of issued gear
-- crime-system theft detection
-- expected player behavior around shared storage, lending, and casual handling of items
+This integrates economy and legal runtime behavior:
 
-For documentation purposes, estates belong in the runtime map because the interfaces and placeholder implementation exist, but they should not be described as a production-ready subsystem.
+- `report body <corpse>` creates a legal-authority corpse-recovery job for the local enforcement zone
+- patrol dispatch picks up the corpse and moves it into morgue storage
+- morgue intake strips possessions into a bundle and immediately opens probate for the relevant estate
+- `morgue` commands in the office list releasable corpses and personally owned belongings
 
 ## Important Runtime Flows
 ### Currency Parsing and Description

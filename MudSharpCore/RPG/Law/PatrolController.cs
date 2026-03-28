@@ -63,6 +63,11 @@ public class PatrolController : IPatrolController
 			enforcerCounts.AddRange(group.Key, group);
 		}
 
+		if (TryLaunchCorpseRecoveryPatrol(freeEnforcers, enforcerCounts))
+		{
+			return;
+		}
+
 		var crimesRequiringInvestigation = LegalAuthority.UnknownCrimes
 		                                                 .Where(x => x.Law.EnforcementStrategy >
 		                                                             EnforcementStrategy.NoActiveEnforcement)
@@ -115,5 +120,51 @@ public class PatrolController : IPatrolController
 				break;
 			}
 		}
+	}
+
+	private bool TryLaunchCorpseRecoveryPatrol(List<ICharacter> freeEnforcers,
+		CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts)
+	{
+		var pendingReport = LegalAuthority.CorpseRecoveryReports
+			.FirstOrDefault(x => x.Status == CorpseRecoveryReportStatus.Pending);
+		if (pendingReport == null)
+		{
+			return false;
+		}
+
+		var route = LegalAuthority.PatrolRoutes
+			.Where(x => x.IsReady && x.PatrolNodes.Any() && x.PatrollerNumbers.Any())
+			.OrderByDescending(x => x.Priority)
+			.FirstOrDefault();
+		if (route == null || route.PatrollerNumbers.Any(x => enforcerCounts[x.Key].Count() < x.Value))
+		{
+			return false;
+		}
+
+		var patrolMembers = new List<ICharacter>();
+		foreach (var requirement in route.PatrollerNumbers)
+		{
+			var members = route.PatrolStrategy
+				.SelectEnforcers(route, enforcerCounts[requirement.Key], requirement.Value)
+				.ToList();
+			if (members.Count == 0)
+			{
+				return false;
+			}
+
+			patrolMembers.AddRange(members);
+			enforcerCounts.RemoveRange(requirement.Key, members);
+			freeEnforcers.RemoveAll(members.Contains);
+		}
+
+		if (!patrolMembers.Any())
+		{
+			return false;
+		}
+
+		var leader = patrolMembers.GetRandomElement();
+		var patrol = new Patrol(LegalAuthority, route, leader, patrolMembers, pendingReport);
+		LegalAuthority.AddPatrol(patrol);
+		return true;
 	}
 }

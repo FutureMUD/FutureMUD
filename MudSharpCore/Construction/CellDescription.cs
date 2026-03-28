@@ -559,6 +559,40 @@ public partial class Cell
 			descSubSB.AppendLine($"You can use the JOBS and JOB commands here.".ColourIncludingReset(Telnet.Yellow));
 		}
 
+		if (Gameworld.EconomicZones.Any(x => x.ProbateOfficeCells.Contains(this)) &&
+		    Gameworld.GetStaticBool("ShowShopInRoomDescription"))
+		{
+			if (!addedAdditionalLines)
+			{
+				addedAdditionalLines = true;
+				descSubSB.AppendLine();
+			}
+
+			if (character?.Account.TabRoomDescriptions == true)
+			{
+				descSubSB.Append("\t");
+			}
+
+			descSubSB.AppendLine($"You can use the ESTATE command here.".ColourIncludingReset(Telnet.Yellow));
+		}
+
+		if (Gameworld.EconomicZones.Any(x => x.MorgueOfficeCell == this) &&
+		    Gameworld.GetStaticBool("ShowShopInRoomDescription"))
+		{
+			if (!addedAdditionalLines)
+			{
+				addedAdditionalLines = true;
+				descSubSB.AppendLine();
+			}
+
+			if (character?.Account.TabRoomDescriptions == true)
+			{
+				descSubSB.Append("\t");
+			}
+
+			descSubSB.AppendLine($"You can use the MORGUE command here.".ColourIncludingReset(Telnet.Yellow));
+		}
+
 		if (Characters.Any(x => x.AffectedBy<OnTrial>()))
 		{
 			descSubSB.AppendLine("There is a trial taking place here. You can use the TRIAL command to see details.".ColourIncludingReset(Telnet.BoldOrange));

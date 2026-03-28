@@ -13,20 +13,25 @@ using MudSharp.Models;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Law.PatrolStrategies;
 
 namespace MudSharp.RPG.Law;
 
 public class Patrol : SaveableItem, IPatrol
 {
-	public Patrol(ILegalAuthority authority, IPatrolRoute route, ICharacter leader, IEnumerable<ICharacter> members)
+	public Patrol(ILegalAuthority authority, IPatrolRoute route, ICharacter leader, IEnumerable<ICharacter> members,
+		ICorpseRecoveryReport corpseRecoveryReport = null)
 	{
 		Gameworld = authority.Gameworld;
 		LegalAuthority = authority;
 		PatrolRoute = route;
-		PatrolStrategy = route.PatrolStrategy;
+		PatrolStrategy = corpseRecoveryReport != null
+			? new InvestigationPatrolStrategy(Gameworld)
+			: route.PatrolStrategy;
 		PatrolPhase = PatrolPhase.Preperation;
 		LastArrivedTime = DateTime.UtcNow;
 		PatrolLeader = leader;
+		ActiveCorpseRecoveryReport = corpseRecoveryReport;
 		_members.AddRange(members);
 		using (new FMDB())
 		{
@@ -47,6 +52,7 @@ public class Patrol : SaveableItem, IPatrol
 
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandlePatrolTick;
 		Gameworld.Add(this);
+		corpseRecoveryReport?.AssignPatrol(this);
 		foreach (var member in members)
 		{
 			member.AddEffect(new PatrolMemberEffect(member, this));
@@ -58,7 +64,6 @@ public class Patrol : SaveableItem, IPatrol
 		Gameworld = authority.Gameworld;
 		LegalAuthority = authority;
 		PatrolRoute = authority.PatrolRoutes.First(x => x.Id == patrol.PatrolRouteId);
-		PatrolStrategy = PatrolRoute.PatrolStrategy;
 		_id = patrol.Id;
 		PatrolPhase = (PatrolPhase)patrol.PatrolPhase;
 		LastArrivedTime = DateTime.UtcNow;
@@ -66,6 +71,12 @@ public class Patrol : SaveableItem, IPatrol
 		NextMajorNode = Gameworld.Cells.Get(patrol.NextMajorNodeId ?? 0);
 		_members.AddRange(patrol.PatrolMembers.SelectNotNull(x => Gameworld.NPCs.Get(x.CharacterId)));
 		PatrolLeader = Gameworld.NPCs.Get(patrol.PatrolLeaderId ?? 0) ?? PatrolMembers.GetRandomElement();
+		ActiveCorpseRecoveryReport = authority.CorpseRecoveryReports
+			.OfType<CorpseRecoveryReport>()
+			.FirstOrDefault(x => x.AssignedPatrolId == _id && x.Status == CorpseRecoveryReportStatus.Assigned);
+		PatrolStrategy = ActiveCorpseRecoveryReport != null
+			? new InvestigationPatrolStrategy(Gameworld)
+			: PatrolRoute.PatrolStrategy;
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandlePatrolTick;
 		Gameworld.Add(this);
 	}
@@ -89,6 +100,7 @@ public class Patrol : SaveableItem, IPatrol
 	public DateTime LastArrivedTime { get; set; }
 	public ICharacter ActiveEnforcementTarget { get; set; }
 	public ICrime ActiveEnforcementCrime { get; set; }
+	public ICorpseRecoveryReport ActiveCorpseRecoveryReport { get; set; }
 	public ICell OriginLocation => LegalAuthority.MarshallingLocation;
 
 	public void Delete()

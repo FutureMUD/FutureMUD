@@ -67,6 +67,7 @@ namespace MudSharp.Community
 		void UpdateClaim(IEstateClaim claim);
 		void AddAsset(IEstateAsset asset);
 		void RemoveAsset(IEstateAsset asset);
+		bool OpenProbate();
 		bool CheckStatus();
 		bool StartLiquidation();
 		bool TryCreateAuctionListing(IAuctionHouse auctionHouse, IEstateAsset asset, decimal reservePrice, decimal? buyoutPrice);

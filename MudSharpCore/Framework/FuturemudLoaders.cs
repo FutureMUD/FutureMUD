@@ -826,6 +826,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		                      .Include(x => x.LegalAuthorityCells)
 		                      .Include(x => x.LegalAuthorityJailCells)
 		                      .Include(x => x.Fines)
+		                      .Include(x => x.CorpseRecoveryReports)
 		                      .AsSplitQuery()
 		                      .AsNoTracking()
 		                      .ToList();
@@ -918,6 +919,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		                .Include(x => x.EconomicZoneTaxes)
 		                .Include(x => x.ConveyancingLocations)
 		                .Include(x => x.JobFindingLocations)
+		                .Include(x => x.ProbateLocations)
 		                .AsSplitQuery()
 		                .AsNoTracking()
 		                .ToList();

@@ -115,6 +115,37 @@ internal class EconomyModule : Module<ICharacter>
 			       x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageEstates));
 	}
 
+	private static bool IsEstateLocationRestrictionExempt(ICharacter actor)
+	{
+		if (actor.IsAdministrator())
+		{
+			return true;
+		}
+
+		return actor.ClanMemberships.Any(x =>
+			!x.IsArchivedMembership &&
+			x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageEstates) &&
+			actor.Gameworld.EconomicZones.Any(y => y.ControllingClan == x.Clan));
+	}
+
+	private static bool EnsureEstateCommandLocation(ICharacter actor, IEstate estate = null)
+	{
+		if (actor.IsAdministrator() || (estate != null && CanManageEstate(actor, estate)) ||
+		    IsEstateLocationRestrictionExempt(actor))
+		{
+			return true;
+		}
+
+		var zone = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ProbateOfficeCells.Contains(actor.Location));
+		if (zone != null)
+		{
+			return true;
+		}
+
+		actor.OutputHandler.Send("You must be at a probate office to use estate services.");
+		return false;
+	}
+
 	private static bool CanViewEstate(ICharacter actor, IEstate estate)
 	{
 		return CanManageEstate(actor, estate) ||
@@ -216,6 +247,28 @@ internal class EconomyModule : Module<ICharacter>
 	{
 		return estate.EconomicZone.EstateAuctionHouse?.UnclaimedItems.Where(x => x.AuctionItem.IsSeller(estate)) ??
 		       Enumerable.Empty<UnclaimedAuctionItem>();
+	}
+
+	private static IEconomicZone CurrentMorgueOfficeZone(ICharacter actor)
+	{
+		return actor.Gameworld.EconomicZones.FirstOrDefault(x => x.MorgueOfficeCell == actor.Location);
+	}
+
+	private static bool EnsureMorgueOffice(ICharacter actor, out IEconomicZone zone)
+	{
+		zone = CurrentMorgueOfficeZone(actor);
+		if (zone != null)
+		{
+			return true;
+		}
+
+		actor.OutputHandler.Send("You must be at a morgue office to use that command.");
+		return false;
+	}
+
+	private static bool CanClaimMorgueCorpse(ICharacter actor, IEstate estate)
+	{
+		return actor.IsAdministrator() || CanManageEstate(actor, estate) || estate.Inheritor == actor;
 	}
 
 	private static IEnumerable<AuctionResult> EstateAuctionResults(IEstate estate)
@@ -6559,6 +6612,7 @@ The syntax for this command is as follows:
 	#3estate reject <estate> <claim> <reason>#0 - rejects an estate claim
 	#3estate listasset <estate> <asset> [<reserve>] [<buyout>]#0 - manually lists an estate asset on the zone probate auction house
 	#3estate relist <estate> <asset> [<reserve>] [<buyout>]#0 - relists an unsold estate asset
+	#3estate open <id>#0 - opens probate for an undiscovered estate immediately
 	#3estate finalise <id>#0 - finalises an estate immediately";
 
 	[PlayerCommand("Estate", "estate", "estates")]
@@ -6593,6 +6647,9 @@ The syntax for this command is as follows:
 			case "relist":
 				EstateAuctionAsset(actor, ss, true);
 				return;
+			case "open":
+				EstateOpen(actor, ss);
+				return;
 			case "finalise":
 			case "finalize":
 				EstateFinalise(actor, ss);
@@ -6605,6 +6662,11 @@ The syntax for this command is as follows:
 
 	private static void EstateList(ICharacter actor, StringStack ss)
 	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
 		var estates = actor.Gameworld.Estates.Where(x => CanViewEstate(actor, x)).ToList();
 		if (!estates.Any())
 		{
@@ -6643,6 +6705,11 @@ The syntax for this command is as follows:
 
 	private static void EstateShow(ICharacter actor, StringStack ss)
 	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("Which estate do you want to inspect?");
@@ -6849,6 +6916,11 @@ The syntax for this command is as follows:
 
 	private static void EstateClaim(ICharacter actor, StringStack ss)
 	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("Which estate do you want to make a claim against?");
@@ -6908,6 +6980,11 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		if (!EnsureEstateCommandLocation(actor, estate))
+		{
+			return;
+		}
+
 		if (!CanManageEstate(actor, estate))
 		{
 			actor.OutputHandler.Send("You are not authorised to adjudicate claims for that estate.");
@@ -6952,6 +7029,11 @@ The syntax for this command is as follows:
 		if (estate == null)
 		{
 			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!EnsureEstateCommandLocation(actor, estate))
+		{
 			return;
 		}
 
@@ -7059,6 +7141,11 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		if (!EnsureEstateCommandLocation(actor, estate))
+		{
+			return;
+		}
+
 		if (!CanManageEstate(actor, estate))
 		{
 			actor.OutputHandler.Send("You are not authorised to finalise that estate.");
@@ -7098,7 +7185,240 @@ The syntax for this command is as follows:
 			$"Estate #{estate.Id.ToString("N0", actor)} did not change status from {DescribeEstateStatus(originalStatus)}.");
 	}
 
+	private static void EstateOpen(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate do you want to open for probate?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.SafeRemainingArgument);
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!EnsureEstateCommandLocation(actor, estate))
+		{
+			return;
+		}
+
+		if (!CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to open probate for that estate.");
+			return;
+		}
+
+		if (estate.OpenProbate())
+		{
+			actor.OutputHandler.Send(
+				$"You open probate for estate #{estate.Id.ToString("N0", actor)}. Claims will remain open until {estate.FinalisationDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"Estate #{estate.Id.ToString("N0", actor)} is already in {DescribeEstateStatus(estate.EstateStatus)}.");
+	}
+
 	#endregion
+
+	public const string MorgueHelp = @"The morgue command is used to review and release corpses and claimed belongings from a morgue office.
+
+The syntax for this command is as follows:
+
+	#3morgue list#0 - lists corpses and reclaimable belongings held by this morgue
+	#3morgue claim corpse <which>#0 - releases a corpse from morgue storage to this office
+	#3morgue claim item <which>#0 - releases one of your owned items from a belongings bundle";
+
+	[PlayerCommand("Morgue", "morgue")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoCombatCommand]
+	[HelpInfo("morgue", MorgueHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Morgue(ICharacter actor, string command)
+	{
+		if (!EnsureMorgueOffice(actor, out var zone))
+		{
+			return;
+		}
+
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				MorgueList(actor, zone);
+				return;
+			case "claim":
+				MorgueClaim(actor, zone, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MorgueHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void MorgueList(ICharacter actor, IEconomicZone zone)
+	{
+		var storage = zone.MorgueStorageCell;
+		if (storage == null)
+		{
+			actor.OutputHandler.Send("This morgue does not have a storage room configured.");
+			return;
+		}
+
+		var corpses = storage.GameItems
+			.Where(x => x.EffectsOfType<MorgueStoredCorpse>().Any(y => y.EconomicZoneId == zone.Id))
+			.ToList();
+		var reclaimableItems = storage.GameItems
+			.Where(x => x.EffectsOfType<MorgueBelongings>().Any(y => y.EconomicZoneId == zone.Id))
+			.SelectMany(x => x.GetItemType<IContainer>()?.Contents ?? Enumerable.Empty<IGameItem>())
+			.Where(x => x.HasOwner && x.Owner == actor)
+			.ToList();
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Morgue Office for {zone.Name.ColourName()}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine("Stored Corpses:");
+		if (!corpses.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from corpse in corpses
+				let effect = corpse.EffectsOfType<MorgueStoredCorpse>().First(x => x.EconomicZoneId == zone.Id)
+				let deceased = actor.Gameworld.TryGetCharacter(effect.CharacterOwnerId, true)
+				select new List<string>
+				{
+					corpse.Id.ToString("N0", actor),
+					deceased?.PersonalName.GetName(NameStyle.FullName) ?? "Unknown",
+					corpse.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+					effect.EstateId.ToString("N0", actor)
+				},
+				new List<string> { "Item", "Deceased", "Corpse", "Estate" },
+				actor,
+				Telnet.Cyan));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Reclaimable Owned Items:");
+		if (!reclaimableItems.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in reclaimableItems
+				select new List<string>
+				{
+					item.Id.ToString("N0", actor),
+					item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
+					item.Owner?.Name ?? ""
+				},
+				new List<string> { "Item", "Description", "Owner" },
+				actor,
+				Telnet.Green));
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void MorgueClaim(ICharacter actor, IEconomicZone zone, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Do you want to claim a corpse or an item?");
+			return;
+		}
+
+		switch (ss.PopForSwitch())
+		{
+			case "corpse":
+				MorgueClaimCorpse(actor, zone, ss);
+				return;
+			case "item":
+				MorgueClaimItem(actor, zone, ss);
+				return;
+			default:
+				actor.OutputHandler.Send("You must specify either CORPSE or ITEM.");
+				return;
+		}
+	}
+
+	private static void MorgueClaimCorpse(ICharacter actor, IEconomicZone zone, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which corpse do you want to claim?");
+			return;
+		}
+
+		var corpses = zone.MorgueStorageCell?.GameItems
+			.Where(x => x.EffectsOfType<MorgueStoredCorpse>().Any(y => y.EconomicZoneId == zone.Id))
+			.ToList() ?? new List<IGameItem>();
+		var corpse = long.TryParse(ss.SafeRemainingArgument, out var value)
+			? corpses.FirstOrDefault(x => x.Id == value)
+			: corpses.GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+		if (corpse == null)
+		{
+			actor.OutputHandler.Send("There is no such corpse in this morgue.");
+			return;
+		}
+
+		var effect = corpse.EffectsOfType<MorgueStoredCorpse>().First(x => x.EconomicZoneId == zone.Id);
+		var estate = actor.Gameworld.Estates.Get(effect.EstateId);
+		if (estate == null || !CanClaimMorgueCorpse(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to claim that corpse.");
+			return;
+		}
+
+		corpse.RemoveEffect(effect, true);
+		zone.MorgueStorageCell.Extract(corpse);
+		corpse.RoomLayer = actor.RoomLayer;
+		actor.Location.Insert(corpse, true);
+		actor.OutputHandler.Send(
+			$"{corpse.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings).ColourName()} has been released from storage into this office.");
+	}
+
+	private static void MorgueClaimItem(ICharacter actor, IEconomicZone zone, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to claim?");
+			return;
+		}
+
+		var bundles = zone.MorgueStorageCell?.GameItems
+			.Where(x => x.EffectsOfType<MorgueBelongings>().Any(y => y.EconomicZoneId == zone.Id))
+			.ToList() ?? new List<IGameItem>();
+		var items = bundles
+			.SelectMany(x => x.GetItemType<IContainer>()?.Contents ?? Enumerable.Empty<IGameItem>())
+			.Where(x => x.HasOwner && x.Owner == actor)
+			.ToList();
+		var item = long.TryParse(ss.SafeRemainingArgument, out var value)
+			? items.FirstOrDefault(x => x.Id == value)
+			: items.GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("There is no such reclaimable item in this morgue.");
+			return;
+		}
+
+		var bundle = item.ContainedIn;
+		item.ContainedIn?.Take(item);
+		item.RoomLayer = actor.RoomLayer;
+		actor.Location.Insert(item, true);
+		if (bundle?.GetItemType<IContainer>()?.Contents.Any() == false)
+		{
+			bundle.Delete();
+		}
+
+		actor.OutputHandler.Send(
+			$"{item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings).ColourName()} has been released into this office.");
+	}
 
 	#region Jobs
 

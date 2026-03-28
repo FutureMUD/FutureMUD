@@ -214,6 +214,7 @@ namespace MudSharp.Database
 		public virtual DbSet<EstateClaim> EstateClaims { get; set; }
 		public virtual DbSet<ConveyancingLocation> ConveyancingLocations { get; set; }
 		public virtual DbSet<JobFindingLocation> JobFindingLocations { get; set; }
+		public virtual DbSet<ProbateLocation> ProbateLocations { get; set; }
 		public virtual DbSet<EconomicZoneTax> EconomicZoneTaxes { get; set; }
 		public virtual DbSet<EditableItem> EditableItems { get; set; }
 		public virtual DbSet<Election> Elections { get; set; }
@@ -285,6 +286,7 @@ namespace MudSharp.Database
 		public virtual DbSet<LegalAuthorityCells> LegalAuthoritiyCells { get; set; }
 		public virtual DbSet<LegalAuthorityJailCell> LegalAuthorityJailCells { get; set; }
 		public virtual DbSet<LegalAuthorityFine> LegalAuthorityFines { get; set; }
+		public virtual DbSet<CorpseRecoveryReport> CorpseRecoveryReports { get; set; }
 		public virtual DbSet<LegalAuthoritiesZones> LegalAuthoritiesZones { get; set; }
 		public virtual DbSet<LegalClass> LegalClasses { get; set; }
 		public virtual DbSet<Limb> Limbs { get; set; }

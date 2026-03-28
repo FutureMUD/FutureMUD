@@ -30,6 +30,7 @@ using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
 using MudSharp.TimeAndDate;
 using static Mysqlx.Notice.Warning.Types;
+using MudSharp.Economy.Estates;
 
 namespace MudSharp.Commands.Modules;
 
@@ -352,13 +353,20 @@ The syntax for this command is as follows:
 	[RequiredCharacterState(CharacterState.Able)]
 	[HelpInfo("report", @"The #3report#0 command is used to report a crime that you are aware of. You are aware of your own crimes as well as any that you personally witnessed another character commit.
 
-The syntax is as follows:
-
-	#3report#0 - see a list of crimes you know about that you could report
-	#3report <id>#0 - report a crime that you know about to an enforcer", AutoHelp.HelpArg)]
+ The syntax is as follows:
+  
+ 	#3report#0 - see a list of crimes you know about that you could report
+ 	#3report <id>#0 - report a crime that you know about to an enforcer
+ 	#3report body <corpse>#0 - report a corpse for morgue collection", AutoHelp.HelpArg)]
 	protected static void Report(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.PeekSpeech().EqualTo("body") || ss.PeekSpeech().EqualTo("corpse"))
+		{
+			ss.PopSpeech();
+			ReportBody(actor, ss);
+			return;
+		}
 
 		var accusableCrimes = actor.Gameworld.Crimes
 		                           .Where(x => !x.IsKnownCrime && x.WitnessIds.Contains(actor.Id))
@@ -415,6 +423,54 @@ The syntax is as follows:
 			actor)));
 		authority.ReportCrime(crime, actor,
 			actor.Dubs.Any(x => x.TargetType == "Character" && x.TargetId == crime.CriminalId), 1.0);
+	}
+
+	private static void ReportBody(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which corpse do you want to report?");
+			return;
+		}
+
+		var corpseItem = actor.TargetItem(ss.SafeRemainingArgument);
+		var corpse = corpseItem?.GetItemType<ICorpse>();
+		if (corpse == null)
+		{
+			actor.OutputHandler.Send("You do not see any such corpse here.");
+			return;
+		}
+
+		var sourceCell = corpseItem.Location ?? corpseItem.TrueLocations.FirstOrDefault();
+		if (sourceCell == null)
+		{
+			actor.OutputHandler.Send("That corpse is not currently in a reportable location.");
+			return;
+		}
+
+		var authority = actor.Gameworld.LegalAuthorities.FirstOrDefault(x => x.EnforcementZones.Contains(sourceCell.Zone));
+		if (authority == null)
+		{
+			actor.OutputHandler.Send("There is no local legal authority that can respond to this corpse.");
+			return;
+		}
+
+		var zone = Estate.DetermineZone(actor.Gameworld, sourceCell);
+		if (zone == null || zone.MorgueOfficeCell == null || zone.MorgueStorageCell == null)
+		{
+			actor.OutputHandler.Send("There is no configured morgue for the economic zone that covers this corpse.");
+			return;
+		}
+
+		if (authority.ActiveCorpseRecoveryReport(corpseItem) != null)
+		{
+			actor.OutputHandler.Send("That corpse has already been reported to the authorities.");
+			return;
+		}
+
+		authority.ReportCorpse(corpseItem, zone, actor);
+		actor.OutputHandler.Handle(new EmoteOutput(
+			new Emote("@ report|reports a corpse to the authorities.", actor)));
 	}
 
 	[PlayerCommand("Accuse", "accuse")]

@@ -2261,7 +2261,7 @@ The possible syntaxes for this command are:
 				return true;
 			}
 
-			if (target.Body.CanRemoveItem(item, ItemCanGetIgnore.IgnoreFreeHands))
+			if (target.Body.CanBeRemoved(item, actor))
 			{
 				target.Body.RemoveItem(item, null, actor);
 				if (intoContainer?.CanPut(item) == true)

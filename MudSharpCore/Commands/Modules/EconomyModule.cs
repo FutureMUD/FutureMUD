@@ -151,9 +151,23 @@ internal class EconomyModule : Module<ICharacter>
 		return false;
 	}
 
+	private static IEconomicZone CurrentProbateOfficeZone(ICharacter actor)
+	{
+		return actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ProbateOfficeCells.Contains(actor.Location));
+	}
+
 	private static bool CanViewEstate(ICharacter actor, IEstate estate)
 	{
+		if (estate.EstateStatus == EstateStatus.EstateWill)
+		{
+			return CanManageEstate(actor, estate) ||
+			       estate.Character == actor ||
+			       estate.Inheritor == actor ||
+			       estate.Claims.Any(x => x.Claimant == actor);
+		}
+
 		return CanManageEstate(actor, estate) ||
+		       estate.Character == actor ||
 		       estate.Inheritor == actor ||
 		       estate.Claims.Any(x => x.Claimant == actor) ||
 		       estate.EstateStatus != EstateStatus.Undiscovered;
@@ -290,8 +304,18 @@ internal class EconomyModule : Module<ICharacter>
 		{
 			IGameItem gameItem => gameItem.HowSeen(actor,
 				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
-			IProperty property => property.Name.ColourName(),
+			IProperty property =>
+				$"{item.PropertyShare.ToString("P2", actor).ColourValue()} ownership share in {property.Name.ColourName()}",
 			_ => item.Asset.Name.ColourName()
+		};
+	}
+
+	private static string DescribeEstateAsset(ICharacter actor, IEstateAsset asset)
+	{
+		return asset.Asset switch
+		{
+			IProperty property => $"{asset.OwnershipShare.ToString("P2", actor).ColourValue()} ownership share in {property.Name.ColourName()}",
+			_ => DescribeFrameworkItem(actor, asset.Asset)
 		};
 	}
 
@@ -5664,7 +5688,7 @@ The syntax for using this command is as follows:
 
 	#3auction preview <lot>#0 - view an auction lot currently being auctioned
 	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
-	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists a fully-owned property for sale
+	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists your ownership share in a property for sale
 	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
 	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
@@ -5694,7 +5718,7 @@ The syntax for using this command is as follows:
 
 	#3auction preview <lot>#0 - view an auction lot currently being auctioned
 	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
-	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists a fully-owned property for sale
+	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists your ownership share in a property for sale
 	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
 	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
@@ -5878,6 +5902,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		var propertySale = targetText.EqualTo("property");
 		IGameItem item = null;
 		IProperty property = null;
+		var propertyShare = 1.0M;
 		if (propertySale)
 		{
 			if (ss.IsFinished)
@@ -5888,14 +5913,21 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
 			var properties = actor.Gameworld.Properties
 				.Where(x => x.EconomicZone == auctionHouse.EconomicZone)
-				.Where(x => x.PropertyOwners.Count() == 1)
-				.Where(x => x.PropertyOwners.First().Owner == actor)
-				.Where(x => x.PropertyOwners.First().ShareOfOwnership >= 1.0M)
+				.Where(x => x.PropertyOwners.Any(y => y.Owner == actor && y.ShareOfOwnership > 0.0M))
 				.ToList();
 			property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
 			if (property == null)
 			{
-				actor.OutputHandler.Send("You do not fully own any such property in this auction house's economic zone.");
+				actor.OutputHandler.Send("You do not own any such property share in this auction house's economic zone.");
+				return;
+			}
+
+			propertyShare = property.PropertyOwners
+				.Where(x => x.Owner == actor)
+				.Sum(x => x.ShareOfOwnership);
+			if (propertyShare <= 0.0M)
+			{
+				actor.OutputHandler.Send("You do not own any share in that property.");
 				return;
 			}
 
@@ -5907,12 +5939,14 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			}
 
 			if (actor.Gameworld.AuctionHouses.SelectMany(x => x.ActiveAuctionItems).Any(x =>
-				    x.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType)) ||
+				    x.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType) &&
+				    x.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType)) ||
 			    actor.Gameworld.AuctionHouses.SelectMany(x => x.UnclaimedItems).Any(x =>
-				    x.AuctionItem.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType)))
+				    x.AuctionItem.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType) &&
+				    x.AuctionItem.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType)))
 			{
 				actor.OutputHandler.Send(
-					$"The property {property.Name.ColourName()} is already listed on an auction house.");
+					$"Your ownership share in {property.Name.ColourName()} is already listed on an auction house.");
 				return;
 			}
 
@@ -6011,7 +6045,9 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			}
 		}
 
-		var itemDesc = propertySale ? property.Name.ColourName() : item.HowSeen(actor);
+		var itemDesc = propertySale
+			? $"{propertyShare.ToString("P2", actor).ColourValue()} ownership share in {property.Name.ColourName()}"
+			: item.HowSeen(actor);
 		actor.OutputHandler.Send(
 			$"Are you sure you want to list {itemDesc} for sale at a reserve price of {auctionHouse.EconomicZone.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}?\n{Accept.StandardAcceptPhrasing}");
 		actor.AddEffect(new Accept(actor, new GenericProposal
@@ -6020,13 +6056,16 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			{
 				if (propertySale)
 				{
-					if (property.PropertyOwners.Count() != 1 ||
-					    property.PropertyOwners.First().Owner != actor ||
-					    property.PropertyOwners.First().ShareOfOwnership < 1.0M)
+					var currentPropertyShare = property.PropertyOwners
+						.Where(x => x.Owner == actor)
+						.Sum(x => x.ShareOfOwnership);
+					if (currentPropertyShare <= 0.0M)
 					{
-						actor.OutputHandler.Send($"You no longer fully own {itemDesc}.");
+						actor.OutputHandler.Send($"You no longer own {itemDesc}.");
 						return;
 					}
+
+					propertyShare = currentPropertyShare;
 				}
 				else if (!actor.Body.HeldOrWieldedItems.Contains(item) || !actor.Body.CanDrop(item, 1))
 				{
@@ -6053,6 +6092,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 					Asset = propertySale ? property : item,
 					Seller = actor,
 					PayoutTarget = accountTarget,
+					PropertyShare = propertyShare,
 					ListingDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
 					FinishingDateTime =
 						new MudDateTime(auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) +
@@ -6857,8 +6897,12 @@ The syntax for this command is as follows:
 
 	#3estate list#0 - lists estates you can currently see
 	#3estate show <id>#0 - shows details of a particular estate
+	#3estate create#0 - creates or refreshes your will for the current probate office's zone
+	#3estate bequeath <estate> <asset> <character|clan> <who> [<reason>]#0 - sets a pre-approved bequest from your will
+	#3estate revoke <estate> <claim>#0 - removes a prior bequest from your will
 	#3estate claim <id> <amount> <reason>#0 - submits a claim against an estate
 	#3estate claim <id> asset <asset> <reason>#0 - submits a claim against a specific estate asset
+	#3estate payout [<estate>]#0 - collects cash payouts that probate owes you at this office
 	#3estate approve <estate> <claim> [reason]#0 - approves an estate claim
 	#3estate reject <estate> <claim> <reason>#0 - rejects an estate claim
 	#3estate listasset <estate> <asset> [<reserve>] [<buyout>]#0 - manually lists an estate asset on the zone probate auction house
@@ -6876,12 +6920,28 @@ The syntax for this command is as follows:
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopForSwitch())
 		{
+			case "create":
+			case "will":
+				EstateCreate(actor, ss);
+				return;
+			case "bequeath":
+				EstateBequeath(actor, ss);
+				return;
+			case "revoke":
+			case "remove":
+				EstateRevoke(actor, ss);
+				return;
 			case "list":
 				EstateList(actor, ss);
 				return;
 			case "show":
 			case "view":
 				EstateShow(actor, ss);
+				return;
+			case "payout":
+			case "pay":
+			case "collect":
+				EstateCollectPayout(actor, ss);
 				return;
 			case "claim":
 				EstateClaim(actor, ss);
@@ -6914,6 +6974,270 @@ The syntax for this command is as follows:
 				actor.OutputHandler.Send(EstateHelp.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void EstateCreate(ICharacter actor, StringStack ss)
+	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
+		var zone = CurrentProbateOfficeZone(actor);
+		if (zone == null)
+		{
+			actor.OutputHandler.Send("You must be at a probate office to create a will.");
+			return;
+		}
+
+		if (!zone.EstatesEnabled)
+		{
+			actor.OutputHandler.Send($"{zone.Name.ColourName()} does not currently use estates.");
+			return;
+		}
+
+		var estate = actor.Gameworld.Estates
+			.Where(x => x.Character == actor && x.EconomicZone == zone)
+			.Where(x => x.EstateStatus != EstateStatus.Cancelled && x.EstateStatus != EstateStatus.Finalised)
+			.OfType<Estate>()
+			.OrderBy(x => x.EstateStartTime)
+			.FirstOrDefault();
+		if (estate != null && estate.EstateStatus != EstateStatus.EstateWill)
+		{
+			actor.OutputHandler.Send("You already have an active estate in this economic zone.");
+			return;
+		}
+
+		var created = estate == null;
+		estate ??= new Estate(zone, actor, actor.EstateHeir, EstateStatus.EstateWill);
+		estate.RefreshWill();
+		actor.OutputHandler.Send(
+			$"You {(created ? "create" : "refresh")} will estate #{estate.Id.ToString("N0", actor)} for {zone.Name.ColourName()}.");
+	}
+
+	private static void EstateBequeath(ICharacter actor, StringStack ss)
+	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate will do you want to add a bequest to?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.PopSpeech());
+		if (estate == null || estate.EstateStatus != EstateStatus.EstateWill)
+		{
+			actor.OutputHandler.Send("That is not an active will estate.");
+			return;
+		}
+
+		if (estate.Character != actor && !CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to alter that will.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which asset from that will do you want to bequeath?");
+			return;
+		}
+
+		var asset = GetEstateAssetById(estate, ss.PopSpeech());
+		if (asset == null)
+		{
+			actor.OutputHandler.Send("That estate has no such asset.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Do you want to bequeath that asset to a character or a clan?");
+			return;
+		}
+
+		IFrameworkItem beneficiary;
+		switch (ss.PopForSwitch())
+		{
+			case "character":
+			case "char":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which character should receive that bequest?");
+					return;
+				}
+
+				beneficiary = GetCharacterByIdOrName(actor, ss.PopSpeech());
+				if (beneficiary == null)
+				{
+					actor.OutputHandler.Send("There is no such character.");
+					return;
+				}
+
+				break;
+			case "clan":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which clan should receive that bequest?");
+					return;
+				}
+
+				beneficiary = GetClanByIdOrName(actor, ss.PopSpeech());
+				if (beneficiary == null)
+				{
+					actor.OutputHandler.Send("There is no such clan.");
+					return;
+				}
+
+				break;
+			default:
+				actor.OutputHandler.Send("You must specify either character or clan as the beneficiary type.");
+				return;
+		}
+
+		if (estate.Claims.Any(x =>
+			    x.Status == ClaimStatus.Approved &&
+			    x.TargetItem != null &&
+			    x.TargetItem.FrameworkItemEquals(asset.Asset.Id, asset.Asset.FrameworkItemType)))
+		{
+			actor.OutputHandler.Send("There is already an approved bequest for that asset.");
+			return;
+		}
+
+		var reason = ss.IsFinished
+			? $"Bequest of {DescribeEstateAsset(actor, asset)}"
+			: ss.SafeRemainingArgument;
+		estate.AddClaim(new EstateClaim(estate, beneficiary, Math.Max(0.0M, asset.AssumedValue), reason,
+			ClaimStatus.Approved, false, asset.Asset));
+		actor.OutputHandler.Send(
+			$"You set up a bequest of {DescribeEstateAsset(actor, asset)} from estate #{estate.Id.ToString("N0", actor)} to {DescribeFrameworkItem(actor, beneficiary)}.");
+	}
+
+	private static void EstateRevoke(ICharacter actor, StringStack ss)
+	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which will estate contains the bequest you want to revoke?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.PopSpeech());
+		if (estate == null || estate.EstateStatus != EstateStatus.EstateWill)
+		{
+			actor.OutputHandler.Send("That is not an active will estate.");
+			return;
+		}
+
+		if (estate.Character != actor && !CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to alter that will.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which claim do you want to revoke?");
+			return;
+		}
+
+		if (!long.TryParse(ss.PopSpeech(), out var claimId))
+		{
+			actor.OutputHandler.Send("You must specify a numeric claim ID.");
+			return;
+		}
+
+		var claim = estate.Claims.FirstOrDefault(x => x.Id == claimId);
+		if (claim == null)
+		{
+			actor.OutputHandler.Send("That estate has no such claim.");
+			return;
+		}
+
+		estate.RemoveClaim(claim);
+		if (claim is EstateClaim estateClaim)
+		{
+			estateClaim.Delete();
+		}
+
+		actor.OutputHandler.Send(
+			$"You revoke claim #{claim.Id.ToString("N0", actor)} from estate #{estate.Id.ToString("N0", actor)}.");
+	}
+
+	private static void EstateCollectPayout(ICharacter actor, StringStack ss)
+	{
+		if (!EnsureEstateCommandLocation(actor))
+		{
+			return;
+		}
+
+		var zone = CurrentProbateOfficeZone(actor);
+		if (zone == null)
+		{
+			actor.OutputHandler.Send("You must be at a probate office to collect estate payouts.");
+			return;
+		}
+
+		IEstate specificEstate = null;
+		if (!ss.IsFinished)
+		{
+			specificEstate = GetEstateById(actor, ss.SafeRemainingArgument);
+			if (specificEstate == null)
+			{
+				actor.OutputHandler.Send("There is no such estate.");
+				return;
+			}
+
+			if (!actor.IsAdministrator() && specificEstate.EconomicZone != zone)
+			{
+				actor.OutputHandler.Send("You must visit that estate's probate office to collect its payouts.");
+				return;
+			}
+		}
+
+		var payouts = actor.Gameworld.Estates
+			.Where(x => specificEstate == null ? x.EconomicZone == zone : x.Id == specificEstate.Id)
+			.SelectMany(x => x.Payouts)
+			.Where(x => !x.IsCollected && x.Recipient == actor)
+			.ToList();
+		if (!payouts.Any())
+		{
+			actor.OutputHandler.Send(specificEstate == null
+				? "There are no estate payouts waiting for you at this probate office."
+				: "That estate does not owe you any uncollected cash payouts.");
+			return;
+		}
+
+		var total = payouts.Sum(x => x.Amount);
+		var now = zone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		foreach (var payout in payouts)
+		{
+			payout.CollectedDate = now;
+		}
+
+		var currencyItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(zone.Currency,
+			zone.Currency.FindCoinsForAmount(total, out _));
+		if (actor.Body.CanGet(currencyItem, 0))
+		{
+			actor.Body.Get(currencyItem, silent: true);
+		}
+		else
+		{
+			currencyItem.RoomLayer = actor.RoomLayer;
+			actor.Location.Insert(currencyItem, true);
+			actor.OutputHandler.Send("You cannot carry the payout, so probate sets it down at your feet.");
+		}
+
+		actor.OutputHandler.Send(
+			$"Probate pays out {zone.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {payouts.Count.ToString("N0", actor).ColourValue()} estate payout(s).");
 	}
 
 	private static void EstateList(ICharacter actor, StringStack ss)
@@ -7027,7 +7351,7 @@ The syntax for this command is as follows:
 			{
 				asset.Id.ToString("N0", actor),
 				asset.Asset.FrameworkItemType,
-				DescribeFrameworkItem(actor, asset.Asset),
+				DescribeEstateAsset(actor, asset),
 				asset.IsPresumedOwnership.ToColouredString(),
 				asset.IsTransferred.ToColouredString(),
 				asset.IsLiquidated.ToColouredString(),
@@ -7122,7 +7446,11 @@ The syntax for this command is as follows:
 				estate.EconomicZone.Currency.Describe(claim.Amount, CurrencyDescriptionPatternType.ShortDecimal),
 				claim.Status.DescribeEnum(),
 				claim.IsSecured.ToColouredString(),
-				claim.TargetItem == null ? "" : DescribeFrameworkItem(actor, claim.TargetItem),
+				claim.TargetItem == null
+					? ""
+					: estate.Assets.FirstOrDefault(x => x.Asset.FrameworkItemEquals(claim.TargetItem.Id, claim.TargetItem.FrameworkItemType)) is { } targetAsset
+						? DescribeEstateAsset(actor, targetAsset)
+						: DescribeFrameworkItem(actor, claim.TargetItem),
 				claim.Reason
 			},
 			new List<string>
@@ -7137,6 +7465,33 @@ The syntax for this command is as follows:
 			},
 			actor,
 			Telnet.Cyan));
+
+		var outstandingPayouts = estate.Payouts.Where(x => !x.IsCollected).ToList();
+		if (outstandingPayouts.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Outstanding Cash Payouts:");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from payout in outstandingPayouts
+				select new List<string>
+				{
+					payout.Id.ToString("N0", actor),
+					DescribeFrameworkItem(actor, payout.Recipient),
+					estate.EconomicZone.Currency.Describe(payout.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+					payout.CreatedDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+					payout.Reason
+				},
+				new List<string>
+				{
+					"ID",
+					"Recipient",
+					"Amount",
+					"Created",
+					"Reason"
+				},
+				actor,
+				Telnet.White));
+		}
 
 		if (auctionResults.Any())
 		{
@@ -7391,6 +7746,12 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		if (asset.Asset is IProperty && asset.OwnershipShare < 1.0M)
+		{
+			actor.OutputHandler.Send("Partial ownership shares in properties are inherited in kind and cannot be liquidated by the estate.");
+			return;
+		}
+
 		if (asset.IsTransferred || asset.IsLiquidated)
 		{
 			actor.OutputHandler.Send("That asset has already been transferred or liquidated.");
@@ -7438,7 +7799,7 @@ The syntax for this command is as follows:
 		}
 
 		actor.OutputHandler.Send(
-			$"You {(relist ? "relist" : "list")} {DescribeFrameworkItem(actor, asset.Asset)} on {auctionHouse.Name.ColourName()} with a reserve of {estate.EconomicZone.Currency.Describe(reservePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}{(buyoutPrice.HasValue ? $" and a buyout of {estate.EconomicZone.Currency.Describe(buyoutPrice.Value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}" : "")}.");
+			$"You {(relist ? "relist" : "list")} {DescribeEstateAsset(actor, asset)} on {auctionHouse.Name.ColourName()} with a reserve of {estate.EconomicZone.Currency.Describe(reservePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}{(buyoutPrice.HasValue ? $" and a buyout of {estate.EconomicZone.Currency.Describe(buyoutPrice.Value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}" : "")}.");
 	}
 
 	private static void EstateLiquidate(ICharacter actor, StringStack ss)

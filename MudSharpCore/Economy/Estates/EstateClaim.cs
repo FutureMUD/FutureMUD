@@ -8,6 +8,28 @@ namespace MudSharp.Economy.Estates;
 
 public class EstateClaim : SaveableItem, IEstateClaim
 {
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id == 0)
+		{
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Gameworld.SaveManager.Flush();
+			var dbitem = FMDB.Context.EstateClaims.Find(Id);
+			if (dbitem == null)
+			{
+				return;
+			}
+
+			FMDB.Context.EstateClaims.Remove(dbitem);
+			FMDB.Context.SaveChanges();
+		}
+	}
+
 	public EstateClaim(MudSharp.Models.EstateClaim claim, IEstate estate)
 	{
 		Gameworld = estate.Gameworld;

@@ -193,7 +193,7 @@ Practical estate note:
 
 Current player-facing capability note:
 
-- auction houses can now host both item lots and direct property lots, but ordinary character-listed property auctions are intentionally restricted to properties that the listing character owns in full
+- auction houses can now host both item lots and property-share lots, and ordinary character-listed property auctions sell whatever ownership share the listing character currently owns in that property
 
 Contributor note:
 
@@ -311,6 +311,7 @@ Current economy-world setup now needs to account for both probate and morgue acc
 - probate offices expose the player-facing `estate` command surface
 - morgue offices expose the player-facing `morgue` command surface
 - morgue storage rooms are back-room custody spaces and should not be used as public traffic cells
+- the game-wide `NpcEstateProg` static configuration determines whether NPCs can enter the estate workflow at all, while guests are always excluded
 
 The underlying workflow is intentionally split across economy and legal systems:
 
@@ -319,6 +320,7 @@ The underlying workflow is intentionally split across economy and legal systems:
 - estate claim timing is opened either by the normal discovery timer or by morgue intake/admin action
 - corpses can still be recovered into morgue storage even when no estate is created, in which case belongings remain on the corpse
 - corpse recovery patrol dispatch now prefers patrols configured for the dedicated corpse-recovery strategy
+- probate offices are also where characters create will estates, manage bequests, and collect persisted cash payouts that could not be delivered straight into bank accounts
 
 ### Seeder depth is narrow
 If a new feature depends on the broader economy existing out of the box, it will probably still need either:

@@ -212,6 +212,7 @@ namespace MudSharp.Database
 		public virtual DbSet<Estate> Estates { get; set; }
 		public virtual DbSet<EstateAsset> EstateAssets { get; set; }
 		public virtual DbSet<EstateClaim> EstateClaims { get; set; }
+		public virtual DbSet<EstatePayout> EstatePayouts { get; set; }
 		public virtual DbSet<ConveyancingLocation> ConveyancingLocations { get; set; }
 		public virtual DbSet<JobFindingLocation> JobFindingLocations { get; set; }
 		public virtual DbSet<ProbateLocation> ProbateLocations { get; set; }

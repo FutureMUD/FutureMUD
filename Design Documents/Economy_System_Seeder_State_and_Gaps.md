@@ -236,7 +236,7 @@ Seed content cannot safely guess:
 - which economic zones should expose probate offices
 - where morgue offices and storage rooms belong on the map
 - which legal authorities should answer corpse-recovery reports
-- what clans, auction houses, and heirs should sit behind local probate practice
+- what clans, auction houses, heirs, and NPC-estate FutureProg rules should sit behind local probate practice
 
 ## Major Gaps and Priorities
 ### Estates are no longer blocked, but still not stock-seed friendly
@@ -254,8 +254,10 @@ The subsystem is now live enough for ordinary runtime use:
 
 - estate creation can be disabled per economic zone when a world does not want probate at all
 - deaths with no captured assets no longer create empty estates
+- guests are always excluded from estate creation, and NPC estate creation is now controlled by a game-wide static prog setting
 - asset valuation now follows current sale state, bank balance, and local market price inference
 - claims can target individual estate assets and can sometimes be resolved by in-kind transfer instead of liquidation
+- living characters can create wills in advance, pre-approve bequests, and later collect deferred estate cash payouts from a probate office
 - corpse recovery can still store bodies in a morgue even when no estate is created
 
 The remaining seeder problem is not runtime viability. It is that probate and morgue setup still depend on world-specific cells, institutions, legal authorities, and auction-house choices.

@@ -442,6 +442,7 @@ public static class DefaultStaticSettings
 			{ "DocumentLengthDrawingMural", "16320" },
 			{ "AlwaysTrueProg", "1" },
 			{ "AlwaysFalseProg", "2" },
+			{ "NpcEstateProg", "2" },
 			{ "AlwaysZeroProg", "3" },
 			{ "AlwaysOneProg", "4" },
 			{ "GeneralBonusLevelStarving", "1.0" },

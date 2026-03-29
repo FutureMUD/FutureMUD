@@ -8,6 +8,7 @@ public partial class Estate
 	{
 		EstateAssets = new HashSet<EstateAsset>();
 		EstateClaims = new HashSet<EstateClaim>();
+		EstatePayouts = new HashSet<EstatePayout>();
 	}
 
 	public long Id { get; set; }
@@ -23,4 +24,5 @@ public partial class Estate
 	public virtual EconomicZone EconomicZone { get; set; }
 	public virtual ICollection<EstateAsset> EstateAssets { get; set; }
 	public virtual ICollection<EstateClaim> EstateClaims { get; set; }
+	public virtual ICollection<EstatePayout> EstatePayouts { get; set; }
 }

@@ -118,6 +118,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 			Asset = asset,
 			Seller = seller,
 			PayoutTarget = payoutTarget,
+			PropertyShare = decimal.Parse(item.Attribute("share")?.Value ?? "1.0"),
 			MinimumPrice = decimal.Parse(item.Attribute("price").Value),
 			BuyoutPrice =
 				item.Attribute("buyout").Value.Equals("none", StringComparison.InvariantCultureIgnoreCase)
@@ -178,7 +179,8 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 		{
 			IGameItem gameItem => gameItem.HowSeen(voyeur,
 				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
-			IProperty property => property.Name.ColourName(),
+			IProperty property =>
+				$"{item.PropertyShare.ToString("P2", voyeur).ColourValue()} ownership share in {property.Name.ColourName()}",
 			_ => item.Asset.Name.ColourName()
 		};
 	}
@@ -189,9 +191,39 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 		{
 			IGameItem gameItem => gameItem.HowSeen(gameItem, colour: false,
 				flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
-			IProperty property => property.Name,
+			IProperty property => $"{item.PropertyShare:P2} ownership share in {property.Name}",
 			_ => item.Asset.Name
 		};
+	}
+
+	private static void TransferPropertyShare(AuctionItem item, ICharacter bidder, decimal price)
+	{
+		if (item.Asset is not IProperty property)
+		{
+			return;
+		}
+
+		var owner = property.PropertyOwners.FirstOrDefault(x =>
+			x.Owner.FrameworkItemEquals(item.Seller.Id, item.Seller.FrameworkItemType));
+		if (owner == null)
+		{
+			return;
+		}
+
+		var transferShare = Math.Min(owner.ShareOfOwnership, item.PropertyShare);
+		if (transferShare <= 0.0M)
+		{
+			return;
+		}
+
+		if (transferShare >= 1.0M && owner.ShareOfOwnership >= 1.0M && property.PropertyOwners.Count() == 1)
+		{
+			property.TransferProperty(bidder, price);
+			return;
+		}
+
+		property.LastSaleValue = price;
+		property.DivestOwnership(owner, transferShare / owner.ShareOfOwnership, bidder);
 	}
 
 	private bool TryPaySeller(AuctionItem item, decimal amount)
@@ -332,7 +364,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 			switch (item.Asset)
 			{
 				case IProperty property when winningBid != null:
-					property.TransferProperty(winningBid.Bidder, winningBid.Bid);
+					TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
 					break;
 				case IGameItem when winningBid != null:
 					_unclaimedItems.Add(new UnclaimedAuctionItem

@@ -2514,6 +2514,7 @@ namespace MudSharp.Database
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 				entity.Property(e => e.IsPresumedOwnership).HasColumnType("bit(1)");
+				entity.Property(e => e.OwnershipShare).HasColumnType("decimal(58,29)");
 				entity.Property(e => e.IsTransferred).HasColumnType("bit(1)");
 				entity.Property(e => e.IsLiquidated).HasColumnType("bit(1)");
 				entity.Property(e => e.LiquidatedValue).HasColumnType("decimal(58,29)");
@@ -2569,6 +2570,45 @@ namespace MudSharp.Database
 					.HasForeignKey(e => e.EstateId)
 					.OnDelete(DeleteBehavior.Cascade)
 					.HasConstraintName("FK_EstateClaims_Estates");
+			});
+
+			modelBuilder.Entity<EstatePayout>(entity =>
+			{
+				entity.ToTable("EstatePayouts");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+				entity.HasIndex(e => e.EstateId)
+					.HasDatabaseName("FK_EstatePayouts_Estates_idx");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.EstateId).HasColumnType("bigint(20)");
+				entity.Property(e => e.RecipientId).HasColumnType("bigint(20)");
+				entity.Property(e => e.RecipientType)
+					.IsRequired()
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+				entity.Property(e => e.Reason)
+					.IsRequired()
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.CreatedDate)
+					.IsRequired()
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+				entity.Property(e => e.CollectedDate)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.HasOne(e => e.Estate)
+					.WithMany(e => e.EstatePayouts)
+					.HasForeignKey(e => e.EstateId)
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_EstatePayouts_Estates");
 			});
 
 			modelBuilder.Entity<BankAccountType>(entity =>

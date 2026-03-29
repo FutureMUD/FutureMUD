@@ -57,6 +57,7 @@ namespace MudSharp.Economy
 		public IFrameworkItem Asset { get; init; }
 		public IFrameworkItem Seller { get; init; }
 		[CanBeNull] public IFrameworkItem PayoutTarget { get; init; }
+		public decimal PropertyShare { get; init; } = 1.0M;
 		public decimal MinimumPrice { get; init; }
 		public decimal? BuyoutPrice { get; init; }
 		public MudDateTime ListingDateTime { get; init; }
@@ -90,6 +91,7 @@ namespace MudSharp.Economy
 				new XAttribute("payouttype", PayoutTarget?.FrameworkItemType ?? "None"),
 				new XAttribute("character", Seller is ICharacter ch ? ch.Id : 0L),
 				new XAttribute("item", Item?.Id ?? 0L),
+				new XAttribute("share", PropertyShare),
 				new XAttribute("price", MinimumPrice),
 				new XAttribute("buyout", BuyoutPrice.HasValue ? BuyoutPrice.Value : "none"),
 				new XAttribute("list", ListingDateTime.GetDateTimeString()),

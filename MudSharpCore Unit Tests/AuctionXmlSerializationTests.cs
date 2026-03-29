@@ -63,6 +63,7 @@ public class AuctionXmlSerializationTests
 		Assert.AreEqual("22", xml.Attribute("character")?.Value);
 		Assert.AreEqual("11", xml.Attribute("item")?.Value);
 		Assert.AreEqual("33", xml.Attribute("account")?.Value);
+		Assert.AreEqual("1.0", xml.Attribute("share")?.Value);
 		Assert.AreEqual(1, xml.Elements("Bid").Count());
 	}
 
@@ -84,6 +85,7 @@ public class AuctionXmlSerializationTests
 			Asset = property.Object,
 			Seller = estate.Object,
 			PayoutTarget = estate.Object,
+			PropertyShare = 0.35M,
 			MinimumPrice = 2500.0M,
 			BuyoutPrice = null,
 			ListingDateTime = MudDateTime.Never,
@@ -102,6 +104,7 @@ public class AuctionXmlSerializationTests
 		Assert.AreEqual("0", xml.Attribute("character")?.Value);
 		Assert.AreEqual("0", xml.Attribute("item")?.Value);
 		Assert.AreEqual("0", xml.Attribute("account")?.Value);
+		Assert.AreEqual("0.35", xml.Attribute("share")?.Value);
 		Assert.IsTrue(item.IsSeller(estate.Object));
 		Assert.IsFalse(item.IsSeller(new FrameworkItemStub { Id = 99L, Name = "Other" }));
 	}

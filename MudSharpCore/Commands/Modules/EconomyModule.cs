@@ -7216,15 +7216,16 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		var payoutZone = specificEstate?.EconomicZone ?? zone;
 		var total = payouts.Sum(x => x.Amount);
-		var now = zone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		var now = payoutZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		foreach (var payout in payouts)
 		{
 			payout.CollectedDate = now;
 		}
 
-		var currencyItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(zone.Currency,
-			zone.Currency.FindCoinsForAmount(total, out _));
+		var currencyItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(payoutZone.Currency,
+			payoutZone.Currency.FindCoinsForAmount(total, out _));
 		if (actor.Body.CanGet(currencyItem, 0))
 		{
 			actor.Body.Get(currencyItem, silent: true);
@@ -7237,7 +7238,7 @@ The syntax for this command is as follows:
 		}
 
 		actor.OutputHandler.Send(
-			$"Probate pays out {zone.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {payouts.Count.ToString("N0", actor).ColourValue()} estate payout(s).");
+			$"Probate pays out {payoutZone.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {payouts.Count.ToString("N0", actor).ColourValue()} estate payout(s).");
 	}
 
 	private static void EstateList(ICharacter actor, StringStack ss)

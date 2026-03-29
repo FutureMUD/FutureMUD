@@ -196,34 +196,47 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 		};
 	}
 
-	private static void TransferPropertyShare(AuctionItem item, ICharacter bidder, decimal price)
+	private static bool CanTransferPropertyShare(AuctionItem item)
+	{
+		if (item.Asset is not IProperty property || item.PropertyShare <= 0.0M)
+		{
+			return false;
+		}
+
+		var owner = property.PropertyOwners.FirstOrDefault(x =>
+			x.Owner.FrameworkItemEquals(item.Seller.Id, item.Seller.FrameworkItemType));
+		return owner?.ShareOfOwnership >= item.PropertyShare;
+	}
+
+	private static bool TransferPropertyShare(AuctionItem item, ICharacter bidder, decimal price)
 	{
 		if (item.Asset is not IProperty property)
 		{
-			return;
+			return false;
 		}
 
 		var owner = property.PropertyOwners.FirstOrDefault(x =>
 			x.Owner.FrameworkItemEquals(item.Seller.Id, item.Seller.FrameworkItemType));
 		if (owner == null)
 		{
-			return;
+			return false;
 		}
 
-		var transferShare = Math.Min(owner.ShareOfOwnership, item.PropertyShare);
-		if (transferShare <= 0.0M)
+		var transferShare = item.PropertyShare;
+		if (transferShare <= 0.0M || owner.ShareOfOwnership < transferShare)
 		{
-			return;
+			return false;
 		}
 
 		if (transferShare >= 1.0M && owner.ShareOfOwnership >= 1.0M && property.PropertyOwners.Count() == 1)
 		{
 			property.TransferProperty(bidder, price);
-			return;
+			return true;
 		}
 
 		property.LastSaleValue = price;
 		property.DivestOwnership(owner, transferShare / owner.ShareOfOwnership, bidder);
+		return true;
 	}
 
 	private bool TryPaySeller(AuctionItem item, decimal amount)
@@ -333,7 +346,18 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 		foreach (var item in finished)
 		{
 			var winningBid = CurrentAuctionBid(item);
-			if (winningBid == null)
+			var propertyShareUnavailable = winningBid != null &&
+			                              item.Asset is IProperty &&
+			                              !CanTransferPropertyShare(item);
+			if (propertyShareUnavailable)
+			{
+				BidderRefundsOwed[winningBid.BidderId] += winningBid.Bid;
+				Changed = true;
+				AuctionHouseCell.Handle(
+					$"The auctioneers announce that the auction for {DescribeLotPlain(item)} cannot be completed because the listed ownership share is no longer available, and the winning bid has been refunded.");
+				winningBid = null;
+			}
+			else if (winningBid == null)
 			{
 				AuctionHouseCell.Handle(
 					$"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended without any bids.");
@@ -363,7 +387,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 
 			switch (item.Asset)
 			{
-				case IProperty property when winningBid != null:
+				case IProperty when winningBid != null:
 					TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
 					break;
 				case IGameItem when winningBid != null:

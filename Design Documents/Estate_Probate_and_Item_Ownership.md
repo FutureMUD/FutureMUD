@@ -9,9 +9,12 @@ The implementation is intentionally zone-local. A deceased character may generat
 ## Probate Lifecycle
 
 - When a character dies, the death path only creates estates for economic zones that have estates enabled and that actually receive captured assets.
+- Player characters are always eligible to create estates when assets are captured, but guests never do.
+- NPCs only create estates when the game-wide `NpcEstateProg` static configuration resolves to a valid boolean prog and that prog returns true for the NPC. Invalid or missing configuration falls back to the stock `AlwaysFalse` behavior.
 - A separate estate is created for each economic zone that receives captured assets.
 - If the same character dies again before an earlier estate in that zone is finalised or cancelled, the existing open estate is reused instead of creating a duplicate probate case.
 - If a death produces no captured assets in a zone, no estate is created for that zone.
+- Living characters may also create an `EstateWill` in advance with `estate create`, which captures the current asset snapshot for that zone and can hold pre-approved bequests.
 - Estates begin in `Undiscovered`.
 - After the owning economic zone's `EstateDefaultDiscoverTime` expires, the estate moves to `ClaimPhase`.
 - Administrators or authorised zone managers can move an `Undiscovered` estate directly into `ClaimPhase` with `estate open <id>`.
@@ -28,7 +31,7 @@ The implementation is intentionally zone-local. A deceased character may generat
 
 The current death capture pass collects the following into the relevant zone estate:
 
-- Properties owned by the deceased in that economic zone.
+- Properties owned by the deceased in that economic zone, including partial ownership shares.
 - Bank accounts owned by the deceased whose bank belongs to that economic zone.
 - Items on the deceased body when the death occurs in a zone that can be resolved.
 
@@ -40,7 +43,7 @@ Item capture follows conservative ownership rules:
 
 Assumed estate values are now derived per asset type:
 
-- properties use the active listed sale reserve price when they are currently for sale, otherwise their last sold price;
+- properties use the active listed sale reserve price when they are currently for sale, otherwise their last sold price, and estate asset value is scaled by the deceased's ownership share;
 - bank accounts use their current balance;
 - items use a three-step fallback:
   - the prototype's inherent value when it is set;
@@ -75,6 +78,7 @@ Claims may now either be generic cash claims or targeted asset claims:
 - targeted claim amounts default to the asset's current assumed value;
 - only one approved targeted claim may exist for a given asset at a time;
 - targeted claims whose asset has already been transferred, liquidated, or otherwise disappeared can no longer be approved.
+- pre-approved bequests created on an `EstateWill` are stored as already-approved targeted claims and are revalidated against the captured asset set when the character dies.
 
 ## Finalisation
 
@@ -85,18 +89,19 @@ The current finalisation flow behaves as follows:
 - If there are approved claims that require liquidation, the estate enters `Liquidating`.
 - Approved targeted non-secured claims can now be satisfied by transferring the claimed asset in kind instead of forcing liquidation of the whole estate.
 - Positive bank balances are withdrawn immediately into the estate liquidation pool and the underlying bank accounts are closed.
-- Non-cash assets are listed on the economic zone's configured probate auction house.
+- Non-cash assets are listed on the economic zone's configured probate auction house when they are actually eligible for liquidation.
 - Administrators and controlling-clan members with `CanManageEstates` can manually list or relist liquidation assets with custom reserve and buyout prices.
+- Partial ownership shares in properties are never liquidated by the estate. They always pass in kind to the inheritor or approved targeted claimant.
 - If an auction lot sells:
   - sold item lots transfer item ownership to the winning bidder when claimed;
-  - sold property lots transfer ownership immediately through a direct ownership-transfer path that does not require a property sale order;
+  - sold property lots transfer the auctioned ownership share immediately through a direct ownership-transfer path that does not require a property sale order;
   - sale proceeds are routed automatically into the estate liquidation pool.
 - If an auction lot fails to sell, the asset remains with the estate and is eligible for manual relisting or in-kind transfer when liquidation closes.
 - When liquidation closes, the estate computes available distributable cash from liquidated assets.
 - Approved claims are paid in secured-first order up to the available distributable cash.
 - Secured bank-account claims are settled against the underlying bank account debt rather than being routed to generic zone revenue.
 - Approved targeted claims that are paid during liquidation are capped to the value realised for the targeted asset where possible.
-- Any residual amount is routed to the inheritor where a suitable bank account exists, otherwise it falls back to economic-zone revenue.
+- Any residual amount is routed to the inheritor where a suitable bank account exists, otherwise character recipients receive a persisted estate payout that can be collected later at the probate office, and only non-character fallbacks reach economic-zone revenue.
 - Assets that have not been liquidated are still transferred in kind at finalisation.
 
 ## Item Ownership
@@ -161,6 +166,10 @@ Probate interaction is provided through:
 
 - `estate list`
 - `estate show <id>`
+- `estate create`
+- `estate bequeath <estate> <asset> <character|clan> <who> [<reason>]`
+- `estate revoke <estate> <claim>`
+- `estate payout [<estate>]`
 - `estate claim <id> <amount> <reason>`
 - `estate claim <id> asset <asset> <reason>`
 - `estate approve <estate> <claim> [reason]`
@@ -172,6 +181,8 @@ Probate interaction is provided through:
 - `estate finalise <id>`
 
 `estate show` now also surfaces liquidation progress, active liquidation lots, unclaimed liquidation lots, completed liquidation results, and a visible error if the economic zone has no probate auction house configured.
+
+`estate create` creates or refreshes a living will for the current probate zone. `estate bequeath` and `estate revoke` manage pre-approved targeted claims on those will estates. `estate payout` collects persisted character cash payouts that could not be delivered directly into a bank account.
 
 All non-admin player use of the `estate` command now requires standing in a probate office configured on the relevant economic zone. LOOK output in those cells includes a reminder that the `ESTATE` command is available there. Administrators and estate managers remain exempt from the location restriction.
 
@@ -224,9 +235,11 @@ The following persistence changes back the feature:
 - `Character` now stores a generic estate heir reference.
 - `EconomicZone` now stores estate discovery and claim timing values, probate office cells, morgue office/storage cells, and a default probate auction house reference.
 - `EconomicZone` now also stores whether estates are enabled for the zone.
-- New tables/models exist for `Estate`, `EstateAsset`, and `EstateClaim`.
+- `EstateAsset` now also stores an ownership-share value for share-based property inheritance and valuation.
+- New tables/models exist for `Estate`, `EstateAsset`, `EstateClaim`, and `EstatePayout`.
 - New tables/models exist for corpse-recovery jobs and probate office locations.
 - The migration backfills generic bank-account ownership from legacy character, clan, and shop owner columns.
+- A new game-wide `NpcEstateProg` static configuration governs whether NPCs produce estates at all.
 
 ## Auction Integration
 
@@ -237,8 +250,8 @@ Auction integration is now estate-aware:
 - seller proceeds that cannot be paid immediately are persisted as owed balances and retried automatically by the auction house;
 - auction XML persists both the new generic seller/asset metadata and legacy item/character attributes for compatibility with existing saved definitions;
 - standard auction-house player commands can now preview, bid on, buy out, and cancel property lots using the same lot-selection flow as item lots;
-- players can list a property on an auction house with the `auction sell property ...` flow when they personally own 100% of that property;
-- estate liquidation uses the economic zone's probate auction house for automatic liquidation listings;
+- player-listed property auction lots now represent the seller's current ownership share rather than implying sole control of the property;
+- estate liquidation uses the economic zone's probate auction house for automatic liquidation listings, but only for full-property estate holdings;
 - ordinary fixed-price property sales still continue to use `PropertySaleOrder` rather than the auction-house subsystem.
 
 ## Property Key Reclaiming

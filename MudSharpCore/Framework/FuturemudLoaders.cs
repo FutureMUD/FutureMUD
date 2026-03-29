@@ -1063,6 +1063,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		var estates = FMDB.Context.Estates
 			.Include(x => x.EstateAssets)
 			.Include(x => x.EstateClaims)
+			.Include(x => x.EstatePayouts)
 			.AsSplitQuery()
 			.AsNoTracking()
 			.ToList();

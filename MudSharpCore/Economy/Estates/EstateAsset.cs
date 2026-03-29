@@ -20,17 +20,19 @@ public class EstateAsset : SaveableItem, IEstateAsset
 		Estate = estate;
 		_assetReference = new FrameworkItemReference(asset.FrameworkItemId, asset.FrameworkItemType, Gameworld);
 		IsPresumedOwnership = asset.IsPresumedOwnership;
+		_ownershipShare = asset.OwnershipShare <= 0.0M ? 1.0M : asset.OwnershipShare;
 		_isTransferred = asset.IsTransferred;
 		_isLiquidated = asset.IsLiquidated;
 		_liquidatedValue = asset.LiquidatedValue;
 	}
 
-	public EstateAsset(IEstate estate, IFrameworkItem asset, bool presumedOwnership)
+	public EstateAsset(IEstate estate, IFrameworkItem asset, bool presumedOwnership, decimal ownershipShare = 1.0M)
 	{
 		Gameworld = estate.Gameworld;
 		Estate = estate;
 		_assetReference = new FrameworkItemReference(asset.Id, asset.FrameworkItemType, Gameworld);
 		IsPresumedOwnership = presumedOwnership;
+		_ownershipShare = ownershipShare <= 0.0M ? 1.0M : ownershipShare;
 		_isTransferred = false;
 		_isLiquidated = false;
 		using (new FMDB())
@@ -41,6 +43,7 @@ public class EstateAsset : SaveableItem, IEstateAsset
 				FrameworkItemId = asset.Id,
 				FrameworkItemType = asset.FrameworkItemType,
 				IsPresumedOwnership = presumedOwnership,
+				OwnershipShare = OwnershipShare,
 				IsTransferred = false,
 				IsLiquidated = false
 			};
@@ -55,19 +58,52 @@ public class EstateAsset : SaveableItem, IEstateAsset
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.EstateAssets.Find(Id);
+		dbitem.OwnershipShare = OwnershipShare;
 		dbitem.IsTransferred = IsTransferred;
 		dbitem.IsLiquidated = IsLiquidated;
 		dbitem.LiquidatedValue = LiquidatedValue;
 		Changed = false;
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id == 0)
+		{
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Gameworld.SaveManager.Flush();
+			var dbitem = FMDB.Context.EstateAssets.Find(Id);
+			if (dbitem == null)
+			{
+				return;
+			}
+
+			FMDB.Context.EstateAssets.Remove(dbitem);
+			FMDB.Context.SaveChanges();
+		}
+	}
+
 	private readonly FrameworkItemReference _assetReference;
 	private IFrameworkItem _asset;
 	public IEstate Estate { get; }
 	public IFrameworkItem Asset => _asset ??= _assetReference.GetItem;
+	private decimal _ownershipShare;
+	public decimal OwnershipShare
+	{
+		get => _ownershipShare;
+		set
+		{
+			_ownershipShare = value <= 0.0M ? 1.0M : value;
+			Changed = true;
+		}
+	}
 	public decimal AssumedValue => Asset switch
 	{
-		IProperty property => PropertyAssumedValue(property),
+		IProperty property => PropertyAssumedValue(property) * OwnershipShare,
 		IBankAccount account => ConvertCurrency(account.CurrentBalance, account.Currency, Estate.EconomicZone.Currency),
 		IGameItem item => GameItemAssumedValue(item),
 		_ => 0.0M

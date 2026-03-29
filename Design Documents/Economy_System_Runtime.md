@@ -236,7 +236,8 @@ Current verified runtime characteristics:
 - it routes proceeds into a bank account
 - it is surfaced through economy commands rather than being embedded into shops
 - standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
-- characters can list a property on an auction house when they personally own the whole property, while partial ownership remains in the fixed-price property-sale workflow
+- player-listed property auctions now sell the listing seller's ownership share in the property, and lot descriptions explicitly call out that they are ownership-share sales rather than sole-control sales
+- winning property-share bids transfer the sold share directly at auction completion without requiring a fixed-price property sale order
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available
 
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.
@@ -269,12 +270,16 @@ Verified current runtime behavior:
 
 - death creates or reuses one open estate per economic zone that receives captured assets, but only when the zone has estates enabled
 - zones that receive no captured assets do not create empty estates
+- guests never produce estates even though they are characters
+- NPC estates are gated by the game-wide `NpcEstateProg` static configuration and default to not producing estates when the configuration is missing or invalid
+- living characters can create zone-local `EstateWill` records in advance and populate them with approved bequests before death
 - estates advance from `Undiscovered` to `ClaimPhase` on the zone discovery timer or immediately through `estate open <id>`
 - estate managers can manually move an estate into `Liquidating` with `estate liquidate <id>`
 - all non-admin player-facing estate interaction is gated to probate-office cells configured on the economic zone
 - claims, assessment, liquidation, auction integration, and finalisation all persist through the database layer
 - item ownership is part of the runtime path for estate transfer and morgue recovery rather than a missing prerequisite
 - approved claims only force liquidation when the claim actually needs cash settlement rather than an in-kind transfer
+- unresolved cash distributions to characters are now persisted as estate payouts for later collection at the probate office
 
 The estate system remains intentionally conservative about item capture:
 
@@ -284,7 +289,7 @@ The estate system remains intentionally conservative about item capture:
 
 Verified current assumed-value rules:
 
-- property uses the current listed reserve price when actively for sale, otherwise the last sold value
+- property uses the current listed reserve price when actively for sale, otherwise the last sold value, and estate value scales by the deceased's ownership share
 - bank accounts use their live balance, converted into the estate zone currency when necessary
 - items use prototype inherent value first, then the average matching shop sale price in the same economic zone, then the average matching vending-machine sale price in the same economic zone, and finally zero if no price can be inferred
 
@@ -295,6 +300,8 @@ Verified current claim and finalisation behavior:
 - targeted non-secured claims can be resolved by transferring the claimed asset in kind instead of liquidating the whole estate
 - duplicate approved targeted claims against the same asset are blocked
 - line-of-credit debt alone no longer creates a new estate; it only attaches to an estate that already exists because assets were captured
+- partial property ownership held by the deceased is inherited in kind and is not eligible for estate liquidation
+- will bequests are represented as pre-approved targeted claims and are revalidated against the real captured asset set at death
 
 ### Morgues and Corpse Recovery
 Economic zones now expose a two-room morgue model:

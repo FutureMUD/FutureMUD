@@ -46,11 +46,23 @@ namespace MudSharp.Community
 	{
 		IEstate Estate { get; }
 		IFrameworkItem Asset { get; }
+		decimal OwnershipShare { get; }
 		decimal AssumedValue { get; }
 		bool IsPresumedOwnership { get; }
 		bool IsTransferred { get; set; }
 		bool IsLiquidated { get; set; }
 		decimal? LiquidatedValue { get; set; }
+	}
+
+	public interface IEstatePayout : IFrameworkItem, ISaveable
+	{
+		IEstate Estate { get; }
+		IFrameworkItem Recipient { get; }
+		decimal Amount { get; }
+		string Reason { get; }
+		MudDateTime CreatedDate { get; }
+		[CanBeNull] MudDateTime CollectedDate { get; set; }
+		bool IsCollected { get; }
 	}
 
 	public interface IEstate : IFrameworkItem, ISaveable
@@ -63,11 +75,13 @@ namespace MudSharp.Community
 		[CanBeNull] MudDateTime FinalisationDate { get; set; }
 		IEnumerable<IEstateClaim> Claims { get; }
 		IEnumerable<IEstateAsset> Assets { get; }
+		IEnumerable<IEstatePayout> Payouts { get; }
 		void AddClaim(IEstateClaim claim);
 		void RemoveClaim(IEstateClaim claim);
 		void UpdateClaim(IEstateClaim claim);
 		void AddAsset(IEstateAsset asset);
 		void RemoveAsset(IEstateAsset asset);
+		void AddPayout(IEstatePayout payout);
 		bool OpenProbate();
 		bool CheckStatus();
 		bool StartLiquidation();

@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Property;
+using MudSharp.FutureProg;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -16,8 +17,19 @@ namespace MudSharp.Economy.Estates;
 
 public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 {
+	private readonly record struct EstateAssetSnapshot(
+		IEconomicZone Zone,
+		IFrameworkItem Asset,
+		bool PresumedOwnership,
+		decimal OwnershipShare);
+
 	public static IEnumerable<IEstate> CreateEstatesForCharacterDeath(ICharacter character)
 	{
+		if (!ShouldProduceEstate(character))
+		{
+			return Enumerable.Empty<IEstate>();
+		}
+
 		var estates = character.Gameworld.Estates
 			.Where(x => x.Character == character &&
 			            x.EstateStatus != EstateStatus.Finalised &&
@@ -25,6 +37,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			.OfType<Estate>()
 			.GroupBy(x => x.EconomicZone.Id)
 			.ToDictionary(x => x.Key, x => x.OrderBy(y => y.EstateStartTime).First());
+		var capturedAssets = CaptureAssetsForCharacter(character)
+			.GroupBy(x => x.Zone.Id)
+			.ToDictionary(x => x.Key, x => x.ToList());
 
 		Estate GetEstate(IEconomicZone zone)
 		{
@@ -37,6 +52,10 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			{
 				estate = new Estate(zone, character, character.EstateHeir);
 				estates[zone.Id] = estate;
+			}
+			else if (estate?.EstateStatus == EstateStatus.EstateWill)
+			{
+				estate.ActivateWill(character.EstateHeir);
 			}
 
 			return estate;
@@ -67,21 +86,6 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			       claim.TargetItem.FrameworkItemEquals(targetItem.Id, targetItem.FrameworkItemType);
 		}
 
-		static void AddAssetIfMissing(Estate estate, IFrameworkItem asset, bool presumedOwnership)
-		{
-			if (estate == null)
-			{
-				return;
-			}
-
-			if (estate.Assets.Any(x => AssetMatches(x, asset)))
-			{
-				return;
-			}
-
-			estate.AddAsset(new EstateAsset(estate, asset, presumedOwnership));
-		}
-
 		static void AddClaimIfMissing(Estate estate, IFrameworkItem claimant, decimal amount, string reason,
 			bool isSecured, IFrameworkItem targetItem = null)
 		{
@@ -99,15 +103,25 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				targetItem));
 		}
 
-		foreach (var property in character.Gameworld.Properties.Where(x => x.PropertyOwners.Any(y => y.Owner == character)))
+		static void SyncEstateAssets(Estate estate, IEnumerable<EstateAssetSnapshot> assets)
 		{
-			AddAssetIfMissing(GetEstate(property.EconomicZone), property, false);
+			if (estate == null)
+			{
+				return;
+			}
+
+			estate.SynchroniseAssets(assets);
+		}
+
+		foreach (var zoneAssets in capturedAssets)
+		{
+			var estate = GetEstate(zoneAssets.Value.First().Zone);
+			SyncEstateAssets(estate, zoneAssets.Value);
 		}
 
 		foreach (var account in character.Gameworld.BankAccounts.Where(x => x.IsAccountOwner(character)))
 		{
 			var estate = GetEstate(account.Bank.EconomicZone);
-			AddAssetIfMissing(estate, account, false);
 			var securedAmount = Math.Max(0.0M, account.CurrentMonthFees + Math.Max(0.0M, account.CurrentBalance * -1.0M));
 			if (securedAmount > 0.0M)
 			{
@@ -116,18 +130,17 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			}
 		}
 
-		var itemZone = character.Location == null ? null : DetermineZone(character.Gameworld, character.Location);
-		if (itemZone != null)
+		foreach (var estate in estates.Values.Where(x => x.EstateStatus == EstateStatus.EstateWill).ToList())
 		{
-			var estate = GetEstate(itemZone);
-			foreach (var item in character.Body.AllItems.Distinct())
+			if (capturedAssets.ContainsKey(estate.EconomicZone.Id))
 			{
-				if (item.HasOwner && item.Owner != character)
-				{
-					continue;
-				}
+				continue;
+			}
 
-				AddAssetIfMissing(estate, item, !item.HasOwner);
+			SyncEstateAssets(estate, Enumerable.Empty<EstateAssetSnapshot>());
+			if (!estate.Assets.Any())
+			{
+				estate.CancelWill();
 			}
 		}
 
@@ -147,6 +160,87 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		}
 
 		return estates.Values;
+	}
+
+	private static IEnumerable<EstateAssetSnapshot> CaptureAssetsForCharacter(ICharacter character)
+	{
+		foreach (var property in character.Gameworld.Properties
+			         .Where(x => x.PropertyOwners.Any(y => y.Owner == character)))
+		{
+			var share = property.PropertyOwners
+				.Where(x => x.Owner == character)
+				.Sum(x => x.ShareOfOwnership);
+			if (share <= 0.0M)
+			{
+				continue;
+			}
+
+			yield return new EstateAssetSnapshot(property.EconomicZone, property, false, share);
+		}
+
+		foreach (var account in character.Gameworld.BankAccounts.Where(x => x.IsAccountOwner(character)))
+		{
+			yield return new EstateAssetSnapshot(account.Bank.EconomicZone, account, false, 1.0M);
+		}
+
+		var itemZone = character.Location == null ? null : DetermineZone(character.Gameworld, character.Location);
+		if (itemZone == null)
+		{
+			yield break;
+		}
+
+		foreach (var item in character.Body.AllItems.Distinct())
+		{
+			if (item.HasOwner && item.Owner != character)
+			{
+				continue;
+			}
+
+			yield return new EstateAssetSnapshot(itemZone, item, !item.HasOwner, 1.0M);
+		}
+	}
+
+	private static bool ShouldProduceEstate(ICharacter character)
+	{
+		if (character.IsGuest)
+		{
+			return false;
+		}
+
+		if (character.IsPlayerCharacter)
+		{
+			return true;
+		}
+
+		var prog = ResolveNpcEstateProg(character.Gameworld);
+		return prog.MatchesParameters(Enumerable.Empty<ProgVariableTypes>())
+			? prog.ExecuteBool(false)
+			: prog.ExecuteBool(false, character);
+	}
+
+	private static IFutureProg ResolveNpcEstateProg(IFuturemud gameworld)
+	{
+		try
+		{
+			var configuration = gameworld.GetStaticConfiguration("NpcEstateProg");
+			if (long.TryParse(configuration, out var value))
+			{
+				var prog = gameworld.FutureProgs.Get(value);
+				if (prog != null &&
+				    prog.ReturnType == ProgVariableTypes.Boolean &&
+				    (prog.MatchesParameters(Enumerable.Empty<ProgVariableTypes>()) ||
+				     prog.MatchesParameters(new[] { ProgVariableTypes.Character })))
+				{
+					return prog;
+				}
+			}
+		}
+		catch
+		{
+			// Deliberately fall back to AlwaysFalse below.
+		}
+
+		return gameworld.AlwaysFalseProg;
 	}
 
 	public static IEconomicZone DetermineZone(IFuturemud gameworld, ICell cell)
@@ -183,17 +277,23 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			_assets.Add(new EstateAsset(asset, this));
 		}
 
+		foreach (var payout in estate.EstatePayouts)
+		{
+			_payouts.Add(new EstatePayout(payout, this));
+		}
+
 		EconomicZone.AddEstate(this);
 		Gameworld.SaveManager.AddLazyLoad(this);
 	}
 
-	public Estate(IEconomicZone economicZone, ICharacter character, IFrameworkItem inheritor)
+	public Estate(IEconomicZone economicZone, ICharacter character, IFrameworkItem inheritor,
+		EstateStatus estateStatus = EstateStatus.Undiscovered)
 	{
 		Gameworld = economicZone.Gameworld;
 		EconomicZone = economicZone;
 		_character = character;
 		_characterId = character.Id;
-		EstateStatus = EstateStatus.Undiscovered;
+		EstateStatus = estateStatus;
 		EstateStartTime = economicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		SetInheritor(inheritor);
 		using (new FMDB())
@@ -268,6 +368,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 	private readonly List<IEstateAsset> _assets = new();
 	public IEnumerable<IEstateAsset> Assets => _assets;
 
+	private readonly List<IEstatePayout> _payouts = new();
+	public IEnumerable<IEstatePayout> Payouts => _payouts;
+
 	public void AddClaim(IEstateClaim claim)
 	{
 		_claims.Add(claim);
@@ -306,9 +409,79 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		Changed = true;
 	}
 
+	public void AddPayout(IEstatePayout payout)
+	{
+		_payouts.Add(payout);
+		Changed = true;
+	}
+
+	public void RefreshWill()
+	{
+		if (EstateStatus != EstateStatus.EstateWill)
+		{
+			return;
+		}
+
+		SynchroniseAssets(CaptureAssetsForCharacter(Character).Where(x => x.Zone == EconomicZone));
+		SetInheritor(Character.EstateHeir);
+	}
+
+	private void ActivateWill(IFrameworkItem inheritor)
+	{
+		if (EstateStatus != EstateStatus.EstateWill)
+		{
+			return;
+		}
+
+		EstateStatus = EstateStatus.Undiscovered;
+		EstateStartTime = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		FinalisationDate = null;
+		SetInheritor(inheritor);
+		Changed = true;
+	}
+
+	private void CancelWill()
+	{
+		EstateStatus = EstateStatus.Cancelled;
+		FinalisationDate = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		Changed = true;
+	}
+
+	private void SynchroniseAssets(IEnumerable<EstateAssetSnapshot> assets)
+	{
+		var snapshots = assets.ToList();
+		foreach (var snapshot in snapshots)
+		{
+			var existing = Assets
+				.OfType<EstateAsset>()
+				.FirstOrDefault(x => x.Asset.FrameworkItemEquals(snapshot.Asset.Id, snapshot.Asset.FrameworkItemType));
+			if (existing == null)
+			{
+				AddAsset(new EstateAsset(this, snapshot.Asset, snapshot.PresumedOwnership, snapshot.OwnershipShare));
+				continue;
+			}
+
+			existing.OwnershipShare = snapshot.OwnershipShare;
+			UpdateClaimsForAsset(existing.Asset, existing.AssumedValue);
+		}
+
+		var staleAssets = Assets
+			.OfType<EstateAsset>()
+			.Where(x => !x.IsTransferred && !x.IsLiquidated)
+			.Where(x => snapshots.All(y => !x.Asset.FrameworkItemEquals(y.Asset.Id, y.Asset.FrameworkItemType)))
+			.ToList();
+		foreach (var asset in staleAssets)
+		{
+			RemoveAsset(asset);
+			asset.Delete();
+		}
+
+		RevalidateClaimsAgainstCurrentAssets();
+	}
+
 	public bool OpenProbate()
 	{
-		if (EstateStatus != EstateStatus.Undiscovered)
+		if (EstateStatus != EstateStatus.Undiscovered && EstateStatus != EstateStatus.EstateWill)
 		{
 			return false;
 		}
@@ -322,7 +495,8 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
 	public bool CheckStatus()
 	{
-		if (EstateStatus == EstateStatus.Finalised || EstateStatus == EstateStatus.Cancelled)
+		if (EstateStatus == EstateStatus.Finalised || EstateStatus == EstateStatus.Cancelled ||
+		    EstateStatus == EstateStatus.EstateWill)
 		{
 			return false;
 		}
@@ -395,7 +569,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 					item.SetOwner(this);
 					break;
 				case IProperty property:
-					if (!property.PropertyOwners.Any(x => x.Owner == this))
+					if (asset.OwnershipShare >= 1.0M && !property.PropertyOwners.Any(x => x.Owner == this))
 					{
 						property.TransferProperty(this);
 					}
@@ -440,6 +614,11 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				item.Location?.Extract(item);
 				break;
 			case IProperty property:
+				if (asset.OwnershipShare < 1.0M)
+				{
+					return false;
+				}
+
 				if (!property.PropertyOwners.Any(x => x.Owner == this))
 				{
 					property.TransferProperty(this);
@@ -459,6 +638,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			FinishingDateTime =
 				new MudDateTime(auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) +
 				auctionHouse.DefaultListingTime,
+			PropertyShare = asset.OwnershipShare,
 			MinimumPrice = reservePrice,
 			BuyoutPrice = buyoutPrice > reservePrice ? buyoutPrice : null
 		});
@@ -591,6 +771,16 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		return Inheritor ?? EconomicZone.ControllingClan;
 	}
 
+	private void UpdateClaimsForAsset(IFrameworkItem targetItem, decimal amount)
+	{
+		foreach (var claim in Claims.Where(x =>
+			         x.TargetItem != null &&
+			         x.TargetItem.FrameworkItemEquals(targetItem.Id, targetItem.FrameworkItemType)))
+		{
+			claim.Amount = Math.Max(0.0M, amount);
+		}
+	}
+
 	private IFrameworkItem ResolveClaimRecipient(IEstateClaim claim)
 	{
 		return claim.Claimant switch
@@ -605,6 +795,55 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		return Assets.FirstOrDefault(x => x.Asset.FrameworkItemEquals(item.Id, item.FrameworkItemType));
 	}
 
+	private void RevalidateClaimsAgainstCurrentAssets()
+	{
+		foreach (var claim in Claims.Where(x => x.TargetItem != null).ToList())
+		{
+			var asset = FindAsset(claim.TargetItem);
+			if (asset == null)
+			{
+				claim.Status = ClaimStatus.Rejected;
+				claim.StatusReason = "The targeted asset is no longer part of the estate.";
+				continue;
+			}
+
+			claim.Amount = Math.Max(0.0M, asset.AssumedValue);
+		}
+	}
+
+	private IPropertyOwner ResolvePropertyOwnerForAsset(IProperty property, IEstateAsset asset)
+	{
+		return property.PropertyOwners.FirstOrDefault(x =>
+			       x.Owner.FrameworkItemEquals(Id, FrameworkItemType)) ??
+		       property.PropertyOwners.FirstOrDefault(x =>
+			       x.Owner.FrameworkItemEquals(Character.Id, Character.FrameworkItemType));
+	}
+
+	private void TransferPropertyShare(IProperty property, IEstateAsset asset, IFrameworkItem inheritor)
+	{
+		var owner = ResolvePropertyOwnerForAsset(property, asset);
+		if (owner == null)
+		{
+			return;
+		}
+
+		var transferShare = Math.Min(owner.ShareOfOwnership, asset.OwnershipShare);
+		if (transferShare <= 0.0M)
+		{
+			return;
+		}
+
+		if (transferShare >= 1.0M && owner.ShareOfOwnership >= 1.0M && property.PropertyOwners.Count() == 1)
+		{
+			property.TransferProperty(inheritor);
+			asset.IsTransferred = true;
+			return;
+		}
+
+		property.DivestOwnership(owner, transferShare / owner.ShareOfOwnership, inheritor);
+		asset.IsTransferred = true;
+	}
+
 	private bool AssetNeedsAuctionListing(IEstateAsset asset)
 	{
 		if (asset.IsTransferred || asset.IsLiquidated)
@@ -613,6 +852,11 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		}
 
 		if (asset.Asset is not IGameItem && asset.Asset is not IProperty)
+		{
+			return false;
+		}
+
+		if (asset.Asset is IProperty && asset.OwnershipShare < 1.0M)
 		{
 			return false;
 		}
@@ -644,6 +888,11 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		}
 
 		if (asset.Asset is not IGameItem && asset.Asset is not IProperty)
+		{
+			return false;
+		}
+
+		if (asset.Asset is IProperty && asset.OwnershipShare < 1.0M)
 		{
 			return false;
 		}
@@ -705,8 +954,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				asset.IsTransferred = true;
 				break;
 			case IProperty property when inheritor != null:
-				property.TransferProperty(inheritor);
-				asset.IsTransferred = true;
+				TransferPropertyShare(property, asset, inheritor);
 				break;
 		}
 
@@ -757,6 +1005,12 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				if (payoutAccount != null)
 				{
 					payoutAccount.DepositFromTransaction(amount, reference);
+					return;
+				}
+
+				if (frameworkItem is ICharacter)
+				{
+					AddPayout(new EstatePayout(this, frameworkItem, amount, reference));
 					return;
 				}
 

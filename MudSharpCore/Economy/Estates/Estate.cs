@@ -689,7 +689,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		}
 
 		var asset = FindAsset(claim.TargetItem);
-		return asset?.LiquidatedValue ?? claim.Amount;
+		return asset?.LiquidatedValue ?? 0.0M;
 	}
 
 	private void TransferAsset(IEstateAsset asset, IFrameworkItem inheritor)

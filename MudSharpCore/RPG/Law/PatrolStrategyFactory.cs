@@ -11,7 +11,6 @@ public static class PatrolStrategyFactory
 	public static IEnumerable<string> Strategies { get; } = new string[]
 	{
 		"ArmedPatrol",
-		"CorpseRecovery",
 		"StationEnforcer",
 		"Judge",
 		"Sheriff",

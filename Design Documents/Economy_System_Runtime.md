@@ -235,6 +235,8 @@ Current verified runtime characteristics:
 - it is tied to a specific cell
 - it routes proceeds into a bank account
 - it is surfaced through economy commands rather than being embedded into shops
+- standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
+- characters can list a property on an auction house when they personally own the whole property, while partial ownership remains in the fixed-price property-sale workflow
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available
 
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.

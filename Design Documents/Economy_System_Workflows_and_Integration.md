@@ -191,6 +191,10 @@ Practical estate note:
 
 - probate liquidation can proceed without a configured auction house, but non-cash estate assets will then need manual handling because automatic liquidation listing has nowhere to post them
 
+Current player-facing capability note:
+
+- auction houses can now host both item lots and direct property lots, but ordinary character-listed property auctions are intentionally restricted to properties that the listing character owns in full
+
 Contributor note:
 
 - boot-time auction reconstruction now resolves seller and payout references in a post-character finalisation pass rather than in the constructor path

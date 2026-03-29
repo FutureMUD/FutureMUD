@@ -147,7 +147,7 @@ Players and staff can inspect and manage item ownership:
 - `ownership` or `own` shows visible items on the character and in the room, including visible nested contents, and respects closed opaque container visibility rules
 - `ownership show <item>`
 - `ownership claim <item>` for currently unowned items only
-- `ownership claim deep [<held item>]` claims all held items, or one held item, plus contained items recursively when they are currently unowned
+- `ownership claim deep [<possessed item>]` claims all possessed items, or one possessed item, plus contained items recursively when they are currently unowned
 - `ownership clan <clan> <item>` for clan-managed public property
 - `ownership clear <item>` admin only
 - `ownership set character <character> <item>` admin only
@@ -236,6 +236,8 @@ Auction integration is now estate-aware:
 - auction seller identity and payout targets are generic framework-item references rather than character-only references;
 - seller proceeds that cannot be paid immediately are persisted as owed balances and retried automatically by the auction house;
 - auction XML persists both the new generic seller/asset metadata and legacy item/character attributes for compatibility with existing saved definitions;
+- standard auction-house player commands can now preview, bid on, buy out, and cancel property lots using the same lot-selection flow as item lots;
+- players can list a property on an auction house with the `auction sell property ...` flow when they personally own 100% of that property;
 - estate liquidation uses the economic zone's probate auction house for automatic liquidation listings;
 - ordinary fixed-price property sales still continue to use `PropertySaleOrder` rather than the auction-house subsystem.
 

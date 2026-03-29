@@ -295,6 +295,20 @@ internal class EconomyModule : Module<ICharacter>
 		};
 	}
 
+	private static AuctionItem ResolveAuctionLot(ICharacter actor, IAuctionHouse auctionHouse, string target)
+	{
+		if (string.IsNullOrWhiteSpace(target))
+		{
+			return null;
+		}
+
+		var listings = auctionHouse.ActiveAuctionItems.ToList();
+		return listings.GetFromItemListByKeyword(target, actor) ??
+		       listings.FirstOrDefault(x => x.Asset.Name.Equals(target, StringComparison.InvariantCultureIgnoreCase)) ??
+		       listings.FirstOrDefault(x => x.Asset.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase)) ??
+		       listings.FirstOrDefault(x => x.Asset.Name.Contains(target, StringComparison.InvariantCultureIgnoreCase));
+	}
+
 	private static bool CanManageAuctionLot(ICharacter actor, AuctionItem item)
 	{
 		if (actor.IsAdministrator())
@@ -5650,6 +5664,7 @@ The syntax for using this command is as follows:
 
 	#3auction preview <lot>#0 - view an auction lot currently being auctioned
 	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
+	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists a fully-owned property for sale
 	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
 	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
@@ -5679,6 +5694,7 @@ The syntax for using this command is as follows:
 
 	#3auction preview <lot>#0 - view an auction lot currently being auctioned
 	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
+	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists a fully-owned property for sale
 	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
 	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
@@ -5752,7 +5768,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			return;
 		}
 
-		var item = auctionHouse.ActiveAuctionItems.GetFromItemListByKeyword(ss.PopSpeech(), actor);
+		var item = ResolveAuctionLot(actor, auctionHouse, ss.SafeRemainingArgument);
 		if (item == null)
 		{
 			actor.OutputHandler.Send("There is no such item currently being auctioned.");
@@ -5858,17 +5874,69 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			return;
 		}
 
-		var item = actor.TargetHeldItem(ss.PopSpeech());
-		if (item == null)
+		var targetText = ss.PopSpeech();
+		var propertySale = targetText.EqualTo("property");
+		IGameItem item = null;
+		IProperty property = null;
+		if (propertySale)
 		{
-			actor.OutputHandler.Send("You aren't holding anything like that.");
-			return;
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which property do you want to list?");
+				return;
+			}
+
+			var properties = actor.Gameworld.Properties
+				.Where(x => x.EconomicZone == auctionHouse.EconomicZone)
+				.Where(x => x.PropertyOwners.Count() == 1)
+				.Where(x => x.PropertyOwners.First().Owner == actor)
+				.Where(x => x.PropertyOwners.First().ShareOfOwnership >= 1.0M)
+				.ToList();
+			property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+			if (property == null)
+			{
+				actor.OutputHandler.Send("You do not fully own any such property in this auction house's economic zone.");
+				return;
+			}
+
+			if (property.SaleOrder != null)
+			{
+				actor.OutputHandler.Send(
+					$"The property {property.Name.ColourName()} is already listed for sale. Cancel that sale order before listing it on the auction house.");
+				return;
+			}
+
+			if (actor.Gameworld.AuctionHouses.SelectMany(x => x.ActiveAuctionItems).Any(x =>
+				    x.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType)) ||
+			    actor.Gameworld.AuctionHouses.SelectMany(x => x.UnclaimedItems).Any(x =>
+				    x.AuctionItem.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType)))
+			{
+				actor.OutputHandler.Send(
+					$"The property {property.Name.ColourName()} is already listed on an auction house.");
+				return;
+			}
+
+			if (property.Lease is null && property.PropertyKeys.Any(x => !x.IsReturned))
+			{
+				actor.OutputHandler.Send(
+					"The property still has outstanding keys that must be returned before it can be listed for auction.");
+				return;
+			}
+		}
+		else
+		{
+			item = actor.TargetHeldItem(targetText);
+			if (item == null)
+			{
+				actor.OutputHandler.Send("You aren't holding anything like that.");
+				return;
+			}
 		}
 
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What price do you want to list {item.HowSeen(actor)} for? Prices must be in the {auctionHouse.EconomicZone.Currency.Name.TitleCase().ColourName()} currency.");
+				$"What price do you want to list {(propertySale ? property.Name.ColourName() : item.HowSeen(actor))} for? Prices must be in the {auctionHouse.EconomicZone.Currency.Name.TitleCase().ColourName()} currency.");
 			return;
 		}
 
@@ -5882,7 +5950,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		if (price <= auctionHouse.AuctionListingFeeFlat)
 		{
 			actor.OutputHandler.Send(
-				$"You must list {item.HowSeen(actor)} for a price greater than {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.AuctionListingFeeFlat, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+				$"You must list {(propertySale ? property.Name.ColourName() : item.HowSeen(actor))} for a price greater than {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.AuctionListingFeeFlat, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
 			return;
 		}
 
@@ -5943,14 +6011,24 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			}
 		}
 
-		var itemDesc = item.HowSeen(actor);
+		var itemDesc = propertySale ? property.Name.ColourName() : item.HowSeen(actor);
 		actor.OutputHandler.Send(
 			$"Are you sure you want to list {itemDesc} for sale at a reserve price of {auctionHouse.EconomicZone.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}?\n{Accept.StandardAcceptPhrasing}");
 		actor.AddEffect(new Accept(actor, new GenericProposal
 		{
 			AcceptAction = text =>
 			{
-				if (!actor.Body.HeldOrWieldedItems.Contains(item) || !actor.Body.CanDrop(item, 1))
+				if (propertySale)
+				{
+					if (property.PropertyOwners.Count() != 1 ||
+					    property.PropertyOwners.First().Owner != actor ||
+					    property.PropertyOwners.First().ShareOfOwnership < 1.0M)
+					{
+						actor.OutputHandler.Send($"You no longer fully own {itemDesc}.");
+						return;
+					}
+				}
+				else if (!actor.Body.HeldOrWieldedItems.Contains(item) || !actor.Body.CanDrop(item, 1))
 				{
 					actor.OutputHandler.Send($"You no longer have {itemDesc}.");
 					return;
@@ -5963,12 +6041,16 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 				}
 
 				actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ list|lists $1 for sale on the auction house.",
-					actor, actor, item)));
-				actor.Body.Take(item);
-				item.Drop(null);
+					actor, actor, propertySale ? new DummyPerceivable(property.Name.ColourName()) : item)));
+				if (!propertySale)
+				{
+					actor.Body.Take(item);
+					item.Drop(null);
+				}
+
 				auctionHouse.AddAuctionItem(new AuctionItem
 				{
-					Asset = item,
+					Asset = propertySale ? property : item,
 					Seller = actor,
 					PayoutTarget = accountTarget,
 					ListingDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
@@ -5999,7 +6081,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			return;
 		}
 
-		var item = auctionHouse.ActiveAuctionItems.GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+		var item = ResolveAuctionLot(actor, auctionHouse, ss.SafeRemainingArgument);
 		if (item == null)
 		{
 			actor.OutputHandler.Send("There is no such item currently being auctioned.");
@@ -6120,22 +6202,24 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			return;
 		}
 
-		var item = auctionHouse.ActiveAuctionItems.GetFromItemListByKeyword(ss.PopSpeech(), actor);
+		var bidParts = new StringStack(ss.RemainingArgument).PopSpeechAll().ToList();
+		if (bidParts.Count < 2)
+		{
+			actor.OutputHandler.Send("You must specify both an auction lot and a bid amount.");
+			return;
+		}
+
+		var bidText = bidParts.Last();
+		var lotText = string.Join(" ", bidParts.Take(bidParts.Count - 1));
+		var item = ResolveAuctionLot(actor, auctionHouse, lotText);
 		if (item == null)
 		{
 			actor.OutputHandler.Send("There is no such item currently being auctioned.");
 			return;
 		}
 
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"What bid do you want to make on {DescribeAuctionLot(actor, item)}.");
-			return;
-		}
-
 		var currency = auctionHouse.EconomicZone.Currency;
-		if (!currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount))
+		if (!currency.TryGetBaseCurrency(bidText, out var amount))
 		{
 			actor.OutputHandler.Send($"That is not a valid amount of {currency.Name.ColourValue()}.");
 			return;
@@ -6220,7 +6304,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			return;
 		}
 
-		var item = auctionHouse.ActiveAuctionItems.GetFromItemListByKeyword(command.SafeRemainingArgument, actor);
+		var item = ResolveAuctionLot(actor, auctionHouse, command.SafeRemainingArgument);
 		if (item == null)
 		{
 			actor.OutputHandler.Send("There is no such item currently being auctioned.");
@@ -6430,7 +6514,7 @@ The syntax for this command is as follows:
 	#3ownership#0 - lists visible items on your person and in the room together with their ownership status
 	#3ownership show <item>#0 - shows who owns an item
 	#3ownership claim <item>#0 - claims ownership of an unowned item
-	#3ownership claim deep [<held item>]#0 - claims everything you are holding, or one held item, plus all contents recursively
+	#3ownership claim deep [<possessed item>]#0 - claims everything in your possession, or one possessed item, plus all contents recursively
 	#3ownership clan <clan> <item>#0 - marks an item as clan-owned public property
 	#3ownership clear <item>#0 - clears an item's owner (admin only)
 	#3ownership set character <character> <item>#0 - sets an item's owner to a character (admin only)
@@ -6554,17 +6638,17 @@ The syntax for this command is as follows:
 	private static void OwnershipClaimDeep(ICharacter actor, StringStack ss)
 	{
 		var rootItems = ss.IsFinished
-			? actor.Body.HeldOrWieldedItems.ToList()
-			: new List<IGameItem> { actor.TargetHeldItem(ss.SafeRemainingArgument) };
+			? actor.Body.AllItems.ToList()
+			: new List<IGameItem> { actor.Body.AllItems.GetFromItemListByKeyword(ss.SafeRemainingArgument, actor) };
 		if (rootItems.Any(x => x == null))
 		{
-			actor.OutputHandler.Send("You are not holding anything like that.");
+			actor.OutputHandler.Send("You do not possess anything like that.");
 			return;
 		}
 
 		if (!rootItems.Any())
 		{
-			actor.OutputHandler.Send("You are not holding anything that can be deep-claimed.");
+			actor.OutputHandler.Send("You are not carrying, wearing, implanting or otherwise possessing anything that can be deep-claimed.");
 			return;
 		}
 

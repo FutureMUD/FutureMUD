@@ -51,7 +51,7 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 9. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
 10. Add job-finding cells, jobs, and employers if the world will use the employment system.
 11. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
-12. Add probate offices if players should interact with estates in the zone.
+12. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
 13. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
 
 ### Why this order fits the current implementation
@@ -111,6 +111,7 @@ Builders use economic zones to define:
 - the local administrative currency
 - the financial-period cadence
 - tax policy
+- whether the zone creates estates at all
 - the cells used for conveyancing, job-finding, probate, and morgue workflows
 - the clan, if any, that controls the zone
 
@@ -185,6 +186,10 @@ Builders need:
 - a cell for the auction house
 - an economic zone
 - a settlement account
+
+Practical estate note:
+
+- probate liquidation can proceed without a configured auction house, but non-cash estate assets will then need manual handling because automatic liquidation listing has nowhere to post them
 
 Contributor note:
 
@@ -298,6 +303,7 @@ The shop API shape anticipates deals, but the runtime does not currently impleme
 ### Estates and morgues are zone-shaped workflows
 Current economy-world setup now needs to account for both probate and morgue access points:
 
+- economic zones can now opt out of creating new estates entirely with the `estates` toggle
 - probate offices expose the player-facing `estate` command surface
 - morgue offices expose the player-facing `morgue` command surface
 - morgue storage rooms are back-room custody spaces and should not be used as public traffic cells
@@ -307,6 +313,8 @@ The underlying workflow is intentionally split across economy and legal systems:
 - the economic zone owns the probate and morgue locations
 - the legal authority for the corpse's zone owns the pickup queue and patrol response
 - estate claim timing is opened either by the normal discovery timer or by morgue intake/admin action
+- corpses can still be recovered into morgue storage even when no estate is created, in which case belongings remain on the corpse
+- corpse recovery patrol dispatch now prefers patrols configured for the dedicated corpse-recovery strategy
 
 ### Seeder depth is narrow
 If a new feature depends on the broader economy existing out of the box, it will probably still need either:

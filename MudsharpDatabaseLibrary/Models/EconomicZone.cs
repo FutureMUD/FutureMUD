@@ -39,6 +39,7 @@ namespace MudSharp.Models
         public decimal TotalRevenueHeld { get; set; }
         public long? ControllingClanId { get; set; }
         public long? EstateAuctionHouseId { get; set; }
+        public bool EstatesEnabled { get; set; }
         public string EstateDefaultDiscoverTime { get; set; }
         public string EstateClaimPeriodLength { get; set; }
         public long? MorgueOfficeLocationId { get; set; }

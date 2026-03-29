@@ -937,6 +937,7 @@ public static class DefaultStaticSettings
 		{ "FetchCriminalForTrialEmoteCell", "@ are|is removed from the cell by a guard for &0's trial." },
 		{ "FetchCriminalForTrialEmoteCourt", "@ are|is brought into the room by a guard for &0's trial." },
 		{ "FetchCriminalForTrialEmoteSelf", "You are removed from your cell by a guard and brought to the courtroom for your trial." },
+		{ "CorpseRecoveryPatrolEmote", "@ recover|recovers $0 and prepares to return it to the morgue." },
 		{ "RequestTrialEmoteOrigin", "@ request|requests a trial and is removed from the cell by a guard."},
 		{ "RequestTrialEmoteSelf", "You request a trial and are removed from the cell by a guard."},
 		{ "RequestTrialEmoteCourt", "@ are|is brought into the room by a guard for &0's trial."},

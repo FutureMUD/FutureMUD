@@ -100,19 +100,24 @@ internal class EconomyModule : Module<ICharacter>
 		}
 	}
 
-	private static bool CanManageEstate(ICharacter actor, IEstate estate)
+	private static bool CanManageEstate(ICharacter actor, IEconomicZone zone)
 	{
 		if (actor.IsAdministrator())
 		{
 			return true;
 		}
 
-		var clan = estate.EconomicZone.ControllingClan;
+		var clan = zone.ControllingClan;
 		return clan != null &&
 		       actor.ClanMemberships.Any(x =>
 			       !x.IsArchivedMembership &&
 			       x.Clan == clan &&
 			       x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageEstates));
+	}
+
+	private static bool CanManageEstate(ICharacter actor, IEstate estate)
+	{
+		return CanManageEstate(actor, estate.EconomicZone);
 	}
 
 	private static bool IsEstateLocationRestrictionExempt(ICharacter actor)
@@ -339,6 +344,18 @@ internal class EconomyModule : Module<ICharacter>
 		return actor.IsAdministrator() || CanManageEstate(actor, estate) || estate.Inheritor == actor;
 	}
 
+	private static bool CanClaimMorgueCorpse(ICharacter actor, IEconomicZone zone, MorgueStoredCorpse effect)
+	{
+		if (effect.EstateId > 0)
+		{
+			var estate = actor.Gameworld.Estates.Get(effect.EstateId);
+			return estate != null && CanClaimMorgueCorpse(actor, estate);
+		}
+
+		var deceased = actor.Gameworld.TryGetCharacter(effect.CharacterOwnerId, true);
+		return actor.IsAdministrator() || CanManageEstate(actor, zone) || deceased?.EstateHeir == actor;
+	}
+
 	private static IEnumerable<AuctionResult> EstateAuctionResults(IEstate estate)
 	{
 		return estate.EconomicZone.EstateAuctionHouse?.AuctionResults.Where(x =>
@@ -349,13 +366,7 @@ internal class EconomyModule : Module<ICharacter>
 
 	private static decimal DefaultEstateReservePrice(IEstate estate, IEstateAsset asset)
 	{
-		return asset.Asset switch
-		{
-			IProperty property => property.LastSaleValue,
-			IGameItem item => item.Prototype.CostInBaseCurrency /
-			                  estate.EconomicZone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
-			_ => 0.0M
-		};
+		return Math.Max(0.0M, asset.AssumedValue);
 	}
 
 	private static bool TryGetEstateAuctionPrices(ICharacter actor, IEstate estate, IEstateAsset asset, StringStack ss,
@@ -6763,10 +6774,12 @@ The syntax for this command is as follows:
 	#3estate list#0 - lists estates you can currently see
 	#3estate show <id>#0 - shows details of a particular estate
 	#3estate claim <id> <amount> <reason>#0 - submits a claim against an estate
+	#3estate claim <id> asset <asset> <reason>#0 - submits a claim against a specific estate asset
 	#3estate approve <estate> <claim> [reason]#0 - approves an estate claim
 	#3estate reject <estate> <claim> <reason>#0 - rejects an estate claim
 	#3estate listasset <estate> <asset> [<reserve>] [<buyout>]#0 - manually lists an estate asset on the zone probate auction house
 	#3estate relist <estate> <asset> [<reserve>] [<buyout>]#0 - relists an unsold estate asset
+	#3estate liquidate <id>#0 - manually moves an estate into liquidation
 	#3estate open <id>#0 - opens probate for an undiscovered estate immediately
 	#3estate finalise <id>#0 - finalises an estate immediately";
 
@@ -6801,6 +6814,10 @@ The syntax for this command is as follows:
 				return;
 			case "relist":
 				EstateAuctionAsset(actor, ss, true);
+				return;
+			case "liquidate":
+			case "liquidation":
+				EstateLiquidate(actor, ss);
 				return;
 			case "open":
 				EstateOpen(actor, ss);
@@ -6930,9 +6947,11 @@ The syntax for this command is as follows:
 				asset.IsPresumedOwnership.ToColouredString(),
 				asset.IsTransferred.ToColouredString(),
 				asset.IsLiquidated.ToColouredString(),
-				asset.LiquidatedValue.HasValue
-					? estate.EconomicZone.Currency.Describe(asset.LiquidatedValue.Value, CurrencyDescriptionPatternType.ShortDecimal)
-					: ""
+				estate.EconomicZone.Currency.Describe(
+					asset.IsLiquidated
+						? asset.LiquidatedValue ?? 0.0M
+						: asset.AssumedValue,
+					CurrencyDescriptionPatternType.ShortDecimal)
 			},
 			new List<string>
 			{
@@ -7095,6 +7114,36 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		if (ss.PeekSpeech().EqualToAny("asset", "item", "property", "account", "bankaccount"))
+		{
+			ss.PopSpeech();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which asset from that estate do you want to claim?");
+				return;
+			}
+
+			var asset = GetEstateAssetById(estate, ss.PopSpeech());
+			if (asset == null)
+			{
+				actor.OutputHandler.Send("That estate has no such asset.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("What is the reason for your claim?");
+				return;
+			}
+
+			var assetReason = ss.SafeRemainingArgument;
+			estate.AddClaim(new EstateClaim(estate, actor, Math.Max(0.0M, asset.AssumedValue), assetReason, ClaimStatus.NotAssessed, false,
+				asset.Asset));
+			actor.OutputHandler.Send(
+				$"You submit a claim against asset #{asset.Id.ToString("N0", actor)} on estate #{estate.Id.ToString("N0", actor)}.");
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(
@@ -7163,6 +7212,33 @@ The syntax for this command is as follows:
 		{
 			actor.OutputHandler.Send("That estate has no such claim.");
 			return;
+		}
+
+		if (approve && claim.TargetItem != null)
+		{
+			var targetAsset = estate.Assets.FirstOrDefault(x =>
+				x.Asset.FrameworkItemEquals(claim.TargetItem.Id, claim.TargetItem.FrameworkItemType));
+			if (targetAsset == null)
+			{
+				actor.OutputHandler.Send("That claim targets an asset that is no longer part of the estate.");
+				return;
+			}
+
+			if (targetAsset.IsTransferred || targetAsset.IsLiquidated)
+			{
+				actor.OutputHandler.Send("That claim targets an asset that has already been transferred or liquidated.");
+				return;
+			}
+
+			if (estate.Claims.Any(x =>
+				    x.Id != claim.Id &&
+				    x.Status == ClaimStatus.Approved &&
+				    x.TargetItem != null &&
+				    x.TargetItem.FrameworkItemEquals(claim.TargetItem.Id, claim.TargetItem.FrameworkItemType)))
+			{
+				actor.OutputHandler.Send("There is already an approved claim against that specific estate asset.");
+				return;
+			}
 		}
 
 		claim.Status = approve ? ClaimStatus.Approved : ClaimStatus.Rejected;
@@ -7281,6 +7357,55 @@ The syntax for this command is as follows:
 			$"You {(relist ? "relist" : "list")} {DescribeFrameworkItem(actor, asset.Asset)} on {auctionHouse.Name.ColourName()} with a reserve of {estate.EconomicZone.Currency.Describe(reservePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}{(buyoutPrice.HasValue ? $" and a buyout of {estate.EconomicZone.Currency.Describe(buyoutPrice.Value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}" : "")}.");
 	}
 
+	private static void EstateLiquidate(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which estate do you want to move into liquidation?");
+			return;
+		}
+
+		var estate = GetEstateById(actor, ss.SafeRemainingArgument);
+		if (estate == null)
+		{
+			actor.OutputHandler.Send("There is no such estate.");
+			return;
+		}
+
+		if (!EnsureEstateCommandLocation(actor, estate))
+		{
+			return;
+		}
+
+		if (!CanManageEstate(actor, estate))
+		{
+			actor.OutputHandler.Send("You are not authorised to manage liquidation for that estate.");
+			return;
+		}
+
+		if (estate.EstateStatus == EstateStatus.Finalised || estate.EstateStatus == EstateStatus.Cancelled)
+		{
+			actor.OutputHandler.Send("That estate has already reached a terminal status.");
+			return;
+		}
+
+		if (estate.EstateStatus == EstateStatus.Liquidating)
+		{
+			actor.OutputHandler.Send("That estate is already in the liquidation phase.");
+			return;
+		}
+
+		if (!estate.StartLiquidation())
+		{
+			actor.OutputHandler.Send("You could not move that estate into liquidation.");
+			return;
+		}
+
+		actor.OutputHandler.Send(estate.EconomicZone.EstateAuctionHouse == null
+			? $"Estate #{estate.Id.ToString("N0", actor)} is now in liquidation, but {estate.EconomicZone.Name.ColourName()} has no probate auction house configured."
+			: $"Estate #{estate.Id.ToString("N0", actor)} is now in liquidation.");
+	}
+
 	private static void EstateFinalise(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -7323,8 +7448,9 @@ The syntax for this command is as follows:
 
 		if (estate.EstateStatus == EstateStatus.Liquidating && originalStatus != EstateStatus.Liquidating)
 		{
-			actor.OutputHandler.Send(
-				$"Estate #{estate.Id.ToString("N0", actor)} has entered liquidation and is awaiting auction completion.");
+			actor.OutputHandler.Send(estate.EconomicZone.EstateAuctionHouse == null
+				? $"Estate #{estate.Id.ToString("N0", actor)} has entered liquidation, but {estate.EconomicZone.Name.ColourName()} has no probate auction house configured."
+				: $"Estate #{estate.Id.ToString("N0", actor)} has entered liquidation and is awaiting auction completion.");
 			return;
 		}
 
@@ -7449,7 +7575,7 @@ The syntax for this command is as follows:
 					corpse.Id.ToString("N0", actor),
 					deceased?.PersonalName.GetName(NameStyle.FullName) ?? "Unknown",
 					corpse.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings),
-					effect.EstateId.ToString("N0", actor)
+					effect.EstateId > 0 ? effect.EstateId.ToString("N0", actor) : ""
 				},
 				new List<string> { "Item", "Deceased", "Corpse", "Estate" },
 				actor,
@@ -7523,8 +7649,7 @@ The syntax for this command is as follows:
 		}
 
 		var effect = corpse.EffectsOfType<MorgueStoredCorpse>().First(x => x.EconomicZoneId == zone.Id);
-		var estate = actor.Gameworld.Estates.Get(effect.EstateId);
-		if (estate == null || !CanClaimMorgueCorpse(actor, estate))
+		if (!CanClaimMorgueCorpse(actor, zone, effect))
 		{
 			actor.OutputHandler.Send("You are not authorised to claim that corpse.");
 			return;

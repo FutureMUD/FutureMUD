@@ -1859,6 +1859,10 @@ namespace MudSharp.Database
 				entity.Property(e => e.ControllingClanId).HasColumnType("bigint(20)");
 				entity.Property(e => e.EstateAuctionHouseId).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.EstatesEnabled)
+					.HasColumnType("bit(1)")
+					.HasDefaultValueSql("b'1'");
+
 				entity.Property(e => e.EstateClaimPeriodLength)
 					.HasColumnType("varchar(200)")
 					.HasCharSet("utf8")

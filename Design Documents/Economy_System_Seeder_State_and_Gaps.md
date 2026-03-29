@@ -117,6 +117,7 @@ Why it is seed-friendly now:
 - the core state is persisted already
 - the constructor already establishes a financial period
 - the zone's policy role is clear
+- estates can now be explicitly enabled or disabled per zone as part of that policy shell
 - cells can be left for builder customization even if the zone shell is seeded
 
 ### Stock tax presets
@@ -249,7 +250,15 @@ Important adjacent implications:
 - crime-system theft detection and property assumptions
 - minimizing false positives when players move, borrow, stash, share, or handle items in expected ways
 
-The existing code confirms the subsystem is not live, but the more important truth is that the missing ownership model is the reason it is not live.
+The subsystem is now live enough for ordinary runtime use:
+
+- estate creation can be disabled per economic zone when a world does not want probate at all
+- deaths with no captured assets no longer create empty estates
+- asset valuation now follows current sale state, bank balance, and local market price inference
+- claims can target individual estate assets and can sometimes be resolved by in-kind transfer instead of liquidation
+- corpse recovery can still store bodies in a morgue even when no estate is created
+
+The remaining seeder problem is not runtime viability. It is that probate and morgue setup still depend on world-specific cells, institutions, legal authorities, and auction-house choices.
 
 ### Economic-zone calendar reassignment is currently broken
 The current builder path for changing the economic-zone calendar sets up the accept flow and then throws `NotImplementedException`.

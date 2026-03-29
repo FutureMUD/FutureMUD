@@ -559,7 +559,7 @@ public partial class Cell
 			descSubSB.AppendLine($"You can use the JOBS and JOB commands here.".ColourIncludingReset(Telnet.Yellow));
 		}
 
-		if (Gameworld.EconomicZones.Any(x => x.ProbateOfficeCells.Contains(this)) &&
+		if (Gameworld.EconomicZones.Any(x => x.EstatesEnabled && x.ProbateOfficeCells.Contains(this)) &&
 		    Gameworld.GetStaticBool("ShowShopInRoomDescription"))
 		{
 			if (!addedAdditionalLines)

@@ -110,6 +110,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		FinancialPeriodTimezone = zone.TimeZone(FinancialPeriodReferenceClock);
 		FinancialPeriodReferenceTime =
 			new MudTime(0, 0, 0, FinancialPeriodTimezone, FinancialPeriodReferenceClock, false);
+		EstatesEnabled = true;
 		EstateDefaultDiscoverTime = MudTimeSpan.FromDays(28);
 		EstateClaimPeriodLength = MudTimeSpan.FromDays(14);
 		using (new FMDB())
@@ -129,6 +130,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				ReferenceClockId = FinancialPeriodReferenceClock.Id,
 				ReferenceTime = FinancialPeriodReferenceTime.GetTimeString(),
 				EstateAuctionHouseId = null,
+				EstatesEnabled = EstatesEnabled,
 				EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
 				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText,
 				MorgueOfficeLocationId = null,
@@ -190,6 +192,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		PreviousFinancialPeriodsToKeep = zone.PreviousFinancialPeriodsToKeep;
 		ZoneForTimePurposes = gameworld.Zones.Get(zone.ZoneForTimePurposesId);
 		PermitTaxableLosses = zone.PermitTaxableLosses;
+		EstatesEnabled = zone.EstatesEnabled;
 		EstateDefaultDiscoverTime = !string.IsNullOrWhiteSpace(zone.EstateDefaultDiscoverTime)
 			? MudTimeSpan.Parse(zone.EstateDefaultDiscoverTime)
 			: MudTimeSpan.FromDays(28);
@@ -383,6 +386,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				ReferenceClockId = FinancialPeriodReferenceClock.Id,
 				ReferenceTime = FinancialPeriodReferenceTime.GetTimeString(),
 				EstateAuctionHouseId = EstateAuctionHouse?.Id,
+				EstatesEnabled = EstatesEnabled,
 				EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
 				EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText,
 				MorgueOfficeLocationId = MorgueOfficeCell?.Id,
@@ -426,6 +430,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		dbitem.ReferenceClockId = FinancialPeriodReferenceClock.Id;
 		dbitem.ReferenceTime = FinancialPeriodReferenceTime.GetTimeString();
 		dbitem.EstateAuctionHouseId = EstateAuctionHouse?.Id;
+		dbitem.EstatesEnabled = EstatesEnabled;
 		dbitem.EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText;
 		dbitem.EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText;
 		dbitem.MorgueOfficeLocationId = MorgueOfficeCell?.Id;
@@ -739,6 +744,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3forgive <shop> all#0 - forgives all owing taxes for a shop
 	#3shops#0 - lists all shops in this economic zone
 	#3shop <which>#0 - shows tax information about a shop in the zone
+	#3estates#0 - toggles whether this economic zone creates new estates
 	#3estatediscovery <time>#0 - sets how long estates remain undiscovered before probate opens
 	#3estateclaimperiod <time>#0 - sets how long claims remain open on discovered estates
 	#3estateauctionhouse <which>|none#0 - sets the default auction house for estate liquidation
@@ -759,6 +765,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3forgive <shop> all#0 - forgives all owing taxes for a shop
 	#3shops#0 - lists all shops in this economic zone
 	#3shop <which>#0 - shows tax information about a shop in the zone
+	#3estates#0 - toggles whether this economic zone creates new estates
 	#3estatediscovery <time>#0 - sets how long estates remain undiscovered before probate opens
 	#3estateclaimperiod <time>#0 - sets how long claims remain open on discovered estates
 	#3estateauctionhouse <which>|none#0 - sets the default auction house for estate liquidation
@@ -812,6 +819,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				return BuildingCommandEndFinancialPeriod(actor, command);
 			case "shop":
 				return BuildingCommandShop(actor, command);
+			case "estates":
+			case "estate":
+				return BuildingCommandEstatesEnabled(actor, command);
 			case "estatediscovery":
 			case "estatediscover":
 			case "discovery":
@@ -853,6 +863,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				return BuildingCommandShop(actor, command);
 			case "shops":
 				return BuildingCommandShops(actor);
+			case "estates":
+			case "estate":
+				return BuildingCommandEstatesEnabled(actor, command);
 			case "estatediscovery":
 			case "estatediscover":
 			case "discovery":
@@ -966,6 +979,15 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"Estates in the {Name.ColourName()} economic zone will now remain undiscovered for {value.Describe(actor).ColourValue()} before claims open.");
+		return true;
+	}
+
+	private bool BuildingCommandEstatesEnabled(ICharacter actor, StringStack command)
+	{
+		EstatesEnabled = !EstatesEnabled;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {Name.ColourName()} economic zone will {(EstatesEnabled ? "now" : "no longer")} create new estates when characters die.");
 		return true;
 	}
 
@@ -1794,6 +1816,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		sb.AppendLine($"Calendar: {FinancialPeriodReferenceCalendar.Name.ColourValue()}");
 		sb.AppendLine(
 			$"Financial Period Interval: {FinancialPeriodInterval.Describe(FinancialPeriodReferenceCalendar).ColourValue()}");
+		sb.AppendLine($"Estates Enabled: {EstatesEnabled.ToColouredString()}");
 		sb.AppendLine($"Estate Discovery Delay: {EstateDefaultDiscoverTime.Describe(actor).ColourValue()}");
 		sb.AppendLine($"Estate Claim Period: {EstateClaimPeriodLength.Describe(actor).ColourValue()}");
 		sb.AppendLine(
@@ -1865,6 +1888,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
 	private readonly List<IEstate> _estates = new();
 	public IEnumerable<IEstate> Estates => _estates;
+	public bool EstatesEnabled { get; private set; }
 
 	public void AddEstate(IEstate estate)
 	{

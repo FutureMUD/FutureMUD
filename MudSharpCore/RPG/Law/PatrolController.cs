@@ -134,7 +134,8 @@ public class PatrolController : IPatrolController
 
 		var route = LegalAuthority.PatrolRoutes
 			.Where(x => x.IsReady && x.PatrolNodes.Any() && x.PatrollerNumbers.Any())
-			.OrderByDescending(x => x.Priority)
+			.OrderByDescending(x => x.PatrolStrategy is PatrolStrategies.CorpseRecoveryPatrolStrategy)
+			.ThenByDescending(x => x.Priority)
 			.FirstOrDefault();
 		if (route == null || route.PatrollerNumbers.Any(x => enforcerCounts[x.Key].Count() < x.Value))
 		{

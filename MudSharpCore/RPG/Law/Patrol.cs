@@ -26,7 +26,7 @@ public class Patrol : SaveableItem, IPatrol
 		LegalAuthority = authority;
 		PatrolRoute = route;
 		PatrolStrategy = corpseRecoveryReport != null
-			? new InvestigationPatrolStrategy(Gameworld)
+			? new CorpseRecoveryPatrolStrategy(Gameworld)
 			: route.PatrolStrategy;
 		PatrolPhase = PatrolPhase.Preperation;
 		LastArrivedTime = DateTime.UtcNow;
@@ -75,7 +75,7 @@ public class Patrol : SaveableItem, IPatrol
 			.OfType<CorpseRecoveryReport>()
 			.FirstOrDefault(x => x.AssignedPatrolId == _id && x.Status == CorpseRecoveryReportStatus.Assigned);
 		PatrolStrategy = ActiveCorpseRecoveryReport != null
-			? new InvestigationPatrolStrategy(Gameworld)
+			? new CorpseRecoveryPatrolStrategy(Gameworld)
 			: PatrolRoute.PatrolStrategy;
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandlePatrolTick;
 		Gameworld.Add(this);

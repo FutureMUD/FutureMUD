@@ -23,6 +23,8 @@ public static class PatrolStrategyFactory
 		{
 			case "armedpatrol":
 				return new ArmedPatrolStrategy(gameworld);
+			case "corpserecovery":
+				return new CorpseRecoveryPatrolStrategy(gameworld);
 			case "stationenforcer":
 				return new StationEnforcerPatrolStrategy(gameworld);
 			case "judge":

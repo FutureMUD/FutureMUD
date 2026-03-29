@@ -46,6 +46,7 @@ namespace MudSharp.Community
 	{
 		IEstate Estate { get; }
 		IFrameworkItem Asset { get; }
+		decimal AssumedValue { get; }
 		bool IsPresumedOwnership { get; }
 		bool IsTransferred { get; set; }
 		bool IsLiquidated { get; set; }

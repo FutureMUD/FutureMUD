@@ -85,7 +85,7 @@ An economic zone currently owns or exposes:
 - probate-office cells for estate workflows
 - a morgue office cell and morgue storage cell for corpse custody workflows
 - a controlling clan
-- estate settings and estate collection hooks
+- estate settings, including a master estates-enabled toggle, and estate collection hooks
 
 Financial periods are not passive records. The zone actively closes the current period, computes shop financial results, rolls revenue forward, prunes retained history, and schedules the next closure.
 
@@ -235,6 +235,8 @@ Current verified runtime characteristics:
 - it is tied to a specific cell
 - it routes proceeds into a bank account
 - it is surfaced through economy commands rather than being embedded into shops
+- standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
+- characters can list a property on an auction house when they personally own the whole property, while partial ownership remains in the fixed-price property-sale workflow
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available
 
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.
@@ -265,17 +267,34 @@ Estates are now a live persisted subsystem.
 
 Verified current runtime behavior:
 
-- death creates or reuses one open estate per economic zone that receives captured assets
+- death creates or reuses one open estate per economic zone that receives captured assets, but only when the zone has estates enabled
+- zones that receive no captured assets do not create empty estates
 - estates advance from `Undiscovered` to `ClaimPhase` on the zone discovery timer or immediately through `estate open <id>`
+- estate managers can manually move an estate into `Liquidating` with `estate liquidate <id>`
 - all non-admin player-facing estate interaction is gated to probate-office cells configured on the economic zone
 - claims, assessment, liquidation, auction integration, and finalisation all persist through the database layer
 - item ownership is part of the runtime path for estate transfer and morgue recovery rather than a missing prerequisite
+- approved claims only force liquidation when the claim actually needs cash settlement rather than an in-kind transfer
 
 The estate system remains intentionally conservative about item capture:
 
 - items already owned by someone other than the deceased are excluded from the estate
 - unowned items on the deceased are included as presumed ownership
 - known deceased-owned items are included as direct estate assets
+
+Verified current assumed-value rules:
+
+- property uses the current listed reserve price when actively for sale, otherwise the last sold value
+- bank accounts use their live balance, converted into the estate zone currency when necessary
+- items use prototype inherent value first, then the average matching shop sale price in the same economic zone, then the average matching vending-machine sale price in the same economic zone, and finally zero if no price can be inferred
+
+Verified current claim and finalisation behavior:
+
+- claims may target a specific property, bank account, or item instead of only generic cash
+- targeted claims default to the current assumed value of the referenced asset
+- targeted non-secured claims can be resolved by transferring the claimed asset in kind instead of liquidating the whole estate
+- duplicate approved targeted claims against the same asset are blocked
+- line-of-credit debt alone no longer creates a new estate; it only attaches to an estate that already exists because assets were captured
 
 ### Morgues and Corpse Recovery
 Economic zones now expose a two-room morgue model:
@@ -286,8 +305,12 @@ Economic zones now expose a two-room morgue model:
 This integrates economy and legal runtime behavior:
 
 - `report body <corpse>` creates a legal-authority corpse-recovery job for the local enforcement zone
+- patrol dispatch prefers patrol routes configured with the dedicated `CorpseRecovery` strategy when one exists
+- corpse pickup now uses a dedicated corpse-recovery patrol strategy rather than the generic investigation strategy
+- successful recovery echoes a configurable static string and then ends the patrol immediately
 - patrol dispatch picks up the corpse and moves it into morgue storage
-- morgue intake strips possessions into a bundle and immediately opens probate for the relevant estate
+- morgue intake only strips possessions into a bundle and opens probate when an estate actually exists
+- if no estate exists, the corpse is still stored and its belongings remain on the corpse
 - `morgue` commands in the office list releasable corpses and personally owned belongings
 
 ## Important Runtime Flows

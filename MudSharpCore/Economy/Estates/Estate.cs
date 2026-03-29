@@ -28,7 +28,12 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
 		Estate GetEstate(IEconomicZone zone)
 		{
-			if (!estates.TryGetValue(zone.Id, out var estate))
+			if (zone == null)
+			{
+				return null;
+			}
+
+			if (!estates.TryGetValue(zone.Id, out var estate) && zone.EstatesEnabled)
 			{
 				estate = new Estate(zone, character, character.EstateHeir);
 				estates[zone.Id] = estate;
@@ -64,6 +69,11 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
 		static void AddAssetIfMissing(Estate estate, IFrameworkItem asset, bool presumedOwnership)
 		{
+			if (estate == null)
+			{
+				return;
+			}
+
 			if (estate.Assets.Any(x => AssetMatches(x, asset)))
 			{
 				return;
@@ -75,6 +85,11 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		static void AddClaimIfMissing(Estate estate, IFrameworkItem claimant, decimal amount, string reason,
 			bool isSecured, IFrameworkItem targetItem = null)
 		{
+			if (estate == null)
+			{
+				return;
+			}
+
 			if (estate.Claims.Any(x => ClaimMatches(x, claimant, amount, reason, isSecured, targetItem)))
 			{
 				return;
@@ -101,22 +116,6 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 			}
 		}
 
-		foreach (var loc in character.Gameworld.LineOfCreditAccounts.Where(x => x.IsAccountOwner(character)))
-		{
-			var zone = character.Location == null ? null : DetermineZone(character.Gameworld, character.Location);
-			if (zone == null)
-			{
-				continue;
-			}
-
-			var estate = GetEstate(zone);
-			if (loc.OutstandingBalance > 0.0M)
-			{
-				AddClaimIfMissing(estate, loc, loc.OutstandingBalance,
-					$"Outstanding line of credit debt for {loc.AccountName}", true);
-			}
-		}
-
 		var itemZone = character.Location == null ? null : DetermineZone(character.Gameworld, character.Location);
 		if (itemZone != null)
 		{
@@ -129,6 +128,21 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				}
 
 				AddAssetIfMissing(estate, item, !item.HasOwner);
+			}
+		}
+
+		foreach (var loc in character.Gameworld.LineOfCreditAccounts.Where(x => x.IsAccountOwner(character)))
+		{
+			var zone = character.Location == null ? null : DetermineZone(character.Gameworld, character.Location);
+			if (zone == null || !estates.TryGetValue(zone.Id, out var estate))
+			{
+				continue;
+			}
+
+			if (loc.OutstandingBalance > 0.0M)
+			{
+				AddClaimIfMissing(estate, loc, loc.OutstandingBalance,
+					$"Outstanding line of credit debt for {loc.AccountName}", true);
 			}
 		}
 
@@ -317,7 +331,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		{
 			if (EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime >= FinalisationDate)
 			{
-				if (Claims.Any(x => x.Status == ClaimStatus.Approved))
+				if (Claims.Any(x => x.Status == ClaimStatus.Approved && ClaimRequiresLiquidation(x)))
 				{
 					StartLiquidation();
 				}
@@ -393,7 +407,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		var auctionHouse = EconomicZone.EstateAuctionHouse;
 		if (auctionHouse == null)
 		{
-			return false;
+			return true;
 		}
 
 		foreach (var asset in Assets.Where(AssetNeedsAuctionListing).ToList())
@@ -482,7 +496,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 	{
 		var inheritor = ResolveInheritor();
 		var approvedClaims = Claims.Where(x => x.Status == ClaimStatus.Approved).ToList();
-		if (!approvedClaims.Any())
+		if (!approvedClaims.Any() && EstateStatus != EstateStatus.Liquidating)
 		{
 			foreach (var asset in Assets.Where(x => !x.IsTransferred && !x.IsLiquidated))
 			{
@@ -491,7 +505,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 		}
 		else
 		{
-			if (EstateStatus != EstateStatus.Liquidating)
+			if (EstateStatus != EstateStatus.Liquidating && approvedClaims.Any(ClaimRequiresLiquidation))
 			{
 				if (!StartLiquidation())
 				{
@@ -499,39 +513,63 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 				}
 			}
 
-			if (!CanFinaliseLiquidation())
+			if (EstateStatus == EstateStatus.Liquidating)
 			{
-				return;
-			}
-
-			var distributableCash = Assets.OfType<EstateAsset>()
-				.Where(x => x.IsLiquidated && x.LiquidatedValue.HasValue)
-				.Sum(x => x.LiquidatedValue.Value);
-
-			var paidClaims = 0.0M;
-			foreach (var claim in approvedClaims
-				         .OrderByDescending(x => x.IsSecured)
-				         .ThenBy(x => x.ClaimDate))
-			{
-				var payout = Math.Min(distributableCash - paidClaims, claim.Amount);
-				if (payout <= 0.0M)
+				if (!CanFinaliseLiquidation())
 				{
-					break;
+					return;
 				}
 
-				RouteFunds(payout, ResolveClaimRecipient(claim), $"Estate claim #{claim.Id} for character {Character.Id}");
-				paidClaims += payout;
-			}
+				var distributableCash = Assets.OfType<EstateAsset>()
+					.Where(x => x.IsLiquidated && x.LiquidatedValue.HasValue)
+					.Sum(x => x.LiquidatedValue.Value);
 
-			var residual = distributableCash - paidClaims;
-			if (residual > 0.0M)
-			{
-				RouteResidual(residual, inheritor);
-			}
+				var paidClaims = 0.0M;
+				foreach (var claim in approvedClaims
+					         .OrderByDescending(x => x.IsSecured)
+					         .ThenBy(x => x.ClaimDate))
+				{
+					var payout = Math.Min(distributableCash - paidClaims, LiquidationPayoutCap(claim));
+					if (payout <= 0.0M)
+					{
+						break;
+					}
 
-			foreach (var asset in Assets.Where(x => !x.IsTransferred && !x.IsLiquidated))
+					RouteFunds(payout, ResolveClaimRecipient(claim), $"Estate claim #{claim.Id} for character {Character.Id}");
+					paidClaims += payout;
+				}
+
+				var residual = distributableCash - paidClaims;
+				if (residual > 0.0M)
+				{
+					RouteResidual(residual, inheritor);
+				}
+
+				foreach (var asset in Assets.Where(x => !x.IsTransferred && !x.IsLiquidated))
+				{
+					TransferAsset(asset, inheritor);
+				}
+			}
+			else
 			{
-				TransferAsset(asset, inheritor);
+				foreach (var claim in approvedClaims
+					         .Where(ClaimTransfersSpecificAsset)
+					         .OrderByDescending(x => x.IsSecured)
+					         .ThenBy(x => x.ClaimDate))
+				{
+					var asset = FindAsset(claim.TargetItem);
+					if (asset == null || asset.IsTransferred || asset.IsLiquidated)
+					{
+						continue;
+					}
+
+					TransferAsset(asset, claim.Claimant);
+				}
+
+				foreach (var asset in Assets.Where(x => !x.IsTransferred && !x.IsLiquidated))
+				{
+					TransferAsset(asset, inheritor);
+				}
 			}
 		}
 
@@ -630,13 +668,28 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
 	private decimal DefaultReservePrice(IEstateAsset asset)
 	{
-		return asset.Asset switch
+		return Math.Max(0.0M, asset.AssumedValue);
+	}
+
+	private bool ClaimTransfersSpecificAsset(IEstateClaim claim)
+	{
+		return claim.TargetItem != null && !claim.IsSecured;
+	}
+
+	private bool ClaimRequiresLiquidation(IEstateClaim claim)
+	{
+		return !ClaimTransfersSpecificAsset(claim);
+	}
+
+	private decimal LiquidationPayoutCap(IEstateClaim claim)
+	{
+		if (!ClaimTransfersSpecificAsset(claim))
 		{
-			IProperty property => property.LastSaleValue,
-			IGameItem item => item.Prototype.CostInBaseCurrency /
-			                  EconomicZone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
-			_ => 0.0M
-		};
+			return claim.Amount;
+		}
+
+		var asset = FindAsset(claim.TargetItem);
+		return asset?.LiquidatedValue ?? 0.0M;
 	}
 
 	private void TransferAsset(IEstateAsset asset, IFrameworkItem inheritor)

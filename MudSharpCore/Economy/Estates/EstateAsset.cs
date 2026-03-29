@@ -1,7 +1,13 @@
 using MudSharp.Community;
 using MudSharp.Database;
+using MudSharp.Economy.Currency;
+using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using MoreLinq.Extensions;
+using System.Linq;
 
 namespace MudSharp.Economy.Estates;
 
@@ -59,6 +65,13 @@ public class EstateAsset : SaveableItem, IEstateAsset
 	private IFrameworkItem _asset;
 	public IEstate Estate { get; }
 	public IFrameworkItem Asset => _asset ??= _assetReference.GetItem;
+	public decimal AssumedValue => Asset switch
+	{
+		IProperty property => PropertyAssumedValue(property),
+		IBankAccount account => ConvertCurrency(account.CurrentBalance, account.Currency, Estate.EconomicZone.Currency),
+		IGameItem item => GameItemAssumedValue(item),
+		_ => 0.0M
+	};
 	public bool IsPresumedOwnership { get; }
 	private bool _isTransferred;
 	public bool IsTransferred
@@ -91,5 +104,64 @@ public class EstateAsset : SaveableItem, IEstateAsset
 			_liquidatedValue = value;
 			Changed = true;
 		}
+	}
+
+	private decimal PropertyAssumedValue(IProperty property)
+	{
+		if (property.SaleOrder?.ShowForSale == true)
+		{
+			return property.SaleOrder.ReservePrice;
+		}
+
+		return property.LastSaleValue;
+	}
+
+	private decimal GameItemAssumedValue(IGameItem item)
+	{
+		if (item.Prototype.CostInBaseCurrency > 0.0M)
+		{
+			return item.Prototype.CostInBaseCurrency / Estate.EconomicZone.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		}
+
+		var shopPrices = Estate.Gameworld.Shops
+			.Where(x => x.EconomicZone == Estate.EconomicZone)
+			.SelectMany(x => x.Merchandises
+				.Where(y => y.WillSell && y.Item.Id == item.Prototype.Id)
+				.Select(y => ConvertCurrency(x.PriceForMerchandise(null, y, 1), x.Currency, Estate.EconomicZone.Currency)))
+			.ToList();
+		if (shopPrices.Any())
+		{
+			return shopPrices.Average();
+		}
+
+		var vendingPrices = Estate.Gameworld.Items
+			.SelectNotNull(x => x.GetItemType<IVendingMachine>())
+			.Where(x => x.Parent.TrueLocations.Any(y => global::MudSharp.Economy.Estates.Estate.DetermineZone(Estate.Gameworld, y) == Estate.EconomicZone))
+			.SelectMany(x => x.Selections
+				.Where(y => y.Prototype?.Id == item.Prototype.Id)
+				.Select(y => ConvertCurrency(y.Cost, x.Currency, Estate.EconomicZone.Currency)))
+			.ToList();
+		if (vendingPrices.Any())
+		{
+			return vendingPrices.Average();
+		}
+
+		return 0.0M;
+	}
+
+	private static decimal ConvertCurrency(decimal amount, ICurrency fromCurrency, ICurrency toCurrency)
+	{
+		if (fromCurrency == null || toCurrency == null)
+		{
+			return amount;
+		}
+
+		if (fromCurrency == toCurrency)
+		{
+			return amount;
+		}
+
+		return amount * fromCurrency.BaseCurrencyToGlobalBaseCurrencyConversion /
+		       toCurrency.BaseCurrencyToGlobalBaseCurrencyConversion;
 	}
 }

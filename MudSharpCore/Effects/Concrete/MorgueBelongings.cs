@@ -22,7 +22,7 @@ public class MorgueBelongings : Effect, IEffect
 		: base(owner, null)
 	{
 		CharacterOwnerId = characterOwner.Id;
-		EstateId = estate.Id;
+		EstateId = estate?.Id ?? 0;
 		EconomicZoneId = economicZone.Id;
 	}
 

@@ -26,36 +26,101 @@ namespace DatabaseSeeder.Seeders
 			"Scalpel",
 			"Surgical Suture Needle"
 		];
-		private static readonly string[] StockHealthKnowledges =
+		private static readonly string[] PrimitiveHealthKnowledges = ["Medicine"];
+		private static readonly string[] PreModernHealthKnowledges = ["Chiurgery", "Physical Medicine"];
+		private static readonly string[] ModernHealthKnowledges = ["Diagnostic Medicine", "Clinical Medicine", "Surgery"];
+		private static readonly string[] PrimitiveVeterinaryKnowledges = ["Animal Medicine"];
+		private static readonly string[] PreModernVeterinaryKnowledges = ["Veterinary Medicine", "Veterinary Chiurgery"];
+		private static readonly string[] ModernVeterinaryKnowledges = ["Veterinary Medicine", "Veterinary Surgery"];
+		private static readonly string[] PrimitiveHealthProcedures =
 		[
-			"Medicine",
-			"Chiurgery",
-			"Physical Medicine",
-			"Diagnostic Medicine",
-			"Clinical Medicine",
-			"Surgery",
-			"Animal Medicine",
-			"Veterinary Medicine",
-			"Veterinary Chiurgery",
-			"Veterinary Surgery"
-		];
-		private static readonly string[] StockHealthProcedures =
-		[
-			"Triage",
+			"Hasty Triage",
+			"Primitive Stitching",
 			"Exploratory Surgery",
-			"Arm Amputation",
-			"Leg Amputation",
-			"Digit Amputation",
 			"Trauma Control",
 			"Organ Extraction",
-			"Bone Setting",
-			"Stitch Up"
+			"Crude Organ Repair",
+			"Bone Setting"
 		];
-		private static readonly string[] StockHealthDrugs =
+		private static readonly string[] PreModernHealthProcedures =
+		[
+			"Triage",
+			"Stitch Up",
+			"Exploratory Surgery",
+			"Trauma Control",
+			"Organ Extraction",
+			"General Organ Repair",
+			"Bone Setting"
+		];
+		private static readonly string[] ModernHealthProcedures =
+		[
+			"Triage",
+			"Physical",
+			"Stitch Up",
+			"Exploratory Surgery",
+			"Trauma Control",
+			"Organ Extraction",
+			"General Organ Repair",
+			"Bone Setting"
+		];
+		private static readonly string[] PrimitiveVeterinaryProcedures =
+		[
+			"Veterinary Hasty Triage",
+			"Veterinary Stitching",
+			"Veterinary Exploratory Surgery",
+			"Veterinary Trauma Control",
+			"Veterinary Bone Setting"
+		];
+		private static readonly string[] PreModernVeterinaryProcedures =
+		[
+			"Veterinary Triage",
+			"Veterinary Physical",
+			"Veterinary Stitch Up",
+			"Veterinary Exploratory Surgery",
+			"Veterinary Trauma Control",
+			"Veterinary Bone Setting"
+		];
+		private static readonly string[] ModernVeterinaryProcedures =
+		[
+			"Veterinary Triage",
+			"Veterinary Physical",
+			"Veterinary Stitch Up",
+			"Veterinary Exploratory Surgery",
+			"Veterinary Trauma Control",
+			"Veterinary Bone Setting"
+		];
+		private static readonly string[] PrimitiveHealthDrugs =
 		[
 			"Willow Bark Tea",
+			"Mandrake Draught",
+			"Honey Poultice",
+			"Garlic Salve",
+			"Mint Infusion",
+			"Ephedra Brew",
+			"Foxglove Tincture"
+		];
+		private static readonly string[] PreModernHealthDrugs =
+		[
 			"Laudanum",
-			"General Anaesthetic"
+			"Ether Anaesthetic",
+			"Mould Poultice",
+			"Distilled Antiseptic",
+			"Mint and Ginger Tonic",
+			"Digitalis Tincture",
+			"Curare Paste",
+			"Herbal Burn Salve",
+			"Bronchial Smoke"
+		];
+		private static readonly string[] ModernHealthDrugs =
+		[
+			"General Anaesthetic",
+			"Opioid Analgesic",
+			"Muscle Relaxant",
+			"Local Anaesthetic",
+			"Broad-Spectrum Antibiotic",
+			"Antibiotic Ointment",
+			"Antifungal Course",
+			"Burn Gel"
 		];
 
 		private static readonly string[] HumanArmParts =
@@ -209,6 +274,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 			SeedKnowledges();
 			SeedSurgery();
 			SeedDrugs();
+			SeedDrugDeliveryExamples();
 			context.SaveChanges();
 			context.Database.CommitTransaction();
 
@@ -232,22 +298,31 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 				return ShouldSeedResult.PrerequisitesNotMet;
 			}
 
-			if (context.SurgicalProcedures.Any())
+			var tierStates = new[]
 			{
-				return SeederRepeatabilityHelper.ClassifyByPresence(
-				[
-					StockHealthKnowledges.Any(name => context.Knowledges.Any(x => x.Name == name)),
-					StockHealthProcedures.Any(name => context.SurgicalProcedures.Any(x => x.Name == name)),
-					StockHealthDrugs.Any(name => context.Drugs.Any(x => x.Name == name))
-				]);
+				ClassifyTierPresence(context, "primitive"),
+				ClassifyTierPresence(context, "pre-modern"),
+				ClassifyTierPresence(context, "modern")
+			};
+
+			if (tierStates.Any(x => x == ShouldSeedResult.MayAlreadyBeInstalled))
+			{
+				return ShouldSeedResult.MayAlreadyBeInstalled;
 			}
 
-			return SeederRepeatabilityHelper.ClassifyByPresence(
-			[
-				StockHealthKnowledges.Any(name => context.Knowledges.Any(x => x.Name == name)),
-				StockHealthProcedures.Any(name => context.SurgicalProcedures.Any(x => x.Name == name)),
-				StockHealthDrugs.Any(name => context.Drugs.Any(x => x.Name == name))
-			]);
+			if (tierStates.Any(x => x == ShouldSeedResult.ExtraPackagesAvailable))
+			{
+				return ShouldSeedResult.ExtraPackagesAvailable;
+			}
+
+			return ShouldSeedResult.ReadyToInstall;
+		}
+
+		internal void SeedDrugDeliveryExamplesForTesting(FuturemudDatabaseContext context)
+		{
+			_context = context;
+			SeedDrugDeliveryExamples();
+			_context.SaveChanges();
 		}
 
 		private static string NormaliseTechLevel(string answer)
@@ -1718,6 +1793,192 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 			_context.SaveChanges();
 		}
 
+		private void SeedDrugDeliveryExamples()
+		{
+			var account = _context.Accounts.First();
+			var now = DateTime.UtcNow;
+			var nextId = _context.GameItemComponentProtos.Any() ? _context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+
+			void UpsertComponent(string type, string name, string description, XElement definition)
+			{
+				var component = SeederRepeatabilityHelper.EnsureNamedEntity(
+					_context.GameItemComponentProtos,
+					name,
+					x => x.Name,
+					() =>
+					{
+						var editableItem = new EditableItem
+						{
+							RevisionNumber = 0,
+							RevisionStatus = 4,
+							BuilderAccountId = account.Id,
+							BuilderDate = now,
+							BuilderComment = "Auto-generated by the system",
+							ReviewerAccountId = account.Id,
+							ReviewerComment = "Auto-generated by the system",
+							ReviewerDate = now
+						};
+						_context.EditableItems.Add(editableItem);
+						var created = new GameItemComponentProto
+						{
+							Id = nextId++,
+							RevisionNumber = 0,
+							EditableItem = editableItem
+						};
+						_context.GameItemComponentProtos.Add(created);
+						return created;
+					});
+
+				component.Type = type;
+				component.Name = name;
+				component.Description = description;
+				component.Definition = definition.ToString();
+			}
+
+			foreach (var drug in _context.Drugs
+				         .Where(x => ((DrugVector)x.DrugVectors).HasFlag(DrugVector.Ingested))
+				         .OrderBy(x => x.Name)
+				         .ToList())
+			{
+				UpsertComponent("Pill", $"Pill_{SanitizeDrugComponentName(drug.Name)}",
+					$"Turns an item into a pill containing {drug.Name}.",
+					new XElement("Definition",
+						new XElement("GramsPerPill", 0.5),
+						new XElement("Drug", drug.Id),
+						new XElement("OnSwallowProg", 0)));
+			}
+
+			foreach (var drug in _context.Drugs
+				         .Where(x => ((DrugVector)x.DrugVectors).HasFlag(DrugVector.Touched))
+				         .OrderBy(x => x.Name)
+				         .ToList())
+			{
+				UpsertComponent("TopicalCream", $"TopicalCream_{SanitizeDrugComponentName(drug.Name)}",
+					$"Turns an item into a topical cream delivering {drug.Name}.",
+					new XElement("Definition",
+						new XElement("TotalGrams", 0.05),
+						new XElement("OnApplyProg", 0),
+						new XElement("Drugs",
+							new XElement("Drug",
+								new XAttribute("id", drug.Id),
+								new XAttribute("grams", 0.1),
+								new XAttribute("absorption", 0.75)))));
+			}
+		}
+
+		private static string SanitizeDrugComponentName(string text)
+		{
+			return new string(text.Select(x => char.IsLetterOrDigit(x) ? x : '_').ToArray())
+				.Trim('_')
+				.Replace("__", "_");
+		}
+
+		private static ShouldSeedResult ClassifyTierPresence(FuturemudDatabaseContext context, string techLevel)
+		{
+			return SeederRepeatabilityHelper.ClassifyByPresence(
+			[
+				.. ExpectedKnowledgesForTier(context, techLevel)
+					.Select(name => context.Knowledges.Any(x => x.Name == name)),
+				.. ExpectedProceduresForTier(context, techLevel)
+					.Select(name => context.SurgicalProcedures.Any(x => x.Name == name)),
+				.. ExpectedDrugsForTier(techLevel)
+					.Select(name => context.Drugs.Any(x => x.Name == name)),
+				.. ExpectedDrugDeliveryMarkersForTier(context, techLevel)
+					.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
+			]);
+		}
+
+		private static IEnumerable<string> ExpectedKnowledgesForTier(FuturemudDatabaseContext context, string techLevel)
+		{
+			foreach (var knowledge in techLevel switch
+			         {
+				         "primitive" => PrimitiveHealthKnowledges,
+				         "pre-modern" => PreModernHealthKnowledges,
+				         "modern" => ModernHealthKnowledges,
+				         _ => []
+			         })
+			{
+				yield return knowledge;
+			}
+
+			if (!context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+			{
+				yield break;
+			}
+
+			foreach (var veterinaryKnowledge in techLevel switch
+			         {
+				         "primitive" => PrimitiveVeterinaryKnowledges,
+				         "pre-modern" => PreModernVeterinaryKnowledges,
+				         "modern" => ModernVeterinaryKnowledges,
+				         _ => []
+			         })
+			{
+				yield return veterinaryKnowledge;
+			}
+		}
+
+		private static IEnumerable<string> ExpectedDrugsForTier(string techLevel)
+		{
+			return techLevel switch
+			{
+				"primitive" => PrimitiveHealthDrugs,
+				"pre-modern" => PreModernHealthDrugs,
+				"modern" => ModernHealthDrugs,
+				_ => []
+			};
+		}
+
+		private static IEnumerable<string> ExpectedProceduresForTier(FuturemudDatabaseContext context, string techLevel)
+		{
+			foreach (var procedure in techLevel switch
+			         {
+				         "primitive" => PrimitiveHealthProcedures,
+				         "pre-modern" => PreModernHealthProcedures,
+				         "modern" => ModernHealthProcedures,
+				         _ => []
+			         })
+			{
+				yield return procedure;
+			}
+
+			if (!context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+			{
+				yield break;
+			}
+
+			foreach (var veterinaryProcedure in techLevel switch
+			         {
+				         "primitive" => PrimitiveVeterinaryProcedures,
+				         "pre-modern" => PreModernVeterinaryProcedures,
+				         "modern" => ModernVeterinaryProcedures,
+				         _ => []
+			         })
+			{
+				yield return veterinaryProcedure;
+			}
+		}
+
+		private static IEnumerable<string> ExpectedDrugDeliveryMarkersForTier(FuturemudDatabaseContext context, string techLevel)
+		{
+			var expectedDrugNames = new HashSet<string>(ExpectedDrugsForTier(techLevel), StringComparer.OrdinalIgnoreCase);
+			foreach (var drug in context.Drugs
+				         .AsEnumerable()
+				         .Where(x => expectedDrugNames.Contains(x.Name)))
+			{
+				var vectors = (DrugVector)drug.DrugVectors;
+				if (vectors.HasFlag(DrugVector.Ingested))
+				{
+					yield return $"Pill_{SanitizeDrugComponentName(drug.Name)}";
+				}
+
+				if (vectors.HasFlag(DrugVector.Touched))
+				{
+					yield return $"TopicalCream_{SanitizeDrugComponentName(drug.Name)}";
+				}
+			}
+		}
+
 		private void SeedPrimitiveDrugs()
 		{
 			AddDrug("Willow Bark Tea", 0.8, 0.15, DrugVector.Ingested,
@@ -1801,8 +2062,16 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 				(DrugType.Paralysis, 0.15, string.Empty));
 			AddDrug("Broad-Spectrum Antibiotic", 0.9, 0.14, DrugVector.Injected | DrugVector.Ingested,
 				(DrugType.Antibiotic, 1.0, string.Empty));
+			AddDrug("Antibiotic Ointment", 0.7, 0.12, DrugVector.Touched,
+				(DrugType.Antibiotic, 0.75, string.Empty),
+				(DrugType.HealingRate, 0.20,
+					new HealingRateAdditionalInfo { HealingRateIntensity = 0.10, HealingDifficultyIntensity = 0.5 }.DatabaseString));
 			AddDrug("Antifungal Course", 0.8, 0.14, DrugVector.Ingested | DrugVector.Touched,
 				(DrugType.Antifungal, 0.90, string.Empty));
+			AddDrug("Burn Gel", 0.7, 0.12, DrugVector.Touched,
+				(DrugType.Analgesic, 0.35, string.Empty),
+				(DrugType.HealingRate, 0.30,
+					new HealingRateAdditionalInfo { HealingRateIntensity = 0.20, HealingDifficultyIntensity = 1.0 }.DatabaseString));
 			AddDrug("Antiemetic", 0.6, 0.18, DrugVector.Injected | DrugVector.Ingested,
 				(DrugType.NeutraliseDrugEffect, 1.0,
 					new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea] }.DatabaseString));

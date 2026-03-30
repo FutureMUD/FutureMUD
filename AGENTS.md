@@ -238,6 +238,25 @@ When changing a subsystem that has a design document in `Design Documents/`:
 2. Ensure the document reflects the new runtime behavior, command surface, and persistence implications.
 3. Call out the documentation update in your task summary.
 
+## Item System Design Document Reference
+
+When changing item-related systems, treat the following documents as the primary design references and keep them in sync with the code:
+
+- [Item System Overview](./Design%20Documents/Item_System_Overview.md)
+- [Item System Runtime Model](./Design%20Documents/Item_System_Runtime_Model.md)
+- [Item System Component Authoring](./Design%20Documents/Item_System_Component_Authoring.md)
+- [Item System Content Workflows](./Design%20Documents/Item_System_Content_Workflows.md)
+- [Item System Presentation and Integration](./Design%20Documents/Item_System_Presentation_and_Integration.md)
+
+For the purposes of this instruction, "item-related" includes work in or directly coupled to:
+
+- `MudSharpCore/GameItems`
+- `FutureMUDLibrary/GameItems`
+- item builder commands and editable-item helpers
+- item-related FutureProg functions
+- item skins and item groups
+- item templates in `Item Templates/`
+
 ## Economy Design Document Reference
 
 When changing economy-related systems, treat the following documents as the primary design references and keep them in sync with the code:

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
   <TemplateData>
     <Name>Spell Effect Type</Name>
@@ -8,7 +8,6 @@
     <SortOrder>2</SortOrder>
     <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
     <DefaultName>SpellEffect</DefaultName>
-    <AppIdFilter>blend</AppIdFilter>
   </TemplateData>
   <TemplateContent>
     <References>
@@ -17,7 +16,7 @@
       </Reference>
     </References>
 
-    <ProjectItem ReplaceParameters="true" TargetFileName="Magic\SpellEffects\$fileinputname$Effect.cs">SpellEffect.cs</ProjectItem>
-    <ProjectItem ReplaceParameters="true" TargetFileName="Effects\Concrete\SpellEffects\Spell$fileinputname$Effect.cs">Effect.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Magic\SpellEffects\$safeitemrootname$Effect.cs">SpellEffect.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Effects\Concrete\SpellEffects\Spell$safeitemrootname$Effect.cs">Effect.cs</ProjectItem>
   </TemplateContent>
 </VSTemplate>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#nullable enable
 using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -12,73 +8,65 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class $safeitemrootname$ : IMagicSpellEffectTemplate
+public class $safeitemrootname$Effect : IMagicSpellEffectTemplate
 {
-	public IFuturemud Gameworld => Spell.Gameworld;
 	public static void RegisterFactory()
 	{
-		SpellEffectFactory.RegisterLoadTimeFactory("$safeitemrootname$".ToLowerInvariant(), (root, spell) => new $safeitemrootname$(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("$safeitemrootname$".ToLowerInvariant(), BuilderFactory);
+		SpellEffectFactory.RegisterLoadTimeFactory("$safeitemrootname$".ToLowerInvariant(),
+			(root, spell) => new $safeitemrootname$Effect(root, spell));
+		SpellEffectFactory.RegisterBuilderFactory("$safeitemrootname$".ToLowerInvariant(), BuilderFactory,
+			"Describe this spell effect.",
+			HelpText,
+			false,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes);
 	}
-	
+
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new GlowEffect(new XElement("Effect",
-			new XAttribute("type", "$safeitemrootname$".ToLowerInvariant())
-			), spell), string.Empty);
+		return (new $safeitemrootname$Effect(
+			new XElement("Effect", new XAttribute("type", "$safeitemrootname$".ToLowerInvariant())),
+			spell), string.Empty);
+	}
+
+	public $safeitemrootname$Effect(XElement root, IMagicSpell spell)
+	{
+		Spell = spell;
+		// Load template configuration from XML here.
 	}
 
 	public IMagicSpell Spell { get; }
+	public IFuturemud Gameworld => Spell.Gameworld;
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
-
-#region Constructors and Saving
-
-	public $safeitemrootname$(XElement root, IMagicSpell spell)
-	{
-		Spell = spell;
-		// Load all the different properties
-	}
 
 	public XElement SaveToXml()
 	{
 		return new XElement("Effect",
-			new XAttribute("type", "$safeitemrootname$")
-			// Further xattributes
+			new XAttribute("type", "$safeitemrootname$".ToLowerInvariant())
 		);
 	}
 
 	public IMagicSpellEffectTemplate Clone()
 	{
-		return new $safeitemrootname$(SaveToXml(), Spell);
+		return new $safeitemrootname$Effect(SaveToXml(), Spell);
 	}
-#endregion
 
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
-			SpellPower power, IMagicSpellEffectParent parent)
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
-		// Return null if no spell effect
-
-		// Remove or change if target is not character
-		if (target is not ICharacter)
-		{
-			return null;
-		}
-
-		return new $safeitemrootname$(target, parent, null);
+		return new Spell$safeitemrootname$Effect(target, parent, null);
 	}
 
-#region Building Commands
 	public string Show(ICharacter actor)
 	{
-		// A one-line description of the spell effect
-		return $"$safeitemrootname$";
+		return "$safeitemrootname$Effect";
 	}
 
-	public const string HelpText = @"You can use the following options with this spell effect:
+	public const string HelpText = @"You can use the following options with this effect:
 
-	#3command info#0 - explanation";
+	#3command info#0 - explain what this option should do";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -89,5 +77,4 @@ public class $safeitemrootname$ : IMagicSpellEffectTemplate
 				return false;
 		}
 	}
-#endregion
 }

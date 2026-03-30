@@ -64,6 +64,19 @@ public class HealthSeederTests
 		context.SaveChanges();
 	}
 
+	private static void SeedShouldSeedPrerequisites(FuturemudDatabaseContext context)
+	{
+		SeedAccount(context);
+		context.Races.Add(new Race { Id = 1, Name = "Organic Humanoid" });
+		context.Tags.AddRange(
+			new Tag { Id = 1, Name = "Arterial Clamp" },
+			new Tag { Id = 2, Name = "Bonesaw" },
+			new Tag { Id = 3, Name = "Forceps" },
+			new Tag { Id = 4, Name = "Scalpel" },
+			new Tag { Id = 5, Name = "Surgical Suture Needle" });
+		context.SaveChanges();
+	}
+
 	[TestMethod]
 	public void ValidateDefaultSurgeryTargetAliasesForTesting_CurrentTargets_HasNoIssues()
 	{
@@ -140,5 +153,52 @@ public class HealthSeederTests
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name == "TopicalCream_InhaledOnly"));
 		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Pill_BothDrug"));
 		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "TopicalCream_BothDrug"));
+	}
+
+	[TestMethod]
+	public void ShouldSeedData_ModernTierInstallWithoutOtherTiers_ReturnsMayAlreadyInstalled()
+	{
+		using var context = BuildContext();
+		SeedShouldSeedPrerequisites(context);
+
+		context.Knowledges.AddRange(
+			new Knowledge { Id = 1, Name = "Diagnostic Medicine" },
+			new Knowledge { Id = 2, Name = "Clinical Medicine" },
+			new Knowledge { Id = 3, Name = "Surgery" });
+
+		context.SurgicalProcedures.AddRange(
+			new SurgicalProcedure { Id = 1, Name = "Triage" },
+			new SurgicalProcedure { Id = 2, Name = "Exploratory Surgery" },
+			new SurgicalProcedure { Id = 3, Name = "Arm Amputation" },
+			new SurgicalProcedure { Id = 4, Name = "Leg Amputation" },
+			new SurgicalProcedure { Id = 5, Name = "Digit Amputation" },
+			new SurgicalProcedure { Id = 6, Name = "Trauma Control" },
+			new SurgicalProcedure { Id = 7, Name = "Organ Extraction" },
+			new SurgicalProcedure { Id = 8, Name = "Bone Setting" },
+			new SurgicalProcedure { Id = 9, Name = "Stitch Up" });
+
+		context.Drugs.AddRange(
+			new Drug { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 2, Name = "Opioid Analgesic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 3, Name = "Muscle Relaxant", DrugVectors = (int)DrugVector.Injected, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 4, Name = "Local Anaesthetic", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 5, Name = "Broad-Spectrum Antibiotic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 6, Name = "Antibiotic Ointment", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 7, Name = "Antifungal Course", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 8, Name = "Burn Gel", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+
+		context.GameItemComponentProtos.AddRange(
+			new GameItemComponentProto { Id = 1, Name = "Pill_Opioid_Analgesic", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 2, Name = "TopicalCream_Local_Anaesthetic", Type = "TopicalCream", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 3, Name = "Pill_Broad_Spectrum_Antibiotic", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 4, Name = "TopicalCream_Antibiotic_Ointment", Type = "TopicalCream", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 5, Name = "Pill_Antifungal_Course", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 6, Name = "TopicalCream_Antifungal_Course", Type = "TopicalCream", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 7, Name = "TopicalCream_Burn_Gel", Type = "TopicalCream", EditableItem = new EditableItem() });
+
+		context.SaveChanges();
+
+		var seeder = new HealthSeeder();
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 	}
 }

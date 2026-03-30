@@ -26,19 +26,12 @@ namespace DatabaseSeeder.Seeders
 			"Scalpel",
 			"Surgical Suture Needle"
 		];
-		private static readonly string[] StockHealthKnowledges =
-		[
-			"Medicine",
-			"Chiurgery",
-			"Physical Medicine",
-			"Diagnostic Medicine",
-			"Clinical Medicine",
-			"Surgery",
-			"Animal Medicine",
-			"Veterinary Medicine",
-			"Veterinary Chiurgery",
-			"Veterinary Surgery"
-		];
+		private static readonly string[] PrimitiveHealthKnowledges = ["Medicine"];
+		private static readonly string[] PreModernHealthKnowledges = ["Chiurgery", "Physical Medicine"];
+		private static readonly string[] ModernHealthKnowledges = ["Diagnostic Medicine", "Clinical Medicine", "Surgery"];
+		private static readonly string[] PrimitiveVeterinaryKnowledges = ["Animal Medicine"];
+		private static readonly string[] PreModernVeterinaryKnowledges = ["Veterinary Medicine", "Veterinary Chiurgery"];
+		private static readonly string[] ModernVeterinaryKnowledges = ["Veterinary Medicine", "Veterinary Surgery"];
 		private static readonly string[] StockHealthProcedures =
 		[
 			"Triage",
@@ -51,20 +44,38 @@ namespace DatabaseSeeder.Seeders
 			"Bone Setting",
 			"Stitch Up"
 		];
-		private static readonly string[] StockHealthDrugs =
+		private static readonly string[] PrimitiveHealthDrugs =
 		[
 			"Willow Bark Tea",
-			"Laudanum",
-			"General Anaesthetic",
-			"Antibiotic Ointment",
-			"Burn Gel"
+			"Mandrake Draught",
+			"Honey Poultice",
+			"Garlic Salve",
+			"Mint Infusion",
+			"Ephedra Brew",
+			"Foxglove Tincture"
 		];
-		private static readonly string[] StockDrugDeliveryMarkers =
+		private static readonly string[] PreModernHealthDrugs =
 		[
-			"Pill_Willow_Bark_Tea",
-			"Pill_Laudanum",
-			"TopicalCream_Antibiotic_Ointment",
-			"TopicalCream_Burn_Gel"
+			"Laudanum",
+			"Ether Anaesthetic",
+			"Mould Poultice",
+			"Distilled Antiseptic",
+			"Mint and Ginger Tonic",
+			"Digitalis Tincture",
+			"Curare Paste",
+			"Herbal Burn Salve",
+			"Bronchial Smoke"
+		];
+		private static readonly string[] ModernHealthDrugs =
+		[
+			"General Anaesthetic",
+			"Opioid Analgesic",
+			"Muscle Relaxant",
+			"Local Anaesthetic",
+			"Broad-Spectrum Antibiotic",
+			"Antibiotic Ointment",
+			"Antifungal Course",
+			"Burn Gel"
 		];
 
 		private static readonly string[] HumanArmParts =
@@ -242,14 +253,24 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 				return ShouldSeedResult.PrerequisitesNotMet;
 			}
 
-			return SeederRepeatabilityHelper.ClassifyByPresence(
-			[
-				.. StockHealthKnowledges.Select(name => context.Knowledges.Any(x => x.Name == name)),
-				.. StockHealthProcedures.Select(name => context.SurgicalProcedures.Any(x => x.Name == name)),
-				.. StockHealthDrugs.Select(name => context.Drugs.Any(x => x.Name == name)),
-				.. ExpectedStockDrugDeliveryMarkers(context)
-					.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
-			]);
+			var tierStates = new[]
+			{
+				ClassifyTierPresence(context, "primitive"),
+				ClassifyTierPresence(context, "pre-modern"),
+				ClassifyTierPresence(context, "modern")
+			};
+
+			if (tierStates.Any(x => x == ShouldSeedResult.MayAlreadyBeInstalled))
+			{
+				return ShouldSeedResult.MayAlreadyBeInstalled;
+			}
+
+			if (tierStates.Any(x => x == ShouldSeedResult.ExtraPackagesAvailable))
+			{
+				return ShouldSeedResult.ExtraPackagesAvailable;
+			}
+
+			return ShouldSeedResult.ReadyToInstall;
 		}
 
 		internal void SeedDrugDeliveryExamplesForTesting(FuturemudDatabaseContext context)
@@ -1807,30 +1828,78 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 				.Replace("__", "_");
 		}
 
-		private static IEnumerable<string> ExpectedStockDrugDeliveryMarkers(FuturemudDatabaseContext context)
+		private static ShouldSeedResult ClassifyTierPresence(FuturemudDatabaseContext context, string techLevel)
 		{
-			var stockDrugNames = new HashSet<string>(StockHealthDrugs, StringComparer.OrdinalIgnoreCase);
-			var markerSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			return SeederRepeatabilityHelper.ClassifyByPresence(
+			[
+				.. ExpectedKnowledgesForTier(context, techLevel)
+					.Select(name => context.Knowledges.Any(x => x.Name == name)),
+				.. StockHealthProcedures.Select(name => context.SurgicalProcedures.Any(x => x.Name == name)),
+				.. ExpectedDrugsForTier(techLevel)
+					.Select(name => context.Drugs.Any(x => x.Name == name)),
+				.. ExpectedDrugDeliveryMarkersForTier(context, techLevel)
+					.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
+			]);
+		}
 
+		private static IEnumerable<string> ExpectedKnowledgesForTier(FuturemudDatabaseContext context, string techLevel)
+		{
+			foreach (var knowledge in techLevel switch
+			         {
+				         "primitive" => PrimitiveHealthKnowledges,
+				         "pre-modern" => PreModernHealthKnowledges,
+				         "modern" => ModernHealthKnowledges,
+				         _ => []
+			         })
+			{
+				yield return knowledge;
+			}
+
+			if (!context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+			{
+				yield break;
+			}
+
+			foreach (var veterinaryKnowledge in techLevel switch
+			         {
+				         "primitive" => PrimitiveVeterinaryKnowledges,
+				         "pre-modern" => PreModernVeterinaryKnowledges,
+				         "modern" => ModernVeterinaryKnowledges,
+				         _ => []
+			         })
+			{
+				yield return veterinaryKnowledge;
+			}
+		}
+
+		private static IEnumerable<string> ExpectedDrugsForTier(string techLevel)
+		{
+			return techLevel switch
+			{
+				"primitive" => PrimitiveHealthDrugs,
+				"pre-modern" => PreModernHealthDrugs,
+				"modern" => ModernHealthDrugs,
+				_ => []
+			};
+		}
+
+		private static IEnumerable<string> ExpectedDrugDeliveryMarkersForTier(FuturemudDatabaseContext context, string techLevel)
+		{
+			var expectedDrugNames = new HashSet<string>(ExpectedDrugsForTier(techLevel), StringComparer.OrdinalIgnoreCase);
 			foreach (var drug in context.Drugs
 				         .AsEnumerable()
-				         .Where(x => stockDrugNames.Contains(x.Name)))
+				         .Where(x => expectedDrugNames.Contains(x.Name)))
 			{
 				var vectors = (DrugVector)drug.DrugVectors;
 				if (vectors.HasFlag(DrugVector.Ingested))
 				{
-					markerSet.Add($"Pill_{SanitizeDrugComponentName(drug.Name)}");
+					yield return $"Pill_{SanitizeDrugComponentName(drug.Name)}";
 				}
 
 				if (vectors.HasFlag(DrugVector.Touched))
 				{
-					markerSet.Add($"TopicalCream_{SanitizeDrugComponentName(drug.Name)}");
+					yield return $"TopicalCream_{SanitizeDrugComponentName(drug.Name)}";
 				}
-			}
-
-			foreach (var marker in StockDrugDeliveryMarkers.Where(marker => markerSet.Contains(marker)))
-			{
-				yield return marker;
 			}
 		}
 

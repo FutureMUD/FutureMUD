@@ -228,11 +228,17 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 	internal static ShouldSeedResult ClassifyModernPackagePresence(FuturemudDatabaseContext context)
 	{
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-		[
-			.. StockModernItemMarkers.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name)),
-			context.GameItemComponentProtos.Any(x => x.Type == "Fuel Generator")
-		]);
+		var presenceChecks = StockModernItemMarkers
+			.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
+			.ToList();
+
+		var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+		if (fuelTag is not null && context.LiquidsTags.Any(x => x.TagId == fuelTag.Id))
+		{
+			presenceChecks.Add(context.GameItemComponentProtos.Any(x => x.Type == "Fuel Generator"));
+		}
+
+		return SeederRepeatabilityHelper.ClassifyByPresence(presenceChecks);
 	}
 
 	private static ShouldSeedResult CombinePackageStates(params ShouldSeedResult[] packageStates)

@@ -83,6 +83,52 @@ public class UsefulSeederModernPackageTests
 		context.SaveChanges();
 	}
 
+	private static void SeedModernBaseContext(FuturemudDatabaseContext context)
+	{
+		context.Accounts.Add(new Account
+		{
+			Id = 1,
+			Name = "SeederTest",
+			Password = "password",
+			Salt = 1,
+			AccessStatus = 0,
+			Email = "seeder@example.com",
+			LastLoginIp = "127.0.0.1",
+			FormatLength = 80,
+			InnerFormatLength = 78,
+			UseMxp = false,
+			UseMsp = false,
+			UseMccp = false,
+			ActiveCharactersAllowed = 1,
+			UseUnicode = true,
+			TimeZoneId = "UTC",
+			CultureName = "en-AU",
+			RegistrationCode = string.Empty,
+			IsRegistered = true,
+			RecoveryCode = string.Empty,
+			UnitPreference = "metric",
+			CreationDate = DateTime.UtcNow,
+			PageLength = 22,
+			PromptType = 0,
+			TabRoomDescriptions = false,
+			CodedRoomDescriptionAdditionsOnNewLine = false,
+			CharacterNameOverlaySetting = 0,
+			AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
+			ActLawfully = false,
+			HasBeenActiveInWeek = true,
+			HintsEnabled = true,
+			AutoReacquireTargets = false
+		});
+
+		context.StaticConfigurations.Add(new StaticConfiguration
+		{
+			SettingName = "DefaultPowerSocketType",
+			Definition = "NEMA 5-15"
+		});
+
+		context.SaveChanges();
+	}
+
 	private static GameItemComponentProto CreateComponentMarker(long id, string name, string type = "Test")
 	{
 		return new GameItemComponentProto
@@ -151,5 +197,22 @@ public class UsefulSeederModernPackageTests
 		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "FuelGenerator_kerosene"));
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name == "FuelGenerator_water"));
 		Assert.AreEqual(2, context.GameItemComponentProtos.Count(x => x.Type == "Fuel Generator"));
+	}
+
+	[TestMethod]
+	public void ClassifyModernPackagePresence_AllModernMarkersWithoutFuelPrerequisites_ReturnsMayAlreadyInstalled()
+	{
+		using var context = BuildContext();
+		SeedModernBaseContext(context);
+
+		var id = 100L;
+		foreach (var name in UsefulSeeder.StockModernItemMarkersForTesting)
+		{
+			context.GameItemComponentProtos.Add(CreateComponentMarker(id++, name));
+		}
+
+		context.SaveChanges();
+
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyModernPackagePresence(context));
 	}
 }

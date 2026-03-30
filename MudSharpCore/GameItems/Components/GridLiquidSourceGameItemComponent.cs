@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Body;
@@ -17,7 +18,7 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Components;
 
-public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidContainer, ICanConnectToLiquidGrid
+public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidContainer, ICanConnectToLiquidGrid, IConnectable
 {
 	protected GridLiquidSourceGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -28,6 +29,9 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 	}
 
 	private ILiquidGrid? _grid;
+	private readonly List<Tuple<ConnectorType, IConnectable>> _connectedItems = [];
+	private readonly List<Tuple<long, ConnectorType>> _pendingLoadTimeConnections = [];
+	private readonly List<Tuple<long, ConnectorType>> _pendingDependentLoadTimeConnections = [];
 
 	public ILiquidGrid? LiquidGrid
 	{
@@ -91,6 +95,22 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 	private void LoadFromXml(XElement root)
 	{
 		LiquidGrid = Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ILiquidGrid;
+		var connectors = root.Element("ConnectedItems");
+		if (connectors != null)
+		{
+			foreach (var item in connectors.Elements("Item"))
+			{
+				var connector = new ConnectorType(item.Attribute("connectiontype")!.Value);
+				if (item.Attribute("independent")?.Value == "false")
+				{
+					_pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
+				}
+				else
+				{
+					_pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
+				}
+			}
+		}
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -101,8 +121,62 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
-			new XElement("Grid", LiquidGrid?.Id ?? 0)
+			new XElement("Grid", LiquidGrid?.Id ?? 0),
+			new XElement("ConnectedItems",
+				from item in ConnectedItems
+				select new XElement("Item",
+					new XAttribute("id", item.Item2.Parent.Id),
+					new XAttribute("connectiontype", item.Item1),
+					new XAttribute("independent", item.Item2.Independent)))
 		).ToString();
+	}
+
+	public override void FinaliseLoad()
+	{
+		foreach (var item in _pendingLoadTimeConnections.ToList())
+		{
+			var gitem = Gameworld.Items.Get(item.Item1);
+			if (gitem == null || gitem.Location != Parent.Location)
+			{
+				continue;
+			}
+
+			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
+			{
+				if (!connectable.CanConnect(null, this))
+				{
+					continue;
+				}
+
+				connectable.Connect(null, this);
+				break;
+			}
+		}
+
+		_pendingLoadTimeConnections.Clear();
+
+		foreach (var item in _pendingDependentLoadTimeConnections.ToList())
+		{
+			var gitem = Gameworld.Items.Get(item.Item1);
+			if (gitem == null)
+			{
+				gitem = Gameworld.TryGetItem(item.Item1, true);
+				if (gitem == null)
+				{
+					continue;
+				}
+
+				gitem.FinaliseLoadTimeTasks();
+			}
+
+			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
+			{
+				connectable.Connect(null, this);
+				break;
+			}
+		}
+
+		_pendingDependentLoadTimeConnections.Clear();
 	}
 
 	public override bool DescriptionDecorator(DescriptionType type)
@@ -143,6 +217,126 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 		}
 
 		return base.Decorate(voyeur, name, description, type, colour, flags);
+	}
+
+	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
+	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
+
+	public IEnumerable<ConnectorType> FreeConnections
+	{
+		get
+		{
+			var rvar = new List<ConnectorType>(Connections);
+			foreach (var item in ConnectedItems)
+			{
+				rvar.Remove(item.Item1);
+			}
+
+			return rvar;
+		}
+	}
+
+	public bool Independent => true;
+
+	public bool CanBeConnectedTo(IConnectable other)
+	{
+		return true;
+	}
+
+	public bool CanConnect(ICharacter actor, IConnectable other)
+	{
+		if (!FreeConnections.Any() || !other.FreeConnections.Any())
+		{
+			return false;
+		}
+
+		return other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)) &&
+		       other.CanBeConnectedTo(this);
+	}
+
+	public void Connect(ICharacter actor, IConnectable other)
+	{
+		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
+		if (connection == null)
+		{
+			return;
+		}
+
+		RawConnect(other, connection);
+		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+		Changed = true;
+	}
+
+	public void RawConnect(IConnectable other, ConnectorType type)
+	{
+		_connectedItems.Add(Tuple.Create(type, other));
+		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		Parent.ConnectedItem(other, type);
+		Changed = true;
+	}
+
+	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	{
+		if (!FreeConnections.Any())
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the former has no free connection points.";
+		}
+
+		if (!other.FreeConnections.Any())
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the latter has no free connection points.";
+		}
+
+		if (!other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)))
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as none of the free connection points are compatible.";
+		}
+
+		return !other.CanBeConnectedTo(this)
+			? $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as that item cannot be connected to."
+			: $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} for an unknown reason.";
+	}
+
+	public bool CanDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _connectedItems.Any(x => x.Item2 == other);
+	}
+
+	public void Disconnect(ICharacter actor, IConnectable other)
+	{
+		RawDisconnect(other, true);
+	}
+
+	public void RawDisconnect(IConnectable other, bool handleEvents)
+	{
+		if (handleEvents)
+		{
+			other.RawDisconnect(this, false);
+			foreach (var connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+			{
+				Parent.DisconnectedItem(other, connection.Item1);
+				other.Parent.DisconnectedItem(this, connection.Item1);
+			}
+		}
+
+		_connectedItems.RemoveAll(x => x.Item2 == other);
+		Changed = true;
+	}
+
+	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _connectedItems.All(x => x.Item2 != other)
+			? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
+			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
+	}
+
+	public bool CanBeDisconnectedFrom(IConnectable other)
+	{
+		return true;
 	}
 
 	public bool IsOpen => true;

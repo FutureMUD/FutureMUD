@@ -32,6 +32,7 @@ This is how components add behavioural presentation without forcing all descript
 Examples include:
 - containers showing fullness, open state, and contents
 - locks or connections contributing extra information
+- connector-driven items showing their current grid membership and physical links
 - effects such as glow adding descriptive layers through adjacent systems
 
 ### Decoration ordering
@@ -75,6 +76,11 @@ Common examples:
 - `IWearable`
 - `IImplant`
 - `IProsthetic`
+
+Connector-aware items often need to describe both sides of their integration:
+- a component like a telephone may show the telecommunications grid it is attached to and the device it is physically plugged into
+- a liquid pump may need to describe the source container, destination container, and power source all at once
+- a battery-backed item may need to explain both its stored charge and the connector it uses to recharge
 
 ## Item Groups
 ### Purpose

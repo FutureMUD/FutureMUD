@@ -75,6 +75,13 @@ This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class
 
+Some item capabilities are best thought of as paired systems rather than isolated behaviours. Power, liquid, and telecommunications examples often combine:
+- a grid creator that establishes the shared network
+- a supply component that contributes to the grid
+- one or more connectable consumer or connector components that physically join items together
+
+Those relationships are usually expressed through `IConnectable` plus a domain-specific grid interface such as `ICanConnectToElectricalGrid`, `ICanConnectToLiquidGrid`, or `ICanConnectToTelecommunicationsGrid`.
+
 ### `GameItem` aggregates component behaviour
 `GameItem` delegates and aggregates a large amount of behaviour:
 - movement prevention is aggregated across components
@@ -82,6 +89,7 @@ This has two important consequences:
 - material can be overridden by components
 - attached and connected item relationships are exposed through component-provided interfaces
 - location resolution checks components such as chairs, doors, belts, connectables, worn items, implants, and prosthetics
+- connector-aware components can also persist and restore linked items so that networks survive save/load cycles
 
 This aggregation layer is why item code often looks simple at the call site even when item behaviour is complex.
 

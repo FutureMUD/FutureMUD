@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -69,9 +70,63 @@ public class UsefulSeederModernPackageTests
 		var fuelTag = new Tag { Id = 1, Name = "Fuel" };
 		context.Tags.Add(fuelTag);
 
-		var gasoline = new Liquid { Id = 1, Name = "gasoline" };
-		var kerosene = new Liquid { Id = 2, Name = "kerosene" };
-		var water = new Liquid { Id = 3, Name = "water" };
+		var gasoline = new Liquid
+		{
+			Id = 1,
+			Name = "gasoline",
+			Description = "gasoline",
+			LongDescription = "gasoline",
+			TasteText = "gasoline",
+			VagueTasteText = "fuel",
+			SmellText = "gasoline",
+			VagueSmellText = "fuel",
+			DisplayColour = "red",
+			DampDescription = "gasoline-damp",
+			WetDescription = "gasoline-wet",
+			DrenchedDescription = "gasoline-drenched",
+			DampShortDescription = "gasoline-damp",
+			WetShortDescription = "gasoline-wet",
+			DrenchedShortDescription = "gasoline-drenched",
+			SurfaceReactionInfo = "gasoline"
+		};
+		var kerosene = new Liquid
+		{
+			Id = 2,
+			Name = "kerosene",
+			Description = "kerosene",
+			LongDescription = "kerosene",
+			TasteText = "kerosene",
+			VagueTasteText = "fuel",
+			SmellText = "kerosene",
+			VagueSmellText = "fuel",
+			DisplayColour = "yellow",
+			DampDescription = "kerosene-damp",
+			WetDescription = "kerosene-wet",
+			DrenchedDescription = "kerosene-drenched",
+			DampShortDescription = "kerosene-damp",
+			WetShortDescription = "kerosene-wet",
+			DrenchedShortDescription = "kerosene-drenched",
+			SurfaceReactionInfo = "kerosene"
+		};
+		var water = new Liquid
+		{
+			Id = 3,
+			Name = "water",
+			Description = "water",
+			LongDescription = "water",
+			TasteText = "water",
+			VagueTasteText = "water",
+			SmellText = "water",
+			VagueSmellText = "water",
+			DisplayColour = "blue",
+			DampDescription = "water-damp",
+			WetDescription = "water-wet",
+			DrenchedDescription = "water-drenched",
+			DampShortDescription = "water-damp",
+			WetShortDescription = "water-wet",
+			DrenchedShortDescription = "water-drenched",
+			SurfaceReactionInfo = "water"
+		};
 
 		var gasolineTag = new LiquidsTags { Liquid = gasoline, LiquidId = gasoline.Id, Tag = fuelTag, TagId = fuelTag.Id };
 		var keroseneTag = new LiquidsTags { Liquid = kerosene, LiquidId = kerosene.Id, Tag = fuelTag, TagId = fuelTag.Id };

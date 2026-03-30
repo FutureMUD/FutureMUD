@@ -32,17 +32,62 @@ namespace DatabaseSeeder.Seeders
 		private static readonly string[] PrimitiveVeterinaryKnowledges = ["Animal Medicine"];
 		private static readonly string[] PreModernVeterinaryKnowledges = ["Veterinary Medicine", "Veterinary Chiurgery"];
 		private static readonly string[] ModernVeterinaryKnowledges = ["Veterinary Medicine", "Veterinary Surgery"];
-		private static readonly string[] StockHealthProcedures =
+		private static readonly string[] PrimitiveHealthProcedures =
 		[
-			"Triage",
+			"Hasty Triage",
+			"Primitive Stitching",
 			"Exploratory Surgery",
-			"Arm Amputation",
-			"Leg Amputation",
-			"Digit Amputation",
 			"Trauma Control",
 			"Organ Extraction",
-			"Bone Setting",
-			"Stitch Up"
+			"Crude Organ Repair",
+			"Bone Setting"
+		];
+		private static readonly string[] PreModernHealthProcedures =
+		[
+			"Triage",
+			"Stitch Up",
+			"Exploratory Surgery",
+			"Trauma Control",
+			"Organ Extraction",
+			"General Organ Repair",
+			"Bone Setting"
+		];
+		private static readonly string[] ModernHealthProcedures =
+		[
+			"Triage",
+			"Physical",
+			"Stitch Up",
+			"Exploratory Surgery",
+			"Trauma Control",
+			"Organ Extraction",
+			"General Organ Repair",
+			"Bone Setting"
+		];
+		private static readonly string[] PrimitiveVeterinaryProcedures =
+		[
+			"Veterinary Hasty Triage",
+			"Veterinary Stitching",
+			"Veterinary Exploratory Surgery",
+			"Veterinary Trauma Control",
+			"Veterinary Bone Setting"
+		];
+		private static readonly string[] PreModernVeterinaryProcedures =
+		[
+			"Veterinary Triage",
+			"Veterinary Physical",
+			"Veterinary Stitch Up",
+			"Veterinary Exploratory Surgery",
+			"Veterinary Trauma Control",
+			"Veterinary Bone Setting"
+		];
+		private static readonly string[] ModernVeterinaryProcedures =
+		[
+			"Veterinary Triage",
+			"Veterinary Physical",
+			"Veterinary Stitch Up",
+			"Veterinary Exploratory Surgery",
+			"Veterinary Trauma Control",
+			"Veterinary Bone Setting"
 		];
 		private static readonly string[] PrimitiveHealthDrugs =
 		[
@@ -1834,7 +1879,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 			[
 				.. ExpectedKnowledgesForTier(context, techLevel)
 					.Select(name => context.Knowledges.Any(x => x.Name == name)),
-				.. StockHealthProcedures.Select(name => context.SurgicalProcedures.Any(x => x.Name == name)),
+				.. ExpectedProceduresForTier(context, techLevel)
+					.Select(name => context.SurgicalProcedures.Any(x => x.Name == name)),
 				.. ExpectedDrugsForTier(techLevel)
 					.Select(name => context.Drugs.Any(x => x.Name == name)),
 				.. ExpectedDrugDeliveryMarkersForTier(context, techLevel)
@@ -1881,6 +1927,36 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 				"modern" => ModernHealthDrugs,
 				_ => []
 			};
+		}
+
+		private static IEnumerable<string> ExpectedProceduresForTier(FuturemudDatabaseContext context, string techLevel)
+		{
+			foreach (var procedure in techLevel switch
+			         {
+				         "primitive" => PrimitiveHealthProcedures,
+				         "pre-modern" => PreModernHealthProcedures,
+				         "modern" => ModernHealthProcedures,
+				         _ => []
+			         })
+			{
+				yield return procedure;
+			}
+
+			if (!context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+			{
+				yield break;
+			}
+
+			foreach (var veterinaryProcedure in techLevel switch
+			         {
+				         "primitive" => PrimitiveVeterinaryProcedures,
+				         "pre-modern" => PreModernVeterinaryProcedures,
+				         "modern" => ModernVeterinaryProcedures,
+				         _ => []
+			         })
+			{
+				yield return veterinaryProcedure;
+			}
 		}
 
 		private static IEnumerable<string> ExpectedDrugDeliveryMarkersForTier(FuturemudDatabaseContext context, string techLevel)

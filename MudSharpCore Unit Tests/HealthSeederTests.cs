@@ -168,14 +168,13 @@ public class HealthSeederTests
 
 		context.SurgicalProcedures.AddRange(
 			new SurgicalProcedure { Id = 1, Name = "Triage" },
-			new SurgicalProcedure { Id = 2, Name = "Exploratory Surgery" },
-			new SurgicalProcedure { Id = 3, Name = "Arm Amputation" },
-			new SurgicalProcedure { Id = 4, Name = "Leg Amputation" },
-			new SurgicalProcedure { Id = 5, Name = "Digit Amputation" },
-			new SurgicalProcedure { Id = 6, Name = "Trauma Control" },
-			new SurgicalProcedure { Id = 7, Name = "Organ Extraction" },
-			new SurgicalProcedure { Id = 8, Name = "Bone Setting" },
-			new SurgicalProcedure { Id = 9, Name = "Stitch Up" });
+			new SurgicalProcedure { Id = 2, Name = "Physical" },
+			new SurgicalProcedure { Id = 3, Name = "Stitch Up" },
+			new SurgicalProcedure { Id = 4, Name = "Exploratory Surgery" },
+			new SurgicalProcedure { Id = 5, Name = "Trauma Control" },
+			new SurgicalProcedure { Id = 6, Name = "Organ Extraction" },
+			new SurgicalProcedure { Id = 7, Name = "General Organ Repair" },
+			new SurgicalProcedure { Id = 8, Name = "Bone Setting" });
 
 		context.Drugs.AddRange(
 			new Drug { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
@@ -195,6 +194,48 @@ public class HealthSeederTests
 			new GameItemComponentProto { Id = 5, Name = "Pill_Antifungal_Course", Type = "Pill", EditableItem = new EditableItem() },
 			new GameItemComponentProto { Id = 6, Name = "TopicalCream_Antifungal_Course", Type = "TopicalCream", EditableItem = new EditableItem() },
 			new GameItemComponentProto { Id = 7, Name = "TopicalCream_Burn_Gel", Type = "TopicalCream", EditableItem = new EditableItem() });
+
+		context.SaveChanges();
+
+		var seeder = new HealthSeeder();
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+	}
+
+	[TestMethod]
+	public void ShouldSeedData_PrimitiveTierInstallWithoutOtherTiers_ReturnsMayAlreadyInstalled()
+	{
+		using var context = BuildContext();
+		SeedShouldSeedPrerequisites(context);
+
+		context.Knowledges.Add(new Knowledge { Id = 1, Name = "Medicine" });
+
+		context.SurgicalProcedures.AddRange(
+			new SurgicalProcedure { Id = 1, Name = "Hasty Triage" },
+			new SurgicalProcedure { Id = 2, Name = "Primitive Stitching" },
+			new SurgicalProcedure { Id = 3, Name = "Exploratory Surgery" },
+			new SurgicalProcedure { Id = 4, Name = "Trauma Control" },
+			new SurgicalProcedure { Id = 5, Name = "Organ Extraction" },
+			new SurgicalProcedure { Id = 6, Name = "Crude Organ Repair" },
+			new SurgicalProcedure { Id = 7, Name = "Bone Setting" });
+
+		context.Drugs.AddRange(
+			new Drug { Id = 1, Name = "Willow Bark Tea", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 2, Name = "Mandrake Draught", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Inhaled), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 3, Name = "Honey Poultice", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 4, Name = "Garlic Salve", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 5, Name = "Mint Infusion", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 6, Name = "Ephedra Brew", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+
+		context.GameItemComponentProtos.AddRange(
+			new GameItemComponentProto { Id = 1, Name = "Pill_Willow_Bark_Tea", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 2, Name = "Pill_Mandrake_Draught", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 3, Name = "TopicalCream_Honey_Poultice", Type = "TopicalCream", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 4, Name = "Pill_Garlic_Salve", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 5, Name = "TopicalCream_Garlic_Salve", Type = "TopicalCream", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 6, Name = "Pill_Mint_Infusion", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 7, Name = "Pill_Ephedra_Brew", Type = "Pill", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 8, Name = "Pill_Foxglove_Tincture", Type = "Pill", EditableItem = new EditableItem() });
 
 		context.SaveChanges();
 

@@ -85,6 +85,28 @@ public class GridSystemTests
 	}
 
 	[TestMethod]
+	public void GridPowerSupplyComponent_CountsPendingConsumersAgainstWattageCap()
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var proto = CreateGridPowerSupplyProto(gameworld.Object, 50.0);
+		var component = new GridPowerSupplyGameItemComponent(proto, parent.Object, true);
+
+		var consumerOne = new Mock<IConsumePower>();
+		consumerOne.SetupGet(x => x.PowerConsumptionInWatts).Returns(20.0);
+		var consumerTwo = new Mock<IConsumePower>();
+		consumerTwo.SetupGet(x => x.PowerConsumptionInWatts).Returns(15.0);
+
+		component.BeginDrawdown(consumerOne.Object);
+		component.BeginDrawdown(consumerTwo.Object);
+
+		Assert.IsTrue(component.CanBeginDrawDown(15.0));
+		Assert.IsFalse(component.CanBeginDrawDown(16.0));
+		Assert.AreEqual(0.0, component.PowerConsumptionInWatts, 0.0001);
+	}
+
+	[TestMethod]
 	public void LiquidGrid_CurrentMixtureWeightsSuppliersByVolume()
 	{
 		var gameworld = CreateGameworld();
@@ -140,6 +162,27 @@ public class GridSystemTests
 
 		Assert.AreEqual(5.0, grid.TotalLiquidVolume, 0.0001);
 		Assert.AreEqual(5.0, grid.CurrentLiquidMixture.TotalVolume, 0.0001);
+	}
+
+	[TestMethod]
+	public void LiquidGrid_CopyDoesNotAttachRoomSuppliers()
+	{
+		var gameworld = CreateGameworld();
+		var supplier = CreateSupplier(CreateMixture(gameworld.Object, (CreateLiquid(1, "water").Object, 3.0)));
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(10L);
+		item.Setup(x => x.GetItemType<ILiquidGridSupplier>()).Returns(supplier.Object);
+		var cell = CreateCell();
+		cell.SetupGet(x => x.GameItems).Returns([item.Object]);
+
+		var original = new Mock<ILiquidGrid>();
+		original.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		original.SetupGet(x => x.Locations).Returns([cell.Object]);
+
+		var clone = new LiquidGrid(original.Object);
+
+		Assert.AreEqual(0.0, clone.TotalLiquidVolume, 0.0001);
+		Assert.IsTrue(clone.CurrentLiquidMixture.IsEmpty);
 	}
 
 	[TestMethod]
@@ -221,6 +264,20 @@ public class GridSystemTests
 
 		Assert.IsFalse(grid.TryStartCall(caller, unpowered.PhoneNumber!, out error));
 		StringAssert.Contains(error, "cannot receive");
+	}
+
+	[TestMethod]
+	public void GridLiquidSourceGameItemComponent_RejectsIncomingLiquidMerges()
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var proto = CreateGridLiquidSourceProto(gameworld.Object);
+		var component = new GridLiquidSourceGameItemComponent(proto, parent.Object, true);
+		var mixture = CreateMixture(gameworld.Object, (CreateLiquid(1, "water").Object, 1.0));
+
+		Assert.AreEqual(0.0, component.LiquidCapacity, 0.0001);
+		Assert.ThrowsException<InvalidOperationException>(() => component.MergeLiquid(mixture, null!, "test"));
 	}
 
 	[TestMethod]
@@ -344,6 +401,28 @@ public class GridSystemTests
 		};
 
 		return (TelephoneGameItemComponentProto)typeof(TelephoneGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static GridLiquidSourceGameItemComponentProto CreateGridLiquidSourceProto(IFuturemud gameworld)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 3,
+			Name = "Grid Liquid Source",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition = "<Definition />",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (GridLiquidSourceGameItemComponentProto)typeof(GridLiquidSourceGameItemComponentProto)
 		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
 			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
 		       .Invoke([model, gameworld]);

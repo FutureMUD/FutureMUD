@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
@@ -44,7 +45,7 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 		set { }
 	}
 
-	public double LiquidCapacity => double.MaxValue;
+	public double LiquidCapacity => 0.0;
 	public bool CanBeEmptiedWhenInRoom => true;
 	public double LiquidVolume => LiquidGrid?.TotalLiquidVolume ?? 0.0;
 
@@ -58,6 +59,7 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 
 	public void MergeLiquid(LiquidMixture otherMixture, ICharacter who, string action)
 	{
+		throw new InvalidOperationException("You cannot add liquid directly to a grid liquid source.");
 	}
 
 	public LiquidMixture? RemoveLiquidAmount(double amount, ICharacter who, string action)

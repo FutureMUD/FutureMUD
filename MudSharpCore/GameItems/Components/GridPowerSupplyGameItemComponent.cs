@@ -144,7 +144,7 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
 	public bool CanBeginDrawDown(double wattage)
 	{
-		return CurrentDrawdown + wattage <= _prototype.Wattage;
+		return RegisteredDrawdown + wattage <= _prototype.Wattage;
 	}
 
 	public bool CanDrawdownSpike(double wattage)
@@ -164,6 +164,7 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 	public bool ProducingPower => ElectricalGrid != null && _powered;
 
 	private double CurrentDrawdown => _powerUsers.Sum(x => x.PowerConsumptionInWatts);
+	private double RegisteredDrawdown => _connectedConsumers.Sum(x => x.PowerConsumptionInWatts);
 
 	#endregion
 

@@ -30,14 +30,6 @@ public class LiquidGrid : GridBase, ILiquidGrid
 
 	public LiquidGrid(ILiquidGrid rhs) : base(rhs)
 	{
-		foreach (var supplier in rhs.Locations
-			         .SelectMany(x => x.GameItems)
-			         .Select(x => x.GetItemType<ILiquidGridSupplier>())
-			         .Where(x => x != null)
-			         .Cast<ILiquidGridSupplier>())
-		{
-			_connectedSuppliers.Add(supplier);
-		}
 	}
 
 	public override string GridType => "Liquid";

@@ -16,14 +16,24 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Components;
 
-public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IOpenable, IProducePower
+public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IOpenable, IProducePower, IConsumePower, IConnectable
 {
 	protected BatteryPoweredGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
+	private readonly List<Tuple<ConnectorType, IConnectable>> _connectedItems = [];
+	private readonly List<Tuple<long, ConnectorType>> _pendingLoadTimeConnections = [];
+	private readonly List<Tuple<long, ConnectorType>> _pendingDependentLoadTimeConnections = [];
+	private IProducePower? _connectedPowerSource;
+	private ConnectorType? _connectedPowerSourceConnector;
+	private bool _charging;
 
 	public override void Delete()
 	{
 		base.Delete();
+		_connectedPowerSource?.EndDrawdown(this);
+		_connectedPowerSource = null;
+		_connectedPowerSourceConnector = null;
+		_charging = false;
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
@@ -38,10 +48,17 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 		}
 
 		_batteries.Clear();
+		_connectedItems.Clear();
+		_pendingLoadTimeConnections.Clear();
+		_pendingDependentLoadTimeConnections.Clear();
 	}
 
 	public override void Quit()
 	{
+		_connectedPowerSource?.EndDrawdown(this);
+		_connectedPowerSource = null;
+		_connectedPowerSourceConnector = null;
+		_charging = false;
 		foreach (var item in Contents)
 		{
 			item.Quit();
@@ -221,7 +238,13 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 		return
 			new XElement("Definition", new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
 				new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
-				from content in Contents select new XElement("Contained", content.Id)).ToString();
+				from content in Contents select new XElement("Contained", content.Id),
+				new XElement("ConnectedItems",
+					from item in ConnectedItems
+					select new XElement("Item",
+						new XAttribute("id", item.Item2.Parent.Id),
+						new XAttribute("connectiontype", item.Item1),
+						new XAttribute("independent", item.Item2.Independent)))).ToString();
 	}
 
 	#endregion
@@ -232,6 +255,8 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 		bool temporary = false) : base(parent, proto, temporary)
 	{
 		_prototype = proto;
+		parent.OnConnected += Parent_OnConnected;
+		parent.OnDisconnected += Parent_OnDisconnected;
 	}
 
 	public BatteryPoweredGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -241,12 +266,16 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 		_noSave = true;
 		LoadFromXml(XElement.Parse(component.Definition));
 		_noSave = false;
+		parent.OnConnected += Parent_OnConnected;
+		parent.OnDisconnected += Parent_OnDisconnected;
 	}
 
 	public BatteryPoweredGameItemComponent(BatteryPoweredGameItemComponent rhs, IGameItem newParent,
 		bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		newParent.OnConnected += Parent_OnConnected;
+		newParent.OnDisconnected += Parent_OnDisconnected;
 	}
 
 	protected void LoadFromXml(XElement root)
@@ -301,6 +330,23 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 			_batteries.Add(item.GetItemType<IBattery>());
 			item.LoadTimeSetContainedIn(Parent);
 		}
+
+		var connectors = root.Element("ConnectedItems");
+		if (connectors != null)
+		{
+			foreach (var item in connectors.Elements("Item"))
+			{
+				var connector = new ConnectorType(item.Attribute("connectiontype")!.Value);
+				if (item.Attribute("independent")?.Value == "false")
+				{
+					_pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
+				}
+				else
+				{
+					_pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
+				}
+			}
+		}
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -314,6 +360,51 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 		{
 			item.FinaliseLoadTimeTasks();
 		}
+
+		foreach (var item in _pendingLoadTimeConnections.ToList())
+		{
+			var gitem = Gameworld.Items.Get(item.Item1);
+			if (gitem == null || gitem.Location != Parent.Location)
+			{
+				continue;
+			}
+
+			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
+			{
+				if (!connectable.CanConnect(null, this))
+				{
+					continue;
+				}
+
+				connectable.Connect(null, this);
+				break;
+			}
+		}
+
+		_pendingLoadTimeConnections.Clear();
+
+		foreach (var item in _pendingDependentLoadTimeConnections.ToList())
+		{
+			var gitem = Gameworld.Items.Get(item.Item1);
+			if (gitem == null)
+			{
+				gitem = Gameworld.TryGetItem(item.Item1, true);
+				if (gitem == null)
+				{
+					continue;
+				}
+
+				gitem.FinaliseLoadTimeTasks();
+			}
+
+			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
+			{
+				connectable.Connect(null, this);
+				break;
+			}
+		}
+
+		_pendingDependentLoadTimeConnections.Clear();
 	}
 
 	#endregion
@@ -324,13 +415,15 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
 	private void CheckHeartbeat()
 	{
-		if (_heartbeatOn && (!_connectedConsumers.Any() || !_powerUsers.Any() || !ProducingPower))
+		var hasChargeRoom = _charging && _batteries.Any(x => x.Rechargable && x.WattHoursRemaining < x.TotalWattHours);
+		var needsHeartbeat = (_connectedConsumers.Any() && ProducingPower) || hasChargeRoom;
+		if (_heartbeatOn && !needsHeartbeat)
 		{
 			EndHeartbeat();
 			return;
 		}
 
-		if (!_heartbeatOn && _connectedConsumers.Any() && ProducingPower)
+		if (!_heartbeatOn && needsHeartbeat)
 		{
 			StartHeartbeat();
 		}
@@ -368,6 +461,17 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 			battery.WattHoursRemaining -= powerUsage;
 		}
 
+		if (_charging)
+		{
+			var chargeRate = _prototype.ChargeWattage / 3600.0 /
+			                 (_prototype.BatteriesInSeries ? 1.0 : _prototype.BatteryQuantity);
+			foreach (var battery in _batteries.Where(x => x.Rechargable))
+			{
+				battery.WattHoursRemaining = Math.Min(battery.TotalWattHours,
+					battery.WattHoursRemaining + chargeRate);
+			}
+		}
+
 		CheckHeartbeat();
 	}
 
@@ -403,11 +507,17 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
 	public void BeginDrawdown(IConsumePower item)
 	{
-		_connectedConsumers.Add(item);
+		if (!_connectedConsumers.Contains(item))
+		{
+			_connectedConsumers.Add(item);
+		}
 
 		if (ProducingPower)
 		{
-			_powerUsers.Add(item);
+			if (!_powerUsers.Contains(item))
+			{
+				_powerUsers.Add(item);
+			}
 			item.OnPowerCutIn();
 		}
 
@@ -471,6 +581,181 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 
 		CheckHeartbeat();
 		return true;
+	}
+
+	#endregion
+
+	#region IConsumePower Implementation
+
+	public double PowerConsumptionInWatts => _charging ? _prototype.ChargeWattage : 0.0;
+
+	public void OnPowerCutIn()
+	{
+		_charging = true;
+		CheckHeartbeat();
+	}
+
+	public void OnPowerCutOut()
+	{
+		_charging = false;
+		CheckHeartbeat();
+	}
+
+	#endregion
+
+	#region IConnectable Implementation
+
+	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
+	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
+
+	public IEnumerable<ConnectorType> FreeConnections
+	{
+		get
+		{
+			var rvar = new List<ConnectorType>(Connections);
+			foreach (var item in ConnectedItems)
+			{
+				rvar.Remove(item.Item1);
+			}
+
+			return rvar;
+		}
+	}
+
+	public bool Independent => true;
+
+	public bool CanBeConnectedTo(IConnectable other)
+	{
+		return true;
+	}
+
+	public bool CanConnect(ICharacter actor, IConnectable other)
+	{
+		if (!FreeConnections.Any() || !other.FreeConnections.Any())
+		{
+			return false;
+		}
+
+		return other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)) &&
+		       other.CanBeConnectedTo(this);
+	}
+
+	public void Connect(ICharacter actor, IConnectable other)
+	{
+		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
+		if (connection == null)
+		{
+			return;
+		}
+
+		RawConnect(other, connection);
+		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+		Changed = true;
+	}
+
+	public void RawConnect(IConnectable other, ConnectorType type)
+	{
+		_connectedItems.Add(Tuple.Create(type, other));
+		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		Parent.ConnectedItem(other, type);
+		Parent_OnConnected(other, type);
+		Changed = true;
+	}
+
+	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	{
+		if (!FreeConnections.Any())
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the former has no free connection points.";
+		}
+
+		if (!other.FreeConnections.Any())
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the latter has no free connection points.";
+		}
+
+		if (!other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)))
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as none of the free connection points are compatible.";
+		}
+
+		return !other.CanBeConnectedTo(this)
+			? $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as that item cannot be connected to."
+			: $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} for an unknown reason.";
+	}
+
+	public bool CanDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _connectedItems.Any(x => x.Item2 == other);
+	}
+
+	public void Disconnect(ICharacter actor, IConnectable other)
+	{
+		RawDisconnect(other, true);
+	}
+
+	public void RawDisconnect(IConnectable other, bool handleEvents)
+	{
+		if (handleEvents)
+		{
+			other.RawDisconnect(this, false);
+			foreach (var connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+			{
+				Parent.DisconnectedItem(other, connection.Item1);
+				other.Parent.DisconnectedItem(this, connection.Item1);
+				Parent_OnDisconnected(other, connection.Item1);
+			}
+		}
+
+		_connectedItems.RemoveAll(x => x.Item2 == other);
+		Changed = true;
+	}
+
+	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _connectedItems.All(x => x.Item2 != other)
+			? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
+			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
+	}
+
+	public bool CanBeDisconnectedFrom(IConnectable other)
+	{
+		return true;
+	}
+
+	private void Parent_OnConnected(IConnectable other, ConnectorType type)
+	{
+		if (!type.Powered)
+		{
+			return;
+		}
+
+		var power = other.Parent.GetItemTypes<IProducePower>()
+		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
+		if (power == null)
+		{
+			return;
+		}
+
+		_connectedPowerSource = power;
+		_connectedPowerSourceConnector = type;
+		power.BeginDrawdown(this);
+	}
+
+	private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
+	{
+		if (other.Parent == _connectedPowerSource?.Parent && _connectedPowerSourceConnector?.CompatibleWith(type) == true)
+		{
+			_connectedPowerSource.EndDrawdown(this);
+			_connectedPowerSource = null;
+			_connectedPowerSourceConnector = null;
+			_charging = false;
+			CheckHeartbeat();
+		}
 	}
 
 	#endregion

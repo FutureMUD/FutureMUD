@@ -15,25 +15,29 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class TelecommunicationsGridFeederGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
 {
-	public override string TypeDescription => "GridLiquidSource";
+	public override string TypeDescription => "TelecommunicationsGridFeeder";
+	public double Wattage { get; set; }
 	public List<ConnectorType> Connections { get; } = [];
 	IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
-	protected GridLiquidSourceGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
-		originator, "GridLiquidSource")
+	protected TelecommunicationsGridFeederGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
+		originator, "TelecommunicationsGridFeeder")
 	{
-		Connections.Add(new ConnectorType(Form.Shape.Gender.Male, "LiquidLine", false));
+		Wattage = 20.0;
+		Connections.Add(new ConnectorType(Form.Shape.Gender.Female, "TelephoneLine", true));
 	}
 
-	protected GridLiquidSourceGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld)
-		: base(proto, gameworld)
+	protected TelecommunicationsGridFeederGameItemComponentProto(Models.GameItemComponentProto proto,
+		IFuturemud gameworld) : base(proto, gameworld)
 	{
+		LoadFromXml(XElement.Parse(proto.Definition));
 	}
 
-	protected override void LoadFromXml(System.Xml.Linq.XElement root)
+	protected override void LoadFromXml(XElement root)
 	{
+		Wattage = double.Parse(root.Element("Wattage")?.Value ?? "20.0");
 		Connections.Clear();
 		var element = root.Element("Connectors");
 		if (element != null)
@@ -49,6 +53,7 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
+			new XElement("Wattage", Wattage),
 			new XElement("Connectors",
 				from connector in Connections
 				select new XElement("Connection",
@@ -60,23 +65,23 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
 	{
-		return new GridLiquidSourceGameItemComponent(this, parent, temporary);
+		return new TelecommunicationsGridFeederGameItemComponent(this, parent, temporary);
 	}
 
 	public override IGameItemComponent LoadComponent(Models.GameItemComponent component, IGameItem parent)
 	{
-		return new GridLiquidSourceGameItemComponent(component, this, parent);
+		return new TelecommunicationsGridFeederGameItemComponent(component, this, parent);
 	}
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
-		manager.AddBuilderLoader("GridLiquidSource".ToLowerInvariant(), true,
-			(gameworld, account) => new GridLiquidSourceGameItemComponentProto(gameworld, account));
-		manager.AddDatabaseLoader("GridLiquidSource",
-			(proto, gameworld) => new GridLiquidSourceGameItemComponentProto(proto, gameworld));
+		manager.AddBuilderLoader("TelecommunicationsGridFeeder".ToLowerInvariant(), true,
+			(gameworld, account) => new TelecommunicationsGridFeederGameItemComponentProto(gameworld, account));
+		manager.AddDatabaseLoader("TelecommunicationsGridFeeder",
+			(proto, gameworld) => new TelecommunicationsGridFeederGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
-			"GridLiquidSource",
-			$"Supplies liquid from a {"[liquid grid]".Colour(Telnet.BoldCyan)} through the existing {"[liquid container]".Colour(Telnet.BoldBlue)} interaction surface and can expose a physical connector",
+			"TelecommunicationsGridFeeder",
+			$"Creates a telephone jack that can also {"[provide power]".Colour(Telnet.BoldMagenta)} to connected devices and can be linked to a {"[telecommunications grid]".Colour(Telnet.BoldBlue)}",
 			BuildingHelpText
 		);
 	}
@@ -84,11 +89,15 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 	public override IEditableRevisableItem CreateNewRevision(ICharacter initiator)
 	{
 		return CreateNewRevision(initiator,
-			(proto, gameworld) => new GridLiquidSourceGameItemComponentProto(proto, gameworld));
+			(proto, gameworld) => new TelecommunicationsGridFeederGameItemComponentProto(proto, gameworld));
 	}
 
-	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tconnection add <gender> <type> <powered> - adds a connection type\n\tconnection remove <gender> <type> - removes a connection type";
+	private const string BuildingHelpText = @"You can use the following options with this component:
+	name <name> - sets the name of the component
+	desc <desc> - sets the description of the component
+	watts <#> - sets the maximum wattage this feeder can provide
+	connection add <gender> <type> <powered> - adds a connection type
+	connection remove <gender> <type> - removes a connection type";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -96,21 +105,45 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "watts":
+			case "watt":
+			case "wattage":
+				return BuildingCommandWatts(actor, command);
 			case "connection":
 			case "connector":
 			case "connections":
 			case "connectors":
 				return BuildingCommandConnection(actor, command);
 			default:
-				return base.BuildingCommand(actor, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"));
+				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandWatts(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.Send("How many watts should this feeder be able to provide?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var value) || value < 0.0)
+		{
+			actor.Send("You must enter a non-negative number of watts.");
+			return false;
+		}
+
+		Wattage = value;
+		Changed = true;
+		actor.Send($"This feeder will now be able to provide up to {Wattage:N2} watts.");
+		return true;
 	}
 
 	private bool BuildingCommandConnection(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Do you want to add or remove a connection type for this liquid source?");
+			actor.Send("Do you want to add or remove a connection type for this feeder?");
 			return false;
 		}
 
@@ -125,7 +158,7 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 				return BuildingCommandConnectionRemove(actor, command);
 		}
 
-		actor.Send("Do you want to add or remove a connection type for this liquid source?");
+		actor.Send("Do you want to add or remove a connection type for this feeder?");
 		return false;
 	}
 
@@ -171,7 +204,7 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 
 		Connections.Add(new ConnectorType(gendering.Enum, type, powered));
 		actor.Send(
-			$"This liquid source will now have an additional {(powered ? "powered" : "unpowered")} connection of type {type.Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
+			$"This feeder will now have an additional {(powered ? "powered" : "unpowered")} connection of type {type.Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
 		Changed = true;
 		return true;
 	}
@@ -208,7 +241,7 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 
 		Connections.Remove(connector);
 		actor.Send(
-			$"This liquid source now has one fewer connection of type {type.TitleCase().Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
+			$"This feeder now has one fewer connection of type {type.TitleCase().Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
 		Changed = true;
 		return true;
 	}
@@ -216,24 +249,13 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item supplies liquid directly from a connected liquid grid.\r\nIt has the following connections: {4}.",
-			"GridLiquidSource Game Item Component".Colour(Telnet.Cyan),
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a telecommunications wall jack that can provide {4:N2} watts to connected devices.\r\nIt has the following connections: {5}.",
+			"TelecommunicationsGridFeeder Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
+			Wattage,
 			Connections.Select(x => $"{x.ConnectionType.Colour(Telnet.Green)} {(x.Powered ? "[P]" : "")} ({Gendering.Get(x.Gender).GenderClass(true).Proper().Colour(Telnet.Green)})").ListToString()
 		);
-	}
-
-	public override bool CanSubmit()
-	{
-		return Connections.Any() && base.CanSubmit();
-	}
-
-	public override string WhyCannotSubmit()
-	{
-		return Connections.Any()
-			? base.WhyCannotSubmit()
-			: "You must first add at least one connector type.";
 	}
 }

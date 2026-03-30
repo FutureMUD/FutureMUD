@@ -611,6 +611,157 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 		actor.Body.Transmit(target, message, emote);
 	}
 
+	[PlayerCommand("Dial", "dial")]
+	[HelpInfo("dial",
+		@"The #3dial#0 command is used to place a call on a connected telephone. Once the other party answers, use #3transmitwith <phone> <message>#0 to speak over the line.
+
+The syntax is:
+
+	#3dial <phone> <number>#0", AutoHelp.HelpArgOrNoArg)]
+	[RequiredCharacterState(CharacterState.Able)]
+	protected static void Dial(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which telephone do you want to use?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.PopSpeech());
+		if (item == null)
+		{
+			actor.OutputHandler.Send("You do not see any telephone like that to use.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(item);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var telephone = item.GetItemType<ITelephone>();
+		if (telephone == null)
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a telephone.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which number do you want to dial?");
+			return;
+		}
+
+		var number = ss.SafeRemainingArgument;
+		if (!telephone.Dial(actor, number, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You dial {number.ColourCommand()} on {item.HowSeen(actor).ColourName()}.");
+	}
+
+	[PlayerCommand("Answer", "answer")]
+	[HelpInfo("answer",
+		@"The #3answer#0 command is used to answer a ringing telephone. Once the call is connected, use #3transmitwith <phone> <message>#0 to speak over the line.
+
+The syntax is:
+
+	#3answer <phone>#0", AutoHelp.HelpArgOrNoArg)]
+	[RequiredCharacterState(CharacterState.Able)]
+	protected static void Answer(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which telephone do you want to answer?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("You do not see any telephone like that to answer.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(item);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var telephone = item.GetItemType<ITelephone>();
+		if (telephone == null)
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a telephone.");
+			return;
+		}
+
+		if (!telephone.Answer(actor, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You answer {item.HowSeen(actor).ColourName()}.");
+	}
+
+	[PlayerCommand("HangUp", "hangup")]
+	[HelpInfo("hangup",
+		@"The #3hangup#0 command is used to end a call or stop a ringing telephone.
+
+The syntax is:
+
+	#3hangup <phone>#0", AutoHelp.HelpArgOrNoArg)]
+	[RequiredCharacterState(CharacterState.Able)]
+	protected static void HangUp(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which telephone do you want to hang up?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item == null)
+		{
+			actor.OutputHandler.Send("You do not see any telephone like that to hang up.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(item);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var telephone = item.GetItemType<ITelephone>();
+		if (telephone == null)
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a telephone.");
+			return;
+		}
+
+		if (!telephone.HangUp(actor, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You hang up {item.HowSeen(actor).ColourName()}.");
+	}
+
 	[PlayerCommand("Tell", "tell", "sayto")]
 	[DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
 	[RequiredCharacterState(CharacterState.Conscious)]

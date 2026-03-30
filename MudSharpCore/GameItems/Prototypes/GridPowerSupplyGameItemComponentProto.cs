@@ -18,12 +18,14 @@ namespace MudSharp.GameItems.Prototypes;
 public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto
 {
 	public override string TypeDescription => "GridPowerSupply";
+	public double Wattage { get; set; }
 
 	#region Constructors
 
 	protected GridPowerSupplyGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
 		originator, "GridPowerSupply")
 	{
+		Wattage = 20.0;
 	}
 
 	protected GridPowerSupplyGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
@@ -33,7 +35,7 @@ public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto
 
 	protected override void LoadFromXml(XElement root)
 	{
-		// TODO
+		Wattage = double.Parse(root.Element("Wattage")?.Value ?? "20.0");
 	}
 
 	#endregion
@@ -42,10 +44,9 @@ public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto
 
 	protected override string SaveToXml()
 	{
-		return new XElement("Definition", new[]
-		{
-			new XElement("Example")
-		}).ToString();
+		return new XElement("Definition",
+			new XElement("Wattage", Wattage)
+		).ToString();
 	}
 
 	#endregion
@@ -91,7 +92,7 @@ public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto
 	#region Building Commands
 
 	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component";
+		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twatts <#> - sets the maximum wattage the item can draw from the grid";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -99,20 +100,52 @@ public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "watts":
+			case "watt":
+			case "wattage":
+				return BuildingCommandWattage(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandWattage(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.Send("How many watts should this grid power supply be able to provide?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var value))
+		{
+			actor.Send("You must enter a valid number of watts.");
+			return false;
+		}
+
+		if (value < 0.0)
+		{
+			actor.Send("You must enter a non-negative wattage.");
+			return false;
+		}
+
+		Wattage = value;
+		Changed = true;
+		actor.Send($"This item will now be able to provide up to {Wattage:N2} watts from the grid.");
+		return true;
 	}
 
 	#endregion
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
-		return string.Format(actor, "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item supplies power directly from the grid.",
+		return string.Format(actor,
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item supplies up to {4:N2} watts directly from the grid.",
 			"GridPowerSupply Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
-			Name
+			Name,
+			Wattage
 		);
 	}
 }

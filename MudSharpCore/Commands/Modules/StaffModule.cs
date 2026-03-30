@@ -2726,7 +2726,8 @@ You can use the following subcommands with the grid command:
 	#3grid status <grid#>#0 - shows a particular grid
 	#3grid expand <grid#> <direction>#0 - expands a grid in a direction
 	#3grid withdraw <grid#>#0 removes the current location from the specified grid
-	#3grid connect <thing> <grid#>#0 - connects a grid-interfacing item to a grid";
+	#3grid connect <thing> <grid#>#0 - connects a grid-interfacing item to a grid
+	#3grid setnumber <phone> <number|auto>#0 - reserves a specific telecommunications number for a phone";
 
 	[PlayerCommand("Grid", "grid")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -2743,6 +2744,10 @@ You can use the following subcommands with the grid command:
 				return;
 			case "status":
 				GridStatus(actor, ss);
+				return;
+			case "setnumber":
+			case "number":
+				GridSetNumber(actor, ss);
 				return;
 			case "expand":
 				GridExpand(actor, ss);
@@ -2813,6 +2818,63 @@ You can use the following subcommands with the grid command:
 
 		connect.Grid = grid;
 		actor.OutputHandler.Send($"You connect {target.HowSeen(actor)} to grid #{grid.Id.ToString("N0", actor)}.");
+	}
+
+	private static void GridSetNumber(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which phone do you want to configure a number for?");
+			return;
+		}
+
+		var target = actor.TargetLocalItem(ss.PopSpeech());
+		if (target == null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that here.");
+			return;
+		}
+
+		var phone = target.GetItemType<ITelephone>();
+		if (phone == null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not a telephone.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What number do you want to assign to that phone? Use auto to clear any preferred number.");
+			return;
+		}
+
+		var numberText = ss.SafeRemainingArgument;
+		if (numberText.EqualTo("auto"))
+		{
+			phone.PreferredNumber = null;
+			actor.OutputHandler.Send(
+				$"You clear any preferred phone number for {target.HowSeen(actor)}.{(phone.PhoneNumber == null ? "" : $" It is now using {phone.PhoneNumber.ColourValue()}.")}");
+			return;
+		}
+
+		var normalised = new string(numberText.Where(char.IsDigit).ToArray());
+		if (string.IsNullOrWhiteSpace(normalised))
+		{
+			actor.OutputHandler.Send("Phone numbers must contain at least one digit.");
+			return;
+		}
+
+		if (phone.TelecommunicationsGrid != null &&
+		    phone.TelecommunicationsGrid.TryResolvePhone(normalised, out var existingPhone) &&
+		    existingPhone != phone)
+		{
+			actor.OutputHandler.Send("That number is already assigned to another phone on the same telecommunications grid.");
+			return;
+		}
+
+		phone.PreferredNumber = normalised;
+		actor.OutputHandler.Send(
+			$"You set the preferred number for {target.HowSeen(actor)} to {normalised.ColourValue()}.{(phone.PhoneNumber == null ? "" : $" It is now using {phone.PhoneNumber.ColourValue()}.")}");
 	}
 
 	private static void GridWithdraw(ICharacter actor, StringStack ss)

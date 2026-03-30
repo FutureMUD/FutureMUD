@@ -15,6 +15,10 @@ public static class GridFactory
 		{
 			case "Electrical":
 				return new ElectricalGrid(grid, gameworld);
+			case "Liquid":
+				return new LiquidGrid(grid, gameworld);
+			case "Telecommunications":
+				return new TelecommunicationsGrid(grid, gameworld);
 		}
 
 		throw new NotImplementedException("Unimplemented grid type in GridFactory.LoadGrid");

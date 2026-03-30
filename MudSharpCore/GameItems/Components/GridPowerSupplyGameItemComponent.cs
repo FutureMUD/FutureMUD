@@ -116,8 +116,12 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
 	public void BeginDrawdown(IConsumePower item)
 	{
-		_connectedConsumers.Add(item);
-		if (ProducingPower)
+		if (!_connectedConsumers.Contains(item))
+		{
+			_connectedConsumers.Add(item);
+		}
+
+		if (ProducingPower && !_powerUsers.Contains(item))
 		{
 			_powerUsers.Add(item);
 			item.OnPowerCutIn();
@@ -140,29 +144,33 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
 	public bool CanBeginDrawDown(double wattage)
 	{
-		return true;
+		return RegisteredDrawdown + wattage <= _prototype.Wattage;
 	}
 
 	public bool CanDrawdownSpike(double wattage)
 	{
-		return ProducingPower;
+		return ProducingPower && CurrentDrawdown + wattage <= _prototype.Wattage;
 	}
 
 	public bool DrawdownSpike(double wattage)
 	{
-		return ProducingPower && (ElectricalGrid?.DrawdownSpike(wattage) ?? false);
+		return ProducingPower &&
+		       CurrentDrawdown + wattage <= _prototype.Wattage &&
+		       (ElectricalGrid?.DrawdownSpike(wattage) ?? false);
 	}
 
-	public double MaximumPowerInWatts =>
-		ElectricalGrid != null ? ElectricalGrid.TotalSupply - ElectricalGrid.TotalDrawdown : 0.0;
+	public double MaximumPowerInWatts => _prototype.Wattage;
 
 	public bool ProducingPower => ElectricalGrid != null && _powered;
+
+	private double CurrentDrawdown => _powerUsers.Sum(x => x.PowerConsumptionInWatts);
+	private double RegisteredDrawdown => _connectedConsumers.Sum(x => x.PowerConsumptionInWatts);
 
 	#endregion
 
 	#region IConsumePower Implementation
 
-	public double PowerConsumptionInWatts => _powerUsers.Sum(x => x.PowerConsumptionInWatts);
+	public double PowerConsumptionInWatts => CurrentDrawdown;
 
 	public void OnPowerCutIn()
 	{

@@ -1,26 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#nullable enable
 using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
-	public class $safefilerootname$ : MagicSpellEffectBase
+
+public class Spell$safeitemrootname$Effect : MagicSpellEffectBase
+{
+	public static void InitialiseEffectType()
 	{
-	public static void InitialiseEffectType() {
-		RegisterFactory("$safeitemrootname$SpellEffect", (effect, owner) => new $safefilerootname$(effect, owner));
+		RegisterFactory("Spell$safeitemrootname$", (effect, owner) => new Spell$safeitemrootname$Effect(effect, owner));
 	}
 
-#region Constructors and Saving
-	public $safefilerootname$(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg prog) : base(owner, parent, prog)
+	public Spell$safeitemrootname$Effect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg prog)
+		: base(owner, parent, prog)
 	{
 	}
 
-	protected $safefilerootname$(XElement root, IPerceivable owner) : base(root, owner)
+	protected Spell$safeitemrootname$Effect(XElement root, IPerceivable owner)
+		: base(root, owner)
 	{
 		var trueRoot = root.Element("Effect");
 	}
@@ -28,16 +27,14 @@ namespace MudSharp.Effects.Concrete.SpellEffects;
 	protected override XElement SaveDefinition()
 	{
 		return new XElement("Effect",
-			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
-			// Other XElements
+			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0)
 		);
 	}
-#endregion
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"$safeitemrootname$SpellEffect";
+		return "A spell effect.";
 	}
 
-	protected override string SpecificEffectType => "$safeitemrootname$SpellEffect";
+	protected override string SpecificEffectType => "Spell$safeitemrootname$";
 }

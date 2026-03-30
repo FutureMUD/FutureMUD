@@ -1,0 +1,218 @@
+# FutureMUD Item System Runtime Model
+
+## Scope
+This document explains how the item system is structured in code and at runtime:
+
+- live items versus revisioned definitions
+- item composition through components
+- persistence and load flows
+- revision updates
+- morph and destruction behaviour
+
+## Primary Abstractions
+### `IGameItem`
+`IGameItem` is the live object that exists in the world. It extends perceiver and body-adjacent interfaces, so items are not just data records; they are active world objects with descriptions, location, health, events, and effects.
+
+Important responsibilities include:
+- holding runtime component instances through `Components`
+- exposing convenience queries like `IsItemType<T>()`, `GetItemType<T>()`, and `GetItemTypes<T>()`
+- tracking containment, inventory ownership, and true locations
+- handling save/load, deletion, quitting, login, morphing, and update checks
+- aggregating behaviour from components rather than owning all behaviour directly
+
+In practice, `GameItem` is the orchestration layer. Components provide most specialised behaviour, while `GameItem` coordinates persistence, description composition, movement, inventory state, wound handling, and world integration.
+
+### `IGameItemProto`
+`IGameItemProto` is the revisioned prototype for creating items.
+
+It owns the reusable definition of:
+- name and descriptive text
+- base quality, weight, material, and size
+- health strategy
+- default registers
+- attached component prototypes
+- item group
+- morph and destroyed-item setup
+- on-load progs
+- skin permissions and visibility flags
+
+Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
+
+### `IGameItemComponent`
+`IGameItemComponent` is the runtime slice of behaviour attached to a live item.
+
+A component may:
+- implement gameplay interfaces such as `IContainer`, `IOpenable`, `IWearable`, or `IRangedWeapon`
+- participate in saving/loading
+- decorate descriptions
+- block movement or repositioning
+- react to morph/destruction
+- manage contained, attached, or connected sub-items
+- override material, weight contribution, buoyancy, and purge warnings
+
+Runtime item behaviour is usually discovered by interface lookup on components. Code commonly asks questions like:
+- does this item have an `IContainer`?
+- does this item have an `IProduceLight`?
+- does this item have an `IImplant`?
+
+### `IGameItemComponentProto`
+`IGameItemComponentProto` is the revisioned reusable definition of a component type instance.
+
+It owns:
+- builder-editable configuration
+- XML persistence for that configuration
+- the factory methods that create and load runtime components
+- type help and builder help text
+- flags such as `WarnBeforePurge` and `PreventManualLoad`
+
+## Composition Model
+### Components define capabilities
+The item system is intentionally interface-first and component-driven.
+
+A live item becomes "a container" because one of its components implements `IContainer`. It becomes "a wearable" because one of its components implements `IWearable`. It becomes "a radio", "a corpse", "a battery-powered machine", or "a prosthetic" for the same reason.
+
+This has two important consequences:
+- most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
+- adding a new capability usually means adding a new component pair, not adding a new item class
+
+### `GameItem` aggregates component behaviour
+`GameItem` delegates and aggregates a large amount of behaviour:
+- movement prevention is aggregated across components
+- description decoration is ordered by `DecorationPriority`
+- material can be overridden by components
+- attached and connected item relationships are exposed through component-provided interfaces
+- location resolution checks components such as chairs, doors, belts, connectables, worn items, implants, and prosthetics
+
+This aggregation layer is why item code often looks simple at the call site even when item behaviour is complex.
+
+## Prototypes, Revisions, and Live Items
+### Revisioned content model
+Item prototypes and component prototypes are editable revisable items. They move through the normal FutureMUD revision flow:
+- under design
+- pending revision
+- current
+- obsolete
+
+Items loaded into the world are instances of specific current definitions at the time of creation, but both item prototypes and live items have update paths to move to newer component or prototype revisions.
+
+### Prototype composition
+A prototype stores attached component prototypes through the many-to-many revision-aware relationship between item prototypes and component prototypes.
+
+When a prototype creates a new item:
+1. a `GameItem` instance is created
+2. each attached component prototype creates one runtime component instance
+3. variable or stackable setup runs if applicable
+4. skin overrides are applied if provided
+5. on-load progs execute
+
+## Save and Load Flow
+### Loading prototypes
+At boot, `FuturemudLoaders` loads:
+1. item component prototypes
+2. item prototypes
+3. special auto-initialised item types
+4. item skins
+
+The ordering matters:
+- component prototypes must exist before item prototypes
+- special auto-initialisers such as `HoldableGameItemComponentProto.InitialiseItemType` run after item prototypes load
+
+### Loading live items
+When a live item is loaded:
+- the `GameItem` is created from database data
+- each stored component row is mapped back to its component proto and runtime component type
+- component `FinaliseLoad()` hooks run after broader object availability is established
+- item-level late initialisation and effect restoration complete
+
+### Saving live items
+`GameItem.Save()` is responsible for item-level persistence such as:
+- prototype revision references
+- quality, material, ownership, morph progress, and position
+- effect and magic data
+
+Each component persists its own XML definition through `GameItemComponent.Save()` and `SaveToXml()`.
+
+## Update Behaviour
+### Prototype update checks
+`GameItemProto.CheckForComponentPrototypeUpdates()` updates a prototype if any attached component prototype has moved from current to revised or obsolete.
+
+That process:
+- swaps old component prototype references to the newest current revision
+- updates the persisted mapping rows
+- keeps the prototype definition aligned with the latest component prototype revisions
+
+### Live item update checks
+`GameItem.CheckPrototypeForUpdate()` updates live items when:
+- the parent item prototype has been revised or obsoleted
+- attached component membership has changed
+- a component prototype revision has changed
+
+It can:
+- swap the item to a newer prototype revision
+- create runtime components that newly exist on the prototype
+- remove runtime components that no longer belong
+- ask each runtime component to update itself to a newer prototype revision
+
+The builder-facing `comp update` workflow exists to force these update passes across prototypes and items.
+
+## Morphing, Destruction, and Replacement
+### Morphing
+Item prototypes can define morph behaviour:
+- morph into another item after a timespan
+- disappear after a timespan
+- emit a morph emote
+
+Morph timing is tracked on live items, and new items may preserve register values depending on prototype settings.
+
+### Destroyed items
+Item prototypes can also define a replacement prototype to load when the item is destroyed.
+
+This allows patterns such as:
+- intact item -> wreckage
+- living body item -> corpse-style remains
+- powered machine -> broken shell
+
+### Component participation
+Components can influence these transitions through:
+- `HandleDieOrMorph`
+- `SwapInPlace`
+- `Take`
+- `AffectsLocationOnDestruction`
+- `ComponentDieOrder`
+
+Container-style components are a good example: they often need to decide what happens to contents or locks when the parent item morphs or dies.
+
+## Real Example: Container
+`ContainerGameItemComponentProto` is a representative example of a typical editable component proto:
+- stores builder-editable values like weight limit, max size, transparency, and preposition
+- loads and saves its configuration as XML
+- registers itself with `GameItemComponentManager`
+- exposes type help and component-specific builder help
+- creates and loads the runtime `ContainerGameItemComponent`
+
+`ContainerGameItemComponent` then provides runtime behaviour by implementing `IContainer`, `IOpenable`, and `ILockable`.
+
+It demonstrates several common component patterns:
+- internal runtime state layered on top of a proto definition
+- description decoration
+- handling contained child items
+- weight and buoyancy contribution
+- destruction and morph transfer logic
+- `Copy(...)` support for deep-copy item creation
+
+## Special Cases
+### Read-only or auto-initialised component types
+Not every component type behaves like a normal editable component proto.
+
+`HoldableGameItemComponentProto` is a key example:
+- it is read-only
+- it is auto-initialised through a static `InitialiseItemType`
+- it is used as an always-available foundational capability when configured by world settings
+
+When documenting or extending the system, treat these as framework-level special cases rather than normal builder-authored component content.
+
+## Practical Guidance
+- Reach for interfaces in `FutureMUDLibrary` first. Runtime systems should usually depend on `IContainer`, `IReadable`, `ITransmit`, and similar interfaces.
+- Treat `GameItem` as the composition shell, not the place to add every feature directly.
+- Put configuration on the component proto and runtime state on the component.
+- Expect update, morph, and destruction flows to matter for any non-trivial item behaviour.

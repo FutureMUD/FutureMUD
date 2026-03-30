@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
   <TemplateData>
     <Name>Game Item Component Type</Name>
@@ -8,7 +8,6 @@
     <SortOrder>2</SortOrder>
     <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
     <DefaultName>ItemType</DefaultName>
-    <AppIdFilter>blend</AppIdFilter>
   </TemplateData>
   <TemplateContent>
     <References>
@@ -17,7 +16,7 @@
       </Reference>
     </References>
 
-    <ProjectItem ReplaceParameters="true" TargetFileName="Components\$fileinputname$GameItemComponent.cs">GameItem.cs</ProjectItem>
-	<ProjectItem ReplaceParameters="true" TargetFileName="Prototypes\$fileinputname$GameItemComponentProto.cs">GameItemProto.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Components\$safeitemrootname$GameItemComponent.cs">GameItem.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Prototypes\$safeitemrootname$GameItemComponentProto.cs">GameItemProto.cs</ProjectItem>
   </TemplateContent>
 </VSTemplate>

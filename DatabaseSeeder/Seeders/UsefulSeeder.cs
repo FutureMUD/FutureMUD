@@ -7,12 +7,17 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using MudSharp.Body;
+using MudSharp.Body.Traits;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -45,6 +50,17 @@ public class UsefulSeeder : IDatabaseSeeder
 		"Insulation_Minor",
 		"Destroyable_Misc",
 		"Torch_Infinite"
+	];
+
+	private static readonly string[] StockModernItemMarkers =
+	[
+		"Battery_AA",
+		"BatteryPowered_4xAA",
+		"BatteryCharger_AA_4Bay",
+		"PowerSocket_Mains_Double",
+		"PowerSupply_60W",
+		"ElectricLight_Medium",
+		"HandheldRadio_Standard"
 	];
 
 	public bool SafeToRunMoreThanOnce => true;
@@ -89,8 +105,8 @@ public class UsefulSeeder : IDatabaseSeeder
 					return (false, "Invalid answer");
 				}),
 			("modernitems",
-				"[Not Yet Implemented] Do you want to install some common modern setting item component types like batteries and power plugs?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => false,
+				"Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
+				(context, questions) => ClassifyModernPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -127,17 +143,8 @@ public class UsefulSeeder : IDatabaseSeeder
 		_context = context;
 		context.Database.BeginTransaction();
 		var errors = new List<string>();
-		_itemProtos = new Dictionary<string, GameItemComponentProto>(StringComparer.OrdinalIgnoreCase);
+		PrepareItemProtoCache(context);
 		_tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-
-		foreach (var item in context.GameItemComponentProtos.ToList())
-		{
-			if (item.EditableItem.RevisionStatus != 4)
-			{
-				continue;
-			}
-			_itemProtos[item.Name] = item;
-		}
 
 		if (questionAnswers["tags"].EqualToAny("yes", "y"))
 		{
@@ -187,6 +194,7 @@ public class UsefulSeeder : IDatabaseSeeder
 			context.Terrains.Count() > 1 ? ShouldSeedResult.MayAlreadyBeInstalled : ShouldSeedResult.ReadyToInstall,
 			SeederRepeatabilityHelper.ClassifyByPresence(
 				StockItemMarkers.Select(marker => context.GameItemComponentProtos.Any(x => x.Name == marker))),
+			ClassifyModernPackagePresence(context),
 			context.Tags.Any(x => x.Name == "Functions")
 				? ShouldSeedResult.MayAlreadyBeInstalled
 				: ShouldSeedResult.ReadyToInstall);
@@ -216,6 +224,16 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 	}
 
 	internal static IReadOnlyCollection<string> StockAiExampleNamesForTesting => StockAiExampleNames;
+	internal static IReadOnlyCollection<string> StockModernItemMarkersForTesting => StockModernItemMarkers;
+
+	internal static ShouldSeedResult ClassifyModernPackagePresence(FuturemudDatabaseContext context)
+	{
+		return SeederRepeatabilityHelper.ClassifyByPresence(
+		[
+			.. StockModernItemMarkers.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name)),
+			context.GameItemComponentProtos.Any(x => x.Type == "Fuel Generator")
+		]);
+	}
 
 	private static ShouldSeedResult CombinePackageStates(params ShouldSeedResult[] packageStates)
 	{
@@ -250,6 +268,28 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		context.GameItemComponentProtos.Add(component);
 		_itemProtos[component.Name] = component;
 		return component;
+	}
+
+	private void PrepareItemProtoCache(FuturemudDatabaseContext context)
+	{
+		_itemProtos = new Dictionary<string, GameItemComponentProto>(StringComparer.OrdinalIgnoreCase);
+		foreach (var item in context.GameItemComponentProtos.ToList())
+		{
+			if (item.EditableItem.RevisionStatus != 4)
+			{
+				continue;
+			}
+
+			_itemProtos[item.Name] = item;
+		}
+	}
+
+	internal void SeedModernItemsForTesting(FuturemudDatabaseContext context)
+	{
+		_context = context;
+		PrepareItemProtoCache(context);
+		SeedModernItems(context, new List<string>());
+		context.SaveChanges();
 	}
 
 	private GameItemComponentProto CreateItemProto(long id, DateTime now, string type, string name, string description, string definition)
@@ -745,7 +785,287 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 	private void SeedModernItems(FuturemudDatabaseContext context, ICollection<string> errors)
 	{
-		// Not yet implemented
+		var now = DateTime.UtcNow;
+		var dbaccount = context.Accounts.First();
+		var nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+		var mainsSocketType = context.StaticConfigurations
+			.FirstOrDefault(x => x.SettingName == "DefaultPowerSocketType")
+			?.Definition ?? "NEMA 5-15";
+
+		GameItemComponentProto CreateModernComponent(string type, string name, string description, XElement definition)
+		{
+			return CreateComponent(context, ref nextId, dbaccount, now, type, name, description, definition.ToString());
+		}
+
+		void CreateBattery(string batteryType, double wattHours, double wattHoursPerQuality, bool rechargeable)
+		{
+			var name = rechargeable ? $"Battery_{batteryType}_Rechargeable" : $"Battery_{batteryType}";
+			var description = rechargeable
+				? $"Turns an item into a rechargeable {batteryType} battery."
+				: $"Turns an item into a disposable {batteryType} battery.";
+			CreateModernComponent("Battery", name, description,
+				new XElement("Definition",
+					new XElement("BatteryType", new XCData(batteryType)),
+					new XElement("BaseWattHours", wattHours),
+					new XElement("WattHoursPerQuality", wattHoursPerQuality),
+					new XElement("Rechargable", rechargeable)
+				));
+		}
+
+		void CreateBatteryPowered(string batteryType, int quantity, bool inSeries, bool transparent = false, string preposition = "in")
+		{
+			CreateModernComponent("BatteryPowered", $"BatteryPowered_{quantity}x{batteryType}",
+				$"Turns an item into a {quantity}x {batteryType} battery powered device.",
+				new XElement("Definition",
+					new XElement("BatteryType", batteryType),
+					new XElement("BatteryQuantity", quantity),
+					new XElement("BatteriesInSeries", inSeries),
+					new XElement("Transparent", transparent),
+					new XElement("ContentsPreposition", preposition)
+				));
+		}
+
+		void CreateBatteryCharger(string batteryType, int quantity, double wattage, double efficiency, bool transparent = true, string? suffix = null)
+		{
+			var bayName = suffix ?? $"{quantity}Bay";
+			CreateModernComponent("BatteryCharger", $"BatteryCharger_{batteryType}_{bayName}",
+				$"Turns an item into a charger for {quantity} {batteryType} batter{(quantity == 1 ? "y" : "ies")} at a time.",
+				new XElement("Definition",
+					new XElement("BatteryType", batteryType),
+					new XElement("BatteryQuantity", quantity),
+					new XElement("Wattage", wattage),
+					new XElement("Efficiency", efficiency),
+					new XElement("ContentsPreposition", "in"),
+					new XElement("Transparent", transparent)
+				));
+		}
+
+		XElement ConnectorDefinition(params ConnectorType[] connectors)
+		{
+			return new XElement("Definition",
+				new XElement("Connectors",
+					from connector in connectors
+					select new XElement("Connection",
+						new XAttribute("gender", (short)connector.Gender),
+						new XAttribute("type", connector.ConnectionType),
+						new XAttribute("powered", connector.Powered)
+					)));
+		}
+
+		void CreatePowerSocket(string name, int count)
+		{
+			CreateModernComponent("PowerSocket", name,
+				$"Turns an item into a {count}-socket mains power outlet.",
+				ConnectorDefinition(
+					Enumerable.Range(0, count)
+						.Select(_ => new ConnectorType(Gender.Female, mainsSocketType, true))
+						.ToArray()));
+		}
+
+		void CreatePowerSupply(double wattage)
+		{
+			CreateModernComponent("PowerSupply", $"PowerSupply_{wattage:N0}W",
+				$"Turns an item into a mains-powered device that draws {wattage:N0}W.",
+				new XElement("Definition",
+					new XElement("Wattage", wattage)));
+		}
+
+		string SanitizeComponentName(string text)
+		{
+			return new string(text
+				.Select(x => char.IsLetterOrDigit(x) ? x : '_')
+				.ToArray())
+				.Trim('_')
+				.Replace("__", "_");
+		}
+
+		CreateBattery("A", 6.0, 0.35, false);
+		CreateBattery("A", 5.2, 0.3, true);
+		CreateBattery("AA", 2.4, 0.12, false);
+		CreateBattery("AA", 2.0, 0.1, true);
+		CreateBattery("AAA", 1.2, 0.08, false);
+		CreateBattery("AAA", 0.95, 0.06, true);
+		CreateBattery("C", 8.0, 0.45, false);
+		CreateBattery("C", 6.8, 0.35, true);
+		CreateBattery("D", 18.0, 0.9, false);
+		CreateBattery("D", 14.0, 0.7, true);
+		CreateBattery("9V", 4.5, 0.25, false);
+		CreateBattery("9V", 3.8, 0.2, true);
+		CreateBattery("ButtonCell", 0.22, 0.015, false);
+		CreateBattery("ButtonCell", 0.18, 0.01, true);
+		CreateBattery("CarBattery", 480.0, 20.0, false);
+		CreateBattery("CarBattery", 420.0, 15.0, true);
+
+		CreateBatteryPowered("ButtonCell", 1, true);
+		CreateBatteryPowered("ButtonCell", 2, true);
+		CreateBatteryPowered("9V", 1, true);
+		CreateBatteryPowered("9V", 2, true);
+		CreateBatteryPowered("AAA", 1, true);
+		CreateBatteryPowered("AAA", 2, true);
+		CreateBatteryPowered("AAA", 3, true);
+		CreateBatteryPowered("AAA", 4, true);
+		CreateBatteryPowered("AA", 1, true);
+		CreateBatteryPowered("AA", 2, true);
+		CreateBatteryPowered("AA", 4, true);
+		CreateBatteryPowered("AA", 6, true);
+		CreateBatteryPowered("AA", 8, true);
+		CreateBatteryPowered("A", 1, true);
+		CreateBatteryPowered("A", 2, true);
+		CreateBatteryPowered("A", 4, true);
+		CreateBatteryPowered("C", 2, true);
+		CreateBatteryPowered("C", 4, true);
+		CreateBatteryPowered("D", 2, true);
+		CreateBatteryPowered("D", 4, true);
+		CreateBatteryPowered("D", 6, true);
+		CreateBatteryPowered("CarBattery", 1, true, false, "in");
+
+		CreateBatteryCharger("ButtonCell", 2, 1.0, 0.82);
+		CreateBatteryCharger("9V", 2, 8.0, 0.85);
+		CreateBatteryCharger("AAA", 2, 4.0, 0.88);
+		CreateBatteryCharger("AAA", 4, 8.0, 0.9);
+		CreateBatteryCharger("AAA", 8, 12.0, 0.92);
+		CreateBatteryCharger("AA", 2, 6.0, 0.88);
+		CreateBatteryCharger("AA", 4, 12.0, 0.9);
+		CreateBatteryCharger("AA", 8, 18.0, 0.92);
+		CreateBatteryCharger("A", 4, 14.0, 0.88);
+		CreateBatteryCharger("C", 4, 30.0, 0.87, false);
+		CreateBatteryCharger("D", 4, 50.0, 0.86, false);
+		CreateBatteryCharger("CarBattery", 1, 180.0, 0.84, false, "Workshop");
+
+		CreateModernComponent("Connectable", "Connectable_MainsPlug",
+			"Turns an item into a standard mains plug.",
+			ConnectorDefinition(new ConnectorType(Gender.Male, mainsSocketType, true)));
+		CreateModernComponent("Connectable", "Connectable_MainsPlug_PassThrough",
+			"Turns an item into a standard mains plug with a pass-through socket.",
+			ConnectorDefinition(
+				new ConnectorType(Gender.Male, mainsSocketType, true),
+				new ConnectorType(Gender.Female, mainsSocketType, true)));
+		CreateModernComponent("Attachable Connectable", "AttachableConnectable_PowerLead",
+			"Turns an item into an attachable mains lead or detachable power cable.",
+			new XElement("Definition",
+				new XElement("Connector",
+					new XAttribute("gender", (short)Gender.Neuter),
+					new XAttribute("type", "PowerLead"))));
+		CreatePowerSocket("PowerSocket_Mains_Single", 1);
+		CreatePowerSocket("PowerSocket_Mains_Double", 2);
+		CreatePowerSocket("PowerSocket_Mains_Quad", 4);
+
+		foreach (var wattage in new[] { 5.0, 15.0, 30.0, 60.0, 100.0, 250.0, 500.0, 1000.0, 1500.0, 2400.0 })
+		{
+			CreatePowerSupply(wattage);
+		}
+
+		CreateModernComponent("ElectricLight", "ElectricLight_Low",
+			"Turns an item into a low power electric light source.",
+			new XElement("Definition",
+				new XElement("IlluminationProvided", 40),
+				new XElement("Wattage", 5),
+				new XElement("OnLightProg", 0),
+				new XElement("OnOffProg", 0),
+				new XElement("LightOnEmote", new XCData("@ glow|glows with a soft light.")),
+				new XElement("LightOffEmote", new XCData("@ go|goes dark."))));
+		CreateModernComponent("ElectricLight", "ElectricLight_Medium",
+			"Turns an item into a medium brightness electric light source.",
+			new XElement("Definition",
+				new XElement("IlluminationProvided", 180),
+				new XElement("Wattage", 15),
+				new XElement("OnLightProg", 0),
+				new XElement("OnOffProg", 0),
+				new XElement("LightOnEmote", new XCData("@ light|lights up.")),
+				new XElement("LightOffEmote", new XCData("@ go|goes dark."))));
+		CreateModernComponent("ElectricLight", "ElectricLight_Bright",
+			"Turns an item into a bright electric floodlight.",
+			new XElement("Definition",
+				new XElement("IlluminationProvided", 800),
+				new XElement("Wattage", 60),
+				new XElement("OnLightProg", 0),
+				new XElement("OnOffProg", 0),
+				new XElement("LightOnEmote", new XCData("@ flare|flares to life.")),
+				new XElement("LightOffEmote", new XCData("@ dim|dims and go|goes dark."))));
+
+		CreateModernComponent("PoweredProp", "PoweredProp_Switchable",
+			"Turns an item into a general-purpose switchable powered prop or appliance.",
+			new XElement("Definition",
+				new XElement("Wattage", 250),
+				new XElement("WattageDiscount", 12),
+				new XElement("Switchable", true),
+				new XElement("PowerOnEmote", new XCData("@ hum|hums as it powers on.")),
+				new XElement("PowerOffEmote", new XCData("@ wind|winds down and power|powers off.")),
+				new XElement("OnPoweredProg", 0),
+				new XElement("OnUnpoweredProg", 0),
+				new XElement("TenSecondProg", 0)));
+		CreateModernComponent("PoweredProp", "PoweredProp_AlwaysOn",
+			"Turns an item into an always-on powered prop such as signage or infrastructure.",
+			new XElement("Definition",
+				new XElement("Wattage", 40),
+				new XElement("WattageDiscount", 5),
+				new XElement("Switchable", false),
+				new XElement("PowerOnEmote", new XCData("@ click|clicks softly as it powers up.")),
+				new XElement("PowerOffEmote", new XCData("@ fall|falls silent as power is lost.")),
+				new XElement("OnPoweredProg", 0),
+				new XElement("OnUnpoweredProg", 0),
+				new XElement("TenSecondProg", 0)));
+
+		CreateModernComponent("HandheldRadio", "HandheldRadio_Standard",
+			"Turns an item into a battery-powered handheld two-way radio.",
+			new XElement("Definition",
+				new XElement("WattageIdle", 1.5),
+				new XElement("WattageTransmit", 80.0),
+				new XElement("WattageReceive", 18.0),
+				new XElement("BroadcastRange", 6000.0),
+				new XElement("OnPowerOffEmote", new XCData("@ give|gives a small burst of static and power|powers down.")),
+				new XElement("OnPowerOnEmote", new XCData("@ crackle|crackles to life.")),
+				new XElement("TransmitPremote", new XCData("@ key|keys the transmitter on $1 and say|says")),
+				new XElement("Channel", 476.525),
+				new XElement("Channel", 477.125),
+				new XElement("ChannelName", new XCData("Operations")),
+				new XElement("ChannelName", new XCData("Security"))));
+		CreateModernComponent("EarpieceRadio", "EarpieceRadio_Covert",
+			"Turns an item into a covert receive-only earpiece radio.",
+			new XElement("Definition",
+				new XElement("WattageIdle", 0.25),
+				new XElement("WattageReceive", 3.0),
+				new XElement("OnPowerOffEmote", new XCData("@ click|clicks off.")),
+				new XElement("OnPowerOnEmote", new XCData("@ emit|emits a brief burst of static.")),
+				new XElement("Channel", 476.525),
+				new XElement("Channel", 477.125),
+				new XElement("ChannelName", new XCData("Operations")),
+				new XElement("ChannelName", new XCData("Security"))));
+		CreateModernComponent("ListeningBug", "ListeningBug_Covert",
+			"Turns an item into a covert powered listening bug.",
+			new XElement("Definition",
+				new XElement("BroadcastFrequency", 433.920),
+				new XElement("BroadcastRange", 800.0),
+				new XElement("ListenSkillPerQuality", 4.0),
+				new XElement("BaseListenSkill", 45.0),
+				new XElement("PowerConsumptionInWatts", 0.0015)));
+
+		var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+		if (fuelTag is not null)
+		{
+			foreach (var liquid in context.Liquids
+				         .Where(x => x.LiquidsTags.Any(y => y.TagId == fuelTag.Id))
+				         .OrderBy(x => x.Name)
+				         .ToList())
+			{
+				var safeName = SanitizeComponentName(liquid.Name);
+				CreateModernComponent("Fuel Generator", $"FuelGenerator_{safeName}",
+					$"Turns an item into a portable generator fuelled by {liquid.Name}.",
+					new XElement("Definition",
+						new XElement("SwitchOnEmote", new XCData("@ pull|pulls $1 to life with a sputtering roar.")),
+						new XElement("SwitchOffEmote", new XCData("@ shut|shuts $1 down.")),
+						new XElement("FuelExpendedEmote", new XCData("@ cough|coughs, splutter|splatters and die|dies as it runs out of fuel.")),
+						new XElement("FuelPerSecond", 0.0025 / 3600.0),
+						new XElement("FuelCapacity", 20.0),
+						new XElement("WattageProvided", 5000.0),
+						new XElement("SwitchOnProg", 0),
+						new XElement("SwitchOffProg", 0),
+						new XElement("FuelOutProg", 0),
+						new XElement("LiquidFuel", liquid.Id)));
+			}
+		}
+
+		context.SaveChanges();
 	}
 
 	private GameItemComponentProto CreateComponent(FuturemudDatabaseContext context,
@@ -5367,6 +5687,444 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		AddRepairKitType("Universal", "a repair kit that repairs anything", WoundSeverity.Severe, 250, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -1.0, [], []);
 		AddRepairKitType("Universal_Good", "a good-quality repair kit that repairs anything", WoundSeverity.VerySevere, 350, (skills["Salvaging"] ?? skills["Salvage"])?.Id, 0.0, [], []);
 		AddRepairKitType("Universal_Poor", "a poor-quality repair kit that repairs anything", WoundSeverity.Moderate, 150, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -2.0, [], []);
+		#endregion
+
+		#region Additional Builder Examples
+
+		GameItemComponentProto AddExtraComponent(string type, string name, string description, XElement definition)
+		{
+			return CreateComponent(context, ref nextId, dbaccount, now, type, name, description, definition.ToString());
+		}
+
+		AddExtraComponent("LockingContainer", "LockingContainer_Lockbox",
+			"Turns an item into a small lockbox with a built-in lever lock.",
+			new XElement("Definition",
+				new XAttribute("Weight", 2500),
+				new XAttribute("MaxSize", (int)SizeCategory.Tiny),
+				new XAttribute("Preposition", "in"),
+				new XAttribute("Transparent", false),
+				new XElement("ForceDifficulty", (int)Difficulty.Hard),
+				new XElement("PickDifficulty", (int)Difficulty.Normal),
+				new XElement("LockEmote", new XCData("@ lock|locks $1$?2| with $2||$.")),
+				new XElement("UnlockEmote", new XCData("@ unlock|unlocks $1$?2| with $2||$.")),
+				new XElement("LockEmoteNoActor", new XCData("@ click|clicks shut.")),
+				new XElement("UnlockEmoteNoActor", new XCData("@ click|clicks open.")),
+				new XElement("LockType", "Lever Lock")));
+		AddExtraComponent("LockingContainer", "LockingContainer_Footlocker",
+			"Turns an item into a large locking footlocker or strongbox.",
+			new XElement("Definition",
+				new XAttribute("Weight", 25000),
+				new XAttribute("MaxSize", (int)SizeCategory.Normal),
+				new XAttribute("Preposition", "in"),
+				new XAttribute("Transparent", false),
+				new XElement("ForceDifficulty", (int)Difficulty.VeryHard),
+				new XElement("PickDifficulty", (int)Difficulty.Hard),
+				new XElement("LockEmote", new XCData("@ lock|locks $1$?2| with $2||$.")),
+				new XElement("UnlockEmote", new XCData("@ unlock|unlocks $1$?2| with $2||$.")),
+				new XElement("LockEmoteNoActor", new XCData("@ thunk|thunks shut.")),
+				new XElement("UnlockEmoteNoActor", new XCData("@ clunk|clunks open.")),
+				new XElement("LockType", "Ward Lock")));
+		AddExtraComponent("LockingContainer", "LockingContainer_SafeChest",
+			"Turns an item into a heavy safe-style locking chest.",
+			new XElement("Definition",
+				new XAttribute("Weight", 125000),
+				new XAttribute("MaxSize", (int)SizeCategory.Large),
+				new XAttribute("Preposition", "in"),
+				new XAttribute("Transparent", false),
+				new XElement("ForceDifficulty", (int)Difficulty.ExtremelyHard),
+				new XElement("PickDifficulty", (int)Difficulty.VeryHard),
+				new XElement("LockEmote", new XCData("@ spin|spins the tumblers on $1 and lock|locks it.")),
+				new XElement("UnlockEmote", new XCData("@ work|works the tumblers on $1 and unlock|unlocks it.")),
+				new XElement("LockEmoteNoActor", new XCData("@ seal|seals itself with a heavy metallic clunk.")),
+				new XElement("UnlockEmoteNoActor", new XCData("@ release|releases its locking bolts with a heavy clunk.")),
+				new XElement("LockType", "Safe Lock")));
+
+		AddExtraComponent("Keyring", "Keyring_Small",
+			"Turns an item into a small keyring for a handful of keys.",
+			new XElement("Definition", new XElement("MaximumNumberOfKeys", 4)));
+		AddExtraComponent("Keyring", "Keyring_Large",
+			"Turns an item into a large janitorial-style keyring.",
+			new XElement("Definition", new XElement("MaximumNumberOfKeys", 20)));
+
+		AddExtraComponent("Locksmithing Tool", "Locksmithing_Poor",
+			"Turns an item into a poor set of breakable locksmithing tools.",
+			new XElement("Definition",
+				new XElement("DifficultyAdjustment", -2),
+				new XElement("UsableForInstallation", true),
+				new XElement("UsableForConfiguration", true),
+				new XElement("UsableForFabrication", false),
+				new XElement("Breakable", true)));
+		AddExtraComponent("Locksmithing Tool", "Locksmithing_Standard",
+			"Turns an item into a standard set of locksmithing tools.",
+			new XElement("Definition",
+				new XElement("DifficultyAdjustment", 0),
+				new XElement("UsableForInstallation", true),
+				new XElement("UsableForConfiguration", true),
+				new XElement("UsableForFabrication", true),
+				new XElement("Breakable", true)));
+		AddExtraComponent("Locksmithing Tool", "Locksmithing_Fine",
+			"Turns an item into a fine set of locksmithing tools.",
+			new XElement("Definition",
+				new XElement("DifficultyAdjustment", 2),
+				new XElement("UsableForInstallation", true),
+				new XElement("UsableForConfiguration", true),
+				new XElement("UsableForFabrication", true),
+				new XElement("Breakable", false)));
+		AddExtraComponent("Locksmithing Tool", "Locksmithing_Installation",
+			"Turns an item into locksmithing tools intended for installation work.",
+			new XElement("Definition",
+				new XElement("DifficultyAdjustment", 1),
+				new XElement("UsableForInstallation", true),
+				new XElement("UsableForConfiguration", false),
+				new XElement("UsableForFabrication", false),
+				new XElement("Breakable", false)));
+		AddExtraComponent("Locksmithing Tool", "Locksmithing_Fabrication",
+			"Turns an item into locksmithing tools intended for lock and key fabrication.",
+			new XElement("Definition",
+				new XElement("DifficultyAdjustment", 1),
+				new XElement("UsableForInstallation", false),
+				new XElement("UsableForConfiguration", false),
+				new XElement("UsableForFabrication", true),
+				new XElement("Breakable", false)));
+
+		AddExtraComponent("PencilSharpener", "PencilSharpener",
+			"Turns an item into a pencil sharpener.",
+			new XElement("Definition",
+				new XElement("SharpenEmote", new XCData("$0 brace|braces $2 against $1 and sharpen|sharpens it to a fine point."))));
+
+		var uprightTableCover = context.RangedCovers.FirstOrDefault(x => x.Name == "Upright Table");
+		var overturnedTableCover = context.RangedCovers.FirstOrDefault(x => x.Name == "Overturned Table");
+		if (uprightTableCover is not null && overturnedTableCover is not null)
+		{
+			AddExtraComponent("Bench", "Bench_Double",
+				"Makes an item a compact bench with two seating positions and standard flippable cover behaviour.",
+				new XElement("Definition",
+					new XAttribute("MaximumChairSlots", 2),
+					new XAttribute("Chair", 0),
+					new XAttribute("ChairCount", 0),
+					new XElement("Cover",
+						new XElement("Flipped", overturnedTableCover.Id),
+						new XElement("NotFlipped", uprightTableCover.Id),
+						new XElement("Expression", new XCData("0")),
+						new XElement("Message", new XCData("@ try|tries to flip $1, but are|is not strong enough.")))));
+			AddExtraComponent("Bench", "Bench_Triple",
+				"Makes an item a larger bench with three seating positions and standard flippable cover behaviour.",
+				new XElement("Definition",
+					new XAttribute("MaximumChairSlots", 3),
+					new XAttribute("Chair", 0),
+					new XAttribute("ChairCount", 0),
+					new XElement("Cover",
+						new XElement("Flipped", overturnedTableCover.Id),
+						new XElement("NotFlipped", uprightTableCover.Id),
+						new XElement("Expression", new XCData("0")),
+						new XElement("Message", new XCData("@ try|tries to flip $1, but are|is not strong enough.")))));
+		}
+
+		AddExtraComponent("ClothingInsulation", "Insulation_Reflective_Strong",
+			"Makes garment strongly reflective without adding much insulation.",
+			new XElement("Definition",
+				new XElement("InsulatingDegrees", 0.25),
+				new XElement("ReflectingDegrees", 3.0)));
+		AddExtraComponent("ClothingInsulation", "Insulation_Reflective_Extreme",
+			"Makes garment extremely reflective for hot and bright environments.",
+			new XElement("Definition",
+				new XElement("InsulatingDegrees", 0.5),
+				new XElement("ReflectingDegrees", 5.0)));
+		AddExtraComponent("ClothingInsulation", "Insulation_Balanced_Warm",
+			"Makes garment a warm and moderately reflective all-rounder.",
+			new XElement("Definition",
+				new XElement("InsulatingDegrees", 1.5),
+				new XElement("ReflectingDegrees", 1.5)));
+		AddExtraComponent("ClothingInsulation", "Insulation_Balanced_Heavy",
+			"Makes garment heavily insulating but still somewhat reflective.",
+			new XElement("Definition",
+				new XElement("InsulatingDegrees", 3.0),
+				new XElement("ReflectingDegrees", 1.25)));
+
+		var eyeColour = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Eye Colour");
+		var hairColour = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Hair Colour");
+		var hairStyle = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Hair Style");
+		var allEyeColours = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Eye Colours");
+		var allHairColours = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Hair Colours");
+		var allHairStyles = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Hair Styles");
+		var hatWearProfile = context.WearProfiles.FirstOrDefault(x => x.Name == "Hat");
+		var glassesWearProfile = context.WearProfiles.FirstOrDefault(x => x.Name == "Glasses");
+
+		if (hairColour is not null && hairStyle is not null && eyeColour is not null)
+		{
+			AddExtraComponent("IdentityObscurer", "CharacteristicMaskingObscurer",
+				"Makes garment hide identity while also masking hair and eye characteristics.",
+				new XElement("Definition",
+					new XElement("RemovalEcho", new XCData("revealing $haircolour $hairstyle hair and $eyecolour eyes.")),
+					new XElement("ShortDescription", new XCData("&a_an masked stranger")),
+					new XElement("FullDescription", new XCData("This individual is heavily disguised, leaving only a carefully controlled impression behind.")),
+					new XElement("Difficulty", (int)Difficulty.VeryHard),
+					new XElement("Keywords",
+						new XElement("Keyword", new XAttribute("key", "mask"), new XAttribute("value", "masked")),
+						new XElement("Keyword", new XAttribute("key", "hood"), new XAttribute("value", "hooded"))),
+					new XElement("Characteristics",
+						new XElement("Characteristic", new XAttribute("Definition", hairColour.Id), new XAttribute("Form", "dark")),
+						new XElement("Characteristic", new XAttribute("Definition", hairStyle.Id), new XAttribute("Form", "cropped")),
+						new XElement("Characteristic", new XAttribute("Definition", eyeColour.Id), new XAttribute("Form", "grey")))));
+		}
+
+		if (allHairColours is not null && allHairStyles is not null && hairColour is not null && hairStyle is not null)
+		{
+			AddExtraComponent("Variable Changer", "Wig_HatOnly",
+				"Changes hair colour and style only when worn in a hat-like profile.",
+				new XElement("Definition",
+					new XAttribute("TargetWearProfile", hatWearProfile?.Id.ToString() ?? string.Empty),
+					new XElement("Characteristic", new XAttribute("Profile", allHairColours.Id), new XAttribute("Value", hairColour.Id)),
+					new XElement("Characteristic", new XAttribute("Profile", allHairStyles.Id), new XAttribute("Value", hairStyle.Id))));
+		}
+
+		if (allEyeColours is not null && eyeColour is not null)
+		{
+			AddExtraComponent("Variable Changer", "ColouredContacts_GlassesProfile",
+				"Changes eye colour only when worn in a glasses-style wear profile.",
+				new XElement("Definition",
+					new XAttribute("TargetWearProfile", glassesWearProfile?.Id.ToString() ?? string.Empty),
+					new XElement("Characteristic", new XAttribute("Profile", allEyeColours.Id), new XAttribute("Value", eyeColour.Id))));
+			AddExtraComponent("Obscurer", "Obscurer_Eyes",
+				"Obscures a wearer's eye colour without changing their whole identity.",
+				new XElement("Definition",
+					new XElement("RemovalEcho", new XCData("revealing $eyecolour eyes again.")),
+					new XElement("Characteristic", new XAttribute("Form", "shadowed"), new XAttribute("Definition", eyeColour.Id))));
+		}
+
+		var bonusTrait = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Medicine")
+			?? context.TraitDefinitions.FirstOrDefault(x => x.Name == "Search")
+			?? context.TraitDefinitions.FirstOrDefault(x => x.Name == "Stealth")
+			?? context.TraitDefinitions.FirstOrDefault();
+		if (bonusTrait is not null)
+		{
+			AddExtraComponent("WornTraitChanger", "WornTraitChanger_Bonus",
+				"Provides a small bonus to a common trait while worn.",
+				new XElement("Definition",
+					new XElement("Modifier",
+						new XAttribute("trait", bonusTrait.Id),
+						new XAttribute("bonus", 1.5),
+						new XAttribute("context", (int)TraitBonusContext.None))));
+			AddExtraComponent("WornTraitChanger", "WornTraitChanger_Penalty",
+				"Provides a small penalty to a common trait while worn.",
+				new XElement("Definition",
+					new XElement("Modifier",
+						new XAttribute("trait", bonusTrait.Id),
+						new XAttribute("bonus", -1.0),
+						new XAttribute("context", (int)TraitBonusContext.None))));
+		}
+
+		AddExtraComponent("Sheath", "Holster_Small",
+			"Turns an item into a small firearm holster.",
+			new XElement("Definition",
+				new XAttribute("StealthDrawDifficulty", (int)Difficulty.Normal),
+				new XAttribute("MaximumSize", (int)SizeCategory.Small),
+				new XAttribute("DesignedForGuns", true)));
+		AddExtraComponent("Sheath", "Holster_Large",
+			"Turns an item into a large firearm holster.",
+			new XElement("Definition",
+				new XAttribute("StealthDrawDifficulty", (int)Difficulty.Hard),
+				new XAttribute("MaximumSize", (int)SizeCategory.Normal),
+				new XAttribute("DesignedForGuns", true)));
+
+		AddExtraComponent("Restraint", "Restraint_ArmsOnly",
+			"Turns an item into restraints intended for arms and appendages only.",
+			new XElement("Definition",
+				new XElement("MinimumCreatureSize", (int)SizeCategory.Small),
+				new XElement("MaximumCreatureSize", (int)SizeCategory.Large),
+				new XElement("BreakoutDifficulty", (int)Difficulty.Hard),
+				new XElement("OverpowerDifficulty", (int)Difficulty.Hard),
+				new XElement("LimbType", (int)LimbType.Arm),
+				new XElement("LimbType", (int)LimbType.Appendage)));
+		AddExtraComponent("Restraint", "Restraint_Hobbles",
+			"Turns an item into leg restraints or hobbles.",
+			new XElement("Definition",
+				new XElement("MinimumCreatureSize", (int)SizeCategory.Small),
+				new XElement("MaximumCreatureSize", (int)SizeCategory.VeryLarge),
+				new XElement("BreakoutDifficulty", (int)Difficulty.Normal),
+				new XElement("OverpowerDifficulty", (int)Difficulty.Hard),
+				new XElement("LimbType", (int)LimbType.Leg)));
+		AddExtraComponent("Restraint", "Restraint_Oversized",
+			"Turns an item into oversized restraints for large creatures.",
+			new XElement("Definition",
+				new XElement("MinimumCreatureSize", (int)SizeCategory.Large),
+				new XElement("MaximumCreatureSize", (int)SizeCategory.Gigantic),
+				new XElement("BreakoutDifficulty", (int)Difficulty.Hard),
+				new XElement("OverpowerDifficulty", (int)Difficulty.VeryHard),
+				new XElement("LimbType", (int)LimbType.Arm),
+				new XElement("LimbType", (int)LimbType.Leg),
+				new XElement("LimbType", (int)LimbType.Appendage)));
+
+		AddExtraComponent("DragAid", "DragAid_Sling",
+			"Turns an item into a simple dragging sling.",
+			new XElement("Definition",
+				new XElement("MaximumUsers", 2),
+				new XElement("EffortMultiplier", 1.5)));
+		AddExtraComponent("DragAid", "DragAid_Harness",
+			"Turns an item into a heavy dragging harness for team work.",
+			new XElement("Definition",
+				new XElement("MaximumUsers", 4),
+				new XElement("EffortMultiplier", 2.5)));
+
+		AddExtraComponent("WaterSource", "WaterSource_Canteen",
+			"Turns an item into a transparent closable refill-on-toggle canteen.",
+			new XElement("Definition",
+				new XAttribute("LiquidCapacity", 1.0),
+				new XAttribute("Closable", true),
+				new XAttribute("Transparent", true),
+				new XAttribute("OnceOnly", false),
+				new XAttribute("DefaultLiquid", waterLiquid.Id),
+				new XAttribute("RefillRate", 0.25),
+				new XAttribute("UseOnOffForRefill", true),
+				new XAttribute("RefillingProg", 0),
+				new XAttribute("CanBeEmptiedWhenInRoom", true)));
+		AddExtraComponent("WaterSource", "WaterSource_DisposableBottle",
+			"Turns an item into a single-use disposable water source.",
+			new XElement("Definition",
+				new XAttribute("LiquidCapacity", 0.6),
+				new XAttribute("Closable", true),
+				new XAttribute("Transparent", true),
+				new XAttribute("OnceOnly", true),
+				new XAttribute("DefaultLiquid", waterLiquid.Id),
+				new XAttribute("RefillRate", 0.0),
+				new XAttribute("UseOnOffForRefill", false),
+				new XAttribute("RefillingProg", 0),
+				new XAttribute("CanBeEmptiedWhenInRoom", false)));
+		var alwaysTrueProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue");
+		if (alwaysTrueProg is not null)
+		{
+			AddExtraComponent("WaterSource", "WaterSource_ProgControlled",
+				"Turns an item into a self-refilling water source controlled by a prog.",
+				new XElement("Definition",
+					new XAttribute("LiquidCapacity", 10.0),
+					new XAttribute("Closable", false),
+					new XAttribute("Transparent", false),
+					new XAttribute("OnceOnly", false),
+					new XAttribute("DefaultLiquid", waterLiquid.Id),
+					new XAttribute("RefillRate", 1.0),
+					new XAttribute("UseOnOffForRefill", false),
+					new XAttribute("RefillingProg", alwaysTrueProg.Id),
+					new XAttribute("CanBeEmptiedWhenInRoom", true)));
+		}
+
+		AddExtraComponent("Destroyable", "Destroyable_Glassware",
+			"Turns an item into a fragile glass object.",
+			new XElement("Definition",
+				new XElement("HpExpression", new XCData("4 * quality")),
+				new XElement("DamageMultipliers",
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Crushing), new XAttribute("multiplier", 1.6)),
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Ballistic), new XAttribute("multiplier", 1.2)),
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 0.1)))));
+		AddExtraComponent("Destroyable", "Destroyable_Paper",
+			"Turns an item into a fragile paper or parchment object.",
+			new XElement("Definition",
+				new XElement("HpExpression", new XCData("2 * quality")),
+				new XElement("DamageMultipliers",
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 2.5)),
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Piercing), new XAttribute("multiplier", 1.1)))));
+		AddExtraComponent("Destroyable", "Destroyable_WoodenHeavy",
+			"Turns an item into a sturdy wooden object.",
+			new XElement("Definition",
+				new XElement("HpExpression", new XCData("15 * quality")),
+				new XElement("DamageMultipliers",
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Chopping), new XAttribute("multiplier", 1.35)),
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 1.75)))));
+		AddExtraComponent("Destroyable", "Destroyable_HeavyMetal",
+			"Turns an item into a heavy metal object.",
+			new XElement("Definition",
+				new XElement("HpExpression", new XCData("30 * quality")),
+				new XElement("DamageMultipliers",
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Crushing), new XAttribute("multiplier", 0.65)),
+					new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 0.15)))));
+
+		AddExtraComponent("Treatment", "FieldMedkit",
+			"Turns the item into a multi-purpose field medkit.",
+			new XElement("Definition",
+				new XElement("MaximumUses", 25),
+				new XElement("Refillable", true),
+				new XElement("DifficultyStages", 2),
+				new XElement("TreatmentType", 1),
+				new XElement("TreatmentType", 2),
+				new XElement("TreatmentType", 3),
+				new XElement("TreatmentType", 4),
+				new XElement("TreatmentType", 11)));
+		AddExtraComponent("Treatment", "Bandage_Poor",
+			"Turns the item into a poor quality bandage example.",
+			new XElement("Definition",
+				new XElement("MaximumUses", 1),
+				new XElement("Refillable", false),
+				new XElement("DifficultyStages", -1),
+				new XElement("TreatmentType", 2)));
+		AddExtraComponent("Treatment", "Treatment_AdminUnlimited",
+			"Turns the item into an unlimited all-purpose treatment kit.",
+			new XElement("Definition",
+				new XElement("MaximumUses", -1),
+				new XElement("Refillable", false),
+				new XElement("DifficultyStages", 5),
+				new XElement("TreatmentType", 1),
+				new XElement("TreatmentType", 2),
+				new XElement("TreatmentType", 3),
+				new XElement("TreatmentType", 4),
+				new XElement("TreatmentType", 11)));
+
+		var prostheticBody = context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid") ??
+		                    context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
+		var humanRace = context.Races.FirstOrDefault(x => x.Name == "Human") ?? context.Races.FirstOrDefault();
+		if (prostheticBody is not null)
+		{
+			var leftHand = context.BodypartProtos.FirstOrDefault(x => x.Name == "lhand");
+			var rightFoot = context.BodypartProtos.FirstOrDefault(x => x.Name == "rfoot");
+			if (leftHand is not null)
+			{
+				AddExtraComponent("Prosthetic", "Prosthetic_LHand_Functional",
+					"Turns the item into a functional prosthetic left hand.",
+					new XElement("Definition",
+						new XElement("Obvious", false),
+						new XElement("Functional", true),
+						new XElement("TargetBody", prostheticBody.Id),
+						new XElement("TargetBodypart", leftHand.Id),
+						new XElement("Gender", (int)Gender.Indeterminate),
+						new XElement("Race", humanRace?.Id ?? 0L)));
+			}
+
+			if (rightFoot is not null)
+			{
+				AddExtraComponent("Prosthetic", "Prosthetic_RFoot_Ornamental",
+					"Turns the item into an obvious ornamental prosthetic right foot.",
+					new XElement("Definition",
+						new XElement("Obvious", true),
+						new XElement("Functional", false),
+						new XElement("TargetBody", prostheticBody.Id),
+						new XElement("TargetBodypart", rightFoot.Id),
+						new XElement("Gender", (int)Gender.Female),
+						new XElement("Race", humanRace?.Id ?? 0L)));
+			}
+		}
+
+		var primaryClock = context.Clocks.FirstOrDefault();
+		var defaultTimeZone = primaryClock is null
+			? null
+			: context.Timezones.FirstOrDefault(x => x.Id == primaryClock.PrimaryTimezoneId) ??
+			  context.Timezones.FirstOrDefault(x => x.ClockId == primaryClock.Id);
+		if (primaryClock is not null && defaultTimeZone is not null)
+		{
+			AddExtraComponent("TimePiece", "TimePiece_Standard",
+				"Turns an item into a standard modern timepiece.",
+				new XElement("Definition",
+					new XElement("Clock", primaryClock.Id),
+					new XElement("TimeZone", defaultTimeZone.Id),
+					new XElement("PlayersCanSetTime", false),
+					new XElement("TimeDisplayString", "$j:$m $i")));
+			AddExtraComponent("TimePiece", "TimePiece_Adjustable",
+				"Turns an item into an adjustable builder-facing timepiece.",
+				new XElement("Definition",
+					new XElement("Clock", primaryClock.Id),
+					new XElement("TimeZone", defaultTimeZone.Id),
+					new XElement("PlayersCanSetTime", true),
+					new XElement("TimeDisplayString", "$h:$m:$s $t")));
+		}
+
+		context.SaveChanges();
 		#endregion
 
 		#region Smokeables

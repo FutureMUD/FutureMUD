@@ -101,6 +101,9 @@ Telecommunications items are a useful example of how multiple item capabilities 
 - silent cellular phones do not emit room audio, but if the handset is tucked into a worn container they can still notify the wearer with a non-audible vibration message; implant telephones remain text-only and silent to the room
 - implant telephones follow the same cellular coverage rules as handheld cellular phones, but they are also implants: they draw power through implant power infrastructure and expose control/status through neural-interface implant commands rather than ordinary handheld room commands
 - answering machines are daisy-chained endpoints: they can sit between an outlet and downstream handsets, expose both themselves and those downstream phones through `ConnectedTelephones`, and locally answer a ringing line before any future hosted voicemail layer
+- telecommunications grids can now also host an exchange voicemail service: the grid owns the service toggle, a reserved access number on the local prefix, and central per-number mailboxes stored in grid XML rather than on a physical item
+- hosted voicemail is opt-in twice: the exchange must enable the service, and each `ITelephoneNumberOwner` must enable it for its own number before unanswered calls route into the hosted mailbox
+- same-line mailbox retrieval in v1 happens by dialling the exchange voicemail access number from the subscribed line; once connected, keypad digits drive playback and deletion over the existing in-call digit relay
 - active calls now relay both speech and explicit keypad digits; `dial <phone> <number>` still starts a call while idle, but the same command becomes in-call digit transmission once the handset is already connected
 - items and services that receive keypad digits get `EventType.TelephoneDigitsReceived`, which is the public extension point for future voicemail, IVR, routing, or keypad-driven automation
 

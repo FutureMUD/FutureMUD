@@ -29,6 +29,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 	private string? _preferredNumber;
 	private string? _aliasForCommands;
 	private bool _allowSharedNumber;
+	private bool _hostedVoicemailEnabled;
 	private bool _switchedOn;
 	private bool _isOffHook;
 	private bool _isRinging;
@@ -68,6 +69,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		_preferredNumber = rhs._preferredNumber;
 		_aliasForCommands = rhs._aliasForCommands;
 		_allowSharedNumber = rhs._allowSharedNumber;
+		_hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
 	}
 
 	protected override void LoadFromXml(XElement root)
@@ -87,6 +89,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		}
 
 		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
 		TelecommunicationsGrid =
 			Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ITelecommunicationsGrid;
 	}
@@ -108,7 +111,8 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 			new XElement("SwitchedOn", _switchedOn),
 			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
 			new XElement("AliasForCommands", new XCData(AliasForCommands ?? string.Empty)),
-			new XElement("AllowSharedNumber", _allowSharedNumber)
+			new XElement("AllowSharedNumber", _allowSharedNumber),
+			new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled)
 		);
 		return definition.ToString();
 	}
@@ -192,6 +196,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		sb.AppendLine($"It is currently switched {(_switchedOn ? "on".ColourValue() : "off".ColourError())}.");
 		sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
 		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
+		sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
 		sb.AppendLine(
 			$"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
 		sb.AppendLine($"It currently {(HasCoverage ? "has signal".ColourValue() : "has no signal".ColourError())}.");
@@ -354,16 +359,36 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		);
 	}
 
-	public IEnumerable<string> SwitchSettings => ["on", "off"];
+	public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff"];
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
-		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase) ? !_switchedOn
-			: setting.Equals("off", StringComparison.InvariantCultureIgnoreCase) && _switchedOn;
+		if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !_switchedOn;
+		}
+
+		if (setting.Equals("off", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return _switchedOn;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !HostedVoicemailEnabled;
+		}
+
+		return setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase) && HostedVoicemailEnabled;
 	}
 
 	public string WhyCannotSwitch(ICharacter actor, string setting)
 	{
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
+		}
+
 		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
 			? $"{Parent.HowSeen(actor, true)} is already on."
 			: $"{Parent.HowSeen(actor, true)} is already off.";
@@ -374,6 +399,13 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		if (!CanSwitch(actor, setting))
 		{
 			return false;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
+			return true;
 		}
 
 		_switchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
@@ -492,6 +524,16 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		_isOffHook = true;
 		Changed = true;
 		return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+	}
+
+	public bool HostedVoicemailEnabled
+	{
+		get => _hostedVoicemailEnabled;
+		set
+		{
+			_hostedVoicemailEnabled = value;
+			Changed = true;
+		}
 	}
 
 	public bool CanSendDigits(ICharacter actor, string digits, out string error)

@@ -361,6 +361,115 @@ public class GridSystemTests
 	}
 
 	[TestMethod]
+	public void TelecommunicationsGrid_UnansweredCallRoutesToHostedVoicemailAndStoresMessage()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+		grid.SetMaximumRings(2);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2)
+		{
+			HostedVoicemailEnabled = true
+		};
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsFalse(receiver.IsEngaged);
+		CollectionAssert.Contains(caller.ProgressMessages, "The exchange voicemail service answers.");
+		CollectionAssert.Contains(caller.ProgressMessages, "A sharp beep sounds over the line.");
+
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+		Assert.IsTrue(caller.HangUp(null!, out error), error);
+
+		var mailboxesField = typeof(TelecommunicationsGrid).GetField("_hostedVoicemailRecordings",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		var mailboxes =
+			(Dictionary<string, List<StoredAudioRecording>>)mailboxesField!.GetValue(grid)!;
+		Assert.IsTrue(mailboxes.ContainsKey(receiver.PhoneNumber!));
+		Assert.AreEqual(1, mailboxes[receiver.PhoneNumber!].Count);
+		Assert.AreEqual("Hello there", mailboxes[receiver.PhoneNumber!][0].Recording.Segments[0].RawText);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_LocalAnsweringMachineTakesPriorityOverHostedVoicemail()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+		grid.SetMaximumRings(2);
+		var machineParent = CreateBasicItem(gameworld.Object, 230L, CreateCell().Object);
+		var tape = CreateTape(gameworld.Object, 231L);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2),
+			machineParent.Object, true);
+		var caller = new TelephoneDouble(gameworld.Object, 232);
+
+		machine.Put(null!, tape.Item.Object);
+		((ITelephoneNumberOwner)machine).TelecommunicationsGrid = grid;
+		((ITelephoneNumberOwner)machine).HostedVoicemailEnabled = true;
+		machine.OnPowerCutIn();
+		caller.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+
+		Assert.IsTrue(grid.TryStartCall(caller, machine.PhoneNumber!, out var error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(machine.IsConnected);
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsFalse(caller.ProgressMessages.Any(x => x.Contains("exchange voicemail service", StringComparison.InvariantCultureIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_HostedVoicemailAccessPlaysAndDeletesMessages()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+		grid.SetMaximumRings(2);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2)
+		{
+			HostedVoicemailEnabled = true
+		};
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+		Assert.IsTrue(caller.HangUp(null!, out error), error);
+
+		Assert.IsTrue(receiver.Dial(null!, grid.HostedVoicemailAccessNumber, out error), error);
+		CollectionAssert.Contains(receiver.ProgressMessages, "The exchange voicemail service answers.");
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("1 saved voicemail message")));
+
+		Assert.IsTrue(receiver.Dial(null!, "1", out error), error);
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("Playing message #1")));
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("Hello there")));
+
+		Assert.IsTrue(receiver.Dial(null!, "3", out error), error);
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("current voicemail message is deleted")));
+		Assert.IsTrue(receiver.Dial(null!, "#", out error), error);
+
+		Assert.IsTrue(receiver.Dial(null!, grid.HostedVoicemailAccessNumber, out error), error);
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("no saved voicemail messages")));
+	}
+
+	[TestMethod]
 	public void RecordedAudio_RoundTripsSpeakerMetadataAndTiming()
 	{
 		var stored = new StoredAudioRecording(
@@ -793,7 +902,7 @@ public class GridSystemTests
 		var component = new TelephoneGameItemComponent(proto, parent.Object, true);
 
 		CollectionAssert.AreEquivalent(
-			new[] { "on", "off", "quiet", "normal", "loud" },
+			new[] { "on", "off", "quiet", "normal", "loud", "vmon", "vmoff" },
 			component.SwitchSettings.ToArray());
 
 		Assert.IsTrue(component.Switch(null!, "quiet"));
@@ -802,6 +911,10 @@ public class GridSystemTests
 		Assert.AreEqual(AudioVolume.Decent, component.RingVolume);
 		Assert.IsTrue(component.Switch(null!, "loud"));
 		Assert.AreEqual(AudioVolume.Loud, component.RingVolume);
+		Assert.IsTrue(component.Switch(null!, "vmon"));
+		Assert.IsTrue(component.HostedVoicemailEnabled);
+		Assert.IsTrue(component.Switch(null!, "vmoff"));
+		Assert.IsFalse(component.HostedVoicemailEnabled);
 	}
 
 	[TestMethod]
@@ -1310,6 +1423,7 @@ public class GridSystemTests
 		owner.SetupGet(x => x.Parent).Returns(parent.Object);
 		owner.SetupProperty(x => x.PreferredNumber);
 		owner.SetupProperty(x => x.AllowSharedNumber);
+		owner.SetupProperty(x => x.HostedVoicemailEnabled);
 		owner.SetupProperty(x => x.TelecommunicationsGrid);
 		owner.SetupGet(x => x.PhoneNumber).Returns(() => phoneNumber);
 		owner.SetupGet(x => x.ConnectedTelephones).Returns(() => phones);
@@ -1413,6 +1527,7 @@ public class GridSystemTests
 		private string? _phoneNumber;
 		private string? _preferredNumber;
 		private bool _allowSharedNumber;
+		private bool _hostedVoicemailEnabled;
 		private bool _isOffHook;
 		private bool _isRinging;
 		private ITelephoneCall? _currentCall;
@@ -1461,6 +1576,20 @@ public class GridSystemTests
 				}
 
 				_allowSharedNumber = value;
+			}
+		}
+		public bool HostedVoicemailEnabled
+		{
+			get => NumberOwner == this ? _hostedVoicemailEnabled : NumberOwner?.HostedVoicemailEnabled ?? false;
+			set
+			{
+				if (NumberOwner != this)
+				{
+					NumberOwner!.HostedVoicemailEnabled = value;
+					return;
+				}
+
+				_hostedVoicemailEnabled = value;
 			}
 		}
 		public bool IsPowered { get; set; }

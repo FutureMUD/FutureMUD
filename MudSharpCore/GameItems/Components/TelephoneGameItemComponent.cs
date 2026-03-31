@@ -31,6 +31,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
     private string? _directPhoneNumber;
     private string? _preferredNumber;
     private bool _allowSharedNumber;
+    private bool _hostedVoicemailEnabled;
     private bool _powered;
     private bool _ringHeartbeatSubscribed;
     private bool _switchedOn;
@@ -76,6 +77,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         _switchedOn = rhs._switchedOn;
         _preferredNumber = rhs._preferredNumber;
         _allowSharedNumber = rhs._allowSharedNumber;
+        _hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
         _ringVolumeOverride = rhs._ringVolumeOverride;
         newParent.OnConnected += Parent_OnConnected;
         newParent.OnDisconnected += Parent_OnDisconnected;
@@ -86,6 +88,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         _switchedOn = bool.Parse(root.Element("SwitchedOn")?.Value ?? "true");
         _preferredNumber = root.Element("PreferredNumber")?.Value;
         _allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+        _hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
         if (int.TryParse(root.Element("RingVolumeOverride")?.Value, out var ringVolume) &&
             Enum.IsDefined(typeof(AudioVolume), ringVolume))
         {
@@ -125,6 +128,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             new XElement("SwitchedOn", _switchedOn),
             new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
             new XElement("AllowSharedNumber", _allowSharedNumber),
+            new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled),
             new XElement("RingVolumeOverride", _ringVolumeOverride.HasValue ? (int)_ringVolumeOverride.Value : -1),
             new XElement("ConnectedItems",
                 from item in ConnectedItems
@@ -398,6 +402,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
         sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
 		sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.");
+        sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
         sb.AppendLine(
             $"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
         sb.AppendLine(
@@ -460,6 +465,24 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             _directGrid?.RequestNumber(this, _preferredNumber, _allowSharedNumber);
         }
     }
+
+	public bool HostedVoicemailEnabled
+	{
+		get => NumberOwner != null && NumberOwner != this
+			? NumberOwner.HostedVoicemailEnabled
+			: _hostedVoicemailEnabled;
+		set
+		{
+			if (NumberOwner != null && NumberOwner != this)
+			{
+				NumberOwner.HostedVoicemailEnabled = value;
+				return;
+			}
+
+			_hostedVoicemailEnabled = value;
+			Changed = true;
+		}
+	}
 
     public bool IsPowered => _powered;
     public bool IsOffHook => _isOffHook;
@@ -577,7 +600,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         );
     }
 
-	public IEnumerable<string> SwitchSettings => ["on", "off", ..TelephoneRingSettings.LandlineSettings];
+	public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff", ..TelephoneRingSettings.LandlineSettings];
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
@@ -591,6 +614,16 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 			return _switchedOn;
 		}
 
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !HostedVoicemailEnabled;
+		}
+
+		if (setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return HostedVoicemailEnabled;
+		}
+
 		return TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out var volume) &&
 		       RingVolume != volume;
 	}
@@ -600,6 +633,12 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out _))
 		{
 			return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.";
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
 		}
 
 		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
@@ -618,6 +657,13 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 		{
 			_ringVolumeOverride = volume;
 			Changed = true;
+			return true;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
 			return true;
 		}
 

@@ -28,6 +28,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 	private string? _phoneNumber;
 	private string? _preferredNumber;
 	private bool _allowSharedNumber;
+	private bool _hostedVoicemailEnabled;
 	private bool _powered;
 	private bool _ringHeartbeatSubscribed;
 	private bool _switchedOn;
@@ -67,6 +68,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_switchedOn = rhs._switchedOn;
 		_preferredNumber = rhs._preferredNumber;
 		_allowSharedNumber = rhs._allowSharedNumber;
+		_hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
 		_ringVolumeOverride = rhs._ringVolumeOverride;
 	}
 
@@ -75,6 +77,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_switchedOn = bool.Parse(root.Element("SwitchedOn")?.Value ?? "true");
 		_preferredNumber = root.Element("PreferredNumber")?.Value;
 		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
 		if (int.TryParse(root.Element("RingVolumeOverride")?.Value, out var ringVolume) &&
 		    Enum.IsDefined(typeof(AudioVolume), ringVolume))
 		{
@@ -96,6 +99,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 			new XElement("SwitchedOn", _switchedOn),
 			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
 			new XElement("AllowSharedNumber", _allowSharedNumber),
+			new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled),
 			new XElement("RingVolumeOverride", _ringVolumeOverride.HasValue ? (int)_ringVolumeOverride.Value : -1)
 		).ToString();
 	}
@@ -140,6 +144,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
 		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
 		sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue()}.");
+		sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
 		sb.AppendLine(
 			$"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
 		sb.AppendLine($"It currently {(HasCoverage ? "has signal".ColourValue() : "has no signal".ColourError())}.");
@@ -305,7 +310,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		);
 	}
 
-	public IEnumerable<string> SwitchSettings => ["on", "off", ..TelephoneRingSettings.CellularSettings];
+	public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff", ..TelephoneRingSettings.CellularSettings];
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
@@ -319,6 +324,16 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 			return _switchedOn;
 		}
 
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !HostedVoicemailEnabled;
+		}
+
+		if (setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return HostedVoicemailEnabled;
+		}
+
 		return TelephoneRingSettings.TryGetVolumeForSetting(setting, true, out var volume) &&
 		       RingVolume != volume;
 	}
@@ -328,6 +343,12 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, true, out _))
 		{
 			return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue()}.";
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
 		}
 
 		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
@@ -346,6 +367,13 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		{
 			_ringVolumeOverride = volume;
 			Changed = true;
+			return true;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
 			return true;
 		}
 
@@ -465,6 +493,16 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_isOffHook = true;
 		Changed = true;
 		return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+	}
+
+	public bool HostedVoicemailEnabled
+	{
+		get => _hostedVoicemailEnabled;
+		set
+		{
+			_hostedVoicemailEnabled = value;
+			Changed = true;
+		}
 	}
 
 	public bool CanSendDigits(ICharacter actor, string digits, out string error)

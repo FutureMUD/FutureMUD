@@ -39,6 +39,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 	private string? _directPhoneNumber;
 	private string? _preferredNumber;
 	private bool _allowSharedNumber;
+	private bool _hostedVoicemailEnabled;
 	private bool _powered;
 	private bool _ringHeartbeatSubscribed;
 	private bool _secondHeartbeatSubscribed;
@@ -90,6 +91,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 		_switchedOn = rhs._switchedOn;
 		_preferredNumber = rhs._preferredNumber;
 		_allowSharedNumber = rhs._allowSharedNumber;
+		_hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
 		_ringVolumeOverride = rhs._ringVolumeOverride;
 		_autoAnswerRings = rhs._autoAnswerRings;
 		newParent.OnConnected += Parent_OnConnected;
@@ -113,6 +115,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 		_switchedOn = bool.Parse(root.Element("SwitchedOn")?.Value ?? "true");
 		_preferredNumber = root.Element("PreferredNumber")?.Value;
 		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
 		_autoAnswerRings = int.TryParse(root.Element("AutoAnswerRings")?.Value, out var rings)
 			? rings
 			: _prototype.DefaultAutoAnswerRings;
@@ -152,6 +155,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 			new XElement("SwitchedOn", _switchedOn),
 			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
 			new XElement("AllowSharedNumber", _allowSharedNumber),
+			new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled),
 			new XElement("AutoAnswerRings", _autoAnswerRings),
 			new XElement("RingVolumeOverride", _ringVolumeOverride.HasValue ? (int)_ringVolumeOverride.Value : -1),
 			new XElement("Tape", _tapeItem?.Id ?? 0L),
@@ -455,6 +459,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
 		sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.");
 		sb.AppendLine($"It answers after {AutoAnswerRings.ToString("N0", voyeur).ColourValue()} rings.");
+		sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
 		sb.AppendLine($"Its tape slot currently contains {(_tapeItem?.HowSeen(voyeur) ?? "nothing".ColourError())}.");
 		sb.AppendLine($"It has {(GreetingRecording == null ? "no custom greeting".ColourError() : "a custom greeting".ColourValue())} and {MessageRecordings.Count.ToString("N0", voyeur).ColourValue()} saved message{(MessageRecordings.Count == 1 ? string.Empty : "s")}.");
 		sb.AppendLine($"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
@@ -525,6 +530,24 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 			_allowSharedNumber = value;
 			Changed = true;
 			_directGrid?.RequestNumber(this, _preferredNumber, _allowSharedNumber);
+		}
+	}
+
+	public bool HostedVoicemailEnabled
+	{
+		get => NumberOwner != null && NumberOwner != this
+			? NumberOwner.HostedVoicemailEnabled
+			: _hostedVoicemailEnabled;
+		set
+		{
+			if (NumberOwner != null && NumberOwner != this)
+			{
+				NumberOwner.HostedVoicemailEnabled = value;
+				return;
+			}
+
+			_hostedVoicemailEnabled = value;
+			Changed = true;
 		}
 	}
 
@@ -1400,6 +1423,8 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 				return true;
 			case "greeting":
 				return SelectGreeting(character, ss);
+			case "voicemail":
+				return SelectHostedVoicemail(character, ss);
 			case "messages":
 				if (!ss.PopSpeech().EqualTo("play"))
 				{
@@ -1468,6 +1493,37 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
 				return true;
 			default:
 				character.Send("You can use greeting with record, stop, play or erase.");
+				return false;
+		}
+	}
+
+	private bool SelectHostedVoicemail(ICharacter character, StringStack ss)
+	{
+		var value = ss.PopSpeech().ToLowerInvariant();
+		switch (value)
+		{
+			case "on":
+				if (HostedVoicemailEnabled)
+				{
+					character.Send("Hosted voicemail is already enabled for this line.");
+					return false;
+				}
+
+				HostedVoicemailEnabled = true;
+				character.Send($"Hosted voicemail is now enabled for {Parent.HowSeen(character)}.");
+				return true;
+			case "off":
+				if (!HostedVoicemailEnabled)
+				{
+					character.Send("Hosted voicemail is already disabled for this line.");
+					return false;
+				}
+
+				HostedVoicemailEnabled = false;
+				character.Send($"Hosted voicemail is now disabled for {Parent.HowSeen(character)}.");
+				return true;
+			default:
+				character.Send("You can use voicemail with on or off.");
 				return false;
 		}
 	}

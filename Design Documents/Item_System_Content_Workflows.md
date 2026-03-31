@@ -112,8 +112,11 @@ For telecommunications content, also validate:
 - whether cellular handsets only work when a powered cell tower on the same telecom grid covers the current zone
 - whether implant telephones are linked to a neural interface, draw implant power correctly, and still obey the same cell-tower coverage rules as other cellular devices
 - whether a chained answering machine lets downstream handsets ring first, then answers after its configured ring count
+- whether the telecommunications grid creator enables hosted voicemail with the expected access number and keeps that reserved number unavailable for ordinary subscribers
 - whether a custom greeting plays back with preserved language metadata and timing before the beep
 - whether caller speech is recorded onto the inserted tape, and whether tape full or write-protect only blocks recording rather than the basic answer flow
+- whether an unanswered hosted-voicemail-enabled line routes to the exchange mailbox only after local answering-machine opportunities have passed
+- whether dialling the hosted voicemail access number from the subscribed line announces mailbox counts, plays message contents, and honours keypad deletion commands
 - whether `dial <phone> <digits>` starts a call while idle and sends keypad digits once the call is already connected
 - whether keypad-driven targets receive `TelephoneDigitsReceived` with the expected source item and digit string
 
@@ -189,6 +192,13 @@ For the stage-1 answering-machine workflow, a practical end-to-end pass is:
 6. Place a call and let it ring through to validate greeting playback, beep timing, and message capture.
 7. While the call is connected, use `dial <phone> 123#` to validate keypad relay instead of a second outbound call attempt.
 8. Use `select <machine> messages play`, `select <machine> message <index>`, `select <machine> erase <index>`, and `select <machine> erase all` to validate inbox handling.
+
+For exchange-hosted voicemail, extend that pass with:
+1. Enable hosted voicemail and set the access digits on the `telecommunicationsgridcreator` component before loading the grid.
+2. Enable hosted voicemail on the live subscribed line with the handset or endpoint control surface for that number.
+3. Place an unanswered call and let the exchange pick it up after the configured ring-out threshold.
+4. Speak a test message, then hang up or send `#` to end the recording.
+5. From the subscribed line, dial the hosted voicemail access number and use keypad digits such as `1`, `3`, `7`, `9`, and `#` to validate playback, deletion, menu repeat, and hangup.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

@@ -445,6 +445,373 @@ public class GridSystemTests
 
 		Assert.AreEqual(0, receiver.PendingFaxCount);
 		Assert.AreEqual(1, receiver.CompletedFaxCount);
+	public void TelecommunicationsGrid_UnansweredCallRoutesToHostedVoicemailAndStoresMessage()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+		grid.SetMaximumRings(2);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2)
+		{
+			HostedVoicemailEnabled = true
+		};
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsFalse(receiver.IsEngaged);
+		CollectionAssert.Contains(caller.ProgressMessages, "The exchange voicemail service answers.");
+		CollectionAssert.Contains(caller.ProgressMessages, "A sharp beep sounds over the line.");
+
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+		Assert.IsTrue(caller.HangUp(null!, out error), error);
+
+		var mailboxesField = typeof(TelecommunicationsGrid).GetField("_hostedVoicemailRecordings",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		var mailboxes =
+			(Dictionary<string, List<StoredAudioRecording>>)mailboxesField!.GetValue(grid)!;
+		Assert.IsTrue(mailboxes.ContainsKey(receiver.PhoneNumber!));
+		Assert.AreEqual(1, mailboxes[receiver.PhoneNumber!].Count);
+		Assert.AreEqual("Hello there", mailboxes[receiver.PhoneNumber!][0].Recording.Segments[0].RawText);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_LocalAnsweringMachineTakesPriorityOverHostedVoicemail()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+		grid.SetMaximumRings(2);
+		var machineParent = CreateBasicItem(gameworld.Object, 230L, CreateCell().Object);
+		var tape = CreateTape(gameworld.Object, 231L);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2),
+			machineParent.Object, true);
+		var caller = new TelephoneDouble(gameworld.Object, 232);
+
+		machine.Put(null!, tape.Item.Object);
+		((ITelephoneNumberOwner)machine).TelecommunicationsGrid = grid;
+		((ITelephoneNumberOwner)machine).HostedVoicemailEnabled = true;
+		machine.OnPowerCutIn();
+		caller.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+
+		Assert.IsTrue(grid.TryStartCall(caller, machine.PhoneNumber!, out var error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(machine.IsConnected);
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsFalse(caller.ProgressMessages.Any(x => x.Contains("exchange voicemail service", StringComparison.InvariantCultureIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_HostedVoicemailAccessPlaysAndDeletesMessages()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+		grid.SetMaximumRings(2);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2)
+		{
+			HostedVoicemailEnabled = true
+		};
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+		Assert.IsTrue(caller.HangUp(null!, out error), error);
+
+		Assert.IsTrue(receiver.Dial(null!, grid.HostedVoicemailAccessNumber, out error), error);
+		CollectionAssert.Contains(receiver.ProgressMessages, "The exchange voicemail service answers.");
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("1 saved voicemail message")));
+
+		Assert.IsTrue(receiver.Dial(null!, "1", out error), error);
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("Playing message #1")));
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("Hello there")));
+
+		Assert.IsTrue(receiver.Dial(null!, "3", out error), error);
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("current voicemail message is deleted")));
+		Assert.IsTrue(receiver.Dial(null!, "#", out error), error);
+
+		Assert.IsTrue(receiver.Dial(null!, grid.HostedVoicemailAccessNumber, out error), error);
+		Assert.IsTrue(receiver.ProgressMessages.Any(x => x.Contains("no saved voicemail messages")));
+	}
+
+	[TestMethod]
+	public void RecordedAudio_RoundTripsSpeakerMetadataAndTiming()
+	{
+		var stored = new StoredAudioRecording(
+			"message-1",
+			new RecordedAudio(
+			[
+				new RecordedAudioSegment(
+					TimeSpan.FromSeconds(2),
+					TimeSpan.FromMilliseconds(750),
+					10,
+					11,
+					"Hello there",
+					AudioVolume.Loud,
+					Outcome.MajorPass,
+					new RecordedAudioSpeakerSnapshot(42, "Alice", Gender.Female)),
+				new RecordedAudioSegment(
+					TimeSpan.FromMilliseconds(500),
+					TimeSpan.FromMilliseconds(250),
+					10,
+					11,
+					"Goodbye",
+					AudioVolume.Decent,
+					Outcome.Pass,
+					new RecordedAudioSpeakerSnapshot(null, "System Voice", Gender.Neuter))
+			]),
+			new DateTime(2026, 3, 31, 9, 15, 0, DateTimeKind.Utc));
+
+		var xml = stored.SaveToXml();
+		var loaded = StoredAudioRecording.LoadFromXml(xml);
+
+		Assert.AreEqual("message-1", loaded.Name);
+		Assert.AreEqual(stored.RecordedAtUtc, loaded.RecordedAtUtc);
+		Assert.AreEqual(2, loaded.Recording.Segments.Count);
+		Assert.AreEqual(TimeSpan.FromSeconds(2), loaded.Recording.Segments[0].DelayBeforeSegment);
+		Assert.AreEqual(TimeSpan.FromMilliseconds(750), loaded.Recording.Segments[0].EstimatedSegmentDuration);
+		Assert.AreEqual(10L, loaded.Recording.Segments[0].LanguageId);
+		Assert.AreEqual(11L, loaded.Recording.Segments[0].AccentId);
+		Assert.AreEqual("Hello there", loaded.Recording.Segments[0].RawText);
+		Assert.AreEqual(AudioVolume.Loud, loaded.Recording.Segments[0].Volume);
+		Assert.AreEqual(Outcome.MajorPass, loaded.Recording.Segments[0].Outcome);
+		Assert.AreEqual(42L, loaded.Recording.Segments[0].Speaker.CharacterId);
+		Assert.AreEqual("Alice", loaded.Recording.Segments[0].Speaker.Name);
+		Assert.AreEqual(Gender.Female, loaded.Recording.Segments[0].Speaker.Gender);
+		Assert.AreEqual(TimeSpan.FromMilliseconds(3500), loaded.Recording.TotalDuration);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_DialDuringConnectedCall_RelaysKeypadDigitsToRecipient()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2);
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		Assert.IsTrue(receiver.Answer(null!, out error), error);
+		Assert.IsTrue(caller.Dial(null!, "1 2# *", out error), error);
+
+		CollectionAssert.AreEqual(new[] { "12#*" }, receiver.ReceivedDigits.ToArray());
+	}
+
+	[TestMethod]
+	public void TelephoneGameItemComponent_ReceiveDigits_FiresTelephoneDigitsReceivedEvent()
+	{
+		var gameworld = CreateGameworld();
+		var parent = CreateBasicItem(gameworld.Object, 88L, CreateCell().Object);
+		var proto = CreateTelephoneProto(gameworld.Object, 0.0);
+		var component = new TelephoneGameItemComponent(proto, parent.Object, true);
+		var source = new TelephoneDouble(gameworld.Object, 89);
+
+		component.ReceiveDigits(source, "12#");
+
+		parent.Verify(
+			x => x.HandleEvent(
+				EventType.TelephoneDigitsReceived,
+				It.Is<object[]>(args =>
+					args.Length == 2 &&
+					ReferenceEquals(args[0], source.Parent) &&
+					Equals(args[1], "12#"))),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_AnsweringMachinePlaysGreetingAndRecordsMessage()
+	{
+		var language = CreateLanguage(101);
+		var accent = CreateAccent(201, language.Object);
+		var gameworld = CreateGameworld(languageList: [language.Object], accentList: [accent.Object]);
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var machineParent = CreateBasicItem(gameworld.Object, 200L, CreateCell().Object);
+		var tape = CreateTape(gameworld.Object, 201L);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
+		var caller = new TelephoneDouble(gameworld.Object, 202);
+
+		Assert.IsTrue(tape.Component.StoreRecording(
+			new StoredAudioRecording(
+				"__greeting__",
+				new RecordedAudio(
+				[
+					new RecordedAudioSegment(
+						TimeSpan.Zero,
+						TimeSpan.Zero,
+						language.Object.Id,
+						accent.Object.Id,
+						"Please leave a message after the beep.",
+						AudioVolume.Decent,
+						Outcome.Pass,
+						new RecordedAudioSpeakerSnapshot(77, "Recorded Voice", Gender.Neuter))
+				]),
+				DateTime.UtcNow),
+			out var error), error);
+
+		machine.Put(null!, tape.Item.Object);
+		((ITelephoneNumberOwner)machine).TelecommunicationsGrid = grid;
+		machine.OnPowerCutIn();
+		caller.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+
+		Assert.IsTrue(grid.TryStartCall(caller, machine.PhoneNumber!, out error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(machine.IsConnected);
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsFalse(caller.ProgressMessages.Contains("The line rings out."));
+
+		heartbeat.Raise(x => x.SecondHeartbeat += null);
+
+		CollectionAssert.AreEqual(
+			new[] { "Please leave a message after the beep." },
+			caller.ReceivedTransmissionTexts.ToArray());
+		Assert.IsTrue(machine.IsRecordingMessage);
+
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+		Assert.IsTrue(caller.HangUp(null!, out error), error);
+
+		Assert.AreEqual(1, machine.MessageRecordings.Count);
+		Assert.AreEqual("Hello there", machine.MessageRecordings[0].Recording.Segments[0].RawText);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_AnsweringMachineDisconnectsWhenExtensionAnswers()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var machineParent = CreateBasicItem(gameworld.Object, 210L, CreateCell().Object);
+		var tape = CreateTape(gameworld.Object, 211L);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
+		var caller = new TelephoneDouble(gameworld.Object, 212);
+		var extension = new TelephoneDouble(gameworld.Object, 213) { ExternalOwner = machine };
+
+		machine.Put(null!, tape.Item.Object);
+		((ITelephoneNumberOwner)machine).TelecommunicationsGrid = grid;
+		machine.OnPowerCutIn();
+		caller.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+
+		Assert.IsTrue(grid.TryStartCall(caller, machine.PhoneNumber!, out var error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(machine.IsRecordingMessage);
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+
+		Assert.IsTrue(extension.PickUp(null!, out error), error);
+		Assert.IsFalse(machine.IsConnected);
+		Assert.IsFalse(machine.IsRecordingMessage);
+		Assert.IsTrue(extension.IsConnected);
+		Assert.AreEqual(1, machine.MessageRecordings.Count);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_AnsweringMachineWithWriteProtectedTapeStillAnswers()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var machineParent = CreateBasicItem(gameworld.Object, 220L, CreateCell().Object);
+		var tape = CreateTape(gameworld.Object, 221L);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
+		var caller = new TelephoneDouble(gameworld.Object, 222);
+
+		tape.Component.WriteProtected = true;
+		machine.Put(null!, tape.Item.Object);
+		((ITelephoneNumberOwner)machine).TelecommunicationsGrid = grid;
+		machine.OnPowerCutIn();
+		caller.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+
+		Assert.IsTrue(grid.TryStartCall(caller, machine.PhoneNumber!, out var error), error);
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+
+		Assert.IsTrue(machine.IsConnected);
+		Assert.IsFalse(machine.IsRecordingMessage);
+
+		caller.Transmit(CreateSpokenLanguage(caller.Parent));
+		Assert.IsTrue(caller.HangUp(null!, out error), error);
+
+		Assert.AreEqual(0, machine.MessageRecordings.Count);
+	}
+
+	[TestMethod]
+	public void AnsweringMachine_SelectGreetingRecordStop_SavesGreetingToTape()
+	{
+		var gameworld = CreateGameworld();
+		var cell = CreateCell().Object;
+		var machineParent = CreateBasicItem(gameworld.Object, 230L, cell);
+		var tape = CreateTape(gameworld.Object, 231L);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
+		var actor = CreateCharacter(gameworld.Object, 232L, cell);
+		var language = CreateLanguage(301);
+		var accent = CreateAccent(302, language.Object);
+
+		machine.Put(actor.Object, tape.Item.Object);
+
+		Assert.IsTrue(machine.Select(actor.Object, "greeting record", Mock.Of<IEmote>()));
+		Assert.IsTrue(machine.IsRecordingGreeting);
+
+		machine.HandleEvent(EventType.CharacterSpeaksWitness, actor.Object, actor.Object, AudioVolume.Decent,
+			language.Object, accent.Object, "Please leave a message.");
+
+		Assert.IsTrue(machine.Select(actor.Object, "greeting stop", Mock.Of<IEmote>()));
+		Assert.IsFalse(machine.IsRecordingGreeting);
+		Assert.IsNotNull(machine.GreetingRecording);
+		Assert.AreEqual("Please leave a message.", machine.GreetingRecording!.Recording.Segments[0].RawText);
+	}
+
+	[TestMethod]
+	public void AnsweringMachine_LoadRestoresInsertedTapeAndSettings()
+	{
+		var tapeGameworld = CreateGameworld();
+		var tape = CreateTape(tapeGameworld.Object, 241L);
+		var gameworld = CreateGameworld(itemList: [tape.Item.Object]);
+		gameworld.Setup(x => x.TryGetItem(tape.Item.Object.Id, true)).Returns(tape.Item.Object);
+
+		var parent = CreateBasicItem(gameworld.Object, 240L, CreateCell().Object);
+		var proto = CreateAnsweringMachineProto(gameworld.Object, 4);
+		var component = new AnsweringMachineGameItemComponent(new MudSharp.Models.GameItemComponent
+		{
+			Id = 1,
+			Definition =
+				$"<Definition><Grid>0</Grid><SwitchedOn>false</SwitchedOn><PreferredNumber></PreferredNumber><AllowSharedNumber>false</AllowSharedNumber><AutoAnswerRings>5</AutoAnswerRings><RingVolumeOverride>-1</RingVolumeOverride><Tape>{tape.Item.Object.Id}</Tape><ConnectedItems /></Definition>"
+		}, proto, parent.Object);
+
+		component.FinaliseLoad();
+
+		Assert.IsFalse(component.SwitchedOn);
+		Assert.AreEqual(5, component.AutoAnswerRings);
+		Assert.IsNotNull(component.Tape);
+		Assert.AreEqual(tape.Item.Object, component.Contents.Single());
 	}
 
 	[TestMethod]
@@ -619,7 +986,7 @@ public class GridSystemTests
 		var component = new TelephoneGameItemComponent(proto, parent.Object, true);
 
 		CollectionAssert.AreEquivalent(
-			new[] { "on", "off", "quiet", "normal", "loud" },
+			new[] { "on", "off", "quiet", "normal", "loud", "vmon", "vmoff" },
 			component.SwitchSettings.ToArray());
 
 		Assert.IsTrue(component.Switch(null!, "quiet"));
@@ -628,6 +995,10 @@ public class GridSystemTests
 		Assert.AreEqual(AudioVolume.Decent, component.RingVolume);
 		Assert.IsTrue(component.Switch(null!, "loud"));
 		Assert.AreEqual(AudioVolume.Loud, component.RingVolume);
+		Assert.IsTrue(component.Switch(null!, "vmon"));
+		Assert.IsTrue(component.HostedVoicemailEnabled);
+		Assert.IsTrue(component.Switch(null!, "vmoff"));
+		Assert.IsFalse(component.HostedVoicemailEnabled);
 	}
 
 	[TestMethod]
@@ -765,7 +1136,8 @@ public class GridSystemTests
 	}
 
 	private static Mock<IFuturemud> CreateGameworld(IEnumerable<IGameItem>? itemList = null,
-		IEnumerable<IGrid>? gridList = null)
+		IEnumerable<IGrid>? gridList = null, IEnumerable<ILanguage>? languageList = null,
+		IEnumerable<IAccent>? accentList = null)
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var saveManager = new Mock<ISaveManager>();
@@ -774,6 +1146,8 @@ public class GridSystemTests
 		var unitManager = new Mock<IUnitManager>();
 		var items = CreateCollection(itemList ?? Enumerable.Empty<IGameItem>());
 		var grids = CreateCollection(gridList ?? Enumerable.Empty<IGrid>());
+		var languages = CreateCollection(languageList ?? Enumerable.Empty<ILanguage>());
+		var accents = CreateCollection(accentList ?? Enumerable.Empty<IAccent>());
 		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
 		unitManager.SetupGet(x => x.BaseWeightToKilograms).Returns(1.0);
 		bodyPrototypes.SetupGet(x => x.Count).Returns(0);
@@ -784,7 +1158,11 @@ public class GridSystemTests
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
 		gameworld.SetupGet(x => x.Items).Returns(items.Object);
 		gameworld.SetupGet(x => x.Grids).Returns(grids.Object);
+		gameworld.SetupGet(x => x.Languages).Returns(languages.Object);
+		gameworld.SetupGet(x => x.Accents).Returns(accents.Object);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
+		         .Returns<long, bool>((id, _) => items.Object.Get(id));
 		return gameworld;
 	}
 
@@ -838,11 +1216,16 @@ public class GridSystemTests
 	private static Mock<IGameItem> CreateBasicItem(IFuturemud gameworld, long id, params ICell[] trueLocations)
 	{
 		var item = new Mock<IGameItem>();
+		var outputHandler = new Mock<IOutputHandler>();
+		outputHandler.SetupGet(x => x.Perceiver).Returns(() => item.Object);
 		item.SetupGet(x => x.Id).Returns(id);
 		item.SetupGet(x => x.Name).Returns($"Item {id}");
 		item.SetupGet(x => x.Gameworld).Returns(gameworld);
 		item.SetupGet(x => x.TrueLocations).Returns(trueLocations);
+		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		item.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
 		item.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponent>());
+		item.Setup(x => x.HandleEvent(It.IsAny<EventType>(), It.IsAny<object[]>())).Returns(false);
 		return item;
 	}
 
@@ -958,6 +1341,67 @@ public class GridSystemTests
 		       .Invoke([model, gameworld]);
 	}
 
+	private static TapeGameItemComponentProto CreateTapeProto(IFuturemud gameworld, double capacityMinutes = 30.0)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 24,
+			Name = "Tape",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition = $"<Definition><CapacityMs>{(long)TimeSpan.FromMinutes(capacityMinutes).TotalMilliseconds}</CapacityMs></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (TapeGameItemComponentProto)typeof(TapeGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static AnsweringMachineGameItemComponentProto CreateAnsweringMachineProto(IFuturemud gameworld,
+		int defaultAutoAnswerRings, double wattage = 6.0)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 25,
+			Name = "Answering Machine",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition =
+				$"<Definition><Wattage>{wattage}</Wattage><RingEmote><![CDATA[@ ring|rings insistently.]]></RingEmote><TransmitPremote><![CDATA[@ speak|speaks into $1 and say|says]]></TransmitPremote><RingVolume>{(int)AudioVolume.Decent}</RingVolume><DefaultAutoAnswerRings>{defaultAutoAnswerRings}</DefaultAutoAnswerRings></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (AnsweringMachineGameItemComponentProto)typeof(AnsweringMachineGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static (Mock<IGameItem> Item, TapeGameItemComponent Component) CreateTape(IFuturemud gameworld, long id,
+		double capacityMinutes = 30.0)
+	{
+		var item = CreateBasicItem(gameworld, id);
+		item.SetupProperty(x => x.ContainedIn);
+		item.Setup(x => x.LoadTimeSetContainedIn(It.IsAny<IGameItem>()))
+		    .Callback<IGameItem>(parent => item.Object.ContainedIn = parent);
+		item.Setup(x => x.FinaliseLoadTimeTasks());
+		item.Setup(x => x.Get(It.IsAny<IBody>())).Returns(item.Object);
+
+		var component = new TapeGameItemComponent(CreateTapeProto(gameworld, capacityMinutes), item.Object, true);
+		item.Setup(x => x.GetItemType<IAudioStorageTape>()).Returns(component);
+		return (item, component);
+	}
+
 	private static TelecommunicationsGridCreatorGameItemComponentProto CreateTelecommunicationsGridCreatorProto(
 		IFuturemud gameworld, string prefix, int numberLength)
 	{
@@ -1063,6 +1507,7 @@ public class GridSystemTests
 		owner.SetupGet(x => x.Parent).Returns(parent.Object);
 		owner.SetupProperty(x => x.PreferredNumber);
 		owner.SetupProperty(x => x.AllowSharedNumber);
+		owner.SetupProperty(x => x.HostedVoicemailEnabled);
 		owner.SetupProperty(x => x.TelecommunicationsGrid);
 		owner.SetupGet(x => x.PhoneNumber).Returns(() => phoneNumber);
 		owner.SetupGet(x => x.ConnectedTelephones).Returns(() => phones);
@@ -1098,11 +1543,47 @@ public class GridSystemTests
 		var model = new Mock<ILanguageDifficultyModel>();
 		model.Setup(x => x.RateDifficulty(It.IsAny<ExplodedString>())).Returns(Difficulty.Automatic);
 		var language = new Mock<ILanguage>();
+		language.SetupGet(x => x.Id).Returns(1L);
 		language.SetupGet(x => x.Model).Returns(model.Object);
 		language.SetupGet(x => x.Name).Returns("Common");
 		var accent = new Mock<IAccent>();
+		accent.SetupGet(x => x.Id).Returns(2L);
+		accent.SetupGet(x => x.Language).Returns(language.Object);
 		return new SpokenLanguageInfo(language.Object, accent.Object, AudioVolume.Decent, "Hello there",
 			Outcome.Pass, origin, origin);
+	}
+
+	private static Mock<ILanguage> CreateLanguage(long id, string name = "Common")
+	{
+		var model = new Mock<ILanguageDifficultyModel>();
+		model.Setup(x => x.RateDifficulty(It.IsAny<ExplodedString>())).Returns(Difficulty.Automatic);
+		var language = new Mock<ILanguage>();
+		language.SetupGet(x => x.Id).Returns(id);
+		language.SetupGet(x => x.Name).Returns(name);
+		language.SetupGet(x => x.Model).Returns(model.Object);
+		return language;
+	}
+
+	private static Mock<IAccent> CreateAccent(long id, ILanguage language, string name = "Standard")
+	{
+		var accent = new Mock<IAccent>();
+		accent.SetupGet(x => x.Id).Returns(id);
+		accent.SetupGet(x => x.Name).Returns(name);
+		accent.SetupGet(x => x.Language).Returns(language);
+		accent.SetupGet(x => x.AccentSuffix).Returns(name);
+		return accent;
+	}
+
+	private static Mock<ICharacter> CreateCharacter(IFuturemud gameworld, long id, ICell location)
+	{
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(id);
+		character.SetupGet(x => x.Gameworld).Returns(gameworld);
+		character.SetupGet(x => x.Location).Returns(location);
+		character.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("Tester");
+		character.Setup(x => x.ApparentGender(It.IsAny<IPerceiver>())).Returns(Gendering.Get(Gender.Male));
+		return character;
 	}
 
 	private sealed class SupplierState
@@ -1130,6 +1611,7 @@ public class GridSystemTests
 		private string? _phoneNumber;
 		private string? _preferredNumber;
 		private bool _allowSharedNumber;
+		private bool _hostedVoicemailEnabled;
 		private bool _isOffHook;
 		private bool _isRinging;
 		private ITelephoneCall? _currentCall;
@@ -1147,6 +1629,8 @@ public class GridSystemTests
 		}
 
 		public List<string> ProgressMessages { get; } = [];
+		public List<string> ReceivedDigits { get; } = [];
+		public List<string> ReceivedTransmissionTexts { get; } = [];
 		public ITelephoneNumberOwner? ExternalOwner { get; set; }
 		public ITelephoneNumberOwner? NumberOwner => ExternalOwner ?? this;
 		public string? PhoneNumber => NumberOwner == this ? _phoneNumber : NumberOwner?.PhoneNumber;
@@ -1176,6 +1660,20 @@ public class GridSystemTests
 				}
 
 				_allowSharedNumber = value;
+			}
+		}
+		public bool HostedVoicemailEnabled
+		{
+			get => NumberOwner == this ? _hostedVoicemailEnabled : NumberOwner?.HostedVoicemailEnabled ?? false;
+			set
+			{
+				if (NumberOwner != this)
+				{
+					NumberOwner!.HostedVoicemailEnabled = value;
+					return;
+				}
+
+				_hostedVoicemailEnabled = value;
 			}
 		}
 		public bool IsPowered { get; set; }
@@ -1263,6 +1761,11 @@ public class GridSystemTests
 
 		public bool CanDial(ICharacter actor, string number, out string error)
 		{
+			if (_currentCall?.IsConnected == true)
+			{
+				return CanSendDigits(actor, number, out error);
+			}
+
 			if (TelecommunicationsGrid == null)
 			{
 				error = "That telephone is not connected to a telecommunications grid.";
@@ -1287,6 +1790,11 @@ public class GridSystemTests
 
 		public bool Dial(ICharacter actor, string number, out string error)
 		{
+			if (_currentCall?.IsConnected == true)
+			{
+				return SendDigits(actor, number, out error);
+			}
+
 			if (!CanDial(actor, number, out error))
 			{
 				return false;
@@ -1294,6 +1802,38 @@ public class GridSystemTests
 
 			_isOffHook = true;
 			return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+		}
+
+		public bool CanSendDigits(ICharacter actor, string digits, out string error)
+		{
+			if (_currentCall?.IsConnected != true)
+			{
+				error = "That telephone is not connected to a live call.";
+				return false;
+			}
+
+			var normalised = new string((digits ?? string.Empty).Where(x => !char.IsWhiteSpace(x)).ToArray());
+			if (string.IsNullOrEmpty(normalised) || normalised.Any(x => !char.IsDigit(x) && x is not '*' and not '#'))
+			{
+				error = "You may only send keypad digits from 0-9, * and #.";
+				return false;
+			}
+
+			error = string.Empty;
+			return true;
+		}
+
+		public bool SendDigits(ICharacter actor, string digits, out string error)
+		{
+			if (!CanSendDigits(actor, digits, out error))
+			{
+				return false;
+			}
+
+			var normalised = new string((digits ?? string.Empty).Where(x => !char.IsWhiteSpace(x)).ToArray());
+			_currentCall!.RelayDigits(this, normalised);
+			error = string.Empty;
+			return true;
 		}
 
 		public bool CanAnswer(ICharacter actor, out string error)
@@ -1373,6 +1913,11 @@ public class GridSystemTests
 			ProgressMessages.Add(message);
 		}
 
+		public void ReceiveDigits(ITelephone source, string digits)
+		{
+			ReceivedDigits.Add(digits);
+		}
+
 		public void EndCall(ITelephoneCall? call, bool notifyGrid = true)
 		{
 			if (call != null && _currentCall != null && !ReferenceEquals(call, _currentCall))
@@ -1401,6 +1946,7 @@ public class GridSystemTests
 		public void ReceiveTransmission(double frequency, SpokenLanguageInfo spokenLanguage, long encryption,
 			ITransmit origin)
 		{
+			ReceivedTransmissionTexts.Add(spokenLanguage.RawText);
 		}
 
 		public void ReceiveTransmission(double frequency, string dataTransmission, long encryption, ITransmit origin)

@@ -613,13 +613,14 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 
 	[PlayerCommand("Dial", "dial")]
 	[HelpInfo("dial",
-		@"The #3dial#0 command is used to place a call on a connected telephone. Once the other party answers, use #3transmitwith <phone> <message>#0 to speak over the line. If the destination is already off the hook you will get a busy signal and remain off the hook until you #3hangup#0 or dial another number.
+		@"The #3dial#0 command is used to place a call on a connected telephone. Once the other party answers, use #3transmitwith <phone> <message>#0 to speak over the line. While a call is already connected, the same command sends in-call keypad digits instead of placing a new call. If the destination is already off the hook you will get a busy signal and remain off the hook until you #3hangup#0 or dial another number.
 
 If exchanges have been linked together, you can dial another exchange by using its full prefix as an area code. Calls will ring out automatically after the destination exchange's configured maximum number of rings.
   
   The syntax is:
   
-  	#3dial <phone> <number>#0", AutoHelp.HelpArgOrNoArg)]
+   	#3dial <phone> <number>#0
+	#3dial <phone> <digits>#0", AutoHelp.HelpArgOrNoArg)]
 	[RequiredCharacterState(CharacterState.Able)]
 	protected static void Dial(ICharacter actor, string input)
 	{

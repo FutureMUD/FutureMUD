@@ -11,6 +11,8 @@ public interface ITelecommunicationsGrid : IGrid
 	string Prefix { get; }
 	int NumberLength { get; }
 	int MaximumRings { get; }
+	bool HostedVoicemailEnabled { get; }
+	string HostedVoicemailAccessNumber { get; }
 	double TotalSupply { get; }
 	double TotalDrawdown { get; }
 	IEnumerable<ITelecommunicationsGrid> LinkedGrids { get; }

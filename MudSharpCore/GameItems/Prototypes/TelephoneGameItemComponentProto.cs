@@ -1,21 +1,27 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TelephoneGameItemComponentProto : GameItemComponentProto
+public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
 {
 	public override string TypeDescription => "Telephone";
 	public double Wattage { get; set; }
 	public string RingEmote { get; set; }
 	public string TransmitPremote { get; set; }
+	public ConnectorType Connector { get; set; }
+	IEnumerable<ConnectorType> IConnectableItemProto.Connections => [Connector];
 
 	protected TelephoneGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator,
 		"Telephone")
@@ -23,6 +29,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto
 		Wattage = 5.0;
 		RingEmote = "@ ring|rings loudly.";
 		TransmitPremote = "@ speak|speaks into $1 and say|says";
+		Connector = new ConnectorType(MudSharp.Form.Shape.Gender.Male, "telephone", true);
 	}
 
 	protected TelephoneGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld) : base(proto,
@@ -35,6 +42,12 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto
 		Wattage = double.Parse(root.Element("Wattage")?.Value ?? "5.0");
 		RingEmote = root.Element("RingEmote")?.Value ?? "@ ring|rings loudly.";
 		TransmitPremote = root.Element("TransmitPremote")?.Value ?? "@ speak|speaks into $1 and say|says";
+		var connector = root.Element("Connector");
+		Connector = connector == null
+			? new ConnectorType(MudSharp.Form.Shape.Gender.Male, "telephone", true)
+			: new ConnectorType((MudSharp.Form.Shape.Gender)Convert.ToSByte(connector.Attribute("gender")?.Value ?? "0"),
+				connector.Attribute("type")?.Value ?? "telephone",
+				bool.Parse(connector.Attribute("powered")?.Value ?? "true"));
 	}
 
 	protected override string SaveToXml()
@@ -42,7 +55,11 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto
 		return new XElement("Definition",
 			new XElement("Wattage", Wattage),
 			new XElement("RingEmote", new XCData(RingEmote)),
-			new XElement("TransmitPremote", new XCData(TransmitPremote))
+			new XElement("TransmitPremote", new XCData(TransmitPremote)),
+			new XElement("Connector",
+				new XAttribute("gender", (short)Connector.Gender),
+				new XAttribute("type", Connector.ConnectionType),
+				new XAttribute("powered", Connector.Powered))
 		).ToString();
 	}
 

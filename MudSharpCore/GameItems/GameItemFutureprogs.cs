@@ -5,6 +5,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.GameItems;
@@ -63,6 +64,11 @@ public partial class GameItem
 			{ "material", ProgVariableTypes.Material },
 			{ "isgridconnectable", ProgVariableTypes.Boolean },
 			{ "iselectricgridconnectable", ProgVariableTypes.Boolean },
+			{ "istelecommunicationsgridconnectable", ProgVariableTypes.Boolean },
+			{ "istelephone", ProgVariableTypes.Boolean },
+			{ "iscellularphone", ProgVariableTypes.Boolean },
+			{ "iscellphonetower", ProgVariableTypes.Boolean },
+			{ "phonenumber", ProgVariableTypes.Text },
 			{ "grid", ProgVariableTypes.Number },
 			{ "layer", ProgVariableTypes.Text },
 			{ "isfood", ProgVariableTypes.Boolean },
@@ -122,6 +128,11 @@ public partial class GameItem
 			{ "material", "The primary material that this item is made from" },
 			{ "isgridconnectable", "True if this item can be connected to a grid" },
 			{ "iselectricgridconnectable", "True if this item can be connected to an electrical grid" },
+			{ "istelecommunicationsgridconnectable", "True if this item can be connected to a telecommunications grid" },
+			{ "istelephone", "True if this item is or hosts a telephone" },
+			{ "iscellularphone", "True if this item is or hosts a cellular phone" },
+			{ "iscellphonetower", "True if this item is or hosts a cell phone tower" },
+			{ "phonenumber", "The active telephone number assigned to this item or its connected telecom endpoint, if any" },
 			{ "grid", "The grid that this item is connected to, if any" },
 			{ "layer", "A text description of the layer this item is currently in" },
 			{ "isfood", "True if the item is food" },
@@ -291,6 +302,27 @@ public partial class GameItem
 				return new BooleanVariable(IsItemType<ICanConnectToGrid>());
 			case "iselectricgridconnectable":
 				return new BooleanVariable(IsItemType<ICanConnectToElectricalGrid>());
+			case "istelecommunicationsgridconnectable":
+				return new BooleanVariable(IsItemType<ICanConnectToTelecommunicationsGrid>());
+			case "istelephone":
+				return new BooleanVariable(IsItemType<ITelephone>());
+			case "iscellularphone":
+				return new BooleanVariable(GetItemType<ITelephone>() is CellularPhoneGameItemComponent);
+			case "iscellphonetower":
+				return new BooleanVariable(IsItemType<ICellPhoneTower>());
+			case "phonenumber":
+				var phone = GetItemType<ITelephone>();
+				if (phone != null)
+				{
+					return phone.PhoneNumber != null
+						? new TextVariable(phone.PhoneNumber)
+						: new NullVariable(ProgVariableTypes.Text);
+				}
+
+				var owner = GetItemType<ITelephoneNumberOwner>();
+				return owner?.PhoneNumber != null
+					? new TextVariable(owner.PhoneNumber)
+					: new NullVariable(ProgVariableTypes.Text);
 			case "grid":
 				return new NumberVariable(GetItemType<ICanConnectToGrid>()?.Grid?.Id ?? 0);
 			case "layer":

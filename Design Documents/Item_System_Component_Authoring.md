@@ -133,6 +133,16 @@ For example:
 - container capacity belongs on the proto
 - current contents belong on the runtime component
 
+### Pattern: telecom devices versus telecom endpoints
+The telephone and cellular implementation is a good reference when a subsystem has to separate "the thing a player uses" from "the thing the network addresses":
+- `ITelephone` models the live handset behaviour such as dialling, ringing, pickup, answer, hangup, and speech relay
+- `ITelephoneNumberOwner` models the addressed endpoint that owns the number on the telecommunications grid
+- a wired handset may delegate numbering to a connected outlet, so moving the handset between outlets can change its number without changing the handset component itself
+- a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
+- if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
+
+When authoring similar systems, decide early whether identity belongs to the device, the connection point, or both.
+
 ## Step 5: Attach the Capability to Item Prototypes
 Once the component proto exists and is current, attach it to item prototypes through builder workflows:
 - create or edit the component with `comp`

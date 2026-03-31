@@ -69,11 +69,18 @@ It owns:
 ### Components define capabilities
 The item system is intentionally interface-first and component-driven.
 
-A live item becomes "a container" because one of its components implements `IContainer`. It becomes "a wearable" because one of its components implements `IWearable`. It becomes "a radio", "a corpse", "a battery-powered machine", or "a prosthetic" for the same reason.
+A live item becomes "a container" because one of its components implements `IContainer`. It becomes "a wearable" because one of its components implements `IWearable`. It becomes "a radio", "a telephone", "a cell tower", "a corpse", "a battery-powered machine", or "a prosthetic" for the same reason.
 
 This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class
+
+### Telecommunications and cellular pattern
+Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:
+- wired handsets implement `ITelephone`, but the active phone number may belong to a separate `ITelephoneNumberOwner` endpoint such as a telecommunications outlet
+- a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
+- shared numbers are valid at the endpoint layer, which allows multiple outlets or towers to ring for the same number and later join the same live call
+- cellular phones still implement `ITelephone`, but they own their own number, require a separate local power source, and only function when a powered `ICellPhoneTower` on the same telecommunications grid covers their zone
 
 ### `GameItem` aggregates component behaviour
 `GameItem` delegates and aggregates a large amount of behaviour:

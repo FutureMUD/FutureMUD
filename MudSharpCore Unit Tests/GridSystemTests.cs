@@ -195,8 +195,8 @@ public class GridSystemTests
 
 		phoneOne.TelecommunicationsGrid = grid;
 		phoneTwo.TelecommunicationsGrid = grid;
-		grid.JoinGrid(phoneOne);
-		grid.JoinGrid(phoneTwo);
+		grid.JoinGrid((ITelephoneNumberOwner)phoneOne);
+		grid.JoinGrid((ITelephoneNumberOwner)phoneTwo);
 
 		Assert.AreEqual("5559999", phoneTwo.PhoneNumber);
 		Assert.IsFalse(string.IsNullOrWhiteSpace(phoneOne.PhoneNumber));
@@ -215,8 +215,8 @@ public class GridSystemTests
 
 		caller.TelecommunicationsGrid = grid;
 		receiver.TelecommunicationsGrid = grid;
-		grid.JoinGrid(caller);
-		grid.JoinGrid(receiver);
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
 
 		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
 		Assert.IsTrue(receiver.IsRinging);
@@ -248,10 +248,10 @@ public class GridSystemTests
 		busy.TelecommunicationsGrid = grid;
 		unpowered.TelecommunicationsGrid = grid;
 
-		grid.JoinGrid(caller);
-		grid.JoinGrid(receiver);
-		grid.JoinGrid(busy);
-		grid.JoinGrid(unpowered);
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+		grid.JoinGrid((ITelephoneNumberOwner)busy);
+		grid.JoinGrid((ITelephoneNumberOwner)unpowered);
 
 		Assert.IsFalse(grid.TryStartCall(caller, "9999999", out var error));
 		StringAssert.Contains(error, "not connected");
@@ -264,6 +264,74 @@ public class GridSystemTests
 
 		Assert.IsFalse(grid.TryStartCall(caller, unpowered.PhoneNumber!, out error));
 		StringAssert.Contains(error, "cannot receive");
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_OffHookLineIsBusy_AndSharedExtensionsCanJoinActiveCall()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var primary = new TelephoneDouble(gameworld.Object, 2)
+		{
+			PreferredNumber = "5554444",
+			AllowSharedNumber = true
+		};
+		var extension = new TelephoneDouble(gameworld.Object, 3)
+		{
+			PreferredNumber = "5554444",
+			AllowSharedNumber = true
+		};
+		var blocked = new TelephoneDouble(gameworld.Object, 4);
+
+		foreach (var phone in new[] { caller, primary, extension, blocked })
+		{
+			phone.TelecommunicationsGrid = grid;
+			grid.JoinGrid((ITelephoneNumberOwner)phone);
+		}
+
+		Assert.IsTrue(blocked.PickUp(null!, out var error), error);
+		Assert.IsFalse(grid.TryStartCall(caller, blocked.PhoneNumber!, out error));
+		StringAssert.Contains(error, "busy");
+		Assert.IsTrue(blocked.HangUp(null!, out error), error);
+
+		Assert.AreEqual(primary.PhoneNumber, extension.PhoneNumber);
+		Assert.IsTrue(grid.TryStartCall(caller, primary.PhoneNumber!, out error), error);
+		Assert.IsTrue(primary.IsRinging);
+		Assert.IsTrue(extension.IsRinging);
+
+		Assert.IsTrue(primary.Answer(null!, out error), error);
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsTrue(primary.IsConnected);
+		Assert.IsFalse(extension.IsRinging);
+		Assert.IsFalse(extension.IsConnected);
+
+		Assert.IsTrue(extension.PickUp(null!, out error), error);
+		CollectionAssert.AreEquivalent(new[] { primary, extension }, caller.ConnectedPhones.ToArray());
+	}
+
+	[TestMethod]
+	public void TelephoneNumber_FollowsAssignedEndpointRatherThanHandset()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var phone = new TelephoneDouble(gameworld.Object, 10);
+		var lineA = CreateLineOwner(gameworld.Object, 11, phone);
+		var lineB = CreateLineOwner(gameworld.Object, 12, phone);
+
+		lineA.Object.TelecommunicationsGrid = grid;
+		lineB.Object.TelecommunicationsGrid = grid;
+		grid.JoinGrid(lineA.Object);
+		grid.JoinGrid(lineB.Object);
+
+		phone.ExternalOwner = lineA.Object;
+		var lineANumber = phone.PhoneNumber;
+		Assert.IsFalse(string.IsNullOrWhiteSpace(lineANumber));
+
+		phone.ExternalOwner = lineB.Object;
+		var lineBNumber = phone.PhoneNumber;
+		Assert.IsFalse(string.IsNullOrWhiteSpace(lineBNumber));
+		Assert.AreNotEqual(lineANumber, lineBNumber);
 	}
 
 	[TestMethod]
@@ -289,13 +357,15 @@ public class GridSystemTests
 		parent.SetupGet(x => x.Id).Returns(1L);
 		var proto = CreateTelephoneProto(gameworld.Object, 5.0);
 		var component = new TelephoneGameItemComponent(proto, parent.Object, true);
-		var peer = new Mock<ITelephone>();
+		var call = new Mock<ITelephoneCall>();
+		call.SetupGet(x => x.IsConnected).Returns(true);
+		call.SetupGet(x => x.Participants).Returns([component]);
 
-		component.ConnectCall(peer.Object);
+		component.ConnectCall(call.Object);
 		component.OnPowerCutIn();
 		component.Transmit(CreateSpokenLanguage(parent.Object));
 
-		peer.Verify(x => x.ReceiveTransmission(0.0, It.IsAny<SpokenLanguageInfo>(), 0L, component), Times.Once);
+		call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
 	}
 
 	private static Mock<IFuturemud> CreateGameworld()
@@ -406,6 +476,24 @@ public class GridSystemTests
 		       .Invoke([model, gameworld]);
 	}
 
+	private static Mock<ITelephoneNumberOwner> CreateLineOwner(IFuturemud gameworld, long id, params ITelephone[] phones)
+	{
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Id).Returns(id);
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld);
+		var owner = new Mock<ITelephoneNumberOwner>();
+		var phoneNumber = default(string);
+		owner.SetupGet(x => x.Parent).Returns(parent.Object);
+		owner.SetupProperty(x => x.PreferredNumber);
+		owner.SetupProperty(x => x.AllowSharedNumber);
+		owner.SetupProperty(x => x.TelecommunicationsGrid);
+		owner.SetupGet(x => x.PhoneNumber).Returns(() => phoneNumber);
+		owner.SetupGet(x => x.ConnectedTelephones).Returns(() => phones);
+		owner.Setup(x => x.AssignPhoneNumber(It.IsAny<string?>()))
+		     .Callback<string?>(value => phoneNumber = value);
+		return owner;
+	}
+
 	private static GridLiquidSourceGameItemComponentProto CreateGridLiquidSourceProto(IFuturemud gameworld)
 	{
 		var model = new MudSharp.Models.GameItemComponentProto
@@ -458,12 +546,16 @@ public class GridSystemTests
 		public SupplierState State { get; }
 	}
 
-	private sealed class TelephoneDouble : ITelephone
+	private sealed class TelephoneDouble : ITelephone, ITelephoneNumberOwner
 	{
 		private readonly IGameItem _parent;
 		private readonly IGameItemComponentProto _prototype;
-		private ITelephone? _incomingCall;
-		private ITelephone? _outgoingCall;
+		private string? _phoneNumber;
+		private string? _preferredNumber;
+		private bool _allowSharedNumber;
+		private bool _isOffHook;
+		private bool _isRinging;
+		private ITelephoneCall? _currentCall;
 
 		public TelephoneDouble(IFuturemud gameworld, long id)
 		{
@@ -477,19 +569,117 @@ public class GridSystemTests
 			IsPowered = true;
 		}
 
-		public string? PhoneNumber { get; private set; }
-		public string? PreferredNumber { get; set; }
+		public ITelephoneNumberOwner? ExternalOwner { get; set; }
+		public ITelephoneNumberOwner? NumberOwner => ExternalOwner ?? this;
+		public string? PhoneNumber => NumberOwner == this ? _phoneNumber : NumberOwner?.PhoneNumber;
+		public string? PreferredNumber
+		{
+			get => NumberOwner == this ? _preferredNumber : NumberOwner?.PreferredNumber;
+			set
+			{
+				if (NumberOwner != this)
+				{
+					NumberOwner!.PreferredNumber = value;
+					return;
+				}
+
+				_preferredNumber = value;
+			}
+		}
+		public bool AllowSharedNumber
+		{
+			get => NumberOwner == this ? _allowSharedNumber : NumberOwner?.AllowSharedNumber ?? false;
+			set
+			{
+				if (NumberOwner != this)
+				{
+					NumberOwner!.AllowSharedNumber = value;
+					return;
+				}
+
+				_allowSharedNumber = value;
+			}
+		}
 		public bool IsPowered { get; set; }
-		public bool CanReceiveCalls => SwitchedOn && IsPowered && TelecommunicationsGrid != null && !string.IsNullOrWhiteSpace(PhoneNumber);
-		public bool IsRinging => _incomingCall != null && ConnectedPhone == null;
-		public bool IsConnected => ConnectedPhone != null;
-		public bool IsEngaged => IsConnected || IsRinging || _outgoingCall != null;
-		public ITelephone? ConnectedPhone { get; private set; }
-		public ITelecommunicationsGrid? TelecommunicationsGrid { get; set; }
+		public bool IsOffHook => _isOffHook;
+		public bool CanReceiveCalls =>
+			SwitchedOn && IsPowered && TelecommunicationsGrid != null && !string.IsNullOrWhiteSpace(PhoneNumber) &&
+			!_isOffHook && _currentCall == null;
+		public bool IsRinging => _isRinging;
+		public bool IsConnected => _currentCall?.Participants.Contains(this) == true && _currentCall.IsConnected;
+		public bool IsEngaged => _currentCall != null || _isOffHook;
+		public ITelephoneCall? CurrentCall => _currentCall;
+		public IEnumerable<ITelephone> ConnectedPhones => _currentCall?.Participants.Where(x => x != this).ToList() ?? [];
+		public ITelephone? ConnectedPhone => ConnectedPhones.FirstOrDefault();
+		public ITelecommunicationsGrid? TelecommunicationsGrid
+		{
+			get => NumberOwner == this ? _telecommunicationsGrid : NumberOwner?.TelecommunicationsGrid;
+			set
+			{
+				if (NumberOwner != this)
+				{
+					NumberOwner!.TelecommunicationsGrid = value;
+					return;
+				}
+
+				_telecommunicationsGrid = value;
+			}
+		}
+		private ITelecommunicationsGrid? _telecommunicationsGrid;
+		IEnumerable<ITelephone> ITelephoneNumberOwner.ConnectedTelephones => [this];
 
 		public void AssignPhoneNumber(string? number)
 		{
-			PhoneNumber = number;
+			_phoneNumber = number;
+		}
+
+		public bool CanPickUp(ICharacter actor, out string error)
+		{
+			if (_isOffHook && _currentCall == null)
+			{
+				error = "That telephone is already off the hook.";
+				return false;
+			}
+
+			if (TelecommunicationsGrid == null)
+			{
+				error = "That telephone is not connected to a telecommunications line.";
+				return false;
+			}
+
+			if (!SwitchedOn || !IsPowered)
+			{
+				error = "That telephone is not ready to use right now.";
+				return false;
+			}
+
+			error = string.Empty;
+			return true;
+		}
+
+		public bool PickUp(ICharacter actor, out string error)
+		{
+			if (!CanPickUp(actor, out error))
+			{
+				return false;
+			}
+
+			if (TelecommunicationsGrid != null && !string.IsNullOrWhiteSpace(PhoneNumber))
+			{
+				if (TelecommunicationsGrid.TryPickUp(this, out error))
+				{
+					return true;
+				}
+
+				if (!error.EqualTo("There is no live call on that line right now."))
+				{
+					return false;
+				}
+			}
+
+			_isOffHook = true;
+			error = string.Empty;
+			return true;
 		}
 
 		public bool CanDial(ICharacter actor, string number, out string error)
@@ -518,19 +708,24 @@ public class GridSystemTests
 
 		public bool Dial(ICharacter actor, string number, out string error)
 		{
-			return CanDial(actor, number, out error) &&
-			       TelecommunicationsGrid!.TryStartCall(this, number, out error);
+			if (!CanDial(actor, number, out error))
+			{
+				return false;
+			}
+
+			_isOffHook = true;
+			return TelecommunicationsGrid!.TryStartCall(this, number, out error);
 		}
 
 		public bool CanAnswer(ICharacter actor, out string error)
 		{
-			if (!IsRinging || _incomingCall == null)
+			if (!IsRinging || _currentCall == null)
 			{
 				error = "That telephone is not ringing.";
 				return false;
 			}
 
-			if (!CanReceiveCalls)
+			if (!SwitchedOn || !IsPowered)
 			{
 				error = "That telephone cannot answer calls right now.";
 				return false;
@@ -547,10 +742,7 @@ public class GridSystemTests
 				return false;
 			}
 
-			var caller = _incomingCall!;
-			ConnectCall(caller);
-			caller.ConnectCall(this);
-			return true;
+			return TelecommunicationsGrid!.TryPickUp(this, out error);
 		}
 
 		public bool CanHangUp(ICharacter actor, out string error)
@@ -572,38 +764,45 @@ public class GridSystemTests
 				return false;
 			}
 
-			EndCall(ConnectedPhone ?? _incomingCall ?? _outgoingCall);
+			EndCall(_currentCall);
 			return true;
 		}
 
-		public void BeginOutgoingCall(ITelephone otherPhone, string number)
+		public void BeginOutgoingCall(ITelephoneCall call, string number)
 		{
-			_outgoingCall = otherPhone;
-			ConnectedPhone = null;
+			_currentCall = call;
+			_isOffHook = true;
+			_isRinging = false;
 		}
 
-		public void ReceiveIncomingCall(ITelephone caller)
+		public void ReceiveIncomingCall(ITelephoneCall call)
 		{
-			_incomingCall = caller;
-			_outgoingCall = null;
-			ConnectedPhone = null;
+			_currentCall = call;
+			_isOffHook = false;
+			_isRinging = true;
 		}
 
-		public void ConnectCall(ITelephone otherPhone)
+		public void ConnectCall(ITelephoneCall call)
 		{
-			_incomingCall = null;
-			_outgoingCall = null;
-			ConnectedPhone = otherPhone;
+			_currentCall = call;
+			_isOffHook = true;
+			_isRinging = false;
 		}
 
-		public void EndCall(ITelephone? otherPhone, bool notifyOtherPhone = true)
+		public void EndCall(ITelephoneCall? call, bool notifyGrid = true)
 		{
-			_incomingCall = null;
-			_outgoingCall = null;
-			ConnectedPhone = null;
-			if (notifyOtherPhone && otherPhone != null)
+			if (call != null && _currentCall != null && !ReferenceEquals(call, _currentCall))
 			{
-				otherPhone.EndCall(this, false);
+				return;
+			}
+
+			var existingCall = _currentCall;
+			_currentCall = null;
+			_isRinging = false;
+			_isOffHook = false;
+			if (notifyGrid && existingCall != null)
+			{
+				TelecommunicationsGrid?.EndCall(this, existingCall);
 			}
 		}
 
@@ -612,7 +811,7 @@ public class GridSystemTests
 
 		public void Transmit(SpokenLanguageInfo spokenLanguage)
 		{
-			ConnectedPhone?.ReceiveTransmission(0.0, spokenLanguage, 0L, this);
+			_currentCall?.RelayTransmission(this, spokenLanguage);
 		}
 
 		public void ReceiveTransmission(double frequency, SpokenLanguageInfo spokenLanguage, long encryption,
@@ -634,7 +833,7 @@ public class GridSystemTests
 		public void OnPowerCutOut()
 		{
 			IsPowered = false;
-			EndCall(ConnectedPhone ?? _incomingCall ?? _outgoingCall);
+			EndCall(_currentCall);
 		}
 
 		public bool SwitchedOn { get; set; }
@@ -662,7 +861,7 @@ public class GridSystemTests
 			SwitchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
 			if (!SwitchedOn)
 			{
-				EndCall(ConnectedPhone ?? _incomingCall ?? _outgoingCall);
+				EndCall(_currentCall);
 			}
 
 			return true;

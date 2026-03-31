@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Health;
 using MudSharp.Models;
+using DrugModel = MudSharp.Models.Drug;
 
 namespace MudSharp_Unit_Tests;
 
@@ -136,10 +138,10 @@ public class HealthSeederTests
 		using var context = BuildContext();
 		SeedAccount(context);
 		context.Drugs.AddRange(
-			new Drug { Id = 1, Name = "IngestedOnly", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 2, Name = "TouchedOnly", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 3, Name = "InhaledOnly", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 4, Name = "BothDrug", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+			new DrugModel { Id = 1, Name = "IngestedOnly", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 2, Name = "TouchedOnly", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 3, Name = "InhaledOnly", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 4, Name = "BothDrug", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 		context.SaveChanges();
 
 		var seeder = new HealthSeeder();
@@ -177,14 +179,14 @@ public class HealthSeederTests
 			new SurgicalProcedure { Id = 8, Name = "Bone Setting" });
 
 		context.Drugs.AddRange(
-			new Drug { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 2, Name = "Opioid Analgesic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 3, Name = "Muscle Relaxant", DrugVectors = (int)DrugVector.Injected, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 4, Name = "Local Anaesthetic", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 5, Name = "Broad-Spectrum Antibiotic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 6, Name = "Antibiotic Ointment", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 7, Name = "Antifungal Course", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 8, Name = "Burn Gel", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+			new DrugModel { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 2, Name = "Opioid Analgesic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 3, Name = "Muscle Relaxant", DrugVectors = (int)DrugVector.Injected, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 4, Name = "Local Anaesthetic", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 5, Name = "Broad-Spectrum Antibiotic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 6, Name = "Antibiotic Ointment", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 7, Name = "Antifungal Course", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 8, Name = "Burn Gel", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 
 		context.GameItemComponentProtos.AddRange(
 			new GameItemComponentProto { Id = 1, Name = "Pill_Opioid_Analgesic", Type = "Pill", EditableItem = new EditableItem() },
@@ -219,13 +221,13 @@ public class HealthSeederTests
 			new SurgicalProcedure { Id = 7, Name = "Bone Setting" });
 
 		context.Drugs.AddRange(
-			new Drug { Id = 1, Name = "Willow Bark Tea", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 2, Name = "Mandrake Draught", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Inhaled), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 3, Name = "Honey Poultice", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 4, Name = "Garlic Salve", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 5, Name = "Mint Infusion", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 6, Name = "Ephedra Brew", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new Drug { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+			new DrugModel { Id = 1, Name = "Willow Bark Tea", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 2, Name = "Mandrake Draught", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Inhaled), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 3, Name = "Honey Poultice", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 4, Name = "Garlic Salve", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 5, Name = "Mint Infusion", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 6, Name = "Ephedra Brew", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new DrugModel { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 
 		context.GameItemComponentProtos.AddRange(
 			new GameItemComponentProto { Id = 1, Name = "Pill_Willow_Bark_Tea", Type = "Pill", EditableItem = new EditableItem() },

@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

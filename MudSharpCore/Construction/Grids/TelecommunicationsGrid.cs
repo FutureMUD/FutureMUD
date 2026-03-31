@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
@@ -506,9 +507,28 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			return false;
 		}
 
-		var ringablePhones = targetPhones.Where(x => x.CanReceiveCalls).ToList();
+		var ringablePhones = targetPhones.Where(x => x.SupportsVoiceCalls && x.CanReceiveCalls).ToList();
 		if (!ringablePhones.Any())
 		{
+			var faxMachines = targetPhones.OfType<IFaxMachine>()
+			                              .Where(x => x.CanReceiveFaxes)
+			                              .ToList();
+			if (faxMachines.Any())
+			{
+				const string mismatchMessage =
+					"The line answers with a burst of unintelligible modem-like noises before disconnecting.";
+				caller.NotifyCallProgress(mismatchMessage);
+				foreach (var faxMachine in faxMachines)
+				{
+					faxMachine.NotifyCallProgress(
+						"An incoming voice call hits the fax line and collapses into modem-like screeching before it disconnects.");
+				}
+
+				caller.EndCall(null, false);
+				error = string.Empty;
+				return true;
+			}
+
 			error = "That line cannot receive calls right now.";
 			return false;
 		}
@@ -526,6 +546,104 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 		error = string.Empty;
 		return true;
+	}
+
+	public bool TrySendFax(IFaxMachine sender, string number, IReadOnlyCollection<ICanBeRead> document, out string error)
+	{
+		var normalised = Normalise(number);
+		if (string.IsNullOrWhiteSpace(normalised))
+		{
+			error = "That is not a valid number.";
+			return false;
+		}
+
+		if (sender.NumberOwner?.PhoneNumber?.EqualTo(normalised) == true)
+		{
+			error = "You cannot fax the same line you are using.";
+			return false;
+		}
+
+		var destinationGrid = ResolveDestinationGrid(normalised, out error);
+		if (destinationGrid == null)
+		{
+			return false;
+		}
+
+		if (!ReferenceEquals(destinationGrid, this))
+		{
+			if (destinationGrid is TelecommunicationsGrid telecomGrid)
+			{
+				return telecomGrid.TrySendFaxOnThisGrid(sender, normalised, document, out error);
+			}
+
+			error = "That telecommunications exchange cannot route faxes right now.";
+			return false;
+		}
+
+		return TrySendFaxOnThisGrid(sender, normalised, document, out error);
+	}
+
+	private bool TrySendFaxOnThisGrid(IFaxMachine sender, string normalised, IReadOnlyCollection<ICanBeRead> document,
+		out string error)
+	{
+		var owners = GetOwnersForNumber(normalised).ToList();
+		if (!owners.Any())
+		{
+			error = "That number is not connected.";
+			return false;
+		}
+
+		if (_activeCallsByNumber.ContainsKey(normalised))
+		{
+			error = "That line is currently busy.";
+			return false;
+		}
+
+		var targetPhones = owners.SelectMany(x => x.ConnectedTelephones)
+		                         .Where(x => x != sender)
+		                         .Distinct()
+		                         .ToList();
+		if (!targetPhones.Any())
+		{
+			error = "That line cannot receive faxes right now.";
+			return false;
+		}
+
+		if (targetPhones.Any(x => x.IsOffHook || x.IsConnected || x.IsRinging))
+		{
+			error = "That line is currently busy.";
+			return false;
+		}
+
+		var faxRecipients = targetPhones.OfType<IFaxMachine>()
+		                                .Where(x => x.CanReceiveFaxes)
+		                                .ToList();
+		if (faxRecipients.Any())
+		{
+			foreach (var faxRecipient in faxRecipients)
+			{
+				faxRecipient.ReceiveFax(sender.PhoneNumber ?? "Unknown", document);
+			}
+
+			error = string.Empty;
+			return true;
+		}
+
+		var voiceRecipients = targetPhones.Where(x => x.SupportsVoiceCalls && x.CanReceiveCalls).ToList();
+		if (voiceRecipients.Any())
+		{
+			foreach (var voiceRecipient in voiceRecipients)
+			{
+				voiceRecipient.NotifyCallProgress(
+					"The line erupts with a burst of unintelligible modem-like noises before disconnecting.");
+			}
+
+			error = "The far end answers with unintelligible modem-like noises and the fax transmission fails.";
+			return false;
+		}
+
+		error = "That line cannot receive faxes right now.";
+		return false;
 	}
 
 	public bool TryPickUp(ITelephone phone, out string error)

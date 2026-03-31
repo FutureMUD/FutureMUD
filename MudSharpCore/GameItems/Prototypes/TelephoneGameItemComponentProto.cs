@@ -26,8 +26,13 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 	public List<ConnectorType> Connections { get; } = [];
 	IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
-	protected TelephoneGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator,
-		"Telephone")
+	protected TelephoneGameItemComponentProto(IFuturemud gameworld, IAccount originator)
+		: this(gameworld, originator, "Telephone")
+	{
+	}
+
+	protected TelephoneGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+		: base(gameworld, originator, type)
 	{
 		Wattage = 5.0;
 		RingEmote = "@ ring|rings loudly.";

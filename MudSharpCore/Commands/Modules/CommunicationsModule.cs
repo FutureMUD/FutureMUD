@@ -654,6 +654,66 @@ If exchanges have been linked together, you can dial another exchange by using i
 			$"You dial {number.ColourCommand()} on {item.HowSeen(actor).ColourName()}.");
 	}
 
+	[PlayerCommand("Fax", "fax")]
+	[HelpInfo("fax",
+		@"The #3fax#0 command is used to scan a readable document into a connected fax machine and transmit it to another fax number. If the destination is a normal voice line, the far end will only hear modem-like screeching and the transmission will fail. Incoming faxes are queued in the machine if it has no paper or ink available to print them immediately.
+
+The syntax is:
+
+	#3fax <machine> <number> <document>#0", AutoHelp.HelpArgOrNoArg)]
+	[RequiredCharacterState(CharacterState.Able)]
+	protected static void Fax(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which fax machine do you want to use?");
+			return;
+		}
+
+		if (!TryGetFaxMachine(actor, ss.PopSpeech(), "use", out var item, out var faxMachine, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which number do you want to fax?");
+			return;
+		}
+
+		var number = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What readable document do you want to fax?");
+			return;
+		}
+
+		var documentItem = actor.TargetHeldItem(ss.SafeRemainingArgument);
+		if (documentItem == null)
+		{
+			actor.OutputHandler.Send("You are not holding any readable document like that.");
+			return;
+		}
+
+		var readable = documentItem.GetItemType<IReadable>();
+		if (readable == null)
+		{
+			actor.OutputHandler.Send($"{documentItem.HowSeen(actor, true)} is not something that can be faxed.");
+			return;
+		}
+
+		if (!faxMachine.SendFax(actor, number, readable, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You send {documentItem.HowSeen(actor).ColourName()} as a fax to {number.ColourCommand()} using {item.HowSeen(actor).ColourName()}.");
+	}
+
 	[PlayerCommand("Answer", "answer")]
 	[HelpInfo("answer",
 		@"The #3answer#0 command is used to answer a ringing telephone. Once the call is connected, use #3transmitwith <phone> <message>#0 to speak over the line.
@@ -777,6 +837,42 @@ The syntax is:
 		if (telephone == null)
 		{
 			error = $"{item.HowSeen(actor, true)} is not a telephone.";
+			return false;
+		}
+
+		if (!telephone.SupportsVoiceCalls)
+		{
+			error = $"{item.HowSeen(actor, true)} cannot be used for voice calls.";
+			return false;
+		}
+
+		error = string.Empty;
+		return true;
+	}
+
+	private static bool TryGetFaxMachine(ICharacter actor, string targetText, string verb, out IGameItem item,
+		out IFaxMachine faxMachine, out string error)
+	{
+		item = actor.TargetItem(targetText);
+		if (item == null)
+		{
+			faxMachine = null;
+			error = $"You do not see any fax machine like that to {verb}.";
+			return false;
+		}
+
+		var (truth, manipulationError) = actor.CanManipulateItem(item);
+		if (!truth)
+		{
+			faxMachine = null;
+			error = manipulationError;
+			return false;
+		}
+
+		faxMachine = item.GetItemType<IFaxMachine>();
+		if (faxMachine == null)
+		{
+			error = $"{item.HowSeen(actor, true)} is not a fax machine.";
 			return false;
 		}
 

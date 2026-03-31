@@ -91,11 +91,13 @@ Some subsystems also need reusable runtime data that is not owned by one concret
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:
 - wired handsets implement `ITelephone`, but the active phone number may belong to a separate `ITelephoneNumberOwner` endpoint such as a telecommunications outlet
+- fax machines layer `IFaxMachine` on top of the same telecom-numbering model, but they also own machine runtime state such as paper storage, ink availability, and pending inbound fax memory
 - telecommunications grids persist number ownership against the specific endpoint component identity, not just the parent item, so multiple telecom endpoints on one item keep distinct numbers across save/load
 - a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
 - each telecommunications grid owns exchange-level behaviour such as prefix, subscriber length, maximum rings before timeout, and direct exchange links used for long-distance routing
 - long-distance routing is direct and prefix-based: a call only forwards to directly linked exchanges, never multi-hop chains, and a local-prefix dial always resolves locally instead of forwarding
 - shared numbers are valid at the endpoint layer, which allows multiple outlets or towers to ring for the same number and later join the same live call
+- fax routing is a sibling path rather than a speech-call variant: the grid resolves the same addressed number ownership, but voice-to-fax and fax-to-voice mismatches should surface as modem-like noise instead of a normal connected conversation
 - cellular phones still implement `ITelephone`, but they own their own number, require a separate local power source, and only function when a powered `ICellPhoneTower` on the same telecommunications grid covers their zone
 - physical telephones and cellular phones each have an effective ring volume resolved from a prototype default plus the handset's current player-selected ring setting; wired phones expose `quiet`, `normal`, and `loud`, while cellular phones add `silent`
 - silent cellular phones do not emit room audio, but if the handset is tucked into a worn container they can still notify the wearer with a non-audible vibration message; implant telephones remain text-only and silent to the room

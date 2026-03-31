@@ -511,7 +511,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 			var hint = NewPlayerHints
 				.Where(x => !effect.ShownHintIds.Contains(x.Id))
-				.Where(x => x.FilterProg.ExecuteBool(character))
+				.Where(x => x.FilterProg?.ExecuteBool(character) != false)
 				.OrderByDescending(x => x.Priority)
 				.WhereMax(x => x.Priority)
 				.GetRandomElement();

@@ -343,7 +343,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
 		SendInternalOutput(
 			new LanguageOutput(
-				new Emote("You receive speech over your implant telephone.", Parent, Parent),
+				new Emote("You receive speech over your implant telephone", Parent, Parent),
 				spokenLanguage,
 				null,
 				flags: OutputFlags.ElectronicOnly

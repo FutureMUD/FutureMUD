@@ -29,7 +29,7 @@ public class DragAidGameItemComponentProto : GameItemComponentProto
 	protected override void LoadFromXml(XElement root)
 	{
 		MaximumUsers = int.Parse(root.Element("MaximumUsers").Value);
-		EffortMultiplier = int.Parse(root.Element("EffortMultiplier").Value);
+		EffortMultiplier = double.Parse(root.Element("EffortMultiplier").Value);
 	}
 
 	#endregion

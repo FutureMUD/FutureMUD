@@ -557,7 +557,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
         Parent.OutputHandler.Handle(
             new LanguageOutput(
-                new Emote("@ reproduce|reproduces speech over the line.", Parent, Parent),
+                new Emote("@ reproduce|reproduces speech over the line", Parent, Parent),
                 spokenLanguage,
                 null,
                 flags: OutputFlags.PurelyAudible

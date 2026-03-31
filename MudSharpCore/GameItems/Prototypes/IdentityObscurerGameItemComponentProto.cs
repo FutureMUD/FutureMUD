@@ -79,8 +79,8 @@ public class IdentityObscurerGameItemComponentProto : GameItemComponentProto
 
 		foreach (var sub in root.Element("Characteristics")?.Elements("Characteristic") ?? Enumerable.Empty<XElement>())
 		{
-			_obscuredForms.Add(Gameworld.Characteristics.Get(long.Parse(sub.Attribute("definition").Value)),
-				sub.Attribute("form").Value);
+			_obscuredForms.Add(Gameworld.Characteristics.Get(long.Parse(sub.Attribute("Definition").Value)),
+				sub.Attribute("Form").Value);
 		}
 	}
 

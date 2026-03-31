@@ -1,50 +1,53 @@
-﻿using MudSharp.Framework;
+using System.Collections.Generic;
+using MudSharp.Framework;
 
 namespace MudSharp.Form.Material {
-    public interface ISolid : IMaterial {
-        double ImpactFracture { get; }
+	public interface ISolid : IMaterial, IHaveMultipleNames {
+		IEnumerable<string> Aliases { get; }
 
-        double ImpactYield { get; }
+		double ImpactFracture { get; }
 
-        double ImpactStrainAtYield { get; }
+		double ImpactYield { get; }
 
-        double ShearFracture { get; }
+		double ImpactStrainAtYield { get; }
 
-        double ShearYield { get; }
+		double ShearFracture { get; }
 
-        double ShearStrainAtYield { get; }
+		double ShearYield { get; }
 
-        double? HeatDamagePoint { get; }
-        /// <summary>
-        ///     Ignition temperature of the material in Kelvin
-        /// </summary>
-        double? IgnitionPoint { get; }
+		double ShearStrainAtYield { get; }
 
-        /// <summary>
-        ///     Melting point of the material in Kelvin
-        /// </summary>
-        double? MeltingPoint { get; }
+		double? HeatDamagePoint { get; }
+		/// <summary>
+		///     Ignition temperature of the material in Kelvin
+		/// </summary>
+		double? IgnitionPoint { get; }
 
-        /// <summary>
-        ///     In GPa
-        /// </summary>
-        double YoungsModulus { get; }
-        ILiquid Solvent { get; }
+		/// <summary>
+		///     Melting point of the material in Kelvin
+		/// </summary>
+		double? MeltingPoint { get; }
 
-        double SolventRatio { get; }
+		/// <summary>
+		///     In GPa
+		/// </summary>
+		double YoungsModulus { get; }
+		ILiquid Solvent { get; }
 
-        string ResidueSdesc { get; }
+		double SolventRatio { get; }
 
-        string ResidueDesc { get; }
+		string ResidueSdesc { get; }
 
-        ANSIColour ResidueColour { get; }
+		string ResidueDesc { get; }
 
-        double Absorbency { get; }
+		ANSIColour ResidueColour { get; }
 
-        ILiquid LiquidForm { get; }
+		double Absorbency { get; }
 
-        IGas GasForm { get; }
+		ILiquid LiquidForm { get; }
 
-        ISolid Clone(string newName, string newDescription);
-    }
+		IGas GasForm { get; }
+
+		ISolid Clone(string newName, string newDescription);
+	}
 }

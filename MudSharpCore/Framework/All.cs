@@ -73,8 +73,7 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
 	public bool Has(string name)
 	{
-		var lowercaseName = name.ToLowerInvariant();
-		return _idlookup.Values.ToList().Exists(x => x.Name?.ToLowerInvariant().Equals(lowercaseName) == true);
+		return _iterlist.Any(x => HasExactNameMatch(x, name));
 	}
 
 	public T? Get(long id)
@@ -89,20 +88,13 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
 	public List<T> Get(string name)
 	{
-		var values = _idlookup.Values.ToList();
-		var lowercaseName = name.ToLowerInvariant();
-
-		var matchesName = from value in values
-		                  where value.Name?.ToLowerInvariant().Equals(lowercaseName) == true
-		                  select value;
-
-		return matchesName.ToList();
+		return _iterlist.Where(x => HasExactNameMatch(x, name)).ToList();
 	}
 
 	public T? GetByName(string name)
 	{
-		return _iterlist.FirstOrDefault(x => x.Name?.Equals(name, StringComparison.InvariantCultureIgnoreCase) == true) ??
-		       _iterlist.FirstOrDefault(x => x.Name?.StartsWith(name, StringComparison.InvariantCultureIgnoreCase) == true);
+		return _iterlist.FirstOrDefault(x => HasExactNameMatch(x, name)) ??
+		       _iterlist.FirstOrDefault(x => HasNameMatch(x, name, true));
 	}
 
 	public T? GetByIdOrName(string value, bool permitAbbreviations = true)
@@ -118,11 +110,34 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
 		if (!permitAbbreviations)
 		{
-			return _iterlist.FirstOrDefault(x => x.Name?.Equals(value, StringComparison.InvariantCultureIgnoreCase) == true);
+			return _iterlist.FirstOrDefault(x => HasExactNameMatch(x, value));
 		}
 
-		return _iterlist.FirstOrDefault(x => x.Name?.Equals(value, StringComparison.InvariantCultureIgnoreCase) == true) ??
-		       _iterlist.FirstOrDefault(x => x.Name?.StartsWith(value, StringComparison.InvariantCultureIgnoreCase) == true);
+		return _iterlist.FirstOrDefault(x => HasExactNameMatch(x, value)) ??
+		       _iterlist.FirstOrDefault(x => HasNameMatch(x, value, true));
+	}
+
+	private static IEnumerable<string> NamesForItem(T item)
+	{
+		if (item is IHaveMultipleNames multiNameItem)
+		{
+			return multiNameItem.Names.Where(x => !string.IsNullOrWhiteSpace(x));
+		}
+
+		return string.IsNullOrWhiteSpace(item.Name) ? Enumerable.Empty<string>() : [item.Name];
+	}
+
+	private static bool HasExactNameMatch(T item, string name)
+	{
+		return HasNameMatch(item, name, false);
+	}
+
+	private static bool HasNameMatch(T item, string name, bool permitAbbreviations)
+	{
+		return NamesForItem(item)
+			.Any(x => permitAbbreviations
+				? x.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)
+				: x.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	public void ForEach(Action<T> action)

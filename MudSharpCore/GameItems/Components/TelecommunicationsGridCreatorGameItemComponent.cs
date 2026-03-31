@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
@@ -28,8 +30,7 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
 		IGameItem parent, ICharacter? loader, bool temporary = false) : base(parent, proto, temporary)
 	{
 		_prototype = proto;
-		Grid = new TelecommunicationsGrid(Gameworld, loader?.Location, proto.Prefix, proto.NumberLength);
-		Gameworld.Add(Grid);
+		Grid = CreateGrid(loader?.Location, temporary);
 	}
 
 	public TelecommunicationsGridCreatorGameItemComponent(Models.GameItemComponent component,
@@ -45,16 +46,13 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
 		IGameItem newParent, bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
-		Grid = temporary ? rhs.Grid : new TelecommunicationsGrid(rhs.Grid);
-		if (!temporary)
-		{
-			Gameworld.Add(Grid);
-		}
+		Grid = temporary ? rhs.Grid : CreateGridCopy(rhs.Grid);
 	}
 
 	private void LoadFromXml(XElement root)
 	{
-		Grid = (ITelecommunicationsGrid)Gameworld.Grids.Get(long.Parse(root.Element("Grid")!.Value));
+		var gridId = long.Parse(root.Element("Grid")!.Value);
+		Grid = Gameworld.Grids.Get(gridId) as ITelecommunicationsGrid ?? CreateGrid(Parent.TrueLocations.FirstOrDefault());
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -72,7 +70,7 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
 	public override void Delete()
 	{
 		base.Delete();
-		Grid.Delete();
+		Grid?.Delete();
 	}
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
@@ -106,7 +104,28 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
 		return string.Join("\n",
 			description,
 			"",
-			$"The telecommunications grid uses the prefix {Grid.Prefix.ColourValue()} and {Grid.NumberLength.ToString("N0", voyeur).ColourValue()} subscriber digits."
+		$"The telecommunications grid uses the prefix {Grid.Prefix.ColourValue()} and {Grid.NumberLength.ToString("N0", voyeur).ColourValue()} subscriber digits."
 		);
+	}
+
+	private ITelecommunicationsGrid CreateGrid(ICell? initialLocation, bool temporary = false)
+	{
+		var grid = new TelecommunicationsGrid(Gameworld, initialLocation, _prototype.Prefix, _prototype.NumberLength);
+		if (temporary)
+		{
+			return grid;
+		}
+
+		Gameworld.Add(grid);
+		Gameworld.SaveManager.DirectInitialise((ILateInitialisingItem)grid);
+		return grid;
+	}
+
+	private ITelecommunicationsGrid CreateGridCopy(ITelecommunicationsGrid source)
+	{
+		var grid = new TelecommunicationsGrid(source);
+		Gameworld.Add(grid);
+		Gameworld.SaveManager.DirectInitialise((ILateInitialisingItem)grid);
+		return grid;
 	}
 }

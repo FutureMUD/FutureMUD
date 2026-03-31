@@ -1,7 +1,10 @@
 #nullable enable
+using System;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
@@ -16,6 +19,7 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 	public double Wattage { get; set; }
 	public string RingEmote { get; set; }
 	public string TransmitPremote { get; set; }
+	public AudioVolume RingVolume { get; set; }
 
 	protected CellularPhoneGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "CellularPhone")
@@ -23,6 +27,7 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 		Wattage = 2.0;
 		RingEmote = "@ chirp|chirps insistently.";
 		TransmitPremote = "@ speak|speaks into $1 and say|says";
+		RingVolume = AudioVolume.Decent;
 	}
 
 	protected CellularPhoneGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld)
@@ -35,6 +40,9 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 		Wattage = double.Parse(root.Element("Wattage")?.Value ?? "2.0");
 		RingEmote = root.Element("RingEmote")?.Value ?? "@ chirp|chirps insistently.";
 		TransmitPremote = root.Element("TransmitPremote")?.Value ?? "@ speak|speaks into $1 and say|says";
+		RingVolume = TelephoneRingSettings.NormaliseVolume(
+			ParseAudioVolume(root.Element("RingVolume")?.Value, AudioVolume.Decent),
+			true);
 	}
 
 	protected override string SaveToXml()
@@ -42,7 +50,8 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 		return new XElement("Definition",
 			new XElement("Wattage", Wattage),
 			new XElement("RingEmote", new XCData(RingEmote)),
-			new XElement("TransmitPremote", new XCData(TransmitPremote))
+			new XElement("TransmitPremote", new XCData(TransmitPremote)),
+			new XElement("RingVolume", (int)RingVolume)
 		).ToString();
 	}
 
@@ -82,7 +91,7 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 	}
 
 	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twatts <#> - sets how much power the phone draws when switched on\n\tring <emote> - sets the emote used when the phone rings\n\tpremote <emote> - sets the emote prepended when a character transmits speech into the phone";
+		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twatts <#> - sets how much power the phone draws when switched on\n\tring <emote> - sets the emote used when the phone rings\n\tringvolume <silent|quiet|normal|loud> - sets the default player-selectable ring setting for phones using this prototype\n\tpremote <emote> - sets the emote prepended when a character transmits speech into the phone";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -97,6 +106,9 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 			case "ring":
 			case "ringemote":
 				return BuildingCommandRing(actor, command);
+			case "ringvolume":
+			case "volume":
+				return BuildingCommandRingVolume(actor, command);
 			case "premote":
 			case "transmit":
 			case "transmitemote":
@@ -154,14 +166,60 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 		return true;
 	}
 
+	private bool BuildingCommandRingVolume(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.Send(
+				$"What ring setting should this cellular phone use by default? Valid values are {TelephoneRingSettings.CellularSettings.Select(x => x.ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		if (!TelephoneRingSettings.TryParseBuilderSetting(command.SafeRemainingArgument, true, out var volume))
+		{
+			actor.Send(
+				$"That is not a valid ring setting. Valid values are {TelephoneRingSettings.CellularSettings.Select(x => x.ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		RingVolume = volume;
+		Changed = true;
+		actor.Send($"This cellular phone will now use the {TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue()} ring setting by default.");
+		return true;
+	}
+
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a cellular phone that draws {4:N2} watts while on.",
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a cellular phone that draws {4:N2} watts while on and rings at {5} volume by default.",
 			"Cellular Phone Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
-			Wattage);
+			Wattage,
+			TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue());
+		}
+
+	private static AudioVolume ParseAudioVolume(string? value, AudioVolume fallback)
+	{
+		return TryParseAudioVolume(value, out var volume) ? volume : fallback;
+	}
+
+	private static bool TryParseAudioVolume(string? value, out AudioVolume volume)
+	{
+		volume = AudioVolume.Decent;
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return false;
+		}
+
+		if (int.TryParse(value, out var rawValue) && Enum.IsDefined(typeof(AudioVolume), rawValue))
+		{
+			volume = (AudioVolume)rawValue;
+			return true;
+		}
+
+		var normalised = new string(value.Where(char.IsLetterOrDigit).ToArray());
+		return Enum.TryParse(normalised, true, out volume);
 	}
 }

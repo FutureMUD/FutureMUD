@@ -81,9 +81,11 @@ Telecommunications components are a special case of connected location behaviour
 - wired handsets may be physically present in a room or inventory while functionally depending on a connected telecom outlet
 - a connected outlet can own the number and grid-service state that the handset presents to players
 - cell towers project service to zones rather than directly to adjacent inventory or containment relationships
+- linked telecommunications exchanges extend that integration one level further: staff link exchanges explicitly, and full-prefix dialling can route to directly linked area codes while still keeping same-prefix calls local
 
 Connector-aware items often need to describe both sides of their integration:
 - a component like a telephone may show the telecommunications grid it is attached to and the device it is physically plugged into
+- telecommunications presentation should also expose exchange-level state that matters to play and operations, such as maximum rings before timeout, linked exchanges, signal coverage, and whether the current number is locally assigned or delegated through an endpoint
 - a liquid pump may need to describe the source container, destination container, and power source all at once
 - a battery-backed item may need to explain both its stored charge and the connector it uses to recharge
 
@@ -148,6 +150,8 @@ Variable-driven items are a common integration point between item content and sc
 
 Telecommunications items also expose scripting hooks through item and endpoint queries such as current phone number and shared-number policy, which allows crafting or project systems to assign, clear, or reconfigure telephone numbers at runtime. The same runtime scripting surface applies to cellular handsets and implant telephones, even though implant telephones present their user interaction through neural-interface status and command flows instead of direct room manipulation.
 
+Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
+
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.
 
@@ -181,3 +185,4 @@ When troubleshooting strange item behaviour, always verify whether one of these 
 - If a feature is cosmetic-only, consider skins before cloning prototypes.
 - If a feature touches health, magic, or scripted behaviour, document the integration explicitly rather than treating it as incidental.
 - If a feature represents a networked device, decide what description state players need to see: power, number, grid membership, signal coverage, off-hook state, ringing state, and connected peers are all presentation concerns rather than purely backend details.
+- If a feature owns a subordinate runtime object such as a grid, document what happens when that subordinate object fails to load. Creator-backed grids now recreate and reinitialise themselves instead of leaving the parent item in a broken null-grid state.

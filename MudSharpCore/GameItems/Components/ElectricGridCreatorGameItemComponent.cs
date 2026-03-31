@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
@@ -35,8 +37,7 @@ public class ElectricGridCreatorGameItemComponent : GameItemComponent
 		ICharacter loader, bool temporary = false) : base(parent, proto, temporary)
 	{
 		_prototype = proto;
-		Grid = new ElectricalGrid(Gameworld, loader?.Location);
-		Gameworld.Add(Grid);
+		Grid = CreateGrid(loader?.Location, temporary);
 	}
 
 	public ElectricGridCreatorGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -52,20 +53,13 @@ public class ElectricGridCreatorGameItemComponent : GameItemComponent
 		bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
-		if (!temporary)
-		{
-			Grid = new ElectricalGrid(rhs.Grid);
-			Gameworld.Add(Grid);
-		}
-		else
-		{
-			Grid = rhs.Grid;
-		}
+		Grid = temporary ? rhs.Grid : CreateGridCopy(rhs.Grid);
 	}
 
 	protected void LoadFromXml(XElement root)
 	{
-		Grid = (IElectricalGrid)Gameworld.Grids.Get(long.Parse(root.Element("Grid").Value));
+		var gridId = long.Parse(root.Element("Grid").Value);
+		Grid = Gameworld.Grids.Get(gridId) as IElectricalGrid ?? CreateGrid(Parent.TrueLocations.FirstOrDefault());
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -129,5 +123,26 @@ public class ElectricGridCreatorGameItemComponent : GameItemComponent
 		}
 
 		return base.Decorate(voyeur, name, description, type, colour, flags);
+	}
+
+	private IElectricalGrid CreateGrid(ICell? initialLocation, bool temporary = false)
+	{
+		var grid = new ElectricalGrid(Gameworld, initialLocation);
+		if (temporary)
+		{
+			return grid;
+		}
+
+		Gameworld.Add(grid);
+		Gameworld.SaveManager.DirectInitialise((ILateInitialisingItem)grid);
+		return grid;
+	}
+
+	private IElectricalGrid CreateGridCopy(IElectricalGrid source)
+	{
+		var grid = new ElectricalGrid(source);
+		Gameworld.Add(grid);
+		Gameworld.SaveManager.DirectInitialise((ILateInitialisingItem)grid);
+		return grid;
 	}
 }

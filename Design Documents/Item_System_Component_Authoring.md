@@ -135,6 +135,8 @@ For example:
 - current contents belong on the runtime component
 - connector lists, wattage settings, flow rates, and telecom numbering preferences belong on the proto
 - live grid membership, connected peers, battery charge, and flowing liquid state belong on the runtime component
+- exchange-level telecommunications defaults such as prefix, subscriber digits, and maximum ring count belong to the grid or grid-creator side, not to individual handsets
+- default audible behaviour such as telephone and cellular ring volume belongs on the prototype, while the live component owns the current player-selected ring setting that can diverge at runtime
 
 ### Connectable item patterns
 When a component can join a physical network, treat the connector list as part of the prototype definition and the actual links as runtime state.
@@ -151,12 +153,15 @@ The important implementation detail is that the proto should expose the builder-
 The telephone and cellular implementation is a good reference when a subsystem has to separate "the thing a player uses" from "the thing the network addresses":
 - `ITelephone` models the live handset behaviour such as dialling, ringing, pickup, answer, hangup, and speech relay
 - `ITelephoneNumberOwner` models the addressed endpoint that owns the number on the telecommunications grid
+- when persisting telecom state, save and restore the specific endpoint component identity rather than only the parent item identity; this matters when one item hosts multiple telecom endpoints
 - a wired handset may delegate numbering to a connected outlet, so moving the handset between outlets can change its number without changing the handset component itself
 - a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
 - an implant telephone also usually implements both roles itself, but it should combine the telecom interfaces with implant-facing ones such as `IImplantReportStatus` and `IImplantRespondToCommands` so the neural command surface stays separate from handheld manipulation
 - if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
 
 When authoring similar systems, decide early whether identity belongs to the device, the connection point, or both.
+
+For creator-style components that own a grid instance, author them so they can recreate that owned grid from prototype settings and current location context during load. That recovery path is part of the runtime contract, not an optional migration step.
 
 ## Step 5: Attach the Capability to Item Prototypes
 Once the component proto exists and is current, attach it to item prototypes through builder workflows:

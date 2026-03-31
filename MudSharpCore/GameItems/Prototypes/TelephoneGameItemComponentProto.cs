@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -21,6 +22,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 	public double Wattage { get; set; }
 	public string RingEmote { get; set; }
 	public string TransmitPremote { get; set; }
+	public AudioVolume RingVolume { get; set; }
 	public List<ConnectorType> Connections { get; } = [];
 	IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
@@ -30,6 +32,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 		Wattage = 5.0;
 		RingEmote = "@ ring|rings loudly.";
 		TransmitPremote = "@ speak|speaks into $1 and say|says";
+		RingVolume = AudioVolume.Loud;
 		Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Male, "TelephoneLine", true));
 	}
 
@@ -43,6 +46,9 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 		Wattage = double.Parse(root.Element("Wattage")?.Value ?? "5.0");
 		RingEmote = root.Element("RingEmote")?.Value ?? "@ ring|rings loudly.";
 		TransmitPremote = root.Element("TransmitPremote")?.Value ?? "@ speak|speaks into $1 and say|says";
+		RingVolume = TelephoneRingSettings.NormaliseVolume(
+			ParseAudioVolume(root.Element("RingVolume")?.Value, AudioVolume.Loud),
+			false);
 		Connections.Clear();
 
 		var connectors = root.Element("Connectors");
@@ -76,6 +82,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 			new XElement("Wattage", Wattage),
 			new XElement("RingEmote", new XCData(RingEmote)),
 			new XElement("TransmitPremote", new XCData(TransmitPremote)),
+			new XElement("RingVolume", (int)RingVolume),
 			new XElement("Connectors",
 				from connector in Connections
 				select new XElement("Connection",
@@ -115,7 +122,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 	}
 
 	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twatts <#> - sets how much power the telephone draws when switched on\n\tring <emote> - sets the emote used when the phone rings\n\tpremote <emote> - sets the emote prepended when a character transmits speech into the phone\n\tconnection add <gender> <type> <powered> - adds a connector type\n\tconnection remove <gender> <type> - removes a connector type";
+		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twatts <#> - sets how much power the telephone draws when switched on\n\tring <emote> - sets the emote used when the phone rings\n\tringvolume <quiet|normal|loud> - sets the default player-selectable ring setting for telephones using this prototype\n\tpremote <emote> - sets the emote prepended when a character transmits speech into the phone\n\tconnection add <gender> <type> <powered> - adds a connector type\n\tconnection remove <gender> <type> - removes a connector type";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -130,6 +137,9 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 			case "ring":
 			case "ringemote":
 				return BuildingCommandRing(actor, command);
+			case "ringvolume":
+			case "volume":
+				return BuildingCommandRingVolume(actor, command);
 			case "premote":
 			case "transmit":
 			case "transmitemote":
@@ -307,20 +317,66 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 		return true;
 	}
 
+	private bool BuildingCommandRingVolume(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.Send(
+				$"What ring setting should this telephone use by default? Valid values are {TelephoneRingSettings.LandlineSettings.Select(x => x.ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		if (!TelephoneRingSettings.TryParseBuilderSetting(command.SafeRemainingArgument, false, out var volume))
+		{
+			actor.Send(
+				$"That is not a valid ring setting. Valid values are {TelephoneRingSettings.LandlineSettings.Select(x => x.ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		RingVolume = volume;
+		Changed = true;
+		actor.Send($"This telephone will now use the {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()} ring setting by default.");
+		return true;
+	}
+
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a telephone that draws {4:N2} watts while on.\r\nIt has the following connections: {5}.",
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a telephone that draws {4:N2} watts while on and rings at {5} volume by default.\r\nIt has the following connections: {6}.",
 			"Telephone Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
 			Wattage,
+			TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue(),
 			Connections.Select(
 				           x =>
 					           $"{x.ConnectionType.Colour(Telnet.Green)} {(x.Powered ? "[P]" : "")} ({Gendering.Get(x.Gender).GenderClass(true).Proper().Colour(Telnet.Green)})")
 			           .ListToString()
 		);
+	}
+
+	private static AudioVolume ParseAudioVolume(string? value, AudioVolume fallback)
+	{
+		return TryParseAudioVolume(value, out var volume) ? volume : fallback;
+	}
+
+	private static bool TryParseAudioVolume(string? value, out AudioVolume volume)
+	{
+		volume = AudioVolume.Decent;
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return false;
+		}
+
+		if (int.TryParse(value, out var rawValue) && Enum.IsDefined(typeof(AudioVolume), rawValue))
+		{
+			volume = (AudioVolume)rawValue;
+			return true;
+		}
+
+		var normalised = new string(value.Where(char.IsLetterOrDigit).ToArray());
+		return Enum.TryParse(normalised, true, out volume);
 	}
 
 	public override bool CanSubmit()

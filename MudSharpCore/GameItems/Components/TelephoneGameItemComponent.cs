@@ -8,6 +8,7 @@ using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -35,6 +36,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
     private bool _isOffHook;
     private bool _isRinging;
     private ITelephoneCall? _currentCall;
+    private AudioVolume? _ringVolumeOverride;
     private IProducePower? _connectedPowerSource;
     private ConnectorType? _connectedPowerSourceConnector;
     private ITelephoneNumberOwner? _connectedLineOwner;
@@ -73,6 +75,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         _switchedOn = rhs._switchedOn;
         _preferredNumber = rhs._preferredNumber;
         _allowSharedNumber = rhs._allowSharedNumber;
+        _ringVolumeOverride = rhs._ringVolumeOverride;
         newParent.OnConnected += Parent_OnConnected;
         newParent.OnDisconnected += Parent_OnDisconnected;
     }
@@ -82,6 +85,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         _switchedOn = bool.Parse(root.Element("SwitchedOn")?.Value ?? "true");
         _preferredNumber = root.Element("PreferredNumber")?.Value;
         _allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+        if (int.TryParse(root.Element("RingVolumeOverride")?.Value, out var ringVolume) &&
+            Enum.IsDefined(typeof(AudioVolume), ringVolume))
+        {
+            _ringVolumeOverride = (AudioVolume)ringVolume;
+        }
         _directGrid = Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ITelecommunicationsGrid;
         var element = root.Element("ConnectedItems");
         if (element == null)
@@ -116,6 +124,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             new XElement("SwitchedOn", _switchedOn),
             new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
             new XElement("AllowSharedNumber", _allowSharedNumber),
+            new XElement("RingVolumeOverride", _ringVolumeOverride.HasValue ? (int)_ringVolumeOverride.Value : -1),
             new XElement("ConnectedItems",
                 from item in ConnectedItems
                 select
@@ -387,6 +396,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         sb.AppendLine($"It is currently switched {(_switchedOn ? "on".ColourValue() : "off".ColourError())}.");
         sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
         sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
+		sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.");
         sb.AppendLine(
             $"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
         sb.AppendLine(
@@ -460,6 +470,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
     public bool IsConnected => (_currentCall?.Participants ?? Array.Empty<ITelephone>()).Contains(this) &&
                                _currentCall?.IsConnected == true;
     public bool IsEngaged => _currentCall != null || _isOffHook;
+    public AudioVolume RingVolume => _ringVolumeOverride ?? _prototype.RingVolume;
     public ITelephoneCall? CurrentCall => _currentCall;
     public IEnumerable<ITelephone> ConnectedPhones =>
         (_currentCall?.Participants ?? Array.Empty<ITelephone>()).Where(x => x != this).ToList();
@@ -565,19 +576,34 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         );
     }
 
-    public IEnumerable<string> SwitchSettings => ["on", "off"];
+	public IEnumerable<string> SwitchSettings => ["on", "off", ..TelephoneRingSettings.LandlineSettings];
 
-    public bool CanSwitch(ICharacter actor, string setting)
-    {
-        return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase) ? !_switchedOn
-            : setting.Equals("off", StringComparison.InvariantCultureIgnoreCase) && _switchedOn;
-    }
+	public bool CanSwitch(ICharacter actor, string setting)
+	{
+		if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !_switchedOn;
+		}
 
-    public string WhyCannotSwitch(ICharacter actor, string setting)
-    {
-        return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
-            ? $"{Parent.HowSeen(actor, true)} is already on."
-            : $"{Parent.HowSeen(actor, true)} is already off.";
+		if (setting.Equals("off", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return _switchedOn;
+		}
+
+		return TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out var volume) &&
+		       RingVolume != volume;
+	}
+
+	public string WhyCannotSwitch(ICharacter actor, string setting)
+	{
+		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out _))
+		{
+			return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.";
+		}
+
+		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
+			? $"{Parent.HowSeen(actor, true)} is already on."
+			: $"{Parent.HowSeen(actor, true)} is already off.";
     }
 
     public bool Switch(ICharacter actor, string setting)
@@ -587,12 +613,19 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             return false;
         }
 
-        _switchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
-        Changed = true;
-        if (!_switchedOn && (_currentCall != null || _isOffHook))
-        {
-            EndCall(_currentCall);
-        }
+		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out var volume))
+		{
+			_ringVolumeOverride = volume;
+			Changed = true;
+			return true;
+		}
+
+		_switchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
+		Changed = true;
+		if (!_switchedOn && (_currentCall != null || _isOffHook))
+		{
+			EndCall(_currentCall);
+		}
 
         return true;
     }
@@ -768,6 +801,11 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         Changed = true;
     }
 
+    public void NotifyCallProgress(string message)
+    {
+        Parent.OutputHandler.Send(message);
+    }
+
     public void EndCall(ITelephoneCall? call, bool notifyGrid = true)
     {
         if (call != null && _currentCall != null && !ReferenceEquals(call, _currentCall))
@@ -789,15 +827,21 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     private void Ring()
     {
-        if (!_isRinging || !_switchedOn || !IsPowered)
+        if (!_isRinging || !_switchedOn || !IsPowered || RingVolume == AudioVolume.Silent)
         {
             return;
         }
 
         Parent.Handle(
-            new EmoteOutput(new Emote(_prototype.RingEmote, Parent, Parent), flags: OutputFlags.PurelyAudible),
+            new AudioOutput(new Emote(_prototype.RingEmote, Parent, Parent), RingVolume,
+                flags: OutputFlags.PurelyAudible),
             OutputRange.Local
         );
+
+        foreach (var location in Parent.TrueLocations.Distinct())
+        {
+            location.HandleAudioEcho("You hear a telephone ringing {0}.", RingVolume, Parent, Parent.RoomLayer);
+        }
     }
 
     private void RingHeartbeat()
@@ -832,6 +876,14 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= RingHeartbeat;
         _ringHeartbeatSubscribed = false;
     }
+
+	public void SetRingVolumeOverride(AudioVolume? volume)
+	{
+		_ringVolumeOverride = volume.HasValue
+			? TelephoneRingSettings.NormaliseVolume(volume.Value, false)
+			: null;
+		Changed = true;
+	}
 
 	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{

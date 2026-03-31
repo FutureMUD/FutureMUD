@@ -85,10 +85,17 @@ Those relationships are usually expressed through `IConnectable` plus a domain-s
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:
 - wired handsets implement `ITelephone`, but the active phone number may belong to a separate `ITelephoneNumberOwner` endpoint such as a telecommunications outlet
+- telecommunications grids persist number ownership against the specific endpoint component identity, not just the parent item, so multiple telecom endpoints on one item keep distinct numbers across save/load
 - a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
+- each telecommunications grid owns exchange-level behaviour such as prefix, subscriber length, maximum rings before timeout, and direct exchange links used for long-distance routing
+- long-distance routing is direct and prefix-based: a call only forwards to directly linked exchanges, never multi-hop chains, and a local-prefix dial always resolves locally instead of forwarding
 - shared numbers are valid at the endpoint layer, which allows multiple outlets or towers to ring for the same number and later join the same live call
 - cellular phones still implement `ITelephone`, but they own their own number, require a separate local power source, and only function when a powered `ICellPhoneTower` on the same telecommunications grid covers their zone
+- physical telephones and cellular phones each have an effective ring volume resolved from a prototype default plus the handset's current player-selected ring setting; wired phones expose `quiet`, `normal`, and `loud`, while cellular phones add `silent`
+- silent cellular phones do not emit room audio, but if the handset is tucked into a worn container they can still notify the wearer with a non-audible vibration message; implant telephones remain text-only and silent to the room
 - implant telephones follow the same cellular coverage rules as handheld cellular phones, but they are also implants: they draw power through implant power infrastructure and expose control/status through neural-interface implant commands rather than ordinary handheld room commands
+
+Grid creator items for power, liquid, and telecommunications are also responsible for owned-grid recovery. If a creator item loads with a missing or zero grid id, it recreates the expected grid immediately and direct-initialises it before the creator item can be saved again.
 
 ### `GameItem` aggregates component behaviour
 `GameItem` delegates and aggregates a large amount of behaviour:

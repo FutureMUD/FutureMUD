@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
@@ -312,13 +313,127 @@ public class GridSystemTests
 	}
 
 	[TestMethod]
+	public void TelecommunicationsGrid_RingsOutAfterConfiguredMaximumRings()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		grid.SetMaximumRings(2);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2);
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		CollectionAssert.Contains(caller.ProgressMessages, "You hear the line ringing.");
+
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		CollectionAssert.AreEqual(
+			new[] { "You hear the line ringing.", "You hear the line ringing." },
+			caller.ProgressMessages);
+
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		CollectionAssert.Contains(caller.ProgressMessages, "The line rings out.");
+		Assert.IsFalse(caller.IsEngaged);
+		Assert.IsFalse(receiver.IsEngaged);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_ReportsConnectionProgressToCaller()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2);
+
+		caller.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		Assert.IsTrue(receiver.Answer(null!, out error), error);
+
+		CollectionAssert.Contains(caller.ProgressMessages, "The call connects.");
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_RoutesLongDistanceCallsAcrossLinkedExchanges()
+	{
+		var gameworld = CreateGameworld();
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, CreateCell(1).Object, "555", 4);
+		var remoteGrid = new TelecommunicationsGrid(gameworld.Object, CreateCell(2).Object, "777", 4);
+		localGrid.LinkGrid(remoteGrid);
+
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2);
+		caller.TelecommunicationsGrid = localGrid;
+		receiver.TelecommunicationsGrid = remoteGrid;
+		localGrid.JoinGrid((ITelephoneNumberOwner)caller);
+		remoteGrid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(localGrid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		Assert.IsTrue(receiver.IsRinging);
+		Assert.IsFalse(caller.IsConnected);
+
+		Assert.IsTrue(receiver.Answer(null!, out error), error);
+		Assert.IsTrue(caller.IsConnected);
+		Assert.IsTrue(receiver.IsConnected);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_DoesNotForwardWhenDialledPrefixMatchesLocalExchange()
+	{
+		var gameworld = CreateGameworld();
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, CreateCell(1).Object, "555", 4);
+		var conflictingRemoteGrid = new TelecommunicationsGrid(gameworld.Object, CreateCell(2).Object, "555", 4);
+		localGrid.LinkGrid(conflictingRemoteGrid);
+
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var localReceiver = new TelephoneDouble(gameworld.Object, 2);
+		var remoteReceiver = new TelephoneDouble(gameworld.Object, 3);
+
+		caller.TelecommunicationsGrid = localGrid;
+		localReceiver.TelecommunicationsGrid = localGrid;
+		remoteReceiver.TelecommunicationsGrid = conflictingRemoteGrid;
+		localGrid.JoinGrid((ITelephoneNumberOwner)caller);
+		localGrid.JoinGrid((ITelephoneNumberOwner)localReceiver);
+		conflictingRemoteGrid.JoinGrid((ITelephoneNumberOwner)remoteReceiver);
+
+		Assert.IsTrue(localGrid.TryStartCall(caller, localReceiver.PhoneNumber!, out var error), error);
+		Assert.IsTrue(localReceiver.IsRinging);
+		Assert.IsFalse(remoteReceiver.IsRinging);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_RejectsAmbiguousLinkedExchangePrefixes()
+	{
+		var gameworld = CreateGameworld();
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, CreateCell(1).Object, "555", 4);
+		var remoteOne = new TelecommunicationsGrid(gameworld.Object, CreateCell(2).Object, "777", 4);
+		var remoteTwo = new TelecommunicationsGrid(gameworld.Object, CreateCell(3).Object, "777", 4);
+		localGrid.LinkGrid(remoteOne);
+		localGrid.LinkGrid(remoteTwo);
+
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		caller.TelecommunicationsGrid = localGrid;
+		localGrid.JoinGrid((ITelephoneNumberOwner)caller);
+
+		Assert.IsFalse(localGrid.TryStartCall(caller, "7771234", out var error));
+		StringAssert.Contains(error, "more than one linked");
+	}
+
+	[TestMethod]
 	public void TelephoneNumber_FollowsAssignedEndpointRatherThanHandset()
 	{
 		var gameworld = CreateGameworld();
 		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
 		var phone = new TelephoneDouble(gameworld.Object, 10);
-		var lineA = CreateLineOwner(gameworld.Object, 11, phone);
-		var lineB = CreateLineOwner(gameworld.Object, 12, phone);
+		var lineA = CreateLineOwner(gameworld.Object, 11, 101, phone);
+		var lineB = CreateLineOwner(gameworld.Object, 12, 102, phone);
 
 		lineA.Object.TelecommunicationsGrid = grid;
 		lineB.Object.TelecommunicationsGrid = grid;
@@ -333,6 +448,43 @@ public class GridSystemTests
 		var lineBNumber = phone.PhoneNumber;
 		Assert.IsFalse(string.IsNullOrWhiteSpace(lineBNumber));
 		Assert.AreNotEqual(lineANumber, lineBNumber);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_LoadTimeInitialiseRestoresAssignmentsByComponentId()
+	{
+		var runtimeGameworld = CreateGameworld();
+		var runtimeGrid = new TelecommunicationsGrid(runtimeGameworld.Object, CreateCell().Object, "555", 4);
+		var lineA = CreateLineOwner(runtimeGameworld.Object, 11, 101);
+		var lineB = CreateLineOwner(runtimeGameworld.Object, 11, 102);
+		runtimeGrid.JoinGrid(lineA.Object);
+		runtimeGrid.JoinGrid(lineB.Object);
+		var lineANumber = runtimeGrid.GetPhoneNumber(lineA.Object);
+		var lineBNumber = runtimeGrid.GetPhoneNumber(lineB.Object);
+
+		var saveDefinition = (XElement)typeof(TelecommunicationsGrid)
+			.GetMethod("SaveDefinition", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(runtimeGrid, [])!;
+		saveDefinition.Elements("Location").Remove();
+
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(11L);
+		item.SetupGet(x => x.Name).Returns("Telephone Hub");
+		item.SetupGet(x => x.Gameworld).Returns(runtimeGameworld.Object);
+		item.SetupGet(x => x.Components).Returns([lineA.Object, lineB.Object]);
+		item.Setup(x => x.GetItemType<ITelephoneNumberOwner>()).Returns(lineA.Object);
+
+		var loadGameworld = CreateGameworld([item.Object]);
+		var loadedGrid = new TelecommunicationsGrid(new MudSharp.Models.Grid
+		{
+			Id = 1,
+			GridType = "Telecommunications",
+			Definition = saveDefinition.ToString()
+		}, loadGameworld.Object);
+		loadedGrid.LoadTimeInitialise();
+
+		Assert.AreEqual(lineANumber, loadedGrid.GetPhoneNumber(lineA.Object));
+		Assert.AreEqual(lineBNumber, loadedGrid.GetPhoneNumber(lineB.Object));
 	}
 
 	[TestMethod]
@@ -367,6 +519,68 @@ public class GridSystemTests
 		component.Transmit(CreateSpokenLanguage(parent.Object));
 
 		call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void TelephoneGameItemComponent_Switch_RingModesMapToNamedPlayerSettings()
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		parent.SetupGet(x => x.Id).Returns(2L);
+		var proto = CreateTelephoneProto(gameworld.Object, 5.0);
+		var component = new TelephoneGameItemComponent(proto, parent.Object, true);
+
+		CollectionAssert.AreEquivalent(
+			new[] { "on", "off", "quiet", "normal", "loud" },
+			component.SwitchSettings.ToArray());
+
+		Assert.IsTrue(component.Switch(null!, "quiet"));
+		Assert.AreEqual(AudioVolume.Quiet, component.RingVolume);
+		Assert.IsTrue(component.Switch(null!, "normal"));
+		Assert.AreEqual(AudioVolume.Decent, component.RingVolume);
+		Assert.IsTrue(component.Switch(null!, "loud"));
+		Assert.AreEqual(AudioVolume.Loud, component.RingVolume);
+	}
+
+	[TestMethod]
+	public void CellularPhoneGameItemComponent_Switch_SilentModeVibratesWearerWhenInWornContainer()
+	{
+		var gameworld = CreateGameworld();
+		var wearerOutput = new Mock<IOutputHandler>();
+		var wearer = new Mock<ICharacter>();
+		wearer.SetupGet(x => x.OutputHandler).Returns(wearerOutput.Object);
+		var body = new Mock<IBody>();
+		body.SetupGet(x => x.Actor).Returns(wearer.Object);
+		body.SetupGet(x => x.OutputHandler).Returns(wearerOutput.Object);
+		var wornContainer = new Mock<IGameItem>();
+		wornContainer.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+		body.SetupGet(x => x.WornItems).Returns([wornContainer.Object]);
+
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		parent.SetupGet(x => x.Id).Returns(3L);
+		parent.SetupGet(x => x.ContainedIn).Returns(wornContainer.Object);
+		parent.SetupGet(x => x.TrueLocations).Returns(Array.Empty<ICell>());
+		var proto = CreateCellularPhoneProto(gameworld.Object, 2.0);
+		var component = new CellularPhoneGameItemComponent(proto, parent.Object, true);
+
+		component.OnPowerCutIn();
+		Assert.IsTrue(component.SwitchSettings.Contains("silent"));
+		Assert.IsTrue(component.Switch(null!, "silent"));
+		Assert.AreEqual(AudioVolume.Silent, component.RingVolume);
+
+		component.ReceiveIncomingCall(Mock.Of<ITelephoneCall>());
+
+		wearerOutput.Verify(
+			x => x.Send(
+				"You feel a muted vibration from one of your worn items.",
+				It.IsAny<bool>(),
+				It.IsAny<bool>()),
+			Times.Once);
+		parent.Verify(
+			x => x.Handle(It.IsAny<IOutput>(), It.IsAny<OutputRange>()),
+			Times.Never);
 	}
 
 	[TestMethod]
@@ -409,27 +623,122 @@ public class GridSystemTests
 		call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
 	}
 
-	private static Mock<IFuturemud> CreateGameworld()
+	[TestMethod]
+	public void TelecommunicationsGridCreatorComponent_RecreatesMissingGridOnLoad()
+	{
+		var gameworld = CreateGameworld();
+		var parent = CreateBasicItem(gameworld.Object, 50L, CreateCell().Object);
+		var proto = CreateTelecommunicationsGridCreatorProto(gameworld.Object, "555", 4);
+
+		var component = new TelecommunicationsGridCreatorGameItemComponent(new MudSharp.Models.GameItemComponent
+		{
+			Id = 1,
+			Definition = "<Definition><Grid>0</Grid></Definition>"
+		}, proto, parent.Object);
+
+		Assert.IsNotNull(component.Grid);
+		Mock.Get(gameworld.Object.SaveManager)
+		    .Verify(x => x.DirectInitialise(It.IsAny<ILateInitialisingItem>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void ElectricGridCreatorComponent_RecreatesMissingGridOnLoad()
+	{
+		var gameworld = CreateGameworld();
+		var parent = CreateBasicItem(gameworld.Object, 51L, CreateCell().Object);
+		var proto = CreateElectricGridCreatorProto(gameworld.Object);
+
+		var component = new ElectricGridCreatorGameItemComponent(new MudSharp.Models.GameItemComponent
+		{
+			Id = 1,
+			Definition = "<Definition><Grid>0</Grid></Definition>"
+		}, proto, parent.Object);
+
+		Assert.IsNotNull(component.Grid);
+		Mock.Get(gameworld.Object.SaveManager)
+		    .Verify(x => x.DirectInitialise(It.IsAny<ILateInitialisingItem>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void LiquidGridCreatorComponent_RecreatesMissingGridOnLoad()
+	{
+		var gameworld = CreateGameworld();
+		var parent = CreateBasicItem(gameworld.Object, 52L, CreateCell().Object);
+		var proto = CreateLiquidGridCreatorProto(gameworld.Object);
+
+		var component = new LiquidGridCreatorGameItemComponent(new MudSharp.Models.GameItemComponent
+		{
+			Id = 1,
+			Definition = "<Definition><Grid>0</Grid></Definition>"
+		}, proto, parent.Object);
+
+		Assert.IsNotNull(component.Grid);
+		Mock.Get(gameworld.Object.SaveManager)
+		    .Verify(x => x.DirectInitialise(It.IsAny<ILateInitialisingItem>()), Times.Once);
+	}
+
+	private static Mock<IFuturemud> CreateGameworld(IEnumerable<IGameItem>? itemList = null,
+		IEnumerable<IGrid>? gridList = null)
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var saveManager = new Mock<ISaveManager>();
 		var bodyPrototypes = new Mock<IUneditableAll<IBodyPrototype>>();
 		var heartbeatManager = new Mock<IHeartbeatManager>();
-		var items = new Mock<IUneditableAll<IGameItem>>();
 		var unitManager = new Mock<IUnitManager>();
+		var items = CreateCollection(itemList ?? Enumerable.Empty<IGameItem>());
+		var grids = CreateCollection(gridList ?? Enumerable.Empty<IGrid>());
 		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
 		unitManager.SetupGet(x => x.BaseWeightToKilograms).Returns(1.0);
 		bodyPrototypes.SetupGet(x => x.Count).Returns(0);
 		bodyPrototypes.Setup(x => x.GetEnumerator()).Returns(Enumerable.Empty<IBodyPrototype>().GetEnumerator());
 		bodyPrototypes.Setup(x => x.Get(It.IsAny<long>())).Returns((IBodyPrototype?)null);
-		items.SetupGet(x => x.Count).Returns(0);
-		items.Setup(x => x.GetEnumerator()).Returns(Enumerable.Empty<IGameItem>().GetEnumerator());
 		gameworld.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
 		gameworld.SetupGet(x => x.Items).Returns(items.Object);
+		gameworld.SetupGet(x => x.Grids).Returns(grids.Object);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		return gameworld;
+	}
+
+	private static Mock<IUneditableAll<T>> CreateCollection<T>(IEnumerable<T> items)
+		where T : class, IFrameworkItem
+	{
+		var source = items.ToList();
+		var collection = new Mock<IUneditableAll<T>>();
+		collection.SetupGet(x => x.Count).Returns(() => source.Count);
+		collection.Setup(x => x.GetEnumerator()).Returns(() => source.GetEnumerator());
+		collection.Setup(x => x.Has(It.IsAny<T>())).Returns<T>(value => source.Contains(value));
+		collection.Setup(x => x.Has(It.IsAny<long>())).Returns<long>(id => source.Any(x => x.Id == id));
+		collection.Setup(x => x.Has(It.IsAny<string>())).Returns<string>(name => source.Any(x => x.Name == name));
+		collection.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => source.FirstOrDefault(x => x.Id == id));
+		collection.Setup(x => x.TryGet(It.IsAny<long>(), out It.Ref<T?>.IsAny))
+		          .Returns((long id, out T? result) =>
+		          {
+			          result = source.FirstOrDefault(x => x.Id == id);
+			          return result != null;
+		          });
+		collection.Setup(x => x.Get(It.IsAny<string>())).Returns<string>(name => source.Where(x => x.Name == name).ToList());
+		collection.Setup(x => x.GetByName(It.IsAny<string>())).Returns<string>(name => source.FirstOrDefault(x => x.Name == name));
+		collection.Setup(x => x.GetByIdOrName(It.IsAny<string>(), It.IsAny<bool>()))
+		          .Returns<string, bool>((value, _) =>
+		          {
+			          if (long.TryParse(value, out var id))
+			          {
+				          return source.FirstOrDefault(x => x.Id == id);
+			          }
+
+			          return source.FirstOrDefault(x => x.Name == value);
+		          });
+		collection.Setup(x => x.ForEach(It.IsAny<Action<T>>()))
+		          .Callback<Action<T>>(action =>
+		          {
+			          foreach (var item in source)
+			          {
+				          action(item);
+			          }
+		          });
+		return collection;
 	}
 
 	private static Mock<ICell> CreateCell(long id = 1)
@@ -437,6 +746,17 @@ public class GridSystemTests
 		var cell = new Mock<ICell>();
 		cell.SetupGet(x => x.Id).Returns(id);
 		return cell;
+	}
+
+	private static Mock<IGameItem> CreateBasicItem(IFuturemud gameworld, long id, params ICell[] trueLocations)
+	{
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.Name).Returns($"Item {id}");
+		item.SetupGet(x => x.Gameworld).Returns(gameworld);
+		item.SetupGet(x => x.TrueLocations).Returns(trueLocations);
+		item.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponent>());
+		return item;
 	}
 
 	private static Mock<ILiquid> CreateLiquid(long id, string description, ANSIColour? colour = null,
@@ -528,6 +848,96 @@ public class GridSystemTests
 		       .Invoke([model, gameworld]);
 	}
 
+	private static CellularPhoneGameItemComponentProto CreateCellularPhoneProto(IFuturemud gameworld, double wattage)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 23,
+			Name = "Cellular Phone",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition =
+				$"<Definition><Wattage>{wattage}</Wattage><RingEmote><![CDATA[@ chirp|chirps insistently.]]></RingEmote><TransmitPremote><![CDATA[@ speak|speaks into $1 and say|says]]></TransmitPremote></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (CellularPhoneGameItemComponentProto)typeof(CellularPhoneGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static TelecommunicationsGridCreatorGameItemComponentProto CreateTelecommunicationsGridCreatorProto(
+		IFuturemud gameworld, string prefix, int numberLength)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 30,
+			Name = "Telecommunications Grid Creator",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition = $"<Definition><Prefix>{prefix}</Prefix><NumberLength>{numberLength}</NumberLength></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (TelecommunicationsGridCreatorGameItemComponentProto)typeof(TelecommunicationsGridCreatorGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static ElectricGridCreatorGameItemComponentProto CreateElectricGridCreatorProto(IFuturemud gameworld)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 31,
+			Name = "Electric Grid Creator",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition = "<Definition />",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (ElectricGridCreatorGameItemComponentProto)typeof(ElectricGridCreatorGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static LiquidGridCreatorGameItemComponentProto CreateLiquidGridCreatorProto(IFuturemud gameworld)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 32,
+			Name = "Liquid Grid Creator",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition = "<Definition />",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (LiquidGridCreatorGameItemComponentProto)typeof(LiquidGridCreatorGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
 	private static ImplantTelephoneGameItemComponentProto CreateImplantTelephoneProto(IFuturemud gameworld)
 	{
 		var model = new MudSharp.Models.GameItemComponentProto
@@ -551,13 +961,18 @@ public class GridSystemTests
 		       .Invoke([model, gameworld]);
 	}
 
-	private static Mock<ITelephoneNumberOwner> CreateLineOwner(IFuturemud gameworld, long id, params ITelephone[] phones)
+	private static Mock<ITelephoneNumberOwner> CreateLineOwner(IFuturemud gameworld, long parentId, long componentId,
+		params ITelephone[] phones)
 	{
 		var parent = new Mock<IGameItem>();
-		parent.SetupGet(x => x.Id).Returns(id);
+		parent.SetupGet(x => x.Id).Returns(parentId);
+		parent.SetupGet(x => x.Name).Returns($"Item {parentId}");
 		parent.SetupGet(x => x.Gameworld).Returns(gameworld);
 		var owner = new Mock<ITelephoneNumberOwner>();
 		var phoneNumber = default(string);
+		owner.SetupGet(x => x.Id).Returns(componentId);
+		owner.SetupGet(x => x.Name).Returns($"Line Owner {componentId}");
+		owner.SetupGet(x => x.FrameworkItemType).Returns("TelephoneNumberOwner");
 		owner.SetupGet(x => x.Parent).Returns(parent.Object);
 		owner.SetupProperty(x => x.PreferredNumber);
 		owner.SetupProperty(x => x.AllowSharedNumber);
@@ -644,6 +1059,7 @@ public class GridSystemTests
 			IsPowered = true;
 		}
 
+		public List<string> ProgressMessages { get; } = [];
 		public ITelephoneNumberOwner? ExternalOwner { get; set; }
 		public ITelephoneNumberOwner? NumberOwner => ExternalOwner ?? this;
 		public string? PhoneNumber => NumberOwner == this ? _phoneNumber : NumberOwner?.PhoneNumber;
@@ -683,6 +1099,7 @@ public class GridSystemTests
 		public bool IsRinging => _isRinging;
 		public bool IsConnected => _currentCall?.Participants.Contains(this) == true && _currentCall.IsConnected;
 		public bool IsEngaged => _currentCall != null || _isOffHook;
+		public AudioVolume RingVolume => AudioVolume.Decent;
 		public ITelephoneCall? CurrentCall => _currentCall;
 		public IEnumerable<ITelephone> ConnectedPhones => _currentCall?.Participants.Where(x => x != this).ToList() ?? [];
 		public ITelephone? ConnectedPhone => ConnectedPhones.FirstOrDefault();
@@ -862,6 +1279,11 @@ public class GridSystemTests
 			_currentCall = call;
 			_isOffHook = true;
 			_isRinging = false;
+		}
+
+		public void NotifyCallProgress(string message)
+		{
+			ProgressMessages.Add(message);
 		}
 
 		public void EndCall(ITelephoneCall? call, bool notifyGrid = true)

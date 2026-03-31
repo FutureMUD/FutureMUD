@@ -34,6 +34,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Email;
 using MudSharp.Events;
 using MudSharp.Events.Hooks;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -2727,7 +2728,11 @@ You can use the following subcommands with the grid command:
 	#3grid expand <grid#> <direction>#0 - expands a grid in a direction
 	#3grid withdraw <grid#>#0 removes the current location from the specified grid
 	#3grid connect <thing> <grid#>#0 - connects a grid-interfacing item to a grid
-	#3grid setnumber <phone> <number|auto> [shared|exclusive]#0 - reserves a specific telecommunications number for a phone or telecom endpoint";
+	#3grid setnumber <phone> <number|auto> [shared|exclusive]#0 - reserves a specific telecommunications number for a phone or telecom endpoint
+	#3grid setrings <grid#> <count>#0 - sets the maximum rings before a telecom call rings out
+	#3grid link <grid#> <othergrid#>#0 - links two telecommunications exchanges for long-distance routing
+	#3grid unlink <grid#> <othergrid#>#0 - removes a telecommunications exchange link
+	#3grid status [grid#]#0 - shows grid details including telecom exchange links and ring limits";
 
 	[PlayerCommand("Grid", "grid")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -2744,6 +2749,16 @@ You can use the following subcommands with the grid command:
 				return;
 			case "status":
 				GridStatus(actor, ss);
+				return;
+			case "setrings":
+			case "rings":
+				GridSetRings(actor, ss);
+				return;
+			case "link":
+				GridLink(actor, ss);
+				return;
+			case "unlink":
+				GridUnlink(actor, ss);
 				return;
 			case "setnumber":
 			case "number":
@@ -2899,6 +2914,67 @@ You can use the following subcommands with the grid command:
 			$"You set the preferred number for {target.HowSeen(actor)} to {normalised.ColourValue()} ({(sharedMode ? "shared".ColourValue() : "exclusive".ColourCommand())}).{(owner.PhoneNumber == null ? "" : $" It is now using {owner.PhoneNumber.ColourValue()}.")}");
 	}
 
+	private static void GridSetRings(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which telecommunications grid do you want to configure?");
+			return;
+		}
+
+		if (!long.TryParse(ss.PopSpeech(), out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid grid ID.");
+			return;
+		}
+
+		if (actor.Gameworld.Grids.Get(value) is not TelecommunicationsGrid grid)
+		{
+			actor.OutputHandler.Send("There is no telecommunications grid with that ID.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("How many rings should the exchange allow before a call rings out?");
+			return;
+		}
+
+		if (!int.TryParse(ss.PopSpeech(), out var rings) || rings < 1)
+		{
+			actor.OutputHandler.Send("You must enter a whole number of at least 1.");
+			return;
+		}
+
+		grid.SetMaximumRings(rings);
+		actor.OutputHandler.Send(
+			$"Telecommunications grid #{grid.Id.ToString("N0", actor)} will now allow {grid.MaximumRings.ToString("N0", actor).ColourValue()} rings before ringing out.");
+	}
+
+	private static void GridLink(ICharacter actor, StringStack ss)
+	{
+		if (!TryGetTelecommunicationsGrid(actor, ss, out var grid, out var otherGrid))
+		{
+			return;
+		}
+
+		grid.LinkGrid(otherGrid);
+		actor.OutputHandler.Send(
+			$"You link telecommunications grid #{grid.Id.ToString("N0", actor)} to grid #{otherGrid.Id.ToString("N0", actor)}.");
+	}
+
+	private static void GridUnlink(ICharacter actor, StringStack ss)
+	{
+		if (!TryGetTelecommunicationsGrid(actor, ss, out var grid, out var otherGrid))
+		{
+			return;
+		}
+
+		grid.UnlinkGrid(otherGrid);
+		actor.OutputHandler.Send(
+			$"You unlink telecommunications grid #{grid.Id.ToString("N0", actor)} from grid #{otherGrid.Id.ToString("N0", actor)}.");
+	}
+
 	private static void GridWithdraw(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -3003,6 +3079,59 @@ You can use the following subcommands with the grid command:
 		}
 
 		actor.OutputHandler.Send(grid.Show(actor));
+	}
+
+	private static bool TryGetTelecommunicationsGrid(ICharacter actor, StringStack ss, out TelecommunicationsGrid grid,
+		out TelecommunicationsGrid otherGrid)
+	{
+		grid = null;
+		otherGrid = null;
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which telecommunications grid do you want to use?");
+			return false;
+		}
+
+		if (!long.TryParse(ss.PopSpeech(), out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid grid ID.");
+			return false;
+		}
+
+		grid = actor.Gameworld.Grids.Get(value) as TelecommunicationsGrid;
+		if (grid == null)
+		{
+			actor.OutputHandler.Send("There is no telecommunications grid with that ID.");
+			return false;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which other telecommunications grid do you want to target?");
+			return false;
+		}
+
+		if (!long.TryParse(ss.PopSpeech(), out value))
+		{
+			actor.OutputHandler.Send("You must enter a valid grid ID.");
+			return false;
+		}
+
+		otherGrid = actor.Gameworld.Grids.Get(value) as TelecommunicationsGrid;
+		if (otherGrid == null)
+		{
+			actor.OutputHandler.Send("There is no telecommunications grid with that ID.");
+			return false;
+		}
+
+		if (ReferenceEquals(grid, otherGrid))
+		{
+			actor.OutputHandler.Send("You cannot link a telecommunications grid to itself.");
+			return false;
+		}
+
+		return true;
 	}
 
 	private static void GridAudit(ICharacter actor, StringStack ss)

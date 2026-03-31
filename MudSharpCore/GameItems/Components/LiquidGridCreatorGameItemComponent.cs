@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
@@ -28,8 +30,7 @@ public class LiquidGridCreatorGameItemComponent : GameItemComponent
 		ICharacter? loader, bool temporary = false) : base(parent, proto, temporary)
 	{
 		_prototype = proto;
-		Grid = new LiquidGrid(Gameworld, loader?.Location);
-		Gameworld.Add(Grid);
+		Grid = CreateGrid(loader?.Location, temporary);
 	}
 
 	public LiquidGridCreatorGameItemComponent(Models.GameItemComponent component,
@@ -45,16 +46,13 @@ public class LiquidGridCreatorGameItemComponent : GameItemComponent
 		bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
-		Grid = temporary ? rhs.Grid : new LiquidGrid(rhs.Grid);
-		if (!temporary)
-		{
-			Gameworld.Add(Grid);
-		}
+		Grid = temporary ? rhs.Grid : CreateGridCopy(rhs.Grid);
 	}
 
 	private void LoadFromXml(XElement root)
 	{
-		Grid = (ILiquidGrid)Gameworld.Grids.Get(long.Parse(root.Element("Grid")!.Value));
+		var gridId = long.Parse(root.Element("Grid")!.Value);
+		Grid = Gameworld.Grids.Get(gridId) as ILiquidGrid ?? CreateGrid(Parent.TrueLocations.FirstOrDefault());
 	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -72,7 +70,7 @@ public class LiquidGridCreatorGameItemComponent : GameItemComponent
 	public override void Delete()
 	{
 		base.Delete();
-		Grid.Delete();
+		Grid?.Delete();
 	}
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
@@ -109,5 +107,26 @@ public class LiquidGridCreatorGameItemComponent : GameItemComponent
 			"",
 			$"The grid is currently storing {Grid.TotalLiquidVolume.ToString("N2", voyeur).ColourValue()} volume units of {(mixture.IsEmpty ? "nothing".ColourError() : mixture.ColouredLiquidLongDescription)}."
 		);
+	}
+
+	private ILiquidGrid CreateGrid(ICell? initialLocation, bool temporary = false)
+	{
+		var grid = new LiquidGrid(Gameworld, initialLocation);
+		if (temporary)
+		{
+			return grid;
+		}
+
+		Gameworld.Add(grid);
+		Gameworld.SaveManager.DirectInitialise((ILateInitialisingItem)grid);
+		return grid;
+	}
+
+	private ILiquidGrid CreateGridCopy(ILiquidGrid source)
+	{
+		var grid = new LiquidGrid(source);
+		Gameworld.Add(grid);
+		Gameworld.SaveManager.DirectInitialise((ILateInitialisingItem)grid);
+		return grid;
 	}
 }

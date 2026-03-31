@@ -9,14 +9,18 @@ public interface ITelecommunicationsGrid : IGrid
 {
 	string Prefix { get; }
 	int NumberLength { get; }
+	int MaximumRings { get; }
 	double TotalSupply { get; }
 	double TotalDrawdown { get; }
+	IEnumerable<ITelecommunicationsGrid> LinkedGrids { get; }
 	void JoinGrid(ITelephoneNumberOwner owner);
 	void LeaveGrid(ITelephoneNumberOwner owner);
 	void JoinGrid(IConsumePower consumer);
 	void LeaveGrid(IConsumePower consumer);
 	void JoinGrid(IProducePower producer);
 	void LeaveGrid(IProducePower producer);
+	void LinkGrid(ITelecommunicationsGrid other);
+	void UnlinkGrid(ITelecommunicationsGrid other);
 	void RecalculateGrid();
 	bool DrawdownSpike(double wattage);
 	bool TryStartCall(ITelephone caller, string number, out string error);

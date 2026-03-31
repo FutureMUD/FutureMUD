@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Construction.Grids;
+using MudSharp.Form.Audio;
 
 namespace MudSharp.GameItems.Interfaces;
 
@@ -17,6 +18,7 @@ public interface ITelephone : IGameItemComponent, ITransmit, IReceive, IConsumeP
 	bool IsRinging { get; }
 	bool IsConnected { get; }
 	bool IsEngaged { get; }
+	AudioVolume RingVolume { get; }
 	ITelephoneCall? CurrentCall { get; }
 	IEnumerable<ITelephone> ConnectedPhones { get; }
 	ITelephone? ConnectedPhone { get; }
@@ -34,4 +36,5 @@ public interface ITelephone : IGameItemComponent, ITransmit, IReceive, IConsumeP
 	void ReceiveIncomingCall(ITelephoneCall call);
 	void ConnectCall(ITelephoneCall call);
 	void EndCall(ITelephoneCall? call, bool notifyGrid = true);
+	void NotifyCallProgress(string message);
 }

@@ -8,6 +8,7 @@ using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -297,6 +298,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 	public bool IsConnected => (_currentCall?.Participants ?? Array.Empty<ITelephone>()).Contains(this) &&
 	                           _currentCall?.IsConnected == true;
 	public bool IsEngaged => _currentCall != null || _isOffHook;
+	public AudioVolume RingVolume => AudioVolume.Silent;
 	public ITelephoneCall? CurrentCall => _currentCall;
 	public IEnumerable<ITelephone> ConnectedPhones =>
 		(_currentCall?.Participants ?? Array.Empty<ITelephone>()).Where(x => x != this).ToList();
@@ -564,7 +566,12 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		_isOffHook = true;
 		_isRinging = false;
 		Changed = true;
-		SendInternalMessage("Your implant telephone reports that the call is connected.");
+		NotifyCallProgress("The call connects.");
+	}
+
+	public void NotifyCallProgress(string message)
+	{
+		SendInternalMessage($"Your implant telephone reports: {message}");
 	}
 
 	public void EndCall(ITelephoneCall? call, bool notifyGrid = true)

@@ -445,6 +445,9 @@ public class GridSystemTests
 
 		Assert.AreEqual(0, receiver.PendingFaxCount);
 		Assert.AreEqual(1, receiver.CompletedFaxCount);
+	}
+
+	[TestMethod]
 	public void TelecommunicationsGrid_UnansweredCallRoutesToHostedVoicemailAndStoresMessage()
 	{
 		var gameworld = CreateGameworld();

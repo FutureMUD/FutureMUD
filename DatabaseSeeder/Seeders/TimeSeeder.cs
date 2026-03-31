@@ -212,8 +212,11 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 
 		context.SaveChanges();
 
-		var primaryCalendar = context.Calendars.First(x =>
-			string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase));
+		var primaryCalendar = context.Calendars.Local.FirstOrDefault(x =>
+				string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase)) ??
+			context.Calendars
+				.AsEnumerable()
+				.First(x => string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase));
 		SyncShardAndZoneTimeBindings(context, primaryCalendar, clock, utc);
 
 		context.SaveChanges();
@@ -226,12 +229,20 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 	{
 		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
+		var hasUtcClock = context.Clocks
+			.Select(x => x.Definition)
+			.AsEnumerable()
+			.Any(x => string.Equals(ClockAlias(x), "UTC", StringComparison.OrdinalIgnoreCase));
+		var hasStockCalendar = context.Calendars
+			.Select(x => x.Definition)
+			.AsEnumerable()
+			.Any(x => StockCalendarAliases.Contains(CalendarAlias(x) ?? string.Empty, StringComparer.OrdinalIgnoreCase));
+
 		return SeederRepeatabilityHelper.ClassifyByPresence(
 		[
-			context.Clocks.Any(x => ClockAlias(x.Definition) == "UTC"),
+			hasUtcClock,
 			context.Timezones.Any(x => x.Name == "UTC"),
-			context.Calendars.Any(x =>
-				StockCalendarAliases.Contains(CalendarAlias(x.Definition) ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+			hasStockCalendar
 		]);
 	}
 
@@ -279,15 +290,12 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 	private static Clock EnsureClock(FuturemudDatabaseContext context, string definition)
 	{
 		var alias = ClockAlias(definition) ?? throw new InvalidOperationException("Clock definitions must declare an alias.");
-		var clock = SeederRepeatabilityHelper.EnsureEntity(
-			context.Clocks,
-			x => string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase),
-			() =>
-			{
-				var created = new Clock();
-				context.Clocks.Add(created);
-				return created;
-			});
+		var clock = context.Clocks.Local.FirstOrDefault(x =>
+			            string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+		            context.Clocks
+			            .AsEnumerable()
+			            .FirstOrDefault(x => string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+		            CreateClock(context);
 
 		clock.Definition = definition;
 		return clock;
@@ -319,20 +327,31 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 	{
 		var alias = CalendarAlias(definition) ??
 		            throw new InvalidOperationException("Calendar definitions must declare an alias.");
-		var calendar = SeederRepeatabilityHelper.EnsureEntity(
-			context.Calendars,
-			x => string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase),
-			() =>
-			{
-				var created = new Calendar();
-				context.Calendars.Add(created);
-				return created;
-			});
+		var calendar = context.Calendars.Local.FirstOrDefault(x =>
+			               string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+		               context.Calendars
+			               .AsEnumerable()
+			               .FirstOrDefault(x => string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+		               CreateCalendar(context);
 
 		calendar.FeedClockId = clock.Id;
 		calendar.Date = date;
 		calendar.Definition = definition;
 		return calendar;
+	}
+
+	private static Clock CreateClock(FuturemudDatabaseContext context)
+	{
+		var created = new Clock();
+		context.Clocks.Add(created);
+		return created;
+	}
+
+	private static Calendar CreateCalendar(FuturemudDatabaseContext context)
+	{
+		var created = new Calendar();
+		context.Calendars.Add(created);
+		return created;
 	}
 
 	private static void SyncShardAndZoneTimeBindings(FuturemudDatabaseContext context, Calendar calendar, Clock clock,

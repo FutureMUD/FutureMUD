@@ -196,12 +196,12 @@ Please enter your penalty unit: ", (context, answers) => true,
 		if (!context.Accounts.Any() || !context.Currencies.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
 		return SeederRepeatabilityHelper.ClassifyByPresence(
-			context.LegalAuthorities.Select(authority =>
-					StockAuthorityMarkers.Any(marker =>
-						authority.LegalClasses.Any(x => x.Name == marker) ||
-						authority.EnforcementAuthorities.Any(x => x.Name == marker) ||
-						authority.Laws.Any(x => x.Name == marker)))
-				.DefaultIfEmpty(false));
+		[
+			.. StockAuthorityMarkers.Select(marker =>
+				context.LegalClasses.Any(x => x.Name == marker) ||
+				context.EnforcementAuthorities.Any(x => x.Name == marker) ||
+				context.Laws.Any(x => x.Name == marker))
+		]);
 	}
 
 	private FutureProg EnsureLawProg(

@@ -25,6 +25,7 @@ If your new item capability is just another implementation of an existing concep
 - a new kind of container should still satisfy `IContainer`
 - a new kind of light source should satisfy `IProduceLight`
 - a new kind of weapon should satisfy the relevant weapon interfaces
+- a new power, liquid, or telecom item that physically plugs into something should implement `IConnectable` and usually also a matching `ICanConnectTo...Grid` interface
 
 ### Add a new interface when the capability is new
 If the capability is genuinely new and other systems need to query for it, add a new interface in `FutureMUDLibrary` first.
@@ -132,6 +133,19 @@ Use this rule consistently:
 For example:
 - container capacity belongs on the proto
 - current contents belong on the runtime component
+- connector lists, wattage settings, flow rates, and telecom numbering preferences belong on the proto
+- live grid membership, connected peers, battery charge, and flowing liquid state belong on the runtime component
+
+### Connectable item patterns
+When a component can join a physical network, treat the connector list as part of the prototype definition and the actual links as runtime state.
+
+That pattern is now used by items such as:
+- telephones and telecommunications feeders
+- liquid pumps and liquid-grid connectors
+- battery-backed devices that can charge from a mains source
+- electric feeders and power sockets
+
+The important implementation detail is that the proto should expose the builder-editable connector shapes, while the component should restore connected items through `FinaliseLoad()` and react to `Connect` / `Disconnect` events.
 
 ### Pattern: telecom devices versus telecom endpoints
 The telephone and cellular implementation is a good reference when a subsystem has to separate "the thing a player uses" from "the thing the network addresses":

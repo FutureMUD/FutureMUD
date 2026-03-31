@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Health;
 using MudSharp.Models;
-using DrugModel = MudSharp.Models.Drug;
+using Drug = MudSharp.Models.Drug;
 
 namespace MudSharp_Unit_Tests;
 
@@ -69,7 +69,26 @@ public class HealthSeederTests
 	private static void SeedShouldSeedPrerequisites(FuturemudDatabaseContext context)
 	{
 		SeedAccount(context);
-		context.Races.Add(new Race { Id = 1, Name = "Organic Humanoid" });
+		context.Races.Add(new Race
+		{
+			Id = 1,
+			Name = "Organic Humanoid",
+			Description = "Organic Humanoid test race",
+			BaseBodyId = 0,
+			AllowedGenders = "Male Female Neuter NonBinary",
+			AttributeBonusProgId = 0,
+			DiceExpression = "1d100",
+			CorpseModelId = 0,
+			DefaultHealthStrategyId = 0,
+			BreathingModel = "Simple",
+			CommunicationStrategyType = "HumanoidCommunicationStrategy",
+			HandednessOptions = "Left,Right",
+			MaximumDragWeightExpression = "100",
+			MaximumLiftWeightExpression = "100",
+			EatCorpseEmoteText = "@ eat|eats $0.",
+			BreathingVolumeExpression = "1",
+			HoldBreathLengthExpression = "1"
+		});
 		context.Tags.AddRange(
 			new Tag { Id = 1, Name = "Arterial Clamp" },
 			new Tag { Id = 2, Name = "Bonesaw" },
@@ -138,10 +157,10 @@ public class HealthSeederTests
 		using var context = BuildContext();
 		SeedAccount(context);
 		context.Drugs.AddRange(
-			new DrugModel { Id = 1, Name = "IngestedOnly", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 2, Name = "TouchedOnly", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 3, Name = "InhaledOnly", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 4, Name = "BothDrug", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+			new Drug { Id = 1, Name = "IngestedOnly", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 2, Name = "TouchedOnly", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 3, Name = "InhaledOnly", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 4, Name = "BothDrug", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 		context.SaveChanges();
 
 		var seeder = new HealthSeeder();
@@ -164,38 +183,38 @@ public class HealthSeederTests
 		SeedShouldSeedPrerequisites(context);
 
 		context.Knowledges.AddRange(
-			new Knowledge { Id = 1, Name = "Diagnostic Medicine" },
-			new Knowledge { Id = 2, Name = "Clinical Medicine" },
-			new Knowledge { Id = 3, Name = "Surgery" });
+			new Knowledge { Id = 1, Name = "Diagnostic Medicine", Description = "Diagnostic Medicine", LongDescription = "Diagnostic Medicine", Type = "Test", Subtype = "Test", LearnableType = 0, LearnDifficulty = 0, TeachDifficulty = 0, LearningSessionsRequired = 0 },
+			new Knowledge { Id = 2, Name = "Clinical Medicine", Description = "Clinical Medicine", LongDescription = "Clinical Medicine", Type = "Test", Subtype = "Test", LearnableType = 0, LearnDifficulty = 0, TeachDifficulty = 0, LearningSessionsRequired = 0 },
+			new Knowledge { Id = 3, Name = "Surgery", Description = "Surgery", LongDescription = "Surgery", Type = "Test", Subtype = "Test", LearnableType = 0, LearnDifficulty = 0, TeachDifficulty = 0, LearningSessionsRequired = 0 });
 
 		context.SurgicalProcedures.AddRange(
-			new SurgicalProcedure { Id = 1, Name = "Triage" },
-			new SurgicalProcedure { Id = 2, Name = "Physical" },
-			new SurgicalProcedure { Id = 3, Name = "Stitch Up" },
-			new SurgicalProcedure { Id = 4, Name = "Exploratory Surgery" },
-			new SurgicalProcedure { Id = 5, Name = "Trauma Control" },
-			new SurgicalProcedure { Id = 6, Name = "Organ Extraction" },
-			new SurgicalProcedure { Id = 7, Name = "General Organ Repair" },
-			new SurgicalProcedure { Id = 8, Name = "Bone Setting" });
+			new SurgicalProcedure { Id = 1, Name = "Triage", ProcedureName = "Triage", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Triage", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 2, Name = "Physical", ProcedureName = "Physical", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Physical", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 3, Name = "Stitch Up", ProcedureName = "Stitch Up", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Stitch Up", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 4, Name = "Exploratory Surgery", ProcedureName = "Exploratory Surgery", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Exploratory Surgery", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 5, Name = "Trauma Control", ProcedureName = "Trauma Control", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Trauma Control", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 6, Name = "Organ Extraction", ProcedureName = "Organ Extraction", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Organ Extraction", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 7, Name = "General Organ Repair", ProcedureName = "General Organ Repair", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "General Organ Repair", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 8, Name = "Bone Setting", ProcedureName = "Bone Setting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Bone Setting", Definition = string.Empty, TargetBodyTypeId = 0 });
 
 		context.Drugs.AddRange(
-			new DrugModel { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 2, Name = "Opioid Analgesic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 3, Name = "Muscle Relaxant", DrugVectors = (int)DrugVector.Injected, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 4, Name = "Local Anaesthetic", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 5, Name = "Broad-Spectrum Antibiotic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 6, Name = "Antibiotic Ointment", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 7, Name = "Antifungal Course", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 8, Name = "Burn Gel", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+			new Drug { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 2, Name = "Opioid Analgesic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 3, Name = "Muscle Relaxant", DrugVectors = (int)DrugVector.Injected, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 4, Name = "Local Anaesthetic", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 5, Name = "Broad-Spectrum Antibiotic", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 6, Name = "Antibiotic Ointment", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 7, Name = "Antifungal Course", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 8, Name = "Burn Gel", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 
 		context.GameItemComponentProtos.AddRange(
-			new GameItemComponentProto { Id = 1, Name = "Pill_Opioid_Analgesic", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 2, Name = "TopicalCream_Local_Anaesthetic", Type = "TopicalCream", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 3, Name = "Pill_Broad_Spectrum_Antibiotic", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 4, Name = "TopicalCream_Antibiotic_Ointment", Type = "TopicalCream", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 5, Name = "Pill_Antifungal_Course", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 6, Name = "TopicalCream_Antifungal_Course", Type = "TopicalCream", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 7, Name = "TopicalCream_Burn_Gel", Type = "TopicalCream", EditableItem = new EditableItem() });
+			new GameItemComponentProto { Id = 1, Name = "Pill_Opioid_Analgesic", Type = "Pill", Description = "Pill_Opioid_Analgesic", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 2, Name = "TopicalCream_Local_Anaesthetic", Type = "TopicalCream", Description = "TopicalCream_Local_Anaesthetic", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 3, Name = "Pill_Broad_Spectrum_Antibiotic", Type = "Pill", Description = "Pill_Broad_Spectrum_Antibiotic", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 4, Name = "TopicalCream_Antibiotic_Ointment", Type = "TopicalCream", Description = "TopicalCream_Antibiotic_Ointment", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 5, Name = "Pill_Antifungal_Course", Type = "Pill", Description = "Pill_Antifungal_Course", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 6, Name = "TopicalCream_Antifungal_Course", Type = "TopicalCream", Description = "TopicalCream_Antifungal_Course", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 7, Name = "TopicalCream_Burn_Gel", Type = "TopicalCream", Description = "TopicalCream_Burn_Gel", Definition = "<Definition />", EditableItem = new EditableItem() });
 
 		context.SaveChanges();
 
@@ -209,35 +228,35 @@ public class HealthSeederTests
 		using var context = BuildContext();
 		SeedShouldSeedPrerequisites(context);
 
-		context.Knowledges.Add(new Knowledge { Id = 1, Name = "Medicine" });
+		context.Knowledges.Add(new Knowledge { Id = 1, Name = "Medicine", Description = "Medicine", LongDescription = "Medicine", Type = "Test", Subtype = "Test", LearnableType = 0, LearnDifficulty = 0, TeachDifficulty = 0, LearningSessionsRequired = 0 });
 
 		context.SurgicalProcedures.AddRange(
-			new SurgicalProcedure { Id = 1, Name = "Hasty Triage" },
-			new SurgicalProcedure { Id = 2, Name = "Primitive Stitching" },
-			new SurgicalProcedure { Id = 3, Name = "Exploratory Surgery" },
-			new SurgicalProcedure { Id = 4, Name = "Trauma Control" },
-			new SurgicalProcedure { Id = 5, Name = "Organ Extraction" },
-			new SurgicalProcedure { Id = 6, Name = "Crude Organ Repair" },
-			new SurgicalProcedure { Id = 7, Name = "Bone Setting" });
+			new SurgicalProcedure { Id = 1, Name = "Hasty Triage", ProcedureName = "Hasty Triage", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Hasty Triage", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 2, Name = "Primitive Stitching", ProcedureName = "Primitive Stitching", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Primitive Stitching", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 3, Name = "Exploratory Surgery", ProcedureName = "Exploratory Surgery", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Exploratory Surgery", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 4, Name = "Trauma Control", ProcedureName = "Trauma Control", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Trauma Control", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 5, Name = "Organ Extraction", ProcedureName = "Organ Extraction", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Organ Extraction", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 6, Name = "Crude Organ Repair", ProcedureName = "Crude Organ Repair", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Crude Organ Repair", Definition = string.Empty, TargetBodyTypeId = 0 },
+			new SurgicalProcedure { Id = 7, Name = "Bone Setting", ProcedureName = "Bone Setting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Bone Setting", Definition = string.Empty, TargetBodyTypeId = 0 });
 
 		context.Drugs.AddRange(
-			new DrugModel { Id = 1, Name = "Willow Bark Tea", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 2, Name = "Mandrake Draught", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Inhaled), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 3, Name = "Honey Poultice", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 4, Name = "Garlic Salve", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 5, Name = "Mint Infusion", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 6, Name = "Ephedra Brew", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-			new DrugModel { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+			new Drug { Id = 1, Name = "Willow Bark Tea", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 2, Name = "Mandrake Draught", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Inhaled), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 3, Name = "Honey Poultice", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 4, Name = "Garlic Salve", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 5, Name = "Mint Infusion", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 6, Name = "Ephedra Brew", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+			new Drug { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 
 		context.GameItemComponentProtos.AddRange(
-			new GameItemComponentProto { Id = 1, Name = "Pill_Willow_Bark_Tea", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 2, Name = "Pill_Mandrake_Draught", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 3, Name = "TopicalCream_Honey_Poultice", Type = "TopicalCream", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 4, Name = "Pill_Garlic_Salve", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 5, Name = "TopicalCream_Garlic_Salve", Type = "TopicalCream", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 6, Name = "Pill_Mint_Infusion", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 7, Name = "Pill_Ephedra_Brew", Type = "Pill", EditableItem = new EditableItem() },
-			new GameItemComponentProto { Id = 8, Name = "Pill_Foxglove_Tincture", Type = "Pill", EditableItem = new EditableItem() });
+			new GameItemComponentProto { Id = 1, Name = "Pill_Willow_Bark_Tea", Type = "Pill", Description = "Pill_Willow_Bark_Tea", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 2, Name = "Pill_Mandrake_Draught", Type = "Pill", Description = "Pill_Mandrake_Draught", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 3, Name = "TopicalCream_Honey_Poultice", Type = "TopicalCream", Description = "TopicalCream_Honey_Poultice", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 4, Name = "Pill_Garlic_Salve", Type = "Pill", Description = "Pill_Garlic_Salve", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 5, Name = "TopicalCream_Garlic_Salve", Type = "TopicalCream", Description = "TopicalCream_Garlic_Salve", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 6, Name = "Pill_Mint_Infusion", Type = "Pill", Description = "Pill_Mint_Infusion", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 7, Name = "Pill_Ephedra_Brew", Type = "Pill", Description = "Pill_Ephedra_Brew", Definition = "<Definition />", EditableItem = new EditableItem() },
+			new GameItemComponentProto { Id = 8, Name = "Pill_Foxglove_Tincture", Type = "Pill", Description = "Pill_Foxglove_Tincture", Definition = "<Definition />", EditableItem = new EditableItem() });
 
 		context.SaveChanges();
 

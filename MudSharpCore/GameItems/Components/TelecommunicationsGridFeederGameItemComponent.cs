@@ -315,6 +315,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 	{
 		_connectedItems.Add(Tuple.Create(type, other));
 		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
 		Parent.ConnectedItem(other, type);
 		Changed = true;
 	}
@@ -428,7 +429,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 		}
 
 		var power = other.Parent.GetItemTypes<IProducePower>()
-		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer);
+		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
 		if (power == null)
 		{
 			return;

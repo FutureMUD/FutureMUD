@@ -673,7 +673,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 		}
 
 		var power = other.Parent.GetItemTypes<IProducePower>()
-		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer);
+		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
 		if (power == null)
 		{
 			return;
@@ -783,7 +783,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 		return true;
 	}
 
-	public IEnumerable<ConnectorType> Connections => [_prototype.Connector];
+	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
 	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
 
 	public IEnumerable<ConnectorType> FreeConnections
@@ -832,6 +832,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 	{
 		_connectedItems.Add(Tuple.Create(type, other));
 		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
 		Parent.ConnectedItem(other, type);
 		Changed = true;
 	}

@@ -32,6 +32,7 @@ This is how components add behavioural presentation without forcing all descript
 Examples include:
 - containers showing fullness, open state, and contents
 - locks or connections contributing extra information
+- connector-driven items showing their current grid membership and physical links
 - effects such as glow adding descriptive layers through adjacent systems
 
 ### Decoration ordering
@@ -80,6 +81,11 @@ Telecommunications components are a special case of connected location behaviour
 - wired handsets may be physically present in a room or inventory while functionally depending on a connected telecom outlet
 - a connected outlet can own the number and grid-service state that the handset presents to players
 - cell towers project service to zones rather than directly to adjacent inventory or containment relationships
+
+Connector-aware items often need to describe both sides of their integration:
+- a component like a telephone may show the telecommunications grid it is attached to and the device it is physically plugged into
+- a liquid pump may need to describe the source container, destination container, and power source all at once
+- a battery-backed item may need to explain both its stored charge and the connector it uses to recharge
 
 ## Item Groups
 ### Purpose

@@ -108,6 +108,9 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 			case "type":
 			case "connection":
 			case "connection type":
+			case "connector":
+			case "connectors":
+			case "connections":
 				return BuildingCommandConnectionType(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);

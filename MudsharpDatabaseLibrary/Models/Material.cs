@@ -9,6 +9,7 @@ namespace MudSharp.Models
         {
             BodypartProto = new HashSet<BodypartProto>();
             Liquids = new HashSet<Liquid>();
+            MaterialAliases = new HashSet<MaterialAlias>();
             MaterialsTags = new HashSet<MaterialsTags>();
             Races = new HashSet<Race>();
             RacesEdibleMaterials = new HashSet<RacesEdibleMaterials>();
@@ -46,6 +47,7 @@ namespace MudSharp.Models
 
         public virtual ICollection<BodypartProto> BodypartProto { get; set; }
         public virtual ICollection<Liquid> Liquids { get; set; }
+        public virtual ICollection<MaterialAlias> MaterialAliases { get; set; }
         public virtual ICollection<MaterialsTags> MaterialsTags { get; set; }
         public virtual ICollection<Race> Races { get; set; }
         public virtual ICollection<RacesEdibleMaterials> RacesEdibleMaterials { get; set; }

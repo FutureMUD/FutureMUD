@@ -57,6 +57,30 @@ namespace MudSharp.Database
 				entity.Property(e => e.Type).HasColumnType("int(11)");
 			});
 
+			modelBuilder.Entity<MaterialAlias>(entity =>
+			{
+				entity.HasKey(e => new { e.MaterialId, e.Alias })
+					.HasName("PRIMARY");
+
+				entity.ToTable("Materials_Aliases");
+
+				entity.HasIndex(e => e.Alias)
+					.IsUnique()
+					.HasDatabaseName("Materials_Aliases_Alias_UNIQUE");
+
+				entity.Property(e => e.MaterialId).HasColumnType("bigint(20)");
+
+				entity.Property(e => e.Alias)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.HasOne(d => d.Material)
+					.WithMany(p => p.MaterialAliases)
+					.HasForeignKey(d => d.MaterialId)
+					.HasConstraintName("Materials_Aliases_Materials");
+			});
+
 			modelBuilder.Entity<MaterialsTags>(entity =>
 			{
 				entity.HasKey(e => new { e.MaterialId, e.TagId })

@@ -2709,6 +2709,9 @@ The syntax for this command is as follows:
 	#3material set electrical <value>#0 - sets electrical conductivity in siemens
 	#3material set thermal <value>#0 - sets the thermal conductivity in watts/kelvin
 	#3material set specificheat <value>#0 - sets the specific heat capacity in J/Kg.Kelvin
+	#3material set alias add <text>#0 - adds an alias that can be used to target this material
+	#3material set alias remove <text>#0 - removes one alias from this material
+	#3material set alias clear#0 - removes all aliases from this material
 	#3material set impactyield <value>#0 - sets the impact yield strength in kPa
 	#3material set impactfracture <value>#0 - sets the impact fracture strength in kPa
 	#3material set impactstrain <value>#0 - sets the strain at yield for impact
@@ -2779,9 +2782,8 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var material = long.TryParse(ss.PopSpeech(), out var value)
-			? actor.Gameworld.Materials.Get(value)
-			: actor.Gameworld.Materials.GetByName(ss.Last);
+		var targetText = ss.PopSpeech();
+		var material = actor.Gameworld.Materials.GetByIdOrName(targetText);
 		if (material == null)
 		{
 			actor.OutputHandler.Send("There is no such material.");
@@ -2831,9 +2833,8 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var material = long.TryParse(ss.PopSpeech(), out var value)
-			? actor.Gameworld.Materials.Get(value)
-			: actor.Gameworld.Materials.GetByName(ss.Last);
+		var targetText = ss.PopSpeech();
+		var material = actor.Gameworld.Materials.GetByIdOrName(targetText);
 		if (material == null)
 		{
 			actor.OutputHandler.Send("There is no such material.");
@@ -2868,9 +2869,9 @@ The syntax for this command is as follows:
 		}
 
 		var name = ss.PopSpeech().ToLowerInvariant();
-		if (actor.Gameworld.Materials.Any(x => x.Name.EqualTo(name)))
+		if (actor.Gameworld.Materials.Any(x => x.Names.Any(y => y.EqualTo(name))))
 		{
-			actor.OutputHandler.Send("There is already a material with that name. Names must be unique.");
+			actor.OutputHandler.Send("There is already a material or material alias with that name. Names and aliases must be unique.");
 			return;
 		}
 
@@ -2889,9 +2890,8 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var material = long.TryParse(ss.PopSpeech(), out var value)
-			? actor.Gameworld.Materials.Get(value)
-			: actor.Gameworld.Materials.GetByName(ss.Last);
+		var targetText = ss.PopSpeech();
+		var material = actor.Gameworld.Materials.GetByIdOrName(targetText);
 		if (material == null)
 		{
 			actor.OutputHandler.Send("There is no such material.");
@@ -2905,9 +2905,9 @@ The syntax for this command is as follows:
 		}
 
 		var name = ss.PopSpeech().ToLowerInvariant();
-		if (actor.Gameworld.Materials.Any(x => x.Name.EqualTo(name)))
+		if (actor.Gameworld.Materials.Any(x => x.Names.Any(y => y.EqualTo(name))))
 		{
-			actor.OutputHandler.Send("There is already a material with that name. Material names must be unique.");
+			actor.OutputHandler.Send("There is already a material or material alias with that name. Material names and aliases must be unique.");
 			return;
 		}
 

@@ -354,35 +354,51 @@ public abstract class Material : SaveableItem, IMaterial
 			return false;
 		}
 
-		var name = command.SafeRemainingArgument.ToLowerInvariant();
+		var name = command.SafeRemainingArgument;
+		var oldName = _name;
+		if (!TryRename(name, out var errorMessage))
+		{
+			actor.OutputHandler.Send(errorMessage);
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"You rename this {MaterialNoun} from {oldName.ColourName()} to {name.ToLowerInvariant().ColourName()}.");
+		return true;
+	}
+
+	internal bool TryRename(string name, out string errorMessage)
+	{
+		var candidateName = name.ToLowerInvariant();
 		switch (this)
 		{
-			case Solid _:
-				if (Gameworld.Materials.Any(x => x.Name.EqualTo(name)))
+			case ISolid solid:
+				if (Gameworld.Materials.Any(x => !ReferenceEquals(x, solid) && x.Names.Any(y => y.EqualTo(candidateName))))
 				{
-					actor.OutputHandler.Send($"There is already a solid called {name.ColourName()}. Names must be unique.");
+					errorMessage =
+						$"There is already a solid or solid alias called {candidateName.ColourName()}. Names and aliases must be unique.";
 					return false;
 				}
 				break;
 			case Liquid _:
-				if (Gameworld.Liquids.Any(x => x.Name.EqualTo(name)))
+				if (Gameworld.Liquids.Any(x => x.Name.EqualTo(candidateName)))
 				{
-					actor.OutputHandler.Send($"There is already a liquid called {name.ColourName()}. Names must be unique.");
+					errorMessage = $"There is already a liquid called {candidateName.ColourName()}. Names must be unique.";
 					return false;
 				}
 				break;
 			case Gas _:
-				if (Gameworld.Gases.Any(x => x.Name.EqualTo(name)))
+				if (Gameworld.Gases.Any(x => x.Name.EqualTo(candidateName)))
 				{
-					actor.OutputHandler.Send($"There is already a gas called {name.ColourName()}. Names must be unique.");
+					errorMessage = $"There is already a gas called {candidateName.ColourName()}. Names must be unique.";
 					return false;
 				}
 				break;
 		}
 
-		actor.OutputHandler.Send($"You rename this {MaterialNoun} from {_name.ColourName()} to {name.ColourName()}.");
-		_name = name;
+		_name = candidateName;
 		Changed = true;
+		errorMessage = string.Empty;
 		return true;
 	}
 

@@ -17,6 +17,9 @@ public class Solid : Material, ISolid
 	public Solid(MudSharp.Models.Material material, IFuturemud gameworld)
 		: base(material, gameworld)
 	{
+		_aliases.AddRange(material.MaterialAliases
+			.Select(x => x.Alias)
+			.Where(x => !string.IsNullOrWhiteSpace(x)));
 		ImpactFracture = material.ImpactFracture ?? 0;
 		ImpactYield = material.ImpactYield ?? 0;
 		ImpactStrainAtYield = material.ImpactStrainAtYield ?? 100;
@@ -110,6 +113,22 @@ public class Solid : Material, ISolid
 
 	#region ISolid Members
 
+	private readonly List<string> _aliases = [];
+
+	public IEnumerable<string> Aliases => _aliases;
+
+	public IEnumerable<string> Names
+	{
+		get
+		{
+			yield return Name;
+			foreach (var alias in _aliases)
+			{
+				yield return alias;
+			}
+		}
+	}
+
 	public double ImpactFracture { get; set; }
 
 	public double ImpactYield { get; set; }
@@ -173,6 +192,71 @@ public class Solid : Material, ISolid
 	}
 
 	public IGas GasForm { get; set; }
+
+	internal bool TryAddAlias(string alias, out string errorMessage)
+	{
+		var normalisedAlias = alias.ToLowerInvariant();
+		if (string.IsNullOrWhiteSpace(normalisedAlias))
+		{
+			errorMessage = "You must specify some text for the alias.";
+			return false;
+		}
+
+		if (normalisedAlias.EqualTo(Name))
+		{
+			errorMessage = "That is already this material's primary name.";
+			return false;
+		}
+
+		if (_aliases.Any(x => x.EqualTo(normalisedAlias)))
+		{
+			errorMessage = $"{normalisedAlias.ColourName()} is already an alias for this material.";
+			return false;
+		}
+
+		var conflictingMaterial = Gameworld.Materials.FirstOrDefault(x =>
+			!ReferenceEquals(x, this) &&
+			x.Names.Any(y => y.EqualTo(normalisedAlias)));
+		if (conflictingMaterial is not null)
+		{
+			errorMessage =
+				$"{normalisedAlias.ColourName()} is already used by {conflictingMaterial.Name.ColourName()}. Solid names and aliases must be unique.";
+			return false;
+		}
+
+		_aliases.Add(normalisedAlias);
+		Changed = true;
+		errorMessage = string.Empty;
+		return true;
+	}
+
+	internal bool TryRemoveAlias(string alias, out string removedAlias, out string errorMessage)
+	{
+		var normalisedAlias = alias.ToLowerInvariant();
+		removedAlias = _aliases.FirstOrDefault(x => x.EqualTo(normalisedAlias));
+		if (removedAlias is null)
+		{
+			errorMessage = $"{normalisedAlias.ColourName()} is not an alias for this material.";
+			return false;
+		}
+
+		_aliases.Remove(removedAlias);
+		Changed = true;
+		errorMessage = string.Empty;
+		return true;
+	}
+
+	internal bool ClearAliases()
+	{
+		if (!_aliases.Any())
+		{
+			return false;
+		}
+
+		_aliases.Clear();
+		Changed = true;
+		return true;
+	}
 
 	public ISolid Clone(string newName, string newDescription)
 	{
@@ -271,6 +355,8 @@ public class Solid : Material, ISolid
 		sb.Append($"Material #{Id.ToString("N0", actor)}".Colour(Telnet.BoldYellow));
 		sb.AppendLine($" - {Name.Colour(ResidueColour)}");
 		sb.AppendLine($"Description: {MaterialDescription.ColourValue()}");
+		sb.AppendLine(
+			$"Aliases: {(Aliases.Any() ? Aliases.Select(x => x.ColourName()).ListToString() : "None".Colour(Telnet.Red))}");
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3, new[]
 		{
 			$"Density: {$"{Density.ToString("N5", actor)} kg/m3".ColourValue()}",
@@ -355,6 +441,9 @@ public class Solid : Material, ISolid
 
 	/// <inheritdoc />
 	protected override string HelpText => $@"{base.HelpText}
+	#3alias add <text>#0 - adds an alias for this material
+	#3alias remove <text>#0 - removes an alias from this material
+	#3alias clear#0 - removes all aliases from this material
 	#3impactyield <value>#0 - sets the impact yield strength in kPa
 	#3impactfracture <value>#0 - sets the impact fracture strength in kPa
 	#3impactstrain <value>#0 - sets the strain at yield for impact
@@ -377,6 +466,8 @@ public class Solid : Material, ISolid
 	{
 		switch (command.PopForSwitch())
 		{
+			case "alias":
+				return BuildingCommandAlias(actor, command);
 			case "impactyield":
 				return BuildingCommandImpactYield(actor, command);
 			case "impactstrain":
@@ -418,6 +509,74 @@ public class Solid : Material, ISolid
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandAlias(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "add":
+				return BuildingCommandAliasAdd(actor, command);
+			case "remove":
+			case "delete":
+				return BuildingCommandAliasRemove(actor, command);
+			case "clear":
+				return BuildingCommandAliasClear(actor);
+			default:
+				actor.OutputHandler.Send(
+					$"You can use the {"alias add <text>".ColourCommand()}, {"alias remove <text>".ColourCommand()}, or {"alias clear".ColourCommand()} options.");
+				return false;
+		}
+	}
+
+	private bool BuildingCommandAliasAdd(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What alias do you want to add?");
+			return false;
+		}
+
+		if (!TryAddAlias(command.SafeRemainingArgument, out var errorMessage))
+		{
+			actor.OutputHandler.Send(errorMessage);
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"This material can now also be targeted by the alias {command.SafeRemainingArgument.ToLowerInvariant().ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandAliasRemove(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which alias do you want to remove?");
+			return false;
+		}
+
+		if (!TryRemoveAlias(command.SafeRemainingArgument, out var removedAlias, out var errorMessage))
+		{
+			actor.OutputHandler.Send(errorMessage);
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"This material will no longer be targeted by the alias {removedAlias.ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandAliasClear(ICharacter actor)
+	{
+		if (!ClearAliases())
+		{
+			actor.OutputHandler.Send("This material does not have any aliases to clear.");
+			return false;
+		}
+
+		actor.OutputHandler.Send("This material no longer has any aliases.");
+		return true;
 	}
 
 	private bool BuildingCommandImpactYield(ICharacter actor, StringStack command)
@@ -794,6 +953,7 @@ public class Solid : Material, ISolid
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.Materials.Find(Id);
+		dbitem.Name = Name;
 		dbitem.Organic = Organic;
 		dbitem.MaterialDescription = MaterialDescription;
 		dbitem.SpecificHeatCapacity = SpecificHeatCapacity;
@@ -817,6 +977,15 @@ public class Solid : Material, ISolid
 		dbitem.ResidueDesc = ResidueDesc;
 		dbitem.ResidueColour = ResidueColour.Name;
 		dbitem.LiquidFormId = LiquidForm?.Id;
+		FMDB.Context.MaterialAliases.RemoveRange(dbitem.MaterialAliases);
+		foreach (var alias in _aliases)
+		{
+			dbitem.MaterialAliases.Add(new MaterialAlias
+			{
+				Material = dbitem,
+				Alias = alias
+			});
+		}
 		FMDB.Context.MaterialsTags.RemoveRange(dbitem.MaterialsTags);
 		foreach (var tag in Tags)
 		{

@@ -6429,22 +6429,38 @@ return IsAdmin(@ch)",
 			context.SaveChanges();
 		}
 
+		void AddMaterialAliases(string materialName, params string[] aliases)
+		{
+			var material = materials[materialName];
+			foreach (var alias in aliases.Select(x => x.ToLowerInvariant()).Distinct())
+			{
+				material.MaterialAliases.Add(new MaterialAlias
+				{
+					Material = material,
+					Alias = alias
+				});
+			}
+
+			context.SaveChanges();
+		}
+
 		#region Simplified
 		AddMaterial("textile", MaterialBehaviourType.Fabric, 1.0, true, 10000, 10000, 0.3, 10.0, 0.0001, 500, null, "Simplified", "Fabric");
 		AddMaterial("wood", MaterialBehaviourType.Wood, 0.5, true, 10000, 10000, 0.01, 0.15, 0.0001, 500, null, "Simplified", "Wood");
 		AddMaterial("metal", MaterialBehaviourType.Metal, 7.0, false, 40000, 10000, 0.0, 18.0, 14500000, 500, null, "Simplified", "Manufactured Metal");
 		AddMaterial("stone", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500, null, "Simplified", "Stone");
-		AddMaterial("glass", MaterialBehaviourType.Ceramic, 1.0, false, 10000, 10000, 0.0, 10.0, 14500000, 500, null, "Simplified", "Glass");
+		AddMaterial("glass", MaterialBehaviourType.Ceramic, 2.5, false, 33000, 90000, 0.0, 1.0, 0.0001, 840, null, "Simplified", "Glass");
 		AddMaterial("vegetation", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.01, 10.0, 0.0001, 500, null, "Simplified", "Vegetation");
-		AddMaterial("ceramic", MaterialBehaviourType.Ceramic, 1.0, false, 10000, 10000, 0.0, 10.0, 14500000, 500, null, "Simplified", "Ceramic");
+		AddMaterial("ceramic", MaterialBehaviourType.Ceramic, 2.4, false, 40000, 120000, 0.0, 1.5, 0.0001, 800, null, "Simplified", "Ceramic");
 		AddMaterial("meat", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.1, 0.14, 0.0001, 500, null, "Simplified", "Meat");
 		AddMaterial("other", MaterialBehaviourType.Mana, 1.0, false, 10000, 10000, 0.3, 0.14, 0.0001, 500, null, "Simplified");
 		#endregion
 
 		#region Metals
 
-		AddMaterial("aluminium", MaterialBehaviourType.Metal, 2.7, false, 34500, 0, 0.0, 17.9, 14500000, 500,
+		AddMaterial("aluminium", MaterialBehaviourType.Metal, 2.7, false, 90000, 0, 0.0, 205.0, 37700000, 900,
 			materialTags: "Modern Age");
+		AddMaterialAliases("aluminium", "aluminum");
 		AddMaterial("antimony", MaterialBehaviourType.Metal, 6.68, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("arsenic", MaterialBehaviourType.Metal, 5.7, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6469,7 +6485,7 @@ return IsAdmin(@ch)",
 			materialTags: "Bronze Age");
 		AddMaterial("cadmium", MaterialBehaviourType.Metal, 8.69, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
-		AddMaterial("carbon steel", MaterialBehaviourType.Metal, 7.85, false, 240000, 0, 0.0, 17.9, 14500000, 500,
+		AddMaterial("carbon steel", MaterialBehaviourType.Metal, 7.85, false, 340000, 0, 0.0, 50.0, 6100000, 490,
 			materialTags: "Modern Age");
 		AddMaterial("cast iron", MaterialBehaviourType.Metal, 7.1, false, 40000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: ["Iron Age", "Cast Metal"]);
@@ -6495,7 +6511,7 @@ return IsAdmin(@ch)",
 			materialTags: ["Bronze Age", "Precious Metal"]);
 		AddMaterial("hafnium", MaterialBehaviourType.Metal, 13.3, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
-		AddMaterial("high tensile steel", MaterialBehaviourType.Metal, 7.85, false, 240000, 0, 0.0, 17.9, 14500000, 500,
+		AddMaterial("high tensile steel", MaterialBehaviourType.Metal, 7.85, false, 650000, 0, 0.0, 50.0, 6100000, 490,
 			materialTags: "Modern Age");
 		AddMaterial("indium", MaterialBehaviourType.Metal, 7.31, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
@@ -6505,14 +6521,15 @@ return IsAdmin(@ch)",
 			materialTags: "Bronze Age");
 		AddMaterial("magnesium", MaterialBehaviourType.Metal, 1.74, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
-		AddMaterial("manganese steel", MaterialBehaviourType.Metal, 8.0, false, 605000, 0, 0.0, 17.9, 14500000, 500,
+		AddMaterial("manganese steel", MaterialBehaviourType.Metal, 8.0, false, 450000, 0, 0.0, 28.0, 1350000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("manganese", MaterialBehaviourType.Metal, 7.3, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("mild bronze", MaterialBehaviourType.Metal, 8.7, false, 275000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
-		AddMaterial("mild steel", MaterialBehaviourType.Metal, 7.85, false, 430000, 0, 0.0, 17.9, 14500000, 500,
+		AddMaterial("mild steel", MaterialBehaviourType.Metal, 7.85, false, 250000, 0, 0.0, 50.0, 6100000, 490,
 			materialTags: "Modern Age");
+		AddMaterialAliases("mild steel", "steel");
 		AddMaterial("molybdenum", MaterialBehaviourType.Metal, 10.2, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("neodymium", MaterialBehaviourType.Metal, 7.01, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6565,7 +6582,11 @@ return IsAdmin(@ch)",
 			materialTags: "Industrial Age");
 		AddMaterial("sponge iron", MaterialBehaviourType.Metal, 7.1, false, 75000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Iron Age");
-		AddMaterial("stainless steel", MaterialBehaviourType.Metal, 7.9, false, 516000, 0, 0.0, 17.9, 14500000, 500,
+		AddMaterial("stainless steel", MaterialBehaviourType.Metal, 7.9, false, 290000, 0, 0.0, 16.0, 1450000, 500,
+			materialTags: "Modern Age");
+		AddMaterial("spring steel", MaterialBehaviourType.Metal, 7.85, false, 620000, 0, 0.0, 49.0, 5000000, 480,
+			materialTags: "Modern Age");
+		AddMaterial("tool steel", MaterialBehaviourType.Metal, 7.75, false, 550000, 0, 0.0, 24.0, 1400000, 460,
 			materialTags: "Modern Age");
 		AddMaterial("sterling silver", MaterialBehaviourType.Metal, 7.85, false, 55700, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: ["Renaissance Age", "Precious Metal"]);
@@ -7413,18 +7434,21 @@ return IsAdmin(@ch)",
 			"Ceramic");
 		AddMaterial("earthenware", MaterialBehaviourType.Ceramic, 0.7, false, 40000, 100000, 0.0, 0.002, 0.0001, 500,
 			null, "Ceramic");
-		AddMaterial("fiberglass", MaterialBehaviourType.Ceramic, 2.0, false, 40000, 100000, 0.0, 0.002, 0.0001, 500,
-			null, "Ceramic");
+		AddMaterial("fiberglass", MaterialBehaviourType.Ceramic, 2.5, false, 100000, 200000, 0.0, 1.04, 0.0001, 800,
+			null, "Ceramic", "Glass");
+		AddMaterialAliases("fiberglass", "fibreglass", "glass fibre");
 		AddMaterial("fired clay", MaterialBehaviourType.Ceramic, 0.7, false, 40000, 100000, 0.0, 0.002, 0.0001, 500,
 			null, "Ceramic");
-		AddMaterial("silicate glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
-			"Ceramic");
-		AddMaterial("soda-lime glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
-			"Ceramic");
-		AddMaterial("borosilicate glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
-			"Ceramic");
-		AddMaterial("lead glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
-			"Ceramic");
+		AddMaterial("silicate glass", MaterialBehaviourType.Ceramic, 2.5, false, 33000, 90000, 0.0, 1.0, 0.0001, 840, null,
+			"Ceramic", "Glass");
+		AddMaterial("soda-lime glass", MaterialBehaviourType.Ceramic, 2.5, false, 33000, 90000, 0.0, 1.0, 0.0001, 840, null,
+			"Ceramic", "Glass");
+		AddMaterial("borosilicate glass", MaterialBehaviourType.Ceramic, 2.23, false, 40000, 105000, 0.0, 1.2, 0.0001, 830, null,
+			"Ceramic", "Glass");
+		AddMaterial("lead glass", MaterialBehaviourType.Ceramic, 3.1, false, 30000, 85000, 0.0, 0.8, 0.0001, 500, null,
+			"Ceramic", "Glass");
+		AddMaterial("tempered glass", MaterialBehaviourType.Ceramic, 2.5, false, 55000, 180000, 0.0, 1.0, 0.0001, 840, null,
+			"Ceramic", "Glass");
 		AddMaterial("reinforced concrete", MaterialBehaviourType.Ceramic, 2.9, false, 80000, 350000, 0.0, 0.002, 0.0001,
 			500, null, "Ceramic");
 		AddMaterial("plaster", MaterialBehaviourType.Ceramic, 0.35, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
@@ -7440,36 +7464,46 @@ return IsAdmin(@ch)",
 
 		#region Plastics
 
-		AddMaterial("acrylic", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14, 0.0001, 500, null,
+		AddMaterial("ABS plastic", MaterialBehaviourType.Plastic, 1.04, false, 40000, 90000, 0, 0.18, 0.0001, 1300, null,
+			"Plastic");
+		AddMaterial("acrylic", MaterialBehaviourType.Plastic, 1.18, false, 45000, 95000, 0, 0.19, 0.0001, 1470, null,
 			"Plastic");
 		AddMaterial("acrylic fiber", MaterialBehaviourType.Fabric, 0.975, false, 10000, 25000, 0, 0.14, 0.0001, 500,
 			null, "Plastic", "Synthetic Fiber Fabric");
-		AddMaterial("glass-reinforced plastic", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14,
-			0.0001, 500, null, "Plastic");
-		AddMaterial("low-density polyethylene", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14,
-			0.0001, 500, null, "Plastic");
-		AddMaterial("high-density polyethylene", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14,
-			0.0001, 500, null, "Plastic");
+		AddMaterial("glass-reinforced plastic", MaterialBehaviourType.Plastic, 1.85, false, 70000, 150000, 0, 0.30,
+			0.0001, 900, null, "Plastic");
+		AddMaterialAliases("glass-reinforced plastic", "grp", "frp");
+		AddMaterial("low-density polyethylene", MaterialBehaviourType.Plastic, 0.92, false, 10000, 22000, 0, 0.33,
+			0.0001, 1900, null, "Plastic");
+		AddMaterialAliases("low-density polyethylene", "ldpe");
+		AddMaterial("high-density polyethylene", MaterialBehaviourType.Plastic, 0.95, false, 26000, 60000, 0, 0.48,
+			0.0001, 1900, null, "Plastic");
+		AddMaterialAliases("high-density polyethylene", "hdpe");
 		AddMaterial("melamine formaldehyde", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14, 0.0001,
 			500, null, "Plastic");
 		AddMaterial("microfiber", MaterialBehaviourType.Fabric, 1.35, false, 10000, 25000, 0, 0.14, 0.0001, 500, null,
 			"Plastic", "Synthetic Fiber Fabric");
 		AddMaterial("nylon", MaterialBehaviourType.Fabric, 1.3, false, 10000, 25000, 0, 0.14, 0.0001, 500, null,
 			"Plastic", "Synthetic Fiber Fabric");
-		AddMaterial("polyethylene terephthalate", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14,
-			0.0001, 500, null, "Plastic");
+		AddMaterial("polycarbonate", MaterialBehaviourType.Plastic, 1.2, false, 65000, 140000, 0, 0.20, 0.0001, 1200, null,
+			"Plastic");
+		AddMaterial("polyethylene terephthalate", MaterialBehaviourType.Plastic, 1.38, false, 55000, 120000, 0, 0.24,
+			0.0001, 1200, null, "Plastic");
+		AddMaterialAliases("polyethylene terephthalate", "pet", "pete");
 		AddMaterial("polyester", MaterialBehaviourType.Fabric, 1.3, false, 10000, 25000, 0, 0.14, 0.0001, 500, null,
 			"Plastic", "Synthetic Fiber Fabric");
 		AddMaterial("poly-cotton blend", MaterialBehaviourType.Fabric, 1.3, false, 10000, 25000, 0, 0.14, 0.0001, 500,
 			null, "Plastic", "Blended Fiber Fabric");
-		AddMaterial("polypropylene", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14, 0.0001, 500,
+		AddMaterial("polypropylene", MaterialBehaviourType.Plastic, 0.90, false, 25000, 55000, 0, 0.22, 0.0001, 1900,
 			null, "Plastic");
+		AddMaterialAliases("polypropylene", "pp");
 		AddMaterial("polystyrene", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14, 0.0001, 500,
 			null, "Plastic");
 		AddMaterial("polyurethane", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14, 0.0001, 500,
 			null, "Plastic");
-		AddMaterial("polyvinyl chloride", MaterialBehaviourType.Plastic, 0.975, false, 10000, 25000, 0, 0.14, 0.0001,
-			500, null, "Plastic");
+		AddMaterial("polyvinyl chloride", MaterialBehaviourType.Plastic, 1.38, false, 18000, 40000, 0, 0.19, 0.0001,
+			900, null, "Plastic");
+		AddMaterialAliases("polyvinyl chloride", "pvc");
 		AddMaterial("spandex", MaterialBehaviourType.Fabric, 1.15, false, 10000, 25000, 0, 0.14, 0.0001, 500, null,
 			"Plastic", "Synthetic Fiber Fabric");
 		AddMaterial("synthetic rubber", MaterialBehaviourType.Elastomer, 0.975, false, 10000, 25000, 0, 0.14, 0.0001,

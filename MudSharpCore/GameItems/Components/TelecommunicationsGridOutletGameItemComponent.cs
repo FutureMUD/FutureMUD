@@ -15,53 +15,54 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Components;
 
-public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, ICanConnectToTelecommunicationsGrid,
-	IConnectable, IConsumePower, IProducePower
+public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, IConnectable, IProducePower,
+	IConsumePower, ICanConnectToTelecommunicationsGrid, ITelephoneNumberOwner
 {
 	private readonly List<Tuple<ConnectorType, IConnectable>> _connectedItems = [];
 	private readonly List<Tuple<long, ConnectorType>> _pendingLoadTimeConnections = [];
 	private readonly List<Tuple<long, ConnectorType>> _pendingDependentLoadTimeConnections = [];
-	private TelecommunicationsGridFeederGameItemComponentProto _prototype;
+	private readonly List<IConsumePower> _connectedConsumers = [];
+	private readonly List<IConsumePower> _powerUsers = [];
+	private TelecommunicationsGridOutletGameItemComponentProto _prototype;
 	private ITelecommunicationsGrid? _grid;
-	private IProducePower? _connectedPowerSource;
-	private ConnectorType? _connectedPowerSourceConnector;
+	private bool _powered;
+	private string? _phoneNumber;
+	private string? _preferredNumber;
+	private bool _allowSharedNumber;
 
 	public override IGameItemComponentProto Prototype => _prototype;
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
 	{
-		_prototype = (TelecommunicationsGridFeederGameItemComponentProto)newProto;
+		_prototype = (TelecommunicationsGridOutletGameItemComponentProto)newProto;
 	}
 
-	public TelecommunicationsGridFeederGameItemComponent(TelecommunicationsGridFeederGameItemComponentProto proto,
-		IGameItem parent, bool temporary = false) : base(parent, proto, temporary)
+	public TelecommunicationsGridOutletGameItemComponent(
+		TelecommunicationsGridOutletGameItemComponentProto proto, IGameItem parent, bool temporary = false)
+		: base(parent, proto, temporary)
 	{
 		_prototype = proto;
-		parent.OnConnected += Parent_OnConnected;
-		parent.OnDisconnected += Parent_OnDisconnected;
 	}
 
-	public TelecommunicationsGridFeederGameItemComponent(Models.GameItemComponent component,
-		TelecommunicationsGridFeederGameItemComponentProto proto, IGameItem parent) : base(component, parent)
+	public TelecommunicationsGridOutletGameItemComponent(Models.GameItemComponent component,
+		TelecommunicationsGridOutletGameItemComponentProto proto, IGameItem parent) : base(component, parent)
 	{
 		_prototype = proto;
 		_noSave = true;
 		LoadFromXml(XElement.Parse(component.Definition));
 		_noSave = false;
-		parent.OnConnected += Parent_OnConnected;
-		parent.OnDisconnected += Parent_OnDisconnected;
 	}
 
-	public TelecommunicationsGridFeederGameItemComponent(TelecommunicationsGridFeederGameItemComponent rhs,
+	public TelecommunicationsGridOutletGameItemComponent(TelecommunicationsGridOutletGameItemComponent rhs,
 		IGameItem newParent, bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
-		newParent.OnConnected += Parent_OnConnected;
-		newParent.OnDisconnected += Parent_OnDisconnected;
 	}
 
 	private void LoadFromXml(XElement root)
 	{
+		_preferredNumber = root.Element("PreferredNumber")?.Value;
+		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
 		var element = root.Element("ConnectedItems");
 		if (element != null)
 		{
@@ -86,13 +87,15 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
-		return new TelecommunicationsGridFeederGameItemComponent(this, newParent, temporary);
+		return new TelecommunicationsGridOutletGameItemComponent(this, newParent, temporary);
 	}
 
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
 			new XElement("Grid", TelecommunicationsGrid?.Id ?? 0),
+			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
+			new XElement("AllowSharedNumber", _allowSharedNumber),
 			new XElement("ConnectedItems",
 				from item in ConnectedItems
 				select new XElement("Item",
@@ -163,8 +166,8 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 		sb.AppendLine(description);
 		sb.AppendLine(
 			$"It has {(_prototype.Connections.Count == 1 ? "a connector" : "connectors")} of type {_prototype.Connections.Select(x => $"{x.ConnectionType.Colour(Telnet.Green)} ({Gendering.Get(x.Gender).GenderClass(true)})").ListToString()}.");
-		sb.AppendLine(
-			$"It is {(ProducingPower ? "feeding power into the telecommunications grid".ColourValue() : "not currently feeding the telecommunications grid".ColourError())}.");
+		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
+		sb.AppendLine($"It is {(ProducingPower ? "powered".ColourValue() : "not powered".ColourError())}.");
 		foreach (var item in ConnectedItems)
 		{
 			sb.AppendLine(
@@ -172,6 +175,30 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 		}
 
 		return sb.ToString();
+	}
+
+	public string? PhoneNumber => _phoneNumber;
+
+	public string? PreferredNumber
+	{
+		get => _preferredNumber;
+		set
+		{
+			_preferredNumber = string.IsNullOrWhiteSpace(value) ? null : value;
+			Changed = true;
+			TelecommunicationsGrid?.RequestNumber(this, _preferredNumber, _allowSharedNumber);
+		}
+	}
+
+	public bool AllowSharedNumber
+	{
+		get => _allowSharedNumber;
+		set
+		{
+			_allowSharedNumber = value;
+			Changed = true;
+			TelecommunicationsGrid?.RequestNumber(this, _preferredNumber, _allowSharedNumber);
+		}
 	}
 
 	public ITelecommunicationsGrid? TelecommunicationsGrid
@@ -184,19 +211,204 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 				return;
 			}
 
-			_grid?.LeaveGrid((IProducePower)this);
+			_grid?.LeaveGrid((ITelephoneNumberOwner)this);
+			_grid?.LeaveGrid((IConsumePower)this);
 			_grid = value;
-			_grid?.JoinGrid((IProducePower)this);
+			_grid?.JoinGrid((ITelephoneNumberOwner)this);
+			_grid?.JoinGrid((IConsumePower)this);
 			Changed = true;
 		}
 	}
 
-	public override void Delete()
+	public IEnumerable<ITelephone> ConnectedTelephones =>
+		ConnectedItems.Select(x => x.Item2.Parent.GetItemType<ITelephone>())
+		              .Where(x => x != null)
+		              .Cast<ITelephone>()
+		              .Distinct()
+		              .ToList();
+
+	public void AssignPhoneNumber(string? number)
 	{
-		base.Delete();
-		Parent.OnConnected -= Parent_OnConnected;
-		Parent.OnDisconnected -= Parent_OnDisconnected;
-		TelecommunicationsGrid = null;
+		_phoneNumber = number;
+		Changed = true;
+	}
+
+	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
+	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
+
+	public IEnumerable<ConnectorType> FreeConnections
+	{
+		get
+		{
+			var remaining = new List<ConnectorType>(Connections);
+			foreach (var item in ConnectedItems)
+			{
+				remaining.Remove(item.Item1);
+			}
+
+			return remaining;
+		}
+	}
+
+	public bool Independent => true;
+	public bool CanBeConnectedTo(IConnectable other) => true;
+
+	public bool CanConnect(ICharacter actor, IConnectable other)
+	{
+		return FreeConnections.Any() &&
+		       other.FreeConnections.Any() &&
+		       other.FreeConnections.Any(x => Connections.Any(x.CompatibleWith)) &&
+		       other.CanBeConnectedTo(this);
+	}
+
+	public void Connect(ICharacter actor, IConnectable other)
+	{
+		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
+		if (connection == null)
+		{
+			return;
+		}
+
+		RawConnect(other, connection);
+		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+		Changed = true;
+	}
+
+	public void RawConnect(IConnectable other, ConnectorType type)
+	{
+		_connectedItems.Add(Tuple.Create(type, other));
+		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+		Parent.ConnectedItem(other, type);
+		Changed = true;
+	}
+
+	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	{
+		if (!FreeConnections.Any())
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the former has no free connection points.";
+		}
+
+		if (!other.FreeConnections.Any())
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the latter has no free connection points.";
+		}
+
+		if (!other.FreeConnections.Any(x => Connections.Any(x.CompatibleWith)))
+		{
+			return
+				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as none of the free connection points are compatible.";
+		}
+
+		return !other.CanBeConnectedTo(this)
+			? $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as that item cannot be connected to."
+			: $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} for an unknown reason.";
+	}
+
+	public bool CanDisconnect(ICharacter actor, IConnectable other) => _connectedItems.Any(x => x.Item2 == other);
+
+	public void Disconnect(ICharacter actor, IConnectable other)
+	{
+		RawDisconnect(other, true);
+	}
+
+	public void RawDisconnect(IConnectable other, bool handleEvents)
+	{
+		if (handleEvents)
+		{
+			other.RawDisconnect(this, false);
+			foreach (var connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+			{
+				Parent.DisconnectedItem(other, connection.Item1);
+				other.Parent.DisconnectedItem(this, connection.Item1);
+			}
+		}
+
+		_connectedItems.RemoveAll(x => x.Item2 == other);
+		Changed = true;
+	}
+
+	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _connectedItems.All(x => x.Item2 != other)
+			? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
+			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
+	}
+
+	public bool CanBeDisconnectedFrom(IConnectable other) => true;
+
+	public bool PrimaryLoadTimePowerProducer => false;
+	public bool PrimaryExternalConnectionPowerProducer => true;
+	public double FuelLevel => 1.0;
+	public double MaximumPowerInWatts =>
+		TelecommunicationsGrid != null ? TelecommunicationsGrid.TotalSupply - TelecommunicationsGrid.TotalDrawdown : 0.0;
+
+	public void BeginDrawdown(IConsumePower item)
+	{
+		if (_connectedConsumers.Contains(item))
+		{
+			return;
+		}
+
+		_connectedConsumers.Add(item);
+		if (ProducingPower)
+		{
+			if (!_powerUsers.Contains(item))
+			{
+				_powerUsers.Add(item);
+				item.OnPowerCutIn();
+			}
+		}
+
+		TelecommunicationsGrid?.RecalculateGrid();
+	}
+
+	public void EndDrawdown(IConsumePower item)
+	{
+		if (!_connectedConsumers.Remove(item))
+		{
+			return;
+		}
+
+		if (_powerUsers.Remove(item))
+		{
+			item.OnPowerCutOut();
+		}
+		TelecommunicationsGrid?.RecalculateGrid();
+	}
+
+	public bool CanBeginDrawDown(double wattage) => true;
+	public bool CanDrawdownSpike(double wattage) => ProducingPower;
+
+	public bool DrawdownSpike(double wattage)
+	{
+		return ProducingPower && (TelecommunicationsGrid?.DrawdownSpike(wattage) ?? false);
+	}
+
+	public bool ProducingPower => TelecommunicationsGrid != null && _powered;
+	public double PowerConsumptionInWatts => _powerUsers.Sum(x => x.PowerConsumptionInWatts);
+
+	public void OnPowerCutIn()
+	{
+		_powered = true;
+		foreach (var item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
+		{
+			_powerUsers.Add(item);
+			item.OnPowerCutIn();
+		}
+	}
+
+	public void OnPowerCutOut()
+	{
+		_powered = false;
+		foreach (var item in _powerUsers.ToList())
+		{
+			item.OnPowerCutOut();
+		}
+
+		_powerUsers.Clear();
 	}
 
 	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
@@ -270,204 +482,24 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 		return true;
 	}
 
-	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
-	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
-
-	public IEnumerable<ConnectorType> FreeConnections
+	public override void Delete()
 	{
-		get
+		base.Delete();
+		TelecommunicationsGrid = null;
+		foreach (var item in _powerUsers.ToList())
 		{
-			var remaining = new List<ConnectorType>(Connections);
-			foreach (var item in ConnectedItems)
-			{
-				remaining.Remove(item.Item1);
-			}
-
-			return remaining;
-		}
-	}
-
-	public bool Independent => true;
-	public bool CanBeConnectedTo(IConnectable other) => true;
-
-	public bool CanConnect(ICharacter actor, IConnectable other)
-	{
-		return FreeConnections.Any() &&
-		       other.FreeConnections.Any() &&
-		       other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)) &&
-		       other.CanBeConnectedTo(this);
-	}
-
-	public void Connect(ICharacter actor, IConnectable other)
-	{
-		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
-		if (connection == null)
-		{
-			return;
+			item.OnPowerCutOut();
 		}
 
-		RawConnect(other, connection);
-		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
-		Changed = true;
-	}
-
-	public void RawConnect(IConnectable other, ConnectorType type)
-	{
-		_connectedItems.Add(Tuple.Create(type, other));
-		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		Parent.ConnectedItem(other, type);
-		Changed = true;
-	}
-
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
-	{
-		if (!FreeConnections.Any())
-		{
-			return
-				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the former has no free connection points.";
-		}
-
-		if (!other.FreeConnections.Any())
-		{
-			return
-				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the latter has no free connection points.";
-		}
-
-		if (!other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)))
-		{
-			return
-				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as none of the free connection points are compatible.";
-		}
-
-		return !other.CanBeConnectedTo(this)
-			? $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as that item cannot be connected to."
-			: $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} for an unknown reason.";
-	}
-
-	public bool CanDisconnect(ICharacter actor, IConnectable other)
-	{
-		return _connectedItems.Any(x => x.Item2 == other);
-	}
-
-	public void Disconnect(ICharacter actor, IConnectable other)
-	{
-		RawDisconnect(other, true);
-	}
-
-	public void RawDisconnect(IConnectable other, bool handleEvents)
-	{
-		if (handleEvents)
-		{
-			other.RawDisconnect(this, false);
-			foreach (var connection in _connectedItems.Where(x => x.Item2 == other).ToList())
-			{
-				Parent.DisconnectedItem(other, connection.Item1);
-				other.Parent.DisconnectedItem(this, connection.Item1);
-			}
-		}
-
-		_connectedItems.RemoveAll(x => x.Item2 == other);
-		Changed = true;
-	}
-
-	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
-	{
-		return _connectedItems.All(x => x.Item2 != other)
-			? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
-			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
-	}
-
-	public bool CanBeDisconnectedFrom(IConnectable other) => true;
-
-	public bool PrimaryLoadTimePowerProducer => false;
-	public bool PrimaryExternalConnectionPowerProducer => false;
-	public double FuelLevel => _connectedPowerSource?.FuelLevel ?? 0.0;
-	public double MaximumPowerInWatts => _connectedPowerSource?.MaximumPowerInWatts ?? 0.0;
-	public bool ProducingPower => _connectedPowerSource?.ProducingPower ?? false;
-
-	public void BeginDrawdown(IConsumePower item)
-	{
-	}
-
-	public void EndDrawdown(IConsumePower item)
-	{
-	}
-
-	public bool CanBeginDrawDown(double wattage)
-	{
-		return _connectedPowerSource?.CanBeginDrawDown(wattage) ?? false;
-	}
-
-	public bool CanDrawdownSpike(double wattage)
-	{
-		return _connectedPowerSource?.CanDrawdownSpike(wattage) ?? false;
-	}
-
-	public bool DrawdownSpike(double wattage)
-	{
-		return _connectedPowerSource?.DrawdownSpike(wattage) ?? false;
-	}
-
-	public double PowerConsumptionInWatts => _connectedPowerSource?.MaximumPowerInWatts ?? 0.0;
-
-	public void OnPowerCutIn()
-	{
-		TelecommunicationsGrid?.RecalculateGrid();
-	}
-
-	public void OnPowerCutOut()
-	{
-		TelecommunicationsGrid?.RecalculateGrid();
-	}
-
-	private void Parent_OnConnected(IConnectable other, ConnectorType type)
-	{
-		if (!type.Powered)
-		{
-			return;
-		}
-
-		var power = other.Parent.GetItemTypes<IProducePower>()
-		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
-		if (power == null)
-		{
-			return;
-		}
-
-		_connectedPowerSource = power;
-		_connectedPowerSourceConnector = type;
-		power.BeginDrawdown(this);
-	}
-
-	private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
-	{
-		if (other.Parent != _connectedPowerSource?.Parent || _connectedPowerSourceConnector?.Equals(type) != true)
-		{
-			return;
-		}
-
-		if (_connectedPowerSource.ProducingPower)
-		{
-			OnPowerCutOut();
-		}
-
-		_connectedPowerSource.EndDrawdown(this);
-		_connectedPowerSource = null;
-		_connectedPowerSourceConnector = null;
+		_powerUsers.Clear();
+		_connectedConsumers.Clear();
 	}
 
 	string ICanConnectToGrid.GridType => "Telecommunications";
 
-	IGrid ICanConnectToGrid.Grid
+	IGrid? ICanConnectToGrid.Grid
 	{
 		get => TelecommunicationsGrid;
 		set => TelecommunicationsGrid = value as ITelecommunicationsGrid;
-	}
-
-	ITelecommunicationsGrid? ICanConnectToTelecommunicationsGrid.TelecommunicationsGrid
-	{
-		get => TelecommunicationsGrid;
-		set => TelecommunicationsGrid = value;
 	}
 }

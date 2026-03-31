@@ -77,6 +77,11 @@ Common examples:
 - `IImplant`
 - `IProsthetic`
 
+Telecommunications components are a special case of connected location behaviour:
+- wired handsets may be physically present in a room or inventory while functionally depending on a connected telecom outlet
+- a connected outlet can own the number and grid-service state that the handset presents to players
+- cell towers project service to zones rather than directly to adjacent inventory or containment relationships
+
 Connector-aware items often need to describe both sides of their integration:
 - a component like a telephone may show the telecommunications grid it is attached to and the device it is physically plugged into
 - a liquid pump may need to describe the source container, destination container, and power source all at once
@@ -141,6 +146,8 @@ Items and components can be discovered and manipulated through FutureProg-facing
 
 Variable-driven items are a common integration point between item content and scripting.
 
+Telecommunications items also expose scripting hooks through item and endpoint queries such as current phone number and shared-number policy, which allows crafting or project systems to assign, clear, or reconfigure telephone numbers at runtime. The same runtime scripting surface applies to cellular handsets and implant telephones, even though implant telephones present their user interaction through neural-interface status and command flows instead of direct room manipulation.
+
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.
 
@@ -173,3 +180,4 @@ When troubleshooting strange item behaviour, always verify whether one of these 
 - If a feature is mostly about room clutter and presentation, consider item groups before inventing bespoke logic.
 - If a feature is cosmetic-only, consider skins before cloning prototypes.
 - If a feature touches health, magic, or scripted behaviour, document the integration explicitly rather than treating it as incidental.
+- If a feature represents a networked device, decide what description state players need to see: power, number, grid membership, signal coverage, off-hook state, ringing state, and connected peers are all presentation concerns rather than purely backend details.

@@ -20,7 +20,7 @@ At runtime:
 - `IGameItemComponent` adds a concrete slice of runtime behaviour to a live item.
 - `IGameItemComponentProto` is the revisioned, reusable definition for a component.
 
-Most gameplay-facing item behaviour is discovered by checking whether an item contains a component that implements some public interface such as `IContainer`, `IWearable`, `IMeleeWeapon`, `IProduceLight`, or `IImplant`.
+Most gameplay-facing item behaviour is discovered by checking whether an item contains a component that implements some public interface such as `IContainer`, `IWearable`, `IMeleeWeapon`, `IProduceLight`, `ITelephone`, `ICellPhoneTower`, or `IImplant`.
 
 ## Recommended Reading Order
 1. Start with [Item System Runtime Model](./Item_System_Runtime_Model.md) if you need to understand how items actually work.
@@ -30,5 +30,6 @@ Most gameplay-facing item behaviour is discovered by checking whether an item co
 
 ## Important Notes
 - The fastest way to add a new item capability is usually to add a new component prototype and component pair, not a new `GameItem` subclass.
+- Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
 - The `Item Templates/GameItem` template is intended to be a starting skeleton, not a complete implementation. The authoring document calls out the manual work the template does not solve.
 - Some component types are special cases. For example, `Holdable` is a read-only auto-initialised component type and should be treated differently from ordinary editable component prototypes.

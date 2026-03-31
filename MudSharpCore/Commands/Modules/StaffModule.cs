@@ -2727,7 +2727,7 @@ You can use the following subcommands with the grid command:
 	#3grid expand <grid#> <direction>#0 - expands a grid in a direction
 	#3grid withdraw <grid#>#0 removes the current location from the specified grid
 	#3grid connect <thing> <grid#>#0 - connects a grid-interfacing item to a grid
-	#3grid setnumber <phone> <number|auto>#0 - reserves a specific telecommunications number for a phone";
+	#3grid setnumber <phone> <number|auto> [shared|exclusive]#0 - reserves a specific telecommunications number for a phone or telecom endpoint";
 
 	[PlayerCommand("Grid", "grid")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -2835,25 +2835,46 @@ You can use the following subcommands with the grid command:
 			return;
 		}
 
-		var phone = target.GetItemType<ITelephone>();
-		if (phone == null)
+		var owner = target.GetItemType<ITelephoneNumberOwner>() ?? target.GetItemType<ITelephone>()?.NumberOwner;
+		if (owner == null)
 		{
-			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not a telephone.");
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} does not have a telephone number endpoint.");
 			return;
 		}
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("What number do you want to assign to that phone? Use auto to clear any preferred number.");
+			actor.OutputHandler.Send(
+				"What number do you want to assign to that endpoint? Use auto to clear any preferred number.");
 			return;
 		}
 
-		var numberText = ss.SafeRemainingArgument;
+		var numberText = ss.PopSpeech();
+		var sharedMode = owner.AllowSharedNumber;
+		if (!ss.IsFinished)
+		{
+			switch (ss.PopSpeech().ToLowerInvariant())
+			{
+				case "shared":
+					sharedMode = true;
+					break;
+				case "exclusive":
+				case "single":
+				case "normal":
+					sharedMode = false;
+					break;
+				default:
+					actor.OutputHandler.Send("You can optionally specify shared or exclusive after the number.");
+					return;
+			}
+		}
+
 		if (numberText.EqualTo("auto"))
 		{
-			phone.PreferredNumber = null;
+			owner.AllowSharedNumber = sharedMode;
+			owner.PreferredNumber = null;
 			actor.OutputHandler.Send(
-				$"You clear any preferred phone number for {target.HowSeen(actor)}.{(phone.PhoneNumber == null ? "" : $" It is now using {phone.PhoneNumber.ColourValue()}.")}");
+				$"You clear any preferred phone number for {target.HowSeen(actor)}.{(owner.PhoneNumber == null ? "" : $" It is now using {owner.PhoneNumber.ColourValue()}.")}");
 			return;
 		}
 
@@ -2864,17 +2885,18 @@ You can use the following subcommands with the grid command:
 			return;
 		}
 
-		if (phone.TelecommunicationsGrid != null &&
-		    phone.TelecommunicationsGrid.TryResolvePhone(normalised, out var existingPhone) &&
-		    existingPhone != phone)
+		if (owner.TelecommunicationsGrid != null &&
+		    !owner.TelecommunicationsGrid.RequestNumber(owner, normalised, sharedMode, false))
 		{
-			actor.OutputHandler.Send("That number is already assigned to another phone on the same telecommunications grid.");
+			actor.OutputHandler.Send(
+				"That number is already assigned to another endpoint on the same telecommunications grid.");
 			return;
 		}
 
-		phone.PreferredNumber = normalised;
+		owner.AllowSharedNumber = sharedMode;
+		owner.PreferredNumber = normalised;
 		actor.OutputHandler.Send(
-			$"You set the preferred number for {target.HowSeen(actor)} to {normalised.ColourValue()}.{(phone.PhoneNumber == null ? "" : $" It is now using {phone.PhoneNumber.ColourValue()}.")}");
+			$"You set the preferred number for {target.HowSeen(actor)} to {normalised.ColourValue()} ({(sharedMode ? "shared".ColourValue() : "exclusive".ColourCommand())}).{(owner.PhoneNumber == null ? "" : $" It is now using {owner.PhoneNumber.ColourValue()}.")}");
 	}
 
 	private static void GridWithdraw(ICharacter actor, StringStack ss)

@@ -613,7 +613,7 @@ If you care about getting grammatically correct echoes to yourself (for log purp
 
 	[PlayerCommand("Dial", "dial")]
 	[HelpInfo("dial",
-		@"The #3dial#0 command is used to place a call on a connected telephone. Once the other party answers, use #3transmitwith <phone> <message>#0 to speak over the line.
+		@"The #3dial#0 command is used to place a call on a connected telephone. Once the other party answers, use #3transmitwith <phone> <message>#0 to speak over the line. If the destination is already off the hook you will get a busy signal and remain off the hook until you #3hangup#0 or dial another number.
 
 The syntax is:
 
@@ -628,24 +628,9 @@ The syntax is:
 			return;
 		}
 
-		var item = actor.TargetItem(ss.PopSpeech());
-		if (item == null)
-		{
-			actor.OutputHandler.Send("You do not see any telephone like that to use.");
-			return;
-		}
-
-		var (truth, error) = actor.CanManipulateItem(item);
-		if (!truth)
+		if (!TryGetTelephone(actor, ss.PopSpeech(), "use", out var item, out var telephone, out var error))
 		{
 			actor.OutputHandler.Send(error);
-			return;
-		}
-
-		var telephone = item.GetItemType<ITelephone>();
-		if (telephone == null)
-		{
-			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a telephone.");
 			return;
 		}
 
@@ -683,24 +668,9 @@ The syntax is:
 			return;
 		}
 
-		var item = actor.TargetItem(ss.SafeRemainingArgument);
-		if (item == null)
-		{
-			actor.OutputHandler.Send("You do not see any telephone like that to answer.");
-			return;
-		}
-
-		var (truth, error) = actor.CanManipulateItem(item);
-		if (!truth)
+		if (!TryGetTelephone(actor, ss.SafeRemainingArgument, "answer", out var item, out var telephone, out var error))
 		{
 			actor.OutputHandler.Send(error);
-			return;
-		}
-
-		var telephone = item.GetItemType<ITelephone>();
-		if (telephone == null)
-		{
-			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a telephone.");
 			return;
 		}
 
@@ -714,9 +684,42 @@ The syntax is:
 			$"You answer {item.HowSeen(actor).ColourName()}.");
 	}
 
+	[PlayerCommand("PickUp", "pickup")]
+	[HelpInfo("pickup",
+		@"The #3pickup#0 command is used to take a telephone off the hook without dialling. This will also answer or join a live call on the same line if one is present. Leaving a phone off the hook prevents incoming calls.
+
+The syntax is:
+
+	#3pickup <phone>#0", AutoHelp.HelpArgOrNoArg)]
+	[RequiredCharacterState(CharacterState.Able)]
+	protected static void PickUp(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which telephone do you want to pick up?");
+			return;
+		}
+
+		if (!TryGetTelephone(actor, ss.SafeRemainingArgument, "pick up", out var item, out var telephone,
+			    out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (!telephone.PickUp(actor, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		actor.OutputHandler.Send($"You pick up {item.HowSeen(actor).ColourName()}.");
+	}
+
 	[PlayerCommand("HangUp", "hangup")]
 	[HelpInfo("hangup",
-		@"The #3hangup#0 command is used to end a call or stop a ringing telephone.
+		@"The #3hangup#0 command is used to end a call, stop a ringing telephone, or put an off-hook telephone back on the hook.
 
 The syntax is:
 
@@ -731,24 +734,10 @@ The syntax is:
 			return;
 		}
 
-		var item = actor.TargetItem(ss.SafeRemainingArgument);
-		if (item == null)
-		{
-			actor.OutputHandler.Send("You do not see any telephone like that to hang up.");
-			return;
-		}
-
-		var (truth, error) = actor.CanManipulateItem(item);
-		if (!truth)
+		if (!TryGetTelephone(actor, ss.SafeRemainingArgument, "hang up", out var item, out var telephone,
+			    out var error))
 		{
 			actor.OutputHandler.Send(error);
-			return;
-		}
-
-		var telephone = item.GetItemType<ITelephone>();
-		if (telephone == null)
-		{
-			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a telephone.");
 			return;
 		}
 
@@ -760,6 +749,36 @@ The syntax is:
 
 		actor.OutputHandler.Send(
 			$"You hang up {item.HowSeen(actor).ColourName()}.");
+	}
+
+	private static bool TryGetTelephone(ICharacter actor, string targetText, string verb, out IGameItem item,
+		out ITelephone telephone, out string error)
+	{
+		item = actor.TargetItem(targetText);
+		if (item == null)
+		{
+			telephone = null;
+			error = $"You do not see any telephone like that to {verb}.";
+			return false;
+		}
+
+		var (truth, manipulationError) = actor.CanManipulateItem(item);
+		if (!truth)
+		{
+			telephone = null;
+			error = manipulationError;
+			return false;
+		}
+
+		telephone = item.GetItemType<ITelephone>();
+		if (telephone == null)
+		{
+			error = $"{item.HowSeen(actor, true)} is not a telephone.";
+			return false;
+		}
+
+		error = string.Empty;
+		return true;
 	}
 
 	[PlayerCommand("Tell", "tell", "sayto")]

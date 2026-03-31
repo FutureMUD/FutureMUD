@@ -15,20 +15,19 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TelecommunicationsGridFeederGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class TelecommunicationsGridOutletGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
 {
-	public override string TypeDescription => "TelecommunicationsGridFeeder";
+	public override string TypeDescription => "TelecommunicationsGridOutlet";
 	public List<ConnectorType> Connections { get; } = [];
 	IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
-	protected TelecommunicationsGridFeederGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator, "TelecommunicationsGridFeeder")
+	protected TelecommunicationsGridOutletGameItemComponentProto(IFuturemud gameworld, IAccount originator)
+		: base(gameworld, originator, "TelecommunicationsGridOutlet")
 	{
-		Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Male,
-			Gameworld.GetStaticConfiguration("DefaultPowerSocketType"), true));
+		Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Female, "telephone", true));
 	}
 
-	protected TelecommunicationsGridFeederGameItemComponentProto(Models.GameItemComponentProto proto,
+	protected TelecommunicationsGridOutletGameItemComponentProto(Models.GameItemComponentProto proto,
 		IFuturemud gameworld) : base(proto, gameworld)
 	{
 	}
@@ -38,16 +37,14 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 		var element = root.Element("Connectors");
 		if (element == null)
 		{
-			Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Male,
-				Gameworld.GetStaticConfiguration("DefaultPowerSocketType"), true));
+			Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Female, "telephone", true));
 			return;
 		}
 
 		foreach (var item in element.Elements("Connection"))
 		{
-			Connections.Add(new ConnectorType(
-				(MudSharp.Form.Shape.Gender)Convert.ToSByte(item.Attribute("gender")?.Value ?? "0"),
-				item.Attribute("type")?.Value ?? Gameworld.GetStaticConfiguration("DefaultPowerSocketType"),
+			Connections.Add(new ConnectorType((MudSharp.Form.Shape.Gender)Convert.ToSByte(item.Attribute("gender")?.Value ?? "0"),
+				item.Attribute("type")?.Value ?? "telephone",
 				bool.Parse(item.Attribute("powered")?.Value ?? "true")));
 		}
 	}
@@ -67,33 +64,33 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
 	{
-		return new TelecommunicationsGridFeederGameItemComponent(this, parent, temporary);
+		return new TelecommunicationsGridOutletGameItemComponent(this, parent, temporary);
 	}
 
 	public override IGameItemComponent LoadComponent(Models.GameItemComponent component, IGameItem parent)
 	{
-		return new TelecommunicationsGridFeederGameItemComponent(component, this, parent);
+		return new TelecommunicationsGridOutletGameItemComponent(component, this, parent);
 	}
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
-		manager.AddBuilderLoader("TelecommunicationsGridFeeder".ToLowerInvariant(), true,
-			(gameworld, account) => new TelecommunicationsGridFeederGameItemComponentProto(gameworld, account));
-		manager.AddBuilderLoader("Telecommunications Grid Feeder".ToLowerInvariant(), false,
-			(gameworld, account) => new TelecommunicationsGridFeederGameItemComponentProto(gameworld, account));
+		manager.AddBuilderLoader("TelecommunicationsGridOutlet".ToLowerInvariant(), true,
+			(gameworld, account) => new TelecommunicationsGridOutletGameItemComponentProto(gameworld, account));
+		manager.AddBuilderLoader("Telecommunications Grid Outlet".ToLowerInvariant(), false,
+			(gameworld, account) => new TelecommunicationsGridOutletGameItemComponentProto(gameworld, account));
 		manager.AddTypeHelpInfo(
-			"TelecommunicationsGridFeeder",
-			$"Item lets {"[powered]".Colour(Telnet.BoldMagenta)} sources feed into a {"[telecommunications grid]".Colour(Telnet.BoldBlue)}",
+			"TelecommunicationsGridOutlet",
+			$"Item {"[provides telephone service and grid power]".Colour(Telnet.BoldMagenta)} to connected telecom devices from a {"[telecommunications grid]".Colour(Telnet.BoldBlue)}",
 			BuildingHelpText
 		);
-		manager.AddDatabaseLoader("TelecommunicationsGridFeeder",
-			(proto, gameworld) => new TelecommunicationsGridFeederGameItemComponentProto(proto, gameworld));
+		manager.AddDatabaseLoader("TelecommunicationsGridOutlet",
+			(proto, gameworld) => new TelecommunicationsGridOutletGameItemComponentProto(proto, gameworld));
 	}
 
 	public override IEditableRevisableItem CreateNewRevision(ICharacter initiator)
 	{
 		return CreateNewRevision(initiator,
-			(proto, gameworld) => new TelecommunicationsGridFeederGameItemComponentProto(proto, gameworld));
+			(proto, gameworld) => new TelecommunicationsGridOutletGameItemComponentProto(proto, gameworld));
 	}
 
 	private const string BuildingHelpText =
@@ -108,9 +105,6 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 			case "type":
 			case "connection":
 			case "connection type":
-			case "connector":
-			case "connectors":
-			case "connections":
 				return BuildingCommandConnectionType(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
@@ -121,7 +115,7 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Do you want to add or remove a connection type for this feeder?");
+			actor.Send("Do you want to add or remove a connection type for this outlet?");
 			return false;
 		}
 
@@ -135,7 +129,7 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 			case "delete":
 				return BuildingCommandConnectionTypeRemove(actor, command);
 			default:
-				actor.Send("Do you want to add or remove a connection type for this feeder?");
+				actor.Send("Do you want to add or remove a connection type for this outlet?");
 				return false;
 		}
 	}
@@ -190,7 +184,7 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 		Connections.Add(new ConnectorType(gendering.Enum, type, powered));
 		Changed = true;
 		actor.Send(
-			$"This feeder now has an additional {(powered ? "powered" : "unpowered")} connection of type {type.Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
+			$"This outlet now has an additional {(powered ? "powered" : "unpowered")} connection of type {type.Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
 		return true;
 	}
 
@@ -228,7 +222,7 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 		Connections.Remove(connection);
 		Changed = true;
 		actor.Send(
-			$"This feeder now has one fewer connection of type {type.TitleCase().Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
+			$"This outlet now has one fewer connection of type {type.TitleCase().Colour(Telnet.Green)} and gender {gendering.GenderClass(true).Colour(Telnet.Green)}.");
 		return true;
 	}
 
@@ -241,9 +235,9 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 
 	public override string WhyCannotSubmit()
 	{
-		if (Connections.All(x => x.Gender != MudSharp.Form.Shape.Gender.Male))
+		if (Connections.All(x => x.Gender != MudSharp.Form.Shape.Gender.Female))
 		{
-			return "You must first add at least one male connector type.";
+			return "You must first add at least one female connector type.";
 		}
 
 		return Connections.Count(x => x.Powered && x.Gender == MudSharp.Form.Shape.Gender.Male) > 1
@@ -254,8 +248,8 @@ public class TelecommunicationsGridFeederGameItemComponentProto : GameItemCompon
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item feeds power into a telecommunications grid. It has these connections: {4}.",
-			"Telecommunications Grid Feeder Game Item Component".Colour(Telnet.Cyan),
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item provides a telecommunications outlet with the following connections: {4}.",
+			"Telecommunications Grid Outlet Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,

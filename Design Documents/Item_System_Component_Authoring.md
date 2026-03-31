@@ -133,7 +133,7 @@ Use this rule consistently:
 For example:
 - container capacity belongs on the proto
 - current contents belong on the runtime component
-- connector lists, wattage settings, flow rates, and telecom numbering settings belong on the proto
+- connector lists, wattage settings, flow rates, and telecom numbering preferences belong on the proto
 - live grid membership, connected peers, battery charge, and flowing liquid state belong on the runtime component
 
 ### Connectable item patterns
@@ -146,6 +146,17 @@ That pattern is now used by items such as:
 - electric feeders and power sockets
 
 The important implementation detail is that the proto should expose the builder-editable connector shapes, while the component should restore connected items through `FinaliseLoad()` and react to `Connect` / `Disconnect` events.
+
+### Pattern: telecom devices versus telecom endpoints
+The telephone and cellular implementation is a good reference when a subsystem has to separate "the thing a player uses" from "the thing the network addresses":
+- `ITelephone` models the live handset behaviour such as dialling, ringing, pickup, answer, hangup, and speech relay
+- `ITelephoneNumberOwner` models the addressed endpoint that owns the number on the telecommunications grid
+- a wired handset may delegate numbering to a connected outlet, so moving the handset between outlets can change its number without changing the handset component itself
+- a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
+- an implant telephone also usually implements both roles itself, but it should combine the telecom interfaces with implant-facing ones such as `IImplantReportStatus` and `IImplantRespondToCommands` so the neural command surface stays separate from handheld manipulation
+- if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
+
+When authoring similar systems, decide early whether identity belongs to the device, the connection point, or both.
 
 ## Step 5: Attach the Capability to Item Prototypes
 Once the component proto exists and is current, attach it to item prototypes through builder workflows:

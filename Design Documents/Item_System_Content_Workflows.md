@@ -20,6 +20,14 @@ This is the fastest way to verify:
 Use:
 - `comp edit new <type>`
 
+Telecommunications examples include:
+- `comp edit new telephone`
+- `comp edit new telecommunicationsgridoutlet`
+- `comp edit new telecommunicationsgridfeeder`
+- `comp edit new cellularphone`
+- `comp edit new cellphonetower`
+- `comp edit new implanttelephone`
+
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered
 - the builder loader name is wrong
@@ -93,6 +101,14 @@ Developers should use these to validate:
 - variable-driven item behaviour
 - stackable behaviour
 - skin overrides
+
+For telecommunications content, also validate:
+- whether the phone number belongs to the handset or the connected endpoint
+- whether the device gets power from the correct source
+- whether off-hook and busy-line behaviour match the intended call flow
+- whether shared-number endpoints ring together and let later pickups join the live call
+- whether cellular handsets only work when a powered cell tower on the same telecom grid covers the current zone
+- whether implant telephones are linked to a neural interface, draw implant power correctly, and still obey the same cell-tower coverage rules as other cellular devices
 
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.

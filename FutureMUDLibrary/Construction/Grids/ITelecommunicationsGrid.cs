@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 using MudSharp.Communication.Language;
+using MudSharp.Communication;
 using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Construction.Grids;
@@ -24,6 +25,7 @@ public interface ITelecommunicationsGrid : IGrid
 	void RecalculateGrid();
 	bool DrawdownSpike(double wattage);
 	bool TryStartCall(ITelephone caller, string number, out string error);
+	bool TrySendFax(IFaxMachine sender, string number, IReadOnlyCollection<ICanBeRead> document, out string error);
 	bool TryPickUp(ITelephone phone, out string error);
 	bool TryResolvePhone(string number, out ITelephone? phone);
 	IEnumerable<ITelephoneNumberOwner> GetOwnersForNumber(string number);

@@ -135,6 +135,7 @@ For example:
 - current contents belong on the runtime component
 - connector lists, wattage settings, flow rates, and telecom numbering preferences belong on the proto
 - live grid membership, connected peers, battery charge, and flowing liquid state belong on the runtime component
+- pending inbound fax jobs, printed-page buffers, and current ink or paper state belong on the runtime component even when the machine's telecom and print capabilities are defined by the proto
 - exchange-level telecommunications defaults such as prefix, subscriber digits, and maximum ring count belong to the grid or grid-creator side, not to individual handsets
 - default audible behaviour such as telephone and cellular ring volume belongs on the prototype, while the live component owns the current player-selected ring setting that can diverge at runtime
 
@@ -152,11 +153,13 @@ The important implementation detail is that the proto should expose the builder-
 ### Pattern: telecom devices versus telecom endpoints
 The telephone and cellular implementation is a good reference when a subsystem has to separate "the thing a player uses" from "the thing the network addresses":
 - `ITelephone` models the live handset behaviour such as dialling, ringing, pickup, answer, hangup, and speech relay
+- `IFaxMachine` is the fax-specific companion pattern when a telecom item also scans readable documents, queues inbound traffic, and prints onto physical paper
 - `ITelephoneNumberOwner` models the addressed endpoint that owns the number on the telecommunications grid
 - when persisting telecom state, save and restore the specific endpoint component identity rather than only the parent item identity; this matters when one item hosts multiple telecom endpoints
 - a wired handset may delegate numbering to a connected outlet, so moving the handset between outlets can change its number without changing the handset component itself
 - a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
 - an implant telephone also usually implements both roles itself, but it should combine the telecom interfaces with implant-facing ones such as `IImplantReportStatus` and `IImplantRespondToCommands` so the neural command surface stays separate from handheld manipulation
+- a fax machine usually combines telecom endpoint behaviour with machine-style runtime state such as paper storage, ink usage, and an in-memory queue for inbound faxes that arrived before the printer could physically output them
 - if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
 
 When authoring similar systems, decide early whether identity belongs to the device, the connection point, or both.

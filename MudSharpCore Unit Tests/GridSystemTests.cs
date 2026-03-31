@@ -9,6 +9,7 @@ using Moq;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Character;
+using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Communication.Language.DifficultyModels;
 using MudSharp.Construction;
@@ -358,6 +359,92 @@ public class GridSystemTests
 		Assert.IsTrue(receiver.Answer(null!, out error), error);
 
 		CollectionAssert.Contains(caller.ProgressMessages, "The call connects.");
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_PhoneDiallingFaxLine_PlaysModemNoiseAndDisconnects()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var caller = new TelephoneDouble(gameworld.Object, 1);
+		var fax = new FaxMachineDouble(gameworld.Object, 2);
+
+		caller.TelecommunicationsGrid = grid;
+		fax.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)fax);
+
+		Assert.IsTrue(grid.TryStartCall(caller, fax.PhoneNumber!, out var error), error);
+		CollectionAssert.Contains(caller.ProgressMessages,
+			"The line answers with a burst of unintelligible modem-like noises before disconnecting.");
+		Assert.IsFalse(caller.IsEngaged);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_FaxToFax_DeliversDocument()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var sender = new FaxMachineDouble(gameworld.Object, 1);
+		var receiver = new FaxMachineDouble(gameworld.Object, 2);
+		var document = CreateReadableDocument(120);
+
+		sender.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)sender);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TrySendFax(sender, receiver.PhoneNumber!, [document], out var error), error);
+		Assert.AreEqual(1, receiver.CompletedFaxCount);
+		Assert.AreEqual(0, receiver.PendingFaxCount);
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_FaxToVoiceLine_NotifiesRecipientAndFails()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var sender = new FaxMachineDouble(gameworld.Object, 1);
+		var receiver = new TelephoneDouble(gameworld.Object, 2);
+		var document = CreateReadableDocument(120);
+
+		sender.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)sender);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsFalse(grid.TrySendFax(sender, receiver.PhoneNumber!, [document], out var error));
+		StringAssert.Contains(error, "modem-like noises");
+		CollectionAssert.Contains(receiver.ProgressMessages,
+			"The line erupts with a burst of unintelligible modem-like noises before disconnecting.");
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_FaxQueuesUntilPaperOrInkBecomeAvailable()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateCell().Object, "555", 4);
+		var sender = new FaxMachineDouble(gameworld.Object, 1);
+		var receiver = new FaxMachineDouble(gameworld.Object, 2)
+		{
+			AvailablePages = 0
+		};
+		var document = CreateReadableDocument(120);
+
+		sender.TelecommunicationsGrid = grid;
+		receiver.TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)sender);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+
+		Assert.IsTrue(grid.TrySendFax(sender, receiver.PhoneNumber!, [document], out var error), error);
+		Assert.AreEqual(1, receiver.PendingFaxCount);
+		Assert.AreEqual(0, receiver.CompletedFaxCount);
+
+		receiver.AvailablePages = 1;
+		receiver.ProcessPendingFaxes();
+
+		Assert.AreEqual(0, receiver.PendingFaxCount);
+		Assert.AreEqual(1, receiver.CompletedFaxCount);
 	}
 
 	[TestMethod]
@@ -1036,7 +1123,7 @@ public class GridSystemTests
 		public SupplierState State { get; }
 	}
 
-	private sealed class TelephoneDouble : ITelephone, ITelephoneNumberOwner
+	private class TelephoneDouble : ITelephone, ITelephoneNumberOwner
 	{
 		private readonly IGameItem _parent;
 		private readonly IGameItemComponentProto _prototype;
@@ -1437,5 +1524,103 @@ public class GridSystemTests
 		public IBody HaveABody => null!;
 		public bool WarnBeforePurge => false;
 		public bool ExposeToLiquid(LiquidMixture mixture) => false;
+	}
+
+	private sealed class FaxMachineDouble : TelephoneDouble, IFaxMachine
+	{
+		private readonly List<List<ICanBeRead>> _pendingFaxes = [];
+		private readonly List<List<ICanBeRead>> _completedFaxes = [];
+
+		public FaxMachineDouble(IFuturemud gameworld, long id) : base(gameworld, id)
+		{
+		}
+
+		public bool SupportsVoiceCalls => false;
+		public bool CanReceiveFaxes =>
+			SwitchedOn &&
+			IsPowered &&
+			TelecommunicationsGrid != null &&
+			!string.IsNullOrWhiteSpace(PhoneNumber) &&
+			!IsEngaged &&
+			!IsRinging;
+		public int PendingFaxCount => _pendingFaxes.Count;
+		public int CompletedFaxCount => _completedFaxes.Count;
+		public int AvailablePages { get; set; } = int.MaxValue;
+		public int AvailableInk { get; set; } = int.MaxValue;
+
+		public bool CanSendFax(ICharacter actor, string number, IReadable document, out string error)
+		{
+			if (TelecommunicationsGrid == null)
+			{
+				error = "That fax machine is not connected to a telecommunications grid.";
+				return false;
+			}
+
+			if (!SwitchedOn || !IsPowered || string.IsNullOrWhiteSpace(PhoneNumber))
+			{
+				error = "That fax machine is not ready to send faxes right now.";
+				return false;
+			}
+
+			if (document == null || !document.Readables.Any())
+			{
+				error = "That document has nothing on it to fax.";
+				return false;
+			}
+
+			if (string.IsNullOrWhiteSpace(number))
+			{
+				error = "You must specify a number to fax.";
+				return false;
+			}
+
+			error = string.Empty;
+			return true;
+		}
+
+		public bool SendFax(ICharacter actor, string number, IReadable document, out string error)
+		{
+			if (!CanSendFax(actor, number, document, out error))
+			{
+				return false;
+			}
+
+			return TelecommunicationsGrid!.TrySendFax(this, number, document.Readables.ToList(), out error);
+		}
+
+		public void ReceiveFax(string senderNumber, IReadOnlyCollection<ICanBeRead> document)
+		{
+			_pendingFaxes.Add(document.ToList());
+			ProcessPendingFaxes();
+		}
+
+		public void ProcessPendingFaxes()
+		{
+			foreach (var fax in _pendingFaxes.ToList())
+			{
+				var requiredInk = fax.Sum(x => x.DocumentLength);
+				if (AvailablePages <= 0 || AvailableInk < requiredInk)
+				{
+					break;
+				}
+
+				AvailablePages -= 1;
+				AvailableInk -= requiredInk;
+				_pendingFaxes.Remove(fax);
+				_completedFaxes.Add(fax);
+			}
+		}
+	}
+
+	private static ICanBeRead CreateReadableDocument(int length)
+	{
+		var readable = new Mock<ICanBeRead>();
+		readable.SetupGet(x => x.DocumentLength).Returns(length);
+		readable.SetupGet(x => x.Id).Returns(length);
+		readable.SetupGet(x => x.Name).Returns($"Document {length}");
+		readable.SetupGet(x => x.FrameworkItemType).Returns("Readable");
+		readable.SetupGet(x => x.Author).Returns((ICharacter)null!);
+		readable.SetupGet(x => x.ImplementType).Returns(WritingImplementType.Biro);
+		return readable.Object;
 	}
 }

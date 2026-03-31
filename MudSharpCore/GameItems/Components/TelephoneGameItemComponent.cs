@@ -528,15 +528,15 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public double PowerConsumptionInWatts => _switchedOn ? _prototype.Wattage : 0.0;
 
-    public void OnPowerCutIn()
-    {
-        _powered = true;
-    }
+	public virtual void OnPowerCutIn()
+	{
+		_powered = true;
+	}
 
-    public void OnPowerCutOut()
-    {
-        _powered = false;
-        if (_currentCall != null || _isOffHook)
+	public virtual void OnPowerCutOut()
+	{
+		_powered = false;
+		if (_currentCall != null || _isOffHook)
         {
             EndCall(_currentCall);
         }
@@ -606,7 +606,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 			: $"{Parent.HowSeen(actor, true)} is already off.";
     }
 
-    public bool Switch(ICharacter actor, string setting)
+    public virtual bool Switch(ICharacter actor, string setting)
     {
         if (!CanSwitch(actor, setting))
         {

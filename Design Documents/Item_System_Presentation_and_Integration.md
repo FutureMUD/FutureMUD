@@ -86,6 +86,7 @@ Telecommunications components are a special case of connected location behaviour
 Connector-aware items often need to describe both sides of their integration:
 - a component like a telephone may show the telecommunications grid it is attached to and the device it is physically plugged into
 - telecommunications presentation should also expose exchange-level state that matters to play and operations, such as maximum rings before timeout, linked exchanges, signal coverage, and whether the current number is locally assigned or delegated through an endpoint
+- fax-machine presentation should additionally expose consumable state and deferred work, such as current ink level, current paper reserves, and how many inbound faxes remain queued in memory
 - a liquid pump may need to describe the source container, destination container, and power source all at once
 - a battery-backed item may need to explain both its stored charge and the connector it uses to recharge
 

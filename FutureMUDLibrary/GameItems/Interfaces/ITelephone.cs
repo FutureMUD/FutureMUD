@@ -12,6 +12,7 @@ public interface ITelephone : IGameItemComponent, ITransmit, IReceive, IConsumeP
 	string? PhoneNumber { get; }
 	string? PreferredNumber { get; set; }
 	bool AllowSharedNumber { get; set; }
+	bool SupportsVoiceCalls => true;
 	bool IsPowered { get; }
 	bool IsOffHook { get; }
 	bool CanReceiveCalls { get; }

@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Framework;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Construction.Grids;
@@ -420,7 +421,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			return false;
 		}
 
-		var targetPhones = owners.SelectMany(x => x.ConnectedTelephones)
+		var targetPhones = owners.SelectMany(TelephoneNetworkHelpers.CollectConnectedTelephones)
 		                         .Where(x => x != caller)
 		                         .Distinct()
 		                         .ToList();
@@ -486,7 +487,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		var normalised = Normalise(number);
 		var destinationGrid = ResolveDestinationGrid(normalised, out _);
 		phone = destinationGrid?.GetOwnersForNumber(normalised)
-		                 .SelectMany(x => x.ConnectedTelephones)
+		                 .SelectMany(TelephoneNetworkHelpers.CollectConnectedTelephones)
 		                 .FirstOrDefault();
 		return phone != null;
 	}
@@ -789,6 +790,14 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			{
 				_participants.Add(phone);
 				phone.ConnectCall(this);
+				foreach (var machine in _participants.OfType<IAnsweringMachine>()
+				                                     .Where(x => !ReferenceEquals(x, phone))
+				                                     .Where(x => x.PhoneNumber.EqualTo(Number))
+				                                     .ToList())
+				{
+					machine.EndCall(this);
+				}
+
 				error = string.Empty;
 				return true;
 			}
@@ -831,6 +840,14 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			}
 		}
 
+		public void RelayDigits(ITelephone source, string digits)
+		{
+			foreach (var phone in _participants.Where(x => x != source).ToList())
+			{
+				phone.ReceiveDigits(source, digits);
+			}
+		}
+
 		public void HandleRingHeartbeat()
 		{
 			if (!_ringingPhones.Any())
@@ -847,6 +864,15 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 			_ringCount++;
 			Caller.NotifyCallProgress("You hear the line ringing.");
+			foreach (var machine in _ringingPhones.OfType<IAnsweringMachine>()
+			                                     .Where(x => x.AutoAnswerRings <= _ringCount)
+			                                     .ToList())
+			{
+				if (TryAnswer(machine, out _))
+				{
+					return;
+				}
+			}
 		}
 
 		private void Terminate()

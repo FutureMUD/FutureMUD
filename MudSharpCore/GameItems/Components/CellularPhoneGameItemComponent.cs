@@ -8,6 +8,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction.Grids;
+using MudSharp.Events;
 using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -410,6 +411,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
 	public bool CanDial(ICharacter actor, string number, out string error)
 	{
+		if (_currentCall?.IsConnected == true)
+		{
+			return CanSendDigits(actor, number, out error);
+		}
+
 		if (TelecommunicationsGrid == null)
 		{
 			error = "That telephone is not connected to a telecommunications grid.";
@@ -446,6 +452,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
 	public bool Dial(ICharacter actor, string number, out string error)
 	{
+		if (_currentCall?.IsConnected == true)
+		{
+			return SendDigits(actor, number, out error);
+		}
+
 		if (!CanDial(actor, number, out error))
 		{
 			return false;
@@ -454,6 +465,43 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_isOffHook = true;
 		Changed = true;
 		return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+	}
+
+	public bool CanSendDigits(ICharacter actor, string digits, out string error)
+	{
+		if (_currentCall?.IsConnected != true)
+		{
+			error = "That telephone is not connected to a live call.";
+			return false;
+		}
+
+		if (!IsPowered || !HasCoverage)
+		{
+			error = "That telephone is not ready to send keypad digits right now.";
+			return false;
+		}
+
+		if (!TelephoneNetworkHelpers.TryNormaliseDigits(digits, out _))
+		{
+			error = "You may only send keypad digits from 0-9, * and #.";
+			return false;
+		}
+
+		error = string.Empty;
+		return true;
+	}
+
+	public bool SendDigits(ICharacter actor, string digits, out string error)
+	{
+		if (!CanSendDigits(actor, digits, out error))
+		{
+			return false;
+		}
+
+		var normalised = new string(digits.Where(x => !char.IsWhiteSpace(x)).ToArray());
+		_currentCall!.RelayDigits(this, normalised);
+		error = string.Empty;
+		return true;
 	}
 
 	public bool CanAnswer(ICharacter actor, out string error)
@@ -544,6 +592,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 	public void NotifyCallProgress(string message)
 	{
 		Parent.OutputHandler.Send(message);
+	}
+
+	public void ReceiveDigits(ITelephone source, string digits)
+	{
+		Parent.HandleEvent(EventType.TelephoneDigitsReceived, source.Parent, digits);
 	}
 
 	public void EndCall(ITelephoneCall? call, bool notifyGrid = true)

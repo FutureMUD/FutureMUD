@@ -221,11 +221,9 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 	}
 
 	public IEnumerable<ITelephone> ConnectedTelephones =>
-		ConnectedItems.Select(x => x.Item2.Parent.GetItemType<ITelephone>())
-		              .Where(x => x != null)
-		              .Cast<ITelephone>()
-		              .Distinct()
-		              .ToList();
+		TelephoneNetworkHelpers.CollectConnectedTelephones(this)
+		                       .Distinct()
+		                       .ToList();
 
 	public void AssignPhoneNumber(string? number)
 	{

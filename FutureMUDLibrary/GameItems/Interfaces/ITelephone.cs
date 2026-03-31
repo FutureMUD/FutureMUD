@@ -28,6 +28,8 @@ public interface ITelephone : IGameItemComponent, ITransmit, IReceive, IConsumeP
 	bool PickUp(ICharacter actor, out string error);
 	bool CanDial(ICharacter actor, string number, out string error);
 	bool Dial(ICharacter actor, string number, out string error);
+	bool CanSendDigits(ICharacter actor, string digits, out string error);
+	bool SendDigits(ICharacter actor, string digits, out string error);
 	bool CanAnswer(ICharacter actor, out string error);
 	bool Answer(ICharacter actor, out string error);
 	bool CanHangUp(ICharacter actor, out string error);
@@ -36,5 +38,6 @@ public interface ITelephone : IGameItemComponent, ITransmit, IReceive, IConsumeP
 	void ReceiveIncomingCall(ITelephoneCall call);
 	void ConnectCall(ITelephoneCall call);
 	void EndCall(ITelephoneCall? call, bool notifyGrid = true);
+	void ReceiveDigits(ITelephone source, string digits);
 	void NotifyCallProgress(string message);
 }

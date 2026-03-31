@@ -82,6 +82,12 @@ Some item capabilities are best thought of as paired systems rather than isolate
 
 Those relationships are usually expressed through `IConnectable` plus a domain-specific grid interface such as `ICanConnectToElectricalGrid`, `ICanConnectToLiquidGrid`, or `ICanConnectToTelecommunicationsGrid`.
 
+Some subsystems also need reusable runtime data that is not owned by one concrete item type. Recorded audio is now the reference pattern:
+- immutable audio payloads live in `FutureMUDLibrary/Form/Audio`
+- a recording is an ordered list of utterance segments plus the elapsed delay before each segment
+- each segment snapshots the language id, accent id, raw text, volume, speech outcome, and immutable speaker identity metadata needed to recreate later playback without consulting the speaker's current state
+- the shared model owns XML round-tripping so stage-1 item implementations can persist recordings in ordinary component XML rather than new database tables
+
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:
 - wired handsets implement `ITelephone`, but the active phone number may belong to a separate `ITelephoneNumberOwner` endpoint such as a telecommunications outlet
@@ -94,6 +100,9 @@ Telecommunications items are a useful example of how multiple item capabilities 
 - physical telephones and cellular phones each have an effective ring volume resolved from a prototype default plus the handset's current player-selected ring setting; wired phones expose `quiet`, `normal`, and `loud`, while cellular phones add `silent`
 - silent cellular phones do not emit room audio, but if the handset is tucked into a worn container they can still notify the wearer with a non-audible vibration message; implant telephones remain text-only and silent to the room
 - implant telephones follow the same cellular coverage rules as handheld cellular phones, but they are also implants: they draw power through implant power infrastructure and expose control/status through neural-interface implant commands rather than ordinary handheld room commands
+- answering machines are daisy-chained endpoints: they can sit between an outlet and downstream handsets, expose both themselves and those downstream phones through `ConnectedTelephones`, and locally answer a ringing line before any future hosted voicemail layer
+- active calls now relay both speech and explicit keypad digits; `dial <phone> <number>` still starts a call while idle, but the same command becomes in-call digit transmission once the handset is already connected
+- items and services that receive keypad digits get `EventType.TelephoneDigitsReceived`, which is the public extension point for future voicemail, IVR, routing, or keypad-driven automation
 
 Grid creator items for power, liquid, and telecommunications are also responsible for owned-grid recovery. If a creator item loads with a missing or zero grid id, it recreates the expected grid immediately and direct-initialises it before the creator item can be saved again.
 
@@ -222,6 +231,30 @@ It demonstrates several common component patterns:
 - weight and buoyancy contribution
 - destruction and morph transfer logic
 - `Copy(...)` support for deep-copy item creation
+
+## Real Example: Tape and Answering Machine
+`TapeGameItemComponent` plus `AnsweringMachineGameItemComponent` is the current reference for a mixed media-and-telecom subsystem.
+
+`TapeGameItemComponentProto` authors only storage capacity. The runtime tape component owns:
+- write-protect state
+- named stored recordings
+- used and remaining capacity calculations
+- XML persistence for those recordings
+
+`AnsweringMachineGameItemComponentProto` authors:
+- power draw while switched on
+- default ring emote and ring setting
+- the transmit premote used for live speech relays
+- default rings before auto-answer
+- connector shapes for upstream and downstream telephone-line chaining
+
+The answering-machine runtime component then owns:
+- number ownership or delegation to an upstream outlet
+- live ringing, call participation, and auto-answer timing
+- scheduled greeting playback, beep emission, and caller-message recording
+- a one-slot tape container workflow
+- `ISelectable` commands for `on`, `off`, `rings`, `greeting ...`, `messages play`, `message <index>`, and `erase ...`
+- recursive discovery of downstream handsets so a human pickup on an extension can displace the machine from the live call
 
 ## Special Cases
 ### Read-only or auto-initialised component types

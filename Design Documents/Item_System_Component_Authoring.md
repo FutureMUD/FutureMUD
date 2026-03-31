@@ -37,6 +37,11 @@ That interface should:
 
 The runtime component in `MudSharpCore` should then implement that interface.
 
+If the feature also needs shared immutable value objects rather than only a query surface, place those models in `FutureMUDLibrary` too. The recorded-audio implementation is the reference pattern:
+- immutable playback data lives in `MudSharp.Form.Audio`
+- gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`
+- XML helpers live with the shared models so stage-1 persistence can stay inside normal item/component XML without feature-specific database tables
+
 ## Step 2: Start from the GameItem Template
 The repaired `Item Templates/GameItem` template should now generate a coherent pair:
 - `ExampleGameItemComponent`
@@ -158,6 +163,9 @@ The telephone and cellular implementation is a good reference when a subsystem h
 - a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
 - an implant telephone also usually implements both roles itself, but it should combine the telecom interfaces with implant-facing ones such as `IImplantReportStatus` and `IImplantRespondToCommands` so the neural command surface stays separate from handheld manipulation
 - if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
+- an answering machine is the reference for a chained endpoint: it can expose both itself and downstream handsets through `ConnectedTelephones`, while still either owning its own number or delegating numbering to an upstream outlet
+- the answering machine also shows how to keep a reusable medium generic: the tape is just an `IAudioStorageTape`, while the machine owns the telecom-specific greeting, message, and `ISelectable` control surface
+- for this kind of split design, keep authored defaults such as wattage, connector shapes, ring volume, ring emote, premote, and default answer-after-rings on the prototype, and keep inserted media, saved recordings, live call state, and armed recording state on the runtime component
 
 When authoring similar systems, decide early whether identity belongs to the device, the connection point, or both.
 

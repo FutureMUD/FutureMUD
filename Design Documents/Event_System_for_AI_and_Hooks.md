@@ -395,8 +395,14 @@ Current speech/input events include:
 - `CommandInput`
 - `SelfCommandInput`
 - `CommandIssuedToCharacter`
+- `TelephoneDigitsReceived`
 
 These are relevant to commandable NPCs, hook-based command interception, and speech-aware content.
+
+`TelephoneDigitsReceived` is the telecom-specific input event:
+- it fires on the receiving item or service endpoint, not the sending handset
+- the payload is `(source item, digits text)`
+- it is the intended hook/prog surface for keypad-driven routing, voicemail navigation, and future IVR-style services
 
 ### Shop and Economy
 Important shop events include:

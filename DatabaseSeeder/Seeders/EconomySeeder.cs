@@ -1048,7 +1048,9 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 			context.Markets.Any(x => x.Name == MarketName(era)));
 
 		var anyStockInstalled = installedEraCount > 0 ||
-		                        context.MarketInfluenceTemplates.Any(x => x.Name.StartsWith($"{HelperProgPrefix} ", StringComparison.OrdinalIgnoreCase));
+		                        context.MarketInfluenceTemplates
+								.AsEnumerable()
+								.Any(x => x.Name.StartsWith($"{HelperProgPrefix} ", StringComparison.OrdinalIgnoreCase));
 		if (!anyStockInstalled)
 		{
 			return ShouldSeedResult.ReadyToInstall;
@@ -1056,12 +1058,12 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
 		var marketRoot = context.Tags.First(x => x.Name == MarketRootTagName);
 		var descendantCount = GetMarketDescendantTags(context, marketRoot).Count();
-		var seededCategoryCount = context.MarketCategories.Count(x => x.Description.StartsWith(CategoryPrefix));
+		var seededCategoryCount = context.MarketCategories.AsEnumerable().Count(x => x.Description.StartsWith(CategoryPrefix));
 		var expectedExternalTemplateCount = installedEraCount * ExternalInfluenceBlueprints.Count;
 
 		var hasAllSharedCategories = seededCategoryCount >= descendantCount;
 		var hasAllEraPackages = installedEraCount == EraDefinitions.Count;
-		var hasExternalTemplates = context.MarketInfluenceTemplates.Count(x =>
+		var hasExternalTemplates = context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
 			x.Name.StartsWith($"{HelperProgPrefix} External ", StringComparison.OrdinalIgnoreCase)) >= expectedExternalTemplateCount;
 
 		return hasAllSharedCategories && hasAllEraPackages && hasExternalTemplates

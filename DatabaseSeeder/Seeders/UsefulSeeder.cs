@@ -64,7 +64,7 @@ public class UsefulSeeder : IDatabaseSeeder
 		"Telephone_Standard",
 		"ElectricGridFeeder_Standard",
 		"TelecommunicationsGridFeeder_Standard",
-		"TelecommunicationsGridFeeder_DeskJack",
+        "TelecommunicationsGridOutlet",
 		"GridLiquidSource_Standard",
 		"LiquidGridSupplier_Standard",
 		"LiquidPump_Standard",
@@ -953,15 +953,18 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		CreateBatteryCharger("D", 4, 50.0, 0.86, false);
 		CreateBatteryCharger("CarBattery", 1, 180.0, 0.84, false, "Workshop");
 
-		CreateModernComponent("Connectable", "Connectable_MainsPlug",
-			"Turns an item into a standard mains plug.",
+		CreateModernComponent("Connectable", "Connectable_Male_To_MainsPlug",
+			"Turns an item into a male connection to a standard mains plug.",
 			ConnectorDefinition(new ConnectorType(Gender.Male, mainsSocketType, true)));
 		CreateModernComponent("Connectable", "Connectable_MainsPlug_PassThrough",
-			"Turns an item into a standard mains plug with a pass-through socket.",
+			"Turns an item into a standard mains plug with a pass-through socket, like an extension lead.",
 			ConnectorDefinition(
 				new ConnectorType(Gender.Male, mainsSocketType, true),
 				new ConnectorType(Gender.Female, mainsSocketType, true)));
-		CreateModernComponent("Attachable Connectable", "AttachableConnectable_PowerLead",
+        CreateModernComponent("Connectable", "Connectable_SingleFemale",
+            "Turns an item into a female connection with a single female plug.",
+            ConnectorDefinition(new ConnectorType(Gender.Female, mainsSocketType, true)));
+        CreateModernComponent("Attachable Connectable", "AttachableConnectable_PowerLead",
 			"Turns an item into an attachable mains lead or detachable power cable.",
 			new XElement("Definition",
 				new XElement("Connector",
@@ -1070,7 +1073,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			"Turns an item into a creator for a telecommunications grid.",
 			new XElement("Definition",
 				new XElement("Prefix", "555"),
-				new XElement("NumberLength", 4)));
+				new XElement("NumberLength", 6)));
 		CreateModernComponent("Telephone", "Telephone_Standard",
 			"Turns an item into a standard telephone.",
 			ConnectorDefinition(
@@ -1080,18 +1083,17 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			ConnectorDefinition(
 				new ConnectorType(Gender.Male, mainsSocketType, true)));
 		CreateModernComponent("TelecommunicationsGridFeeder", "TelecommunicationsGridFeeder_Standard",
-			"Turns an item into a feeder for the telecommunications grid that also supplies power.",
+			"Turns an item into a feeder for supplying power into the telecommunications grid.",
 			new XElement("Definition",
 				new XElement("Wattage", 20.0),
 				new XElement("Connectors",
 					new XElement("Connection",
-						new XAttribute("gender", (short)Gender.Female),
-						new XAttribute("type", "TelephoneLine"),
+						new XAttribute("gender", (short)Gender.Male),
+						new XAttribute("type", mainsSocketType),
 						new XAttribute("powered", true)))));
-		CreateModernComponent("TelecommunicationsGridFeeder", "TelecommunicationsGridFeeder_DeskJack",
-			"Turns an item into a compact desk-style telecommunications jack with a lighter power budget.",
+		CreateModernComponent("TelecommunicationsGridOutlet", "TelecommunicationsGridOutlet",
+			"Turns an item into an outlet to plug a landline telephone into.",
 			new XElement("Definition",
-				new XElement("Wattage", 10.0),
 				new XElement("Connectors",
 					new XElement("Connection",
 						new XAttribute("gender", (short)Gender.Female),

@@ -30,7 +30,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 		Wattage = 5.0;
 		RingEmote = "@ ring|rings loudly.";
 		TransmitPremote = "@ speak|speaks into $1 and say|says";
-		Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Male, "telephone", true));
+		Connections.Add(new ConnectorType(MudSharp.Form.Shape.Gender.Male, "TelephoneLine", true));
 	}
 
 	protected TelephoneGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld) : base(proto,

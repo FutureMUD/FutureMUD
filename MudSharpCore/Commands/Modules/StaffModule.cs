@@ -2756,7 +2756,7 @@ You can use the following subcommands with the grid command:
 				GridWithdraw(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(GridHelpText);
+				actor.OutputHandler.Send(GridHelpText.SubstituteANSIColour());
 				return;
 		}
 	}

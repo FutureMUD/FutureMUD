@@ -26,6 +26,7 @@ Telecommunications examples include:
 - `comp edit new telecommunicationsgridfeeder`
 - `comp edit new cellularphone`
 - `comp edit new cellphonetower`
+- `comp edit new implanttelephone`
 
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered
@@ -107,6 +108,7 @@ For telecommunications content, also validate:
 - whether off-hook and busy-line behaviour match the intended call flow
 - whether shared-number endpoints ring together and let later pickups join the live call
 - whether cellular handsets only work when a powered cell tower on the same telecom grid covers the current zone
+- whether implant telephones are linked to a neural interface, draw implant power correctly, and still obey the same cell-tower coverage rules as other cellular devices
 
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.

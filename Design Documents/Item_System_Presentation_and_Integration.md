@@ -140,7 +140,7 @@ Items and components can be discovered and manipulated through FutureProg-facing
 
 Variable-driven items are a common integration point between item content and scripting.
 
-Telecommunications items also expose scripting hooks through item and endpoint queries such as current phone number and shared-number policy, which allows crafting or project systems to assign, clear, or reconfigure telephone numbers at runtime.
+Telecommunications items also expose scripting hooks through item and endpoint queries such as current phone number and shared-number policy, which allows crafting or project systems to assign, clear, or reconfigure telephone numbers at runtime. The same runtime scripting surface applies to cellular handsets and implant telephones, even though implant telephones present their user interaction through neural-interface status and command flows instead of direct room manipulation.
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

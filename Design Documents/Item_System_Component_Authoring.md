@@ -139,6 +139,7 @@ The telephone and cellular implementation is a good reference when a subsystem h
 - `ITelephoneNumberOwner` models the addressed endpoint that owns the number on the telecommunications grid
 - a wired handset may delegate numbering to a connected outlet, so moving the handset between outlets can change its number without changing the handset component itself
 - a cellular handset usually implements both roles itself because the number stays with the device rather than a wall outlet
+- an implant telephone also usually implements both roles itself, but it should combine the telecom interfaces with implant-facing ones such as `IImplantReportStatus` and `IImplantRespondToCommands` so the neural command surface stays separate from handheld manipulation
 - if the item participates in telecom wiring or telecom-grid power, also consider `ICanConnectToTelecommunicationsGrid`, `IConnectable`, `IConsumePower`, and `IProducePower`
 
 When authoring similar systems, decide early whether identity belongs to the device, the connection point, or both.

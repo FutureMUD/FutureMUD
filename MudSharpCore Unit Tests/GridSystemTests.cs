@@ -20,6 +20,7 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
@@ -368,14 +369,65 @@ public class GridSystemTests
 		call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
 	}
 
+	[TestMethod]
+	public void ImplantTelephoneGameItemComponent_CanDial_RequiresCellCoverage()
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		parent.SetupGet(x => x.Id).Returns(20L);
+		parent.SetupGet(x => x.TrueLocations).Returns([]);
+		var proto = CreateImplantTelephoneProto(gameworld.Object);
+		var component = new ImplantTelephoneGameItemComponent(proto, parent.Object, true);
+		var grid = new Mock<ITelecommunicationsGrid>();
+
+		component.TelecommunicationsGrid = grid.Object;
+		component.AssignPhoneNumber("5551200");
+		component.OnPowerCutIn();
+
+		Assert.IsFalse(component.CanDial(null!, "5551201", out var error));
+		StringAssert.Contains(error, "no signal");
+	}
+
+	[TestMethod]
+	public void ImplantTelephoneGameItemComponent_Transmit_ForwardsSpeechToConnectedPhone()
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		parent.SetupGet(x => x.Id).Returns(21L);
+		var proto = CreateImplantTelephoneProto(gameworld.Object);
+		var component = new ImplantTelephoneGameItemComponent(proto, parent.Object, true);
+		var call = new Mock<ITelephoneCall>();
+		call.SetupGet(x => x.IsConnected).Returns(true);
+		call.SetupGet(x => x.Participants).Returns([component]);
+
+		component.ConnectCall(call.Object);
+		component.OnPowerCutIn();
+		component.Transmit(CreateSpokenLanguage(parent.Object));
+
+		call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
+	}
+
 	private static Mock<IFuturemud> CreateGameworld()
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var saveManager = new Mock<ISaveManager>();
+		var bodyPrototypes = new Mock<IUneditableAll<IBodyPrototype>>();
+		var heartbeatManager = new Mock<IHeartbeatManager>();
+		var items = new Mock<IUneditableAll<IGameItem>>();
 		var unitManager = new Mock<IUnitManager>();
 		unitManager.SetupGet(x => x.BaseFluidToLitres).Returns(1.0);
 		unitManager.SetupGet(x => x.BaseWeightToKilograms).Returns(1.0);
+		bodyPrototypes.SetupGet(x => x.Count).Returns(0);
+		bodyPrototypes.Setup(x => x.GetEnumerator()).Returns(Enumerable.Empty<IBodyPrototype>().GetEnumerator());
+		bodyPrototypes.Setup(x => x.Get(It.IsAny<long>())).Returns((IBodyPrototype?)null);
+		items.SetupGet(x => x.Count).Returns(0);
+		items.Setup(x => x.GetEnumerator()).Returns(Enumerable.Empty<IGameItem>().GetEnumerator());
+		gameworld.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
+		gameworld.SetupGet(x => x.Items).Returns(items.Object);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		return gameworld;
 	}
@@ -471,6 +523,29 @@ public class GridSystemTests
 		};
 
 		return (TelephoneGameItemComponentProto)typeof(TelephoneGameItemComponentProto)
+		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+		       .Invoke([model, gameworld]);
+	}
+
+	private static ImplantTelephoneGameItemComponentProto CreateImplantTelephoneProto(IFuturemud gameworld)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 22,
+			Name = "Implant Telephone",
+			Description = "Test",
+			RevisionNumber = 1,
+			Definition =
+				"<Definition><External>false</External><ExternalDescription><![CDATA[]]></ExternalDescription><PowerConsumptionInWatts>2.0</PowerConsumptionInWatts><PowerConsumptionDiscountPerQuality>0.0</PowerConsumptionDiscountPerQuality><TargetBody>0</TargetBody><TargetBodypart>0</TargetBodypart><ImplantSpaceOccupied>1.0</ImplantSpaceOccupied><InstallDifficulty>0</InstallDifficulty><ImplantDamageFunctionGrace>0.0</ImplantDamageFunctionGrace><RingText><![CDATA[Incoming call]]></RingText></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem
+			{
+				RevisionStatus = (int)RevisionStatus.Current,
+				RevisionNumber = 1
+			}
+		};
+
+		return (ImplantTelephoneGameItemComponentProto)typeof(ImplantTelephoneGameItemComponentProto)
 		       .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
 			       [typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
 		       .Invoke([model, gameworld]);

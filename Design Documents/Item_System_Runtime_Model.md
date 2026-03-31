@@ -81,6 +81,7 @@ Telecommunications items are a useful example of how multiple item capabilities 
 - a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
 - shared numbers are valid at the endpoint layer, which allows multiple outlets or towers to ring for the same number and later join the same live call
 - cellular phones still implement `ITelephone`, but they own their own number, require a separate local power source, and only function when a powered `ICellPhoneTower` on the same telecommunications grid covers their zone
+- implant telephones follow the same cellular coverage rules as handheld cellular phones, but they are also implants: they draw power through implant power infrastructure and expose control/status through neural-interface implant commands rather than ordinary handheld room commands
 
 ### `GameItem` aggregates component behaviour
 `GameItem` delegates and aggregates a large amount of behaviour:

@@ -30,6 +30,6 @@ Most gameplay-facing item behaviour is discovered by checking whether an item co
 
 ## Important Notes
 - The fastest way to add a new item capability is usually to add a new component prototype and component pair, not a new `GameItem` subclass.
-- Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, and a cellular handset are all ordinary item capabilities expressed through components and public interfaces.
+- Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
 - The `Item Templates/GameItem` template is intended to be a starting skeleton, not a complete implementation. The authoring document calls out the manual work the template does not solve.
 - Some component types are special cases. For example, `Holdable` is a read-only auto-initialised component type and should be treated differently from ordinary editable component prototypes.

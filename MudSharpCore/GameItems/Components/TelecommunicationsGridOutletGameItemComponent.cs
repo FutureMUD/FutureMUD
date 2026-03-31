@@ -29,6 +29,7 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 	private string? _phoneNumber;
 	private string? _preferredNumber;
 	private bool _allowSharedNumber;
+	private bool _hostedVoicemailEnabled;
 
 	public override IGameItemComponentProto Prototype => _prototype;
 
@@ -57,12 +58,14 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 		IGameItem newParent, bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
 	}
 
 	private void LoadFromXml(XElement root)
 	{
 		_preferredNumber = root.Element("PreferredNumber")?.Value;
 		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
 		var element = root.Element("ConnectedItems");
 		if (element != null)
 		{
@@ -96,6 +99,7 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 			new XElement("Grid", TelecommunicationsGrid?.Id ?? 0),
 			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
 			new XElement("AllowSharedNumber", _allowSharedNumber),
+			new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled),
 			new XElement("ConnectedItems",
 				from item in ConnectedItems
 				select new XElement("Item",
@@ -167,6 +171,7 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 		sb.AppendLine(
 			$"It has {(_prototype.Connections.Count == 1 ? "a connector" : "connectors")} of type {_prototype.Connections.Select(x => $"{x.ConnectionType.Colour(Telnet.Green)} ({Gendering.Get(x.Gender).GenderClass(true)})").ListToString()}.");
 		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
+		sb.AppendLine($"Hosted voicemail is {(_hostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
 		sb.AppendLine($"It is {(ProducingPower ? "powered".ColourValue() : "not powered".ColourError())}.");
 		foreach (var item in ConnectedItems)
 		{
@@ -201,6 +206,16 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 		}
 	}
 
+	public bool HostedVoicemailEnabled
+	{
+		get => _hostedVoicemailEnabled;
+		set
+		{
+			_hostedVoicemailEnabled = value;
+			Changed = true;
+		}
+	}
+
 	public ITelecommunicationsGrid? TelecommunicationsGrid
 	{
 		get => _grid;
@@ -221,11 +236,9 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
 	}
 
 	public IEnumerable<ITelephone> ConnectedTelephones =>
-		ConnectedItems.Select(x => x.Item2.Parent.GetItemType<ITelephone>())
-		              .Where(x => x != null)
-		              .Cast<ITelephone>()
-		              .Distinct()
-		              .ToList();
+		TelephoneNetworkHelpers.CollectConnectedTelephones(this)
+		                       .Distinct()
+		                       .ToList();
 
 	public void AssignPhoneNumber(string? number)
 	{

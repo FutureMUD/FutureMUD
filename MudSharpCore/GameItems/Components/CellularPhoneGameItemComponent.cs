@@ -8,6 +8,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction.Grids;
+using MudSharp.Events;
 using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -27,6 +28,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 	private string? _phoneNumber;
 	private string? _preferredNumber;
 	private bool _allowSharedNumber;
+	private bool _hostedVoicemailEnabled;
 	private bool _powered;
 	private bool _ringHeartbeatSubscribed;
 	private bool _switchedOn;
@@ -66,6 +68,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_switchedOn = rhs._switchedOn;
 		_preferredNumber = rhs._preferredNumber;
 		_allowSharedNumber = rhs._allowSharedNumber;
+		_hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
 		_ringVolumeOverride = rhs._ringVolumeOverride;
 	}
 
@@ -74,6 +77,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_switchedOn = bool.Parse(root.Element("SwitchedOn")?.Value ?? "true");
 		_preferredNumber = root.Element("PreferredNumber")?.Value;
 		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
 		if (int.TryParse(root.Element("RingVolumeOverride")?.Value, out var ringVolume) &&
 		    Enum.IsDefined(typeof(AudioVolume), ringVolume))
 		{
@@ -95,6 +99,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 			new XElement("SwitchedOn", _switchedOn),
 			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
 			new XElement("AllowSharedNumber", _allowSharedNumber),
+			new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled),
 			new XElement("RingVolumeOverride", _ringVolumeOverride.HasValue ? (int)_ringVolumeOverride.Value : -1)
 		).ToString();
 	}
@@ -139,6 +144,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
 		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
 		sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue()}.");
+		sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
 		sb.AppendLine(
 			$"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
 		sb.AppendLine($"It currently {(HasCoverage ? "has signal".ColourValue() : "has no signal".ColourError())}.");
@@ -304,7 +310,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		);
 	}
 
-	public IEnumerable<string> SwitchSettings => ["on", "off", ..TelephoneRingSettings.CellularSettings];
+	public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff", ..TelephoneRingSettings.CellularSettings];
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
@@ -318,6 +324,16 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 			return _switchedOn;
 		}
 
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !HostedVoicemailEnabled;
+		}
+
+		if (setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return HostedVoicemailEnabled;
+		}
+
 		return TelephoneRingSettings.TryGetVolumeForSetting(setting, true, out var volume) &&
 		       RingVolume != volume;
 	}
@@ -327,6 +343,12 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, true, out _))
 		{
 			return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, true).ColourValue()}.";
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
 		}
 
 		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
@@ -345,6 +367,13 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		{
 			_ringVolumeOverride = volume;
 			Changed = true;
+			return true;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
 			return true;
 		}
 
@@ -410,6 +439,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
 	public bool CanDial(ICharacter actor, string number, out string error)
 	{
+		if (_currentCall?.IsConnected == true)
+		{
+			return CanSendDigits(actor, number, out error);
+		}
+
 		if (TelecommunicationsGrid == null)
 		{
 			error = "That telephone is not connected to a telecommunications grid.";
@@ -446,6 +480,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
 	public bool Dial(ICharacter actor, string number, out string error)
 	{
+		if (_currentCall?.IsConnected == true)
+		{
+			return SendDigits(actor, number, out error);
+		}
+
 		if (!CanDial(actor, number, out error))
 		{
 			return false;
@@ -454,6 +493,53 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 		_isOffHook = true;
 		Changed = true;
 		return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+	}
+
+	public bool HostedVoicemailEnabled
+	{
+		get => _hostedVoicemailEnabled;
+		set
+		{
+			_hostedVoicemailEnabled = value;
+			Changed = true;
+		}
+	}
+
+	public bool CanSendDigits(ICharacter actor, string digits, out string error)
+	{
+		if (_currentCall?.IsConnected != true)
+		{
+			error = "That telephone is not connected to a live call.";
+			return false;
+		}
+
+		if (!IsPowered || !HasCoverage)
+		{
+			error = "That telephone is not ready to send keypad digits right now.";
+			return false;
+		}
+
+		if (!TelephoneNetworkHelpers.TryNormaliseDigits(digits, out _))
+		{
+			error = "You may only send keypad digits from 0-9, * and #.";
+			return false;
+		}
+
+		error = string.Empty;
+		return true;
+	}
+
+	public bool SendDigits(ICharacter actor, string digits, out string error)
+	{
+		if (!CanSendDigits(actor, digits, out error))
+		{
+			return false;
+		}
+
+		var normalised = new string(digits.Where(x => !char.IsWhiteSpace(x)).ToArray());
+		_currentCall!.RelayDigits(this, normalised);
+		error = string.Empty;
+		return true;
 	}
 
 	public bool CanAnswer(ICharacter actor, out string error)
@@ -544,6 +630,11 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 	public void NotifyCallProgress(string message)
 	{
 		Parent.OutputHandler.Send(message);
+	}
+
+	public void ReceiveDigits(ITelephone source, string digits)
+	{
+		Parent.HandleEvent(EventType.TelephoneDigitsReceived, source.Parent, digits);
 	}
 
 	public void EndCall(ITelephoneCall? call, bool notifyGrid = true)

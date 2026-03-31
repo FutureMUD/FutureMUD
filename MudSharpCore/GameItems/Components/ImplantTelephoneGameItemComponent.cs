@@ -8,6 +8,7 @@ using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
+using MudSharp.Events;
 using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -28,6 +29,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 	private string? _preferredNumber;
 	private string? _aliasForCommands;
 	private bool _allowSharedNumber;
+	private bool _hostedVoicemailEnabled;
 	private bool _switchedOn;
 	private bool _isOffHook;
 	private bool _isRinging;
@@ -67,6 +69,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		_preferredNumber = rhs._preferredNumber;
 		_aliasForCommands = rhs._aliasForCommands;
 		_allowSharedNumber = rhs._allowSharedNumber;
+		_hostedVoicemailEnabled = rhs._hostedVoicemailEnabled;
 	}
 
 	protected override void LoadFromXml(XElement root)
@@ -86,6 +89,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		}
 
 		_allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
 		TelecommunicationsGrid =
 			Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ITelecommunicationsGrid;
 	}
@@ -107,7 +111,8 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 			new XElement("SwitchedOn", _switchedOn),
 			new XElement("PreferredNumber", _preferredNumber ?? string.Empty),
 			new XElement("AliasForCommands", new XCData(AliasForCommands ?? string.Empty)),
-			new XElement("AllowSharedNumber", _allowSharedNumber)
+			new XElement("AllowSharedNumber", _allowSharedNumber),
+			new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled)
 		);
 		return definition.ToString();
 	}
@@ -191,6 +196,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		sb.AppendLine($"It is currently switched {(_switchedOn ? "on".ColourValue() : "off".ColourError())}.");
 		sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
 		sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
+		sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
 		sb.AppendLine(
 			$"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
 		sb.AppendLine($"It currently {(HasCoverage ? "has signal".ColourValue() : "has no signal".ColourError())}.");
@@ -353,16 +359,36 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		);
 	}
 
-	public IEnumerable<string> SwitchSettings => ["on", "off"];
+	public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff"];
 
 	public bool CanSwitch(ICharacter actor, string setting)
 	{
-		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase) ? !_switchedOn
-			: setting.Equals("off", StringComparison.InvariantCultureIgnoreCase) && _switchedOn;
+		if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !_switchedOn;
+		}
+
+		if (setting.Equals("off", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return _switchedOn;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return !HostedVoicemailEnabled;
+		}
+
+		return setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase) && HostedVoicemailEnabled;
 	}
 
 	public string WhyCannotSwitch(ICharacter actor, string setting)
 	{
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
+		}
+
 		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
 			? $"{Parent.HowSeen(actor, true)} is already on."
 			: $"{Parent.HowSeen(actor, true)} is already off.";
@@ -373,6 +399,13 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		if (!CanSwitch(actor, setting))
 		{
 			return false;
+		}
+
+		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+		{
+			HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
+			return true;
 		}
 
 		_switchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
@@ -437,6 +470,11 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
 	public bool CanDial(ICharacter actor, string number, out string error)
 	{
+		if (_currentCall?.IsConnected == true)
+		{
+			return CanSendDigits(actor, number, out error);
+		}
+
 		if (TelecommunicationsGrid == null)
 		{
 			error = "That telephone is not connected to a telecommunications grid.";
@@ -473,6 +511,11 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
 	public bool Dial(ICharacter actor, string number, out string error)
 	{
+		if (_currentCall?.IsConnected == true)
+		{
+			return SendDigits(actor, number, out error);
+		}
+
 		if (!CanDial(actor, number, out error))
 		{
 			return false;
@@ -481,6 +524,53 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 		_isOffHook = true;
 		Changed = true;
 		return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+	}
+
+	public bool HostedVoicemailEnabled
+	{
+		get => _hostedVoicemailEnabled;
+		set
+		{
+			_hostedVoicemailEnabled = value;
+			Changed = true;
+		}
+	}
+
+	public bool CanSendDigits(ICharacter actor, string digits, out string error)
+	{
+		if (_currentCall?.IsConnected != true)
+		{
+			error = "That telephone is not connected to a live call.";
+			return false;
+		}
+
+		if (!IsPowered || !HasCoverage)
+		{
+			error = "That telephone is not ready to send keypad digits right now.";
+			return false;
+		}
+
+		if (!TelephoneNetworkHelpers.TryNormaliseDigits(digits, out _))
+		{
+			error = "You may only send keypad digits from 0-9, * and #.";
+			return false;
+		}
+
+		error = string.Empty;
+		return true;
+	}
+
+	public bool SendDigits(ICharacter actor, string digits, out string error)
+	{
+		if (!CanSendDigits(actor, digits, out error))
+		{
+			return false;
+		}
+
+		var normalised = new string(digits.Where(x => !char.IsWhiteSpace(x)).ToArray());
+		_currentCall!.RelayDigits(this, normalised);
+		error = string.Empty;
+		return true;
 	}
 
 	public bool CanAnswer(ICharacter actor, out string error)
@@ -572,6 +662,11 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 	public void NotifyCallProgress(string message)
 	{
 		SendInternalMessage($"Your implant telephone reports: {message}");
+	}
+
+	public void ReceiveDigits(ITelephone source, string digits)
+	{
+		Parent.HandleEvent(EventType.TelephoneDigitsReceived, source.Parent, digits);
 	}
 
 	public void EndCall(ITelephoneCall? call, bool notifyGrid = true)

@@ -104,13 +104,15 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
 		return string.Join("\n",
 			description,
 			"",
-		$"The telecommunications grid uses the prefix {Grid.Prefix.ColourValue()} and {Grid.NumberLength.ToString("N0", voyeur).ColourValue()} subscriber digits."
+		$"The telecommunications grid uses the prefix {Grid.Prefix.ColourValue()} and {Grid.NumberLength.ToString("N0", voyeur).ColourValue()} subscriber digits.",
+		$"Hosted voicemail is {(Grid.HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} and uses access number {Grid.HostedVoicemailAccessNumber.ColourValue()}."
 		);
 	}
 
 	private ITelecommunicationsGrid CreateGrid(ICell? initialLocation, bool temporary = false)
 	{
-		var grid = new TelecommunicationsGrid(Gameworld, initialLocation, _prototype.Prefix, _prototype.NumberLength);
+		var grid = new TelecommunicationsGrid(Gameworld, initialLocation, _prototype.Prefix, _prototype.NumberLength,
+			_prototype.HostedVoicemailEnabled, _prototype.HostedVoicemailAccessCode);
 		if (temporary)
 		{
 			return grid;

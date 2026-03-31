@@ -6,7 +6,9 @@ using System.Text;
 using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
+using MudSharp.Form.Audio;
 using MudSharp.Framework;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Construction.Grids;
@@ -20,6 +22,8 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly Dictionary<string, TelecommunicationsCall> _activeCallsByNumber =
 		new(StringComparer.InvariantCultureIgnoreCase);
+	private readonly Dictionary<string, List<StoredAudioRecording>> _hostedVoicemailRecordings =
+		new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly List<long> _linkedGridIds = [];
 	private readonly HashSet<ITelecommunicationsGrid> _linkedGrids = [];
 
@@ -29,6 +33,8 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 	private readonly List<IProducePower> _connectedProducers = [];
 	private readonly List<IConsumePower> _idleConsumers = [];
 	private bool _gridPowered;
+	private bool _hostedVoicemailEnabled;
+	private string _hostedVoicemailAccessCode = "9999";
 	private bool _ringHeartbeatSubscribed;
 
 	public TelecommunicationsGrid(Models.Grid grid, IFuturemud gameworld) : base(grid, gameworld)
@@ -38,6 +44,8 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		NumberLength = int.Parse(root.Element("NumberLength")?.Value ?? "4");
 		NextNumber = long.Parse(root.Element("NextNumber")?.Value ?? "1");
 		MaximumRings = int.Parse(root.Element("MaxRings")?.Value ?? DefaultMaximumRings.ToString());
+		_hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
+		_hostedVoicemailAccessCode = root.Element("HostedVoicemailAccessCode")?.Value ?? "9999";
 
 		foreach (var element in root.Elements("Endpoint").Concat(root.Elements("Phone")))
 		{
@@ -65,15 +73,36 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		{
 			_linkedGridIds.Add(long.Parse(element.Value));
 		}
+
+		var voicemailElement = root.Element("HostedVoicemailMailboxes");
+		if (voicemailElement != null)
+		{
+			foreach (var mailbox in voicemailElement.Elements("Mailbox"))
+			{
+				var number = mailbox.Attribute("number")?.Value;
+				if (string.IsNullOrWhiteSpace(number))
+				{
+					continue;
+				}
+
+				_hostedVoicemailRecordings[number] = mailbox.Elements("StoredRecording")
+				                                            .Select(StoredAudioRecording.LoadFromXml)
+				                                            .OrderBy(x => x.RecordedAtUtc)
+				                                            .ToList();
+			}
+		}
 	}
 
-	public TelecommunicationsGrid(IFuturemud gameworld, ICell? initialLocation, string prefix, int numberLength)
+	public TelecommunicationsGrid(IFuturemud gameworld, ICell? initialLocation, string prefix, int numberLength,
+		bool hostedVoicemailEnabled = false, string? hostedVoicemailAccessCode = null)
 		: base(gameworld, initialLocation)
 	{
 		Prefix = prefix;
 		NumberLength = numberLength;
 		MaximumRings = DefaultMaximumRings;
 		NextNumber = 1;
+		_hostedVoicemailEnabled = hostedVoicemailEnabled;
+		_hostedVoicemailAccessCode = NormaliseVoicemailAccessCode(hostedVoicemailAccessCode);
 	}
 
 	public TelecommunicationsGrid(ITelecommunicationsGrid rhs) : base(rhs)
@@ -81,13 +110,26 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		Prefix = rhs.Prefix;
 		NumberLength = rhs.NumberLength;
 		MaximumRings = rhs.MaximumRings;
+		_hostedVoicemailEnabled = rhs.HostedVoicemailEnabled;
+		_hostedVoicemailAccessCode = NormaliseVoicemailAccessCode(rhs.HostedVoicemailAccessNumber[rhs.Prefix.Length..]);
 		NextNumber = rhs is TelecommunicationsGrid grid ? grid.NextNumber : 1;
+		if (rhs is TelecommunicationsGrid telecomGrid)
+		{
+			foreach (var (number, recordings) in telecomGrid._hostedVoicemailRecordings)
+			{
+				_hostedVoicemailRecordings[number] = recordings
+					.OrderBy(x => x.RecordedAtUtc)
+					.ToList();
+			}
+		}
 	}
 
 	public override string GridType => "Telecommunications";
 	public string Prefix { get; }
 	public int NumberLength { get; }
 	public int MaximumRings { get; private set; }
+	public bool HostedVoicemailEnabled => _hostedVoicemailEnabled;
+	public string HostedVoicemailAccessNumber => $"{Prefix}{_hostedVoicemailAccessCode}";
 	public double TotalSupply => _connectedProducers.Sum(x => x.MaximumPowerInWatts);
 	public double TotalDrawdown => _connectedConsumers.Except(_idleConsumers).Sum(x => x.PowerConsumptionInWatts);
 	public IEnumerable<ITelecommunicationsGrid> LinkedGrids => _linkedGrids.ToList();
@@ -156,6 +198,8 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		root.Add(new XElement("NumberLength", NumberLength));
 		root.Add(new XElement("NextNumber", NextNumber));
 		root.Add(new XElement("MaxRings", MaximumRings));
+		root.Add(new XElement("HostedVoicemailEnabled", _hostedVoicemailEnabled));
+		root.Add(new XElement("HostedVoicemailAccessCode", _hostedVoicemailAccessCode));
 
 		foreach (var linkedGrid in _linkedGrids.OrderBy(x => x.Id))
 		{
@@ -179,6 +223,16 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		foreach (var producer in _connectedProducers)
 		{
 			root.Add(new XElement("Producer", producer.Parent.Id));
+		}
+
+		if (_hostedVoicemailRecordings.Any())
+		{
+			root.Add(new XElement("HostedVoicemailMailboxes",
+				from mailbox in _hostedVoicemailRecordings.OrderBy(x => x.Key)
+				select new XElement("Mailbox",
+					new XAttribute("number", mailbox.Key),
+					from recording in mailbox.Value.OrderBy(x => x.RecordedAtUtc)
+					select recording.SaveToXml())));
 		}
 
 		return root;
@@ -218,6 +272,17 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 	public void SetMaximumRings(int maximumRings)
 	{
 		MaximumRings = Math.Max(1, maximumRings);
+		Changed = true;
+	}
+
+	public void ConfigureHostedVoicemail(bool enabled, string? accessCode = null)
+	{
+		_hostedVoicemailEnabled = enabled;
+		if (accessCode != null)
+		{
+			_hostedVoicemailAccessCode = NormaliseVoicemailAccessCode(accessCode);
+		}
+
 		Changed = true;
 	}
 
@@ -407,6 +472,11 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 	private bool TryStartCallOnThisGrid(ITelephone caller, string normalised, out string error)
 	{
+		if (_hostedVoicemailEnabled && normalised.EqualTo(HostedVoicemailAccessNumber))
+		{
+			return TryStartHostedVoicemailAccess(caller, out error);
+		}
+
 		var owners = GetOwnersForNumber(normalised).ToList();
 		if (!owners.Any())
 		{
@@ -420,7 +490,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			return false;
 		}
 
-		var targetPhones = owners.SelectMany(x => x.ConnectedTelephones)
+		var targetPhones = owners.SelectMany(TelephoneNetworkHelpers.CollectConnectedTelephones)
 		                         .Where(x => x != caller)
 		                         .Distinct()
 		                         .ToList();
@@ -486,7 +556,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		var normalised = Normalise(number);
 		var destinationGrid = ResolveDestinationGrid(normalised, out _);
 		phone = destinationGrid?.GetOwnersForNumber(normalised)
-		                 .SelectMany(x => x.ConnectedTelephones)
+		                 .SelectMany(TelephoneNetworkHelpers.CollectConnectedTelephones)
 		                 .FirstOrDefault();
 		return phone != null;
 	}
@@ -588,6 +658,11 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 	private bool CanAssignNumber(ITelephoneNumberOwner owner, string number, bool allowSharedNumber)
 	{
+		if (_hostedVoicemailEnabled && number.EqualTo(HostedVoicemailAccessNumber))
+		{
+			return false;
+		}
+
 		if (!_ownersByNumber.TryGetValue(number, out var owners))
 		{
 			return true;
@@ -602,7 +677,8 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		{
 			var number = $"{Prefix}{NextNumber.ToString().PadLeft(NumberLength, '0')}";
 			NextNumber++;
-			if (_ownersByNumber.ContainsKey(number))
+			if (_ownersByNumber.ContainsKey(number) ||
+			    (_hostedVoicemailEnabled && number.EqualTo(HostedVoicemailAccessNumber)))
 			{
 				continue;
 			}
@@ -614,6 +690,102 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 	private static string Normalise(string number)
 	{
 		return new string(number.Where(char.IsDigit).ToArray());
+	}
+
+	private static string NormaliseVoicemailAccessCode(string? accessCode)
+	{
+		var digits = Normalise(accessCode ?? string.Empty);
+		return string.IsNullOrEmpty(digits) ? "9999" : digits;
+	}
+
+	private bool IsHostedVoicemailEnabledForNumber(string number)
+	{
+		return _hostedVoicemailEnabled &&
+		       GetOwnersForNumber(number).Any(x => x.HostedVoicemailEnabled);
+	}
+
+	private List<StoredAudioRecording> GetHostedVoicemailMessages(string number)
+	{
+		return _hostedVoicemailRecordings.TryGetValue(number, out var recordings)
+			? recordings
+			: [];
+	}
+
+	private void StoreHostedVoicemailMessage(string number, StoredAudioRecording recording)
+	{
+		if (!_hostedVoicemailRecordings.TryGetValue(number, out var recordings))
+		{
+			recordings = [];
+			_hostedVoicemailRecordings[number] = recordings;
+		}
+
+		recordings.Add(recording);
+		recordings.Sort((a, b) => a.RecordedAtUtc.CompareTo(b.RecordedAtUtc));
+		Changed = true;
+	}
+
+	private bool DeleteHostedVoicemailMessage(string number, string messageName)
+	{
+		if (!_hostedVoicemailRecordings.TryGetValue(number, out var recordings))
+		{
+			return false;
+		}
+
+		if (recordings.RemoveAll(x => x.Name.EqualTo(messageName)) == 0)
+		{
+			return false;
+		}
+
+		if (!recordings.Any())
+		{
+			_hostedVoicemailRecordings.Remove(number);
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	private void DeleteAllHostedVoicemailMessages(string number)
+	{
+		if (_hostedVoicemailRecordings.Remove(number))
+		{
+			Changed = true;
+		}
+	}
+
+	private bool TryStartHostedVoicemailAccess(ITelephone caller, out string error)
+	{
+		if (!_hostedVoicemailEnabled)
+		{
+			error = "Hosted voicemail is not enabled on this telecommunications exchange.";
+			return false;
+		}
+
+		var callerNumber = caller.NumberOwner?.PhoneNumber;
+		if (string.IsNullOrWhiteSpace(callerNumber) || caller.NumberOwner?.TelecommunicationsGrid != this)
+		{
+			error = "You must call your own exchange voicemail service from a line on this exchange.";
+			return false;
+		}
+
+		if (!IsHostedVoicemailEnabledForNumber(callerNumber))
+		{
+			error = "Your line does not have hosted voicemail enabled.";
+			return false;
+		}
+
+		if (_activeCallsByNumber.ContainsKey(HostedVoicemailAccessNumber))
+		{
+			error = "The voicemail service is currently busy.";
+			return false;
+		}
+
+		var call = new TelecommunicationsCall(this, HostedVoicemailAccessNumber, caller);
+		_activeCallsByNumber[HostedVoicemailAccessNumber] = call;
+		caller.BeginOutgoingCall(call, HostedVoicemailAccessNumber);
+		call.ConnectHostedVoicemailAccess(callerNumber);
+		error = string.Empty;
+		return true;
 	}
 
 	private ITelecommunicationsGrid? ResolveDestinationGrid(string number, out string error)
@@ -698,6 +870,9 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		sb.AppendLine($"Prefix: {Prefix.ColourValue()}");
 		sb.AppendLine($"Subscriber Digits: {NumberLength.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Maximum Rings: {MaximumRings.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Hosted Voicemail: {_hostedVoicemailEnabled.ToColouredString()}");
+		sb.AppendLine($"Voicemail Access Number: {HostedVoicemailAccessNumber.ColourValue()}");
+		sb.AppendLine($"Hosted Mailboxes With Messages: {_hostedVoicemailRecordings.Count.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine(
 			$"Linked Exchanges: {(_linkedGrids.Any() ? _linkedGrids.OrderBy(x => x.Prefix).Select(x => $"#{x.Id.ToString("N0", actor)} ({x.Prefix})").ListToString() : "none".ColourError())}");
 		sb.AppendLine($"Powered: {_gridPowered.ToColouredString()}");
@@ -715,6 +890,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		private readonly TelecommunicationsGrid _grid;
 		private readonly HashSet<ITelephone> _participants = [];
 		private readonly HashSet<ITelephone> _ringingPhones = [];
+		private HostedVoicemailSession? _hostedVoicemailSession;
 		private int _ringCount;
 
 		public TelecommunicationsCall(TelecommunicationsGrid grid, string number, ITelephone caller)
@@ -729,7 +905,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 		public ITelephone Caller { get; }
 		public IReadOnlyCollection<ITelephone> Participants => _participants;
 		public IReadOnlyCollection<ITelephone> RingingPhones => _ringingPhones;
-		public bool IsConnected => _participants.Count > 1;
+		public bool IsConnected => _participants.Count > 1 || _hostedVoicemailSession != null;
 		public bool IsRinging => _ringingPhones.Any();
 
 		public void AddRingingPhone(ITelephone phone)
@@ -755,6 +931,12 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 		public bool TryAnswer(ITelephone phone, out string error)
 		{
+			if (_hostedVoicemailSession != null)
+			{
+				error = "That call is already connected to the voicemail service.";
+				return false;
+			}
+
 			if (_participants.Contains(phone))
 			{
 				error = "That telephone is already connected to the call.";
@@ -789,6 +971,14 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			{
 				_participants.Add(phone);
 				phone.ConnectCall(this);
+				foreach (var machine in _participants.OfType<IAnsweringMachine>()
+				                                     .Where(x => !ReferenceEquals(x, phone))
+				                                     .Where(x => x.PhoneNumber.EqualTo(Number))
+				                                     .ToList())
+				{
+					machine.EndCall(this);
+				}
+
 				error = string.Empty;
 				return true;
 			}
@@ -817,7 +1007,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 			}
 
 			phone.EndCall(this, false);
-			if (phone == Caller || _participants.Count <= 1)
+			if (phone == Caller || _participants.Count <= 1 || _hostedVoicemailSession != null)
 			{
 				Terminate();
 			}
@@ -825,9 +1015,27 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 		public void RelayTransmission(ITelephone source, SpokenLanguageInfo spokenLanguage)
 		{
+			if (_hostedVoicemailSession?.HandleTransmission(source, spokenLanguage) == true)
+			{
+				return;
+			}
+
 			foreach (var phone in _participants.Where(x => x != source).ToList())
 			{
 				phone.ReceiveTransmission(0.0, spokenLanguage, 0L, source);
+			}
+		}
+
+		public void RelayDigits(ITelephone source, string digits)
+		{
+			if (_hostedVoicemailSession?.HandleDigits(source, digits) == true)
+			{
+				return;
+			}
+
+			foreach (var phone in _participants.Where(x => x != source).ToList())
+			{
+				phone.ReceiveDigits(source, digits);
 			}
 		}
 
@@ -840,18 +1048,49 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
 			if (_ringCount >= _grid.MaximumRings)
 			{
-				Caller.NotifyCallProgress("The line rings out.");
-				Terminate();
+				if (!_grid.TryStartHostedVoicemailForCall(this))
+				{
+					Caller.NotifyCallProgress("The line rings out.");
+					Terminate();
+				}
+
 				return;
 			}
 
 			_ringCount++;
 			Caller.NotifyCallProgress("You hear the line ringing.");
+			foreach (var machine in _ringingPhones.OfType<IAnsweringMachine>()
+			                                     .Where(x => x.AutoAnswerRings <= _ringCount)
+			                                     .ToList())
+			{
+				if (TryAnswer(machine, out _))
+				{
+					return;
+				}
+			}
+		}
+
+		public void ConnectHostedVoicemailRecording(string mailboxNumber)
+		{
+			_ringingPhones.ToList().ForEach(x => x.EndCall(this, false));
+			_ringingPhones.Clear();
+			Caller.ConnectCall(this);
+			Caller.NotifyCallProgress("The exchange voicemail service answers.");
+			_hostedVoicemailSession = HostedVoicemailSession.CreateRecording(_grid, this, mailboxNumber);
+		}
+
+		public void ConnectHostedVoicemailAccess(string mailboxNumber)
+		{
+			Caller.ConnectCall(this);
+			Caller.NotifyCallProgress("The exchange voicemail service answers.");
+			_hostedVoicemailSession = HostedVoicemailSession.CreateAccess(_grid, this, mailboxNumber);
 		}
 
 		private void Terminate()
 		{
 			var phones = _participants.Concat(_ringingPhones).Distinct().ToList();
+			_hostedVoicemailSession?.Finish();
+			_hostedVoicemailSession = null;
 			_participants.Clear();
 			_ringingPhones.Clear();
 			_grid.RemoveCall(this);
@@ -860,5 +1099,246 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 				phone.EndCall(this, false);
 			}
 		}
+	}
+
+	private bool TryStartHostedVoicemailForCall(TelecommunicationsCall call)
+	{
+		if (!IsHostedVoicemailEnabledForNumber(call.Number))
+		{
+			return false;
+		}
+
+		call.ConnectHostedVoicemailRecording(call.Number);
+		return true;
+	}
+
+	private sealed class HostedVoicemailSession
+	{
+		private readonly TelecommunicationsGrid _grid;
+		private readonly TelecommunicationsCall _call;
+		private readonly string _mailboxNumber;
+		private readonly HostedVoicemailMode _mode;
+		private readonly List<RecordedAudioSegment> _workingSegments = [];
+		private DateTime? _lastSegmentUtc;
+		private DateTime? _recordedAtUtc;
+		private int _currentPlaybackIndex = -1;
+		private string? _currentMessageName;
+
+		private HostedVoicemailSession(TelecommunicationsGrid grid, TelecommunicationsCall call, string mailboxNumber,
+			HostedVoicemailMode mode)
+		{
+			_grid = grid;
+			_call = call;
+			_mailboxNumber = mailboxNumber;
+			_mode = mode;
+		}
+
+		public static HostedVoicemailSession CreateRecording(TelecommunicationsGrid grid, TelecommunicationsCall call,
+			string mailboxNumber)
+		{
+			var session = new HostedVoicemailSession(grid, call, mailboxNumber, HostedVoicemailMode.RecordIncomingMessage)
+			{
+				_recordedAtUtc = DateTime.UtcNow
+			};
+			call.Caller.NotifyCallProgress(
+				"The exchange voicemail service says: The person you are calling is unavailable. Please leave a message after the tone.");
+			call.Caller.NotifyCallProgress("A sharp beep sounds over the line.");
+			return session;
+		}
+
+		public static HostedVoicemailSession CreateAccess(TelecommunicationsGrid grid, TelecommunicationsCall call,
+			string mailboxNumber)
+		{
+			var session = new HostedVoicemailSession(grid, call, mailboxNumber, HostedVoicemailMode.AccessMailbox);
+			session.AnnounceMailboxSummary();
+			session.AnnounceMenu();
+			return session;
+		}
+
+		public bool HandleTransmission(ITelephone source, SpokenLanguageInfo spokenLanguage)
+		{
+			if (_mode != HostedVoicemailMode.RecordIncomingMessage || !ReferenceEquals(source, _call.Caller))
+			{
+				return false;
+			}
+
+			var now = DateTime.UtcNow;
+			var delay = _lastSegmentUtc.HasValue ? now - _lastSegmentUtc.Value : TimeSpan.Zero;
+			_workingSegments.Add(RecordedAudioSegment.FromSpokenLanguage(spokenLanguage, delay));
+			_lastSegmentUtc = now;
+			return true;
+		}
+
+		public bool HandleDigits(ITelephone source, string digits)
+		{
+			if (!ReferenceEquals(source, _call.Caller))
+			{
+				return false;
+			}
+
+			foreach (var digit in digits)
+			{
+				HandleDigit(digit);
+			}
+
+			return true;
+		}
+
+		public void Finish()
+		{
+			if (_mode != HostedVoicemailMode.RecordIncomingMessage || !_workingSegments.Any() || !_recordedAtUtc.HasValue)
+			{
+				return;
+			}
+
+			var messageName = $"voicemail-{_recordedAtUtc.Value:yyyyMMddHHmmss}";
+			_grid.StoreHostedVoicemailMessage(_mailboxNumber,
+				new StoredAudioRecording(messageName, new RecordedAudio(_workingSegments), _recordedAtUtc.Value));
+		}
+
+		private void HandleDigit(char digit)
+		{
+			if (_mode == HostedVoicemailMode.RecordIncomingMessage)
+			{
+				if (digit == '#')
+				{
+					_call.Caller.NotifyCallProgress("The exchange voicemail service ends the recording.");
+					_call.HangUp(_call.Caller);
+					return;
+				}
+
+				_call.Caller.NotifyCallProgress("The exchange voicemail service continues recording your message.");
+				return;
+			}
+
+			switch (digit)
+			{
+				case '1':
+					PlayNextMessage();
+					return;
+				case '2':
+					ReplayCurrentMessage();
+					return;
+				case '3':
+					DeleteCurrentMessage();
+					return;
+				case '7':
+					DeleteAllMessages();
+					return;
+				case '9':
+					AnnounceMenu();
+					return;
+				case '#':
+					_call.Caller.NotifyCallProgress("The exchange voicemail service ends the call.");
+					_call.HangUp(_call.Caller);
+					return;
+				default:
+					_call.Caller.NotifyCallProgress("That is not a valid voicemail keypad option.");
+					return;
+			}
+		}
+
+		private List<StoredAudioRecording> Messages =>
+			_grid.GetHostedVoicemailMessages(_mailboxNumber)
+			     .OrderBy(x => x.RecordedAtUtc)
+			     .ToList();
+
+		private void AnnounceMailboxSummary()
+		{
+			var count = Messages.Count;
+			_call.Caller.NotifyCallProgress(
+				count == 0
+					? "You have no saved voicemail messages."
+					: $"You have {count} saved voicemail message{(count == 1 ? string.Empty : "s")}.");
+		}
+
+		private void AnnounceMenu()
+		{
+			_call.Caller.NotifyCallProgress(
+				"Press 1 to play the next message, 2 to replay the current message, 3 to delete the current message, 7 to delete all messages, 9 to hear these options again, or # to hang up.");
+		}
+
+		private void PlayNextMessage()
+		{
+			var messages = Messages;
+			if (!messages.Any())
+			{
+				_currentPlaybackIndex = -1;
+				_currentMessageName = null;
+				_call.Caller.NotifyCallProgress("You have no saved voicemail messages.");
+				return;
+			}
+
+			var nextIndex = Math.Min(_currentPlaybackIndex + 1, messages.Count - 1);
+			PlayMessage(messages, nextIndex);
+		}
+
+		private void ReplayCurrentMessage()
+		{
+			var messages = Messages;
+			if (!messages.Any())
+			{
+				_currentPlaybackIndex = -1;
+				_currentMessageName = null;
+				_call.Caller.NotifyCallProgress("You have no saved voicemail messages.");
+				return;
+			}
+
+			if (_currentPlaybackIndex < 0 || _currentPlaybackIndex >= messages.Count)
+			{
+				PlayMessage(messages, 0);
+				return;
+			}
+
+			PlayMessage(messages, _currentPlaybackIndex);
+		}
+
+		private void PlayMessage(IReadOnlyList<StoredAudioRecording> messages, int index)
+		{
+			var recording = messages[index];
+			_currentPlaybackIndex = index;
+			_currentMessageName = recording.Name;
+			_call.Caller.NotifyCallProgress(
+				$"Playing message #{index + 1} recorded {recording.RecordedAtUtc:u}.");
+			foreach (var segment in recording.Recording.Segments)
+			{
+				_call.Caller.NotifyCallProgress($"{segment.Speaker.Name}: {segment.RawText}");
+			}
+		}
+
+		private void DeleteCurrentMessage()
+		{
+			if (string.IsNullOrWhiteSpace(_currentMessageName))
+			{
+				_call.Caller.NotifyCallProgress("There is no current message selected to delete.");
+				return;
+			}
+
+			if (!_grid.DeleteHostedVoicemailMessage(_mailboxNumber, _currentMessageName))
+			{
+				_call.Caller.NotifyCallProgress("That voicemail message could not be deleted.");
+				return;
+			}
+
+			_call.Caller.NotifyCallProgress("The current voicemail message is deleted.");
+			_currentPlaybackIndex = Math.Max(-1, _currentPlaybackIndex - 1);
+			_currentMessageName = null;
+			AnnounceMailboxSummary();
+		}
+
+		private void DeleteAllMessages()
+		{
+			_grid.DeleteAllHostedVoicemailMessages(_mailboxNumber);
+			_currentPlaybackIndex = -1;
+			_currentMessageName = null;
+			_call.Caller.NotifyCallProgress("All saved voicemail messages are deleted.");
+			AnnounceMailboxSummary();
+		}
+	}
+
+	private enum HostedVoicemailMode
+	{
+		RecordIncomingMessage = 0,
+		AccessMailbox = 1
 	}
 }

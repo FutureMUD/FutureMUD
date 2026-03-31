@@ -14,4 +14,5 @@ public interface ITelephoneCall
 	bool IsConnected { get; }
 	bool IsRinging { get; }
 	void RelayTransmission(ITelephone source, SpokenLanguageInfo spokenLanguage);
+	void RelayDigits(ITelephone source, string digits);
 }

@@ -614,6 +614,12 @@ namespace MudSharp.Events {
 		CharacterHidden = 102,
 
 		[EventInfo("Fired on all perceivers in the location when they witness someone becoming hidden", ["character", "perceiver"], ["character", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceiver])]
-		CharacterHidesWitness = 103
+		CharacterHidesWitness = 103,
+
+		/// <summary>
+		/// Fires on an item receiving in-call keypad digits from a telephone source. Parameters are source item, digits.
+		/// </summary>
+		[EventInfo("Fires on an item receiving in-call keypad digits from a telephone source", ["item", "text"], ["source", "digits"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Text])]
+		TelephoneDigitsReceived = 104
 	}
 }

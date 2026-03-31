@@ -1875,16 +1875,36 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
 
 		private static ShouldSeedResult ClassifyTierPresence(FuturemudDatabaseContext context, string techLevel)
 		{
+			var expectedKnowledges = ExpectedKnowledgesForTier(context, techLevel).ToList();
+			var expectedProcedures = ExpectedProceduresForTier(context, techLevel).ToList();
+			var expectedDrugs = ExpectedDrugsForTier(techLevel).ToList();
+			var expectedDrugDeliveryMarkers = ExpectedDrugDeliveryMarkersForTier(context, techLevel)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.ToList();
+
+			var existingKnowledges = context.Knowledges
+				.Where(x => expectedKnowledges.Contains(x.Name))
+				.Select(x => x.Name)
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+			var existingProcedures = context.SurgicalProcedures
+				.Where(x => expectedProcedures.Contains(x.Name))
+				.Select(x => x.Name)
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+			var existingDrugs = context.Drugs
+				.Where(x => expectedDrugs.Contains(x.Name))
+				.Select(x => x.Name)
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+			var existingDrugDeliveryMarkers = context.GameItemComponentProtos
+				.Where(x => expectedDrugDeliveryMarkers.Contains(x.Name))
+				.Select(x => x.Name)
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
 			return SeederRepeatabilityHelper.ClassifyByPresence(
 			[
-				.. ExpectedKnowledgesForTier(context, techLevel)
-					.Select(name => context.Knowledges.Any(x => x.Name == name)),
-				.. ExpectedProceduresForTier(context, techLevel)
-					.Select(name => context.SurgicalProcedures.Any(x => x.Name == name)),
-				.. ExpectedDrugsForTier(techLevel)
-					.Select(name => context.Drugs.Any(x => x.Name == name)),
-				.. ExpectedDrugDeliveryMarkersForTier(context, techLevel)
-					.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
+				.. expectedKnowledges.Select(existingKnowledges.Contains),
+				.. expectedProcedures.Select(existingProcedures.Contains),
+				.. expectedDrugs.Select(existingDrugs.Contains),
+				.. expectedDrugDeliveryMarkers.Select(existingDrugDeliveryMarkers.Contains)
 			]);
 		}
 

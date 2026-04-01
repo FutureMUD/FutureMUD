@@ -1,0 +1,387 @@
+# FutureMUD Magic System: Spells
+
+## Purpose
+This document explains how magic `spells` work in FutureMUD.
+
+Spells are the data-driven half of the magic subsystem. A spell is assembled from a trigger, effect lists, costs, checks, emotes, and timing rules instead of from one bespoke hard-coded command class.
+
+This document is aimed at:
+
+- agents that need the spell lifecycle and extension points quickly
+- developers adding new spell trigger or spell effect types
+- builders authoring spells with the `magic spell` workflow
+- seeder authors planning manual spell data
+
+## Quick Map
+- Read the runtime lifecycle section if you are debugging spell behavior.
+- Read the builder workflow section if you are authoring content with `magic spell`.
+- Read the developer extension section if you are adding a new trigger or effect type.
+- Read [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#spell-trigger-types) and [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#spell-effect-types) if you only need the current type list.
+
+## What A Spell Is
+A spell is a persisted runtime object that combines:
+
+- a school
+- a known-spell prog
+- a trigger
+- target-facing spell effects
+- optional caster-only spell effects
+- casting cost expressions per resource
+- an inventory plan for material requirements
+- casting and resist settings
+- effect duration settings
+- emotes and output flags
+- post-cast lockout rules
+
+Important files and contracts are:
+
+- contract: `FutureMUDLibrary/Magic/IMagicSpell.cs`
+- runtime object: `MudSharpCore/Magic/MagicSpell.cs`
+- trigger contract: `FutureMUDLibrary/Magic/IMagicTrigger.cs`
+- effect contract: `FutureMUDLibrary/Magic/IMagicSpellEffectTemplate.cs`
+- trigger registry: `MudSharpCore/Magic/SpellTriggerFactory.cs`
+- effect registry: `MudSharpCore/Magic/SpellEffectFactory.cs`
+- builder command surface: `MudSharpCore/Commands/Modules/MagicModule.cs`, `MudSharpCore/Commands/Helpers/EditableItemHelperMagic.cs`
+- persistence: `MudsharpDatabaseLibrary/Models/MagicSpell.cs`
+
+## Runtime Spell Lifecycle
+### 1. Known-spell gating
+A spell has a `SpellKnownProg`.
+
+This prog is used by the player-facing school command surface to determine:
+
+- whether the spell appears in `<schoolverb> spells`
+- whether the player can request spell help
+- whether the player can cast the spell through `<schoolverb> cast ...`
+
+### 2. Trigger resolution
+Each spell has one trigger, unless it is still incomplete in builder state.
+
+The trigger decides:
+
+- how the spell is invoked
+- whether it yields a target
+- whether that target can fail to resolve
+- what target type string the trigger exposes to the effect compatibility rules
+- the allowed `SpellPower` range
+
+If the trigger implements `ICastMagicTrigger`, it can be used through the school verb's `cast` flow.
+
+### 3. Cost validation
+Before a spell resolves, `MagicSpell.CastSpell` validates:
+
+- all configured resource costs
+- all material requirements in the inventory plan
+
+Cost expressions are evaluated with spell-specific variables such as power and self-targeting state.
+
+### 4. Material validation
+Spell materials are expressed through an `InventoryPlanTemplate`.
+
+The spell checks whether the plan is feasible before casting. Failure can come from:
+
+- not enough free hands
+- not enough wielders
+- missing items
+
+### 5. Target-null handling
+If the trigger can fail to yield a target and at least one effect requires one, the spell can emit a target-null emote instead of proceeding.
+
+This is one of the readiness rules checked before the spell is considered game-ready.
+
+### 6. Casting check and resist check
+Spells use:
+
+- `CheckType.CastSpellCheck` for the caster
+- `CheckType.ResistMagicSpellCheck` for resisting targets
+
+The spell can specify:
+
+- casting trait
+- casting difficulty
+- minimum success threshold
+- optional resist trait
+- optional resist difficulty
+
+If the casting outcome is below the threshold, the fail-casting emote is shown and the spell does not proceed.
+
+If a resisting target beats the caster's result, the target-resisted emote is shown and the spell does not apply to that target.
+
+### 7. Emotes and output flags
+Spells support:
+
+- casting emote
+- fail casting emote
+- target emote
+- target resisted emote
+- target null emote
+- separate output flags for casting and target emotes
+
+These are central to spell readiness. A spell without a required casting emote is not ready for game.
+
+### 8. Duration calculation
+If any applied effect is not instantaneous, the spell needs an effect-duration expression.
+
+That expression can use variables derived from the casting result, including success degrees and chosen power.
+
+### 9. Effect and caster-effect application
+Spells maintain two effect lists:
+
+- `SpellEffects`
+- `CasterSpellEffects`
+
+At cast time:
+
+- target-side effects are applied to the resolved target or targets
+- caster-side effects are applied to the caster
+- a `MagicSpellParent` effect groups the child spell effects together on the target
+
+If all effects are instantaneous, the parent effect is not retained.
+
+### 10. Exclusivity and lockouts
+Spells can enforce:
+
+- an `ExclusiveDelay`, which blocks all spell casting for a time
+- a `NonExclusiveDelay`, which blocks same-school spells for a time
+- exclusive applied effects, which replace prior parent effects from the same spell instead of stacking
+
+### 11. Ready-for-game validation
+`MagicSpell.ReadyForGame` verifies that the spell has enough data to function safely.
+
+Current readiness checks include:
+
+- trigger present
+- casting emote present
+- a target-yielding trigger when any effect requires a target
+- a target-null emote when the trigger may fail to yield a target
+- an effect-duration expression when any effect is non-instantaneous
+- trigger and effect compatibility
+- casting trait present
+
+## Builder Workflow
+### Entry point
+The builder entry point is `magic spell`.
+
+Core workflow:
+
+- `magic spell list`
+- `magic spell edit new <name> <school>`
+- `magic spell clone <old> <new>`
+- `magic spell edit <which>`
+- `magic spell show`
+
+Discovery helpers:
+
+- `magic spell triggers`
+- `magic spell triggerhelp <type>`
+- `magic spell effects`
+- `magic spell effecthelp <type>`
+
+### Core spell editing
+Current shared spell editing includes:
+
+- `name <name>`
+- `blurb <text>`
+- `description`
+- `school <school>`
+- `prog <prog>`
+- `exclusivedelay <seconds>`
+- `nonexclusivedelay <seconds>`
+- `castemote <emote>`
+- `targetemote <emote>`
+- `failcastemote <emote>`
+- `targetresistemote <emote>`
+- `targetnullemote <emote>`
+- `emoteflags <flags>`
+- `targetemoteflags <flags>`
+- `trait <skill/attribute>`
+- `difficulty <difficulty>`
+- `threshold <outcome>`
+- `resist none`
+- `resist <trait> <difficulty>`
+- `duration <trait expression>`
+- `exclusiveeffect`
+
+### Trigger workflow
+Trigger authoring is:
+
+- `magic spell set trigger new <type> [...]`
+- `magic spell set trigger set ...`
+
+The spell object delegates subtype editing back into the selected trigger instance.
+
+### Effect workflow
+Target-side effect authoring is:
+
+- `magic spell set effect add <type> [...]`
+- `magic spell set effect remove <##>`
+- `magic spell set effect <##> ...`
+
+Caster-side effect authoring is:
+
+- `magic spell set castereffect add <type> [...]`
+- `magic spell set castereffect remove <##>`
+- `magic spell set castereffect <##> ...`
+
+### Material workflow
+Material requirements are authored through the spell's inventory plan:
+
+- `magic spell set material add ...`
+- `magic spell set material delete <#>`
+
+This is the main builder-facing material-component path for spells.
+
+### Cost workflow
+Resource costs are authored as expressions per resource:
+
+- `magic spell set cost <resource> <trait expression>`
+- `magic spell set cost <resource> remove`
+
+These expressions are evaluated at cast time using spell-specific variables.
+
+## Seeder and Data Author Workflow
+There is no dedicated magic spell seeder in `DatabaseSeeder`.
+
+Current seeder implications:
+
+- spells must currently be seeded manually into `MagicSpells`
+- the `Definition` field is XML-backed and contains the trigger, costs, effects, caster effects, and material plan
+- referenced resources, school, progs, trait expressions, and traits must already exist
+- effect and trigger type tokens must match registered runtime types exactly
+
+Recommended manual data order:
+
+1. school
+2. resources
+3. traits and trait expressions
+4. spell-known prog and any supporting target-filter or helper progs
+5. spell
+
+## Developer Extension Workflow
+### Adding a new trigger type
+Triggers implement `IMagicTrigger` and are registered through `SpellTriggerFactory`.
+
+Recommended steps:
+
+1. add a new concrete trigger class under `MudSharpCore/Magic/SpellTriggers`
+2. implement:
+   - load constructor from XML
+   - builder default constructor or builder-load helper
+   - `SaveToXml`
+   - `Clone`
+   - `BuildingCommand`
+   - `Show`
+   - `ShowPlayer`
+   - `DoTriggerCast` if it is a cast trigger
+   - `TriggerYieldsTarget`
+   - `TriggerMayFailToYieldTarget`
+   - `TargetTypes`
+3. add static `RegisterFactory`
+4. call:
+   - `SpellTriggerFactory.RegisterBuilderFactory(<token>, ...)`
+   - `SpellTriggerFactory.RegisterLoadTimeFactory(<token>, ...)`
+5. make sure the builder help text clearly explains target behavior
+
+Important implementation note:
+
+- `SpellTriggerFactory` discovers trigger registrations by scanning `IMagicTrigger` implementers and invoking static `RegisterFactory`
+
+### Adding a new spell effect type
+Spell effects implement `IMagicSpellEffectTemplate` and are registered through `SpellEffectFactory`.
+
+Recommended steps:
+
+1. add a new concrete effect class under `MudSharpCore/Magic/SpellEffects`
+2. implement:
+   - load constructor from XML
+   - builder default or builder factory
+   - `SaveToXml`
+   - `BuildingCommand`
+   - `Show`
+   - `Clone`
+   - `IsInstantaneous`
+   - `RequiresTarget`
+   - `IsCompatibleWithTrigger`
+   - `GetOrApplyEffect`
+3. add static `RegisterFactory`
+4. call:
+   - `SpellEffectFactory.RegisterLoadTimeFactory(<token>, ...)`
+   - `SpellEffectFactory.RegisterBuilderFactory(<token>, ...)`
+5. supply a precise builder help string, compatibility list, and default XML shape
+
+Important implementation note:
+
+- `SpellEffectFactory` discovers effect registrations by scanning `IMagicSpellEffectTemplate` implementers and invoking static `RegisterFactory`
+
+### Design guidance
+- Use triggers to own invocation and targeting rules.
+- Use spell effects to own the applied result.
+- Keep trigger target types and effect compatibility aligned.
+- Prefer adding a new spell effect over a new spell type when the behavior is "existing cast flow, new result."
+- Prefer adding a new trigger over a new spell effect when the behavior is "new invocation or targeting pattern."
+
+## Current Implemented Trigger Types
+| Token | Class | Summary |
+| --- | --- | --- |
+| `character` | `CastingTriggerCharacter` | Casts at a character target in the same room |
+| `characterprogroom` | `CastingTriggerCharacterProgRoom` | Casts at a character with prog-driven room targeting |
+| `charactervicinity` | `CastingTriggerCharacterVicinity` | Casts at characters in a character's vicinity |
+| `corpse` | `CastingTriggerCorpse` | Casts at a corpse target |
+| `item` | `CastingTriggerItem` | Casts at an item target |
+| `localitem` | `CastingTriggerLocalItem` | Casts at a local item target |
+| `party` | `CastingTriggerParty` | Casts across party members |
+| `progroom` | `CastingTriggerProgRoom` | Casts using a prog-driven room rule |
+| `room` | `CastingTriggerRoom` | Casts at the room or cell |
+| `self` | `CastingTriggerSelf` | Casts on the caster |
+| `vicinity` | `CastingTriggerVicinity` | Casts across a vicinity target set |
+
+## Current Implemented Spell Effect Types
+| Token | Class | Summary |
+| --- | --- | --- |
+| `blindness` | `BlindnessEffect` | Applies blindness |
+| `boost` | `TraitBoostEffect` | Boosts a trait |
+| `changecharacteristic` | `ChangeCharacteristicEffect` | Changes a characteristic |
+| `createitem` | `CreateItemEffect` | Creates an item |
+| `createliquid` | `CreateLiquidEffect` | Creates a liquid |
+| `createnpc` | `CreateNPCEffect` | Creates an NPC |
+| `damage` | `DamageEffect` | Deals damage |
+| `deafness` | `DeafnessEffect` | Applies deafness |
+| `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
+| `glow` | `GlowEffect` | Applies glow or light-style effect |
+| `heal` | `HealEffect` | Heals damage |
+| `healingrate` | `HealingRateSpellEffect` | Alters healing rate |
+| `invisibility` | `InvisibilityEffect` | Applies invisibility |
+| `mend` | `MendEffect` | Mends damage or wear |
+| `needdelta` | `NeedDeltaEffect` | Changes a need immediately |
+| `needrate` | `NeedRateSpellEffect` | Alters need rate |
+| `pacifism` | `PacifismSpellEffect` | Applies pacifism |
+| `rage` | `RageSpellEffect` | Applies rage |
+| `relocate` | `RelocateEffect` | Relocates a target |
+| `resurrect` | `ResurrectionEffect` | Resurrects a target |
+| `roomatmosphere` | `RoomAtmosphereEffect` | Alters room atmosphere |
+| `roomlight` | `RoomLightEffect` | Alters room light |
+| `roomtemperature` | `RoomTemperatureEffect` | Alters room temperature |
+| `selfdamage` | `SelfDamageEffect` | Damages the caster |
+| `staminadelta` | `StaminaDeltaSpellEffect` | Changes stamina immediately |
+| `staminaexpendrate` | `StaminaExpenditureSpellEffect` | Alters stamina expenditure rate |
+| `staminaregenrate` | `StaminaRegenRateSpellEffect` | Alters stamina regeneration rate |
+| `telepathy` | `TelepathySpellEffect` | Applies telepathic linkage |
+| `teleport` | `TeleportEffect` | Teleports the caster or target |
+| `teleporttarget` | `TeleportTargetEffect` | Teleports a target selected by the spell |
+| `weatherchange` | `WeatherChangeEffect` | Changes weather |
+| `weatherchangefreeze` | `WeatherChangeFreezeEffect` | Changes and freezes weather state |
+| `weatherfreeze` | `WeatherFreezeEffect` | Freezes weather state |
+| `weight` | `WeightSpellEffect` | Alters weight |
+
+## Important Current-State Notes
+- Spells are more builder-composable than powers, but they still rely on registered C# trigger and effect implementations.
+- The trigger/effect registries are the extension point; there is no fully script-defined spell-effect system.
+- Readiness validation is a major part of spell authoring. If a spell is incomplete, it will show a builder error rather than quietly misbehaving.
+- Caster effects are separate from ordinary effects and apply to the caster after the target-side application path.
+
+## Related Reading
+- [Magic System Overview](./Magic_System_Overview.md)
+- [Magic System: Capabilities, Resources, and Generators](./Magic_System_Capabilities_Resources_and_Generators.md)
+- [Magic System: Powers](./Magic_System_Powers.md)
+- [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#spell-trigger-types)
+- [Magic System: Implemented Types](./Magic_System_Implemented_Types.md#spell-effect-types)

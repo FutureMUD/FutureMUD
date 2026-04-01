@@ -49,8 +49,8 @@ public class ProgTests
 	[ClassInitialize()]
 	public static void MyClassInitialize(TestContext testContext)
 	{
-		_gameworld = new GameworldStub().ToMock();
-		FutureProg.Initialise();
+		FutureProgTestBootstrap.EnsureInitialised();
+		_gameworld = FutureProgTestBootstrap.Gameworld;
 	}
 	//
 	// Use ClassCleanup to run code after all tests in a class have run

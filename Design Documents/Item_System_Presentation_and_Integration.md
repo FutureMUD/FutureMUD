@@ -149,6 +149,10 @@ Items and components can be discovered and manipulated through FutureProg-facing
 
 Variable-driven items are a common integration point between item content and scripting.
 
+Items now also expose ownership metadata to FutureProg. The item `owner` property can be null and, when present, currently surfaces character or clan owners. Item ownership helper functions support direct ownership checks, property-trust checks, clan-aware trust checks, and ownership mutation for individual items or deep item trees.
+
+Deep ownership mutation follows the practical containment graph that builders and players care about rather than only a single container chain. The current scripting helpers walk the root item, nested container contents, sheath contents, and belted attachments so that claiming or clearing ownership can keep carried equipment sets consistent.
+
 Telecommunications items also expose scripting hooks through item and endpoint queries such as current phone number and shared-number policy, which allows crafting or project systems to assign, clear, or reconfigure telephone numbers at runtime. The same runtime scripting surface applies to cellular handsets and implant telephones, even though implant telephones present their user interaction through neural-interface status and command flows instead of direct room manipulation.
 
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.

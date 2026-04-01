@@ -64,7 +64,7 @@ public class UsefulSeeder : IDatabaseSeeder
 		"Telephone_Standard",
 		"ElectricGridFeeder_Standard",
 		"TelecommunicationsGridFeeder_Standard",
-        "TelecommunicationsGridOutlet",
+		"TelecommunicationsGridOutlet",
 		"GridLiquidSource_Standard",
 		"LiquidGridSupplier_Standard",
 		"LiquidPump_Standard",
@@ -75,7 +75,13 @@ public class UsefulSeeder : IDatabaseSeeder
 		"PowerSocket_Mains_Double",
 		"PowerSupply_60W",
 		"ElectricLight_Medium",
-		"HandheldRadio_Standard"
+		"HandheldRadio_Standard",
+		"ElectricHeaterCooler_SpaceHeater",
+		"ElectricHeaterCooler_PortableCooler",
+		"ConsumableHeaterCooler_SmallFire",
+		"ConsumableHeaterCooler_Bonfire",
+		"SolidFuelHeaterCooler_Fireplace",
+		"SolidFuelHeaterCooler_WoodStove"
 	];
 
 	public bool SafeToRunMoreThanOnce => true;
@@ -120,7 +126,7 @@ public class UsefulSeeder : IDatabaseSeeder
 					return (false, "Invalid answer");
 				}),
 			("modernitems",
-				"Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios, grid creators, telephones, liquid grids and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
+				"Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios, electric heaters and coolers, fireplaces, campfires, grid creators, telephones, liquid grids and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
 				(context, questions) => ClassifyModernPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
 				(answer, context) =>
 				{
@@ -250,6 +256,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
 		if (fuelTag is not null && context.LiquidsTags.Any(x => x.TagId == fuelTag.Id))
 		{
+			presenceChecks.Add(context.GameItemComponentProtos.Any(x => x.Type == "FuelHeaterCooler"));
 			presenceChecks.Add(context.GameItemComponentProtos.Any(x => x.Type == "Fuel Generator"));
 		}
 
@@ -812,6 +819,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		var mainsSocketType = context.StaticConfigurations
 			.FirstOrDefault(x => x.SettingName == "DefaultPowerSocketType")
 			?.Definition ?? "NEMA 5-15";
+		var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
 
 		GameItemComponentProto CreateModernComponent(string type, string name, string description, XElement definition)
 		{
@@ -871,6 +879,89 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 						new XAttribute("type", connector.ConnectionType),
 						new XAttribute("powered", connector.Powered)
 					)));
+		}
+
+		XElement ThermalDefinition(double ambientHeat, double intimateHeat, double immediateHeat, double proximateHeat,
+			double distantHeat, double veryDistantHeat, string activeDescription, string inactiveDescription,
+			params object[] extraElements)
+		{
+			return new XElement("Definition",
+				new XElement("AmbientHeat", ambientHeat),
+				new XElement("IntimateHeat", intimateHeat),
+				new XElement("ImmediateHeat", immediateHeat),
+				new XElement("ProximateHeat", proximateHeat),
+				new XElement("DistantHeat", distantHeat),
+				new XElement("VeryDistantHeat", veryDistantHeat),
+				new XElement("ActiveDescriptionAddendum", new XCData(activeDescription)),
+				new XElement("InactiveDescriptionAddendum", new XCData(inactiveDescription)),
+				extraElements);
+		}
+
+		XElement SwitchableThermalDefinition(double ambientHeat, double intimateHeat, double immediateHeat,
+			double proximateHeat, double distantHeat, double veryDistantHeat, string activeDescription,
+			string inactiveDescription, string switchOnEmote, string switchOffEmote, params object[] extraElements)
+		{
+			var definition = ThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
+				veryDistantHeat, activeDescription, inactiveDescription, extraElements);
+			definition.Add(
+				new XElement("SwitchOnEmote", new XCData(switchOnEmote)),
+				new XElement("SwitchOffEmote", new XCData(switchOffEmote)));
+			return definition;
+		}
+
+		void CreateElectricHeaterCooler(string name, string description, double ambientHeat, double intimateHeat,
+			double immediateHeat, double proximateHeat, double distantHeat, double veryDistantHeat, double wattage,
+			string activeDescription, string inactiveDescription, string switchOnEmote, string switchOffEmote)
+		{
+			CreateModernComponent("ElectricHeaterCooler", name, description,
+				SwitchableThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
+					veryDistantHeat, activeDescription, inactiveDescription, switchOnEmote, switchOffEmote,
+					new XElement("Wattage", wattage)));
+		}
+
+		void CreateConsumableHeaterCooler(string name, string description, double ambientHeat, double intimateHeat,
+			double immediateHeat, double proximateHeat, double distantHeat, double veryDistantHeat, int secondsOfFuel,
+			string activeDescription, string inactiveDescription, string fuelExpendedEcho)
+		{
+			CreateModernComponent("ConsumableHeaterCooler", name, description,
+				ThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat, veryDistantHeat,
+					activeDescription, inactiveDescription,
+					new XElement("SecondsOfFuel", secondsOfFuel),
+					new XElement("SpentItemProto", 0),
+					new XElement("FuelExpendedEcho", new XCData(fuelExpendedEcho))));
+		}
+
+		void CreateSolidFuelHeaterCooler(string name, string description, double ambientHeat, double intimateHeat,
+			double immediateHeat, double proximateHeat, double distantHeat, double veryDistantHeat,
+			double maximumFuelWeight, double secondsPerUnitWeight, string activeDescription,
+			string inactiveDescription, string switchOnEmote, string switchOffEmote)
+		{
+			CreateModernComponent("SolidFuelHeaterCooler", name, description,
+				SwitchableThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
+					veryDistantHeat, activeDescription, inactiveDescription, switchOnEmote, switchOffEmote,
+					new XElement("FuelTag", fuelTag?.Id ?? 0),
+					new XElement("MaximumFuelWeight", maximumFuelWeight),
+					new XElement("SecondsPerUnitWeight", secondsPerUnitWeight)));
+		}
+
+		void CreateLiquidFuelHeaterCooler(string variantName, MudSharp.Models.Liquid liquid, string description,
+			double ambientHeat,
+			double intimateHeat, double immediateHeat, double proximateHeat, double distantHeat,
+			double veryDistantHeat, double fuelPerSecond, string activeDescription, string inactiveDescription,
+			string switchOnEmote, string switchOffEmote)
+		{
+			var safeFuelName = SanitizeComponentName(liquid.Name);
+			CreateModernComponent("FuelHeaterCooler", $"FuelHeaterCooler_{variantName}_{safeFuelName}", description,
+				SwitchableThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
+					veryDistantHeat, activeDescription, inactiveDescription, switchOnEmote, switchOffEmote,
+					new XElement("FuelMedium", 0),
+					new XElement("LiquidFuel", liquid.Id),
+					new XElement("GasFuel", 0),
+					new XElement("FuelPerSecond", fuelPerSecond),
+					new XElement("Connector",
+						new XAttribute("gender", (short)Gender.Male),
+						new XAttribute("type", "LiquidLine"),
+						new XAttribute("powered", false))));
 		}
 
 		void CreatePowerSocket(string name, int count)
@@ -961,10 +1052,10 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			ConnectorDefinition(
 				new ConnectorType(Gender.Male, mainsSocketType, true),
 				new ConnectorType(Gender.Female, mainsSocketType, true)));
-        CreateModernComponent("Connectable", "Connectable_SingleFemale",
-            "Turns an item into a female connection with a single female plug.",
-            ConnectorDefinition(new ConnectorType(Gender.Female, mainsSocketType, true)));
-        CreateModernComponent("Attachable Connectable", "AttachableConnectable_PowerLead",
+		CreateModernComponent("Connectable", "Connectable_SingleFemale",
+			"Turns an item into a female connection with a single female plug.",
+			ConnectorDefinition(new ConnectorType(Gender.Female, mainsSocketType, true)));
+		CreateModernComponent("Attachable Connectable", "AttachableConnectable_PowerLead",
 			"Turns an item into an attachable mains lead or detachable power cable.",
 			new XElement("Definition",
 				new XElement("Connector",
@@ -1197,7 +1288,76 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 						new XAttribute("type", "USB-C"),
 						new XAttribute("powered", true)))));
 
-		var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+		CreateElectricHeaterCooler("ElectricHeaterCooler_SpaceHeater",
+			"Turns an item into a compact mains-powered space heater.",
+			4.0, 12.0, 8.0, 4.0, 1.5, 0.5, 1500.0,
+			"It radiates a steady wave of dry heat.",
+			"It is cold and silent.",
+			"@ click|clicks and begin|begins pushing out warm air.",
+			"@ click|clicks off and the warm airflow fade|fades.");
+		CreateElectricHeaterCooler("ElectricHeaterCooler_WallHeater",
+			"Turns an item into a larger fixed electric wall heater.",
+			6.0, 10.0, 7.5, 4.5, 2.5, 1.0, 2400.0,
+			"It gives off a broad, comfortable warmth.",
+			"It is currently inactive and cool to the touch.",
+			"@ hum|hums softly as heating elements glow to life.",
+			"@ tick|ticks quietly as the heating elements cool.");
+		CreateElectricHeaterCooler("ElectricHeaterCooler_PortableCooler",
+			"Turns an item into a portable electric cooler or compact air conditioner.",
+			-3.5, -9.0, -6.0, -3.5, -1.5, -0.5, 900.0,
+			"It pushes out a stream of chilled air.",
+			"It is switched off and room temperature.",
+			"@ whirr|whirrs to life and begin|begins venting chilled air.",
+			"@ wind|winds down and the chilled airflow stop|stops.");
+		CreateElectricHeaterCooler("ElectricHeaterCooler_IndustrialCooler",
+			"Turns an item into an industrial electric cooling unit.",
+			-6.0, -10.0, -8.0, -5.0, -3.0, -1.2, 3200.0,
+			"It drones continuously while dumping cold air into the room.",
+			"It is currently inactive and silent.",
+			"@ thrum|thrums to life with a blast of refrigerated air.",
+			"@ cycle|cycles down and the cold draft ebb|ebbs away.");
+
+		CreateConsumableHeaterCooler("ConsumableHeaterCooler_SmallFire",
+			"Turns an item into a small temporary fire such as a hurried cooking fire or signal flame.",
+			2.0, 10.0, 7.0, 3.0, 1.0, 0.3, 900,
+			"It burns with a modest crackling flame.",
+			"It has burned down to cold ash.",
+			"$0 gutter|gutters and collapse|collapses into dying embers.");
+		CreateConsumableHeaterCooler("ConsumableHeaterCooler_LargeFire",
+			"Turns an item into a larger campfire-sized temporary blaze.",
+			5.0, 18.0, 14.0, 8.0, 3.0, 1.0, 3600,
+			"It burns hot and bright, throwing out waves of heat.",
+			"It has burned out.",
+			"$0 spit|spits a final shower of sparks before the flames die away.");
+		CreateConsumableHeaterCooler("ConsumableHeaterCooler_Bonfire",
+			"Turns an item into a large temporary bonfire.",
+			8.0, 25.0, 18.0, 10.0, 5.0, 2.0, 10800,
+			"It roars with an intense bonfire heat.",
+			"It has collapsed into a mound of cold charcoal and ash.",
+			"$0 roar|roars one last time before collapsing into a heap of glowing embers.");
+
+		CreateSolidFuelHeaterCooler("SolidFuelHeaterCooler_Brazier",
+			"Turns an item into a solid-fuel brazier that accepts tagged fuel items.",
+			3.0, 12.0, 8.0, 4.5, 2.0, 0.8, 8.0, 1100.0,
+			"It is filled with glowing fuel and wafting heat.",
+			"It is empty and cold.",
+			"@ flare|flares up as the fuel catch|catches.",
+			"@ dim|dims as the brazier is shut down.");
+		CreateSolidFuelHeaterCooler("SolidFuelHeaterCooler_Fireplace",
+			"Turns an item into a room-warming fireplace that burns tagged solid fuel.",
+			6.0, 18.0, 12.0, 7.0, 3.5, 1.5, 35.0, 1800.0,
+			"It crackles warmly with a bed of burning fuel.",
+			"It is laid cold and dark.",
+			"@ catch|catches and begin|begins to roar warmly up the flue.",
+			"@ settle|settles down as the flames are banked.");
+		CreateSolidFuelHeaterCooler("SolidFuelHeaterCooler_WoodStove",
+			"Turns an item into a cast-iron stove that burns tagged solid fuel.",
+			7.0, 16.0, 11.0, 6.5, 3.0, 1.2, 20.0, 2400.0,
+			"It rings softly with stored heat from the burning fuel within.",
+			"It is cold iron with no glow inside.",
+			"@ rumble|rumbles as the stove draws properly and the fire takes.",
+			"@ clank|clanks shut as the stove is damped down.");
+
 		if (fuelTag is not null)
 		{
 			foreach (var liquid in context.Liquids
@@ -1206,6 +1366,20 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 				         .ToList())
 			{
 				var safeName = SanitizeComponentName(liquid.Name);
+				CreateLiquidFuelHeaterCooler("PortableHeater", liquid,
+					$"Turns an item into a portable radiant heater that burns {liquid.Name} from a connected liquid supply.",
+					4.0, 14.0, 9.0, 5.0, 2.0, 0.5, 0.00025,
+					"It gives off a close, oily heat while the burner is lit.",
+					"It is unlit and cool.",
+					"@ hiss|hisses softly as the burner ignite|ignites.",
+					"@ gutter|gutters and go|goes out.");
+				CreateLiquidFuelHeaterCooler("WorkshopStove", liquid,
+					$"Turns an item into a heavier workshop heater or stove that burns {liquid.Name} from a connected liquid supply.",
+					6.5, 18.0, 12.0, 7.0, 3.0, 1.0, 0.00045,
+					"It radiates a sustained mechanical heat from its burner chamber.",
+					"It is currently inactive and cold.",
+					"@ chuff|chuffs into life as the burner stabilise|stabilises.",
+					"@ sputter|sputters and die|dies down.");
 				CreateModernComponent("Fuel Generator", $"FuelGenerator_{safeName}",
 					$"Turns an item into a portable generator fuelled by {liquid.Name}.",
 					new XElement("Definition",

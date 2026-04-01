@@ -33,3 +33,21 @@ Most gameplay-facing item behaviour is discovered by checking whether an item co
 - Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
 - The `Item Templates/GameItem` template is intended to be a starting skeleton, not a complete implementation. The authoring document calls out the manual work the template does not solve.
 - Some component types are special cases. For example, `Holdable` is a read-only auto-initialised component type and should be treated differently from ordinary editable component prototypes.
+
+## Thermal Sources
+Room temperature now includes three layers:
+- base weather and climate
+- cell and zone environmental temperature effects
+- item-driven thermal sources
+
+Thermal source items are authored through dedicated item components rather than special item subclasses. The current supported families are:
+- `ElectricHeaterCooler`
+- `FuelHeaterCooler`
+- `ConsumableHeaterCooler`
+- `SolidFuelHeaterCooler`
+
+All four use the shared `IProduceHeat` interface, which now exposes:
+- a signed ambient room contribution
+- explicit signed proximity-band contributions
+
+This allows both heaters and coolers to use the same item capability, and lets a single item influence the room as a whole while also applying stronger or weaker effects to nearby people and things.

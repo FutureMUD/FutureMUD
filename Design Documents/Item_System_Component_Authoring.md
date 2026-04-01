@@ -236,3 +236,31 @@ Use this checklist when adding a new capability:
 - `ContainerGameItemComponentProto` and `ContainerGameItemComponent`
 - `WearableGameItemComponentProto` and `WearableGameItemComponent`
 - `HoldableGameItemComponentProto` and `HoldableGameItemComponent` for the read-only special-case pattern
+
+## Thermal Source Components
+The thermal-source family is the reference for "same gameplay concept, multiple activation models".
+
+Shared authoring shape:
+- all thermal sources implement `IProduceHeat`
+- all thermal source protos author signed output for `ambient`, `intimate`, `immediate`, `proximate`, `distant`, and `verydistant`
+- all steady-state variants also author switch-on and switch-off emotes plus active and inactive descriptive addenda
+
+Current builder-facing thermal component types:
+- `ElectricHeaterCooler`
+  - authors wattage plus the shared thermal profile
+  - runtime activation depends on being switched on and receiving power
+- `FuelHeaterCooler`
+  - authors a single fuel medium (`liquid` or `gas`), a specific fuel type, burn rate, connector shape, and the shared thermal profile
+  - runtime activation depends on being switched on, connected, and still supplied with matching fuel
+- `ConsumableHeaterCooler`
+  - authors burn duration, optional spent-item replacement, spent emote, and the shared thermal profile
+  - runtime state is just remaining burn time
+- `SolidFuelHeaterCooler`
+  - authors valid fuel tag, maximum loaded fuel weight, seconds-per-unit-weight, and the shared thermal profile
+  - runtime state includes contained fuel items, the currently burning fuel item, and remaining burn time for that item
+
+When adding similar capabilities in future:
+1. Put the shared gameplay contract on a public interface first.
+2. Keep the authored cross-family profile on a shared proto base.
+3. Keep activation-specific state and persistence on the runtime component.
+4. Explicitly decide how morph, destruction, load-time finalisation, and deep-copy flows should treat inserted media or fuel.

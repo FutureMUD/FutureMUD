@@ -207,3 +207,35 @@ For exchange-hosted voicemail, extend that pass with:
 - item loads but does nothing: the item probably lacks the component or the runtime component is not implementing the expected interface.
 - boot-time load fails: likely missing or mismatched database loader registration.
 - updated component changes do not appear on old content: update workflow was not run or the update hooks are incomplete.
+
+## Thermal Source Workflow
+Thermal-source items now have a standard content workflow:
+
+1. Create the relevant component with `comp edit new electricheatercooler`, `fuelheatercooler`, `consumableheatercooler`, or `solidfuelheatercooler`.
+2. Author the shared thermal profile:
+   ambient, intimate, immediate, proximate, distant, and verydistant.
+3. Author the activation model:
+   - electric: wattage
+   - fuel-fed: medium, specific fuel, burn rate, connector
+   - consumable: duration, optional spent item
+   - solid-fuel: valid fuel tag, capacity, seconds-per-weight
+4. Submit the component revision.
+5. Attach it to an item prototype with `item set add`.
+6. Load a live test item and validate both room-temperature and proximity-temperature outcomes.
+
+Recommended validation passes by family:
+- electric
+  - connect it to a suitable power source
+  - switch it on and verify the room temperature changes indoors but not outdoors
+  - move a character or item between proximity bands and verify the local effect scales correctly
+- fuel-fed
+  - connect it to a compatible liquid or gas source
+  - confirm the authored fuel works and the wrong fuel does not
+  - confirm disconnect or exhaustion stops the thermal effect
+- consumable
+  - load or create the item and verify it auto-starts
+  - confirm it deletes or swaps to the authored spent item when expended
+- solid-fuel
+  - load it with correctly tagged fuel
+  - confirm untagged items are rejected
+  - confirm fuel burns one item at a time in load order

@@ -75,9 +75,21 @@ This is the main MUD engine - the core FutureMUD product. It is a console applic
 
 - [Project MudSharpCore](./MudSharpCore/AGENTS.md)
 
+###FutureMUDLibrary Unit Tests Project
+
+This is the unit test project for `FutureMUDLibrary`. Put tests for shared extension methods, helper classes, value objects and other library-first behaviour here rather than in the core engine suite.
+
+- [Project FutureMUDLibrary Unit Tests](./FutureMUDLibrary%20Unit%20Tests/AGENTS.md)
+
+###ExpressionEngine Unit Tests Project
+
+This is the unit test project for `ExpressionEngine`. Put parser, function, and formula-evaluation tests here.
+
+- [Project ExpressionEngine Unit Tests](./ExpressionEngine%20Unit%20Tests/AGENTS.md)
+
 ###MudSharpCore Unit Tests Project
 
-This is a unit test project for MudSharpCore. Implement any unit tests in here.
+This is the unit test project for MudSharpCore runtime behaviour. Implement engine, gameplay, FutureProg and other concrete runtime tests here.
 
 - [Project MudSharpCore Unit Tests](./MudSharpCore Unit Tests/AGENTS.md)
 
@@ -93,11 +105,35 @@ The seeder can also be run again in the future to add additional options and con
 
 - [Project DatabaseSeeder](./DatabaseSeeder/AGENTS.md)
 
+###DatabaseSeeder Unit Tests Project
+
+This is the unit test project for `DatabaseSeeder`. Put tests for seeder content, seed-source invariants, repeatability and seeder-specific helpers here.
+
+- [Project DatabaseSeeder Unit Tests](./DatabaseSeeder%20Unit%20Tests/AGENTS.md)
+
 ###DiscordBotCore Project
 
 The discord bot is a bot designed to run alongside the engine to provide some discord interactions for the game owners, like echoing in game messages or providing admins some control over the engine via discord commands. It uses the DSharpPlus library for discord and is a console application.
 
 - [Project DiscordBotCore](./DiscordBotCore/AGENTS.md)
+
+###MudsharpDatabaseLibrary Unit Tests Project
+
+This is the scaffold unit test project for `MudsharpDatabaseLibrary`. Use it for direct EF model, mapping and persistence-library tests when those are added.
+
+- [Project MudsharpDatabaseLibrary Unit Tests](./MudsharpDatabaseLibrary%20Unit%20Tests/AGENTS.md)
+
+###DiscordBotCore Unit Tests Project
+
+This is the scaffold unit test project for `DiscordBotCore`. Use it for bot-specific tests when that suite grows beyond a placeholder scaffold.
+
+- [Project DiscordBotCore Unit Tests](./DiscordBotCore%20Unit%20Tests/AGENTS.md)
+
+###MudSharpCore Climate Tests Project
+
+This project contains the long-running climate and weather regression checks used to tune seeded climate models. It is intentionally separate from the normal unit-test pass.
+
+- [Project MudSharpCore Climate Tests](./MudSharpCore%20Climate%20Tests/AGENTS.md)
 
 ## Code Style
 - Use **tabs** for indentation.
@@ -213,16 +249,32 @@ new Emote("$0 %0|stop|stops here.", actor, group);
 ## Notes
 - When in doubt, defer to this file unless overridden at a lower level.
 
+## Test Suite Guide
+
+Use the repository scripts in `scripts/` where practical. They are designed to run inside the repo sandbox without elevation and now have both `.sh` and `.ps1` variants. Run `dotnet restore MudSharp.sln` once first if package state is not already warm.
+
+| Suite | What it covers | Default? | Run it when | Usually leave it alone when |
+| --- | --- | --- | --- | --- |
+| `FutureMUDLibrary Unit Tests` | Shared extensions, helper types, string and collection utilities, small value objects | Yes | Changing `FutureMUDLibrary` or a shared helper used across products | You are only changing concrete engine runtime behaviour |
+| `ExpressionEngine Unit Tests` | Expression parsing, formula semantics, custom expression helpers | Yes | Changing `ExpressionEngine` or expression semantics consumed by the engine | You did not touch expression parsing or evaluation logic |
+| `DatabaseSeeder Unit Tests` | Seeder templates, seeder content, repeatability checks, seeder source invariants | Yes | Changing seeder workflows, seeded content, or authoring helpers | You are only changing runtime systems that consume already-seeded data |
+| `MudSharpCore Unit Tests` | Core runtime, gameplay systems, FutureProg, arenas, AI and engine services | Yes | Changing `MudSharpCore` behaviour or integrations | You only touched shared library or seeder code and none of the runtime call sites changed |
+| `MudSharpCore Climate Tests` | Slow climate and weather regression and tuning coverage | No | Changing climate, weather seeding, analyzers, or climate tuning | Normal feature work unrelated to weather or climate |
+| `MudsharpDatabaseLibrary Unit Tests` | Direct persistence-library coverage | No | You add direct tests for `MudsharpDatabaseLibrary` | The project still only contains its placeholder scaffold |
+| `DiscordBotCore Unit Tests` | Direct Discord bot coverage | No | You add direct tests for `DiscordBotCore` | The project still only contains its placeholder scaffold |
+
 ## Instructions for Codex when Working in Windows
 
-Use Windows-native `dotnet` commands directly rather than the Linux shell scripts.
+Use Windows-native `dotnet` commands directly rather than Linux-only shell invocations, or prefer the paired PowerShell scripts in `scripts\`.
 
 1. Run `dotnet restore MudSharp.sln` when package state needs refreshing.
 2. For normal engine verification, prefer targeted project builds instead of `dotnet build MudSharp.sln`.
 3. Build the main engine with `dotnet build MudSharpCore/MudSharpCore.csproj -c Debug -p:NoWarn=NU1902%3BNU1510`.
 4. Build the seeder with `dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug -p:NoWarn=NU1902%3BNU1510`.
-5. Run the default core unit-test pass with `dotnet test "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj" -c Debug -p:NoWarn=NU1902%3BNU1510`.
-6. Use the climate/weather test project only for climate-specific work or when explicitly requested.
+5. After `dotnet restore MudSharp.sln`, run the default multi-project unit-test pass with `scripts\test-unit.ps1`.
+6. After `dotnet restore MudSharp.sln`, run only the core runtime unit tests with `scripts\test-unit-core.ps1`.
+7. After `dotnet restore MudSharp.sln`, use the climate and weather regression suite only for climate-specific work or when explicitly requested with `scripts\test-unit-climate.ps1`.
+8. After `dotnet restore MudSharp.sln`, use `scripts\test.ps1` for the smoke-build path and `scripts\setup.ps1` only when a repo-local SDK bootstrap is required.
 
 Notes:
 

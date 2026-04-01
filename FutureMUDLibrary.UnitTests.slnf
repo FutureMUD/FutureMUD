@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "MudSharp.sln",
+    "projects": [
+      "FutureMUDLibrary Unit Tests\\FutureMUDLibrary Unit Tests.csproj"
+    ]
+  }
+}

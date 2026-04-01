@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "MudSharp.sln",
+    "projects": [
+      "DiscordBotCore Unit Tests\\DiscordBotCore Unit Tests.csproj"
+    ]
+  }
+}

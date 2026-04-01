@@ -44,7 +44,7 @@ This document is based on verified code behavior in the current stock repo, not 
 - Shared answer reuse is no longer combat-only. The live shared-answer wave covers combat message style, damage randomness, human health model, and non-human health model.
 - Many legacy seeders still rely on coarse installed-state checks such as `Accounts.Any()`, `WeaponAttacks.Any()`, `ClimateModels.Any()`, `ChargenScreenStoryboards.Any()`, or `SurgicalProcedures.Any()`. Phase 2 is the wave intended to replace those with deterministic stock-key detection.
 - Duplicate `SortOrder` values were previously unstable in the menu flow; the structured assessment/menu work now gives that ordering deterministic tie-breaking.
-- Weather/climate regression coverage already exists in `MudSharpCore Climate Tests`, centered on `WeatherSeederOceanicClimateTests.cs` / `WeatherSeederClimateTests`, and should continue to carry the simulation-regression side of seeder verification.
+- Weather/climate regression coverage already exists in `MudSharpCore Climate Tests`, centered on `WeatherSeederOceanicClimateTests.cs`, and should continue to carry the slow, opt-in simulation-regression side of seeder verification rather than the default unit-test pass.
 
 ## Seeder Audit Matrix
 | Seeder | Sort | Current prerequisite logic | Current rerun signal | Current answer reuse | Current duplicate / update behavior | Current repair ability | Target classification | Complexity | Recommended next action |
@@ -161,3 +161,4 @@ These five seeders need separate design work before repeatability claims are exp
 - Do not rely on `ExtraPackagesAvailable` alone to communicate rerun safety.
 - Prefer deterministic, stock-owned lookup keys over “anything exists” installed-state checks.
 - If a seeder cannot yet be made repeatable safely, document why in this file instead of implying support.
+

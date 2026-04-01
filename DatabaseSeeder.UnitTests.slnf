@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "MudSharp.sln",
+    "projects": [
+      "DatabaseSeeder Unit Tests\\DatabaseSeeder Unit Tests.csproj"
+    ]
+  }
+}

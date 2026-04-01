@@ -399,7 +399,9 @@ Verified current FutureProg integration includes:
 - built-in conversion functions for currencies and banks
 - currency utility functions for counting, loading, giving, and taking money
 - economy functions for market influences
+- item ownership functions for checking direct ownership, property trust, clan-authorised property use, and ownership mutation
 - FutureProg variable registration on banks, bank accounts, bank account types, currencies, markets, market categories, shops, and merchandise
+- item variable registration for ownership metadata, including nullable character-or-clan item owners
 - multiple permission and selection hooks in banks, jobs, shoppers, shops, taxes, and market data
 
 This matters because many higher-level world rules are intended to be configured by builders rather than hard-coded into the runtime types.
@@ -414,6 +416,7 @@ Verified current item or effect integrations include:
 - `MarketGoodWeightGameItemComponent`
 - `ShopStallGameItemComponent`
 - `ItemOnDisplayInShop`
+- persisted item ownership metadata on `GameItem`, used by economy commands, estate flows, and property-oriented FutureProg rules
 - `RestockingMerchandise`
 - `ShopStallNoGetEffect`
 

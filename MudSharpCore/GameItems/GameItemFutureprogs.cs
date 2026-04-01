@@ -4,6 +4,7 @@ using System.Linq;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Functions.GameItem;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -26,6 +27,7 @@ public partial class GameItem
 			{ "quantity", ProgVariableTypes.Number },
 			{ "holder", ProgVariableTypes.Character },
 			{ "wearer", ProgVariableTypes.Character },
+			{ "owner", OwnershipFunctionHelpers.OwnerVariableType },
 			{ "weight", ProgVariableTypes.Number },
 			{ "contents", ProgVariableTypes.Collection | ProgVariableTypes.Item },
 			{ "container", ProgVariableTypes.Item },
@@ -90,6 +92,7 @@ public partial class GameItem
 			{ "quantity", "The quantity of this item in the stack. 1 if not stacked" },
 			{ "holder", "The character who is holding this item, if any" },
 			{ "wearer", "The character who is wearing this item, if any" },
+			{ "owner", "The registered owner of this item, if any. This may be a character or a clan." },
 			{ "weight", "The weight of this item in base units" },
 			{ "contents", "A collection of the item contents of this item" },
 			{ "container", "The item that this item is contained in, if any" },
@@ -187,6 +190,13 @@ public partial class GameItem
 			case "wearer":
 				var wearable = GetItemType<IWearable>();
 				return wearable?.WornBy?.Actor;
+
+			case "owner":
+				return Owner switch
+				{
+					IProgVariable progVariable => progVariable,
+					_ => new NullVariable(OwnershipFunctionHelpers.OwnerVariableType)
+				};
 
 			case "weight":
 				return new NumberVariable(Weight);

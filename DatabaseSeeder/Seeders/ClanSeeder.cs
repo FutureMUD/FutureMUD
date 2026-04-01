@@ -264,7 +264,8 @@ This package can be run multiple times as I add more options.";
 								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers);
 		var retainerPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 								   ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
-								   ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.CanReportDead
+								   ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.UseClanProperty |
+								   ClanPrivilegeType.CanReportDead
 			);
 
 		var rank = new Rank
@@ -371,6 +372,7 @@ This package can be run multiple times as I add more options.";
 		var knightPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
 								 ClanPrivilegeType.CanAccessLeasedProperties |
+								 ClanPrivilegeType.UseClanProperty |
 								 ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
 								 ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead | 
 								 ClanPrivilegeType.CanPromoteToOwnRank
@@ -394,6 +396,7 @@ This package can be run multiple times as I add more options.";
 		var higherknightPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
 								 ClanPrivilegeType.CanAccessLeasedProperties |
+								 ClanPrivilegeType.UseClanProperty |
 								 ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
 								 ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead
 								 );
@@ -431,6 +434,7 @@ This package can be run multiple times as I add more options.";
 		var nobilityPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
 								 ClanPrivilegeType.CanAccessLeasedProperties |
+								 ClanPrivilegeType.UseClanProperty |
 								 ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
 								 ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead |
 								 ClanPrivilegeType.CanCreateAppointmentsUnderOwn | ClanPrivilegeType.CanDismiss |
@@ -1068,7 +1072,8 @@ This package can be run multiple times as I add more options.";
 		var rankNumber = 0;
 		var retainerPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                           ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
-		                           ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.CanReportDead
+		                           ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.UseClanProperty |
+		                           ClanPrivilegeType.CanReportDead
 			);
 
 		var ranks = new Dictionary<string, Rank>(StringComparer.OrdinalIgnoreCase);
@@ -1153,12 +1158,14 @@ This package can be run multiple times as I add more options.";
 		var seniorPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                         ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
 		                         ClanPrivilegeType.CanAccessLeasedProperties |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
 		                         ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead |
 		                         ClanPrivilegeType.CanCreateAppointments | ClanPrivilegeType.CanCreateBudgets |
 		                         ClanPrivilegeType.CanCreatePaygrades |
 		                         ClanPrivilegeType.CanCastout | ClanPrivilegeType.CanManageClanJobs |
 		                         ClanPrivilegeType.CanManageClanProperty |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanManageEconomicZones |
 		                         ClanPrivilegeType.CanManageBankAccounts | ClanPrivilegeType.CanIncreasePaygrade |
 		                         ClanPrivilegeType.CanDecreasePaygrade | ClanPrivilegeType.CanDemote);
@@ -1513,7 +1520,8 @@ This package can be run multiple times as I add more options.";
 		var rankNumber = 0;
 		var retainerPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                           ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
-		                           ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.CanReportDead
+		                           ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.UseClanProperty |
+		                           ClanPrivilegeType.CanReportDead
 			);
 
 		var rank = new Rank
@@ -1605,6 +1613,7 @@ This package can be run multiple times as I add more options.";
 		var knightPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                         ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
 		                         ClanPrivilegeType.CanAccessLeasedProperties |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
 		                         ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead
 			);
@@ -1647,12 +1656,14 @@ This package can be run multiple times as I add more options.";
 		var seniorPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                         ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
 		                         ClanPrivilegeType.CanAccessLeasedProperties |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
 		                         ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead |
 		                         ClanPrivilegeType.CanCreateAppointments | ClanPrivilegeType.CanCreateBudgets |
 		                         ClanPrivilegeType.CanCreatePaygrades |
 		                         ClanPrivilegeType.CanCastout | ClanPrivilegeType.CanManageClanJobs |
 		                         ClanPrivilegeType.CanManageClanProperty |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanManageEconomicZones |
 		                         ClanPrivilegeType.CanManageBankAccounts | ClanPrivilegeType.CanIncreasePaygrade |
 		                         ClanPrivilegeType.CanDecreasePaygrade | ClanPrivilegeType.CanDemote
@@ -2786,7 +2797,8 @@ This package can be run multiple times as I add more options.";
 		var juniorPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                         ClanPrivilegeType.CanViewClanOfficeHolders |
 		                         ClanPrivilegeType.CanViewMembers |
-		                         ClanPrivilegeType.CanAccessLeasedProperties);
+		                         ClanPrivilegeType.CanAccessLeasedProperties |
+		                         ClanPrivilegeType.UseClanProperty);
 
 
 		var rank = new Rank
@@ -2878,10 +2890,12 @@ This package can be run multiple times as I add more options.";
 		                         ClanPrivilegeType.CanViewClanOfficeHolders |
 		                         ClanPrivilegeType.CanViewMembers |
 		                         ClanPrivilegeType.CanAccessLeasedProperties |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanCastout | ClanPrivilegeType.CanAppoint |
 		                         ClanPrivilegeType.CanDecreasePaygrade | ClanPrivilegeType.CanIncreasePaygrade |
 		                         ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanManageClanJobs |
 		                         ClanPrivilegeType.CanManageBankAccounts | ClanPrivilegeType.CanManageClanProperty |
+		                         ClanPrivilegeType.UseClanProperty |
 		                         ClanPrivilegeType.CanManageEconomicZones | ClanPrivilegeType.CanDemote |
 		                         ClanPrivilegeType.CanGiveBackpay);
 
@@ -2945,10 +2959,12 @@ This package can be run multiple times as I add more options.";
 		                      ClanPrivilegeType.CanViewClanOfficeHolders |
 		                      ClanPrivilegeType.CanViewMembers |
 		                      ClanPrivilegeType.CanAccessLeasedProperties |
+		                      ClanPrivilegeType.UseClanProperty |
 		                      ClanPrivilegeType.CanCastout | ClanPrivilegeType.CanAppoint |
 		                      ClanPrivilegeType.CanDecreasePaygrade | ClanPrivilegeType.CanIncreasePaygrade |
 		                      ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanManageClanJobs |
 		                      ClanPrivilegeType.CanManageBankAccounts | ClanPrivilegeType.CanManageClanProperty |
+		                      ClanPrivilegeType.UseClanProperty |
 		                      ClanPrivilegeType.CanManageEconomicZones | ClanPrivilegeType.CanDemote |
 		                      ClanPrivilegeType.CanGiveBackpay | ClanPrivilegeType.CanChangeRankPath |
 		                      ClanPrivilegeType.CanCreateAppointments | ClanPrivilegeType.CanCreateBudgets |
@@ -3435,7 +3451,8 @@ This package can be run multiple times as I add more options.";
 
 		var civesPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                        ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
-		                        ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.CanReportDead);
+		                        ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.UseClanProperty |
+		                        ClanPrivilegeType.CanReportDead);
 
 		rank = new Rank
 		{
@@ -3584,7 +3601,8 @@ This package can be run multiple times as I add more options.";
 
 		var senatorialPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
 		                             ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
-		                             ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.CanReportDead |
+		                             ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.UseClanProperty |
+		                             ClanPrivilegeType.CanReportDead |
 		                             ClanPrivilegeType.CanInduct |
 		                             ClanPrivilegeType.CanPromote
 			);
@@ -3697,6 +3715,7 @@ This package can be run multiple times as I add more options.";
 			MinimumRank = senatorRank,
 			Privileges = (long)(ClanPrivilegeType.CanViewTreasury | ClanPrivilegeType.CanManageClanJobs |
 			                    ClanPrivilegeType.CanManageClanProperty |
+			                    ClanPrivilegeType.UseClanProperty |
 			                    ClanPrivilegeType.CanManageEconomicZones |
 			                    ClanPrivilegeType.CanManageBankAccounts)
 		};
@@ -3715,6 +3734,7 @@ This package can be run multiple times as I add more options.";
 			MinimumRank = senatorRank,
 			Privileges = (long)(ClanPrivilegeType.CanViewTreasury | ClanPrivilegeType.CanManageClanJobs |
 			                    ClanPrivilegeType.CanManageClanProperty |
+			                    ClanPrivilegeType.UseClanProperty |
 			                    ClanPrivilegeType.CanManageEconomicZones |
 			                    ClanPrivilegeType.CanManageBankAccounts |
 			                    ClanPrivilegeType.CanCreateAppointmentsUnderOwn)
@@ -3738,6 +3758,7 @@ This package can be run multiple times as I add more options.";
 			MinimumRank = senatorRank,
 			Privileges = (long)(ClanPrivilegeType.CanViewTreasury | ClanPrivilegeType.CanManageClanJobs |
 			                    ClanPrivilegeType.CanManageClanProperty |
+			                    ClanPrivilegeType.UseClanProperty |
 			                    ClanPrivilegeType.CanManageEconomicZones |
 			                    ClanPrivilegeType.CanManageBankAccounts | ClanPrivilegeType.CanCreateAppointments |
 			                    ClanPrivilegeType.CanDemote | ClanPrivilegeType.CanCastout |
@@ -3804,6 +3825,7 @@ This package can be run multiple times as I add more options.";
 			MinimumRank = senatorRank,
 			Privileges = (long)(ClanPrivilegeType.CanViewTreasury | ClanPrivilegeType.CanManageClanJobs |
 			                    ClanPrivilegeType.CanManageClanProperty |
+			                    ClanPrivilegeType.UseClanProperty |
 			                    ClanPrivilegeType.CanManageEconomicZones |
 			                    ClanPrivilegeType.CanManageBankAccounts | ClanPrivilegeType.CanCreateAppointments |
 			                    ClanPrivilegeType.CanDemote | ClanPrivilegeType.CanCastout |

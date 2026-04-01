@@ -91,7 +91,7 @@ public class CombatSettingResolverTests
 		}
 		else
 		{
-			character.SetupGet(x => x.Race).Returns((IRace?)null);
+			character.SetupGet(x => x.Race).Returns(() => null!);
 		}
 
 		return character.Object;
@@ -112,7 +112,7 @@ public class CombatSettingResolverTests
 			var character = (LifecycleTestCharacter)RuntimeHelpers.GetUninitializedObject(typeof(LifecycleTestCharacter));
 			GameworldBackingField.SetValue(character, gameworld);
 			var body = new Mock<IBody>();
-			body.SetupGet(x => x.Race).Returns(race);
+			body.SetupGet(x => x.Race).Returns(() => race!);
 			character.Body = body.Object;
 			return character;
 		}
@@ -302,7 +302,7 @@ public class CombatSettingResolverTests
 	[TestMethod]
 	public void RevalidateCombatSettingsAfterInitialisation_NoValidatedSetting_ClearsProvisionalAndQueuesSave()
 	{
-		var provisional = CreateSetting(10, "Provisional", 0).Object;
+		var provisional = CreateSetting(10, "Provisional", 0, canUse: false).Object;
 		var rejected = CreateSetting(20, "Rejected", 100, canUse: false).Object;
 		var saveManager = new Mock<ISaveManager>();
 		var world = CreateWorldWithSaveManager([provisional, rejected], saveManager);

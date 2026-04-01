@@ -5,8 +5,6 @@ using MudSharp.FutureProg;
 using MudSharp.Form.Shape;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using MudSharp.Form.Shape;
-using MudSharp.FutureProg;
 
 namespace MudSharp_Unit_Tests;
 

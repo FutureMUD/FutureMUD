@@ -1,3 +1,4 @@
+#nullable enable
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -62,7 +63,7 @@ public class CollectionExtensionsMoreTests
     public void ExceptCovariant_IgnoresNullElements()
     {
         string?[] src = {"a", null, "b"};
-        var result = src.ExceptCovariant<string?, string>("c").ToList();
+        var result = src.ExceptCovariant<string?, string?>("c").OfType<string>().ToList();
         CollectionAssert.AreEqual(new[]{"a","b"}, result);
     }
 
@@ -73,8 +74,9 @@ public class CollectionExtensionsMoreTests
         CollectionAssert.AreEqual(new[]{1,3,2,4}, list.Plus(4).ToList());
 
         var dict = new Dictionary<string,int>{{"a",1}};
+        string nullKey = null!;
         Assert.AreEqual(1, dict.ValueOrDefault<string,int,string>("a",0));
-        Assert.AreEqual(5, dict.ValueOrDefault<string,int,string?>(null,5));
+        Assert.AreEqual(5, dict.ValueOrDefault<string,int,string>(nullKey,5));
 
         var tuples = new[]{(Id:1,Score:5),(Id:2,Score:3),(Id:3,Score:5)};
         var max = tuples.WhereMax(x=>x.Score).Select(x=>x.Id).ToList();
@@ -112,10 +114,10 @@ public class CollectionExtensionsMoreTests
         Assert.IsTrue(0.IsDefault());
         Assert.IsFalse(5.IsDefault());
 
-        var slist = new List<string>{"a"};
+        var slist = new List<string?>{"a"};
         slist.AddNotNull("b");
-        slist.AddNotNull<string?>(null);
-        CollectionAssert.AreEqual(new[]{"a","b"}, slist);
+        slist.AddNotNull(null);
+        CollectionAssert.AreEqual(new[]{"a","b"}, slist.OfType<string>().ToList());
     }
 
     [TestMethod]

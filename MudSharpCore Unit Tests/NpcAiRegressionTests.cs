@@ -103,10 +103,11 @@ public class NpcAiRegressionTests
 	{
 		var roomLayer = RoomLayer.GroundLevel;
 		var activeCraftItem = new Mock<IGameItem>();
+		var activeCraftComponent = new Mock<IActiveCraftGameItemComponent>().Object;
 		activeCraftItem.Setup(x => x.GetItemType<IActiveCraftGameItemComponent>())
-			.Returns((IActiveCraftGameItemComponent?)new Mock<IActiveCraftGameItemComponent>().Object);
+			.Returns(() => activeCraftComponent);
 		var anchorItem = new Mock<IGameItem>();
-		anchorItem.Setup(x => x.GetItemType<IActiveCraftGameItemComponent>()).Returns((IActiveCraftGameItemComponent?)null);
+		anchorItem.Setup(x => x.GetItemType<IActiveCraftGameItemComponent>()).Returns(() => null!);
 
 		var location = new Mock<ICell>();
 		location.Setup(x => x.LayerGameItems(roomLayer)).Returns(new[] { activeCraftItem.Object, anchorItem.Object });

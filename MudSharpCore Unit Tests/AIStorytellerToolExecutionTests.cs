@@ -1407,7 +1407,7 @@ public class AIStorytellerToolExecutionTests
 		gameworld.SetupGet(x => x.Calendars).Returns(calendarRepo.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
-			.Returns((long id, bool _) => characterList.FirstOrDefault(x => x.Id == id));
+			.Returns((long id, bool _) => characterList.FirstOrDefault(x => x.Id == id)!);
 		return gameworld;
 	}
 

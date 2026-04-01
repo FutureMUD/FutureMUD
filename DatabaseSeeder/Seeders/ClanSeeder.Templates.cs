@@ -42,7 +42,8 @@ public partial class ClanSeeder
 		              ClanPrivilegeType.CanDismiss |
 		              ClanPrivilegeType.CanGiveBackpay |
 		              ClanPrivilegeType.CanManageBankAccounts |
-		              ClanPrivilegeType.CanManageClanProperty);
+		              ClanPrivilegeType.CanManageClanProperty |
+		              ClanPrivilegeType.UseClanProperty);
 	}
 
 	private static long BattalionStaffPrivileges()

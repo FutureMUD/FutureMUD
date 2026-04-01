@@ -209,6 +209,7 @@ Property builders need:
 - owners or ownership rules
 - sale or lease setup
 - conveyancing cells so the player-facing workflow is discoverable
+- clan ranks or appointments that should use clan-owned property items need the `Use Clan Property` privilege in addition to any broader management privileges
 
 Contributor note:
 
@@ -297,6 +298,7 @@ Good current integration anchors are:
 - shops for retail movement and transaction records
 - property for formal location ownership
 - FutureProg for permission and selection policies
+- item ownership metadata and item ownership FutureProg helpers for portable property, estate assets, and clan-owned equipment
 
 ## Verified Current Limits That Matter During Integration
 These are not hypothetical concerns. They affect how safe it is to integrate new features right now.

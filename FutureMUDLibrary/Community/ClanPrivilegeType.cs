@@ -35,8 +35,9 @@ namespace MudSharp.Community {
         CanManageClanProperty = 1 << 27,
         CanManageBankAccounts = 1 << 28,
         CanReportDead = 1 << 29,
-        CanManageClanJobs = 1 << 30,
-        CanManageClanVassals = 1 << 31,
-        CanManageEstates = 1L << 32,
-    }
+		CanManageClanJobs = 1 << 30,
+		CanManageClanVassals = 1 << 31,
+		CanManageEstates = 1L << 32,
+		UseClanProperty = 1L << 33,
+	}
 }

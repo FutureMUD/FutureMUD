@@ -155,7 +155,9 @@ Practical note on the stock seeder package:
 - the seeded market is a starting template, not a claim that the world should only have one market
 - the seeded external templates are intended to be balanced examples and can be reused or edited
 - the seeded population stress hooks already demonstrate the begin/end influence pattern through stock FutureProgs
-- the seeded populations assume medicine is a universal household need and now use seasonings tags such as `Salt` and `Spices` plus writing-material tags such as `Wax Tablets`, `Parchment`, `Paper`, and `Ink` where appropriate
+- the seeded populations assume medicine is a universal household need and now use seasonings tags such as `Salt` and `Spices`, writing-material tags such as `Wax Tablets`, `Parchment`, `Paper`, and `Ink`, plus hospitality / entertainment / communications / personal-service tags in later eras where appropriate
+- seeded stress templates now model both demand contraction and some supply contraction tied to the sectors a stressed population plausibly anchors
+- seeded money values are scaled against the selected currency package and a simple era baseline so builders start closer to plausible local price magnitudes
 - the seeded shopper progs assume goods are tagged with the same market tags used by the generated categories
 
 ### Shops, Merchandise, Line of Credit, and Payment Methods

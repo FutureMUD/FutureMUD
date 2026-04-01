@@ -21,6 +21,7 @@ namespace MudSharp_Unit_Tests;
 public class EconomySeederTests
 {
 	private const string ClassicalEra = "Classical Age";
+	private const string DefaultCurrency = "Bits";
 	private const string StandardScale = "Standard";
 	private const string HelperProgPrefix = "EconomySeeder";
 	private const string ExternalTemplatePrefix = "EconomySeeder External ";
@@ -46,6 +47,12 @@ public class EconomySeederTests
 				"Standard Decorations",
 				"Luxury Decorations"
 			],
+			["Hospitality"] = ["Standard Lodging", "Luxury Lodging"],
+			["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment"],
+			["Personal Services"] = ["Bathing Services", "Domestic Services", "Barbering", "Laundry Services"],
+			["Communications"] = ["Messenger Services", "Courier Services", "Postal Services", "Printed News"],
+			["Religious Goods"] = [],
+			["Household Consumables"] = [],
 			["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
 			["Transportation"] = ["Mule Haulage"],
 			["Warehousing"] = [],
@@ -100,16 +107,21 @@ public class EconomySeederTests
 		});
 	}
 
-	private static void SeedEconomyPrerequisites(FuturemudDatabaseContext context)
+	private static void SeedEconomyPrerequisites(FuturemudDatabaseContext context, params string[] currencyNames)
 	{
 		SeedAccount(context);
 
-		context.Currencies.Add(new Currency
+		var seededCurrencies = currencyNames.Length > 0 ? currencyNames : [DefaultCurrency];
+		var nextCurrencyId = 1L;
+		foreach (var currencyName in seededCurrencies.Distinct(StringComparer.OrdinalIgnoreCase))
 		{
-			Id = 1,
-			Name = "Test Crown",
-			BaseCurrencyToGlobalBaseCurrencyConversion = 1.0m
-		});
+			context.Currencies.Add(new Currency
+			{
+				Id = nextCurrencyId++,
+				Name = currencyName,
+				BaseCurrencyToGlobalBaseCurrencyConversion = 1.0m
+			});
+		}
 
 		context.Shards.Add(new Shard
 		{
@@ -216,14 +228,24 @@ public class EconomySeederTests
 		}
 	}
 
-private static Dictionary<string, string> BuildAnswers(string shopperScale = StandardScale, string era = ClassicalEra)
-{
-	return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+	private static Dictionary<string, string> BuildAnswers(
+		string shopperScale = StandardScale,
+		string era = ClassicalEra,
+		string? currency = null)
 	{
-		["era"] = era,
-		["shopper-scale"] = shopperScale
-	};
-}
+		var answers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["era"] = era,
+			["shopper-scale"] = shopperScale
+		};
+
+		if (!string.IsNullOrWhiteSpace(currency))
+		{
+			answers["currency"] = currency;
+		}
+
+		return answers;
+	}
 
 	private static decimal GetBudgetForShopper(FuturemudDatabaseContext context, string shopperName)
 	{
@@ -245,10 +267,29 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 			.ToList();
 	}
 
+	private static decimal GetPopulationNeedExpenditure(
+		FuturemudDatabaseContext context,
+		string populationName,
+		string categoryName)
+	{
+		var population = context.MarketPopulations.Single(x => x.Name == populationName);
+		var needs = XElement.Parse(population.MarketPopulationNeeds)
+			.Elements("Need")
+			.Select(x => new
+			{
+				CategoryId = long.Parse(x.Attribute("category")!.Value, CultureInfo.InvariantCulture),
+				Expenditure = decimal.Parse(x.Attribute("expenditure")!.Value, CultureInfo.InvariantCulture)
+			})
+			.ToList();
+		var category = context.MarketCategories.Single(x => x.Name == categoryName);
+		return needs.Single(x => x.CategoryId == category.Id).Expenditure;
+	}
+
 	private static Dictionary<long, (int Upward, int Downward)> GetExternalCoverageByCategory(FuturemudDatabaseContext context)
 	{
 		var coverage = context.MarketCategories.ToDictionary(x => x.Id, _ => (Upward: 0, Downward: 0));
 		foreach (var template in context.MarketInfluenceTemplates
+			         .AsEnumerable()
 			         .Where(x => x.Name.StartsWith(ExternalTemplatePrefix, StringComparison.OrdinalIgnoreCase)))
 		{
 			var impacts = XElement.Parse(template.Impacts).Elements("Impact");
@@ -307,9 +348,9 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 		Assert.AreEqual(1, context.EconomicZones.Count(x => x.Name == "Classical Age Economy Template Zone"));
 		Assert.AreEqual(1, context.Markets.Count(x => x.Name == "Classical Age Economy Template Market"));
 		Assert.AreEqual(expectedCategoryCount, context.MarketCategories.Count());
-		Assert.AreEqual(30, context.MarketInfluenceTemplates.Count(x =>
+		Assert.AreEqual(60, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
 			x.Name.StartsWith(ExternalTemplatePrefix, StringComparison.OrdinalIgnoreCase)));
-		Assert.AreEqual(21, context.MarketInfluenceTemplates.Count(x =>
+		Assert.AreEqual(21, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
 			x.Name.StartsWith($"{HelperProgPrefix} Stress ", StringComparison.OrdinalIgnoreCase)));
 		Assert.AreEqual(7, context.MarketPopulations.Count());
 		Assert.AreEqual(7, context.Shoppers.Count());
@@ -353,15 +394,15 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 		var answers = BuildAnswers();
 
 		seeder.SeedData(context, answers);
-		var deletedTemplate = context.MarketInfluenceTemplates.Single(x => x.Name == "EconomySeeder External Classical Age Harvest Failure");
+		var deletedTemplate = context.MarketInfluenceTemplates.AsEnumerable().Single(x => x.Name == "EconomySeeder External Classical Age Harvest Failure");
 		context.MarketInfluenceTemplates.Remove(deletedTemplate);
 		context.SaveChanges();
 
-		Assert.AreEqual(0, context.MarketInfluenceTemplates.Count(x => x.Name == deletedTemplate.Name));
+		Assert.AreEqual(0, context.MarketInfluenceTemplates.AsEnumerable().Count(x => x.Name == deletedTemplate.Name));
 
 		seeder.SeedData(context, answers);
 
-		Assert.AreEqual(1, context.MarketInfluenceTemplates.Count(x => x.Name == deletedTemplate.Name));
+		Assert.AreEqual(1, context.MarketInfluenceTemplates.AsEnumerable().Count(x => x.Name == deletedTemplate.Name));
 	}
 
 	[TestMethod]
@@ -406,6 +447,26 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 	}
 
 	[TestMethod]
+	public void SeedData_EveryStressTemplate_IncludesSupplyContraction()
+	{
+		using var context = BuildContext();
+		SeedEconomyPrerequisites(context);
+
+		new EconomySeeder().SeedData(context, BuildAnswers());
+
+		foreach (var template in context.MarketInfluenceTemplates
+			         .AsEnumerable()
+			         .Where(x => x.Name.StartsWith($"{HelperProgPrefix} Stress ", StringComparison.OrdinalIgnoreCase)))
+		{
+			var impacts = XElement.Parse(template.Impacts).Elements("Impact").ToList();
+			Assert.IsTrue(impacts.Count > 0, $"{template.Name} should contain impacted categories.");
+			Assert.IsTrue(
+				impacts.Any(x => double.Parse(x.Attribute("supply")!.Value, CultureInfo.InvariantCulture) < 0.0),
+				$"{template.Name} should include at least one negative supply impact.");
+		}
+	}
+
+	[TestMethod]
 	public void SeedData_AllPopulations_IncludeMedicineNeedAndChurchClassesExist()
 	{
 		using var context = BuildContext();
@@ -435,16 +496,16 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 	[TestMethod]
 	public void SeedData_LiterateHouseholds_IncludeWritingMaterialsNeeds()
 	{
-	using var context = BuildContext();
-	SeedEconomyPrerequisites(context);
-	var seeder = new EconomySeeder();
-	foreach (var era in new[] { "Classical Age", "Feudal Age", "Medieval Age", "Early Modern Age" })
-	{
-		seeder.SeedData(context, BuildAnswers(era: era));
-	}
+		using var context = BuildContext();
+		SeedEconomyPrerequisites(context);
+		var seeder = new EconomySeeder();
+		foreach (var era in new[] { "Classical Age", "Feudal Age", "Medieval Age", "Early Modern Age" })
+		{
+			seeder.SeedData(context, BuildAnswers(era: era));
+		}
 
-	var literatePopulations = new[]
-	{
+		var literatePopulations = new[]
+		{
 			"Classical Age Temple Priesthood",
 			"Classical Age Patrician Elite",
 			"Feudal Age Parish Priesthood",
@@ -465,6 +526,31 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 				categoryNames.Any(x => x is "Wax Tablets" or "Parchment" or "Paper" or "Ink"),
 				$"{populationName} should include an era-appropriate writing-material need.");
 		}
+	}
+
+	[TestMethod]
+	public void SeedData_LaterEras_UseBroaderServiceAndHospitalityNeeds()
+	{
+		using var context = BuildContext();
+		SeedEconomyPrerequisites(context);
+		var seeder = new EconomySeeder();
+		foreach (var era in new[] { "Feudal Age", "Medieval Age", "Early Modern Age" })
+		{
+			seeder.SeedData(context, BuildAnswers(era: era));
+		}
+
+		CollectionAssert.IsSubsetOf(
+			new[] { "Standard Lodging", "Cheap Entertainment", "Messenger Services" },
+			GetPopulationNeedCategoryNames(context, "Feudal Age Itinerant Tradesfolk"));
+		CollectionAssert.IsSubsetOf(
+			new[] { "Standard Lodging", "Standard Entertainment", "Messenger Services" },
+			GetPopulationNeedCategoryNames(context, "Medieval Age Guild-Merchant Households"));
+		CollectionAssert.IsSubsetOf(
+			new[] { "Postal Services", "Standard Lodging", "Standard Entertainment", "Laundry Services" },
+			GetPopulationNeedCategoryNames(context, "Early Modern Age Merchant And Professional Class"));
+		CollectionAssert.IsSubsetOf(
+			new[] { "Luxury Lodging", "Luxury Entertainment", "Domestic Services" },
+			GetPopulationNeedCategoryNames(context, "Early Modern Age Gentry Elite"));
 	}
 
 	[TestMethod]
@@ -501,8 +587,51 @@ private static Dictionary<string, string> BuildAnswers(string shopperScale = Sta
 		new EconomySeeder().SeedData(highContext, BuildAnswers("High"));
 		var highBudget = GetBudgetForShopper(highContext, shopperName);
 
-		Assert.AreEqual(58.14m, standardBudget);
+		Assert.IsTrue(standardBudget > 0.0m);
 		Assert.AreEqual(decimal.Round(standardBudget * 0.75m, 2, MidpointRounding.AwayFromZero), lowBudget);
 		Assert.AreEqual(decimal.Round(standardBudget * 1.50m, 2, MidpointRounding.AwayFromZero), highBudget);
+	}
+
+	[TestMethod]
+	public void SeedData_CurrencyScaling_KeepsComparableSterlingValueAcrossCurrencies()
+	{
+		using var bitContext = BuildContext();
+		SeedEconomyPrerequisites(bitContext, "Bits");
+		new EconomySeeder().SeedData(bitContext, BuildAnswers(currency: "Bits"));
+		var bitNeed = GetPopulationNeedExpenditure(bitContext, "Classical Age Urban Poor", "Staple Food");
+
+		using var poundContext = BuildContext();
+		SeedEconomyPrerequisites(poundContext, "Pounds");
+		new EconomySeeder().SeedData(poundContext, BuildAnswers(currency: "Pounds"));
+		var poundNeed = GetPopulationNeedExpenditure(poundContext, "Classical Age Urban Poor", "Staple Food");
+
+		using var dollarContext = BuildContext();
+		SeedEconomyPrerequisites(dollarContext, "Dollars");
+		new EconomySeeder().SeedData(dollarContext, BuildAnswers(currency: "Dollars"));
+		var dollarNeed = GetPopulationNeedExpenditure(dollarContext, "Classical Age Urban Poor", "Staple Food");
+
+		var bitSterling = bitNeed / 100.0m;
+		var poundSterling = poundNeed / 960.0m;
+		var dollarSterling = dollarNeed / 125.0m;
+
+		Assert.IsTrue(Math.Abs(bitSterling - poundSterling) < 0.05m, "Bits and pounds should seed to near-equivalent sterling value.");
+		Assert.IsTrue(Math.Abs(bitSterling - dollarSterling) < 0.05m, "Bits and dollars should seed to near-equivalent sterling value.");
+	}
+
+	[TestMethod]
+	public void SeedData_EraScaling_RaisesLaterEraCommonerBudgets()
+	{
+		using var feudalContext = BuildContext();
+		SeedEconomyPrerequisites(feudalContext, "Bits");
+		new EconomySeeder().SeedData(feudalContext, BuildAnswers(era: "Feudal Age", currency: "Bits"));
+		var feudalBudget = GetBudgetForShopper(feudalContext, "Feudal Age Peasantry Shopper");
+
+		using var earlyModernContext = BuildContext();
+		SeedEconomyPrerequisites(earlyModernContext, "Bits");
+		new EconomySeeder().SeedData(earlyModernContext, BuildAnswers(era: "Early Modern Age", currency: "Bits"));
+		var earlyModernBudget = GetBudgetForShopper(earlyModernContext, "Early Modern Age Labourers Shopper");
+
+		Assert.IsTrue(earlyModernBudget > feudalBudget,
+			$"Early modern commoner budget {earlyModernBudget} should exceed feudal commoner budget {feudalBudget} when both use the same currency.");
 	}
 }

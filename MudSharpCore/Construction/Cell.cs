@@ -474,11 +474,7 @@ public partial class Cell : Location, IDisposable, ICell
 								.DefaultIfEmpty(0)
 								.Sum();
 
-		var outdoorsType = OutdoorsType(voyeur);
-		var ambientTemperature = ThermalSourceTemperatureModel.AmbientHeatForCell(this, outdoorsType);
-		var proximityTemperature = ThermalSourceTemperatureModel.ProximityHeatForTarget(this, voyeur);
-
-		return baseTemperature + effectTemperature + ambientTemperature + proximityTemperature;
+		return baseTemperature + effectTemperature;
 	}
 
 	public double CurrentIllumination(IPerceiver voyeur)

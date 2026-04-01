@@ -1,10 +1,14 @@
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.GameItems.Interfaces
 {
-	public interface IProduceHeat : IGameItemComponent
-	{
-		double CurrentAmbientHeat { get; }
-		double CurrentHeat(Proximity proximity);
-	}
+    public interface IProduceHeat : IGameItemComponent
+    {
+        double HeatProduced(Proximity proximity);
+    }
 }

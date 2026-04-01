@@ -43,7 +43,7 @@ public abstract class ThermalSourceGameItemComponent : GameItemComponent, IProdu
 		return type switch
 		{
 			DescriptionType.Short => $"{description}{(IsProducingHeat ? " (active)".FluentColour(Telnet.Red, colour) : string.Empty)}",
-			DescriptionType.Evaluate => $"{description}\n\nThermal Profile: {ThermalPrototype.ThermalProfileDisplay(voyeur ?? CultureInfo.InvariantCulture)}",
+			DescriptionType.Evaluate => $"{description}\n\nThermal Profile: {ThermalPrototype.ThermalProfileDisplay(voyeur)}",
 			DescriptionType.Full => $"{description}\n\n{stateText}",
 			_ => description
 		};

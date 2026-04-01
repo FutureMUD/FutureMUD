@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Globalization;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -149,6 +150,7 @@ public abstract class ThermalSourceGameItemComponentProto : GameItemComponentPro
 
 	public string ThermalProfileDisplay(IFormatProvider actor)
 	{
+		actor ??= CultureInfo.InvariantCulture;
 		return
 			$"Ambient {AmbientHeat.ToString("N2", actor).ColourValue()}, Intimate {IntimateHeat.ToString("N2", actor).ColourValue()}, Immediate {ImmediateHeat.ToString("N2", actor).ColourValue()}, Proximate {ProximateHeat.ToString("N2", actor).ColourValue()}, Distant {DistantHeat.ToString("N2", actor).ColourValue()}, VeryDistant {VeryDistantHeat.ToString("N2", actor).ColourValue()}";
 	}

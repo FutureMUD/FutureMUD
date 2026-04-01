@@ -226,7 +226,7 @@ public class ThermalSourceComponentTests
 		var liquid = new Mock<ILiquid>();
 		liquid.SetupGet(x => x.Name).Returns(name);
 		liquid.Setup(x => x.LiquidCountsAs(It.IsAny<ILiquid>())).Returns<ILiquid>(other => ReferenceEquals(other, liquid.Object));
-		liquid.Setup(x => x.LiquidCountsAsQuality(It.IsAny<ILiquid>())).Returns(ItemQuality.Normal);
+		liquid.Setup(x => x.LiquidCountsAsQuality(It.IsAny<ILiquid>())).Returns(ItemQuality.Standard);
 		return liquid;
 	}
 
@@ -262,7 +262,7 @@ public class ThermalSourceComponentTests
 		SetProperty(proto, nameof(SwitchableThermalSourceGameItemComponentProto.SwitchOffEmote), "@ off");
 		SetProperty(proto, nameof(FuelHeaterCoolerGameItemComponentProto.FuelMedium), medium);
 		SetProperty(proto, nameof(FuelHeaterCoolerGameItemComponentProto.FuelPerSecond), burnRate);
-		SetProperty(proto, nameof(FuelHeaterCoolerGameItemComponentProto.Connector), new ConnectorType(Form.Shape.Gender.Male, medium == FuelHeaterCoolerFuelMedium.Gas ? "GasLine" : "LiquidLine", false));
+		SetProperty(proto, nameof(FuelHeaterCoolerGameItemComponentProto.Connector), new ConnectorType(MudSharp.Form.Shape.Gender.Male, medium == FuelHeaterCoolerFuelMedium.Gas ? "GasLine" : "LiquidLine", false));
 		SetProperty(proto, nameof(FuelHeaterCoolerGameItemComponentProto.LiquidFuel), liquidFuel);
 		SetProperty(proto, nameof(FuelHeaterCoolerGameItemComponentProto.GasFuel), gasFuel);
 		return proto;

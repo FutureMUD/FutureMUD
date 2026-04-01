@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Xml.Linq;
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
@@ -227,6 +228,7 @@ public class UsefulSeederModernPackageTests
 			context.GameItemComponentProtos.Add(CreateComponentMarker(id++, name));
 		}
 
+		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "FuelHeaterCooler_Test", "FuelHeaterCooler"));
 		context.GameItemComponentProtos.Add(CreateComponentMarker(id, "FuelGenerator_Test", "Fuel Generator"));
 		context.SaveChanges();
 
@@ -252,6 +254,23 @@ public class UsefulSeederModernPackageTests
 		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "FuelGenerator_kerosene"));
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name == "FuelGenerator_water"));
 		Assert.AreEqual(2, context.GameItemComponentProtos.Count(x => x.Type == "Fuel Generator"));
+		Assert.AreEqual(4, context.GameItemComponentProtos.Count(x => x.Type == "ElectricHeaterCooler"));
+		Assert.AreEqual(3, context.GameItemComponentProtos.Count(x => x.Type == "ConsumableHeaterCooler"));
+		Assert.AreEqual(3, context.GameItemComponentProtos.Count(x => x.Type == "SolidFuelHeaterCooler"));
+		Assert.AreEqual(4, context.GameItemComponentProtos.Count(x => x.Type == "FuelHeaterCooler"));
+		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "FuelHeaterCooler_PortableHeater_gasoline"));
+		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "FuelHeaterCooler_WorkshopStove_gasoline"));
+		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "FuelHeaterCooler_PortableHeater_kerosene"));
+		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "FuelHeaterCooler_WorkshopStove_kerosene"));
+
+		var gasolineHeater = context.GameItemComponentProtos.Single(x => x.Name == "FuelHeaterCooler_PortableHeater_gasoline");
+		var gasolineHeaterDefinition = XElement.Parse(gasolineHeater.Definition);
+		Assert.AreEqual("0", gasolineHeaterDefinition.Element("FuelMedium")?.Value);
+		Assert.AreEqual("1", gasolineHeaterDefinition.Element("LiquidFuel")?.Value);
+
+		var fireplace = context.GameItemComponentProtos.Single(x => x.Name == "SolidFuelHeaterCooler_Fireplace");
+		var fireplaceDefinition = XElement.Parse(fireplace.Definition);
+		Assert.AreEqual("1", fireplaceDefinition.Element("FuelTag")?.Value);
 	}
 
 	[TestMethod]

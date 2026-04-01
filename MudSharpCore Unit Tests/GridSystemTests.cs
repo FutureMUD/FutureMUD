@@ -1165,7 +1165,7 @@ public class GridSystemTests
 		gameworld.SetupGet(x => x.Accents).Returns(accents.Object);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
-		         .Returns<long, bool>((id, _) => items.Object.Get(id));
+		         .Returns<long, bool>((id, _) => items.Object.Get(id)!);
 		return gameworld;
 	}
 
@@ -2050,7 +2050,11 @@ public class GridSystemTests
 		public bool DescriptionDecorator(DescriptionType type) => false;
 		public string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type, bool colour,
 			PerceiveIgnoreFlags flags) => description;
-		public event EventHandler? DescriptionUpdate;
+		public event EventHandler? DescriptionUpdate
+		{
+			add { }
+			remove { }
+		}
 		public bool PreventsMerging(IGameItemComponent component) => false;
 		public bool PreventsRepositioning() => false;
 		public bool PreventsMovement() => false;

@@ -35,14 +35,16 @@ public class ArenaNpcServiceTests
 		var arenaEvent = new Mock<IArenaEvent>();
 		arenaEvent.SetupGet(x => x.Id).Returns(99L);
 
+		IGameItem? containedIn = null;
+		ICell? itemLocation = null;
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Deleted).Returns(false);
-		item.SetupGet(x => x.ContainedIn).Returns((IGameItem?)null);
-		item.SetupGet(x => x.Location).Returns((ICell?)null);
+		item.SetupGet(x => x.ContainedIn).Returns(() => containedIn!);
+		item.SetupGet(x => x.Location).Returns(() => itemLocation!);
 		item.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
 
 		IBody? inventoryOwner = null;
-		item.SetupGet(x => x.InInventoryOf).Returns(() => inventoryOwner);
+		item.SetupGet(x => x.InInventoryOf).Returns(() => inventoryOwner!);
 
 		var effect = new ArenaNpcPreparationEffect(npc.Object, 99L, false);
 		effect.CaptureItem(item.Object, InventoryState.Held, null, null);
@@ -82,11 +84,14 @@ public class ArenaNpcServiceTests
 		var arenaEvent = new Mock<IArenaEvent>();
 		arenaEvent.SetupGet(x => x.Id).Returns(100L);
 
+		IGameItem? containedIn = null;
+		ICell? itemLocation = null;
+		IBody? inventoryOwner = null;
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Deleted).Returns(false);
-		item.SetupGet(x => x.ContainedIn).Returns((IGameItem?)null);
-		item.SetupGet(x => x.Location).Returns((ICell?)null);
-		item.SetupGet(x => x.InInventoryOf).Returns((IBody?)null);
+		item.SetupGet(x => x.ContainedIn).Returns(() => containedIn!);
+		item.SetupGet(x => x.Location).Returns(() => itemLocation!);
+		item.SetupGet(x => x.InInventoryOf).Returns(() => inventoryOwner!);
 		item.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
 
 		var effect = new ArenaNpcPreparationEffect(npc.Object, 100L, false);
@@ -121,14 +126,16 @@ public class ArenaNpcServiceTests
 		var arenaEvent = new Mock<IArenaEvent>();
 		arenaEvent.SetupGet(x => x.Id).Returns(101L);
 
+		IGameItem? containedIn = null;
+		ICell? itemLocation = null;
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Deleted).Returns(false);
-		item.SetupGet(x => x.ContainedIn).Returns((IGameItem?)null);
-		item.SetupGet(x => x.Location).Returns((ICell?)null);
+		item.SetupGet(x => x.ContainedIn).Returns(() => containedIn!);
+		item.SetupGet(x => x.Location).Returns(() => itemLocation!);
 		item.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
 
 		IBody? inventoryOwner = null;
-		item.SetupGet(x => x.InInventoryOf).Returns(() => inventoryOwner);
+		item.SetupGet(x => x.InInventoryOf).Returns(() => inventoryOwner!);
 
 		var effect = new ArenaNpcPreparationEffect(npc.Object, 101L, false);
 		effect.CaptureItem(item.Object, InventoryState.Held, null, null);

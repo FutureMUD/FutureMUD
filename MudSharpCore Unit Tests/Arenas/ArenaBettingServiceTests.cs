@@ -29,13 +29,13 @@ public class ArenaBettingServiceTests
 	private static ArenaBettingService CreateService(FuturemudDatabaseContext context, Mock<IArenaFinanceService> financeMock, Mock<IArenaBetPaymentService> paymentMock, Dictionary<long, ICharacter> characters)
 	{
 		var charactersSet = new Mock<IUneditableAll<ICharacter>>();
-		charactersSet.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => characters.TryGetValue(id, out var value) ? value : null);
+		charactersSet.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => characters.TryGetValue(id, out var value) ? value : null!);
 		charactersSet.Setup(x => x.Has(It.IsAny<ICharacter>()))
 			.Returns<ICharacter>(c => c is not null && characters.ContainsKey(c.Id));
 		charactersSet.Setup(x => x.Has(It.IsAny<long>())).Returns<long>(id => characters.ContainsKey(id));
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.Characters).Returns(charactersSet.Object);
-		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>())).Returns<long, bool>((id, _) => characters.TryGetValue(id, out var value) ? value : null);
+		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>())).Returns<long, bool>((id, _) => characters.TryGetValue(id, out var value) ? value : null!);
 		return new ArenaBettingService(gameworld.Object, financeMock.Object, paymentMock.Object, () => context);
 	}
 

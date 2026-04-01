@@ -43,8 +43,10 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Clothing", 48m, 5),
 						new PopulationNeedBlueprint("Lighting", 18m, 2),
 						new PopulationNeedBlueprint("Simple Wares", 24m, 3),
-						new PopulationNeedBlueprint("Beer", 16m, 1)
-					]),
+						new PopulationNeedBlueprint("Beer", 16m, 1),
+                        new PopulationNeedBlueprint("Cheap Entertainment", 16m, 1),
+                        new PopulationNeedBlueprint("Bathing Services", 8m, 1),
+                    ]),
 				new PopulationBlueprint(
 					"Rural Smallholders",
 					"Subsistence-minded smallholders who still spend on tools, cloth, salt, remedies and a little market produce.",
@@ -58,8 +60,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Clothing", 40m, 4),
 						new PopulationNeedBlueprint("Primitive Tools", 44m, 5),
 						new PopulationNeedBlueprint("Lighting", 14m, 1),
-						new PopulationNeedBlueprint("Combustion Heating", 12m, 1)
-					]),
+						new PopulationNeedBlueprint("Combustion Heating", 12m, 1),
+                        new PopulationNeedBlueprint("Household Consumables", 12m, 1)
+                    ]),
 				new PopulationBlueprint(
 					"Artisan-Merchant Households",
 					"Urban craft and trading households who buy better food, seasonings, remedies, wares and productive equipment.",
@@ -74,7 +77,10 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Standard Furniture", 46m, 3),
 						new PopulationNeedBlueprint("Simple Tools", 58m, 6),
 						new PopulationNeedBlueprint("Transportation", 28m, 2),
-						new PopulationNeedBlueprint("Wine", 22m, 1)
+                        new PopulationNeedBlueprint("Messenger Services", 18m, 2),
+                        new PopulationNeedBlueprint("Standard Lodging", 28m, 2),
+                        new PopulationNeedBlueprint("Standard Entertainment", 36m, 2),
+                        new PopulationNeedBlueprint("Wine", 22m, 1)
 					]),
 				new PopulationBlueprint(
 					"Soldiery",
@@ -89,8 +95,10 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Weapons", 60m, 7),
 						new PopulationNeedBlueprint("Armour", 42m, 5),
 						new PopulationNeedBlueprint("Ammunition", 28m, 4),
-						new PopulationNeedBlueprint("Beer", 22m, 2)
-					]),
+						new PopulationNeedBlueprint("Beer", 22m, 2),
+                        new PopulationNeedBlueprint("Cheap Entertainment", 16m, 1),
+                        new PopulationNeedBlueprint("Bathing Services", 8m, 1),
+                    ]),
 				new PopulationBlueprint(
 					"Temple Priesthood",
 					"Temple and civic priestly households who maintain respectable dress, ritual goods, lighting, wine and better remedies.",
@@ -106,8 +114,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Wax Tablets", 18m, 2),
 						new PopulationNeedBlueprint("Ink", 8m, 1),
 						new PopulationNeedBlueprint("Wine", 16m, 2),
-						new PopulationNeedBlueprint("Luxury Decorations", 18m, 2)
-					]),
+						new PopulationNeedBlueprint("Luxury Decorations", 18m, 2),
+                        new PopulationNeedBlueprint("Religious Goods", 30m, 2),
+                   ]),
 				new PopulationBlueprint(
 					"Monastic Orders",
 					"Disciplined communal households who spend modestly but steadily on staples, remedies, light and simple domestic supplies.",
@@ -139,10 +148,15 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Luxury Decorations", 120m, 4),
 						new PopulationNeedBlueprint("Wax Tablets", 22m, 2),
 						new PopulationNeedBlueprint("Ink", 12m, 1),
-						new PopulationNeedBlueprint("Luxury Drinks", 84m, 3),
-						new PopulationNeedBlueprint("Transportation", 55m, 2)
-					])
-			]),
+                        new PopulationNeedBlueprint("Luxury Drinks", 84m, 3),
+                        new PopulationNeedBlueprint("Transportation", 55m, 2),
+                        new PopulationNeedBlueprint("Luxury Entertainment", 55m, 2),
+						new PopulationNeedBlueprint("Luxury Lodging", 55m, 2),
+						new PopulationNeedBlueprint("Domestic Services", 55m, 2),
+                        new PopulationNeedBlueprint("Messenger Services", 18m, 2),
+                        new PopulationNeedBlueprint("Courier Services", 55m, 2),
+                    ])
+            ]),
 		new(
 			"Feudal Age",
 			"Feudal Age",
@@ -909,10 +923,16 @@ public class EconomySeeder : IDatabaseSeeder
 			["Intoxicants"] = "Lifestyle",
 			["Luxury Drinks"] = "Lifestyle",
 			["Household Goods"] = "Lifestyle",
-			["Military Goods"] = "Martial",
+			["Hospitality"] = "Lifestyle",
+            ["Entertainment"] = "Lifestyle",
+            ["Personal Services"] = "Lifestyle",
+            ["Religious Goods"] = "Lifestyle",
+            ["Household Consumables"] = "Lifestyle",
+            ["Military Goods"] = "Martial",
 			["Transportation"] = "Logistics",
 			["Warehousing"] = "Logistics",
-			["Professional Tools"] = "Industry",
+            ["Communications"] = "Logistics",
+            ["Professional Tools"] = "Industry",
 			["Raw Materials"] = "Industry"
 		};
 
@@ -928,7 +948,12 @@ public class EconomySeeder : IDatabaseSeeder
 			["Intoxicants"] = (0.70, 0.62),
 			["Luxury Drinks"] = (0.78, 0.72),
 			["Household Goods"] = (0.64, 0.58),
-			["Military Goods"] = (0.88, 0.82),
+            ["Hospitality"] = (0.72, 0.66),
+            ["Entertainment"] = (0.82, 0.76),
+            ["Personal Services"] = (0.74, 0.68),
+            ["Communications"] = (0.60, 0.54),
+            ["Religious Goods"] = (0.58, 0.52),
+            ["Military Goods"] = (0.88, 0.82),
 			["Transportation"] = (0.66, 0.58),
 			["Warehousing"] = (0.44, 0.40),
 			["Professional Tools"] = (0.62, 0.58),

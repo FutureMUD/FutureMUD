@@ -1294,6 +1294,65 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Candles", "Lighting");
             AddTag(context, "Torches", "Lighting");
             AddTag(context, "Lamps", "Lighting");
+
+            AddTag(context, "Hospitality", "Market");
+            AddTag(context, "Simple Lodging", "Hospitality");
+            AddTag(context, "Standard Lodging", "Hospitality");
+            AddTag(context, "Luxury Lodging", "Hospitality");
+            AddTag(context, "Prepared Meals", "Hospitality");
+            AddTag(context, "Common Meals", "Prepared Meals");
+            AddTag(context, "Fine Dining", "Prepared Meals");
+            AddTag(context, "Bathhouse Services", "Hospitality");
+            AddTag(context, "Stabling Services", "Hospitality");
+
+            AddTag(context, "Entertainment", "Market");
+            AddTag(context, "Cheap Entertainment", "Entertainment");
+            AddTag(context, "Standard Entertainment", "Entertainment");
+            AddTag(context, "Luxury Entertainment", "Entertainment");
+            AddTag(context, "Music Performance", "Entertainment");
+            AddTag(context, "Theatre Performance", "Entertainment");
+            AddTag(context, "Festival Entertainment", "Entertainment");
+            AddTag(context, "Sporting Entertainment", "Entertainment");
+
+            AddTag(context, "Personal Services", "Market");
+            AddTag(context, "Laundry Services", "Personal Services");
+            AddTag(context, "Barbering", "Personal Services");
+            AddTag(context, "Tailoring Services", "Personal Services");
+            AddTag(context, "Domestic Services", "Personal Services");
+            AddTag(context, "Bodyguard Services", "Personal Services");
+            AddTag(context, "Bathing Services", "Personal Services");
+            AddTag(context, "Grooming Supplies", "Personal Services");
+
+            AddTag(context, "Communications", "Market");
+            AddTag(context, "Messenger Services", "Communications");
+            AddTag(context, "Courier Services", "Communications");
+            AddTag(context, "Postal Services", "Communications");
+            AddTag(context, "Printed News", "Communications");
+            AddTag(context, "Telegraph Services", "Communications");
+            AddTag(context, "Telephone Services", "Communications");
+
+            AddTag(context, "Religious Goods", "Market");
+            AddTag(context, "Ritual Supplies", "Religious Goods");
+            AddTag(context, "Temple Offerings", "Religious Goods");
+            AddTag(context, "Funerary Goods", "Religious Goods");
+            AddTag(context, "Devotional Goods", "Religious Goods");
+
+            AddTag(context, "Construction Materials", "Market");
+            AddTag(context, "Brick", "Construction Materials");
+            AddTag(context, "Mortar", "Construction Materials");
+            AddTag(context, "Lime", "Construction Materials");
+            AddTag(context, "Worked Timber", "Construction Materials");
+            AddTag(context, "Worked Stone", "Construction Materials");
+            AddTag(context, "Glass Panes", "Construction Materials");
+            AddTag(context, "Roofing Materials", "Construction Materials");
+
+            AddTag(context, "Household Consumables", "Market");
+            AddTag(context, "Soap", "Household Consumables");
+            AddTag(context, "Lamp Oil", "Household Consumables");
+            AddTag(context, "Cleaning Supplies", "Household Consumables");
+            AddTag(context, "Candlemaking Wax", "Household Consumables");
+            AddTag(context, "Toiletries", "Household Consumables");
+
             #endregion
 
             #region Item Seeder Specific Tags

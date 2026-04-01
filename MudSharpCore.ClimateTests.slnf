@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "MudSharp.sln",
+    "projects": [
+      "MudSharpCore Climate Tests\\MudSharpCore Climate Tests.csproj"
+    ]
+  }
+}

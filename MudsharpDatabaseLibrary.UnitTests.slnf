@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "MudSharp.sln",
+    "projects": [
+      "MudsharpDatabaseLibrary Unit Tests\\MudsharpDatabaseLibrary Unit Tests.csproj"
+    ]
+  }
+}

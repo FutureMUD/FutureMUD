@@ -277,3 +277,28 @@ When documenting or extending the system, treat these as framework-level special
 - Treat `GameItem` as the composition shell, not the place to add every feature directly.
 - Put configuration on the component proto and runtime state on the component.
 - Expect update, morph, and destruction flows to matter for any non-trivial item behaviour.
+
+## Runtime Integration: Thermal Sources
+Thermal-source components now integrate with room temperature through `IProduceHeat`.
+
+`IProduceHeat` exposes:
+- `CurrentAmbientHeat` for signed room-wide ambient contribution
+- `CurrentHeat(Proximity proximity)` for signed target-specific proximity contribution
+
+`Cell.CurrentTemperature(...)` now layers thermal-source output on top of the pre-existing weather and environmental-effect calculation:
+- sheltered indoor cells (`Indoors`, `IndoorsWithWindows`, `IndoorsNoLight`) apply 100% of ambient thermal output
+- `IndoorsClimateExposed` applies 50% of ambient thermal output
+- outdoor cells apply no ambient thermal output
+- target-specific proximity output always applies, regardless of room type
+
+The runtime aggregation walks:
+- room items, including deep contained items
+- characters' external items, including deep contained items on those externals
+
+This means a carried brazier, a lit crafted fire, or a connected heater can all participate in temperature calculation without needing bespoke cell-side registrations.
+
+The current thermal-source component families use a shared authored thermal profile but different activation models:
+- electric sources are active only when switched on and currently powered through `IConsumePower`
+- fuel-fed sources are active only when switched on and still connected to a valid fuel source of the authored medium and fuel type
+- consumable sources auto-start and remain active until their burn timer expires
+- solid-fuel sources stay active while switched on and while they still have queued valid fuel items to burn

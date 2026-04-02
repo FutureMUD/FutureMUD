@@ -47,7 +47,7 @@ Current prerequisites for `EconomySeeder` are:
 - at least one currency
 - at least one clock and calendar
 - at least one physical zone
-- existing `UsefulSeeder` market tags
+- the full `UsefulSeeder` stock market-tag vocabulary beneath the `Market` root, not just the root tag itself
 
 Current rerun behavior for `EconomySeeder` is additive and repair-friendly:
 

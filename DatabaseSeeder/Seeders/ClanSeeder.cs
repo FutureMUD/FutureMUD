@@ -68,6 +68,19 @@ public partial class ClanSeeder : IDatabaseSeeder
 	{
 		context.Database.BeginTransaction();
 
+		EnsureCoreUtilityProg(
+			context,
+			"AlwaysTrue",
+			ProgVariableTypes.Boolean,
+			"Accepts any parameters, and always returns true.",
+			"return true");
+		EnsureCoreUtilityProg(
+			context,
+			"AlwaysOne",
+			ProgVariableTypes.Number,
+			"Accepts any parameters, and always returns one.",
+			"return 1");
+
 		if (!context.FutureProgs.Any(x => x.FunctionName == "IsMale"))
 		{
 			var prog = new FutureProg
@@ -200,6 +213,27 @@ This package can be run multiple times as I add more options.";
 		EnsureTemplateElectionPlaceholderProg(context, TemplateCloneElectorateBoardVotesProgName,
 			"Template placeholder prog used for clone-time board vote rebinding.",
 			ProgVariableTypes.Number, "return 0");
+	}
+
+	private static void EnsureCoreUtilityProg(
+		FuturemudDatabaseContext context,
+		string functionName,
+		ProgVariableTypes returnType,
+		string functionComment,
+		string functionText)
+	{
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			functionName,
+			"Core",
+			"Universal",
+			returnType,
+			functionComment,
+			functionText,
+			true,
+			true,
+			FutureProgStaticType.FullyStatic);
+		context.SaveChanges();
 	}
 
 	private void EnsureTemplateElectionPlaceholderProg(FuturemudDatabaseContext context, string functionName,

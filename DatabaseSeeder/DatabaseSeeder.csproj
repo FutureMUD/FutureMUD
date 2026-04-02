@@ -28,4 +28,13 @@
 	<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+	<Content Include="BlankDatabaseSnapshot.sql">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="BlankDatabaseSnapshot.manifest.json">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
+
 </Project>

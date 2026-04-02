@@ -104,8 +104,6 @@ using WearableSize = MudSharp.GameItems.Inventory.Size.WearableSize;
 using WearProfile = MudSharp.GameItems.Inventory.WearProfile;
 using Zone = MudSharp.Construction.Zone;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using MudSharp.Body.Needs;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
@@ -187,29 +185,46 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var game = (IFuturemudLoader)this;
 
 		ConsoleUtilities.WriteLine("\n#EEnsuring that Database migrations are applied...#0");
-		using (var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-		                                                  .UseMySql(FMDB.ConnectionString,
-			                                                  ServerVersion.AutoDetect(FMDB.ConnectionString)).Options))
+		var upgradeCoordinator = new DatabaseUpgradeCoordinator();
+		_startupDatabaseUpgradePreparation = upgradeCoordinator.PrepareForStartup(new DatabaseUpgradeRequest
 		{
-			var migrator = context.GetService<IMigrator>();
-			var migrations = context.Database.GetPendingMigrations().ToList();
-			var i = 1;
-			foreach (var migration in migrations)
+			ConnectionString = FMDB.ConnectionString,
+			WorkingDirectory = AppContext.BaseDirectory,
+			ExecutableType = "MudSharpCore"
+		});
+		if (_startupDatabaseUpgradePreparation.RestoredPreviousFailedUpgrade)
+		{
+			ConsoleUtilities.WriteLine(
+				"#9Recovered a previous incomplete database upgrade by restoring the last pre-upgrade backup.#0");
+		}
+
+		try
+		{
+			upgradeCoordinator.ApplyPreparedMigrations(_startupDatabaseUpgradePreparation, progress =>
 			{
-				Console.Write($"...Applying migration {i++} of {migrations.Count}: ");
+				Console.Write(
+					$"...Applying migration {progress.CurrentMigrationNumber} of {progress.TotalMigrations}: ");
 				Console.ForegroundColor = ConsoleColor.Cyan;
-				ConsoleUtilities.WriteLine(migration);
+				ConsoleUtilities.WriteLine(progress.MigrationName);
 				Console.ForegroundColor = ConsoleColor.White;
-				try
-				{
-					migrator.Migrate(migration);
-				}
-				catch (Exception e)
-				{
-					throw new ApplicationException($"Encountered an exception while applying the {migration} migration",
-						e);
-				}
+			});
+		}
+		catch (Exception e)
+		{
+			try
+			{
+				upgradeCoordinator.RollbackPreparedUpgrade(_startupDatabaseUpgradePreparation, e);
 			}
+			catch (Exception rollbackException)
+			{
+				throw new ApplicationException(
+					"Encountered an exception while applying database migrations, and automatic rollback also failed.",
+					new AggregateException(e, rollbackException));
+			}
+
+			throw new ApplicationException(
+				"Encountered an exception while applying database migrations. The database was restored to its last pre-upgrade backup.",
+				e);
 		}
 
 		ConsoleUtilities.WriteLine("#ADatabase is up to date.#0");

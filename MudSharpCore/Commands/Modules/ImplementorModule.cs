@@ -755,39 +755,12 @@ public class ImplementorModule : Module<ICharacter>
 	{
 		try
 		{
-			var root = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-			var toPath = System.IO.Path.GetFullPath(string.IsNullOrEmpty(root) ? "Backups" : System.IO.Path.Combine(root, "Backups"));
-			if (!Directory.Exists(toPath))
+			var destination = new DatabaseUpgradeCoordinator().CreateBackup(new DatabaseUpgradeRequest
 			{
-				if (Environment.OSVersion.Platform == PlatformID.Unix)
-				{
-					Directory.CreateDirectory(toPath, UnixFileMode.UserWrite | UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.SetUser | UnixFileMode.SetGroup | UnixFileMode.GroupExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite);
-				}
-				else
-				{
-					Directory.CreateDirectory(toPath);
-				}
-			}
-
-			var fileName = $"DB-Backup-{DateTime.UtcNow:yyyMMddhhmmss}.sql";
-			var destination = System.IO.Path.GetFullPath(fileName, toPath);
-
-			using (var conn = new MySqlConnection(FMDB.ConnectionString))
-			{
-				using (var cmd = new MySqlCommand())
-				{
-					using (var mb = new MySqlBackup(cmd))
-					{
-						cmd.Connection = conn;
-						conn.Open();
-						mb.ExportInfo.AddCreateDatabase = true;
-						mb.ExportInfo.AddDropDatabase = true;
-						mb.ExportToFile(destination);
-						conn.Close();
-					}
-				}
-			}
-
+				ConnectionString = FMDB.ConnectionString,
+				WorkingDirectory = AppContext.BaseDirectory,
+				ExecutableType = "MudSharpCore"
+			});
 			actor.OutputHandler.Send($"Successfully created file {destination.Colour(Telnet.BoldGreen)}");
 		}
 		catch (System.Exception e)

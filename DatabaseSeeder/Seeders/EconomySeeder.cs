@@ -212,7 +212,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Clothing", 42m, 5),
 						new PopulationNeedBlueprint("Combustion Heating", 28m, 3),
 						new PopulationNeedBlueprint("Lighting", 16m, 2),
-						new PopulationNeedBlueprint("Simple Wares", 20m, 2)
+						new PopulationNeedBlueprint("Simple Wares", 20m, 2),
+						new PopulationNeedBlueprint("Household Consumables", 10m, 1),
+						new PopulationNeedBlueprint("Cheap Entertainment", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Manor Households",
@@ -227,7 +229,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Combustion Heating", 34m, 3),
 						new PopulationNeedBlueprint("Simple Furniture", 36m, 2),
 						new PopulationNeedBlueprint("Simple Tools", 48m, 6),
-						new PopulationNeedBlueprint("Mule Haulage", 20m, 1)
+						new PopulationNeedBlueprint("Mule Haulage", 20m, 1),
+						new PopulationNeedBlueprint("Household Consumables", 14m, 1),
+						new PopulationNeedBlueprint("Bathing Services", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Itinerant Tradesfolk",
@@ -242,7 +246,11 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Tools", 62m, 7),
 						new PopulationNeedBlueprint("Transportation", 30m, 3),
 						new PopulationNeedBlueprint("Standard Wares", 48m, 3),
-						new PopulationNeedBlueprint("Beer", 18m, 1)
+						new PopulationNeedBlueprint("Beer", 18m, 1),
+						new PopulationNeedBlueprint("Messenger Services", 14m, 2),
+						new PopulationNeedBlueprint("Standard Lodging", 22m, 2),
+						new PopulationNeedBlueprint("Cheap Entertainment", 14m, 1),
+						new PopulationNeedBlueprint("Bathing Services", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Retainers",
@@ -257,7 +265,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Weapons", 52m, 7),
 						new PopulationNeedBlueprint("Armour", 38m, 5),
 						new PopulationNeedBlueprint("Simple Clothing", 32m, 3),
-						new PopulationNeedBlueprint("Beer", 18m, 1)
+						new PopulationNeedBlueprint("Beer", 18m, 1),
+						new PopulationNeedBlueprint("Cheap Entertainment", 14m, 1),
+						new PopulationNeedBlueprint("Bathing Services", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Parish Priesthood",
@@ -274,7 +284,8 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Parchment", 18m, 2),
 						new PopulationNeedBlueprint("Ink", 10m, 1),
 						new PopulationNeedBlueprint("Wine", 18m, 2),
-						new PopulationNeedBlueprint("Standard Decorations", 16m, 2)
+						new PopulationNeedBlueprint("Standard Decorations", 16m, 2),
+						new PopulationNeedBlueprint("Religious Goods", 22m, 2)
 					]),
 				new PopulationBlueprint(
 					"Monastic Orders",
@@ -291,7 +302,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Tools", 20m, 2),
 						new PopulationNeedBlueprint("Parchment", 12m, 1),
 						new PopulationNeedBlueprint("Ink", 8m, 1),
-						new PopulationNeedBlueprint("Simple Furniture", 16m, 1)
+						new PopulationNeedBlueprint("Simple Furniture", 16m, 1),
+						new PopulationNeedBlueprint("Religious Goods", 14m, 1),
+						new PopulationNeedBlueprint("Household Consumables", 12m, 1)
 					]),
 				new PopulationBlueprint(
 					"Noble Elite",
@@ -308,7 +321,11 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Parchment", 20m, 2),
 						new PopulationNeedBlueprint("Ink", 12m, 1),
 						new PopulationNeedBlueprint("Wine", 56m, 2),
-						new PopulationNeedBlueprint("Transportation", 46m, 1)
+						new PopulationNeedBlueprint("Transportation", 46m, 1),
+						new PopulationNeedBlueprint("Luxury Lodging", 42m, 2),
+						new PopulationNeedBlueprint("Luxury Entertainment", 38m, 2),
+						new PopulationNeedBlueprint("Domestic Services", 40m, 2),
+						new PopulationNeedBlueprint("Courier Services", 18m, 1)
 					])
 			]),
 		new(
@@ -327,7 +344,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Clothing", 40m, 5),
 						new PopulationNeedBlueprint("Combustion Heating", 26m, 3),
 						new PopulationNeedBlueprint("Lighting", 16m, 2),
-						new PopulationNeedBlueprint("Simple Wares", 20m, 2)
+						new PopulationNeedBlueprint("Simple Wares", 20m, 2),
+						new PopulationNeedBlueprint("Household Consumables", 10m, 1),
+						new PopulationNeedBlueprint("Cheap Entertainment", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Town Artisans",
@@ -342,7 +361,10 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Tools", 56m, 7),
 						new PopulationNeedBlueprint("Standard Wares", 60m, 4),
 						new PopulationNeedBlueprint("Standard Furniture", 38m, 2),
-						new PopulationNeedBlueprint("Lighting", 22m, 2)
+						new PopulationNeedBlueprint("Lighting", 22m, 2),
+						new PopulationNeedBlueprint("Household Consumables", 12m, 1),
+						new PopulationNeedBlueprint("Cheap Entertainment", 14m, 1),
+						new PopulationNeedBlueprint("Bathing Services", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Guild-Merchant Households",
@@ -359,7 +381,11 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Ink", 10m, 1),
 						new PopulationNeedBlueprint("Transportation", 32m, 3),
 						new PopulationNeedBlueprint("Luxury Drinks", 30m, 2),
-						new PopulationNeedBlueprint("High-Quality Tools", 44m, 4)
+						new PopulationNeedBlueprint("High-Quality Tools", 44m, 4),
+						new PopulationNeedBlueprint("Messenger Services", 16m, 2),
+						new PopulationNeedBlueprint("Standard Lodging", 24m, 2),
+						new PopulationNeedBlueprint("Standard Entertainment", 24m, 2),
+						new PopulationNeedBlueprint("Bathing Services", 10m, 1)
 					]),
 				new PopulationBlueprint(
 					"Garrison Men-At-Arms",
@@ -374,7 +400,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Weapons", 56m, 7),
 						new PopulationNeedBlueprint("Armour", 40m, 5),
 						new PopulationNeedBlueprint("Ammunition", 26m, 4),
-						new PopulationNeedBlueprint("Beer", 18m, 1)
+						new PopulationNeedBlueprint("Beer", 18m, 1),
+						new PopulationNeedBlueprint("Cheap Entertainment", 14m, 1),
+						new PopulationNeedBlueprint("Bathing Services", 8m, 1)
 					]),
 				new PopulationBlueprint(
 					"Parish Clergy",
@@ -391,7 +419,8 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Parchment", 18m, 2),
 						new PopulationNeedBlueprint("Ink", 12m, 1),
 						new PopulationNeedBlueprint("Wine", 18m, 2),
-						new PopulationNeedBlueprint("Standard Decorations", 18m, 2)
+						new PopulationNeedBlueprint("Standard Decorations", 18m, 2),
+						new PopulationNeedBlueprint("Religious Goods", 24m, 2)
 					]),
 				new PopulationBlueprint(
 					"Monastic Orders",
@@ -408,7 +437,8 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Tools", 24m, 2),
 						new PopulationNeedBlueprint("Parchment", 12m, 1),
 						new PopulationNeedBlueprint("Ink", 8m, 1),
-						new PopulationNeedBlueprint("Simple Furniture", 18m, 1)
+						new PopulationNeedBlueprint("Simple Furniture", 18m, 1),
+						new PopulationNeedBlueprint("Religious Goods", 16m, 1)
 					]),
 				new PopulationBlueprint(
 					"Noble Elite",
@@ -425,7 +455,11 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Paper", 18m, 2),
 						new PopulationNeedBlueprint("Ink", 12m, 1),
 						new PopulationNeedBlueprint("Luxury Drinks", 54m, 2),
-						new PopulationNeedBlueprint("Transportation", 48m, 1)
+						new PopulationNeedBlueprint("Transportation", 48m, 1),
+						new PopulationNeedBlueprint("Luxury Lodging", 44m, 2),
+						new PopulationNeedBlueprint("Luxury Entertainment", 48m, 2),
+						new PopulationNeedBlueprint("Domestic Services", 48m, 2),
+						new PopulationNeedBlueprint("Courier Services", 18m, 1)
 					])
 			]),
 		new(
@@ -444,7 +478,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Simple Clothing", 44m, 5),
 						new PopulationNeedBlueprint("Combustion Heating", 28m, 3),
 						new PopulationNeedBlueprint("Lighting", 20m, 2),
-						new PopulationNeedBlueprint("Beer", 18m, 1)
+						new PopulationNeedBlueprint("Beer", 18m, 1),
+						new PopulationNeedBlueprint("Household Consumables", 12m, 1),
+						new PopulationNeedBlueprint("Cheap Entertainment", 14m, 1)
 					]),
 				new PopulationBlueprint(
 					"Middling Households",
@@ -461,7 +497,11 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Paper", 16m, 1),
 						new PopulationNeedBlueprint("Ink", 10m, 1),
 						new PopulationNeedBlueprint("Simple Tools", 36m, 3),
-						new PopulationNeedBlueprint("Lighting", 24m, 2)
+						new PopulationNeedBlueprint("Lighting", 24m, 2),
+						new PopulationNeedBlueprint("Household Consumables", 16m, 1),
+						new PopulationNeedBlueprint("Standard Entertainment", 18m, 1),
+						new PopulationNeedBlueprint("Barbering", 10m, 1),
+						new PopulationNeedBlueprint("Printed News", 12m, 1)
 					]),
 				new PopulationBlueprint(
 					"Merchant And Professional Class",
@@ -478,7 +518,12 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Ink", 14m, 1),
 						new PopulationNeedBlueprint("Transportation", 40m, 3),
 						new PopulationNeedBlueprint("Luxury Drinks", 36m, 2),
-						new PopulationNeedBlueprint("Luxury Decorations", 42m, 2)
+						new PopulationNeedBlueprint("Luxury Decorations", 42m, 2),
+						new PopulationNeedBlueprint("Postal Services", 18m, 2),
+						new PopulationNeedBlueprint("Standard Lodging", 30m, 2),
+						new PopulationNeedBlueprint("Standard Entertainment", 28m, 2),
+						new PopulationNeedBlueprint("Barbering", 12m, 1),
+						new PopulationNeedBlueprint("Laundry Services", 12m, 1)
 					]),
 				new PopulationBlueprint(
 					"Standing Soldiery",
@@ -493,7 +538,10 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Weapons", 60m, 7),
 						new PopulationNeedBlueprint("Armour", 28m, 3),
 						new PopulationNeedBlueprint("Ammunition", 34m, 6),
-						new PopulationNeedBlueprint("Standard Clothing", 24m, 2)
+						new PopulationNeedBlueprint("Standard Clothing", 24m, 2),
+						new PopulationNeedBlueprint("Cheap Entertainment", 16m, 1),
+						new PopulationNeedBlueprint("Bathing Services", 10m, 1),
+						new PopulationNeedBlueprint("Standard Lodging", 14m, 1)
 					]),
 				new PopulationBlueprint(
 					"Parish Clergy",
@@ -510,7 +558,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Paper", 18m, 2),
 						new PopulationNeedBlueprint("Ink", 12m, 1),
 						new PopulationNeedBlueprint("Tea", 18m, 2),
-						new PopulationNeedBlueprint("Standard Decorations", 18m, 1)
+						new PopulationNeedBlueprint("Standard Decorations", 18m, 1),
+						new PopulationNeedBlueprint("Religious Goods", 22m, 2),
+						new PopulationNeedBlueprint("Printed News", 12m, 1)
 					]),
 				new PopulationBlueprint(
 					"Monastic Foundations",
@@ -527,7 +577,9 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Standard Tools", 26m, 2),
 						new PopulationNeedBlueprint("Paper", 14m, 1),
 						new PopulationNeedBlueprint("Ink", 10m, 1),
-						new PopulationNeedBlueprint("Simple Furniture", 16m, 1)
+						new PopulationNeedBlueprint("Simple Furniture", 16m, 1),
+						new PopulationNeedBlueprint("Religious Goods", 18m, 1),
+						new PopulationNeedBlueprint("Household Consumables", 10m, 1)
 					]),
 				new PopulationBlueprint(
 					"Gentry Elite",
@@ -544,7 +596,12 @@ public class EconomySeeder : IDatabaseSeeder
 						new PopulationNeedBlueprint("Paper", 24m, 2),
 						new PopulationNeedBlueprint("Ink", 16m, 1),
 						new PopulationNeedBlueprint("Luxury Drinks", 68m, 2),
-						new PopulationNeedBlueprint("Transportation", 56m, 1)
+						new PopulationNeedBlueprint("Transportation", 56m, 1),
+						new PopulationNeedBlueprint("Luxury Lodging", 52m, 2),
+						new PopulationNeedBlueprint("Luxury Entertainment", 58m, 2),
+						new PopulationNeedBlueprint("Domestic Services", 62m, 2),
+						new PopulationNeedBlueprint("Courier Services", 20m, 1),
+						new PopulationNeedBlueprint("Printed News", 18m, 1)
 					])
 			])
 	];
@@ -940,14 +997,224 @@ public class EconomySeeder : IDatabaseSeeder
 				"Medieval Age" => "Abundant timber and fuel leave workshops with easier access to inputs.",
 				_ => "Abundant timber and fuel leave workshops with easier access to inputs."
 			},
-			era => $"{era} abundant inputs ease industrial prices.")
+			era => $"{era} abundant inputs ease industrial prices."),
+		new(
+			"Grain Blight",
+			["Essentials"],
+			-0.20,
+			0.10,
+			era => $"Crop disease and spoilage spread through {era.ToLowerInvariant()} staple production and leave granaries short.",
+			era => $"{era} crop blight tightens essentials supply."),
+		new(
+			"Livestock Murrain",
+			["Essentials"],
+			-0.18,
+			0.09,
+			era => $"Animal disease reduces herds and preserved stores across the {era.ToLowerInvariant()} market hinterland.",
+			era => $"{era} herd losses tighten food supply."),
+		new(
+			"Relief Convoys",
+			["Essentials"],
+			0.22,
+			-0.08,
+			era => $"Emergency grain, fuel and medicine shipments arrive in force and stabilise the {era.ToLowerInvariant()} essentials trade.",
+			era => $"{era} relief shipments swell basic supply."),
+		new(
+			"Preservation Windfall",
+			["Essentials"],
+			0.16,
+			-0.06,
+			era => $"Exceptional salting, drying and storage results leave the {era.ToLowerInvariant()} market unusually well provisioned.",
+			era => $"{era} preservation success eases essentials demand."),
+		new(
+			"Fishing Bonanza",
+			["Essentials"],
+			0.12,
+			-0.04,
+			era => $"Strong catches and easy curing add cheap protein and tradeable food to the {era.ToLowerInvariant()} market.",
+			era => $"{era} fishing success broadens staple supply."),
+		new(
+			"Seed Shortage",
+			["Essentials"],
+			-0.12,
+			0.07,
+			era => $"Weak planting stock and hoarded seed threaten the next cycle of {era.ToLowerInvariant()} staple production.",
+			era => $"{era} seed shortages unsettle the essentials market."),
+		new(
+			"Pilgrimage Season",
+			["Lifestyle"],
+			-0.05,
+			0.16,
+			era => $"Travellers, pilgrims and guests pour through the {era.ToLowerInvariant()} region and lift spending on comfort, drink and services.",
+			era => $"{era} pilgrimage traffic boosts lifestyle demand."),
+		new(
+			"Sumptuary Crackdown",
+			["Lifestyle"],
+			0.08,
+			-0.18,
+			era => $"Authorities clamp down on display spending and status consumption across the {era.ToLowerInvariant()} market.",
+			era => $"{era} moral regulation cools lifestyle demand."),
+		new(
+			"Wedding Season",
+			["Lifestyle"],
+			-0.05,
+			0.17,
+			era => $"Marriage feasts and gift-giving keep the {era.ToLowerInvariant()} market busy with clothing, wares and celebratory spending.",
+			era => $"{era} wedding demand lifts lifestyle prices."),
+		new(
+			"Theatre Craze",
+			["Lifestyle"],
+			-0.06,
+			0.18,
+			era => $"A burst of shows, performances and fashionable venues lifts the {era.ToLowerInvariant()} appetite for amusements and display goods.",
+			era => $"{era} performance mania tightens lifestyle supply."),
+		new(
+			"Artisan Patronage",
+			["Lifestyle"],
+			-0.08,
+			0.14,
+			era => $"Patrons commission household display goods, clothing and services more aggressively across the {era.ToLowerInvariant()} market.",
+			era => $"{era} patronage raises lifestyle demand."),
+		new(
+			"Tavern Closures",
+			["Lifestyle"],
+			0.10,
+			-0.15,
+			era => $"Licensing pressure and curfews quieten the taverns and reduce discretionary spending in the {era.ToLowerInvariant()} market.",
+			era => $"{era} tavern restrictions cool lifestyle demand."),
+		new(
+			"Mercenary Arrival",
+			["Martial"],
+			0.14,
+			-0.10,
+			era => $"Mercenaries and discharged fighters flood the {era.ToLowerInvariant()} market with serviceable kit and slacken military demand.",
+			era => $"{era} mercenary surplus cools martial prices."),
+		new(
+			"Siege Preparations",
+			["Martial"],
+			-0.10,
+			0.26,
+			era => $"Fortification works and siege planning sharply increase the {era.ToLowerInvariant()} demand for arms, armour and stores.",
+			era => $"{era} siege fears drive martial demand."),
+		new(
+			"Powder Shortage",
+			["Martial"],
+			-0.20,
+			0.08,
+			era => $"Explosive ingredients, bow-stock inputs or other martial consumables become scarce in the {era.ToLowerInvariant()} market.",
+			era => $"{era} war-stock shortages choke martial supply."),
+		new(
+			"Veteran Sell-Off",
+			["Martial"],
+			0.18,
+			-0.12,
+			era => $"Retired soldiers and guards sell spare equipment into the {era.ToLowerInvariant()} market and ease recent shortages.",
+			era => $"{era} veterans dump martial surplus on the market."),
+		new(
+			"Smithy Subsidy",
+			["Martial"],
+			0.16,
+			-0.06,
+			era => $"Authorities subsidise armourers and fletchers, improving the flow of military goods in the {era.ToLowerInvariant()} market.",
+			era => $"{era} official subsidies expand martial supply."),
+		new(
+			"Muster Exhaustion",
+			["Martial"],
+			0.08,
+			-0.16,
+			era => $"Campaign fatigue and empty musters reduce the appetite for replacement kit across the {era.ToLowerInvariant()} market.",
+			era => $"{era} exhausted musters cool martial demand."),
+		new(
+			"Wagon Shortage",
+			["Logistics"],
+			-0.16,
+			0.09,
+			era => $"Broken draft stock, bad roads or lost carts leave the {era.ToLowerInvariant()} freight market short of hauling capacity.",
+			era => $"{era} wagon shortages tighten logistics supply."),
+		new(
+			"Customs Crackdown",
+			["Logistics"],
+			-0.12,
+			0.14,
+			era => $"Inspections and new tolls slow crossings and push more traders to compete for compliant carriers in the {era.ToLowerInvariant()} market.",
+			era => $"{era} customs pressure strains logistics."),
+		new(
+			"New Caravan Route",
+			["Logistics"],
+			0.20,
+			-0.10,
+			era => $"A safer and faster route opens up and expands freight and warehousing capacity in the {era.ToLowerInvariant()} market.",
+			era => $"{era} new routes expand logistics supply."),
+		new(
+			"River Dredging",
+			["Logistics"],
+			0.16,
+			-0.08,
+			era => $"Cleared channels, repaired docks or improved handling increase throughput across the {era.ToLowerInvariant()} trade network.",
+			era => $"{era} transport improvements cool logistics demand."),
+		new(
+			"Warehouse Fire",
+			["Logistics"],
+			-0.14,
+			0.10,
+			era => $"A major storage fire removes space and handling capacity from the {era.ToLowerInvariant()} market.",
+			era => $"{era} warehouse losses tighten logistics prices."),
+		new(
+			"Idle Porters",
+			["Logistics"],
+			0.10,
+			-0.12,
+			era => $"Labour and carrying capacity outrun available work in the {era.ToLowerInvariant()} transport market.",
+			era => $"{era} spare handling capacity cools logistics demand."),
+		new(
+			"Smelter Fire",
+			["Industry"],
+			-0.18,
+			0.08,
+			era => $"Furnaces, kilns or foundries go dark and reduce the flow of productive materials in the {era.ToLowerInvariant()} market.",
+			era => $"{era} workshop fires tighten industrial supply."),
+		new(
+			"Tooling Breakthrough",
+			["Industry"],
+			0.18,
+			-0.08,
+			era => $"Improved processes and better tooling raise workshop output across the {era.ToLowerInvariant()} economy.",
+			era => $"{era} process gains expand industrial supply."),
+		new(
+			"Timber Rights Dispute",
+			["Industry"],
+			-0.14,
+			0.06,
+			era => $"Access fights over timber, charcoal or cutting rights leave the {era.ToLowerInvariant()} workshop sector short of key inputs.",
+			era => $"{era} timber disputes pinch industrial supply."),
+		new(
+			"Quarry Expansion",
+			["Industry"],
+			0.20,
+			-0.06,
+			era => $"New pits, quarries or extraction rights swell the material base available to the {era.ToLowerInvariant()} market.",
+			era => $"{era} extraction growth expands industrial supply."),
+		new(
+			"Apprenticeship Surge",
+			["Industry"],
+			0.12,
+			-0.10,
+			era => $"An influx of apprentices and labour improves workshop output and softens industrial scarcity in the {era.ToLowerInvariant()} market.",
+			era => $"{era} labour growth cools industrial demand."),
+		new(
+			"Craft Boycott",
+			["Industry"],
+			-0.12,
+			0.12,
+			era => $"Coordinated refusals, guild discipline or labour unrest reduce finished output in the {era.ToLowerInvariant()} workshop economy.",
+			era => $"{era} labour unrest strains industrial prices.")
 	];
 
 	private static readonly IReadOnlyList<StressLevelDefinition> StressLevels =
 	[
-		new("Strained", 0.12m, 0.05, -0.18, -0.08, -0.06, 0.05, 0.04),
-		new("Hardship", 0.28m, 0.10, -0.40, -0.18, -0.16, 0.10, 0.08),
-		new("Crisis", 0.50m, 0.18, -0.72, -0.30, -0.24, 0.16, 0.14)
+		new("Strained", 0.12m, 0.05, -0.18, -0.08, -0.06, 0.05, 0.04, -0.04),
+		new("Hardship", 0.28m, 0.10, -0.40, -0.18, -0.16, 0.10, 0.08, -0.10),
+		new("Crisis", 0.50m, 0.18, -0.72, -0.30, -0.24, 0.16, 0.14, -0.18)
 	];
 
 	private static readonly IReadOnlyDictionary<string, string> FamilySectorMap =
@@ -1079,6 +1346,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 		var populationContext = EnsurePopulationsAndStressTemplates(
 			context,
 			era,
+			currency,
 			market,
 			categoryContext,
 			supportProgs.AlwaysKnownProg);
@@ -1475,6 +1743,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 	private static PopulationContext EnsurePopulationsAndStressTemplates(
 		FuturemudDatabaseContext context,
 		EraDefinition era,
+		Currency currency,
 		Market market,
 		CategoryContext categoryContext,
 		FutureProg alwaysKnownProg)
@@ -1502,7 +1771,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 				template.Name = templateName;
 				template.TemplateSummary = $"{level.DisplayName} stress state for {populationName}.";
 				template.Description =
-					$"{populationName} has entered a {level.DisplayName.ToLowerInvariant()} state. Households cut discretionary spending and focus harder on immediate survival needs.";
+					$"{populationName} has entered a {level.DisplayName.ToLowerInvariant()} state. Households cut lower-priority spending while strained local production also reduces supply in the sectors they anchor.";
 				template.CharacterKnowsAboutInfluenceProgId = alwaysKnownProg.Id;
 				template.Impacts = SaveImpacts(impactedCategories);
 				stressTemplates.Add(new StressTemplateContext(level, templateName));
@@ -1531,13 +1800,19 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 			population.Description = blueprint.Description;
 			population.PopulationScale = blueprint.PopulationScale;
 			population.MarketId = market.Id;
-			population.MarketPopulationNeeds = SaveNeeds(blueprint.Needs
+			var scaledNeeds = blueprint.Needs
 				.Select(need => new MarketNeedValue(
 					categoryContext.CategoriesByName[need.CategoryName].Id,
-					need.BaseExpenditure)));
+					ScaleExpenditure(era, currency, need.BaseExpenditure)))
+				.ToList();
+			population.MarketPopulationNeeds = SaveNeeds(scaledNeeds);
 			population.MarketStressPoints = SaveStressPoints(stressProgs);
 
-			populations.Add(new PopulationSeedContext(blueprint, populationName, stressProgs));
+			populations.Add(new PopulationSeedContext(
+				blueprint,
+				populationName,
+				stressProgs,
+				ResolvePopulationBudget(blueprint, scaledNeeds.Sum(x => x.BaseExpenditure))));
 		}
 
 		return new PopulationContext(populations);
@@ -1548,15 +1823,53 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 		StressLevelDefinition level,
 		CategoryContext categoryContext)
 	{
-		var impacts = new Dictionary<long, MarketImpactValue>();
-		void SetImpact(string categoryName, double demandImpact)
+		var impacts = new Dictionary<long, (double Supply, double Demand)>();
+
+		void SetDemandImpact(string categoryName, double demandImpact)
 		{
 			if (!categoryContext.CategoriesByName.TryGetValue(categoryName, out var category))
 			{
 				return;
 			}
 
-			impacts[category.Id] = new MarketImpactValue(category.Id, 0.0, demandImpact);
+			var existing = impacts.TryGetValue(category.Id, out var current)
+				? current
+				: (Supply: 0.0, Demand: 0.0);
+			impacts[category.Id] = (existing.Supply, demandImpact);
+		}
+
+		void EnsureMinimumDemandImpact(string categoryName, double minimumDemandImpact)
+		{
+			if (!categoryContext.CategoriesByName.TryGetValue(categoryName, out var category))
+			{
+				return;
+			}
+
+			var existing = impacts.TryGetValue(category.Id, out var current)
+				? current
+				: (Supply: 0.0, Demand: 0.0);
+			if (existing.Demand >= minimumDemandImpact)
+			{
+				return;
+			}
+
+			impacts[category.Id] = (existing.Supply, minimumDemandImpact);
+		}
+
+		void ApplySupplyImpact(string sector, double supplyImpact)
+		{
+			if (!categoryContext.CategoriesBySector.TryGetValue(sector, out var categories))
+			{
+				return;
+			}
+
+			foreach (var category in categories)
+			{
+				var existing = impacts.TryGetValue(category.Id, out var current)
+					? current
+					: (Supply: 0.0, Demand: 0.0);
+				impacts[category.Id] = (Math.Min(existing.Supply, supplyImpact), existing.Demand);
+			}
 		}
 
 		foreach (var need in blueprint.Needs)
@@ -1577,19 +1890,37 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 					: level.LifestyleDemandImpactFor(blueprint.Archetype)
 			};
 
-			SetImpact(need.CategoryName, demandImpact);
+			SetDemandImpact(need.CategoryName, AdjustDemandImpactForPriority(demandImpact, need.Weight));
 		}
 
-		SetImpact("Staple Food", Math.Max(level.EssentialDemandImpact, 0.08));
-		SetImpact("Salt", Math.Max(level.EssentialDemandImpact / 2.0, 0.04));
-		SetImpact("Simple Clothing", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
-		SetImpact("Simple Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
-		SetImpact("Standard Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
-		SetImpact("High-Quality Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.04));
-		SetImpact("Combustion Heating", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
-		SetImpact("Lighting", Math.Max(level.HeatAndMedicineDemandImpact / 2.0, 0.03));
+		EnsureMinimumDemandImpact("Staple Food", Math.Max(level.EssentialDemandImpact, 0.08));
+		EnsureMinimumDemandImpact("Salt", Math.Max(level.EssentialDemandImpact / 2.0, 0.04));
+		EnsureMinimumDemandImpact("Simple Clothing", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		EnsureMinimumDemandImpact("Simple Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		EnsureMinimumDemandImpact("Standard Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		EnsureMinimumDemandImpact("High-Quality Medicine", Math.Max(level.HeatAndMedicineDemandImpact, 0.04));
+		EnsureMinimumDemandImpact("Combustion Heating", Math.Max(level.HeatAndMedicineDemandImpact, 0.05));
+		EnsureMinimumDemandImpact("Lighting", Math.Max(level.HeatAndMedicineDemandImpact / 2.0, 0.03));
 
-		return impacts.Values.OrderBy(x => x.CategoryId).ToList();
+		foreach (var (sector, multiplier) in ProducedSectorsFor(blueprint.Archetype))
+		{
+			ApplySupplyImpact(sector, level.ProductionSupplyImpact * multiplier);
+		}
+
+		if (impacts.Values.All(x => x.Supply >= 0.0))
+		{
+			ApplySupplyImpact("Lifestyle", level.ProductionSupplyImpact * 0.40);
+		}
+
+		if (impacts.Values.All(x => x.Supply >= 0.0))
+		{
+			ApplySupplyImpact("Essentials", level.ProductionSupplyImpact * 0.40);
+		}
+
+		return impacts
+			.OrderBy(x => x.Key)
+			.Select(x => new MarketImpactValue(x.Key, x.Value.Supply, x.Value.Demand))
+			.ToList();
 	}
 
 	private static IReadOnlyList<StressPointValue> EnsureStressProgs(
@@ -1634,7 +1965,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
 			results.Add(new StressPointValue(
 				template.Level.DisplayName,
-				$"{populationName} is {template.Level.DisplayName.ToLowerInvariant()}, curbing discretionary consumption and concentrating spending on essentials.",
+				$"{populationName} is {template.Level.DisplayName.ToLowerInvariant()}, curbing lower-priority demand while also depressing supply in the sectors that population normally sustains.",
 				template.Level.Threshold,
 				startProg.Id,
 				endProg.Id));
@@ -1668,7 +1999,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 					return created;
 				});
 
-			var budget = decimal.Round(population.Blueprint.BaseBudget * shopperScale, 2, MidpointRounding.AwayFromZero);
+			var budget = decimal.Round(population.ScaledBudget * shopperScale, 2, MidpointRounding.AwayFromZero);
 			shopper.Name = ShopperName(era, population.Blueprint);
 			shopper.EconomicZoneId = economicZone.Id;
 			shopper.Type = "simple";
@@ -1840,6 +2171,113 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 		return $"{calendarId}_{date}_{clockId}_{timezoneName} {hours}:{minutes}:{seconds}";
 	}
 
+	private static decimal ScaleExpenditure(EraDefinition era, Currency currency, decimal baseExpenditure)
+	{
+		var scale = ResolveEraSterlingScale(era) * ResolveCurrencyBaseUnitsPerPound(currency) / 100.0m;
+		return decimal.Round(baseExpenditure * scale, 2, MidpointRounding.AwayFromZero);
+	}
+
+	private static decimal ResolvePopulationBudget(PopulationBlueprint blueprint, decimal scaledNeedTotal)
+	{
+		return decimal.Round(scaledNeedTotal * blueprint.ShopperBudgetFactor, 2, MidpointRounding.AwayFromZero);
+	}
+
+	private static decimal ResolveEraSterlingScale(EraDefinition era)
+	{
+		return era.Key switch
+		{
+			"Classical Age" => 0.82m,
+			"Feudal Age" => 0.62m,
+			"Medieval Age" => 0.72m,
+			"Early Modern Age" => 0.90m,
+			_ => 1.00m
+		};
+	}
+
+	private static decimal ResolveCurrencyBaseUnitsPerPound(Currency currency)
+	{
+		return currency.Name.ToLowerInvariant() switch
+		{
+			"bits" => 100.0m,
+			"dollars" => 125.0m,
+			"pounds" => 960.0m,
+			"roman" => 768.0m,
+			"standard" => 1000.0m,
+			"gondorian" => 400.0m,
+			_ => 100.0m
+		};
+	}
+
+	private static double AdjustDemandImpactForPriority(double demandImpact, int weight)
+	{
+		var multiplier = demandImpact < 0.0
+			? weight switch
+			{
+				>= 8 => 0.55,
+				>= 6 => 0.72,
+				>= 4 => 0.90,
+				>= 2 => 1.12,
+				_ => 1.30
+			}
+			: weight switch
+			{
+				>= 8 => 1.10,
+				>= 6 => 1.00,
+				>= 4 => 0.92,
+				>= 2 => 0.84,
+				_ => 0.76
+			};
+		return demandImpact * multiplier;
+	}
+
+	private static IEnumerable<(string Sector, double Multiplier)> ProducedSectorsFor(PopulationArchetype archetype)
+	{
+		return archetype switch
+		{
+			PopulationArchetype.Commoner =>
+			[
+				("Essentials", 1.00),
+				("Lifestyle", 0.35),
+				("Industry", 0.25)
+			],
+			PopulationArchetype.Rural =>
+			[
+				("Essentials", 1.00),
+				("Industry", 0.55),
+				("Logistics", 0.25)
+			],
+			PopulationArchetype.Merchant =>
+			[
+				("Lifestyle", 0.85),
+				("Industry", 0.75),
+				("Logistics", 0.70)
+			],
+			PopulationArchetype.Martial =>
+			[
+				("Martial", 1.00),
+				("Industry", 0.55),
+				("Logistics", 0.35)
+			],
+			PopulationArchetype.Clergy =>
+			[
+				("Lifestyle", 0.70),
+				("Logistics", 0.45)
+			],
+			PopulationArchetype.Monastic =>
+			[
+				("Essentials", 0.70),
+				("Lifestyle", 0.75),
+				("Industry", 0.45)
+			],
+			PopulationArchetype.Elite =>
+			[
+				("Lifestyle", 0.60),
+				("Logistics", 0.40)
+			],
+			_ => []
+		};
+	}
+
 	private sealed record EraDefinition(string Key, string DisplayName, IReadOnlyList<PopulationBlueprint> Populations);
 
 	private sealed record PopulationBlueprint(
@@ -1849,7 +2287,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 		PopulationArchetype Archetype,
 		IReadOnlyList<PopulationNeedBlueprint> Needs)
 	{
-		public decimal BaseBudget => decimal.Round(Needs.Sum(x => x.BaseExpenditure) * Archetype switch
+		public decimal ShopperBudgetFactor => Archetype switch
 		{
 			PopulationArchetype.Commoner => 0.18m,
 			PopulationArchetype.Rural => 0.19m,
@@ -1859,7 +2297,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 			PopulationArchetype.Monastic => 0.22m,
 			PopulationArchetype.Elite => 0.34m,
 			_ => 0.18m
-		}, 2, MidpointRounding.AwayFromZero);
+		};
 	}
 
 	private sealed record PopulationNeedBlueprint(string CategoryName, decimal BaseExpenditure, int Weight);
@@ -1878,7 +2316,8 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 		double IndustryDemandImpact,
 		double LogisticsDemandImpact,
 		double MartialDemandImpact,
-		double HeatAndMedicineDemandImpact)
+		double HeatAndMedicineDemandImpact,
+		double ProductionSupplyImpact)
 	{
 		public double LifestyleDemandImpactFor(PopulationArchetype archetype)
 		{
@@ -1918,6 +2357,10 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 	private sealed record MarketNeedValue(long CategoryId, decimal BaseExpenditure);
 	private sealed record StressPointValue(string Name, string Description, decimal Threshold, long OnStartProgId, long OnEndProgId);
 	private sealed record StressTemplateContext(StressLevelDefinition Level, string TemplateName);
-	private sealed record PopulationSeedContext(PopulationBlueprint Blueprint, string PopulationName, IReadOnlyList<StressPointValue> StressPoints);
+	private sealed record PopulationSeedContext(
+		PopulationBlueprint Blueprint,
+		string PopulationName,
+		IReadOnlyList<StressPointValue> StressPoints,
+		decimal ScaledBudget);
 	private sealed record PopulationContext(IReadOnlyList<PopulationSeedContext> Populations);
 }

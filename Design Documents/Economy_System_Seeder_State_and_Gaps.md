@@ -29,10 +29,10 @@ The current repository has two dedicated economy seeders:
 - a new stock `EconomicZone` shell tied to a chosen currency and physical zone
 - a stock market attached to that zone
 - market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags
-- a reusable library of external market influence templates grouped by sector family
-- era-specific market populations, including priestly and monastic households
-- population-stress influence templates and their helper FutureProgs
-- one seeded `SimpleShopper` per seeded population, with user-selected budget scale
+- a reusable library of external market influence templates grouped by sector family, with substantially broader positive and negative scenario coverage than the first pass
+- era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
+- population-stress influence templates and their helper FutureProgs, with stress now reducing lower-priority demand while also contracting supply in the sectors that stressed populations plausibly sustain
+- one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures now scaled by both era assumptions and the chosen currency package
 
 The current stock eras are:
 
@@ -176,6 +176,7 @@ Current stock package limits:
 - the seeder creates a template market, not a complete retail economy
 - the seeded shopper progs are intentionally broad and tag-driven rather than world-specific retail logic
 - the seeded populations are builder-friendly archetypes, not a claim of historical simulation completeness
+- seeded money values are intended as builder-facing baselines, not audited historical wage tables; the seeder now normalizes them against era and currency assumptions so stock packages start closer to plausible local price scales
 
 ## Possible but World-Dependent Seeder Candidates
 ### Markets tied to seeded economic zones

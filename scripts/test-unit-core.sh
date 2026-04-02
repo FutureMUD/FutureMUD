@@ -29,4 +29,4 @@ fi
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 export DOTNET_NOLOGO=1
 cd "$REPO_ROOT"
-"$DOTNET" test "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj" -c Debug --no-restore "-p:NoWarn=NU1902;NU1510"
+"$DOTNET" test "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj" -c Debug --no-restore -m:1 "-p:NoWarn=NU1902;NU1510"

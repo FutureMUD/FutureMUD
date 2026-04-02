@@ -56,7 +56,6 @@ public class EconomySeederTests
 			["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
 			["Transportation"] = ["Mule Haulage"],
 			["Warehousing"] = [],
-			["Communications"] = ["Messenger Services", "Courier Services"],
 			["Professional Tools"] = ["Primitive Tools", "Simple Tools", "Standard Tools", "High-Quality Tools"],
 			["Raw Materials"] = []
 		};

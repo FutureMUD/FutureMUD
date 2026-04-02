@@ -24,7 +24,7 @@ $env:DOTNET_NOLOGO = '1'
 
 Push-Location $repoRoot
 try {
-	dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -p:NoWarn=NU1902%3BNU1510
+	dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510
 }
 finally {
 	Pop-Location

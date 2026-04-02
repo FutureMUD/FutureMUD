@@ -28,7 +28,7 @@ The current repository has two dedicated economy seeders:
 
 - a new stock `EconomicZone` shell tied to a chosen currency and physical zone
 - a stock market attached to that zone
-- market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags
+- market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags such as later-era communications (`Postal Services`, `Printed News`) and personal-service (`Barbering`, `Laundry Services`) needs
 - a reusable library of external market influence templates grouped by sector family, with substantially broader positive and negative scenario coverage than the first pass
 - era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
 - population-stress influence templates and their helper FutureProgs, with stress now reducing lower-priority demand while also contracting supply in the sectors that stressed populations plausibly sustain

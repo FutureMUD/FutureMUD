@@ -143,7 +143,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
 			return;
 		}
 
-		_contents.Remove(_currentFuelItem);
+		_contents.RemoveAll(x => ReferenceEquals(x, _currentFuelItem) || x.Id == _currentFuelItem.Id);
 		_currentFuelItem.Delete();
 		_currentFuelItem = null;
 		_remainingBurnSeconds = 0.0;

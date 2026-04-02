@@ -281,6 +281,7 @@ Notes:
 - The solution includes `FutureMUD_Analyzers.Vsix`, which depends on Visual Studio SDK targets and may fail under plain `dotnet build` on machines without the Visual Studio extension toolchain installed.
 - Because of that VSIX dependency, a full solution build is not the default verification path for Codex on Windows.
 - Suppressing `NU1902` and `NU1510` in local verification commands is acceptable unless the task is specifically about package auditing or dependency hygiene.
+- `MudSharpCore Unit Tests` can fail silently during the default parallel MSBuild project-graph walk inside sandboxed Codex runs. Prefer the repo scripts, or add `-m:1` when invoking that project with direct `dotnet build` or `dotnet test` commands.
 
 ## Instructions for Codex when Changing Subsystems with Design Documents
 

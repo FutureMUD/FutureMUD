@@ -156,7 +156,9 @@ namespace MudSharp.Form.Material
 		public void ContentsUpdated() {
 			_instances.RemoveAll(x => x.Amount <= 0.0);
 			TotalVolume = _instances.Sum(x => x.Amount);
-			TotalWeight = _instances.Sum(x => x.Amount * x.Liquid.Density) * Gameworld.UnitManager.BaseFluidToLitres / Gameworld.UnitManager.BaseWeightToKilograms;
+			var baseFluidToLitres = Gameworld?.UnitManager?.BaseFluidToLitres ?? 1.0;
+			var baseWeightToKilograms = Gameworld?.UnitManager?.BaseWeightToKilograms ?? 1.0;
+			TotalWeight = _instances.Sum(x => x.Amount * x.Liquid.Density) * baseFluidToLitres / baseWeightToKilograms;
 			
 			OnLiquidMixtureChanged?.Invoke(this);
 		}
@@ -428,7 +430,7 @@ namespace MudSharp.Form.Material
 				return new NeedFulfiller();
 			}
 
-			var multiplier = Gameworld.UnitManager.BaseFluidToLitres;
+			var multiplier = Gameworld?.UnitManager?.BaseFluidToLitres ?? 1.0;
 			double satiationPoints = 0.0, thirstPoints = 0.0, waterLitres = 0.0, alcoholLitres = 0.0;
 			foreach (var liquid in Instances)
 			{

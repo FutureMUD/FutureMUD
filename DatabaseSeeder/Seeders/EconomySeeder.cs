@@ -48,13 +48,13 @@ public class EconomySeeder : IDatabaseSeeder
 			],
 			["Hospitality"] = ["Standard Lodging", "Luxury Lodging"],
 			["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment"],
-			["Personal Services"] = ["Bathing Services", "Domestic Services"],
+			["Personal Services"] = ["Bathing Services", "Domestic Services", "Barbering", "Laundry Services"],
 			["Religious Goods"] = [],
 			["Household Consumables"] = [],
 			["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
 			["Transportation"] = ["Mule Haulage"],
 			["Warehousing"] = [],
-			["Communications"] = ["Messenger Services", "Courier Services"],
+			["Communications"] = ["Messenger Services", "Courier Services", "Postal Services", "Printed News"],
 			["Professional Tools"] = ["Primitive Tools", "Simple Tools", "Standard Tools", "High-Quality Tools"],
 			["Raw Materials"] = []
 		};

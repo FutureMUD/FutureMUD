@@ -66,11 +66,18 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
     public double CurrentCelestialDay => Moon.CurrentCelestialDay;
     public double CelestialDaysPerYear => Moon.CelestialDaysPerYear;
 
-    public event CelestialUpdateHandler? MinuteUpdateEvent;
+    public event CelestialUpdateHandler MinuteUpdateEvent;
     public void AddMinutes(int numberOfMinutes) { }
     public void AddMinutes() { MinuteUpdateEvent?.Invoke(this); }
 
-    private static readonly double OneMinuteTimeFraction = 1.0 / 1440.0;
+	private double OneMinuteTimeFraction
+	{
+		get
+		{
+			var minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
+			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+		}
+	}
 
     protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
     {

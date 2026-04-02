@@ -1171,6 +1171,7 @@ internal sealed class WeatherStatisticsAnalyzer
 		clonedSun.EclipticLongitude = source.EclipticLongitude;
 		clonedSun.EquatorialObliquity = source.EquatorialObliquity;
 		clonedSun.DayNumberAtEpoch = source.DayNumberAtEpoch;
+		clonedSun.CurrentDayNumberOffset = source.CurrentDayNumberOffset;
 		clonedSun.SiderealTimeAtEpoch = source.SiderealTimeAtEpoch;
 		clonedSun.SiderealTimePerDay = source.SiderealTimePerDay;
 		clonedSun.KepplerC1Approximant = source.KepplerC1Approximant;

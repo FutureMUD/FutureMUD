@@ -209,6 +209,86 @@ public class CelestialTests
                 Assert.AreEqual(expected, m2, 1e-9, "Mean anomaly should change with fractional day");
         }
 
+	[TestMethod]
+	public void TestCustomDayNumberOffsetApplied()
+	{
+		var sun = new NewSun(new Celestial
+		{
+			Id = 2,
+			CelestialYear = 0,
+			LastYearBump = 0,
+			FeedClockId = 1,
+			Minutes = 0,
+			Seasons = new List<Season>(),
+			WeatherControllers = new List<WeatherController>(),
+			Definition = @"<Sun>
+	<Name>The Sun</Name>
+	<Calendar>1</Calendar>
+	<Orbital>
+		<CelestialDaysPerYear>365.24</CelestialDaysPerYear>
+		<MeanAnomalyAngleAtEpoch>6.24006</MeanAnomalyAngleAtEpoch>
+		<AnomalyChangeAnglePerDay>0.017202</AnomalyChangeAnglePerDay>
+		<EclipticLongitude>1.796595</EclipticLongitude>
+		<EquatorialObliquity>0.409093</EquatorialObliquity>
+		<DayNumberAtEpoch>2451545</DayNumberAtEpoch>
+		<CurrentDayNumberOffset>0.75</CurrentDayNumberOffset>
+		<SiderealTimeAtEpoch>4.889488</SiderealTimeAtEpoch>
+		<SiderealTimePerDay>6.300388</SiderealTimePerDay>
+		<KepplerC1Approximant>0.033419565</KepplerC1Approximant>
+		<KepplerC2Approximant>0.000349066</KepplerC2Approximant>
+		<KepplerC3Approximant>0.000005235988</KepplerC3Approximant>
+		<KepplerC4Approximant>0</KepplerC4Approximant>
+		<KepplerC5Approximant>0</KepplerC5Approximant>
+		<KepplerC6Approximant>0</KepplerC6Approximant>
+		<EpochDate>25-far-31</EpochDate>
+	</Orbital>
+	<Illumination>
+		<PeakIllumination>98000</PeakIllumination>
+		<AlphaScatteringConstant>0.05</AlphaScatteringConstant>
+		<BetaScatteringConstant>0.035</BetaScatteringConstant>
+		<PlanetaryRadius>6378</PlanetaryRadius>
+		<AtmosphericDensityScalingFactor>6.35</AtmosphericDensityScalingFactor>
+	</Illumination>
+</Sun>"
+		}, _gameworld);
+
+		Assert.AreEqual(_newSun.CurrentDayNumber + 0.25, sun.CurrentDayNumber, 0.000001);
+	}
+
+	[TestMethod]
+	public void TestDirectionSamplingUsesActualClockLength()
+	{
+		var concreteClock = (MudSharp.TimeAndDate.Time.Clock)_testClock;
+		var originalHoursPerDay = concreteClock.HoursPerDay;
+		var originalMinutesPerHour = concreteClock.MinutesPerHour;
+		var geography = new GeographicCoordinate(0.3, 0.1, 0.0, 0.0);
+
+		try
+		{
+			SetClockField(concreteClock, "_hoursPerDay", 2);
+			SetClockField(concreteClock, "_minutesPerHour", 10);
+			_testCalendar.SetDate("3/jun/35");
+
+			for (var minute = 1; minute < 20; minute++)
+			{
+				_testClock.CurrentTime.SetTime(minute / 10, minute % 10, 0);
+				var current = _newSun.CurrentPosition(geography);
+				_testClock.CurrentTime.SetTime((minute - 1) / 10, (minute - 1) % 10, 0);
+				var previous = _newSun.CurrentPosition(geography);
+				var expected = current.LastAscensionAngle >= previous.LastAscensionAngle
+					? CelestialMoveDirection.Ascending
+					: CelestialMoveDirection.Descending;
+				Assert.AreEqual(expected, current.Direction, $"Minute {minute} should use the actual clock length.");
+			}
+		}
+		finally
+		{
+			SetClockField(concreteClock, "_hoursPerDay", originalHoursPerDay);
+			SetClockField(concreteClock, "_minutesPerHour", originalMinutesPerHour);
+			_testClock.CurrentTime.SetTime(12, 0, 0);
+		}
+	}
+
         [TestMethod]
         public void TestSunTriggerEchoSelection()
         {
@@ -225,4 +305,11 @@ public class CelestialTests
                 var trigger = (CelestialTrigger)method.Invoke(_newSun, new object[] { oldStatus, newStatus });
                 Assert.AreEqual("rise", trigger.Echo);
         }
+
+	private static void SetClockField(MudSharp.TimeAndDate.Time.Clock clock, string fieldName, int value)
+	{
+		typeof(MudSharp.TimeAndDate.Time.Clock)
+			.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(clock, value);
+	}
 }

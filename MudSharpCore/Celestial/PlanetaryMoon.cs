@@ -154,7 +154,14 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
 		MinuteUpdateEvent?.Invoke(this);
 	}
 
-	private static readonly double OneMinuteTimeFraction = 1.0 / 1440.0;
+	private double OneMinuteTimeFraction
+	{
+		get
+		{
+			var minutesPerDay = (double)(Clock?.HoursPerDay ?? 0) * (Clock?.MinutesPerHour ?? 0);
+			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+		}
+	}
 
 	protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
 	{

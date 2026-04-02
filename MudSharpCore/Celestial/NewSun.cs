@@ -36,6 +36,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 
 	public MudDate EpochDate { get; set; }
 	public double DayNumberAtEpoch { get; set; }
+	public double CurrentDayNumberOffset { get; set; } = 0.5;
 	public double SiderealTimeAtEpoch { get; set; }
 	public double SiderealTimePerDay { get; set; }
 
@@ -80,6 +81,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		EclipticLongitude = element.Element("EclipticLongitude")?.Value.GetDouble() ?? 0;
 		EquatorialObliquity = element.Element("EquatorialObliquity")?.Value.GetDouble() ?? 0;
 		DayNumberAtEpoch = element.Element("DayNumberAtEpoch")?.Value.GetDouble() ?? 0;
+		CurrentDayNumberOffset = element.Element("CurrentDayNumberOffset")?.Value.GetDouble() ?? 0.5;
 		SiderealTimeAtEpoch = element.Element("SiderealTimeAtEpoch")?.Value.GetDouble() ?? 0;
 		SiderealTimePerDay = element.Element("SiderealTimePerDay")?.Value.GetDouble() ?? 0;
 		KepplerC1Approximant = element.Element("KepplerC1Approximant")?.Value.GetDouble() ?? 0;
@@ -248,7 +250,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		((Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction).Modulus(CelestialDaysPerYear);
 
 	public double CurrentDayNumber => (Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction +
-	                                  DayNumberAtEpoch + 0.5;
+	                                  DayNumberAtEpoch + CurrentDayNumberOffset;
 
 	public double CelestialDaysPerYear { get; set; }
 
@@ -336,7 +338,14 @@ public class NewSun : PerceivedItem, ICelestialObject
 		return E1 + E2;
 	}
 
-	private static readonly double OneMinuteTimeFraction = 1.0 / 1440.0;
+	private double OneMinuteTimeFraction
+	{
+		get
+		{
+			var minutesPerDay = (double)(Clock?.HoursPerDay ?? 0) * (Clock?.MinutesPerHour ?? 0);
+			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+		}
+	}
 
 	protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
 	{

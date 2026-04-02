@@ -295,7 +295,7 @@ public class PlanetaryMoonTests
                 Assert.AreEqual("rise", trigger.Echo);
         }
 
-        [TestMethod]
+	[TestMethod]
         public void TestIlluminationAtPhases()
         {
                 // Full moon at reference day
@@ -310,4 +310,45 @@ public class PlanetaryMoonTests
                 var newIllum = _moon.CurrentIllumination(new GeographicCoordinate(0, 0, 0, 0));
                 Assert.IsTrue(newIllum < 0.02, $"New moon illumination expected near zero but was {newIllum}");
         }
+
+	[TestMethod]
+	public void TestDirectionSamplingUsesActualClockLength()
+	{
+		var concreteClock = (MudSharp.TimeAndDate.Time.Clock)_clock;
+		var originalHoursPerDay = concreteClock.HoursPerDay;
+		var originalMinutesPerHour = concreteClock.MinutesPerHour;
+		var geography = new GeographicCoordinate(0.3, 0.1, 0.0, 0.0);
+
+		try
+		{
+			SetClockField(concreteClock, "_hoursPerDay", 2);
+			SetClockField(concreteClock, "_minutesPerHour", 10);
+			_calendar.SetDate("21/jan/2000");
+
+			for (var minute = 1; minute < 20; minute++)
+			{
+				_clock.CurrentTime.SetTime(minute / 10, minute % 10, 0);
+				var current = _moon.CurrentPosition(geography);
+				_clock.CurrentTime.SetTime((minute - 1) / 10, (minute - 1) % 10, 0);
+				var previous = _moon.CurrentPosition(geography);
+				var expected = current.LastAscensionAngle >= previous.LastAscensionAngle
+					? CelestialMoveDirection.Ascending
+					: CelestialMoveDirection.Descending;
+				Assert.AreEqual(expected, current.Direction, $"Minute {minute} should use the actual clock length.");
+			}
+		}
+		finally
+		{
+			SetClockField(concreteClock, "_hoursPerDay", originalHoursPerDay);
+			SetClockField(concreteClock, "_minutesPerHour", originalMinutesPerHour);
+			_clock.CurrentTime.SetTime(12, 0, 0);
+		}
+	}
+
+	private static void SetClockField(MudSharp.TimeAndDate.Time.Clock clock, string fieldName, int value)
+	{
+		typeof(MudSharp.TimeAndDate.Time.Clock)
+			.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(clock, value);
+	}
 }

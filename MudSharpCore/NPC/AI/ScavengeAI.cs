@@ -221,7 +221,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
 
 	internal static bool IsValidOnScavengeProg(IFutureProg prog)
 	{
-		return prog.ReturnType == ProgVariableTypes.Void &&
+		return 
 			prog.MatchesParameters(new List<ProgVariableTypes>
 		       {
 			       ProgVariableTypes.Character,

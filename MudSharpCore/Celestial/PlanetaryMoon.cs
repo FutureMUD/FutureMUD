@@ -30,6 +30,7 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
 	public double LongitudeOfAscendingNode { get; set; }
 	public double OrbitalInclination { get; set; }
 	public double OrbitalEccentricity { get; set; }
+	public double OrbitalSemiMajorAxis { get; set; } = 0.00257;
 
 	public MudDate EpochDate { get; set; }
 	public double DayNumberAtEpoch { get; set; }
@@ -63,6 +64,7 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
 		LongitudeOfAscendingNode = element.Element("LongitudeOfAscendingNode")?.Value.GetDouble() ?? 0;
 		OrbitalInclination = element.Element("OrbitalInclination")?.Value.GetDouble() ?? 0;
 		OrbitalEccentricity = element.Element("OrbitalEccentricity")?.Value.GetDouble() ?? 0;
+		OrbitalSemiMajorAxis = element.Element("OrbitalSemiMajorAxis")?.Value.GetDouble() ?? 0.00257;
 		DayNumberAtEpoch = element.Element("DayNumberAtEpoch")?.Value.GetDouble() ?? 0;
 		SiderealTimeAtEpoch = element.Element("SiderealTimeAtEpoch")?.Value.GetDouble() ?? 0;
 		SiderealTimePerDay = element.Element("SiderealTimePerDay")?.Value.GetDouble() ?? 0;
@@ -185,21 +187,46 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
 			.Modulus(2 * Math.PI);
 	}
 
-       public (double RA, double Dec) EquatorialCoordinates(double dayNumber)
-       {
-               var v = TrueAnomaly(dayNumber);
-               var wv = v + ArgumentOfPeriapsis;
+	public double OrbitalRadius(double dayNumber)
+	{
+		var semiMajorAxis = OrbitalSemiMajorAxis > 0.0 ? OrbitalSemiMajorAxis : 0.00257;
+		var trueAnomaly = TrueAnomaly(dayNumber);
+		var denominator = 1.0 + OrbitalEccentricity * Math.Cos(trueAnomaly);
+		if (Math.Abs(denominator) < 1.0E-12)
+		{
+			return semiMajorAxis;
+		}
 
-               var x = Math.Cos(LongitudeOfAscendingNode) * Math.Cos(wv) -
-                               Math.Sin(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
-               var y = Math.Sin(LongitudeOfAscendingNode) * Math.Cos(wv) +
-                               Math.Cos(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
-               var z = Math.Sin(wv) * Math.Sin(OrbitalInclination);
+		return semiMajorAxis * (1.0 - OrbitalEccentricity * OrbitalEccentricity) / denominator;
+	}
 
-               var ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
-               var dec = Math.Asin(z);
-               return (ra, dec);
-       }
+	public (double RA, double Dec) EquatorialCoordinates(double dayNumber)
+	{
+		var v = TrueAnomaly(dayNumber);
+		var wv = v + ArgumentOfPeriapsis;
+
+		var x = Math.Cos(LongitudeOfAscendingNode) * Math.Cos(wv) -
+				Math.Sin(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
+		var y = Math.Sin(LongitudeOfAscendingNode) * Math.Cos(wv) +
+				Math.Cos(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
+		var z = Math.Sin(wv) * Math.Sin(OrbitalInclination);
+
+		var ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
+		var dec = Math.Asin(z);
+		return (ra, dec);
+	}
+
+	public (double X, double Y, double Z) PositionVector(double dayNumber)
+	{
+		var radius = OrbitalRadius(dayNumber);
+		var (rightAscension, declination) = EquatorialCoordinates(dayNumber);
+		var cosDeclination = Math.Cos(declination);
+		return (
+			radius * Math.Cos(rightAscension) * cosDeclination,
+			radius * Math.Sin(rightAscension) * cosDeclination,
+			radius * Math.Sin(declination)
+		);
+	}
 
 	private double SiderealTime(double dayNumber, GeographicCoordinate coordinate)
 	{
@@ -300,13 +327,13 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
 		var frac = (CurrentCelestialDay - FullMoonReferenceDay).Modulus(CelestialDaysPerYear) / CelestialDaysPerYear;
 
 		if (frac < 0.0625 || frac >= 0.9375) return MoonPhase.Full;
-		if (frac < 0.1875) return MoonPhase.WaxingGibbous;
-		if (frac < 0.3125) return MoonPhase.FirstQuarter;
-		if (frac < 0.4375) return MoonPhase.WaxingCrescent;
+		if (frac < 0.1875) return MoonPhase.WaningGibbous;
+		if (frac < 0.3125) return MoonPhase.LastQuarter;
+		if (frac < 0.4375) return MoonPhase.WaningCrescent;
 		if (frac < 0.5625) return MoonPhase.New;
-		if (frac < 0.6875) return MoonPhase.WaningCrescent;
-		if (frac < 0.8125) return MoonPhase.LastQuarter;
-		return MoonPhase.WaningGibbous;
+		if (frac < 0.6875) return MoonPhase.WaxingCrescent;
+		if (frac < 0.8125) return MoonPhase.FirstQuarter;
+		return MoonPhase.WaxingGibbous;
 	}
 
 	protected CelestialTrigger GetZoneDisplayTrigger(CelestialInformation oldStatus, CelestialInformation newStatus)

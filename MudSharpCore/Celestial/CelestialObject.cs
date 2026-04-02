@@ -66,7 +66,7 @@ public abstract class CelestialObject : PerceivedItem, ICelestialObject
 		}
 
 		// 12 degrees below horizon is a good general measure of the beginning of dawn or end of dusk
-		if (position.LastAscensionAngle < 0.20944)
+		if (position.LastAscensionAngle < -0.20943951023931953)
 		{
 			return TimeOfDay.Night;
 		}

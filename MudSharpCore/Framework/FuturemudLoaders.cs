@@ -4228,8 +4228,8 @@ For information on the syntax to use in emotes (such as those included in bracke
 			switch (celestial.CelestialType)
 			{
 				case "OldSun":
-					_celestialObjects.Add(new Sun(celestial, this));
-					continue;
+					throw new ApplicationException(
+						$"Celestial #{celestial.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)} uses deprecated type OldSun, which is no longer supported. Replace it with the modern Sun type before loading this world.");
 				case "Sun":
 					_celestialObjects.Add(new NewSun(celestial, this));
 					continue;

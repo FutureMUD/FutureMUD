@@ -91,6 +91,50 @@ public class DatabaseUpgradeCoordinatorTests
 		Assert.IsFalse(File.Exists(preparation.StateFilePath));
 	}
 
+	[TestMethod]
+	public void CreateBlankDatabaseSnapshot_ExportsMigratedScratchDatabaseWithPlaceholderName()
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var migrationService = new FakeMigrationService(["20260401010101_First", "20260402020202_Second"]);
+		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var coordinator = new DatabaseUpgradeCoordinator(migrationService, backupService);
+		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
+
+		coordinator.CreateBlankDatabaseSnapshot(
+			CreateRequest(harness.DirectoryPath),
+			snapshotPath,
+			"__FUTUREMUD_DATABASE__");
+
+		Assert.AreEqual(1, backupService.RecreateEmptyDatabaseCalls);
+		Assert.AreEqual(1, backupService.CreateBackupCalls);
+		Assert.AreEqual(2, migrationService.AppliedMigrations.Count);
+		var snapshotContents = File.ReadAllText(snapshotPath);
+		StringAssert.Contains(snapshotContents, "__FUTUREMUD_DATABASE__");
+		Assert.IsFalse(snapshotContents.Contains("futuremud_tests", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
+	public void ImportBlankDatabaseSnapshot_RestoresPlaceholderAdjustedDump()
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var migrationService = new FakeMigrationService();
+		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var coordinator = new DatabaseUpgradeCoordinator(migrationService, backupService);
+		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
+		File.WriteAllText(snapshotPath, "CREATE DATABASE `__FUTUREMUD_DATABASE__`;");
+
+		coordinator.ImportBlankDatabaseSnapshot(
+			CreateRequest(harness.DirectoryPath).ConnectionString,
+			snapshotPath,
+			"__FUTUREMUD_DATABASE__");
+
+		Assert.AreEqual(1, backupService.RestoreBackupCalls);
+		Assert.IsNotNull(backupService.LastRestoreContents);
+		var importedContents = backupService.LastRestoreContents!;
+		StringAssert.Contains(importedContents, "futuremud_tests");
+		Assert.IsFalse(importedContents.Contains("__FUTUREMUD_DATABASE__", StringComparison.Ordinal));
+	}
+
 	private static DatabaseUpgradeRequest CreateRequest(string workingDirectory)
 	{
 		return new DatabaseUpgradeRequest
@@ -105,6 +149,7 @@ public class DatabaseUpgradeCoordinatorTests
 	private sealed class FakeMigrationService : IDatabaseMigrationService
 	{
 		private readonly IReadOnlyList<string> _pendingMigrations;
+		public List<string> AppliedMigrations { get; } = [];
 
 		public FakeMigrationService(IReadOnlyList<string>? pendingMigrations = null)
 		{
@@ -122,6 +167,7 @@ public class DatabaseUpgradeCoordinatorTests
 			var index = 1;
 			foreach (var migration in migrations)
 			{
+				AppliedMigrations.Add(migration);
 				progressAction?.Invoke(new DatabaseMigrationProgress
 				{
 					MigrationName = migration,
@@ -134,11 +180,6 @@ public class DatabaseUpgradeCoordinatorTests
 		public string? GetLatestMigrationId(string connectionString)
 		{
 			return _pendingMigrations.LastOrDefault();
-		}
-
-		public string GenerateBlankDatabaseSnapshotScript(string connectionString, string databaseNamePlaceholder)
-		{
-			return $"CREATE DATABASE IF NOT EXISTS `{databaseNamePlaceholder}`;";
 		}
 	}
 
@@ -153,13 +194,15 @@ public class DatabaseUpgradeCoordinatorTests
 
 		public int CreateBackupCalls { get; private set; }
 		public int RestoreBackupCalls { get; private set; }
+		public int RecreateEmptyDatabaseCalls { get; private set; }
+		public string? LastRestoreContents { get; private set; }
 
 		public string CreateBackup(string connectionString, string backupDirectory)
 		{
 			CreateBackupCalls++;
 			Directory.CreateDirectory(backupDirectory);
 			var path = Path.Combine(backupDirectory, $"futuremud-tests-{CreateBackupCalls:00}.sql");
-			File.WriteAllText(path, "-- backup");
+			File.WriteAllText(path, "CREATE DATABASE `futuremud_tests`;");
 			return path;
 		}
 
@@ -167,6 +210,7 @@ public class DatabaseUpgradeCoordinatorTests
 		{
 			RestoreBackupCalls++;
 			Assert.IsTrue(File.Exists(backupFilePath));
+			LastRestoreContents = File.ReadAllText(backupFilePath);
 		}
 
 		public bool DatabaseLooksBlank(string connectionString)
@@ -176,6 +220,7 @@ public class DatabaseUpgradeCoordinatorTests
 
 		public void RecreateEmptyDatabase(string connectionString)
 		{
+			RecreateEmptyDatabaseCalls++;
 			Directory.CreateDirectory(_workingDirectory);
 		}
 

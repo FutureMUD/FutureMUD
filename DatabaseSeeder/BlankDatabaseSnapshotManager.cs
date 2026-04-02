@@ -52,16 +52,22 @@ public sealed class BlankDatabaseSnapshotManifest
 	public static BlankDatabaseSnapshotManifest Refresh(string assetDirectory, IDatabaseUpgradeCoordinator coordinator,
 		Version productVersion)
 	{
+		var snapshotPath = GetSnapshotPath(assetDirectory);
 		var latestMigrationId = coordinator.GetLatestMigrationId(SnapshotRefreshConnectionString);
 		if (string.IsNullOrWhiteSpace(latestMigrationId))
 		{
 			throw new InvalidOperationException("Could not determine the latest EF migration for the blank database snapshot.");
 		}
 
-		var script = coordinator.GenerateBlankDatabaseSnapshotScript(
-			SnapshotRefreshConnectionString,
+		coordinator.CreateBlankDatabaseSnapshot(
+			new DatabaseUpgradeRequest
+			{
+				ConnectionString = SnapshotRefreshConnectionString,
+				WorkingDirectory = assetDirectory,
+				ExecutableType = "DatabaseSeederSnapshotRefresh"
+			},
+			snapshotPath,
 			DatabaseNamePlaceholder);
-		File.WriteAllText(GetSnapshotPath(assetDirectory), script);
 
 		var manifest = new BlankDatabaseSnapshotManifest
 		{

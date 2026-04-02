@@ -158,17 +158,54 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
 		return _migrationService.GetLatestMigrationId(connectionString);
 	}
 
-	public string GenerateBlankDatabaseSnapshotScript(string connectionString, string databaseNamePlaceholder)
-	{
-		return _migrationService.GenerateBlankDatabaseSnapshotScript(connectionString, databaseNamePlaceholder);
-	}
-
 	public void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath, string databaseNamePlaceholder)
 	{
 		var builder = new MySqlConnectionStringBuilder(connectionString);
-		var script = File.ReadAllText(scriptPath);
-		script = script.Replace(databaseNamePlaceholder, builder.Database, StringComparison.Ordinal);
-		_backupService.ExecuteSqlScript(connectionString, script);
+		var tempDirectory = Path.Combine(Path.GetTempPath(), "FutureMUD-SnapshotImport", Guid.NewGuid().ToString("N"));
+		Directory.CreateDirectory(tempDirectory);
+		try
+		{
+			var tempPath = Path.Combine(tempDirectory, Path.GetFileName(scriptPath));
+			var script = File.ReadAllText(scriptPath);
+			script = script.Replace(databaseNamePlaceholder, builder.Database, StringComparison.Ordinal);
+			File.WriteAllText(tempPath, script);
+			_backupService.RestoreBackup(connectionString, tempPath);
+		}
+		finally
+		{
+			if (Directory.Exists(tempDirectory))
+			{
+				Directory.Delete(tempDirectory, recursive: true);
+			}
+		}
+	}
+
+	public void CreateBlankDatabaseSnapshot(DatabaseUpgradeRequest request, string snapshotPath, string databaseNamePlaceholder)
+	{
+		ValidateRequest(request);
+		Directory.CreateDirectory(Path.GetDirectoryName(snapshotPath) ?? request.WorkingDirectory);
+
+		_backupService.RecreateEmptyDatabase(request.ConnectionString);
+		var pendingMigrations = _migrationService.GetPendingMigrations(request.ConnectionString);
+		_migrationService.ApplyMigrations(request.ConnectionString, pendingMigrations);
+
+		var tempDirectory = Path.Combine(Path.GetTempPath(), "FutureMUD-SnapshotRefresh", Guid.NewGuid().ToString("N"));
+		Directory.CreateDirectory(tempDirectory);
+		try
+		{
+			var exportedPath = _backupService.CreateBackup(request.ConnectionString, tempDirectory);
+			var databaseName = new MySqlConnectionStringBuilder(request.ConnectionString).Database;
+			var snapshotContents = File.ReadAllText(exportedPath)
+				.Replace(databaseName, databaseNamePlaceholder, StringComparison.Ordinal);
+			File.WriteAllText(snapshotPath, snapshotContents);
+		}
+		finally
+		{
+			if (Directory.Exists(tempDirectory))
+			{
+				Directory.Delete(tempDirectory, recursive: true);
+			}
+		}
 	}
 
 	public void RecreateEmptyDatabase(string connectionString)

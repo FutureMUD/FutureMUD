@@ -12,8 +12,8 @@ public interface IDatabaseUpgradeCoordinator
 	void CompletePreparedUpgrade(DatabaseUpgradePreparation preparation);
 	bool DatabaseLooksBlank(string connectionString);
 	string? GetLatestMigrationId(string connectionString);
-	string GenerateBlankDatabaseSnapshotScript(string connectionString, string databaseNamePlaceholder);
 	void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath, string databaseNamePlaceholder);
+	void CreateBlankDatabaseSnapshot(DatabaseUpgradeRequest request, string snapshotPath, string databaseNamePlaceholder);
 	void RecreateEmptyDatabase(string connectionString);
 	string CreateBackup(DatabaseUpgradeRequest request);
 }

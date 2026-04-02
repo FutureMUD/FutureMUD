@@ -304,6 +304,7 @@ The exception details were as follows:
 		}
 		catch (Exception e)
 		{
+			LogSnapshotImportFailure(e);
 			ResetBlankDatabaseOrThrow(e, "importing the blank database snapshot");
 			Console.WriteLine("Reset the blank database after the snapshot import failed. Falling back to EF migrations.");
 			return false;
@@ -321,6 +322,15 @@ The exception details were as follows:
 			"verifying the imported blank database snapshot");
 		Console.WriteLine("Reset the blank database after the snapshot verification failed. Falling back to EF migrations.");
 		return false;
+	}
+
+	private static void LogSnapshotImportFailure(Exception exception)
+	{
+		var logPath = Path.Combine(
+			AppContext.BaseDirectory,
+			$"Blank Database Snapshot Failure {DateTime.UtcNow:yyyyMMddHHmmss}.txt");
+		File.WriteAllText(logPath, exception.ToString());
+		Console.WriteLine($"Blank database snapshot import failed. Details were written to {Path.GetFileName(logPath)}.");
 	}
 
 	private static bool VerifyLatestMigrationApplied(string? latestMigrationId)

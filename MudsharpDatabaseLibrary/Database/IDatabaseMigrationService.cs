@@ -10,5 +10,4 @@ public interface IDatabaseMigrationService
 	void ApplyMigrations(string connectionString, IReadOnlyList<string> migrations,
 		Action<DatabaseMigrationProgress>? progressAction = null);
 	string? GetLatestMigrationId(string connectionString);
-	string GenerateBlankDatabaseSnapshotScript(string connectionString, string databaseNamePlaceholder);
 }

@@ -46,20 +46,6 @@ public sealed class EfDatabaseMigrationService : IDatabaseMigrationService
 		return context.Database.GetMigrations().LastOrDefault();
 	}
 
-	public string GenerateBlankDatabaseSnapshotScript(string connectionString, string databaseNamePlaceholder)
-	{
-		using var context = CreateMetadataOnlyContext(connectionString);
-		var migrator = context.GetService<IMigrator>();
-		var migrationScript = migrator.GenerateScript(fromMigration: "0", toMigration: null);
-		var escapedName = databaseNamePlaceholder.Replace("`", "``", StringComparison.Ordinal);
-		return string.Join(Environment.NewLine,
-		[
-			$"CREATE DATABASE IF NOT EXISTS `{escapedName}`;",
-			$"USE `{escapedName}`;",
-			migrationScript
-		]);
-	}
-
 	private static FuturemudDatabaseContext CreateContext(string connectionString)
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

@@ -1960,7 +1960,7 @@ namespace MudSharp.Database
 					.HasColumnType("varchar(30)")
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci")
-					.HasDefaultValue("OldSun");
+					.HasDefaultValue("Sun");
 
 				entity.Property(e => e.FeedClockId).HasColumnType("bigint(20)");
 

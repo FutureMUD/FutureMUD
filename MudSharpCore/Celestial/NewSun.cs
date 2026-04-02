@@ -33,6 +33,9 @@ public class NewSun : PerceivedItem, ICelestialObject
 	public double AnomalyChangeAnglePerDay { get; set; }
 	public double EclipticLongitude { get; set; }
 	public double EquatorialObliquity { get; set; }
+	public double OrbitalEccentricity { get; set; }
+	public double OrbitalSemiMajorAxis { get; set; } = 1.0;
+	public double ApparentAngularRadius { get; set; }
 
 	public MudDate EpochDate { get; set; }
 	public double DayNumberAtEpoch { get; set; }
@@ -80,6 +83,8 @@ public class NewSun : PerceivedItem, ICelestialObject
 		AnomalyChangeAnglePerDay = element.Element("AnomalyChangeAnglePerDay")?.Value.GetDouble() ?? 0;
 		EclipticLongitude = element.Element("EclipticLongitude")?.Value.GetDouble() ?? 0;
 		EquatorialObliquity = element.Element("EquatorialObliquity")?.Value.GetDouble() ?? 0;
+		OrbitalSemiMajorAxis = element.Element("OrbitalSemiMajorAxis")?.Value.GetDouble() ?? 1.0;
+		ApparentAngularRadius = element.Element("ApparentAngularRadius")?.Value.GetDouble() ?? 0.0;
 		DayNumberAtEpoch = element.Element("DayNumberAtEpoch")?.Value.GetDouble() ?? 0;
 		CurrentDayNumberOffset = element.Element("CurrentDayNumberOffset")?.Value.GetDouble() ?? 0.5;
 		SiderealTimeAtEpoch = element.Element("SiderealTimeAtEpoch")?.Value.GetDouble() ?? 0;
@@ -90,6 +95,8 @@ public class NewSun : PerceivedItem, ICelestialObject
 		KepplerC4Approximant = element.Element("KepplerC4Approximant")?.Value.GetDouble() ?? 0;
 		KepplerC5Approximant = element.Element("KepplerC5Approximant")?.Value.GetDouble() ?? 0;
 		KepplerC6Approximant = element.Element("KepplerC6Approximant")?.Value.GetDouble() ?? 0;
+		OrbitalEccentricity = element.Element("OrbitalEccentricity")?.Value.GetDouble()
+		                     ?? (KepplerC1Approximant * 0.5);
 		EpochDate = Calendar.GetDate(element.Element("EpochDate").Value);
 
 		element = root.Element("Triggers");
@@ -178,6 +185,32 @@ public class NewSun : PerceivedItem, ICelestialObject
 	public double EclipticLongitudeOfSun(double dayNumber)
 	{
 		return (TrueAnomaly(dayNumber) + EclipticLongitude + Math.PI).Modulus(2 * Math.PI);
+	}
+
+	public double OrbitalRadius(double dayNumber)
+	{
+		var semiMajorAxis = OrbitalSemiMajorAxis > 0.0 ? OrbitalSemiMajorAxis : 1.0;
+		var trueAnomaly = TrueAnomaly(dayNumber);
+		var denominator = 1.0 + OrbitalEccentricity * Math.Cos(trueAnomaly);
+		if (Math.Abs(denominator) < 1.0E-12)
+		{
+			return semiMajorAxis;
+		}
+
+		return semiMajorAxis * (1.0 - OrbitalEccentricity * OrbitalEccentricity) / denominator;
+	}
+
+	public (double X, double Y, double Z) PositionVector(double dayNumber)
+	{
+		var radius = OrbitalRadius(dayNumber);
+		var rightAscension = RightAscension(dayNumber);
+		var declination = Declension(dayNumber);
+		var cosDeclination = Math.Cos(declination);
+		return (
+			radius * Math.Cos(rightAscension) * cosDeclination,
+			radius * Math.Sin(rightAscension) * cosDeclination,
+			radius * Math.Sin(declination)
+		);
 	}
 
 	public double RightAscension(double dayNumber)
@@ -452,7 +485,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		}
 
 		// 12 degrees below horizon is a good general measure of the beginning of dawn or end of dusk
-		if (position.LastAscensionAngle < 0.20944)
+		if (position.LastAscensionAngle < -0.20943951023931953)
 		{
 			return TimeOfDay.Night;
 		}

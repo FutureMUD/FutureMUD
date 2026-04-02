@@ -29,6 +29,9 @@ public class CelestialSeeder : IDatabaseSeeder
 	private const double EarthSunAnomalyPerDay = 0.017202;
 	private const double EarthSunEclipticLongitude = 1.796595;
 	private const double EarthSunObliquity = 0.409093;
+	private const double EarthSunOrbitalEccentricity = 0.016713;
+	private const double EarthSunSemiMajorAxis = 149597870.7;
+	private const double EarthSunApparentAngularRadius = 0.004654793;
 	private const double EarthSunDayNumberAtEpoch = 2451545.0;
 	private const double EarthSunSiderealTimeAtEpoch = 4.889488;
 	private const double EarthSunSiderealTimePerDay = 6.300388;
@@ -44,15 +47,19 @@ public class CelestialSeeder : IDatabaseSeeder
 	private const double EarthMoonLongitudeOfAscendingNode = 2.18244;
 	private const double EarthMoonOrbitalInclination = 0.0898;
 	private const double EarthMoonOrbitalEccentricity = 0.0549;
+	private const double EarthMoonSemiMajorAxis = 384400.0;
 	private const double EarthMoonDayNumberAtEpoch = 2451545.0;
 	private const double EarthMoonSiderealTimeAtEpoch = 4.889488;
-	private const double EarthMoonSiderealTimePerDay = 0.228027;
+	private const double EarthMoonSiderealTimePerDay = EarthSunSiderealTimePerDay;
 	private const double EarthAngularRadiusFromMoon = 0.0165;
 	private const double JupiterSunDaysPerYear = 10475.8818867393;
 	private const double JupiterSunMeanAnomaly = 0.343270671018783;
 	private const double JupiterSunAnomalyPerDay = 0.000599776264672575;
 	private const double JupiterSunEclipticLongitude = 0.257060466847075;
 	private const double JupiterSunObliquity = 0.0546288055874225;
+	private const double JupiterSunOrbitalEccentricity = 0.048775;
+	private const double JupiterSunSemiMajorAxis = 778547200.0;
+	private const double JupiterSunApparentAngularRadius = 0.000894416;
 	private const double JupiterSunDayNumberAtEpoch = 2451545.0;
 	private const double JupiterSunSiderealTimeAtEpoch = 4.97331570355784;
 	private const double JupiterSunSiderealTimePerDay = 6.28378508344426;
@@ -68,9 +75,10 @@ public class CelestialSeeder : IDatabaseSeeder
 	private const double GanymedeLongitudeOfAscendingNode = 5.96372010319795;
 	private const double GanymedeOrbitalInclination = 0.0355727108921961;
 	private const double GanymedeOrbitalEccentricity = 0.00158762974782861;
+	private const double GanymedeSemiMajorAxis = 1070400.0;
 	private const double GanymedeDayNumberAtEpoch = 2451545.0;
-	private const double GanymedeSiderealTimeAtEpoch = 4.889488;
-	private const double GanymedeSiderealTimePerDay = 0.878153082764442;
+	private const double GanymedeSiderealTimeAtEpoch = JupiterSunSiderealTimeAtEpoch;
+	private const double GanymedeSiderealTimePerDay = JupiterSunSiderealTimePerDay;
 	private const double JupiterAngularRadiusFromGanymede = 0.0653594916439514;
 
 	private static readonly Regex DateValidationRegex = new(@"\d+(-|/|\s)\w+(-|/|\s)\d+", RegexOptions.IgnoreCase);
@@ -240,6 +248,7 @@ What epoch date do you want to use?",
 			BuildSunDefinition(
 				answers["sunname"], calendarId, answers["sunepoch"], EarthSunPackage, "Sun",
 				EarthSunDaysPerYear, EarthSunMeanAnomaly, EarthSunAnomalyPerDay, EarthSunEclipticLongitude, EarthSunObliquity,
+				EarthSunOrbitalEccentricity, EarthSunSemiMajorAxis, EarthSunApparentAngularRadius,
 				EarthSunDayNumberAtEpoch, EarthSunSiderealTimeAtEpoch, EarthSunSiderealTimePerDay,
 				0.033419565, 0.000349066, 0.000005235988, 0.0, 0.0, 0.0,
 				EarthSunPeakIllumination, EarthSunAlphaScattering, EarthSunBetaScattering,
@@ -268,12 +277,14 @@ What epoch date do you want to use?",
 				answers["moonname"], calendarId, answers["moonepoch"], EarthMoonPackage, "Moon",
 				EarthMoonDaysPerYear, EarthMoonMeanAnomaly, EarthMoonAnomalyPerDay, EarthMoonArgumentOfPeriapsis,
 				EarthMoonLongitudeOfAscendingNode, EarthMoonOrbitalInclination, EarthMoonOrbitalEccentricity,
+				EarthMoonSemiMajorAxis,
 				EarthMoonDayNumberAtEpoch, EarthMoonSiderealTimeAtEpoch, EarthMoonSiderealTimePerDay));
 		context.Celestials.Add(moon);
 		context.SaveChanges();
 
 		context.Celestials.Add(CreateCelestial("PlanetFromMoon", calendar.FeedClockId,
-			BuildPlanetFromMoonDefinition(EarthMoonPackage, "Planet", EarthPlanetName, moon.Id, sun!.Id, EarthAngularRadiusFromMoon)));
+			BuildPlanetFromMoonDefinition(EarthMoonPackage, "Planet", EarthPlanetName, moon.Id, sun!.Id,
+				EarthAngularRadiusFromMoon, GetSunApparentAngularRadius(sun))));
 		context.Celestials.Add(CreateCelestial("SunFromPlanetaryMoon", calendar.FeedClockId,
 			BuildSunFromMoonDefinition(EarthMoonPackage, "SunFromMoon", GetSunName(sun), moon.Id, sun.Id, GetSunIlluminationXml(sun))));
 	}
@@ -291,6 +302,7 @@ What epoch date do you want to use?",
 			BuildSunDefinition(
 				JupiterSunName, calendarId, answers["gasgiantsunepoch"], GasGiantPackage, "Sun",
 				JupiterSunDaysPerYear, JupiterSunMeanAnomaly, JupiterSunAnomalyPerDay, JupiterSunEclipticLongitude, JupiterSunObliquity,
+				JupiterSunOrbitalEccentricity, JupiterSunSemiMajorAxis, JupiterSunApparentAngularRadius,
 				JupiterSunDayNumberAtEpoch, JupiterSunSiderealTimeAtEpoch, JupiterSunSiderealTimePerDay,
 				JupiterSunKepplerC1, JupiterSunKepplerC2, JupiterSunKepplerC3, 0.0, 0.0, 0.0,
 				JupiterSunPeakIllumination, EarthSunAlphaScattering, EarthSunBetaScattering,
@@ -303,12 +315,14 @@ What epoch date do you want to use?",
 				GanymedeMoonName, calendarId, answers["gasgiantmoonepoch"], GasGiantPackage, "Moon",
 				GanymedeDaysPerYear, GanymedeMeanAnomaly, GanymedeAnomalyPerDay, GanymedeArgumentOfPeriapsis,
 				GanymedeLongitudeOfAscendingNode, GanymedeOrbitalInclination, GanymedeOrbitalEccentricity,
+				GanymedeSemiMajorAxis,
 				GanymedeDayNumberAtEpoch, GanymedeSiderealTimeAtEpoch, GanymedeSiderealTimePerDay));
 		context.Celestials.Add(moon);
 		context.SaveChanges();
 
 		context.Celestials.Add(CreateCelestial("PlanetFromMoon", calendar.FeedClockId,
-			BuildPlanetFromMoonDefinition(GasGiantPackage, "Planet", JupiterPlanetName, moon.Id, sun.Id, JupiterAngularRadiusFromGanymede)));
+			BuildPlanetFromMoonDefinition(GasGiantPackage, "Planet", JupiterPlanetName, moon.Id, sun.Id,
+				JupiterAngularRadiusFromGanymede, GetSunApparentAngularRadius(sun))));
 		context.Celestials.Add(CreateCelestial("SunFromPlanetaryMoon", calendar.FeedClockId,
 			BuildSunFromMoonDefinition(GasGiantPackage, "SunFromMoon", JupiterSunName, moon.Id, sun.Id, GetSunIlluminationXml(sun))));
 	}
@@ -329,6 +343,7 @@ What epoch date do you want to use?",
 	private static string BuildSunDefinition(
 		string name, long calendarId, string epoch, string packageName, string role,
 		double daysPerYear, double meanAnomaly, double anomalyPerDay, double eclipticLongitude, double obliquity,
+		double orbitalEccentricity, double semiMajorAxis, double apparentAngularRadius,
 		double dayNumberAtEpoch, double siderealTimeAtEpoch, double siderealTimePerDay,
 		double c1, double c2, double c3, double c4, double c5, double c6,
 		double peakIllumination, double alphaScattering, double betaScattering, double planetaryRadius, double atmosphericDensityScalingFactor)
@@ -343,6 +358,9 @@ What epoch date do you want to use?",
 				new XElement("AnomalyChangeAnglePerDay", Format(anomalyPerDay)),
 				new XElement("EclipticLongitude", Format(eclipticLongitude)),
 				new XElement("EquatorialObliquity", Format(obliquity)),
+				new XElement("OrbitalEccentricity", Format(orbitalEccentricity)),
+				new XElement("OrbitalSemiMajorAxis", Format(semiMajorAxis)),
+				new XElement("ApparentAngularRadius", Format(apparentAngularRadius)),
 				new XElement("DayNumberAtEpoch", Format(dayNumberAtEpoch)),
 				new XElement("SiderealTimeAtEpoch", Format(siderealTimeAtEpoch)),
 				new XElement("SiderealTimePerDay", Format(siderealTimePerDay)),
@@ -368,7 +386,7 @@ What epoch date do you want to use?",
 	private static string BuildMoonDefinition(
 		string name, long calendarId, string epoch, string packageName, string role,
 		double daysPerYear, double meanAnomaly, double anomalyPerDay, double periapsis, double ascendingNode,
-		double inclination, double eccentricity, double dayNumberAtEpoch, double siderealTimeAtEpoch, double siderealTimePerDay)
+		double inclination, double eccentricity, double semiMajorAxis, double dayNumberAtEpoch, double siderealTimeAtEpoch, double siderealTimePerDay)
 	{
 		return new XElement("PlanetaryMoon",
 			new XElement("Name", name),
@@ -382,6 +400,7 @@ What epoch date do you want to use?",
 				new XElement("LongitudeOfAscendingNode", Format(ascendingNode)),
 				new XElement("OrbitalInclination", Format(inclination)),
 				new XElement("OrbitalEccentricity", Format(eccentricity)),
+				new XElement("OrbitalSemiMajorAxis", Format(semiMajorAxis)),
 				new XElement("DayNumberAtEpoch", Format(dayNumberAtEpoch)),
 				new XElement("SiderealTimeAtEpoch", Format(siderealTimeAtEpoch)),
 				new XElement("SiderealTimePerDay", Format(siderealTimePerDay)),
@@ -395,7 +414,14 @@ What epoch date do you want to use?",
 			.ToString(SaveOptions.DisableFormatting);
 	}
 
-	private static string BuildPlanetFromMoonDefinition(string packageName, string role, string name, long moonId, long sunId, double angularRadius)
+	private static string BuildPlanetFromMoonDefinition(
+		string packageName,
+		string role,
+		string name,
+		long moonId,
+		long sunId,
+		double angularRadius,
+		double sunAngularRadius)
 	{
 		return new XElement("PlanetFromMoon",
 			new XElement("Name", name),
@@ -403,7 +429,8 @@ What epoch date do you want to use?",
 			new XElement("Moon", moonId),
 			new XElement("Sun", sunId),
 			new XElement("PeakIllumination", Format(DefaultPeakIllumination)),
-			new XElement("AngularRadius", Format(angularRadius)))
+			new XElement("AngularRadius", Format(angularRadius)),
+			new XElement("SunAngularRadius", Format(sunAngularRadius)))
 			.ToString(SaveOptions.DisableFormatting);
 	}
 
@@ -566,6 +593,9 @@ What epoch date do you want to use?",
 		       ValuesMatch(root, "Orbital/AnomalyChangeAnglePerDay", EarthSunAnomalyPerDay) &&
 		       ValuesMatch(root, "Orbital/EclipticLongitude", EarthSunEclipticLongitude) &&
 		       ValuesMatch(root, "Orbital/EquatorialObliquity", EarthSunObliquity) &&
+		       ValuesMatch(root, "Orbital/OrbitalEccentricity", EarthSunOrbitalEccentricity) &&
+		       ValuesMatch(root, "Orbital/OrbitalSemiMajorAxis", EarthSunSemiMajorAxis) &&
+		       ValuesMatch(root, "Orbital/ApparentAngularRadius", EarthSunApparentAngularRadius) &&
 		       ValuesMatch(root, "Orbital/DayNumberAtEpoch", EarthSunDayNumberAtEpoch) &&
 		       ValuesMatch(root, "Orbital/SiderealTimePerDay", EarthSunSiderealTimePerDay);
 	}
@@ -619,7 +649,10 @@ What epoch date do you want to use?",
 		       ValuesMatch(root, "Orbital/ArgumentOfPeriapsis", EarthMoonArgumentOfPeriapsis) &&
 		       ValuesMatch(root, "Orbital/LongitudeOfAscendingNode", EarthMoonLongitudeOfAscendingNode) &&
 		       ValuesMatch(root, "Orbital/OrbitalInclination", EarthMoonOrbitalInclination) &&
-		       ValuesMatch(root, "Orbital/OrbitalEccentricity", EarthMoonOrbitalEccentricity);
+		       ValuesMatch(root, "Orbital/OrbitalEccentricity", EarthMoonOrbitalEccentricity) &&
+		       ValuesMatch(root, "Orbital/OrbitalSemiMajorAxis", EarthMoonSemiMajorAxis) &&
+		       ValuesMatch(root, "Orbital/SiderealTimeAtEpoch", EarthMoonSiderealTimeAtEpoch) &&
+		       ValuesMatch(root, "Orbital/SiderealTimePerDay", EarthMoonSiderealTimePerDay);
 	}
 
 	private static string GetSunIlluminationXml(Celestial sun)
@@ -630,6 +663,15 @@ What epoch date do you want to use?",
 	private static string GetSunName(Celestial sun)
 	{
 		return TryGetDefinitionRoot(sun)?.Element("Name")?.Value ?? "The Sun";
+	}
+
+	private static double GetSunApparentAngularRadius(Celestial sun)
+	{
+		return TryGetDefinitionRoot(sun)?
+			       .Element("Orbital")?
+			       .Element("ApparentAngularRadius")?
+			       .Value.GetDouble()
+		       ?? 0.0;
 	}
 
 	private static string? GetPackageName(Celestial celestial)

@@ -1744,7 +1744,6 @@ div.function-generalhelp {
 	{
 		return celestial switch
 		{
-			Sun sun => sun.Clock,
 			NewSun newSun => newSun.Clock,
 			PlanetaryMoon moon => moon.Clock,
 			_ => null

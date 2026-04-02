@@ -89,11 +89,18 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
     public double CurrentCelestialDay => Sun.CurrentCelestialDay;
     public double CelestialDaysPerYear => Sun.CelestialDaysPerYear;
 
-    public event CelestialUpdateHandler? MinuteUpdateEvent;
+    public event CelestialUpdateHandler MinuteUpdateEvent;
     public void AddMinutes(int numberOfMinutes) { }
     public void AddMinutes() { MinuteUpdateEvent?.Invoke(this); }
 
-    private static readonly double OneMinuteTimeFraction = 1.0 / 1440.0;
+	private double OneMinuteTimeFraction
+	{
+		get
+		{
+			var minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
+			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+		}
+	}
 
     protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
     {
@@ -105,24 +112,20 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
     private (double RA, double Dec) SunEquatorialCoordinates(double dayNumber)
     {
-        var (moonRa, moonDec) = Moon.EquatorialCoordinates(dayNumber);
-        var sunRa = Sun.RightAscension(dayNumber);
-        var sunDec = Sun.Declension(dayNumber);
-
-        var sunX = Math.Cos(sunRa) * Math.Cos(sunDec);
-        var sunY = Math.Sin(sunRa) * Math.Cos(sunDec);
-        var sunZ = Math.Sin(sunDec);
-
-        var moonX = Math.Cos(moonRa) * Math.Cos(moonDec);
-        var moonY = Math.Sin(moonRa) * Math.Cos(moonDec);
-        var moonZ = Math.Sin(moonDec);
+        var (sunX, sunY, sunZ) = Sun.PositionVector(dayNumber);
+        var (moonX, moonY, moonZ) = Moon.PositionVector(dayNumber);
 
         var x = sunX - moonX;
         var y = sunY - moonY;
         var z = sunZ - moonZ;
-        var r = Math.Sqrt(x * x + y * y + z * z);
+        var radius = Math.Sqrt(x * x + y * y + z * z);
+        if (radius < 1.0E-12)
+        {
+            return (Sun.RightAscension(dayNumber).Modulus(2 * Math.PI), Sun.Declension(dayNumber));
+        }
+
         var ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
-        var dec = Math.Asin(z / r);
+        var dec = Math.Asin(Math.Max(-1.0, Math.Min(1.0, z / radius)));
         return (ra, dec);
     }
 
@@ -305,7 +308,7 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
             return position.Direction == CelestialMoveDirection.Ascending ? TimeOfDay.Morning : TimeOfDay.Afternoon;
         }
 
-        if (position.LastAscensionAngle < 0.20944)
+        if (position.LastAscensionAngle < -0.20943951023931953)
         {
             return TimeOfDay.Night;
         }

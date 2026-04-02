@@ -33,9 +33,13 @@ public class NewSun : PerceivedItem, ICelestialObject
 	public double AnomalyChangeAnglePerDay { get; set; }
 	public double EclipticLongitude { get; set; }
 	public double EquatorialObliquity { get; set; }
+	public double OrbitalEccentricity { get; set; }
+	public double OrbitalSemiMajorAxis { get; set; } = 1.0;
+	public double ApparentAngularRadius { get; set; }
 
 	public MudDate EpochDate { get; set; }
 	public double DayNumberAtEpoch { get; set; }
+	public double CurrentDayNumberOffset { get; set; } = 0.5;
 	public double SiderealTimeAtEpoch { get; set; }
 	public double SiderealTimePerDay { get; set; }
 
@@ -79,7 +83,10 @@ public class NewSun : PerceivedItem, ICelestialObject
 		AnomalyChangeAnglePerDay = element.Element("AnomalyChangeAnglePerDay")?.Value.GetDouble() ?? 0;
 		EclipticLongitude = element.Element("EclipticLongitude")?.Value.GetDouble() ?? 0;
 		EquatorialObliquity = element.Element("EquatorialObliquity")?.Value.GetDouble() ?? 0;
+		OrbitalSemiMajorAxis = element.Element("OrbitalSemiMajorAxis")?.Value.GetDouble() ?? 1.0;
+		ApparentAngularRadius = element.Element("ApparentAngularRadius")?.Value.GetDouble() ?? 0.0;
 		DayNumberAtEpoch = element.Element("DayNumberAtEpoch")?.Value.GetDouble() ?? 0;
+		CurrentDayNumberOffset = element.Element("CurrentDayNumberOffset")?.Value.GetDouble() ?? 0.5;
 		SiderealTimeAtEpoch = element.Element("SiderealTimeAtEpoch")?.Value.GetDouble() ?? 0;
 		SiderealTimePerDay = element.Element("SiderealTimePerDay")?.Value.GetDouble() ?? 0;
 		KepplerC1Approximant = element.Element("KepplerC1Approximant")?.Value.GetDouble() ?? 0;
@@ -88,6 +95,8 @@ public class NewSun : PerceivedItem, ICelestialObject
 		KepplerC4Approximant = element.Element("KepplerC4Approximant")?.Value.GetDouble() ?? 0;
 		KepplerC5Approximant = element.Element("KepplerC5Approximant")?.Value.GetDouble() ?? 0;
 		KepplerC6Approximant = element.Element("KepplerC6Approximant")?.Value.GetDouble() ?? 0;
+		OrbitalEccentricity = element.Element("OrbitalEccentricity")?.Value.GetDouble()
+		                     ?? (KepplerC1Approximant * 0.5);
 		EpochDate = Calendar.GetDate(element.Element("EpochDate").Value);
 
 		element = root.Element("Triggers");
@@ -178,6 +187,32 @@ public class NewSun : PerceivedItem, ICelestialObject
 		return (TrueAnomaly(dayNumber) + EclipticLongitude + Math.PI).Modulus(2 * Math.PI);
 	}
 
+	public double OrbitalRadius(double dayNumber)
+	{
+		var semiMajorAxis = OrbitalSemiMajorAxis > 0.0 ? OrbitalSemiMajorAxis : 1.0;
+		var trueAnomaly = TrueAnomaly(dayNumber);
+		var denominator = 1.0 + OrbitalEccentricity * Math.Cos(trueAnomaly);
+		if (Math.Abs(denominator) < 1.0E-12)
+		{
+			return semiMajorAxis;
+		}
+
+		return semiMajorAxis * (1.0 - OrbitalEccentricity * OrbitalEccentricity) / denominator;
+	}
+
+	public (double X, double Y, double Z) PositionVector(double dayNumber)
+	{
+		var radius = OrbitalRadius(dayNumber);
+		var rightAscension = RightAscension(dayNumber);
+		var declination = Declension(dayNumber);
+		var cosDeclination = Math.Cos(declination);
+		return (
+			radius * Math.Cos(rightAscension) * cosDeclination,
+			radius * Math.Sin(rightAscension) * cosDeclination,
+			radius * Math.Sin(declination)
+		);
+	}
+
 	public double RightAscension(double dayNumber)
 	{
 		var eclipticLongitude = EclipticLongitudeOfSun(dayNumber);
@@ -248,7 +283,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		((Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction).Modulus(CelestialDaysPerYear);
 
 	public double CurrentDayNumber => (Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction +
-	                                  DayNumberAtEpoch + 0.5;
+	                                  DayNumberAtEpoch + CurrentDayNumberOffset;
 
 	public double CelestialDaysPerYear { get; set; }
 
@@ -336,7 +371,14 @@ public class NewSun : PerceivedItem, ICelestialObject
 		return E1 + E2;
 	}
 
-	private static readonly double OneMinuteTimeFraction = 1.0 / 1440.0;
+	private double OneMinuteTimeFraction
+	{
+		get
+		{
+			var minutesPerDay = (double)(Clock?.HoursPerDay ?? 0) * (Clock?.MinutesPerHour ?? 0);
+			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+		}
+	}
 
 	protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
 	{
@@ -443,7 +485,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		}
 
 		// 12 degrees below horizon is a good general measure of the beginning of dawn or end of dusk
-		if (position.LastAscensionAngle < 0.20944)
+		if (position.LastAscensionAngle < -0.20943951023931953)
 		{
 			return TimeOfDay.Night;
 		}

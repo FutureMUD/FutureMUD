@@ -25,6 +25,45 @@ public class EconomySeeder : IDatabaseSeeder
 		"if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))";
 	private const string HelperProgPrefix = "EconomySeeder";
 
+	public static readonly IReadOnlyDictionary<string, string[]> RequiredMarketTagHierarchy =
+		new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Salt", "Spices"],
+			["Domestic Heating"] = ["Combustion Heating"],
+			["Lighting"] = [],
+			["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine"],
+			["Writing Materials"] = ["Wax Tablets", "Parchment", "Paper", "Ink"],
+			["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing"],
+			["Intoxicants"] = ["Beer", "Wine"],
+			["Luxury Drinks"] = ["Tea"],
+			["Household Goods"] =
+			[
+				"Simple Wares",
+				"Standard Wares",
+				"Simple Furniture",
+				"Standard Furniture",
+				"Luxury Furniture",
+				"Standard Decorations",
+				"Luxury Decorations"
+			],
+			["Hospitality"] = ["Standard Lodging", "Luxury Lodging"],
+			["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment"],
+			["Personal Services"] = ["Bathing Services", "Domestic Services"],
+			["Religious Goods"] = [],
+			["Household Consumables"] = [],
+			["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
+			["Transportation"] = ["Mule Haulage"],
+			["Warehousing"] = [],
+			["Communications"] = ["Messenger Services", "Courier Services"],
+			["Professional Tools"] = ["Primitive Tools", "Simple Tools", "Standard Tools", "High-Quality Tools"],
+			["Raw Materials"] = []
+		};
+
+	private static readonly IReadOnlyCollection<string> RequiredMarketTagNames = RequiredMarketTagHierarchy
+		.SelectMany(x => x.Value.Prepend(x.Key))
+		.Distinct(StringComparer.OrdinalIgnoreCase)
+		.ToArray();
+
 	private static readonly IReadOnlyList<EraDefinition> EraDefinitions =
 	[
 		new(
@@ -1283,6 +1322,13 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
 		var marketRoot = context.Tags.First(x => x.Name == MarketRootTagName);
 		var marketTags = GetMarketDescendantTags(context, marketRoot).ToList();
+		var missingRequiredTags = GetMissingRequiredMarketTags(marketTags.Select(x => x.Name));
+		if (missingRequiredTags.Any())
+		{
+			throw new InvalidOperationException(
+				$"UsefulSeeder market tags are incomplete. EconomySeeder requires these tags beneath the {MarketRootTagName.ColourName()} root: {missingRequiredTags.ListToString()}.");
+		}
+
 		var categoriesByTagId = EnsureMarketCategories(context, marketTags);
 		var supportProgs = EnsureSupportProgs(context);
 		context.SaveChanges();
@@ -1336,6 +1382,13 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 			return ShouldSeedResult.PrerequisitesNotMet;
 		}
 
+		var marketRoot = context.Tags.First(x => x.Name == MarketRootTagName);
+		var descendantTags = GetMarketDescendantTags(context, marketRoot).ToList();
+		if (GetMissingRequiredMarketTags(descendantTags.Select(x => x.Name)).Any())
+		{
+			return ShouldSeedResult.PrerequisitesNotMet;
+		}
+
 		var installedEraCount = EraDefinitions.Count(era =>
 			context.EconomicZones.Any(x => x.Name == EconomicZoneName(era)) &&
 			context.Markets.Any(x => x.Name == MarketName(era)));
@@ -1349,8 +1402,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 			return ShouldSeedResult.ReadyToInstall;
 		}
 
-		var marketRoot = context.Tags.First(x => x.Name == MarketRootTagName);
-		var descendantCount = GetMarketDescendantTags(context, marketRoot).Count();
+		var descendantCount = descendantTags.Count;
 		var seededCategoryCount = context.MarketCategories.AsEnumerable().Count(x => x.Description.StartsWith(CategoryPrefix));
 		var expectedExternalTemplateCount = installedEraCount * ExternalInfluenceBlueprints.Count;
 
@@ -1444,6 +1496,15 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 				queue.Enqueue(child);
 			}
 		}
+	}
+
+	private static List<string> GetMissingRequiredMarketTags(IEnumerable<string> availableTagNames)
+	{
+		var availableNames = new HashSet<string>(availableTagNames, StringComparer.OrdinalIgnoreCase);
+		return RequiredMarketTagNames
+			.Where(x => !availableNames.Contains(x))
+			.OrderBy(x => x)
+			.ToList();
 	}
 
 	private static Dictionary<long, MarketCategory> EnsureMarketCategories(FuturemudDatabaseContext context, IEnumerable<Tag> tags)

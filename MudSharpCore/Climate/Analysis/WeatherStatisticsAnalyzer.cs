@@ -1106,11 +1106,6 @@ internal sealed class WeatherStatisticsAnalyzer
 	{
 		switch (source)
 		{
-			case Sun legacySun:
-			{
-				var (clonedLegacySun, cleanupActions) = CloneLegacySun(legacySun, celestialModels);
-				return (new LegacySunCelestialSimulation(clonedLegacySun, clonedLegacySun.Clock), cleanupActions);
-			}
 			case NewSun newSun:
 			{
 				var (clonedSun, clonedClock, _, cleanupActions) = CloneNewSun(newSun, celestialModels);
@@ -1170,7 +1165,11 @@ internal sealed class WeatherStatisticsAnalyzer
 		clonedSun.AnomalyChangeAnglePerDay = source.AnomalyChangeAnglePerDay;
 		clonedSun.EclipticLongitude = source.EclipticLongitude;
 		clonedSun.EquatorialObliquity = source.EquatorialObliquity;
+		clonedSun.OrbitalEccentricity = source.OrbitalEccentricity;
+		clonedSun.OrbitalSemiMajorAxis = source.OrbitalSemiMajorAxis;
+		clonedSun.ApparentAngularRadius = source.ApparentAngularRadius;
 		clonedSun.DayNumberAtEpoch = source.DayNumberAtEpoch;
+		clonedSun.CurrentDayNumberOffset = source.CurrentDayNumberOffset;
 		clonedSun.SiderealTimeAtEpoch = source.SiderealTimeAtEpoch;
 		clonedSun.SiderealTimePerDay = source.SiderealTimePerDay;
 		clonedSun.KepplerC1Approximant = source.KepplerC1Approximant;
@@ -1200,6 +1199,7 @@ internal sealed class WeatherStatisticsAnalyzer
 		clonedMoon.LongitudeOfAscendingNode = source.LongitudeOfAscendingNode;
 		clonedMoon.OrbitalInclination = source.OrbitalInclination;
 		clonedMoon.OrbitalEccentricity = source.OrbitalEccentricity;
+		clonedMoon.OrbitalSemiMajorAxis = source.OrbitalSemiMajorAxis;
 		clonedMoon.DayNumberAtEpoch = source.DayNumberAtEpoch;
 		clonedMoon.SiderealTimeAtEpoch = source.SiderealTimeAtEpoch;
 		clonedMoon.SiderealTimePerDay = source.SiderealTimePerDay;
@@ -1212,27 +1212,6 @@ internal sealed class WeatherStatisticsAnalyzer
 		{
 			() => clonedClock.MinutesUpdated -= clonedMoon.AddMinutes,
 			() => DetachCalendarFromClock(clonedCalendar, clonedClock)
-		});
-	}
-	private static (Sun Sun, List<Action> CleanupActions) CloneLegacySun(
-		Sun source,
-		IReadOnlyDictionary<long, MudSharp.Models.Celestial> celestialModels)
-	{
-		if (!celestialModels.TryGetValue(source.Id, out var dbCelestial))
-		{
-			throw new ApplicationException($"Could not load celestial definition for {source.Name} (#{source.Id}).");
-		}
-		var clonedClock = CloneClock(source.Clock);
-		var clonedSun = new Sun(0, source.Gameworld, clonedClock);
-		SetNoSave(clonedSun);
-		clonedSun.LoadFromXml(XElement.Parse(dbCelestial.Definition));
-		SetProtectedProperty(clonedSun, nameof(Sun.CurrentMinutesInCelestialYear), source.CurrentMinutesInCelestialYear);
-		SetProtectedProperty(clonedSun, nameof(Sun.CurrentCelestialYear), source.CurrentCelestialYear);
-		SetProtectedProperty(clonedSun, nameof(Sun.YearOfLastFractionBump), source.YearOfLastFractionBump);
-		clonedSun.Changed = false;
-		return (clonedSun, new List<Action>
-		{
-			CreateClockMinutesCleanup(clonedClock, clonedSun, "_clock_MinutesUpdated")
 		});
 	}
 	private static Clock CloneClock(IClock sourceClock)
@@ -1387,46 +1366,6 @@ internal sealed class WeatherStatisticsAnalyzer
 		TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography);
 		bool AdvanceByRealSeconds(double realSeconds);
 	}
-	private sealed class LegacySunCelestialSimulation : ICelestialSimulation
-	{
-		private readonly Sun _sun;
-		private readonly double _secondsPerMinute;
-		private readonly double _inGameSecondsPerRealSecond;
-		private double _fractionalInGameSeconds;
-		private double _previousDay;
-
-		public LegacySunCelestialSimulation(Sun sun, IClock rateClock)
-		{
-			_sun = sun;
-			_secondsPerMinute = Math.Max(1.0, rateClock.SecondsPerMinute);
-			_inGameSecondsPerRealSecond = Math.Max(0.000_001, rateClock.InGameSecondsPerRealSecond);
-			_previousDay = _sun.CurrentCelestialDay;
-		}
-
-		public double CurrentCelestialDay => _sun.CurrentCelestialDay;
-
-		public TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography)
-		{
-			return _sun.CurrentTimeOfDay(geography);
-		}
-
-		public bool AdvanceByRealSeconds(double realSeconds)
-		{
-			_fractionalInGameSeconds += realSeconds * _inGameSecondsPerRealSecond;
-			var minutes = (int)Math.Floor(_fractionalInGameSeconds / _secondsPerMinute);
-			if (minutes > 0)
-			{
-				_sun.AddMinutes(minutes);
-				_fractionalInGameSeconds -= minutes * _secondsPerMinute;
-			}
-
-			var day = _sun.CurrentCelestialDay;
-			var wrapped = day + 0.000_001 < _previousDay;
-			_previousDay = day;
-			return wrapped;
-		}
-	}
-
 	private sealed class ClockDrivenCelestialSimulation : ICelestialSimulation
 	{
 		private readonly ICelestialObject _celestial;

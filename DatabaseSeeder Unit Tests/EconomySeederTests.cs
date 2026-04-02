@@ -29,7 +29,7 @@ public class EconomySeederTests
 	private static readonly IReadOnlyDictionary<string, string[]> FamilyTags =
 		new Dictionary<string, string[]>
 		{
-			["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Seasonings", "Salt", "Spices"],
+			["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Salt", "Spices"],
 			["Domestic Heating"] = ["Combustion Heating"],
 			["Lighting"] = [],
 			["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine"],
@@ -56,6 +56,7 @@ public class EconomySeederTests
 			["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
 			["Transportation"] = ["Mule Haulage"],
 			["Warehousing"] = [],
+			["Communications"] = ["Messenger Services", "Courier Services"],
 			["Professional Tools"] = ["Primitive Tools", "Simple Tools", "Standard Tools", "High-Quality Tools"],
 			["Raw Materials"] = []
 		};
@@ -332,6 +333,28 @@ public class EconomySeederTests
 		missingTagsContext.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.PrerequisitesNotMet, seeder.ShouldSeedData(missingTagsContext));
+	}
+
+	[TestMethod]
+	public void ShouldSeedData_IncompleteMarketTagVocabulary_ReturnsBlocked()
+	{
+		using var context = BuildContext();
+		SeedAccount(context);
+		context.Currencies.Add(new Currency { Id = 1, Name = "Test Crown", BaseCurrencyToGlobalBaseCurrencyConversion = 1.0m });
+		context.Shards.Add(new Shard { Id = 1, Name = "Test Shard", MinimumTerrestrialLux = 0.0, SkyDescriptionTemplateId = 1, SphericalRadiusMetres = 6371000.0 });
+		context.Zones.Add(new Zone { Id = 1, Name = "Test Zone", ShardId = 1, Latitude = 0.0, Longitude = 0.0, Elevation = 0.0, AmbientLightPollution = 0.0 });
+		context.Clocks.Add(new Clock { Id = 1, Definition = "<Clock />", Seconds = 0, Minutes = 0, Hours = 8, PrimaryTimezoneId = 1 });
+		context.Calendars.Add(new Calendar { Id = 1, Definition = "<Calendar />", Date = "1-1-1", FeedClockId = 1 });
+		context.Timezones.Add(new Timezone { Id = 1, Name = "UTC", Description = "Test timezone", OffsetHours = 0, OffsetMinutes = 0, ClockId = 1 });
+		var root = new Tag { Id = 100, Name = "Market" };
+		var nourishment = new Tag { Id = 101, Name = "Nourishment", Parent = root, ParentId = root.Id };
+		context.Tags.AddRange(
+			root,
+			nourishment,
+			new Tag { Id = 102, Name = "Staple Food", Parent = nourishment, ParentId = nourishment.Id });
+		context.SaveChanges();
+
+		Assert.AreEqual(ShouldSeedResult.PrerequisitesNotMet, new EconomySeeder().ShouldSeedData(context));
 	}
 
 	[TestMethod]

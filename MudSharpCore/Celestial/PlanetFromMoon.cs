@@ -25,6 +25,7 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
 
     public double PeakIllumination { get; set; }
     public double AngularRadius { get; set; }
+    public double SunAngularRadius { get; set; }
 
     public List<CelestialTrigger> Triggers { get; } = new();
     protected readonly CircularRange<string> AzimuthDescriptions = new();
@@ -34,6 +35,7 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
     {
         Moon = moon;
         Sun = sun;
+        SunAngularRadius = sun is NewSun newSun ? newSun.ApparentAngularRadius : 0.0;
     }
 
     public PlanetFromMoon(XElement root, IFuturemud game)
@@ -45,6 +47,9 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
         Sun = game.CelestialObjects.Get(sunId);
         PeakIllumination = root.Element("PeakIllumination")?.Value.GetDouble() ?? 0.0;
         AngularRadius = root.Element("AngularRadius")?.Value.GetDouble() ?? 0.0;
+        SunAngularRadius = root.Element("SunAngularRadius")?.Value.GetDouble()
+                          ?? (Sun as NewSun)?.ApparentAngularRadius
+                          ?? 0.0;
         _name = root.Element("Name")?.Value ?? "Planet";
     }
 
@@ -66,11 +71,18 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
     public double CurrentCelestialDay => Moon.CurrentCelestialDay;
     public double CelestialDaysPerYear => Moon.CelestialDaysPerYear;
 
-    public event CelestialUpdateHandler? MinuteUpdateEvent;
+    public event CelestialUpdateHandler MinuteUpdateEvent;
     public void AddMinutes(int numberOfMinutes) { }
     public void AddMinutes() { MinuteUpdateEvent?.Invoke(this); }
 
-    private static readonly double OneMinuteTimeFraction = 1.0 / 1440.0;
+	private double OneMinuteTimeFraction
+	{
+		get
+		{
+			var minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
+			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+		}
+	}
 
     protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
     {
@@ -187,14 +199,16 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
         var planet = CurrentPosition(geography);
         var star = Sun.CurrentPosition(geography);
         var separation = AngularSeparation(planet, star);
-        return separation < AngularRadius;
+        return separation <= AngularRadius + SunAngularRadius;
     }
 
     private static double AngularSeparation(CelestialInformation a, CelestialInformation b)
     {
-        return Math.Acos(
+        var cosine =
             Math.Sin(a.LastAscensionAngle) * Math.Sin(b.LastAscensionAngle) +
-            Math.Cos(a.LastAscensionAngle) * Math.Cos(b.LastAscensionAngle) * Math.Cos(a.LastAzimuthAngle - b.LastAzimuthAngle));
+            Math.Cos(a.LastAscensionAngle) * Math.Cos(b.LastAscensionAngle) *
+            Math.Cos(a.LastAzimuthAngle - b.LastAzimuthAngle);
+        return Math.Acos(Math.Max(-1.0, Math.Min(1.0, cosine)));
     }
 
     protected CelestialTrigger GetZoneDisplayTrigger(CelestialInformation oldStatus, CelestialInformation newStatus)

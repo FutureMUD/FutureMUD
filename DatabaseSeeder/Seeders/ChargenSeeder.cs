@@ -222,6 +222,7 @@ Please answer #3yes#f or #3no#f: ",
 				context.ChargenResources,
 				x => string.Equals(x.Alias, split[1].Trim(), StringComparison.OrdinalIgnoreCase) ||
 				     string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+				_ => true,
 				() =>
 				{
 					var created = new ChargenResource();
@@ -252,6 +253,7 @@ Please answer #3yes#f or #3no#f: ",
 				context.ChargenResources,
 				x => string.Equals(x.Alias, "bp", StringComparison.OrdinalIgnoreCase) ||
 				     string.Equals(x.Name, "Build Point", StringComparison.OrdinalIgnoreCase),
+				_ => true,
 				() =>
 				{
 					var created = new ChargenResource();
@@ -520,6 +522,7 @@ return 10",
 				context.ChargenScreenStoryboards,
 				x => x.ChargenStage == (int)stage &&
 				     string.Equals(x.ChargenType, type, StringComparison.OrdinalIgnoreCase),
+				x => x.ChargenStage == (int)stage,
 				() =>
 				{
 					var created = new ChargenScreenStoryboard();
@@ -667,6 +670,7 @@ return 10",
 			context.ChargenRoles,
 			x => x.Type == (int)ChargenRoleType.StartingLocation &&
 			     string.Equals(x.Name, "Default Starting Location", StringComparison.OrdinalIgnoreCase),
+			x => x.Type == (int)ChargenRoleType.StartingLocation,
 			() =>
 			{
 				var created = new ChargenRole();

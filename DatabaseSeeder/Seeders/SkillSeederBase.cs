@@ -389,6 +389,7 @@ public abstract class SkillSeederBase : IDatabaseSeeder
 			context.Accents,
 			x => x.LanguageId == language.Id &&
 			     string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+			x => x.LanguageId == language.Id,
 			() =>
 			{
 				var created = new Accent();

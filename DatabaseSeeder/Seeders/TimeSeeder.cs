@@ -307,6 +307,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 		var timezone = SeederRepeatabilityHelper.EnsureEntity(
 			context.Timezones,
 			x => x.ClockId == clock.Id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+			x => x.ClockId == clock.Id,
 			() =>
 			{
 				var created = new Timezone();

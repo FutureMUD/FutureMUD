@@ -76,6 +76,7 @@ public partial class CultureSeeder
 		var profile = SeederRepeatabilityHelper.EnsureEntity(
 			_context.RandomNameProfiles,
 			x => x.Gender == (int)gender && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			x => x.Gender == (int)gender,
 			() =>
 			{
 				var created = new RandomNameProfile();
@@ -198,6 +199,7 @@ public partial class CultureSeeder
 		var accent = SeederRepeatabilityHelper.EnsureEntity(
 			_context.Accents,
 			x => x.LanguageId == language.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			x => x.LanguageId == language.Id,
 			() =>
 			{
 				var created = new Accent();

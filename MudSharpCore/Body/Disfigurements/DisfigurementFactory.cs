@@ -16,6 +16,8 @@ public static class DisfigurementFactory
 		{
 			case "Tattoo":
 				return new TattooTemplate(template, gameworld);
+			case "Scar":
+				return new ScarTemplate(template, gameworld);
 		}
 
 		throw new ApplicationException("Invalid disfigurement template type in DisfigurementFactory.LoadTemplate: " +

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MudSharp.Body.Disfigurements;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -1279,6 +1280,7 @@ public partial class Body
 				  .ToList();
 		foreach (var wound in woundsToRemove)
 		{
+			ScarGeneration.TryApplyScar(Actor, wound);
 			wound.Delete();
 			_wounds.Remove(wound);
 			OnRemoveWound?.Invoke(this, wound);

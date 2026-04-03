@@ -706,6 +706,105 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 				actor, actor, target), flags: OutputFlags.SuppressObscured));
 	}
 
+	[PlayerCommand("GiveScar", "givescar")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("givescar", "Gives someone a scar. #3Syntax: givescar <target> <scar> <bodypart>#0",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void GiveScar(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		var target = actor.TargetActorOrCorpse(ss.PopSpeech());
+		if (target == null)
+		{
+			actor.OutputHandler.Send("You don't see anyone like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What scar do you want to give them?");
+			return;
+		}
+
+		var template = long.TryParse(ss.PopSpeech(), out var value)
+			? actor.Gameworld.DisfigurementTemplates.Get(value)
+			: actor.Gameworld.DisfigurementTemplates.GetByName(ss.Last);
+		if (template is not IScarTemplate scarTemplate)
+		{
+			actor.OutputHandler.Send("There is no such scar template.");
+			return;
+		}
+
+		if (template.Status != RevisionStatus.Current)
+		{
+			actor.OutputHandler.Send(
+				$"That scar is in the {template.Status.DescribeEnum().ColourValue()} status and cannot be used.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which bodypart do you want to put the scar on?");
+			return;
+		}
+
+		var bodypart = target.Body.GetTargetPart(ss.PopSpeech());
+		if (bodypart == null || bodypart is IOrganProto || bodypart is IBone)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} does not have any such bodypart.");
+			return;
+		}
+
+		if (!scarTemplate.CanBeAppliedToBodypart(target.Body, bodypart))
+		{
+			actor.OutputHandler.Send("That scar cannot be applied to that bodypart.");
+			return;
+		}
+
+		target.Body.AddScar(scarTemplate.ProduceScar(target, bodypart));
+		actor.OutputHandler.Handle(new EmoteOutput(
+			new Emote(
+				$"@ mark|marks $1's {bodypart.FullDescription()} with {scarTemplate.ShortDescription.Colour(Telnet.BoldOrange)}.",
+				actor, actor, target), flags: OutputFlags.SuppressObscured));
+	}
+
+	[PlayerCommand("RemoveScar", "removescar")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("removescar", "Removes one of someone's scars. #3Syntax: removescar <target> <scar>#0",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void RemoveScar(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		var target = actor.TargetActorOrCorpse(ss.PopSpeech());
+		if (target == null)
+		{
+			actor.OutputHandler.Send("You don't see anyone like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which scar do you want to remove?");
+			return;
+		}
+
+		var scarText = ss.SafeRemainingArgument;
+		var scar = target.Body.Scars.FirstOrDefault(x =>
+			x.ShortDescription.Contains(scarText, StringComparison.InvariantCultureIgnoreCase) ||
+			x.Bodypart.FullDescription().Contains(scarText, StringComparison.InvariantCultureIgnoreCase));
+		if (scar == null)
+		{
+			actor.OutputHandler.Send(new EmoteOutput(new Emote("$1 $1|have|has no such scar.", actor, actor, target)));
+			return;
+		}
+
+		target.Body.RemoveScar(scar);
+		actor.OutputHandler.Handle(new EmoteOutput(
+			new Emote(
+				$"@ remove|removes {scar.ShortDescription.Colour(Telnet.BoldOrange)} from $1's {scar.Bodypart.FullDescription()}.",
+				actor, actor, target), flags: OutputFlags.SuppressObscured));
+	}
+
 	[PlayerCommand("SetGender", "setgender")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
 	[HelpInfo("setgender", "Sets gender of a target character. Syntax: #3setgender <target> <gender>#0",

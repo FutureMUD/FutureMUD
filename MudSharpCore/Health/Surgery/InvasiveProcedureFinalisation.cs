@@ -13,6 +13,7 @@ using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Health.Infections;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Knowledge;
+using MudSharp.Health.Wounds;
 
 namespace MudSharp.Health.Surgery;
 
@@ -191,6 +192,16 @@ public class InvasiveProcedureFinalisation : BodypartSpecificSurgicalProcedure
 							terrain.InfectionMultiplier));
 					}
 				}
+			}
+
+			switch (recoveryWound)
+			{
+				case SimpleOrganicWound organicWound:
+					organicWound.MarkScarFromSurgery(Procedure, result.CheckDegrees());
+					break;
+				case HealingSimpleWound healingWound:
+					healingWound.MarkScarFromSurgery(Procedure, result.CheckDegrees());
+					break;
 			}
 		}
 		

@@ -89,6 +89,20 @@ public partial class AnimalSeeder : IDatabaseSeeder
 	{
 		context.Database.BeginTransaction();
 		_context = context;
+		var hasMissingDisfigurementTemplates = HasMissingAnimalDisfigurementTemplates(_context);
+		if (_context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+		{
+			if (hasMissingDisfigurementTemplates)
+			{
+				SeedExistingAnimalDisfigurementTemplates();
+			}
+
+			context.Database.CommitTransaction();
+			return hasMissingDisfigurementTemplates
+				? "Installed additional animal disfigurement templates."
+				: "Animal prototypes are already installed.";
+		}
+
 		Console.WriteLine("Performing initial setup...");
 		_stopwatch.Start();
 		ResetSeeder();
@@ -595,7 +609,12 @@ public partial class AnimalSeeder : IDatabaseSeeder
 		if (!context.BodyProtos.Any(x => x.Name == "Humanoid") || !context.NameCultures.Any(x => x.Name == "Simple"))
 			return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.BodyProtos.Any(x => x.Name == "Quadruped Base")) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
+		{
+			return HasMissingAnimalDisfigurementTemplates(context)
+				? ShouldSeedResult.ExtraPackagesAvailable
+				: ShouldSeedResult.MayAlreadyBeInstalled;
+		}
 
 		return ShouldSeedResult.ReadyToInstall;
 	}

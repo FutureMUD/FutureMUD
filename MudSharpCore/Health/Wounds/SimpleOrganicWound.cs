@@ -34,6 +34,10 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 	private BleedStatus _bleedStatus;
 	private bool _cleanAttempted;
 	private bool _cleaned;
+	private bool _antisepticTreated;
+	private bool _hadInfection;
+	private SurgicalProcedureType? _scarSurgicalProcedureType;
+	private int _scarSurgeryCheckDegrees;
 
 	private string _damageDescription;
 
@@ -258,6 +262,10 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			}
 
 			_infection = value;
+			if (value is not null)
+			{
+				_hadInfection = true;
+			}
 			Changed = true;
 		}
 	}
@@ -587,6 +595,30 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			_tended = (Outcome)int.Parse(element.Value);
 		}
 
+		element = root.Element("AntisepticTreated");
+		if (element != null)
+		{
+			_antisepticTreated = bool.Parse(element.Value);
+		}
+
+		element = root.Element("HadInfection");
+		if (element != null)
+		{
+			_hadInfection = bool.Parse(element.Value);
+		}
+
+		element = root.Element("ScarSurgicalProcedureType");
+		if (element != null && int.TryParse(element.Value, out var scarSurgeryType))
+		{
+			_scarSurgicalProcedureType = (SurgicalProcedureType)scarSurgeryType;
+		}
+
+		element = root.Element("ScarSurgeryCheckDegrees");
+		if (element != null)
+		{
+			_scarSurgeryCheckDegrees = int.Parse(element.Value);
+		}
+
 		element = root.Element("TreatmentAttempts");
 		if (element != null)
 		{
@@ -608,8 +640,12 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			new XElement("DamageDescription", _damageDescription),
 			new XElement("Cleaned", _cleaned),
 			new XElement("CleanAttempted", _cleanAttempted),
+			new XElement("AntisepticTreated", _antisepticTreated),
 			new XElement("BleedStatus", (int)BleedStatus),
 			new XElement("Tended", (int)_tended),
+			new XElement("HadInfection", _hadInfection),
+			new XElement("ScarSurgicalProcedureType", _scarSurgicalProcedureType.HasValue ? (int)_scarSurgicalProcedureType.Value : -1),
+			new XElement("ScarSurgeryCheckDegrees", _scarSurgeryCheckDegrees),
 			new XElement("TreatmentAttempts", _unsuccessfulTreatmentAttempts),
 			new XElement("IsFriendlyWound", IsFriendlyWound)
 		).ToString();
@@ -1385,6 +1421,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				_cleanAttempted = true;
 				if (_cleaned && type == TreatmentType.Antiseptic)
 				{
+					_antisepticTreated = true;
 					var antisepticDuration = TimeSpan.FromSeconds(
 						Gameworld.GetStaticInt("AntisepticProtectionBaseDurationSeconds") +
 						testOutcome.SuccessDegrees() *
@@ -1455,6 +1492,22 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				Changed = true;
 				break;
 		}
+	}
+
+	public Outcome BestTendedOutcome => _tended;
+	public bool WasCleaned => _cleaned;
+	public bool WasAntisepticTreated => _antisepticTreated;
+	public bool HadInfection => _hadInfection;
+	public bool WasClosed => _bleedStatus == BleedStatus.Closed;
+	public bool WasTraumaControlled => _bleedStatus == BleedStatus.TraumaControlled;
+	public SurgicalProcedureType? ScarSurgicalProcedureType => _scarSurgicalProcedureType;
+	public int ScarSurgeryCheckDegrees => _scarSurgeryCheckDegrees;
+
+	public void MarkScarFromSurgery(SurgicalProcedureType type, int checkDegrees)
+	{
+		_scarSurgicalProcedureType = type;
+		_scarSurgeryCheckDegrees = checkDegrees;
+		Changed = true;
 	}
 
 	public BleedResult Bleed(double currentBloodLitres, ExertionLevel activityExertionLevel,

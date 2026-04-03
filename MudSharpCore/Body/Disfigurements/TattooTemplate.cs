@@ -40,6 +40,7 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 
 		_requiredKnowledgeToTattoo =
 			Gameworld.Knowledges.Get(long.Parse(root.Element("RequiredKnowledge")?.Value ?? "0"));
+		_minimumSkill = double.Parse(root.Element("MinimumSkill")?.Value ?? "0.0");
 		foreach (var element in root.Element("Shapes").Elements())
 		{
 			_permittedShapes.Add(Gameworld.BodypartShapes.Get(long.Parse(element.Value)));
@@ -51,7 +52,9 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 				double.Parse(element.Attribute("weight").Value);
 		}
 
-		_overrideCharacteristicPlain = root.Element("OverrideCharacteristicPlain")?.Value;
+		_overrideCharacteristicPlain =
+			root.Element("OverrideCharacteristicPlain")?.Value ??
+			root.Element("OverrideCharcteristicPlain")?.Value;
 		_overrideCharacteristicWith = root.Element("OverrideCharacteristicWith")?.Value;
 	}
 
@@ -69,7 +72,7 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			),
 			new XElement("RequiredKnowledge", _requiredKnowledgeToTattoo?.Id ?? 0),
 			new XElement("MinimumSkill", _minimumSkill),
-			new XElement("OverrideCharcteristicPlain", _overrideCharacteristicPlain ?? string.Empty),
+			new XElement("OverrideCharacteristicPlain", _overrideCharacteristicPlain ?? string.Empty),
 			new XElement("OverrideCharacteristicWith", _overrideCharacteristicWith ?? string.Empty),
 			new XElement("Inks",
 				from ink in _inkColours
@@ -474,6 +477,7 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 				$"This tattoo will no longer be permitted to be inscribed on bodyparts of type {shape.Name.Colour(Telnet.Yellow)}.");
 			_permittedShapes.Remove(shape);
 			Changed = true;
+			return true;
 		}
 
 		actor.OutputHandler.Send(

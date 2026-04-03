@@ -60,7 +60,9 @@ public partial class MythicalAnimalSeeder
 		string? FacialHairProfileName = null,
 		IReadOnlyList<MythicalCharacteristicTemplate>? AdditionalCharacteristics = null,
 		IReadOnlyList<StockDescriptionVariant>? OverlayDescriptionVariants = null,
-		string CombatStrategyKey = "Beast Brawler"
+		string CombatStrategyKey = "Beast Brawler",
+		IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
+		IReadOnlyList<SeederScarTemplateDefinition>? ScarTemplates = null
 	);
 
 	internal static IReadOnlyDictionary<string, MythicalRaceTemplate> TemplatesForTesting => Templates;

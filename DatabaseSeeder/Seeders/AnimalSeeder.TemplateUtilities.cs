@@ -601,6 +601,8 @@ public partial class AnimalSeeder
 			);
 		}
 
+		SeedAnimalDisfigurementTemplates(templateList, bodyLookup);
+
 		foreach (var template in templateList
 			         .Where(x => x.BodyAuditKey is not null)
 			         .GroupBy(x => $"{x.BodyKey}|{x.BodyAuditKey}", StringComparer.OrdinalIgnoreCase)

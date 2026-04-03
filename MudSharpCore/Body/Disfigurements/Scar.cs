@@ -14,12 +14,13 @@ namespace MudSharp.Body.Disfigurements;
 
 public class Scar : IScar
 {
-	public Scar(XElement root, IFuturemud gameworld)
+	public Scar(XElement root, IFuturemud gameworld, IRace ownerRace)
 	{
 		Gameworld = gameworld;
 		Template = Gameworld.DisfigurementTemplates.Get(long.Parse(root.Element("Template").Value));
 		Bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Bodypart").Value));
 		TimeOfScarring = new MudDateTime(root.Element("TimeOfScarring").Value, Gameworld);
+		OwnerRace = ownerRace;
 	}
 
 	public Scar(IScarTemplate template, IFuturemud gameworld, ICharacter owner, IBodypart bodypart,

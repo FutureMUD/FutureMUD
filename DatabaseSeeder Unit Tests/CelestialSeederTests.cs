@@ -108,6 +108,28 @@ public class CelestialSeederTests
 		};
 	}
 
+	private static long SeedCalendar(FuturemudDatabaseContext context, string mode, string startYear, string? ardaAge = null)
+	{
+		var answers = new Dictionary<string, string>
+		{
+			["secondsmultiplier"] = "2",
+			["mode"] = mode,
+			["startyear"] = startYear
+		};
+		if (!string.IsNullOrWhiteSpace(ardaAge))
+		{
+			answers["ardaage"] = ardaAge;
+		}
+
+		new TimeSeeder().SeedData(context, answers);
+
+		return mode switch
+		{
+			"middle-earth" => context.Calendars.AsEnumerable().First(x => x.Date.Contains("yestare")).Id,
+			_ => context.Calendars.Single().Id
+		};
+	}
+
 	private static XElement GetDefinition(Celestial celestial)
 	{
 		return XElement.Parse(celestial.Definition);
@@ -252,5 +274,57 @@ public class CelestialSeederTests
 		seeder.SeedData(context, BuildAnswers(installSun: true));
 
 		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, seeder.ShouldSeedData(context));
+	}
+
+	[TestMethod]
+	public void ResolveSunEpochDisplay_GregorianCalendar_ShowsCalendarSpecificExampleAndDefault()
+	{
+		using var context = BuildContext();
+		var calendarId = SeedCalendar(context, "gregorian-uk", "2000");
+
+		var display = CelestialSeeder.ResolveSunEpochDisplay(context, new Dictionary<string, string>
+		{
+			["suncalendar"] = calendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
+		});
+
+		StringAssert.Contains(display.Prompt, "01/january/year");
+		Assert.AreEqual("01/january/2000", display.DefaultAnswer);
+	}
+
+	[TestMethod]
+	public void ResolveSunEpochDisplay_MiddleEarthCalendar_ShowsCalendarSpecificExampleAndDefault()
+	{
+		using var context = BuildContext();
+		var calendarId = SeedCalendar(context, "middle-earth", "3019", "3");
+
+		var display = CelestialSeeder.ResolveSunEpochDisplay(context, new Dictionary<string, string>
+		{
+			["suncalendar"] = calendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
+		});
+
+		StringAssert.Contains(display.Prompt, "01/yestare/year");
+		Assert.AreEqual("01/yestare/3019", display.DefaultAnswer);
+	}
+
+	[TestMethod]
+	public void ResolveMoonEpochDefaults_UseStockReferenceDatesForSeededCalendars()
+	{
+		using var gregorianContext = BuildContext();
+		var gregorianCalendarId = SeedCalendar(gregorianContext, "gregorian-uk", "2000");
+		Assert.AreEqual(
+			"21/january/2000",
+			CelestialSeeder.ResolveMoonEpochDefault(gregorianContext, new Dictionary<string, string>
+			{
+				["mooncalendar"] = gregorianCalendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
+			}));
+
+		using var missionContext = BuildContext();
+		var missionCalendarId = SeedCalendar(missionContext, "mission", "77");
+		Assert.AreEqual(
+			"01/ignis/77",
+			CelestialSeeder.ResolveGasGiantMoonEpochDefault(missionContext, new Dictionary<string, string>
+			{
+				["gasgiantcalendar"] = missionCalendarId.ToString(System.Globalization.CultureInfo.InvariantCulture)
+			}));
 	}
 }

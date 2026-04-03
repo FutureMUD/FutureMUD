@@ -19,6 +19,7 @@ public class TimeSeeder : IDatabaseSeeder
 		"tranquility",
 		"republicain",
 		"mission",
+		"seasonal-360",
 		"roman",
 		"dwarven",
 		"shire-reckoning",
@@ -56,7 +57,7 @@ With all that in mind, what whole number of in-game seconds should be added for 
 			("mode",
 				@"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not one of the ones listed below, I suggest that you use the latin-ancient calendar and modify the generated file as that calendar makes the most use of advanced features for examples.
 
-Broadly speaking, there are seven calendars for you to choose from:
+Broadly speaking, there are eight calendars for you to choose from:
 
 #AGregorian#F - which is the calendar most of the world uses in the modern era
 #AJulian#F - which is very similar to the Gregorian calendar but with different leap year rules
@@ -65,6 +66,7 @@ Broadly speaking, there are seven calendars for you to choose from:
 #ATranquility#F: The 13-month, 28 day Tranquility calendar, commencing at the Moon Landing
 #ACalendare Republicain#F: The French Republican calendar (including decimal clock) from the French Revolution
 #AMission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
+#ASeasonal 360#F: A simple 360 day fantasy calendar with three months per season and a 6 day week
 
 The specific available calendars are as follows:
 
@@ -80,6 +82,7 @@ The specific available calendars are as follows:
 	#Btranquility#F: The 13-month, 28 day Tranquility calendar, commencing at the Moon Landing
 	#Brepublicain#F: The French Republican calendar (including decimal clock) from the French Revolution
 	#Bmission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
+	#Bseasonal-360#F: A simple 360 day fantasy calendar with Early/Mid/Late seasons and First Day through Sixth Day weekdays
 ", (context, answers) => true, (answer, context) =>
 				{
 					switch (answer.ToLowerInvariant())
@@ -96,6 +99,7 @@ The specific available calendars are as follows:
 						case "republicain":
 						case "tranquility":
 						case "mission":
+						case "seasonal-360":
 							return (true, string.Empty);
 					}
 
@@ -168,6 +172,9 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 				break;
 			case "mission":
 				SetupMissionCalendar(context, clock, questionAnswers);
+				break;
+			case "seasonal-360":
+				SetupSeasonal360Calendar(context, clock, questionAnswers);
 				break;
 			case "republicain":
 				clock = EnsureClock(
@@ -259,6 +266,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 		{
 			"middle-earth" => "eldarin-quenya",
 			"mission" => "mission",
+			"seasonal-360" => "seasonal-360",
 			"republicain" => "republicain",
 			"tranquility" => "tranquility",
 			"latin-ancient" => "julian",
@@ -543,6 +551,166 @@ Several cultural and operational observances are tied to the Mission Calendar, t
 	</month>
   </months>
   <intercalarymonths/>
+</calendar>"
+		};
+		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+		context.SaveChanges();
+	}
+
+	private void SetupSeasonal360Calendar(FuturemudDatabaseContext context, Clock clock,
+		IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		var calendar = new Calendar
+		{
+			FeedClockId = clock.Id,
+			Date = $"01/early-winter/{questionAnswers["startyear"]}",
+			Definition = @"<calendar>
+  <alias>seasonal-360</alias>
+  <shortname>Seasonal 360 Calendar</shortname>
+  <fullname>The Seasonal 360 Calendar</fullname>
+  <description><![CDATA[A simple 360 day calendar for regular fantasy settings. The year is divided into twelve even months of thirty days, with three months each for winter, spring, summer and autumn. Weeks are six days long and simply counted from First Day through Sixth Day, making it straightforward for builders to customise further.]]></description>
+  <shortstring>$dd/$mo/$yy</shortstring>
+  <longstring>$nz$ww the $dt of $mf, year $yy</longstring>
+  <wordystring>$NZ$ww on the $DT day of $mf, in year $yy</wordystring>
+  <plane>earth</plane>
+  <feedclock>0</feedclock>
+  <epochyear>0</epochyear>
+  <weekdayatepoch>1</weekdayatepoch>
+  <ancienterashortstring>BR</ancienterashortstring>
+  <ancienteralongstring>before reckoning</ancienteralongstring>
+  <modernerashortstring>AR</modernerashortstring>
+  <moderneralongstring>after reckoning</moderneralongstring>
+  <weekdays>
+	<weekday>First Day</weekday>
+	<weekday>Second Day</weekday>
+	<weekday>Third Day</weekday>
+	<weekday>Fourth Day</weekday>
+	<weekday>Fifth Day</weekday>
+	<weekday>Sixth Day</weekday>
+  </weekdays>
+  <months>
+	<month>
+	  <alias>early-winter</alias>
+	  <shortname>ewi</shortname>
+	  <fullname>Early Winter</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mid-winter</alias>
+	  <shortname>mwi</shortname>
+	  <fullname>Mid Winter</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>late-winter</alias>
+	  <shortname>lwi</shortname>
+	  <fullname>Late Winter</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>early-spring</alias>
+	  <shortname>esp</shortname>
+	  <fullname>Early Spring</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mid-spring</alias>
+	  <shortname>msp</shortname>
+	  <fullname>Mid Spring</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>late-spring</alias>
+	  <shortname>lsp</shortname>
+	  <fullname>Late Spring</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>early-summer</alias>
+	  <shortname>esu</shortname>
+	  <fullname>Early Summer</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mid-summer</alias>
+	  <shortname>msu</shortname>
+	  <fullname>Mid Summer</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>late-summer</alias>
+	  <shortname>lsu</shortname>
+	  <fullname>Late Summer</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>early-autumn</alias>
+	  <shortname>eau</shortname>
+	  <fullname>Early Autumn</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mid-autumn</alias>
+	  <shortname>mau</shortname>
+	  <fullname>Mid Autumn</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>late-autumn</alias>
+	  <shortname>lau</shortname>
+	  <fullname>Late Autumn</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+  </months>
+  <intercalarymonths />
 </calendar>"
 		};
 		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);

@@ -206,6 +206,82 @@ What epoch date do you want to use?",
 	public string Tagline => "Sets up Suns, Moons, etc";
 	public string FullDescription => "This seeder sets up stock celestial packages such as Earth-facing suns, planetary moons, and moon-view celestial objects. It is additive and intended to be rerun safely.";
 
+	internal static string? ResolveSunEpochDefault(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return ResolveEpochDefault(context, answers, "suncalendar", 1);
+	}
+
+	internal static string? ResolveMoonEpochDefault(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return ResolveEpochDefault(context, answers, "mooncalendar", 21);
+	}
+
+	internal static string? ResolveGasGiantSunEpochDefault(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return ResolveEpochDefault(context, answers, "gasgiantcalendar", 1);
+	}
+
+	internal static string? ResolveGasGiantMoonEpochDefault(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return ResolveEpochDefault(context, answers, "gasgiantcalendar", 1);
+	}
+
+	internal static ConsoleQuestionDisplay ResolveSunEpochDisplay(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return BuildEpochDisplay(
+			context,
+			answers,
+			"suncalendar",
+			"You must now enter a valid date for the 'epoch' of your Earth-facing sun.",
+			"Generally you'll want this to be whatever date is equivalent to the 1st of the first month in your calendar, in the same year that your game's current date uses.",
+			"A sensible stock default for this package is the first day of the first month.",
+			1);
+	}
+
+	internal static ConsoleQuestionDisplay ResolveMoonEpochDisplay(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return BuildEpochDisplay(
+			context,
+			answers,
+			"mooncalendar",
+			"What epoch date should be used for the moon?",
+			"This should be a date that is known to be a full moon in the calendar you selected.",
+			"The stock Earth moon package uses day 21 of the first month as its known full-moon reference.",
+			21);
+	}
+
+	internal static ConsoleQuestionDisplay ResolveGasGiantSunEpochDisplay(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return BuildEpochDisplay(
+			context,
+			answers,
+			"gasgiantcalendar",
+			"What epoch date should be used for the Jupiter-facing Sun?",
+			"This should be the start-of-year epoch for your chosen calendar.",
+			"A sensible stock default for this package is the first day of the first month.",
+			1);
+	}
+
+	internal static ConsoleQuestionDisplay ResolveGasGiantMoonEpochDisplay(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers)
+	{
+		return BuildEpochDisplay(
+			context,
+			answers,
+			"gasgiantcalendar",
+			"What epoch date should be used for Ganymede?",
+			"This is the stock epoch-aligned reference date used by the seeded Jupiter/Ganymede package.",
+			"The seeded default uses the first day of the first month so the package lines up with the authored epoch constants.",
+			1);
+	}
+
 	private static bool AnswerIsYes(IReadOnlyDictionary<string, string> answers, string key)
 	{
 		return answers.TryGetValue(key, out var value) && value.EqualToAny("yes", "y");
@@ -222,6 +298,191 @@ What epoch date do you want to use?",
 			? (true, string.Empty)
 			: (false, "The date you supplied is definitely not a valid date. Please refer to the guidance above.");
 	}
+
+	private static string? ResolveEpochDefault(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers,
+		string calendarAnswerKey,
+		int day)
+	{
+		return TryGetCalendarDateFormat(context, answers, calendarAnswerKey, day, out var formattedDate)
+			? formattedDate
+			: null;
+	}
+
+	private static ConsoleQuestionDisplay BuildEpochDisplay(
+		FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers,
+		string calendarAnswerKey,
+		string heading,
+		string guidance,
+		string stockDefaultExplanation,
+		int defaultDay)
+	{
+		if (!TryGetCalendarPromptInfo(context, answers, calendarAnswerKey, out var info))
+		{
+			return new ConsoleQuestionDisplay(
+				$@"{heading}
+
+{guidance}
+
+Please enter the epoch date using the format of the calendar you selected.",
+				null);
+		}
+
+		var monthExample = FormatCalendarDate(info, 1, info.FirstMonthAlias, "year");
+		var moonExample = FormatCalendarDate(info, 21, info.FirstMonthAlias, "year");
+		var defaultAnswer = ResolveEpochDefault(context, answers, calendarAnswerKey, defaultDay);
+
+		var exampleText = defaultDay == 21
+			? $"For this calendar, a first-month full-moon style example would look like {moonExample}."
+			: $"For this calendar, a start-of-year example would look like {monthExample}.";
+
+		return new ConsoleQuestionDisplay(
+			$@"{heading}
+
+{guidance}
+
+The selected calendar is {info.CalendarName}.
+{exampleText}
+{stockDefaultExplanation}",
+			defaultAnswer);
+	}
+
+	private static bool TryGetCalendarDateFormat(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers,
+		string calendarAnswerKey,
+		int day,
+		out string? formattedDate)
+	{
+		if (TryGetCalendarPromptInfo(context, answers, calendarAnswerKey, out var info))
+		{
+			formattedDate = FormatCalendarDate(info, day, info.FirstMonthAlias, info.CurrentYear);
+			return true;
+		}
+
+		formattedDate = null;
+		return false;
+	}
+
+	private static bool TryGetCalendarPromptInfo(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> answers,
+		string calendarAnswerKey,
+		out CalendarPromptInfo info)
+	{
+		info = null!;
+		if (!answers.TryGetValue(calendarAnswerKey, out var calendarAnswer) ||
+		    !TryGetCalendar(context, calendarAnswer, out var calendar) ||
+		    string.IsNullOrWhiteSpace(calendar?.Definition) ||
+		    string.IsNullOrWhiteSpace(calendar.Date))
+		{
+			return false;
+		}
+
+		var definition = XElement.Parse(calendar.Definition);
+		var firstMonthAlias = definition.Descendants("month")
+			                     .Select(x => x.Element("alias")?.Value)
+			                     .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ??
+		                     "january";
+		var calendarName = definition.Element("fullname")?.Value ??
+		                   definition.Element("shortname")?.Value ??
+		                   definition.Element("alias")?.Value ??
+		                   $"calendar #{calendar.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		var parts = SplitDateParts(calendar.Date);
+		if (parts.Count != 3)
+		{
+			return false;
+		}
+
+		var yearIndex = FindYearIndex(parts);
+		if (yearIndex == -1)
+		{
+			return false;
+		}
+
+		info = new CalendarPromptInfo(calendar, calendarName, firstMonthAlias, calendar.Date, parts[yearIndex]);
+		return true;
+	}
+
+	internal static string FormatCalendarDate(Calendar calendar, int day, string monthAlias, string year)
+	{
+		if (string.IsNullOrWhiteSpace(calendar.Date))
+		{
+			return $"{day:00}/{monthAlias}/{year}";
+		}
+
+		var parts = SplitDateParts(calendar.Date);
+		var separators = SplitDateSeparators(calendar.Date);
+		if (parts.Count != 3 || separators.Count != 2)
+		{
+			return $"{day:00}/{monthAlias}/{year}";
+		}
+
+		var yearIndex = FindYearIndex(parts);
+		var dayIndex = FindDayIndex(parts, yearIndex);
+		var monthIndex = Enumerable.Range(0, 3).First(x => x != yearIndex && x != dayIndex);
+		var rendered = new string[3];
+		rendered[yearIndex] = year;
+		rendered[dayIndex] = day.ToString($"D{Math.Max(2, parts[dayIndex].Length)}", System.Globalization.CultureInfo.InvariantCulture);
+		rendered[monthIndex] = monthAlias;
+		return $"{rendered[0]}{separators[0]}{rendered[1]}{separators[1]}{rendered[2]}";
+	}
+
+	private static string FormatCalendarDate(CalendarPromptInfo info, int day, string monthAlias, string year)
+	{
+		return FormatCalendarDate(info.Calendar, day, monthAlias, year);
+	}
+
+	private static List<string> SplitDateParts(string value)
+	{
+		return Regex.Split(value, @"[-/\\\s]+")
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToList();
+	}
+
+	private static List<string> SplitDateSeparators(string value)
+	{
+		return Regex.Matches(value, @"[-/\\\s]+")
+			.Select(x => x.Value)
+			.ToList();
+	}
+
+	private static int FindYearIndex(IReadOnlyList<string> parts)
+	{
+		for (var i = parts.Count - 1; i >= 0; i--)
+		{
+			if (int.TryParse(parts[i], NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out _))
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	private static int FindDayIndex(IReadOnlyList<string> parts, int yearIndex)
+	{
+		for (var i = 0; i < parts.Count; i++)
+		{
+			if (i == yearIndex)
+			{
+				continue;
+			}
+
+			if (int.TryParse(parts[i], NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out _))
+			{
+				return i;
+			}
+		}
+
+		return yearIndex == 2 ? 0 : 1;
+	}
+
+	private sealed record CalendarPromptInfo(
+		Calendar Calendar,
+		string CalendarName,
+		string FirstMonthAlias,
+		string CurrentDate,
+		string CurrentYear);
 
 	private static (bool Success, string error) ValidateCalendar(string answer, FuturemudDatabaseContext context)
 	{

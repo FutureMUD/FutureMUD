@@ -541,8 +541,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
 		var plain = command.PopSpeech();
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send(
-				"What is the with form (e.g. with an across-the-eye scar) you want this scar to provide?");
+			actor.OutputHandler.Send("What is the with form (e.g. with an across-the-eye scar) you want this scar to provide?");
 			return false;
 		}
 

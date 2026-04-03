@@ -223,7 +223,6 @@ Please enter your penalty unit: ", (context, answers) => true,
 			false,
 			FutureProgStaticType.NotStatic,
 			parameters);
-		Context.SaveChanges();
 		return prog;
 	}
 

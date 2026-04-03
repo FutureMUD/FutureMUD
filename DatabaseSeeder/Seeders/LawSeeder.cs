@@ -54,7 +54,7 @@ Note: The ID is most likely to be 1 if you have only installed 1 currency. ", (c
 						return (false, $"There is no currency with an id of {id}.");
 					}
 
-					if (context.Currencies.Any(x =>
+					if (context.Currencies.AsEnumerable().Any(x =>
 						    x.Name.StartsWith(answer, StringComparison.InvariantCultureIgnoreCase)))
 						return (true, string.Empty);
 
@@ -236,6 +236,7 @@ Please enter your penalty unit: ", (context, answers) => true,
 		var legalClass = SeederRepeatabilityHelper.EnsureEntity(
 			Context.LegalClasses,
 			x => x.LegalAuthorityId == Authority.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			x => x.LegalAuthorityId == Authority.Id,
 			() =>
 			{
 				var created = new LegalClass();
@@ -276,6 +277,7 @@ Please enter your penalty unit: ", (context, answers) => true,
 		var authority = SeederRepeatabilityHelper.EnsureEntity(
 			Context.EnforcementAuthorities,
 			x => x.LegalAuthorityId == Authority.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			x => x.LegalAuthorityId == Authority.Id,
 			() =>
 			{
 				var created = new EnforcementAuthority();
@@ -1503,6 +1505,7 @@ return true"
 		var law = SeederRepeatabilityHelper.EnsureEntity(
 			Context.Set<Law>(),
 			x => x.LegalAuthorityId == Authority.Id && x.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
+			x => x.LegalAuthorityId == Authority.Id,
 			() =>
 			{
 				var created = new Law();

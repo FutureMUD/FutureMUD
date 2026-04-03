@@ -130,6 +130,7 @@ This document is based on verified code behavior in the current stock repo, not 
   - `SeederAssessment`
   - shared answer keys backed by `SeederChoice`
 - Prefer central registries and shared framework code over mass rewriting every seeder at once.
+- Do not enable Pomelo `EnableStringComparisonTranslations` as the default seeder fix. Provider opt-in is lower-touch, but Pomelo warns it can reduce index usage depending on collation and comparison mode, so the preferred seeder pattern is explicit query shaping: use SQL only for safe prefilters where practical, then finish case-insensitive matching in memory.
 
 ## Backlog and Conversion Order
 ### Phase 1: verified complete
@@ -159,6 +160,7 @@ These five seeders need separate design work before repeatability claims are exp
 - When adding or changing a seeder, update both its metadata and any shared-answer mapping that applies.
 - If a seeder becomes safely rerunnable, document whether it is additive, install-missing, repair-capable, or full-reconcile.
 - Do not rely on `ExtraPackagesAvailable` alone to communicate rerun safety.
+- Do not pass `StringComparison`-based predicates directly into EF-translated seeder queries. Use `AsEnumerable()` explicitly or shape the query so EF only handles the safe prefilter.
 - Prefer deterministic, stock-owned lookup keys over “anything exists” installed-state checks.
 - If a seeder cannot yet be made repeatable safely, document why in this file instead of implying support.
 

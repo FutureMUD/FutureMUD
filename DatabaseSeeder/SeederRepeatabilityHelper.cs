@@ -40,7 +40,7 @@ internal static class SeederRepeatabilityHelper
 	{
 		var localPredicate = predicate.Compile();
 		return set.Local.FirstOrDefault(localPredicate) ??
-		       set.FirstOrDefault(predicate) ??
+		       set.AsEnumerable().FirstOrDefault(localPredicate) ??
 		       create();
 	}
 
@@ -52,7 +52,7 @@ internal static class SeederRepeatabilityHelper
 		where T : class
 	{
 		return set.Local.FirstOrDefault(localPredicate) ??
-		       set.FirstOrDefault(queryPredicate) ??
+		       set.Where(queryPredicate).AsEnumerable().FirstOrDefault(localPredicate) ??
 		       create();
 	}
 
@@ -64,15 +64,10 @@ internal static class SeederRepeatabilityHelper
 		where T : class
 	{
 		var localSelector = nameSelector.Compile();
-		var parameter = nameSelector.Parameters[0];
-		var queryPredicate = Expression.Lambda<Func<T, bool>>(
-			Expression.Equal(nameSelector.Body, Expression.Constant(name, typeof(string))),
-			parameter);
-
 		return EnsureEntity(
 			set,
 			x => string.Equals(localSelector(x), name, StringComparison.OrdinalIgnoreCase),
-			queryPredicate,
+			_ => true,
 			create);
 	}
 

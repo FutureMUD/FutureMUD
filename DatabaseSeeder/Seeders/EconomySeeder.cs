@@ -1447,7 +1447,8 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 	{
 		return long.TryParse(answer, out var value)
 			? context.Currencies.FirstOrDefault(x => x.Id == value)
-			: context.Currencies.FirstOrDefault(x => x.Name.Equals(answer, StringComparison.OrdinalIgnoreCase));
+			: context.Currencies.AsEnumerable()
+				.FirstOrDefault(x => x.Name.Equals(answer, StringComparison.OrdinalIgnoreCase));
 	}
 
 	private static Zone ResolveZone(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> answers)
@@ -1461,7 +1462,8 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 	{
 		return long.TryParse(answer, out var value)
 			? context.Zones.FirstOrDefault(x => x.Id == value)
-			: context.Zones.FirstOrDefault(x => x.Name.Equals(answer, StringComparison.OrdinalIgnoreCase));
+			: context.Zones.AsEnumerable()
+				.FirstOrDefault(x => x.Name.Equals(answer, StringComparison.OrdinalIgnoreCase));
 	}
 
 	private static decimal ResolveShopperScale(IReadOnlyDictionary<string, string> answers)

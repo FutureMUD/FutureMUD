@@ -261,6 +261,7 @@ The exception details were as follows:
 	private static void EnsureDatabaseCreated()
 	{
 		Console.WriteLine("Ensuring that Database migrations are applied...");
+		DatabaseBackupSettings.Load(AppContext.BaseDirectory);
 		var databaseLooksBlank = UpgradeCoordinator.DatabaseLooksBlank(ConnectionString!);
 		var latestMigrationId = UpgradeCoordinator.GetLatestMigrationId(ConnectionString!);
 		var snapshotAssessment = BlankDatabaseSnapshotManager.Assess(AppContext.BaseDirectory, latestMigrationId);

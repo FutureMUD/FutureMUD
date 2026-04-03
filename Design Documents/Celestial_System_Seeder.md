@@ -21,6 +21,28 @@ Each seeded object is marked with:
 
 `ShouldSeedData` uses those markers plus legacy-equivalent constant matching where needed. The Earth moon legacy detection now expects the corrected modern lunar constants, including the moon semi-major axis and the parent-body sidereal terms.
 
+## Seeder Prompt Guidance
+The seeder now gives calendar-aware epoch guidance instead of assuming Gregorian examples.
+
+- It resolves the chosen calendar and formats examples using that calendar's authored date style
+- pressing `Enter` on an epoch question accepts the displayed suggested default
+- start-of-year prompts use the first day of the first month in the selected calendar's current year
+- the Earth moon prompt uses day 21 of the first month in the selected calendar's current year as the stock full-moon reference
+- the Ganymede prompt uses the first day of the first month in the selected calendar's current year as the stock epoch-aligned reference
+
+Typical examples are:
+
+- Gregorian-family calendars: `01/january/year` or `january/01/year`
+- Middle-Earth calendars: `01/yestare/year`
+- Mission calendar: `01/ignis/year`
+
+For the stock packages, the suggested defaults are:
+
+- Earth-facing sun: first day of the first month
+- Earth moon: day 21 of the first month
+- Jupiter-facing sun: first day of the first month
+- Ganymede: first day of the first month
+
 ## Earth Stock Constants
 
 ### Earth-facing `Sun`

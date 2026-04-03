@@ -27,12 +27,6 @@ internal class Program
 			return;
 		}
 
-		if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-		{
-			Console.WindowWidth = (int)(Console.LargestWindowWidth * 0.85);
-			Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.85);
-		}
-
 		string password = "", user = "", database = "";
 
 		Console.ForegroundColor = ConsoleColor.Magenta;
@@ -463,7 +457,7 @@ The exception details were as follows:
 			if (!string.IsNullOrEmpty(errorMessage))
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine(errorMessage);
+				ConsoleLayoutHelper.WriteWrapped(errorMessage);
 				Console.ForegroundColor = ConsoleColor.White;
 			}
 
@@ -479,13 +473,19 @@ The exception details were as follows:
 					.ToList();
 
 				Console.Clear();
-				Console.WriteLine("Please enter the number of the package you wish to import, or QUIT to exit: ");
+				ConsoleLayoutHelper.WriteWrapped("Please enter the number of the package you wish to import, or QUIT to exit: ");
 				Console.WriteLine();
 				foreach (var assessedSeeder in assessedSeeders)
 				{
 					Console.ForegroundColor = GetAssessmentColour(assessedSeeder.Assessment.Status);
-					Console.WriteLine(
-						$"{i++}) [{assessedSeeder.Seeder.Name:20}] [{GetAssessmentLabel(assessedSeeder.Assessment.Status),-8}] {assessedSeeder.Seeder.Tagline}");
+					foreach (var line in ConsoleLayoutHelper.FormatMenuEntry(
+						         i++,
+						         assessedSeeder.Seeder.Name,
+						         GetAssessmentLabel(assessedSeeder.Assessment.Status),
+						         assessedSeeder.Seeder.Tagline))
+					{
+						Console.WriteLine(line);
+					}
 					Console.ForegroundColor = ConsoleColor.White;
 				}
 			}
@@ -525,7 +525,7 @@ The exception details were as follows:
 		Console.ForegroundColor = GetAssessmentColour(assessment.Status);
 		Console.WriteLine($"Status: {GetAssessmentLabel(assessment.Status)}");
 		Console.ForegroundColor = ConsoleColor.White;
-		Console.WriteLine(assessment.Explanation);
+		ConsoleLayoutHelper.WriteWrapped(assessment.Explanation);
 		Console.WriteLine();
 
 		if (assessment.MissingPrerequisites.Any())
@@ -534,7 +534,7 @@ The exception details were as follows:
 			Console.WriteLine("Missing prerequisites:");
 			foreach (var prerequisite in assessment.MissingPrerequisites)
 			{
-				Console.WriteLine($" - {prerequisite}");
+				ConsoleLayoutHelper.WriteWrapped($" - {prerequisite}", indent: "   ");
 			}
 
 			Console.ForegroundColor = ConsoleColor.White;
@@ -546,7 +546,7 @@ The exception details were as follows:
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			foreach (var warning in assessment.Warnings)
 			{
-				Console.WriteLine($"Warning: {warning}");
+				ConsoleLayoutHelper.WriteWrapped($"Warning: {warning}", indent: "         ");
 			}
 
 			Console.ForegroundColor = ConsoleColor.White;
@@ -558,7 +558,7 @@ The exception details were as follows:
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			foreach (var note in assessment.Notes)
 			{
-				Console.WriteLine(note);
+				ConsoleLayoutHelper.WriteWrapped(note);
 			}
 
 			Console.ForegroundColor = ConsoleColor.White;
@@ -598,23 +598,31 @@ The exception details were as follows:
 
 			var errorText = "";
 			var rememberedAnswer = SeederAnswerMemory.GetRememberedAnswer(context, seeder, question, answers);
-			if (question.AutoReuseLastAnswer && !string.IsNullOrWhiteSpace(rememberedAnswer))
+			string? resolvedDefaultAnswer = null;
+			if (!string.IsNullOrWhiteSpace(rememberedAnswer))
 			{
 				var (success, error) = question.Validator(rememberedAnswer, context);
 				if (success)
 				{
-					answers[question.Id] = rememberedAnswer;
-					Console.Clear();
-					Console.ForegroundColor = ConsoleColor.Cyan;
-					topline.WriteLineConsole();
-					Console.ForegroundColor = ConsoleColor.White;
-					Console.WriteLine($"Reusing previous answer for {question.Id}: {rememberedAnswer}");
-					Thread.Sleep(1000);
-					continue;
-				}
+					if (question.AutoReuseLastAnswer)
+					{
+						answers[question.Id] = rememberedAnswer;
+						Console.Clear();
+						Console.ForegroundColor = ConsoleColor.Cyan;
+						topline.WriteLineConsole();
+						Console.ForegroundColor = ConsoleColor.White;
+						ConsoleLayoutHelper.WriteWrapped($"Reusing previous answer for {question.Id}: {rememberedAnswer}");
+						Thread.Sleep(1000);
+						continue;
+					}
 
-				errorText =
-					$"The previously remembered answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(error) ? "" : $"\n{error}")}";
+					resolvedDefaultAnswer = rememberedAnswer;
+				}
+				else
+				{
+					errorText =
+						$"The previously remembered answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(error) ? "" : $"\n{error}")}";
+				}
 			}
 
 			while (true)
@@ -627,17 +635,42 @@ The exception details were as follows:
 				{
 					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine();
-					Console.WriteLine(errorText);
+					ConsoleLayoutHelper.WriteWrapped(errorText);
 					Console.WriteLine();
 					Console.ForegroundColor = ConsoleColor.White;
 					errorText = "";
 				}
 
-				question.Question.Wrap(90).WriteLineConsole();
+				var display = question.ResolveDisplay(context, answers);
+				if (!string.IsNullOrWhiteSpace(display.DefaultAnswer) &&
+				    string.IsNullOrWhiteSpace(resolvedDefaultAnswer))
+				{
+					var (defaultSuccess, defaultError) = question.Validator(display.DefaultAnswer, context);
+					if (defaultSuccess)
+					{
+						resolvedDefaultAnswer = display.DefaultAnswer;
+					}
+					else
+					{
+						errorText =
+							$"The suggested default answer for {question.Id} is no longer valid and will be ignored.{(string.IsNullOrWhiteSpace(defaultError) ? "" : $"\n{defaultError}")}";
+					}
+				}
+
+				display.Prompt.Wrap(90).WriteLineConsole();
+				if (!string.IsNullOrWhiteSpace(resolvedDefaultAnswer))
+				{
+					Console.WriteLine();
+					Console.ForegroundColor = ConsoleColor.DarkCyan;
+					ConsoleLayoutHelper.WriteWrapped($"Suggested default: {resolvedDefaultAnswer} (press Enter to accept)");
+					Console.ForegroundColor = ConsoleColor.White;
+				}
+
 				Console.WriteLine();
 				Console.Write("> ");
 				var answer = Console.ReadLine() ?? string.Empty;
 				if (answer.EqualToAny("quit", "back", "exit")) return;
+				answer = ResolveQuestionAnswer(answer, resolvedDefaultAnswer);
 
 				var (success, error) = question.Validator(answer, context);
 				if (!success)
@@ -659,6 +692,13 @@ The exception details were as follows:
 		var now = DateTime.UtcNow;
 		SeederAnswerMemory.PersistAnswers(context, seeder, questions, answers, version, now);
 		context.SaveChanges();
+	}
+
+	internal static string ResolveQuestionAnswer(string answer, string? defaultAnswer)
+	{
+		return string.IsNullOrWhiteSpace(answer) && !string.IsNullOrWhiteSpace(defaultAnswer)
+			? defaultAnswer
+			: answer;
 	}
 
 	private static int GetMenuSortRank(SeederAssessmentStatus status)

@@ -114,6 +114,7 @@ internal class MudSharp
 				}
 
 				File.Delete("BOOTING");
+				mud.MarkStartupDatabaseUpgradeComplete();
 				mud.StartGameLoop();
 
 				// Post Shutdown Sequence

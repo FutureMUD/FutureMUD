@@ -1068,6 +1068,18 @@ public sealed partial class Futuremud : IDisposable
 	private CharacterMaterialisationBootPhase _characterMaterialisationBootPhase =
 		CharacterMaterialisationBootPhase.Allowed;
 	private readonly List<IPostCharacterLoadFinalisable> _postCharacterLoadFinalisables = new();
+	private DatabaseUpgradePreparation? _startupDatabaseUpgradePreparation;
+
+	internal void MarkStartupDatabaseUpgradeComplete()
+	{
+		if (_startupDatabaseUpgradePreparation == null)
+		{
+			return;
+		}
+
+		new DatabaseUpgradeCoordinator().CompletePreparedUpgrade(_startupDatabaseUpgradePreparation);
+		_startupDatabaseUpgradePreparation = null;
+	}
 
 	public bool GetStaticBool(string whichConfiguration)
 	{

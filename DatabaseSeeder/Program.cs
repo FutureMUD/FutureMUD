@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,17 +15,25 @@ namespace DatabaseSeeder;
 
 internal class Program
 {
+	private static readonly IDatabaseUpgradeCoordinator UpgradeCoordinator = new DatabaseUpgradeCoordinator();
 	private static string? ConnectionString { get; set; }
 
 	private static void Main(string[] args)
 	{
+		var version = Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0);
+		if (args.Any(x => x.Equals("--refresh-blank-snapshot", StringComparison.OrdinalIgnoreCase)))
+		{
+			RefreshBlankDatabaseSnapshot(version);
+			return;
+		}
+
 		if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 		{
 			Console.WindowWidth = (int)(Console.LargestWindowWidth * 0.85);
 			Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.85);
 		}
+
 		string password = "", user = "", database = "";
-		var version = Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0);
 
 		Console.ForegroundColor = ConsoleColor.Magenta;
 
@@ -62,15 +70,15 @@ Please press enter to begin.".WriteLineConsole();
 		ConnectionString =
 			"server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;";
 #else
-			Console.WriteLine("Please enter the connection string for your database: ");
-			Console.Write("This is very likely to be in the following format: ");
-			Console.ForegroundColor = ConsoleColor.DarkYellow;
-			Console.Write("server=localhost;port=3306;database=YOURMUDDB;uid=YOURUSERNAME;password=YOURPASSWORD;Default Command Timeout=300000");
-			Console.WriteLine();
-			Console.ResetColor();
-			Console.WriteLine();
-			Console.Write("> ");
-			ConnectionString = Console.ReadLine();
+		Console.WriteLine("Please enter the connection string for your database: ");
+		Console.Write("This is very likely to be in the following format: ");
+		Console.ForegroundColor = ConsoleColor.DarkYellow;
+		Console.Write("server=localhost;port=3306;database=YOURMUDDB;uid=YOURUSERNAME;password=YOURPASSWORD;Default Command Timeout=300000");
+		Console.WriteLine();
+		Console.ResetColor();
+		Console.WriteLine();
+		Console.Write("> ");
+		ConnectionString = Console.ReadLine();
 #endif
 		try
 		{
@@ -176,8 +184,7 @@ SET database={database}
 				using var sreader = new StreamReader(sfs);
 				if (sreader.ReadToEnd().Length == 0)
 				{
-					using var shortcut =
-						new StreamWriter(sfs);
+					using var shortcut = new StreamWriter(sfs);
 					shortcut.Write(
 						$@"#!/bin/sh
 
@@ -209,58 +216,154 @@ echo ""The game engine has shut down.""");
 				}
 			}
 		}
-		catch (Exception e)
+		catch (Exception)
 		{
 		}
 
 #if DEBUG
 #else
-			try
-			{
+		try
+		{
 #endif
 
-		EnsureDatabaseCreated(database);
-		ShowMainMenu();
+			EnsureDatabaseCreated();
+			ShowMainMenu();
 #if DEBUG
 #else
-			}
-			catch (Exception e)
-			{
-				using var writer =
- new StreamWriter(new FileStream($"Database Seeder Exception {Assembly.GetCallingAssembly().GetName().Version} {DateTime.UtcNow:yyyyMMddHHmmss}.txt", FileMode.OpenOrCreate, FileAccess.Write));
-				writer.Write(e.ToString());
-				writer.Close();
+		}
+		catch (Exception e)
+		{
+			using var writer =
+				new StreamWriter(new FileStream($"Database Seeder Exception {Assembly.GetCallingAssembly().GetName().Version} {DateTime.UtcNow:yyyyMMddHHmmss}.txt", FileMode.OpenOrCreate, FileAccess.Write));
+			writer.Write(e.ToString());
+			writer.Close();
 
-				Console.Clear();
-				Console.WriteLine(@$"Unfortunately, the database seeder has crashed. It will have written out a crash log to the directory from which you ran the program. It would be much appreciated if you could pass this crash log, along with some contextual information about what you were doing to Japheth on the Discord server.
+			Console.Clear();
+			Console.WriteLine(@$"Unfortunately, the database seeder has crashed. It will have written out a crash log to the directory from which you ran the program. It would be much appreciated if you could pass this crash log, along with some contextual information about what you were doing to Japheth on the Discord server.
 				
 The exception details were as follows:
 
 {e}");
-				Console.ReadLine();
-			}
+			Console.ReadLine();
+		}
 #endif
 	}
 
-	private static void EnsureDatabaseCreated(string database)
+	private static void RefreshBlankDatabaseSnapshot(Version version)
 	{
-		
+		var assetDirectory = BlankDatabaseSnapshotManifest.FindProjectAssetDirectory(AppContext.BaseDirectory);
+		var manifest = BlankDatabaseSnapshotManifest.Refresh(assetDirectory, UpgradeCoordinator, version);
+		Console.WriteLine($"Blank database snapshot refreshed at {BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory)}");
+		Console.WriteLine($"Manifest refreshed at {BlankDatabaseSnapshotManifest.GetManifestPath(assetDirectory)}");
+		Console.WriteLine($"Latest migration recorded: {manifest.LatestMigrationId}");
+	}
+
+	private static void EnsureDatabaseCreated()
+	{
 		Console.WriteLine("Ensuring that Database migrations are applied...");
-		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString)).Options);
+		DatabaseBackupSettings.Load(AppContext.BaseDirectory);
+		var databaseLooksBlank = UpgradeCoordinator.DatabaseLooksBlank(ConnectionString!);
+		var latestMigrationId = UpgradeCoordinator.GetLatestMigrationId(ConnectionString!);
+		var snapshotAssessment = BlankDatabaseSnapshotManager.Assess(AppContext.BaseDirectory, latestMigrationId);
+		var bootstrapMode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank, snapshotAssessment);
+
+		switch (bootstrapMode)
+		{
+			case DatabaseBootstrapMode.SnapshotImport:
+				Console.WriteLine("Blank database detected. Attempting fast-forward snapshot import...");
+				if (TryImportBlankDatabaseSnapshot(snapshotAssessment, latestMigrationId))
+				{
+					Console.WriteLine("Database is up to date.");
+					Thread.Sleep(2500);
+					return;
+				}
+
+				ApplyFreshDatabaseMigrations();
+				return;
+			case DatabaseBootstrapMode.FreshMigration:
+				Console.WriteLine(snapshotAssessment.Reason);
+				Console.WriteLine("Falling back to a full EF migration run for this blank database.");
+				ApplyFreshDatabaseMigrations();
+				return;
+			case DatabaseBootstrapMode.GuardedMigration:
+				ApplyGuardedDatabaseMigrations();
+				return;
+			default:
+				throw new InvalidOperationException($"Unknown bootstrap mode {bootstrapMode}.");
+		}
+	}
+
+	private static bool TryImportBlankDatabaseSnapshot(BlankDatabaseSnapshotAssessment snapshotAssessment,
+		string? latestMigrationId)
+	{
+		try
+		{
+			UpgradeCoordinator.ImportBlankDatabaseSnapshot(
+				ConnectionString!,
+				snapshotAssessment.SnapshotPath,
+				BlankDatabaseSnapshotManifest.DatabaseNamePlaceholder);
+		}
+		catch (Exception e)
+		{
+			LogSnapshotImportFailure(e);
+			ResetBlankDatabaseOrThrow(e, "importing the blank database snapshot");
+			Console.WriteLine("Reset the blank database after the snapshot import failed. Falling back to EF migrations.");
+			return false;
+		}
+
+		if (VerifyLatestMigrationApplied(latestMigrationId))
+		{
+			Console.WriteLine($"Blank database snapshot import succeeded at migration {latestMigrationId}.");
+			return true;
+		}
+
+		ResetBlankDatabaseOrThrow(
+			new InvalidOperationException(
+				$"Snapshot import completed but did not register migration {latestMigrationId} in __EFMigrationsHistory."),
+			"verifying the imported blank database snapshot");
+		Console.WriteLine("Reset the blank database after the snapshot verification failed. Falling back to EF migrations.");
+		return false;
+	}
+
+	private static void LogSnapshotImportFailure(Exception exception)
+	{
+		var logPath = Path.Combine(
+			AppContext.BaseDirectory,
+			$"Blank Database Snapshot Failure {DateTime.UtcNow:yyyyMMddHHmmss}.txt");
+		File.WriteAllText(logPath, exception.ToString());
+		Console.WriteLine($"Blank database snapshot import failed. Details were written to {Path.GetFileName(logPath)}.");
+	}
+
+	private static bool VerifyLatestMigrationApplied(string? latestMigrationId)
+	{
+		if (string.IsNullOrWhiteSpace(latestMigrationId))
+		{
+			return false;
+		}
+
+		using var context = CreateContext();
+		return context.Database.GetAppliedMigrations().Contains(latestMigrationId, StringComparer.Ordinal);
+	}
+
+	private static void ResetBlankDatabaseOrThrow(Exception originalException, string activityDescription)
+	{
+		try
+		{
+			UpgradeCoordinator.RecreateEmptyDatabase(ConnectionString!);
+		}
+		catch (Exception resetException)
+		{
+			throw new ApplicationException(
+				$"Encountered an exception while {activityDescription} and then could not reset the blank database for fallback migrations.",
+				new AggregateException(originalException, resetException));
+		}
+	}
+
+	private static void ApplyFreshDatabaseMigrations()
+	{
+		using var context = CreateContext();
 		var migrator = context.GetService<IMigrator>();
 		var migrations = context.Database.GetPendingMigrations().ToList();
-
-		// Try to create the database via script to save time
-		//if (migrations.Count > 0 && migrations[0] == "20200626070704_InitialDatabase")
-		//{
-			
-		//	"No database detected, attempting to create...".WriteLineConsole();
-		//	var dbSQL = DatabaseConstant.DatabaseSQL.Replace("demo_dbo", database);
-		//	context.Database.ExecuteSqlRaw(dbSQL);
-		//	"...created, detecting migrations...".WriteLineConsole();
-		//	migrations = context.Database.GetPendingMigrations().ToList();
-		//}
 
 		var i = 1;
 		foreach (var migration in migrations)
@@ -278,6 +381,64 @@ The exception details were as follows:
 
 		Console.WriteLine("Database is up to date.");
 		Thread.Sleep(2500);
+	}
+
+	private static void ApplyGuardedDatabaseMigrations()
+	{
+		var preparation = UpgradeCoordinator.PrepareForStartup(new DatabaseUpgradeRequest
+		{
+			ConnectionString = ConnectionString!,
+			WorkingDirectory = AppContext.BaseDirectory,
+			ExecutableType = "DatabaseSeeder"
+		});
+
+		if (preparation.RestoredPreviousFailedUpgrade)
+		{
+			Console.WriteLine(
+				"Recovered the previous failed database upgrade from its pre-migration backup before continuing.");
+		}
+
+		try
+		{
+			UpgradeCoordinator.ApplyPreparedMigrations(preparation, progress =>
+			{
+				$"...Applying migration #2{progress.CurrentMigrationNumber}#F of #2{progress.TotalMigrations}#F: #E{progress.MigrationName}#F"
+					.WriteLineConsole();
+			});
+			UpgradeCoordinator.CompletePreparedUpgrade(preparation);
+		}
+		catch (Exception e)
+		{
+			try
+			{
+				UpgradeCoordinator.RollbackPreparedUpgrade(preparation, e);
+			}
+			catch (Exception rollbackException)
+			{
+				throw new ApplicationException(
+					"Encountered an exception while applying startup migrations and then failed to restore the pre-upgrade backup.",
+					new AggregateException(e, rollbackException));
+			}
+
+			throw new ApplicationException(
+				"Encountered an exception while applying startup migrations. The database has been restored to the last pre-upgrade backup.",
+				e);
+		}
+
+		Console.WriteLine("Database is up to date.");
+		Thread.Sleep(2500);
+	}
+
+	private static FuturemudDatabaseContext CreateContext(bool useLazyLoading = false)
+	{
+		var builder = new DbContextOptionsBuilder<FuturemudDatabaseContext>();
+		if (useLazyLoading)
+		{
+			builder.UseLazyLoadingProxies();
+		}
+
+		builder.UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString));
+		return new FuturemudDatabaseContext(builder.Options);
 	}
 
 	private static void ShowMainMenu()
@@ -308,9 +469,7 @@ The exception details were as follows:
 
 			var i = 1;
 			List<(IDatabaseSeeder Seeder, SeederAssessment Assessment)> assessedSeeders;
-			using (var context = new FuturemudDatabaseContext(
-					   new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseLazyLoadingProxies()
-						   .UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options))
+			using (var context = CreateContext(useLazyLoading: true))
 			{
 				assessedSeeders = seeders
 					.Select(seeder => (Seeder: seeder, Assessment: seeder.AssessSeedData(context)))
@@ -357,8 +516,7 @@ The exception details were as follows:
 	{
 		Console.Clear();
 		Console.WriteLine("Loading package...");
-		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseLazyLoadingProxies().UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options);
+		using var context = CreateContext(useLazyLoading: true);
 		var assessment = seeder.AssessSeedData(context);
 		Console.Clear();
 		$"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}\n\n#3{seeder.FullDescription.Wrap(90, "\t")}#F\n"

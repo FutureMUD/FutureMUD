@@ -11,6 +11,7 @@ namespace DatabaseSeeder;
 internal sealed record SeederQuestionEnhancement(
 	string? SharedAnswerKey = null,
 	Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, string?>? DefaultAnswerResolver = null,
+	Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, ConsoleQuestionDisplay>? DisplayResolver = null,
 	bool AutoReuseLastAnswer = false);
 
 public static class SeederQuestionRegistry
@@ -64,6 +65,22 @@ public static class SeederQuestionRegistry
 			[BuildKey(nameof(EconomySeeder), "shopper-scale")] = new(
 				SharedAnswerKey: "economy-shopper-scale",
 				AutoReuseLastAnswer: true
+			),
+			[BuildKey(nameof(CelestialSeeder), "sunepoch")] = new(
+				DefaultAnswerResolver: CelestialSeeder.ResolveSunEpochDefault,
+				DisplayResolver: CelestialSeeder.ResolveSunEpochDisplay
+			),
+			[BuildKey(nameof(CelestialSeeder), "moonepoch")] = new(
+				DefaultAnswerResolver: CelestialSeeder.ResolveMoonEpochDefault,
+				DisplayResolver: CelestialSeeder.ResolveMoonEpochDisplay
+			),
+			[BuildKey(nameof(CelestialSeeder), "gasgiantsunepoch")] = new(
+				DefaultAnswerResolver: CelestialSeeder.ResolveGasGiantSunEpochDefault,
+				DisplayResolver: CelestialSeeder.ResolveGasGiantSunEpochDisplay
+			),
+			[BuildKey(nameof(CelestialSeeder), "gasgiantmoonepoch")] = new(
+				DefaultAnswerResolver: CelestialSeeder.ResolveGasGiantMoonEpochDefault,
+				DisplayResolver: CelestialSeeder.ResolveGasGiantMoonEpochDisplay
 			)
 		};
 
@@ -89,6 +106,7 @@ public static class SeederQuestionRegistry
 		{
 			SharedAnswerKey = enhancement.SharedAnswerKey,
 			DefaultAnswerResolver = enhancement.DefaultAnswerResolver,
+			DisplayResolver = enhancement.DisplayResolver,
 			AutoReuseLastAnswer = enhancement.AutoReuseLastAnswer
 		};
 	}

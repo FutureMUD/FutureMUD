@@ -583,6 +583,17 @@ public class MythicalAnimalSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void TemplatesForTesting_DefaultDisfigurementHooks_AreEmptyByDefault()
+	{
+		Assert.IsTrue(
+			MythicalAnimalSeeder.TemplatesForTesting.Values.All(x => x.TattooTemplates is null || x.TattooTemplates.Count == 0),
+			"Mythical stock templates should default to no tattoo templates until a later content pass fills them in.");
+		Assert.IsTrue(
+			MythicalAnimalSeeder.TemplatesForTesting.Values.All(x => x.ScarTemplates is null || x.ScarTemplates.Count == 0),
+			"Mythical stock templates should default to no scar templates until a later content pass fills them in.");
+	}
+
+	[TestMethod]
 	public void TemplatesForTesting_SignatureUsagesAndAttacks_ArePresentForMythicSpecialCases()
 	{
 		var unicorn = MythicalAnimalSeeder.TemplatesForTesting["Unicorn"];

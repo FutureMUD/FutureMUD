@@ -22,6 +22,9 @@ namespace MudSharp.Health.Wounds;
 
 public class HealingSimpleWound : PerceivedItem, IWound
 {
+	private SurgicalProcedureType? _scarSurgicalProcedureType;
+	private int _scarSurgeryCheckDegrees;
+
 	public HealingSimpleWound(IHaveWounds parent, Wound wound, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
@@ -103,6 +106,8 @@ public class HealingSimpleWound : PerceivedItem, IWound
 			new XElement("DamageDescription", _damageDescription),
 			new XElement("BleedStatus", (int)BleedStatus),
 			new XElement("Tended", (int)_tended),
+			new XElement("ScarSurgicalProcedureType", _scarSurgicalProcedureType.HasValue ? (int)_scarSurgicalProcedureType.Value : -1),
+			new XElement("ScarSurgeryCheckDegrees", _scarSurgeryCheckDegrees),
 			new XElement("TreatmentAttempts", _unsuccessfulTreatmentAttempts),
 			new XElement("IsFriendlyWound", IsFriendlyWound)
 		).ToString();
@@ -388,6 +393,13 @@ public class HealingSimpleWound : PerceivedItem, IWound
 		_toolOriginId = wound.ToolOriginId ?? 0;
 		var root = XElement.Parse(wound.ExtraInformation ?? "<Empty/>");
 		IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
+		if (int.TryParse(root.Element("ScarSurgicalProcedureType")?.Value, out var scarSurgeryType) &&
+		    scarSurgeryType >= 0)
+		{
+			_scarSurgicalProcedureType = (SurgicalProcedureType)scarSurgeryType;
+		}
+
+		_scarSurgeryCheckDegrees = int.Parse(root.Element("ScarSurgeryCheckDegrees")?.Value ?? "0");
 	}
 
 	#region IWound Members
@@ -518,6 +530,16 @@ public class HealingSimpleWound : PerceivedItem, IWound
 	}
 
 	public IBodypart SeveredBodypart { get; set; }
+	public Outcome BestTendedOutcome => _tended;
+	public SurgicalProcedureType? ScarSurgicalProcedureType => _scarSurgicalProcedureType;
+	public int ScarSurgeryCheckDegrees => _scarSurgeryCheckDegrees;
+
+	public void MarkScarFromSurgery(SurgicalProcedureType type, int checkDegrees)
+	{
+		_scarSurgicalProcedureType = type;
+		_scarSurgeryCheckDegrees = checkDegrees;
+		Changed = true;
+	}
 
 	public WoundSeverity Severity => Parent.GetSeverityFor(this);
 

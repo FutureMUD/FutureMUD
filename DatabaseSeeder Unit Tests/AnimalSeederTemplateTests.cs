@@ -149,6 +149,17 @@ public class AnimalSeederTemplateTests
 	}
 
 	[TestMethod]
+	public void RaceTemplatesForTesting_DefaultDisfigurementHooks_AreEmptyByDefault()
+	{
+		Assert.IsTrue(
+			AnimalSeeder.RaceTemplatesForTesting.Values.All(x => x.TattooTemplates is null || x.TattooTemplates.Count == 0),
+			"Animal stock templates should default to no tattoo templates until a later content pass fills them in.");
+		Assert.IsTrue(
+			AnimalSeeder.RaceTemplatesForTesting.Values.All(x => x.ScarTemplates is null || x.ScarTemplates.Count == 0),
+			"Animal stock templates should default to no scar templates until a later content pass fills them in.");
+	}
+
+	[TestMethod]
 	public void BuildAuditPartLookup_DuplicateInheritedAliases_PrefersMostSpecificBody()
 	{
 		var parts = new List<BodypartProto>

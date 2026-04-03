@@ -180,6 +180,21 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 		_context = context;
 		_questionAnswers = questionAnswers;
 		_context.Database.BeginTransaction();
+		var hasMissingDisfigurementTemplates = HasMissingHumanDisfigurementTemplates(_context);
+
+		if (_context.Races.Any(x => x.Name == "Humanoid"))
+		{
+			var existingOrganicBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid");
+			if (hasMissingDisfigurementTemplates && existingOrganicBody is not null)
+			{
+				SeedHumanDisfigurementTemplates(existingOrganicBody);
+			}
+
+			_context.Database.CommitTransaction();
+			return hasMissingDisfigurementTemplates
+				? "Installed additional human disfigurement templates."
+				: "Human seeder content is already installed.";
+		}
 
 		// Start by determining the appropriate health strategy
 
@@ -516,6 +531,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		SetupSpeeds(humanoidBody);
 		SetupBodyparts(humanoidBody, organicBody);
 		var human = SetupRaces(humanoidBody, organicBody, strategy, healthTrait, strengthTrait);
+		SeedHumanDisfigurementTemplates(organicBody);
 		SetupCharacteristics(questionAnswers["distinctive"].EqualToAny("yes", "y"), human.ParentRace);
 		SetupDescriptions();
 		SetupHeightWeightModels();
@@ -721,7 +737,12 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		if (!context.Accounts.Any() || !context.TraitDefinitions.Any(x => x.Type == 0) || !context.Calendars.Any())
 			return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.Races.Any(x => x.Name == "Humanoid")) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.Races.Any(x => x.Name == "Humanoid"))
+		{
+			return HasMissingHumanDisfigurementTemplates(context)
+				? ShouldSeedResult.ExtraPackagesAvailable
+				: ShouldSeedResult.MayAlreadyBeInstalled;
+		}
 
 		return ShouldSeedResult.ReadyToInstall;
 	}

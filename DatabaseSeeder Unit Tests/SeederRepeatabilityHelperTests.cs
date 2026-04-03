@@ -9,7 +9,9 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Celestial;
 using MudSharp.Database;
+using MudSharp.FutureProg;
 using MudSharp.Models;
 
 namespace MudSharp_Unit_Tests;
@@ -17,6 +19,41 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SeederRepeatabilityHelperTests
 {
+	private sealed class WitnessProfileGuardContext : FuturemudDatabaseContext
+	{
+		public WitnessProfileGuardContext(DbContextOptions<FuturemudDatabaseContext> options)
+			: base(options)
+		{
+		}
+
+		public override int SaveChanges(bool acceptAllChangesOnSuccess)
+		{
+			AssertNoIncompleteWitnessProfiles();
+			return base.SaveChanges(acceptAllChangesOnSuccess);
+		}
+
+		public override int SaveChanges()
+		{
+			AssertNoIncompleteWitnessProfiles();
+			return base.SaveChanges();
+		}
+
+		private void AssertNoIncompleteWitnessProfiles()
+		{
+			var incompleteProfile = ChangeTracker.Entries<WitnessProfile>()
+				.Where(x => x.State == EntityState.Added)
+				.Select(x => x.Entity)
+				.FirstOrDefault(x => x.IdentityKnownProg is null || x.ReportingMultiplierProg is null);
+			if (incompleteProfile is null)
+			{
+				return;
+			}
+
+			throw new AssertFailedException(
+				$"Witness profile '{incompleteProfile.Name}' was saved before both required progs were assigned.");
+		}
+	}
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -24,6 +61,23 @@ public class SeederRepeatabilityHelperTests
 			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
 			.Options;
 		return new FuturemudDatabaseContext(options);
+	}
+
+	private static FuturemudDatabaseContext BuildWitnessProfileGuardContext()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString())
+			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+			.Options;
+		return new WitnessProfileGuardContext(options);
+	}
+
+	private static void SetSeederProperty<T>(LawSeeder seeder, string propertyName, T value)
+	{
+		typeof(LawSeeder)
+			.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+			.GetSetMethod(true)!
+			.Invoke(seeder, [value]);
 	}
 
 	[TestMethod]
@@ -221,5 +275,48 @@ public class SeederRepeatabilityHelperTests
 
 		Assert.IsTrue(result.Success);
 		Assert.AreEqual(string.Empty, result.error);
+	}
+
+	[TestMethod]
+	public void LawSeeder_AddWitnessProfile_DoesNotFlushIncompleteWitnessProfiles()
+	{
+		using var context = BuildWitnessProfileGuardContext();
+		var authority = new LegalAuthority
+		{
+			Id = 1,
+			Name = "Test Authority"
+		};
+		context.LegalAuthorities.Add(authority);
+		context.SaveChanges();
+
+		var seeder = new LawSeeder();
+		SetSeederProperty(seeder, nameof(LawSeeder.Context), context);
+		SetSeederProperty(seeder, nameof(LawSeeder.Authority), authority);
+		SetSeederProperty(seeder, nameof(LawSeeder.AuthorityName), authority.Name);
+		SetSeederProperty(
+			seeder,
+			nameof(LawSeeder.Classes),
+			new Dictionary<string, LegalClass>(StringComparer.OrdinalIgnoreCase));
+
+		typeof(LawSeeder)
+			.GetMethod("AddWitnessProfile", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(
+				seeder,
+				[
+					"Always Report Everything",
+					1.0,
+					1.0,
+					new[] { TimeOfDay.Morning, TimeOfDay.Afternoon },
+					Array.Empty<string>(),
+					Array.Empty<string>()
+				]);
+
+		context.SaveChanges();
+
+		var profile = context.WitnessProfiles.Single();
+		Assert.IsNotNull(profile.IdentityKnownProg);
+		Assert.IsNotNull(profile.ReportingMultiplierProg);
+		Assert.AreEqual(2, context.FutureProgs.Count());
+		Assert.AreEqual(1, context.WitnessProfiles.Count());
 	}
 }

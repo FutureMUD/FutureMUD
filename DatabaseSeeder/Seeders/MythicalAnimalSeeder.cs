@@ -100,27 +100,41 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		_context = context;
 		_context.Database.BeginTransaction();
 		LoadSharedSeederData(questionAnswers);
+		var hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
 		var templatesToSeed = Templates.Values
 			.Where(template => !_context.Races.Any(x => x.Name == template.Name))
 			.ToList();
-		if (templatesToSeed.Count == 0)
+		if (templatesToSeed.Count == 0 && !hasMissingDisfigurementTemplates)
 		{
 			ApplyDefaultCombatSettingsToSeededRaces();
 			_context.Database.CommitTransaction();
 			return "Mythical races are already installed.";
 		}
 
-		var bodyLookup = BuildBodyCatalogue(templatesToSeed);
+		var bodyLookup = BuildBodyCatalogue(Templates.Values);
 
 		foreach (var template in templatesToSeed)
 		{
 			SeedRace(template, bodyLookup[template.BodyKey]);
 		}
 
+		SeedMythicalDisfigurementTemplates(bodyLookup);
 		ApplyDefaultCombatSettingsToSeededRaces();
 		_context.SaveChanges();
 		_context.Database.CommitTransaction();
 		var skippedCount = Templates.Count - templatesToSeed.Count;
+		if (templatesToSeed.Count == 0)
+		{
+			return "Installed additional mythical disfigurement templates.";
+		}
+
+		if (hasMissingDisfigurementTemplates)
+		{
+			return skippedCount > 0
+				? $"Successfully installed {templatesToSeed.Count} mythical races, updated disfigurement templates, and skipped {skippedCount} that already existed."
+				: $"Successfully installed {templatesToSeed.Count} mythical races and updated disfigurement templates.";
+		}
+
 		return skippedCount > 0
 			? $"Successfully installed {templatesToSeed.Count} mythical races and skipped {skippedCount} that already existed."
 			: "Successfully installed mythical races.";
@@ -135,7 +149,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
 		if (Templates.Keys.All(name => context.Races.Any(x => x.Name == name)))
 		{
-			return ShouldSeedResult.MayAlreadyBeInstalled;
+			return HasMissingMythicalDisfigurementTemplates(context)
+				? ShouldSeedResult.ExtraPackagesAvailable
+				: ShouldSeedResult.MayAlreadyBeInstalled;
 		}
 
 		return ShouldSeedResult.ReadyToInstall;

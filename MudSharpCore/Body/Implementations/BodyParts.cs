@@ -1056,17 +1056,14 @@ public partial class Body
 
 	private void LoadScars(MudSharp.Models.Body body)
 	{
-		// TODO
-		/*
-		if (!string.IsNullOrWhiteSpace(body.Tattoos))
+		if (!string.IsNullOrWhiteSpace(body.Scars))
 		{
-		    var root = XElement.Parse(body.Tattoos);
-		    foreach (var tattoo in root.Elements("Tattoo"))
-		    {
-		        _tattoos.Add(new Tattoo(tattoo, Gameworld));
-		    }
+			var root = XElement.Parse(body.Scars);
+			foreach (var scar in root.Elements("Scar"))
+			{
+				_scars.Add(new Scar(scar, Gameworld, Race));
+			}
 		}
-		*/
 	}
 
 	#endregion

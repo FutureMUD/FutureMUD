@@ -3139,7 +3139,7 @@ The following options are used to view, edit and create tattoo designs:
 
 The following commands are used to put tattoos on people:
 
-	tattoo inscribe <target> <tattoo id|name> <bodypart> - begins inscribing a tattoo on someone
+	tattoo inscribe <target> <tattoo id|name> <bodypart> [slot=text|slot=copy:writingId] - begins inscribing a tattoo on someone
 	tattoo continue <target> <tattoo keyword> - continues inscribing an unfinished tattoo on someone";
 
 	protected const string TattooAdminHelp =
@@ -3507,6 +3507,13 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 			return;
 		}
 
+		if (!TattooTextCommandHelper.TryParseTextValues(actor, template, ss, true, out var textValues,
+			    out var hasUnreadableCopyPenalty, out var errorMessage))
+		{
+			actor.OutputHandler.Send(errorMessage);
+			return;
+		}
+
 		// TODO - skill requirements
 		var plan = TattooNeedlePlan.CreatePlan(actor);
 		switch (plan.PlanIsFeasible())
@@ -3612,7 +3619,7 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 			inkplan.ExecuteWholePlan();
 			plan.FinalisePlanNoRestore();
 			inkplan.FinalisePlanNoRestore();
-			var tattoo = template.ProduceTattoo(actor, target, bodypart);
+			var tattoo = template.ProduceTattoo(actor, target, bodypart, textValues, hasUnreadableCopyPenalty);
 			target.Body.AddTattoo(tattoo);
 			actor.AddEffect(
 				new InkingTattoo(actor, target, tattoo,

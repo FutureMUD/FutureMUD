@@ -43,7 +43,7 @@ public class HavingTattooInked : Effect, IAffectProximity
 	public override string Describe(IPerceiver voyeur)
 	{
 		return
-			$"{Tattooist.HowSeen(voyeur, true)} is inking {Tattoo.ShortDescription.SubstituteWrittenLanguage(voyeur, Gameworld).Colour(Telnet.BoldOrange)}.";
+			$"{Tattooist.HowSeen(voyeur, true)} is inking {Tattoo.ShortDescriptionFor(voyeur).Colour(Telnet.BoldOrange)}.";
 	}
 
 	public override bool IsBlockingEffect(string blockingType)
@@ -82,7 +82,7 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
 	public override string Describe(IPerceiver voyeur)
 	{
 		return
-			$"Inking {Tattoo.ShortDescription.SubstituteWrittenLanguage(voyeur, Gameworld).Colour(Telnet.BoldOrange)} on {TargetCharacter.HowSeen(voyeur)}.";
+			$"Inking {Tattoo.ShortDescriptionFor(voyeur).Colour(Telnet.BoldOrange)} on {TargetCharacter.HowSeen(voyeur)}.";
 	}
 
 	public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
@@ -115,10 +115,10 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
 	public override void InitialEffect()
 	{
 		CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-			$"@ begin|begins inking $2 on $1's {Tattoo.Bodypart.FullDescription()}.", CharacterOwner, CharacterOwner,
+				$"@ begin|begins inking $2 on $1's {Tattoo.Bodypart.FullDescription()}.", CharacterOwner, CharacterOwner,
 			Target,
 			new DummyPerceivable(
-				perceiver => Tattoo.ShortDescription.SubstituteWrittenLanguage(perceiver, Gameworld)
+				perceiver => Tattoo.ShortDescriptionFor(perceiver)
 				                   .Colour(Telnet.BoldOrange), perceiver => string.Empty))));
 	}
 
@@ -134,8 +134,10 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
 		Tattoo.CompletionPercentage += 1.0 / Tattoo.TattooTemplate.TicksToCompleteTattoo;
 		Tattoo.TimeOfInscription = CharacterOwner.Location.DateTime();
 		Tattoo.TattooistSkill = CharacterOwner.GetTrait(TattooTemplate.TattooistTrait)?.Value ?? 0.0;
+		var difficulty = ((Difficulty)(int)(Tattoo.TattooistSkill / Gameworld.GetStaticDouble("TattooSkillPerDifficulty")))
+			.StageUp(Tattoo.HasUnreadableCopyPenalty ? 3 : 0);
 		Gameworld.GetCheck(CheckType.InkTattooCheck).Check(CharacterOwner,
-			(Difficulty)(int)(Tattoo.TattooistSkill / Gameworld.GetStaticDouble("TattooSkillPerDifficulty")),
+			difficulty,
 			TargetCharacter);
 		TargetCharacter.Body.TattoosChanged = true;
 		if (Tattoo.CompletionPercentage > 1.0)
@@ -163,7 +165,7 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
 					$"@ stop|stops inking $2 on $1's {Tattoo.Bodypart.FullDescription()} because #0 don't|doesn't have enough ink.",
 					CharacterOwner, CharacterOwner, Target,
 					new DummyPerceivable(
-						perceiver => Tattoo.ShortDescription.SubstituteWrittenLanguage(perceiver, Gameworld)
+						perceiver => Tattoo.ShortDescriptionFor(perceiver)
 						                   .Colour(Telnet.BoldOrange), perceiver => string.Empty))));
 				Owner.RemoveEffect(this, true);
 				break;
@@ -178,7 +180,7 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
 				new Emote($"@ continue|continues inking $2 on $1's {Tattoo.Bodypart.FullDescription()}.",
 					CharacterOwner, CharacterOwner, Target,
 					new DummyPerceivable(
-						perceiver => Tattoo.ShortDescription.SubstituteWrittenLanguage(perceiver, Gameworld)
+						perceiver => Tattoo.ShortDescriptionFor(perceiver)
 						                   .Colour(Telnet.BoldOrange), perceiver => string.Empty)),
 				flags: OutputFlags.Insigificant));
 			ExpiryCount = 0;

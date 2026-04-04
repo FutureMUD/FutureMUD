@@ -10,6 +10,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Decorators;
 using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
+using MudSharp.Communication.Language;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -25,6 +26,9 @@ namespace MudSharp.Body.Disfigurements;
 
 public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 {
+	private static readonly Regex TemplateTextSlotRegex = new(@"\$template\{(?<name>[^}]+)\}",
+		RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
 	public TattooTemplate(MudSharp.Models.DisfigurementTemplate dbitem, IFuturemud gameworld) : base(dbitem, gameworld)
 	{
 		var root = XElement.Parse(dbitem.Definition);
@@ -56,6 +60,10 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			root.Element("OverrideCharacteristicPlain")?.Value ??
 			root.Element("OverrideCharcteristicPlain")?.Value;
 		_overrideCharacteristicWith = root.Element("OverrideCharacteristicWith")?.Value;
+		foreach (var element in root.Element("TextSlots")?.Elements("TextSlot") ?? Enumerable.Empty<XElement>())
+		{
+			_textSlots.Add(new TattooTemplateTextSlot(element, Gameworld));
+		}
 	}
 
 
@@ -80,6 +88,10 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			new XElement("Shapes",
 				from shape in _permittedShapes
 				select new XElement("Shape", shape.Id)
+			),
+			new XElement("TextSlots",
+				from slot in _textSlots
+				select slot.SaveToXml()
 			)
 		);
 	}
@@ -104,6 +116,9 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 		_inkColours = new DoubleCounter<IColour>(rhs._inkColours);
 		_overrideCharacteristicWith = rhs._overrideCharacteristicWith;
 		_overrideCharacteristicPlain = rhs._overrideCharacteristicPlain;
+		_textSlots.AddRange(rhs._textSlots.Select(x => new TattooTemplateTextSlot(x.Name, x.MaximumLength,
+			x.RequiredCustomText, x.DefaultLanguage, x.DefaultScript, x.DefaultStyle, x.DefaultColour,
+			x.DefaultMinimumSkill, x.DefaultText, x.DefaultAlternateText)));
 		Changed = true;
 	}
 
@@ -170,6 +185,8 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			$"Permitted Bodyparts: {(_permittedShapes.Any() ? _permittedShapes.Select(x => x.Name.ColourValue()).ListToString() : "Any".ColourValue())}");
 		sb.AppendLine(
 			$"Required Inks: {_inkColours.Select(x => $"{x.Key.Name} [w{x.Value.ToString("N2")}]".ColourValue()).ListToString()}");
+		sb.AppendLine(
+			$"Text Slots: {(_textSlots.Any() ? _textSlots.Select(DescribeTextSlotForShow).ListToString() : "None".Colour(Telnet.Red))}");
 		if (HasSpecialTattooCharacteristicOverride)
 		{
 			sb.AppendLine($"Override Characteristic (Plain): {_overrideCharacteristicPlain.ColourCharacter()}");
@@ -202,6 +219,17 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 	#3chargen [<amount> <resource>]#0 - toggles tattoo selectable in chargen. Admins only.
 	#3prog <prog>#0 - sets the prog that controls appearance in chargen. Admins only.
 	#3chargenprog <prog>#0 - sets the chargen prog. Admins only.
+	#3textslot add <name> <maxlength> [required]#0 - adds a named tattoo text slot
+	#3textslot remove <name>#0 - removes a named tattoo text slot
+	#3textslot <name> required <true|false>#0 - sets whether the slot requires custom text
+	#3textslot <name> maxlength <length>#0 - sets the slot's max text length
+	#3textslot <name> language <language>#0 - sets the default fallback language
+	#3textslot <name> script <script>#0 - sets the default fallback script
+	#3textslot <name> style <style>[,<style>...]#0 - sets the default fallback writing style flags
+	#3textslot <name> colour <colour>#0 - sets the default fallback writing colour
+	#3textslot <name> minskill <value>#0 - sets the default fallback minimum reading skill
+	#3textslot <name> text <text>#0 - sets the default fallback readable text
+	#3textslot <name> alt <text>#0 - sets the default fallback unreadable text
 	#3override ""<plain>"" ""<with>""#0 - special override descriptions for sdescs, both a plain form and a with form.";
 
 	/// <summary>Handles OLC Building related commands from an Actor</summary>
@@ -246,6 +274,10 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			case "chargen prog":
 			case "chargen_prog":
 				return BuildingCommandChargenProg(actor, command);
+			case "textslot":
+			case "text":
+			case "slot":
+				return BuildingCommandTextSlot(actor, command);
 		}
 
 		return base.BuildingCommand(actor, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"));
@@ -573,6 +605,11 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			return false;
 		}
 
+		if (GetInvalidTextSlotReferences().Any())
+		{
+			return false;
+		}
+
 		return base.CanSubmit();
 	}
 
@@ -593,6 +630,13 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 		{
 			return
 				"You must change the full description of this tattoo to something different to the default placeholder.";
+		}
+
+		var invalidSlots = GetInvalidTextSlotReferences().ToList();
+		if (invalidSlots.Any())
+		{
+			return
+				$"This tattoo references undefined text slots: {invalidSlots.Select(x => x.ColourName()).ListToString()}.";
 		}
 
 		return base.WhyCannotSubmit();
@@ -637,6 +681,7 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 	protected override string DefaultFullDescription => "This is a generic tattoo, which is not yet described.";
 
 	private readonly List<IBodypartShape> _permittedShapes = new();
+	private readonly List<TattooTemplateTextSlot> _textSlots = new();
 	public override IEnumerable<IBodypartShape> BodypartShapes => _permittedShapes;
 
 	private IKnowledge _requiredKnowledgeToTattoo;
@@ -664,10 +709,11 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 		return CanSeeTattooInList(character) && character.GetTrait(TattooistTrait)?.Value >= _minimumSkill;
 	}
 
-	public ITattoo ProduceTattoo(ICharacter tattooist, ICharacter target, IBodypart bodypart)
+	public ITattoo ProduceTattoo(ICharacter tattooist, ICharacter target, IBodypart bodypart,
+		IEnumerable<ITattooTextValue> textValues = null, bool hasUnreadableCopyPenalty = false)
 	{
 		return new Tattoo(this, Gameworld, tattooist, tattooist.GetTrait(TattooistTrait)?.Value ?? 0.0, bodypart,
-			tattooist.Location.DateTime());
+			tattooist.Location.DateTime(), textValues, hasUnreadableCopyPenalty);
 	}
 
 	public IInventoryPlan GetInkPlan(ICharacter tattooist)
@@ -740,5 +786,411 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 		}
 	}
 
+	public IEnumerable<ITattooTemplateTextSlot> TextSlots => _textSlots;
+	public bool HasRequiredTextSlots => _textSlots.Any(x => x.RequiredCustomText);
+
+	public ITattooTemplateTextSlot GetTextSlot(string name)
+	{
+		return _textSlots.FirstOrDefault(x => x.Name.EqualTo(name));
+	}
+
+	public string ResolveDescription(string description, IReadOnlyDictionary<string, ITattooTextValue> textValues)
+	{
+		if (string.IsNullOrEmpty(description))
+		{
+			return string.Empty;
+		}
+
+		return TemplateTextSlotRegex.Replace(description, match =>
+		{
+			var slot = _textSlots.FirstOrDefault(x => x.Name.EqualTo(match.Groups["name"].Value));
+			if (slot == null)
+			{
+				return match.Value;
+			}
+
+			if (textValues != null &&
+			    textValues.TryGetValue(slot.Name, out var value) &&
+			    value != null)
+			{
+				return (value as TattooTextValue ?? new TattooTextValue(value.Name, value.Language, value.Script,
+					value.Style, value.Colour, value.MinimumSkill, value.Text, value.AlternateText,
+					value.IsCopiedFromSource, value.WasCopiedWithoutUnderstanding)).ToWritingMarkup();
+			}
+
+			return new TattooTextValue(slot).ToWritingMarkup();
+		});
+	}
+
+	public string ResolveShortDescription(IReadOnlyDictionary<string, ITattooTextValue> textValues, IPerceiver voyeur)
+	{
+		return ResolveDescription(ShortDescription, textValues).SubstituteWrittenLanguage(voyeur, Gameworld);
+	}
+
+	public string ResolveFullDescription(IReadOnlyDictionary<string, ITattooTextValue> textValues, IPerceiver voyeur)
+	{
+		return ResolveDescription(FullDescription, textValues).SubstituteWrittenLanguage(voyeur, Gameworld);
+	}
+
 	#endregion
+
+	private IEnumerable<string> GetInvalidTextSlotReferences()
+	{
+		return GetTextSlotReferences()
+			.Where(x => !_textSlots.Any(y => y.Name.EqualTo(x)))
+			.Distinct(StringComparer.InvariantCultureIgnoreCase);
+	}
+
+	private IEnumerable<string> GetTextSlotReferences()
+	{
+		return TemplateTextSlotRegex.Matches($"{ShortDescription}\n{FullDescription}")
+			.OfType<Match>()
+			.Select(x => x.Groups["name"].Value);
+	}
+
+	private string DescribeTextSlotForShow(TattooTemplateTextSlot slot)
+	{
+		var fallbackText = string.IsNullOrWhiteSpace(slot.DefaultText) ? "None".ColourError() : slot.DefaultText.ColourValue();
+		return
+			$"{slot.Name.ColourName()} (max {slot.MaximumLength.ToString("N0").ColourValue()}, {(slot.RequiredCustomText ? "required".ColourError() : "optional".ColourValue())}, fallback {fallbackText})";
+	}
+
+	private bool BuildingCommandTextSlot(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			var rows = _textSlots.Select(x => new[]
+			{
+				x.Name.ColourName(),
+				x.MaximumLength.ToString("N0", actor).ColourValue(),
+				x.RequiredCustomText.ToColouredString(),
+				x.DefaultLanguage?.Name.ColourName() ?? "None".ColourError(),
+				x.DefaultScript?.Name.ColourName() ?? "None".ColourError(),
+				string.IsNullOrWhiteSpace(x.DefaultText) ? "None".ColourError() : x.DefaultText.ColourValue()
+			});
+			actor.OutputHandler.Send(StringUtilities.GetTextTable(rows,
+				new[] { "Name", "Max", "Required", "Language", "Script", "Fallback Text" }, actor,
+				Telnet.Cyan));
+			return false;
+		}
+
+		var firstArgument = command.PopSpeech();
+		if (firstArgument.EqualTo("add"))
+		{
+			return BuildingCommandTextSlotAdd(actor, command);
+		}
+
+		if (firstArgument.EqualToAny("remove", "delete"))
+		{
+			return BuildingCommandTextSlotRemove(actor, command);
+		}
+
+		var slot = _textSlots.FirstOrDefault(x => x.Name.EqualTo(firstArgument));
+		if (slot == null)
+		{
+			actor.OutputHandler.Send("There is no such tattoo text slot.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Slot {slot.Name.ColourName()}: max {slot.MaximumLength.ToString("N0", actor).ColourValue()}, required {slot.RequiredCustomText.ToColouredString()}, language {slot.DefaultLanguage?.Name.ColourName() ?? "None".ColourError()}, script {slot.DefaultScript?.Name.ColourName() ?? "None".ColourError()}, style {slot.DefaultStyle.Describe().ColourValue()}, colour {slot.DefaultColour?.Name.ColourName() ?? "None".ColourError()}, minimum skill {slot.DefaultMinimumSkill.ToString("N2", actor).ColourValue()}, text {slot.DefaultText.ColourValue()}, alternate {slot.DefaultAlternateText.ColourValue()}.");
+			return false;
+		}
+
+		return BuildingCommandTextSlotEdit(actor, slot, command);
+	}
+
+	private bool BuildingCommandTextSlotAdd(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give the new tattoo text slot?");
+			return false;
+		}
+
+		var name = command.PopSpeech();
+		if (!Regex.IsMatch(name, @"^[a-z][a-z0-9_]*$", RegexOptions.IgnoreCase))
+		{
+			actor.OutputHandler.Send(
+				"Text slot names must start with a letter and contain only letters, numbers, or underscores.");
+			return false;
+		}
+
+		if (_textSlots.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send("There is already a text slot with that name.");
+			return false;
+		}
+
+		if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var maximumLength) || maximumLength <= 0)
+		{
+			actor.OutputHandler.Send("You must specify a positive maximum length for the slot.");
+			return false;
+		}
+
+		var required = false;
+		if (!command.IsFinished)
+		{
+			if (!bool.TryParse(command.PopSpeech(), out required))
+			{
+				actor.OutputHandler.Send("If you specify whether the slot is required, it must be true or false.");
+				return false;
+			}
+		}
+
+		_textSlots.Add(new TattooTemplateTextSlot(name, maximumLength, required, null, null,
+			WritingStyleDescriptors.None, null, 0.0, string.Empty, string.Empty));
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This tattoo now has a text slot called {name.ColourName()} with a max length of {maximumLength.ToString("N0", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotRemove(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which tattoo text slot do you want to remove?");
+			return false;
+		}
+
+		var slot = _textSlots.FirstOrDefault(x => x.Name.EqualTo(command.PopSpeech()));
+		if (slot == null)
+		{
+			actor.OutputHandler.Send("There is no such tattoo text slot.");
+			return false;
+		}
+
+		var references = GetTextSlotReferences().Where(x => x.EqualTo(slot.Name)).ToList();
+		if (references.Any())
+		{
+			actor.OutputHandler.Send(
+				$"You cannot remove the {slot.Name.ColourName()} slot while it is still referenced by $template{{{slot.Name}}} in this tattoo's descriptions.");
+			return false;
+		}
+
+		_textSlots.Remove(slot);
+		Changed = true;
+		actor.OutputHandler.Send($"This tattoo no longer has a text slot called {slot.Name.ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotEdit(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant())
+		{
+			case "required":
+				return BuildingCommandTextSlotRequired(actor, slot, command);
+			case "maxlength":
+			case "length":
+			case "max":
+				return BuildingCommandTextSlotMaxLength(actor, slot, command);
+			case "language":
+				return BuildingCommandTextSlotLanguage(actor, slot, command);
+			case "script":
+				return BuildingCommandTextSlotScript(actor, slot, command);
+			case "style":
+				return BuildingCommandTextSlotStyle(actor, slot, command);
+			case "colour":
+			case "color":
+				return BuildingCommandTextSlotColour(actor, slot, command);
+			case "minskill":
+			case "minimumskill":
+			case "skill":
+				return BuildingCommandTextSlotMinimumSkill(actor, slot, command);
+			case "text":
+				slot.DefaultText = command.SafeRemainingArgument;
+				Changed = true;
+				actor.OutputHandler.Send(
+					$"The {slot.Name.ColourName()} slot now defaults to the text {slot.DefaultText.ColourValue()}.");
+				return true;
+			case "alt":
+			case "alternate":
+				slot.DefaultAlternateText = command.SafeRemainingArgument;
+				Changed = true;
+				actor.OutputHandler.Send(
+					$"The {slot.Name.ColourName()} slot now defaults to alternate text {slot.DefaultAlternateText.ColourValue()}.");
+				return true;
+		}
+
+		actor.OutputHandler.Send(
+			"You can edit text slots with REQUIRED, MAXLENGTH, LANGUAGE, SCRIPT, STYLE, COLOUR, MINSKILL, TEXT, or ALT.");
+		return false;
+	}
+
+	private bool BuildingCommandTextSlotRequired(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished || !bool.TryParse(command.PopSpeech(), out var value))
+		{
+			actor.OutputHandler.Send("You must specify whether the slot is required as true or false.");
+			return false;
+		}
+
+		slot.RequiredCustomText = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot will {(value ? "now".ColourValue() : "no longer".ColourError())} require custom text.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotMaxLength(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var value) || value <= 0)
+		{
+			actor.OutputHandler.Send("You must specify a positive maximum text length.");
+			return false;
+		}
+
+		slot.MaximumLength = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot now has a maximum length of {value.ToString("N0", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotLanguage(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which language should be the default fallback for this slot?");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualToAny("none", "clear"))
+		{
+			slot.DefaultLanguage = null;
+			Changed = true;
+			actor.OutputHandler.Send($"The {slot.Name.ColourName()} text slot no longer has a fallback language.");
+			return true;
+		}
+
+		var language = long.TryParse(command.PopSpeech(), out var value)
+			? Gameworld.Languages.Get(value)
+			: Gameworld.Languages.GetByName(command.Last);
+		if (language == null)
+		{
+			actor.OutputHandler.Send("There is no such language.");
+			return false;
+		}
+
+		slot.DefaultLanguage = language;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot now uses {language.Name.ColourName()} as its fallback language.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotScript(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which script should be the default fallback for this slot?");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualToAny("none", "clear"))
+		{
+			slot.DefaultScript = null;
+			Changed = true;
+			actor.OutputHandler.Send($"The {slot.Name.ColourName()} text slot no longer has a fallback script.");
+			return true;
+		}
+
+		var script = long.TryParse(command.PopSpeech(), out var value)
+			? Gameworld.Scripts.Get(value)
+			: Gameworld.Scripts.GetByName(command.Last);
+		if (script == null)
+		{
+			actor.OutputHandler.Send("There is no such script.");
+			return false;
+		}
+
+		slot.DefaultScript = script;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot now uses {script.Name.ColourName()} as its fallback script.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotStyle(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"What writing style flags should be the fallback for this slot? Use a comma-separated list, or NONE.");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualToAny("none", "clear"))
+		{
+			slot.DefaultStyle = WritingStyleDescriptors.None;
+			Changed = true;
+			actor.OutputHandler.Send($"The {slot.Name.ColourName()} text slot now has no fallback writing styles.");
+			return true;
+		}
+
+		var style = WritingStyleDescriptors.None;
+		foreach (var item in command.SafeRemainingArgument.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+		{
+			foreach (var subItem in item.Split(',', StringSplitOptions.RemoveEmptyEntries))
+			{
+				style |= WritingStyleDescriptors.None.Parse(subItem.Trim());
+			}
+		}
+
+		slot.DefaultStyle = style;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot now uses {style.Describe().ColourValue()} as its fallback style.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotColour(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which colour should be the default fallback for this slot?");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualToAny("none", "clear"))
+		{
+			slot.DefaultColour = null;
+			Changed = true;
+			actor.OutputHandler.Send($"The {slot.Name.ColourName()} text slot no longer has a fallback colour.");
+			return true;
+		}
+
+		var colour = long.TryParse(command.PopSpeech(), out var value)
+			? Gameworld.Colours.Get(value)
+			: Gameworld.Colours.GetByName(command.Last);
+		if (colour == null)
+		{
+			actor.OutputHandler.Send("There is no such colour.");
+			return false;
+		}
+
+		slot.DefaultColour = colour;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot now uses {colour.Name.ColourName()} as its fallback colour.");
+		return true;
+	}
+
+	private bool BuildingCommandTextSlotMinimumSkill(ICharacter actor, TattooTemplateTextSlot slot, StringStack command)
+	{
+		if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var value) || value < 0.0)
+		{
+			actor.OutputHandler.Send("You must specify a minimum skill of zero or greater.");
+			return false;
+		}
+
+		slot.DefaultMinimumSkill = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {slot.Name.ColourName()} text slot now has a fallback minimum skill of {value.ToString("N2", actor).ColourValue()}.");
+		return true;
+	}
 }

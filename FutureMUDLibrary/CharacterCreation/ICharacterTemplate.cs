@@ -54,6 +54,7 @@ namespace MudSharp.CharacterCreation {
 		Alignment Handedness { get; }
 		List<IBodypart> MissingBodyparts { get; }
 		List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; }
+		List<ISelectedTattoo> SelectedTattoos { get; }
 		List<IGameItemProto> SelectedProstheses { get; }
 		IHealthStrategy? HealthStrategy { get; }
 

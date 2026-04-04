@@ -833,7 +833,7 @@ public partial class Body
 				case 3:
 				case 4:
 					sb.AppendLine(
-						$"{gender.Subjective(true)} {gender.Has()} {visibleTattoos.Select(x => $"{x.ShortDescription.Colour(Telnet.BoldOrange)} on {gender.Possessive()} {x.Bodypart.FullDescription()}").ListToString()}."
+						$"{gender.Subjective(true)} {gender.Has()} {visibleTattoos.Select(x => $"{x.ShortDescriptionFor(Actor).Colour(Telnet.BoldOrange)} on {gender.Possessive()} {x.Bodypart.FullDescription()}").ListToString()}."
 							.Wrap(InnerLineFormatLength));
 					break;
 				case 5:
@@ -852,7 +852,7 @@ public partial class Body
 					var biggest = visibleTattoos.OrderByDescending(x => x.Size)
 												.ThenByDescending(x => x.CompletionPercentage).Take(3).ToList();
 					sb.AppendLine(
-						$"{gender.Subjective(true)} {gender.Has()} {biggest.Select(x => $"{x.ShortDescription.Colour(Telnet.BoldOrange)} on {gender.Possessive()} {x.Bodypart.FullDescription()}").ListToString()}, {quantityDesc}."
+						$"{gender.Subjective(true)} {gender.Has()} {biggest.Select(x => $"{x.ShortDescriptionFor(Actor).Colour(Telnet.BoldOrange)} on {gender.Possessive()} {x.Bodypart.FullDescription()}").ListToString()}, {quantityDesc}."
 							.Wrap(InnerLineFormatLength));
 					break;
 			}
@@ -1007,11 +1007,11 @@ public partial class Body
 		foreach (var tattoo in visibleTattoos)
 		{
 			sb.AppendLine(
-				$"\t{tattoo.ShortDescription.SubstituteWrittenLanguage(Actor, Gameworld).Proper().Colour(Telnet.BoldOrange)} on the {tattoo.Bodypart.FullDescription()}{(tattoo.TimeOfInscription.Calendar.CurrentDateTime - tattoo.TimeOfInscription > TimeSpan.FromDays(14) ? "" : " (fresh)")}");
+				$"\t{tattoo.ShortDescriptionFor(Actor).Proper().Colour(Telnet.BoldOrange)} on the {tattoo.Bodypart.FullDescription()}{(tattoo.TimeOfInscription.Calendar.CurrentDateTime - tattoo.TimeOfInscription > TimeSpan.FromDays(14) ? "" : " (fresh)")}");
 			if (forBodypart != null)
 			{
 				sb.AppendLine(
-					$"\n{tattoo.FullDescription.SubstituteWrittenLanguage(Actor, Gameworld).Wrap(Actor.InnerLineFormatLength, "\t\t")}");
+					$"\n{tattoo.FullDescriptionFor(Actor).Wrap(Actor.InnerLineFormatLength, "\t\t")}");
 			}
 		}
 

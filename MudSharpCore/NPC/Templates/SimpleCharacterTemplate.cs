@@ -71,6 +71,17 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 			where tuple.Item1 is not null && tuple.Item2 is not null
 			select tuple
 		);
+		SelectedTattoos = new(
+			from item in definition.Element("SelectedTattoos")?.Elements("Tattoo") ?? Enumerable.Empty<XElement>()
+			let tattoo = Gameworld.DisfigurementTemplates.Get(long.Parse(item.Attribute("template").Value)) as ITattooTemplate
+			let bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(item.Attribute("bodypart").Value))
+			where tattoo is not null && bodypart is not null
+			select (ISelectedTattoo)new SelectedTattoo(tattoo, bodypart,
+				item.Element("TextValues")?.Elements("TextValue")
+					.Select(x => new TattooTextValue(x, Gameworld))
+					.ToDictionary(x => x.Name, x => (ITattooTextValue)x, StringComparer.InvariantCultureIgnoreCase) ??
+				new Dictionary<string, ITattooTextValue>(StringComparer.InvariantCultureIgnoreCase))
+		);
 		SelectedEntityDescriptionPatterns = new(
 			from item in definition.Element("SelectedEntityDescriptionPatterns").Elements("Pattern")
 			let pattern = Gameworld.EntityDescriptionPatterns.Get(long.Parse(item.Value))
@@ -160,6 +171,17 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 				select new XElement("Disfigurement",
 					new XAttribute("template", item.Disfigurement.Id),
 					new XAttribute("bodypart", item.Bodypart.Id)
+				)
+			),
+			new XElement("SelectedTattoos",
+				from item in SelectedTattoos
+				select new XElement("Tattoo",
+					new XAttribute("template", item.Tattoo.Id),
+					new XAttribute("bodypart", item.Bodypart.Id),
+					new XElement("TextValues",
+						from value in item.TextValues.Values.OfType<TattooTextValue>()
+						select value.SaveToXml()
+					)
 				)
 			),
 			new XElement("SelectedEntityDescriptionPatterns",
@@ -258,6 +280,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 	public List<IBodypart> MissingBodyparts { get; init; }
 
 	public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; init; }
+	public List<ISelectedTattoo> SelectedTattoos { get; init; } = [];
 
 	public List<IGameItemProto> SelectedProstheses { get; init; }
 

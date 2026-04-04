@@ -6,6 +6,7 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Body;
+using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
@@ -195,6 +196,103 @@ public class SeederDisfigurementTemplateUtilityTests
 		Assert.IsNotNull(chargenCost);
 		Assert.AreEqual("20", chargenCost.Attribute("resource")?.Value);
 		Assert.AreEqual("3", chargenCost.Attribute("amount")?.Value);
+	}
+
+	[TestMethod]
+	public void SeedTemplates_TattooDefinitions_PersistTextSlotDefinitions()
+	{
+		using var context = BuildContext();
+		var body = SeedMinimalBodyContext(context);
+		context.TraitDefinitions.Add(new MudSharp.Models.TraitDefinition
+		{
+			Id = 50,
+			Name = "Language Skill",
+			Type = (int)MudSharp.Body.Traits.TraitType.Skill,
+			DecoratorId = 0,
+			TraitGroup = "Skills",
+			ChargenBlurb = string.Empty,
+			Alias = "languageskill",
+			ValueExpression = "value"
+		});
+		context.LanguageDifficultyModels.Add(new LanguageDifficultyModels
+		{
+			Id = 51,
+			Name = "Standard",
+			Type = "simple",
+			Definition = "<Definition />"
+		});
+		context.Knowledges.Add(new Knowledge
+		{
+			Id = 52,
+			Name = "Letters",
+			Description = "Letters",
+			LongDescription = "Letters",
+			Type = "Language",
+			Subtype = "Script"
+		});
+		context.Languages.Add(new MudSharp.Models.Language
+		{
+			Id = 53,
+			Name = "English",
+			UnknownLanguageDescription = "an unknown language",
+			LanguageObfuscationFactor = 1.0,
+			LinkedTraitId = 50,
+			DifficultyModel = 51
+		});
+		context.Scripts.Add(new MudSharp.Models.Script
+		{
+			Id = 54,
+			Name = "Latin",
+			KnownScriptDescription = "Latin script",
+			UnknownScriptDescription = "unknown script",
+			KnowledgeId = 52,
+			DocumentLengthModifier = 1.0,
+			InkUseModifier = 1.0
+		});
+		context.Colours.Add(new Colour
+		{
+			Id = 55,
+			Name = "Black",
+			Fancy = "black"
+		});
+		context.SaveChanges();
+
+		var definition = new SeederTattooTemplateDefinition(
+			"Memorial Banner",
+			"a heart with a banner reading $template{banner}",
+			"A heart-and-banner tattoo carries the words $template{banner}.",
+			InkColours: new Dictionary<string, double> { ["Black"] = 1.0 },
+			TextSlots:
+			[
+				new SeederTattooTextSlotDefinition(
+					"banner",
+					10,
+					DefaultLanguageName: "English",
+					DefaultScriptName: "Latin",
+					DefaultText: "Mom",
+					RequiredCustomText: true,
+					DefaultStyle: WritingStyleDescriptors.Cursive,
+					DefaultColourName: "Black",
+					DefaultMinimumSkill: 35.0,
+					DefaultAlternateText: "ornate lettering")
+			]);
+
+		SeederDisfigurementTemplateUtilities.SeedTemplates(context, body, tattooDefinitions: [definition]);
+
+		var template = context.DisfigurementTemplates.Single();
+		var definitionXml = XElement.Parse(template.Definition);
+		var slot = definitionXml.Element("TextSlots")?.Element("TextSlot");
+		Assert.IsNotNull(slot, "Tattoo text slots should be persisted into the tattoo definition XML.");
+		Assert.AreEqual("banner", slot.Attribute("name")?.Value);
+		Assert.AreEqual("10", slot.Attribute("maxlength")?.Value);
+		Assert.AreEqual("true", slot.Attribute("required")?.Value);
+		Assert.AreEqual("53", slot.Element("Language")?.Value);
+		Assert.AreEqual("54", slot.Element("Script")?.Value);
+		Assert.AreEqual(((int)WritingStyleDescriptors.Cursive).ToString(), slot.Element("Style")?.Value);
+		Assert.AreEqual("55", slot.Element("Colour")?.Value);
+		Assert.AreEqual("35", slot.Element("MinimumSkill")?.Value);
+		Assert.AreEqual("Mom", slot.Element("Text")?.Value);
+		Assert.AreEqual("ornate lettering", slot.Element("AlternateText")?.Value);
 	}
 
 	[TestMethod]

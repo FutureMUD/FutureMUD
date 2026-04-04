@@ -131,6 +131,21 @@ public static class SeederMetadataRegistry
 				UpdateSummary: "Existing storyboard XML is preserved when a matching storyboard already exists; reruns focus on repairing missing stock screens and dependencies.",
 				OwnershipSummary: "Chargen storyboards are tracked by stage and screen type, and helper progs are tracked by function name."
 			),
+			nameof(StockMeritsSeeder) => new SeederMetadata(
+				SeederRepeatabilityMode.Idempotent,
+				SeederUpdateCapability.RepairExisting,
+				[
+					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+					Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human")),
+					Requirement("Chargen must already include a merit or quirk selection screen.", context =>
+						context.ChargenScreenStoryboards.Any(x =>
+							x.ChargenStage == (int)MudSharp.CharacterCreation.ChargenStage.SelectMerits &&
+							(x.ChargenType == "MeritPicker" || x.ChargenType == "QuirkPicker")))
+				],
+				RerunSummary: "Reruns reuse the stock merits, flaws, and helper FutureProgs by canonical names.",
+				UpdateSummary: "Reruns repair missing stock merits, flaws, and tag-driven helper progs without changing chargen mode or chargen-resource costs.",
+				OwnershipSummary: "Stock merit content is tracked by stable merit names and helper FutureProg function names."
+			),
 			nameof(CultureSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Idempotent,
 				SeederUpdateCapability.RepairExisting,
@@ -156,7 +171,8 @@ public static class SeederMetadataRegistry
 					Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
 				],
 				RerunSummary: "This package can be rerun to install missing stock kickstart content without duplicating its tracked packages.",
-				UpdateSummary: "Current reruns primarily install missing stock records rather than repairing edited ones."
+				UpdateSummary: "Current reruns primarily install missing stock records rather than repairing edited ones.",
+				OwnershipSummary: "Kickstart now owns stock items, AI, builder tags, ranged covers, hints, and dream content; core terrain foundations are seeded separately."
 			),
 			nameof(AIStorytellerSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Idempotent,

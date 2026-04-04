@@ -101,14 +101,6 @@ public partial class UsefulSeeder : IDatabaseSeeder
                     if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
                     return (false, "Invalid answer");
                 }),
-            ("terrain",
-                "Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, questions) => context.Terrains.Count() <= 1,
-                (answer, context) =>
-                {
-                        if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                        return (false, "Invalid answer");
-                }),
             ("covers",
                 "Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.RangedCovers.Count() <= 1,
@@ -143,7 +135,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
                 }),
             ("autobuilder",
                 "Do you want to install an auto builder that can generate random areas with randomised room descriptions?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, questions) => context.Terrains.Count() > 1 || questions["terrain"].EqualToAny("yes", "y"),
+                (context, questions) => context.Terrains.Count() > 1,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -209,8 +201,6 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
         if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
 
-        if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
-
         if (questionAnswers["covers"].EqualToAny("yes", "y")) SeedRangedCovers(context, errors);
 
         if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
@@ -242,7 +232,6 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
         return CombinePackageStates(
             ClassifyAiPackagePresence(context),
-            context.Terrains.Count() > 1 ? ShouldSeedResult.MayAlreadyBeInstalled : ShouldSeedResult.ReadyToInstall,
             SeederRepeatabilityHelper.ClassifyByPresence(
                 StockItemMarkers.Select(marker => context.GameItemComponentProtos.Any(x => x.Name == marker))),
             ClassifyModernPackagePresence(context),
@@ -253,12 +242,12 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
     public int SortOrder => 200;
     public string Name => "Kickstart";
-    public string Tagline => "A collection of useful items to kickstart your MUD's building";
+    public string Tagline => "A collection of useful stock items, AI, tags, covers and helpers";
 
     public string FullDescription =>
         @"This package gives options for a bunch of things that are not absolutely essential and that you might want to implement differently, but that I have already gone to the effort of having set up and think you might like to use.
 
-This includes things like some useful game item components, AI templates and the like.
+This includes things like useful game item components, AI templates, helper tags, ranged covers, newbie hints and other building helpers.
 
 Inside the package there are a few numbered #D""Core Item Packages""#3. The reason for this is that there have been updates to the useful seeder since its first release, and these sub-packages were for earlier adopters to update their existing MUDs with. I recommend that you install all of the Core Item Packages as they are appropriate for any MUD in nearly any setting.";
 
@@ -375,11 +364,12 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         return AddGameItemComponent(_context, component);
     }
 
-    private void SeedTerrain(FuturemudDatabaseContext context, ICollection<string> errors)
+    internal static void SeedStockTerrainCatalogue(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tagLookup,
+        ICollection<string>? errors = null)
     {
         if (context.Terrains.Count() > 1)
         {
-            errors.Add("Terrains were already installed, so did not add any new data.");
+            errors?.Add("Terrains were already installed, so did not add any new data.");
             return;
         }
 
@@ -404,11 +394,12 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                 InfectionVirulence = (int)Difficulty.Normal,
                 ForagableProfileId = 0,
                 DefaultTerrain = isdefault,
+                TerrainANSIColour = "7",
                 TerrainEditorColour = $"#{editorColour.R:X2}{editorColour.G:X2}{editorColour.B:X2}",
                 TerrainEditorText = editorText,
                 DefaultCellOutdoorsType = (int)outdoorsType,
                 TagInformation = tags is not null ?
-                    tags.SelectNotNull(x => _tags[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() :
+                    tags.SelectNotNull(x => tagLookup[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() :
                     ""
             });
             context.SaveChanges();

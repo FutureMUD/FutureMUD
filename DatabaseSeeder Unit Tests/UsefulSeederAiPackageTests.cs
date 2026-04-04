@@ -90,13 +90,13 @@ public class UsefulSeederAiPackageTests
 		return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
 			["ai"] = "yes",
-			["terrain"] = "no",
 			["covers"] = "no",
 			["items"] = "no",
 			["modernitems"] = "no",
 			["tags"] = "no",
 			["autobuilder"] = "no",
-			["hints"] = "no"
+			["hints"] = "no",
+			["dreams"] = "no"
 		};
 	}
 

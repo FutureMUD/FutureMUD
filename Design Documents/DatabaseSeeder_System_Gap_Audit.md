@@ -35,6 +35,7 @@ The current registered seeder surface in `DatabaseSeeder/Seeders` is:
 - `ClanSeeder`
 - `CombatSeeder`
 - `ChargenSeeder`
+- `StockMeritsSeeder`
 - `CultureSeeder`
 - `ArenaSeeder`
 - `UsefulSeeder`
@@ -63,7 +64,7 @@ Each system is classified with the following fields:
 ### Core Data
 Fully operational games need a baseline of canonical static strings, bootstrap defaults, and stock engine records that other systems expect to exist.
 
-- `Current State`: `CoreDataSeeder` seeds foundational records such as the stock item health strategy and other core bootstrap data.
+- `Current State`: `CoreDataSeeder` seeds foundational records such as the stock item health strategy, the stock terrain catalogue, and the terrain-tag taxonomy that terrain-aware packages depend on.
 - `Runtime Breadth vs Seeder Breadth`: the runtime surface is broader than the current seeder and includes many foundational records that other seeders still treat implicitly.
 - `Seeder Fit`: `Possible`
 - `Template Strategy`: common engine baseline only, not setting packs
@@ -109,6 +110,16 @@ Fully operational games need a playable chargen flow with resources, stages, rol
 - `Template Strategy`: multiple starter chargen packages by game style
 - `Recommended Seeder Scope`: `Near-complete baseline`
 - `Notes / Risks`: the current baseline is already useful. The main opportunity is alternative chargen packages for different genres or stricter RPI styles.
+
+### Character Merits and Flaws
+Fully operational games often need a reusable catalogue of merits and flaws so builders can offer chargen customisation without authoring every example from scratch.
+
+- `Current State`: `StockMeritsSeeder` now provides a mode-neutral stock catalogue of merits and flaws plus reusable tag-driven helper FutureProgs for terrain- and darkness-based applicability.
+- `Runtime Breadth vs Seeder Breadth`: the runtime merit system is much broader and includes highly setting-specific, anatomy-specific, or magic-specific cases that should remain builder-authored or live in optional dependency packages.
+- `Seeder Fit`: `Strong`
+- `Template Strategy`: one broad baseline catalogue plus optional genre or setting packs later
+- `Recommended Seeder Scope`: `Template Library`
+- `Notes / Risks`: the stock package should stay focused on clear builder-facing exemplars with stable ownership. It should avoid forcing chargen pricing or mode decisions, and it should skip merit types that depend on bespoke body layouts, specific drugs, or magic ecosystems unless those dependencies become stock packages too.
 
 ### Cultures, Languages, Ethnicities, and Heritages
 Fully operational games need at least one coherent naming, culture, language, and ethnicity ecosystem so chargen and race presentation are usable.

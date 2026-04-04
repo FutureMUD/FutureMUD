@@ -31,27 +31,6 @@ namespace DatabaseSeeder.Seeders
         private void SeedTags(FuturemudDatabaseContext context, ICollection<string> errors)
         {
             _tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-            // Terrain
-            AddTag(context, "Terrain", "");
-            AddTag(context, "Wild", "Terrain");
-            AddTag(context, "Human Influenced", "Terrain");
-            AddTag(context, "Urban", "Human Influenced");
-            AddTag(context, "Rural", "Human Influenced");
-            AddTag(context, "Public", "Urban");
-            AddTag(context, "Private", "Urban");
-            AddTag(context, "Commercial", "Urban");
-            AddTag(context, "Residential", "Urban");
-            AddTag(context, "Administrative", "Urban");
-            AddTag(context, "Industrial", "Urban");
-            AddTag(context, "Natural", "Urban");
-            AddTag(context, "Diggable Soil", "Terrain");
-            AddTag(context, "Foragable Clay", "Terrain");
-            AddTag(context, "Foragable Sand", "Terrain");
-            AddTag(context, "Terrestrial", "Wild");
-            AddTag(context, "Riparian", "Wild");
-            AddTag(context, "Littoral", "Wild");
-            AddTag(context, "Aquatic", "Wild");
-
             // Eras
             AddTag(context, "Era", "");
             AddTag(context, "Stone Age Era", "Era");

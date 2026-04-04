@@ -6370,8 +6370,6 @@ return IsAdmin(@ch)",
 		AddTag("Paper Product", "Manufactured Materials");
 		AddTag("Writing Product", "Materials");
 		AddTag("Gunpowder", "Materials");
-
-
 		AddTag("Liquids", "Materials");
 		AddTag("Water", "Liquids");
 		AddTag("Detergent", "Liquids");

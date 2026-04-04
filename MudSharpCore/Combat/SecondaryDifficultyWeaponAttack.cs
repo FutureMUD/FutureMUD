@@ -16,7 +16,7 @@ public class SecondaryDifficultyWeaponAttack : WeaponAttack, ISecondaryDifficult
 	protected override void LoadFromDatabase(MudSharp.Models.WeaponAttack attack)
 	{
 		base.LoadFromDatabase(attack);
-		SecondaryDifficulty = (Difficulty)int.Parse(attack.AdditionalInfo);
+		SecondaryDifficulty = (Difficulty)int.Parse(attack.AdditionalInfo ?? "5");
 	}
 
 	protected override void SeedInitialData(MudSharp.Models.WeaponAttack attack)

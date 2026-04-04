@@ -7161,7 +7161,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 	            FunctionComment = "True if the character is a type of humanoid and is a PC",
 	            ReturnType = 4,
 	            StaticType = 0,
-	            FunctionText = """SameRace(@ch.Race, ToRace("Humanoid")) and @ch.PC"""
+	            FunctionText = """return SameRace(@ch.Race, ToRace("Humanoid")) and @ch.PC"""
 	        };
 	        humanPCProg.FutureProgsParameters.Add(new FutureProgsParameter
 	        {

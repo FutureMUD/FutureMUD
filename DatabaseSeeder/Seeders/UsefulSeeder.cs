@@ -6278,7 +6278,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             """
 			var ownerid as number
 			ownerid = ifnull(getregister(@tch, "npcownerid"), 0)
-			return ownerid == @ch.Id
+			return @ownerid == @ch.Id
 			""",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"),

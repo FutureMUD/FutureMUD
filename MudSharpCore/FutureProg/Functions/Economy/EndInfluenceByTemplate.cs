@@ -23,18 +23,45 @@ namespace MudSharp.FutureProg.Functions.Economy
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"EndInfluenceByTemplate".ToLowerInvariant(),
-					new[] { ProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new EndInfluenceByTemplate(pars, gameworld),
-					new List<string> { }, // parameter names
-					new List<string> { }, // parameter help text
-					"", // help text for the function,
+					new List<string> {
+						"Market",
+						"TemplateId"
+					}, // parameter names
+					new List<string> {
+						"The market on which you wish to end the influences",
+						"The ID of the influence template you want to end"
+					}, // parameter help text
+					"Ends all matching influences on the specified market that originate from the specified template", // help text for the function,
 
-					"", // the category to which this function belongs,
+					"Markets", // the category to which this function belongs,
 
 					ProgVariableTypes.Boolean // the return type of the function
 				)
 			);
-		}
+
+            FutureProg.RegisterBuiltInFunctionCompiler(
+                new FunctionCompilerInformation(
+                    "EndInfluenceByTemplate".ToLowerInvariant(),
+                    new[] { ProgVariableTypes.Number, ProgVariableTypes.Text }, // the parameters the function takes
+                    (pars, gameworld) => new EndInfluenceByTemplate(pars, gameworld),
+                    new List<string> {
+                        "Market",
+                        "Template"
+                    }, // parameter names
+                    new List<string> {
+                        "The market on which you wish to end the influences",
+                        "The ID of the influence template you want to end"
+                    }, // parameter help text
+                    "Ends all matching influences on the specified market that originate from the specified template", // help text for the function,
+
+                    "Markets", // the category to which this function belongs,
+
+                    ProgVariableTypes.Boolean // the return type of the function
+                )
+            );
+        }
 		#endregion
 
 		#region Constructors

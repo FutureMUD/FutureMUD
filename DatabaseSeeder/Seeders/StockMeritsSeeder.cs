@@ -484,7 +484,8 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
 	{
 		return context.ChargenScreenStoryboards.Any(x =>
 			x.ChargenStage == (int)ChargenStage.SelectMerits &&
-			x.ChargenType.EqualToAny("MeritPicker", "QuirkPicker"));
+			(x.ChargenType == "MeritPicker" || x.ChargenType == "QuirkPicker")
+			);
 	}
 
 	private static void SeedHelperProgs(FuturemudDatabaseContext context)

@@ -704,6 +704,12 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			resources[resource.Key] += resource.Value;
 		}
 
+		foreach (var tattoo in chargen.SelectedTattoos)
+		foreach (var resource in tattoo.Tattoo.ChargenCosts)
+		{
+			resources[resource.Key] += resource.Value;
+		}
+
 		return resources.Select(x => (x.Key, x.Value));
 	}
 
@@ -714,13 +720,17 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 		private readonly List<IBodypart> _missingBodyparts = new();
 		private readonly List<IGameItemProto> _selectedProstheses = new();
 		private readonly List<(IScarTemplate Scar, IBodypart Bodypart)> _selectedScars = new();
-		private readonly List<(ITattooTemplate Tattoo, IBodypart Bodypart)> _selectedTattoos = new();
+		private readonly List<ISelectedTattoo> _selectedTattoos = new();
 		private List<IBodypart> _effectiveBodyparts = new();
 		private List<IScarTemplate> _filteredScars = new();
 		private List<ITattooTemplate> _filteredTattoos = new();
 		private List<IScarTemplate> _scarTemplates = new();
 		private IScarTemplate _selectedScar;
 		private ITattooTemplate _selectedTattoo;
+		private IBodypart _selectedTattooBodypart;
+		private readonly Dictionary<string, ITattooTextValue> _selectedTattooTextValues =
+			new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly Queue<ITattooTemplateTextSlot> _pendingTattooTextSlots = new();
 
 		private List<ITattooTemplate> _tattooTemplates = new();
 
@@ -728,9 +738,21 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			chargen, storyboard)
 		{
 			Storyboard = storyboard;
-			chargen.SelectedDisfigurements = new List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)>();
-			chargen.SelectedProstheses = new List<IGameItemProto>();
-			chargen.MissingBodyparts = new List<IBodypart>();
+			chargen.SelectedDisfigurements ??= new List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)>();
+			chargen.SelectedTattoos ??= new List<ISelectedTattoo>();
+			chargen.SelectedProstheses ??= new List<IGameItemProto>();
+			chargen.MissingBodyparts ??= new List<IBodypart>();
+			_missingBodyparts.AddRange(chargen.MissingBodyparts);
+			_selectedProstheses.AddRange(chargen.SelectedProstheses);
+			_selectedScars.AddRange(chargen.SelectedDisfigurements
+				.Where(x => x.Disfigurement is IScarTemplate)
+				.Select(x => ((IScarTemplate)x.Disfigurement, x.Bodypart)));
+			_selectedTattoos.AddRange(chargen.SelectedTattoos);
+			_selectedTattoos.AddRange(chargen.SelectedDisfigurements
+				.Where(x => x.Disfigurement is ITattooTemplate)
+				.Where(x => _selectedTattoos.All(y => y.Tattoo != x.Disfigurement || y.Bodypart != x.Bodypart))
+				.Select(x => (ISelectedTattoo)new SelectedTattoo((ITattooTemplate)x.Disfigurement, x.Bodypart,
+					new Dictionary<string, ITattooTextValue>(StringComparer.InvariantCultureIgnoreCase))));
 			PickerStage = DisfigurementPickerStage.MissingBodyparts;
 			CheckCurrentStage();
 
@@ -806,6 +828,9 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			{
 				case DisfigurementPickerStage.Tattoos:
 					_selectedTattoo = null;
+					_selectedTattooBodypart = null;
+					_selectedTattooTextValues.Clear();
+					_pendingTattooTextSlots.Clear();
 					_selectedTattoos.Clear();
 					_filteredTattoos.Clear();
 					_tattooTemplates.Clear();
@@ -951,17 +976,41 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			var sb = new StringBuilder();
 			if (_selectedTattoo != null)
 			{
-				sb.AppendLine($"Showing Tattoo {_selectedTattoo.ShortDescriptionForChargen.Colour(Telnet.BoldOrange)}");
+				var previewValues = (IReadOnlyDictionary<string, ITattooTextValue>)_selectedTattooTextValues;
+				sb.AppendLine(
+					$"Showing Tattoo {_selectedTattoo.ResolveShortDescription(previewValues, null).Colour(Telnet.BoldOrange)}");
 				sb.AppendLine();
 				sb.AppendLine(
-					$"{_selectedTattoo.FullDescriptionForChargen.ProperSentences().Wrap(Account.InnerLineFormatLength, "\t")}");
+					$"{_selectedTattoo.ResolveFullDescription(previewValues, null).ProperSentences().Wrap(Account.InnerLineFormatLength, "\t")}");
 				sb.AppendLine($"Size: {_selectedTattoo.Size.Describe().ColourValue()}");
-				sb.AppendLine(
-					$"Can Be Installed On: {BodypartsForTattoo(_selectedTattoo).Select(x => x.Name.Colour(Telnet.Yellow)).ListToString()}");
+				if (_selectedTattooBodypart == null)
+				{
+					sb.AppendLine(
+						$"Can Be Installed On: {BodypartsForTattoo(_selectedTattoo).Select(x => x.Name.Colour(Telnet.Yellow)).ListToString()}");
+				}
+				else
+				{
+					sb.AppendLine(
+						$"Selected Bodypart: {_selectedTattooBodypart.FullDescription().Colour(Telnet.Yellow)}");
+				}
 				sb.AppendLine(
 					$"Costs: {_selectedTattoo.ChargenCosts.Select(x => $"{x.Value.ToString("N0", Account)} {x.Key.Name}".ColourValue()).DefaultIfEmpty("none".ColourValue()).ListToString()}");
-				sb.AppendLine(
-					$"Do you want to select this tattoo? Type the name of the bodypart to ink it on or {"no".ColourCommand()} to decline.");
+				if (_pendingTattooTextSlots.Any())
+				{
+					var slot = _pendingTattooTextSlots.Peek();
+					sb.AppendLine(
+						$"Enter text for the {slot.Name.ColourName()} text slot. Maximum length: {MaximumTattooTextLength(slot).ToString("N0", Account).ColourValue()} characters.");
+					if (!string.IsNullOrWhiteSpace(slot.DefaultText))
+					{
+						sb.AppendLine(
+							$"Fallback text: {slot.DefaultText.ColourValue()} ({slot.DefaultLanguage?.Name.ColourName() ?? "unspecified language".ColourError()}, {slot.DefaultScript?.Name.ColourName() ?? "unspecified script".ColourError()}).");
+					}
+				}
+				else
+				{
+					sb.AppendLine(
+						$"Do you want to select this tattoo? Type the name of the bodypart to ink it on or {"no".ColourCommand()} to decline.");
+				}
 				return sb.ToString();
 			}
 
@@ -1155,13 +1204,10 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 		{
 			Chargen.MissingBodyparts = _missingBodyparts.ToList();
 			Chargen.SelectedDisfigurements =
-				_selectedTattoos
-					.Select(x => ((IDisfigurementTemplate)x.Tattoo, x.Bodypart))
-					.Concat(
-						_selectedScars
-							.Select(x => ((IDisfigurementTemplate)x.Scar, x.Bodypart))
-					)
+				_selectedScars
+					.Select(x => ((IDisfigurementTemplate)x.Scar, x.Bodypart))
 					.ToList();
+			Chargen.SelectedTattoos = _selectedTattoos.ToList();
 			Chargen.SelectedProstheses = _selectedProstheses.ToList();
 		}
 
@@ -1318,8 +1364,38 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			{
 				if (command.EqualTo("no"))
 				{
-					_selectedTattoo = null;
+					ClearSelectedTattooSelection();
 					return Display();
+				}
+
+				if (_pendingTattooTextSlots.Any())
+				{
+					var slot = _pendingTattooTextSlots.Peek();
+					if (string.IsNullOrWhiteSpace(command))
+					{
+						return $"You must enter text for the {slot.Name.ColourName()} slot.";
+					}
+
+					var maxLength = MaximumTattooTextLength(slot);
+					if (command.Length > maxLength)
+					{
+						return
+							$"That text is too long for the {slot.Name.ColourName()} slot. The maximum length is {maxLength.ToString("N0", Account).ColourValue()} characters.";
+					}
+
+					_selectedTattooTextValues[slot.Name] = new TattooTextValue(slot.Name, slot.DefaultLanguage,
+						slot.DefaultScript, slot.DefaultStyle, slot.DefaultColour, slot.DefaultMinimumSkill, command,
+						slot.DefaultAlternateText);
+					_pendingTattooTextSlots.Dequeue();
+					if (_pendingTattooTextSlots.Any())
+					{
+						return Display();
+					}
+
+					var finalTattoo = FinaliseSelectedTattoo();
+					UpdateChargen();
+					return
+						$"You add {finalTattoo.Tattoo.ResolveShortDescription(finalTattoo.TextValues, null).Colour(Telnet.BoldOrange)} to your {finalTattoo.Bodypart.FullDescription().Colour(Telnet.Yellow)}.\n\n{Display()}";
 				}
 
 				var bodypart = BodypartsForTattoo(_selectedTattoo).FirstOrDefault(x => x.Name.EqualTo(command));
@@ -1329,12 +1405,21 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 						$"Your character possesses no such bodypart. Please enter a valid bodypart or {"no".ColourCommand()} to clear your selection.";
 				}
 
-				_selectedTattoos.Add((_selectedTattoo, bodypart));
-				var tattoo = _selectedTattoo;
-				_selectedTattoo = null;
+				_selectedTattooBodypart = bodypart;
+				foreach (var slot in _selectedTattoo.TextSlots.Where(x => x.RequiredCustomText))
+				{
+					_pendingTattooTextSlots.Enqueue(slot);
+				}
+
+				if (_pendingTattooTextSlots.Any())
+				{
+					return Display();
+				}
+
+				var tattoo = FinaliseSelectedTattoo();
 				UpdateChargen();
 				return
-					$"You add {tattoo.ShortDescriptionForChargen.Colour(Telnet.BoldOrange)} to your {bodypart.FullDescription().Colour(Telnet.Yellow)}.\n\n{Display()}";
+					$"You add {tattoo.Tattoo.ResolveShortDescription(tattoo.TextValues, null).Colour(Telnet.BoldOrange)} to your {bodypart.FullDescription().Colour(Telnet.Yellow)}.\n\n{Display()}";
 			}
 
 			if (command.EqualTo("back"))
@@ -1352,7 +1437,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			if (command.EqualTo("reset"))
 			{
 				_selectedTattoos.Clear();
-				_selectedTattoo = null;
+				ClearSelectedTattooSelection();
 				_filteredTattoos.Clear();
 				SetupTattoos();
 				UpdateChargen();
@@ -1405,7 +1490,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 				}
 
 				return
-					$"You have selected the following tattoos:\n{_selectedTattoos.Select(x => $"\t{x.Tattoo.ShortDescriptionForChargen.Colour(Telnet.BoldOrange)} on the {x.Bodypart.FullDescription().Colour(Telnet.Yellow)}").ListToCommaSeparatedValues("\n")}";
+					$"You have selected the following tattoos:\n{_selectedTattoos.Select(x => $"\t{x.Tattoo.ResolveShortDescription(x.TextValues, null).Colour(Telnet.BoldOrange)} on the {x.Bodypart.FullDescription().Colour(Telnet.Yellow)}").ListToCommaSeparatedValues("\n")}";
 			}
 
 			if (_filteredKeywords.Any() && command.EqualTo("clear"))
@@ -1470,7 +1555,34 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 				return "There is no such tattoo.";
 			}
 
+			_selectedTattooBodypart = null;
+			_selectedTattooTextValues.Clear();
+			_pendingTattooTextSlots.Clear();
+
 			return Display();
+		}
+
+		private void ClearSelectedTattooSelection()
+		{
+			_selectedTattoo = null;
+			_selectedTattooBodypart = null;
+			_selectedTattooTextValues.Clear();
+			_pendingTattooTextSlots.Clear();
+		}
+
+		private int MaximumTattooTextLength(ITattooTemplateTextSlot slot)
+		{
+			return Math.Max(1, (int)Math.Floor(slot.MaximumLength * (slot.DefaultScript?.DocumentLengthModifier ?? 1.0)));
+		}
+
+		private ISelectedTattoo FinaliseSelectedTattoo()
+		{
+			var selection = new SelectedTattoo(_selectedTattoo, _selectedTattooBodypart,
+				new Dictionary<string, ITattooTextValue>(_selectedTattooTextValues,
+					StringComparer.InvariantCultureIgnoreCase));
+			_selectedTattoos.Add(selection);
+			ClearSelectedTattooSelection();
+			return selection;
 		}
 
 		private string HandleCommandScars(string command)

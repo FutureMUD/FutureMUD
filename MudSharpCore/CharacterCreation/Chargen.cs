@@ -336,6 +336,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
 	public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; set; } =
 		[];
+	public List<ISelectedTattoo> SelectedTattoos { get; set; } = [];
 
 	public List<IGameItemProto> SelectedProstheses { get; set; } = [];
 
@@ -1044,6 +1045,7 @@ public partial class Chargen : FrameworkItem, IChargen
 			case ChargenStage.SelectDisfigurements:
 				MissingBodyparts.Clear();
 				SelectedDisfigurements.Clear();
+				SelectedTattoos.Clear();
 				SelectedProstheses.Clear();
 				break;
 		}
@@ -1369,6 +1371,28 @@ public partial class Chargen : FrameworkItem, IChargen
 				}
 			}
 
+			element = root.Element("SelectedTattoos");
+			if (element != null)
+			{
+				foreach (var item in element.Elements("Tattoo"))
+				{
+					var tattoo = Gameworld.DisfigurementTemplates.Get(long.Parse(item.Attribute("id").Value)) as ITattooTemplate;
+					var bodypartId = long.Parse(item.Attribute("bodypart").Value);
+					var bodypart = SelectedRace.BaseBody.AllExternalBodyparts.FirstOrDefault(x => x.Id == bodypartId);
+					if (tattoo == null || bodypart == null)
+					{
+						continue;
+					}
+
+					var textValues = (IReadOnlyDictionary<string, ITattooTextValue>)item.Element("TextValues")?
+						.Elements("TextValue")
+						.Select(x => new TattooTextValue(x, Gameworld))
+						.ToDictionary(x => x.Name, x => (ITattooTextValue)x, StringComparer.InvariantCultureIgnoreCase)
+						?? new Dictionary<string, ITattooTextValue>(StringComparer.InvariantCultureIgnoreCase);
+					SelectedTattoos.Add(new SelectedTattoo(tattoo, bodypart, textValues));
+				}
+			}
+
 			element = root.Element("SelectedProstheses");
 			if (element != null)
 			{
@@ -1501,6 +1525,16 @@ public partial class Chargen : FrameworkItem, IChargen
 				from disfigurement in SelectedDisfigurements
 				select new XElement("Disfigurement", new XAttribute("id", disfigurement.Disfigurement.Id),
 					new XAttribute("bodypart", disfigurement.Bodypart.Id))),
+			new XElement("SelectedTattoos",
+				from tattoo in SelectedTattoos
+				select new XElement("Tattoo",
+					new XAttribute("id", tattoo.Tattoo.Id),
+					new XAttribute("bodypart", tattoo.Bodypart.Id),
+					new XElement("TextValues",
+						from value in tattoo.TextValues.Values.OfType<TattooTextValue>()
+						select value.SaveToXml()
+					)
+				)),
 			new XElement("SelectedProstheses",
 				from prosthetic in SelectedProstheses select new XElement("Prosthetic", prosthetic.Id)),
 			new XElement("SelectedKnowledges",

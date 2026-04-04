@@ -107,6 +107,7 @@ namespace MudSharp.CharacterCreation
         new Alignment Handedness { get; set; }
         new List<IBodypart> MissingBodyparts { get; set; }
         new List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; set; }
+        new List<ISelectedTattoo> SelectedTattoos { get; set; }
         new List<IGameItemProto> SelectedProstheses { get; set; }
     }
 }

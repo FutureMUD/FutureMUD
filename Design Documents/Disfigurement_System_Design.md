@@ -120,8 +120,38 @@ Tattoos are deliberate artwork applied to a target bodypart. A tattoo template d
 - required tattooist knowledge, if any
 - minimum tattooist skill
 - acceptable ink colours with weights
+- optional named text slots for reusable written text
 - optional chargen availability and costs
 - optional sdesc override strings
+
+### Tattoo text slots
+Tattoo templates now support named text slots for reusable written text. Template descriptions reference these slots with `$template{slotName}` tokens, which are expanded into generated `writing{...}` markup at tattoo render time.
+
+This is the intended solution for reusable tattoos whose wording changes between instances, such as:
+
+- heart-and-banner tattoos with different names
+- devotional tattoos with personalised phrases
+- insignia with custom mottos
+
+Each text slot stores:
+
+- a stable slot name
+- a maximum text length
+- whether custom text is required in interactive workflows
+- fallback language
+- fallback script
+- fallback writing style flags
+- fallback colour
+- fallback minimum reading skill
+- fallback readable text
+- fallback unreadable alternate text
+
+Rendering is deliberately two-step:
+
+1. resolve `$template{slotName}` tokens to generated `writing{...}` markup using the tattoo instance value, or the slot fallback if no custom value exists
+2. run the normal written-language substitution for the viewer
+
+Existing literal `writing{...}` markup remains fully valid in tattoo descriptions for backwards compatibility and for tattoos that do not need templated custom text.
 
 ### Builder workflow
 Tattoos have full builder support through the `tattoo` command family:
@@ -138,17 +168,44 @@ Important builder-facing properties include:
 - `ink`
 - `chargen`
 - `chargenprog`
+- `textslot`
 - `override`
+
+Tattoo text slots are builder-authored separately from the description text itself. Builders define the slot and then reference it with `$template{slotName}` in the short and full description.
+
+The `textslot` editor supports:
+
+- add and remove
+- required or optional behaviour
+- maximum length
+- fallback language and script
+- fallback style flags
+- fallback colour
+- fallback minimum skill
+- fallback readable text
+- fallback alternate text
+
+Template submission validation rejects tattoo templates that reference undefined text slots.
 
 ### In-game tattoo workflow
 Tattooing is a deliberate action workflow rather than an instant attach:
 
 1. A tattooist starts work with `tattoo inscribe`.
 2. The actor needs the expected tooling and ink resources.
-3. Progress is tracked across repeated work ticks.
-4. A partially completed tattoo has staged descriptions driven by static configuration text.
-5. The work can be resumed with `tattoo continue`.
-6. When complete, the final tattoo instance is attached to the target body.
+3. If the tattoo has required text slots, the text values must be supplied before work begins.
+4. Progress is tracked across repeated work ticks.
+5. A partially completed tattoo has staged descriptions driven by static configuration text.
+6. The work can be resumed with `tattoo continue`.
+7. When complete, the final tattoo instance is attached to the target body.
+
+Tattoo text can currently be supplied in two ways during inscription:
+
+- typed text for a named slot
+- copied text from an existing writing by writing id
+
+Typed text uses the template slot fallback metadata for language, script, style, colour, and minimum reading skill.
+
+Copied text preserves the source writing metadata. Tattooists are allowed to copy writing they can target even if they cannot read it, but this marks the tattoo with a major unreadable-copy penalty that makes the inking check substantially harder.
 
 Supporting static configuration includes things like:
 
@@ -159,6 +216,15 @@ Supporting static configuration includes things like:
 - `TattooingTicksPerSize`
 - `InkingTattooTickDurationSeconds`
 - `TattooSkillPerDifficulty`
+
+### Tattoo rendering and consistency rule
+Tattoo presentation is now expected to use a single tattoo-specific resolution path:
+
+- resolve `$template{slotName}` placeholders
+- preserve existing literal `writing{...}` markup
+- always pass the final result through written-language parsing
+
+That rule applies to tattoo short descriptions, full descriptions, keyword extraction, chargen previews, and in-progress tattoo displays. Raw template descriptions should not be shown directly for tattoos.
 
 ### Tattoo data guidance
 Good tattoo templates should:
@@ -344,6 +410,14 @@ Staff have direct manual intervention tools:
 - scars can be applied with `givescar`
 - scars can be removed with `removescar`
 
+Interactive tattoo-creation paths must respect required tattoo text slots:
+
+- chargen prompts for required slot values before a tattoo choice is finalised
+- `givetattoo` accepts named slot values when creating tattoos administratively
+- tattoo inscription accepts named slot values before work begins
+
+Optional slots may be omitted and will use their fallback values.
+
 Manual scars remain valid even if automatic scarring is disabled.
 
 ## Seeder Scaffolding
@@ -365,6 +439,7 @@ It provides:
 
 - `SeederDisfigurementTemplateDefinition`
 - `SeederTattooTemplateDefinition`
+- `SeederTattooTextSlotDefinition`
 - `SeederScarTemplateDefinition`
 - `SeedTemplates(...)`
 - `HasMissingDefinitions(...)`
@@ -374,6 +449,7 @@ Responsibilities of the utility:
 - resolve bodypart shapes and aliases
 - resolve chargen costs and progs
 - resolve tattoo knowledge and ink colours
+- resolve tattoo text-slot fallback language, script, and colour names
 - create or update current template records by stable `(type, name)` identity
 - keep seeded records idempotent on rerun
 
@@ -469,6 +545,8 @@ Changes in this area should usually consider:
 - template XML round-trip coverage
 - body scar / tattoo persistence round-trip coverage
 - `DisfigurementFactory` type dispatch coverage
+- tattoo text-slot fallback and custom-value rendering coverage
+- chargen persistence of selected tattoo text values
 - scar-generation behaviour with and without templates
 - scar-generation behaviour with `ScarringEnabled` off
 - seeder idempotency and empty-definition behaviour

@@ -159,10 +159,21 @@ public partial class Body : PerceiverItem, IBody
 			_merits.Add(included);
 		}
 
+		foreach (var tattoo in template.SelectedTattoos)
+		{
+			_tattoos.Add(new Tattoo(tattoo.Tattoo, Gameworld, Actor, 100, tattoo.Bodypart,
+				Actor.Culture.PrimaryCalendar.CurrentDateTime, tattoo.TextValues.Values));
+		}
+
 		foreach (var disfigurement in template.SelectedDisfigurements)
 		{
 			if (disfigurement.Disfigurement is ITattooTemplate tt)
 			{
+				if (template.SelectedTattoos.Any(x => x.Tattoo == tt && x.Bodypart == disfigurement.Bodypart))
+				{
+					continue;
+				}
+
 				_tattoos.Add(new Tattoo(tt, Gameworld, Actor, 100, disfigurement.Bodypart,
 					Actor.Culture.PrimaryCalendar.CurrentDateTime));
 				continue;

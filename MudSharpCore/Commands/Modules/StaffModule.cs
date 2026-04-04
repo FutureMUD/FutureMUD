@@ -644,7 +644,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
 	[PlayerCommand("GiveTattoo", "givetattoo")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
-	[HelpInfo("givetattoo", "Gives someone a tattoo. #3Syntax: givetattoo <target> <tattoo> <bodypart>#0",
+	[HelpInfo("givetattoo", "Gives someone a tattoo. #3Syntax: givetattoo <target> <tattoo> <bodypart> [slot=text]#0",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void GiveTattoo(ICharacter actor, string command)
 	{
@@ -697,12 +697,19 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var tattoo = tattooTemplate.ProduceTattoo(actor, target, bodypart);
+		if (!TattooTextCommandHelper.TryParseTextValues(actor, tattooTemplate, ss, false, out var textValues,
+			    out _, out var errorMessage))
+		{
+			actor.OutputHandler.Send(errorMessage);
+			return;
+		}
+
+		var tattoo = tattooTemplate.ProduceTattoo(actor, target, bodypart, textValues);
 		tattoo.CompletionPercentage = 1.0;
 		target.Body.AddTattoo(tattoo);
 		actor.OutputHandler.Handle(new EmoteOutput(
 			new Emote(
-				$"@ tattoo|tattoos {tattoo.ShortDescription.Colour(Telnet.BoldOrange)} on $1's {bodypart.FullDescription()}.",
+				$"@ tattoo|tattoos {tattoo.ShortDescriptionFor(actor).Colour(Telnet.BoldOrange)} on $1's {bodypart.FullDescription()}.",
 				actor, actor, target), flags: OutputFlags.SuppressObscured));
 	}
 

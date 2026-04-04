@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Character;
+using MudSharp.PerceptionEngine;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -17,9 +18,16 @@ namespace MudSharp.Body.Disfigurements
         int TicksToCompleteTattoo { get; }
         bool CanSeeTattooInList(ICharacter character);
         bool CanProduceTattoo(ICharacter character);
-        ITattoo ProduceTattoo(ICharacter tatooist, ICharacter target, IBodypart bodypart);
+        ITattoo ProduceTattoo(ICharacter tatooist, ICharacter target, IBodypart bodypart,
+	        IEnumerable<ITattooTextValue> textValues = null, bool hasUnreadableCopyPenalty = false);
         IEnumerable<(IColour Colour, double Amount)> InkColours { get; }
         IInventoryPlan GetInkPlan(ICharacter tattooist);
+        IEnumerable<ITattooTemplateTextSlot> TextSlots { get; }
+        bool HasRequiredTextSlots { get; }
+        ITattooTemplateTextSlot GetTextSlot(string name);
+        string ResolveDescription(string description, IReadOnlyDictionary<string, ITattooTextValue> textValues);
+        string ResolveShortDescription(IReadOnlyDictionary<string, ITattooTextValue> textValues, IPerceiver voyeur);
+        string ResolveFullDescription(IReadOnlyDictionary<string, ITattooTextValue> textValues, IPerceiver voyeur);
         /// <summary>
         /// Whether or not this tattoo has a special form that overrides the default "heavily-tattooed" type description, e.g. "ritually-tattooed", "facially-tattooed" etc
         /// </summary>

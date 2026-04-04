@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.TimeAndDate;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Body.Disfigurements
 {
@@ -18,5 +19,9 @@ namespace MudSharp.Body.Disfigurements
         MudDateTime TimeOfInscription { get; set; }
         XElement SaveToXml();
         double CompletionPercentage { get; set; }
+        IReadOnlyDictionary<string, ITattooTextValue> TextValues { get; }
+        bool HasUnreadableCopyPenalty { get; }
+        string ShortDescriptionFor(IPerceiver voyeur);
+        string FullDescriptionFor(IPerceiver voyeur);
     }
 }

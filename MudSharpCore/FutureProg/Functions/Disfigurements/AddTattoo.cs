@@ -118,8 +118,7 @@ internal class AddTattoo : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var newTattoo = new Tattoo(tattoo, Gameworld, tattooist, tattooistSkill, bodypart,
-			character.Location.DateTime());
+		var newTattoo = tattoo.ProduceTattoo(tattooist ?? character, character, bodypart);
 		character.Body.AddTattoo(newTattoo);
 		newTattoo.CompletionPercentage = completion;
 		Result = new BooleanVariable(true);

@@ -31,6 +31,9 @@ The seeder helper resolves names case-insensitively.
 - `ChargenCosts` keys resolve against chargen resource `Name` or `Alias`.
 - `CanSelectInChargenProgName` resolves against `FutureProg.FunctionName`.
 - `RequiredKnowledgeName` resolves against `Knowledge.Name`.
+- tattoo text-slot fallback `DefaultLanguageName` resolves against `Language.Name`.
+- tattoo text-slot fallback `DefaultScriptName` resolves against `Script.Name`.
+- tattoo text-slot fallback `DefaultColourName` resolves against `Colour.Name`.
 
 For human templates, prefer `BodypartAliases` when the content is meant for one exact location and prefer `BodypartShapeNames` when the content should generalise across equivalent anatomy.
 
@@ -171,6 +174,63 @@ These are the current defaults used by `SeederTattooTemplateDefinition` and the 
 | `ChargenCosts` | `null` | any seeded chargen resource names or aliases | Builder-owned |
 | `OverrideCharacteristicPlain` | `null` | any lower-case descriptor fragment | Should not include `with` |
 | `OverrideCharacteristicWith` | `null` | any lower-case descriptor fragment | Should normally start with `with ` |
+| `TextSlots` | `null` | list of `SeederTattooTextSlotDefinition` | Optional; used for `$template{slotName}` placeholders |
+
+### Tattoo Text Slot Definition Fields
+These are the current fields on `SeederTattooTextSlotDefinition`:
+
+| Field | Seeder Default | Accepted / Implemented Range | Notes |
+| --- | --- | --- | --- |
+| `Name` | required | letters, numbers, underscore | Should match the `$template{slotName}` token used in descriptions |
+| `MaximumLength` | required | positive integer | Base length before script `DocumentLengthModifier` scaling |
+| `DefaultLanguageName` | `null` | any seeded language name | Optional fallback language |
+| `DefaultScriptName` | `null` | any seeded script name | Optional fallback script |
+| `DefaultText` | `""` | free text | Used when no custom value is supplied |
+| `RequiredCustomText` | `false` | `true` / `false` | Interactive workflows must collect a value when `true` |
+| `DefaultStyle` | `WritingStyleDescriptors.None` | valid writing-style flags | Seeder-side enum flags |
+| `DefaultColourName` | `null` | any seeded colour name | Optional fallback writing colour |
+| `DefaultMinimumSkill` | `0.0` | any non-negative number | Minimum reading skill for the fallback text |
+| `DefaultAlternateText` | `""` | free text | What unreadable viewers see if the text cannot be understood |
+
+### Tattoo Text Slot Usage
+Template descriptions can include named placeholders like:
+
+`$template{banner}`
+
+At runtime:
+
+1. the tattoo instance uses a supplied text value for `banner` if one exists
+2. otherwise it falls back to the slot's default text metadata
+3. the generated writing markup is then parsed normally for the viewer
+
+Example seeder definition sketch:
+
+```csharp
+new SeederTattooTemplateDefinition(
+	"Memorial Banner",
+	"a heart with a banner reading $template{banner}",
+	"A heart-and-banner tattoo carries the words $template{banner}.",
+	InkColours: new Dictionary<string, double> { ["Black"] = 1.0 },
+	TextSlots:
+	[
+		new SeederTattooTextSlotDefinition(
+			"banner",
+			10,
+			DefaultLanguageName: "English",
+			DefaultScriptName: "Latin",
+			DefaultText: "Mom",
+			RequiredCustomText: true,
+			DefaultColourName: "Black",
+			DefaultAlternateText: "ornate lettering")
+	]);
+```
+
+Notes:
+
+- use named placeholders only for text that should vary per tattoo instance
+- keep literal `writing{...}` markup for fixed text when no slotting is needed
+- optional slots can safely omit a custom value because the fallback will be used
+- required slots are best for player-facing or admin-facing workflows where someone should choose the wording
 
 ### Valid `SizeCategory` Values
 These are the current seeded engine size labels:
@@ -290,14 +350,18 @@ For first-pass human tattoo seeding:
 - keep colour palettes tight and intentional
 - reserve unrestricted shape lists for very small, generic tattoos
 - prefer aliases for exact placements such as `lback` for tramp stamps or `rshoulder` / `lshoulder` for insignia
+- use `TextSlots` for motifs whose wording should vary between instances instead of hard-coding that text into the description
+- keep fallback slot text sensible because random or non-interactive creation paths use the fallback automatically
+- give `RequiredCustomText` only to slots that truly need interactive input
 
 ## Suggested Builder Workflow
 1. Pick the narrative mark.
 2. Choose whether the definition should target exact human aliases or broader human shapes.
 3. Set the visible descriptions first.
-4. Add the scar/tattoo mechanics second.
-5. Add override text only if the mark should meaningfully affect sdesc grammar.
-6. Leave chargen prog and knowledge hookup to the builder handling those world decisions.
+4. For tattoos with variable writing, add any `TextSlots` and wire them into the descriptions with `$template{slotName}`.
+5. Add the scar/tattoo mechanics second.
+6. Add override text only if the mark should meaningfully affect sdesc grammar.
+7. Leave chargen prog and knowledge hookup to the builder handling those world decisions.
 
 ## Source Of Truth
 This document is derived from the currently seeded and coded values in:

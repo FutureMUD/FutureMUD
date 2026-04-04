@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate;
 
 namespace MudSharp.Body.Disfigurements;
@@ -22,18 +21,34 @@ public class Tattoo : ITattoo
 		TattooistSkill = double.Parse(root.Element("TattooistSkill").Value);
 		TimeOfInscription = new MudDateTime(root.Element("TimeOfInscription").Value, Gameworld);
 		CompletionPercentage = double.Parse(root.Element("CompletionPercentage").Value);
+		HasUnreadableCopyPenalty = bool.Parse(root.Element("HasUnreadableCopyPenalty")?.Value ?? "false");
+		foreach (var element in root.Element("TextValues")?.Elements("TextValue") ?? Enumerable.Empty<XElement>())
+		{
+			var value = new TattooTextValue(element, Gameworld);
+			_textValues[value.Name] = value;
+		}
+
+		ApplyFallbackTextValues();
 	}
 
 	public Tattoo(ITattooTemplate template, IFuturemud gameworld, ICharacter tattooist, double tattooistSkill,
-		IBodypart bodypart, MudDateTime timeOfInscription)
+		IBodypart bodypart, MudDateTime timeOfInscription, IEnumerable<ITattooTextValue> textValues = null,
+		bool hasUnreadableCopyPenalty = false)
 	{
 		Template = template;
 		Gameworld = gameworld;
 		_tattooist = tattooist;
-		_tattooistId = tattooist.Id;
+		_tattooistId = tattooist?.Id ?? 0;
 		TattooistSkill = tattooistSkill;
 		Bodypart = bodypart;
 		TimeOfInscription = timeOfInscription;
+		HasUnreadableCopyPenalty = hasUnreadableCopyPenalty;
+		foreach (var item in textValues ?? Enumerable.Empty<ITattooTextValue>())
+		{
+			_textValues[item.Name] = item;
+		}
+
+		ApplyFallbackTextValues();
 	}
 
 	public XElement SaveToXml()
@@ -44,7 +59,14 @@ public class Tattoo : ITattoo
 			new XElement("Tattooist", _tattooistId),
 			new XElement("TattooistSkill", TattooistSkill),
 			new XElement("TimeOfInscription", TimeOfInscription.GetDateTimeString()),
-			new XElement("CompletionPercentage", CompletionPercentage)
+			new XElement("CompletionPercentage", CompletionPercentage),
+			new XElement("HasUnreadableCopyPenalty", HasUnreadableCopyPenalty),
+			new XElement("TextValues",
+				from value in _textValues.Values
+				select (value as TattooTextValue)?.SaveToXml() ??
+				       new TattooTextValue(value.Name, value.Language, value.Script, value.Style, value.Colour,
+					       value.MinimumSkill, value.Text, value.AlternateText, value.IsCopiedFromSource,
+					       value.WasCopiedWithoutUnderstanding).SaveToXml())
 		);
 	}
 
@@ -55,88 +77,81 @@ public class Tattoo : ITattoo
 	public IDisfigurementTemplate Template { get; protected set; }
 	public ITattooTemplate TattooTemplate => (ITattooTemplate)Template;
 
-	public string ShortDescription
+	private string ShortDescriptionInner(IPerceiver voyeur)
 	{
-		get
+		var shortDescription = TattooTemplate.ResolveDescription(TattooTemplate.ShortDescription, _textValues);
+		if (CompletionPercentage < 0.05)
 		{
-			if (CompletionPercentage < 0.05)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooSdescBarelyStarted"), Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.2)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooSdescJustStarted"), Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.4)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooSdescFarFromComplete"),
-					Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.6)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooSdescHalfwayDone"), Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.8)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooSdescMostlyDone"), Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 1.0)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooSdescNearlyDone"), Template.ShortDescription);
-			}
-
-			return Template.ShortDescription;
+			return string.Format(Gameworld.GetStaticString("TattooSdescBarelyStarted"), shortDescription);
 		}
+
+		if (CompletionPercentage < 0.2)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooSdescJustStarted"), shortDescription);
+		}
+
+		if (CompletionPercentage < 0.4)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooSdescFarFromComplete"), shortDescription);
+		}
+
+		if (CompletionPercentage < 0.6)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooSdescHalfwayDone"), shortDescription);
+		}
+
+		if (CompletionPercentage < 0.8)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooSdescMostlyDone"), shortDescription);
+		}
+
+		if (CompletionPercentage < 1.0)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooSdescNearlyDone"), shortDescription);
+		}
+
+		return shortDescription;
 	}
 
-	public string FullDescription
+	private string FullDescriptionInner(IPerceiver voyeur)
 	{
-		get
+		var fullDescription = TattooTemplate.ResolveDescription(TattooTemplate.FullDescription, _textValues);
+		var shortDescription = TattooTemplate.ResolveDescription(TattooTemplate.ShortDescription, _textValues);
+		if (CompletionPercentage < 0.05)
 		{
-			if (CompletionPercentage < 0.05)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooFdescBarelyStarted"), Template.FullDescription,
-					Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.2)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooFdescJustStarted"), Template.FullDescription,
-					Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.4)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooFdescFarFromComplete"), Template.FullDescription,
-					Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.6)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooFdescHalfwayDone"), Template.FullDescription,
-					Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 0.8)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooFdescMostlyDone"), Template.FullDescription,
-					Template.ShortDescription);
-			}
-
-			if (CompletionPercentage < 1.0)
-			{
-				return string.Format(Gameworld.GetStaticString("TattooFdescNearlyDone"), Template.FullDescription,
-					Template.ShortDescription);
-			}
-
-			return Template.FullDescription;
+			return string.Format(Gameworld.GetStaticString("TattooFdescBarelyStarted"), fullDescription, shortDescription);
 		}
+
+		if (CompletionPercentage < 0.2)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooFdescJustStarted"), fullDescription, shortDescription);
+		}
+
+		if (CompletionPercentage < 0.4)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooFdescFarFromComplete"), fullDescription, shortDescription);
+		}
+
+		if (CompletionPercentage < 0.6)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooFdescHalfwayDone"), fullDescription, shortDescription);
+		}
+
+		if (CompletionPercentage < 0.8)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooFdescMostlyDone"), fullDescription, shortDescription);
+		}
+
+		if (CompletionPercentage < 1.0)
+		{
+			return string.Format(Gameworld.GetStaticString("TattooFdescNearlyDone"), fullDescription, shortDescription);
+		}
+
+		return fullDescription;
 	}
+
+	public string ShortDescription => ShortDescriptionFor(null);
+	public string FullDescription => FullDescriptionFor(null);
 
 	#endregion
 
@@ -151,8 +166,34 @@ public class Tattoo : ITattoo
 	public MudDateTime TimeOfInscription { get; set; }
 	public double CompletionPercentage { get; set; }
 	public SizeCategory Size => ((ITattooTemplate)Template).Size;
+	private readonly Dictionary<string, ITattooTextValue> _textValues = new(StringComparer.InvariantCultureIgnoreCase);
+	public IReadOnlyDictionary<string, ITattooTextValue> TextValues => _textValues;
+	public bool HasUnreadableCopyPenalty { get; protected set; }
+
+	public string ShortDescriptionFor(IPerceiver voyeur)
+	{
+		return ShortDescriptionInner(voyeur).SubstituteWrittenLanguage(voyeur, Gameworld);
+	}
+
+	public string FullDescriptionFor(IPerceiver voyeur)
+	{
+		return FullDescriptionInner(voyeur).SubstituteWrittenLanguage(voyeur, Gameworld);
+	}
 
 	#region Keywords
+
+	private void ApplyFallbackTextValues()
+	{
+		foreach (var slot in TattooTemplate.TextSlots)
+		{
+			if (_textValues.ContainsKey(slot.Name))
+			{
+				continue;
+			}
+
+			_textValues[slot.Name] = new TattooTextValue(slot);
+		}
+	}
 
 	protected IEnumerable<string> GetKeywordsFromSDesc(string sdesc)
 	{
@@ -175,11 +216,11 @@ public class Tattoo : ITattoo
 		return keywords;
 	}
 
-	public IEnumerable<string> Keywords => GetKeywordsFromSDesc(ShortDescription);
+	public IEnumerable<string> Keywords => GetKeywordsFromSDesc(ShortDescriptionFor(null));
 
 	public IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
-		return GetKeywordsFromSDesc(ShortDescription.SubstituteWrittenLanguage(voyeur, Gameworld));
+		return GetKeywordsFromSDesc(ShortDescriptionFor(voyeur));
 	}
 
 	#endregion

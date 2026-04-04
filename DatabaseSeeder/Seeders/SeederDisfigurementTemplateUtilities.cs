@@ -6,8 +6,10 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body;
+using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
+using MudSharp.Form.Colour;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
@@ -27,6 +29,19 @@ internal abstract record SeederDisfigurementTemplateDefinition(
 	string? OverrideCharacteristicWith = null
 );
 
+internal sealed record SeederTattooTextSlotDefinition(
+	string Name,
+	int MaximumLength,
+	string? DefaultLanguageName = null,
+	string? DefaultScriptName = null,
+	string DefaultText = "",
+	bool RequiredCustomText = false,
+	WritingStyleDescriptors DefaultStyle = WritingStyleDescriptors.None,
+	string? DefaultColourName = null,
+	double DefaultMinimumSkill = 0.0,
+	string DefaultAlternateText = ""
+);
+
 internal sealed record SeederTattooTemplateDefinition(
 	string Name,
 	string ShortDescription,
@@ -41,7 +56,8 @@ internal sealed record SeederTattooTemplateDefinition(
 	string? CanSelectInChargenProgName = null,
 	IReadOnlyDictionary<string, int>? ChargenCosts = null,
 	string? OverrideCharacteristicPlain = null,
-	string? OverrideCharacteristicWith = null
+	string? OverrideCharacteristicWith = null,
+	IReadOnlyList<SeederTattooTextSlotDefinition>? TextSlots = null
 ) : SeederDisfigurementTemplateDefinition(
 	Name,
 	ShortDescription,
@@ -165,7 +181,10 @@ internal static class SeederDisfigurementTemplateUtilities
 				select new XElement("Ink", new XAttribute("weight", ink.Weight), ink.ColourId)),
 			new XElement("Shapes",
 				from shapeId in bodypartShapes
-				select new XElement("Shape", shapeId))
+				select new XElement("Shape", shapeId)),
+			new XElement("TextSlots",
+				from slot in definition.TextSlots ?? Enumerable.Empty<SeederTattooTextSlotDefinition>()
+				select BuildTattooTextSlotElement(context, slot, definition.Name))
 		).ToString();
 	}
 
@@ -393,6 +412,85 @@ internal static class SeederDisfigurementTemplateUtilities
 
 			yield return (colour.Id, weight);
 		}
+	}
+
+	private static XElement BuildTattooTextSlotElement(
+		FuturemudDatabaseContext context,
+		SeederTattooTextSlotDefinition definition,
+		string tattooName)
+	{
+		if (definition.MaximumLength <= 0)
+		{
+			throw new InvalidOperationException(
+				$"Tattoo text slot {definition.Name} for {tattooName} must have a positive maximum length.");
+		}
+
+		return new XElement("TextSlot",
+			new XAttribute("name", definition.Name),
+			new XAttribute("maxlength", definition.MaximumLength),
+			new XAttribute("required", definition.RequiredCustomText),
+			new XElement("Language", ResolveLanguageIdOrZero(context, definition.DefaultLanguageName)),
+			new XElement("Script", ResolveScriptIdOrZero(context, definition.DefaultScriptName)),
+			new XElement("Style", (int)definition.DefaultStyle),
+			new XElement("Colour", ResolveColourIdOrZero(context, definition.DefaultColourName)),
+			new XElement("MinimumSkill", definition.DefaultMinimumSkill),
+			new XElement("Text", new XCData(definition.DefaultText ?? string.Empty)),
+			new XElement("AlternateText", new XCData(definition.DefaultAlternateText ?? string.Empty))
+		);
+	}
+
+	private static long ResolveLanguageIdOrZero(FuturemudDatabaseContext context, string? languageName)
+	{
+		if (string.IsNullOrWhiteSpace(languageName))
+		{
+			return 0L;
+		}
+
+		var language = context.Languages
+			.AsEnumerable()
+			.FirstOrDefault(x => string.Equals(x.Name, languageName, StringComparison.OrdinalIgnoreCase));
+		if (language is null)
+		{
+			throw new InvalidOperationException($"Could not resolve language {languageName}.");
+		}
+
+		return language.Id;
+	}
+
+	private static long ResolveScriptIdOrZero(FuturemudDatabaseContext context, string? scriptName)
+	{
+		if (string.IsNullOrWhiteSpace(scriptName))
+		{
+			return 0L;
+		}
+
+		var script = context.Scripts
+			.AsEnumerable()
+			.FirstOrDefault(x => string.Equals(x.Name, scriptName, StringComparison.OrdinalIgnoreCase));
+		if (script is null)
+		{
+			throw new InvalidOperationException($"Could not resolve script {scriptName}.");
+		}
+
+		return script.Id;
+	}
+
+	private static long ResolveColourIdOrZero(FuturemudDatabaseContext context, string? colourName)
+	{
+		if (string.IsNullOrWhiteSpace(colourName))
+		{
+			return 0L;
+		}
+
+		var colour = context.Colours
+			.AsEnumerable()
+			.FirstOrDefault(x => string.Equals(x.Name, colourName, StringComparison.OrdinalIgnoreCase));
+		if (colour is null)
+		{
+			throw new InvalidOperationException($"Could not resolve colour {colourName}.");
+		}
+
+		return colour.Id;
 	}
 
 	private sealed class StringComparerTupleComparer : IEqualityComparer<(string Type, string Name)>

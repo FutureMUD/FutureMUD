@@ -11,7 +11,7 @@ using MudSharp.Models;
 
 namespace DatabaseSeeder.Seeders;
 
-public class ChargenSeeder : IDatabaseSeeder
+public partial class ChargenSeeder : IDatabaseSeeder
 {
 	private static readonly (ChargenStage Stage, string Type)[] StockChargenStages =
 	[

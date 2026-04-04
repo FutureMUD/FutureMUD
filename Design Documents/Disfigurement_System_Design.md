@@ -3,6 +3,8 @@
 ## Purpose
 This document is the implementation and maintenance reference for the FutureMUD disfigurement system.
 
+The builder-facing seeder handoff companion lives in `Disfigurement_Seeder_Builder_Reference.md`.
+
 It covers:
 
 1. The shared disfigurement model used by tattoos and scars.
@@ -374,6 +376,8 @@ Responsibilities of the utility:
 - resolve tattoo knowledge and ink colours
 - create or update current template records by stable `(type, name)` identity
 - keep seeded records idempotent on rerun
+
+For the current resolver value catalogue and builder-friendly authoring guidance, see `Disfigurement_Seeder_Builder_Reference.md`.
 
 ### Seeder hook points
 The system is intentionally split by seeder:

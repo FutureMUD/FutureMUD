@@ -2687,6 +2687,901 @@ public partial class HumanSeeder
         BodypartAliases: new[] { "rforearm", "lforearm", "rhand", "lhand", "rshoulder", "lshoulder", "uback" }
     ),
         #endregion
+
+        #region Crude Tattoos
+        new SeederTattooTemplateDefinition(
+        "Crooked Heart",
+        "a crooked heart tattoo",
+        "A lopsided heart tattoo is scratched here in uneven lines, its fill patchy and its outline visibly shaky.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 6.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0,
+            ["red"] = 1.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "rhip", "lhip", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Uneven Star",
+        "an uneven star tattoo",
+        "A crude five-pointed star is tattooed here, its points mismatched and its lines wandering badly.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 5.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "rforearm", "lforearm", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Shaky Cross",
+        "a shaky cross tattoo",
+        "A simple cross is tattooed here in wobbly dark lines, as though done by an unsteady hand.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 4.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "neck", "rforearm", "lforearm" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Amateur Anchor",
+        "an amateur anchor tattoo",
+        "A badly drawn anchor is tattooed here in thick uncertain lines, with uneven flukes and a crooked shank.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0,
+            ["blue"] = 1.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rupperarm", "lupperarm", "rhand", "lhand" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Wobbly Dice",
+        "a wobbly dice tattoo",
+        "A pair of dice is tattooed here in crude blocky outlines, the faces uneven and the pips badly placed.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0,
+            ["red"] = 1.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rforearm", "lforearm", "rhip", "lhip" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Blurry Skull",
+        "a blurry skull tattoo",
+        "A crude skull is tattooed here in muddy, overworked ink, its teeth and sockets blurred together.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 8.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rforearm", "lforearm", "rupperarm", "lupperarm", "rcalf", "lcalf" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Badly Lettered Name",
+        "a badly lettered tattoo reading $template{name}",
+        "A crudely lettered name is tattooed here in awkward uneven script, reading $template{name}.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 6.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0,
+            ["blue"] = 1.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rwrist", "lwrist", "rupperarm", "lupperarm", "lback" },
+        TextSlots: new[]
+        {
+            new SeederTattooTextSlotDefinition(
+                "name",
+                18,
+                DefaultLanguageName: "English",
+                DefaultScriptName: "Latin",
+                DefaultText: "Jenny",
+                RequiredCustomText: true,
+                DefaultColourName: "black",
+                DefaultAlternateText: "badly written lettering")
+        }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Crooked Crown",
+        "a crooked crown tattoo",
+        "A rough little crown is tattooed here in thick clumsy lines, its points uneven and its shape visibly off-centre.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 6.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0,
+            ["yellow"] = 1.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rtemple", "ltemple", "neck", "rforearm", "lforearm" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Drunk Smiley Face",
+        "a drunk smiley-face tattoo",
+        "A crude smiley face is tattooed here in childish, uneven strokes, one eye sitting higher than the other.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 3.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0,
+            ["yellow"] = 1.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rwrist", "lwrist", "rhip", "lhip", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Wonky Butterfly",
+        "a wonky butterfly tattoo",
+        "A badly done butterfly is tattooed here with mismatched wings, shaky lines, and blotchy fill.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0,
+            ["blue"] = 1.0,
+            ["purple"] = 1.0
+        },
+        BodypartAliases: new[] { "rshoulder", "lshoulder", "rwrist", "lwrist", "lback", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Bad Tribal Band",
+        "a bad tribal-band tattoo",
+        "A supposed tribal band circles this spot in thick black shapes that fail to line up cleanly and wobble unevenly.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 8.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rupperarm", "lupperarm", "rforearm", "lforearm", "rthigh", "lthigh", "rcalf", "lcalf" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Shaky Spiderweb Elbow",
+        "a shaky spiderweb tattoo",
+        "A rough spiderweb tattoo sprawls over this elbow, its strands uneven and its rings badly spaced.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "relbow", "lelbow" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Bent Horseshoe",
+        "a bent horseshoe tattoo",
+        "A small horseshoe is tattooed here in clumsy dark lines, its curve bent oddly and its nail holes uneven.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 5.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0,
+            ["brown"] = 1.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Amateur Devil Face",
+        "an amateur devil-face tattoo",
+        "A crude devil face is tattooed here with a goofy grin, blunt little horns, and heavy amateur shading.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 8.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0,
+            ["red"] = 1.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rupperarm", "lupperarm", "rhand", "lhand", "rcalf", "lcalf" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Crooked Neck Script",
+        "a crooked neck tattoo reading $template{word}",
+        "A short word is tattooed across the neck in ugly uneven lettering, reading $template{word}.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "neck", "bneck" },
+        TextSlots: new[]
+        {
+            new SeederTattooTextSlotDefinition(
+                "word",
+                16,
+                DefaultLanguageName: "English",
+                DefaultScriptName: "Latin",
+                DefaultText: "LOYAL",
+                RequiredCustomText: true,
+                DefaultColourName: "black",
+                DefaultAlternateText: "crooked lettering")
+        },
+        OverrideCharacteristicPlain: "badly-tattooed",
+        OverrideCharacteristicWith: "with crude lettering tattooed on the neck"
+    ),
+        #endregion
+
+        #region Stick and Poke
+        new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Three Dots",
+        "a three-dot stick-and-poke tattoo",
+        "Three small dots are tattooed here in rough hand-poked ink, close-set and starkly simple.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 4.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rwrist", "lwrist", "reyesocket", "leyesocket" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Five Dots",
+        "a five-dot stick-and-poke tattoo",
+        "Five hand-poked dots are arranged here in a tiny quincunx pattern.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 4.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rwrist", "lwrist" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Small Cross",
+        "a small stick-and-poke cross tattoo",
+        "A small cross is tattooed here in sparse hand-poked dots and short dark lines.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 5.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "neck", "rforearm", "lforearm" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Barbed Wire",
+        "a stick-and-poke barbed-wire tattoo",
+        "A thin loop of barbed wire is tattooed here in simple, prickly hand-poked linework.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Spiderweb",
+        "a stick-and-poke spiderweb tattoo",
+        "A sparse spiderweb is tattooed here in thin radiating lines and uneven hand-poked rings.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "relbow", "lelbow", "rhand", "lhand" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Razor Blade",
+        "a stick-and-poke razor-blade tattoo",
+        "A simple razor blade is tattooed here in stark hand-poked geometry.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rforearm", "lforearm", "rthigh", "lthigh" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Dice",
+        "a stick-and-poke dice tattoo",
+        "A pair of tiny dice is tattooed here in hard-edged hand-poked outlines and dark pips.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 6.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0,
+            ["blue"] = 1.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rforearm", "lforearm", "rhip", "lhip" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Crown",
+        "a stick-and-poke crown tattoo",
+        "A tiny crown is tattooed here in sparse hand-poked strokes and simple points.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 6.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rtemple", "ltemple", "neck", "rforearm", "lforearm" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Tally Marks",
+        "a stick-and-poke tally-mark tattoo",
+        "A cluster of tally marks is tattooed here in thin hand-poked lines.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 5.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rthigh", "lthigh", "rshin", "lshin" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Initials",
+        "a stick-and-poke tattoo reading $template{initials}",
+        "Crude but deliberate initials are hand-poked here, reading $template{initials}.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 5.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rwrist", "lwrist", "rforearm", "lforearm" },
+        TextSlots: new[]
+        {
+            new SeederTattooTextSlotDefinition(
+                "initials",
+                6,
+                DefaultLanguageName: "English",
+                DefaultScriptName: "Latin",
+                DefaultText: "J.M.",
+                RequiredCustomText: true,
+                DefaultColourName: "black",
+                DefaultAlternateText: "tiny initials")
+        }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Date",
+        "a stick-and-poke date tattoo reading $template{date}",
+        "A short date is hand-poked here in plain, utilitarian lettering, reading $template{date}.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 6.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0,
+            ["blue"] = 1.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rthigh", "lthigh", "lback" },
+        TextSlots: new[]
+        {
+            new SeederTattooTextSlotDefinition(
+                "date",
+                12,
+                DefaultLanguageName: "English",
+                DefaultScriptName: "Latin",
+                DefaultText: "12.04.24",
+                RequiredCustomText: true,
+                DefaultColourName: "black",
+                DefaultAlternateText: "a short date")
+        }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Tiny Dagger",
+        "a stick-and-poke dagger tattoo",
+        "A tiny dagger is tattooed here in spare hand-poked lines with a narrow blade and simple hilt.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rforearm", "lforearm", "rshin", "lshin" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Tiny Heart",
+        "a stick-and-poke heart tattoo",
+        "A tiny heart is hand-poked here in a simple, dark outline.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 4.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0,
+            ["red"] = 1.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "rhip", "lhip", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Small Star",
+        "a stick-and-poke star tattoo",
+        "A tiny star is tattooed here in hand-poked lines and sparse dark fill.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 5.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rhand", "lhand", "rwrist", "lwrist", "rtemple", "ltemple", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Stick-And-Poke Neck Word",
+        "a stick-and-poke neck tattoo reading $template{word}",
+        "A short word is hand-poked across the neck here, reading $template{word}.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 7.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "neck", "bneck" },
+        TextSlots: new[]
+        {
+            new SeederTattooTextSlotDefinition(
+                "word",
+                12,
+                DefaultLanguageName: "English",
+                DefaultScriptName: "Latin",
+                DefaultText: "LOYAL",
+                RequiredCustomText: true,
+                DefaultColourName: "black",
+                DefaultAlternateText: "a short word")
+        },
+        OverrideCharacteristicPlain: "gang-marked",
+        OverrideCharacteristicWith: "with hand-poked lettering on the neck"
+    ),
+        #endregion
+
+        #region Line Art
+        new SeederTattooTemplateDefinition(
+        "Line-Art Rose",
+        "a line-art rose tattoo",
+        "A rose is tattooed here in clean, elegant line-art, its petals and stem defined without fill.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 18.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rupperarm", "lupperarm", "rthigh", "lthigh" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Lily",
+        "a line-art lily tattoo",
+        "A lily is tattooed here in graceful single-line floral contours and fine leaf detail.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 18.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rcalf", "lcalf", "rthigh", "lthigh" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Butterfly",
+        "a line-art butterfly tattoo",
+        "A butterfly is tattooed here in delicate, symmetrical linework with open wings and no fill.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 16.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rshoulder", "lshoulder", "rankle", "lankle", "lback" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Moth",
+        "a line-art moth tattoo",
+        "A moth is tattooed here in crisp symmetrical line-art with fine wing patterning and a narrow body.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 18.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rupperarm", "lupperarm", "lback", "rthigh", "lthigh" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Snake",
+        "a line-art snake tattoo",
+        "A snake winds here in clean continuous linework, its coils and head rendered with restrained precision.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 20.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rupperarm", "lupperarm", "rthigh", "lthigh", "rcalf", "lcalf" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Koi",
+        "a line-art koi tattoo",
+        "A koi fish is tattooed here in smooth, flowing line-art with finely defined fins and scales.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 20.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rthigh", "lthigh", "rcalf", "lcalf" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Swallow",
+        "a line-art swallow tattoo",
+        "A swallow in flight is tattooed here in swift, elegant line-art with outspread wings.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 18.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rshoulder", "lshoulder", "rforearm", "lforearm", "rshoulderblade", "lshoulderblade" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Mountain Range",
+        "a line-art mountain tattoo",
+        "A mountain range is tattooed here in clean horizon-like linework with sharp peaks and minimal detail.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 18.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "uback", "lback", "rthigh", "lthigh" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Wave",
+        "a line-art wave tattoo",
+        "A curling wave is tattooed here in fluid, single-colour line-art with graceful motion.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 16.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rforearm", "lforearm", "rankle", "lankle", "rfoot", "lfoot" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Crescent Moon",
+        "a line-art crescent-moon tattoo",
+        "A crescent moon is tattooed here in spare, elegant line-art with a clean open curve.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 14.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 2.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "bneck", "rhand", "lhand", "rankle", "lankle" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Sun",
+        "a line-art sun tattoo",
+        "A stylised sun is tattooed here in crisp circular linework and narrow radiating rays.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 16.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rshoulder", "lshoulder", "rforearm", "lforearm", "rhand", "lhand" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Face Profile",
+        "a line-art face-profile tattoo",
+        "A minimalist face profile is tattooed here in a single elegant contour line.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 22.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rupperarm", "lupperarm", "rthigh", "lthigh" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Hands",
+        "a line-art hands tattoo",
+        "A pair of hands is tattooed here in clean contour linework, poised in a graceful, expressive gesture.",
+        MinimumBodypartSize: SizeCategory.Small,
+        MinimumSkill: 22.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0
+        },
+        BodypartAliases: new[] { "rforearm", "lforearm", "rthigh", "lthigh", "uback" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Botanical Sprig",
+        "a line-art botanical tattoo",
+        "A slender botanical sprig is tattooed here in clean, airy line-art with small leaves and stem detail.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 16.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rforearm", "lforearm", "rankle", "lankle", "rfoot", "lfoot" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Line-Art Geometric Diamond",
+        "a line-art geometric tattoo",
+        "A geometric diamond motif is tattooed here in precise, balanced linework and open negative space.",
+        MinimumBodypartSize: SizeCategory.Tiny,
+        MinimumSkill: 18.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 3.0
+        },
+        BodypartAliases: new[] { "rwrist", "lwrist", "rhand", "lhand", "rforearm", "lforearm", "bneck" }
+    ),
+        #endregion
+
+        #region Signature Pieces
+        new SeederTattooTemplateDefinition(
+        "Imperial Dragon Ascent",
+        "an imperial dragon tattoo",
+        "A magnificent dragon is tattooed here in a sweeping upward coil, its scaled body twisting through stylised cloud-bands and tongues of flame. Every claw, whisker, and plate of the creature's hide has been rendered with meticulous care, giving the whole piece a sense of motion and authority even at rest. The composition is bold and theatrical, but disciplined enough that the dense detail never collapses into muddle. It reads as the work of a master rather than a mere enthusiast.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 58.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["dark red"] = 2.0,
+            ["gold"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "abdomen" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Phoenix In Glory",
+        "a phoenix tattoo",
+        "A grand phoenix is tattooed here with wings flung wide and long tail-feathers trailing through ornamental flames. The feather work is exceptionally fine, shifting from broad structural lines into delicate internal detail that rewards close viewing. The whole design has been composed to feel radiant and rising, with the bird's body acting as the visual anchor and the flame-work carrying the eye outward. It is unapologetically showpiece tattooing.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 56.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0,
+            ["crimson"] = 2.0,
+            ["gold"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "belly" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Storm Kraken",
+        "a kraken tattoo",
+        "A monstrous kraken is tattooed here in a dense composition of mantle, curling tentacles, and crashing stylised surf. The artist has used the full field of skin intelligently, letting the tentacles bend and interlock to create rhythm rather than chaos. Suckers, surface texture, and wave crests are all worked with extraordinary patience, producing a piece that feels both heavy and alive. It is the kind of tattoo that would dominate any description of the bodypart it occupies.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 60.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["dark blue"] = 2.0,
+            ["silver grey"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "lback", "abdomen" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Celestial Mandala Masterwork",
+        "a celestial mandala tattoo",
+        "A vast celestial mandala is tattooed here in concentric rings of geometry, petals, stars, and carefully spaced linework. The piece balances ornate density with mathematical cleanliness, so that even its finest details remain legible instead of collapsing into ornament for ornament's sake. It gives the impression of ritual precision and contemplative symmetry rather than mere decoration. The execution is exacting enough that any wobble or weakness would immediately ruin it, yet none is visible.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 62.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["deep indigo"] = 1.0,
+            ["gold"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "abdomen", "belly" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Saint In Radiant Iconography",
+        "a saintly icon tattoo",
+        "A haloed saint is tattooed here in a formal iconographic composition, surrounded by ornamental rays, drapery, and devotional framing elements. The facial rendering is careful and dignified rather than cartoonish, and the surrounding detail supports the central figure instead of competing with it. Fine lines, controlled shading, and judicious use of highlight tones give the whole piece a luminous quality. It is an ambitious religious work executed with impressive restraint.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 57.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0,
+            ["gold"] = 1.0,
+            ["white"] = 1.0
+        },
+        BodypartAliases: new[] { "rbreast", "lbreast", "abdomen" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Archangel Judgement",
+        "an archangel tattoo",
+        "An armed archangel is tattooed here in a dramatic descending pose, with swept wings, layered armour, and a lowered sword. The composition makes excellent use of vertical movement, drawing the eye from the weapon through the torso and out into the wing structure. Feathers, folds, and polished surfaces are differentiated with real technical confidence rather than being flattened into generic dark fill. The result is imposing, theatrical, and unmistakably high-end work.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 61.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["silver grey"] = 1.0,
+            ["gold"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "abdomen", "rbreast", "lbreast" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Battlefield Panorama",
+        "a battlefield tattoo",
+        "A panoramic battle scene is tattooed here, crowded with riders, banners, broken weapons, and drifting smoke. Despite the complexity, the artist has maintained a clear hierarchy of forms, with strong silhouettes and carefully grouped detail preventing the image from turning muddy. Secondary figures and background elements are still rendered with notable care, giving the impression of an entire story compressed into skin. It feels closer to an illustrated plate than to ordinary body art.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 65.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 6.0,
+            ["brown"] = 1.0,
+            ["dark red"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "lback", "belly" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Japanese Wave And Koi Masterpiece",
+        "a koi-and-wave tattoo",
+        "A powerful koi is tattooed here amid sweeping wave forms, foam crests, and curling current lines that turn the whole composition into a single flowing mass. The fish itself is beautifully handled, with scale rows, fins, and facial structure rendered with disciplined detail instead of clutter. The water framing gives the piece movement and coherence, allowing it to feel much larger than the anatomy beneath it. It is a confident, mature work in a classic large-format style.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 54.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0,
+            ["dark blue"] = 2.0,
+            ["red"] = 1.0
+        },
+        BodypartAliases: new[] { "rshoulderblade", "lshoulderblade", "abdomen", "belly" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Tiger Through Bamboo",
+        "a tiger tattoo",
+        "A tiger is tattooed here in a prowling, half-turned pose, its musculature and striped hide emerging through a frame of bamboo and leaves. The anatomy is observed with unusual confidence, giving the beast real weight and coiled tension rather than a generic big-cat silhouette. The surrounding foliage is not filler; it is arranged to break the figure, frame the head, and keep the eye moving through the design. The whole tattoo feels deliberate, expensive, and expertly judged.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 55.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0,
+            ["orange"] = 2.0,
+            ["green"] = 1.0
+        },
+        BodypartAliases: new[] { "rbreast", "lbreast", "abdomen", "rshoulderblade", "lshoulderblade" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Serpent Garden Tableau",
+        "a serpent-garden tattoo",
+        "A great serpent is tattooed here in looping coils through flowers, leaves, and carved ornamental borders. The artist has made the coils do real compositional work, dividing the space into rich chambers of detail without making the overall piece feel fragmented. Scales, blossoms, and negative space have all been used with intelligence, giving the design both density and breath. It is decorative in the best sense: lush, complex, and under precise control.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 57.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0,
+            ["emerald green"] = 1.0,
+            ["red"] = 1.0
+        },
+        BodypartAliases: new[] { "abdomen", "belly", "lback" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Twin Peacocks Ornamental Backpiece",
+        "a twin-peacocks tattoo",
+        "Two peacocks are tattooed here in a mirrored ornamental arrangement, their bodies elegant and their tail-feathers exploding into elaborate eye-marked fans. The feather treatment is lavish but controlled, with repeating motifs varied just enough to avoid mechanical stiffness. The birds read as noble centrepieces while the tails carry the grandeur of the whole design outward across the field. It is ostentatious work, but executed with enough discipline to remain tasteful.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 63.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 4.0,
+            ["teal blue"] = 2.0,
+            ["gold"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "lback" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Sacred Heart Baroque Chestpiece",
+        "a baroque sacred-heart tattoo",
+        "A sacred heart is tattooed here as the centre of a grand baroque composition, surrounded by rays, scrollwork, thorns, and devotional flourishes. The heart itself is rendered richly enough to anchor the piece, while the framing ornament gives it ceremonial weight and a sense of old-world artistry. Nothing about the design feels incidental; every curl and flare has been placed to support the visual hierarchy. It is a chestpiece meant to be noticed and remembered.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 59.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["crimson"] = 2.0,
+            ["gold"] = 1.0
+        },
+        BodypartAliases: new[] { "rbreast", "lbreast", "abdomen" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Cosmic Observatory",
+        "a cosmic tattoo",
+        "A cosmic observatory scene is tattooed here, combining stars, planetary arcs, instrument rings, and sweeping clouds into a grand astronomical composition. The linework is extraordinarily clean for so busy a design, with each circular element maintaining its integrity instead of drifting off true. Fine accent work in the background creates depth without muddying the main forms. The result feels intellectual, mysterious, and intensely deliberate.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 64.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["deep blue"] = 1.0,
+            ["silver grey"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "abdomen", "belly" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Warrior Queen Portrait",
+        "a warrior-queen portrait tattoo",
+        "A crowned warrior queen is tattooed here in a commanding portrait, framed by armour details, drapery, and ornamental motifs that elevate the piece beyond simple portraiture. The face is rendered with enough confidence to carry expression, while the surrounding details give the composition narrative weight and grandeur. The shading is controlled and elegant, never heavy-handed. It reads as a prestige commission rather than ordinary flash.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 60.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 5.0,
+            ["gold"] = 1.0,
+            ["dark red"] = 1.0
+        },
+        BodypartAliases: new[] { "rbreast", "lbreast", "rshoulderblade", "lshoulderblade" }
+    ),
+
+    new SeederTattooTemplateDefinition(
+        "Infernal Cathedral",
+        "an infernal cathedral tattoo",
+        "A nightmarish infernal cathedral is tattooed here in spires, arches, flames, and looming demonic ornament. The artist has packed the space with gothic structure and infernal symbolism, yet the perspective and silhouette remain clear enough that the whole image still reads powerfully at a glance. Fine architectural detailing, smoke, and ember-like accents enrich the piece without breaking its coherence. It is dark, excessive, and extremely skilful work.",
+        MinimumBodypartSize: SizeCategory.Normal,
+        MinimumSkill: 66.0,
+        InkColours: new Dictionary<string, double>
+        {
+            ["black"] = 6.0,
+            ["dark red"] = 2.0,
+            ["orange"] = 1.0
+        },
+        BodypartAliases: new[] { "uback", "lback", "abdomen" }
+    ),
+        #endregion
     ];
 
 	private static readonly IReadOnlyList<SeederScarTemplateDefinition> HumanScarTemplates = [];

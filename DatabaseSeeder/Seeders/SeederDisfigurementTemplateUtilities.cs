@@ -32,8 +32,8 @@ internal abstract record SeederDisfigurementTemplateDefinition(
 internal sealed record SeederTattooTextSlotDefinition(
 	string Name,
 	int MaximumLength,
-	string? DefaultLanguageName = null,
-	string? DefaultScriptName = null,
+	string? DefaultLanguageName = "",
+	string? DefaultScriptName = "",
 	string DefaultText = "",
 	bool RequiredCustomText = false,
 	WritingStyleDescriptors DefaultStyle = WritingStyleDescriptors.None,
@@ -112,9 +112,10 @@ internal static class SeederDisfigurementTemplateUtilities
 		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions = null,
 		IEnumerable<SeederScarTemplateDefinition>? scarDefinitions = null)
 	{
-		foreach (var definition in tattooDefinitions ?? Enumerable.Empty<SeederTattooTemplateDefinition>())
+		var writingDefaults = ResolveTattooWritingDefaults(context);
+		foreach (var definition in GetSeedableTattooDefinitions(tattooDefinitions, writingDefaults))
 		{
-			SeedTattooTemplate(context, body, definition);
+			SeedTattooTemplate(context, body, definition, writingDefaults);
 		}
 
 		foreach (var definition in scarDefinitions ?? Enumerable.Empty<SeederScarTemplateDefinition>())
@@ -130,8 +131,9 @@ internal static class SeederDisfigurementTemplateUtilities
 		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions = null,
 		IEnumerable<SeederScarTemplateDefinition>? scarDefinitions = null)
 	{
+		var writingDefaults = ResolveTattooWritingDefaults(context);
 		var expected = new HashSet<(string Type, string Name)>(StringComparerTupleComparer.Instance);
-		foreach (var definition in tattooDefinitions ?? Enumerable.Empty<SeederTattooTemplateDefinition>())
+		foreach (var definition in GetSeedableTattooDefinitions(tattooDefinitions, writingDefaults))
 		{
 			expected.Add(("Tattoo", definition.Name));
 		}
@@ -158,7 +160,8 @@ internal static class SeederDisfigurementTemplateUtilities
 	private static void SeedTattooTemplate(
 		FuturemudDatabaseContext context,
 		BodyProto body,
-		SeederTattooTemplateDefinition definition)
+		SeederTattooTemplateDefinition definition,
+		TattooWritingDefaults? writingDefaults)
 	{
 		var template = GetOrCreateTemplate(context, "Tattoo", definition.Name);
 		var bodypartShapes = ResolveBodypartShapes(context, body, definition).ToList();
@@ -184,8 +187,27 @@ internal static class SeederDisfigurementTemplateUtilities
 				select new XElement("Shape", shapeId)),
 			new XElement("TextSlots",
 				from slot in definition.TextSlots ?? Enumerable.Empty<SeederTattooTextSlotDefinition>()
-				select BuildTattooTextSlotElement(context, slot, definition.Name))
+				select BuildTattooTextSlotElement(context, slot, definition.Name, writingDefaults))
 		).ToString();
+	}
+
+	private static IEnumerable<SeederTattooTemplateDefinition> GetSeedableTattooDefinitions(
+		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions,
+		TattooWritingDefaults? writingDefaults)
+	{
+		foreach (var definition in tattooDefinitions ?? Enumerable.Empty<SeederTattooTemplateDefinition>())
+		{
+			if (definition.TextSlots?.Any() == true &&
+			    definition.TextSlots.Any(slot =>
+				    string.IsNullOrWhiteSpace(slot.DefaultLanguageName) ||
+				    string.IsNullOrWhiteSpace(slot.DefaultScriptName)) &&
+			    writingDefaults is null)
+			{
+				continue;
+			}
+
+			yield return definition;
+		}
 	}
 
 	private static void SeedScarTemplate(
@@ -417,7 +439,8 @@ internal static class SeederDisfigurementTemplateUtilities
 	private static XElement BuildTattooTextSlotElement(
 		FuturemudDatabaseContext context,
 		SeederTattooTextSlotDefinition definition,
-		string tattooName)
+		string tattooName,
+		TattooWritingDefaults? writingDefaults)
 	{
 		if (definition.MaximumLength <= 0)
 		{
@@ -429,14 +452,62 @@ internal static class SeederDisfigurementTemplateUtilities
 			new XAttribute("name", definition.Name),
 			new XAttribute("maxlength", definition.MaximumLength),
 			new XAttribute("required", definition.RequiredCustomText),
-			new XElement("Language", ResolveLanguageIdOrZero(context, definition.DefaultLanguageName)),
-			new XElement("Script", ResolveScriptIdOrZero(context, definition.DefaultScriptName)),
+			new XElement("Language", ResolveTattooTextSlotLanguageId(context, definition, tattooName, writingDefaults)),
+			new XElement("Script", ResolveTattooTextSlotScriptId(context, definition, tattooName, writingDefaults)),
 			new XElement("Style", (int)definition.DefaultStyle),
 			new XElement("Colour", ResolveColourIdOrZero(context, definition.DefaultColourName)),
 			new XElement("MinimumSkill", definition.DefaultMinimumSkill),
 			new XElement("Text", new XCData(definition.DefaultText ?? string.Empty)),
 			new XElement("AlternateText", new XCData(definition.DefaultAlternateText ?? string.Empty))
 		);
+	}
+
+	private static TattooWritingDefaults? ResolveTattooWritingDefaults(FuturemudDatabaseContext context)
+	{
+		var languageId = context.Languages
+			.AsEnumerable()
+			.Where(x => !string.Equals(x.Name, "Admin Speech", StringComparison.OrdinalIgnoreCase))
+			.OrderBy(x => x.Id)
+			.Select(x => x.Id)
+			.FirstOrDefault();
+		var scriptId = context.Scripts
+			.AsEnumerable()
+			.OrderBy(x => x.Id)
+			.Select(x => x.Id)
+			.FirstOrDefault();
+		return languageId != 0L && scriptId != 0L
+			? new TattooWritingDefaults(languageId, scriptId)
+			: null;
+	}
+
+	private static long ResolveTattooTextSlotLanguageId(
+		FuturemudDatabaseContext context,
+		SeederTattooTextSlotDefinition definition,
+		string tattooName,
+		TattooWritingDefaults? writingDefaults)
+	{
+		if (!string.IsNullOrWhiteSpace(definition.DefaultLanguageName))
+		{
+			return ResolveLanguageIdOrZero(context, definition.DefaultLanguageName);
+		}
+
+		return writingDefaults?.LanguageId ?? throw new InvalidOperationException(
+			$"Tattoo text slot {definition.Name} for {tattooName} requires a default language, but none could be inferred.");
+	}
+
+	private static long ResolveTattooTextSlotScriptId(
+		FuturemudDatabaseContext context,
+		SeederTattooTextSlotDefinition definition,
+		string tattooName,
+		TattooWritingDefaults? writingDefaults)
+	{
+		if (!string.IsNullOrWhiteSpace(definition.DefaultScriptName))
+		{
+			return ResolveScriptIdOrZero(context, definition.DefaultScriptName);
+		}
+
+		return writingDefaults?.ScriptId ?? throw new InvalidOperationException(
+			$"Tattoo text slot {definition.Name} for {tattooName} requires a default script, but none could be inferred.");
 	}
 
 	private static long ResolveLanguageIdOrZero(FuturemudDatabaseContext context, string? languageName)
@@ -510,4 +581,6 @@ internal static class SeederDisfigurementTemplateUtilities
 				StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Name));
 		}
 	}
+
+	private sealed record TattooWritingDefaults(long LanguageId, long ScriptId);
 }

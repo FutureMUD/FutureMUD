@@ -4,8 +4,10 @@ using MudSharp.Construction;
 using MudSharp.Form.Shape;
 using MudSharp.GameItems;
 
-namespace MudSharp.Body {
-    public enum SightResult {
+namespace MudSharp.Body
+{
+    public enum SightResult
+    {
         TrueSight, // i.e. admin
         Normal,
         Indistinct,
@@ -13,7 +15,8 @@ namespace MudSharp.Body {
         CannotSee
     }
 
-    public interface IGiveSight {
+    public interface IGiveSight
+    {
         SightResult CanSee(ICharacter actor);
         SightResult CanSee(ILocation location);
         SightResult CanSee(ILocateable locatable);

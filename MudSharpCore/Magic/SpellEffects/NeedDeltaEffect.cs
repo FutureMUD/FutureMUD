@@ -1,12 +1,12 @@
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Body.Needs;
 using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
-using MudSharp.Effects.Interfaces;
 using MudSharp.RPG.Checks;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -80,7 +80,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandHunger(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("You must enter a valid value in hours.");
             return false;
@@ -93,7 +93,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandThirst(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("You must enter a valid value in hours.");
             return false;
@@ -106,7 +106,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandDrunk(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("You must enter a valid value in litres of alcohol.");
             return false;
@@ -125,7 +125,11 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => true;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => IsCompatibleWithTrigger(trigger.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger trigger)
+    {
+        return IsCompatibleWithTrigger(trigger.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -141,7 +145,10 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
         if (target is not ICharacter ch)
+        {
             return null;
+        }
+
         ch.Body.FulfilNeeds(new NeedFulfiller
         {
             SatiationPoints = HungerDelta,
@@ -151,5 +158,8 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
         return null;
     }
 
-    public IMagicSpellEffectTemplate Clone() => new NeedDeltaEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new NeedDeltaEffect(SaveToXml(), Spell);
+    }
 }

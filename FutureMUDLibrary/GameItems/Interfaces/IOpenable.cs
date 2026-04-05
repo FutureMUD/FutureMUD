@@ -1,8 +1,10 @@
 ﻿using MudSharp.Body;
 using MudSharp.Framework;
 
-namespace MudSharp.GameItems.Interfaces {
-    public enum WhyCannotOpenReason {
+namespace MudSharp.GameItems.Interfaces
+{
+    public enum WhyCannotOpenReason
+    {
         AlreadyOpen,
         Locked,
         Jammed,
@@ -11,7 +13,8 @@ namespace MudSharp.GameItems.Interfaces {
         AlternateMechanism
     }
 
-    public enum WhyCannotCloseReason {
+    public enum WhyCannotCloseReason
+    {
         AlreadyClosed,
         Locked,
         Jammed,
@@ -22,7 +25,8 @@ namespace MudSharp.GameItems.Interfaces {
 
     public delegate void OpenableEvent(IOpenable openable);
 
-    public interface IOpenable : IGameItemComponent {
+    public interface IOpenable : IGameItemComponent
+    {
         bool IsOpen { get; }
         bool CanOpen(IBody opener);
         WhyCannotOpenReason WhyCannotOpen(IBody opener);

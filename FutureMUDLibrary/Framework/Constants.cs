@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-namespace MudSharp.Framework {
-    public static partial class Constants {
+namespace MudSharp.Framework
+{
+    public static partial class Constants
+    {
         public const int PlayerConnectionBufferSize = 40960;
 
         public const string ValidNameCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -23,11 +25,11 @@ namespace MudSharp.Framework {
             "s", "t", "v", "w", "x", "y", "z"
         };
 
-        public static readonly string[] EnglishVowels = {"a", "e", "i", "o", "u", "y"};
-        public static readonly string[] EnglishSonorants = {"y", "w", "l", "r", "m", "n", "ng"};
+        public static readonly string[] EnglishVowels = { "a", "e", "i", "o", "u", "y" };
+        public static readonly string[] EnglishSonorants = { "y", "w", "l", "r", "m", "n", "ng" };
 
-        public static readonly char[] CommandSeparators = {' '};
-        public static readonly char[] WordSeparators = {' '};
+        public static readonly char[] CommandSeparators = { ' ' };
+        public static readonly char[] WordSeparators = { ' ' };
 
         public static readonly Random Random = new();
         public static readonly RandomNumberGenerator CryptoRandom = RandomNumberGenerator.Create();

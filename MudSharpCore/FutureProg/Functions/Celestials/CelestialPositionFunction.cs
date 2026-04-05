@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MudSharp.Celestial;
 using MudSharp.Construction;
 using MudSharp.FutureProg.Variables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Celestials;
 
@@ -21,7 +21,7 @@ internal class CelestialPositionFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        var obj = ParameterFunctions[0].Result?.GetObject;
+        object obj = ParameterFunctions[0].Result?.GetObject;
         IZone? zone = obj as IZone;
         if (zone == null && obj is ICell cell)
         {
@@ -34,15 +34,15 @@ internal class CelestialPositionFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        var id = Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0L);
-        var celestial = zone.Celestials.FirstOrDefault(x => x.Id == id);
+        long id = Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0L);
+        ICelestialObject celestial = zone.Celestials.FirstOrDefault(x => x.Id == id);
         if (celestial == null)
         {
             Result = new TextVariable(string.Empty);
             return StatementResult.Normal;
         }
 
-        var info = zone.GetInfo(celestial);
+        CelestialInformation info = zone.GetInfo(celestial);
         Result = new TextVariable(celestial.Describe(info));
         return StatementResult.Normal;
     }

@@ -1,7 +1,9 @@
 ﻿using MudSharp.Form.Material;
 
-namespace MudSharp.Effects.Interfaces {
-    public interface ILiquidContaminationEffect : ICleanableEffect {
+namespace MudSharp.Effects.Interfaces
+{
+    public interface ILiquidContaminationEffect : ICleanableEffect
+    {
         LiquidMixture ContaminatingLiquid { get; }
         /// <summary>
         /// Adds liquid to the effect

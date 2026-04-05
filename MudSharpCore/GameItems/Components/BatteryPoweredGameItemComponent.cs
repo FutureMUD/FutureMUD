@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
@@ -13,1068 +8,1067 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
 public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IOpenable, IProducePower, IConsumePower, IConnectable
 {
-	protected BatteryPoweredGameItemComponentProto _prototype;
-	public override IGameItemComponentProto Prototype => _prototype;
-	private readonly List<Tuple<ConnectorType, IConnectable>> _connectedItems = [];
-	private readonly List<Tuple<long, ConnectorType>> _pendingLoadTimeConnections = [];
-	private readonly List<Tuple<long, ConnectorType>> _pendingDependentLoadTimeConnections = [];
-	private IProducePower? _connectedPowerSource;
-	private ConnectorType? _connectedPowerSourceConnector;
-	private bool _charging;
+    protected BatteryPoweredGameItemComponentProto _prototype;
+    public override IGameItemComponentProto Prototype => _prototype;
+    private readonly List<Tuple<ConnectorType, IConnectable>> _connectedItems = [];
+    private readonly List<Tuple<long, ConnectorType>> _pendingLoadTimeConnections = [];
+    private readonly List<Tuple<long, ConnectorType>> _pendingDependentLoadTimeConnections = [];
+    private IProducePower? _connectedPowerSource;
+    private ConnectorType? _connectedPowerSourceConnector;
+    private bool _charging;
 
-	public override void Delete()
-	{
-		base.Delete();
-		_connectedPowerSource?.EndDrawdown(this);
-		_connectedPowerSource = null;
-		_connectedPowerSourceConnector = null;
-		_charging = false;
-		foreach (var item in Contents.ToList())
-		{
-			_contents.Remove(item);
-			item.ContainedIn = null;
-			item.Delete();
-		}
+    public override void Delete()
+    {
+        base.Delete();
+        _connectedPowerSource?.EndDrawdown(this);
+        _connectedPowerSource = null;
+        _connectedPowerSourceConnector = null;
+        _charging = false;
+        foreach (IGameItem item in Contents.ToList())
+        {
+            _contents.Remove(item);
+            item.ContainedIn = null;
+            item.Delete();
+        }
 
-		foreach (var item in Locks.ToList())
-		{
-			_locks.Remove(item);
-			item.Parent.Delete();
-		}
+        foreach (ILock item in Locks.ToList())
+        {
+            _locks.Remove(item);
+            item.Parent.Delete();
+        }
 
-		_batteries.Clear();
-		_connectedItems.Clear();
-		_pendingLoadTimeConnections.Clear();
-		_pendingDependentLoadTimeConnections.Clear();
-	}
+        _batteries.Clear();
+        _connectedItems.Clear();
+        _pendingLoadTimeConnections.Clear();
+        _pendingDependentLoadTimeConnections.Clear();
+    }
 
-	public override void Quit()
-	{
-		_connectedPowerSource?.EndDrawdown(this);
-		_connectedPowerSource = null;
-		_connectedPowerSourceConnector = null;
-		_charging = false;
-		foreach (var item in Contents)
-		{
-			item.Quit();
-		}
+    public override void Quit()
+    {
+        _connectedPowerSource?.EndDrawdown(this);
+        _connectedPowerSource = null;
+        _connectedPowerSourceConnector = null;
+        _charging = false;
+        foreach (IGameItem item in Contents)
+        {
+            item.Quit();
+        }
 
-		foreach (var item in Locks)
-		{
-			item.Quit();
-		}
-	}
+        foreach (ILock item in Locks)
+        {
+            item.Quit();
+        }
+    }
 
-	public override void Login()
-	{
-		foreach (var item in Contents)
-		{
-			item.Login();
-		}
+    public override void Login()
+    {
+        foreach (IGameItem item in Contents)
+        {
+            item.Login();
+        }
 
-		foreach (var item in Locks)
-		{
-			item.Login();
-		}
-	}
+        foreach (ILock item in Locks)
+        {
+            item.Login();
+        }
+    }
 
-	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
-	{
-		var newItemLockable = newItem?.GetItemType<ILockable>();
-		if (newItemLockable != null)
-		{
-			foreach (var thelock in Locks)
-			{
-				newItemLockable.InstallLock(thelock);
-			}
-		}
-		else
-		{
-			foreach (var thelock in Locks)
-			{
-				if (location != null)
-				{
-					location.Insert(thelock.Parent);
-					thelock.Parent.ContainedIn = null;
-				}
-				else
-				{
-					thelock.Parent.Delete();
-				}
-			}
-		}
+    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    {
+        ILockable newItemLockable = newItem?.GetItemType<ILockable>();
+        if (newItemLockable != null)
+        {
+            foreach (ILock thelock in Locks)
+            {
+                newItemLockable.InstallLock(thelock);
+            }
+        }
+        else
+        {
+            foreach (ILock thelock in Locks)
+            {
+                if (location != null)
+                {
+                    location.Insert(thelock.Parent);
+                    thelock.Parent.ContainedIn = null;
+                }
+                else
+                {
+                    thelock.Parent.Delete();
+                }
+            }
+        }
 
-		_locks.Clear();
+        _locks.Clear();
 
-		var newItemContainer = newItem?.GetItemType<IContainer>();
-		if (newItemContainer != null)
-		{
-			var newItemOpenable = newItem.GetItemType<IOpenable>();
-			if (newItemOpenable != null)
-			{
-				if (IsOpen)
-				{
-					newItemOpenable.Open();
-				}
-				else
-				{
-					newItemOpenable.Close();
-				}
-			}
+        IContainer newItemContainer = newItem?.GetItemType<IContainer>();
+        if (newItemContainer != null)
+        {
+            IOpenable newItemOpenable = newItem.GetItemType<IOpenable>();
+            if (newItemOpenable != null)
+            {
+                if (IsOpen)
+                {
+                    newItemOpenable.Open();
+                }
+                else
+                {
+                    newItemOpenable.Close();
+                }
+            }
 
-			if (Contents.Any())
-			{
-				foreach (var item in Contents.ToList())
-				{
-					if (newItemContainer.CanPut(item))
-					{
-						newItemContainer.Put(null, item);
-					}
-					else if (location != null)
-					{
-						location.Insert(item);
-						item.ContainedIn = null;
-					}
-					else
-					{
-						item.Delete();
-					}
-				}
+            if (Contents.Any())
+            {
+                foreach (IGameItem item in Contents.ToList())
+                {
+                    if (newItemContainer.CanPut(item))
+                    {
+                        newItemContainer.Put(null, item);
+                    }
+                    else if (location != null)
+                    {
+                        location.Insert(item);
+                        item.ContainedIn = null;
+                    }
+                    else
+                    {
+                        item.Delete();
+                    }
+                }
 
-				_contents.Clear();
-			}
-		}
-		else
-		{
-			foreach (var item in Contents.ToList())
-			{
-				if (location != null)
-				{
-					location.Insert(item);
-					item.ContainedIn = null;
-				}
-				else
-				{
-					item.Delete();
-				}
-			}
+                _contents.Clear();
+            }
+        }
+        else
+        {
+            foreach (IGameItem item in Contents.ToList())
+            {
+                if (location != null)
+                {
+                    location.Insert(item);
+                    item.ContainedIn = null;
+                }
+                else
+                {
+                    item.Delete();
+                }
+            }
 
-			_contents.Clear();
-		}
+            _contents.Clear();
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public override bool DescriptionDecorator(DescriptionType type)
-	{
-		return (IsOpen && type == DescriptionType.Contents) || type == DescriptionType.Full;
-	}
+    public override bool DescriptionDecorator(DescriptionType type)
+    {
+        return (IsOpen && type == DescriptionType.Contents) || type == DescriptionType.Full;
+    }
 
-	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
-		bool colour, PerceiveIgnoreFlags flags)
-	{
-		switch (type)
-		{
-			case DescriptionType.Contents:
-				if (_contents.Any())
-				{
-					return description + "\n\nIt contains the following batteries:\n" +
-					       (from item in _contents
-					        select "\t" + item.HowSeen(voyeur)).ListToString(separator: "\n", conjunction: "",
-						       twoItemJoiner: "\n");
-				}
+    public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
+        bool colour, PerceiveIgnoreFlags flags)
+    {
+        switch (type)
+        {
+            case DescriptionType.Contents:
+                if (_contents.Any())
+                {
+                    return description + "\n\nIt contains the following batteries:\n" +
+                           (from item in _contents
+                            select "\t" + item.HowSeen(voyeur)).ListToString(separator: "\n", conjunction: "",
+                               twoItemJoiner: "\n");
+                }
 
-				return description + "\n\nIt does not currently contain any batteries.";
-			case DescriptionType.Full:
-				var sb = new StringBuilder();
-				sb.Append(description);
-				sb.AppendLine();
-				sb.AppendLine(
-					$"It accepts {_prototype.BatteryQuantity} batteries of type {_prototype.BatteryType.Colour(Telnet.Cyan)}.");
-				if ((voyeur as ICharacter)?.IsAdministrator() ?? false)
-				{
-					sb.AppendLine(
-						$"{"[Admin Info]:".Colour(Telnet.BoldWhite)} The batteries are in the following state:");
+                return description + "\n\nIt does not currently contain any batteries.";
+            case DescriptionType.Full:
+                StringBuilder sb = new();
+                sb.Append(description);
+                sb.AppendLine();
+                sb.AppendLine(
+                    $"It accepts {_prototype.BatteryQuantity} batteries of type {_prototype.BatteryType.Colour(Telnet.Cyan)}.");
+                if ((voyeur as ICharacter)?.IsAdministrator() ?? false)
+                {
+                    sb.AppendLine(
+                        $"{"[Admin Info]:".Colour(Telnet.BoldWhite)} The batteries are in the following state:");
 
-					foreach (var battery in _batteries)
-					{
-						sb.AppendLine(
-							$"\t{battery.Parent.HowSeen(voyeur)}: {battery.WattHoursRemaining.ToString("N4", voyeur).ColourValue()} watt-hours of {battery.TotalWattHours.ToString("N4", voyeur).ColourValue()} total.");
-					}
-				}
+                    foreach (IBattery battery in _batteries)
+                    {
+                        sb.AppendLine(
+                            $"\t{battery.Parent.HowSeen(voyeur)}: {battery.WattHoursRemaining.ToString("N4", voyeur).ColourValue()} watt-hours of {battery.TotalWattHours.ToString("N4", voyeur).ColourValue()} total.");
+                    }
+                }
 
-				sb.AppendLine($"It is able to be opened and closed, and is currently {(IsOpen ? "open" : "closed")}."
-					.Colour(Telnet.Yellow));
-				if (Locks.Any())
-				{
-					sb.AppendLine();
-					sb.AppendLine("It has the following locks:");
-					foreach (var thelock in Locks)
-					{
-						sb.AppendLineFormat("\t{0}", thelock.Parent.HowSeen(voyeur));
-					}
-				}
+                sb.AppendLine($"It is able to be opened and closed, and is currently {(IsOpen ? "open" : "closed")}."
+                    .Colour(Telnet.Yellow));
+                if (Locks.Any())
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("It has the following locks:");
+                    foreach (ILock thelock in Locks)
+                    {
+                        sb.AppendLineFormat("\t{0}", thelock.Parent.HowSeen(voyeur));
+                    }
+                }
 
-				return sb.ToString();
-		}
+                return sb.ToString();
+        }
 
-		return description;
-	}
+        return description;
+    }
 
-	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-	{
-		_prototype = (BatteryPoweredGameItemComponentProto)newProto;
-	}
+    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+    {
+        _prototype = (BatteryPoweredGameItemComponentProto)newProto;
+    }
 
-	#region Saving
+    #region Saving
 
-	protected override string SaveToXml()
-	{
-		return
-			new XElement("Definition", new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
-				new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
-				from content in Contents select new XElement("Contained", content.Id),
-				new XElement("ConnectedItems",
-					from item in ConnectedItems
-					select new XElement("Item",
-						new XAttribute("id", item.Item2.Parent.Id),
-						new XAttribute("connectiontype", item.Item1),
-						new XAttribute("independent", item.Item2.Independent)))).ToString();
-	}
+    protected override string SaveToXml()
+    {
+        return
+            new XElement("Definition", new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
+                new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
+                from content in Contents select new XElement("Contained", content.Id),
+                new XElement("ConnectedItems",
+                    from item in ConnectedItems
+                    select new XElement("Item",
+                        new XAttribute("id", item.Item2.Parent.Id),
+                        new XAttribute("connectiontype", item.Item1),
+                        new XAttribute("independent", item.Item2.Independent)))).ToString();
+    }
 
-	#endregion
+    #endregion
 
-	#region Constructors
+    #region Constructors
 
-	public BatteryPoweredGameItemComponent(BatteryPoweredGameItemComponentProto proto, IGameItem parent,
-		bool temporary = false) : base(parent, proto, temporary)
-	{
-		_prototype = proto;
-		parent.OnConnected += Parent_OnConnected;
-		parent.OnDisconnected += Parent_OnDisconnected;
-	}
+    public BatteryPoweredGameItemComponent(BatteryPoweredGameItemComponentProto proto, IGameItem parent,
+        bool temporary = false) : base(parent, proto, temporary)
+    {
+        _prototype = proto;
+        parent.OnConnected += Parent_OnConnected;
+        parent.OnDisconnected += Parent_OnDisconnected;
+    }
 
-	public BatteryPoweredGameItemComponent(MudSharp.Models.GameItemComponent component,
-		BatteryPoweredGameItemComponentProto proto, IGameItem parent) : base(component, parent)
-	{
-		_prototype = proto;
-		_noSave = true;
-		LoadFromXml(XElement.Parse(component.Definition));
-		_noSave = false;
-		parent.OnConnected += Parent_OnConnected;
-		parent.OnDisconnected += Parent_OnDisconnected;
-	}
+    public BatteryPoweredGameItemComponent(MudSharp.Models.GameItemComponent component,
+        BatteryPoweredGameItemComponentProto proto, IGameItem parent) : base(component, parent)
+    {
+        _prototype = proto;
+        _noSave = true;
+        LoadFromXml(XElement.Parse(component.Definition));
+        _noSave = false;
+        parent.OnConnected += Parent_OnConnected;
+        parent.OnDisconnected += Parent_OnDisconnected;
+    }
 
-	public BatteryPoweredGameItemComponent(BatteryPoweredGameItemComponent rhs, IGameItem newParent,
-		bool temporary = false) : base(rhs, newParent, temporary)
-	{
-		_prototype = rhs._prototype;
-		newParent.OnConnected += Parent_OnConnected;
-		newParent.OnDisconnected += Parent_OnDisconnected;
-	}
+    public BatteryPoweredGameItemComponent(BatteryPoweredGameItemComponent rhs, IGameItem newParent,
+        bool temporary = false) : base(rhs, newParent, temporary)
+    {
+        _prototype = rhs._prototype;
+        newParent.OnConnected += Parent_OnConnected;
+        newParent.OnDisconnected += Parent_OnDisconnected;
+    }
 
-	protected void LoadFromXml(XElement root)
-	{
-		var attr = root.Attribute("Open");
-		if (attr != null)
-		{
-			_isOpen = attr.Value == "true";
-		}
+    protected void LoadFromXml(XElement root)
+    {
+        XAttribute attr = root.Attribute("Open");
+        if (attr != null)
+        {
+            _isOpen = attr.Value == "true";
+        }
 
-		var lockelem = root.Element("Locks");
-		if (lockelem != null)
-		{
-			foreach (
-				var item in
-				lockelem.Elements("Lock")
-				        .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-				        .Where(item => item?.IsItemType<ILock>() == true))
-			{
-				if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
-				{
-					Changed = true;
-					Gameworld.SystemMessage(
-						$"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id.ToString("N0")}",
-						true);
-					continue;
-				}
+        XElement lockelem = root.Element("Locks");
+        if (lockelem != null)
+        {
+            foreach (
+                IGameItem item in
+                lockelem.Elements("Lock")
+                        .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
+                        .Where(item => item?.IsItemType<ILock>() == true))
+            {
+                if (item.ContainedIn != null || item.Location != null || item.InInventoryOf != null)
+                {
+                    Changed = true;
+                    Gameworld.SystemMessage(
+                        $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
+                        true);
+                    continue;
+                }
 
-				item.Get(null);
-				InstallLock(item.GetItemType<ILock>());
-			}
-		}
+                item.Get(null);
+                InstallLock(item.GetItemType<ILock>());
+            }
+        }
 
-		foreach (
-			var item in
-			root.Elements("Contained")
-			    .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
-			    .Where(item => item != null))
-		{
-			if ((item.ContainedIn != null && item.ContainedIn != Parent) || item.Location != null ||
-			    item.InInventoryOf != null)
-			{
-				Changed = true;
-				Gameworld.SystemMessage(
-					$"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id.ToString("N0")}",
-					true);
-				continue;
-			}
+        foreach (
+            IGameItem item in
+            root.Elements("Contained")
+                .Select(element => Gameworld.TryGetItem(long.Parse(element.Value), true))
+                .Where(item => item != null))
+        {
+            if ((item.ContainedIn != null && item.ContainedIn != Parent) || item.Location != null ||
+                item.InInventoryOf != null)
+            {
+                Changed = true;
+                Gameworld.SystemMessage(
+                    $"Duplicated Item: {item.HowSeen(item, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings)} {item.Id:N0}",
+                    true);
+                continue;
+            }
 
-			item.Get(null);
-			_contents.Add(item);
-			_batteries.Add(item.GetItemType<IBattery>());
-			item.LoadTimeSetContainedIn(Parent);
-		}
+            item.Get(null);
+            _contents.Add(item);
+            _batteries.Add(item.GetItemType<IBattery>());
+            item.LoadTimeSetContainedIn(Parent);
+        }
 
-		var connectors = root.Element("ConnectedItems");
-		if (connectors != null)
-		{
-			foreach (var item in connectors.Elements("Item"))
-			{
-				var connector = new ConnectorType(item.Attribute("connectiontype")!.Value);
-				if (item.Attribute("independent")?.Value == "false")
-				{
-					_pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
-				}
-				else
-				{
-					_pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
-				}
-			}
-		}
-	}
+        XElement connectors = root.Element("ConnectedItems");
+        if (connectors != null)
+        {
+            foreach (XElement item in connectors.Elements("Item"))
+            {
+                ConnectorType connector = new(item.Attribute("connectiontype")!.Value);
+                if (item.Attribute("independent")?.Value == "false")
+                {
+                    _pendingDependentLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
+                }
+                else
+                {
+                    _pendingLoadTimeConnections.Add(Tuple.Create(long.Parse(item.Attribute("id")!.Value), connector));
+                }
+            }
+        }
+    }
 
-	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-	{
-		return new BatteryPoweredGameItemComponent(this, newParent, temporary);
-	}
+    public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
+    {
+        return new BatteryPoweredGameItemComponent(this, newParent, temporary);
+    }
 
-	public override void FinaliseLoad()
-	{
-		foreach (var item in _contents)
-		{
-			item.FinaliseLoadTimeTasks();
-		}
+    public override void FinaliseLoad()
+    {
+        foreach (IGameItem item in _contents)
+        {
+            item.FinaliseLoadTimeTasks();
+        }
 
-		foreach (var item in _pendingLoadTimeConnections.ToList())
-		{
-			var gitem = Gameworld.Items.Get(item.Item1);
-			if (gitem == null || gitem.Location != Parent.Location)
-			{
-				continue;
-			}
+        foreach (Tuple<long, ConnectorType> item in _pendingLoadTimeConnections.ToList())
+        {
+            IGameItem gitem = Gameworld.Items.Get(item.Item1);
+            if (gitem == null || gitem.Location != Parent.Location)
+            {
+                continue;
+            }
 
-			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
-			{
-				if (!connectable.CanConnect(null, this))
-				{
-					continue;
-				}
+            foreach (IConnectable connectable in gitem.GetItemTypes<IConnectable>())
+            {
+                if (!connectable.CanConnect(null, this))
+                {
+                    continue;
+                }
 
-				connectable.Connect(null, this);
-				break;
-			}
-		}
+                connectable.Connect(null, this);
+                break;
+            }
+        }
 
-		_pendingLoadTimeConnections.Clear();
+        _pendingLoadTimeConnections.Clear();
 
-		foreach (var item in _pendingDependentLoadTimeConnections.ToList())
-		{
-			var gitem = Gameworld.Items.Get(item.Item1);
-			if (gitem == null)
-			{
-				gitem = Gameworld.TryGetItem(item.Item1, true);
-				if (gitem == null)
-				{
-					continue;
-				}
+        foreach (Tuple<long, ConnectorType> item in _pendingDependentLoadTimeConnections.ToList())
+        {
+            IGameItem gitem = Gameworld.Items.Get(item.Item1);
+            if (gitem == null)
+            {
+                gitem = Gameworld.TryGetItem(item.Item1, true);
+                if (gitem == null)
+                {
+                    continue;
+                }
 
-				gitem.FinaliseLoadTimeTasks();
-			}
+                gitem.FinaliseLoadTimeTasks();
+            }
 
-			foreach (var connectable in gitem.GetItemTypes<IConnectable>())
-			{
-				connectable.Connect(null, this);
-				break;
-			}
-		}
+            foreach (IConnectable connectable in gitem.GetItemTypes<IConnectable>())
+            {
+                connectable.Connect(null, this);
+                break;
+            }
+        }
 
-		_pendingDependentLoadTimeConnections.Clear();
-	}
+        _pendingDependentLoadTimeConnections.Clear();
+    }
 
-	#endregion
+    #endregion
 
-	#region IProducePower Implementation
+    #region IProducePower Implementation
 
-	private bool _heartbeatOn;
+    private bool _heartbeatOn;
 
-	private void CheckHeartbeat()
-	{
-		var hasChargeRoom = _charging && _batteries.Any(x => x.Rechargable && x.WattHoursRemaining < x.TotalWattHours);
-		var needsHeartbeat = (_connectedConsumers.Any() && ProducingPower) || hasChargeRoom;
-		if (_heartbeatOn && !needsHeartbeat)
-		{
-			EndHeartbeat();
-			return;
-		}
+    private void CheckHeartbeat()
+    {
+        bool hasChargeRoom = _charging && _batteries.Any(x => x.Rechargable && x.WattHoursRemaining < x.TotalWattHours);
+        bool needsHeartbeat = (_connectedConsumers.Any() && ProducingPower) || hasChargeRoom;
+        if (_heartbeatOn && !needsHeartbeat)
+        {
+            EndHeartbeat();
+            return;
+        }
 
-		if (!_heartbeatOn && needsHeartbeat)
-		{
-			StartHeartbeat();
-		}
-	}
+        if (!_heartbeatOn && needsHeartbeat)
+        {
+            StartHeartbeat();
+        }
+    }
 
-	private void StartHeartbeat()
-	{
-		if (!_heartbeatOn)
-		{
-			Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManagerOnSecondHeartbeat;
-			_heartbeatOn = true;
-			foreach (var user in _connectedConsumers)
-			{
-				if (!_powerUsers.Contains(user))
-				{
-					_powerUsers.Add(user);
-					user.OnPowerCutIn();
-				}
-			}
-		}
-	}
+    private void StartHeartbeat()
+    {
+        if (!_heartbeatOn)
+        {
+            Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManagerOnSecondHeartbeat;
+            _heartbeatOn = true;
+            foreach (IConsumePower user in _connectedConsumers)
+            {
+                if (!_powerUsers.Contains(user))
+                {
+                    _powerUsers.Add(user);
+                    user.OnPowerCutIn();
+                }
+            }
+        }
+    }
 
-	private void HeartbeatManagerOnSecondHeartbeat()
-	{
-		var powerUsage = _powerUsers.Sum(x => x.PowerConsumptionInWatts) / 3600.0 /
-		                 (_prototype.BatteriesInSeries ? 1.0 : _prototype.BatteryQuantity);
+    private void HeartbeatManagerOnSecondHeartbeat()
+    {
+        double powerUsage = _powerUsers.Sum(x => x.PowerConsumptionInWatts) / 3600.0 /
+                         (_prototype.BatteriesInSeries ? 1.0 : _prototype.BatteryQuantity);
 #if DEBUG
-		if (powerUsage < 0)
-		{
-			Console.WriteLine("Negative power usage!");
-		}
+        if (powerUsage < 0)
+        {
+            Console.WriteLine("Negative power usage!");
+        }
 #endif
-		foreach (var battery in _batteries)
-		{
-			battery.WattHoursRemaining -= powerUsage;
-		}
+        foreach (IBattery battery in _batteries)
+        {
+            battery.WattHoursRemaining -= powerUsage;
+        }
 
-		if (_charging)
-		{
-			var chargeRate = _prototype.ChargeWattage / 3600.0 /
-			                 (_prototype.BatteriesInSeries ? 1.0 : _prototype.BatteryQuantity);
-			foreach (var battery in _batteries.Where(x => x.Rechargable))
-			{
-				battery.WattHoursRemaining = Math.Min(battery.TotalWattHours,
-					battery.WattHoursRemaining + chargeRate);
-			}
-		}
+        if (_charging)
+        {
+            double chargeRate = _prototype.ChargeWattage / 3600.0 /
+                             (_prototype.BatteriesInSeries ? 1.0 : _prototype.BatteryQuantity);
+            foreach (IBattery battery in _batteries.Where(x => x.Rechargable))
+            {
+                battery.WattHoursRemaining = Math.Min(battery.TotalWattHours,
+                    battery.WattHoursRemaining + chargeRate);
+            }
+        }
 
-		CheckHeartbeat();
-	}
+        CheckHeartbeat();
+    }
 
-	private void EndHeartbeat()
-	{
-		if (_heartbeatOn)
-		{
-			Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManagerOnSecondHeartbeat;
-			_heartbeatOn = false;
-			foreach (var user in _powerUsers.ToList())
-			{
-				_powerUsers.Remove(user);
-				user.OnPowerCutOut();
-			}
-		}
-	}
+    private void EndHeartbeat()
+    {
+        if (_heartbeatOn)
+        {
+            Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManagerOnSecondHeartbeat;
+            _heartbeatOn = false;
+            foreach (IConsumePower user in _powerUsers.ToList())
+            {
+                _powerUsers.Remove(user);
+                user.OnPowerCutOut();
+            }
+        }
+    }
 
-	public bool PrimaryLoadTimePowerProducer => true;
-	public bool PrimaryExternalConnectionPowerProducer => false;
+    public bool PrimaryLoadTimePowerProducer => true;
+    public bool PrimaryExternalConnectionPowerProducer => false;
 
-	public double MaximumPowerInWatts => ProducingPower ? _powerUsers.Sum(x => x.PowerConsumptionInWatts) : 0.0;
+    public double MaximumPowerInWatts => ProducingPower ? _powerUsers.Sum(x => x.PowerConsumptionInWatts) : 0.0;
 
-	public double FuelLevel => _batteries.Any()
-		? _batteries.Sum(x => x.WattHoursRemaining / x.TotalWattHours) / _batteries.Count
-		: 0.0;
+    public double FuelLevel => _batteries.Any()
+        ? _batteries.Sum(x => x.WattHoursRemaining / x.TotalWattHours) / _batteries.Count
+        : 0.0;
 
-	public bool ProducingPower
-		=> _batteries.Sum(x => x.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= _prototype.BatteryQuantity &&
-		   _batteries.All(x => x.WattHoursRemaining > 0);
+    public bool ProducingPower
+        => _batteries.Sum(x => x.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= _prototype.BatteryQuantity &&
+           _batteries.All(x => x.WattHoursRemaining > 0);
 
-	private readonly List<IConsumePower> _connectedConsumers = new();
-	private readonly List<IConsumePower> _powerUsers = new();
+    private readonly List<IConsumePower> _connectedConsumers = new();
+    private readonly List<IConsumePower> _powerUsers = new();
 
-	public void BeginDrawdown(IConsumePower item)
-	{
-		if (!_connectedConsumers.Contains(item))
-		{
-			_connectedConsumers.Add(item);
-		}
+    public void BeginDrawdown(IConsumePower item)
+    {
+        if (!_connectedConsumers.Contains(item))
+        {
+            _connectedConsumers.Add(item);
+        }
 
-		if (ProducingPower)
-		{
-			if (!_powerUsers.Contains(item))
-			{
-				_powerUsers.Add(item);
-			}
-			item.OnPowerCutIn();
-		}
+        if (ProducingPower)
+        {
+            if (!_powerUsers.Contains(item))
+            {
+                _powerUsers.Add(item);
+            }
+            item.OnPowerCutIn();
+        }
 
-		CheckHeartbeat();
-	}
+        CheckHeartbeat();
+    }
 
-	public void EndDrawdown(IConsumePower item)
-	{
-		_connectedConsumers.Remove(item);
-		if (_powerUsers.Contains(item))
-		{
-			item.OnPowerCutOut();
-		}
+    public void EndDrawdown(IConsumePower item)
+    {
+        _connectedConsumers.Remove(item);
+        if (_powerUsers.Contains(item))
+        {
+            item.OnPowerCutOut();
+        }
 
-		_powerUsers.Remove(item);
-		CheckHeartbeat();
-	}
+        _powerUsers.Remove(item);
+        CheckHeartbeat();
+    }
 
-	public bool CanBeginDrawDown(double wattage)
-	{
-		return CanDrawdownSpike(wattage);
-	}
+    public bool CanBeginDrawDown(double wattage)
+    {
+        return CanDrawdownSpike(wattage);
+    }
 
-	public bool CanDrawdownSpike(double wattage)
-	{
-		if (!ProducingPower)
-		{
-			return false;
-		}
+    public bool CanDrawdownSpike(double wattage)
+    {
+        if (!ProducingPower)
+        {
+            return false;
+        }
 
-		var watthours = wattage / 3600.0;
-		if (_prototype.BatteriesInSeries)
-		{
-			return _batteries.All(x => x.WattHoursRemaining >= watthours);
-		}
+        double watthours = wattage / 3600.0;
+        if (_prototype.BatteriesInSeries)
+        {
+            return _batteries.All(x => x.WattHoursRemaining >= watthours);
+        }
 
-		return _batteries.All(x => x.WattHoursRemaining >= watthours / _batteries.Count);
-	}
+        return _batteries.All(x => x.WattHoursRemaining >= watthours / _batteries.Count);
+    }
 
-	public bool DrawdownSpike(double wattage)
-	{
-		if (!CanDrawdownSpike(wattage))
-		{
-			return false;
-		}
+    public bool DrawdownSpike(double wattage)
+    {
+        if (!CanDrawdownSpike(wattage))
+        {
+            return false;
+        }
 
-		if (_prototype.BatteriesInSeries)
-		{
-			foreach (var battery in _batteries)
-			{
-				battery.WattHoursRemaining -= wattage / 3600.0;
-			}
-		}
-		else
-		{
-			foreach (var battery in _batteries)
-			{
-				battery.WattHoursRemaining -= wattage / (_prototype.BatteryQuantity * 3600.0);
-			}
-		}
+        if (_prototype.BatteriesInSeries)
+        {
+            foreach (IBattery battery in _batteries)
+            {
+                battery.WattHoursRemaining -= wattage / 3600.0;
+            }
+        }
+        else
+        {
+            foreach (IBattery battery in _batteries)
+            {
+                battery.WattHoursRemaining -= wattage / (_prototype.BatteryQuantity * 3600.0);
+            }
+        }
 
-		CheckHeartbeat();
-		return true;
-	}
+        CheckHeartbeat();
+        return true;
+    }
 
-	#endregion
+    #endregion
 
-	#region IConsumePower Implementation
+    #region IConsumePower Implementation
 
-	public double PowerConsumptionInWatts => _charging ? _prototype.ChargeWattage : 0.0;
+    public double PowerConsumptionInWatts => _charging ? _prototype.ChargeWattage : 0.0;
 
-	public void OnPowerCutIn()
-	{
-		_charging = true;
-		CheckHeartbeat();
-	}
+    public void OnPowerCutIn()
+    {
+        _charging = true;
+        CheckHeartbeat();
+    }
 
-	public void OnPowerCutOut()
-	{
-		_charging = false;
-		CheckHeartbeat();
-	}
+    public void OnPowerCutOut()
+    {
+        _charging = false;
+        CheckHeartbeat();
+    }
 
-	#endregion
+    #endregion
 
-	#region IConnectable Implementation
+    #region IConnectable Implementation
 
-	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
-	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
+    public IEnumerable<ConnectorType> Connections => _prototype.Connections;
+    public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
 
-	public IEnumerable<ConnectorType> FreeConnections
-	{
-		get
-		{
-			var rvar = new List<ConnectorType>(Connections);
-			foreach (var item in ConnectedItems)
-			{
-				rvar.Remove(item.Item1);
-			}
+    public IEnumerable<ConnectorType> FreeConnections
+    {
+        get
+        {
+            List<ConnectorType> rvar = new(Connections);
+            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
+            {
+                rvar.Remove(item.Item1);
+            }
 
-			return rvar;
-		}
-	}
+            return rvar;
+        }
+    }
 
-	public bool Independent => true;
+    public bool Independent => true;
 
-	public bool CanBeConnectedTo(IConnectable other)
-	{
-		return true;
-	}
+    public bool CanBeConnectedTo(IConnectable other)
+    {
+        return true;
+    }
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
-	{
-		if (!FreeConnections.Any() || !other.FreeConnections.Any())
-		{
-			return false;
-		}
+    public bool CanConnect(ICharacter actor, IConnectable other)
+    {
+        if (!FreeConnections.Any() || !other.FreeConnections.Any())
+        {
+            return false;
+        }
 
-		return other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)) &&
-		       other.CanBeConnectedTo(this);
-	}
+        return other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)) &&
+               other.CanBeConnectedTo(this);
+    }
 
-	public void Connect(ICharacter actor, IConnectable other)
-	{
-		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
-		if (connection == null)
-		{
-			return;
-		}
+    public void Connect(ICharacter actor, IConnectable other)
+    {
+        ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
+        if (connection == null)
+        {
+            return;
+        }
 
-		RawConnect(other, connection);
-		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
-		Changed = true;
-	}
+        RawConnect(other, connection);
+        other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(connection)));
+        Changed = true;
+    }
 
-	public void RawConnect(IConnectable other, ConnectorType type)
-	{
-		_connectedItems.Add(Tuple.Create(type, other));
-		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		Parent.ConnectedItem(other, type);
-		Parent_OnConnected(other, type);
-		Changed = true;
-	}
+    public void RawConnect(IConnectable other, ConnectorType type)
+    {
+        _connectedItems.Add(Tuple.Create(type, other));
+        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        _pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        Parent.ConnectedItem(other, type);
+        Parent_OnConnected(other, type);
+        Changed = true;
+    }
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
-	{
-		if (!FreeConnections.Any())
-		{
-			return
-				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the former has no free connection points.";
-		}
+    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    {
+        if (!FreeConnections.Any())
+        {
+            return
+                $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the former has no free connection points.";
+        }
 
-		if (!other.FreeConnections.Any())
-		{
-			return
-				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the latter has no free connection points.";
-		}
+        if (!other.FreeConnections.Any())
+        {
+            return
+                $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as the latter has no free connection points.";
+        }
 
-		if (!other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)))
-		{
-			return
-				$"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as none of the free connection points are compatible.";
-		}
+        if (!other.FreeConnections.Any(x => _prototype.Connections.Any(x.CompatibleWith)))
+        {
+            return
+                $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as none of the free connection points are compatible.";
+        }
 
-		return !other.CanBeConnectedTo(this)
-			? $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as that item cannot be connected to."
-			: $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} for an unknown reason.";
-	}
+        return !other.CanBeConnectedTo(this)
+            ? $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} as that item cannot be connected to."
+            : $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)} for an unknown reason.";
+    }
 
-	public bool CanDisconnect(ICharacter actor, IConnectable other)
-	{
-		return _connectedItems.Any(x => x.Item2 == other);
-	}
+    public bool CanDisconnect(ICharacter actor, IConnectable other)
+    {
+        return _connectedItems.Any(x => x.Item2 == other);
+    }
 
-	public void Disconnect(ICharacter actor, IConnectable other)
-	{
-		RawDisconnect(other, true);
-	}
+    public void Disconnect(ICharacter actor, IConnectable other)
+    {
+        RawDisconnect(other, true);
+    }
 
-	public void RawDisconnect(IConnectable other, bool handleEvents)
-	{
-		if (handleEvents)
-		{
-			other.RawDisconnect(this, false);
-			foreach (var connection in _connectedItems.Where(x => x.Item2 == other).ToList())
-			{
-				Parent.DisconnectedItem(other, connection.Item1);
-				other.Parent.DisconnectedItem(this, connection.Item1);
-				Parent_OnDisconnected(other, connection.Item1);
-			}
-		}
+    public void RawDisconnect(IConnectable other, bool handleEvents)
+    {
+        if (handleEvents)
+        {
+            other.RawDisconnect(this, false);
+            foreach (Tuple<ConnectorType, IConnectable> connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+            {
+                Parent.DisconnectedItem(other, connection.Item1);
+                other.Parent.DisconnectedItem(this, connection.Item1);
+                Parent_OnDisconnected(other, connection.Item1);
+            }
+        }
 
-		_connectedItems.RemoveAll(x => x.Item2 == other);
-		Changed = true;
-	}
+        _connectedItems.RemoveAll(x => x.Item2 == other);
+        Changed = true;
+    }
 
-	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
-	{
-		return _connectedItems.All(x => x.Item2 != other)
-			? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
-			: $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
-	}
+    public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
+    {
+        return _connectedItems.All(x => x.Item2 != other)
+            ? $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because they are not connected!"
+            : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
+    }
 
-	public bool CanBeDisconnectedFrom(IConnectable other)
-	{
-		return true;
-	}
+    public bool CanBeDisconnectedFrom(IConnectable other)
+    {
+        return true;
+    }
 
-	private void Parent_OnConnected(IConnectable other, ConnectorType type)
-	{
-		if (!type.Powered)
-		{
-			return;
-		}
+    private void Parent_OnConnected(IConnectable other, ConnectorType type)
+    {
+        if (!type.Powered)
+        {
+            return;
+        }
 
-		var power = other.Parent.GetItemTypes<IProducePower>()
-		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
-		if (power == null)
-		{
-			return;
-		}
+        IProducePower power = other.Parent.GetItemTypes<IProducePower>()
+                         .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
+        if (power == null)
+        {
+            return;
+        }
 
-		_connectedPowerSource = power;
-		_connectedPowerSourceConnector = type;
-		power.BeginDrawdown(this);
-	}
+        _connectedPowerSource = power;
+        _connectedPowerSourceConnector = type;
+        power.BeginDrawdown(this);
+    }
 
-	private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
-	{
-		if (other.Parent == _connectedPowerSource?.Parent && _connectedPowerSourceConnector?.CompatibleWith(type) == true)
-		{
-			_connectedPowerSource.EndDrawdown(this);
-			_connectedPowerSource = null;
-			_connectedPowerSourceConnector = null;
-			_charging = false;
-			CheckHeartbeat();
-		}
-	}
+    private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
+    {
+        if (other.Parent == _connectedPowerSource?.Parent && _connectedPowerSourceConnector?.CompatibleWith(type) == true)
+        {
+            _connectedPowerSource.EndDrawdown(this);
+            _connectedPowerSource = null;
+            _connectedPowerSourceConnector = null;
+            _charging = false;
+            CheckHeartbeat();
+        }
+    }
 
-	#endregion
+    #endregion
 
-	#region IContainer Implementation
+    #region IContainer Implementation
 
-	private readonly List<IBattery> _batteries = new();
-	private readonly List<IGameItem> _contents = new();
-	public IEnumerable<IGameItem> Contents => _contents;
+    private readonly List<IBattery> _batteries = new();
+    private readonly List<IGameItem> _contents = new();
+    public IEnumerable<IGameItem> Contents => _contents;
 
-	public string ContentsPreposition => _prototype.ContentsPreposition;
+    public string ContentsPreposition => _prototype.ContentsPreposition;
 
-	public bool Transparent => _prototype.Transparent;
+    public bool Transparent => _prototype.Transparent;
 
-	public override double ComponentWeight
-	{
-		get { return Contents.Sum(x => x.Weight); }
-	}
+    public override double ComponentWeight => Contents.Sum(x => x.Weight);
 
-	public override double ComponentBuoyancy(double fluidDensity)
-	{
-		return Contents.Sum(x => x.Buoyancy(fluidDensity));
-	}
+    public override double ComponentBuoyancy(double fluidDensity)
+    {
+        return Contents.Sum(x => x.Buoyancy(fluidDensity));
+    }
 
-	public bool CanPut(IGameItem item)
-	{
-		return
-			IsOpen &&
-			(item.GetItemType<IBattery>()?.BatteryType.EqualTo(_prototype.BatteryType) ?? false) &&
-			_contents.Sum(x => x.Quantity) + item.Quantity <= _prototype.BatteryQuantity;
-	}
+    public bool CanPut(IGameItem item)
+    {
+        return
+            IsOpen &&
+            (item.GetItemType<IBattery>()?.BatteryType.EqualTo(_prototype.BatteryType) ?? false) &&
+            _contents.Sum(x => x.Quantity) + item.Quantity <= _prototype.BatteryQuantity;
+    }
 
-	public int CanPutAmount(IGameItem item)
-	{
-		return _prototype.BatteryQuantity - _contents.Sum(x => x.Quantity);
-	}
+    public int CanPutAmount(IGameItem item)
+    {
+        return _prototype.BatteryQuantity - _contents.Sum(x => x.Quantity);
+    }
 
-	public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
-	{
-		if (_contents.Contains(item))
-		{
+    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    {
+        if (_contents.Contains(item))
+        {
 #if DEBUG
-			throw new ApplicationException("Item duplication in container.");
+            throw new ApplicationException("Item duplication in container.");
 #endif
-			return;
-		}
+            return;
+        }
 
-		if (allowMerge)
-		{
-			var mergeTarget = _contents.FirstOrDefault(x => x.CanMerge(item));
-			if (mergeTarget != null)
-			{
-				mergeTarget.Merge(item);
-				item.Delete();
-				return;
-			}
-		}
+        if (allowMerge)
+        {
+            IGameItem mergeTarget = _contents.FirstOrDefault(x => x.CanMerge(item));
+            if (mergeTarget != null)
+            {
+                mergeTarget.Merge(item);
+                item.Delete();
+                return;
+            }
+        }
 
-		_contents.Add(item);
-		_batteries.Add(item.GetItemType<IBattery>());
-		item.ContainedIn = Parent;
-		CheckHeartbeat();
-		Changed = true;
-	}
+        _contents.Add(item);
+        _batteries.Add(item.GetItemType<IBattery>());
+        item.ContainedIn = Parent;
+        CheckHeartbeat();
+        Changed = true;
+    }
 
-	public WhyCannotPutReason WhyCannotPut(IGameItem item)
-	{
-		if (!IsOpen)
-		{
-			return WhyCannotPutReason.ContainerClosed;
-		}
+    public WhyCannotPutReason WhyCannotPut(IGameItem item)
+    {
+        if (!IsOpen)
+        {
+            return WhyCannotPutReason.ContainerClosed;
+        }
 
-		if (!item.GetItemType<IBattery>()?.BatteryType.EqualTo(_prototype.BatteryType) ?? true)
-		{
-			return WhyCannotPutReason.NotCorrectItemType;
-		}
+        if (!item.GetItemType<IBattery>()?.BatteryType.EqualTo(_prototype.BatteryType) ?? true)
+        {
+            return WhyCannotPutReason.NotCorrectItemType;
+        }
 
-		if (_contents.Sum(x => x.Quantity) + item.Quantity > _prototype.BatteryQuantity)
-		{
-			var capacity = _prototype.BatteryQuantity - _contents.Sum(x => x.Quantity);
-			if (item.Quantity <= 1 || capacity <= 0)
-			{
-				return WhyCannotPutReason.ContainerFull;
-			}
+        if (_contents.Sum(x => x.Quantity) + item.Quantity > _prototype.BatteryQuantity)
+        {
+            int capacity = _prototype.BatteryQuantity - _contents.Sum(x => x.Quantity);
+            if (item.Quantity <= 1 || capacity <= 0)
+            {
+                return WhyCannotPutReason.ContainerFull;
+            }
 
-			return WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity;
-		}
+            return WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity;
+        }
 
-		return WhyCannotPutReason.NotContainer;
-	}
+        return WhyCannotPutReason.NotContainer;
+    }
 
-	public bool CanTake(ICharacter taker, IGameItem item, int quantity)
-	{
-		return IsOpen && _contents.Contains(item) && item.CanGet(quantity).AsBool();
-	}
+    public bool CanTake(ICharacter taker, IGameItem item, int quantity)
+    {
+        return IsOpen && _contents.Contains(item) && item.CanGet(quantity).AsBool();
+    }
 
-	public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
-	{
-		Changed = true;
-		if (quantity == 0 || item.DropsWhole(quantity))
-		{
-			_contents.Remove(item);
-			_batteries.Remove(item.GetItemType<IBattery>());
-			item.ContainedIn = null;
-			CheckHeartbeat();
-			return item;
-		}
+    public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
+    {
+        Changed = true;
+        if (quantity == 0 || item.DropsWhole(quantity))
+        {
+            _contents.Remove(item);
+            _batteries.Remove(item.GetItemType<IBattery>());
+            item.ContainedIn = null;
+            CheckHeartbeat();
+            return item;
+        }
 
-		return item.Get(null, quantity);
-	}
+        return item.Get(null, quantity);
+    }
 
-	public WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)
-	{
-		if (!IsOpen)
-		{
-			return WhyCannotGetContainerReason.ContainerClosed;
-		}
+    public WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)
+    {
+        if (!IsOpen)
+        {
+            return WhyCannotGetContainerReason.ContainerClosed;
+        }
 
-		return !_contents.Contains(item)
-			? WhyCannotGetContainerReason.NotContained
-			: WhyCannotGetContainerReason.NotContainer;
-	}
+        return !_contents.Contains(item)
+            ? WhyCannotGetContainerReason.NotContained
+            : WhyCannotGetContainerReason.NotContainer;
+    }
 
-	public override bool Take(IGameItem item)
-	{
-		if (Contents.Contains(item))
-		{
-			_contents.Remove(item);
-			_batteries.RemoveAll(x => x.Parent == item);
-			CheckHeartbeat();
-			Changed = true;
-			return true;
-		}
+    public override bool Take(IGameItem item)
+    {
+        if (Contents.Contains(item))
+        {
+            _contents.Remove(item);
+            _batteries.RemoveAll(x => x.Parent == item);
+            CheckHeartbeat();
+            Changed = true;
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public override bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
-	{
-		if (_contents.Contains(existingItem))
-		{
-			_contents[_contents.IndexOf(existingItem)] = newItem;
-			_batteries.RemoveAll(x => x.Parent == existingItem);
-			if (newItem.IsItemType<IBattery>())
-			{
-				_batteries.Add(newItem.GetItemType<IBattery>());
-			}
+    public override bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
+    {
+        if (_contents.Contains(existingItem))
+        {
+            _contents[_contents.IndexOf(existingItem)] = newItem;
+            _batteries.RemoveAll(x => x.Parent == existingItem);
+            if (newItem.IsItemType<IBattery>())
+            {
+                _batteries.Add(newItem.GetItemType<IBattery>());
+            }
 
-			CheckHeartbeat();
-			newItem.ContainedIn = Parent;
-			Changed = true;
-			existingItem.ContainedIn = null;
-			return true;
-		}
+            CheckHeartbeat();
+            newItem.ContainedIn = Parent;
+            Changed = true;
+            existingItem.ContainedIn = null;
+            return true;
+        }
 
-		if (_locks.Any(x => x.Parent == existingItem) && newItem.IsItemType<ILock>())
-		{
-			_locks[_locks.IndexOf(existingItem.GetItemType<ILock>())] = newItem.GetItemType<ILock>();
-			existingItem.ContainedIn = null;
-			newItem.ContainedIn = Parent;
-			Changed = true;
-			return true;
-		}
+        if (_locks.Any(x => x.Parent == existingItem) && newItem.IsItemType<ILock>())
+        {
+            _locks[_locks.IndexOf(existingItem.GetItemType<ILock>())] = newItem.GetItemType<ILock>();
+            existingItem.ContainedIn = null;
+            newItem.ContainedIn = Parent;
+            Changed = true;
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
-	{
-		var location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
-		var contents = Contents.ToList();
-		_contents.Clear();
-		if (emptier is not null)
-		{
-			if (intoContainer == null)
-			{
-				emptier.OutputHandler.Handle(
-					new MixedEmoteOutput(new Emote("@ empty|empties $0 onto the ground.", emptier, Parent)).Append(
-						playerEmote));
-			}
-			else
-			{
-				emptier.OutputHandler.Handle(
-					new MixedEmoteOutput(new Emote($"@ empty|empties $1 {intoContainer.ContentsPreposition}to $2.",
-						emptier, emptier, Parent, intoContainer.Parent)).Append(playerEmote));
-			}
-		}
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    {
+        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        List<IGameItem> contents = Contents.ToList();
+        _contents.Clear();
+        if (emptier is not null)
+        {
+            if (intoContainer == null)
+            {
+                emptier.OutputHandler.Handle(
+                    new MixedEmoteOutput(new Emote("@ empty|empties $0 onto the ground.", emptier, Parent)).Append(
+                        playerEmote));
+            }
+            else
+            {
+                emptier.OutputHandler.Handle(
+                    new MixedEmoteOutput(new Emote($"@ empty|empties $1 {intoContainer.ContentsPreposition}to $2.",
+                        emptier, emptier, Parent, intoContainer.Parent)).Append(playerEmote));
+            }
+        }
 
-		foreach (var item in contents)
-		{
-			item.ContainedIn = null;
-			if (intoContainer != null)
-			{
-				if (intoContainer.CanPut(item))
-				{
-					intoContainer.Put(emptier, item);
-				}
-				else if (location != null)
-				{
-					location.Insert(item);
-					if (emptier != null)
-					{
-						emptier.OutputHandler.Handle(new EmoteOutput(new Emote(
-							"@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
-							intoContainer.Parent)));
-					}
-				}
-				else
-				{
-					item.Delete();
-				}
+        foreach (IGameItem item in contents)
+        {
+            item.ContainedIn = null;
+            if (intoContainer != null)
+            {
+                if (intoContainer.CanPut(item))
+                {
+                    intoContainer.Put(emptier, item);
+                }
+                else if (location != null)
+                {
+                    location.Insert(item);
+                    emptier?.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            "@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
+                            intoContainer.Parent)));
+                }
+                else
+                {
+                    item.Delete();
+                }
 
-				continue;
-			}
+                continue;
+            }
 
-			if (location != null)
-			{
-				location.Insert(item);
-			}
-			else
-			{
-				item.Delete();
-			}
-		}
+            if (location != null)
+            {
+                location.Insert(item);
+            }
+            else
+            {
+                item.Delete();
+            }
+        }
 
-		CheckHeartbeat();
-		Changed = true;
-	}
+        CheckHeartbeat();
+        Changed = true;
+    }
 
-	#endregion
+    #endregion
 
-	#region IOpenable Members
+    #region IOpenable Members
 
-	private bool _isOpen = true;
+    private bool _isOpen = true;
 
-	public bool IsOpen
-	{
-		get => _isOpen;
-		protected set
-		{
-			_isOpen = value;
-			Changed = true;
-		}
-	}
+    public bool IsOpen
+    {
+        get => _isOpen;
+        protected set
+        {
+            _isOpen = value;
+            Changed = true;
+        }
+    }
 
-	public bool CanOpen(IBody opener)
-	{
-		return !IsOpen && Locks.All(x => !x.IsLocked);
-	}
+    public bool CanOpen(IBody opener)
+    {
+        return !IsOpen && Locks.All(x => !x.IsLocked);
+    }
 
-	public WhyCannotOpenReason WhyCannotOpen(IBody opener)
-	{
-		if (IsOpen)
-		{
-			return WhyCannotOpenReason.AlreadyOpen;
-		}
+    public WhyCannotOpenReason WhyCannotOpen(IBody opener)
+    {
+        if (IsOpen)
+        {
+            return WhyCannotOpenReason.AlreadyOpen;
+        }
 
-		return Locks.Any(x => x.IsLocked) ? WhyCannotOpenReason.Locked : WhyCannotOpenReason.NotOpenable;
-	}
+        return Locks.Any(x => x.IsLocked) ? WhyCannotOpenReason.Locked : WhyCannotOpenReason.NotOpenable;
+    }
 
-	public void Open()
-	{
-		IsOpen = true;
-		OnOpen?.Invoke(this);
-	}
+    public void Open()
+    {
+        IsOpen = true;
+        OnOpen?.Invoke(this);
+    }
 
-	public bool CanClose(IBody closer)
-	{
-		return IsOpen;
-	}
+    public bool CanClose(IBody closer)
+    {
+        return IsOpen;
+    }
 
-	public WhyCannotCloseReason WhyCannotClose(IBody closer)
-	{
-		return !IsOpen ? WhyCannotCloseReason.AlreadyClosed : WhyCannotCloseReason.NotOpenable;
-	}
+    public WhyCannotCloseReason WhyCannotClose(IBody closer)
+    {
+        return !IsOpen ? WhyCannotCloseReason.AlreadyClosed : WhyCannotCloseReason.NotOpenable;
+    }
 
-	public void Close()
-	{
-		IsOpen = false;
-		OnClose?.Invoke(this);
-	}
+    public void Close()
+    {
+        IsOpen = false;
+        OnClose?.Invoke(this);
+    }
 
-	public event OpenableEvent OnOpen;
-	public event OpenableEvent OnClose;
+    public event OpenableEvent OnOpen;
+    public event OpenableEvent OnClose;
 
-	#endregion
+    #endregion
 
-	#region ILockable Members
+    #region ILockable Members
 
-	private readonly List<ILock> _locks = new();
-	public IEnumerable<ILock> Locks => _locks;
+    private readonly List<ILock> _locks = new();
+    public IEnumerable<ILock> Locks => _locks;
 
-	public bool InstallLock(ILock theLock)
-	{
-		_locks.Add(theLock);
-		if (_noSave)
-		{
-			theLock.Parent.LoadTimeSetContainedIn(Parent);
-		}
-		else
-		{
-			theLock.Parent.ContainedIn = Parent;
-		}
+    public bool InstallLock(ILock theLock)
+    {
+        _locks.Add(theLock);
+        if (_noSave)
+        {
+            theLock.Parent.LoadTimeSetContainedIn(Parent);
+        }
+        else
+        {
+            theLock.Parent.ContainedIn = Parent;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public bool RemoveLock(ILock theLock)
-	{
-		if (_locks.Contains(theLock))
-		{
-			theLock.Parent.ContainedIn = null;
-			_locks.Remove(theLock);
-			Changed = true;
-			return true;
-		}
+    public bool RemoveLock(ILock theLock)
+    {
+        if (_locks.Contains(theLock))
+        {
+            theLock.Parent.ContainedIn = null;
+            _locks.Remove(theLock);
+            Changed = true;
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	#endregion
+    #endregion
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MudSharp.FutureProg.Variables {
-    public class BooleanVariable : ProgVariable {
-        public BooleanVariable(bool boolean) {
+namespace MudSharp.FutureProg.Variables
+{
+    public class BooleanVariable : ProgVariable
+    {
+        public BooleanVariable(bool boolean)
+        {
             UnderlyingBoolean = boolean;
         }
 
@@ -13,25 +16,27 @@ namespace MudSharp.FutureProg.Variables {
 
         public override object GetObject => UnderlyingBoolean;
 
-        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
         {
             return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
             };
         }
 
-        private static IReadOnlyDictionary<string,string> DotReferenceHelp()
+        private static IReadOnlyDictionary<string, string> DotReferenceHelp()
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
             };
         }
 
-        public static void RegisterFutureProgCompiler() {
+        public static void RegisterFutureProgCompiler()
+        {
             ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Boolean, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property)
+        {
             throw new NotSupportedException();
         }
     }

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
+using System.Collections.Generic;
 
 namespace MudSharp.Commands.Socials
 {

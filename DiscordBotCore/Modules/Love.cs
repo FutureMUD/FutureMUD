@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.EventHandling;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Discord_Bot.Modules;
 
-public class Love : BaseCommandModule {
-	public string[] Responses = {
+public class Love : BaseCommandModule
+{
+    public string[] Responses = {
             "I love you too, {0}!",
             "I love you more, {0}!",
             "Awww, you're so sweet {0}!",
@@ -28,7 +29,7 @@ public class Love : BaseCommandModule {
             "Let's run away together, {0}.",
         };
 
-	public string[] Reactions = {
+    public string[] Reactions = {
             "👌",
             "👌",
             "👌",
@@ -51,10 +52,10 @@ public class Love : BaseCommandModule {
             "😍",
         };
 
-	[Command("love")]
-	public async Task LoveAsync(CommandContext context)
-	{
-            await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(Reactions.GetRandomElement()));
-            await context.RespondAsync(string.Format(Responses.GetRandomElement(), context.User.Mention));
-        }
+    [Command("love")]
+    public async Task LoveAsync(CommandContext context)
+    {
+        await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(Reactions.GetRandomElement()));
+        await context.RespondAsync(string.Format(Responses.GetRandomElement(), context.User.Mention));
+    }
 }

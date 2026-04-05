@@ -8,6 +8,6 @@ namespace Discord_Bot;
 
 public class CustomGlobalReaction
 {
-	public List<string> WatchedStrings { get; set; }
-	public string Reaction { get; set; }
+    public List<string> WatchedStrings { get; set; }
+    public string Reaction { get; set; }
 }

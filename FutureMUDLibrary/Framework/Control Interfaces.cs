@@ -1,22 +1,26 @@
-﻿using System;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.PerceptionEngine;
+using System;
 
-namespace MudSharp.Framework {
-    public interface IMonitor : IHandleOutput {
+namespace MudSharp.Framework
+{
+    public interface IMonitor : IHandleOutput
+    {
         void AddObservee(IMonitorable observee);
         void RemoveObservee(IMonitorable observee);
 
         void UpdateObservers();
     }
 
-    public interface IMonitorable {
+    public interface IMonitorable
+    {
         void AddObserver(IMonitor observer);
         void RemoveObserver(IMonitor observer);
     }
 
-    public interface IControllable : IHandleOutput, ITimeout {
+    public interface IControllable : IHandleOutput, ITimeout
+    {
         IControllable SubContext { get; }
 
         IControllable NextContext { get; }
@@ -34,53 +38,63 @@ namespace MudSharp.Framework {
         public void LoseControl(IController controller);
     }
 
-    public interface IArbitrarilyControllable : IControllable {
+    public interface IArbitrarilyControllable : IControllable
+    {
         void OutOfContextExecuteCommand(string command);
     }
 
-    public interface IController : IHandleOutput {
+    public interface IController : IHandleOutput
+    {
         public void Close();
         public void SetContext(IControllable context);
     }
 
-    public interface ISubContextController : IController {
+    public interface ISubContextController : IController
+    {
         public void CloseSubContext();
     }
 
-    public interface IHandleCommands {
+    public interface IHandleCommands
+    {
         void HandleCommand(string command);
     }
 
-    public interface ITimeout {
+    public interface ITimeout
+    {
         public int Timeout { get; }
     }
 
-    public interface IHaveFuturemud {
+    public interface IHaveFuturemud
+    {
         IFuturemud Gameworld { get; }
     }
 
-    public interface IAccountController : IHandleCommands, IController, IDisposable, IMonitorable, IMonitor {
+    public interface IAccountController : IHandleCommands, IController, IDisposable, IMonitorable, IMonitor
+    {
         IAccount Account { get; }
 
         void BindAccount(IAccount account);
         void DetachConnection();
     }
 
-    public interface IFuturemudAccountController : IAccountController, IHaveFuturemud {
+    public interface IFuturemudAccountController : IAccountController, IHaveFuturemud
+    {
     }
 
-    public interface ICharacterController : IHandleCommands, IController {
+    public interface ICharacterController : IHandleCommands, IController
+    {
         ICharacter Actor { get; }
 
         /// <summary>
         ///     Gets tags related to Control Context information such as (Idle) (Disconnected) etc.
         /// </summary>
-        string LDescAdditionalTags { get; } 
+        string LDescAdditionalTags { get; }
         long InactivityMilliseconds { get; }
         void UpdateControlFocus(ICharacter newFocus);
     }
 
-    public interface IPlayerController : ICharacterController, IAccountController, ITimeout, IHandleOutput {
+    public interface IPlayerController : ICharacterController, IAccountController, ITimeout, IHandleOutput
+    {
         bool Closing { get; }
 
         string IPAddress { get; }
@@ -88,6 +102,7 @@ namespace MudSharp.Framework {
         void CuePrompt();
     }
 
-    public interface IFuturemudPlayerController : IPlayerController, IHaveFuturemud {
+    public interface IFuturemudPlayerController : IPlayerController, IHaveFuturemud
+    {
     }
 }

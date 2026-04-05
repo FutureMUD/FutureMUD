@@ -1,10 +1,10 @@
-using System;
-using System.Linq;
-using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Inventory.Plans;
 
@@ -65,7 +65,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
 
     public override IGameItem ScoutTarget(ICharacter executor)
     {
-        var part = executor.Body.GetTargetBodypart(Bodypart);
+        IBodypart part = executor.Body.GetTargetBodypart(Bodypart);
         if (part == null)
         {
             return null;

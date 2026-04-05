@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Concrete;
+
 public class TrialLawyer
 {
 }

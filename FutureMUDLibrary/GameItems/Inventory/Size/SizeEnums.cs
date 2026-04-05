@@ -1,8 +1,10 @@
-﻿namespace MudSharp.GameItems.Inventory.Size {
+﻿namespace MudSharp.GameItems.Inventory.Size
+{
     /// <summary>
     ///     Describes how the item fits based on volumetric measurements and parameters
     /// </summary>
-    public enum ItemVolumeFitDescription {
+    public enum ItemVolumeFitDescription
+    {
         VeryLoose = 0,
         Loose,
         Normal,
@@ -14,7 +16,8 @@
     /// <summary>
     ///     Describes how the item fits based on linear measurements and parameters
     /// </summary>
-    public enum ItemLinearFitDescription {
+    public enum ItemLinearFitDescription
+    {
         VerySmall = 0,
         Small,
         Normal,
@@ -23,9 +26,12 @@
         VeryLarge
     }
 
-    public static class SizeEnumsExtensions {
-        public static int Score(this ItemVolumeFitDescription volume) {
-            switch (volume) {
+    public static class SizeEnumsExtensions
+    {
+        public static int Score(this ItemVolumeFitDescription volume)
+        {
+            switch (volume)
+            {
                 case ItemVolumeFitDescription.Perfect:
                     return 0;
                 case ItemVolumeFitDescription.Normal:
@@ -41,8 +47,10 @@
             }
         }
 
-        public static int Score(this ItemLinearFitDescription volume) {
-            switch (volume) {
+        public static int Score(this ItemLinearFitDescription volume)
+        {
+            switch (volume)
+            {
                 case ItemLinearFitDescription.Perfect:
                     return 0;
                 case ItemLinearFitDescription.Normal:
@@ -58,8 +66,10 @@
             }
         }
 
-        public static string Describe(this ItemVolumeFitDescription volume) {
-            switch (volume) {
+        public static string Describe(this ItemVolumeFitDescription volume)
+        {
+            switch (volume)
+            {
                 case ItemVolumeFitDescription.Perfect:
                     return "Perfect";
                 case ItemVolumeFitDescription.Normal:
@@ -77,8 +87,10 @@
             }
         }
 
-        public static string Describe(this ItemLinearFitDescription volume) {
-            switch (volume) {
+        public static string Describe(this ItemLinearFitDescription volume)
+        {
+            switch (volume)
+            {
                 case ItemLinearFitDescription.Perfect:
                     return "Perfect";
                 case ItemLinearFitDescription.Normal:

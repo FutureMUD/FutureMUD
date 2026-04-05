@@ -1,8 +1,10 @@
 ﻿using System;
 
-namespace MudSharp.Editor {
+namespace MudSharp.Editor
+{
     [Flags]
-    public enum EditorOptions {
+    public enum EditorOptions
+    {
         /// <summary>
         ///     All default options
         /// </summary>

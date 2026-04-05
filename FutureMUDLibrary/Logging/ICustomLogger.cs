@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Logging
 {
-    public enum LogEntryType {
+    public enum LogEntryType
+    {
         SkillUse,
         SkillBranch,
         HealingTick,
@@ -16,7 +17,8 @@ namespace MudSharp.Logging
         SufferDamage
     }
 
-    public interface ICustomLogger {
+    public interface ICustomLogger
+    {
         void HandleLog(LogEntryType type, params object[] data);
         void SaveLog();
     }

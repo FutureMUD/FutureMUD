@@ -1,10 +1,13 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using System;
 using System.Collections.Generic;
-using MudSharp.Framework;
 
-namespace MudSharp.FutureProg.Variables {
-    public class TextVariable : ProgVariable {
-        public TextVariable(string theString) {
+namespace MudSharp.FutureProg.Variables
+{
+    public class TextVariable : ProgVariable
+    {
+        public TextVariable(string theString)
+        {
             UnderlyingString = theString;
         }
 
@@ -14,7 +17,7 @@ namespace MudSharp.FutureProg.Variables {
 
         public override object GetObject => UnderlyingString;
 
-        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
         {
             return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -26,7 +29,7 @@ namespace MudSharp.FutureProg.Variables {
             };
         }
 
-        private static IReadOnlyDictionary<string,string> DotReferenceHelp()
+        private static IReadOnlyDictionary<string, string> DotReferenceHelp()
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -38,12 +41,15 @@ namespace MudSharp.FutureProg.Variables {
             };
         }
 
-        public static void RegisterFutureProgCompiler() {
+        public static void RegisterFutureProgCompiler()
+        {
             ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Text, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IProgVariable GetProperty(string property) {
-            switch (property.ToLowerInvariant()) {
+        public override IProgVariable GetProperty(string property)
+        {
+            switch (property.ToLowerInvariant())
+            {
                 case "length":
                     return new NumberVariable(UnderlyingString.Length);
                 case "upper":
@@ -60,7 +66,8 @@ namespace MudSharp.FutureProg.Variables {
 
         #region Overrides of Object
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return UnderlyingString;
         }
 

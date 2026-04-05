@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -10,6 +7,10 @@ using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -83,7 +84,10 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
 
     public bool Independent => true;
 
-    public bool CanBeConnectedTo(IConnectable other) => true;
+    public bool CanBeConnectedTo(IConnectable other)
+    {
+        return true;
+    }
 
     public bool CanConnect(ICharacter actor, IConnectable other)
     {
@@ -97,7 +101,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
             return false;
         }
 
-        var canister = other.Parent.GetItemType<InhalerGasCanisterGameItemComponent>();
+        InhalerGasCanisterGameItemComponent canister = other.Parent.GetItemType<InhalerGasCanisterGameItemComponent>();
         if (canister == null)
         {
             return false;
@@ -119,7 +123,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
         }
 
         RawConnect(other, _prototype.Connector);
-        var otherConnector = other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector));
+        ConnectorType otherConnector = other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector));
         other.RawConnect(this, otherConnector);
     }
 
@@ -162,7 +166,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
             return $"{Parent.HowSeen(actor)} already has a canister attached.";
         }
 
-        var canister = other.Parent.GetItemType<InhalerGasCanisterGameItemComponent>();
+        InhalerGasCanisterGameItemComponent canister = other.Parent.GetItemType<InhalerGasCanisterGameItemComponent>();
         if (canister == null)
         {
             return $"{other.Parent.HowSeen(actor)} is not a compatible gas canister.";
@@ -186,7 +190,10 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
         return $"You cannot connect {Parent.HowSeen(actor)} to {other.Parent.HowSeen(actor)}.";
     }
 
-    public bool CanBeDisconnectedFrom(IConnectable other) => true;
+    public bool CanBeDisconnectedFrom(IConnectable other)
+    {
+        return true;
+    }
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
     {
@@ -228,7 +235,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
         }
 
         character.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ puff|puffs on $0", character, Parent), flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        var gas = ConnectedGasSupply.Gas;
+        IGas gas = ConnectedGasSupply.Gas;
         if (gas?.Drug != null && gas.Drug.DrugVectors.HasFlag(DrugVector.Inhaled))
         {
             character.Body.Dose(gas.Drug, DrugVector.Inhaled, gas.DrugGramsPerUnitVolume * _prototype.GasPerPuff);

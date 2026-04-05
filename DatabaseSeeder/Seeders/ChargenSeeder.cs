@@ -1,115 +1,107 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
 public partial class ChargenSeeder : IDatabaseSeeder
 {
-	private static readonly (ChargenStage Stage, string Type)[] StockChargenStages =
-	[
-		(ChargenStage.Welcome, "WelcomeScreen"),
-		(ChargenStage.SelectRace, "RacePicker"),
-		(ChargenStage.SelectCulture, "CulturePicker"),
-		(ChargenStage.SelectGender, "GenderPicker"),
-		(ChargenStage.SelectHandedness, "HandednessPicker"),
-		(ChargenStage.SelectBirthday, "BirthdayPicker"),
-		(ChargenStage.SelectHeight, "HeightPicker"),
-		(ChargenStage.SelectWeight, "WeightPicker"),
-		(ChargenStage.SelectName, "NamePicker"),
-		(ChargenStage.SelectSkills, "SkillPicker"),
-		(ChargenStage.SelectSkills, "SkillCostPicker"),
-		(ChargenStage.SelectDescription, "DescriptionPicker"),
-		(ChargenStage.SelectStartingLocation, "StartingLocationPicker"),
-		(ChargenStage.SelectNotes, "NotePicker"),
-		(ChargenStage.Submit, "Submit"),
-		(ChargenStage.Menu, "Menu")
-	];
+    private static readonly (ChargenStage Stage, string Type)[] StockChargenStages =
+    [
+        (ChargenStage.Welcome, "WelcomeScreen"),
+        (ChargenStage.SelectRace, "RacePicker"),
+        (ChargenStage.SelectCulture, "CulturePicker"),
+        (ChargenStage.SelectGender, "GenderPicker"),
+        (ChargenStage.SelectHandedness, "HandednessPicker"),
+        (ChargenStage.SelectBirthday, "BirthdayPicker"),
+        (ChargenStage.SelectHeight, "HeightPicker"),
+        (ChargenStage.SelectWeight, "WeightPicker"),
+        (ChargenStage.SelectName, "NamePicker"),
+        (ChargenStage.SelectSkills, "SkillPicker"),
+        (ChargenStage.SelectSkills, "SkillCostPicker"),
+        (ChargenStage.SelectDescription, "DescriptionPicker"),
+        (ChargenStage.SelectStartingLocation, "StartingLocationPicker"),
+        (ChargenStage.SelectNotes, "NotePicker"),
+        (ChargenStage.Submit, "Submit"),
+        (ChargenStage.Menu, "Menu")
+    ];
 
-	private static readonly string[] StockChargenProgNames =
-	[
-		"MaximumAgeChargen",
-		"MinimumAgeChargen",
-		"MaximumHeightChargen",
-		"MinimumHeightChargen",
-		"MaximumWeightChargen",
-		"MinimumWeightChargen",
-		"ChargenFreeSkills",
-		"ChargenNumberOfSkillPicks",
-		"ChargenNumberOfKnowledgePicks",
-		"ChargenFreeKnowledges"
-	];
+    private static readonly string[] StockChargenProgNames =
+    [
+        "MaximumAgeChargen",
+        "MinimumAgeChargen",
+        "MaximumHeightChargen",
+        "MinimumHeightChargen",
+        "MaximumWeightChargen",
+        "MinimumWeightChargen",
+        "ChargenFreeSkills",
+        "ChargenNumberOfSkillPicks",
+        "ChargenNumberOfKnowledgePicks",
+        "ChargenFreeKnowledges"
+    ];
 
-	public IEnumerable<(string Id, string Question,
-		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
-		new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
-			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
-		{
-			("rpp",
-				@"Do you want to use an 'account resource' such as Roleplay Points, Karma, etc?
+    public IEnumerable<(string Id, string Question,
+        Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+        Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+        new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
+            Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
+        {
+            ("rpp",
+                @"Do you want to use an 'account resource' such as Roleplay Points, Karma, etc?
 
 Please answer #3yes#F or #3no#F: ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("rppname",
-				@"What name do you want to give to your RPP/Karma resource? Please enter a name an an alias separated by a slash, e.g. #3Roleplay Point/RPP#F or #3Karma/Karma#f
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("yes", "y", "no", "n")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("rppname",
+                @"What name do you want to give to your RPP/Karma resource? Please enter a name an an alias separated by a slash, e.g. #3Roleplay Point/RPP#F or #3Karma/Karma#f
 
 Please answer: ",
-				(context, answers) => answers["rpp"].EqualToAny("yes", "y"),
-				(answer, context) =>
-				{
-					if (!answer.Contains('/')) return (false, "Invalid selection - did not include a slash.");
-					if (answer.Split('/').Length != 2) return (false, "Invalid selection - more than one slash");
-					if (answer.Split('/').Any(x => string.IsNullOrWhiteSpace(x)))
-						return (false, "Invalid selection - cannot have any empty names or aliases.");
-					return (true, string.Empty);
-				}),
-			("bp",
-				@"Do you want to use a 'Build Points' account resource that regenerates with playtime? This can be useful as an alternative to permanently spending RPP/Karma on chargen options for example.
+                (context, answers) => answers["rpp"].EqualToAny("yes", "y"),
+                (answer, context) =>
+                {
+                    if (!answer.Contains('/')) { return (false, "Invalid selection - did not include a slash."); } if (answer.Split('/').Length != 2) { return (false, "Invalid selection - more than one slash"); } if (answer.Split('/').Any(x => string.IsNullOrWhiteSpace(x))) { return (false, "Invalid selection - cannot have any empty names or aliases."); } return (true, string.Empty);
+                }),
+            ("bp",
+                @"Do you want to use a 'Build Points' account resource that regenerates with playtime? This can be useful as an alternative to permanently spending RPP/Karma on chargen options for example.
 
 Please answer #3yes#F or #3no#F: ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("class",
-				@"Do you want to use character classes in this MUD? For example, you could have classes like 'warrior', 'ranger', 'mage' etc. 
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("yes", "y", "no", "n")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("class",
+                @"Do you want to use character classes in this MUD? For example, you could have classes like 'warrior', 'ranger', 'mage' etc. 
 
 If you do enable classes, characters will be required to choose one during character creation. You'll have to build the classes yourself.
 
 Please answer #3yes#F or #3no#F: ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("subclass",
-				@"Do you want to use subclasses for your classes? E.g. If you answer yes, people might choose 'warrior' and then choose 'bodyguard' as a subclass. Subclasses are mandatory if enabled.
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("yes", "y", "no", "n")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("subclass",
+                @"Do you want to use subclasses for your classes? E.g. If you answer yes, people might choose 'warrior' and then choose 'bodyguard' as a subclass. Subclasses are mandatory if enabled.
 
 Please answer #3yes#F or #3no#F: ",
-				(context, answers) => { return answers["class"].EqualToAny("y", "yes"); },
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("role-first",
-				@"#DCharacter Creation Order#f
+                (context, answers) => { return answers["class"].EqualToAny("y", "yes"); },
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("yes", "y", "no", "n")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("role-first",
+                @"#DCharacter Creation Order#f
 
 You can customise the character creation experience to happen in any order, but realistically there are two main ways in which RPI MUDs will usually structure their character creation.
 
@@ -128,27 +120,25 @@ If you're unhappy with the decision you can change it later but it does influenc
 With all this in mind, do you want to use ""role first"" or ""race first"" ordering?
 
 Please answer #3role#F or #3race#f: ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("role", "race")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("attributemode",
-				@"There are various options that you can use for the attribute selection screen. They are explained below.
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("role", "race")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("attributemode",
+                @"There are various options that you can use for the attribute selection screen. They are explained below.
 
 #BOrder#F: This screen permits the player to choose the order of the attributes only, but rolls the actual values. This is fairly traditional for RPIs (Armageddon, Shadows of Isildur and Atonement all use/used this method for example).
 #BPoints#F: This screen allows the player to spend points on their attributes. It works best when paired with something like a build-point setup, but that is not absolutely essential.
 
 Please answer #3order#f or #3points#f: ",
-				(context, answers) => { return true; },
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("order", "points")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("skillmode",
-				@"There are various options that you can use for the skill selection screen. They are explained below.
+                (context, answers) => { return true; },
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("order", "points")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("skillmode",
+                @"There are various options that you can use for the skill selection screen. They are explained below.
 
 #BPicker#f: This screen permits the player to pick a pre-defined number of skills (e.g. classic SOI).
 #BBoosts#F: This screen permits the player to pick a number of skills plus any additional they can pay for, and also lets them select boosts.
@@ -156,14 +146,13 @@ Please answer #3order#f or #3points#f: ",
 #9Note: The ""Boosts"" mode does not work well if you did not select either a Karma/RPP option or BP. It is designed to work with at least one of these, ideally BP.#0
 
 Please answer #3picker#f or #3boosts#f: ",
-				(context, answers) => { return true; },
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("picker", "boosts")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("merits",
-				@"#DMerits and Flaws or Quirks#F
+                (context, answers) => { return true; },
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("picker", "boosts")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("merits",
+                @"#DMerits and Flaws or Quirks#F
 
 The engine has a system for things alternately called #AMerits and Flaws#F or #AQuirks#F. Players will select these in character creation and they can also be given to races, cultures, ethnicities, roles and classes by default.
 
@@ -176,14 +165,13 @@ If you choose the #3quirk#f option all the options are presented as quirks, they
 You can choose either #3merit#F to use the balanced merits/flaws system or choose #3quirk#f to use the unified approach.
 
 Please answer with your choice: ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("merit", "quirk")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				}),
-			("customdescs",
-				@"#DCustom Descriptions in Chargen#F
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("merit", "quirk")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                }),
+            ("customdescs",
+                @"#DCustom Descriptions in Chargen#F
 
 Do you want to permit people to enter their own custom short and full descriptions? I highly recommend that you do not do this because of the way the FutureMUD markup is designed to work with things like items, spells and natural changes (e.g. haircuts, severed bodyparts etc). The markup is complex and if people write static descriptions that do not change with them then it somewhat devalues the whole process.
 
@@ -194,136 +182,135 @@ At the end of the day the decision is up to you. You can of course change your m
 With that in mind, do you want to enable custom descriptions in chargen?
 
 Please answer #3yes#f or #3no#f: ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Invalid selection.");
-					return (true, string.Empty);
-				})
-		};
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!answer.EqualToAny("yes", "y", "no", "n")) { return (false, "Invalid selection."); } return (true, string.Empty);
+                })
+        };
 
-	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		context.Database.BeginTransaction();
+    public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        context.Database.BeginTransaction();
 
-		#region Resources
+        #region Resources
 
-		var rppresource = default(ChargenResource);
-		if (questionAnswers["rpp"].EqualToAny("yes", "y"))
-		{
-			var split = questionAnswers["rppname"].Split('/', StringSplitOptions.RemoveEmptyEntries);
-			var name = split[0].Trim();
-			var ss = new StringStack(name);
-			ss.PopAll();
-			var pluralisingWord = ss.Last;
-			var plural =
-				$"{ss.Memory.Take(ss.Memory.Count() - 1).ListToCommaSeparatedValues(" ")} {pluralisingWord.Pluralise()}";
-			var resource = SeederRepeatabilityHelper.EnsureEntity(
-				context.ChargenResources,
-				x => string.Equals(x.Alias, split[1].Trim(), StringComparison.OrdinalIgnoreCase) ||
-				     string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
-				_ => true,
-				() =>
-				{
-					var created = new ChargenResource();
-					context.ChargenResources.Add(created);
-					return created;
-				});
-			resource.Name = name;
-			resource.PluralName = plural;
-			resource.Alias = split[1].Trim().ToLowerInvariant();
-			resource.MinimumTimeBetweenAwards = 43200;
-			resource.MaximumNumberAwardedPerAward = 1;
-			resource.PermissionLevelRequiredToAward = (int)PermissionLevel.JuniorAdmin;
-			resource.PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.SeniorAdmin;
-			resource.ShowToPlayerInScore = true;
-			resource.MaximumResourceFormula = "-1";
-			resource.Type = "Simple";
-			resource.TextDisplayedToPlayerOnAward =
-				$"Congratulations, you have been awarded {Name.A_An()} for your excellent conduct.";
-			resource.TextDisplayedToPlayerOnDeduct =
-				$"You have been penalised for improper behaviour, and have had {Name.A_An()} deducted from your account.";
-			rppresource = resource;
-		}
+        ChargenResource? rppresource = default;
+        if (questionAnswers["rpp"].EqualToAny("yes", "y"))
+        {
+            string[] split = questionAnswers["rppname"].Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string name = split[0].Trim();
+            StringStack ss = new(name);
+            ss.PopAll();
+            string pluralisingWord = ss.Last;
+            string plural =
+                $"{ss.Memory.Take(ss.Memory.Count() - 1).ListToCommaSeparatedValues(" ")} {pluralisingWord.Pluralise()}";
+            ChargenResource resource = SeederRepeatabilityHelper.EnsureEntity(
+                context.ChargenResources,
+                x => string.Equals(x.Alias, split[1].Trim(), StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+                _ => true,
+                () =>
+                {
+                    ChargenResource created = new();
+                    context.ChargenResources.Add(created);
+                    return created;
+                });
+            resource.Name = name;
+            resource.PluralName = plural;
+            resource.Alias = split[1].Trim().ToLowerInvariant();
+            resource.MinimumTimeBetweenAwards = 43200;
+            resource.MaximumNumberAwardedPerAward = 1;
+            resource.PermissionLevelRequiredToAward = (int)PermissionLevel.JuniorAdmin;
+            resource.PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.SeniorAdmin;
+            resource.ShowToPlayerInScore = true;
+            resource.MaximumResourceFormula = "-1";
+            resource.Type = "Simple";
+            resource.TextDisplayedToPlayerOnAward =
+                $"Congratulations, you have been awarded {Name.A_An()} for your excellent conduct.";
+            resource.TextDisplayedToPlayerOnDeduct =
+                $"You have been penalised for improper behaviour, and have had {Name.A_An()} deducted from your account.";
+            rppresource = resource;
+        }
 
-		var bpresource = default(ChargenResource);
-		if (questionAnswers["bp"].EqualToAny("yes", "y"))
-		{
-			var resource = SeederRepeatabilityHelper.EnsureEntity(
-				context.ChargenResources,
-				x => string.Equals(x.Alias, "bp", StringComparison.OrdinalIgnoreCase) ||
-				     string.Equals(x.Name, "Build Point", StringComparison.OrdinalIgnoreCase),
-				_ => true,
-				() =>
-				{
-					var created = new ChargenResource();
-					context.ChargenResources.Add(created);
-					return created;
-				});
-			resource.Name = "Build Point";
-			resource.PluralName = "Build Points";
-			resource.Alias = "bp";
-			resource.MinimumTimeBetweenAwards = 15;
-			resource.MaximumNumberAwardedPerAward = 5;
-			resource.PermissionLevelRequiredToAward = (int)PermissionLevel.Founder;
-			resource.PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.Founder;
-			resource.ShowToPlayerInScore = true;
-			resource.Type = "Regenerating";
-			resource.MaximumResourceFormula = "1000";
-			resource.TextDisplayedToPlayerOnAward = "You have been awarded build points";
-			resource.TextDisplayedToPlayerOnDeduct = "You have been penalised build points";
-			bpresource = resource;
-		}
+        ChargenResource? bpresource = default;
+        if (questionAnswers["bp"].EqualToAny("yes", "y"))
+        {
+            ChargenResource resource = SeederRepeatabilityHelper.EnsureEntity(
+                context.ChargenResources,
+                x => string.Equals(x.Alias, "bp", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(x.Name, "Build Point", StringComparison.OrdinalIgnoreCase),
+                _ => true,
+                () =>
+                {
+                    ChargenResource created = new();
+                    context.ChargenResources.Add(created);
+                    return created;
+                });
+            resource.Name = "Build Point";
+            resource.PluralName = "Build Points";
+            resource.Alias = "bp";
+            resource.MinimumTimeBetweenAwards = 15;
+            resource.MaximumNumberAwardedPerAward = 5;
+            resource.PermissionLevelRequiredToAward = (int)PermissionLevel.Founder;
+            resource.PermissionLevelRequiredToCircumventMinimumTime = (int)PermissionLevel.Founder;
+            resource.ShowToPlayerInScore = true;
+            resource.Type = "Regenerating";
+            resource.MaximumResourceFormula = "1000";
+            resource.TextDisplayedToPlayerOnAward = "You have been awarded build points";
+            resource.TextDisplayedToPlayerOnDeduct = "You have been penalised build points";
+            bpresource = resource;
+        }
 
-		context.SaveChanges();
-		bpresource ??= rppresource;
+        context.SaveChanges();
+        bpresource ??= rppresource;
 
-		#endregion
+        #endregion
 
-		#region Progs
+        #region Progs
 
-		FutureProg EnsureChargenProg(
-			string functionName,
-			string subcategory,
-			ProgVariableTypes returnType,
-			string comment,
-			string text,
-			params (ProgVariableTypes Type, string Name)[] parameters)
-		{
-			return SeederRepeatabilityHelper.EnsureProg(
-				context,
-				functionName,
-				"Chargen",
-				subcategory,
-				returnType,
-				comment,
-				text,
-				false,
-				false,
-				FutureProgStaticType.NotStatic,
-				parameters);
-		}
+        FutureProg EnsureChargenProg(
+            string functionName,
+            string subcategory,
+            ProgVariableTypes returnType,
+            string comment,
+            string text,
+            params (ProgVariableTypes Type, string Name)[] parameters)
+        {
+            return SeederRepeatabilityHelper.EnsureProg(
+                context,
+                functionName,
+                "Chargen",
+                subcategory,
+                returnType,
+                comment,
+                text,
+                false,
+                false,
+                FutureProgStaticType.NotStatic,
+                parameters);
+        }
 
-		EnsureChargenProg(
-			"MaximumAgeChargen",
-			"Age",
-			ProgVariableTypes.Number,
-			"Used to determine the maximum age for characters in character creation",
-			@"return @ch.Race.VenerableAge * 1.1",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"MinimumAgeChargen",
-			"Age",
-			ProgVariableTypes.Number,
-			"Used to determine the minimum age for characters in character creation",
-			@"return @ch.Race.YoungAdultAge",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"MaximumHeightChargen",
-			"Height",
-			ProgVariableTypes.Number,
-			"Used to determine the maximum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
-			@"// You will need to expand this as you add new playable races
+        EnsureChargenProg(
+            "MaximumAgeChargen",
+            "Age",
+            ProgVariableTypes.Number,
+            "Used to determine the maximum age for characters in character creation",
+            @"return @ch.Race.VenerableAge * 1.1",
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "MinimumAgeChargen",
+            "Age",
+            ProgVariableTypes.Number,
+            "Used to determine the minimum age for characters in character creation",
+            @"return @ch.Race.YoungAdultAge",
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "MaximumHeightChargen",
+            "Height",
+            ProgVariableTypes.Number,
+            "Used to determine the maximum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
+            @"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
 	if (@ch.Gender == ToGender(""Male""))
@@ -335,13 +322,13 @@ switch (@ch.Race)
 	end if
 end switch
 return 200",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"MinimumHeightChargen",
-			"Height",
-			ProgVariableTypes.Number,
-			"Used to determine the minimum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
-			@"// You will need to expand this as you add new playable races
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "MinimumHeightChargen",
+            "Height",
+            ProgVariableTypes.Number,
+            "Used to determine the minimum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
+            @"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
 	if (@ch.Gender == ToGender(""Male""))
@@ -353,13 +340,13 @@ switch (@ch.Race)
 	end if
 end switch
 return 149",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"MaximumWeightChargen",
-			"Weight",
-			ProgVariableTypes.Number,
-			"Used to determine the maximum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
-			@"// You will need to expand this as you add new playable races
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "MaximumWeightChargen",
+            "Weight",
+            ProgVariableTypes.Number,
+            "Used to determine the maximum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
+            @"// You will need to expand this as you add new playable races
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
@@ -368,13 +355,13 @@ switch (@ch.Race)
 	bmi = 50
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"MinimumWeightChargen",
-			"Weight",
-			ProgVariableTypes.Number,
-			"Used to determine the minimum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
-			@"// You will need to expand this as you add new playable races
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "MinimumWeightChargen",
+            "Weight",
+            ProgVariableTypes.Number,
+            "Used to determine the minimum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
+            @"// You will need to expand this as you add new playable races
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
@@ -383,13 +370,13 @@ switch (@ch.Race)
 	bmi = 16
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"ChargenFreeSkills",
-			"Skills",
-			ProgVariableTypes.Trait | ProgVariableTypes.Collection,
-			"Returns a list of skills that a character gets for free",
-			@"var skills as trait collection
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "ChargenFreeSkills",
+            "Skills",
+            ProgVariableTypes.Trait | ProgVariableTypes.Collection,
+            "Returns a list of skills that a character gets for free",
+            @"var skills as trait collection
 // Universal Skills (usually perception, athletics, that kind of stuff)
 // additem skills ToTrait(""Skill Name"")
 
@@ -405,28 +392,28 @@ end switch
 // Merits-Based, Culture-Based, Role-Based, etc etc
 
 return @skills",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"ChargenNumberOfSkillPicks",
-			"Skills",
-			ProgVariableTypes.Number,
-			"Determines the number of skill picks that are given at character creation",
-			@"return 5",
-			(ProgVariableTypes.Toon, "ch"));
-		EnsureChargenProg(
-			"ChargenNumberOfKnowledgePicks",
-			"Knowledges",
-			ProgVariableTypes.Number,
-			"Determines the number of knowledge picks that are given at character creation",
-			@"return 1",
-			(ProgVariableTypes.Toon, "ch"),
-			(ProgVariableTypes.Trait, "trait"));
-		EnsureChargenProg(
-			"ChargenFreeKnowledges",
-			"Skills",
-			ProgVariableTypes.Knowledge | ProgVariableTypes.Collection,
-			"Returns a list of knowledges that a character gets for free",
-			@"var knowledges as knowledge collection
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "ChargenNumberOfSkillPicks",
+            "Skills",
+            ProgVariableTypes.Number,
+            "Determines the number of skill picks that are given at character creation",
+            @"return 5",
+            (ProgVariableTypes.Toon, "ch"));
+        EnsureChargenProg(
+            "ChargenNumberOfKnowledgePicks",
+            "Knowledges",
+            ProgVariableTypes.Number,
+            "Determines the number of knowledge picks that are given at character creation",
+            @"return 1",
+            (ProgVariableTypes.Toon, "ch"),
+            (ProgVariableTypes.Trait, "trait"));
+        EnsureChargenProg(
+            "ChargenFreeKnowledges",
+            "Skills",
+            ProgVariableTypes.Knowledge | ProgVariableTypes.Collection,
+            "Returns a list of knowledges that a character gets for free",
+            @"var knowledges as knowledge collection
 // If you have any surgerical procedures you need to add the related knowledge based on those skills
 // if (@ch.Skills.Any(x, @x.Name == ""Surgery""))
 //   additem knowledges ToKnowledge(""SurgicalKnowledge"")
@@ -441,59 +428,59 @@ return @skills",
 
 // You can also add clan-based, racial, merit-based etc or anything you can think of
 return @knowledges",
-			(ProgVariableTypes.Toon, "ch"));
+            (ProgVariableTypes.Toon, "ch"));
 
-		if (questionAnswers["attributemode"].EqualTo("points"))
-		{
-			EnsureChargenProg(
-				"MaximumAttributeBoosts",
-				"Attributes",
-				ProgVariableTypes.Number,
-				"Determines the maximum number of boosts that may be put into a single attribute at character creation time",
-				questionAnswers["bp"].EqualToAny("y", "yes") ? @"return 10" : "return 6",
-				(ProgVariableTypes.Toon, "ch"),
-				(ProgVariableTypes.Trait, "trait"));
-			EnsureChargenProg(
-				"MaximumFreeAttributeBoosts",
-				"Attributes",
-				ProgVariableTypes.Number,
-				"Determines the maximum number of free boosts that may be put into a single attribute at character creation time without paying any build points",
-				@"return 6",
-				(ProgVariableTypes.Toon, "ch"),
-				(ProgVariableTypes.Trait, "trait"));
-			EnsureChargenProg(
-				"MaximumAttributeMinuses",
-				"Attributes",
-				ProgVariableTypes.Number,
-				"Determines the maximum number of times that a single attribute may be penalised at character creation time",
-				@"return 3",
-				(ProgVariableTypes.Toon, "ch"),
-				(ProgVariableTypes.Trait, "trait"));
-			EnsureChargenProg(
-				"FreeAttributeBoosts",
-				"Attributes",
-				ProgVariableTypes.Number,
-				"Determines the number of free (no build points) boosts to attributes at character creation time",
-				@"return 12",
-				(ProgVariableTypes.Toon, "ch"));
-			EnsureChargenProg(
-				"AttributeBaseValue",
-				"Attributes",
-				ProgVariableTypes.Number,
-				"Determines the starting value of an attribute before boosts at character creation time, excluding racial bonuses which are added separately",
-				@"return 10",
-				(ProgVariableTypes.Toon, "ch"),
-				(ProgVariableTypes.Trait, "trait"));
-		}
+        if (questionAnswers["attributemode"].EqualTo("points"))
+        {
+            EnsureChargenProg(
+                "MaximumAttributeBoosts",
+                "Attributes",
+                ProgVariableTypes.Number,
+                "Determines the maximum number of boosts that may be put into a single attribute at character creation time",
+                questionAnswers["bp"].EqualToAny("y", "yes") ? @"return 10" : "return 6",
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "trait"));
+            EnsureChargenProg(
+                "MaximumFreeAttributeBoosts",
+                "Attributes",
+                ProgVariableTypes.Number,
+                "Determines the maximum number of free boosts that may be put into a single attribute at character creation time without paying any build points",
+                @"return 6",
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "trait"));
+            EnsureChargenProg(
+                "MaximumAttributeMinuses",
+                "Attributes",
+                ProgVariableTypes.Number,
+                "Determines the maximum number of times that a single attribute may be penalised at character creation time",
+                @"return 3",
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "trait"));
+            EnsureChargenProg(
+                "FreeAttributeBoosts",
+                "Attributes",
+                ProgVariableTypes.Number,
+                "Determines the number of free (no build points) boosts to attributes at character creation time",
+                @"return 12",
+                (ProgVariableTypes.Toon, "ch"));
+            EnsureChargenProg(
+                "AttributeBaseValue",
+                "Attributes",
+                ProgVariableTypes.Number,
+                "Determines the starting value of an attribute before boosts at character creation time, excluding racial bonuses which are added separately",
+                @"return 10",
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "trait"));
+        }
 
-		if (questionAnswers["skillmode"].EqualTo("boosts"))
-		{
-			EnsureChargenProg(
-				"ChargenSkillBoostCost",
-				"Skills",
-				ProgVariableTypes.Number,
-				"Determines the base cost of boosts to individual skills",
-				@"// This is just an example of how you might set this up. The limit is your own imagination.
+        if (questionAnswers["skillmode"].EqualTo("boosts"))
+        {
+            EnsureChargenProg(
+                "ChargenSkillBoostCost",
+                "Skills",
+                ProgVariableTypes.Number,
+                "Determines the base cost of boosts to individual skills",
+                @"// This is just an example of how you might set this up. The limit is your own imagination.
 if (@skill.Group == ""Combat"")
   return 15
 end if
@@ -501,111 +488,111 @@ if (@skill.Group == ""Language"")
   return 5
 end if
 return 10",
-				(ProgVariableTypes.Toon, "ch"),
-				(ProgVariableTypes.Trait, "skill"));
-		}
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "skill"));
+        }
 
-		context.SaveChanges();
+        context.SaveChanges();
 
-		#endregion
+        #endregion
 
-		#region Screens
+        #region Screens
 
-		var stages = new Dictionary<ChargenStage, ChargenScreenStoryboard>();
-		var stageDependencies = new CollectionDictionary<ChargenScreenStoryboard, ChargenStage>();
-		var order = 0;
+        Dictionary<ChargenStage, ChargenScreenStoryboard> stages = new();
+        CollectionDictionary<ChargenScreenStoryboard, ChargenStage> stageDependencies = new();
+        int order = 0;
 
-		void AddStage(ChargenStage stage, string type, ChargenStage nextStage, string definition,
-			params ChargenStage[] dependencies)
-		{
-			var storyboard = SeederRepeatabilityHelper.EnsureEntity(
-				context.ChargenScreenStoryboards,
-				x => x.ChargenStage == (int)stage &&
-				     string.Equals(x.ChargenType, type, StringComparison.OrdinalIgnoreCase),
-				x => x.ChargenStage == (int)stage,
-				() =>
-				{
-					var created = new ChargenScreenStoryboard();
-					context.ChargenScreenStoryboards.Add(created);
-					return created;
-				});
-			storyboard.ChargenStage = (int)stage;
-			storyboard.ChargenType = type;
-			storyboard.Order = order;
-			storyboard.NextStage = (int)nextStage;
-			if (string.IsNullOrWhiteSpace(storyboard.StageDefinition))
-			{
-				storyboard.StageDefinition = definition;
-			}
-			stages[stage] = storyboard;
-			stageDependencies.AddRange(storyboard, dependencies);
-			order += 10;
-		}
+        void AddStage(ChargenStage stage, string type, ChargenStage nextStage, string definition,
+            params ChargenStage[] dependencies)
+        {
+            ChargenScreenStoryboard storyboard = SeederRepeatabilityHelper.EnsureEntity(
+                context.ChargenScreenStoryboards,
+                x => x.ChargenStage == (int)stage &&
+                     string.Equals(x.ChargenType, type, StringComparison.OrdinalIgnoreCase),
+                x => x.ChargenStage == (int)stage,
+                () =>
+                {
+                    ChargenScreenStoryboard created = new();
+                    context.ChargenScreenStoryboards.Add(created);
+                    return created;
+                });
+            storyboard.ChargenStage = (int)stage;
+            storyboard.ChargenType = type;
+            storyboard.Order = order;
+            storyboard.NextStage = (int)nextStage;
+            if (string.IsNullOrWhiteSpace(storyboard.StageDefinition))
+            {
+                storyboard.StageDefinition = definition;
+            }
+            stages[stage] = storyboard;
+            stageDependencies.AddRange(storyboard, dependencies);
+            order += 10;
+        }
 
-		AddStage(ChargenStage.Welcome, "WelcomeScreen", ChargenStage.SpecialApplication,
-			"<Screen><Blurb><![CDATA[This is the welcome screen for your MUD. This is the first screen players will see during character creation. Usually it is the place to give a broad introduction to the concepts of the MUD, link players to your website and/or discord server, and also potentially a link to any documentation that they need to consider.]]></Blurb><Blurb><![CDATA[You can have multiple welcome screens if you want to split up the information. You can simply add new <Blurb> elements after the first. You can also safely delete this Blurb element if you only want a single welcome screen.]]></Blurb></Screen>");
+        AddStage(ChargenStage.Welcome, "WelcomeScreen", ChargenStage.SpecialApplication,
+            "<Screen><Blurb><![CDATA[This is the welcome screen for your MUD. This is the first screen players will see during character creation. Usually it is the place to give a broad introduction to the concepts of the MUD, link players to your website and/or discord server, and also potentially a link to any documentation that they need to consider.]]></Blurb><Blurb><![CDATA[You can have multiple welcome screens if you want to split up the information. You can simply add new <Blurb> elements after the first. You can also safely delete this Blurb element if you only want a single welcome screen.]]></Blurb></Screen>");
 
-		var useClasses = questionAnswers["class"].EqualToAny("y", "yes");
-		var useSubclasses = useClasses && questionAnswers["subclass"].EqualToAny("yes", "y");
-		var usingNonbinary = context.Races.First(x => x.Name == "Human").AllowedGenders == "2 3 4";
+        bool useClasses = questionAnswers["class"].EqualToAny("y", "yes");
+        bool useSubclasses = useClasses && questionAnswers["subclass"].EqualToAny("yes", "y");
+        bool usingNonbinary = context.Races.First(x => x.Name == "Human").AllowedGenders == "2 3 4";
 
-		if (questionAnswers["role-first"].EqualToAny("role"))
-		{
-			AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRole,
-				$"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". When you choose to do so, you will be presented with choices as if you had an additional #22 Roleplay Points#0 more than you currently have. {(bpresource != null ? "It will cost you #1750BP#0 to submit a special application in addition to any other costs, and you" : "You")} may only submit a special application once every 3 months. Submitting a special application automatically incurs a higher level of scrutiny and staff must still be satisfied that you meet the requirements for playing the role before approving you.]]></Blurb></Screen>");
-			AddStage(ChargenStage.SelectRole, "RolePicker", ChargenStage.SelectRace,
-				$"<Screen><IntroductionBlurb><![CDATA[You will now be invited to select roles for your character. Roles help flesh out your character's place in the world, and may be used by the staff at times to make decisions about your character.]]>    </IntroductionBlurb>   <RoleTypes>     <RoleType Type=\"Class\" Name=\"Class\" CanSelectNone=\"{(useClasses ? "false" : "true")}\"><![CDATA[Your class represents, in a broad sense, the capabilities of your character. It will appear in your SCORE, and can be referenced in various places by user-customised code. For instance, which skills are available to you, or which spells you learn could all be influenced by class. Class is entirely softcoded however, so it is up to the end user to establish what classes do.]]></RoleType><RoleType Type=\"Subclass\" Name=\"Sub Class\" CanSelectNone=\"{(useSubclasses ? "false" : "true")}\"><![CDATA[Your subclass represents a refinement of your class, and would extend the capabilities of your character. Like class, it appears in SCORE and can be referenced in various places by user-customised code. The use of subclasses is optional - just because you use classes, does not mean that you must use subclasses. Like class, it is entirely softcoded.]]> </RoleType><RoleType Type=\"Profession\" Name=\"Profession\" CanSelectNone=\"false\"><![CDATA[Your profession represents a job, employment, or vocation that your character has coming into the game. It might be used to give you additional starting skills, a starting clan, starting money, or something of that nature.]]></RoleType><RoleType Type=\"Family\" Name=\"Family\" CanSelectNone=\"true\"><![CDATA[Family roles are designed to represent things related to the family origins of the character, whether they be a noble character selecting a great house to which they belong, or even just a player-sponsored role to make an in-character family relation. Typically a family role would be more likely to give clanning and possibly gear or money than skill boosts, for example.]]></RoleType><RoleType Type=\"Story\" Name=\"Story\" CanSelectNone=\"true\"><![CDATA[Story roles represent unique opportunities for the character, or plot-driven backstories. If you choose to take one of these roles, you have some unique role in the story and metaplot.]]></RoleType></RoleTypes></Screen>",
-				ChargenStage.SpecialApplication);
-			AddStage(ChargenStage.SelectRace, "RacePicker", ChargenStage.SelectEthnicity,
-				"<Screen><Blurb><![CDATA[Races vary from one another with sufficient differences to be considered different species, biologically speaking. You must choose a Race for your character to be, which will affect the availability of certain choices throughout the character creation process.]]></Blurb><ShowUnselectableRacesAsBlanks>false</ShowUnselectableRacesAsBlanks>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
-				ChargenStage.SelectRole);
-			AddStage(ChargenStage.SelectEthnicity, "EthnicityPicker", ChargenStage.SelectGender,
-				"<Screen><Blurb><![CDATA[Ethnicity or ethnic group is a social group of people who identify with each other based on common ancestral, cultural, social, or national experience. Membership of an ethnic group tends to be associated with shared cultural heritage, ancestry, history, homeland, language (dialect) or ideology, and with symbolic systems such as religion, mythology and ritual, cuisine, dressing style, physical appearance, etc. Ethnicity is primarily used to determine what range of physical characteristics such as hair, eye and skin colour are naturally available to your character.]]></Blurb></Screen>",
-				ChargenStage.SelectRace);
-			AddStage(ChargenStage.SelectGender, "GenderPicker", ChargenStage.SelectCulture,
-				$"<Screen><Blurb><![CDATA[Gender is primary used to determine which pronouns are applied to your character by default when they feature in system messages. Male characters will use he/him/his, female characters will use she/her, and {(usingNonbinary ? "non-binary or indeterminately-gendered" : "neuter or indeterminately-gendered")} (depending on race) individuals will use they/them/their. It also affects the starting range of values for height and weight, and the availability of the facial hair characteristic.]]></Blurb></Screen>",
-				ChargenStage.SelectRace);
-			AddStage(ChargenStage.SelectCulture, "CulturePicker", ChargenStage.SelectHandedness,
-				"<Screen><Blurb><![CDATA[Your culture is, broadly speaking, the society in which you were raised and mechanically the main thing that it determines is the naming culture that you use and which calendar you use to mark your birthday. Much of the time cultures will align with ethnicities but they do not necessarily need to. You can also set up cultures to represent social classes.]]> </Blurb><ShowUnselectableCulturesAsBlanks>false</ShowUnselectableCulturesAsBlanks><SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
-				ChargenStage.SelectEthnicity, ChargenStage.SelectGender);
-		}
-		else
-		{
-			AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRace,
-				$"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". When you choose to do so, you will be presented with choices as if you had an additional #22 Roleplay Points#0 more than you currently have. {(bpresource != null ? "It will cost you #1750BP#0 to submit a special application in addition to any other costs, and you" : "You")} may only submit a special application once every 3 months. Submitting a special application automatically incurs a higher level of scrutiny and staff must still be satisfied that you meet the requirements for playing the role before approving you.]]></Blurb></Screen>");
-			AddStage(ChargenStage.SelectRace, "RacePicker", ChargenStage.SelectEthnicity,
-				"<Screen><Blurb><![CDATA[Races vary from one another with sufficient differences to be considered different species, biologically speaking. You must choose a Race for your character to be, which will affect the availability of certain choices throughout the character creation process.]]></Blurb><ShowUnselectableRacesAsBlanks>false</ShowUnselectableRacesAsBlanks>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
-				ChargenStage.SpecialApplication);
-			AddStage(ChargenStage.SelectEthnicity, "EthnicityPicker", ChargenStage.SelectGender,
-				"<Screen><Blurb><![CDATA[Ethnicity or ethnic group is a social group of people who identify with each other based on common ancestral, cultural, social, or national experience. Membership of an ethnic group tends to be associated with shared cultural heritage, ancestry, history, homeland, language (dialect) or ideology, and with symbolic systems such as religion, mythology and ritual, cuisine, dressing style, physical appearance, etc. Ethnicity is primarily used to determine what range of physical characteristics such as hair, eye and skin colour are naturally available to your character.]]></Blurb></Screen>",
-				ChargenStage.SelectRace);
-			AddStage(ChargenStage.SelectGender, "GenderPicker", ChargenStage.SelectCulture,
-				$"<Screen><Blurb><![CDATA[Gender is primary used to determine which pronouns are applied to your character by default when they feature in system messages. Male characters will use he/him/his, female characters will use she/her, and {(usingNonbinary ? "non-binary or indeterminately-gendered" : "neuter or indeterminately-gendered")} (depending on race) individuals will use they/them/their. It also affects the starting range of values for height and weight, and the availability of the facial hair characteristic.]]></Blurb></Screen>",
-				ChargenStage.SelectRace);
-			AddStage(ChargenStage.SelectCulture, "CulturePicker", ChargenStage.SelectRole,
-				"<Screen><Blurb><![CDATA[Your culture is, broadly speaking, the society in which you were raised and mechanically the main thing that it determines is the naming culture that you use and which calendar you use to mark your birthday. Much of the time cultures will align with ethnicities but they do not necessarily need to. You can also set up cultures to represent social classes.]]> </Blurb><ShowUnselectableCulturesAsBlanks>false</ShowUnselectableCulturesAsBlanks><SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
-				ChargenStage.SelectEthnicity, ChargenStage.SelectGender);
-			AddStage(ChargenStage.SelectRole, "RolePicker", ChargenStage.SelectHandedness,
-				$"<Screen><IntroductionBlurb><![CDATA[You will now be invited to select roles for your character. Roles help flesh out your character's place in the world, and may be used by the staff at times to make decisions about your character.]]>    </IntroductionBlurb>   <RoleTypes>     <RoleType Type=\"Class\" Name=\"Class\" CanSelectNone=\"{(useClasses ? "false" : "true")}\"><![CDATA[Your class represents, in a broad sense, the capabilities of your character. It will appear in your SCORE, and can be referenced in various places by user-customised code. For instance, which skills are available to you, or which spells you learn could all be influenced by class. Class is entirely softcoded however, so it is up to the end user to establish what classes do.]]></RoleType><RoleType Type=\"Subclass\" Name=\"Sub Class\" CanSelectNone=\"{(useSubclasses ? "false" : "true")}\"><![CDATA[Your subclass represents a refinement of your class, and would extend the capabilities of your character. Like class, it appears in SCORE and can be referenced in various places by user-customised code. The use of subclasses is optional - just because you use classes, does not mean that you must use subclasses. Like class, it is entirely softcoded.]]> </RoleType><RoleType Type=\"Profession\" Name=\"Profession\" CanSelectNone=\"false\"><![CDATA[Your profession represents a job, employment, or vocation that your character has coming into the game. It might be used to give you additional starting skills, a starting clan, starting money, or something of that nature.]]></RoleType><RoleType Type=\"Family\" Name=\"Family\" CanSelectNone=\"true\"><![CDATA[Family roles are designed to represent things related to the family origins of the character, whether they be a noble character selecting a great house to which they belong, or even just a player-sponsored role to make an in-character family relation. Typically a family role would be more likely to give clanning and possibly gear or money than skill boosts, for example.]]></RoleType><RoleType Type=\"Story\" Name=\"Story\" CanSelectNone=\"true\"><![CDATA[Story roles represent unique opportunities for the character, or plot-driven backstories. If you choose to take one of these roles, you have some unique role in the story and metaplot.]]></RoleType></RoleTypes></Screen>",
-				ChargenStage.SelectCulture);
-		}
+        if (questionAnswers["role-first"].EqualToAny("role"))
+        {
+            AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRole,
+                $"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". When you choose to do so, you will be presented with choices as if you had an additional #22 Roleplay Points#0 more than you currently have. {(bpresource != null ? "It will cost you #1750BP#0 to submit a special application in addition to any other costs, and you" : "You")} may only submit a special application once every 3 months. Submitting a special application automatically incurs a higher level of scrutiny and staff must still be satisfied that you meet the requirements for playing the role before approving you.]]></Blurb></Screen>");
+            AddStage(ChargenStage.SelectRole, "RolePicker", ChargenStage.SelectRace,
+                $"<Screen><IntroductionBlurb><![CDATA[You will now be invited to select roles for your character. Roles help flesh out your character's place in the world, and may be used by the staff at times to make decisions about your character.]]>    </IntroductionBlurb>   <RoleTypes>     <RoleType Type=\"Class\" Name=\"Class\" CanSelectNone=\"{(useClasses ? "false" : "true")}\"><![CDATA[Your class represents, in a broad sense, the capabilities of your character. It will appear in your SCORE, and can be referenced in various places by user-customised code. For instance, which skills are available to you, or which spells you learn could all be influenced by class. Class is entirely softcoded however, so it is up to the end user to establish what classes do.]]></RoleType><RoleType Type=\"Subclass\" Name=\"Sub Class\" CanSelectNone=\"{(useSubclasses ? "false" : "true")}\"><![CDATA[Your subclass represents a refinement of your class, and would extend the capabilities of your character. Like class, it appears in SCORE and can be referenced in various places by user-customised code. The use of subclasses is optional - just because you use classes, does not mean that you must use subclasses. Like class, it is entirely softcoded.]]> </RoleType><RoleType Type=\"Profession\" Name=\"Profession\" CanSelectNone=\"false\"><![CDATA[Your profession represents a job, employment, or vocation that your character has coming into the game. It might be used to give you additional starting skills, a starting clan, starting money, or something of that nature.]]></RoleType><RoleType Type=\"Family\" Name=\"Family\" CanSelectNone=\"true\"><![CDATA[Family roles are designed to represent things related to the family origins of the character, whether they be a noble character selecting a great house to which they belong, or even just a player-sponsored role to make an in-character family relation. Typically a family role would be more likely to give clanning and possibly gear or money than skill boosts, for example.]]></RoleType><RoleType Type=\"Story\" Name=\"Story\" CanSelectNone=\"true\"><![CDATA[Story roles represent unique opportunities for the character, or plot-driven backstories. If you choose to take one of these roles, you have some unique role in the story and metaplot.]]></RoleType></RoleTypes></Screen>",
+                ChargenStage.SpecialApplication);
+            AddStage(ChargenStage.SelectRace, "RacePicker", ChargenStage.SelectEthnicity,
+                "<Screen><Blurb><![CDATA[Races vary from one another with sufficient differences to be considered different species, biologically speaking. You must choose a Race for your character to be, which will affect the availability of certain choices throughout the character creation process.]]></Blurb><ShowUnselectableRacesAsBlanks>false</ShowUnselectableRacesAsBlanks>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
+                ChargenStage.SelectRole);
+            AddStage(ChargenStage.SelectEthnicity, "EthnicityPicker", ChargenStage.SelectGender,
+                "<Screen><Blurb><![CDATA[Ethnicity or ethnic group is a social group of people who identify with each other based on common ancestral, cultural, social, or national experience. Membership of an ethnic group tends to be associated with shared cultural heritage, ancestry, history, homeland, language (dialect) or ideology, and with symbolic systems such as religion, mythology and ritual, cuisine, dressing style, physical appearance, etc. Ethnicity is primarily used to determine what range of physical characteristics such as hair, eye and skin colour are naturally available to your character.]]></Blurb></Screen>",
+                ChargenStage.SelectRace);
+            AddStage(ChargenStage.SelectGender, "GenderPicker", ChargenStage.SelectCulture,
+                $"<Screen><Blurb><![CDATA[Gender is primary used to determine which pronouns are applied to your character by default when they feature in system messages. Male characters will use he/him/his, female characters will use she/her, and {(usingNonbinary ? "non-binary or indeterminately-gendered" : "neuter or indeterminately-gendered")} (depending on race) individuals will use they/them/their. It also affects the starting range of values for height and weight, and the availability of the facial hair characteristic.]]></Blurb></Screen>",
+                ChargenStage.SelectRace);
+            AddStage(ChargenStage.SelectCulture, "CulturePicker", ChargenStage.SelectHandedness,
+                "<Screen><Blurb><![CDATA[Your culture is, broadly speaking, the society in which you were raised and mechanically the main thing that it determines is the naming culture that you use and which calendar you use to mark your birthday. Much of the time cultures will align with ethnicities but they do not necessarily need to. You can also set up cultures to represent social classes.]]> </Blurb><ShowUnselectableCulturesAsBlanks>false</ShowUnselectableCulturesAsBlanks><SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
+                ChargenStage.SelectEthnicity, ChargenStage.SelectGender);
+        }
+        else
+        {
+            AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRace,
+                $"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". When you choose to do so, you will be presented with choices as if you had an additional #22 Roleplay Points#0 more than you currently have. {(bpresource != null ? "It will cost you #1750BP#0 to submit a special application in addition to any other costs, and you" : "You")} may only submit a special application once every 3 months. Submitting a special application automatically incurs a higher level of scrutiny and staff must still be satisfied that you meet the requirements for playing the role before approving you.]]></Blurb></Screen>");
+            AddStage(ChargenStage.SelectRace, "RacePicker", ChargenStage.SelectEthnicity,
+                "<Screen><Blurb><![CDATA[Races vary from one another with sufficient differences to be considered different species, biologically speaking. You must choose a Race for your character to be, which will affect the availability of certain choices throughout the character creation process.]]></Blurb><ShowUnselectableRacesAsBlanks>false</ShowUnselectableRacesAsBlanks>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
+                ChargenStage.SpecialApplication);
+            AddStage(ChargenStage.SelectEthnicity, "EthnicityPicker", ChargenStage.SelectGender,
+                "<Screen><Blurb><![CDATA[Ethnicity or ethnic group is a social group of people who identify with each other based on common ancestral, cultural, social, or national experience. Membership of an ethnic group tends to be associated with shared cultural heritage, ancestry, history, homeland, language (dialect) or ideology, and with symbolic systems such as religion, mythology and ritual, cuisine, dressing style, physical appearance, etc. Ethnicity is primarily used to determine what range of physical characteristics such as hair, eye and skin colour are naturally available to your character.]]></Blurb></Screen>",
+                ChargenStage.SelectRace);
+            AddStage(ChargenStage.SelectGender, "GenderPicker", ChargenStage.SelectCulture,
+                $"<Screen><Blurb><![CDATA[Gender is primary used to determine which pronouns are applied to your character by default when they feature in system messages. Male characters will use he/him/his, female characters will use she/her, and {(usingNonbinary ? "non-binary or indeterminately-gendered" : "neuter or indeterminately-gendered")} (depending on race) individuals will use they/them/their. It also affects the starting range of values for height and weight, and the availability of the facial hair characteristic.]]></Blurb></Screen>",
+                ChargenStage.SelectRace);
+            AddStage(ChargenStage.SelectCulture, "CulturePicker", ChargenStage.SelectRole,
+                "<Screen><Blurb><![CDATA[Your culture is, broadly speaking, the society in which you were raised and mechanically the main thing that it determines is the naming culture that you use and which calendar you use to mark your birthday. Much of the time cultures will align with ethnicities but they do not necessarily need to. You can also set up cultures to represent social classes.]]> </Blurb><ShowUnselectableCulturesAsBlanks>false</ShowUnselectableCulturesAsBlanks><SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
+                ChargenStage.SelectEthnicity, ChargenStage.SelectGender);
+            AddStage(ChargenStage.SelectRole, "RolePicker", ChargenStage.SelectHandedness,
+                $"<Screen><IntroductionBlurb><![CDATA[You will now be invited to select roles for your character. Roles help flesh out your character's place in the world, and may be used by the staff at times to make decisions about your character.]]>    </IntroductionBlurb>   <RoleTypes>     <RoleType Type=\"Class\" Name=\"Class\" CanSelectNone=\"{(useClasses ? "false" : "true")}\"><![CDATA[Your class represents, in a broad sense, the capabilities of your character. It will appear in your SCORE, and can be referenced in various places by user-customised code. For instance, which skills are available to you, or which spells you learn could all be influenced by class. Class is entirely softcoded however, so it is up to the end user to establish what classes do.]]></RoleType><RoleType Type=\"Subclass\" Name=\"Sub Class\" CanSelectNone=\"{(useSubclasses ? "false" : "true")}\"><![CDATA[Your subclass represents a refinement of your class, and would extend the capabilities of your character. Like class, it appears in SCORE and can be referenced in various places by user-customised code. The use of subclasses is optional - just because you use classes, does not mean that you must use subclasses. Like class, it is entirely softcoded.]]> </RoleType><RoleType Type=\"Profession\" Name=\"Profession\" CanSelectNone=\"false\"><![CDATA[Your profession represents a job, employment, or vocation that your character has coming into the game. It might be used to give you additional starting skills, a starting clan, starting money, or something of that nature.]]></RoleType><RoleType Type=\"Family\" Name=\"Family\" CanSelectNone=\"true\"><![CDATA[Family roles are designed to represent things related to the family origins of the character, whether they be a noble character selecting a great house to which they belong, or even just a player-sponsored role to make an in-character family relation. Typically a family role would be more likely to give clanning and possibly gear or money than skill boosts, for example.]]></RoleType><RoleType Type=\"Story\" Name=\"Story\" CanSelectNone=\"true\"><![CDATA[Story roles represent unique opportunities for the character, or plot-driven backstories. If you choose to take one of these roles, you have some unique role in the story and metaplot.]]></RoleType></RoleTypes></Screen>",
+                ChargenStage.SelectCulture);
+        }
 
-		AddStage(ChargenStage.SelectHandedness, "HandednessPicker", ChargenStage.SelectBirthday,
-			"<Screen><Blurb><![CDATA[Every character has a dominant hand with which they are most comfortable holding and using things. If you are not ambidextrous, you will suffer some penalties for using things in your non-dominant hand (unless that thing has been specifically designed to be used in the off-hand, like shields). Even ambidextrous characters need to select a dominant hand, they merely have the penalties removed.]]></Blurb></Screen>",
-			ChargenStage.SelectRace);
-		AddStage(ChargenStage.SelectBirthday, "BirthdayPicker", ChargenStage.SelectHeight,
-			"<Screen><AgeSelectionBlurb><![CDATA[You must now select an age for your character. You must enter a number in years, after which you will be given the opportunity to pick the specific date of your character's birthday.]]>    </AgeSelectionBlurb>   <DateSelectionBlurb><![CDATA[You must now choose a valid date on which your character was born.]]>    </DateSelectionBlurb>   <MinimumAgeProg>MinimumAgeChargen</MinimumAgeProg>   <MaximumAgeProg>MaximumAgeChargen</MaximumAgeProg></Screen>",
-			ChargenStage.SelectCulture);
-		AddStage(ChargenStage.SelectHeight, "HeightPicker", ChargenStage.SelectWeight,
-			"<Screen><Blurb><![CDATA[Height is the measure of how tall your character is. Your maximum and minimum selectable heights are based on your race and gender.]]>    </Blurb>   <MaximumHeightProg>MaximumHeightChargen</MaximumHeightProg>   <MinimumHeightProg>MinimumHeightChargen</MinimumHeightProg></Screen>",
-			ChargenStage.SelectRace, ChargenStage.SelectGender);
-		AddStage(ChargenStage.SelectWeight, "WeightPicker", ChargenStage.SelectName,
-			"<Screen><Blurb><![CDATA[Weight is the force exhibited by the mass of an individual due to the gravity of the celestial body they currently inhabit. Plainly, it determines how heavy you are, or aren't. Your maximum and minimum selectable weights are based on your height, your race, and your gender.]]>    </Blurb>   <MaximumWeightProg>MaximumWeightChargen</MaximumWeightProg>   <MinimumWeightProg>MinimumWeightChargen</MinimumWeightProg></Screen>",
-			ChargenStage.SelectHeight);
-		AddStage(ChargenStage.SelectName, "NamePicker", ChargenStage.SelectDisfigurements, "<Screen></Screen>",
-			ChargenStage.SelectCulture);
-		AddStage(ChargenStage.SelectDisfigurements, "DisfigurementPicker", ChargenStage.SelectMerits,
-			@"<Screen><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit one to the staff on Discord.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit one to the staff on Discord.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game 
+        AddStage(ChargenStage.SelectHandedness, "HandednessPicker", ChargenStage.SelectBirthday,
+            "<Screen><Blurb><![CDATA[Every character has a dominant hand with which they are most comfortable holding and using things. If you are not ambidextrous, you will suffer some penalties for using things in your non-dominant hand (unless that thing has been specifically designed to be used in the off-hand, like shields). Even ambidextrous characters need to select a dominant hand, they merely have the penalties removed.]]></Blurb></Screen>",
+            ChargenStage.SelectRace);
+        AddStage(ChargenStage.SelectBirthday, "BirthdayPicker", ChargenStage.SelectHeight,
+            "<Screen><AgeSelectionBlurb><![CDATA[You must now select an age for your character. You must enter a number in years, after which you will be given the opportunity to pick the specific date of your character's birthday.]]>    </AgeSelectionBlurb>   <DateSelectionBlurb><![CDATA[You must now choose a valid date on which your character was born.]]>    </DateSelectionBlurb>   <MinimumAgeProg>MinimumAgeChargen</MinimumAgeProg>   <MaximumAgeProg>MaximumAgeChargen</MaximumAgeProg></Screen>",
+            ChargenStage.SelectCulture);
+        AddStage(ChargenStage.SelectHeight, "HeightPicker", ChargenStage.SelectWeight,
+            "<Screen><Blurb><![CDATA[Height is the measure of how tall your character is. Your maximum and minimum selectable heights are based on your race and gender.]]>    </Blurb>   <MaximumHeightProg>MaximumHeightChargen</MaximumHeightProg>   <MinimumHeightProg>MinimumHeightChargen</MinimumHeightProg></Screen>",
+            ChargenStage.SelectRace, ChargenStage.SelectGender);
+        AddStage(ChargenStage.SelectWeight, "WeightPicker", ChargenStage.SelectName,
+            "<Screen><Blurb><![CDATA[Weight is the force exhibited by the mass of an individual due to the gravity of the celestial body they currently inhabit. Plainly, it determines how heavy you are, or aren't. Your maximum and minimum selectable weights are based on your height, your race, and your gender.]]>    </Blurb>   <MaximumWeightProg>MaximumWeightChargen</MaximumWeightProg>   <MinimumWeightProg>MinimumWeightChargen</MinimumWeightProg></Screen>",
+            ChargenStage.SelectHeight);
+        AddStage(ChargenStage.SelectName, "NamePicker", ChargenStage.SelectDisfigurements, "<Screen></Screen>",
+            ChargenStage.SelectCulture);
+        AddStage(ChargenStage.SelectDisfigurements, "DisfigurementPicker", ChargenStage.SelectMerits,
+            @"<Screen><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit one to the staff on Discord.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit one to the staff on Discord.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game 
 	<Prosthetic>
 			<Item>ITEM ID</Item>
 			<Costs><Cost resource=""RESOURCE ID"" amount=""RESOURCE AMOUNT""/></Costs>
@@ -613,147 +600,154 @@ return 10",
 	</Prosthetic>
 	--></Prostheses></Screen>", ChargenStage.SelectCulture);
 
-		if (questionAnswers["merits"].EqualToAny("merit"))
-			AddStage(ChargenStage.SelectMerits, "MeritPicker", ChargenStage.SelectAttributes,
-				"<Screen><MeritSelectionBlurb><![CDATA[In addition to picking attributes and skills, you have the opportunity to pick from a number of merits and flaws. These traits can help flesh out your character's natural advantages and disadvantages, and most have coded benefits and penalties attributed to them. Merits are positive traits; usually they boost a stat or skill, or aid your character in any number of beneficial ways: increased strength, resistance to poisons, attractiveness, etc. Flaws, on the other hand, are typically negative traits that are, in some way, harmful to your character: allergies, cowardice, being weak-willed, among others. Picking merits and flaws is purely optional; if you don't want to, you may select none.]]></MeritSelectionBlurb><SkipScreenIfNoChoices>true</SkipScreenIfNoChoices><ForceBalanceOfMeritsAndFlaws>true</ForceBalanceOfMeritsAndFlaws><MaximumMeritsAndFlaws>4</MaximumMeritsAndFlaws></Screen>",
-				ChargenStage.SelectDisfigurements);
-		else
-			AddStage(ChargenStage.SelectMerits, "QuirkPicker", ChargenStage.SelectAttributes,
-				"<Screen><SelectionBlurb><![CDATA[In addition to picking attributes and skills, you have the opportunity to pick from a number of quirks. These traits can help flesh out your character's natural advantages and disadvantages, and most have coded benefits and penalties attributed to them. Picking quirks is purely optional; if you don't want to, you may select none.]]></SelectionBlurb><SkipScreenIfNoChoices>true</SkipScreenIfNoChoices><MaximumQuirks>4</MaximumQuirks></Screen>",
-				ChargenStage.SelectDisfigurements);
+        if (questionAnswers["merits"].EqualToAny("merit"))
+        {
+            AddStage(ChargenStage.SelectMerits, "MeritPicker", ChargenStage.SelectAttributes,
+                "<Screen><MeritSelectionBlurb><![CDATA[In addition to picking attributes and skills, you have the opportunity to pick from a number of merits and flaws. These traits can help flesh out your character's natural advantages and disadvantages, and most have coded benefits and penalties attributed to them. Merits are positive traits; usually they boost a stat or skill, or aid your character in any number of beneficial ways: increased strength, resistance to poisons, attractiveness, etc. Flaws, on the other hand, are typically negative traits that are, in some way, harmful to your character: allergies, cowardice, being weak-willed, among others. Picking merits and flaws is purely optional; if you don't want to, you may select none.]]></MeritSelectionBlurb><SkipScreenIfNoChoices>true</SkipScreenIfNoChoices><ForceBalanceOfMeritsAndFlaws>true</ForceBalanceOfMeritsAndFlaws><MaximumMeritsAndFlaws>4</MaximumMeritsAndFlaws></Screen>",
+                ChargenStage.SelectDisfigurements);
+        }
+        else
+        {
+            AddStage(ChargenStage.SelectMerits, "QuirkPicker", ChargenStage.SelectAttributes,
+                "<Screen><SelectionBlurb><![CDATA[In addition to picking attributes and skills, you have the opportunity to pick from a number of quirks. These traits can help flesh out your character's natural advantages and disadvantages, and most have coded benefits and penalties attributed to them. Picking quirks is purely optional; if you don't want to, you may select none.]]></SelectionBlurb><SkipScreenIfNoChoices>true</SkipScreenIfNoChoices><MaximumQuirks>4</MaximumQuirks></Screen>",
+                ChargenStage.SelectDisfigurements);
+        }
 
-		switch (questionAnswers["attributemode"].ToLowerInvariant())
-		{
-			case "order":
-				AddStage(ChargenStage.SelectAttributes, "AttributeOrderer", ChargenStage.SelectSkills,
-					"<Screen><Blurb><![CDATA[Attributes determine your innate physical, mental and spiritual characteristics. They are used in some checks, as well as potentially in determining the potential maximum values of many of your skills. You will select the starting values for these attributes below.]]></Blurb></Screen>",
-					ChargenStage.SelectMerits);
-				break;
-			case "points":
-				AddStage(ChargenStage.SelectAttributes, "AttributePointBuy", ChargenStage.SelectSkills,
-					$"<Screen><Blurb><![CDATA[Attributes determine your innate physical, mental and spiritual characteristics. They are used in some checks, as well as potentially determining the potential maximum values of many of your skills. You will select the starting values for these attributes below.]]></Blurb><MaximumBoostsProg>MaximumAttributeBoosts</MaximumBoostsProg><MaximumFreeBoostsProg>MaximumFreeAttributeBoosts</MaximumFreeBoostsProg><MaximumMinusesProg>MaximumAttributeMinuses</MaximumMinusesProg><FreeBoostsProg>FreeAttributeBoosts</FreeBoostsProg><AttributeBaseValueProg>AttributeBaseValue</AttributeBaseValueProg><BoostCostExpression>pow(2, max(0,boosts-1)) * 100</BoostCostExpression><BoostResource>{bpresource?.Id ?? 0}</BoostResource><MaximumExtraBoosts>6</MaximumExtraBoosts></Screen>",
-					ChargenStage.SelectMerits);
-				break;
-			default:
-				throw new ArgumentOutOfRangeException("Unsupported attribute mode.");
-		}
+        switch (questionAnswers["attributemode"].ToLowerInvariant())
+        {
+            case "order":
+                AddStage(ChargenStage.SelectAttributes, "AttributeOrderer", ChargenStage.SelectSkills,
+                    "<Screen><Blurb><![CDATA[Attributes determine your innate physical, mental and spiritual characteristics. They are used in some checks, as well as potentially in determining the potential maximum values of many of your skills. You will select the starting values for these attributes below.]]></Blurb></Screen>",
+                    ChargenStage.SelectMerits);
+                break;
+            case "points":
+                AddStage(ChargenStage.SelectAttributes, "AttributePointBuy", ChargenStage.SelectSkills,
+                    $"<Screen><Blurb><![CDATA[Attributes determine your innate physical, mental and spiritual characteristics. They are used in some checks, as well as potentially determining the potential maximum values of many of your skills. You will select the starting values for these attributes below.]]></Blurb><MaximumBoostsProg>MaximumAttributeBoosts</MaximumBoostsProg><MaximumFreeBoostsProg>MaximumFreeAttributeBoosts</MaximumFreeBoostsProg><MaximumMinusesProg>MaximumAttributeMinuses</MaximumMinusesProg><FreeBoostsProg>FreeAttributeBoosts</FreeBoostsProg><AttributeBaseValueProg>AttributeBaseValue</AttributeBaseValueProg><BoostCostExpression>pow(2, max(0,boosts-1)) * 100</BoostCostExpression><BoostResource>{bpresource?.Id ?? 0}</BoostResource><MaximumExtraBoosts>6</MaximumExtraBoosts></Screen>",
+                    ChargenStage.SelectMerits);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException("Unsupported attribute mode.");
+        }
 
-		switch (questionAnswers["skillmode"].ToLowerInvariant())
-		{
-			case "picker":
-				AddStage(ChargenStage.SelectSkills, "SkillPicker", ChargenStage.SelectAccents,
-					"<Screen><Blurb><![CDATA[You may now select the skills that your character begins the game with. You can also learn new skills in game.]]></Blurb><NumberOfSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>",
-					ChargenStage.SelectAttributes);
-				break;
-			case "boosts":
-				AddStage(ChargenStage.SelectSkills, "SkillCostPicker", ChargenStage.SelectAccents,
-					$"<Screen><SkillPickerBlurb><![CDATA[Skills measure your ability to accomplish tasks - to be \"good at something.\" Skills may be learned, with effort, at any time in game.\nNote: Some skill picks are nested and require the selection of another skill first before they are visible in the list. To those with MXP enabled, these nested skills will appear italicized.]]></SkillPickerBlurb>   <SkillBoostBlurb><![CDATA[The next step is deciding whether to apply any boosts to your character's starting skills. This is a totally optional process, and costs a large amount of build points. Each character also gets one free boost, so even new players can boost an important skill.  Each skill boost will push your starting skill value up approximately one \"rank\". It is mostly designed so that after the first few characters, when players have started to accumulate some build points, they can avoid some of the starting grind, but \"troll\" players who consistently roll red-shirt characters to try and PK don't get the same leg up.]]></SkillBoostBlurb>   <NumberOfFreeSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfFreeSkillPicksProg>   <FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg><BoostCostExpression>base * Pow(boosts,2)</BoostCostExpression><AdditionalSkillsCostExpression>50 * Pow(picks,2)</AdditionalSkillsCostExpression><MaximumBoosts>5</MaximumBoosts><BoostResource>{bpresource?.Id ?? 0}</BoostResource><FreeBoostResource>25</FreeBoostResource><BoostCostProg>ChargenSkillBoostCost</BoostCostProg></Screen>",
-					ChargenStage.SelectAttributes);
-				break;
-			default:
-				throw new ArgumentOutOfRangeException("Unsupported skill mode.");
-		}
+        switch (questionAnswers["skillmode"].ToLowerInvariant())
+        {
+            case "picker":
+                AddStage(ChargenStage.SelectSkills, "SkillPicker", ChargenStage.SelectAccents,
+                    "<Screen><Blurb><![CDATA[You may now select the skills that your character begins the game with. You can also learn new skills in game.]]></Blurb><NumberOfSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>",
+                    ChargenStage.SelectAttributes);
+                break;
+            case "boosts":
+                AddStage(ChargenStage.SelectSkills, "SkillCostPicker", ChargenStage.SelectAccents,
+                    $"<Screen><SkillPickerBlurb><![CDATA[Skills measure your ability to accomplish tasks - to be \"good at something.\" Skills may be learned, with effort, at any time in game.\nNote: Some skill picks are nested and require the selection of another skill first before they are visible in the list. To those with MXP enabled, these nested skills will appear italicized.]]></SkillPickerBlurb>   <SkillBoostBlurb><![CDATA[The next step is deciding whether to apply any boosts to your character's starting skills. This is a totally optional process, and costs a large amount of build points. Each character also gets one free boost, so even new players can boost an important skill.  Each skill boost will push your starting skill value up approximately one \"rank\". It is mostly designed so that after the first few characters, when players have started to accumulate some build points, they can avoid some of the starting grind, but \"troll\" players who consistently roll red-shirt characters to try and PK don't get the same leg up.]]></SkillBoostBlurb>   <NumberOfFreeSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfFreeSkillPicksProg>   <FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg><BoostCostExpression>base * Pow(boosts,2)</BoostCostExpression><AdditionalSkillsCostExpression>50 * Pow(picks,2)</AdditionalSkillsCostExpression><MaximumBoosts>5</MaximumBoosts><BoostResource>{bpresource?.Id ?? 0}</BoostResource><FreeBoostResource>25</FreeBoostResource><BoostCostProg>ChargenSkillBoostCost</BoostCostProg></Screen>",
+                    ChargenStage.SelectAttributes);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException("Unsupported skill mode.");
+        }
 
-		AddStage(ChargenStage.SelectAccents, "AccentPicker", ChargenStage.SelectKnowledges,
-			$"<Screen><AdditionalPicks resource=\"{bpresource?.Id ?? 0}\" cost=\"10\"/>   <Blurb><![CDATA[You will now be given the opportunity to pick which accents you natively employ with any language you have chosen. These are the accents in which you learned to speak the language in question, and represent how you will naturally speak the language. Other accents can be learned by exposure and practice.]]></Blurb></Screen>",
-			ChargenStage.SelectSkills);
-		AddStage(ChargenStage.SelectKnowledges, "KnowledgePickerBySkill", ChargenStage.SelectCharacteristics,
-			"<Screen><Blurb><![CDATA[Knowledges are supplements to skills that represent specific areas of training that you have. Generally speaking, knowledges can be taught and learned in game, and they gate things like crafts and surgical procedures.]]></Blurb><NumberOfPicksProg>ChargenNumberOfKnowledgePicks</NumberOfPicksProg><FreeKnowledgesProg>ChargenFreeKnowledges</FreeKnowledgesProg></Screen>",
-			ChargenStage.SelectSkills);
-		AddStage(ChargenStage.SelectCharacteristics, "CharacteristicPicker", ChargenStage.SelectDescription,
-			"<Screen><Blurb> \u00a0 \u00a0 \u00a0<![CDATA[Characteristics are a way to categorise the various aspects of your character's appearance, for example eye colour, or hair style. Your characteristics that are chosen at this stage of the character creation process (with the exception of hair style / length) represent your natural, intrinsic values for these characteristics, but can be changed, hidden or altered later in game by items, skills and effects.]]> \u00a0 \u00a0</Blurb></Screen>",
-			ChargenStage.SelectMerits);
-		AddStage(ChargenStage.SelectDescription, "DescriptionPicker", ChargenStage.SelectStartingLocation,
-			$"<Screen><SDescBlurb><![CDATA[Your short description is how you are seen by other people when performing actions, for example, #5a short, blue-eyed youth#0.]]></SDescBlurb>   <FullDescBlurb><![CDATA[Your full description is how you are seen when people look directly at you, and provides a more detailed overview of your appearance.]]></FullDescBlurb>   <AllowCustomDescription>{(questionAnswers["customdescs"].EqualToAny("yes", "y") ? "true" : "false")}</AllowCustomDescription>   <AllowEntityDescriptionPatterns>true</AllowEntityDescriptionPatterns></Screen>",
-			ChargenStage.SelectCharacteristics);
-		var role = SeederRepeatabilityHelper.EnsureEntity(
-			context.ChargenRoles,
-			x => x.Type == (int)ChargenRoleType.StartingLocation &&
-			     string.Equals(x.Name, "Default Starting Location", StringComparison.OrdinalIgnoreCase),
-			x => x.Type == (int)ChargenRoleType.StartingLocation,
-			() =>
-			{
-				var created = new ChargenRole();
-				context.ChargenRoles.Add(created);
-				return created;
-			});
-		role.Name = "Default Starting Location";
-		role.Type = (int)ChargenRoleType.StartingLocation;
-		role.PosterId = 1;
-		role.MaximumNumberAlive = 0;
-		role.MaximumNumberTotal = 0;
-		role.ChargenBlurb = "This is the default starting location that has not been described.";
-		role.Expired = false;
-		role.MinimumAuthorityToApprove = 0;
-		role.MinimumAuthorityToView = 0;
-		context.SaveChanges();
-		AddStage(ChargenStage.SelectStartingLocation, "StartingLocationPicker", ChargenStage.SelectNotes,
-			@$"<Screen><Blurb><![CDATA[Your must now select a starting location for your character. This reflects where your character will begin once in the game, but does not mean you are restricted to only that area.]]>    </Blurb>   <Locations>     <Location>       <Name>Guest Lounge</Name>       <Blurb><![CDATA[As you have not yet set up any other starting areas, the default starting area will be the guest lounge.]]></Blurb>       <Location>1</Location>       <Role>{role.Id}</Role><OnCommenceProg>0</OnCommenceProg>     </Location></Locations>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
-			ChargenStage.SelectRole);
-		AddStage(ChargenStage.SelectNotes, "NotePicker", ChargenStage.Submit,
-			"<Stage><Note Name=\"Background Comment\">\u00a0 \u00a0 \u00a0<Blurb><![CDATA[Please give a brief overview of your character's background and/or personality, in order to give admin storytellers something to work with roleplaying with you. Typically we would expect a minimum of four sentences or dot points.]]></Blurb>\u00a0 \u00a0 \u00a0<Prog>AlwaysTrue</Prog>\u00a0 \u00a0</Note></Stage>",
-			ChargenStage.SelectSkills);
-		AddStage(ChargenStage.Submit, "Submit", ChargenStage.None, "<Stage></Stage>");
-		AddStage(ChargenStage.Menu, "Menu", ChargenStage.None, "<Stage></Stage>");
-		context.SaveChanges();
+        AddStage(ChargenStage.SelectAccents, "AccentPicker", ChargenStage.SelectKnowledges,
+            $"<Screen><AdditionalPicks resource=\"{bpresource?.Id ?? 0}\" cost=\"10\"/>   <Blurb><![CDATA[You will now be given the opportunity to pick which accents you natively employ with any language you have chosen. These are the accents in which you learned to speak the language in question, and represent how you will naturally speak the language. Other accents can be learned by exposure and practice.]]></Blurb></Screen>",
+            ChargenStage.SelectSkills);
+        AddStage(ChargenStage.SelectKnowledges, "KnowledgePickerBySkill", ChargenStage.SelectCharacteristics,
+            "<Screen><Blurb><![CDATA[Knowledges are supplements to skills that represent specific areas of training that you have. Generally speaking, knowledges can be taught and learned in game, and they gate things like crafts and surgical procedures.]]></Blurb><NumberOfPicksProg>ChargenNumberOfKnowledgePicks</NumberOfPicksProg><FreeKnowledgesProg>ChargenFreeKnowledges</FreeKnowledgesProg></Screen>",
+            ChargenStage.SelectSkills);
+        AddStage(ChargenStage.SelectCharacteristics, "CharacteristicPicker", ChargenStage.SelectDescription,
+            "<Screen><Blurb> \u00a0 \u00a0 \u00a0<![CDATA[Characteristics are a way to categorise the various aspects of your character's appearance, for example eye colour, or hair style. Your characteristics that are chosen at this stage of the character creation process (with the exception of hair style / length) represent your natural, intrinsic values for these characteristics, but can be changed, hidden or altered later in game by items, skills and effects.]]> \u00a0 \u00a0</Blurb></Screen>",
+            ChargenStage.SelectMerits);
+        AddStage(ChargenStage.SelectDescription, "DescriptionPicker", ChargenStage.SelectStartingLocation,
+            $"<Screen><SDescBlurb><![CDATA[Your short description is how you are seen by other people when performing actions, for example, #5a short, blue-eyed youth#0.]]></SDescBlurb>   <FullDescBlurb><![CDATA[Your full description is how you are seen when people look directly at you, and provides a more detailed overview of your appearance.]]></FullDescBlurb>   <AllowCustomDescription>{(questionAnswers["customdescs"].EqualToAny("yes", "y") ? "true" : "false")}</AllowCustomDescription>   <AllowEntityDescriptionPatterns>true</AllowEntityDescriptionPatterns></Screen>",
+            ChargenStage.SelectCharacteristics);
+        ChargenRole role = SeederRepeatabilityHelper.EnsureEntity(
+            context.ChargenRoles,
+            x => x.Type == (int)ChargenRoleType.StartingLocation &&
+                 string.Equals(x.Name, "Default Starting Location", StringComparison.OrdinalIgnoreCase),
+            x => x.Type == (int)ChargenRoleType.StartingLocation,
+            () =>
+            {
+                ChargenRole created = new();
+                context.ChargenRoles.Add(created);
+                return created;
+            });
+        role.Name = "Default Starting Location";
+        role.Type = (int)ChargenRoleType.StartingLocation;
+        role.PosterId = 1;
+        role.MaximumNumberAlive = 0;
+        role.MaximumNumberTotal = 0;
+        role.ChargenBlurb = "This is the default starting location that has not been described.";
+        role.Expired = false;
+        role.MinimumAuthorityToApprove = 0;
+        role.MinimumAuthorityToView = 0;
+        context.SaveChanges();
+        AddStage(ChargenStage.SelectStartingLocation, "StartingLocationPicker", ChargenStage.SelectNotes,
+            @$"<Screen><Blurb><![CDATA[Your must now select a starting location for your character. This reflects where your character will begin once in the game, but does not mean you are restricted to only that area.]]>    </Blurb>   <Locations>     <Location>       <Name>Guest Lounge</Name>       <Blurb><![CDATA[As you have not yet set up any other starting areas, the default starting area will be the guest lounge.]]></Blurb>       <Location>1</Location>       <Role>{role.Id}</Role><OnCommenceProg>0</OnCommenceProg>     </Location></Locations>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
+            ChargenStage.SelectRole);
+        AddStage(ChargenStage.SelectNotes, "NotePicker", ChargenStage.Submit,
+            "<Stage><Note Name=\"Background Comment\">\u00a0 \u00a0 \u00a0<Blurb><![CDATA[Please give a brief overview of your character's background and/or personality, in order to give admin storytellers something to work with roleplaying with you. Typically we would expect a minimum of four sentences or dot points.]]></Blurb>\u00a0 \u00a0 \u00a0<Prog>AlwaysTrue</Prog>\u00a0 \u00a0</Note></Stage>",
+            ChargenStage.SelectSkills);
+        AddStage(ChargenStage.Submit, "Submit", ChargenStage.None, "<Stage></Stage>");
+        AddStage(ChargenStage.Menu, "Menu", ChargenStage.None, "<Stage></Stage>");
+        context.SaveChanges();
 
-		foreach (var stage in stageDependencies)
-		{
-			var desiredDependencies = stage.Value
-				.Select(x => (int)x)
-				.ToHashSet();
-			var existingDependencies = context.ChargenScreenStoryboardDependentStages
-				.Where(x => x.OwnerId == stage.Key.Id)
-				.ToList();
+        foreach (KeyValuePair<ChargenScreenStoryboard, List<ChargenStage>> stage in stageDependencies)
+        {
+            HashSet<int> desiredDependencies = stage.Value
+                .Select(x => (int)x)
+                .ToHashSet();
+            List<ChargenScreenStoryboardDependentStage> existingDependencies = context.ChargenScreenStoryboardDependentStages
+                .Where(x => x.OwnerId == stage.Key.Id)
+                .ToList();
 
-			foreach (var existing in existingDependencies.Where(x => !desiredDependencies.Contains(x.Dependency)))
-			{
-				context.ChargenScreenStoryboardDependentStages.Remove(existing);
-			}
+            foreach (ChargenScreenStoryboardDependentStage? existing in existingDependencies.Where(x => !desiredDependencies.Contains(x.Dependency)))
+            {
+                context.ChargenScreenStoryboardDependentStages.Remove(existing);
+            }
 
-			var existingDependencyIds = existingDependencies
-				.Select(x => x.Dependency)
-				.ToHashSet();
-			foreach (var dependency in desiredDependencies.Where(x => !existingDependencyIds.Contains(x)))
-			{
-				context.ChargenScreenStoryboardDependentStages.Add(new ChargenScreenStoryboardDependentStage
-				{
-					Owner = stage.Key,
-					OwnerId = stage.Key.Id,
-					Dependency = dependency
-				});
-			}
-		}
-		context.SaveChanges();
+            HashSet<int> existingDependencyIds = existingDependencies
+                .Select(x => x.Dependency)
+                .ToHashSet();
+            foreach (int dependency in desiredDependencies.Where(x => !existingDependencyIds.Contains(x)))
+            {
+                context.ChargenScreenStoryboardDependentStages.Add(new ChargenScreenStoryboardDependentStage
+                {
+                    Owner = stage.Key,
+                    OwnerId = stage.Key.Id,
+                    Dependency = dependency
+                });
+            }
+        }
+        context.SaveChanges();
 
-		#endregion
+        #endregion
 
-		context.Database.CommitTransaction();
-		return "Character creation has been successfully set up.";
-	}
+        context.Database.CommitTransaction();
+        return "Character creation has been successfully set up.";
+    }
 
-	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
-	{
-		if (!context.Races.Any(x => x.Name == "Human")) return ShouldSeedResult.PrerequisitesNotMet;
+    public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
+    {
+        if (!context.Races.Any(x => x.Name == "Human"))
+        {
+            return ShouldSeedResult.PrerequisitesNotMet;
+        }
 
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-			StockChargenStages.Select(stage =>
-				context.ChargenScreenStoryboards.Any(x =>
-					x.ChargenStage == (int)stage.Stage &&
-					x.ChargenType == stage.Type))
-				.Concat(StockChargenProgNames.Select(name =>
-					context.FutureProgs.Any(x => x.FunctionName == name)))
-				.Append(context.ChargenRoles.Any(x =>
-					x.Type == (int)ChargenRoleType.StartingLocation &&
-					x.Name == "Default Starting Location")));
-	}
+        return SeederRepeatabilityHelper.ClassifyByPresence(
+            StockChargenStages.Select(stage =>
+                context.ChargenScreenStoryboards.Any(x =>
+                    x.ChargenStage == (int)stage.Stage &&
+                    x.ChargenType == stage.Type))
+                .Concat(StockChargenProgNames.Select(name =>
+                    context.FutureProgs.Any(x => x.FunctionName == name)))
+                .Append(context.ChargenRoles.Any(x =>
+                    x.Type == (int)ChargenRoleType.StartingLocation &&
+                    x.Name == "Default Starting Location")));
+    }
 
-	public int SortOrder => 100;
-	public string Name => "Character Creation";
-	public string Tagline => "Sets up Character Creation and Guest Logins";
+    public int SortOrder => 100;
+    public string Name => "Character Creation";
+    public string Tagline => "Sets up Character Creation and Guest Logins";
 
-	public string FullDescription =>
-		@"This package will create all the storyboards for character creation so that people can make characters on your game (not to mention other admin avatars other than your own). It will set up resources such as RPP and Karma. You absolutely must set up a human race first.
+    public string FullDescription =>
+        @"This package will create all the storyboards for character creation so that people can make characters on your game (not to mention other admin avatars other than your own). It will set up resources such as RPP and Karma. You absolutely must set up a human race first.
 
 Note that it will put placeholder blurb text for each of the chargen stages in by default. You need to go and edit these later to make them specific to your MUD. You can find them in the database in the ChargenScreenStoryboards table.";
 }

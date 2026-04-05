@@ -1,8 +1,10 @@
 ﻿using MudSharp.Character;
 using MudSharp.Form.Material;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface ILiquidContainer : IGameItemComponent, IOpenable {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface ILiquidContainer : IGameItemComponent, IOpenable
+    {
         LiquidMixture LiquidMixture { get; set; }
         double LiquidCapacity { get; }
         void AddLiquidQuantity(double amount, ICharacter who, string action);

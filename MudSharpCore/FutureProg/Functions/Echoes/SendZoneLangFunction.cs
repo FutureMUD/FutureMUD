@@ -15,196 +15,196 @@ namespace MudSharp.FutureProg.Functions.Echoes;
 
 internal class SendZoneLangFunction : BuiltInFunction
 {
-	protected SendZoneLangFunction(IList<IFunction> parameters, IFuturemud gameworld)
-		: base(parameters)
-	{
-		Gameworld = gameworld;
-	}
+    protected SendZoneLangFunction(IList<IFunction> parameters, IFuturemud gameworld)
+        : base(parameters)
+    {
+        Gameworld = gameworld;
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	private IFuturemud Gameworld { get; }
+    private IFuturemud Gameworld { get; }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		if (ParameterFunctions[0].Result is not IZone target)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        if (ParameterFunctions[0].Result is not IZone target)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var textResult = ParameterFunctions[1].Result;
-		if (textResult?.GetObject == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        IProgVariable textResult = ParameterFunctions[1].Result;
+        if (textResult?.GetObject == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var text = textResult.GetObject.ToString().SubstituteANSIColour();
+        string text = textResult.GetObject.ToString().SubstituteANSIColour();
 
-		if (ParameterFunctions[2].Result?.GetObject is not Language language)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        if (ParameterFunctions[2].Result?.GetObject is not Language language)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		if (ParameterFunctions[3].Result?.GetObject is not Accent accent)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        if (ParameterFunctions[3].Result?.GetObject is not Accent accent)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var perceivables = new List<IPerceivable>();
-		foreach (var parameter in ParameterFunctions.Skip(4))
-		{
-			if (parameter.Result is not IPerceivable perceivable)
-			{
-				Result = new BooleanVariable(false);
-				return StatementResult.Normal;
-			}
+        List<IPerceivable> perceivables = new();
+        foreach (IFunction parameter in ParameterFunctions.Skip(4))
+        {
+            if (parameter.Result is not IPerceivable perceivable)
+            {
+                Result = new BooleanVariable(false);
+                return StatementResult.Normal;
+            }
 
-			perceivables.Add(perceivable);
-		}
+            perceivables.Add(perceivable);
+        }
 
-		target.Handle(new EmoteOutput(new FixedLanguageEmote(text, perceivables.ElementAtOrDefault(0) as IPerceiver, language, accent, perceivables.ToArray()),
-			flags: OutputFlags.IgnoreWatchers));
-		Result = new BooleanVariable(true);
-		return StatementResult.Normal;
-	}
+        target.Handle(new EmoteOutput(new FixedLanguageEmote(text, perceivables.ElementAtOrDefault(0) as IPerceiver, language, accent, perceivables.ToArray()),
+            flags: OutputFlags.IgnoreWatchers));
+        Result = new BooleanVariable(true);
+        return StatementResult.Normal;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzonelang",
-				new[]
-				{
-					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
-					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
-					ProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
-			)
-		);
-	}
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "sendzonelang",
+                new[]
+                {
+                    ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Language,
+                    ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+                    ProgVariableTypes.Perceivable
+                },
+                (pars, gameworld) => new SendZoneLangFunction(pars, gameworld)
+            )
+        );
+    }
 }

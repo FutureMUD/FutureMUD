@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MudSharp.CharacterCreation.Resources
 {
-    #nullable enable
+#nullable enable
     public record ChargenResourceCost
     {
-	    public required IChargenResource Resource { get; init; }
+        public required IChargenResource Resource { get; init; }
         public required int Amount { get; init; }
         public required bool RequirementOnly { get; init; }
     }

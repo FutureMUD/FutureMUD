@@ -1,89 +1,89 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+using MudSharp.GameItems;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MudSharp.Character;
-using MudSharp.FutureProg.Variables;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
-using MudSharp.GameItems;
 
 namespace MudSharp.FutureProg.Functions.Outfits;
 
 internal class RenameOutfit : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
+    public IFuturemud Gameworld { get; set; }
 
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"renameoutfit",
-				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Text },
-				(pars, gameworld) => new RenameOutfit(pars, gameworld),
-				[
-					"outfit",
-					"name"
-				],
-				[
-					"The outfit to rename",
-					"The new name for the outfit"
-				],
-				"This function renames an outfit. Returns true if the name was changed and was valid.",
-				"Outfits",
-				ProgVariableTypes.Boolean
-			)
-		);
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "renameoutfit",
+                new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Text },
+                (pars, gameworld) => new RenameOutfit(pars, gameworld),
+                [
+                    "outfit",
+                    "name"
+                ],
+                [
+                    "The outfit to rename",
+                    "The new name for the outfit"
+                ],
+                "This function renames an outfit. Returns true if the name was changed and was valid.",
+                "Outfits",
+                ProgVariableTypes.Boolean
+            )
+        );
+    }
 
-	#endregion
+    #endregion
 
-	#region Constructors
+    #region Constructors
 
-	protected RenameOutfit(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
+    protected RenameOutfit(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
 
-	#endregion
+    #endregion
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var outfit = (IOutfit)ParameterFunctions[0].Result;
-		if (outfit == null)
-		{
-			ErrorMessage = "Null outfit in RenameOutfits";
-			return StatementResult.Error;
-		}
+        IOutfit outfit = (IOutfit)ParameterFunctions[0].Result;
+        if (outfit == null)
+        {
+            ErrorMessage = "Null outfit in RenameOutfits";
+            return StatementResult.Error;
+        }
 
-		var newName = ParameterFunctions[1].Result.GetObject?.ToString();
-		if (string.IsNullOrEmpty(newName) || outfit.Owner.Outfits.Any(x => x.Name.EqualTo(newName)))
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        string newName = ParameterFunctions[1].Result.GetObject?.ToString();
+        if (string.IsNullOrEmpty(newName) || outfit.Owner.Outfits.Any(x => x.Name.EqualTo(newName)))
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		outfit.Name = newName;
-		outfit.Owner.OutfitsChanged = true;
-		Result = new BooleanVariable(true);
-		return StatementResult.Normal;
-	}
+        outfit.Name = newName;
+        outfit.Owner.OutfitsChanged = true;
+        Result = new BooleanVariable(true);
+        return StatementResult.Normal;
+    }
 }

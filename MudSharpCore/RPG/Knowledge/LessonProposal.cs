@@ -1,40 +1,40 @@
-﻿using System;
-using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using System;
 
 namespace MudSharp.RPG.Knowledge;
 
 public abstract class LessonProposal : Proposal
 {
-	protected static double[,] TeachLearnMatrix =
-	{
-		{ 0, 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0, 1.0 },
-		{ 0, 0, 0, 0, 1.0, 1.2 },
-		{ 0, 0, 0, 1.0, 1.2, 1.4 },
-		{ 0, 0, 0, 1.2, 1.4, 1.6 },
-		{ 0, 0, 0, 1.4, 1.6, 1.9 }
-	};
+    protected static double[,] TeachLearnMatrix =
+    {
+        { 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 1.0 },
+        { 0, 0, 0, 0, 1.0, 1.2 },
+        { 0, 0, 0, 1.0, 1.2, 1.4 },
+        { 0, 0, 0, 1.2, 1.4, 1.6 },
+        { 0, 0, 0, 1.4, 1.6, 1.9 }
+    };
 
-	public ICharacter Teacher { get; init; }
-	public ICharacter Student { get; init; }
+    public ICharacter Teacher { get; init; }
+    public ICharacter Student { get; init; }
 
-	protected void AddFatigue(ILearningFatigueEffect effect)
-	{
-		if (effect == null)
-		{
-			effect = new LearningFatigueEffect(Student, true, 1);
-			Student.AddEffect(effect, TimeSpan.FromSeconds(LearningFatigueEffect.GetFatigueLength(1)));
-		}
-		else
-		{
-			effect.FatigueDegrees++;
-			effect.BlockUntil = DateTime.UtcNow + LearningFatigueEffect.GetBlockLength();
-			effect.Changed = true;
-			Student.Reschedule(effect,
-				TimeSpan.FromSeconds(LearningFatigueEffect.GetFatigueLength(effect.FatigueDegrees)));
-		}
-	}
+    protected void AddFatigue(ILearningFatigueEffect effect)
+    {
+        if (effect == null)
+        {
+            effect = new LearningFatigueEffect(Student, true, 1);
+            Student.AddEffect(effect, TimeSpan.FromSeconds(LearningFatigueEffect.GetFatigueLength(1)));
+        }
+        else
+        {
+            effect.FatigueDegrees++;
+            effect.BlockUntil = DateTime.UtcNow + LearningFatigueEffect.GetBlockLength();
+            effect.Changed = true;
+            Student.Reschedule(effect,
+                TimeSpan.FromSeconds(LearningFatigueEffect.GetFatigueLength(effect.FatigueDegrees)));
+        }
+    }
 }

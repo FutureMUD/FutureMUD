@@ -1,6 +1,6 @@
-﻿using System;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Communication.Language;
+using System;
 
 namespace MudSharp.Magic
 {

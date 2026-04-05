@@ -1,4 +1,6 @@
-﻿namespace MudSharp.Effects.Interfaces {
-    public interface INoDreamEffect : IEffectSubtype {
+﻿namespace MudSharp.Effects.Interfaces
+{
+    public interface INoDreamEffect : IEffectSubtype
+    {
     }
 }

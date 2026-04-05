@@ -1,5 +1,3 @@
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Construction;
@@ -7,6 +5,8 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -22,7 +22,7 @@ public class WeatherChangeEffect : IMagicSpellEffectTemplate
 
     private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands, IMagicSpell spell)
     {
-        var weather = spell.Gameworld.WeatherEvents.First();
+        IWeatherEvent weather = spell.Gameworld.WeatherEvents.First();
         return (new WeatherChangeEffect(new XElement("Effect",
                 new XAttribute("type", "weatherchange"),
                 new XElement("WeatherEvent", weather.Id),
@@ -77,7 +77,7 @@ public class WeatherChangeEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send("Which weather event?");
             return false;
         }
-        var we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
+        IWeatherEvent we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
         if (we == null)
         {
             actor.OutputHandler.Send("No such weather event.");
@@ -97,7 +97,11 @@ public class WeatherChangeEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => true;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -133,5 +137,8 @@ public class WeatherChangeEffect : IMagicSpellEffectTemplate
         return null;
     }
 
-    public IMagicSpellEffectTemplate Clone() => new WeatherChangeEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new WeatherChangeEffect(SaveToXml(), Spell);
+    }
 }

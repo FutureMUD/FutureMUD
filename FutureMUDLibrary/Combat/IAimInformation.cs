@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Construction.Boundary;
+﻿using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.Combat
 {

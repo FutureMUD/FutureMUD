@@ -1,13 +1,13 @@
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using MudSharp.Effects.Interfaces;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -55,7 +55,7 @@ public class StaminaRegenRateSpellEffect : IMagicSpellEffectTemplate
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("You must enter a valid multiplier.");
             return false;
@@ -74,7 +74,11 @@ public class StaminaRegenRateSpellEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => IsCompatibleWithTrigger(trigger.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger trigger)
+    {
+        return IsCompatibleWithTrigger(trigger.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -90,9 +94,15 @@ public class StaminaRegenRateSpellEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
         if (target is not ICharacter ch)
+        {
             return null;
+        }
+
         return new SpellStaminaRegenerationEffect(ch, parent, null, Multiplier);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new StaminaRegenRateSpellEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new StaminaRegenRateSpellEffect(SaveToXml(), Spell);
+    }
 }

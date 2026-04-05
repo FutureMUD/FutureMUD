@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Interfaces
 {
-    public interface IAffectedByChangeInGuarding : IEffectSubtype {
+    public interface IAffectedByChangeInGuarding : IEffectSubtype
+    {
         bool ShouldRemove(IAffectedByChangeInGuarding newEffect);
     }
 }

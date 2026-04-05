@@ -6,5 +6,5 @@ namespace MudSharp.Effects.Interfaces;
 
 public interface IMovementDelayEffect : IEffectSubtype
 {
-	double DelayMultiplier(IMoveSpeed speed);
+    double DelayMultiplier(IMoveSpeed speed);
 }

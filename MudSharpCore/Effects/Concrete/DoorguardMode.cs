@@ -6,32 +6,32 @@ namespace MudSharp.Effects.Concrete;
 
 public class DoorguardMode : Effect, IDoorguardModeEffect
 {
-	public DoorguardMode(IPerceivable owner)
-		: base(owner)
-	{
-	}
+    public DoorguardMode(IPerceivable owner)
+        : base(owner)
+    {
+    }
 
-	public DoorguardMode(XElement effect, IPerceivable owner)
-		: base(effect, owner)
-	{
-	}
+    public DoorguardMode(XElement effect, IPerceivable owner)
+        : base(effect, owner)
+    {
+    }
 
-	protected override string SpecificEffectType => "DoorguardMode";
+    protected override string SpecificEffectType => "DoorguardMode";
 
-	public override bool SavingEffect => true;
+    public override bool SavingEffect => true;
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return "Doorguard Mode";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return "Doorguard Mode";
+    }
 
-	public static void InitialiseEffectType()
-	{
-		RegisterFactory("DoorguardMode", (effect, owner) => new DoorguardMode(effect, owner));
-	}
+    public static void InitialiseEffectType()
+    {
+        RegisterFactory("DoorguardMode", (effect, owner) => new DoorguardMode(effect, owner));
+    }
 
-	public override string ToString()
-	{
-		return "Doorguard Mode Effect";
-	}
+    public override string ToString()
+    {
+        return "Doorguard Mode Effect";
+    }
 }

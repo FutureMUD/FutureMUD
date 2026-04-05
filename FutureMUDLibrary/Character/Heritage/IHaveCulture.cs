@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Character.Heritage {
-    public interface IHaveCulture {
+﻿namespace MudSharp.Character.Heritage
+{
+    public interface IHaveCulture
+    {
         ICulture Culture { get; }
     }
 }

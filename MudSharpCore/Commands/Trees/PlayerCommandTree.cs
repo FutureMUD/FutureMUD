@@ -5,19 +5,19 @@ namespace MudSharp.Commands.Trees;
 
 internal class PlayerCommandTree : ActorCommandTree
 {
-	protected PlayerCommandTree()
-	{
-	}
+    protected PlayerCommandTree()
+    {
+    }
 
-	public new static PlayerCommandTree Instance { get; } = new()
-	{
-		PermissionLevel = PermissionLevel.Player
-	};
+    public new static PlayerCommandTree Instance { get; } = new()
+    {
+        PermissionLevel = PermissionLevel.Player
+    };
 
-	protected override void ProcessCommands()
-	{
-		base.ProcessCommands();
-		Commands.AddFrom(PlayerOnlyModule.Instance.Commands);
-		Commands.AddFrom(ItemBuilderModule.Instance.Commands);
-	}
+    protected override void ProcessCommands()
+    {
+        base.ProcessCommands();
+        Commands.AddFrom(PlayerOnlyModule.Instance.Commands);
+        Commands.AddFrom(ItemBuilderModule.Instance.Commands);
+    }
 }

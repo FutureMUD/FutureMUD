@@ -1,10 +1,10 @@
 ﻿using MudSharp.Character;
+using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Interfaces
 {

@@ -4,8 +4,10 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 
-namespace MudSharp.Combat {
-    public interface ICombatant : ILocateable {
+namespace MudSharp.Combat
+{
+    public interface ICombatant : ILocateable
+    {
         /// <summary>
         ///     The combat in which this combatant is presently participating
         /// </summary>
@@ -16,10 +18,10 @@ namespace MudSharp.Combat {
         /// </summary>
         IPerceiver CombatTarget { get; set; }
 
-		/// <summary>
-		///     The advantage this combatant has gained with regards to defense
-		/// </summary>
-		double DefensiveAdvantage { get; set; }
+        /// <summary>
+        ///     The advantage this combatant has gained with regards to defense
+        /// </summary>
+        double DefensiveAdvantage { get; set; }
 
         /// <summary>
         ///     The advantage this combatant has gained with regards to offense

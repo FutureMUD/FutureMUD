@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
+using System.Collections.Generic;
 
-namespace MudSharp.Construction.Boundary {
-    public interface IExitManager {
+namespace MudSharp.Construction.Boundary
+{
+    public interface IExitManager
+    {
         /// <summary>
         ///     Retrieves the correct exit for the specified cell
         /// </summary>

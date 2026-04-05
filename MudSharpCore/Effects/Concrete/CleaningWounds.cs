@@ -1,234 +1,235 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Concrete;
 
 public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 {
-	private static string _effectDurationDiceExpression;
+    private static string _effectDurationDiceExpression;
 
-	private static string EffectDurationDiceExpression =>
-		_effectDurationDiceExpression ?? (_effectDurationDiceExpression = Futuremud.Games.First()
-			.GetStaticConfiguration("CleanWoundsEffectDurationDiceExpression"));
+    private static string EffectDurationDiceExpression =>
+        _effectDurationDiceExpression ?? (_effectDurationDiceExpression = Futuremud.Games.First()
+            .GetStaticConfiguration("CleanWoundsEffectDurationDiceExpression"));
 
-	public static TimeSpan EffectDuration => TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression));
+    public static TimeSpan EffectDuration => TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression));
 
-	public IInventoryPlan OriginalInventoryPlan { get; set; }
+    public IInventoryPlan OriginalInventoryPlan { get; set; }
 
-	public bool UseItems { get; set; }
-	public WoundSeverity MinimumSeverity { get; set; }
+    public bool UseItems { get; set; }
+    public WoundSeverity MinimumSeverity { get; set; }
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Cleaning the wounds of {TargetCharacter.HowSeen(voyeur)}.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Cleaning the wounds of {TargetCharacter.HowSeen(voyeur)}.";
+    }
 
-	protected override string SpecificEffectType => "Cleaning";
+    protected override string SpecificEffectType => "Cleaning";
 
-	#endregion
+    #endregion
 
-	public CleaningWounds(ICharacter owner, ICharacter target, WoundSeverity severity, bool useItems) : base(owner, target)
-	{
-		WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is cleaning $1's wounds.";
-		CancelEmoteString = "@ $0|stop|stops cleaning $1's wounds.";
-		LDescAddendum = "cleaning $1's wounds";
-		ActionDescription = "cleaning $1's wounds";
-		_blocks.Add("general");
-		_blocks.Add("movement");
-		UseItems = useItems;
-		MinimumSeverity = severity;
-	}
+    public CleaningWounds(ICharacter owner, ICharacter target, WoundSeverity severity, bool useItems) : base(owner, target)
+    {
+        WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is cleaning $1's wounds.";
+        CancelEmoteString = "@ $0|stop|stops cleaning $1's wounds.";
+        LDescAddendum = "cleaning $1's wounds";
+        ActionDescription = "cleaning $1's wounds";
+        _blocks.Add("general");
+        _blocks.Add("movement");
+        UseItems = useItems;
+        MinimumSeverity = severity;
+    }
 
-	#region Overrides of TargetedBlockingDelayedAction
+    #region Overrides of TargetedBlockingDelayedAction
 
-	/// <summary>
-	///     Fires when an effect is removed, including a matured scheduled effect
-	/// </summary>
-	public override void RemovalEffect()
-	{
-		OriginalInventoryPlan?.FinalisePlan();
-		ReleaseEventHandlers();
-	}
+    /// <summary>
+    ///     Fires when an effect is removed, including a matured scheduled effect
+    /// </summary>
+    public override void RemovalEffect()
+    {
+        OriginalInventoryPlan?.FinalisePlan();
+        ReleaseEventHandlers();
+    }
 
-	#endregion
+    #endregion
 
-	private void CleanAntiseptic(IEnumerable<IWound> wounds, ITreatment treatmentItem, ICheck check)
-	{
-		var antisepticWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
-		                             .ToList();
-		var worstWound = antisepticWounds.FirstMax(x => x.Severity);
-		if (worstWound is null)
-		{
-			CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote("@ $0|have|has no more wounds that can be treated with antiseptic, but still $0|have|has wounds that could benefit from regular cleaning.", TargetCharacter, TargetCharacter)));
-			return;
-		}
-		worstWound.Treat(CharacterOwner, TreatmentType.Antiseptic, treatmentItem,
-			check.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Antiseptic)), false);
-	}
+    private void CleanAntiseptic(IEnumerable<IWound> wounds, ITreatment treatmentItem, ICheck check)
+    {
+        List<IWound> antisepticWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
+                                     .ToList();
+        IWound worstWound = antisepticWounds.FirstMax(x => x.Severity);
+        if (worstWound is null)
+        {
+            CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote("@ $0|have|has no more wounds that can be treated with antiseptic, but still $0|have|has wounds that could benefit from regular cleaning.", TargetCharacter, TargetCharacter)));
+            return;
+        }
+        worstWound.Treat(CharacterOwner, TreatmentType.Antiseptic, treatmentItem,
+            check.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Antiseptic)), false);
+    }
 
-	private void CleanNormal(IEnumerable<IWound> wounds, ITreatment treatmentItem, ICheck check)
-	{
-		var cleanWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible)
-		                        .ToList();
-		var worstWound = cleanWounds.FirstMax(x => x.Severity);
-		if (worstWound is null)
-		{
-			CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote("@ $0|have|has no more wounds that can benefit from cleaning, but still $0|have|has wounds that could benefit from antiseptic treatment.", TargetCharacter, TargetCharacter)));
-			return;
-		}
-		worstWound.Treat(CharacterOwner, TreatmentType.Clean, treatmentItem,
-			check.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Clean)), false);
-	}
+    private void CleanNormal(IEnumerable<IWound> wounds, ITreatment treatmentItem, ICheck check)
+    {
+        List<IWound> cleanWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible)
+                                .ToList();
+        IWound worstWound = cleanWounds.FirstMax(x => x.Severity);
+        if (worstWound is null)
+        {
+            CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote("@ $0|have|has no more wounds that can benefit from cleaning, but still $0|have|has wounds that could benefit from antiseptic treatment.", TargetCharacter, TargetCharacter)));
+            return;
+        }
+        worstWound.Treat(CharacterOwner, TreatmentType.Clean, treatmentItem,
+            check.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Clean)), false);
+    }
 
-	public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
-	{
-		if (TargetCharacter == thing)
-		{
-			return (true, Proximity.Immediate);
-		}
+    public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
+    {
+        if (TargetCharacter == thing)
+        {
+            return (true, Proximity.Immediate);
+        }
 
-		return (false, Proximity.Unapproximable);
-	}
+        return (false, Proximity.Unapproximable);
+    }
 
-	public enum PeekCanCleanReason
-	{
-		CanClean,
-		NoWounds,
-		AntisepticWoundsNoTreatment
-	}
+    public enum PeekCanCleanReason
+    {
+        CanClean,
+        NoWounds,
+        AntisepticWoundsNoTreatment
+    }
 
-	public static (bool Success, PeekCanCleanReason Reason) PeekCanClean(ICharacter ch, ICharacter tch, WoundSeverity severity, bool useItems)
-	{
-		var wounds = tch
-		             .VisibleWounds(ch, WoundExaminationType.Examination)
-		             .Where(x => x.Severity >= severity)
-		             .ToList();
-		var cleanWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible).ToList();
-		var antisepticWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
-		                             .ToList();
+    public static (bool Success, PeekCanCleanReason Reason) PeekCanClean(ICharacter ch, ICharacter tch, WoundSeverity severity, bool useItems)
+    {
+        List<IWound> wounds = tch
+                     .VisibleWounds(ch, WoundExaminationType.Examination)
+                     .Where(x => x.Severity >= severity)
+                     .ToList();
+        List<IWound> cleanWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible).ToList();
+        List<IWound> antisepticWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
+                                     .ToList();
 
-		if (!cleanWounds.Any() && !antisepticWounds.Any())
-		{
-			return (false, PeekCanCleanReason.NoWounds);
-		}
+        if (!cleanWounds.Any() && !antisepticWounds.Any())
+        {
+            return (false, PeekCanCleanReason.NoWounds);
+        }
 
-		var plan = useItems ?
-			ch.Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(ch) :
-			null;
-		ITreatment treatmentItem = null;
-		if (plan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-		{
-			treatmentItem = plan.PeekPlanResults()
-			                    .FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")
-			                    ?.PrimaryTarget?.GetItemType<ITreatment>();
-		}
+        IInventoryPlan plan = useItems ?
+            ch.Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(ch) :
+            null;
+        ITreatment treatmentItem = null;
+        if (plan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            treatmentItem = plan.PeekPlanResults()
+                                .FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")
+                                ?.PrimaryTarget?.GetItemType<ITreatment>();
+        }
 
-		if (treatmentItem?.IsTreatmentType(TreatmentType.Antiseptic) != true && !cleanWounds.Any() &&
-		    antisepticWounds.Any())
-		{
-			return (false, PeekCanCleanReason.AntisepticWoundsNoTreatment);
-		}
+        if (treatmentItem?.IsTreatmentType(TreatmentType.Antiseptic) != true && !cleanWounds.Any() &&
+            antisepticWounds.Any())
+        {
+            return (false, PeekCanCleanReason.AntisepticWoundsNoTreatment);
+        }
 
-		return (true, PeekCanCleanReason.CanClean);
-	}
+        return (true, PeekCanCleanReason.CanClean);
+    }
 
-	public override void ExpireEffect()
-	{
-		var wounds = TargetCharacter
-		             
-		             .VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		             .Where(x =>
-						 x.Severity >= MinimumSeverity &&
-			             (x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible || 
-			             x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
-			         )
-		             .ToList();
+    public override void ExpireEffect()
+    {
+        List<IWound> wounds = TargetCharacter
 
-		if (!wounds.Any())
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ have|has finished cleaning all of $1's visible wounds.", CharacterOwner, CharacterOwner,
-				TargetCharacter)));
-			Owner.RemoveEffect(this, true);
-			return;
-		}
+                     .VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+                     .Where(x =>
+                         x.Severity >= MinimumSeverity &&
+                         (x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible ||
+                         x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
+                     )
+                     .ToList();
 
-		var inventoryPlan = UseItems ? Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(CharacterOwner) : null;
-		OriginalInventoryPlan ??= inventoryPlan;
+        if (!wounds.Any())
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ have|has finished cleaning all of $1's visible wounds.", CharacterOwner, CharacterOwner,
+                TargetCharacter)));
+            Owner.RemoveEffect(this, true);
+            return;
+        }
 
-		ITreatment treatmentItem = null;
-		if (UseItems && inventoryPlan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-		{
-			var results = inventoryPlan.ExecuteWholePlan();
-			treatmentItem = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")?.PrimaryTarget
-			                       ?.GetItemType<ITreatment>();
-		}
+        IInventoryPlan inventoryPlan = UseItems ? Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(CharacterOwner) : null;
+        OriginalInventoryPlan ??= inventoryPlan;
 
-		if (inventoryPlan != OriginalInventoryPlan)
-		{
-			inventoryPlan?.FinalisePlanNoRestore();
-		}
+        ITreatment treatmentItem = null;
+        if (UseItems && inventoryPlan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            IEnumerable<InventoryPlanActionResult> results = inventoryPlan.ExecuteWholePlan();
+            treatmentItem = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")?.PrimaryTarget
+                                   ?.GetItemType<ITreatment>();
+        }
 
-		if (treatmentItem == null && wounds.All(x => x.CanBeTreated(TreatmentType.Clean) == Difficulty.Impossible))
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",
-				CharacterOwner, CharacterOwner, TargetCharacter)));
-			CharacterOwner.Send("You require antiseptics to treat your patient any further.".Colour(Telnet.Yellow));
-			Owner.RemoveEffect(this, true);
-			return;
-		}
+        if (inventoryPlan != OriginalInventoryPlan)
+        {
+            inventoryPlan?.FinalisePlanNoRestore();
+        }
 
-		var cleanCheck = Gameworld.GetCheck(CheckType.CleanWoundCheck);
+        if (treatmentItem == null && wounds.All(x => x.CanBeTreated(TreatmentType.Clean) == Difficulty.Impossible))
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",
+                CharacterOwner, CharacterOwner, TargetCharacter)));
+            CharacterOwner.Send("You require antiseptics to treat your patient any further.".Colour(Telnet.Yellow));
+            Owner.RemoveEffect(this, true);
+            return;
+        }
 
-		if (treatmentItem?.IsTreatmentType(TreatmentType.Antiseptic) == true)
-		{
-			CleanAntiseptic(wounds, treatmentItem, cleanCheck);
-		}
-		else
-		{
-			CleanNormal(wounds, treatmentItem, cleanCheck);
-		}
+        ICheck cleanCheck = Gameworld.GetCheck(CheckType.CleanWoundCheck);
 
-		var (canContinue, reason) = PeekCanClean(CharacterOwner, TargetCharacter, MinimumSeverity, UseItems);
-		if (canContinue)
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ continue|continues to clean $1's wounds.", CharacterOwner, CharacterOwner,
-				TargetCharacter)));
-			CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
-			return;
-		}
+        if (treatmentItem?.IsTreatmentType(TreatmentType.Antiseptic) == true)
+        {
+            CleanAntiseptic(wounds, treatmentItem, cleanCheck);
+        }
+        else
+        {
+            CleanNormal(wounds, treatmentItem, cleanCheck);
+        }
 
-		if (reason == PeekCanCleanReason.AntisepticWoundsNoTreatment)
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",
-				CharacterOwner, CharacterOwner, TargetCharacter)));
-			CharacterOwner.Send("You require antiseptics to treat your patient any further.".Colour(Telnet.Yellow));
-		}
-		else
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ have|has finished cleaning all of $1's visible wounds.", CharacterOwner, CharacterOwner,
-				TargetCharacter)));
-		}
+        (bool canContinue, PeekCanCleanReason reason) = PeekCanClean(CharacterOwner, TargetCharacter, MinimumSeverity, UseItems);
+        if (canContinue)
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ continue|continues to clean $1's wounds.", CharacterOwner, CharacterOwner,
+                TargetCharacter)));
+            CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
+            return;
+        }
 
-		Owner.RemoveEffect(this, true);
-	}
+        if (reason == PeekCanCleanReason.AntisepticWoundsNoTreatment)
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote("@ stop|stops cleaning $1's wounds.",
+                CharacterOwner, CharacterOwner, TargetCharacter)));
+            CharacterOwner.Send("You require antiseptics to treat your patient any further.".Colour(Telnet.Yellow));
+        }
+        else
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ have|has finished cleaning all of $1's visible wounds.", CharacterOwner, CharacterOwner,
+                TargetCharacter)));
+        }
+
+        Owner.RemoveEffect(this, true);
+    }
 }

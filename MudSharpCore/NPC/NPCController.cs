@@ -1,201 +1,201 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.NPC;
 
 public class NPCController : IFuturemudAccountController, IFuturemudPlayerController
 {
-	private readonly List<IMonitor> _observedBy = new();
-	private readonly List<IMonitorable> _observes = new();
-	private IControllable _context;
-	public long InactivityMilliseconds => 0L;
+    private readonly List<IMonitor> _observedBy = new();
+    private readonly List<IMonitorable> _observes = new();
+    private IControllable _context;
+    public long InactivityMilliseconds => 0L;
 
-	#region IHandleCommands Members
+    #region IHandleCommands Members
 
-	public void HandleCommand(string command)
-	{
-		if (_context.HandleSubContext(command))
-		{
-			return;
-		}
+    public void HandleCommand(string command)
+    {
+        if (_context.HandleSubContext(command))
+        {
+            return;
+        }
 
-		_context.ExecuteCommand(command);
+        _context.ExecuteCommand(command);
 
-		if (_context.NextContext == null)
-		{
-			return;
-		}
+        if (_context.NextContext == null)
+        {
+            return;
+        }
 
-		_context.LoseControl(this);
-		_context = _context.NextContext;
-		_context.AssumeControl(this);
-	}
+        _context.LoseControl(this);
+        _context = _context.NextContext;
+        _context.AssumeControl(this);
+    }
 
-	#endregion
+    #endregion
 
-	#region IDisposable Members
+    #region IDisposable Members
 
-	public void Dispose()
-	{
-		_context?.LoseControl(this);
-		_context = null;
-		foreach (var observee in _observes)
-		{
-			RemoveObservee(observee);
-		}
+    public void Dispose()
+    {
+        _context?.LoseControl(this);
+        _context = null;
+        foreach (IMonitorable observee in _observes)
+        {
+            RemoveObservee(observee);
+        }
 
-		GC.SuppressFinalize(this);
-	}
+        GC.SuppressFinalize(this);
+    }
 
-	#endregion
+    #endregion
 
-	#region IHaveFuturemud Members
+    #region IHaveFuturemud Members
 
-	public IFuturemud Gameworld { get; protected set; }
+    public IFuturemud Gameworld { get; protected set; }
 
-	#endregion
+    #endregion
 
-	#region ITimeout Members
+    #region ITimeout Members
 
-	public int Timeout => int.MaxValue;
+    public int Timeout => int.MaxValue;
 
-	#endregion
+    #endregion
 
-	#region IAccountController Members
+    #region IAccountController Members
 
-	public IAccount Account => DummyAccount.Instance;
+    public IAccount Account => DummyAccount.Instance;
 
-	void IAccountController.BindAccount(IAccount account)
-	{
-		throw new NotSupportedException();
-	}
+    void IAccountController.BindAccount(IAccount account)
+    {
+        throw new NotSupportedException();
+    }
 
-	void IAccountController.DetachConnection()
-	{
-		throw new NotSupportedException();
-	}
+    void IAccountController.DetachConnection()
+    {
+        throw new NotSupportedException();
+    }
 
-	#endregion
+    #endregion
 
-	#region IController Members
+    #region IController Members
 
-	public void Close()
-	{
-	}
+    public void Close()
+    {
+    }
 
-	public void SetContext(IControllable context)
-	{
-		_context?.LoseControl(this);
-		_context = context;
-		_context?.AssumeControl(this);
-	}
+    public void SetContext(IControllable context)
+    {
+        _context?.LoseControl(this);
+        _context = context;
+        _context?.AssumeControl(this);
+    }
 
-	#endregion
+    #endregion
 
-	#region IHandleOutput Members
+    #region IHandleOutput Members
 
-	public IOutputHandler OutputHandler { get; private set; } = new NonPlayerOutputHandler();
+    public IOutputHandler OutputHandler { get; private set; } = new NonPlayerOutputHandler();
 
-	public void Register(IOutputHandler handler)
-	{
-		OutputHandler = handler;
-		Actor?.Register(handler);
-	}
+    public void Register(IOutputHandler handler)
+    {
+        OutputHandler = handler;
+        Actor?.Register(handler);
+    }
 
-	#endregion
+    #endregion
 
-	#region IMonitorable Members
+    #region IMonitorable Members
 
-	void IMonitorable.AddObserver(IMonitor observer)
-	{
-		if (!_observedBy.Contains(observer))
-		{
-			if (!_observedBy.Any())
-			{
-				OutputHandler.QuietMode = false;
-			}
+    void IMonitorable.AddObserver(IMonitor observer)
+    {
+        if (!_observedBy.Contains(observer))
+        {
+            if (!_observedBy.Any())
+            {
+                OutputHandler.QuietMode = false;
+            }
 
-			_observedBy.Add(observer);
-		}
-	}
+            _observedBy.Add(observer);
+        }
+    }
 
-	void IMonitorable.RemoveObserver(IMonitor observer)
-	{
-		if (_observedBy.Contains(observer))
-		{
-			_observedBy.Remove(observer);
-			if (!_observedBy.Any())
-			{
-				OutputHandler.QuietMode = true;
-			}
-		}
-	}
+    void IMonitorable.RemoveObserver(IMonitor observer)
+    {
+        if (_observedBy.Contains(observer))
+        {
+            _observedBy.Remove(observer);
+            if (!_observedBy.Any())
+            {
+                OutputHandler.QuietMode = true;
+            }
+        }
+    }
 
-	#endregion
+    #endregion
 
-	#region IMonitor Members
+    #region IMonitor Members
 
-	public void AddObservee(IMonitorable observee)
-	{
-		if (_observes.Contains(observee))
-		{
-			return;
-		}
+    public void AddObservee(IMonitorable observee)
+    {
+        if (_observes.Contains(observee))
+        {
+            return;
+        }
 
-		_observes.Add(observee);
-		observee.AddObserver(this);
-	}
+        _observes.Add(observee);
+        observee.AddObserver(this);
+    }
 
-	public void RemoveObservee(IMonitorable observee)
-	{
-		if (!_observes.Contains(observee))
-		{
-			return;
-		}
+    public void RemoveObservee(IMonitorable observee)
+    {
+        if (!_observes.Contains(observee))
+        {
+            return;
+        }
 
-		_observes.Remove(observee);
-		observee.RemoveObserver(this);
-	}
+        _observes.Remove(observee);
+        observee.RemoveObserver(this);
+    }
 
-	public void UpdateObservers()
-	{
-	}
+    public void UpdateObservers()
+    {
+    }
 
-	#endregion
+    #endregion
 
-	#region IPlayerController Members
+    #region IPlayerController Members
 
-	public bool Closing { get; protected set; }
+    public bool Closing { get; protected set; }
 
-	public string IPAddress => "127.0.0.1";
+    public string IPAddress => "127.0.0.1";
 
-	public void CuePrompt()
-	{
-		if (_context.HasPrompt)
-		{
-			OutputHandler.Send(_context.Prompt, false);
-		}
-	}
+    public void CuePrompt()
+    {
+        if (_context.HasPrompt)
+        {
+            OutputHandler.Send(_context.Prompt, false);
+        }
+    }
 
-	#endregion
+    #endregion
 
-	#region ICharacterController Members
+    #region ICharacterController Members
 
-	public ICharacter Actor { get; protected set; }
+    public ICharacter Actor { get; protected set; }
 
-	public string LDescAdditionalTags => "";
+    public string LDescAdditionalTags => "";
 
-	public void UpdateControlFocus(ICharacter newFocus)
-	{
-		Actor = newFocus;
-		_context = newFocus;
-	}
+    public void UpdateControlFocus(ICharacter newFocus)
+    {
+        Actor = newFocus;
+        _context = newFocus;
+    }
 
-	#endregion
+    #endregion
 }

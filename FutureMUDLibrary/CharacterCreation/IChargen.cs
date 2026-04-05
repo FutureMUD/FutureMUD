@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -22,10 +20,12 @@ using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.CharacterCreation
 {
-    
+
     public enum DiscordRequestType
     {
         Show,

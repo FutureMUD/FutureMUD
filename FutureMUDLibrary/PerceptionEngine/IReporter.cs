@@ -1,4 +1,6 @@
-﻿namespace MudSharp.PerceptionEngine {
-    internal interface IReporter {
+﻿namespace MudSharp.PerceptionEngine
+{
+    internal interface IReporter
+    {
     }
 }

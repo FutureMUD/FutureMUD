@@ -118,7 +118,7 @@ namespace MudSharp.Form.Material
 
         public static Temperature SubjectiveTemperature(double value, double lower, double upper)
         {
-            var range = upper - lower;
+            double range = upper - lower;
             if (value > lower + (range * 0.125 * 13))
             {
                 return Temperature.AbysmallyHot;

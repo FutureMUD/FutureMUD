@@ -1,15 +1,15 @@
+using MudSharp.Character;
+using MudSharp.Effects.Concrete;
+using MudSharp.Events;
+using MudSharp.Framework;
+using MudSharp.Models;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using MudSharp.Models;
-using MudSharp.Character;
-using MudSharp.Events;
-using MudSharp.Framework;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine;
-using MudSharp.Effects.Concrete;
-using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.NPC.AI;
 
@@ -97,7 +97,7 @@ public class IdleEmoterAI : ArtificialIntelligenceBase
             actor.OutputHandler.Send("What emote do you want to add?");
             return false;
         }
-        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+        Emote emote = new(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
         if (!emote.Valid)
         {
             actor.OutputHandler.Send(emote.ErrorMessage);
@@ -111,13 +111,13 @@ public class IdleEmoterAI : ArtificialIntelligenceBase
 
     private bool BuildingCommandRemoveEmote(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out var index) || index < 1 || index > _emotes.Count)
+        if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out int index) || index < 1 || index > _emotes.Count)
         {
             actor.OutputHandler.Send($"You must specify a valid emote number between 1 and {_emotes.Count.ToString("N0", actor)}.");
             return false;
         }
-        actor.OutputHandler.Send($"Emote {_emotes[index-1].ColourCommand()} removed from list.");
-        _emotes.RemoveAt(index-1);
+        actor.OutputHandler.Send($"Emote {_emotes[index - 1].ColourCommand()} removed from list.");
+        _emotes.RemoveAt(index - 1);
         Changed = true;
         return true;
     }
@@ -128,7 +128,7 @@ public class IdleEmoterAI : ArtificialIntelligenceBase
         {
             return false;
         }
-        var ch = arguments[0] as ICharacter;
+        ICharacter ch = arguments[0] as ICharacter;
         if (ch is null || ch.Id != Id)
         {
             return false;
@@ -151,7 +151,7 @@ public class IdleEmoterAI : ArtificialIntelligenceBase
         }
         ch.AddEffect(new DelayedAction(ch, x =>
         {
-            var emote = _emotes.GetRandomElement();
+            string emote = _emotes.GetRandomElement();
             ch.OutputHandler.Handle(new EmoteOutput(new Emote(emote, ch)));
         }, "idle emote"), TimeSpan.FromSeconds(Dice.Roll(EmoteDelayDiceExpression)));
         return false;

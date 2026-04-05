@@ -20,7 +20,7 @@ public class AutobuilderBooleanParameter : IAutobuilderParameter
 
     public bool IsValidArgument(string argument, object[] previousArguments)
     {
-		return bool.TryParse(argument, out _);
+        return bool.TryParse(argument, out _);
     }
 
     public string WhyIsNotValidArgument(string argument, object[] previousArguments)

@@ -1,4 +1,6 @@
-﻿namespace MudSharp.Body {
-    public interface IGiveHearing {
+﻿namespace MudSharp.Body
+{
+    public interface IGiveHearing
+    {
     }
 }

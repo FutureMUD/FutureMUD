@@ -1,4 +1,6 @@
-﻿namespace MudSharp.Effects.Interfaces {
-    public interface IWardBeatenEffect : ICombatEffect {
+﻿namespace MudSharp.Effects.Interfaces
+{
+    public interface IWardBeatenEffect : ICombatEffect
+    {
     }
 }

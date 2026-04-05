@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using MudSharp.Framework;
+using System.Collections.Generic;
 using System.Xml.Linq;
-using MudSharp.Framework;
 
 namespace MudSharp.PerceptionEngine
 {
-    
-    public enum PermitLanguageOptions {
+
+    public enum PermitLanguageOptions
+    {
         IgnoreLanguage,
         PermitLanguage,
         LanguageIsGasping,

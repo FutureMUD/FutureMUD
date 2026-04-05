@@ -1,11 +1,11 @@
-using MudSharp.Health;
-using MudSharp.GameItems;
 using MudSharp.Construction;
+using MudSharp.GameItems;
+using MudSharp.Health;
 
 namespace MudSharp.Combat;
 
 public interface IExplosiveRangedAttack : IRangedNaturalAttack
 {
-	SizeCategory ExplosionSize { get; }
-	Proximity MaximumProximity { get; }
+    SizeCategory ExplosionSize { get; }
+    Proximity MaximumProximity { get; }
 }

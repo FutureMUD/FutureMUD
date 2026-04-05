@@ -5,7 +5,8 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Body.Position
 {
-    public enum PositionModifier {
+    public enum PositionModifier
+    {
         In,
         On,
         Under,
@@ -15,14 +16,16 @@ namespace MudSharp.Body.Position
         Around
     }
 
-    public enum PositionHeightComparison {
+    public enum PositionHeightComparison
+    {
         Lower,
         Higher,
         Equivalent,
         Undefined
     }
 
-    public enum MovementAbility {
+    public enum MovementAbility
+    {
         Free,
         FreeIfNotInOn,
         Restricted,

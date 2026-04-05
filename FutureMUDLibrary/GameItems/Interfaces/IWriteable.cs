@@ -2,8 +2,10 @@
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface IWriteable : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface IWriteable : IGameItemComponent
+    {
         bool HasSpareRoom { get; }
 
         /// <summary>

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace MudSharp.Framework {
-    public static class LanguageHelpers {
+namespace MudSharp.Framework
+{
+    public static class LanguageHelpers
+    {
         private static readonly Regex StripAAnRegex = new("(?<=\x1B\\[[^m]+m|^)\\s*(?:a|an|the) ",
             RegexOptions.IgnoreCase);
 
@@ -45,7 +47,7 @@ namespace MudSharp.Framework {
                 return input;
             }
 
-            return proper ? 
+            return proper ?
                 "The " + input :
                 "the " + input;
         }
@@ -69,7 +71,7 @@ namespace MudSharp.Framework {
             }
 
             // Special english cases
-            var firstWord = input.RemoveFirstWord();
+            string firstWord = input.RemoveFirstWord();
             if (_AAnOverrides.ContainsKey(firstWord))
             {
                 return $"{(proper ? "A" : "a")}{(_AAnOverrides[firstWord] ? "n" : "")} {input.Colour(colour)}";
@@ -104,12 +106,15 @@ namespace MudSharp.Framework {
         /// <param name="proper">Whether or not to capitalise the a/an</param>
         /// <param name="colour">An optional colour to apply to the original input text</param>
         /// <returns>A or An plus the original string</returns>
-        public static string A_An(this string input, bool proper = false, ANSIColour colour = null) {
+        public static string A_An(this string input, bool proper = false, ANSIColour colour = null)
+        {
             return GetAorAn(input, proper, colour);
         }
 
-        public static string A_An_RespectPlurals(this string input, bool proper = false, ANSIColour colour = null) {
-            if (input.ContainsPlural()) {
+        public static string A_An_RespectPlurals(this string input, bool proper = false, ANSIColour colour = null)
+        {
+            if (input.ContainsPlural())
+            {
                 return input.FluentProper(proper).Colour(colour);
             }
 
@@ -122,7 +127,8 @@ namespace MudSharp.Framework {
         /// <param name="input">The text to strip from</param>
         /// <param name="strip">Fluent parameter for whether to strip at all</param>
         /// <returns></returns>
-        public static string Strip_A_An(this string input, bool strip = true) {
+        public static string Strip_A_An(this string input, bool strip = true)
+        {
             return strip ? StripAAnRegex.Replace(input, "", 1) : input;
         }
 
@@ -134,11 +140,13 @@ namespace MudSharp.Framework {
         /// <param name="proper">Whether or not to capitalise the a/an</param>
         /// <param name="colour">An optional colour to apply to the original input text</param>
         /// <returns>A or An plus the original number</returns>
-        public static string A_An(this int input, bool proper = false, ANSIColour colour = null) {
+        public static string A_An(this int input, bool proper = false, ANSIColour colour = null)
+        {
             return input.ToWordyNumber().A_An(proper, colour);
         }
 
-        public static void LoadPluralOverrides() {
+        public static void LoadPluralOverrides()
+        {
             // TODO
         }
 
@@ -148,16 +156,19 @@ namespace MudSharp.Framework {
         /// <param name="input">A string representing a single word to pluralise</param>
         /// <param name="pluralise">Whether or not to pluralise, if using this fluently</param>
         /// <returns>The pluralised string</returns>
-        public static string Pluralise(this string input, bool pluralise = true) {
-            if (input.Length < 2 || !pluralise) {
+        public static string Pluralise(this string input, bool pluralise = true)
+        {
+            if (input.Length < 2 || !pluralise)
+            {
                 return input;
             }
 
-            var lowerInput = input.ToLowerInvariant();
+            string lowerInput = input.ToLowerInvariant();
             return _pluralOverrides.ContainsKey(lowerInput) ? _pluralOverrides[lowerInput] : _pluralizationService.Pluralize(input);
         }
 
-        public static bool ContainsPlural(this string input) {
+        public static bool ContainsPlural(this string input)
+        {
             return !new ExplodedString(input).Words.All(x => _pluralizationService.IsSingular(x));
         }
     }

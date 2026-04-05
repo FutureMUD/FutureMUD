@@ -1,5 +1,7 @@
-﻿namespace MudSharp.GameItems.Interfaces {
-    public interface IAffectQuality : IGameItemComponent {
+﻿namespace MudSharp.GameItems.Interfaces
+{
+    public interface IAffectQuality : IGameItemComponent
+    {
         int ItemQualityStages { get; }
     }
 }

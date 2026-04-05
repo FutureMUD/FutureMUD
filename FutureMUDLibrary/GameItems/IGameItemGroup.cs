@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems.Groups;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems {
-    public interface IGameItemGroup : IKeywordedItem, ISaveable {
+namespace MudSharp.GameItems
+{
+    public interface IGameItemGroup : IKeywordedItem, ISaveable
+    {
         IEnumerable<IGameItemGroupForm> Forms { get; }
         string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items, ICell cell);
         void BuildingCommand(ICharacter actor, StringStack command);

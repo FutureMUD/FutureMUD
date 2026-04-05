@@ -1,7 +1,9 @@
 ﻿using MudSharp.Body;
 
-namespace MudSharp.Effects.Interfaces {
-    public enum LimbIneffectiveReason {
+namespace MudSharp.Effects.Interfaces
+{
+    public enum LimbIneffectiveReason
+    {
         Pain,
         Damage,
         Severing,
@@ -11,7 +13,8 @@ namespace MudSharp.Effects.Interfaces {
         SpinalDamage
     }
 
-    public interface ILimbIneffectiveEffect : IEffectSubtype {
+    public interface ILimbIneffectiveEffect : IEffectSubtype
+    {
         bool AppliesToLimb(ILimb limb);
         LimbIneffectiveReason Reason { get; }
     }

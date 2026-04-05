@@ -1,9 +1,11 @@
-﻿using System;
-using MudSharp.FutureProg;
+﻿using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using System;
 
-namespace MudSharp.Form.Material {
-    public enum LiquidInjectionConsequence {
+namespace MudSharp.Form.Material
+{
+    public enum LiquidInjectionConsequence
+    {
         Benign,
         Hydrating,
         BloodVolume,
@@ -13,9 +15,12 @@ namespace MudSharp.Form.Material {
         KidneyWaste
     }
 
-    public static class LiquidExtensions {
-        public static string Describe(this LiquidInjectionConsequence consequence) {
-            switch (consequence) {
+    public static class LiquidExtensions
+    {
+        public static string Describe(this LiquidInjectionConsequence consequence)
+        {
+            switch (consequence)
+            {
                 case LiquidInjectionConsequence.Benign:
                     return "Benign";
                 case LiquidInjectionConsequence.BloodVolume:
@@ -36,19 +41,20 @@ namespace MudSharp.Form.Material {
         }
     }
 
-    public interface ILiquid : IFluid {
+    public interface ILiquid : IFluid
+    {
         double TasteIntensity { get; }
         string TasteText { get; }
         string VagueTasteText { get; }
 
         string Description { get; }
 
-		double AlcoholLitresPerLitre { get; }
-		double WaterLitresPerLitre { get; }
-		double FoodSatiatedHoursPerLitre { get; }
-		double DrinkSatiatedHoursPerLitre { get; }
+        double AlcoholLitresPerLitre { get; }
+        double WaterLitresPerLitre { get; }
+        double FoodSatiatedHoursPerLitre { get; }
+        double DrinkSatiatedHoursPerLitre { get; }
 
-		IFutureProg DraughtProg { get; }
+        IFutureProg DraughtProg { get; }
         double SolventVolumeRatio { get; }
         ILiquid Solvent { get; }
         ISolid DriedResidue { get; }

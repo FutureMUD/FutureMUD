@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace MudSharp.Character.Name {
-    public interface IHavePersonalName {
+namespace MudSharp.Character.Name
+{
+    public interface IHavePersonalName
+    {
         IPersonalName PersonalName { get; }
     }
 

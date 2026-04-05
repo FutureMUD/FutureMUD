@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
+using System.Collections.Generic;
 
-namespace MudSharp.Body.Traits.Decorators {
-    public interface ITraitValueDecorator : IFrameworkItem {
+namespace MudSharp.Body.Traits.Decorators
+{
+    public interface ITraitValueDecorator : IFrameworkItem
+    {
         string Decorate(ITrait trait);
         string Decorate(double value);
         IEnumerable<string> OrderedDescriptors { get; }

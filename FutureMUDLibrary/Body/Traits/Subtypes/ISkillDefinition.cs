@@ -4,8 +4,10 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.Body.Traits.Subtypes {
-    public interface ISkillDefinition : ITraitDefinition {
+namespace MudSharp.Body.Traits.Subtypes
+{
+    public interface ISkillDefinition : ITraitDefinition
+    {
         Difficulty TeachDifficulty { get; }
         Difficulty LearnDifficulty { get; }
         bool CanTeach(ICharacter character);

@@ -1,5 +1,3 @@
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -7,6 +5,8 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -35,7 +35,10 @@ public class WeatherFreezeEffect : IMagicSpellEffectTemplate
     public IMagicSpell Spell { get; }
     public IFuturemud Gameworld => Spell.Gameworld;
 
-    public XElement SaveToXml() => new XElement("Effect", new XAttribute("type", "weatherfreeze"));
+    public XElement SaveToXml()
+    {
+        return new XElement("Effect", new XAttribute("type", "weatherfreeze"));
+    }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -43,12 +46,19 @@ public class WeatherFreezeEffect : IMagicSpellEffectTemplate
         return false;
     }
 
-    public string Show(ICharacter actor) => "WeatherFreeze";
+    public string Show(ICharacter actor)
+    {
+        return "WeatherFreeze";
+    }
 
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -71,5 +81,8 @@ public class WeatherFreezeEffect : IMagicSpellEffectTemplate
         return new SpellWeatherFreezeEffect(loc, parent, null);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new WeatherFreezeEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new WeatherFreezeEffect(SaveToXml(), Spell);
+    }
 }

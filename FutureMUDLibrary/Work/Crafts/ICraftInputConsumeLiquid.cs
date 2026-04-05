@@ -9,7 +9,8 @@ namespace MudSharp.Work.Crafts
     {
     }
 
-    public interface ICraftInputConsumeLiquidData : ICraftInputData {
+    public interface ICraftInputConsumeLiquidData : ICraftInputData
+    {
         LiquidMixture ConsumedMixture { get; }
     }
 }

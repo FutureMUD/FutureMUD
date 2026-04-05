@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MudSharp.Celestial;
+﻿using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Construction.Boundary;
@@ -13,55 +12,58 @@ using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using System.Collections.Generic;
 
-namespace MudSharp.Construction {
-	
+namespace MudSharp.Construction
+{
 
-	public interface ILocation : IPerceivable, ISaveable {
-		/// <summary>
-		///     Returns an IEnumerable of all IHandleEvent-implementing things present, including itself
-		/// </summary>
-		IEnumerable<IHandleEvents> EventHandlers { get; }
 
-		IEnumerable<ICharacter> Characters { get; }
+    public interface ILocation : IPerceivable, ISaveable
+    {
+        /// <summary>
+        ///     Returns an IEnumerable of all IHandleEvent-implementing things present, including itself
+        /// </summary>
+        IEnumerable<IHandleEvents> EventHandlers { get; }
 
-		IEnumerable<ICharacter> LayerCharacters(RoomLayer layer);
+        IEnumerable<ICharacter> Characters { get; }
 
-		IEnumerable<IGameItem> GameItems { get; }
+        IEnumerable<ICharacter> LayerCharacters(RoomLayer layer);
 
-		IEnumerable<IGameItem> LayerGameItems(RoomLayer layer);
+        IEnumerable<IGameItem> GameItems { get; }
 
-		IEnumerable<IPerceivable> Perceivables { get; }
-		IEnumerable<ICell> Cells { get; }
+        IEnumerable<IGameItem> LayerGameItems(RoomLayer layer);
 
-		IEnumerable<IClock> Clocks { get; }
-		IEnumerable<ICalendar> Calendars { get; }
-		IEnumerable<ICelestialObject> Celestials { get; }
+        IEnumerable<IPerceivable> Perceivables { get; }
+        IEnumerable<ICell> Cells { get; }
 
-		void Insert(IGameItem thing, bool newStack = false);
-		void Extract(IGameItem thing);
+        IEnumerable<IClock> Clocks { get; }
+        IEnumerable<ICalendar> Calendars { get; }
+        IEnumerable<ICelestialObject> Celestials { get; }
 
-		void Leave(ICharacter movingCharacter);
-		void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false, RoomLayer roomLayer = RoomLayer.GroundLevel);
+        void Insert(IGameItem thing, bool newStack = false);
+        void Extract(IGameItem thing);
 
-		CelestialInformation GetInfo(ICelestialObject celestial);
-		MudTime Time(IClock whichClock);
-		MudDate Date(ICalendar whichCalendar);
-		IMudTimeZone TimeZone(IClock whichClock);
-		MudDateTime DateTime(ICalendar whichCalendar = null);
+        void Leave(ICharacter movingCharacter);
+        void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false, RoomLayer roomLayer = RoomLayer.GroundLevel);
 
-		Difficulty LocalAudioDifficulty(IPerceiver perceiver, AudioVolume volume, Proximity proximity);
-		
-		IWeatherController WeatherController { get; }
+        CelestialInformation GetInfo(ICelestialObject celestial);
+        MudTime Time(IClock whichClock);
+        MudDate Date(ICalendar whichCalendar);
+        IMudTimeZone TimeZone(IClock whichClock);
+        MudDateTime DateTime(ICalendar whichCalendar = null);
 
-		event CharacterMovementEvent OnCharacterEnters;
-		event CharacterMovementEvent OnCharacterLeaves;
+        Difficulty LocalAudioDifficulty(IPerceiver perceiver, AudioVolume volume, Proximity proximity);
 
-		void HandleRoomEcho(string echo, RoomLayer? layer = null);
-		void HandleRoomEcho(IEmoteOutput emote, RoomLayer? layer = null);
-	}
+        IWeatherController WeatherController { get; }
 
-	public delegate void CharacterMovementEvent(ICharacter character, ILocation location);
-	public delegate void RoomEchoEvent(ICell location, RoomLayer? layer, string emote);
-	public delegate void RoomEmoteEchoEvent(ICell location, RoomLayer? layer, IEmoteOutput emote);
+        event CharacterMovementEvent OnCharacterEnters;
+        event CharacterMovementEvent OnCharacterLeaves;
+
+        void HandleRoomEcho(string echo, RoomLayer? layer = null);
+        void HandleRoomEcho(IEmoteOutput emote, RoomLayer? layer = null);
+    }
+
+    public delegate void CharacterMovementEvent(ICharacter character, ILocation location);
+    public delegate void RoomEchoEvent(ICell location, RoomLayer? layer, string emote);
+    public delegate void RoomEmoteEchoEvent(ICell location, RoomLayer? layer, IEmoteOutput emote);
 }

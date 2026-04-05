@@ -8,6 +8,6 @@ namespace MudSharp.FutureProg.Variables
     {
         public ProgVariableTypes VariableType { get; set; }
         public IReadOnlyDictionary<string, ProgVariableTypes> PropertyTypeMap { get; init; }
-        public IReadOnlyDictionary<string,string> PropertyHelpInfo { get; init; }
+        public IReadOnlyDictionary<string, string> PropertyHelpInfo { get; init; }
     }
 }

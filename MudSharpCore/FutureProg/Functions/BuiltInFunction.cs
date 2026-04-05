@@ -9,21 +9,21 @@ namespace MudSharp.FutureProg.Functions;
 /// </summary>
 internal abstract class BuiltInFunction : Function
 {
-	protected IList<IFunction> ParameterFunctions;
+    protected IList<IFunction> ParameterFunctions;
 
-	protected BuiltInFunction(IList<IFunction> parameterFunctions)
-	{
-		ParameterFunctions = parameterFunctions;
-	}
+    protected BuiltInFunction(IList<IFunction> parameterFunctions)
+    {
+        ParameterFunctions = parameterFunctions;
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		foreach (var par in ParameterFunctions.Where(par => par.Execute(variables) == StatementResult.Error))
-		{
-			ErrorMessage = par.ErrorMessage;
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        foreach (IFunction par in ParameterFunctions.Where(par => par.Execute(variables) == StatementResult.Error))
+        {
+            ErrorMessage = par.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 }

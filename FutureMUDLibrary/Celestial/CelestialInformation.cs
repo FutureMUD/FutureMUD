@@ -1,10 +1,14 @@
-﻿namespace MudSharp.Celestial {
-    public class CelestialInformation {
-        public CelestialInformation() {
+﻿namespace MudSharp.Celestial
+{
+    public class CelestialInformation
+    {
+        public CelestialInformation()
+        {
         }
 
         public CelestialInformation(ICelestialObject origin, double lastAzimuthAngle, double lastAscentionAngle,
-            CelestialMoveDirection direction) {
+            CelestialMoveDirection direction)
+        {
             Origin = origin;
             LastAzimuthAngle = lastAzimuthAngle;
             LastAscensionAngle = lastAscentionAngle;
@@ -20,7 +24,7 @@
 
         public override string ToString()
         {
-	        return $"{Origin.Name} - Azimuth {LastAzimuthAngle} - Ascension {LastAscensionAngle} - Direction {Direction.Describe()}";
+            return $"{Origin.Name} - Azimuth {LastAzimuthAngle} - Ascension {LastAscensionAngle} - Direction {Direction.Describe()}";
         }
 
         #endregion

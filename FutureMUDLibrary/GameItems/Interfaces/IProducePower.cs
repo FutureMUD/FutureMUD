@@ -1,5 +1,7 @@
-﻿namespace MudSharp.GameItems.Interfaces {
-    public interface IProducePower : IGameItemComponent {
+﻿namespace MudSharp.GameItems.Interfaces
+{
+    public interface IProducePower : IGameItemComponent
+    {
         bool PrimaryLoadTimePowerProducer { get; }
         bool PrimaryExternalConnectionPowerProducer { get; }
         double FuelLevel { get; }

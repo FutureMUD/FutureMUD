@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MudSharp.CharacterCreation
 {
-    public enum ChargenStage {
+    public enum ChargenStage
+    {
         None = 0,
         SelectRace = 1,
         SelectCulture = 2,
@@ -35,7 +36,8 @@ namespace MudSharp.CharacterCreation
         SelectDisfigurements = 25
     }
 
-    public enum ChargenState {
+    public enum ChargenState
+    {
         InProgress = 0,
         Submitted = 1,
         Deleted = 2,
@@ -44,9 +46,12 @@ namespace MudSharp.CharacterCreation
         Approved = 5
     }
 
-    public static class ChargenStageExtensions {
-        public static string Describe(this ChargenStage stage) {
-            switch (stage) {
+    public static class ChargenStageExtensions
+    {
+        public static string Describe(this ChargenStage stage)
+        {
+            switch (stage)
+            {
                 case ChargenStage.Welcome:
                     return "Welcome";
                 case ChargenStage.ConfirmQuit:

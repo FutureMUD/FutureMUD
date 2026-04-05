@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Humanizer;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -23,9 +18,15 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
 using MudSharp.TimeAndDate.Time;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TimeSpanParserUtil;
 
 namespace MudSharp.Commands.Modules;
@@ -162,7 +163,7 @@ The following commands are specific to those who own a property (or who are mana
     [CustomModuleName("Economy")]
     protected static void Property(ICharacter actor, string command)
     {
-        var ss = new StringStack(command.RemoveFirstWord());
+        StringStack ss = new(command.RemoveFirstWord());
         switch (ss.PopForSwitch())
         {
             case "edit":
@@ -286,7 +287,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyClaimShops(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -300,12 +301,12 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x =>
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x =>
             x.EconomicZone == ez &&
             (x.IsAuthorisedOwner(actor) || x.IsAuthorisedLeaseHolder(actor))
         ).ToList();
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -320,7 +321,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var shops = property.PropertyLocations.SelectNotNull(x => x.Shop).Distinct().ToList();
+        List<IPermanentShop> shops = property.PropertyLocations.SelectNotNull(x => x.Shop).Distinct().ToList();
         if (!shops.Any())
         {
             actor.OutputHandler.Send(
@@ -335,7 +336,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyDivestOwnership(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send(
@@ -343,7 +344,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -352,7 +353,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -374,7 +375,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!ss.PopSpeech().TryParsePercentageDecimal(actor.Account.Culture, out var value))
+        if (!ss.PopSpeech().TryParsePercentageDecimal(actor.Account.Culture, out decimal value))
         {
             actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid percentage.");
             return;
@@ -393,11 +394,11 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var text = ss.SafeRemainingArgument;
+        string text = ss.SafeRemainingArgument;
         if (text[0] == '*' && text.Length > 1)
         {
-            text = text.Substring(1);
-            var clan = actor.Gameworld.Clans.GetClan(text);
+            text = text[1..];
+            IClan clan = actor.Gameworld.Clans.GetClan(text);
             if (clan == null)
             {
                 actor.OutputHandler.Send($"There is no such clan as {text.ColourCommand()}.");
@@ -440,7 +441,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = actor.TargetActor(text, PerceiveIgnoreFlags.IgnoreSelf);
+        ICharacter target = actor.TargetActor(text, PerceiveIgnoreFlags.IgnoreSelf);
         if (target == null)
         {
             actor.OutputHandler.Send("You don't see anyone like that.");
@@ -483,7 +484,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyClaimKeys(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -497,12 +498,12 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x =>
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x =>
             x.EconomicZone == ez &&
             (x.IsAuthorisedOwner(actor) || x.IsAuthorisedLeaseHolder(actor))
         ).ToList();
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -517,14 +518,14 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var keys = property.PropertyKeys.Where(x => x.IsReturned).ToList();
+        List<IPropertyKey> keys = property.PropertyKeys.Where(x => x.IsReturned).ToList();
         if (keys.Count == 0)
         {
             actor.OutputHandler.Send($"There are no keys to collect for the {property.Name.ColourName()} property.");
             return;
         }
 
-        foreach (var key in keys)
+        foreach (IPropertyKey key in keys)
         {
             key.GameItem.Login();
             key.GameItem.ContainedIn?.Take(key.GameItem);
@@ -561,14 +562,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyClaimBond(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -577,7 +578,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -599,7 +600,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var amount) || amount < 0.0M)
+        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out decimal amount) || amount < 0.0M)
         {
             actor.OutputHandler.Send(
                 $"The amount {ss.Last.ColourCommand()} is not a valid amount of {property.EconomicZone.Currency.Name.ColourName()}.");
@@ -621,7 +622,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyReturnBond(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -634,10 +635,10 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var properties = actor.Gameworld.Properties
+        List<IProperty> properties = actor.Gameworld.Properties
                               .Where(x => x.EconomicZone == ez && x.HasUnclaimedBondPayments(actor))
                               .ToList();
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -645,7 +646,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var lease = property.ExpiredLeases.First(y =>
+        IPropertyLease lease = property.ExpiredLeases.First(y =>
             !y.BondReturned &&
             y.IsAuthorisedLeaseHolder(actor));
         if (property.PropertyKeys.Any(x => !x.IsReturned && x.AddedToPropertyOnDate < lease.LeaseStart))
@@ -654,13 +655,13 @@ The following commands are specific to those who own a property (or who are mana
                 $"Warning: You have unreturned keys for this property. If you proceed, the cost of replacing them will be deducted from your bond. Would like to proceed?\n{Accept.StandardAcceptPhrasing}");
         }
 
-        var keys = property.PropertyKeys.Where(x => !x.IsReturned && x.AddedToPropertyOnDate < lease.LeaseStart)
+        List<IPropertyKey> keys = property.PropertyKeys.Where(x => !x.IsReturned && x.AddedToPropertyOnDate < lease.LeaseStart)
                            .ToList();
-        var keyCost = keys.Sum(x => x.CostToReplace);
-        var bondReturned = lease.BondPayment + lease.PaymentBalance - lease.BondClaimed - keyCost;
+        decimal keyCost = keys.Sum(x => x.CostToReplace);
+        decimal bondReturned = lease.BondPayment + lease.PaymentBalance - lease.BondClaimed - keyCost;
         if (bondReturned <= 0.0M)
         {
-            var reasons = new List<string>();
+            List<string> reasons = new();
             if (lease.PaymentBalance < 0.0M)
             {
                 reasons.Add(
@@ -684,13 +685,13 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        foreach (var key in keys)
+        foreach (IPropertyKey key in keys)
         {
             key.GameItem = key.GameItem.DeepCopy(true, false);
             key.IsReturned = true;
         }
 
-        var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+        IGameItem cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(
             property.EconomicZone.Currency, property.EconomicZone.Currency.FindCoinsForAmount(bondReturned, out _));
         actor.Gameworld.Add(cash);
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
@@ -712,7 +713,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyPayRent(ICharacter actor, StringStack ss)
     {
-        var properties = actor.Gameworld.Properties.Where(x => x.IsAuthorisedLeaseHolder(actor)).ToList();
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.IsAuthorisedLeaseHolder(actor)).ToList();
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send(
@@ -720,7 +721,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -728,7 +729,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null && !property.PropertyLocations.Contains(actor.Location))
         {
             actor.OutputHandler.Send("You can only pay rent from the property or at a conveyancing location.");
@@ -741,7 +742,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var amount))
+        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out decimal amount))
         {
             actor.OutputHandler.Send(
                 $"The amount {ss.Last.ColourCommand()} is not a valid amount of {property.EconomicZone.Currency.Name.ColourName()}.");
@@ -751,7 +752,7 @@ The following commands are specific to those who own a property (or who are mana
         // Cash payment
         if (ss.IsFinished)
         {
-            var payment = new OtherCashPayment(property.EconomicZone.Currency, actor);
+            OtherCashPayment payment = new(property.EconomicZone.Currency, actor);
             if (payment.AccessibleMoneyForPayment() < amount)
             {
                 actor.OutputHandler.Send(
@@ -763,7 +764,7 @@ The following commands are specific to those who own a property (or who are mana
         }
         else
         {
-            var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+            (IBankAccount account, string error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
             if (account == null)
             {
                 actor.OutputHandler.Send(error);
@@ -776,7 +777,7 @@ The following commands are specific to those who own a property (or who are mana
                 return;
             }
 
-            var (truth, accountError) = account.CanWithdraw(amount, true);
+            (bool truth, string accountError) = account.CanWithdraw(amount, true);
             if (!truth)
             {
                 actor.OutputHandler.Send(accountError);
@@ -787,7 +788,7 @@ The following commands are specific to those who own a property (or who are mana
             account.Bank.CurrencyReserves[property.EconomicZone.Currency] -= amount;
         }
 
-        foreach (var owner in property.PropertyOwners)
+        foreach (IPropertyOwner owner in property.PropertyOwners)
         {
             if (owner.RevenueAccount != null)
             {
@@ -848,14 +849,14 @@ The following commands are specific to those who own a property (or who are mana
                 throw new ArgumentOutOfRangeException(nameof(subcommand));
         }
 
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return null;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -864,7 +865,7 @@ The following commands are specific to those who own a property (or who are mana
             return null;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -891,7 +892,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = actor.TargetActor(ss.SafeRemainingArgument, PerceiveIgnoreFlags.IgnoreSelf);
+        ICharacter target = actor.TargetActor(ss.SafeRemainingArgument, PerceiveIgnoreFlags.IgnoreSelf);
         if (target == null)
         {
             actor.OutputHandler.Send(
@@ -945,7 +946,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = property.Lease!.DeclaredTenants.OfType<IClan>()
+        IClan target = property.Lease!.DeclaredTenants.OfType<IClan>()
                              .GetClan(ss.SafeRemainingArgument);
         if (target is null)
         {
@@ -977,7 +978,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = property.Lease!.DeclaredTenants.OfType<IShop>()
+        IShop target = property.Lease!.DeclaredTenants.OfType<IShop>()
                              .GetByNameOrAbbreviation(ss.SafeRemainingArgument);
         if (target is null)
         {
@@ -1009,7 +1010,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = property.Lease!.DeclaredTenants.OfType<ICharacter>()
+        ICharacter target = property.Lease!.DeclaredTenants.OfType<ICharacter>()
                              .GetFromItemListByKeywordIncludingNames(ss.SafeRemainingArgument, actor);
         if (target == null)
         {
@@ -1033,15 +1034,15 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyTenantList(ICharacter actor, StringStack ss, IProperty property)
     {
-        var tenants = property.Lease!.DeclaredTenants.ToList();
+        List<IFrameworkItem> tenants = property.Lease!.DeclaredTenants.ToList();
         if (!tenants.Any())
         {
             actor.OutputHandler.Send($"The {property.Name.ColourName()} property has no declared tenants.");
             return;
         }
 
-        var sb = new StringBuilder();
-        foreach (var tenant in tenants)
+        StringBuilder sb = new();
+        foreach (IFrameworkItem tenant in tenants)
         {
             if (tenant is ICharacter ch)
             {
@@ -1066,7 +1067,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyTenant(ICharacter actor, StringStack ss)
     {
-        var properties = actor.Gameworld.Properties.Where(x => x.IsAuthorisedLeaseHolder(actor)).ToList();
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.IsAuthorisedLeaseHolder(actor)).ToList();
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send(
@@ -1074,7 +1075,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -1082,7 +1083,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var add = true;
+        bool add = true;
         switch (ss.PopSpeech())
         {
             case "add":
@@ -1131,7 +1132,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyLeaseLength(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "length");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "length");
         if (property == null)
         {
             return;
@@ -1144,7 +1145,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!TimeSpan.TryParse(ss.PopSpeech(), actor, out var minimum))
+        if (!TimeSpan.TryParse(ss.PopSpeech(), actor, out TimeSpan minimum))
         {
             actor.OutputHandler.Send(
                 $"That is not a valid timespan. Generally speaking the format is days:hours:minutes:seconds and it matches the way your account culture ({actor.Account.Culture.Name.ColourValue()}) handles timespans.");
@@ -1158,7 +1159,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!TimeSpan.TryParse(ss.PopSpeech(), actor, out var maximum))
+        if (!TimeSpan.TryParse(ss.PopSpeech(), actor, out TimeSpan maximum))
         {
             actor.OutputHandler.Send(
                 $"That is not a valid timespan. Generally speaking the format is days:hours:minutes:seconds and it matches the way your account culture ({actor.Account.Culture.Name.ColourValue()}) handles timespans.");
@@ -1185,7 +1186,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyAutoRenewLease(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "renew");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "renew");
         if (property == null)
         {
             return;
@@ -1198,7 +1199,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyAutoRelist(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "relist");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "relist");
         if (property == null)
         {
             return;
@@ -1211,7 +1212,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyAllowNovation(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "novation");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "novation");
         if (property == null)
         {
             return;
@@ -1224,7 +1225,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyAutoRekey(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "rekey");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "rekey");
         if (property == null)
         {
             return;
@@ -1237,7 +1238,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyBond(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "bond");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "bond");
         if (property == null)
         {
             return;
@@ -1250,7 +1251,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var value))
+        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out decimal value))
         {
             actor.OutputHandler.Send(
                 $"The quantity {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {property.EconomicZone.Currency.Name.ColourName()}.");
@@ -1264,7 +1265,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyRent(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "rent");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "rent");
         if (property == null)
         {
             return;
@@ -1277,7 +1278,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var value))
+        if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out decimal value))
         {
             actor.OutputHandler.Send(
                 $"The quantity {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {property.EconomicZone.Currency.Name.ColourName()}.");
@@ -1291,7 +1292,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyLeaseProg(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "prog");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "prog");
         if (property == null)
         {
             return;
@@ -1304,7 +1305,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var text = ss.PopSpeech();
+        string text = ss.PopSpeech();
         if (text.EqualTo("none"))
         {
             if (ss.IsFinished)
@@ -1354,7 +1355,7 @@ The following commands are specific to those who own a property (or who are mana
             }
         }
 
-        var prog = actor.Gameworld.FutureProgs.GetByIdOrName(text);
+        IFutureProg prog = actor.Gameworld.FutureProgs.GetByIdOrName(text);
         if (prog == null)
         {
             actor.OutputHandler.Send($"There is no such prog as {text.ColourCommand()}.");
@@ -1391,7 +1392,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyInterval(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "interval");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "interval");
         if (property == null)
         {
             return;
@@ -1403,7 +1404,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!RecurringInterval.TryParse(ss.SafeRemainingArgument, out var interval))
+        if (!RecurringInterval.TryParse(ss.SafeRemainingArgument, out RecurringInterval interval))
         {
             actor.OutputHandler.Send(
                 $"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
@@ -1417,14 +1418,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyAddKey(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -1433,7 +1434,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -1448,7 +1449,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = actor.TargetHeldItem(ss.PopSpeech());
+        IGameItem target = actor.TargetHeldItem(ss.PopSpeech());
         if (target == null)
         {
             actor.OutputHandler.Send("You are not holding anything like that.");
@@ -1468,7 +1469,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var name = ss.PopSpeech();
+        string name = ss.PopSpeech();
 
         if (ss.IsFinished)
         {
@@ -1476,7 +1477,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!ez.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount))
+        if (!ez.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out decimal amount))
         {
             actor.OutputHandler.Send(
                 $"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {ez.Currency.Name.ColourName()}.");
@@ -1495,7 +1496,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyReturnKey(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1508,14 +1509,14 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var target = actor.TargetHeldItem(ss.SafeRemainingArgument);
+        IGameItem target = actor.TargetHeldItem(ss.SafeRemainingArgument);
         if (target == null)
         {
             actor.OutputHandler.Send("You aren't holding anything like that.");
             return;
         }
 
-        var property =
+        IProperty property =
             actor.Gameworld.Properties.FirstOrDefault(x => x.PropertyKeys.Any(y => y.GameItem == target));
         if (property == null)
         {
@@ -1532,14 +1533,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyRemoveKey(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -1548,7 +1549,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -1563,7 +1564,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var key = property.PropertyKeys.GetByNameOrAbbreviation(ss.SafeRemainingArgument);
+        IPropertyKey key = property.PropertyKeys.GetByNameOrAbbreviation(ss.SafeRemainingArgument);
         if (key == null)
         {
             actor.OutputHandler.Send(
@@ -1591,14 +1592,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertySetBank(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -1607,7 +1608,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -1622,7 +1623,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var (accountTarget, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+        (IBankAccount accountTarget, string error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
         if (accountTarget == null)
         {
             actor.OutputHandler.Send(error);
@@ -1635,7 +1636,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        foreach (var owner in property.PropertyOwners)
+        foreach (IPropertyOwner owner in property.PropertyOwners)
         {
             if (owner.Owner == actor || (owner.Owner is IClan clan && actor.ClanMemberships.Any(x =>
                     x.Clan == clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty))))
@@ -1650,7 +1651,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyLease(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1664,9 +1665,9 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var properties = actor.Gameworld.Properties
+        List<IProperty> properties = actor.Gameworld.Properties
                               .Where(x => x.EconomicZone == ez && x.LeaseOrder?.ListedForLease == true).ToList();
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send("There is no such property currently available for lease.");
@@ -1687,7 +1688,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!TimeSpanParser.TryParse(ss.PopSpeech(), Units.Weeks, Units.Weeks, out var duration))
+        if (!TimeSpanParser.TryParse(ss.PopSpeech(), Units.Weeks, Units.Weeks, out TimeSpan duration))
         {
             actor.OutputHandler.Send(
                 $"That was not a valid time span.\n{"Note: Years and Months are not supported, use Weeks or Days in that case".ColourCommand()}");
@@ -1702,11 +1703,11 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var amount = Math.Truncate(property.LeaseOrder!.BondRequired + 2.0M * property.LeaseOrder.PricePerInterval);
+        decimal amount = Math.Truncate(property.LeaseOrder!.BondRequired + 2.0M * property.LeaseOrder.PricePerInterval);
         // Cash payment
         if (ss.IsFinished)
         {
-            var payment = new OtherCashPayment(ez.Currency, actor);
+            OtherCashPayment payment = new(ez.Currency, actor);
             if (payment.AccessibleMoneyForPayment() < amount)
             {
                 actor.OutputHandler.Send(
@@ -1718,7 +1719,7 @@ The following commands are specific to those who own a property (or who are mana
         }
         else
         {
-            var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+            (IBankAccount account, string error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
             if (account == null)
             {
                 actor.OutputHandler.Send(error);
@@ -1731,7 +1732,7 @@ The following commands are specific to those who own a property (or who are mana
                 return;
             }
 
-            var (truth, accountError) = account.CanWithdraw(amount, true);
+            (bool truth, string accountError) = account.CanWithdraw(amount, true);
             if (!truth)
             {
                 actor.OutputHandler.Send(accountError);
@@ -1742,9 +1743,9 @@ The following commands are specific to those who own a property (or who are mana
             account.Bank.CurrencyReserves[ez.Currency] -= amount;
         }
 
-        var depositAmount = amount - property.LeaseOrder.BondRequired;
+        decimal depositAmount = amount - property.LeaseOrder.BondRequired;
 
-        foreach (var owner in property.PropertyOwners)
+        foreach (IPropertyOwner owner in property.PropertyOwners)
         {
             if (owner.RevenueAccount != null)
             {
@@ -1769,8 +1770,8 @@ The following commands are specific to those who own a property (or who are mana
             }
             else
             {
-                var list = new List<IGameItem>();
-                foreach (var key in property.PropertyKeys)
+                List<IGameItem> list = new();
+                foreach (IPropertyKey key in property.PropertyKeys)
                 {
                     list.Add(key.GameItem);
                     key.IsReturned = false;
@@ -1796,14 +1797,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyTerminateLease(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -1812,7 +1813,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -1833,7 +1834,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var lease = property.Lease;
+        IPropertyLease lease = property.Lease;
         actor.OutputHandler.Send(
             $"Are you sure you want to terminate the existing lease on {property.Name.ColourName()}? Make sure that you claim any necessary bond for property damages BEFORE you terminate the lease.\n{Accept.StandardAcceptPhrasing}");
         actor.AddEffect(new Accept(actor, new GenericProposal
@@ -1867,14 +1868,14 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
-        var properties = actor.Gameworld.Properties.Where(x =>
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x =>
             x.EconomicZone == ez ||
             x.PropertyOwners.Any(y => y.Owner.Equals(actor)) ||
             x.Lease?.Leaseholder.Equals(actor) == true
         ).ToList();
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.SafeRemainingArgument, actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.SafeRemainingArgument, actor);
         if (property == null)
         {
             actor.OutputHandler.Send("You do not own, lease or see listed any such property.");
@@ -1886,14 +1887,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyBuy(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.SaleOrder?.ShowForSale == true)
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.SaleOrder?.ShowForSale == true)
                               .ToList();
         if (ss.IsFinished)
         {
@@ -1902,7 +1903,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -1910,11 +1911,11 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var amount = Math.Truncate(property.SaleOrder!.ReservePrice);
+        decimal amount = Math.Truncate(property.SaleOrder!.ReservePrice);
         // Cash payment
         if (ss.IsFinished)
         {
-            var payment = new OtherCashPayment(ez.Currency, actor);
+            OtherCashPayment payment = new(ez.Currency, actor);
             if (payment.AccessibleMoneyForPayment() < amount)
             {
                 actor.OutputHandler.Send(
@@ -1926,7 +1927,7 @@ The following commands are specific to those who own a property (or who are mana
         }
         else
         {
-            var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+            (IBankAccount account, string error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
             if (account == null)
             {
                 actor.OutputHandler.Send(error);
@@ -1939,7 +1940,7 @@ The following commands are specific to those who own a property (or who are mana
                 return;
             }
 
-            var (truth, accountError) = account.CanWithdraw(amount, true);
+            (bool truth, string accountError) = account.CanWithdraw(amount, true);
             if (!truth)
             {
                 actor.OutputHandler.Send(accountError);
@@ -1950,7 +1951,7 @@ The following commands are specific to those who own a property (or who are mana
             account.Bank.CurrencyReserves[ez.Currency] -= amount;
         }
 
-        foreach (var owner in property.PropertyOwners)
+        foreach (IPropertyOwner owner in property.PropertyOwners)
         {
             if (owner.RevenueAccount != null)
             {
@@ -1976,8 +1977,8 @@ The following commands are specific to those who own a property (or who are mana
             }
             else
             {
-                var list = new List<IGameItem>();
-                foreach (var key in property.PropertyKeys.Where(x => !x.IsReturned))
+                List<IGameItem> list = new();
+                foreach (IPropertyKey key in property.PropertyKeys.Where(x => !x.IsReturned))
                 {
                     list.Add(key.GameItem);
                     key.IsReturned = false;
@@ -2003,14 +2004,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertySell(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -2019,7 +2020,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -2047,7 +2048,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!ez.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var price))
+        if (!ez.Currency.TryGetBaseCurrency(ss.PopSpeech(), out decimal price))
         {
             actor.OutputHandler.Send(
                 $"The amount {ss.Last.ColourValue()} is not a valid amount of {ez.Currency.Name.ColourValue()}.");
@@ -2061,14 +2062,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyDelaySell(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -2077,7 +2078,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -2109,7 +2110,7 @@ The following commands are specific to those who own a property (or who are mana
                 return;
             }
 
-            if (!ez.FinancialPeriodReferenceCalendar.TryGetDate(ss.SafeRemainingArgument, actor, out var date, out var error))
+            if (!ez.FinancialPeriodReferenceCalendar.TryGetDate(ss.SafeRemainingArgument, actor, out MudDate date, out string error))
             {
                 actor.OutputHandler.Send(error);
                 return;
@@ -2121,14 +2122,14 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!TimeSpanParser.TryParse(ss.SafeRemainingArgument, Units.Days, Units.Days, out var timespan))
+        if (!TimeSpanParser.TryParse(ss.SafeRemainingArgument, Units.Days, Units.Days, out TimeSpan timespan))
         {
             actor.OutputHandler.Send(
                 $"That was not a valid time span.\n{"Note: Years and Months are not supported, use Weeks or Days in that case".ColourCommand()}");
             return;
         }
 
-        var newDate = ez.FinancialPeriodReferenceCalendar.CurrentDateTime + timespan;
+        MudDateTime newDate = ez.FinancialPeriodReferenceCalendar.CurrentDateTime + timespan;
         property.SaleOrder.StartOfListing = newDate;
         actor.OutputHandler.Send(
             $"The property {property.Name.ColourName()} will now only be listed for sale on or after {property.SaleOrder.StartOfListing.GetByTimeZone(actor.Location.TimeZone(ez.FinancialPeriodReferenceClock)).ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short)}");
@@ -2136,14 +2137,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyMakeLease(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -2152,7 +2153,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -2180,7 +2181,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!ez.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var price))
+        if (!ez.Currency.TryGetBaseCurrency(ss.PopSpeech(), out decimal price))
         {
             actor.OutputHandler.Send(
                 $"The quantity {ss.Last.ColourCommand()} is not a valid amount of {ez.Currency.Name.ColourName()}.");
@@ -2193,7 +2194,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!ez.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var bond))
+        if (!ez.Currency.TryGetBaseCurrency(ss.PopSpeech(), out decimal bond))
         {
             actor.OutputHandler.Send(
                 $"The quantity {ss.Last.ColourCommand()} is not a valid amount of {ez.Currency.Name.ColourName()}.");
@@ -2207,14 +2208,14 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyApproveSale(ICharacter actor, StringStack ss)
     {
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
             return;
         }
 
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
                               .ToList();
         if (ss.IsFinished)
         {
@@ -2223,7 +2224,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        var property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        IProperty property = properties.GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
         if (property == null)
         {
             actor.OutputHandler.Send(
@@ -2238,7 +2239,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        foreach (var owner in property.PropertyOwners)
+        foreach (IPropertyOwner owner in property.PropertyOwners)
         {
             if (owner.Owner == actor || (owner.Owner is IClan clan && actor.ClanMemberships.Any(x =>
                     x.Clan == clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty))))
@@ -2253,13 +2254,13 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyApproveLease(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "approve");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "approve");
         if (property == null)
         {
             return;
         }
 
-        foreach (var owner in property.PropertyOwners)
+        foreach (IPropertyOwner owner in property.PropertyOwners)
         {
             if (owner.Owner == actor || (owner.Owner is IClan clan && actor.ClanMemberships.Any(x =>
                     x.Clan == clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty))))
@@ -2274,13 +2275,13 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyCancelLease(ICharacter actor, StringStack ss)
     {
-        var property = FindPropertyWithLeaseOrder(actor, ss, "cancel");
+        IProperty property = FindPropertyWithLeaseOrder(actor, ss, "cancel");
         if (property == null)
         {
             return;
         }
 
-        var lo = property.LeaseOrder;
+        IPropertyLeaseOrder lo = property.LeaseOrder;
         actor.OutputHandler.Send(
             $"Are you sure you want to cancel the lease order for {property.Name.ColourName()}?\n{Accept.StandardAcceptPhrasing}");
         actor.AddEffect(new Accept(actor, new GenericProposal
@@ -2309,9 +2310,9 @@ The following commands are specific to those who own a property (or who are mana
     [CustomModuleName("Economy")]
     protected static void Properties(ICharacter actor, string command)
     {
-        var sb = new StringBuilder();
-        var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
-        var properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez).ToList();
+        StringBuilder sb = new();
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez).ToList();
         if (ez != null)
         {
             sb.AppendLine("The following properties are available to buy in this economic zone:");
@@ -2372,7 +2373,7 @@ The following commands are specific to those who own a property (or who are mana
             sb.AppendLine();
         }
 
-        var owned = actor.Gameworld.Properties.Where(x => x.PropertyOwners.Any(y => y.Owner.Equals(actor)))
+        List<IProperty> owned = actor.Gameworld.Properties.Where(x => x.PropertyOwners.Any(y => y.Owner.Equals(actor)))
                          .ToList();
         if (owned.Any())
         {
@@ -2413,7 +2414,7 @@ The following commands are specific to those who own a property (or who are mana
 
         sb.AppendLine();
 
-        var leased = actor.Gameworld.Properties.Where(x => x.Lease?.Leaseholder.Equals(actor) == true)
+        List<IProperty> leased = actor.Gameworld.Properties.Where(x => x.Lease?.Leaseholder.Equals(actor) == true)
                           .ToList();
         if (leased.Any())
         {

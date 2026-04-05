@@ -5,8 +5,10 @@ using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface ILock : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface ILock : IGameItemComponent
+    {
         bool CanBeInstalled { get; }
         bool IsLocked { get; }
         string LockType { get; }

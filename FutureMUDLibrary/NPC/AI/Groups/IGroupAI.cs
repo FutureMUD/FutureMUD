@@ -35,7 +35,7 @@ namespace MudSharp.NPC.AI.Groups
     {
         IGroupAITemplate Template { get; }
         IEnumerable<ICharacter> GroupMembers { get; }
-        ICharacter GroupLeader { get;}
+        ICharacter GroupLeader { get; }
         void AddToGroup(ICharacter character);
         void RemoveFromGroup(ICharacter character);
 

@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using MudSharp.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using MudSharp.Framework;
 
-namespace MudSharp.TimeAndDate.Date {
-    public class IntercalaryDay : IXmlSavable, IXmlLoadable {
+namespace MudSharp.TimeAndDate.Date
+{
+    public class IntercalaryDay : IXmlSavable, IXmlLoadable
+    {
         /// <summary>
         ///     Number of new calendar days to insert for this month
         /// </summary>
@@ -38,8 +40,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public IntercalaryRule Rule
         {
-            get { return _rule; }
-            set { _rule = value; }
+            get => _rule; set => _rule = value;
         }
 
         public Dictionary<int, DayName> SpecialDayNames => _specialDayNames;
@@ -52,30 +53,35 @@ namespace MudSharp.TimeAndDate.Date {
 
         public int InsertNumnewDays
         {
-            get { return _insertNumNewDays; }
-            set { _insertNumNewDays = value; }
+            get => _insertNumNewDays; set => _insertNumNewDays = value;
         }
 
-        public void LoadFromXml(XElement root) {
-            if (root?.HasElements != true) {
+        public void LoadFromXml(XElement root)
+        {
+            if (root?.HasElements != true)
+            {
                 throw new XmlException("Empty IntercalaryDay in LoadFromXML.");
             }
 
             // Normal Days
-            var element = root.Element("insertdays");
-            if ((element == null) || (element.Value.Length == 0)) {
+            XElement element = root.Element("insertdays");
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing insertdays value in IntercalaryDay LoadFromXML.");
             }
 
-            try {
+            try
+            {
                 InsertNumnewDays = int.Parse(element.Value);
             }
-            catch {
+            catch
+            {
                 throw new XmlException("Value for normaldays in IntercalaryDay LoadFromXML is not a valid Integer");
             }
 
             // Special Day Names
-            if (root.Element("specialdays").HasElements) {
+            if (root.Element("specialdays").HasElements)
+            {
                 (from sd in root.Element("specialdays").Elements("specialday")
                  where (sd.Attribute("day") != null) &&
                        (sd.Attribute("short") != null) &&
@@ -89,7 +95,8 @@ namespace MudSharp.TimeAndDate.Date {
             }
 
             // Remove Special Day Names
-            if (root.Element("removespecialdays").HasElements) {
+            if (root.Element("removespecialdays").HasElements)
+            {
                 (from nwd in root.Element("removespecialdays").Elements("removespecialday")
                  select nwd)
                     .ToList()
@@ -97,7 +104,8 @@ namespace MudSharp.TimeAndDate.Date {
             }
 
             // Non Weekdays
-            if (root.Element("nonweekdays").HasElements) {
+            if (root.Element("nonweekdays").HasElements)
+            {
                 (from nwd in root.Element("nonweekdays").Elements("nonweekday")
                  select nwd)
                     .ToList()
@@ -105,7 +113,8 @@ namespace MudSharp.TimeAndDate.Date {
             }
 
             // Remove Non Weekdays
-            if (root.Element("removenonweekdays").HasElements) {
+            if (root.Element("removenonweekdays").HasElements)
+            {
                 (from nwd in root.Element("removenonweekdays").Elements("removenonweekday")
                  select nwd)
                     .ToList()
@@ -114,16 +123,18 @@ namespace MudSharp.TimeAndDate.Date {
 
             // Rule
             element = root.Element("intercalaryrule");
-            if (element?.HasElements != true) {
+            if (element?.HasElements != true)
+            {
                 throw new XmlException("Missing or empty rule in IntercalaryDay LoadFromXml.");
             }
 
-            var rule = new IntercalaryRule();
+            IntercalaryRule rule = new();
             rule.LoadFromXml(element);
             Rule = rule;
         }
 
-        public XElement SaveToXml() {
+        public XElement SaveToXml()
+        {
             return new XElement
             (
                 "intercalaryday", new XElement("insertdays", InsertNumnewDays), new XElement("nonweekdays",

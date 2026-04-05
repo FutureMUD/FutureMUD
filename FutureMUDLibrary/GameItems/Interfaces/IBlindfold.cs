@@ -1,4 +1,6 @@
-﻿namespace MudSharp.GameItems.Interfaces {
-    public interface IBlindfold : IGameItemComponent {
+﻿namespace MudSharp.GameItems.Interfaces
+{
+    public interface IBlindfold : IGameItemComponent
+    {
     }
 }

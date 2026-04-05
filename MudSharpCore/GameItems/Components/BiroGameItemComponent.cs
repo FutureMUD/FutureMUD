@@ -1,125 +1,125 @@
-﻿using System;
-using System.Xml.Linq;
-using MudSharp.Form.Characteristics;
+﻿using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using System;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
 public class BiroGameItemComponent : GameItemComponent, IWritingImplement
 {
-	protected BiroGameItemComponentProto _prototype;
-	public override IGameItemComponentProto Prototype => _prototype;
+    protected BiroGameItemComponentProto _prototype;
+    public override IGameItemComponentProto Prototype => _prototype;
 
-	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-	{
-		var newPen = (BiroGameItemComponentProto)newProto;
-		RemainingUses = Math.Max(0, RemainingUses - newPen.TotalUses + _prototype.TotalUses);
-		_prototype = newPen;
-	}
+    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+    {
+        BiroGameItemComponentProto newPen = (BiroGameItemComponentProto)newProto;
+        RemainingUses = Math.Max(0, RemainingUses - newPen.TotalUses + _prototype.TotalUses);
+        _prototype = newPen;
+    }
 
-	#region Constructors
+    #region Constructors
 
-	public BiroGameItemComponent(BiroGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(
-		parent, proto, temporary)
-	{
-		_prototype = proto;
-		RemainingUses = _prototype.TotalUses;
-	}
+    public BiroGameItemComponent(BiroGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(
+        parent, proto, temporary)
+    {
+        _prototype = proto;
+        RemainingUses = _prototype.TotalUses;
+    }
 
-	public BiroGameItemComponent(MudSharp.Models.GameItemComponent component, BiroGameItemComponentProto proto,
-		IGameItem parent) : base(component, parent)
-	{
-		_prototype = proto;
-		_noSave = true;
-		LoadFromXml(XElement.Parse(component.Definition));
-		_noSave = false;
-	}
+    public BiroGameItemComponent(MudSharp.Models.GameItemComponent component, BiroGameItemComponentProto proto,
+        IGameItem parent) : base(component, parent)
+    {
+        _prototype = proto;
+        _noSave = true;
+        LoadFromXml(XElement.Parse(component.Definition));
+        _noSave = false;
+    }
 
-	public BiroGameItemComponent(BiroGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
-		newParent, temporary)
-	{
-		_prototype = rhs._prototype;
-		RemainingUses = rhs.RemainingUses;
-	}
+    public BiroGameItemComponent(BiroGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
+        newParent, temporary)
+    {
+        _prototype = rhs._prototype;
+        RemainingUses = rhs.RemainingUses;
+    }
 
-	protected void LoadFromXml(XElement root)
-	{
-		_remainingUses = int.Parse(root.Element("RemainingUses").Value);
-	}
+    protected void LoadFromXml(XElement root)
+    {
+        _remainingUses = int.Parse(root.Element("RemainingUses").Value);
+    }
 
-	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-	{
-		return new BiroGameItemComponent(this, newParent, temporary);
-	}
+    public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
+    {
+        return new BiroGameItemComponent(this, newParent, temporary);
+    }
 
-	#endregion
+    #endregion
 
-	#region Saving
+    #region Saving
 
-	protected override string SaveToXml()
-	{
-		return new XElement("Definition",
-			new XElement("RemainingUses", RemainingUses)
-		).ToString();
-	}
+    protected override string SaveToXml()
+    {
+        return new XElement("Definition",
+            new XElement("RemainingUses", RemainingUses)
+        ).ToString();
+    }
 
-	#endregion
+    #endregion
 
-	#region IWritingImplement Implementation
+    #region IWritingImplement Implementation
 
-	private int _remainingUses;
+    private int _remainingUses;
 
-	public int RemainingUses
-	{
-		get => _remainingUses;
-		set
-		{
-			_remainingUses = value;
-			Changed = true;
-		}
-	}
+    public int RemainingUses
+    {
+        get => _remainingUses;
+        set
+        {
+            _remainingUses = value;
+            Changed = true;
+        }
+    }
 
-	public void Use(int uses)
-	{
-		RemainingUses -= uses;
-	}
+    public void Use(int uses)
+    {
+        RemainingUses -= uses;
+    }
 
-	public WritingImplementType WritingImplementType => WritingImplementType.Biro;
+    public WritingImplementType WritingImplementType => WritingImplementType.Biro;
 
-	public IColour WritingImplementColour => _prototype.Colour ??
-	                                         (Parent.GetItemType<VariableGameItemComponent>()
-	                                                ?.GetCharacteristic(_prototype.ColourCharacteristic) as
-		                                         ColourCharacteristicValue)?.Colour ??
-	                                         Gameworld.Colours.Get(Gameworld.GetStaticLong("DefaultBiroColour"));
+    public IColour WritingImplementColour => _prototype.Colour ??
+                                             (Parent.GetItemType<VariableGameItemComponent>()
+                                                    ?.GetCharacteristic(_prototype.ColourCharacteristic) as
+                                                 ColourCharacteristicValue)?.Colour ??
+                                             Gameworld.Colours.Get(Gameworld.GetStaticLong("DefaultBiroColour"));
 
-	public bool Primed => RemainingUses > 0;
+    public bool Primed => RemainingUses > 0;
 
-	#endregion
+    #endregion
 
-	public override bool DescriptionDecorator(DescriptionType type)
-	{
-		return type == DescriptionType.Full;
-	}
+    public override bool DescriptionDecorator(DescriptionType type)
+    {
+        return type == DescriptionType.Full;
+    }
 
-	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
-		bool colour, PerceiveIgnoreFlags flags)
-	{
-		if (type == DescriptionType.Full)
-		{
-			if (RemainingUses <= 0)
-			{
-				return
-					$"{description}\n\nIt is a {WritingImplementColour.Name.Colour(Telnet.Cyan)} biro that has been completely used up.";
-			}
+    public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
+        bool colour, PerceiveIgnoreFlags flags)
+    {
+        if (type == DescriptionType.Full)
+        {
+            if (RemainingUses <= 0)
+            {
+                return
+                    $"{description}\n\nIt is a {WritingImplementColour.Name.Colour(Telnet.Cyan)} biro that has been completely used up.";
+            }
 
-			return
-				$"{description}\n\nIt is a {WritingImplementColour.Name.Colour(Telnet.Cyan)} biro, approximately {1.0 - (double)RemainingUses / _prototype.TotalUses:P0} used up.";
-		}
+            return
+                $"{description}\n\nIt is a {WritingImplementColour.Name.Colour(Telnet.Cyan)} biro, approximately {1.0 - (double)RemainingUses / _prototype.TotalUses:P0} used up.";
+        }
 
-		return base.Decorate(voyeur, name, description, type, colour, flags);
-	}
+        return base.Decorate(voyeur, name, description, type, colour, flags);
+    }
 }

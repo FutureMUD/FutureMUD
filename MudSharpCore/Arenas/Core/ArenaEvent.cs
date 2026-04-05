@@ -1,208 +1,211 @@
 #nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Name;
-using MudSharp.Database;
-using System.Text;
+using MudSharp.Combat;
 using MudSharp.Community;
 using MudSharp.Construction;
-using System.Globalization;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Inventory;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.TimeAndDate;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.TimeAndDate;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace MudSharp.Arenas;
 
 public sealed class ArenaEvent : SaveableItem, IArenaEvent
 {
-	private readonly List<ArenaParticipant> _participants = new();
-	private readonly List<ArenaReservation> _reservations = new();
-	private readonly HashSet<long> _surrenderedParticipantIds = new();
-	private ArenaEventState _state;
-	private ArenaOutcome? _outcome;
-	private IReadOnlyCollection<int>? _winningSides;
+    private readonly List<ArenaParticipant> _participants = new();
+    private readonly List<ArenaReservation> _reservations = new();
+    private readonly HashSet<long> _surrenderedParticipantIds = new();
+    private ArenaEventState _state;
+    private ArenaOutcome? _outcome;
+    private IReadOnlyCollection<int>? _winningSides;
 
-	public ArenaEvent(MudSharp.Models.ArenaEvent model, CombatArena arena, ArenaEventType eventType)
-	{
-		Gameworld = arena.Gameworld;
-		Arena = arena;
-		EventType = eventType;
-		_id = model.Id;
-		_name = $"{eventType.Name} Event #{model.Id:N0}";
-		_state = (ArenaEventState)model.State;
-		CreatedAt = model.CreatedAt;
-		ScheduledAt = model.ScheduledAt;
-		RegistrationOpensAt = model.RegistrationOpensAt;
-		StartedAt = model.StartedAt;
-		ResolvedAt = model.ResolvedAt;
-		CompletedAt = model.CompletedAt;
-		BringYourOwn = model.BringYourOwn;
-		RegistrationDuration = TimeSpan.FromSeconds(model.RegistrationDurationSeconds);
-		PreparationDuration = TimeSpan.FromSeconds(model.PreparationDurationSeconds);
-		TimeLimit = model.TimeLimitSeconds.HasValue ? TimeSpan.FromSeconds(model.TimeLimitSeconds.Value) : null;
-		BettingModel = (BettingModel)model.BettingModel;
-		AppearanceFee = model.AppearanceFee;
-		VictoryFee = model.VictoryFee;
-		PayNpcAppearanceFee = model.PayNpcAppearanceFee;
+    public ArenaEvent(MudSharp.Models.ArenaEvent model, CombatArena arena, ArenaEventType eventType)
+    {
+        Gameworld = arena.Gameworld;
+        Arena = arena;
+        EventType = eventType;
+        _id = model.Id;
+        _name = $"{eventType.Name} Event #{model.Id:N0}";
+        _state = (ArenaEventState)model.State;
+        CreatedAt = model.CreatedAt;
+        ScheduledAt = model.ScheduledAt;
+        RegistrationOpensAt = model.RegistrationOpensAt;
+        StartedAt = model.StartedAt;
+        ResolvedAt = model.ResolvedAt;
+        CompletedAt = model.CompletedAt;
+        BringYourOwn = model.BringYourOwn;
+        RegistrationDuration = TimeSpan.FromSeconds(model.RegistrationDurationSeconds);
+        PreparationDuration = TimeSpan.FromSeconds(model.PreparationDurationSeconds);
+        TimeLimit = model.TimeLimitSeconds.HasValue ? TimeSpan.FromSeconds(model.TimeLimitSeconds.Value) : null;
+        BettingModel = (BettingModel)model.BettingModel;
+        AppearanceFee = model.AppearanceFee;
+        VictoryFee = model.VictoryFee;
+        PayNpcAppearanceFee = model.PayNpcAppearanceFee;
 
-		foreach (var signup in model.ArenaSignups)
-		{
-			_participants.Add(new ArenaParticipant(signup, this));
-		}
+        foreach (Models.ArenaSignup? signup in model.ArenaSignups)
+        {
+            _participants.Add(new ArenaParticipant(signup, this));
+        }
 
-		foreach (var reservation in model.ArenaReservations)
-		{
-			_reservations.Add(new ArenaReservation(reservation, this));
-		}
-	}
+        foreach (Models.ArenaReservation? reservation in model.ArenaReservations)
+        {
+            _reservations.Add(new ArenaReservation(reservation, this));
+        }
+    }
 
-	public ArenaEvent(ArenaEventType template, CombatArena arena, DateTime scheduledFor,
-		IEnumerable<IArenaReservation>? reservations)
-	{
-		Gameworld = arena.Gameworld;
-		Arena = arena;
-		EventType = template;
-		_name = $"{template.Name} Event";
-		_state = ArenaEventState.Draft;
-		CreatedAt = DateTime.UtcNow;
-		ScheduledAt = scheduledFor;
-		BringYourOwn = template.BringYourOwn;
-		RegistrationDuration = template.RegistrationDuration;
-		PreparationDuration = template.PreparationDuration;
-		TimeLimit = template.TimeLimit;
-		BettingModel = template.BettingModel;
-		AppearanceFee = template.AppearanceFee;
-		VictoryFee = template.VictoryFee;
-		PayNpcAppearanceFee = template.PayNpcAppearanceFee;
-		var opensAt = scheduledFor - PreparationDuration - RegistrationDuration;
-		RegistrationOpensAt = opensAt > CreatedAt ? opensAt : CreatedAt;
+    public ArenaEvent(ArenaEventType template, CombatArena arena, DateTime scheduledFor,
+        IEnumerable<IArenaReservation>? reservations)
+    {
+        Gameworld = arena.Gameworld;
+        Arena = arena;
+        EventType = template;
+        _name = $"{template.Name} Event";
+        _state = ArenaEventState.Draft;
+        CreatedAt = DateTime.UtcNow;
+        ScheduledAt = scheduledFor;
+        BringYourOwn = template.BringYourOwn;
+        RegistrationDuration = template.RegistrationDuration;
+        PreparationDuration = template.PreparationDuration;
+        TimeLimit = template.TimeLimit;
+        BettingModel = template.BettingModel;
+        AppearanceFee = template.AppearanceFee;
+        VictoryFee = template.VictoryFee;
+        PayNpcAppearanceFee = template.PayNpcAppearanceFee;
+        DateTime opensAt = scheduledFor - PreparationDuration - RegistrationDuration;
+        RegistrationOpensAt = opensAt > CreatedAt ? opensAt : CreatedAt;
 
-		using (new FMDB())
-		{
-			var dbEvent = new MudSharp.Models.ArenaEvent
-			{
-				ArenaId = arena.Id,
-				ArenaEventTypeId = template.Id,
-				State = (int)_state,
-				BringYourOwn = BringYourOwn,
-				RegistrationDurationSeconds = (int)RegistrationDuration.TotalSeconds,
-				PreparationDurationSeconds = (int)PreparationDuration.TotalSeconds,
-				TimeLimitSeconds = TimeLimit.HasValue ? (int)TimeLimit.Value.TotalSeconds : null,
-				BettingModel = (int)BettingModel,
-				AppearanceFee = AppearanceFee,
-				VictoryFee = VictoryFee,
-				PayNpcAppearanceFee = PayNpcAppearanceFee,
-				CreatedAt = CreatedAt,
-				ScheduledAt = ScheduledAt,
-				RegistrationOpensAt = RegistrationOpensAt,
-				StartedAt = StartedAt,
-				ResolvedAt = ResolvedAt,
-				CompletedAt = CompletedAt
-			};
-			FMDB.Context.ArenaEvents.Add(dbEvent);
-			FMDB.Context.SaveChanges();
-			_id = dbEvent.Id;
-			_name = $"{template.Name} Event #{Id:N0}";
-		}
+        using (new FMDB())
+        {
+            Models.ArenaEvent dbEvent = new()
+            {
+                ArenaId = arena.Id,
+                ArenaEventTypeId = template.Id,
+                State = (int)_state,
+                BringYourOwn = BringYourOwn,
+                RegistrationDurationSeconds = (int)RegistrationDuration.TotalSeconds,
+                PreparationDurationSeconds = (int)PreparationDuration.TotalSeconds,
+                TimeLimitSeconds = TimeLimit.HasValue ? (int)TimeLimit.Value.TotalSeconds : null,
+                BettingModel = (int)BettingModel,
+                AppearanceFee = AppearanceFee,
+                VictoryFee = VictoryFee,
+                PayNpcAppearanceFee = PayNpcAppearanceFee,
+                CreatedAt = CreatedAt,
+                ScheduledAt = ScheduledAt,
+                RegistrationOpensAt = RegistrationOpensAt,
+                StartedAt = StartedAt,
+                ResolvedAt = ResolvedAt,
+                CompletedAt = CompletedAt
+            };
+            FMDB.Context.ArenaEvents.Add(dbEvent);
+            FMDB.Context.SaveChanges();
+            _id = dbEvent.Id;
+            _name = $"{template.Name} Event #{Id:N0}";
+        }
 
-		if (reservations != null)
-		{
-			foreach (var reservation in reservations)
-			{
-				AddReservation(reservation);
-			}
-		}
-	}
+        if (reservations != null)
+        {
+            foreach (IArenaReservation reservation in reservations)
+            {
+                AddReservation(reservation);
+            }
+        }
+    }
 
-	public CombatArena Arena { get; }
-	ICombatArena IArenaEvent.Arena => Arena;
-	public ArenaEventType EventType { get; }
-	IArenaEventType IArenaEvent.EventType => EventType;
-	public ArenaEventState State => _state;
-	public DateTime CreatedAt { get; private set; }
-	public DateTime ScheduledAt { get; private set; }
-	public DateTime? RegistrationOpensAt { get; private set; }
-	public DateTime? StartedAt { get; private set; }
-	public DateTime? ResolvedAt { get; private set; }
-	public DateTime? CompletedAt { get; private set; }
-	public ArenaOutcome? Outcome => _outcome;
-	public IReadOnlyCollection<int>? WinningSides => _winningSides;
-	public bool BringYourOwn { get; }
-	public TimeSpan RegistrationDuration { get; }
-	public TimeSpan PreparationDuration { get; }
-	public TimeSpan? TimeLimit { get; }
-	public BettingModel BettingModel { get; }
-	public decimal AppearanceFee { get; }
-	public decimal VictoryFee { get; }
-	public bool PayNpcAppearanceFee { get; }
+    public CombatArena Arena { get; }
+    ICombatArena IArenaEvent.Arena => Arena;
+    public ArenaEventType EventType { get; }
+    IArenaEventType IArenaEvent.EventType => EventType;
+    public ArenaEventState State => _state;
+    public DateTime CreatedAt { get; private set; }
+    public DateTime ScheduledAt { get; private set; }
+    public DateTime? RegistrationOpensAt { get; private set; }
+    public DateTime? StartedAt { get; private set; }
+    public DateTime? ResolvedAt { get; private set; }
+    public DateTime? CompletedAt { get; private set; }
+    public ArenaOutcome? Outcome => _outcome;
+    public IReadOnlyCollection<int>? WinningSides => _winningSides;
+    public bool BringYourOwn { get; }
+    public TimeSpan RegistrationDuration { get; }
+    public TimeSpan PreparationDuration { get; }
+    public TimeSpan? TimeLimit { get; }
+    public BettingModel BettingModel { get; }
+    public decimal AppearanceFee { get; }
+    public decimal VictoryFee { get; }
+    public bool PayNpcAppearanceFee { get; }
 
-	public IEnumerable<IArenaParticipant> Participants => _participants;
-	public IEnumerable<IArenaReservation> Reservations => _reservations;
-	public string Show(ICharacter actor)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"Arena Event #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
-		sb.AppendLine($"Arena: {Arena.Name.ColourName()}");
-		sb.AppendLine($"Event Type: {EventType.Name.ColourName()}");
-		sb.AppendLine($"State: {State.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Created: {CreatedAt.ToString("g", actor).ColourValue()}");
-		sb.AppendLine($"Scheduled: {ScheduledAt.ToString("g", actor).ColourValue()}");
-		sb.AppendLine($"Registration Opens: {(RegistrationOpensAt?.ToString("g", actor) ?? "Not Set").ColourValue()}");
-		sb.AppendLine($"Started: {(StartedAt?.ToString("g", actor) ?? "Not Started").ColourValue()}");
-		sb.AppendLine($"Resolved: {(ResolvedAt?.ToString("g", actor) ?? "Not Resolved").ColourValue()}");
-		sb.AppendLine($"Completed: {(CompletedAt?.ToString("g", actor) ?? "Not Completed").ColourValue()}");
-		sb.AppendLine($"Outcome: {(Outcome?.DescribeEnum() ?? "Unknown").ColourName()}");
-		if (WinningSides != null)
-		{
-			sb.AppendLine($"Winning Sides: {WinningSides.Select(x => ArenaSideIndexUtilities.ToDisplayString(actor, x)).ListToCommaSeparatedValues(", ").ColourValue()}");
-		}
+    public IEnumerable<IArenaParticipant> Participants => _participants;
+    public IEnumerable<IArenaReservation> Reservations => _reservations;
+    public string Show(ICharacter actor)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine(
+            $"Arena Event #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine($"Arena: {Arena.Name.ColourName()}");
+        sb.AppendLine($"Event Type: {EventType.Name.ColourName()}");
+        sb.AppendLine($"State: {State.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Created: {CreatedAt.ToString("g", actor).ColourValue()}");
+        sb.AppendLine($"Scheduled: {ScheduledAt.ToString("g", actor).ColourValue()}");
+        sb.AppendLine($"Registration Opens: {(RegistrationOpensAt?.ToString("g", actor) ?? "Not Set").ColourValue()}");
+        sb.AppendLine($"Started: {(StartedAt?.ToString("g", actor) ?? "Not Started").ColourValue()}");
+        sb.AppendLine($"Resolved: {(ResolvedAt?.ToString("g", actor) ?? "Not Resolved").ColourValue()}");
+        sb.AppendLine($"Completed: {(CompletedAt?.ToString("g", actor) ?? "Not Completed").ColourValue()}");
+        sb.AppendLine($"Outcome: {(Outcome?.DescribeEnum() ?? "Unknown").ColourName()}");
+        if (WinningSides != null)
+        {
+            sb.AppendLine($"Winning Sides: {WinningSides.Select(x => ArenaSideIndexUtilities.ToDisplayString(actor, x)).ListToCommaSeparatedValues(", ").ColourValue()}");
+        }
 
-		sb.AppendLine();
-		sb.AppendLine("Participants:");
-		var grouped = Participants.GroupBy(x => x.SideIndex).OrderBy(x => x.Key);
-		foreach (var group in grouped)
-		{
-			sb.AppendLine($"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, group.Key).ColourValue()}");
-			foreach (var participant in group)
-			{
-				var who = participant.Character?.HowSeen(actor) ?? participant.StageName ?? "NPC";
-				sb.AppendLine($"\t\t{who.ColourName()} ({participant.CombatantClass.Name.ColourName()})" +
-							  (participant.IsNpc ? " [NPC]".Colour(Telnet.Yellow) : string.Empty));
-			}
-		}
+        sb.AppendLine();
+        sb.AppendLine("Participants:");
+        IOrderedEnumerable<IGrouping<int, IArenaParticipant>> grouped = Participants.GroupBy(x => x.SideIndex).OrderBy(x => x.Key);
+        foreach (IGrouping<int, IArenaParticipant>? group in grouped)
+        {
+            sb.AppendLine($"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, group.Key).ColourValue()}");
+            foreach (IArenaParticipant? participant in group)
+            {
+                string who = participant.Character?.HowSeen(actor) ?? participant.StageName ?? "NPC";
+                sb.AppendLine($"\t\t{who.ColourName()} ({participant.CombatantClass.Name.ColourName()})" +
+                              (participant.IsNpc ? " [NPC]".Colour(Telnet.Yellow) : string.Empty));
+            }
+        }
 
-		if (Reservations.Any())
-		{
-			sb.AppendLine();
-			sb.AppendLine("Reservations:");
-			foreach (var reservation in Reservations)
-			{
-				var who = reservation.CharacterId.HasValue
-					? Gameworld.TryGetCharacter(reservation.CharacterId.Value, true)?.HowSeen(actor) ?? $"Character #{reservation.CharacterId.Value}"
-					: reservation.ClanId.HasValue
-						? Gameworld.Clans.Get(reservation.ClanId.Value)?.FullName ?? $"Clan #{reservation.ClanId.Value}"
-						: "Unknown";
-				sb.AppendLine(
-					$"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, reservation.SideIndex).ColourValue()} - {who.ColourName()} (expires {reservation.ExpiresAt.ToString("g", actor).ColourValue()})");
-			}
-		}
+        if (Reservations.Any())
+        {
+            sb.AppendLine();
+            sb.AppendLine("Reservations:");
+            foreach (IArenaReservation reservation in Reservations)
+            {
+                string who = reservation.CharacterId.HasValue
+                    ? Gameworld.TryGetCharacter(reservation.CharacterId.Value, true)?.HowSeen(actor) ?? $"Character #{reservation.CharacterId.Value}"
+                    : reservation.ClanId.HasValue
+                        ? Gameworld.Clans.Get(reservation.ClanId.Value)?.FullName ?? $"Clan #{reservation.ClanId.Value}"
+                        : "Unknown";
+                sb.AppendLine(
+                    $"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, reservation.SideIndex).ColourValue()} - {who.ColourName()} (expires {reservation.ExpiresAt.ToString("g", actor).ColourValue()})");
+            }
+        }
 
-		return sb.ToString();
-	}
+        return sb.ToString();
+    }
 
-	public const string BuildingHelpText = @"You can use the following options with this command:
+    public const string BuildingHelpText = @"You can use the following options with this command:
 
 	#3name <name>#0 - renames this arena event
 	#3schedule <datetime>#0 - sets the scheduled start time
@@ -210,2349 +213,2349 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 	#3state <state>#0 - forcibly sets the state
 	#3abort <reason>#0 - aborts the event with a reason";
 
-	public bool BuildingCommand(ICharacter actor, StringStack command)
-	{
-		switch (command.PopForSwitch())
-		{
-			case "name":
-				return BuildingCommandName(actor, command);
-			case "schedule":
-			case "time":
-				return BuildingCommandSchedule(actor, command);
-			case "registration":
-			case "reg":
-				return BuildingCommandRegistration(actor, command);
-			case "state":
-				return BuildingCommandState(actor, command);
-			case "abort":
-				return BuildingCommandAbort(actor, command);
-			default:
-				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
-				return false;
-		}
-	}
-
-	public void OpenRegistration()
-	{
-		EnforceState(ArenaEventState.RegistrationOpen);
-		RegistrationOpensAt ??= DateTime.UtcNow;
-		Changed = true;
-		TryAdvanceToPreparation();
-	}
-
-	public void CloseRegistration()
-	{
-		StartPreparation();
-	}
-
-	public void StartPreparation()
-	{
-		if (_state >= ArenaEventState.Preparing)
-		{
-			EnforceState(ArenaEventState.Preparing);
-			Changed = true;
-			ApplyPreparationPhaseEffects();
-			return;
-		}
-
-		AutoFillNpcParticipants();
-
-		EnforceState(ArenaEventState.Preparing);
-		Changed = true;
-		ApplyPreparationPhaseEffects();
-		PrepareNpcParticipants();
-		PreparePlayerParticipants();
-		ExecuteOutfitProgs();
-	}
-
-	public void Stage()
-	{
-		if (_state >= ArenaEventState.Staged)
-		{
-			EnforceState(ArenaEventState.Staged);
-			Changed = true;
-			ApplyCombatPhaseEffects();
-			return;
-		}
-
-		EnforceState(ArenaEventState.Staged);
-		Changed = true;
-		ApplyCombatPhaseEffects();
-		MoveParticipantsToArena();
-		ExecuteIntroProg();
-	}
-
-	public void StartLive()
-	{
-		StartedAt ??= DateTime.UtcNow;
-		if (_state >= ArenaEventState.Live)
-		{
-			EnforceState(ArenaEventState.Live);
-			Changed = true;
-			ApplyCombatPhaseEffects();
-			return;
-		}
-
-		EnforceState(ArenaEventState.Live);
-		Changed = true;
-		ApplyCombatPhaseEffects();
-		MoveParticipantsToArena();
-		ExecuteScoringProg();
-	}
-
-	public void MercyStop()
-	{
-		if (_state != ArenaEventState.Live)
-		{
-			return;
-		}
-
-		if (!CanMercyStopNow())
-		{
-			return;
-		}
-
-		if (!TryResolveFromElimination())
-		{
-			Resolve();
-		}
-	}
-
-	private bool CanMercyStopNow()
-	{
-		if (TryDetermineEliminationOutcome(out _, out _))
-		{
-			return true;
-		}
-
-		if (EventType.EliminationStrategy is { } strategy)
-		{
-			try
-			{
-				return strategy.MercyStopAllowed(this);
-			}
-			catch
-			{
-			}
-		}
-
-		var activeSides = _participants
-			.GroupBy(x => x.SideIndex)
-			.Count(group => group.Any(IsParticipantActive));
-		return activeSides <= 1;
-	}
-
-	private static bool IsParticipantActive(ArenaParticipant participant)
-	{
-		var character = participant.Character;
-		return character != null && character.State.IsAble();
-	}
-
-	public bool TryResolveFromElimination()
-	{
-		if (_state != ArenaEventState.Live)
-		{
-			return false;
-		}
-
-		if (!TryDetermineEliminationOutcome(out var outcome, out var winningSides))
-		{
-			return false;
-		}
-
-		RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
-		Gameworld.ArenaLifecycleService.Transition(this, ArenaEventState.Resolving);
-		return _state >= ArenaEventState.Resolving;
-	}
-
-	public (bool Truth, string Reason) CanSurrender(ICharacter participant)
-	{
-		if (participant is null)
-		{
-			return (false, "You cannot surrender without a character.");
-		}
-
-		if (_state != ArenaEventState.Live)
-		{
-			return (false, "You can only surrender while the event is live.");
-		}
-
-		if (!EventType.AllowSurrender)
-		{
-			return (false, "Surrender is not permitted for this event.");
-		}
-
-		if (_participants.All(x => x.Character?.Id != participant.Id))
-		{
-			return (false, "You are not a participant in this event.");
-		}
-
-		if (_surrenderedParticipantIds.Contains(participant.Id))
-		{
-			return (false, "You have already surrendered this bout.");
-		}
-
-		if (participant.State.IsDead())
-		{
-			return (false, "Dead combatants cannot surrender.");
-		}
-
-		return (true, string.Empty);
-	}
-
-	public void Surrender(ICharacter participant)
-	{
-		var (truth, reason) = CanSurrender(participant);
-		if (!truth)
-		{
-			throw new InvalidOperationException(reason);
-		}
-
-		_surrenderedParticipantIds.Add(participant.Id);
-		participant.Combat?.LeaveCombat(participant);
-		foreach (var cell in Arena.ArenaCells.Where(x => x != null).Distinct())
-		{
-			cell.Handle(new EmoteOutput(new Emote("@ surrender|surrenders the bout!", participant)));
-		}
-
-		TryResolveFromElimination();
-	}
-
-	public void Resolve()
-	{
-		if (_state >= ArenaEventState.Resolving)
-		{
-			return;
-		}
-
-		ResolvedAt = DateTime.UtcNow;
-		EnforceState(ArenaEventState.Resolving);
-		Changed = true;
-		ExecuteResolutionOverrideProg();
-		EnsureResolvedOutcome();
-		Gameworld.ArenaBettingService.Settle(this, Outcome ?? ArenaOutcome.Aborted, WinningSides ?? Array.Empty<int>());
-		Gameworld.ArenaFinanceService.AccrueAppearancePayouts(this);
-		AnnounceArenaOutcome();
-	}
-
-	public void Cleanup()
-	{
-		EnforceState(ArenaEventState.Cleanup);
-		Changed = true;
-		FinalizeParticipants();
-	}
-
-	public void Complete()
-	{
-		CompletedAt = DateTime.UtcNow;
-		EnforceState(ArenaEventState.Completed);
-		Changed = true;
-		FinalizeParticipants();
-	}
-
-	public void Abort(string reason)
-	{
-		RecordOutcome(ArenaOutcome.Aborted, null);
-		CompletedAt = DateTime.UtcNow;
-		EnforceState(ArenaEventState.Aborted);
-		Changed = true;
-		FinalizeParticipants();
-	}
-
-	public (bool Truth, string Reason) CanSignUp(ICharacter character, int sideIndex,
-		ICombatantClass combatantClass)
-	{
-		return CanSignUpInternal(character, sideIndex, combatantClass, false, false);
-	}
-
-	public void SignUp(ICharacter character, int sideIndex, ICombatantClass combatantClass)
-	{
-		var result = CanSignUpInternal(character, sideIndex, combatantClass, false, false);
-		if (!result.Truth)
-		{
-			throw new InvalidOperationException(result.Reason);
-		}
-
-		CompleteSignup(character, sideIndex, combatantClass, true);
-	}
-
-	private (bool Truth, string Reason) CanSignUpInternal(ICharacter character, int sideIndex,
-		ICombatantClass combatantClass, bool ignoreNpcRestriction, bool ignoreSidePolicy)
-	{
-		if (character == null)
-		{
-			return (false, "You cannot sign up without a character.");
-		}
-
-		if (_state != ArenaEventState.RegistrationOpen)
-		{
-			return (false, "Registration is not open for that event.");
-		}
-
-		var side = EventType.Sides.FirstOrDefault(x => x.Index == sideIndex);
-		if (side == null)
-		{
-			return (false, "That side does not exist for this event type.");
-		}
-
-		if (!side.EligibleClasses.Contains(combatantClass))
-		{
-			return (false, "That combatant class is not eligible for this side.");
-		}
-
-		if (!ignoreNpcRestriction && !character.IsPlayerCharacter && !side.AllowNpcSignup)
-		{
-			return (false, "NPC signups are not allowed for that side.");
-		}
-
-		if (EligibilityFailed(combatantClass, character))
-		{
-			return (false, "You are not eligible for that combatant class.");
-		}
-
-		var rating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
-		if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
-		{
-			return (false,
-				$"Your arena rating of {rating.ToString("N2", character)} is below the minimum required rating of {side.MinimumRating.Value.ToString("N2", character)} for that side.");
-		}
-
-		if (side.MaximumRating.HasValue && rating > side.MaximumRating.Value)
-		{
-			return (false,
-				$"Your arena rating of {rating.ToString("N2", character)} is above the maximum allowed rating of {side.MaximumRating.Value.ToString("N2", character)} for that side.");
-		}
-
-		if (_participants.Any(x => x.Character?.Id == character.Id))
-		{
-			return (false, "You are already signed up for this event.");
-		}
-
-		if (_participants.Count(x => x.SideIndex == sideIndex) >= side.Capacity)
-		{
-			return (false, "That side is already full.");
-		}
-
-		if (ignoreSidePolicy)
-		{
-			return (true, string.Empty);
-		}
-
-		return side.Policy switch
-		{
-			ArenaSidePolicy.Closed => (false, "That side is closed to new participants."),
-			ArenaSidePolicy.ManagersOnly when !Arena.IsManager(character) =>
-				(false, "Only arena managers may sign up for that side."),
-			ArenaSidePolicy.ReservedOnly when !HasReservation(character) =>
-				(false, "Only reserved participants may sign up for that side."),
-			_ => (true, string.Empty)
-		};
-	}
-
-	private void CompleteSignup(ICharacter character, int sideIndex, ICombatantClass combatantClass,
-		bool checkForEarlyPreparation)
-	{
-		var startingRating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
-		var stageName = GenerateStageName(combatantClass);
-		using (new FMDB())
-		{
-			var signup = new MudSharp.Models.ArenaSignup
-			{
-				ArenaEventId = Id,
-				CharacterId = character.Id,
-				CombatantClassId = combatantClass.Id,
-				SideIndex = sideIndex,
-				IsNpc = !character.IsPlayerCharacter,
-				StageName = stageName,
-				SignatureColour = combatantClass.DefaultSignatureColour,
-				StartingRating = startingRating,
-				SignedUpAt = DateTime.UtcNow
-			};
-
-			var priorReservation = _reservations.FirstOrDefault(x => x.CharacterId == character.Id);
-			if (priorReservation != null)
-			{
-				signup.ArenaReservationId = priorReservation.ReservationId;
-				_reservations.Remove(priorReservation);
-			}
-
-			FMDB.Context.ArenaSignups.Add(signup);
-			FMDB.Context.SaveChanges();
-			_participants.Add(new ArenaParticipant(signup, this));
-		}
-
-		HandleSignupStaging(character, sideIndex);
-		if (checkForEarlyPreparation)
-		{
-			TryAdvanceToPreparation();
-		}
-	}
-
-	private static string? GenerateStageName(ICombatantClass combatantClass)
-	{
-		var profile = combatantClass.DefaultStageNameProfile;
-		if (profile is null || !profile.IsReady)
-		{
-			return null;
-		}
-
-		try
-		{
-			var name = profile.GetRandomPersonalName(nonSaving: true);
-			var stageName = name.GetName(NameStyle.GivenOnly);
-			if (string.IsNullOrWhiteSpace(stageName))
-			{
-				stageName = name.GetName(NameStyle.SimpleFull);
-			}
-
-			return string.IsNullOrWhiteSpace(stageName) ? null : stageName;
-		}
-		catch
-		{
-			return null;
-		}
-	}
-
-	private void TryAdvanceToPreparation()
-	{
-		if (_state != ArenaEventState.RegistrationOpen)
-		{
-			return;
-		}
-
-		if (!IsEventFull())
-		{
-			return;
-		}
-
-		Gameworld.ArenaLifecycleService.Transition(this, ArenaEventState.Preparing);
-	}
-
-	private bool IsEventFull()
-	{
-		var sides = EventType.Sides.ToList();
-		if (sides.Count == 0)
-		{
-			return false;
-		}
-
-		var sideCounts = _participants
-			.GroupBy(x => x.SideIndex)
-			.ToDictionary(x => x.Key, x => x.Count());
-
-		return sides.All(side =>
-			sideCounts.TryGetValue(side.Index, out var count) &&
-			count >= side.Capacity);
-	}
-
-	public void Withdraw(ICharacter character)
-	{
-		if (character == null)
-		{
-			return;
-		}
-
-		if (_state > ArenaEventState.RegistrationOpen)
-		{
-			throw new InvalidOperationException("You can no longer withdraw from that event.");
-		}
-
-		var participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
-		if (participant == null)
-		{
-			return;
-		}
-
-		using (new FMDB())
-		{
-			var dbSignup = FMDB.Context.ArenaSignups.Find(participant.SignupId);
-			if (dbSignup != null)
-			{
-				FMDB.Context.ArenaSignups.Remove(dbSignup);
-				FMDB.Context.SaveChanges();
-			}
-		}
-
-		_participants.Remove(participant);
-		ClearStagingEffect(character);
-	}
-
-	public void AddReservation(IArenaReservation reservation)
-	{
-		if (reservation == null)
-		{
-			return;
-		}
-
-		using (new FMDB())
-		{
-			var record = new MudSharp.Models.ArenaReservation
-			{
-				ArenaEventId = Id,
-				SideIndex = reservation.SideIndex,
-				CharacterId = reservation.CharacterId,
-				ClanId = reservation.ClanId,
-				ReservedAt = DateTime.UtcNow,
-				ExpiresAt = reservation.ExpiresAt
-			};
-			FMDB.Context.ArenaReservations.Add(record);
-			FMDB.Context.SaveChanges();
-			_reservations.Add(new ArenaReservation(record, this));
-		}
-	}
-
-	public void RemoveReservation(IArenaReservation reservation)
-	{
-		if (reservation is not ArenaReservation concrete)
-		{
-			return;
-		}
-
-		using (new FMDB())
-		{
-			var record = FMDB.Context.ArenaReservations.Find(concrete.ReservationId);
-			if (record != null)
-			{
-				FMDB.Context.ArenaReservations.Remove(record);
-				FMDB.Context.SaveChanges();
-			}
-		}
-
-		_reservations.Remove(concrete);
-	}
-
-	public void RecordOutcome(ArenaOutcome outcome, IEnumerable<int>? winningSides)
-	{
-		_outcome = outcome;
-		if (winningSides is null)
-		{
-			_winningSides = null;
-			return;
-		}
-
-		var validSides = winningSides
-			.Distinct()
-			.Where(index => EventType.Sides.Any(side => side.Index == index))
-			.OrderBy(x => x)
-			.ToArray();
-
-		_winningSides = validSides.Length == 0 ? Array.Empty<int>() : validSides;
-	}
-
-	public void EnforceState(ArenaEventState state)
-	{
-		if (_state == state)
-		{
-			return;
-		}
-
-		_state = state;
-		Changed = true;
-		AnnounceStateChange(state);
-		ExecutePhaseTransitionProg(state);
-	}
-
-	private void ExecutePhaseTransitionProg(ArenaEventState state)
-	{
-		var prog = Arena.OnArenaEventPhaseProg;
-		if (prog is null)
-		{
-			return;
-		}
-
-		try
-		{
-			prog.Execute(ArenaProgParameters.BuildPhaseTransitionArguments(this, state));
-		}
-		catch (Exception ex)
-		{
-			Gameworld.SystemMessage($"Arena phase prog for arena #{Arena.Id:N0} threw an exception: {ex.Message}", true);
-		}
-	}
-
-	private void AnnounceStateChange(ArenaEventState currentState)
-	{
-		var message = BuildStateChangeMessage(currentState);
-		if (string.IsNullOrWhiteSpace(message))
-		{
-			return;
-		}
-
-		foreach (var cell in GetAnnouncementCells())
-		{
-			cell.Handle(message, OutputFlags.IgnoreWatchers);
-		}
-	}
-
-	private IEnumerable<ICell> GetAnnouncementCells()
-	{
-		return Arena.WaitingCells
-					.Concat(Arena.ArenaCells)
-					.Concat(Arena.ObservationCells)
-					.Concat(Arena.InfirmaryCells)
-					.Concat(Arena.AfterFightCells)
-					.Concat(Arena.NpcStablesCells)
-					.Where(cell => cell != null)
-					.Distinct();
-	}
-
-	private string? BuildStateChangeMessage(ArenaEventState state)
-	{
-		var eventName = EventType.Name.ColourName();
-		var arenaName = Arena.Name.ColourName();
-
-		return state switch
-		{
-			ArenaEventState.RegistrationOpen => $"Registration is now open for the {eventName} event in {arenaName}.",
-			ArenaEventState.Preparing => $"Registration is now closed for the {eventName} event in {arenaName}.",
-			ArenaEventState.Staged => $"Combatants are taking their places for the {eventName} event in {arenaName}.",
-			ArenaEventState.Live => $"The {eventName} event is now underway in {arenaName}.",
-			ArenaEventState.Resolving => $"The {eventName} event has concluded in {arenaName}.",
-			ArenaEventState.Cleanup => $"Cleanup has begun after the {eventName} event in {arenaName}.",
-			ArenaEventState.Completed => $"The {eventName} event is complete in {arenaName}.",
-			ArenaEventState.Aborted => $"The {eventName} event in {arenaName} has been aborted.",
-			_ => null
-		};
-	}
-
-	public override string FrameworkItemType => "ArenaEvent";
-
-	public override void Save()
-	{
-		if (!Changed)
-		{
-			return;
-		}
-
-		using (new FMDB())
-		{
-			var dbEvent = FMDB.Context.ArenaEvents.Find(Id);
-			if (dbEvent == null)
-			{
-				return;
-			}
-
-			dbEvent.State = (int)_state;
-			dbEvent.ScheduledAt = ScheduledAt;
-			dbEvent.RegistrationOpensAt = RegistrationOpensAt;
-			dbEvent.StartedAt = StartedAt;
-			dbEvent.ResolvedAt = ResolvedAt;
-			dbEvent.CompletedAt = CompletedAt;
-			dbEvent.PayNpcAppearanceFee = PayNpcAppearanceFee;
-			FMDB.Context.SaveChanges();
-		}
-
-		Changed = false;
-	}
-
-	private bool HasReservation(ICharacter character)
-	{
-		var now = DateTime.UtcNow;
-		_reservations.RemoveAll(x => x.ExpiresAt < now);
-		if (_reservations.Any(x => x.CharacterId == character.Id))
-		{
-			return true;
-		}
-
-		var clanIds = character.ClanMemberships
-							   .Select(x => x.Clan?.Id)
-							   .Where(x => x.HasValue)
-							   .Select(x => x.Value)
-							   .ToHashSet();
-
-		if (!clanIds.Any())
-		{
-			return false;
-		}
-
-		return _reservations.Any(x => x.ClanId.HasValue && clanIds.Contains(x.ClanId.Value));
-	}
-
-	private static bool EligibilityFailed(ICombatantClass combatantClass, ICharacter character)
-	{
-		try
-		{
-			return combatantClass.EligibilityProg.Execute<bool?>(character) == false;
-		}
-		catch
-		{
-			return true;
-		}
-	}
-
-	private void ExecuteIntroProg()
-	{
-		EventType.IntroProg?.Execute(ArenaProgParameters.BuildEventProgArguments(this));
-	}
-
-	private void ExecuteScoringProg()
-	{
-		EventType.ScoringProg?.Execute(ArenaProgParameters.BuildEventProgArguments(this));
-	}
-
-	private void ExecuteOutfitProgs()
-	{
-		foreach (var side in EventType.Sides)
-		{
-			var prog = side.OutfitProg;
-			if (prog is null)
-			{
-				continue;
-			}
-
-			var participants = _participants
-				.Where(x => x.SideIndex == side.Index)
-				.Select(x => x.Character)
-				.OfType<ICharacter>()
-				.ToList();
-
-			prog.Execute(ArenaProgParameters.BuildSideOutfitArguments(this, side.Index, participants));
-		}
-	}
-
-	private void ExecuteResolutionOverrideProg()
-	{
-		var prog = EventType.ResolutionOverrideProg;
-		if (prog is null)
-		{
-			return;
-		}
-
-		var values = prog.ExecuteCollection<decimal>(ArenaProgParameters.BuildEventProgArguments(this)).ToList();
-		if (values.Count == 0)
-		{
-			return;
-		}
-
-		var firstValue = Convert.ToInt32(values[0]);
-		var usesOutcome = Enum.IsDefined(typeof(ArenaOutcome), firstValue);
-		var outcome = usesOutcome ? (ArenaOutcome)firstValue : ArenaOutcome.Win;
-		var winningSides = usesOutcome
-			? values.Skip(1).Select(Convert.ToInt32).ToList()
-			: values.Select(Convert.ToInt32).ToList();
-
-		if (outcome == ArenaOutcome.Win && winningSides.Count == 0)
-		{
-			return;
-		}
-
-		RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
-	}
-
-	private bool TryDetermineEliminationOutcome(out ArenaOutcome outcome, out IReadOnlyCollection<int>? winningSides)
-	{
-		outcome = ArenaOutcome.Draw;
-		winningSides = null;
-
-		if (EventType.EliminationMode == ArenaEliminationMode.PointsElimination)
-		{
-			return TryDeterminePointsOutcome(requireUniqueWinner: true, out outcome, out winningSides);
-		}
-
-		var sideIndices = EventType.Sides
-			.Select(x => x.Index)
-			.Distinct()
-			.OrderBy(x => x)
-			.ToList();
-		if (!sideIndices.Any())
-		{
-			return false;
-		}
-
-		var activeSides = sideIndices
-			.Where(side => _participants
-				.Where(participant => participant.SideIndex == side)
-				.Any(participant => !IsParticipantEliminated(participant, EventType.EliminationMode)))
-			.ToList();
-		if (activeSides.Count == 1)
-		{
-			outcome = ArenaOutcome.Win;
-			winningSides = activeSides;
-			return true;
-		}
-
-		if (activeSides.Count == 0)
-		{
-			outcome = ArenaOutcome.Draw;
-			winningSides = null;
-			return true;
-		}
-
-		return false;
-	}
-
-	private bool TryDeterminePointsOutcome(bool requireUniqueWinner, out ArenaOutcome outcome,
-		out IReadOnlyCollection<int>? winningSides)
-	{
-		outcome = ArenaOutcome.Draw;
-		winningSides = null;
-
-		var prog = EventType.ScoringProg;
-		if (prog is null)
-		{
-			return false;
-		}
-
-		List<decimal> values;
-		try
-		{
-			values = prog.ExecuteCollection<decimal>(ArenaProgParameters.BuildEventProgArguments(this)).ToList();
-		}
-		catch
-		{
-			return false;
-		}
-
-		if (!values.Any())
-		{
-			return false;
-		}
-
-		var sideIndices = EventType.Sides
-			.Select(x => x.Index)
-			.Distinct()
-			.OrderBy(x => x)
-			.ToList();
-		if (!sideIndices.Any())
-		{
-			return false;
-		}
-
-		if (values.Count == sideIndices.Count)
-		{
-			// A score per side (in side index order).
-			var scores = sideIndices
-				.Select((side, index) => new { Side = side, Score = values[index] })
-				.ToList();
-			var bestScore = scores.Max(x => x.Score);
-			var bestSides = scores
-				.Where(x => x.Score == bestScore)
-				.Select(x => x.Side)
-				.OrderBy(x => x)
-				.ToList();
-			if (!bestSides.Any())
-			{
-				return false;
-			}
-
-			if (requireUniqueWinner && bestSides.Count != 1)
-			{
-				return false;
-			}
-
-			if (bestSides.Count == sideIndices.Count)
-			{
-				outcome = ArenaOutcome.Draw;
-				winningSides = null;
-				return !requireUniqueWinner;
-			}
-
-			outcome = ArenaOutcome.Win;
-			winningSides = bestSides;
-			return true;
-		}
-
-		// A list of winning side indexes.
-		var directWinners = values
-			.Select(x => Convert.ToInt32(x))
-			.Select(TryNormaliseSideIndex)
-			.OfType<int>()
-			.Distinct()
-			.OrderBy(x => x)
-			.ToList();
-		if (!directWinners.Any())
-		{
-			return false;
-		}
-
-		if (directWinners.Count == sideIndices.Count)
-		{
-			outcome = ArenaOutcome.Draw;
-			winningSides = null;
-			return !requireUniqueWinner;
-		}
-
-		if (requireUniqueWinner && directWinners.Count != 1)
-		{
-			return false;
-		}
-
-		outcome = ArenaOutcome.Win;
-		winningSides = directWinners;
-		return true;
-	}
-
-	private int? TryNormaliseSideIndex(int candidate)
-	{
-		var validSides = EventType.Sides
-			.Select(x => x.Index)
-			.Distinct()
-			.ToHashSet();
-		if (validSides.Contains(candidate))
-		{
-			return candidate;
-		}
-
-		if (candidate > 0 && validSides.Contains(candidate - 1))
-		{
-			return candidate - 1;
-		}
-
-		return null;
-	}
-
-	private bool IsParticipantEliminated(ArenaParticipant participant, ArenaEliminationMode mode)
-	{
-		var character = participant.Character;
-		if (character is null)
-		{
-			return true;
-		}
-
-		if (_surrenderedParticipantIds.Contains(character.Id))
-		{
-			return true;
-		}
-
-		if (EventType.EliminationStrategy is { } strategy)
-		{
-			try
-			{
-				if (strategy.IsEliminated(this, character))
-				{
-					return true;
-				}
-			}
-			catch
-			{
-			}
-		}
-
-		return mode switch
-		{
-			ArenaEliminationMode.NoElimination => false,
-			ArenaEliminationMode.PointsElimination => false,
-			ArenaEliminationMode.Death => character.State.IsDead(),
-			ArenaEliminationMode.Knockout => character.State.HasFlag(CharacterState.Dead) ||
-											 character.State.HasFlag(CharacterState.Unconscious) ||
-											 character.State.HasFlag(CharacterState.Sleeping),
-			ArenaEliminationMode.KnockDown => character.State.HasFlag(CharacterState.Dead) ||
-											  character.State.HasFlag(CharacterState.Unconscious) ||
-											  character.State.HasFlag(CharacterState.Sleeping) ||
-											  character.State.HasFlag(CharacterState.Paralysed) ||
-											  !character.PositionState.Upright ||
-											  character.IsHelpless,
-			_ => false
-		};
-	}
-
-	private void EnsureResolvedOutcome()
-	{
-		if (_outcome.HasValue)
-		{
-			return;
-		}
-
-		if (TryDetermineEliminationOutcome(out var eliminationOutcome, out var eliminationWinners))
-		{
-			RecordOutcome(eliminationOutcome, eliminationOutcome == ArenaOutcome.Win ? eliminationWinners : null);
-			return;
-		}
-
-		if (EventType.EliminationMode == ArenaEliminationMode.PointsElimination &&
-			TryDeterminePointsOutcome(requireUniqueWinner: false, out var pointsOutcome, out var pointsWinners))
-		{
-			RecordOutcome(pointsOutcome, pointsOutcome == ArenaOutcome.Win ? pointsWinners : null);
-			return;
-		}
-
-		RecordOutcome(ArenaOutcome.Draw, null);
-	}
-
-	private void AnnounceArenaOutcome()
-	{
-		var announcement = BuildOutcomeAnnouncement();
-		if (string.IsNullOrWhiteSpace(announcement))
-		{
-			return;
-		}
-
-		foreach (var cell in Arena.ArenaCells
-			.Where(cell => cell != null)
-			.Distinct())
-		{
-			cell.Handle(announcement, OutputFlags.IgnoreWatchers);
-		}
-	}
-
-	private string BuildOutcomeAnnouncement()
-	{
-		var eventName = EventType.Name.ColourName();
-		return _outcome switch
-		{
-			ArenaOutcome.Win => BuildVictoryAnnouncement(eventName),
-			ArenaOutcome.Draw => $"The {eventName} event has ended in a draw.",
-			ArenaOutcome.Aborted => $"The {eventName} event has ended without result.",
-			_ => $"The {eventName} event has ended without a declared outcome."
-		};
-	}
-
-	private string BuildVictoryAnnouncement(string eventName)
-	{
-		var winningSides = (_winningSides ?? Array.Empty<int>())
-			.OrderBy(x => x)
-			.ToList();
-		if (!winningSides.Any())
-		{
-			return $"The {eventName} event has ended in victory, but no winning side was recorded.";
-		}
-
-		if (winningSides.Count > 1)
-		{
-			var sideList = winningSides
-				.Select(DescribeSideForAnnouncement)
-				.ListToString();
-			return $"The {eventName} event has ended in shared victory to {sideList}.";
-		}
-
-		var sideIndex = winningSides[0];
-		var sideText = DescribeSideForAnnouncement(sideIndex);
-		var winner = DescribeWinningCombatant(sideIndex);
-		return winner is null
-			? $"The {eventName} event has ended in victory to {sideText}."
-			: $"The {eventName} event has ended in victory to {sideText} ({winner.ColourName()})!";
-	}
-
-	private static string DescribeSideForAnnouncement(int sideIndex)
-	{
-		var sideNumber = ArenaSideIndexUtilities
-			.ToDisplayString(CultureInfo.InvariantCulture, sideIndex)
-			.ColourValue();
-		return $"Side #{sideNumber}";
-	}
-
-	private string? DescribeWinningCombatant(int sideIndex)
-	{
-		var winner = _participants
-			.Where(x => x.SideIndex == sideIndex)
-			.FirstOrDefault(IsParticipantActive);
-		if (winner is null)
-		{
-			winner = _participants.FirstOrDefault(x => x.SideIndex == sideIndex);
-		}
-
-		if (winner is null)
-		{
-			return null;
-		}
-
-		if (!string.IsNullOrWhiteSpace(winner.StageName))
-		{
-			return winner.StageName;
-		}
-
-		if (winner.Character is not ICharacter character)
-		{
-			return null;
-		}
-
-		var voyeur = new DummyPerceiver(location: character.Location);
-		return character.HowSeen(voyeur, true, flags: PerceiveIgnoreFlags.IgnoreCanSee);
-	}
-
-	private void AutoFillNpcParticipants()
-	{
-		if (_state >= ArenaEventState.Preparing)
-		{
-			return;
-		}
-
-		var existingIds = _participants
-			.Select(x => x.Character?.Id)
-			.Where(x => x.HasValue)
-			.Select(x => x.Value)
-			.ToHashSet();
-
-		foreach (var side in EventType.Sides)
-		{
-			if (!side.AutoFillNpc)
-			{
-				continue;
-			}
-
-			var slotsNeeded = side.Capacity - _participants.Count(x => x.SideIndex == side.Index);
-			if (slotsNeeded <= 0)
-			{
-				continue;
-			}
-
-			var targetRating = ResolveAutoFillTargetRating(side);
-			var npcs = Gameworld.ArenaNpcService
-				.AutoFill(this, side.Index, slotsNeeded)
-				.Where(x => x is not null)
-				.OrderBy(x => ResolveAutoFillRatingDistance(x, side, targetRating))
-				.ThenBy(x => x.Id)
-				.ToList();
-			foreach (var npc in npcs)
-			{
-				if (npc is null)
-				{
-					continue;
-				}
-
-				if (existingIds.Contains(npc.Id))
-				{
-					continue;
-				}
-
-				var combatantClass = ResolveAutoFillCombatantClass(npc, side, targetRating);
-				if (combatantClass is null)
-				{
-					continue;
-				}
-
-				var signUpCheck = CanSignUpInternal(npc, side.Index, combatantClass, true, true);
-				if (!signUpCheck.Truth)
-				{
-					continue;
-				}
-
-				CompleteSignup(npc, side.Index, combatantClass, false);
-				existingIds.Add(npc.Id);
-				slotsNeeded--;
-				if (slotsNeeded <= 0)
-				{
-					break;
-				}
-			}
-		}
-	}
-
-	private decimal ResolveAutoFillTargetRating(IArenaEventTypeSide side)
-	{
-		if (side.MinimumRating.HasValue && side.MaximumRating.HasValue)
-		{
-			return (side.MinimumRating.Value + side.MaximumRating.Value) / 2.0m;
-		}
-
-		if (side.MinimumRating.HasValue)
-		{
-			return side.MinimumRating.Value;
-		}
-
-		if (side.MaximumRating.HasValue)
-		{
-			return side.MaximumRating.Value;
-		}
-
-		var sideRatings = _participants
-			.Where(x => x.SideIndex == side.Index)
-			.Select(x => x.StartingRating)
-			.Where(x => x.HasValue)
-			.Select(x => x.Value)
-			.ToList();
-		if (sideRatings.Count > 0)
-		{
-			return sideRatings.Average();
-		}
-
-		var eventRatings = _participants
-			.Select(x => x.StartingRating)
-			.Where(x => x.HasValue)
-			.Select(x => x.Value)
-			.ToList();
-		return eventRatings.Count > 0 ? eventRatings.Average() : ArenaRatingsService.DefaultRating;
-	}
-
-	private ICombatantClass? ResolveAutoFillCombatantClass(ICharacter npc, IArenaEventTypeSide side, decimal targetRating)
-	{
-		return side.EligibleClasses
-			.Where(x => !EligibilityFailed(x, npc))
-			.Select(x => new
-			{
-				CombatantClass = x,
-				Rating = Gameworld.ArenaRatingsService.GetRating(npc, x)
-			})
-			.Where(x => IsRatingAllowedForSide(side, x.Rating))
-			.OrderBy(x => Math.Abs(x.Rating - targetRating))
-			.ThenBy(x => x.CombatantClass.Id)
-			.Select(x => x.CombatantClass)
-			.FirstOrDefault();
-	}
-
-	private decimal ResolveAutoFillRatingDistance(ICharacter npc, IArenaEventTypeSide side, decimal targetRating)
-	{
-		var candidateClass = ResolveAutoFillCombatantClass(npc, side, targetRating);
-		if (candidateClass is null)
-		{
-			return decimal.MaxValue;
-		}
-
-		var rating = Gameworld.ArenaRatingsService.GetRating(npc, candidateClass);
-		return Math.Abs(rating - targetRating);
-	}
-
-	private static bool IsRatingAllowedForSide(IArenaEventTypeSide side, decimal rating)
-	{
-		if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
-		{
-			return false;
-		}
-
-		return !side.MaximumRating.HasValue || rating <= side.MaximumRating.Value;
-	}
-
-	private void PrepareNpcParticipants()
-	{
-		foreach (var participant in _participants.Where(x => x.IsNpc))
-		{
-			if (participant.Character is not ICharacter npc)
-			{
-				continue;
-			}
-
-			Gameworld.ArenaNpcService.PrepareNpc(npc, this, participant.SideIndex, participant.CombatantClass);
-		}
-	}
-
-	private void PreparePlayerParticipants()
-	{
-		foreach (var participant in _participants)
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			EnsureParticipantOutputHandler(character);
-			var waitingCell = Arena.GetWaitingCell(participant.SideIndex);
-			if (waitingCell is not null && !ReferenceEquals(character.Location, waitingCell))
-			{
-				character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
-			}
-
-			if (BringYourOwn)
-			{
-				TagBringYourOwnEquipment(character);
-				continue;
-			}
-
-			if (character.Body is null)
-			{
-				continue;
-			}
-
-			var effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
-				.FirstOrDefault(x => x.EventId == Id);
-			if (effect is null)
-			{
-				effect = new ArenaParticipantPreparationEffect(character, Id);
-				character.AddEffect(effect);
-			}
-			else
-			{
-				effect.ClearCapturedItems();
-			}
-
-			StripParticipantLoadout(character.Body, effect);
-		}
-	}
-
-	private void FinalizeParticipants()
-	{
-		DisengageParticipantCombats();
-		ReturnNpcParticipants();
-		MovePlayerParticipantsToAfterFight();
-		RestoreBringYourOwnEquipment();
-		RestorePlayerParticipants();
-		ClearParticipantPhaseEffects();
-		ClearObservationEffects();
-		_surrenderedParticipantIds.Clear();
-	}
-
-	private void DisengageParticipantCombats()
-	{
-		var participantsInCombat = _participants
-			.Select(x => x.Character)
-			.OfType<ICharacter>()
-			.Where(x => x.Combat is not null)
-			.ToList();
-
-		foreach (var participant in participantsInCombat)
-		{
-			var combat = participant.Combat;
-			if (combat is null)
-			{
-				continue;
-			}
-
-			try
-			{
-				combat.LeaveCombat(participant);
-			}
-			catch
-			{
-				try
-				{
-					combat.EndCombat(true);
-				}
-				catch
-				{
-					// Do not block participant restoration if combat teardown fails.
-				}
-			}
-		}
-	}
-
-	private void ReturnNpcParticipants()
-	{
-		var stableCells = Arena.NpcStablesCells.ToList();
-		var afterFightCells = Arena.AfterFightCells.ToList();
-		var cleanupNpcIds = new HashSet<long>();
-
-		foreach (var participant in _participants.Where(x => x.IsNpc))
-		{
-			var npc = participant.Character;
-			if (npc is null)
-			{
-				continue;
-			}
-
-			var destination = stableCells.Count > 0
-				? SelectIndexedCell(stableCells, participant.SideIndex)
-				: SelectIndexedCell(afterFightCells, participant.SideIndex);
-
-			var effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
-				.FirstOrDefault(x => x.EventId == Id);
-			if (effect is not null)
-			{
-				var wasDeadBeforeReturn = npc.State.IsDead();
-				Gameworld.ArenaNpcService.ReturnNpc(
-					npc,
-					this,
-					participant.CombatantClass.ResurrectNpcOnDeath,
-					participant.CombatantClass.FullyRestoreNpcOnCompletion);
-				var wasAutoResurrected = participant.CombatantClass.ResurrectNpcOnDeath &&
-										 wasDeadBeforeReturn &&
-										 !npc.State.IsDead();
-				if (npc.State.IsDead() && destination is not null)
-				{
-					MoveCorpseToCell(npc, destination);
-				}
-
-				var wasFullyRestored = TryApplyNpcStableRecovery(npc, participant, stableCells);
-				if (wasAutoResurrected || wasFullyRestored)
-				{
-					cleanupNpcIds.Add(npc.Id);
-				}
-
-				continue;
-			}
-
-			if (destination is null)
-			{
-				continue;
-			}
-
-			if (npc.State.IsDead())
-			{
-				MoveCorpseToCell(npc, destination);
-				continue;
-			}
-
-			npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
-			if (TryApplyNpcStableRecovery(npc, participant, stableCells))
-			{
-				cleanupNpcIds.Add(npc.Id);
-			}
-		}
-
-		DeleteNpcRemains(cleanupNpcIds);
-	}
-
-	private void DeleteNpcRemains(HashSet<long> npcIds)
-	{
-		if (npcIds.Count == 0)
-		{
-			return;
-		}
-
-		var remains = Gameworld.Items
-			.Where(item => !item.Deleted)
-			.Where(item =>
-			{
-				if (item.GetItemType<ICorpse>() is { } corpse && npcIds.Contains(corpse.OriginalCharacter.Id))
-				{
-					return true;
-				}
-
-				return item.GetItemType<ISeveredBodypart>() is { } bodypart &&
-					   npcIds.Contains(bodypart.OriginalCharacterId);
-			})
-			.ToList();
-
-		foreach (var remain in remains)
-		{
-			remain.Delete();
-		}
-	}
-
-	private static void MoveCorpseToCell(ICharacter npc, ICell destination)
-	{
-		var corpse = npc.Corpse?.Parent;
-		if (corpse is null || corpse.Deleted)
-		{
-			return;
-		}
-
-		corpse.ContainedIn?.Take(corpse);
-		corpse.InInventoryOf?.Take(corpse);
-		corpse.Location?.Extract(corpse);
-		corpse.RoomLayer = RoomLayer.GroundLevel;
-		destination.Insert(corpse, true);
-	}
-
-	private static bool TryApplyNpcStableRecovery(ICharacter npc, ArenaParticipant participant,
-		IReadOnlyCollection<ICell> stableCells)
-	{
-		if (!participant.CombatantClass.FullyRestoreNpcOnCompletion)
-		{
-			return false;
-		}
-
-		if (stableCells.Count == 0)
-		{
-			return false;
-		}
-
-		if (npc.State.IsDead())
-		{
-			return false;
-		}
-
-		if (npc.Location is not ICell location || !stableCells.Contains(location))
-		{
-			return false;
-		}
-
-		if (npc.Body is not { } body)
-		{
-			return false;
-		}
-
-		body.HeldBreathTime = TimeSpan.Zero;
-		body.RestoreAllBodypartsOrgansAndBones();
-		body.Sober();
-		body.CureAllWounds();
-		body.RemoveAllEffects(effect => effect.IsEffectType<PainTolerance>());
-		body.CurrentStamina = body.MaximumStamina;
-		body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
-		body.EndHealthTick();
-		return true;
-	}
-
-	private void RestorePlayerParticipants()
-	{
-		foreach (var participant in _participants)
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			EnsureParticipantOutputHandler(character);
-			var effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
-				.FirstOrDefault(x => x.EventId == Id);
-			if (effect is null)
-			{
-				continue;
-			}
-
-			RestoreParticipantInventory(character, effect);
-			character.RemoveEffect(effect, true);
-		}
-	}
-
-	private void TagBringYourOwnEquipment(ICharacter participant)
-	{
-		if (!BringYourOwn || participant.Body is null)
-		{
-			return;
-		}
-
-		var directItems = participant.Body.DirectItems?.OfType<IGameItem>().ToList();
-		if (directItems is null || directItems.Count == 0)
-		{
-			return;
-		}
-
-		foreach (var item in directItems)
-		{
-			var existing = item.EffectsOfType<ArenaByoEquipmentEffect>()
-				.FirstOrDefault(x => x.Matches(this));
-			if (existing is not null && existing.OwnerCharacterId == participant.Id)
-			{
-				continue;
-			}
-
-			if (existing is not null)
-			{
-				item.RemoveEffect(existing, true);
-			}
-
-			item.AddEffect(new ArenaByoEquipmentEffect(item, Id, participant.Id));
-		}
-	}
-
-	private void RestoreBringYourOwnEquipment()
-	{
-		if (!BringYourOwn)
-		{
-			return;
-		}
-
-		var participantsByCharacterId = _participants
-			.Where(x => x.Character is not null)
-			.ToDictionary(x => x.Character!.Id, x => x);
-
-		var taggedItems = Gameworld.Items
-			.SelectMany(item => item.EffectsOfType<ArenaByoEquipmentEffect>()
-				.Where(effect => effect.Matches(this))
-				.Select(effect => (Item: item, Effect: effect)))
-			.ToList();
-
-		foreach (var tagged in taggedItems)
-		{
-			var item = tagged.Item;
-			var effect = tagged.Effect;
-			if (item is null || item.Deleted)
-			{
-				continue;
-			}
-
-			if (!participantsByCharacterId.TryGetValue(effect.OwnerCharacterId, out var participant))
-			{
-				var fallbackOwner = Gameworld.TryGetCharacter(effect.OwnerCharacterId, true);
-				if (fallbackOwner is null)
-				{
-					item.RemoveEffect(effect, true);
-					continue;
-				}
-
-				ReturnBringYourOwnItem(item, fallbackOwner, false);
-				item.RemoveEffect(effect, true);
-				continue;
-			}
-
-			if (participant.Character is not { } owner)
-			{
-				item.RemoveEffect(effect, true);
-				continue;
-			}
-
-			ReturnBringYourOwnItem(item, owner,
-				participant.IsNpc && participant.CombatantClass.FullyRestoreNpcOnCompletion);
-			item.RemoveEffect(effect, true);
-		}
-	}
-
-	private static void ReturnBringYourOwnItem(IGameItem item, ICharacter owner, bool repairItem)
-	{
-		if (owner.Body is null || owner.State.IsDead())
-		{
-			PlaceBringYourOwnItemNearParticipant(item, owner);
-			TryRepairBringYourOwnItem(item, repairItem);
-			return;
-		}
-
-		if (!ReferenceEquals(item.InInventoryOf, owner.Body))
-		{
-			item.ContainedIn?.Take(item);
-			item.InInventoryOf?.Take(item);
-			item.Location?.Extract(item);
-
-			try
-			{
-				owner.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
-			}
-			catch
-			{
-				// If the owner cannot hold items at this moment, place it nearby as fallback.
-			}
-		}
-
-		if (!ReferenceEquals(item.InInventoryOf, owner.Body))
-		{
-			PlaceBringYourOwnItemNearParticipant(item, owner);
-		}
-
-		TryRepairBringYourOwnItem(item, repairItem);
-	}
-
-	private static void PlaceBringYourOwnItemNearParticipant(IGameItem item, ICharacter participant)
-	{
-		item.ContainedIn?.Take(item);
-		item.InInventoryOf?.Take(item);
-		item.Location?.Extract(item);
-
-		if (participant.Location is not { } location)
-		{
-			return;
-		}
-
-		item.RoomLayer = participant.RoomLayer;
-		location.Insert(item, true);
-	}
-
-	private static void TryRepairBringYourOwnItem(IGameItem item, bool repairItem)
-	{
-		if (!repairItem)
-		{
-			return;
-		}
-
-		item.CureAllWounds();
-	}
-
-	private void MovePlayerParticipantsToAfterFight()
-	{
-		var afterFightCells = Arena.AfterFightCells.ToList();
-		if (afterFightCells.Count == 0)
-		{
-			afterFightCells = Arena.WaitingCells.ToList();
-		}
-
-		if (afterFightCells.Count == 0)
-		{
-			afterFightCells = Arena.ArenaCells.ToList();
-		}
-
-		if (afterFightCells.Count == 0)
-		{
-			return;
-		}
-
-		foreach (var participant in _participants.Where(x => !x.IsNpc))
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			EnsureParticipantOutputHandler(character);
-			if (character.Location is not null &&
-				!Arena.ArenaCells.Contains(character.Location) &&
-				!Arena.WaitingCells.Contains(character.Location))
-			{
-				continue;
-			}
-
-			var destination = SelectIndexedCell(afterFightCells, participant.SideIndex);
-			if (destination is null)
-			{
-				continue;
-			}
-
-			character.Teleport(destination, RoomLayer.GroundLevel, false, false);
-		}
-	}
-
-	private void MoveParticipantsToArena()
-	{
-		var arenaCells = Arena.ArenaCells.ToList();
-		if (arenaCells.Count == 0)
-		{
-			return;
-		}
-
-		var sideStartIndices = ArenaSideIndexUtilities.ResolveEvenlySpacedStartCells(
-			_participants
-				.Select(x => x.SideIndex)
-				.Distinct()
-				.OrderBy(_ => Constants.Random.Next())
-				.ToList(),
-			arenaCells.Count,
-			Constants.Random.Next(arenaCells.Count));
-
-		var sideOffsets = new Dictionary<int, int>();
-		foreach (var participant in _participants)
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			EnsureParticipantOutputHandler(character);
-			if (character.Location is not null && arenaCells.Contains(character.Location))
-			{
-				continue;
-			}
-
-			var startIndex = sideStartIndices.TryGetValue(participant.SideIndex, out var sideStartIndex)
-				? sideStartIndex
-				: Constants.Random.Next(arenaCells.Count);
-			var offset = sideOffsets.TryGetValue(participant.SideIndex, out var value) ? value : 0;
-			var index = (startIndex + offset) % arenaCells.Count;
-			sideOffsets[participant.SideIndex] = offset + 1;
-
-			character.Teleport(arenaCells[index], RoomLayer.GroundLevel, false, false);
-		}
-	}
-
-	private static void StripParticipantLoadout(IBody body, ArenaParticipantPreparationEffect effect)
-	{
-		var directItems = body.DirectItems?.OfType<IGameItem>().ToList();
-		if (directItems is null || directItems.Count == 0)
-		{
-			return;
-		}
-
-		foreach (var item in directItems)
-		{
-			var state = DetermineState(body, item);
-			var wearProfileId = item.GetItemType<IWearable>()?.CurrentProfile?.Id;
-			var bodypartId = body.BodypartLocationOfInventoryItem(item)?.Id;
-			effect.CaptureItem(item, state, wearProfileId, bodypartId);
-			body.Take(item);
-		}
-	}
-
-	private static void RestoreParticipantInventory(ICharacter participant, ArenaParticipantPreparationEffect effect)
-	{
-		if (participant.Body is null)
-		{
-			DropCapturedItems(participant, effect);
-			return;
-		}
-
-		foreach (var snapshot in effect.Items)
-		{
-			var item = snapshot.Item;
-			if (item is null || item.Deleted)
-			{
-				continue;
-			}
-
-			try
-			{
-				participant.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
-			}
-			catch
-			{
-				PlaceCapturedItemNearParticipant(participant, item);
-				continue;
-			}
-
-			if (!ReferenceEquals(item.InInventoryOf, participant.Body))
-			{
-				PlaceCapturedItemNearParticipant(participant, item);
-				continue;
-			}
-
-			switch (snapshot.State)
-			{
-				case InventoryState.Worn:
-					TryWearItem(participant.Body, item, snapshot.WearProfileId);
-					break;
-				case InventoryState.Wielded:
-					TryWieldItem(participant.Body, item, snapshot.BodypartId);
-					break;
-			}
-		}
-	}
-
-	private static void DropCapturedItems(ICharacter participant, ArenaParticipantPreparationEffect effect)
-	{
-		var location = participant.Location;
-		if (location is null)
-		{
-			return;
-		}
-
-		foreach (var snapshot in effect.Items)
-		{
-			var item = snapshot.Item;
-			if (item is null || item.Deleted)
-			{
-				continue;
-			}
-
-			if (item.InInventoryOf is not null || item.Location is not null || item.ContainedIn is not null)
-			{
-				continue;
-			}
-
-			item.RoomLayer = participant.RoomLayer;
-			location.Insert(item, true);
-		}
-	}
-
-	private static void PlaceCapturedItemNearParticipant(ICharacter participant, IGameItem item)
-	{
-		item.ContainedIn?.Take(item);
-		item.InInventoryOf?.Take(item);
-		item.Location?.Extract(item);
-
-		if (participant.Location is not { } location)
-		{
-			return;
-		}
-
-		item.RoomLayer = participant.RoomLayer;
-		location.Insert(item, true);
-	}
-
-	private static void TryWearItem(IBody body, IGameItem item, long? wearProfileId)
-	{
-		var wearable = item.GetItemType<IWearable>();
-		if (wearable is null)
-		{
-			return;
-		}
-
-		var profile = wearProfileId.HasValue
-			? wearable.Profiles.FirstOrDefault(x => x.Id == wearProfileId.Value)
-			: wearable.CurrentProfile;
-
-		if (profile is not null)
-		{
-			body.Wear(item, profile, null, true);
-		}
-		else
-		{
-			body.Wear(item, null, true);
-		}
-	}
-
-	private static void TryWieldItem(IBody body, IGameItem item, long? bodypartId)
-	{
-		var hand = bodypartId.HasValue
-			? body.Bodyparts.FirstOrDefault(x => x.Id == bodypartId.Value) as IWield
-			: null;
-
-		body.Wield(item, hand, null, true, ItemCanWieldFlags.IgnoreFreeHands);
-	}
-
-	private static InventoryState DetermineState(IBody body, IGameItem item)
-	{
-		if (body.WornItems.Contains(item))
-		{
-			return InventoryState.Worn;
-		}
-
-		if (body.WieldedItems.Contains(item))
-		{
-			return InventoryState.Wielded;
-		}
-
-		return InventoryState.Held;
-	}
-
-	private static ICell? SelectIndexedCell(IReadOnlyList<ICell> cells, int index)
-	{
-		if (cells.Count == 0)
-		{
-			return null;
-		}
-
-		if (index >= 0 && index < cells.Count)
-		{
-			return cells[index];
-		}
-
-		return cells[0];
-	}
-
-	private bool BuildingCommandName(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("What name should this arena event have?".SubstituteANSIColour());
-			return false;
-		}
-
-		var name = command.SafeRemainingArgument.TitleCase();
-		_name = name;
-		Changed = true;
-		actor.OutputHandler.Send($"This arena event is now called {name.ColourName()}.");
-		return true;
-	}
-
-	private bool BuildingCommandSchedule(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("When should this event be scheduled for?".SubstituteANSIColour());
-			return false;
-		}
-
-		if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false, out var when))
-		{
-			actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
-			return false;
-		}
-
-		ScheduledAt = when;
-		var regOpens = ScheduledAt - PreparationDuration - RegistrationDuration;
-		if (regOpens > CreatedAt)
-		{
-			RegistrationOpensAt = regOpens;
-		}
-
-		Changed = true;
-		actor.OutputHandler.Send($"This event is now scheduled for {ScheduledAt.ToString("f", actor).ColourValue()}.");
-		RescheduleTransitions();
-		return true;
-	}
-
-	private bool BuildingCommandRegistration(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("When should registration open? Use #3none#0 to clear.".SubstituteANSIColour());
-			return false;
-		}
-
-		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
-		{
-			RegistrationOpensAt = null;
-			Changed = true;
-			actor.OutputHandler.Send("Registration open time cleared.".SubstituteANSIColour());
-			RescheduleTransitions();
-			return true;
-		}
-
-		if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false, out var when))
-		{
-			actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
-			return false;
-		}
-
-		RegistrationOpensAt = when;
-		Changed = true;
-		actor.OutputHandler.Send($"Registration will open at {RegistrationOpensAt.Value.ToString("f", actor).ColourValue()}.");
-		RescheduleTransitions();
-		return true;
-	}
-
-	private bool BuildingCommandState(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"Which state should this event be forced into? Valid options are {Enum.GetValues<ArenaEventState>().ListToColouredString()}.");
-			return false;
-		}
-
-		if (!command.SafeRemainingArgument.TryParseEnum<ArenaEventState>(out var state))
-		{
-			actor.OutputHandler.Send(
-				$"That is not a valid state. Valid options are {Enum.GetValues<ArenaEventState>().ListToColouredString()}.");
-			return false;
-		}
-
-		ApplyForcedState(state);
-		Changed = true;
-		actor.OutputHandler.Send($"State set to {State.DescribeEnum().ColourValue()}.");
-		RescheduleTransitions();
-		return true;
-	}
-
-	private bool BuildingCommandAbort(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("What reason do you want to give for aborting this event?".SubstituteANSIColour());
-			return false;
-		}
-
-		var reason = command.SafeRemainingArgument;
-		Abort(reason);
-		actor.OutputHandler.Send($"You abort this event: {reason.ColourError()}");
-		RescheduleTransitions();
-		return true;
-	}
-
-	private void RescheduleTransitions()
-	{
-		Gameworld.ArenaScheduler.Schedule(this);
-	}
-
-	private void ApplyForcedState(ArenaEventState state)
-	{
-		switch (state)
-		{
-			case ArenaEventState.RegistrationOpen:
-				OpenRegistration();
-				break;
-			case ArenaEventState.Preparing:
-				StartPreparation();
-				break;
-			case ArenaEventState.Staged:
-				Stage();
-				break;
-			case ArenaEventState.Live:
-				StartLive();
-				break;
-			case ArenaEventState.Resolving:
-				Resolve();
-				break;
-			case ArenaEventState.Cleanup:
-				Cleanup();
-				break;
-			case ArenaEventState.Completed:
-				Complete();
-				break;
-			case ArenaEventState.Aborted:
-				Abort("Event aborted.");
-				break;
-			default:
-				EnforceState(state);
-				break;
-		}
-	}
-
-	private void HandleSignupStaging(ICharacter character, int sideIndex)
-	{
-		if (character is null)
-		{
-			return;
-		}
-
-		var waitingCell = Arena.GetWaitingCell(sideIndex);
-		if (waitingCell is null)
-		{
-			return;
-		}
-
-		var signupEcho = Arena.SignupEcho;
-		var originCell = character.Location;
-		if (!string.IsNullOrWhiteSpace(signupEcho) && originCell is not null)
-		{
-			originCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
-		}
-
-		character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
-
-		if (!string.IsNullOrWhiteSpace(signupEcho) && !ReferenceEquals(originCell, waitingCell))
-		{
-			waitingCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
-		}
-
-		if (!character.IsPlayerCharacter)
-		{
-			return;
-		}
-
-		var existing = character.CombinedEffectsOfType<ArenaStagingEffect>()
-			.FirstOrDefault(x => x.Matches(this));
-		if (existing is not null)
-		{
-			existing.AttachToEvent(this);
-			return;
-		}
-
-		character.AddEffect(new ArenaStagingEffect(character, this));
-	}
-
-	private void ClearStagingEffect(ICharacter character)
-	{
-		if (character is null || !character.IsPlayerCharacter)
-		{
-			return;
-		}
-
-		var effect = character.CombinedEffectsOfType<ArenaStagingEffect>()
-			.FirstOrDefault(x => x.Matches(this));
-		if (effect is null)
-		{
-			return;
-		}
-
-		character.RemoveEffect(effect, true);
-	}
-
-	private void ClearStagingEffects()
-	{
-		foreach (var participant in _participants)
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			ClearStagingEffect(character);
-		}
-
-		var orphanedStagingEffects = Gameworld.Actors
-			.Where(x => x.CombinedEffectsOfType<ArenaStagingEffect>().Any(effect => effect.Matches(this)))
-			.ToList();
-		foreach (var character in orphanedStagingEffects)
-		{
-			ClearStagingEffect(character);
-		}
-	}
-
-	private void ApplyPreparationPhaseEffects()
-	{
-		foreach (var participant in _participants)
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			EnsureParticipantOutputHandler(character);
-			if (participant.IsNpc)
-			{
-				MarkNpcPreparingEffect(character);
-			}
-			else
-			{
-				EnsurePreparingEffect(character);
-			}
-
-			ClearCombatantEffect(character);
-		}
-
-		ClearStagingEffects();
-	}
-
-	private void ApplyCombatPhaseEffects()
-	{
-		foreach (var participant in _participants)
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			EnsureParticipantOutputHandler(character);
-			if (participant.IsNpc)
-			{
-				MarkNpcParticipatingEffect(character);
-			}
-			else
-			{
-				ClearPreparingEffect(character);
-			}
-
-			EnsureCombatantEffect(character);
-		}
-
-		ClearStagingEffects();
-	}
-
-	private void EnsurePreparingEffect(ICharacter character)
-	{
-		if (!character.IsPlayerCharacter)
-		{
-			return;
-		}
-
-		character.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
-		var existing = character.CombinedEffectsOfType<ArenaPreparingEffect>()
-			.FirstOrDefault(x => x.Matches(this));
-		if (existing is not null)
-		{
-			existing.AttachToEvent(this);
-			return;
-		}
-
-		character.AddEffect(new ArenaPreparingEffect(character, this));
-	}
-
-	private void ClearPreparingEffect(ICharacter character)
-	{
-		if (!character.IsPlayerCharacter)
-		{
-			return;
-		}
-
-		var effect = character.CombinedEffectsOfType<ArenaPreparingEffect>()
-			.FirstOrDefault(x => x.Matches(this));
-		if (effect is null)
-		{
-			return;
-		}
-
-		character.RemoveEffect(effect, true);
-	}
-
-	private void ClearPreparationEffects()
-	{
-		foreach (var participant in _participants.Where(x => !x.IsNpc))
-		{
-			var character = participant.Character;
-			if (character is null)
-			{
-				continue;
-			}
-
-			ClearPreparingEffect(character);
-		}
-
-		var orphanedPreparingEffects = Gameworld.Actors
-			.Where(x => x.CombinedEffectsOfType<ArenaPreparingEffect>().Any(effect => effect.Matches(this)))
-			.ToList();
-		foreach (var character in orphanedPreparingEffects)
-		{
-			ClearPreparingEffect(character);
-		}
-	}
-
-	private void MarkNpcParticipatingEffect(ICharacter character)
-	{
-		var effect = character.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
-			.FirstOrDefault(x => x.EventId == Id);
-		if (effect is null)
-		{
-			return;
-		}
-
-		effect.MarkParticipating();
-	}
-
-	private void MarkNpcPreparingEffect(ICharacter character)
-	{
-		var effect = character.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
-			.FirstOrDefault(x => x.EventId == Id);
-		if (effect is null)
-		{
-			return;
-		}
-
-		effect.MarkPreparing();
-	}
-
-	private void EnsureCombatantEffect(ICharacter character)
-	{
-		Gameworld.ArenaParticipationService.EnsureParticipation(character, this);
-	}
-
-	private void ClearCombatantEffect(ICharacter character)
-	{
-		Gameworld.ArenaParticipationService.ClearParticipation(character, this);
-	}
-
-	private void ClearParticipantPhaseEffects()
-	{
-		ClearPreparationEffects();
-		Gameworld.ArenaParticipationService.ClearParticipation(this);
-		ClearStagingEffects();
-	}
-
-	private void ClearObservationEffects()
-	{
-		foreach (var cell in Arena.ArenaCells)
-		{
-			var effects = cell.EffectsOfType<ArenaWatcherEffect>()
-				.Where(x => ReferenceEquals(x.ArenaEvent, this))
-				.ToList();
-
-			foreach (var effect in effects)
-			{
-				cell.RemoveEffect(effect, true);
-			}
-		}
-	}
-
-	private static void EnsureParticipantOutputHandler(ICharacter character)
-	{
-		if (character.OutputHandler is not null)
-		{
-			return;
-		}
-
-		character.Register(new NonPlayerOutputHandler());
-	}
+    public bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "name":
+                return BuildingCommandName(actor, command);
+            case "schedule":
+            case "time":
+                return BuildingCommandSchedule(actor, command);
+            case "registration":
+            case "reg":
+                return BuildingCommandRegistration(actor, command);
+            case "state":
+                return BuildingCommandState(actor, command);
+            case "abort":
+                return BuildingCommandAbort(actor, command);
+            default:
+                actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+                return false;
+        }
+    }
+
+    public void OpenRegistration()
+    {
+        EnforceState(ArenaEventState.RegistrationOpen);
+        RegistrationOpensAt ??= DateTime.UtcNow;
+        Changed = true;
+        TryAdvanceToPreparation();
+    }
+
+    public void CloseRegistration()
+    {
+        StartPreparation();
+    }
+
+    public void StartPreparation()
+    {
+        if (_state >= ArenaEventState.Preparing)
+        {
+            EnforceState(ArenaEventState.Preparing);
+            Changed = true;
+            ApplyPreparationPhaseEffects();
+            return;
+        }
+
+        AutoFillNpcParticipants();
+
+        EnforceState(ArenaEventState.Preparing);
+        Changed = true;
+        ApplyPreparationPhaseEffects();
+        PrepareNpcParticipants();
+        PreparePlayerParticipants();
+        ExecuteOutfitProgs();
+    }
+
+    public void Stage()
+    {
+        if (_state >= ArenaEventState.Staged)
+        {
+            EnforceState(ArenaEventState.Staged);
+            Changed = true;
+            ApplyCombatPhaseEffects();
+            return;
+        }
+
+        EnforceState(ArenaEventState.Staged);
+        Changed = true;
+        ApplyCombatPhaseEffects();
+        MoveParticipantsToArena();
+        ExecuteIntroProg();
+    }
+
+    public void StartLive()
+    {
+        StartedAt ??= DateTime.UtcNow;
+        if (_state >= ArenaEventState.Live)
+        {
+            EnforceState(ArenaEventState.Live);
+            Changed = true;
+            ApplyCombatPhaseEffects();
+            return;
+        }
+
+        EnforceState(ArenaEventState.Live);
+        Changed = true;
+        ApplyCombatPhaseEffects();
+        MoveParticipantsToArena();
+        ExecuteScoringProg();
+    }
+
+    public void MercyStop()
+    {
+        if (_state != ArenaEventState.Live)
+        {
+            return;
+        }
+
+        if (!CanMercyStopNow())
+        {
+            return;
+        }
+
+        if (!TryResolveFromElimination())
+        {
+            Resolve();
+        }
+    }
+
+    private bool CanMercyStopNow()
+    {
+        if (TryDetermineEliminationOutcome(out _, out _))
+        {
+            return true;
+        }
+
+        if (EventType.EliminationStrategy is { } strategy)
+        {
+            try
+            {
+                return strategy.MercyStopAllowed(this);
+            }
+            catch
+            {
+            }
+        }
+
+        int activeSides = _participants
+            .GroupBy(x => x.SideIndex)
+            .Count(group => group.Any(IsParticipantActive));
+        return activeSides <= 1;
+    }
+
+    private static bool IsParticipantActive(ArenaParticipant participant)
+    {
+        ICharacter? character = participant.Character;
+        return character != null && character.State.IsAble();
+    }
+
+    public bool TryResolveFromElimination()
+    {
+        if (_state != ArenaEventState.Live)
+        {
+            return false;
+        }
+
+        if (!TryDetermineEliminationOutcome(out ArenaOutcome outcome, out IReadOnlyCollection<int>? winningSides))
+        {
+            return false;
+        }
+
+        RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
+        Gameworld.ArenaLifecycleService.Transition(this, ArenaEventState.Resolving);
+        return _state >= ArenaEventState.Resolving;
+    }
+
+    public (bool Truth, string Reason) CanSurrender(ICharacter participant)
+    {
+        if (participant is null)
+        {
+            return (false, "You cannot surrender without a character.");
+        }
+
+        if (_state != ArenaEventState.Live)
+        {
+            return (false, "You can only surrender while the event is live.");
+        }
+
+        if (!EventType.AllowSurrender)
+        {
+            return (false, "Surrender is not permitted for this event.");
+        }
+
+        if (_participants.All(x => x.Character?.Id != participant.Id))
+        {
+            return (false, "You are not a participant in this event.");
+        }
+
+        if (_surrenderedParticipantIds.Contains(participant.Id))
+        {
+            return (false, "You have already surrendered this bout.");
+        }
+
+        if (participant.State.IsDead())
+        {
+            return (false, "Dead combatants cannot surrender.");
+        }
+
+        return (true, string.Empty);
+    }
+
+    public void Surrender(ICharacter participant)
+    {
+        (bool truth, string? reason) = CanSurrender(participant);
+        if (!truth)
+        {
+            throw new InvalidOperationException(reason);
+        }
+
+        _surrenderedParticipantIds.Add(participant.Id);
+        participant.Combat?.LeaveCombat(participant);
+        foreach (ICell? cell in Arena.ArenaCells.Where(x => x != null).Distinct())
+        {
+            cell.Handle(new EmoteOutput(new Emote("@ surrender|surrenders the bout!", participant)));
+        }
+
+        TryResolveFromElimination();
+    }
+
+    public void Resolve()
+    {
+        if (_state >= ArenaEventState.Resolving)
+        {
+            return;
+        }
+
+        ResolvedAt = DateTime.UtcNow;
+        EnforceState(ArenaEventState.Resolving);
+        Changed = true;
+        ExecuteResolutionOverrideProg();
+        EnsureResolvedOutcome();
+        Gameworld.ArenaBettingService.Settle(this, Outcome ?? ArenaOutcome.Aborted, WinningSides ?? Array.Empty<int>());
+        Gameworld.ArenaFinanceService.AccrueAppearancePayouts(this);
+        AnnounceArenaOutcome();
+    }
+
+    public void Cleanup()
+    {
+        EnforceState(ArenaEventState.Cleanup);
+        Changed = true;
+        FinalizeParticipants();
+    }
+
+    public void Complete()
+    {
+        CompletedAt = DateTime.UtcNow;
+        EnforceState(ArenaEventState.Completed);
+        Changed = true;
+        FinalizeParticipants();
+    }
+
+    public void Abort(string reason)
+    {
+        RecordOutcome(ArenaOutcome.Aborted, null);
+        CompletedAt = DateTime.UtcNow;
+        EnforceState(ArenaEventState.Aborted);
+        Changed = true;
+        FinalizeParticipants();
+    }
+
+    public (bool Truth, string Reason) CanSignUp(ICharacter character, int sideIndex,
+        ICombatantClass combatantClass)
+    {
+        return CanSignUpInternal(character, sideIndex, combatantClass, false, false);
+    }
+
+    public void SignUp(ICharacter character, int sideIndex, ICombatantClass combatantClass)
+    {
+        (bool Truth, string Reason) result = CanSignUpInternal(character, sideIndex, combatantClass, false, false);
+        if (!result.Truth)
+        {
+            throw new InvalidOperationException(result.Reason);
+        }
+
+        CompleteSignup(character, sideIndex, combatantClass, true);
+    }
+
+    private (bool Truth, string Reason) CanSignUpInternal(ICharacter character, int sideIndex,
+        ICombatantClass combatantClass, bool ignoreNpcRestriction, bool ignoreSidePolicy)
+    {
+        if (character == null)
+        {
+            return (false, "You cannot sign up without a character.");
+        }
+
+        if (_state != ArenaEventState.RegistrationOpen)
+        {
+            return (false, "Registration is not open for that event.");
+        }
+
+        IArenaEventTypeSide? side = EventType.Sides.FirstOrDefault(x => x.Index == sideIndex);
+        if (side == null)
+        {
+            return (false, "That side does not exist for this event type.");
+        }
+
+        if (!side.EligibleClasses.Contains(combatantClass))
+        {
+            return (false, "That combatant class is not eligible for this side.");
+        }
+
+        if (!ignoreNpcRestriction && !character.IsPlayerCharacter && !side.AllowNpcSignup)
+        {
+            return (false, "NPC signups are not allowed for that side.");
+        }
+
+        if (EligibilityFailed(combatantClass, character))
+        {
+            return (false, "You are not eligible for that combatant class.");
+        }
+
+        decimal rating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
+        if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
+        {
+            return (false,
+                $"Your arena rating of {rating.ToString("N2", character)} is below the minimum required rating of {side.MinimumRating.Value.ToString("N2", character)} for that side.");
+        }
+
+        if (side.MaximumRating.HasValue && rating > side.MaximumRating.Value)
+        {
+            return (false,
+                $"Your arena rating of {rating.ToString("N2", character)} is above the maximum allowed rating of {side.MaximumRating.Value.ToString("N2", character)} for that side.");
+        }
+
+        if (_participants.Any(x => x.Character?.Id == character.Id))
+        {
+            return (false, "You are already signed up for this event.");
+        }
+
+        if (_participants.Count(x => x.SideIndex == sideIndex) >= side.Capacity)
+        {
+            return (false, "That side is already full.");
+        }
+
+        if (ignoreSidePolicy)
+        {
+            return (true, string.Empty);
+        }
+
+        return side.Policy switch
+        {
+            ArenaSidePolicy.Closed => (false, "That side is closed to new participants."),
+            ArenaSidePolicy.ManagersOnly when !Arena.IsManager(character) =>
+                (false, "Only arena managers may sign up for that side."),
+            ArenaSidePolicy.ReservedOnly when !HasReservation(character) =>
+                (false, "Only reserved participants may sign up for that side."),
+            _ => (true, string.Empty)
+        };
+    }
+
+    private void CompleteSignup(ICharacter character, int sideIndex, ICombatantClass combatantClass,
+        bool checkForEarlyPreparation)
+    {
+        decimal startingRating = Gameworld.ArenaRatingsService.GetRating(character, combatantClass);
+        string? stageName = GenerateStageName(combatantClass);
+        using (new FMDB())
+        {
+            Models.ArenaSignup signup = new()
+            {
+                ArenaEventId = Id,
+                CharacterId = character.Id,
+                CombatantClassId = combatantClass.Id,
+                SideIndex = sideIndex,
+                IsNpc = !character.IsPlayerCharacter,
+                StageName = stageName,
+                SignatureColour = combatantClass.DefaultSignatureColour,
+                StartingRating = startingRating,
+                SignedUpAt = DateTime.UtcNow
+            };
+
+            ArenaReservation? priorReservation = _reservations.FirstOrDefault(x => x.CharacterId == character.Id);
+            if (priorReservation != null)
+            {
+                signup.ArenaReservationId = priorReservation.ReservationId;
+                _reservations.Remove(priorReservation);
+            }
+
+            FMDB.Context.ArenaSignups.Add(signup);
+            FMDB.Context.SaveChanges();
+            _participants.Add(new ArenaParticipant(signup, this));
+        }
+
+        HandleSignupStaging(character, sideIndex);
+        if (checkForEarlyPreparation)
+        {
+            TryAdvanceToPreparation();
+        }
+    }
+
+    private static string? GenerateStageName(ICombatantClass combatantClass)
+    {
+        IRandomNameProfile? profile = combatantClass.DefaultStageNameProfile;
+        if (profile is null || !profile.IsReady)
+        {
+            return null;
+        }
+
+        try
+        {
+            IPersonalName name = profile.GetRandomPersonalName(nonSaving: true);
+            string stageName = name.GetName(NameStyle.GivenOnly);
+            if (string.IsNullOrWhiteSpace(stageName))
+            {
+                stageName = name.GetName(NameStyle.SimpleFull);
+            }
+
+            return string.IsNullOrWhiteSpace(stageName) ? null : stageName;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private void TryAdvanceToPreparation()
+    {
+        if (_state != ArenaEventState.RegistrationOpen)
+        {
+            return;
+        }
+
+        if (!IsEventFull())
+        {
+            return;
+        }
+
+        Gameworld.ArenaLifecycleService.Transition(this, ArenaEventState.Preparing);
+    }
+
+    private bool IsEventFull()
+    {
+        List<IArenaEventTypeSide> sides = EventType.Sides.ToList();
+        if (sides.Count == 0)
+        {
+            return false;
+        }
+
+        Dictionary<int, int> sideCounts = _participants
+            .GroupBy(x => x.SideIndex)
+            .ToDictionary(x => x.Key, x => x.Count());
+
+        return sides.All(side =>
+            sideCounts.TryGetValue(side.Index, out int count) &&
+            count >= side.Capacity);
+    }
+
+    public void Withdraw(ICharacter character)
+    {
+        if (character == null)
+        {
+            return;
+        }
+
+        if (_state > ArenaEventState.RegistrationOpen)
+        {
+            throw new InvalidOperationException("You can no longer withdraw from that event.");
+        }
+
+        ArenaParticipant? participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+        if (participant == null)
+        {
+            return;
+        }
+
+        using (new FMDB())
+        {
+            Models.ArenaSignup? dbSignup = FMDB.Context.ArenaSignups.Find(participant.SignupId);
+            if (dbSignup != null)
+            {
+                FMDB.Context.ArenaSignups.Remove(dbSignup);
+                FMDB.Context.SaveChanges();
+            }
+        }
+
+        _participants.Remove(participant);
+        ClearStagingEffect(character);
+    }
+
+    public void AddReservation(IArenaReservation reservation)
+    {
+        if (reservation == null)
+        {
+            return;
+        }
+
+        using (new FMDB())
+        {
+            Models.ArenaReservation record = new()
+            {
+                ArenaEventId = Id,
+                SideIndex = reservation.SideIndex,
+                CharacterId = reservation.CharacterId,
+                ClanId = reservation.ClanId,
+                ReservedAt = DateTime.UtcNow,
+                ExpiresAt = reservation.ExpiresAt
+            };
+            FMDB.Context.ArenaReservations.Add(record);
+            FMDB.Context.SaveChanges();
+            _reservations.Add(new ArenaReservation(record, this));
+        }
+    }
+
+    public void RemoveReservation(IArenaReservation reservation)
+    {
+        if (reservation is not ArenaReservation concrete)
+        {
+            return;
+        }
+
+        using (new FMDB())
+        {
+            Models.ArenaReservation? record = FMDB.Context.ArenaReservations.Find(concrete.ReservationId);
+            if (record != null)
+            {
+                FMDB.Context.ArenaReservations.Remove(record);
+                FMDB.Context.SaveChanges();
+            }
+        }
+
+        _reservations.Remove(concrete);
+    }
+
+    public void RecordOutcome(ArenaOutcome outcome, IEnumerable<int>? winningSides)
+    {
+        _outcome = outcome;
+        if (winningSides is null)
+        {
+            _winningSides = null;
+            return;
+        }
+
+        int[] validSides = winningSides
+            .Distinct()
+            .Where(index => EventType.Sides.Any(side => side.Index == index))
+            .OrderBy(x => x)
+            .ToArray();
+
+        _winningSides = validSides.Length == 0 ? Array.Empty<int>() : validSides;
+    }
+
+    public void EnforceState(ArenaEventState state)
+    {
+        if (_state == state)
+        {
+            return;
+        }
+
+        _state = state;
+        Changed = true;
+        AnnounceStateChange(state);
+        ExecutePhaseTransitionProg(state);
+    }
+
+    private void ExecutePhaseTransitionProg(ArenaEventState state)
+    {
+        IFutureProg? prog = Arena.OnArenaEventPhaseProg;
+        if (prog is null)
+        {
+            return;
+        }
+
+        try
+        {
+            prog.Execute(ArenaProgParameters.BuildPhaseTransitionArguments(this, state));
+        }
+        catch (Exception ex)
+        {
+            Gameworld.SystemMessage($"Arena phase prog for arena #{Arena.Id:N0} threw an exception: {ex.Message}", true);
+        }
+    }
+
+    private void AnnounceStateChange(ArenaEventState currentState)
+    {
+        string? message = BuildStateChangeMessage(currentState);
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        foreach (ICell cell in GetAnnouncementCells())
+        {
+            cell.Handle(message, OutputFlags.IgnoreWatchers);
+        }
+    }
+
+    private IEnumerable<ICell> GetAnnouncementCells()
+    {
+        return Arena.WaitingCells
+                    .Concat(Arena.ArenaCells)
+                    .Concat(Arena.ObservationCells)
+                    .Concat(Arena.InfirmaryCells)
+                    .Concat(Arena.AfterFightCells)
+                    .Concat(Arena.NpcStablesCells)
+                    .Where(cell => cell != null)
+                    .Distinct();
+    }
+
+    private string? BuildStateChangeMessage(ArenaEventState state)
+    {
+        string eventName = EventType.Name.ColourName();
+        string arenaName = Arena.Name.ColourName();
+
+        return state switch
+        {
+            ArenaEventState.RegistrationOpen => $"Registration is now open for the {eventName} event in {arenaName}.",
+            ArenaEventState.Preparing => $"Registration is now closed for the {eventName} event in {arenaName}.",
+            ArenaEventState.Staged => $"Combatants are taking their places for the {eventName} event in {arenaName}.",
+            ArenaEventState.Live => $"The {eventName} event is now underway in {arenaName}.",
+            ArenaEventState.Resolving => $"The {eventName} event has concluded in {arenaName}.",
+            ArenaEventState.Cleanup => $"Cleanup has begun after the {eventName} event in {arenaName}.",
+            ArenaEventState.Completed => $"The {eventName} event is complete in {arenaName}.",
+            ArenaEventState.Aborted => $"The {eventName} event in {arenaName} has been aborted.",
+            _ => null
+        };
+    }
+
+    public override string FrameworkItemType => "ArenaEvent";
+
+    public override void Save()
+    {
+        if (!Changed)
+        {
+            return;
+        }
+
+        using (new FMDB())
+        {
+            Models.ArenaEvent? dbEvent = FMDB.Context.ArenaEvents.Find(Id);
+            if (dbEvent == null)
+            {
+                return;
+            }
+
+            dbEvent.State = (int)_state;
+            dbEvent.ScheduledAt = ScheduledAt;
+            dbEvent.RegistrationOpensAt = RegistrationOpensAt;
+            dbEvent.StartedAt = StartedAt;
+            dbEvent.ResolvedAt = ResolvedAt;
+            dbEvent.CompletedAt = CompletedAt;
+            dbEvent.PayNpcAppearanceFee = PayNpcAppearanceFee;
+            FMDB.Context.SaveChanges();
+        }
+
+        Changed = false;
+    }
+
+    private bool HasReservation(ICharacter character)
+    {
+        DateTime now = DateTime.UtcNow;
+        _reservations.RemoveAll(x => x.ExpiresAt < now);
+        if (_reservations.Any(x => x.CharacterId == character.Id))
+        {
+            return true;
+        }
+
+        HashSet<long> clanIds = character.ClanMemberships
+                               .Select(x => x.Clan?.Id)
+                               .Where(x => x.HasValue)
+                               .Select(x => x.Value)
+                               .ToHashSet();
+
+        if (!clanIds.Any())
+        {
+            return false;
+        }
+
+        return _reservations.Any(x => x.ClanId.HasValue && clanIds.Contains(x.ClanId.Value));
+    }
+
+    private static bool EligibilityFailed(ICombatantClass combatantClass, ICharacter character)
+    {
+        try
+        {
+            return combatantClass.EligibilityProg.Execute<bool?>(character) == false;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private void ExecuteIntroProg()
+    {
+        EventType.IntroProg?.Execute(ArenaProgParameters.BuildEventProgArguments(this));
+    }
+
+    private void ExecuteScoringProg()
+    {
+        EventType.ScoringProg?.Execute(ArenaProgParameters.BuildEventProgArguments(this));
+    }
+
+    private void ExecuteOutfitProgs()
+    {
+        foreach (IArenaEventTypeSide side in EventType.Sides)
+        {
+            IFutureProg? prog = side.OutfitProg;
+            if (prog is null)
+            {
+                continue;
+            }
+
+            List<ICharacter> participants = _participants
+                .Where(x => x.SideIndex == side.Index)
+                .Select(x => x.Character)
+                .OfType<ICharacter>()
+                .ToList();
+
+            prog.Execute(ArenaProgParameters.BuildSideOutfitArguments(this, side.Index, participants));
+        }
+    }
+
+    private void ExecuteResolutionOverrideProg()
+    {
+        IFutureProg? prog = EventType.ResolutionOverrideProg;
+        if (prog is null)
+        {
+            return;
+        }
+
+        List<decimal> values = prog.ExecuteCollection<decimal>(ArenaProgParameters.BuildEventProgArguments(this)).ToList();
+        if (values.Count == 0)
+        {
+            return;
+        }
+
+        int firstValue = Convert.ToInt32(values[0]);
+        bool usesOutcome = Enum.IsDefined(typeof(ArenaOutcome), firstValue);
+        ArenaOutcome outcome = usesOutcome ? (ArenaOutcome)firstValue : ArenaOutcome.Win;
+        List<int> winningSides = usesOutcome
+            ? values.Skip(1).Select(Convert.ToInt32).ToList()
+            : values.Select(Convert.ToInt32).ToList();
+
+        if (outcome == ArenaOutcome.Win && winningSides.Count == 0)
+        {
+            return;
+        }
+
+        RecordOutcome(outcome, outcome == ArenaOutcome.Win ? winningSides : null);
+    }
+
+    private bool TryDetermineEliminationOutcome(out ArenaOutcome outcome, out IReadOnlyCollection<int>? winningSides)
+    {
+        outcome = ArenaOutcome.Draw;
+        winningSides = null;
+
+        if (EventType.EliminationMode == ArenaEliminationMode.PointsElimination)
+        {
+            return TryDeterminePointsOutcome(requireUniqueWinner: true, out outcome, out winningSides);
+        }
+
+        List<int> sideIndices = EventType.Sides
+            .Select(x => x.Index)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+        if (!sideIndices.Any())
+        {
+            return false;
+        }
+
+        List<int> activeSides = sideIndices
+            .Where(side => _participants
+                .Where(participant => participant.SideIndex == side)
+                .Any(participant => !IsParticipantEliminated(participant, EventType.EliminationMode)))
+            .ToList();
+        if (activeSides.Count == 1)
+        {
+            outcome = ArenaOutcome.Win;
+            winningSides = activeSides;
+            return true;
+        }
+
+        if (activeSides.Count == 0)
+        {
+            outcome = ArenaOutcome.Draw;
+            winningSides = null;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryDeterminePointsOutcome(bool requireUniqueWinner, out ArenaOutcome outcome,
+        out IReadOnlyCollection<int>? winningSides)
+    {
+        outcome = ArenaOutcome.Draw;
+        winningSides = null;
+
+        IFutureProg? prog = EventType.ScoringProg;
+        if (prog is null)
+        {
+            return false;
+        }
+
+        List<decimal> values;
+        try
+        {
+            values = prog.ExecuteCollection<decimal>(ArenaProgParameters.BuildEventProgArguments(this)).ToList();
+        }
+        catch
+        {
+            return false;
+        }
+
+        if (!values.Any())
+        {
+            return false;
+        }
+
+        List<int> sideIndices = EventType.Sides
+            .Select(x => x.Index)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+        if (!sideIndices.Any())
+        {
+            return false;
+        }
+
+        if (values.Count == sideIndices.Count)
+        {
+            // A score per side (in side index order).
+            var scores = sideIndices
+                .Select((side, index) => new { Side = side, Score = values[index] })
+                .ToList();
+            decimal bestScore = scores.Max(x => x.Score);
+            List<int> bestSides = scores
+                .Where(x => x.Score == bestScore)
+                .Select(x => x.Side)
+                .OrderBy(x => x)
+                .ToList();
+            if (!bestSides.Any())
+            {
+                return false;
+            }
+
+            if (requireUniqueWinner && bestSides.Count != 1)
+            {
+                return false;
+            }
+
+            if (bestSides.Count == sideIndices.Count)
+            {
+                outcome = ArenaOutcome.Draw;
+                winningSides = null;
+                return !requireUniqueWinner;
+            }
+
+            outcome = ArenaOutcome.Win;
+            winningSides = bestSides;
+            return true;
+        }
+
+        // A list of winning side indexes.
+        List<int> directWinners = values
+            .Select(x => Convert.ToInt32(x))
+            .Select(TryNormaliseSideIndex)
+            .OfType<int>()
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+        if (!directWinners.Any())
+        {
+            return false;
+        }
+
+        if (directWinners.Count == sideIndices.Count)
+        {
+            outcome = ArenaOutcome.Draw;
+            winningSides = null;
+            return !requireUniqueWinner;
+        }
+
+        if (requireUniqueWinner && directWinners.Count != 1)
+        {
+            return false;
+        }
+
+        outcome = ArenaOutcome.Win;
+        winningSides = directWinners;
+        return true;
+    }
+
+    private int? TryNormaliseSideIndex(int candidate)
+    {
+        HashSet<int> validSides = EventType.Sides
+            .Select(x => x.Index)
+            .Distinct()
+            .ToHashSet();
+        if (validSides.Contains(candidate))
+        {
+            return candidate;
+        }
+
+        if (candidate > 0 && validSides.Contains(candidate - 1))
+        {
+            return candidate - 1;
+        }
+
+        return null;
+    }
+
+    private bool IsParticipantEliminated(ArenaParticipant participant, ArenaEliminationMode mode)
+    {
+        ICharacter? character = participant.Character;
+        if (character is null)
+        {
+            return true;
+        }
+
+        if (_surrenderedParticipantIds.Contains(character.Id))
+        {
+            return true;
+        }
+
+        if (EventType.EliminationStrategy is { } strategy)
+        {
+            try
+            {
+                if (strategy.IsEliminated(this, character))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        return mode switch
+        {
+            ArenaEliminationMode.NoElimination => false,
+            ArenaEliminationMode.PointsElimination => false,
+            ArenaEliminationMode.Death => character.State.IsDead(),
+            ArenaEliminationMode.Knockout => character.State.HasFlag(CharacterState.Dead) ||
+                                             character.State.HasFlag(CharacterState.Unconscious) ||
+                                             character.State.HasFlag(CharacterState.Sleeping),
+            ArenaEliminationMode.KnockDown => character.State.HasFlag(CharacterState.Dead) ||
+                                              character.State.HasFlag(CharacterState.Unconscious) ||
+                                              character.State.HasFlag(CharacterState.Sleeping) ||
+                                              character.State.HasFlag(CharacterState.Paralysed) ||
+                                              !character.PositionState.Upright ||
+                                              character.IsHelpless,
+            _ => false
+        };
+    }
+
+    private void EnsureResolvedOutcome()
+    {
+        if (_outcome.HasValue)
+        {
+            return;
+        }
+
+        if (TryDetermineEliminationOutcome(out ArenaOutcome eliminationOutcome, out IReadOnlyCollection<int>? eliminationWinners))
+        {
+            RecordOutcome(eliminationOutcome, eliminationOutcome == ArenaOutcome.Win ? eliminationWinners : null);
+            return;
+        }
+
+        if (EventType.EliminationMode == ArenaEliminationMode.PointsElimination &&
+            TryDeterminePointsOutcome(requireUniqueWinner: false, out ArenaOutcome pointsOutcome, out IReadOnlyCollection<int>? pointsWinners))
+        {
+            RecordOutcome(pointsOutcome, pointsOutcome == ArenaOutcome.Win ? pointsWinners : null);
+            return;
+        }
+
+        RecordOutcome(ArenaOutcome.Draw, null);
+    }
+
+    private void AnnounceArenaOutcome()
+    {
+        string announcement = BuildOutcomeAnnouncement();
+        if (string.IsNullOrWhiteSpace(announcement))
+        {
+            return;
+        }
+
+        foreach (ICell? cell in Arena.ArenaCells
+            .Where(cell => cell != null)
+            .Distinct())
+        {
+            cell.Handle(announcement, OutputFlags.IgnoreWatchers);
+        }
+    }
+
+    private string BuildOutcomeAnnouncement()
+    {
+        string eventName = EventType.Name.ColourName();
+        return _outcome switch
+        {
+            ArenaOutcome.Win => BuildVictoryAnnouncement(eventName),
+            ArenaOutcome.Draw => $"The {eventName} event has ended in a draw.",
+            ArenaOutcome.Aborted => $"The {eventName} event has ended without result.",
+            _ => $"The {eventName} event has ended without a declared outcome."
+        };
+    }
+
+    private string BuildVictoryAnnouncement(string eventName)
+    {
+        List<int> winningSides = (_winningSides ?? Array.Empty<int>())
+            .OrderBy(x => x)
+            .ToList();
+        if (!winningSides.Any())
+        {
+            return $"The {eventName} event has ended in victory, but no winning side was recorded.";
+        }
+
+        if (winningSides.Count > 1)
+        {
+            string sideList = winningSides
+                .Select(DescribeSideForAnnouncement)
+                .ListToString();
+            return $"The {eventName} event has ended in shared victory to {sideList}.";
+        }
+
+        int sideIndex = winningSides[0];
+        string sideText = DescribeSideForAnnouncement(sideIndex);
+        string? winner = DescribeWinningCombatant(sideIndex);
+        return winner is null
+            ? $"The {eventName} event has ended in victory to {sideText}."
+            : $"The {eventName} event has ended in victory to {sideText} ({winner.ColourName()})!";
+    }
+
+    private static string DescribeSideForAnnouncement(int sideIndex)
+    {
+        string sideNumber = ArenaSideIndexUtilities
+            .ToDisplayString(CultureInfo.InvariantCulture, sideIndex)
+            .ColourValue();
+        return $"Side #{sideNumber}";
+    }
+
+    private string? DescribeWinningCombatant(int sideIndex)
+    {
+        ArenaParticipant? winner = _participants
+            .Where(x => x.SideIndex == sideIndex)
+            .FirstOrDefault(IsParticipantActive);
+        if (winner is null)
+        {
+            winner = _participants.FirstOrDefault(x => x.SideIndex == sideIndex);
+        }
+
+        if (winner is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(winner.StageName))
+        {
+            return winner.StageName;
+        }
+
+        if (winner.Character is not ICharacter character)
+        {
+            return null;
+        }
+
+        DummyPerceiver voyeur = new(location: character.Location);
+        return character.HowSeen(voyeur, true, flags: PerceiveIgnoreFlags.IgnoreCanSee);
+    }
+
+    private void AutoFillNpcParticipants()
+    {
+        if (_state >= ArenaEventState.Preparing)
+        {
+            return;
+        }
+
+        HashSet<long> existingIds = _participants
+            .Select(x => x.Character?.Id)
+            .Where(x => x.HasValue)
+            .Select(x => x.Value)
+            .ToHashSet();
+
+        foreach (IArenaEventTypeSide side in EventType.Sides)
+        {
+            if (!side.AutoFillNpc)
+            {
+                continue;
+            }
+
+            int slotsNeeded = side.Capacity - _participants.Count(x => x.SideIndex == side.Index);
+            if (slotsNeeded <= 0)
+            {
+                continue;
+            }
+
+            decimal targetRating = ResolveAutoFillTargetRating(side);
+            List<ICharacter> npcs = Gameworld.ArenaNpcService
+                .AutoFill(this, side.Index, slotsNeeded)
+                .Where(x => x is not null)
+                .OrderBy(x => ResolveAutoFillRatingDistance(x, side, targetRating))
+                .ThenBy(x => x.Id)
+                .ToList();
+            foreach (ICharacter? npc in npcs)
+            {
+                if (npc is null)
+                {
+                    continue;
+                }
+
+                if (existingIds.Contains(npc.Id))
+                {
+                    continue;
+                }
+
+                ICombatantClass? combatantClass = ResolveAutoFillCombatantClass(npc, side, targetRating);
+                if (combatantClass is null)
+                {
+                    continue;
+                }
+
+                (bool Truth, string Reason) signUpCheck = CanSignUpInternal(npc, side.Index, combatantClass, true, true);
+                if (!signUpCheck.Truth)
+                {
+                    continue;
+                }
+
+                CompleteSignup(npc, side.Index, combatantClass, false);
+                existingIds.Add(npc.Id);
+                slotsNeeded--;
+                if (slotsNeeded <= 0)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    private decimal ResolveAutoFillTargetRating(IArenaEventTypeSide side)
+    {
+        if (side.MinimumRating.HasValue && side.MaximumRating.HasValue)
+        {
+            return (side.MinimumRating.Value + side.MaximumRating.Value) / 2.0m;
+        }
+
+        if (side.MinimumRating.HasValue)
+        {
+            return side.MinimumRating.Value;
+        }
+
+        if (side.MaximumRating.HasValue)
+        {
+            return side.MaximumRating.Value;
+        }
+
+        List<decimal> sideRatings = _participants
+            .Where(x => x.SideIndex == side.Index)
+            .Select(x => x.StartingRating)
+            .Where(x => x.HasValue)
+            .Select(x => x.Value)
+            .ToList();
+        if (sideRatings.Count > 0)
+        {
+            return sideRatings.Average();
+        }
+
+        List<decimal> eventRatings = _participants
+            .Select(x => x.StartingRating)
+            .Where(x => x.HasValue)
+            .Select(x => x.Value)
+            .ToList();
+        return eventRatings.Count > 0 ? eventRatings.Average() : ArenaRatingsService.DefaultRating;
+    }
+
+    private ICombatantClass? ResolveAutoFillCombatantClass(ICharacter npc, IArenaEventTypeSide side, decimal targetRating)
+    {
+        return side.EligibleClasses
+            .Where(x => !EligibilityFailed(x, npc))
+            .Select(x => new
+            {
+                CombatantClass = x,
+                Rating = Gameworld.ArenaRatingsService.GetRating(npc, x)
+            })
+            .Where(x => IsRatingAllowedForSide(side, x.Rating))
+            .OrderBy(x => Math.Abs(x.Rating - targetRating))
+            .ThenBy(x => x.CombatantClass.Id)
+            .Select(x => x.CombatantClass)
+            .FirstOrDefault();
+    }
+
+    private decimal ResolveAutoFillRatingDistance(ICharacter npc, IArenaEventTypeSide side, decimal targetRating)
+    {
+        ICombatantClass? candidateClass = ResolveAutoFillCombatantClass(npc, side, targetRating);
+        if (candidateClass is null)
+        {
+            return decimal.MaxValue;
+        }
+
+        decimal rating = Gameworld.ArenaRatingsService.GetRating(npc, candidateClass);
+        return Math.Abs(rating - targetRating);
+    }
+
+    private static bool IsRatingAllowedForSide(IArenaEventTypeSide side, decimal rating)
+    {
+        if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
+        {
+            return false;
+        }
+
+        return !side.MaximumRating.HasValue || rating <= side.MaximumRating.Value;
+    }
+
+    private void PrepareNpcParticipants()
+    {
+        foreach (ArenaParticipant? participant in _participants.Where(x => x.IsNpc))
+        {
+            if (participant.Character is not ICharacter npc)
+            {
+                continue;
+            }
+
+            Gameworld.ArenaNpcService.PrepareNpc(npc, this, participant.SideIndex, participant.CombatantClass);
+        }
+    }
+
+    private void PreparePlayerParticipants()
+    {
+        foreach (ArenaParticipant participant in _participants)
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            EnsureParticipantOutputHandler(character);
+            ICell? waitingCell = Arena.GetWaitingCell(participant.SideIndex);
+            if (waitingCell is not null && !ReferenceEquals(character.Location, waitingCell))
+            {
+                character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+            }
+
+            if (BringYourOwn)
+            {
+                TagBringYourOwnEquipment(character);
+                continue;
+            }
+
+            if (character.Body is null)
+            {
+                continue;
+            }
+
+            ArenaParticipantPreparationEffect? effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
+                .FirstOrDefault(x => x.EventId == Id);
+            if (effect is null)
+            {
+                effect = new ArenaParticipantPreparationEffect(character, Id);
+                character.AddEffect(effect);
+            }
+            else
+            {
+                effect.ClearCapturedItems();
+            }
+
+            StripParticipantLoadout(character.Body, effect);
+        }
+    }
+
+    private void FinalizeParticipants()
+    {
+        DisengageParticipantCombats();
+        ReturnNpcParticipants();
+        MovePlayerParticipantsToAfterFight();
+        RestoreBringYourOwnEquipment();
+        RestorePlayerParticipants();
+        ClearParticipantPhaseEffects();
+        ClearObservationEffects();
+        _surrenderedParticipantIds.Clear();
+    }
+
+    private void DisengageParticipantCombats()
+    {
+        List<ICharacter> participantsInCombat = _participants
+            .Select(x => x.Character)
+            .OfType<ICharacter>()
+            .Where(x => x.Combat is not null)
+            .ToList();
+
+        foreach (ICharacter? participant in participantsInCombat)
+        {
+            ICombat? combat = participant.Combat;
+            if (combat is null)
+            {
+                continue;
+            }
+
+            try
+            {
+                combat.LeaveCombat(participant);
+            }
+            catch
+            {
+                try
+                {
+                    combat.EndCombat(true);
+                }
+                catch
+                {
+                    // Do not block participant restoration if combat teardown fails.
+                }
+            }
+        }
+    }
+
+    private void ReturnNpcParticipants()
+    {
+        List<ICell> stableCells = Arena.NpcStablesCells.ToList();
+        List<ICell> afterFightCells = Arena.AfterFightCells.ToList();
+        HashSet<long> cleanupNpcIds = new();
+
+        foreach (ArenaParticipant? participant in _participants.Where(x => x.IsNpc))
+        {
+            ICharacter? npc = participant.Character;
+            if (npc is null)
+            {
+                continue;
+            }
+
+            ICell? destination = stableCells.Count > 0
+                ? SelectIndexedCell(stableCells, participant.SideIndex)
+                : SelectIndexedCell(afterFightCells, participant.SideIndex);
+
+            ArenaNpcPreparationEffect? effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
+                .FirstOrDefault(x => x.EventId == Id);
+            if (effect is not null)
+            {
+                bool wasDeadBeforeReturn = npc.State.IsDead();
+                Gameworld.ArenaNpcService.ReturnNpc(
+                    npc,
+                    this,
+                    participant.CombatantClass.ResurrectNpcOnDeath,
+                    participant.CombatantClass.FullyRestoreNpcOnCompletion);
+                bool wasAutoResurrected = participant.CombatantClass.ResurrectNpcOnDeath &&
+                                         wasDeadBeforeReturn &&
+                                         !npc.State.IsDead();
+                if (npc.State.IsDead() && destination is not null)
+                {
+                    MoveCorpseToCell(npc, destination);
+                }
+
+                bool wasFullyRestored = TryApplyNpcStableRecovery(npc, participant, stableCells);
+                if (wasAutoResurrected || wasFullyRestored)
+                {
+                    cleanupNpcIds.Add(npc.Id);
+                }
+
+                continue;
+            }
+
+            if (destination is null)
+            {
+                continue;
+            }
+
+            if (npc.State.IsDead())
+            {
+                MoveCorpseToCell(npc, destination);
+                continue;
+            }
+
+            npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
+            if (TryApplyNpcStableRecovery(npc, participant, stableCells))
+            {
+                cleanupNpcIds.Add(npc.Id);
+            }
+        }
+
+        DeleteNpcRemains(cleanupNpcIds);
+    }
+
+    private void DeleteNpcRemains(HashSet<long> npcIds)
+    {
+        if (npcIds.Count == 0)
+        {
+            return;
+        }
+
+        List<IGameItem> remains = Gameworld.Items
+            .Where(item => !item.Deleted)
+            .Where(item =>
+            {
+                if (item.GetItemType<ICorpse>() is { } corpse && npcIds.Contains(corpse.OriginalCharacter.Id))
+                {
+                    return true;
+                }
+
+                return item.GetItemType<ISeveredBodypart>() is { } bodypart &&
+                       npcIds.Contains(bodypart.OriginalCharacterId);
+            })
+            .ToList();
+
+        foreach (IGameItem? remain in remains)
+        {
+            remain.Delete();
+        }
+    }
+
+    private static void MoveCorpseToCell(ICharacter npc, ICell destination)
+    {
+        IGameItem? corpse = npc.Corpse?.Parent;
+        if (corpse is null || corpse.Deleted)
+        {
+            return;
+        }
+
+        corpse.ContainedIn?.Take(corpse);
+        corpse.InInventoryOf?.Take(corpse);
+        corpse.Location?.Extract(corpse);
+        corpse.RoomLayer = RoomLayer.GroundLevel;
+        destination.Insert(corpse, true);
+    }
+
+    private static bool TryApplyNpcStableRecovery(ICharacter npc, ArenaParticipant participant,
+        IReadOnlyCollection<ICell> stableCells)
+    {
+        if (!participant.CombatantClass.FullyRestoreNpcOnCompletion)
+        {
+            return false;
+        }
+
+        if (stableCells.Count == 0)
+        {
+            return false;
+        }
+
+        if (npc.State.IsDead())
+        {
+            return false;
+        }
+
+        if (npc.Location is not ICell location || !stableCells.Contains(location))
+        {
+            return false;
+        }
+
+        if (npc.Body is not { } body)
+        {
+            return false;
+        }
+
+        body.HeldBreathTime = TimeSpan.Zero;
+        body.RestoreAllBodypartsOrgansAndBones();
+        body.Sober();
+        body.CureAllWounds();
+        body.RemoveAllEffects(effect => effect.IsEffectType<PainTolerance>());
+        body.CurrentStamina = body.MaximumStamina;
+        body.CurrentBloodVolumeLitres = body.TotalBloodVolumeLitres;
+        body.EndHealthTick();
+        return true;
+    }
+
+    private void RestorePlayerParticipants()
+    {
+        foreach (ArenaParticipant participant in _participants)
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            EnsureParticipantOutputHandler(character);
+            ArenaParticipantPreparationEffect? effect = character.CombinedEffectsOfType<ArenaParticipantPreparationEffect>()
+                .FirstOrDefault(x => x.EventId == Id);
+            if (effect is null)
+            {
+                continue;
+            }
+
+            RestoreParticipantInventory(character, effect);
+            character.RemoveEffect(effect, true);
+        }
+    }
+
+    private void TagBringYourOwnEquipment(ICharacter participant)
+    {
+        if (!BringYourOwn || participant.Body is null)
+        {
+            return;
+        }
+
+        List<IGameItem>? directItems = participant.Body.DirectItems?.OfType<IGameItem>().ToList();
+        if (directItems is null || directItems.Count == 0)
+        {
+            return;
+        }
+
+        foreach (IGameItem? item in directItems)
+        {
+            ArenaByoEquipmentEffect? existing = item.EffectsOfType<ArenaByoEquipmentEffect>()
+                .FirstOrDefault(x => x.Matches(this));
+            if (existing is not null && existing.OwnerCharacterId == participant.Id)
+            {
+                continue;
+            }
+
+            if (existing is not null)
+            {
+                item.RemoveEffect(existing, true);
+            }
+
+            item.AddEffect(new ArenaByoEquipmentEffect(item, Id, participant.Id));
+        }
+    }
+
+    private void RestoreBringYourOwnEquipment()
+    {
+        if (!BringYourOwn)
+        {
+            return;
+        }
+
+        Dictionary<long, ArenaParticipant> participantsByCharacterId = _participants
+            .Where(x => x.Character is not null)
+            .ToDictionary(x => x.Character!.Id, x => x);
+
+        List<(IGameItem Item, ArenaByoEquipmentEffect Effect)> taggedItems = Gameworld.Items
+            .SelectMany(item => item.EffectsOfType<ArenaByoEquipmentEffect>()
+                .Where(effect => effect.Matches(this))
+                .Select(effect => (Item: item, Effect: effect)))
+            .ToList();
+
+        foreach ((IGameItem Item, ArenaByoEquipmentEffect Effect) tagged in taggedItems)
+        {
+            IGameItem? item = tagged.Item;
+            ArenaByoEquipmentEffect effect = tagged.Effect;
+            if (item is null || item.Deleted)
+            {
+                continue;
+            }
+
+            if (!participantsByCharacterId.TryGetValue(effect.OwnerCharacterId, out ArenaParticipant? participant))
+            {
+                ICharacter? fallbackOwner = Gameworld.TryGetCharacter(effect.OwnerCharacterId, true);
+                if (fallbackOwner is null)
+                {
+                    item.RemoveEffect(effect, true);
+                    continue;
+                }
+
+                ReturnBringYourOwnItem(item, fallbackOwner, false);
+                item.RemoveEffect(effect, true);
+                continue;
+            }
+
+            if (participant.Character is not { } owner)
+            {
+                item.RemoveEffect(effect, true);
+                continue;
+            }
+
+            ReturnBringYourOwnItem(item, owner,
+                participant.IsNpc && participant.CombatantClass.FullyRestoreNpcOnCompletion);
+            item.RemoveEffect(effect, true);
+        }
+    }
+
+    private static void ReturnBringYourOwnItem(IGameItem item, ICharacter owner, bool repairItem)
+    {
+        if (owner.Body is null || owner.State.IsDead())
+        {
+            PlaceBringYourOwnItemNearParticipant(item, owner);
+            TryRepairBringYourOwnItem(item, repairItem);
+            return;
+        }
+
+        if (!ReferenceEquals(item.InInventoryOf, owner.Body))
+        {
+            item.ContainedIn?.Take(item);
+            item.InInventoryOf?.Take(item);
+            item.Location?.Extract(item);
+
+            try
+            {
+                owner.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
+            }
+            catch
+            {
+                // If the owner cannot hold items at this moment, place it nearby as fallback.
+            }
+        }
+
+        if (!ReferenceEquals(item.InInventoryOf, owner.Body))
+        {
+            PlaceBringYourOwnItemNearParticipant(item, owner);
+        }
+
+        TryRepairBringYourOwnItem(item, repairItem);
+    }
+
+    private static void PlaceBringYourOwnItemNearParticipant(IGameItem item, ICharacter participant)
+    {
+        item.ContainedIn?.Take(item);
+        item.InInventoryOf?.Take(item);
+        item.Location?.Extract(item);
+
+        if (participant.Location is not { } location)
+        {
+            return;
+        }
+
+        item.RoomLayer = participant.RoomLayer;
+        location.Insert(item, true);
+    }
+
+    private static void TryRepairBringYourOwnItem(IGameItem item, bool repairItem)
+    {
+        if (!repairItem)
+        {
+            return;
+        }
+
+        item.CureAllWounds();
+    }
+
+    private void MovePlayerParticipantsToAfterFight()
+    {
+        List<ICell> afterFightCells = Arena.AfterFightCells.ToList();
+        if (afterFightCells.Count == 0)
+        {
+            afterFightCells = Arena.WaitingCells.ToList();
+        }
+
+        if (afterFightCells.Count == 0)
+        {
+            afterFightCells = Arena.ArenaCells.ToList();
+        }
+
+        if (afterFightCells.Count == 0)
+        {
+            return;
+        }
+
+        foreach (ArenaParticipant? participant in _participants.Where(x => !x.IsNpc))
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            EnsureParticipantOutputHandler(character);
+            if (character.Location is not null &&
+                !Arena.ArenaCells.Contains(character.Location) &&
+                !Arena.WaitingCells.Contains(character.Location))
+            {
+                continue;
+            }
+
+            ICell? destination = SelectIndexedCell(afterFightCells, participant.SideIndex);
+            if (destination is null)
+            {
+                continue;
+            }
+
+            character.Teleport(destination, RoomLayer.GroundLevel, false, false);
+        }
+    }
+
+    private void MoveParticipantsToArena()
+    {
+        List<ICell> arenaCells = Arena.ArenaCells.ToList();
+        if (arenaCells.Count == 0)
+        {
+            return;
+        }
+
+        IReadOnlyDictionary<int, int> sideStartIndices = ArenaSideIndexUtilities.ResolveEvenlySpacedStartCells(
+            _participants
+                .Select(x => x.SideIndex)
+                .Distinct()
+                .OrderBy(_ => Constants.Random.Next())
+                .ToList(),
+            arenaCells.Count,
+            Constants.Random.Next(arenaCells.Count));
+
+        Dictionary<int, int> sideOffsets = new();
+        foreach (ArenaParticipant participant in _participants)
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            EnsureParticipantOutputHandler(character);
+            if (character.Location is not null && arenaCells.Contains(character.Location))
+            {
+                continue;
+            }
+
+            int startIndex = sideStartIndices.TryGetValue(participant.SideIndex, out int sideStartIndex)
+                ? sideStartIndex
+                : Constants.Random.Next(arenaCells.Count);
+            int offset = sideOffsets.TryGetValue(participant.SideIndex, out int value) ? value : 0;
+            int index = (startIndex + offset) % arenaCells.Count;
+            sideOffsets[participant.SideIndex] = offset + 1;
+
+            character.Teleport(arenaCells[index], RoomLayer.GroundLevel, false, false);
+        }
+    }
+
+    private static void StripParticipantLoadout(IBody body, ArenaParticipantPreparationEffect effect)
+    {
+        List<IGameItem>? directItems = body.DirectItems?.OfType<IGameItem>().ToList();
+        if (directItems is null || directItems.Count == 0)
+        {
+            return;
+        }
+
+        foreach (IGameItem? item in directItems)
+        {
+            InventoryState state = DetermineState(body, item);
+            long? wearProfileId = item.GetItemType<IWearable>()?.CurrentProfile?.Id;
+            long? bodypartId = body.BodypartLocationOfInventoryItem(item)?.Id;
+            effect.CaptureItem(item, state, wearProfileId, bodypartId);
+            body.Take(item);
+        }
+    }
+
+    private static void RestoreParticipantInventory(ICharacter participant, ArenaParticipantPreparationEffect effect)
+    {
+        if (participant.Body is null)
+        {
+            DropCapturedItems(participant, effect);
+            return;
+        }
+
+        foreach (ArenaParticipantPreparationEffect.ArenaParticipantItemSnapshot snapshot in effect.Items)
+        {
+            IGameItem? item = snapshot.Item;
+            if (item is null || item.Deleted)
+            {
+                continue;
+            }
+
+            try
+            {
+                participant.Body.Get(item, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
+            }
+            catch
+            {
+                PlaceCapturedItemNearParticipant(participant, item);
+                continue;
+            }
+
+            if (!ReferenceEquals(item.InInventoryOf, participant.Body))
+            {
+                PlaceCapturedItemNearParticipant(participant, item);
+                continue;
+            }
+
+            switch (snapshot.State)
+            {
+                case InventoryState.Worn:
+                    TryWearItem(participant.Body, item, snapshot.WearProfileId);
+                    break;
+                case InventoryState.Wielded:
+                    TryWieldItem(participant.Body, item, snapshot.BodypartId);
+                    break;
+            }
+        }
+    }
+
+    private static void DropCapturedItems(ICharacter participant, ArenaParticipantPreparationEffect effect)
+    {
+        ICell? location = participant.Location;
+        if (location is null)
+        {
+            return;
+        }
+
+        foreach (ArenaParticipantPreparationEffect.ArenaParticipantItemSnapshot snapshot in effect.Items)
+        {
+            IGameItem? item = snapshot.Item;
+            if (item is null || item.Deleted)
+            {
+                continue;
+            }
+
+            if (item.InInventoryOf is not null || item.Location is not null || item.ContainedIn is not null)
+            {
+                continue;
+            }
+
+            item.RoomLayer = participant.RoomLayer;
+            location.Insert(item, true);
+        }
+    }
+
+    private static void PlaceCapturedItemNearParticipant(ICharacter participant, IGameItem item)
+    {
+        item.ContainedIn?.Take(item);
+        item.InInventoryOf?.Take(item);
+        item.Location?.Extract(item);
+
+        if (participant.Location is not { } location)
+        {
+            return;
+        }
+
+        item.RoomLayer = participant.RoomLayer;
+        location.Insert(item, true);
+    }
+
+    private static void TryWearItem(IBody body, IGameItem item, long? wearProfileId)
+    {
+        IWearable? wearable = item.GetItemType<IWearable>();
+        if (wearable is null)
+        {
+            return;
+        }
+
+        IWearProfile? profile = wearProfileId.HasValue
+            ? wearable.Profiles.FirstOrDefault(x => x.Id == wearProfileId.Value)
+            : wearable.CurrentProfile;
+
+        if (profile is not null)
+        {
+            body.Wear(item, profile, null, true);
+        }
+        else
+        {
+            body.Wear(item, null, true);
+        }
+    }
+
+    private static void TryWieldItem(IBody body, IGameItem item, long? bodypartId)
+    {
+        IWield? hand = bodypartId.HasValue
+            ? body.Bodyparts.FirstOrDefault(x => x.Id == bodypartId.Value) as IWield
+            : null;
+
+        body.Wield(item, hand, null, true, ItemCanWieldFlags.IgnoreFreeHands);
+    }
+
+    private static InventoryState DetermineState(IBody body, IGameItem item)
+    {
+        if (body.WornItems.Contains(item))
+        {
+            return InventoryState.Worn;
+        }
+
+        if (body.WieldedItems.Contains(item))
+        {
+            return InventoryState.Wielded;
+        }
+
+        return InventoryState.Held;
+    }
+
+    private static ICell? SelectIndexedCell(IReadOnlyList<ICell> cells, int index)
+    {
+        if (cells.Count == 0)
+        {
+            return null;
+        }
+
+        if (index >= 0 && index < cells.Count)
+        {
+            return cells[index];
+        }
+
+        return cells[0];
+    }
+
+    private bool BuildingCommandName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What name should this arena event have?".SubstituteANSIColour());
+            return false;
+        }
+
+        string name = command.SafeRemainingArgument.TitleCase();
+        _name = name;
+        Changed = true;
+        actor.OutputHandler.Send($"This arena event is now called {name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandSchedule(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("When should this event be scheduled for?".SubstituteANSIColour());
+            return false;
+        }
+
+        if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false, out DateTime when))
+        {
+            actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
+            return false;
+        }
+
+        ScheduledAt = when;
+        DateTime regOpens = ScheduledAt - PreparationDuration - RegistrationDuration;
+        if (regOpens > CreatedAt)
+        {
+            RegistrationOpensAt = regOpens;
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"This event is now scheduled for {ScheduledAt.ToString("f", actor).ColourValue()}.");
+        RescheduleTransitions();
+        return true;
+    }
+
+    private bool BuildingCommandRegistration(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("When should registration open? Use #3none#0 to clear.".SubstituteANSIColour());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            RegistrationOpensAt = null;
+            Changed = true;
+            actor.OutputHandler.Send("Registration open time cleared.".SubstituteANSIColour());
+            RescheduleTransitions();
+            return true;
+        }
+
+        if (!DateUtilities.TryParseDateTimeOrRelative(command.SafeRemainingArgument, actor.Account, false, out DateTime when))
+        {
+            actor.OutputHandler.Send("That is not a valid date/time.".ColourError());
+            return false;
+        }
+
+        RegistrationOpensAt = when;
+        Changed = true;
+        actor.OutputHandler.Send($"Registration will open at {RegistrationOpensAt.Value.ToString("f", actor).ColourValue()}.");
+        RescheduleTransitions();
+        return true;
+    }
+
+    private bool BuildingCommandState(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Which state should this event be forced into? Valid options are {Enum.GetValues<ArenaEventState>().ListToColouredString()}.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum<ArenaEventState>(out ArenaEventState state))
+        {
+            actor.OutputHandler.Send(
+                $"That is not a valid state. Valid options are {Enum.GetValues<ArenaEventState>().ListToColouredString()}.");
+            return false;
+        }
+
+        ApplyForcedState(state);
+        Changed = true;
+        actor.OutputHandler.Send($"State set to {State.DescribeEnum().ColourValue()}.");
+        RescheduleTransitions();
+        return true;
+    }
+
+    private bool BuildingCommandAbort(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What reason do you want to give for aborting this event?".SubstituteANSIColour());
+            return false;
+        }
+
+        string reason = command.SafeRemainingArgument;
+        Abort(reason);
+        actor.OutputHandler.Send($"You abort this event: {reason.ColourError()}");
+        RescheduleTransitions();
+        return true;
+    }
+
+    private void RescheduleTransitions()
+    {
+        Gameworld.ArenaScheduler.Schedule(this);
+    }
+
+    private void ApplyForcedState(ArenaEventState state)
+    {
+        switch (state)
+        {
+            case ArenaEventState.RegistrationOpen:
+                OpenRegistration();
+                break;
+            case ArenaEventState.Preparing:
+                StartPreparation();
+                break;
+            case ArenaEventState.Staged:
+                Stage();
+                break;
+            case ArenaEventState.Live:
+                StartLive();
+                break;
+            case ArenaEventState.Resolving:
+                Resolve();
+                break;
+            case ArenaEventState.Cleanup:
+                Cleanup();
+                break;
+            case ArenaEventState.Completed:
+                Complete();
+                break;
+            case ArenaEventState.Aborted:
+                Abort("Event aborted.");
+                break;
+            default:
+                EnforceState(state);
+                break;
+        }
+    }
+
+    private void HandleSignupStaging(ICharacter character, int sideIndex)
+    {
+        if (character is null)
+        {
+            return;
+        }
+
+        ICell? waitingCell = Arena.GetWaitingCell(sideIndex);
+        if (waitingCell is null)
+        {
+            return;
+        }
+
+        string signupEcho = Arena.SignupEcho;
+        ICell? originCell = character.Location;
+        if (!string.IsNullOrWhiteSpace(signupEcho) && originCell is not null)
+        {
+            originCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
+        }
+
+        character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+
+        if (!string.IsNullOrWhiteSpace(signupEcho) && !ReferenceEquals(originCell, waitingCell))
+        {
+            waitingCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
+        }
+
+        if (!character.IsPlayerCharacter)
+        {
+            return;
+        }
+
+        ArenaStagingEffect? existing = character.CombinedEffectsOfType<ArenaStagingEffect>()
+            .FirstOrDefault(x => x.Matches(this));
+        if (existing is not null)
+        {
+            existing.AttachToEvent(this);
+            return;
+        }
+
+        character.AddEffect(new ArenaStagingEffect(character, this));
+    }
+
+    private void ClearStagingEffect(ICharacter character)
+    {
+        if (character is null || !character.IsPlayerCharacter)
+        {
+            return;
+        }
+
+        ArenaStagingEffect? effect = character.CombinedEffectsOfType<ArenaStagingEffect>()
+            .FirstOrDefault(x => x.Matches(this));
+        if (effect is null)
+        {
+            return;
+        }
+
+        character.RemoveEffect(effect, true);
+    }
+
+    private void ClearStagingEffects()
+    {
+        foreach (ArenaParticipant participant in _participants)
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            ClearStagingEffect(character);
+        }
+
+        List<ICharacter> orphanedStagingEffects = Gameworld.Actors
+            .Where(x => x.CombinedEffectsOfType<ArenaStagingEffect>().Any(effect => effect.Matches(this)))
+            .ToList();
+        foreach (ICharacter? character in orphanedStagingEffects)
+        {
+            ClearStagingEffect(character);
+        }
+    }
+
+    private void ApplyPreparationPhaseEffects()
+    {
+        foreach (ArenaParticipant participant in _participants)
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            EnsureParticipantOutputHandler(character);
+            if (participant.IsNpc)
+            {
+                MarkNpcPreparingEffect(character);
+            }
+            else
+            {
+                EnsurePreparingEffect(character);
+            }
+
+            ClearCombatantEffect(character);
+        }
+
+        ClearStagingEffects();
+    }
+
+    private void ApplyCombatPhaseEffects()
+    {
+        foreach (ArenaParticipant participant in _participants)
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            EnsureParticipantOutputHandler(character);
+            if (participant.IsNpc)
+            {
+                MarkNpcParticipatingEffect(character);
+            }
+            else
+            {
+                ClearPreparingEffect(character);
+            }
+
+            EnsureCombatantEffect(character);
+        }
+
+        ClearStagingEffects();
+    }
+
+    private void EnsurePreparingEffect(ICharacter character)
+    {
+        if (!character.IsPlayerCharacter)
+        {
+            return;
+        }
+
+        character.RemoveAllEffects(effect => effect.IsEffectType<LinkdeadLogout>());
+        ArenaPreparingEffect? existing = character.CombinedEffectsOfType<ArenaPreparingEffect>()
+            .FirstOrDefault(x => x.Matches(this));
+        if (existing is not null)
+        {
+            existing.AttachToEvent(this);
+            return;
+        }
+
+        character.AddEffect(new ArenaPreparingEffect(character, this));
+    }
+
+    private void ClearPreparingEffect(ICharacter character)
+    {
+        if (!character.IsPlayerCharacter)
+        {
+            return;
+        }
+
+        ArenaPreparingEffect? effect = character.CombinedEffectsOfType<ArenaPreparingEffect>()
+            .FirstOrDefault(x => x.Matches(this));
+        if (effect is null)
+        {
+            return;
+        }
+
+        character.RemoveEffect(effect, true);
+    }
+
+    private void ClearPreparationEffects()
+    {
+        foreach (ArenaParticipant? participant in _participants.Where(x => !x.IsNpc))
+        {
+            ICharacter? character = participant.Character;
+            if (character is null)
+            {
+                continue;
+            }
+
+            ClearPreparingEffect(character);
+        }
+
+        List<ICharacter> orphanedPreparingEffects = Gameworld.Actors
+            .Where(x => x.CombinedEffectsOfType<ArenaPreparingEffect>().Any(effect => effect.Matches(this)))
+            .ToList();
+        foreach (ICharacter? character in orphanedPreparingEffects)
+        {
+            ClearPreparingEffect(character);
+        }
+    }
+
+    private void MarkNpcParticipatingEffect(ICharacter character)
+    {
+        ArenaNpcPreparationEffect? effect = character.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
+            .FirstOrDefault(x => x.EventId == Id);
+        if (effect is null)
+        {
+            return;
+        }
+
+        effect.MarkParticipating();
+    }
+
+    private void MarkNpcPreparingEffect(ICharacter character)
+    {
+        ArenaNpcPreparationEffect? effect = character.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
+            .FirstOrDefault(x => x.EventId == Id);
+        if (effect is null)
+        {
+            return;
+        }
+
+        effect.MarkPreparing();
+    }
+
+    private void EnsureCombatantEffect(ICharacter character)
+    {
+        Gameworld.ArenaParticipationService.EnsureParticipation(character, this);
+    }
+
+    private void ClearCombatantEffect(ICharacter character)
+    {
+        Gameworld.ArenaParticipationService.ClearParticipation(character, this);
+    }
+
+    private void ClearParticipantPhaseEffects()
+    {
+        ClearPreparationEffects();
+        Gameworld.ArenaParticipationService.ClearParticipation(this);
+        ClearStagingEffects();
+    }
+
+    private void ClearObservationEffects()
+    {
+        foreach (ICell cell in Arena.ArenaCells)
+        {
+            List<ArenaWatcherEffect> effects = cell.EffectsOfType<ArenaWatcherEffect>()
+                .Where(x => ReferenceEquals(x.ArenaEvent, this))
+                .ToList();
+
+            foreach (ArenaWatcherEffect? effect in effects)
+            {
+                cell.RemoveEffect(effect, true);
+            }
+        }
+    }
+
+    private static void EnsureParticipantOutputHandler(ICharacter character)
+    {
+        if (character.OutputHandler is not null)
+        {
+            return;
+        }
+
+        character.Register(new NonPlayerOutputHandler());
+    }
 }
 
 internal sealed class ArenaParticipant : IArenaParticipant
 {
-	private readonly ArenaEvent _event;
-	private readonly long _characterId;
-	private ICharacter? _characterCache;
+    private readonly ArenaEvent _event;
+    private readonly long _characterId;
+    private ICharacter? _characterCache;
 
-	public ArenaParticipant(MudSharp.Models.ArenaSignup signup, ArenaEvent parent)
-	{
-		_event = parent;
-		SignupId = signup.Id;
-		_characterId = signup.CharacterId;
-		CombatantClass = parent.Arena.GetCombatantClass(signup.CombatantClassId)!;
-		SideIndex = signup.SideIndex;
-		IsNpc = signup.IsNpc;
-		StageName = string.IsNullOrWhiteSpace(signup.StageName) ? null : signup.StageName;
-		SignatureColour = string.IsNullOrWhiteSpace(signup.SignatureColour) ? null : signup.SignatureColour;
-		StartingRating = signup.StartingRating;
-	}
+    public ArenaParticipant(MudSharp.Models.ArenaSignup signup, ArenaEvent parent)
+    {
+        _event = parent;
+        SignupId = signup.Id;
+        _characterId = signup.CharacterId;
+        CombatantClass = parent.Arena.GetCombatantClass(signup.CombatantClassId)!;
+        SideIndex = signup.SideIndex;
+        IsNpc = signup.IsNpc;
+        StageName = string.IsNullOrWhiteSpace(signup.StageName) ? null : signup.StageName;
+        SignatureColour = string.IsNullOrWhiteSpace(signup.SignatureColour) ? null : signup.SignatureColour;
+        StartingRating = signup.StartingRating;
+    }
 
-	public long SignupId { get; }
-	public long CharacterId => _characterId;
-	public ICharacter? Character => _characterCache ??= _event.Gameworld.TryGetCharacter(_characterId, true);
-	public ICombatantClass CombatantClass { get; }
-	public int SideIndex { get; }
-	public bool IsNpc { get; }
-	public string? StageName { get; }
-	public string? SignatureColour { get; }
-	public decimal? StartingRating { get; }
-	public IFuturemud Gameworld => _event.Gameworld;
-	public string Name => StageName ?? Character?.Name ?? $"Participant {SignupId:N0}";
-	public long Id => SignupId;
-	public string FrameworkItemType => "ArenaParticipant";
+    public long SignupId { get; }
+    public long CharacterId => _characterId;
+    public ICharacter? Character => _characterCache ??= _event.Gameworld.TryGetCharacter(_characterId, true);
+    public ICombatantClass CombatantClass { get; }
+    public int SideIndex { get; }
+    public bool IsNpc { get; }
+    public string? StageName { get; }
+    public string? SignatureColour { get; }
+    public decimal? StartingRating { get; }
+    public IFuturemud Gameworld => _event.Gameworld;
+    public string Name => StageName ?? Character?.Name ?? $"Participant {SignupId:N0}";
+    public long Id => SignupId;
+    public string FrameworkItemType => "ArenaParticipant";
 
-	public string Show(ICharacter actor)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"Arena Participant #{SignupId.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
-		sb.AppendLine($"Character: {(Character?.HowSeen(actor) ?? "NPC".Colour(Telnet.Yellow))}");
-		sb.AppendLine($"Combatant Class: {CombatantClass.Name.ColourName()}");
-		sb.AppendLine($"Side: {ArenaSideIndexUtilities.ToDisplayString(actor, SideIndex).ColourValue()}");
-		sb.AppendLine($"NPC Signup: {IsNpc.ToColouredString()}");
-		sb.AppendLine($"Stage Name: {(string.IsNullOrWhiteSpace(StageName) ? "None".ColourError() : StageName.ColourName())}");
-		sb.AppendLine($"Signature Colour: {(string.IsNullOrWhiteSpace(SignatureColour) ? "None".ColourError() : SignatureColour.ColourValue())}");
-		if (StartingRating.HasValue)
-		{
-			sb.AppendLine($"Starting Rating: {StartingRating.Value.ToString("N2", actor).ColourValue()}");
-		}
+    public string Show(ICharacter actor)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine(
+            $"Arena Participant #{SignupId.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine($"Character: {(Character?.HowSeen(actor) ?? "NPC".Colour(Telnet.Yellow))}");
+        sb.AppendLine($"Combatant Class: {CombatantClass.Name.ColourName()}");
+        sb.AppendLine($"Side: {ArenaSideIndexUtilities.ToDisplayString(actor, SideIndex).ColourValue()}");
+        sb.AppendLine($"NPC Signup: {IsNpc.ToColouredString()}");
+        sb.AppendLine($"Stage Name: {(string.IsNullOrWhiteSpace(StageName) ? "None".ColourError() : StageName.ColourName())}");
+        sb.AppendLine($"Signature Colour: {(string.IsNullOrWhiteSpace(SignatureColour) ? "None".ColourError() : SignatureColour.ColourValue())}");
+        if (StartingRating.HasValue)
+        {
+            sb.AppendLine($"Starting Rating: {StartingRating.Value.ToString("N2", actor).ColourValue()}");
+        }
 
-		return sb.ToString();
-	}
+        return sb.ToString();
+    }
 
-	public bool BuildingCommand(ICharacter actor, StringStack command)
-	{
-		actor.OutputHandler.Send("Arena participants are informational only and cannot be edited directly.");
-		return false;
-	}
+    public bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        actor.OutputHandler.Send("Arena participants are informational only and cannot be edited directly.");
+        return false;
+    }
 
 }
 
 internal sealed class ArenaReservation : IArenaReservation
 {
-	private readonly ArenaEvent _event;
+    private readonly ArenaEvent _event;
 
-	public ArenaReservation(MudSharp.Models.ArenaReservation reservation, ArenaEvent parent)
-	{
-		_event = parent;
-		ReservationId = reservation.Id;
-		SideIndex = reservation.SideIndex;
-		CharacterId = reservation.CharacterId;
-		ClanId = reservation.ClanId;
-		ExpiresAt = reservation.ExpiresAt;
-	}
+    public ArenaReservation(MudSharp.Models.ArenaReservation reservation, ArenaEvent parent)
+    {
+        _event = parent;
+        ReservationId = reservation.Id;
+        SideIndex = reservation.SideIndex;
+        CharacterId = reservation.CharacterId;
+        ClanId = reservation.ClanId;
+        ExpiresAt = reservation.ExpiresAt;
+    }
 
-	public long ReservationId { get; }
-	public int SideIndex { get; }
-	public long? CharacterId { get; }
-	public long? ClanId { get; }
-	public DateTime ExpiresAt { get; }
+    public long ReservationId { get; }
+    public int SideIndex { get; }
+    public long? CharacterId { get; }
+    public long? ClanId { get; }
+    public DateTime ExpiresAt { get; }
 
 }

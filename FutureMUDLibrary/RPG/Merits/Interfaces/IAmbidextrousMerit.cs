@@ -1,4 +1,6 @@
-﻿namespace MudSharp.RPG.Merits.Interfaces {
-    public interface IAmbidextrousMerit : ICharacterMerit {
+﻿namespace MudSharp.RPG.Merits.Interfaces
+{
+    public interface IAmbidextrousMerit : ICharacterMerit
+    {
     }
 }

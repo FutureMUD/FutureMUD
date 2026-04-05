@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Character;
 using MudSharp.Health;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface ISeveredBodypart : IContainer, IButcherable {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface ISeveredBodypart : IContainer, IButcherable
+    {
         long OriginalCharacterId { get; }
 
         double DecayPoints { get; set; }

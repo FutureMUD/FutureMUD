@@ -1,9 +1,12 @@
 ﻿using System.Xml.Linq;
 
-namespace MudSharp.Character.Name {
-    public record NameCultureElement {
-        public NameCultureElement(XElement definition) {
-            Usage = (NameUsage) int.Parse(definition.Attribute("Usage").Value);
+namespace MudSharp.Character.Name
+{
+    public record NameCultureElement
+    {
+        public NameCultureElement(XElement definition)
+        {
+            Usage = (NameUsage)int.Parse(definition.Attribute("Usage").Value);
             MinimumCount = int.Parse(definition.Attribute("MinimumCount").Value);
             MaximumCount = int.Parse(definition.Attribute("MaximumCount").Value);
             Name = definition.Attribute("Name").Value;
@@ -16,7 +19,7 @@ namespace MudSharp.Character.Name {
 
         public XElement SaveToXml()
         {
-            return new XElement("Element", 
+            return new XElement("Element",
                 new XAttribute("Usage", (int)Usage),
                 new XAttribute("MinimumCount", MinimumCount),
                 new XAttribute("MaximumCount", MaximumCount),

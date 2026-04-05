@@ -1,10 +1,10 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Magic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Character;
-using MudSharp.Magic;
 
 namespace MudSharp.Effects.Interfaces
 {

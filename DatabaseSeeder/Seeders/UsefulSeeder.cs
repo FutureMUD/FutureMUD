@@ -1,12 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Drawing;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security.Cryptography;
-using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Construction;
@@ -21,6 +12,15 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Net.NetworkInformation;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -98,64 +98,56 @@ public partial class UsefulSeeder : IDatabaseSeeder
                 (context, questions) => ClassifyAiPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("covers",
                 "Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.RangedCovers.Count() <= 1,
                 (answer, context) =>
                 {
-                        if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                        return (false, "Invalid answer");
+                        if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("items",
                 "#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
                 (context, questions) => true,
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("modernitems",
                 "Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios, electric heaters and coolers, fireplaces, campfires, grid creators, telephones, liquid grids and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => ClassifyModernPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("tags",
                 "Do you want to install pre-made tags for use with items, crafts and projects? The main reason not to do this is if you are planning on an implementation that substantially differs from the one that comes with this seeder.\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.Tags.All(x => x.Name != "Aluminothermic Welding Portion"),
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("autobuilder",
                 "Do you want to install an auto builder that can generate random areas with randomised room descriptions?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => false,
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("hints",
                 "Do you want to install some newbie hints that will instruct new users about the key commands and engine concepts that they need to know?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.NewPlayerHints.Count() == 0,
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("dreams",
                 "Do you want to install some dream templates?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.Dreams.Count() == 0,
                 (answer, context) =>
                 {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                    return (false, "Invalid answer");
+                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("dream-eras",
                 """
@@ -179,7 +171,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
     {
         _context = context;
         context.Database.BeginTransaction();
-        var errors = new List<string>();
+        List<string> errors = new();
         PrepareItemProtoCache(context);
         _tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 
@@ -188,7 +180,10 @@ public partial class UsefulSeeder : IDatabaseSeeder
             SeedTags(context, errors);
         }
 
-        if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAIExamples(context, errors);
+        if (questionAnswers["ai"].EqualToAny("yes", "y"))
+        {
+            SeedAIExamples(context, errors);
+        }
 
         if (questionAnswers["items"].EqualToAny("yes", "y"))
         {
@@ -198,9 +193,15 @@ public partial class UsefulSeeder : IDatabaseSeeder
             SeedItemsPart4(context, questionAnswers, errors);
         }
 
-        if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
+        if (questionAnswers["modernitems"].EqualToAny("yes", "y"))
+        {
+            SeedModernItems(context, errors);
+        }
 
-        if (questionAnswers["covers"].EqualToAny("yes", "y")) SeedRangedCovers(context, errors);
+        if (questionAnswers["covers"].EqualToAny("yes", "y"))
+        {
+            SeedRangedCovers(context, errors);
+        }
 
         if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
         {
@@ -219,7 +220,10 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
         context.Database.CommitTransaction();
 
-        if (errors.Count == 0) return "The operation completed successfully.";
+        if (errors.Count == 0)
+        {
+            return "The operation completed successfully.";
+        }
 
         return
             $"The operation completed with the following errors or warnings:\n\n{errors.ListToCommaSeparatedValues("\n")}";
@@ -227,7 +231,10 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {
-        if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
+        if (!context.Accounts.Any())
+        {
+            return ShouldSeedResult.PrerequisitesNotMet;
+        }
 
         return CombinePackageStates(
             ClassifyAiPackagePresence(context),
@@ -267,11 +274,11 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
     internal static ShouldSeedResult ClassifyModernPackagePresence(FuturemudDatabaseContext context)
     {
-        var presenceChecks = StockModernItemMarkers
+        List<bool> presenceChecks = StockModernItemMarkers
             .Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
             .ToList();
 
-        var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+        Tag? fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
         if (fuelTag is not null && context.LiquidsTags.Any(x => x.TagId == fuelTag.Id))
         {
             presenceChecks.Add(context.GameItemComponentProtos.Any(x => x.Type == "FuelHeaterCooler"));
@@ -298,7 +305,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
     private GameItemComponentProto AddGameItemComponent(FuturemudDatabaseContext context, GameItemComponentProto component)
     {
-        if (_itemProtos.TryGetValue(component.Name, out var existing))
+        if (_itemProtos.TryGetValue(component.Name, out GameItemComponentProto? existing))
         {
             return existing;
         }
@@ -319,7 +326,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     private void PrepareItemProtoCache(FuturemudDatabaseContext context)
     {
         _itemProtos = new Dictionary<string, GameItemComponentProto>(StringComparer.OrdinalIgnoreCase);
-        foreach (var item in context.GameItemComponentProtos.ToList())
+        foreach (GameItemComponentProto? item in context.GameItemComponentProtos.ToList())
         {
             if (item.EditableItem.RevisionStatus != 4)
             {
@@ -340,7 +347,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
     private GameItemComponentProto CreateItemProto(long id, DateTime now, string type, string name, string description, string definition)
     {
-        var component = new GameItemComponentProto
+        GameItemComponentProto component = new()
         {
             Id = id,
             RevisionNumber = 0,
@@ -365,13 +372,13 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
     private void SeedModernItems(FuturemudDatabaseContext context, ICollection<string> errors)
     {
-        var now = DateTime.UtcNow;
-        var dbaccount = context.Accounts.First();
-        var nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
-        var mainsSocketType = context.StaticConfigurations
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        string mainsSocketType = context.StaticConfigurations
             .FirstOrDefault(x => x.SettingName == "DefaultPowerSocketType")
             ?.Definition ?? "NEMA 5-15";
-        var fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+        Tag? fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
 
         GameItemComponentProto CreateModernComponent(string type, string name, string description, XElement definition)
         {
@@ -380,8 +387,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         void CreateBattery(string batteryType, double wattHours, double wattHoursPerQuality, bool rechargeable)
         {
-            var name = rechargeable ? $"Battery_{batteryType}_Rechargeable" : $"Battery_{batteryType}";
-            var description = rechargeable
+            string name = rechargeable ? $"Battery_{batteryType}_Rechargeable" : $"Battery_{batteryType}";
+            string description = rechargeable
                 ? $"Turns an item into a rechargeable {batteryType} battery."
                 : $"Turns an item into a disposable {batteryType} battery.";
             CreateModernComponent("Battery", name, description,
@@ -408,7 +415,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         void CreateBatteryCharger(string batteryType, int quantity, double wattage, double efficiency, bool transparent = true, string? suffix = null)
         {
-            var bayName = suffix ?? $"{quantity}Bay";
+            string bayName = suffix ?? $"{quantity}Bay";
             CreateModernComponent("BatteryCharger", $"BatteryCharger_{batteryType}_{bayName}",
                 $"Turns an item into a charger for {quantity} {batteryType} batter{(quantity == 1 ? "y" : "ies")} at a time.",
                 new XElement("Definition",
@@ -453,7 +460,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             double proximateHeat, double distantHeat, double veryDistantHeat, string activeDescription,
             string inactiveDescription, string switchOnEmote, string switchOffEmote, params object[] extraElements)
         {
-            var definition = ThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
+            XElement definition = ThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
                 veryDistantHeat, activeDescription, inactiveDescription, extraElements);
             definition.Add(
                 new XElement("SwitchOnEmote", new XCData(switchOnEmote)),
@@ -502,7 +509,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             double veryDistantHeat, double fuelPerSecond, string activeDescription, string inactiveDescription,
             string switchOnEmote, string switchOffEmote)
         {
-            var safeFuelName = SanitizeComponentName(liquid.Name);
+            string safeFuelName = SanitizeComponentName(liquid.Name);
             CreateModernComponent("FuelHeaterCooler", $"FuelHeaterCooler_{variantName}_{safeFuelName}", description,
                 SwitchableThermalDefinition(ambientHeat, intimateHeat, immediateHeat, proximateHeat, distantHeat,
                     veryDistantHeat, activeDescription, inactiveDescription, switchOnEmote, switchOffEmote,
@@ -617,7 +624,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         CreatePowerSocket("PowerSocket_Mains_Double", 2);
         CreatePowerSocket("PowerSocket_Mains_Quad", 4);
 
-        foreach (var wattage in new[] { 5.0, 15.0, 30.0, 60.0, 100.0, 250.0, 500.0, 1000.0, 1500.0, 2400.0 })
+        foreach (double wattage in new[] { 5.0, 15.0, 30.0, 60.0, 100.0, 250.0, 500.0, 1000.0, 1500.0, 2400.0 })
         {
             CreatePowerSupply(wattage);
         }
@@ -912,12 +919,12 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         if (fuelTag is not null)
         {
-            foreach (var liquid in context.Liquids
+            foreach (Liquid? liquid in context.Liquids
                          .Where(x => x.LiquidsTags.Any(y => y.TagId == fuelTag.Id))
                          .OrderBy(x => x.Name)
                          .ToList())
             {
-                var safeName = SanitizeComponentName(liquid.Name);
+                string safeName = SanitizeComponentName(liquid.Name);
                 CreateLiquidFuelHeaterCooler("PortableHeater", liquid,
                     $"Turns an item into a portable radiant heater that burns {liquid.Name} from a connected liquid supply.",
                     4.0, 14.0, 9.0, 5.0, 2.0, 0.5, 0.00025,
@@ -955,7 +962,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             ref long nextId, Account account, DateTime now, string type, string name,
             string description, string definition)
     {
-        var component = new GameItemComponentProto
+        GameItemComponentProto component = new()
         {
             Id = nextId++,
             RevisionNumber = 0,
@@ -985,7 +992,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     string lightEmote, string extinguishEmote, string tenPercentFuelEcho,
     string fuelExpendedEcho)
     {
-        var definition = @$"<Definition>
+        string definition = @$"<Definition>
 <IlluminationProvided>{illuminationProvided}</IlluminationProvided>
 <SecondsOfFuel>{secondsOfFuel}</SecondsOfFuel>
 <RequiresIgnitionSource>{requiresIgnitionSource.ToString().ToLower()}</RequiresIgnitionSource>
@@ -1004,7 +1011,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     string lightEmote, string extinguishEmote, string tenPercentFuelEcho,
     string fuelExpendedEcho, long liquidFuelId, double fuelPerSecond)
     {
-        var definition = @$"<Definition>
+        string definition = @$"<Definition>
 <IlluminationProvided>{illuminationProvided}</IlluminationProvided>
 <FuelCapacity>{fuelCapacity.ToString(System.Globalization.CultureInfo.InvariantCulture)}</FuelCapacity>
 <RequiresIgnitionSource>{requiresIgnitionSource.ToString().ToLower()}</RequiresIgnitionSource>
@@ -1023,7 +1030,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     ref long nextId, Account account, DateTime now, string name, string description,
     double liquidCapacity, long defaultLiquidId, double refillRate, bool useOnOffForRefill)
     {
-        var definition = $"<Definition LiquidCapacity=\"{liquidCapacity.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" Closable=\"false\" Transparent=\"false\" OnceOnly=\"false\" DefaultLiquid=\"{defaultLiquidId}\" RefillRate=\"{refillRate.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" UseOnOffForRefill=\"{useOnOffForRefill.ToString().ToLower()}\" RefillingProg=\"0\" CanBeEmptiedWhenInRoom=\"false\" />";
+        string definition = $"<Definition LiquidCapacity=\"{liquidCapacity.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" Closable=\"false\" Transparent=\"false\" OnceOnly=\"false\" DefaultLiquid=\"{defaultLiquidId}\" RefillRate=\"{refillRate.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" UseOnOffForRefill=\"{useOnOffForRefill.ToString().ToLower()}\" RefillingProg=\"0\" CanBeEmptiedWhenInRoom=\"false\" />";
         return CreateComponent(context, ref nextId, account, now, "WaterSource", name, description,
         definition);
     }
@@ -1032,7 +1039,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         int coverExtent, int highestPositionState, string descriptionString, string actionDescriptionString,
         int maximumSimultaneousCovers, bool coverStaysWhileMoving)
     {
-        var cover = context.RangedCovers.FirstOrDefault(x => x.Name == name);
+        RangedCover? cover = context.RangedCovers.FirstOrDefault(x => x.Name == name);
         if (cover is not null)
         {
             return cover;
@@ -1057,9 +1064,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
             ICollection<string> errors)
     {
-        var now = DateTime.UtcNow;
-        var dbaccount = context.Accounts.First();
-        var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
         _context = context;
 
 
@@ -1067,7 +1074,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         GameItemComponentProto CreateContainer(string name, string description, double weight, SizeCategory maxSize, bool closable, bool transparent, string preposition, bool onceOnly = false)
         {
-            var once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
+            string once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
             return CreateItemProto(nextId++, now, "Container", name, description,
                     $"<Definition Weight=\"{weight}\" MaxSize=\"{(int)maxSize}\" Preposition=\"{preposition}\" Closable=\"{closable}\" Transparent=\"{transparent}\"{once} />");
         }
@@ -1111,7 +1118,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         GameItemComponentProto CreateLiquidContainer(string name, string description, double capacity, bool closable, bool transparent, double weightLimit, bool onceOnly = false)
         {
-            var once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
+            string once = onceOnly ? " OnceOnly=\"true\"" : string.Empty;
             return CreateItemProto(nextId++, now, "Liquid Container", name, description,
                     $"<Definition LiquidCapacity=\"{capacity}\" Closable=\"{closable}\" Transparent=\"{transparent}\" WeightLimit=\"{weightLimit}\"{once} />");
         }
@@ -1177,11 +1184,11 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             context.TraitDefinitions.FirstOrDefault(x => x.Name == "Carpentry" || x.Name == "Carpenter");
         if (doorTrait == null)
         {
-            var example =
+            TraitDefinition? example =
                 context.TraitDefinitions.FirstOrDefault(x => x.Type == 0 && x.TraitGroup != "Language");
             if (example != null)
             {
-                var expression = new TraitExpression
+                TraitExpression expression = new()
                 {
                     Name = $"Construction Cap",
                     Expression = example.Expression.Expression
@@ -1349,9 +1356,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         #endregion
         #region Writing Implements
 
-        var holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
-        var stack = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
-        var paperMaterial = context.Materials.First(x => x.Name == "Paper");
+        GameItemComponentProto holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
+        GameItemComponentProto stack = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
+        Material paperMaterial = context.Materials.First(x => x.Name == "Paper");
 
         GameItemComponentProto CreatePaperSheet(string name, string description, int maxCharacters)
         {
@@ -1382,7 +1389,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         GameItemComponentProto CreateBook(string name, string description, int pages, GameItemProto page)
         {
-            var component = new GameItemComponentProto
+            GameItemComponentProto component = new()
             {
                 Id = nextId++,
                 RevisionNumber = 0,
@@ -1410,11 +1417,11 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             return component;
         }
 
-        var paperA4 = CreatePaperSheet("Paper_A4", "This is a sheet of paper in A4 size (~ US Letter size)", 4160);
+        GameItemComponentProto paperA4 = CreatePaperSheet("Paper_A4", "This is a sheet of paper in A4 size (~ US Letter size)", 4160);
 
-        var nextItemId = context.GameItemProtos.Max(x => x.Id) + 1;
+        long nextItemId = context.GameItemProtos.Max(x => x.Id) + 1;
 
-        var a4paper = new GameItemProto
+        GameItemProto a4paper = new()
         {
             Id = nextItemId++,
             RevisionNumber = 0,
@@ -1446,9 +1453,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         context.GameItemProtos.Add(a4paper);
         context.SaveChanges();
 
-        var paperA3 = CreatePaperSheet("Paper_A3", "This is a sheet of paper in A3 size (~ US Ledger size)", 8320);
+        GameItemComponentProto paperA3 = CreatePaperSheet("Paper_A3", "This is a sheet of paper in A3 size (~ US Ledger size)", 8320);
 
-        var a3paper = new GameItemProto
+        GameItemProto a3paper = new()
         {
             Id = nextItemId++,
             RevisionNumber = 0,
@@ -1480,9 +1487,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         context.GameItemProtos.Add(a3paper);
         context.SaveChanges();
 
-        var paperA5 = CreatePaperSheet("Paper_A5", "This is a sheet of paper in A5 size (~ US Half Letter size)", 8320);
+        GameItemComponentProto paperA5 = CreatePaperSheet("Paper_A5", "This is a sheet of paper in A5 size (~ US Half Letter size)", 8320);
 
-        var a5paper = new GameItemProto
+        GameItemProto a5paper = new()
         {
             Id = nextItemId++,
             RevisionNumber = 0,
@@ -1547,13 +1554,13 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     private void SeedItemsPart2(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
         ICollection<string> errors)
     {
-        var now = DateTime.UtcNow;
-        var dbaccount = context.Accounts.First();
-        var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
         #region Insulation
 
-        var component = new GameItemComponentProto
+        GameItemComponentProto component = new()
         {
             Id = nextId++,
             RevisionNumber = 0,
@@ -1881,13 +1888,13 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     private void SeedItemsPart3(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
     {
-        var now = DateTime.UtcNow;
-        var dbaccount = context.Accounts.First();
-        var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
         #region Destroyables
 
-        var component = new GameItemComponentProto
+        GameItemComponentProto component = new()
         {
             Id = nextId++,
             RevisionNumber = 0,
@@ -2191,14 +2198,14 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         #region Variables
 
-        var colour = context.CharacteristicDefinitions.First(x => x.Name == "Colour");
-        var colour1 = context.CharacteristicDefinitions.First(x => x.Name == "Colour1");
-        var colour2 = context.CharacteristicDefinitions.First(x => x.Name == "Colour2");
-        var colour3 = context.CharacteristicDefinitions.First(x => x.Name == "Colour3");
-        var allColours = context.CharacteristicProfiles.First(x => x.Name == "All_Colours");
-        var basicColours = context.CharacteristicProfiles.First(x => x.Name == "Basic_Colours");
-        var fineColours = context.CharacteristicProfiles.First(x => x.Name == "Fine_Colours");
-        var drabColours = context.CharacteristicProfiles.First(x => x.Name == "Drab_Colours");
+        CharacteristicDefinition colour = context.CharacteristicDefinitions.First(x => x.Name == "Colour");
+        CharacteristicDefinition colour1 = context.CharacteristicDefinitions.First(x => x.Name == "Colour1");
+        CharacteristicDefinition colour2 = context.CharacteristicDefinitions.First(x => x.Name == "Colour2");
+        CharacteristicDefinition colour3 = context.CharacteristicDefinitions.First(x => x.Name == "Colour3");
+        CharacteristicProfile allColours = context.CharacteristicProfiles.First(x => x.Name == "All_Colours");
+        CharacteristicProfile basicColours = context.CharacteristicProfiles.First(x => x.Name == "Basic_Colours");
+        CharacteristicProfile fineColours = context.CharacteristicProfiles.First(x => x.Name == "Fine_Colours");
+        CharacteristicProfile drabColours = context.CharacteristicProfiles.First(x => x.Name == "Drab_Colours");
 
         component = new GameItemComponentProto
         {
@@ -2783,11 +2790,11 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         #region Ranged Cover
 
-        var unflippedTable = CreateOrGetRangedCover(context, "Upright Table", 1, 1, 1,
+        RangedCover unflippedTable = CreateOrGetRangedCover(context, "Upright Table", 1, 1, 1,
             "using $?0|$0|a table|$ as cover",
             "@ move|moves behind $?1|$1|a nearby table|$ and use|uses it to obscure &0's profile",
             3, false);
-        var flippedTable = CreateOrGetRangedCover(context, "Overturned Table", 1, 2, 3,
+        RangedCover flippedTable = CreateOrGetRangedCover(context, "Overturned Table", 1, 2, 3,
             "hiding behind $?0|$0|an overturned table|$ as cover",
             "@ duck|ducks behind $?1|$1|a nearby overturned table|$ and begin|begins to use it as cover",
             3, false);
@@ -2795,19 +2802,19 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             "prone, using the uneven ground as cover",
             "@ go|goes prone and begin|begins to use the uneven ground as cover",
             0, true);
-        var smokeCover = CreateOrGetRangedCover(context, "Smoke", 0, 2, 1,
+        RangedCover smokeCover = CreateOrGetRangedCover(context, "Smoke", 0, 2, 1,
             "obscured by $?0|$0|the smoke|$",
             "@ move|moves into $?1|$1|the smoke|$ and uses it to obscure &0's form",
             0, true);
-        var sandbagCover = CreateOrGetRangedCover(context, "Sandbag", 1, 2, 3,
+        RangedCover sandbagCover = CreateOrGetRangedCover(context, "Sandbag", 1, 2, 3,
             "hiding behind $?0|$0|a sandbag barricade|$, using it as cover",
             "@ take|takes position behind $?1|$1|a sandbag barricade|$ and begin|begins to use it as cover",
             3, false);
-        var treeCover = CreateOrGetRangedCover(context, "Tree", 1, 2, 1,
+        RangedCover treeCover = CreateOrGetRangedCover(context, "Tree", 1, 2, 1,
             "hiding behind $?0|$0|a tree|$ for cover",
             "@ slip|slips behind $?1|$1|a tree|$ and use|uses it to protect &0's vital areas",
             1, false);
-        var bushesCover = CreateOrGetRangedCover(context, "Bushes", 0, 2, 1,
+        RangedCover bushesCover = CreateOrGetRangedCover(context, "Bushes", 0, 2, 1,
             "hiding in $?0|$0|the bushes|$ for cover",
             "@ take|takes position behind $?1|$1|a bush|$ and use|uses it to obscure &0's profile",
             2, false);
@@ -2815,11 +2822,11 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             "hiding in $?0|$0|the long grass|$ for cover",
             "@ take|takes position in $?1|$1|the long grass|$ and use|uses it to obscure &0's profile",
             2, true);
-        var doorwaysCover = CreateOrGetRangedCover(context, "Doorways", 0, 1, 1,
+        RangedCover doorwaysCover = CreateOrGetRangedCover(context, "Doorways", 0, 1, 1,
             "using a doorway as cover",
             "@ duck|ducks into a doorway and begin|begins to use it as cover",
             0, false);
-        var rubbleCover = CreateOrGetRangedCover(context, "Rubble", 1, 2, 12,
+        RangedCover rubbleCover = CreateOrGetRangedCover(context, "Rubble", 1, 2, 12,
             "slumped up against $?0|$0|some rubble|$ as cover",
             "@ slump|slumps up against $?1|$1|some rubble|$ and begin|begins to use it as cover",
             2, false);
@@ -5337,9 +5344,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     private void SeedItemsPart4(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
     {
-        var now = DateTime.UtcNow;
-        var dbaccount = context.Accounts.First();
-        var nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
         #region Lighting
         CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_Infinite",
@@ -5397,7 +5404,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                 "@ light|lights on $1", "@ extinguish|extinguishes $1",
                 "$0 begin|begins to flicker as it has almost totally burned down", "$0 have|has completely burned out");
 
-        var fuelLiquid = context.Liquids.FirstOrDefault(x => x.Name == "fuel") ??
+        Liquid fuelLiquid = context.Liquids.FirstOrDefault(x => x.Name == "fuel") ??
             context.Liquids.First(x => x.Name == "water");
         CreateLanternComponent(context, ref nextId, dbaccount, now, "Lantern",
             "Turns an item into a lantern that burns any flammable fuel.",
@@ -5410,30 +5417,30 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         #endregion
 
         #region Water Sources
-        var waterLiquid = context.Liquids.First(x => x.Name == "water");
+        Liquid waterLiquid = context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_WaterSource",
             "Turns an item into a self-refilling source of water.",
             1000000, waterLiquid.Id, 0.8333333333333334, false);
 
-        var lakeLiquid = context.Liquids.FirstOrDefault(x => x.Name == "lake water") ??
+        Liquid lakeLiquid = context.Liquids.FirstOrDefault(x => x.Name == "lake water") ??
             context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_LakeWaterSource",
             "Turns an item into a self-refilling source of lake water.",
             100000000, lakeLiquid.Id, 1000, false);
 
-        var springLiquid = context.Liquids.FirstOrDefault(x => x.Name == "spring water") ??
+        Liquid springLiquid = context.Liquids.FirstOrDefault(x => x.Name == "spring water") ??
             context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_SpringWaterSource",
             "Turns an item into a self-refilling source of spring water.",
             100000000, springLiquid.Id, 1000, false);
 
-        var riverLiquid = context.Liquids.FirstOrDefault(x => x.Name == "river water") ??
+        Liquid riverLiquid = context.Liquids.FirstOrDefault(x => x.Name == "river water") ??
             context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_RiverWaterSource",
             "Turns an item into a self-refilling source of river water.",
             100000000, riverLiquid.Id, 1000, false);
 
-        var liquid = context.Liquids.FirstOrDefault(x => x.Name == "swamp water") ??
+        Liquid liquid = context.Liquids.FirstOrDefault(x => x.Name == "swamp water") ??
             context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_SwampWaterSource",
             "Turns an item into a self-refilling source of swamp water.",
@@ -5451,7 +5458,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             "Turns an item into a self-refilling source of salt water.",
             100000000, liquid.Id, 1000, false);
 
-        var tapWaterLiquid = context.Liquids.FirstOrDefault(x => x.Name == "tap water") ??
+        Liquid tapWaterLiquid = context.Liquids.FirstOrDefault(x => x.Name == "tap water") ??
             context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Sink_5L",
             "Turns an item into a 5L sink that can be filled up.",
@@ -5472,9 +5479,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         GameItemComponentProto component;
         #region Repair Kits
 
-        var materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
-        var skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
-        var damagetypes = new DamageType[]
+        DictionaryWithDefault<string, Material> materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        DictionaryWithDefault<string, TraitDefinition> skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        DamageType[] damagetypes = new DamageType[]
         {
             DamageType.Slashing,
             DamageType.Chopping,
@@ -5499,9 +5506,9 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         {
 
 
-            var repairMaterials = materials.Values.Where(x => materialBehaviourTypes.Any(y => y.Equals(((MaterialBehaviourType)(x.BehaviourType ?? 0)).DescribeEnum(), StringComparison.OrdinalIgnoreCase))).ToList();
+            List<Material> repairMaterials = materials.Values.Where(x => materialBehaviourTypes.Any(y => y.Equals(((MaterialBehaviourType)(x.BehaviourType ?? 0)).DescribeEnum(), StringComparison.OrdinalIgnoreCase))).ToList();
 
-            var repairComponent = new GameItemComponentProto
+            GameItemComponentProto repairComponent = new()
             {
                 Id = nextId++,
                 RevisionNumber = 0,
@@ -5675,8 +5682,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             new XElement("Definition",
                 new XElement("SharpenEmote", new XCData("$0 brace|braces $2 against $1 and sharpen|sharpens it to a fine point."))));
 
-        var uprightTableCover = context.RangedCovers.FirstOrDefault(x => x.Name == "Upright Table");
-        var overturnedTableCover = context.RangedCovers.FirstOrDefault(x => x.Name == "Overturned Table");
+        RangedCover? uprightTableCover = context.RangedCovers.FirstOrDefault(x => x.Name == "Upright Table");
+        RangedCover? overturnedTableCover = context.RangedCovers.FirstOrDefault(x => x.Name == "Overturned Table");
         if (uprightTableCover is not null && overturnedTableCover is not null)
         {
             AddExtraComponent("Bench", "Bench_Double",
@@ -5724,14 +5731,14 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                 new XElement("InsulatingDegrees", 3.0),
                 new XElement("ReflectingDegrees", 1.25)));
 
-        var eyeColour = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Eye Colour");
-        var hairColour = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Hair Colour");
-        var hairStyle = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Hair Style");
-        var allEyeColours = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Eye Colours");
-        var allHairColours = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Hair Colours");
-        var allHairStyles = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Hair Styles");
-        var hatWearProfile = context.WearProfiles.FirstOrDefault(x => x.Name == "Hat");
-        var glassesWearProfile = context.WearProfiles.FirstOrDefault(x => x.Name == "Glasses");
+        CharacteristicDefinition? eyeColour = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Eye Colour");
+        CharacteristicDefinition? hairColour = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Hair Colour");
+        CharacteristicDefinition? hairStyle = context.CharacteristicDefinitions.FirstOrDefault(x => x.Name == "Hair Style");
+        CharacteristicProfile? allEyeColours = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Eye Colours");
+        CharacteristicProfile? allHairColours = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Hair Colours");
+        CharacteristicProfile? allHairStyles = context.CharacteristicProfiles.FirstOrDefault(x => x.Name == "All Hair Styles");
+        WearProfile? hatWearProfile = context.WearProfiles.FirstOrDefault(x => x.Name == "Hat");
+        WearProfile? glassesWearProfile = context.WearProfiles.FirstOrDefault(x => x.Name == "Glasses");
 
         if (hairColour is not null && hairStyle is not null && eyeColour is not null)
         {
@@ -5775,7 +5782,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                     new XElement("Characteristic", new XAttribute("Form", "shadowed"), new XAttribute("Definition", eyeColour.Id))));
         }
 
-        var bonusTrait = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Medicine")
+        TraitDefinition? bonusTrait = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Medicine")
             ?? context.TraitDefinitions.FirstOrDefault(x => x.Name == "Search")
             ?? context.TraitDefinitions.FirstOrDefault(x => x.Name == "Stealth")
             ?? context.TraitDefinitions.FirstOrDefault();
@@ -5873,7 +5880,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                 new XAttribute("UseOnOffForRefill", false),
                 new XAttribute("RefillingProg", 0),
                 new XAttribute("CanBeEmptiedWhenInRoom", false)));
-        var alwaysTrueProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue");
+        FutureProg? alwaysTrueProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue");
         if (alwaysTrueProg is not null)
         {
             AddExtraComponent("WaterSource", "WaterSource_ProgControlled",
@@ -5950,13 +5957,13 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                 new XElement("TreatmentType", 4),
                 new XElement("TreatmentType", 11)));
 
-        var prostheticBody = context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid") ??
+        BodyProto? prostheticBody = context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid") ??
                             context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
-        var humanRace = context.Races.FirstOrDefault(x => x.Name == "Human") ?? context.Races.FirstOrDefault();
+        Race? humanRace = context.Races.FirstOrDefault(x => x.Name == "Human") ?? context.Races.FirstOrDefault();
         if (prostheticBody is not null)
         {
-            var leftHand = context.BodypartProtos.FirstOrDefault(x => x.Name == "lhand");
-            var rightFoot = context.BodypartProtos.FirstOrDefault(x => x.Name == "rfoot");
+            BodypartProto? leftHand = context.BodypartProtos.FirstOrDefault(x => x.Name == "lhand");
+            BodypartProto? rightFoot = context.BodypartProtos.FirstOrDefault(x => x.Name == "rfoot");
             if (leftHand is not null)
             {
                 AddExtraComponent("Prosthetic", "Prosthetic_LHand_Functional",
@@ -5984,8 +5991,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             }
         }
 
-        var primaryClock = context.Clocks.FirstOrDefault();
-        var defaultTimeZone = primaryClock is null
+        Clock? primaryClock = context.Clocks.FirstOrDefault();
+        Timezone? defaultTimeZone = primaryClock is null
             ? null
             : context.Timezones.FirstOrDefault(x => x.Id == primaryClock.PrimaryTimezoneId) ??
               context.Timezones.FirstOrDefault(x => x.ClockId == primaryClock.Id);
@@ -6011,8 +6018,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         #endregion
 
         #region Smokeables
-        var saveChangesRequired = false;
-        var characterTypeDefinition = ProgVariableTypes.Character.ToStorageString();
+        bool saveChangesRequired = false;
+        string characterTypeDefinition = ProgVariableTypes.Character.ToStorageString();
         if (!context.VariableDefinitions.Any(x => x.OwnerTypeDefinition == characterTypeDefinition && x.Property == "nicotineuntil"))
         {
             context.VariableDefinitions.Add(new VariableDefinition
@@ -6035,7 +6042,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             saveChangesRequired = true;
         }
 
-        var smokeProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "OnSmokeCigarette");
+        FutureProg? smokeProg = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "OnSmokeCigarette");
         if (smokeProg is null)
         {
             smokeProg = new FutureProg
@@ -6115,8 +6122,8 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             return;
         }
 
-        var covers = new List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)>
-                {
+        List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)> covers = new()
+        {
                         ("Uneven Ground", 0, 0, 6, "prone, using the uneven ground as cover", "$0 go|goes prone and begin|begins to use the uneven ground as cover", 0, true),
                         ("Corridor Doorway", 0, 0, 1, "using a doorway as cover", "$0 duck|ducks into a doorway and begin|begins to use it as cover", 0, false),
                         ("Large Crater", 0, 1, 6, "prone, using the edge of a large crater as cover", "$0 go|goes prone and begin|begins to use the edge of a large crater as cover", 0, false),
@@ -6174,7 +6181,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
                         ("Corner", 1, 2, 1, "using $?0|$0|a corner|$ as cover", "$0 press|presses into $?1|$1|a corner|$", 0, false)
                 };
 
-        foreach (var item in covers)
+        foreach ((string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving) item in covers)
         {
             context.RangedCovers.Add(new RangedCover
             {
@@ -6190,10 +6197,10 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
         }
         context.SaveChanges();
 
-        var coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
-        var tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
+        Dictionary<string, RangedCover> coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
+        Dictionary<long, string> tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
 
-        var coversForTags = new Dictionary<string, string[]>
+        Dictionary<string, string[]> coversForTags = new()
         {
             ["Urban"] = new[]
                 {
@@ -6216,33 +6223,33 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             ["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
         };
 
-        foreach (var terrain in context.Terrains.ToList())
+        foreach (Terrain? terrain in context.Terrains.ToList())
         {
-            var tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => long.TryParse(x, out var val) && tagsById.ContainsKey(val)
+            List<string?> tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => long.TryParse(x, out long val) && tagsById.ContainsKey(val)
                             ? tagsById[val]
                             : null)
                     .Where(x => x != null)
                     .ToList() ?? new List<string>();
 
-            var coverIds = new HashSet<long>();
-            foreach (var tag in tagNames)
+            HashSet<long> coverIds = new();
+            foreach (string? tag in tagNames)
             {
-                if (!coversForTags.TryGetValue(tag!, out var names))
+                if (!coversForTags.TryGetValue(tag!, out string[]? names))
                 {
                     continue;
                 }
 
-                foreach (var name in names)
+                foreach (string name in names)
                 {
-                    if (coversByName.TryGetValue(name, out var cover))
+                    if (coversByName.TryGetValue(name, out RangedCover? cover))
                     {
                         coverIds.Add(cover.Id);
                     }
                 }
             }
 
-            foreach (var id in coverIds)
+            foreach (long id in coverIds)
             {
                 context.TerrainsRangedCovers.Add(new TerrainsRangedCovers
                 {
@@ -6257,8 +6264,8 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 
     private void SeedAIExamples(FuturemudDatabaseContext context, ICollection<string> errors)
     {
-        var alwaysTrue = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue");
-        var alwaysFalse = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysFalse");
+        FutureProg? alwaysTrue = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue");
+        FutureProg? alwaysFalse = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysFalse");
         if (alwaysTrue is null || alwaysFalse is null)
         {
             errors.Add(
@@ -6269,7 +6276,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
         EnsureVariableDefinition(context, ProgVariableTypes.Character, "npcownerid", ProgVariableTypes.Number);
         EnsureVariableDefault(context, ProgVariableTypes.Character, "npcownerid", "<var>0</var>");
 
-        var ownerProg = EnsureAiProg(
+        FutureProg ownerProg = EnsureAiProg(
             context,
             "IsOwnerCanCommand",
             "Commands",
@@ -6283,7 +6290,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"),
             (ProgVariableTypes.Text, "cmd"));
-        var cantCommandOwnerProg = EnsureAiProg(
+        FutureProg cantCommandOwnerProg = EnsureAiProg(
             context,
             "WhyCantCommandNPCOwnerAI",
             "Commands",
@@ -6293,7 +6300,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"),
             (ProgVariableTypes.Text, "cmd"));
-        var outranksProg = EnsureAiProg(
+        FutureProg outranksProg = EnsureAiProg(
             context,
             "OutranksCanCommand",
             "Commands",
@@ -6310,7 +6317,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"),
             (ProgVariableTypes.Text, "cmd"));
-        var cantCommandOutrankProg = EnsureAiProg(
+        FutureProg cantCommandOutrankProg = EnsureAiProg(
             context,
             "WhyCantCommandNPCClanOutranks",
             "Commands",
@@ -6320,7 +6327,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"),
             (ProgVariableTypes.Text, "cmd"));
-        var doorguardWillOpen = EnsureAiProg(
+        FutureProg doorguardWillOpen = EnsureAiProg(
             context,
             "DoorguardWillOpenDoor",
             "Doorguard",
@@ -6330,7 +6337,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var doorguardDelay = EnsureAiProg(
+        FutureProg doorguardDelay = EnsureAiProg(
             context,
             "DoorguardActionDelay",
             "Doorguard",
@@ -6340,7 +6347,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var doorguardCloseDelay = EnsureAiProg(
+        FutureProg doorguardCloseDelay = EnsureAiProg(
             context,
             "DoorguardCloseDelay",
             "Doorguard",
@@ -6350,7 +6357,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var doorguardOpenDoor = EnsureAiProg(
+        FutureProg doorguardOpenDoor = EnsureAiProg(
             context,
             "DoorguardOpenDoor",
             "Doorguard",
@@ -6365,7 +6372,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var doorguardCloseDoor = EnsureAiProg(
+        FutureProg doorguardCloseDoor = EnsureAiProg(
             context,
             "DoorguardCloseDoor",
             "Doorguard",
@@ -6380,7 +6387,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var doorguardWontOpen = EnsureAiProg(
+        FutureProg doorguardWontOpen = EnsureAiProg(
             context,
             "DoorguardWontOpen",
             "Doorguard",
@@ -6396,7 +6403,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var doorguardWitnessStop = EnsureAiProg(
+        FutureProg doorguardWitnessStop = EnsureAiProg(
             context,
             "DoorguardWitnessStop",
             "Doorguard",
@@ -6410,7 +6417,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             (ProgVariableTypes.Character, "guard"),
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Exit, "exit"));
-        var aggressorWillAttack = EnsureAiProg(
+        FutureProg aggressorWillAttack = EnsureAiProg(
             context,
             "TargetIsOtherRace",
             "Aggressor",
@@ -6419,7 +6426,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             "return @ch.Race != @tch.Race",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"));
-        var rescuerWillRescue = EnsureAiProg(
+        FutureProg rescuerWillRescue = EnsureAiProg(
             context,
             "RescuerWillRescue",
             "Combat",
@@ -6428,7 +6435,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             "return isclanbrother(@rescuer, @target)",
             (ProgVariableTypes.Character, "rescuer"),
             (ProgVariableTypes.Character, "target"));
-        var verminWillScavenge = EnsureAiProg(
+        FutureProg verminWillScavenge = EnsureAiProg(
             context,
             "VerminWillScavenge",
             "Vermin",
@@ -6437,7 +6444,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             "return @item.isholdable and (@item.isfood or @item.iscorpse)",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Item, "item"));
-        var verminOnScavenge = EnsureAiProg(
+        FutureProg verminOnScavenge = EnsureAiProg(
             context,
             "VerminOnScavenge",
             "Vermin",
@@ -6446,7 +6453,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             """force @ch ("eat " + BestKeyword(@ch, @item))""",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Item, "item"));
-        var lairFallbackHome = EnsureAiProg(
+        FutureProg lairFallbackHome = EnsureAiProg(
             context,
             "LairScavengerFallbackHome",
             "Scavenger",
@@ -6639,7 +6646,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
     private static void EnsureVariableDefinition(FuturemudDatabaseContext context, ProgVariableTypes ownerType,
         string property, ProgVariableTypes containedType)
     {
-        var definition = context.VariableDefinitions.Local
+        VariableDefinition? definition = context.VariableDefinitions.Local
                              .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property) ??
                          context.VariableDefinitions.AsEnumerable()
                              .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property);
@@ -6663,7 +6670,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
     private static void EnsureVariableDefault(FuturemudDatabaseContext context, ProgVariableTypes ownerType,
         string property, string defaultValue)
     {
-        var variableDefault = context.VariableDefaults.Local
+        VariableDefault? variableDefault = context.VariableDefaults.Local
                                   .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property) ??
                               context.VariableDefaults.AsEnumerable()
                                   .FirstOrDefault(x => x.OwnerType == (long)ownerType && x.Property == property);
@@ -6705,13 +6712,13 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
     private static void EnsureArtificialIntelligence(FuturemudDatabaseContext context, string name, string type,
         string definition)
     {
-        var ai = SeederRepeatabilityHelper.EnsureNamedEntity(
+        ArtificialIntelligence ai = SeederRepeatabilityHelper.EnsureNamedEntity(
             context.ArtificialIntelligences,
             name,
             x => x.Name,
             () =>
             {
-                var created = new ArtificialIntelligence();
+                ArtificialIntelligence created = new();
                 context.ArtificialIntelligences.Add(created);
                 return created;
             });
@@ -6729,7 +6736,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
             return;
         }
 
-        var index = 10000;
+        int index = 10000;
 
         void AddHint(string text, long? filterProgId = null, bool canRepeat = false)
         {

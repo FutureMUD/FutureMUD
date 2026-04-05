@@ -1,9 +1,9 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace MudSharp.Models
 {
@@ -14,7 +14,7 @@ namespace MudSharp.Models
             PatrolMembers = new HashSet<PatrolMember>();
         }
 
-        public long Id { get;set; }
+        public long Id { get; set; }
         public long PatrolRouteId { get; set; }
         public virtual PatrolRoute PatrolRoute { get; set; }
         public long LegalAuthorityId { get; set; }

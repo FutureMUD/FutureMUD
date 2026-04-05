@@ -1,15 +1,16 @@
-﻿using System;
+﻿using MudSharp.Framework.Revision;
+using System;
 using System.Collections.Generic;
-using MudSharp.Framework.Revision;
 
 namespace MudSharp.Framework
 {
-    public interface IUneditableRevisableAll<T> : IEnumerable<T> where T : class, IRevisableItem {
+    public interface IUneditableRevisableAll<T> : IEnumerable<T> where T : class, IRevisableItem
+    {
         bool Has(T value);
         bool Has(long id);
         bool Has(long id, int revision);
         bool Has(string name);
-        
+
         T Get(long id, int revision, Func<T, bool> filter);
         T Get(long id, Func<T, bool> filter);
         T Get(long id);

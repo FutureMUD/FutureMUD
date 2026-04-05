@@ -1,4 +1,5 @@
-﻿namespace MudSharp.Effects.Interfaces {
+﻿namespace MudSharp.Effects.Interfaces
+{
     public interface IAdminInvisEffect : IEffectSubtype, IAdminEffect
     {
     }

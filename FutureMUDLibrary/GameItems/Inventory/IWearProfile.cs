@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Inventory {
-    public interface IWearProfile : IFrameworkItem, ISaveable {
+namespace MudSharp.GameItems.Inventory
+{
+    public interface IWearProfile : IFrameworkItem, ISaveable
+    {
         IBodyPrototype DesignedBody { get; }
 
         string Description { get; }

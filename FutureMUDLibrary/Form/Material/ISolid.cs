@@ -1,53 +1,55 @@
-using System.Collections.Generic;
 using MudSharp.Framework;
+using System.Collections.Generic;
 
-namespace MudSharp.Form.Material {
-	public interface ISolid : IMaterial, IHaveMultipleNames {
-		IEnumerable<string> Aliases { get; }
+namespace MudSharp.Form.Material
+{
+    public interface ISolid : IMaterial, IHaveMultipleNames
+    {
+        IEnumerable<string> Aliases { get; }
 
-		double ImpactFracture { get; }
+        double ImpactFracture { get; }
 
-		double ImpactYield { get; }
+        double ImpactYield { get; }
 
-		double ImpactStrainAtYield { get; }
+        double ImpactStrainAtYield { get; }
 
-		double ShearFracture { get; }
+        double ShearFracture { get; }
 
-		double ShearYield { get; }
+        double ShearYield { get; }
 
-		double ShearStrainAtYield { get; }
+        double ShearStrainAtYield { get; }
 
-		double? HeatDamagePoint { get; }
-		/// <summary>
-		///     Ignition temperature of the material in Kelvin
-		/// </summary>
-		double? IgnitionPoint { get; }
+        double? HeatDamagePoint { get; }
+        /// <summary>
+        ///     Ignition temperature of the material in Kelvin
+        /// </summary>
+        double? IgnitionPoint { get; }
 
-		/// <summary>
-		///     Melting point of the material in Kelvin
-		/// </summary>
-		double? MeltingPoint { get; }
+        /// <summary>
+        ///     Melting point of the material in Kelvin
+        /// </summary>
+        double? MeltingPoint { get; }
 
-		/// <summary>
-		///     In GPa
-		/// </summary>
-		double YoungsModulus { get; }
-		ILiquid Solvent { get; }
+        /// <summary>
+        ///     In GPa
+        /// </summary>
+        double YoungsModulus { get; }
+        ILiquid Solvent { get; }
 
-		double SolventRatio { get; }
+        double SolventRatio { get; }
 
-		string ResidueSdesc { get; }
+        string ResidueSdesc { get; }
 
-		string ResidueDesc { get; }
+        string ResidueDesc { get; }
 
-		ANSIColour ResidueColour { get; }
+        ANSIColour ResidueColour { get; }
 
-		double Absorbency { get; }
+        double Absorbency { get; }
 
-		ILiquid LiquidForm { get; }
+        ILiquid LiquidForm { get; }
 
-		IGas GasForm { get; }
+        IGas GasForm { get; }
 
-		ISolid Clone(string newName, string newDescription);
-	}
+        ISolid Clone(string newName, string newDescription);
+    }
 }

@@ -18,14 +18,14 @@ namespace DatabaseSeeder.Seeders
                     return;
                 }
 
-                var dream = new MudSharp.Models.Dream
+                Dream dream = new()
                 {
                     Name = name,
                     Priority = priority,
                     OnlyOnce = false
                 };
                 context.Dreams.Add(dream);
-                foreach (var phase in phases)
+                foreach ((string Text, string Command, int SecondsDelay) phase in phases)
                 {
                     context.DreamPhases.Add(new DreamPhase
                     {
@@ -37,8 +37,8 @@ namespace DatabaseSeeder.Seeders
                 }
             }
 
-            var modernDreams = questionAnswers["dream-eras"].Contains("modern");
-            var oldDreams = questionAnswers["dream-eras"].Contains("old");
+            bool modernDreams = questionAnswers["dream-eras"].Contains("modern");
+            bool oldDreams = questionAnswers["dream-eras"].Contains("old");
 
             #region Universal Dreams
             AddDream("The Endless Fall", 140,

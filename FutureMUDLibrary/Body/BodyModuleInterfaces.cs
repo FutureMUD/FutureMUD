@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Form.Material;
+﻿using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.Body {
-    public enum WearlocGrabResult {
+namespace MudSharp.Body
+{
+    public enum WearlocGrabResult
+    {
         Success,
         FailNoTake,
         FailFull,
@@ -15,13 +17,15 @@ namespace MudSharp.Body {
         FailNoStackMerge
     }
 
-    public enum WearlocDropResult {
+    public enum WearlocDropResult
+    {
         Success,
         FailClutch
     }
 
     [Flags]
-    public enum CanUseLimbResult {
+    public enum CanUseLimbResult
+    {
         CanUse = 0,
         CantUsePain = 1,
         CantUseDamage = 2,
@@ -33,7 +37,8 @@ namespace MudSharp.Body {
     }
 
     [Flags]
-    public enum CanUseBodypartResult {
+    public enum CanUseBodypartResult
+    {
         CanUse = 0,
         CantUseLimbPain = 1,
         CantUsePartPain = 2,
@@ -67,7 +72,8 @@ namespace MudSharp.Body {
         WearlocDropResult CanDrop(IGameItem item, IInventory body);
     }
 
-    public enum WearableItemCoverStatus {
+    public enum WearableItemCoverStatus
+    {
         Uncovered,
         TransparentlyCovered,
         Covered,
@@ -92,7 +98,8 @@ namespace MudSharp.Body {
         bool CanRemove(IGameItem item, IInventory body);
     }
 
-    public interface IHaveBodyparts {
+    public interface IHaveBodyparts
+    {
         IEnumerable<ILimb> Limbs { get; }
 
         IEnumerable<IBodypart> Bodyparts { get; }
@@ -112,7 +119,7 @@ namespace MudSharp.Body {
         IBodypart RandomBodypartOrOrgan { get; }
 
         IEnumerable<IBodypart> SeveredRoots { get; }
-        
+
         IEnumerable<IBodypart> BodypartsForLimb(ILimb limb);
 
         IBodypart RandomBodyPartGeometry(Orientation orientation, Alignment alignment, Facing facing,
@@ -169,7 +176,8 @@ namespace MudSharp.Body {
         #endregion
     }
 
-    public enum IWieldItemWieldResult {
+    public enum IWieldItemWieldResult
+    {
         Success,
         NotWieldable,
         AlreadyWielding,
@@ -178,7 +186,8 @@ namespace MudSharp.Body {
         Unknown
     }
 
-    public enum IWieldItemUnwieldResult {
+    public enum IWieldItemUnwieldResult
+    {
         Success,
         NotWielding,
         Unknown
@@ -209,7 +218,8 @@ namespace MudSharp.Body {
         int Hands(IGameItem item);
     }
 
-    public enum ExertionLevel {
+    public enum ExertionLevel
+    {
         Stasis = 0,
         Sleep,
         Rest,
@@ -220,23 +230,30 @@ namespace MudSharp.Body {
         ExtremelyHeavy
     }
 
-    public static class StaminaHelperClass {
-        public static ExertionLevel StageUp(this ExertionLevel level) {
-            if (level == ExertionLevel.ExtremelyHeavy) {
+    public static class StaminaHelperClass
+    {
+        public static ExertionLevel StageUp(this ExertionLevel level)
+        {
+            if (level == ExertionLevel.ExtremelyHeavy)
+            {
                 return level;
             }
-            return (ExertionLevel) ((int) level + 1);
+            return (ExertionLevel)((int)level + 1);
         }
 
-        public static ExertionLevel StageDown(this ExertionLevel level) {
-            if (level == ExertionLevel.Stasis) {
+        public static ExertionLevel StageDown(this ExertionLevel level)
+        {
+            if (level == ExertionLevel.Stasis)
+            {
                 return level;
             }
-            return (ExertionLevel) ((int) level - 1);
+            return (ExertionLevel)((int)level - 1);
         }
 
-        public static string Describe(this ExertionLevel level) {
-            switch (level) {
+        public static string Describe(this ExertionLevel level)
+        {
+            switch (level)
+            {
                 case ExertionLevel.Stasis:
                     return "Statis";
                 case ExertionLevel.Sleep:
@@ -259,9 +276,10 @@ namespace MudSharp.Body {
         }
     }
 
-    public delegate void ExertionEvent (ExertionLevel oldExertion, ExertionLevel newExertion);
+    public delegate void ExertionEvent(ExertionLevel oldExertion, ExertionLevel newExertion);
 
-    public interface IHaveStamina {
+    public interface IHaveStamina
+    {
         /// <summary>
         ///     The Maximum Stamina this IHaveStamina can have
         /// </summary>

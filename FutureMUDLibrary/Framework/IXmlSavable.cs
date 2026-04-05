@@ -1,7 +1,9 @@
 ﻿using System.Xml.Linq;
 
-namespace MudSharp.Framework {
-    public interface IXmlSavable {
+namespace MudSharp.Framework
+{
+    public interface IXmlSavable
+    {
         /// <summary>
         ///     This function causes the object to be saved to a specified XML filepath
         /// </summary>

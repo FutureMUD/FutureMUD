@@ -1,42 +1,42 @@
-﻿using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Body;
+using MudSharp.Character;
+using MudSharp.Combat;
+using MudSharp.Combat.Moves;
+using MudSharp.Effects.Interfaces;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Body;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.Combat;
-using MudSharp.Combat.Moves;
-using MudSharp.Character;
 
 namespace MudSharp.Effects.Concrete;
 
 public class BeingStrangled : Effect, IBodypartIneffectiveEffect, INoQuitEffect, ICombatEffect
 {
-	public BeingStrangled(IPerceivable owner, ICharacter strangler, IFutureProg applicabilityProg = null) : base(owner,
-		applicabilityProg)
-	{
-		Strangler = strangler;
-	}
+    public BeingStrangled(IPerceivable owner, ICharacter strangler, IFutureProg applicabilityProg = null) : base(owner,
+        applicabilityProg)
+    {
+        Strangler = strangler;
+    }
 
-	public ICharacter Strangler { get; set; }
+    public ICharacter Strangler { get; set; }
 
-	public IBodypart Bodypart { get; init; }
+    public IBodypart Bodypart { get; init; }
 
-	public override void RemovalEffect()
-	{
-		base.RemovalEffect();
-		(Owner as IBody)?.CheckHealthStatus();
-	}
+    public override void RemovalEffect()
+    {
+        base.RemovalEffect();
+        (Owner as IBody)?.CheckHealthStatus();
+    }
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"{Bodypart.FullDescription()} is being choked.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"{Bodypart.FullDescription()} is being choked.";
+    }
 
-	protected override string SpecificEffectType => "ResidualChoke";
+    protected override string SpecificEffectType => "ResidualChoke";
 
-	public string NoQuitReason => "You cannot quit so soon after having been choked.";
+    public string NoQuitReason => "You cannot quit so soon after having been choked.";
 }

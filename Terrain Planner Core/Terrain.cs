@@ -30,10 +30,16 @@ namespace Terrain_Planner_Tool
 
             private long _id;
 
-            public long Id {
-                get { return _id; }
-                init {
-                    if (value == _id) return;
+            public long Id
+            {
+                get => _id;
+                init
+                {
+                    if (value == _id)
+                    {
+                        return;
+                    }
+
                     _id = value;
                     OnPropertyChanged();
                 }
@@ -41,10 +47,16 @@ namespace Terrain_Planner_Tool
 
             private string _name;
 
-            public string Name {
-                get { return _name; }
-                init {
-                    if (value == _name) return;
+            public string Name
+            {
+                get => _name;
+                init
+                {
+                    if (value == _name)
+                    {
+                        return;
+                    }
+
                     _name = value;
                     OnPropertyChanged();
                 }
@@ -52,10 +64,16 @@ namespace Terrain_Planner_Tool
 
             private Color _colour;
 
-            public Color Colour {
-                get { return _colour; }
-                init {
-                    if (value.Equals(_colour)) return;
+            public Color Colour
+            {
+                get => _colour;
+                init
+                {
+                    if (value.Equals(_colour))
+                    {
+                        return;
+                    }
+
                     _colour = value;
                     OnPropertyChanged();
                 }
@@ -65,7 +83,7 @@ namespace Terrain_Planner_Tool
 
             public string Text
             {
-                get { return _text; }
+                get => _text;
                 set
                 {
                     if (value == _text)

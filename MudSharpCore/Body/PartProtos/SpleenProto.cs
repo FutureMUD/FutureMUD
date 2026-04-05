@@ -1,25 +1,25 @@
-﻿using MudSharp.Models;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
+using MudSharp.Models;
 
 namespace MudSharp.Body.PartProtos;
 
 public class SpleenProto : InternalOrganProto
 {
-	public SpleenProto(BodypartProto proto, IFuturemud game)
-		: base(proto, game)
-	{
-	}
+    public SpleenProto(BodypartProto proto, IFuturemud game)
+        : base(proto, game)
+    {
+    }
 
-	public SpleenProto(SpleenProto rhs, string newName) : base(rhs, newName)
-	{
-	}
+    public SpleenProto(SpleenProto rhs, string newName) : base(rhs, newName)
+    {
+    }
 
-	public override IBodypart Clone(string newName)
-	{
-		return new SpleenProto(this, newName);
-	}
+    public override IBodypart Clone(string newName)
+    {
+        return new SpleenProto(this, newName);
+    }
 
-	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Spleen;
+    public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Spleen;
 
-	public new double PainFactor => 0.0;
+    public new double PainFactor => 0.0;
 }

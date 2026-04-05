@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using MudSharp.Form.Audio;
+﻿using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System.Collections.Generic;
 
-namespace MudSharp.Construction {
-    public interface ICellOverlay : IFrameworkItem, ISaveable {
+namespace MudSharp.Construction
+{
+    public interface ICellOverlay : IFrameworkItem, ISaveable
+    {
         IFluid Atmosphere { get; }
         ICellOverlayPackage Package { get; }
         string CellName { get; }

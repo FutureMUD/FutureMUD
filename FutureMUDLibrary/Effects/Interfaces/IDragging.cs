@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using System.Collections.Generic;
 
 namespace MudSharp.Effects.Interfaces
 {
-    public class Dragger {
+    public class Dragger
+    {
         public ICharacter Character { get; init; }
         public IDragAid Aid { get; init; }
     }

@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 #nullable enable
 namespace MudSharp.Effects.Interfaces
 {
-	public interface IChangeCharacteristicEffect : IEffectSubtype
-	{
-		bool ChangesCharacteristic(ICharacteristicDefinition characteristic);
-		ICharacteristicValue GetChangedCharacteristic(ICharacteristicDefinition characteristic);
+    public interface IChangeCharacteristicEffect : IEffectSubtype
+    {
+        bool ChangesCharacteristic(ICharacteristicDefinition characteristic);
+        ICharacteristicValue GetChangedCharacteristic(ICharacteristicDefinition characteristic);
 
-	}
+    }
 }

@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Body.Traits.Subtypes {
-    public interface IAttributeDefinition : ITraitDefinition {
+﻿namespace MudSharp.Body.Traits.Subtypes
+{
+    public interface IAttributeDefinition : ITraitDefinition
+    {
         string Alias { get; }
         string ChargenBlurb { get; }
 

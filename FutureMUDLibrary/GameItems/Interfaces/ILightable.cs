@@ -2,8 +2,10 @@
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface ILightable : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface ILightable : IGameItemComponent
+    {
         bool Lit { get; set; }
         bool CanLight(ICharacter lightee, IPerceivable ignitionSource);
         string WhyCannotLight(ICharacter lightee, IPerceivable ignitionSource);

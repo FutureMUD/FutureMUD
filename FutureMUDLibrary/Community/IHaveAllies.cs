@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
+using System.Collections.Generic;
 
-namespace MudSharp.Community {
-    public interface IHaveAllies {
+namespace MudSharp.Community
+{
+    public interface IHaveAllies
+    {
         bool IsAlly(ICharacter person);
         bool IsTrustedAlly(ICharacter person);
         void SetAlly(ICharacter person);

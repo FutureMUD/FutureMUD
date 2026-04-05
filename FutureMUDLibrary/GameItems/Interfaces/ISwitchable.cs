@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface ISwitchable : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface ISwitchable : IGameItemComponent
+    {
         IEnumerable<string> SwitchSettings { get; }
         bool CanSwitch(ICharacter actor, string setting);
         string WhyCannotSwitch(ICharacter actor, string setting);

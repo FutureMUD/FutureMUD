@@ -4,15 +4,15 @@ namespace MudSharp.Combat.Strategies;
 
 public class FullDefenseStrategy : StandardMeleeStrategy
 {
-	protected FullDefenseStrategy()
-	{
-	}
+    protected FullDefenseStrategy()
+    {
+    }
 
-	public new static FullDefenseStrategy Instance { get; } = new();
-	public override CombatStrategyMode Mode => CombatStrategyMode.FullDefense;
+    public new static FullDefenseStrategy Instance { get; } = new();
+    public override CombatStrategyMode Mode => CombatStrategyMode.FullDefense;
 
-	protected override ICombatMove HandleAttacks(IPerceiver combatant)
-	{
-		return null; // TODO - auxillaries
-	}
+    protected override ICombatMove HandleAttacks(IPerceiver combatant)
+    {
+        return null; // TODO - auxillaries
+    }
 }

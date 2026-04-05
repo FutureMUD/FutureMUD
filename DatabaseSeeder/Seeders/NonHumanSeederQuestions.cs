@@ -1,22 +1,22 @@
 #nullable enable
 
-using System;
-using System.Collections.Generic;
 using MudSharp.Database;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace DatabaseSeeder.Seeders;
 
 internal static class NonHumanSeederQuestions
 {
-	internal static IEnumerable<(string Id, string Question,
-		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> GetQuestions()
-	{
-		return
-		[
-			("model",
-				@"#DHealth Models#F
+    internal static IEnumerable<(string Id, string Question,
+        Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+        Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> GetQuestions()
+    {
+        return
+        [
+            ("model",
+                @"#DHealth Models#F
 
 Which health model should non-human creatures use by default? This can be overriden for individual NPCs (so you can make HP-based mooks even if you use the full medical system). Even if you use the full medical model for humans, you may not want to use it for all non-human creatures by default.
 
@@ -27,15 +27,15 @@ The valid choices are as follows:
 #Bfull#F	- this system uses the full medical model, where the only way to die is via death of the brain.
 
 Your choice: ",
-				(context, answers) => true,
-				(text, context) => text.ToLowerInvariant() switch
-				{
-					"hp" or "hpplus" or "full" => (true, string.Empty),
-					_ => (false, "That is not a valid selection.")
-				}
-			),
-			("random",
-				@"#DDamage Formulas#F
+                (context, answers) => true,
+                (text, context) => text.ToLowerInvariant() switch
+                {
+                    "hp" or "hpplus" or "full" => (true, string.Empty),
+                    _ => (false, "That is not a valid selection.")
+                }
+            ),
+            ("random",
+                @"#DDamage Formulas#F
 
 You can configure your damage formulas to be consistent or random. The engine already takes into account a number of variables such as relative success of attacker and defender, type of defense used, all of which ensure that the damage is mitigated differently each attack. However, a good hit is usually pretty impactful in that kind of setup.
 
@@ -48,15 +48,15 @@ There are three options that you can choose for randomness:
 #BRandom#F: In this option damage can be 20-100% of the maximum. This means outcomes will vary wildly.
 
 Which option do you want to use for random results in your non-human damage formulas? ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					return (answer.EqualToAny("static", "partial", "random"),
-						"You must answer static, partial or random.");
-				}
-			),
-			("messagestyle",
-				@"#DCombat Messages#F
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    return (answer.EqualToAny("static", "partial", "random"),
+                        "You must answer static, partial or random.");
+                }
+            ),
+            ("messagestyle",
+                @"#DCombat Messages#F
 
 Combat messages can be presented in a number of different styles. Fundamentally, the attack and the defense against the attack are different messages. You can either have them come together to form a single sentence, or you can keep them separate sentences, or you can put them on entirely different lines. For example, here are the three options you could consider:
 
@@ -77,13 +77,13 @@ Combat messages can be presented in a number of different styles. Fundamentally,
 You can change your decision later, you're just going to have to go and edit your combat messages (mostly the defenses) to match the style you want. One advantage to doing Sentences or Sparse is that you can easily colour whole elements if you prefer (some people prefer not to of course).
 
 You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ",
-				(context, answers) => string.IsNullOrWhiteSpace(CombatSeederMessageStyleHelper.GetRecordedChoice(context)),
-				(answer, context) =>
-				{
-					return (answer.EqualToAny("compact", "sentences", "sparse"),
-						"You must answer Compact, Sentences or Sparse.");
-				}
-			)
-		];
-	}
+                (context, answers) => string.IsNullOrWhiteSpace(CombatSeederMessageStyleHelper.GetRecordedChoice(context)),
+                (answer, context) =>
+                {
+                    return (answer.EqualToAny("compact", "sentences", "sparse"),
+                        "You must answer Compact, Sentences or Sparse.");
+                }
+            )
+        ];
+    }
 }

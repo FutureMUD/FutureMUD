@@ -1,9 +1,9 @@
-using System.Linq;
-using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using MudSharp.Framework;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Discord_Bot.Modules;
 
@@ -18,7 +18,7 @@ public class ShowAccount : BaseCommandModule
             return;
         }
 
-        var registration = DiscordBot.Instance.DetailedUserSettings.FirstOrDefault(x => x.DiscordUserId == context.User.Id);
+        DetailedUserSetting registration = DiscordBot.Instance.DetailedUserSettings.FirstOrDefault(x => x.DiscordUserId == context.User.Id);
         if (registration is null)
         {
             await context.RespondAsync($"You have not yet linked your MUD account and discord account, which is a necessary prerequisite of this command.");
@@ -32,7 +32,7 @@ public class ShowAccount : BaseCommandModule
         }
 
         await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-        var request = new CachedDiscordRequest
+        CachedDiscordRequest request = new()
         {
             Context = context,
             OnResponseAction = HandleMudResponse
@@ -44,16 +44,16 @@ public class ShowAccount : BaseCommandModule
 
     private async Task HandleMudResponse(string text, CommandContext context)
     {
-        var ss = new StringStack(text);
-        var type = ss.Pop();
+        StringStack ss = new(text);
+        string type = ss.Pop();
         switch (type)
         {
             case "nosuchaccount":
                 await context.RespondAsync($"{context.User.Mention} - There is no account with the name or id **{ss.RemainingArgument}**.");
                 return;
             case "accountinfo":
-                var message = ss.RemainingArgument;
-                foreach (var part in message.SplitStringsForDiscord())
+                string message = ss.RemainingArgument;
+                foreach (string part in message.SplitStringsForDiscord())
                 {
                     await context.RespondAsync($"```{part}```");
                 }

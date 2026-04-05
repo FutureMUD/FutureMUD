@@ -1,5 +1,7 @@
-﻿namespace MudSharp.GameItems.Interfaces {
-    public interface IStackable : IGameItemComponent {
+﻿namespace MudSharp.GameItems.Interfaces
+{
+    public interface IStackable : IGameItemComponent
+    {
         int Quantity { get; set; }
         ItemGetResponse CanGet(int quantity);
         IGameItem Get(int quantity);

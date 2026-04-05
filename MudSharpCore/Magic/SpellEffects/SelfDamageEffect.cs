@@ -1,12 +1,13 @@
-using System;
-using System.Linq;
-using System.Xml.Linq;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -68,7 +69,7 @@ public class SelfDamageEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandType(ICharacter actor, StringStack command)
     {
-        if (!command.SafeRemainingArgument.TryParseEnum<DamageType>(out var type))
+        if (!command.SafeRemainingArgument.TryParseEnum<DamageType>(out DamageType type))
         {
             actor.OutputHandler.Send($"Valid types are: {Enum.GetNames(typeof(DamageType)).ListToString()}");
             return false;
@@ -86,7 +87,7 @@ public class SelfDamageEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send("You must specify a formula.");
             return false;
         }
-        var expr = new TraitExpression(command.SafeRemainingArgument, Gameworld);
+        TraitExpression expr = new(command.SafeRemainingArgument, Gameworld);
         if (expr.HasErrors())
         {
             actor.OutputHandler.Send(expr.Error);
@@ -106,12 +107,16 @@ public class SelfDamageEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => true;
     public bool RequiresTarget => false;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => true;
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return true;
+    }
+
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
-        var amount = DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
-        var part = caster.Body.RandomBodypart;
-        var dmg = new Damage
+        double amount = DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
+        IBodypart part = caster.Body.RandomBodypart;
+        Damage dmg = new()
         {
             DamageType = DamageType,
             DamageAmount = amount,
@@ -124,5 +129,8 @@ public class SelfDamageEffect : IMagicSpellEffectTemplate
         return null;
     }
 
-    public IMagicSpellEffectTemplate Clone() => new SelfDamageEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new SelfDamageEffect(SaveToXml(), Spell);
+    }
 }

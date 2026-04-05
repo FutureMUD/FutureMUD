@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Functions.BuiltIn;
 using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Statements;
 
@@ -30,7 +30,7 @@ internal class PlusEqualsVariable : Statement
     private static ICompileInfo SetVariableCompile(IEnumerable<string> lines,
         IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
     {
-        var match = CompileRegex.Match(lines.First());
+        Match match = CompileRegex.Match(lines.First());
 
         if (!variableSpace.ContainsKey(match.Groups[1].Value.ToLowerInvariant()))
         {
@@ -39,7 +39,7 @@ internal class PlusEqualsVariable : Statement
                            .CreateError($"Variable {match.Groups[1].Value} has not been declared.", lineNumber);
         }
 
-        var rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
+        ICompileInfo rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
         if (rhsInfo.IsError)
         {
             return
@@ -48,7 +48,7 @@ internal class PlusEqualsVariable : Statement
                                lineNumber);
         }
 
-        var lhsType = variableSpace[match.Groups[1].Value.ToLowerInvariant()];
+        ProgVariableTypes lhsType = variableSpace[match.Groups[1].Value.ToLowerInvariant()];
         if (!lhsType.In(
             ProgVariableTypes.Number,
             ProgVariableTypes.Text,
@@ -63,7 +63,7 @@ internal class PlusEqualsVariable : Statement
                 $"Tried to use += operator on variable of type {lhsType.Describe()}, which is not supported.", lineNumber);
         }
 
-        var function = (IFunction)rhsInfo.CompiledStatement;
+        IFunction function = (IFunction)rhsInfo.CompiledStatement;
         if (lhsType.HasFlag(ProgVariableTypes.Collection))
         {
             if (!(lhsType ^ ProgVariableTypes.Collection).CompatibleWith(function.ReturnType))
@@ -97,13 +97,13 @@ internal class PlusEqualsVariable : Statement
 
     private static string ColouriseStatement(string line)
     {
-        var match = CompileRegex.Match(line);
+        Match match = CompileRegex.Match(line);
         return $"{match.Groups[1].Value} += {FunctionHelper.ColouriseFunction(match.Groups[2].Value)}";
     }
 
     private static string ColouriseStatementDarkMode(string line)
     {
-        var match = CompileRegex.Match(line);
+        Match match = CompileRegex.Match(line);
         return $"{match.Groups[1].Value.Colour(Telnet.VariableCyan)} += {FunctionHelper.ColouriseFunction(match.Groups[2].Value, true)}";
     }
 
@@ -144,7 +144,7 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
 
     public override StatementResult Execute(IVariableSpace variables)
     {
-        var result = ValueFunction.Execute(variables);
+        StatementResult result = ValueFunction.Execute(variables);
         if (result == StatementResult.Error)
         {
             ErrorMessage = ValueFunction.ErrorMessage;
@@ -153,63 +153,63 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
 
         if (TypeToSet.HasFlag(ProgVariableTypes.Collection))
         {
-            var collection = variables.GetVariable(NameToSet);
+            IProgVariable collection = variables.GetVariable(NameToSet);
             ((IList<IProgVariable>)collection.GetObject).Add(ValueFunction.Result);
             return StatementResult.Normal;
         }
         if (TypeToSet.CompatibleWith(ProgVariableTypes.DateTime))
         {
-            var current = variables.GetVariable(NameToSet)?.GetObject as DateTime?;
+            DateTime? current = variables.GetVariable(NameToSet)?.GetObject as DateTime?;
             if (current is null)
             {
                 ErrorMessage = "Tried to += a null datetime.";
                 return StatementResult.Error;
             }
 
-            var newValue = current + ((TimeSpan?)ValueFunction.Result?.GetObject ?? TimeSpan.Zero);
+            DateTime? newValue = current + ((TimeSpan?)ValueFunction.Result?.GetObject ?? TimeSpan.Zero);
             variables.SetVariable(NameToSet, new DateTimeVariable(newValue.Value));
             return StatementResult.Normal;
         }
 
         if (TypeToSet.CompatibleWith(ProgVariableTypes.MudDateTime))
         {
-            var current = variables.GetVariable(NameToSet)?.GetObject as MudDateTime;
+            MudDateTime current = variables.GetVariable(NameToSet)?.GetObject as MudDateTime;
             if (current is null)
             {
                 ErrorMessage = "Tried to += a null muddatetime.";
                 return StatementResult.Error;
             }
 
-            var newValue = current + ((TimeSpan?)ValueFunction.Result?.GetObject ?? TimeSpan.Zero);
+            MudDateTime newValue = current + ((TimeSpan?)ValueFunction.Result?.GetObject ?? TimeSpan.Zero);
             variables.SetVariable(NameToSet, newValue);
             return StatementResult.Normal;
         }
 
         else
         {
-            var current = variables.GetVariable(NameToSet);
+            IProgVariable current = variables.GetVariable(NameToSet);
             if (TypeToSet.CompatibleWith(ProgVariableTypes.Number))
             {
-                var number = (decimal?)current?.GetObject;
+                decimal? number = (decimal?)current?.GetObject;
                 if (number is null)
                 {
                     ErrorMessage = "Tried to += a null number.";
                     return StatementResult.Error;
                 }
-                var newValue = number + (decimal?)ValueFunction.Result?.GetObject ?? 0.0M;
+                decimal newValue = number + (decimal?)ValueFunction.Result?.GetObject ?? 0.0M;
                 variables.SetVariable(NameToSet, new NumberVariable(newValue));
                 return StatementResult.Normal;
             }
 
             if (TypeToSet.CompatibleWith(ProgVariableTypes.Text))
             {
-                var text = current?.GetObject?.ToString();
+                string text = current?.GetObject?.ToString();
                 if (text is null)
                 {
                     ErrorMessage = "Tried to += a null text.";
                     return StatementResult.Error;
                 }
-                var newValue = text + (string)ValueFunction.Result?.GetObject ?? "";
+                string newValue = text + (string)ValueFunction.Result?.GetObject ?? "";
                 variables.SetVariable(NameToSet, new TextVariable(newValue));
                 return StatementResult.Normal;
             }

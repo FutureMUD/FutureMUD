@@ -1,25 +1,29 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using System.Collections.Generic;
 
-namespace MudSharp.Combat {
-    public enum AmmunitionLoadType {
+namespace MudSharp.Combat
+{
+    public enum AmmunitionLoadType
+    {
         Direct,
         Clip,
         Magazine
     }
 
-    public enum AmmunitionEchoType {
+    public enum AmmunitionEchoType
+    {
         Subsonic,
         Arcing,
         Supersonic,
         Laser
     }
 
-    public interface IAmmunitionType : IEditableItem, ISaveable {
+    public interface IAmmunitionType : IEditableItem, ISaveable
+    {
         string SpecificType { get; }
         IEnumerable<RangedWeaponType> RangedWeaponTypes { get; }
         double BaseAccuracy { get; }

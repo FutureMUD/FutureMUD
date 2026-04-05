@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body.Traits;
+﻿using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using System.Collections.Generic;
 
-namespace MudSharp.Combat {
+namespace MudSharp.Combat
+{
 
-    public interface IWeaponType : IEditableItem, ISaveable {
+    public interface IWeaponType : IEditableItem, ISaveable
+    {
         IEnumerable<IWeaponAttack> Attacks { get; }
         ITraitDefinition AttackTrait { get; }
         ITraitDefinition ParryTrait { get; }
@@ -18,14 +20,14 @@ namespace MudSharp.Combat {
         WeaponClassification Classification { get; }
 
         IEnumerable<IWeaponAttack> UsableAttacks(IPerceiver attacker, IGameItem weapon, IPerceiver target,
-	        AttackHandednessOptions handedness,
-	        bool ignorePosition,
-	        params BuiltInCombatMoveType[] type);
+            AttackHandednessOptions handedness,
+            bool ignorePosition,
+            params BuiltInCombatMoveType[] type);
 
         IEnumerable<AttackHandednessOptions> UseableHandednessOptions(ICharacter attacker, IGameItem weapon,
                                                                       IPerceiver target,
                                                                       params BuiltInCombatMoveType[] type);
-        
+
         void AddAttack(IWeaponAttack attack);
         void RemoveAttack(IWeaponAttack attack);
         IWeaponType Clone(string newName);

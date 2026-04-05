@@ -5,5 +5,5 @@ namespace MudSharp.GameItems.Interfaces;
 
 public interface ICanConnectToLiquidGrid : ICanConnectToGrid
 {
-	ILiquidGrid? LiquidGrid { get; set; }
+    ILiquidGrid? LiquidGrid { get; set; }
 }

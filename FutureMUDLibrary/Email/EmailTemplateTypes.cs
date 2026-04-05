@@ -1,6 +1,7 @@
 ﻿namespace MudSharp.Email
 {
-    public enum EmailTemplateTypes {
+    public enum EmailTemplateTypes
+    {
         NewAccountVerification = 0,
         AccountPasswordReset,
         CharacterApplicationApproved,

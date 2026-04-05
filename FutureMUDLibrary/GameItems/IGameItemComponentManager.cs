@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.GameItems
 {
     public interface IGameItemComponentManager
     {
         IEnumerable<string> PrimaryTypes { get; }
-        IEnumerable<(string Name, string Blurb, string Help)> TypeHelpInfo {get;}
+        IEnumerable<(string Name, string Blurb, string Help)> TypeHelpInfo { get; }
 
         void AddBuilderLoader(string name, bool primary,
             Func<IFuturemud, IAccount, IGameItemComponentProto> initialiser);

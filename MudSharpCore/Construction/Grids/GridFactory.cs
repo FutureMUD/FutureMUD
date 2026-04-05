@@ -9,18 +9,18 @@ namespace MudSharp.Construction.Grids;
 
 public static class GridFactory
 {
-	public static IGrid LoadGrid(Models.Grid grid, IFuturemud gameworld)
-	{
-		switch (grid.GridType)
-		{
-			case "Electrical":
-				return new ElectricalGrid(grid, gameworld);
-			case "Liquid":
-				return new LiquidGrid(grid, gameworld);
-			case "Telecommunications":
-				return new TelecommunicationsGrid(grid, gameworld);
-		}
+    public static IGrid LoadGrid(Models.Grid grid, IFuturemud gameworld)
+    {
+        switch (grid.GridType)
+        {
+            case "Electrical":
+                return new ElectricalGrid(grid, gameworld);
+            case "Liquid":
+                return new LiquidGrid(grid, gameworld);
+            case "Telecommunications":
+                return new TelecommunicationsGrid(grid, gameworld);
+        }
 
-		throw new NotImplementedException("Unimplemented grid type in GridFactory.LoadGrid");
-	}
+        throw new NotImplementedException("Unimplemented grid type in GridFactory.LoadGrid");
+    }
 }

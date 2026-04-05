@@ -7,14 +7,14 @@ namespace MudSharp.Database;
 
 public class FuturemudDatabaseContextFactory : IDesignTimeDbContextFactory<FuturemudDatabaseContext>
 {
-	public FuturemudDatabaseContext CreateDbContext(string[] args)
-	{
-		var optionsBuilder = new DbContextOptionsBuilder<FuturemudDatabaseContext>();
-		optionsBuilder.UseLazyLoadingProxies();
-		optionsBuilder.UseMySql(
-			"server=localhost;port=3306;database=dbo;uid=futuremud;password=rpiengine2020",
-			ServerVersion.Parse("8.0.36-mysql"));
+    public FuturemudDatabaseContext CreateDbContext(string[] args)
+    {
+        DbContextOptionsBuilder<FuturemudDatabaseContext> optionsBuilder = new();
+        optionsBuilder.UseLazyLoadingProxies();
+        optionsBuilder.UseMySql(
+            "server=localhost;port=3306;database=dbo;uid=futuremud;password=rpiengine2020",
+            ServerVersion.Parse("8.0.36-mysql"));
 
-		return new FuturemudDatabaseContext(optionsBuilder.Options);
-	}
+        return new FuturemudDatabaseContext(optionsBuilder.Options);
+    }
 }

@@ -1,10 +1,10 @@
-using System.Linq;
-using System.Text;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.PerceptionEngine;
+using System.Linq;
+using System.Text;
 
 namespace MudSharp.Health.Bloodtypes;
 
@@ -24,7 +24,8 @@ public class BloodtypeAntigen : SaveableItem, IBloodtypeAntigen
         _name = name;
         using (new FMDB())
         {
-            var dbitem = new MudSharp.Models.BloodtypeAntigen { Name = name };
+            Models.BloodtypeAntigen dbitem = new()
+            { Name = name };
             FMDB.Context.BloodtypeAntigens.Add(dbitem);
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -35,7 +36,7 @@ public class BloodtypeAntigen : SaveableItem, IBloodtypeAntigen
 
     public override void Save()
     {
-        var dbitem = FMDB.Context.BloodtypeAntigens.Find(Id);
+        Models.BloodtypeAntigen? dbitem = FMDB.Context.BloodtypeAntigens.Find(Id);
         dbitem.Name = Name;
         Changed = false;
     }
@@ -64,7 +65,7 @@ name <name> - renames this blood antigen";
             return false;
         }
 
-        var name = command.SafeRemainingArgument.TitleCase();
+        string name = command.SafeRemainingArgument.TitleCase();
         if (Gameworld.BloodtypeAntigens.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send($"There is already a blood antigen named {name.ColourName()}.");
@@ -79,7 +80,7 @@ name <name> - renames this blood antigen";
 
     public string Show(ICharacter actor)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine($"Blood Antigen #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
         return sb.ToString();
     }

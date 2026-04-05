@@ -7,7 +7,7 @@ namespace MudSharp.Models
     public class EconomicZoneTax
     {
         public long Id { get; set; }
-        public long EconomicZoneId { get;set; }
+        public long EconomicZoneId { get; set; }
         public virtual EconomicZone EconomicZone { get; set; }
         public string Name { get; set; }
         public string MerchantDescription { get; set; }

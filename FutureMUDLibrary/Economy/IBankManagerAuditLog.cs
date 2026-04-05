@@ -7,8 +7,8 @@ namespace MudSharp.Economy;
 
 public interface IBankManagerAuditLog : ILateInitialisingItem
 {
-	IBank Bank { get; }
-	MudDateTime DateTime { get;}
-	string Detail { get; }
-	ICharacter Character { get; }
+    IBank Bank { get; }
+    MudDateTime DateTime { get; }
+    string Detail { get; }
+    ICharacter Character { get; }
 }

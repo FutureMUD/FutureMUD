@@ -1,42 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Database;
+﻿using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
 public class SkillSeeder : SkillSeederBase
 {
-	private static readonly string[] SharedSkillSeederMarkers =
-	[
-		"Skill Check",
-		"Language Check",
-		"General Skill",
-		"Language Skill",
-		"Skill Improver",
-		"Language Improver"
-	];
+    private static readonly string[] SharedSkillSeederMarkers =
+    [
+        "Skill Check",
+        "Language Check",
+        "General Skill",
+        "Language Skill",
+        "Skill Improver",
+        "Language Improver"
+    ];
 
-	public override
-		IEnumerable<(string Id, string Question,
-			Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-			Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
-		new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
-			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
-		{
-			("branching",
-				"Do you want to enable skill branching on use? You might choose to disable this if you want to control skill branching by class for example.\n\nPlease answer #3yes#F or #3no#F. ",
-				(context, answers) => true, (text, context) =>
-				{
-					if (!text.EqualToAny("yes", "y", "no", "n")) return (false, "Please answer #3yes#F or #3no#F.");
-
-					return (true, string.Empty);
-				}),
-			("skillcapmodel",
-				@"Skill cap models determine what is the maximum value a character's skills can rise to. These models can be customised once in game, and you can even go for a hybrid system or something different altogether.
+    public override
+        IEnumerable<(string Id, string Question,
+            Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+            Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+        new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
+            Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
+        {
+            ("branching",
+                "Do you want to enable skill branching on use? You might choose to disable this if you want to control skill branching by class for example.\n\nPlease answer #3yes#F or #3no#F. ",
+                (context, answers) => true, (text, context) =>
+                {
+                    if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please answer #3yes#F or #3no#F."); } return (true, string.Empty);
+                }),
+            ("skillcapmodel",
+                @"Skill cap models determine what is the maximum value a character's skills can rise to. These models can be customised once in game, and you can even go for a hybrid system or something different altogether.
 
 You can choose from the following skill cap models:
 
@@ -45,21 +43,21 @@ You can choose from the following skill cap models:
 #BFlat#F   - skill caps are flat across the board, the same for everyone (but you might shift with projects)
 
 What is your selection? ", (context, answers) => true,
-				(text, context) =>
-				{
-					switch (text.ToLowerInvariant())
-					{
-						case "rpi":
-						case "class":
-						case "flat":
-							return (true, string.Empty);
-					}
+                (text, context) =>
+                {
+                    switch (text.ToLowerInvariant())
+                    {
+                        case "rpi":
+                        case "class":
+                        case "flat":
+                            return (true, string.Empty);
+                    }
 
-					return (false, "That is not a valid selection.");
-				}
-			),
-			("skillgainmodel",
-				@"You can choose from the following skill gain models:
+                    return (false, "That is not a valid selection.");
+                }
+            ),
+            ("skillgainmodel",
+                @"You can choose from the following skill gain models:
 
 #BRPI#F          - skills are branched by use and improve on failure
 #BLabMUD#F       - skills are branched by use and improve on success, and require increasingly higher difficulties
@@ -67,51 +65,51 @@ What is your selection? ", (context, answers) => true,
 #BSuccessTree#F  - skills improve by use and improve on success with increasingly higher difficulties, and branch when specific pre-requisites are met
 
 What is your selection? ", (context, answers) => true,
-				(text, context) =>
-				{
-					switch (text.ToLowerInvariant())
-					{
-						case "rpi":
-						case "labmud":
-						case "armageddon":
-						case "successtree":
-							return (true, string.Empty);
-					}
+                (text, context) =>
+                {
+                    switch (text.ToLowerInvariant())
+                    {
+                        case "rpi":
+                        case "labmud":
+                        case "armageddon":
+                        case "successtree":
+                            return (true, string.Empty);
+                    }
 
-					return (false, "That is not a valid selection.");
-				}
-			),
-			("exampleskill",
-				@"Please enter some names of example skills that you want to use (separate multiple skills with commas)
+                    return (false, "That is not a valid selection.");
+                }
+            ),
+            ("exampleskill",
+                @"Please enter some names of example skills that you want to use (separate multiple skills with commas)
 
 #1Note: Don't use combat skills as an example as you will set these up later in the combat seeder#f",
-				(context, answers) => true,
-				(text, context) => (!string.IsNullOrWhiteSpace(text), "That is not a valid selection.")),
-			("skillattribute",
-				@"Please enter the name of the attribute you want to tie the cap of that skill to: ",
-				(context, answers) => true && answers["skillcapmodel"].EqualTo("rpi"),
-				(text, context) => (
-					context.TraitDefinitions.Any(x => x.Name == text) ||
-					context.TraitDefinitions.Any(x => x.Alias == text), "That is not a valid selection.")),
-			("examplelanguage",
-				@"Please enter the name of an example language skill that you want to use, or enter a blank line to not install an example language (if you're intending to import a culture pack for example): ",
-				(context, answers) => true,
-				(text, context) => (true, string.Empty)),
-			("languageattribute",
-				@"Please enter the name of the attribute you want to tie the cap of language skills to: ",
-				(context, answers) => !string.IsNullOrEmpty(answers["examplelanguage"]) &&
-									  answers["skillcapmodel"].EqualTo("rpi"),
-				(text, context) => (
-					context.TraitDefinitions.Any(x => x.Name == text) ||
-					context.TraitDefinitions.Any(x => x.Alias == text), "That is not a valid selection."))
-		};
+                (context, answers) => true,
+                (text, context) => (!string.IsNullOrWhiteSpace(text), "That is not a valid selection.")),
+            ("skillattribute",
+                @"Please enter the name of the attribute you want to tie the cap of that skill to: ",
+                (context, answers) => true && answers["skillcapmodel"].EqualTo("rpi"),
+                (text, context) => (
+                    context.TraitDefinitions.Any(x => x.Name == text) ||
+                    context.TraitDefinitions.Any(x => x.Alias == text), "That is not a valid selection.")),
+            ("examplelanguage",
+                @"Please enter the name of an example language skill that you want to use, or enter a blank line to not install an example language (if you're intending to import a culture pack for example): ",
+                (context, answers) => true,
+                (text, context) => (true, string.Empty)),
+            ("languageattribute",
+                @"Please enter the name of the attribute you want to tie the cap of language skills to: ",
+                (context, answers) => !string.IsNullOrEmpty(answers["examplelanguage"]) &&
+                                      answers["skillcapmodel"].EqualTo("rpi"),
+                (text, context) => (
+                    context.TraitDefinitions.Any(x => x.Name == text) ||
+                    context.TraitDefinitions.Any(x => x.Alias == text), "That is not a valid selection."))
+        };
 
-	public override int SortOrder => 11;
-	public override string Name => "Skill Examples";
-	public override string Tagline => "Sets up templates and examples for skills";
+    public override int SortOrder => 11;
+    public override string Name => "Skill Examples";
+    public override string Tagline => "Sets up templates and examples for skills";
 
-	public override string FullDescription =>
-		@"This package installs much of the supporting information you are going to require for your skill setup, as well as a couple of examples of complete skills to show you what you need to do. 
+    public override string FullDescription =>
+        @"This package installs much of the supporting information you are going to require for your skill setup, as well as a couple of examples of complete skills to show you what you need to do. 
 
 This includes the following items:
 
@@ -126,496 +124,500 @@ Again, the choices you make here can be fixed later so don't stress it too great
 
 #1Warning: Don't run both this and the Skill Package Seeder.#0";
 
-	public override string SeedData(FuturemudDatabaseContext context,
-		IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		context.Database.BeginTransaction();
-		SeedChecks(context, questionAnswers);
-		SeedSkills(context, questionAnswers);
-		context.Database.CommitTransaction();
-		return "The operation completed successfully.";
-	}
+    public override string SeedData(FuturemudDatabaseContext context,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        context.Database.BeginTransaction();
+        SeedChecks(context, questionAnswers);
+        SeedSkills(context, questionAnswers);
+        context.Database.CommitTransaction();
+        return "The operation completed successfully.";
+    }
 
-	private void SeedChecks(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var branching = questionAnswers["branching"].EqualToAny("yes", "y");
-		var templates = SeedCheckTemplates(context, branching);
+    private void SeedChecks(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        bool branching = questionAnswers["branching"].EqualToAny("yes", "y");
+        IReadOnlyDictionary<string, CheckTemplate> templates = SeedCheckTemplates(context, branching);
 
-		static string ResolveTemplateName(long templateId)
-		{
-			return templateId switch
-			{
-				1 => "Skill Check",
-				3 => "Skill Check No Improvement",
-				4 => "Language Check",
-				5 => "Perception Check",
-				6 => "Branch Check",
-				7 => "Passive Perception Check",
-				8 => "Capability Check",
-				9 => "Project Check",
-				10 => "Bonus Absent Check",
-				11 => "Health Check",
-				12 => "Static Check",
-				_ => "Skill Check"
-			};
-		}
+        static string ResolveTemplateName(long templateId)
+        {
+            return templateId switch
+            {
+                1 => "Skill Check",
+                3 => "Skill Check No Improvement",
+                4 => "Language Check",
+                5 => "Perception Check",
+                6 => "Branch Check",
+                7 => "Passive Perception Check",
+                8 => "Capability Check",
+                9 => "Project Check",
+                10 => "Bonus Absent Check",
+                11 => "Health Check",
+                12 => "Static Check",
+                _ => "Skill Check"
+            };
+        }
 
-		void AddCheck(CheckType type, TraitExpression expression, long templateId,
-			Difficulty maximumImprovementDifficulty)
-		{
-			var expressionName = string.IsNullOrWhiteSpace(expression.Name)
-				? (type == CheckType.None ? "Default Fallback Check" : $"{type.DescribeEnum(true)}")
-				: expression.Name;
-			EnsureCheck(
-				context,
-				type,
-				expressionName,
-				expression.Expression,
-				templates[ResolveTemplateName(templateId)].Id,
-				maximumImprovementDifficulty);
-			context.SaveChanges();
-		}
+        void AddCheck(CheckType type, TraitExpression expression, long templateId,
+            Difficulty maximumImprovementDifficulty)
+        {
+            string expressionName = string.IsNullOrWhiteSpace(expression.Name)
+                ? (type == CheckType.None ? "Default Fallback Check" : $"{type.DescribeEnum(true)}")
+                : expression.Name;
+            EnsureCheck(
+                context,
+                type,
+                expressionName,
+                expression.Expression,
+                templates[ResolveTemplateName(templateId)].Id,
+                maximumImprovementDifficulty);
+            context.SaveChanges();
+        }
 
-		var checks = Enum.GetValues(typeof(CheckType)).OfType<CheckType>().ToList();
-		var uniquechecks = Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList();
-		foreach (var check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
-			switch (check)
-			{
-				case CheckType.None:
-					// Default Fall Back
-					AddCheck(check, new TraitExpression { Name = "Default Fallback Check", Expression = "variable" }, 3,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.ProjectLabourCheck:
-					// Special Project Check
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 9,
-						Difficulty.Automatic);
-					break;
-				case CheckType.HealingCheck:
-				case CheckType.StunRecoveryCheck:
-				case CheckType.ShockRecoveryCheck:
-				case CheckType.PainRecoveryCheck:
-				case CheckType.WoundCloseCheck:
-					// Health Checks
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "max(5.0, 0.0)" }, 11,
-						Difficulty.Automatic);
-					break;
+        List<CheckType> checks = Enum.GetValues(typeof(CheckType)).OfType<CheckType>().ToList();
+        List<CheckType> uniquechecks = Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList();
+        foreach (CheckType check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
+        {
+            switch (check)
+            {
+                case CheckType.None:
+                    // Default Fall Back
+                    AddCheck(check, new TraitExpression { Name = "Default Fallback Check", Expression = "variable" }, 3,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.ProjectLabourCheck:
+                    // Special Project Check
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 9,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.HealingCheck:
+                case CheckType.StunRecoveryCheck:
+                case CheckType.ShockRecoveryCheck:
+                case CheckType.PainRecoveryCheck:
+                case CheckType.WoundCloseCheck:
+                    // Health Checks
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "max(5.0, 0.0)" }, 11,
+                        Difficulty.Automatic);
+                    break;
 
-				case CheckType.DreamCheck:
-				case CheckType.GoToSleepCheck:
-					// Special Dream-Related checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "100" }, 8,
-						Difficulty.Automatic);
-					break;
-				case CheckType.ExactTimeCheck:
-				case CheckType.VagueTimeCheck:
-				case CheckType.StyleCharacteristicCapabilityCheck:
-				case CheckType.ImplantRecognitionCheck:
-				case CheckType.TreatmentItemRecognitionCheck:
-					// Capability Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0" }, 8,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GenericAttributeCheck:
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable*5" }, 3,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GenericSkillCheck:
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 3,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GenericListenCheck:
-				case CheckType.LanguageListenCheck:
-				case CheckType.GenericSpotCheck:
-				case CheckType.NoticeCheck:
-				case CheckType.SpotSneakCheck:
-				case CheckType.ScanPerceptionCheck:
-				case CheckType.QuickscanPerceptionCheck:
-				case CheckType.LongscanPerceptionCheck:
-				case CheckType.WatchLocation:
-				case CheckType.PassiveStealthCheck:
-				case CheckType.ActiveSearchCheck:
-					// Perception Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 5,
-						Difficulty.Impossible);
-					break;
-				case CheckType.SpokenLanguageSpeakCheck:
-				case CheckType.SpokenLanguageHearCheck:
-					// Language Checks
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 4,
-						Difficulty.Impossible);
-					break;
-				case CheckType.AccentAcquireCheck:
-				case CheckType.AccentImproveCheck:
-					// Static Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "2.0" },
-						12, Difficulty.Automatic);
-					break;
-				case CheckType.WritingComprehendCheck:
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" },
-						8, Difficulty.Automatic);
-					break;
-				case CheckType.TraitBranchCheck:
-					// Trait Branch Only
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0.1" }, 6,
-						Difficulty.Automatic);
-					break;
-				case CheckType.ProjectSkillUseAction:
-					// Bonus-Absent Checks
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 10,
-						Difficulty.Automatic);
-					break;
-				case CheckType.SpotStealthCheck:
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 7,
-						Difficulty.Impossible);
-					break;
-				case CheckType.HideCheck:
-				case CheckType.SneakCheck:
-				case CheckType.PalmCheck:
-				case CheckType.HideItemCheck:
-				case CheckType.UninstallDoorCheck:
-				case CheckType.SkillTeachCheck:
-				case CheckType.SkillLearnCheck:
-				case CheckType.KnowledgeTeachCheck:
-				case CheckType.KnowledgeLearnCheck:
-				case CheckType.ForageCheck:
-				case CheckType.ForageSpecificCheck:
-				case CheckType.ForageTimeCheck:
-				case CheckType.BindWoundCheck:
-				case CheckType.SutureWoundCheck:
-				case CheckType.CleanWoundCheck:
-				case CheckType.RemoveLodgedObjectCheck:
-				case CheckType.MendCheck:
-				case CheckType.MeleeWeaponPenetrateCheck:
-				case CheckType.RangedWeaponPenetrateCheck:
-				case CheckType.PenetrationDefenseCheck:
-				case CheckType.CombatRecoveryCheck:
-				case CheckType.MedicalExaminationCheck:
-				case CheckType.LocksmithingCheck:
-				case CheckType.NaturalWeaponAttack:
-				case CheckType.RangedNaturalAttack:
-				case CheckType.BreathWeaponAttack:
-				case CheckType.BreathWeaponSwoop:
-				case CheckType.SpitNaturalAttack:
-				case CheckType.ExplosiveNaturalAttack:
-				case CheckType.BuffetingNaturalAttack:
-				case CheckType.DodgeCheck:
-				case CheckType.ParryCheck:
-				case CheckType.BlockCheck:
-				case CheckType.FleeMeleeCheck:
-				case CheckType.OpposeFleeMeleeCheck:
-				case CheckType.FleeMovementUnmountedCheck:
-				case CheckType.FleeMovementMountedCheck:
-				case CheckType.PursuitMovementUnmountedCheck:
-				case CheckType.PursuitMovementMountedCheck:
-				case CheckType.Ward:
-				case CheckType.WardDefense:
-				case CheckType.WardIgnore:
-				case CheckType.StartClinch:
-				case CheckType.ResistClinch:
-				case CheckType.BreakClinch:
-				case CheckType.ResistBreakClinch:
-				case CheckType.ExploratorySurgeryCheck:
-				case CheckType.TriageCheck:
-				case CheckType.AmputationCheck:
-				case CheckType.ReplantationCheck:
-				case CheckType.InvasiveProcedureFinalisation:
-				case CheckType.TraumaControlSurgery:
-				case CheckType.RescueCheck:
-				case CheckType.OpposeRescueCheck:
-				case CheckType.Defibrillate:
-				case CheckType.PerformCPR:
-				case CheckType.ArmourUseCheck:
-				case CheckType.ReadTextImprovementCheck:
-				case CheckType.HandwritingImprovementCheck:
-				case CheckType.StaggeringBlowDefense:
-				case CheckType.StruggleFreeFromDrag:
-				case CheckType.OpposeStruggleFreeFromDrag:
-				case CheckType.CounterGrappleCheck:
-				case CheckType.StruggleFreeFromGrapple:
-				case CheckType.OpposeStruggleFreeFromGrapple:
-				case CheckType.ExtendGrappleCheck:
-				case CheckType.InitiateGrapple:
-				case CheckType.ScreechAttack:
-				case CheckType.CrutchWalking:
-				case CheckType.OrganExtractionCheck:
-				case CheckType.OrganTransplantCheck:
-				case CheckType.CannulationProcedure:
-				case CheckType.DecannulationProcedure:
-				case CheckType.StrangleCheck:
-				case CheckType.WrenchAttackCheck:
-				case CheckType.OrganStabilisationCheck:
-				case CheckType.CraftOutcomeCheck:
-				case CheckType.CraftQualityCheck:
-				case CheckType.TendWoundCheck:
-				case CheckType.RelocateBoneCheck:
-				case CheckType.SurgicalSetCheck:
-				case CheckType.RepairItemCheck:
-				case CheckType.InstallImplantSurgery:
-				case CheckType.RemoveImplantSurgery:
-				case CheckType.ConfigureImplantPowerSurgery:
-				case CheckType.ButcheryCheck:
-				case CheckType.SkinningCheck:
-				case CheckType.TossItemCheck:
-				case CheckType.ClimbCheck:
-				case CheckType.ConfigureImplantInterfaceSurgery:
-				case CheckType.InkTattooCheck:
-				case CheckType.FallingImpactCheck:
-				case CheckType.ResistMagicChokePower:
-				case CheckType.ResistMagicAnesthesiaPower:
-				case CheckType.SwimmingCheck:
-				case CheckType.AvoidFallDueToWind:
-				case CheckType.SwimStayAfloatCheck:
-				case CheckType.FlyCheck:
-				case CheckType.CheatAtDiceCheck:
-				case CheckType.EvaluateDiceFairnessCheck:
-				case CheckType.SpillLiquidOnPerson:
-				case CheckType.DodgeSpillLiquidOnPerson:
-				case CheckType.DrawingImprovementCheck:
-				case CheckType.TakedownCheck:
-				case CheckType.BreakoutCheck:
-				case CheckType.OpposeBreakoutCheck:
-				case CheckType.StyleCharacteristicCheck:
-				case CheckType.AppraiseItemCheck:
-					// Non-variable skills
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 1,
-						Difficulty.Impossible);
-					break;
+                case CheckType.DreamCheck:
+                case CheckType.GoToSleepCheck:
+                    // Special Dream-Related checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "100" }, 8,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.ExactTimeCheck:
+                case CheckType.VagueTimeCheck:
+                case CheckType.StyleCharacteristicCapabilityCheck:
+                case CheckType.ImplantRecognitionCheck:
+                case CheckType.TreatmentItemRecognitionCheck:
+                    // Capability Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0" }, 8,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericAttributeCheck:
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable*5" }, 3,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericSkillCheck:
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 3,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericListenCheck:
+                case CheckType.LanguageListenCheck:
+                case CheckType.GenericSpotCheck:
+                case CheckType.NoticeCheck:
+                case CheckType.SpotSneakCheck:
+                case CheckType.ScanPerceptionCheck:
+                case CheckType.QuickscanPerceptionCheck:
+                case CheckType.LongscanPerceptionCheck:
+                case CheckType.WatchLocation:
+                case CheckType.PassiveStealthCheck:
+                case CheckType.ActiveSearchCheck:
+                    // Perception Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 5,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.SpokenLanguageSpeakCheck:
+                case CheckType.SpokenLanguageHearCheck:
+                    // Language Checks
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 4,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.AccentAcquireCheck:
+                case CheckType.AccentImproveCheck:
+                    // Static Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "2.0" },
+                        12, Difficulty.Automatic);
+                    break;
+                case CheckType.WritingComprehendCheck:
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" },
+                        8, Difficulty.Automatic);
+                    break;
+                case CheckType.TraitBranchCheck:
+                    // Trait Branch Only
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0.1" }, 6,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.ProjectSkillUseAction:
+                    // Bonus-Absent Checks
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 10,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.SpotStealthCheck:
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 7,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.HideCheck:
+                case CheckType.SneakCheck:
+                case CheckType.PalmCheck:
+                case CheckType.HideItemCheck:
+                case CheckType.UninstallDoorCheck:
+                case CheckType.SkillTeachCheck:
+                case CheckType.SkillLearnCheck:
+                case CheckType.KnowledgeTeachCheck:
+                case CheckType.KnowledgeLearnCheck:
+                case CheckType.ForageCheck:
+                case CheckType.ForageSpecificCheck:
+                case CheckType.ForageTimeCheck:
+                case CheckType.BindWoundCheck:
+                case CheckType.SutureWoundCheck:
+                case CheckType.CleanWoundCheck:
+                case CheckType.RemoveLodgedObjectCheck:
+                case CheckType.MendCheck:
+                case CheckType.MeleeWeaponPenetrateCheck:
+                case CheckType.RangedWeaponPenetrateCheck:
+                case CheckType.PenetrationDefenseCheck:
+                case CheckType.CombatRecoveryCheck:
+                case CheckType.MedicalExaminationCheck:
+                case CheckType.LocksmithingCheck:
+                case CheckType.NaturalWeaponAttack:
+                case CheckType.RangedNaturalAttack:
+                case CheckType.BreathWeaponAttack:
+                case CheckType.BreathWeaponSwoop:
+                case CheckType.SpitNaturalAttack:
+                case CheckType.ExplosiveNaturalAttack:
+                case CheckType.BuffetingNaturalAttack:
+                case CheckType.DodgeCheck:
+                case CheckType.ParryCheck:
+                case CheckType.BlockCheck:
+                case CheckType.FleeMeleeCheck:
+                case CheckType.OpposeFleeMeleeCheck:
+                case CheckType.FleeMovementUnmountedCheck:
+                case CheckType.FleeMovementMountedCheck:
+                case CheckType.PursuitMovementUnmountedCheck:
+                case CheckType.PursuitMovementMountedCheck:
+                case CheckType.Ward:
+                case CheckType.WardDefense:
+                case CheckType.WardIgnore:
+                case CheckType.StartClinch:
+                case CheckType.ResistClinch:
+                case CheckType.BreakClinch:
+                case CheckType.ResistBreakClinch:
+                case CheckType.ExploratorySurgeryCheck:
+                case CheckType.TriageCheck:
+                case CheckType.AmputationCheck:
+                case CheckType.ReplantationCheck:
+                case CheckType.InvasiveProcedureFinalisation:
+                case CheckType.TraumaControlSurgery:
+                case CheckType.RescueCheck:
+                case CheckType.OpposeRescueCheck:
+                case CheckType.Defibrillate:
+                case CheckType.PerformCPR:
+                case CheckType.ArmourUseCheck:
+                case CheckType.ReadTextImprovementCheck:
+                case CheckType.HandwritingImprovementCheck:
+                case CheckType.StaggeringBlowDefense:
+                case CheckType.StruggleFreeFromDrag:
+                case CheckType.OpposeStruggleFreeFromDrag:
+                case CheckType.CounterGrappleCheck:
+                case CheckType.StruggleFreeFromGrapple:
+                case CheckType.OpposeStruggleFreeFromGrapple:
+                case CheckType.ExtendGrappleCheck:
+                case CheckType.InitiateGrapple:
+                case CheckType.ScreechAttack:
+                case CheckType.CrutchWalking:
+                case CheckType.OrganExtractionCheck:
+                case CheckType.OrganTransplantCheck:
+                case CheckType.CannulationProcedure:
+                case CheckType.DecannulationProcedure:
+                case CheckType.StrangleCheck:
+                case CheckType.WrenchAttackCheck:
+                case CheckType.OrganStabilisationCheck:
+                case CheckType.CraftOutcomeCheck:
+                case CheckType.CraftQualityCheck:
+                case CheckType.TendWoundCheck:
+                case CheckType.RelocateBoneCheck:
+                case CheckType.SurgicalSetCheck:
+                case CheckType.RepairItemCheck:
+                case CheckType.InstallImplantSurgery:
+                case CheckType.RemoveImplantSurgery:
+                case CheckType.ConfigureImplantPowerSurgery:
+                case CheckType.ButcheryCheck:
+                case CheckType.SkinningCheck:
+                case CheckType.TossItemCheck:
+                case CheckType.ClimbCheck:
+                case CheckType.ConfigureImplantInterfaceSurgery:
+                case CheckType.InkTattooCheck:
+                case CheckType.FallingImpactCheck:
+                case CheckType.ResistMagicChokePower:
+                case CheckType.ResistMagicAnesthesiaPower:
+                case CheckType.SwimmingCheck:
+                case CheckType.AvoidFallDueToWind:
+                case CheckType.SwimStayAfloatCheck:
+                case CheckType.FlyCheck:
+                case CheckType.CheatAtDiceCheck:
+                case CheckType.EvaluateDiceFairnessCheck:
+                case CheckType.SpillLiquidOnPerson:
+                case CheckType.DodgeSpillLiquidOnPerson:
+                case CheckType.DrawingImprovementCheck:
+                case CheckType.TakedownCheck:
+                case CheckType.BreakoutCheck:
+                case CheckType.OpposeBreakoutCheck:
+                case CheckType.StyleCharacteristicCheck:
+                case CheckType.AppraiseItemCheck:
+                    // Non-variable skills
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 1,
+                        Difficulty.Impossible);
+                    break;
 
-				case CheckType.MeleeWeaponCheck:
-				case CheckType.ThrownWeaponCheck:
-				case CheckType.AimRangedWeapon:
-				case CheckType.FireBow:
-				case CheckType.LoadMusket:
-				case CheckType.UnjamGun:
-				case CheckType.FireCrossbow:
-				case CheckType.FireFirearm:
-				case CheckType.FireSling:
-				case CheckType.KeepAimTargetMoved:
-				case CheckType.ProgSkillUseCheck:
-				case CheckType.MagicConcentrationOnWounded:
-				case CheckType.ConnectMindPower:
-				case CheckType.PsychicLanguageHearCheck:
-				case CheckType.MindSayPower:
-				case CheckType.MindBroadcastPower:
-				case CheckType.MagicTelepathyCheck:
-				case CheckType.MindLookPower:
-				case CheckType.InvisibilityPower:
-				case CheckType.MagicArmourPower:
-				case CheckType.MagicAnesthesiaPower:
-				case CheckType.MagicSensePower:
-				case CheckType.MagicChokePower:
-				case CheckType.MindAuditPower:
-				case CheckType.MindBarrierPowerCheck:
-				case CheckType.MindExpelPower:
-				case CheckType.CombatMoveCheck:
-				case CheckType.CastSpellCheck:
-				case CheckType.AuxiliaryMoveCheck:
-				case CheckType.ResistMagicSpellCheck:
-					// Variable skills
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,
-						Difficulty.Impossible);
-					break;
+                case CheckType.MeleeWeaponCheck:
+                case CheckType.ThrownWeaponCheck:
+                case CheckType.AimRangedWeapon:
+                case CheckType.FireBow:
+                case CheckType.LoadMusket:
+                case CheckType.UnjamGun:
+                case CheckType.FireCrossbow:
+                case CheckType.FireFirearm:
+                case CheckType.FireSling:
+                case CheckType.KeepAimTargetMoved:
+                case CheckType.ProgSkillUseCheck:
+                case CheckType.MagicConcentrationOnWounded:
+                case CheckType.ConnectMindPower:
+                case CheckType.PsychicLanguageHearCheck:
+                case CheckType.MindSayPower:
+                case CheckType.MindBroadcastPower:
+                case CheckType.MagicTelepathyCheck:
+                case CheckType.MindLookPower:
+                case CheckType.InvisibilityPower:
+                case CheckType.MagicArmourPower:
+                case CheckType.MagicAnesthesiaPower:
+                case CheckType.MagicSensePower:
+                case CheckType.MagicChokePower:
+                case CheckType.MindAuditPower:
+                case CheckType.MindBarrierPowerCheck:
+                case CheckType.MindExpelPower:
+                case CheckType.CombatMoveCheck:
+                case CheckType.CastSpellCheck:
+                case CheckType.AuxiliaryMoveCheck:
+                case CheckType.ResistMagicSpellCheck:
+                    // Variable skills
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,
+                        Difficulty.Impossible);
+                    break;
 
-				case CheckType.InfectionHeartbeat:
-				case CheckType.InfectionSpread:
-				case CheckType.ReplantedBodypartRejectionCheck:
-					// Non-Improving Skill Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 3,
-						Difficulty.Automatic);
-					break;
-			}
+                case CheckType.InfectionHeartbeat:
+                case CheckType.InfectionSpread:
+                case CheckType.ReplantedBodypartRejectionCheck:
+                    // Non-Improving Skill Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 3,
+                        Difficulty.Automatic);
+                    break;
+            }
+        }
 
-		context.SaveChanges();
-	}
+        context.SaveChanges();
+    }
 
-	private void SeedSkills(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var skillGainModel = questionAnswers["skillgainmodel"].ToLowerInvariant();
+    private void SeedSkills(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        string skillGainModel = questionAnswers["skillgainmodel"].ToLowerInvariant();
 
-		var (general, _, languageDecorator, _, _, languageImprover, generalImprover) =
-			SeedSkillImprovers(context, skillGainModel);
+        (TraitDecorator? general, TraitDecorator _, TraitDecorator? languageDecorator, TraitDecorator _, TraitDecorator _, Improver? languageImprover, Improver? generalImprover) =
+            SeedSkillImprovers(context, skillGainModel);
 
-		var skills = questionAnswers["exampleskill"].Split(',', StringSplitOptions.RemoveEmptyEntries)
-			.Select(x => x.Trim().TitleCase()).ToList();
+        List<string> skills = questionAnswers["exampleskill"].Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim().TitleCase()).ToList();
 
-		TraitExpression languageCap = null;
-		var skillsCaps = new Dictionary<string, TraitExpression>();
-		switch (questionAnswers["skillcapmodel"].ToLowerInvariant())
-		{
-			case "rpi":
-				if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
-				{
-					var langAttrText = questionAnswers["languageattribute"];
-					var langAttribute = context.TraitDefinitions.FirstOrDefault(x =>
-						x.Name == langAttrText) ?? context.TraitDefinitions.First(x =>
-						x.Alias == langAttrText);
-					languageCap = EnsureTraitExpression(
-						context,
-						$"{questionAnswers["examplelanguage"]} Skill Cap",
-						$"10 + (9.5 * {langAttribute.Alias.ToLowerInvariant()}:{langAttribute.Id})");
-				}
+        TraitExpression languageCap = null;
+        Dictionary<string, TraitExpression> skillsCaps = new();
+        switch (questionAnswers["skillcapmodel"].ToLowerInvariant())
+        {
+            case "rpi":
+                if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
+                {
+                    string langAttrText = questionAnswers["languageattribute"];
+                    TraitDefinition langAttribute = context.TraitDefinitions.FirstOrDefault(x =>
+                        x.Name == langAttrText) ?? context.TraitDefinitions.First(x =>
+                        x.Alias == langAttrText);
+                    languageCap = EnsureTraitExpression(
+                        context,
+                        $"{questionAnswers["examplelanguage"]} Skill Cap",
+                        $"10 + (9.5 * {langAttribute.Alias.ToLowerInvariant()}:{langAttribute.Id})");
+                }
 
-				var attrText = questionAnswers["skillattribute"];
-				var attribute = context.TraitDefinitions.FirstOrDefault(x =>
-									x.Name == attrText) ??
-								context.TraitDefinitions.First(x =>
-									x.Alias == attrText);
-				foreach (var skill in skills)
-				{
-					skillsCaps[skill] = EnsureTraitExpression(
-						context,
-						$"{skill} Skill Cap",
-						$"min(99, 5.5 * {attribute.Alias.ToLowerInvariant()}:{attribute.Id})");
-				}
+                string attrText = questionAnswers["skillattribute"];
+                TraitDefinition attribute = context.TraitDefinitions.FirstOrDefault(x =>
+                                    x.Name == attrText) ??
+                                context.TraitDefinitions.First(x =>
+                                    x.Alias == attrText);
+                foreach (string? skill in skills)
+                {
+                    skillsCaps[skill] = EnsureTraitExpression(
+                        context,
+                        $"{skill} Skill Cap",
+                        $"min(99, 5.5 * {attribute.Alias.ToLowerInvariant()}:{attribute.Id})");
+                }
 
-				break;
-			case "class":
-				if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
-				{
-					languageCap = EnsureTraitExpression(
-						context,
-						$"{questionAnswers["examplelanguage"]} Skill Cap",
-						"130 + ({learned class=wizard,merchant} * 60)");
-				}
+                break;
+            case "class":
+                if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
+                {
+                    languageCap = EnsureTraitExpression(
+                        context,
+                        $"{questionAnswers["examplelanguage"]} Skill Cap",
+                        "130 + ({learned class=wizard,merchant} * 60)");
+                }
 
-				foreach (var skill in skills)
-				{
-					skillsCaps[skill] = EnsureTraitExpression(
-						context,
-						$"{skill} Skill Cap",
-						"30 + ({martials class=warrior,ranger,barbarian} * 30) + ({rogues class=thief,bard,} * 10)");
-				}
+                foreach (string? skill in skills)
+                {
+                    skillsCaps[skill] = EnsureTraitExpression(
+                        context,
+                        $"{skill} Skill Cap",
+                        "30 + ({martials class=warrior,ranger,barbarian} * 30) + ({rogues class=thief,bard,} * 10)");
+                }
 
-				break;
-			case "flat":
-				if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
-				{
-					languageCap = EnsureTraitExpression(
-						context,
-						$"{questionAnswers["examplelanguage"]} Skill Cap",
-						"200");
-				}
+                break;
+            case "flat":
+                if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
+                {
+                    languageCap = EnsureTraitExpression(
+                        context,
+                        $"{questionAnswers["examplelanguage"]} Skill Cap",
+                        "200");
+                }
 
-				foreach (var skill in skills)
-				{
-					skillsCaps[skill] = EnsureTraitExpression(context, $"{skill} Skill Cap", "70");
-				}
+                foreach (string? skill in skills)
+                {
+                    skillsCaps[skill] = EnsureTraitExpression(context, $"{skill} Skill Cap", "70");
+                }
 
-				break;
-			default:
-				goto case "rpi";
-		}
-
-
-		context.SaveChanges();
-
-		foreach (var skill in skills)
-		{
-			var alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
-			var alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
-			EnsureSkillDefinition(context, skill, trait =>
-			{
-				trait.Type = 0;
-				trait.DecoratorId = general.Id;
-				trait.TraitGroup = "General";
-				trait.AvailabilityProg = alwaysTrue;
-				trait.TeachableProg = alwaysFalse;
-				trait.LearnableProg = alwaysTrue;
-				trait.TeachDifficulty = 7;
-				trait.LearnDifficulty = 7;
-				trait.Hidden = false;
-				trait.Expression = skillsCaps[skill];
-				trait.ExpressionId = skillsCaps[skill].Id;
-				trait.ImproverId = generalImprover.Id;
-				trait.DerivedType = 0;
-				trait.ChargenBlurb = string.Empty;
-				trait.BranchMultiplier = 1.0;
-			});
-			context.SaveChanges();
-		}
+                break;
+            default:
+                goto case "rpi";
+        }
 
 
-		if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
-		{
-			var alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
-			var alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
-			var languageSkill = EnsureSkillDefinition(context, "Admin", trait =>
-			{
-				trait.Type = 0;
-				trait.DecoratorId = languageDecorator.Id;
-				trait.TraitGroup = "Language";
-				trait.AvailabilityProg = alwaysTrue;
-				trait.TeachableProg = alwaysFalse;
-				trait.LearnableProg = alwaysTrue;
-				trait.TeachDifficulty = 7;
-				trait.LearnDifficulty = 7;
-				trait.Hidden = false;
-				trait.Expression = languageCap;
-				trait.ExpressionId = languageCap?.Id;
-				trait.ImproverId = languageImprover.Id;
-				trait.DerivedType = 0;
-				trait.ChargenBlurb = string.Empty;
-				trait.BranchMultiplier = 0.1;
-			});
-			context.SaveChanges();
+        context.SaveChanges();
 
-			var language = EnsureLanguage(context, questionAnswers["examplelanguage"], language =>
-			{
-				language.LinkedTrait = languageSkill;
-				language.LinkedTraitId = languageSkill.Id;
-				language.UnknownLanguageDescription = "an unknown language";
-				language.LanguageObfuscationFactor = 0.1;
-				language.DifficultyModel = context.LanguageDifficultyModels.First().Id;
-			});
-			context.SaveChanges();
-			var accent = EnsureAccent(context, language, "foreign", current =>
-			{
-				current.Suffix = "with a foreign accent";
-				current.VagueSuffix = "with a foreign accent";
-				current.Difficulty = (int)Difficulty.Normal;
-				current.Description = "This is the accent of a non-native speaker who is just beginning to learn the language";
-				current.Group = "foreign";
-			});
-			language.DefaultLearnerAccent = accent;
-			language.DefaultLearnerAccentId = accent.Id;
-			context.SaveChanges();
-		}
-	}
+        foreach (string? skill in skills)
+        {
+            FutureProg alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
+            FutureProg alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
+            EnsureSkillDefinition(context, skill, trait =>
+            {
+                trait.Type = 0;
+                trait.DecoratorId = general.Id;
+                trait.TraitGroup = "General";
+                trait.AvailabilityProg = alwaysTrue;
+                trait.TeachableProg = alwaysFalse;
+                trait.LearnableProg = alwaysTrue;
+                trait.TeachDifficulty = 7;
+                trait.LearnDifficulty = 7;
+                trait.Hidden = false;
+                trait.Expression = skillsCaps[skill];
+                trait.ExpressionId = skillsCaps[skill].Id;
+                trait.ImproverId = generalImprover.Id;
+                trait.DerivedType = 0;
+                trait.ChargenBlurb = string.Empty;
+                trait.BranchMultiplier = 1.0;
+            });
+            context.SaveChanges();
+        }
 
 
-	public override ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
-	{
-		if (!context.Accounts.Any() || context.TraitDefinitions.All(x => x.Type != 1))
-			return ShouldSeedResult.PrerequisitesNotMet;
+        if (!string.IsNullOrEmpty(questionAnswers["examplelanguage"]))
+        {
+            FutureProg alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
+            FutureProg alwaysFalse = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
+            TraitDefinition languageSkill = EnsureSkillDefinition(context, "Admin", trait =>
+            {
+                trait.Type = 0;
+                trait.DecoratorId = languageDecorator.Id;
+                trait.TraitGroup = "Language";
+                trait.AvailabilityProg = alwaysTrue;
+                trait.TeachableProg = alwaysFalse;
+                trait.LearnableProg = alwaysTrue;
+                trait.TeachDifficulty = 7;
+                trait.LearnDifficulty = 7;
+                trait.Hidden = false;
+                trait.Expression = languageCap;
+                trait.ExpressionId = languageCap?.Id;
+                trait.ImproverId = languageImprover.Id;
+                trait.DerivedType = 0;
+                trait.ChargenBlurb = string.Empty;
+                trait.BranchMultiplier = 0.1;
+            });
+            context.SaveChanges();
 
-		if (context.TraitDefinitions.Any(x => x.Name == "Admin Speech") ||
-		    context.Languages.Any(x => x.Name == "Admin Speech"))
-		{
-			return ShouldSeedResult.MayAlreadyBeInstalled;
-		}
+            Language language = EnsureLanguage(context, questionAnswers["examplelanguage"], language =>
+            {
+                language.LinkedTrait = languageSkill;
+                language.LinkedTraitId = languageSkill.Id;
+                language.UnknownLanguageDescription = "an unknown language";
+                language.LanguageObfuscationFactor = 0.1;
+                language.DifficultyModel = context.LanguageDifficultyModels.First().Id;
+            });
+            context.SaveChanges();
+            Accent accent = EnsureAccent(context, language, "foreign", current =>
+            {
+                current.Suffix = "with a foreign accent";
+                current.VagueSuffix = "with a foreign accent";
+                current.Difficulty = (int)Difficulty.Normal;
+                current.Description = "This is the accent of a non-native speaker who is just beginning to learn the language";
+                current.Group = "foreign";
+            });
+            language.DefaultLearnerAccent = accent;
+            language.DefaultLearnerAccentId = accent.Id;
+            context.SaveChanges();
+        }
+    }
 
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-		[
-			context.CheckTemplates.Any(x => x.Name == "Skill Check"),
-			context.CheckTemplates.Any(x => x.Name == "Language Check"),
-			context.TraitDecorators.Any(x => x.Name == "General Skill"),
-			context.TraitDecorators.Any(x => x.Name == "Language Skill"),
-			context.Improvers.Any(x => x.Name == "Skill Improver"),
-			context.Improvers.Any(x => x.Name == "Language Improver"),
-			context.TraitDefinitions.Any(x => x.Name == "Admin") ||
-			(SharedSkillSeederMarkers.All(marker =>
-				context.CheckTemplates.Any(x => x.Name == marker) ||
-				context.TraitDecorators.Any(x => x.Name == marker) ||
-				context.Improvers.Any(x => x.Name == marker)) &&
-			 context.TraitDefinitions.Any(x => x.Type == 0))
-		]);
-	}
+
+    public override ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
+    {
+        if (!context.Accounts.Any() || context.TraitDefinitions.All(x => x.Type != 1))
+        {
+            return ShouldSeedResult.PrerequisitesNotMet;
+        }
+
+        if (context.TraitDefinitions.Any(x => x.Name == "Admin Speech") ||
+            context.Languages.Any(x => x.Name == "Admin Speech"))
+        {
+            return ShouldSeedResult.MayAlreadyBeInstalled;
+        }
+
+        return SeederRepeatabilityHelper.ClassifyByPresence(
+        [
+            context.CheckTemplates.Any(x => x.Name == "Skill Check"),
+            context.CheckTemplates.Any(x => x.Name == "Language Check"),
+            context.TraitDecorators.Any(x => x.Name == "General Skill"),
+            context.TraitDecorators.Any(x => x.Name == "Language Skill"),
+            context.Improvers.Any(x => x.Name == "Skill Improver"),
+            context.Improvers.Any(x => x.Name == "Language Improver"),
+            context.TraitDefinitions.Any(x => x.Name == "Admin") ||
+            (SharedSkillSeederMarkers.All(marker =>
+                context.CheckTemplates.Any(x => x.Name == marker) ||
+                context.TraitDecorators.Any(x => x.Name == marker) ||
+                context.Improvers.Any(x => x.Name == marker)) &&
+             context.TraitDefinitions.Any(x => x.Type == 0))
+        ]);
+    }
 }

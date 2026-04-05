@@ -1,9 +1,4 @@
 #nullable enable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction;
@@ -17,6 +12,11 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -89,19 +89,19 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         _preferredNumber = root.Element("PreferredNumber")?.Value;
         _allowSharedNumber = bool.Parse(root.Element("AllowSharedNumber")?.Value ?? "false");
         _hostedVoicemailEnabled = bool.Parse(root.Element("HostedVoicemailEnabled")?.Value ?? "false");
-        if (int.TryParse(root.Element("RingVolumeOverride")?.Value, out var ringVolume) &&
+        if (int.TryParse(root.Element("RingVolumeOverride")?.Value, out int ringVolume) &&
             Enum.IsDefined(typeof(AudioVolume), ringVolume))
         {
             _ringVolumeOverride = (AudioVolume)ringVolume;
         }
         _directGrid = Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ITelecommunicationsGrid;
-        var element = root.Element("ConnectedItems");
+        XElement? element = root.Element("ConnectedItems");
         if (element == null)
         {
             return;
         }
 
-        foreach (var item in element.Elements("Item"))
+        foreach (XElement item in element.Elements("Item"))
         {
             if (item.Attribute("independent")?.Value == "false")
             {
@@ -142,15 +142,15 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public override void FinaliseLoad()
     {
-        foreach (var item in _pendingLoadTimeConnections.ToList())
+        foreach (Tuple<long, ConnectorType>? item in _pendingLoadTimeConnections.ToList())
         {
-            var gitem = Gameworld.Items.Get(item.Item1);
+            IGameItem? gitem = Gameworld.Items.Get(item.Item1);
             if (gitem == null || gitem.Location != Parent.Location)
             {
                 continue;
             }
 
-            foreach (var connectable in gitem.GetItemTypes<IConnectable>())
+            foreach (IConnectable connectable in gitem.GetItemTypes<IConnectable>())
             {
                 if (!connectable.CanConnect(null, this))
                 {
@@ -164,16 +164,16 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
         _pendingLoadTimeConnections.Clear();
 
-        foreach (var item in _pendingDependentLoadTimeConnections.ToList())
+        foreach (Tuple<long, ConnectorType>? item in _pendingDependentLoadTimeConnections.ToList())
         {
-            var gitem = Gameworld.Items.Get(item.Item1) ?? Gameworld.TryGetItem(item.Item1, true);
+            IGameItem gitem = Gameworld.Items.Get(item.Item1) ?? Gameworld.TryGetItem(item.Item1, true);
             if (gitem == null)
             {
                 continue;
             }
 
             gitem.FinaliseLoadTimeTasks();
-            foreach (var connectable in gitem.GetItemTypes<IConnectable>())
+            foreach (IConnectable connectable in gitem.GetItemTypes<IConnectable>())
             {
                 Connect(null, connectable);
                 break;
@@ -190,16 +190,16 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         Changed = true;
     }
 
-	public override void Delete()
-	{
-		base.Delete();
-		Parent.OnConnected -= Parent_OnConnected;
+    public override void Delete()
+    {
+        base.Delete();
+        Parent.OnConnected -= Parent_OnConnected;
         Parent.OnDisconnected -= Parent_OnDisconnected;
         _connectedPowerSource?.EndDrawdown(this);
         _directGrid?.LeaveGrid((ITelephoneNumberOwner)this);
-		_directGrid?.LeaveGrid((IConsumePower)this);
-		StopRinging();
-	}
+        _directGrid?.LeaveGrid((IConsumePower)this);
+        StopRinging();
+    }
 
     public IEnumerable<ConnectorType> Connections => _prototype.Connections;
     public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems;
@@ -208,8 +208,8 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
     {
         get
         {
-            var rvar = new List<ConnectorType>(Connections);
-            foreach (var item in ConnectedItems)
+            List<ConnectorType> rvar = new(Connections);
+            foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
             {
                 rvar.Remove(item.Item1);
             }
@@ -238,7 +238,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public void Connect(ICharacter actor, IConnectable other)
     {
-        var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
+        ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
         {
             return;
@@ -249,14 +249,14 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         Changed = true;
     }
 
-	public void RawConnect(IConnectable other, ConnectorType type)
-	{
-		_connectedItems.Add(Tuple.Create(type, other));
-		_pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		_pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
-		Parent.ConnectedItem(other, type);
-		Changed = true;
-	}
+    public void RawConnect(IConnectable other, ConnectorType type)
+    {
+        _connectedItems.Add(Tuple.Create(type, other));
+        _pendingLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        _pendingDependentLoadTimeConnections.RemoveAll(x => x.Item1 == other.Parent.Id && x.Item2.CompatibleWith(type));
+        Parent.ConnectedItem(other, type);
+        Changed = true;
+    }
 
     public string WhyCannotConnect(ICharacter actor, IConnectable other)
     {
@@ -293,20 +293,20 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         RawDisconnect(other, true);
     }
 
-	public void RawDisconnect(IConnectable other, bool handleEvents)
-	{
-		if (handleEvents)
-		{
-			other.RawDisconnect(this, false);
-			foreach (var connection in _connectedItems.Where(x => x.Item2 == other).ToList())
-			{
-				Parent.DisconnectedItem(other, connection.Item1);
-				other.Parent.DisconnectedItem(this, connection.Item1);
-			}
-		}
+    public void RawDisconnect(IConnectable other, bool handleEvents)
+    {
+        if (handleEvents)
+        {
+            other.RawDisconnect(this, false);
+            foreach (Tuple<ConnectorType, IConnectable>? connection in _connectedItems.Where(x => x.Item2 == other).ToList())
+            {
+                Parent.DisconnectedItem(other, connection.Item1);
+                other.Parent.DisconnectedItem(this, connection.Item1);
+            }
+        }
 
-		_connectedItems.RemoveAll(x => x.Item2 == other);
-		Changed = true;
+        _connectedItems.RemoveAll(x => x.Item2 == other);
+        Changed = true;
     }
 
     public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
@@ -316,77 +316,77 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             : $"You cannot disconnect {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason";
     }
 
-	public bool CanBeDisconnectedFrom(IConnectable other)
-	{
-		return true;
-	}
+    public bool CanBeDisconnectedFrom(IConnectable other)
+    {
+        return true;
+    }
 
-	private void Parent_OnConnected(IConnectable other, ConnectorType type)
-	{
-		if (other.Parent.GetItemType<ITelephoneNumberOwner>() is { } owner)
-		{
-			if (_currentCall != null || _isOffHook)
-			{
-				EndCall(_currentCall);
-			}
+    private void Parent_OnConnected(IConnectable other, ConnectorType type)
+    {
+        if (other.Parent.GetItemType<ITelephoneNumberOwner>() is { } owner)
+        {
+            if (_currentCall != null || _isOffHook)
+            {
+                EndCall(_currentCall);
+            }
 
-			_directGrid?.LeaveGrid((ITelephoneNumberOwner)this);
-			_directGrid?.LeaveGrid((IConsumePower)this);
-			_directGrid = null;
-			_connectedLineOwner = owner;
-			Changed = true;
-		}
+            _directGrid?.LeaveGrid((ITelephoneNumberOwner)this);
+            _directGrid?.LeaveGrid((IConsumePower)this);
+            _directGrid = null;
+            _connectedLineOwner = owner;
+            Changed = true;
+        }
 
-		if (!type.Powered)
-		{
-			return;
-		}
+        if (!type.Powered)
+        {
+            return;
+        }
 
-		var power = other.Parent.GetItemTypes<IProducePower>()
-		                 .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
-		if (power == null)
-		{
-			return;
-		}
+        IProducePower? power = other.Parent.GetItemTypes<IProducePower>()
+                         .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
+        if (power == null)
+        {
+            return;
+        }
 
-		_connectedPowerSource = power;
-		_connectedPowerSourceConnector = type;
-		power.BeginDrawdown(this);
-	}
+        _connectedPowerSource = power;
+        _connectedPowerSourceConnector = type;
+        power.BeginDrawdown(this);
+    }
 
-	private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
-	{
-		if (other.Parent == _connectedLineOwner?.Parent)
-		{
-			if (_currentCall != null || _isOffHook)
-			{
-				EndCall(_currentCall);
-			}
+    private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
+    {
+        if (other.Parent == _connectedLineOwner?.Parent)
+        {
+            if (_currentCall != null || _isOffHook)
+            {
+                EndCall(_currentCall);
+            }
 
-			_connectedLineOwner = null;
-			Changed = true;
-		}
+            _connectedLineOwner = null;
+            Changed = true;
+        }
 
-		if (other.Parent != _connectedPowerSource?.Parent ||
-		    _connectedPowerSourceConnector?.Equals(type) != true)
-		{
-			return;
-		}
+        if (other.Parent != _connectedPowerSource?.Parent ||
+            _connectedPowerSourceConnector?.Equals(type) != true)
+        {
+            return;
+        }
 
-		if (_powered)
-		{
-			OnPowerCutOut();
-		}
+        if (_powered)
+        {
+            OnPowerCutOut();
+        }
 
-		_connectedPowerSource.EndDrawdown(this);
-		_connectedPowerSource = null;
-		_connectedPowerSourceConnector = null;
-	}
+        _connectedPowerSource.EndDrawdown(this);
+        _connectedPowerSource = null;
+        _connectedPowerSourceConnector = null;
+    }
 
-	public override bool DescriptionDecorator(DescriptionType type)
-	{
-		return type == DescriptionType.Full;
-	}
+    public override bool DescriptionDecorator(DescriptionType type)
+    {
+        return type == DescriptionType.Full;
+    }
 
     public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
         bool colour, PerceiveIgnoreFlags flags)
@@ -396,12 +396,12 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             return base.Decorate(voyeur, name, description, type, colour, flags);
         }
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine(description);
         sb.AppendLine($"It is currently switched {(_switchedOn ? "on".ColourValue() : "off".ColourError())}.");
         sb.AppendLine($"It is {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}.");
         sb.AppendLine($"Its number is {(PhoneNumber?.ColourValue() ?? "unassigned".ColourError())}.");
-		sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.");
+        sb.AppendLine($"Its ringer is set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.");
         sb.AppendLine($"Hosted voicemail is {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.");
         sb.AppendLine(
             $"It is connected to {(TelecommunicationsGrid == null ? "no telecommunications grid".ColourError() : $"grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}.");
@@ -420,7 +420,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             sb.AppendLine("It is currently dialling another number.");
         }
 
-        foreach (var item in ConnectedItems)
+        foreach (Tuple<ConnectorType, IConnectable> item in ConnectedItems)
         {
             sb.AppendLine(
                 $"It is currently connected to {item.Item2.Parent.HowSeen(voyeur)} by a {item.Item1.ConnectionType.Colour(Telnet.Green)} connection.");
@@ -466,23 +466,23 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         }
     }
 
-	public bool HostedVoicemailEnabled
-	{
-		get => NumberOwner != null && NumberOwner != this
-			? NumberOwner.HostedVoicemailEnabled
-			: _hostedVoicemailEnabled;
-		set
-		{
-			if (NumberOwner != null && NumberOwner != this)
-			{
-				NumberOwner.HostedVoicemailEnabled = value;
-				return;
-			}
+    public bool HostedVoicemailEnabled
+    {
+        get => NumberOwner != null && NumberOwner != this
+            ? NumberOwner.HostedVoicemailEnabled
+            : _hostedVoicemailEnabled;
+        set
+        {
+            if (NumberOwner != null && NumberOwner != this)
+            {
+                NumberOwner.HostedVoicemailEnabled = value;
+                return;
+            }
 
-			_hostedVoicemailEnabled = value;
-			Changed = true;
-		}
-	}
+            _hostedVoicemailEnabled = value;
+            Changed = true;
+        }
+    }
 
     public bool IsPowered => _powered;
     public bool IsOffHook => _isOffHook;
@@ -552,15 +552,15 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public double PowerConsumptionInWatts => _switchedOn ? _prototype.Wattage : 0.0;
 
-	public virtual void OnPowerCutIn()
-	{
-		_powered = true;
-	}
+    public virtual void OnPowerCutIn()
+    {
+        _powered = true;
+    }
 
-	public virtual void OnPowerCutOut()
-	{
-		_powered = false;
-		if (_currentCall != null || _isOffHook)
+    public virtual void OnPowerCutOut()
+    {
+        _powered = false;
+        if (_currentCall != null || _isOffHook)
         {
             EndCall(_currentCall);
         }
@@ -600,50 +600,50 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         );
     }
 
-	public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff", ..TelephoneRingSettings.LandlineSettings];
+    public IEnumerable<string> SwitchSettings => ["on", "off", "vmon", "vmoff", .. TelephoneRingSettings.LandlineSettings];
 
-	public bool CanSwitch(ICharacter actor, string setting)
-	{
-		if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
-		{
-			return !_switchedOn;
-		}
+    public bool CanSwitch(ICharacter actor, string setting)
+    {
+        if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return !_switchedOn;
+        }
 
-		if (setting.Equals("off", StringComparison.InvariantCultureIgnoreCase))
-		{
-			return _switchedOn;
-		}
+        if (setting.Equals("off", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return _switchedOn;
+        }
 
-		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
-		{
-			return !HostedVoicemailEnabled;
-		}
+        if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return !HostedVoicemailEnabled;
+        }
 
-		if (setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
-		{
-			return HostedVoicemailEnabled;
-		}
+        if (setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return HostedVoicemailEnabled;
+        }
 
-		return TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out var volume) &&
-		       RingVolume != volume;
-	}
+        return TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out AudioVolume volume) &&
+               RingVolume != volume;
+    }
 
-	public string WhyCannotSwitch(ICharacter actor, string setting)
-	{
-		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out _))
-		{
-			return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.";
-		}
+    public string WhyCannotSwitch(ICharacter actor, string setting)
+    {
+        if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out _))
+        {
+            return $"{Parent.HowSeen(actor, true)} is already set to {TelephoneRingSettings.DescribeSetting(RingVolume, false).ColourValue()}.";
+        }
 
-		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
-		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
-		{
-			return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
-		}
+        if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+            setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return $"{Parent.HowSeen(actor, true)} already has hosted voicemail {(HostedVoicemailEnabled ? "enabled".ColourValue() : "disabled".ColourError())} for this line.";
+        }
 
-		return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
-			? $"{Parent.HowSeen(actor, true)} is already on."
-			: $"{Parent.HowSeen(actor, true)} is already off.";
+        return setting.Equals("on", StringComparison.InvariantCultureIgnoreCase)
+            ? $"{Parent.HowSeen(actor, true)} is already on."
+            : $"{Parent.HowSeen(actor, true)} is already off.";
     }
 
     public virtual bool Switch(ICharacter actor, string setting)
@@ -653,26 +653,26 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             return false;
         }
 
-		if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out var volume))
-		{
-			_ringVolumeOverride = volume;
-			Changed = true;
-			return true;
-		}
+        if (TelephoneRingSettings.TryGetVolumeForSetting(setting, false, out AudioVolume volume))
+        {
+            _ringVolumeOverride = volume;
+            Changed = true;
+            return true;
+        }
 
-		if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
-		    setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
-		{
-			HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
-			return true;
-		}
+        if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
+            setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
+        {
+            HostedVoicemailEnabled = setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase);
+            return true;
+        }
 
-		_switchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
-		Changed = true;
-		if (!_switchedOn && (_currentCall != null || _isOffHook))
-		{
-			EndCall(_currentCall);
-		}
+        _switchedOn = setting.Equals("on", StringComparison.InvariantCultureIgnoreCase);
+        Changed = true;
+        if (!_switchedOn && (_currentCall != null || _isOffHook))
+        {
+            EndCall(_currentCall);
+        }
 
         return true;
     }
@@ -727,16 +727,16 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         return true;
     }
 
-	public bool CanDial(ICharacter actor, string number, out string error)
-	{
-		if (_currentCall?.IsConnected == true)
-		{
-			return CanSendDigits(actor, number, out error);
-		}
+    public bool CanDial(ICharacter actor, string number, out string error)
+    {
+        if (_currentCall?.IsConnected == true)
+        {
+            return CanSendDigits(actor, number, out error);
+        }
 
-		if (TelecommunicationsGrid == null)
-		{
-			error = "That telephone is not connected to a telecommunications grid.";
+        if (TelecommunicationsGrid == null)
+        {
+            error = "That telephone is not connected to a telecommunications grid.";
             return false;
         }
 
@@ -762,59 +762,59 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         return true;
     }
 
-	public bool Dial(ICharacter actor, string number, out string error)
-	{
-		if (_currentCall?.IsConnected == true)
-		{
-			return SendDigits(actor, number, out error);
-		}
+    public bool Dial(ICharacter actor, string number, out string error)
+    {
+        if (_currentCall?.IsConnected == true)
+        {
+            return SendDigits(actor, number, out error);
+        }
 
-		if (!CanDial(actor, number, out error))
-		{
-			return false;
+        if (!CanDial(actor, number, out error))
+        {
+            return false;
         }
 
         _isOffHook = true;
-		Changed = true;
-		return TelecommunicationsGrid!.TryStartCall(this, number, out error);
-	}
+        Changed = true;
+        return TelecommunicationsGrid!.TryStartCall(this, number, out error);
+    }
 
-	public bool CanSendDigits(ICharacter actor, string digits, out string error)
-	{
-		if (_currentCall?.IsConnected != true)
-		{
-			error = "That telephone is not connected to a live call.";
-			return false;
-		}
+    public bool CanSendDigits(ICharacter actor, string digits, out string error)
+    {
+        if (_currentCall?.IsConnected != true)
+        {
+            error = "That telephone is not connected to a live call.";
+            return false;
+        }
 
-		if (!_switchedOn || !IsPowered)
-		{
-			error = "That telephone is not ready to send keypad digits right now.";
-			return false;
-		}
+        if (!_switchedOn || !IsPowered)
+        {
+            error = "That telephone is not ready to send keypad digits right now.";
+            return false;
+        }
 
-		if (!TelephoneNetworkHelpers.TryNormaliseDigits(digits, out _))
-		{
-			error = "You may only send keypad digits from 0-9, * and #.";
-			return false;
-		}
+        if (!TelephoneNetworkHelpers.TryNormaliseDigits(digits, out _))
+        {
+            error = "You may only send keypad digits from 0-9, * and #.";
+            return false;
+        }
 
-		error = string.Empty;
-		return true;
-	}
+        error = string.Empty;
+        return true;
+    }
 
-	public bool SendDigits(ICharacter actor, string digits, out string error)
-	{
-		if (!CanSendDigits(actor, digits, out error))
-		{
-			return false;
-		}
+    public bool SendDigits(ICharacter actor, string digits, out string error)
+    {
+        if (!CanSendDigits(actor, digits, out error))
+        {
+            return false;
+        }
 
-		var normalised = new string(digits.Where(x => !char.IsWhiteSpace(x)).ToArray());
-		_currentCall!.RelayDigits(this, normalised);
-		error = string.Empty;
-		return true;
-	}
+        string normalised = new(digits.Where(x => !char.IsWhiteSpace(x)).ToArray());
+        _currentCall!.RelayDigits(this, normalised);
+        error = string.Empty;
+        return true;
+    }
 
     public bool CanAnswer(ICharacter actor, out string error)
     {
@@ -895,15 +895,15 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         Changed = true;
     }
 
-	public void NotifyCallProgress(string message)
-	{
-		Parent.OutputHandler.Send(message);
-	}
+    public void NotifyCallProgress(string message)
+    {
+        Parent.OutputHandler.Send(message);
+    }
 
-	public void ReceiveDigits(ITelephone source, string digits)
-	{
-		Parent.HandleEvent(EventType.TelephoneDigitsReceived, source.Parent, digits);
-	}
+    public void ReceiveDigits(ITelephone source, string digits)
+    {
+        Parent.HandleEvent(EventType.TelephoneDigitsReceived, source.Parent, digits);
+    }
 
     public void EndCall(ITelephoneCall? call, bool notifyGrid = true)
     {
@@ -912,7 +912,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             return;
         }
 
-        var existingCall = _currentCall;
+        ITelephoneCall? existingCall = _currentCall;
         StopRinging();
         _currentCall = null;
         _isRinging = false;
@@ -937,7 +937,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
             OutputRange.Local
         );
 
-        foreach (var location in Parent.TrueLocations.Distinct())
+        foreach (ICell? location in Parent.TrueLocations.Distinct())
         {
             location.HandleAudioEcho("You hear a telephone ringing {0}.", RingVolume, Parent, Parent.RoomLayer);
         }
@@ -976,25 +976,25 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         _ringHeartbeatSubscribed = false;
     }
 
-	public void SetRingVolumeOverride(AudioVolume? volume)
-	{
-		_ringVolumeOverride = volume.HasValue
-			? TelephoneRingSettings.NormaliseVolume(volume.Value, false)
-			: null;
-		Changed = true;
-	}
+    public void SetRingVolumeOverride(AudioVolume? volume)
+    {
+        _ringVolumeOverride = volume.HasValue
+            ? TelephoneRingSettings.NormaliseVolume(volume.Value, false)
+            : null;
+        Changed = true;
+    }
 
-	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
-	{
-		if (!_connectedItems.Any())
-		{
+    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    {
+        if (!_connectedItems.Any())
+        {
             return false;
         }
 
-        foreach (var connectedItem in _connectedItems.Select(x => x.Item2).ToList())
+        foreach (IConnectable? connectedItem in _connectedItems.Select(x => x.Item2).ToList())
         {
             connectedItem.RawDisconnect(this, true);
-            var newItemConnectable = newItem?.GetItemType<IConnectable>();
+            IConnectable? newItemConnectable = newItem?.GetItemType<IConnectable>();
             if (newItemConnectable == null)
             {
                 location?.Insert(connectedItem.Parent);
@@ -1024,7 +1024,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public override string WhyPreventsMovement(ICharacter mover)
     {
-        var preventingItems = ConnectedItems.Where(
+        List<Tuple<ConnectorType, IConnectable>> preventingItems = ConnectedItems.Where(
                 x => x.Item2.Independent &&
                      (x.Item2.Parent.InInventoryOf == null || x.Item2.Parent.InInventoryOf != Parent.InInventoryOf))
                                       .ToList();
@@ -1034,7 +1034,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
 
     public override void ForceMove()
     {
-        foreach (var item in ConnectedItems.Where(
+        foreach (Tuple<ConnectorType, IConnectable>? item in ConnectedItems.Where(
                 x => x.Item2.Independent &&
                      (x.Item2.Parent.InInventoryOf == null || x.Item2.Parent.InInventoryOf != Parent.InInventoryOf))
                                          .ToList())
@@ -1043,18 +1043,18 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         }
     }
 
-	public override bool Take(IGameItem item)
-	{
-		if (_connectedItems.RemoveAll(x => x.Item2.Parent == item) <= 0)
+    public override bool Take(IGameItem item)
+    {
+        if (_connectedItems.RemoveAll(x => x.Item2.Parent == item) <= 0)
         {
             return false;
         }
 
-		Changed = true;
-		return true;
-	}
+        Changed = true;
+        return true;
+    }
 
-	string ICanConnectToGrid.GridType => "Telecommunications";
+    string ICanConnectToGrid.GridType => "Telecommunications";
 
     IGrid? ICanConnectToGrid.Grid
     {

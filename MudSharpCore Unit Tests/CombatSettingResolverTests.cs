@@ -1,317 +1,348 @@
 #nullable enable
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using MudSharp.Body;
+using MudSharp.Character;
+using MudSharp.Character.Heritage;
+using MudSharp.Combat;
+using MudSharp.Framework;
+using MudSharp.Framework.Save;
+using MudSharp.NPC.Templates;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using MudSharp.Character;
-using MudSharp.Character.Heritage;
-using MudSharp.Combat;
-using MudSharp.Framework;
-using MudSharp.Framework.Save;
-using MudSharp.Body;
-using MudSharp.NPC.Templates;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class CombatSettingResolverTests
 {
-	private sealed class TestAll<T>(IEnumerable<T> values) : IUneditableAll<T> where T : class, IFrameworkItem
-	{
-		private readonly List<T> _values = values.ToList();
+    private sealed class TestAll<T>(IEnumerable<T> values) : IUneditableAll<T> where T : class, IFrameworkItem
+    {
+        private readonly List<T> _values = values.ToList();
 
-		public bool Has(T value) => _values.Contains(value);
-		public bool Has(long id) => _values.Any(x => x.Id == id);
-		public bool Has(string name) => _values.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-		public T? Get(long id) => _values.FirstOrDefault(x => x.Id == id);
-		public bool TryGet(long id, out T? result)
-		{
-			result = Get(id);
-			return result is not null;
-		}
+        public bool Has(T value)
+        {
+            return _values.Contains(value);
+        }
 
-		public List<T> Get(string name) => _values.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).ToList();
-		public T? GetByName(string name) => _values.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-		public T? GetByIdOrName(string value, bool permitAbbreviations = true)
-		{
-			return long.TryParse(value, out var id) ? Get(id) : GetByName(value);
-		}
+        public bool Has(long id)
+        {
+            return _values.Any(x => x.Id == id);
+        }
 
-		public void ForEach(Action<T> action)
-		{
-			foreach (var item in _values)
-			{
-				action(item);
-			}
-		}
+        public bool Has(string name)
+        {
+            return _values.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
 
-		public int Count => _values.Count;
-		public IEnumerator<T> GetEnumerator() => _values.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-	}
+        public T? Get(long id)
+        {
+            return _values.FirstOrDefault(x => x.Id == id);
+        }
 
-	private static Mock<ICharacterCombatSettings> CreateSetting(long id, string name, double priority,
-		bool canUse = true, bool globalTemplate = true)
-	{
-		var mock = new Mock<ICharacterCombatSettings>();
-		mock.SetupGet(x => x.Id).Returns(id);
-		mock.SetupGet(x => x.Name).Returns(name);
-		mock.SetupGet(x => x.FrameworkItemType).Returns("CharacterCombatSetting");
-		mock.SetupGet(x => x.GlobalTemplate).Returns(globalTemplate);
-		mock.Setup(x => x.CanUse(It.IsAny<ICharacter>())).Returns(canUse);
-		mock.Setup(x => x.PriorityFor(It.IsAny<ICharacter>())).Returns(priority);
-		return mock;
-	}
+        public bool TryGet(long id, out T? result)
+        {
+            result = Get(id);
+            return result is not null;
+        }
 
-	private static ICharacter CreateCharacter(IEnumerable<ICharacterCombatSettings> settings,
-		ICharacterCombatSettings? raceDefault = null)
-	{
-		var world = new Mock<IFuturemud>();
-		world.SetupGet(x => x.CharacterCombatSettings).Returns(new TestAll<ICharacterCombatSettings>(settings));
+        public List<T> Get(string name)
+        {
+            return _values.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
 
-		var character = new Mock<ICharacter>();
-		character.SetupGet(x => x.Gameworld).Returns(world.Object);
+        public T? GetByName(string name)
+        {
+            return _values.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
 
-		if (raceDefault is not null)
-		{
-			var race = new Mock<IRace>();
-			race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
-			{
-				CanAttack = true,
-				CanDefend = true,
-				CanUseWeapons = true,
-				DefaultCombatSetting = raceDefault
-			});
-			character.SetupGet(x => x.Race).Returns(race.Object);
-		}
-		else
-		{
-			character.SetupGet(x => x.Race).Returns(() => null!);
-		}
+        public T? GetByIdOrName(string value, bool permitAbbreviations = true)
+        {
+            return long.TryParse(value, out long id) ? Get(id) : GetByName(value);
+        }
 
-		return character.Object;
-	}
+        public void ForEach(Action<T> action)
+        {
+            foreach (T item in _values)
+            {
+                action(item);
+            }
+        }
 
-	private sealed class LifecycleTestCharacter : MudSharp.Character.Character
-	{
-		private static readonly FieldInfo GameworldBackingField =
-			typeof(LateKeywordedInitialisingItem).GetField("<Gameworld>k__BackingField",
-				BindingFlags.Instance | BindingFlags.NonPublic)!;
+        public int Count => _values.Count;
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _values.GetEnumerator();
+        }
 
-		private LifecycleTestCharacter() : base(null!, null!, true)
-		{
-		}
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
 
-		public static LifecycleTestCharacter Create(IFuturemud gameworld, IRace? race)
-		{
-			var character = (LifecycleTestCharacter)RuntimeHelpers.GetUninitializedObject(typeof(LifecycleTestCharacter));
-			GameworldBackingField.SetValue(character, gameworld);
-			var body = new Mock<IBody>();
-			body.SetupGet(x => x.Race).Returns(() => race!);
-			character.Body = body.Object;
-			return character;
-		}
+    private static Mock<ICharacterCombatSettings> CreateSetting(long id, string name, double priority,
+        bool canUse = true, bool globalTemplate = true)
+    {
+        Mock<ICharacterCombatSettings> mock = new();
+        mock.SetupGet(x => x.Id).Returns(id);
+        mock.SetupGet(x => x.Name).Returns(name);
+        mock.SetupGet(x => x.FrameworkItemType).Returns("CharacterCombatSetting");
+        mock.SetupGet(x => x.GlobalTemplate).Returns(globalTemplate);
+        mock.Setup(x => x.CanUse(It.IsAny<ICharacter>())).Returns(canUse);
+        mock.Setup(x => x.PriorityFor(It.IsAny<ICharacter>())).Returns(priority);
+        return mock;
+    }
 
-		public void ApplyProvisional(ICharacterCombatSettings setting)
-		{
-			SetCombatSettingsProvisional(setting);
-		}
+    private static ICharacter CreateCharacter(IEnumerable<ICharacterCombatSettings> settings,
+        ICharacterCombatSettings? raceDefault = null)
+    {
+        Mock<IFuturemud> world = new();
+        world.SetupGet(x => x.CharacterCombatSettings).Returns(new TestAll<ICharacterCombatSettings>(settings));
 
-		public void CompleteInitialisation(long id)
-		{
-			_id = id;
-			RevalidateCombatSettingsAfterInitialisation();
-		}
+        Mock<ICharacter> character = new();
+        character.SetupGet(x => x.Gameworld).Returns(world.Object);
 
-		protected override ICharacterCombatSettings ResolveCombatSettingsAfterInitialisation()
-		{
-			return CharacterCombatSettingsResolver.ResolveFallback(this);
-		}
-	}
+        if (raceDefault is not null)
+        {
+            Mock<IRace> race = new();
+            race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
+            {
+                CanAttack = true,
+                CanDefend = true,
+                CanUseWeapons = true,
+                DefaultCombatSetting = raceDefault
+            });
+            character.SetupGet(x => x.Race).Returns(race.Object);
+        }
+        else
+        {
+            character.SetupGet(x => x.Race).Returns(() => null!);
+        }
 
-	private static Mock<IFuturemud> CreateWorldWithSaveManager(IEnumerable<ICharacterCombatSettings> settings,
-		Mock<ISaveManager> saveManager)
-	{
-		var world = new Mock<IFuturemud>();
-		world.SetupGet(x => x.CharacterCombatSettings).Returns(new TestAll<ICharacterCombatSettings>(settings));
-		world.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
-		return world;
-	}
+        return character.Object;
+    }
 
-	private static IRace CreateRace(ICharacterCombatSettings? raceDefault)
-	{
-		var race = new Mock<IRace>();
-		race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
-		{
-			CanAttack = true,
-			CanDefend = true,
-			CanUseWeapons = true,
-			DefaultCombatSetting = raceDefault
-		});
-		return race.Object;
-	}
+    private sealed class LifecycleTestCharacter : MudSharp.Character.Character
+    {
+        private static readonly FieldInfo GameworldBackingField =
+            typeof(LateKeywordedInitialisingItem).GetField("<Gameworld>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-	[TestMethod]
-	public void ResolveFallback_ValidNpcTemplateOverride_BeatsRaceAndGlobalPriority()
-	{
-		var global = CreateSetting(10, "Global", 100).Object;
-		var raceSetting = CreateSetting(20, "Race", 200).Object;
-		var npcSetting = CreateSetting(30, "Npc", 300).Object;
-		var character = CreateCharacter([global, raceSetting, npcSetting], raceSetting);
-		var template = new Mock<INPCTemplate>();
-		template.SetupGet(x => x.DefaultCombatSetting).Returns(npcSetting);
+        private LifecycleTestCharacter() : base(null!, null!, true)
+        {
+        }
 
-		var result = CharacterCombatSettingsResolver.ResolveFallback(character, template.Object);
+        public static LifecycleTestCharacter Create(IFuturemud gameworld, IRace? race)
+        {
+            LifecycleTestCharacter character = (LifecycleTestCharacter)RuntimeHelpers.GetUninitializedObject(typeof(LifecycleTestCharacter));
+            GameworldBackingField.SetValue(character, gameworld);
+            Mock<IBody> body = new();
+            body.SetupGet(x => x.Race).Returns(() => race!);
+            character.Body = body.Object;
+            return character;
+        }
 
-		Assert.AreSame(npcSetting, result);
-	}
+        public void ApplyProvisional(ICharacterCombatSettings setting)
+        {
+            SetCombatSettingsProvisional(setting);
+        }
 
-	[TestMethod]
-	public void ResolveFallback_ValidRaceOverride_BeatsGlobalPriority()
-	{
-		var global = CreateSetting(10, "Global", 100).Object;
-		var raceSetting = CreateSetting(20, "Race", 0).Object;
-		var character = CreateCharacter([global, raceSetting], raceSetting);
+        public void CompleteInitialisation(long id)
+        {
+            _id = id;
+            RevalidateCombatSettingsAfterInitialisation();
+        }
 
-		var result = CharacterCombatSettingsResolver.ResolveFallback(character);
+        protected override ICharacterCombatSettings ResolveCombatSettingsAfterInitialisation()
+        {
+            return CharacterCombatSettingsResolver.ResolveFallback(this);
+        }
+    }
 
-		Assert.AreSame(raceSetting, result);
-	}
+    private static Mock<IFuturemud> CreateWorldWithSaveManager(IEnumerable<ICharacterCombatSettings> settings,
+        Mock<ISaveManager> saveManager)
+    {
+        Mock<IFuturemud> world = new();
+        world.SetupGet(x => x.CharacterCombatSettings).Returns(new TestAll<ICharacterCombatSettings>(settings));
+        world.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+        return world;
+    }
 
-	[TestMethod]
-	public void ResolveFallback_InvalidNpcTemplateOverride_FallsThroughToRace()
-	{
-		var global = CreateSetting(10, "Global", 100).Object;
-		var raceSetting = CreateSetting(20, "Race", 0).Object;
-		var invalidNpc = CreateSetting(30, "Npc", 1000, canUse: false).Object;
-		var character = CreateCharacter([global, raceSetting, invalidNpc], raceSetting);
-		var template = new Mock<INPCTemplate>();
-		template.SetupGet(x => x.DefaultCombatSetting).Returns(invalidNpc);
+    private static IRace CreateRace(ICharacterCombatSettings? raceDefault)
+    {
+        Mock<IRace> race = new();
+        race.SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings
+        {
+            CanAttack = true,
+            CanDefend = true,
+            CanUseWeapons = true,
+            DefaultCombatSetting = raceDefault
+        });
+        return race.Object;
+    }
 
-		var result = CharacterCombatSettingsResolver.ResolveFallback(character, template.Object);
+    [TestMethod]
+    public void ResolveFallback_ValidNpcTemplateOverride_BeatsRaceAndGlobalPriority()
+    {
+        ICharacterCombatSettings global = CreateSetting(10, "Global", 100).Object;
+        ICharacterCombatSettings raceSetting = CreateSetting(20, "Race", 200).Object;
+        ICharacterCombatSettings npcSetting = CreateSetting(30, "Npc", 300).Object;
+        ICharacter character = CreateCharacter([global, raceSetting, npcSetting], raceSetting);
+        Mock<INPCTemplate> template = new();
+        template.SetupGet(x => x.DefaultCombatSetting).Returns(npcSetting);
 
-		Assert.AreSame(raceSetting, result);
-	}
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveFallback(character, template.Object);
 
-	[TestMethod]
-	public void ResolveFallback_InvalidRaceOverride_FallsThroughToHighestPriorityGlobal()
-	{
-		var globalLow = CreateSetting(10, "Low", 10).Object;
-		var globalHigh = CreateSetting(20, "High", 20).Object;
-		var invalidRace = CreateSetting(30, "Race", 1000, canUse: false).Object;
-		var character = CreateCharacter([globalLow, globalHigh, invalidRace], invalidRace);
+        Assert.AreSame(npcSetting, result);
+    }
 
-		var result = CharacterCombatSettingsResolver.ResolveFallback(character);
+    [TestMethod]
+    public void ResolveFallback_ValidRaceOverride_BeatsGlobalPriority()
+    {
+        ICharacterCombatSettings global = CreateSetting(10, "Global", 100).Object;
+        ICharacterCombatSettings raceSetting = CreateSetting(20, "Race", 0).Object;
+        ICharacter character = CreateCharacter([global, raceSetting], raceSetting);
 
-		Assert.AreSame(globalHigh, result);
-	}
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveFallback(character);
 
-	[TestMethod]
-	public void ResolveFallback_HighestPriorityGlobal_Wins()
-	{
-		var low = CreateSetting(10, "Low", 10).Object;
-		var high = CreateSetting(20, "High", 20).Object;
-		var character = CreateCharacter([low, high]);
+        Assert.AreSame(raceSetting, result);
+    }
 
-		var result = CharacterCombatSettingsResolver.ResolveFallback(character);
+    [TestMethod]
+    public void ResolveFallback_InvalidNpcTemplateOverride_FallsThroughToRace()
+    {
+        ICharacterCombatSettings global = CreateSetting(10, "Global", 100).Object;
+        ICharacterCombatSettings raceSetting = CreateSetting(20, "Race", 0).Object;
+        ICharacterCombatSettings invalidNpc = CreateSetting(30, "Npc", 1000, canUse: false).Object;
+        ICharacter character = CreateCharacter([global, raceSetting, invalidNpc], raceSetting);
+        Mock<INPCTemplate> template = new();
+        template.SetupGet(x => x.DefaultCombatSetting).Returns(invalidNpc);
 
-		Assert.AreSame(high, result);
-	}
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveFallback(character, template.Object);
 
-	[TestMethod]
-	public void ResolveFallback_EqualPriorityGlobal_BreaksTieByLowestId()
-	{
-		var lowerId = CreateSetting(10, "LowerId", 10).Object;
-		var higherId = CreateSetting(20, "HigherId", 10).Object;
-		var character = CreateCharacter([higherId, lowerId]);
+        Assert.AreSame(raceSetting, result);
+    }
 
-		var result = CharacterCombatSettingsResolver.ResolveFallback(character);
+    [TestMethod]
+    public void ResolveFallback_InvalidRaceOverride_FallsThroughToHighestPriorityGlobal()
+    {
+        ICharacterCombatSettings globalLow = CreateSetting(10, "Low", 10).Object;
+        ICharacterCombatSettings globalHigh = CreateSetting(20, "High", 20).Object;
+        ICharacterCombatSettings invalidRace = CreateSetting(30, "Race", 1000, canUse: false).Object;
+        ICharacter character = CreateCharacter([globalLow, globalHigh, invalidRace], invalidRace);
 
-		Assert.AreSame(lowerId, result);
-	}
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveFallback(character);
 
-	[TestMethod]
-	public void ResolveProvisional_NpcThenRaceThenLowestIdGlobal_UsesNonValidatingOrder()
-	{
-		var globalHigherId = CreateSetting(20, "Global", 200).Object;
-		var globalLowerId = CreateSetting(10, "LowerIdGlobal", 100).Object;
-		var raceSetting = CreateSetting(30, "Race", 0).Object;
-		var npcSetting = CreateSetting(40, "Npc", 0).Object;
-		var character = CreateCharacter([globalHigherId, globalLowerId, raceSetting, npcSetting], raceSetting);
-		var template = new Mock<INPCTemplate>();
-		template.SetupGet(x => x.DefaultCombatSetting).Returns(npcSetting);
+        Assert.AreSame(globalHigh, result);
+    }
 
-		Assert.AreSame(npcSetting, CharacterCombatSettingsResolver.ResolveProvisional(character, template.Object));
-		Assert.AreSame(raceSetting, CharacterCombatSettingsResolver.ResolveProvisional(CreateCharacter([globalHigherId, globalLowerId, raceSetting], raceSetting)));
-		Assert.AreSame(globalLowerId, CharacterCombatSettingsResolver.ResolveProvisional(CreateCharacter([globalHigherId, globalLowerId])));
-	}
+    [TestMethod]
+    public void ResolveFallback_HighestPriorityGlobal_Wins()
+    {
+        ICharacterCombatSettings low = CreateSetting(10, "Low", 10).Object;
+        ICharacterCombatSettings high = CreateSetting(20, "High", 20).Object;
+        ICharacter character = CreateCharacter([low, high]);
 
-	[TestMethod]
-	public void ResolveProvisional_DoesNotInvokeAvailabilityOrPriorityValidation()
-	{
-		var setting = new Mock<ICharacterCombatSettings>();
-		setting.SetupGet(x => x.Id).Returns(10);
-		setting.SetupGet(x => x.Name).Returns("Global");
-		setting.SetupGet(x => x.FrameworkItemType).Returns("CharacterCombatSetting");
-		setting.SetupGet(x => x.GlobalTemplate).Returns(true);
-		var character = CreateCharacter([setting.Object]);
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveFallback(character);
 
-		var result = CharacterCombatSettingsResolver.ResolveProvisional(character);
+        Assert.AreSame(high, result);
+    }
 
-		Assert.AreSame(setting.Object, result);
-		setting.Verify(x => x.CanUse(It.IsAny<ICharacter>()), Times.Never);
-		setting.Verify(x => x.PriorityFor(It.IsAny<ICharacter>()), Times.Never);
-	}
+    [TestMethod]
+    public void ResolveFallback_EqualPriorityGlobal_BreaksTieByLowestId()
+    {
+        ICharacterCombatSettings lowerId = CreateSetting(10, "LowerId", 10).Object;
+        ICharacterCombatSettings higherId = CreateSetting(20, "HigherId", 10).Object;
+        ICharacter character = CreateCharacter([higherId, lowerId]);
 
-	[TestMethod]
-	public void RevalidateCombatSettingsAfterInitialisation_DifferentFinalSetting_QueuesSave()
-	{
-		var provisional = CreateSetting(10, "Provisional", 0).Object;
-		var final = CreateSetting(20, "Final", 10).Object;
-		var saveManager = new Mock<ISaveManager>();
-		var world = CreateWorldWithSaveManager([provisional, final], saveManager);
-		var character = LifecycleTestCharacter.Create(world.Object, CreateRace(null));
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveFallback(character);
 
-		character.ApplyProvisional(provisional);
-		character.CompleteInitialisation(123);
+        Assert.AreSame(lowerId, result);
+    }
 
-		Assert.AreSame(final, character.CombatSettings);
-		saveManager.Verify(x => x.Add(character), Times.Once);
-	}
+    [TestMethod]
+    public void ResolveProvisional_NpcThenRaceThenLowestIdGlobal_UsesNonValidatingOrder()
+    {
+        ICharacterCombatSettings globalHigherId = CreateSetting(20, "Global", 200).Object;
+        ICharacterCombatSettings globalLowerId = CreateSetting(10, "LowerIdGlobal", 100).Object;
+        ICharacterCombatSettings raceSetting = CreateSetting(30, "Race", 0).Object;
+        ICharacterCombatSettings npcSetting = CreateSetting(40, "Npc", 0).Object;
+        ICharacter character = CreateCharacter([globalHigherId, globalLowerId, raceSetting, npcSetting], raceSetting);
+        Mock<INPCTemplate> template = new();
+        template.SetupGet(x => x.DefaultCombatSetting).Returns(npcSetting);
 
-	[TestMethod]
-	public void RevalidateCombatSettingsAfterInitialisation_UnchangedFinalSetting_DoesNotQueueSave()
-	{
-		var provisional = CreateSetting(10, "Provisional", 0).Object;
-		var saveManager = new Mock<ISaveManager>();
-		var world = CreateWorldWithSaveManager([provisional], saveManager);
-		var character = LifecycleTestCharacter.Create(world.Object, CreateRace(provisional));
+        Assert.AreSame(npcSetting, CharacterCombatSettingsResolver.ResolveProvisional(character, template.Object));
+        Assert.AreSame(raceSetting, CharacterCombatSettingsResolver.ResolveProvisional(CreateCharacter([globalHigherId, globalLowerId, raceSetting], raceSetting)));
+        Assert.AreSame(globalLowerId, CharacterCombatSettingsResolver.ResolveProvisional(CreateCharacter([globalHigherId, globalLowerId])));
+    }
 
-		character.ApplyProvisional(provisional);
-		character.CompleteInitialisation(123);
+    [TestMethod]
+    public void ResolveProvisional_DoesNotInvokeAvailabilityOrPriorityValidation()
+    {
+        Mock<ICharacterCombatSettings> setting = new();
+        setting.SetupGet(x => x.Id).Returns(10);
+        setting.SetupGet(x => x.Name).Returns("Global");
+        setting.SetupGet(x => x.FrameworkItemType).Returns("CharacterCombatSetting");
+        setting.SetupGet(x => x.GlobalTemplate).Returns(true);
+        ICharacter character = CreateCharacter([setting.Object]);
 
-		Assert.AreSame(provisional, character.CombatSettings);
-		saveManager.Verify(x => x.Add(It.IsAny<ISaveable>()), Times.Never);
-	}
+        ICharacterCombatSettings result = CharacterCombatSettingsResolver.ResolveProvisional(character);
 
-	[TestMethod]
-	public void RevalidateCombatSettingsAfterInitialisation_NoValidatedSetting_ClearsProvisionalAndQueuesSave()
-	{
-		var provisional = CreateSetting(10, "Provisional", 0, canUse: false).Object;
-		var rejected = CreateSetting(20, "Rejected", 100, canUse: false).Object;
-		var saveManager = new Mock<ISaveManager>();
-		var world = CreateWorldWithSaveManager([provisional, rejected], saveManager);
-		var character = LifecycleTestCharacter.Create(world.Object, CreateRace(rejected));
+        Assert.AreSame(setting.Object, result);
+        setting.Verify(x => x.CanUse(It.IsAny<ICharacter>()), Times.Never);
+        setting.Verify(x => x.PriorityFor(It.IsAny<ICharacter>()), Times.Never);
+    }
 
-		character.ApplyProvisional(provisional);
-		character.CompleteInitialisation(123);
+    [TestMethod]
+    public void RevalidateCombatSettingsAfterInitialisation_DifferentFinalSetting_QueuesSave()
+    {
+        ICharacterCombatSettings provisional = CreateSetting(10, "Provisional", 0).Object;
+        ICharacterCombatSettings final = CreateSetting(20, "Final", 10).Object;
+        Mock<ISaveManager> saveManager = new();
+        Mock<IFuturemud> world = CreateWorldWithSaveManager([provisional, final], saveManager);
+        LifecycleTestCharacter character = LifecycleTestCharacter.Create(world.Object, CreateRace(null));
 
-		Assert.IsNull(character.CombatSettings);
-		saveManager.Verify(x => x.Add(character), Times.Once);
-	}
+        character.ApplyProvisional(provisional);
+        character.CompleteInitialisation(123);
+
+        Assert.AreSame(final, character.CombatSettings);
+        saveManager.Verify(x => x.Add(character), Times.Once);
+    }
+
+    [TestMethod]
+    public void RevalidateCombatSettingsAfterInitialisation_UnchangedFinalSetting_DoesNotQueueSave()
+    {
+        ICharacterCombatSettings provisional = CreateSetting(10, "Provisional", 0).Object;
+        Mock<ISaveManager> saveManager = new();
+        Mock<IFuturemud> world = CreateWorldWithSaveManager([provisional], saveManager);
+        LifecycleTestCharacter character = LifecycleTestCharacter.Create(world.Object, CreateRace(provisional));
+
+        character.ApplyProvisional(provisional);
+        character.CompleteInitialisation(123);
+
+        Assert.AreSame(provisional, character.CombatSettings);
+        saveManager.Verify(x => x.Add(It.IsAny<ISaveable>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void RevalidateCombatSettingsAfterInitialisation_NoValidatedSetting_ClearsProvisionalAndQueuesSave()
+    {
+        ICharacterCombatSettings provisional = CreateSetting(10, "Provisional", 0, canUse: false).Object;
+        ICharacterCombatSettings rejected = CreateSetting(20, "Rejected", 100, canUse: false).Object;
+        Mock<ISaveManager> saveManager = new();
+        Mock<IFuturemud> world = CreateWorldWithSaveManager([provisional, rejected], saveManager);
+        LifecycleTestCharacter character = LifecycleTestCharacter.Create(world.Object, CreateRace(rejected));
+
+        character.ApplyProvisional(provisional);
+        character.CompleteInitialisation(123);
+
+        Assert.IsNull(character.CombatSettings);
+        saveManager.Verify(x => x.Add(character), Times.Once);
+    }
 }

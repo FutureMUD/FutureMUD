@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace MudSharp.FutureProg.Compiler {
-    public interface ICompileInfo {
+namespace MudSharp.FutureProg.Compiler
+{
+    public interface ICompileInfo
+    {
         /// <summary>
         ///     Indicates whether the Statement compiled successfully
         /// </summary>

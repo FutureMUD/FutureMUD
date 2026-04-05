@@ -17,84 +17,84 @@ namespace MudSharp.FutureProg.Functions.Crime;
 
 internal class IsEnforcerFunction : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
+    public IFuturemud Gameworld { get; set; }
 
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"IsEnforcer".ToLowerInvariant(),
-				new[]
-				{
-					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
-				}, // the parameters the function takes
-				(pars, gameworld) => new IsEnforcerFunction(pars, gameworld),
-				new List<string> { "character", "authority" }, // parameter names
-				new List<string>
-				{
-					"The character you want to check",
-					"The legal authority to check in, or if null, checks all of the authorities"
-				}, // parameter help text
-				"Returns true if the character is an enforcer in the specified legal authority or authorities", // help text for the function,
-				"Crime", // the category to which this function belongs,
-				ProgVariableTypes.Boolean // the return type of the function
-			)
-		);
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "IsEnforcer".ToLowerInvariant(),
+                new[]
+                {
+                    ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
+                }, // the parameters the function takes
+                (pars, gameworld) => new IsEnforcerFunction(pars, gameworld),
+                new List<string> { "character", "authority" }, // parameter names
+                new List<string>
+                {
+                    "The character you want to check",
+                    "The legal authority to check in, or if null, checks all of the authorities"
+                }, // parameter help text
+                "Returns true if the character is an enforcer in the specified legal authority or authorities", // help text for the function,
+                "Crime", // the category to which this function belongs,
+                ProgVariableTypes.Boolean // the return type of the function
+            )
+        );
+    }
 
-	#endregion
+    #endregion
 
-	#region Constructors
+    #region Constructors
 
-	protected IsEnforcerFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
+    protected IsEnforcerFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
 
-	#endregion
+    #endregion
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		if (ParameterFunctions[0].Result?.GetObject is not ICharacter character)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        if (ParameterFunctions[0].Result?.GetObject is not ICharacter character)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var authorityArg = ParameterFunctions[1].Result?.GetObject as ILegalAuthority;
-		var authorities = new List<ILegalAuthority>();
-		if (authorityArg is not null)
-		{
-			authorities.Add(authorityArg);
-		}
-		else
-		{
-			authorities.AddRange(Gameworld.LegalAuthorities);
-		}
+        ILegalAuthority authorityArg = ParameterFunctions[1].Result?.GetObject as ILegalAuthority;
+        List<ILegalAuthority> authorities = new();
+        if (authorityArg is not null)
+        {
+            authorities.Add(authorityArg);
+        }
+        else
+        {
+            authorities.AddRange(Gameworld.LegalAuthorities);
+        }
 
-		foreach (var authority in authorities)
-		{
-			if (authority.GetEnforcementAuthority(character) is not null)
-			{
-				Result = new BooleanVariable(true);
-				return StatementResult.Normal;
-			}
-		}
+        foreach (ILegalAuthority authority in authorities)
+        {
+            if (authority.GetEnforcementAuthority(character) is not null)
+            {
+                Result = new BooleanVariable(true);
+                return StatementResult.Normal;
+            }
+        }
 
-		Result = new BooleanVariable(false);
-		return StatementResult.Normal;
-	}
+        Result = new BooleanVariable(false);
+        return StatementResult.Normal;
+    }
 }

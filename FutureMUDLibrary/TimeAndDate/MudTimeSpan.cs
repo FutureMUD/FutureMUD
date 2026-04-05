@@ -39,125 +39,40 @@ namespace MudSharp.TimeAndDate
         internal const long MinMilliSeconds = long.MinValue / 10000;
 
         private long _milliseconds;
-        public long Milliseconds
-        {
-            get
-            {
-                return 
-                    _milliseconds + 
+        public long Milliseconds => _milliseconds +
                     (_weeks * MillisecondsPerWeek) +
                     (_months * MillisecondsPerMonth) +
                     (_years * MillisecondsPerYear)
                     ;
-            }
-        }
 
-        public int MillisecondComponentOnly
-        {
-            get
-            {
-                return (int)_milliseconds;
-            }
-        }
+        public int MillisecondComponentOnly => (int)_milliseconds;
 
-        public int Seconds
-        {
-            get
-            {
-                return (int)(Milliseconds % SecondsPerMillisecond);
-            }
-        }
+        public int Seconds => (int)(Milliseconds % SecondsPerMillisecond);
 
-        public int SecondComponentOnly
-        {
-            get
-            {
-                return (int)(_milliseconds % MillisecondsPerMinute / MillisecondsPerSecond);
-            }
-        }
+        public int SecondComponentOnly => (int)(_milliseconds % MillisecondsPerMinute / MillisecondsPerSecond);
 
-        public int Minutes
-        {
-            get
-            {
-                return (int)(Milliseconds % MillisecondsPerMinute);
-            }
-        }
+        public int Minutes => (int)(Milliseconds % MillisecondsPerMinute);
 
-        public int MinuteComponentOnly
-        {
-            get
-            {
-                return (int)(_milliseconds % MillisecondsPerHour / MillisecondsPerMinute);
-            }
-        }
+        public int MinuteComponentOnly => (int)(_milliseconds % MillisecondsPerHour / MillisecondsPerMinute);
 
-        public int Hours
-        {
-            get
-            {
-                return (int)(Milliseconds % MillisecondsPerHour);
-            }
-        }
+        public int Hours => (int)(Milliseconds % MillisecondsPerHour);
 
-        public int HourComponentOnly
-        {
-            get
-            {
-                return (int)((_milliseconds % MillisecondsPerDay) / MillisecondsPerHour);
-            }
-        }
+        public int HourComponentOnly => (int)((_milliseconds % MillisecondsPerDay) / MillisecondsPerHour);
 
-        public int Days
-        {
-            get
-            {
-                return (int)(Milliseconds / MillisecondsPerDay);
-            }
-        }
+        public int Days => (int)(Milliseconds / MillisecondsPerDay);
 
-        public int DayComponentOnly
-        {
-            get
-            {
-                return (int)(_milliseconds / MillisecondsPerDay);
-            }
-        }
+        public int DayComponentOnly => (int)(_milliseconds / MillisecondsPerDay);
 
         private int _weeks;
-        public int Weeks
-        {
-            get
-            {
-                return _weeks;
-            }
-        }
+        public int Weeks => _weeks;
 
         private int _months;
-        public int Months
-        {
-            get
-            {
-                return _months;
-            }
-        }
+        public int Months => _months;
 
         private int _years;
-        public int Years
-        {
-            get
-            {
-                return _years;
-            }
-        }
+        public int Years => _years;
 
-        public long Ticks
-        {
-            get
-            {
-                return Milliseconds * 10000;
-            }
-        }
+        public long Ticks => Milliseconds * 10000;
 
         public static readonly MudTimeSpan Zero = new(0);
         public static readonly MudTimeSpan MaxValue = new(long.MaxValue);
@@ -189,7 +104,10 @@ namespace MudSharp.TimeAndDate
             // which is less than 2^44, meaning we won't overflow totalSeconds.
             long totalSeconds = (long)hour * 3600 + (long)minute * 60 + second;
             if (totalSeconds > MaxSeconds || totalSeconds < MinSeconds)
+            {
                 throw new ArgumentOutOfRangeException();
+            }
+
             return totalSeconds * MillisecondsPerSecond;
         }
 
@@ -223,7 +141,9 @@ namespace MudSharp.TimeAndDate
             _years = years;
             _weeks = weeks;
             if (Milliseconds > MaxMilliSeconds || Milliseconds < MinMilliSeconds)
+            {
                 throw new ArgumentOutOfRangeException();
+            }
         }
 
         public MudTimeSpan(int years, int months, int weeks, double days)
@@ -233,7 +153,9 @@ namespace MudSharp.TimeAndDate
             _years = years;
             _weeks = weeks;
             if (Milliseconds > MaxMilliSeconds || Milliseconds < MinMilliSeconds)
+            {
                 throw new ArgumentOutOfRangeException();
+            }
         }
 
         public MudTimeSpan(int years, int months, int weeks, long milliseconds)
@@ -243,7 +165,9 @@ namespace MudSharp.TimeAndDate
             _years = years;
             _weeks = weeks;
             if (Milliseconds > MaxMilliSeconds || Milliseconds < MinMilliSeconds)
+            {
                 throw new ArgumentOutOfRangeException();
+            }
         }
 
         public MudTimeSpan(int years, int months, int weeks, TimeSpan extra)
@@ -299,27 +223,27 @@ namespace MudSharp.TimeAndDate
                 return false;
             }
 
-            var ss = new StringStack(text);
+            StringStack ss = new(text);
             if (ss.Peek().EqualToAny("zero", "none", "nothing"))
             {
                 timespan = Zero;
                 return false;
             }
 
-            var years = 0;
-            var months = 0;
-            var weeks = 0;
-            var days = 0L;
-            var hours = 0L;
-            var minutes = 0L;
-            var seconds = 0L;
-            var milliseconds = 0L;
+            int years = 0;
+            int months = 0;
+            int weeks = 0;
+            long days = 0L;
+            long hours = 0L;
+            long minutes = 0L;
+            long seconds = 0L;
+            long milliseconds = 0L;
 
-            var subtext = string.Empty;
+            string subtext = string.Empty;
             while (!ss.IsFinished)
             {
                 subtext += ss.Pop();
-                if (!int.TryParse(subtext, out _) && TimeSpanParser.TryParse(subtext, new TimeSpanParserOptions { FormatProvider = format, AllowUnitlessZero = true, ColonedDefault = Units.Days}, out var ts))
+                if (!int.TryParse(subtext, out _) && TimeSpanParser.TryParse(subtext, new TimeSpanParserOptions { FormatProvider = format, AllowUnitlessZero = true, ColonedDefault = Units.Days }, out TimeSpan ts))
                 {
                     days += ts.Days;
                     hours += ts.Hours;
@@ -332,7 +256,7 @@ namespace MudSharp.TimeAndDate
 
                 if (UnitRegex.IsMatch(subtext))
                 {
-                    var match = UnitRegex.Match(subtext);
+                    Match match = UnitRegex.Match(subtext);
                     switch (match.Groups["unit"].Value.ToLowerInvariant())
                     {
                         case "ms":
@@ -412,7 +336,7 @@ namespace MudSharp.TimeAndDate
 
         public static MudTimeSpan Parse(string text)
         {
-            if (!TryParse(text, out var ts))
+            if (!TryParse(text, out MudTimeSpan ts))
             {
                 throw new ApplicationException("Error parsing MudTimeSpan in Parse method");
             }
@@ -424,7 +348,7 @@ namespace MudSharp.TimeAndDate
         {
             get
             {
-                var strings = new List<string>();
+                List<string> strings = new();
                 if (_years > 0)
                 {
                     strings.Add($"{_years:F0} years");
@@ -445,39 +369,31 @@ namespace MudSharp.TimeAndDate
             }
         }
 
-        public double TotalDays
-        {
-            get { return Milliseconds * DaysPerMillisecond; }
-        }
+        public double TotalDays => Milliseconds * DaysPerMillisecond;
 
-        public double TotalHours
-        {
-            get { return Milliseconds * HoursPerMillisecond; }
-        }
+        public double TotalHours => Milliseconds * HoursPerMillisecond;
 
         public double TotalMilliseconds
         {
             get
             {
                 if (Milliseconds > MaxMilliSeconds)
+                {
                     return MaxMilliSeconds;
+                }
 
                 if (Milliseconds < MinMilliSeconds)
+                {
                     return MinMilliSeconds;
+                }
 
                 return Milliseconds;
             }
         }
 
-        public double TotalMinutes
-        {
-            get { return Milliseconds * MinutesPerMillisecond; }
-        }
+        public double TotalMinutes => Milliseconds * MinutesPerMillisecond;
 
-        public double TotalSeconds
-        {
-            get { return Milliseconds * SecondsPerMillisecond; }
-        }
+        public double TotalSeconds => Milliseconds * SecondsPerMillisecond;
 
         public MudTimeSpan Add(MudTimeSpan ts)
         {
@@ -486,7 +402,10 @@ namespace MudSharp.TimeAndDate
             // sign was opposite.
             // >> 63 gives the sign bit (either 64 1's or 64 0's).
             if ((Ticks >> 63 == ts.Ticks >> 63) && (Ticks >> 63 != result >> 63))
+            {
                 throw new OverflowException();
+            }
+
             return new MudTimeSpan(result);
         }
 
@@ -497,7 +416,10 @@ namespace MudSharp.TimeAndDate
             // sign was opposite from the first argument's sign.
             // >> 63 gives the sign bit (either 64 1's or 64 0's).
             if ((Ticks >> 63 != ts.Ticks >> 63) && (Ticks >> 63 != result >> 63))
+            {
                 throw new OverflowException();
+            }
+
             return new MudTimeSpan(result);
         }
 
@@ -506,8 +428,16 @@ namespace MudSharp.TimeAndDate
         //
         public static int Compare(MudTimeSpan t1, MudTimeSpan t2)
         {
-            if (t1.Ticks > t2.Ticks) return 1;
-            if (t1.Ticks < t2.Ticks) return -1;
+            if (t1.Ticks > t2.Ticks)
+            {
+                return 1;
+            }
+
+            if (t1.Ticks < t2.Ticks)
+            {
+                return -1;
+            }
+
             return 0;
         }
 
@@ -516,21 +446,33 @@ namespace MudSharp.TimeAndDate
         //
         public static int Compare(MudTimeSpan t1, TimeSpan t2)
         {
-            if (t1.Ticks > t2.Ticks) return 1;
-            if (t1.Ticks < t2.Ticks) return -1;
+            if (t1.Ticks > t2.Ticks)
+            {
+                return 1;
+            }
+
+            if (t1.Ticks < t2.Ticks)
+            {
+                return -1;
+            }
+
             return 0;
         }
 
         // Returns a value less than zero if this  object
         public int CompareTo(object value)
         {
-            if (value == null) return 1;
+            if (value == null)
+            {
+                return 1;
+            }
+
             if (value is not MudTimeSpan ts)
             {
                 throw new ArgumentException(nameof(value));
             }
 
-            var ms = ts.Milliseconds;
+            long ms = ts.Milliseconds;
             if (Milliseconds > ms) { return 1; }
             if (Milliseconds < ms) { return -1; }
             return 0;
@@ -539,7 +481,10 @@ namespace MudSharp.TimeAndDate
         public static MudTimeSpan operator -(MudTimeSpan t)
         {
             if (t.Ticks == TimeSpan.MinValue.Ticks)
+            {
                 throw new OverflowException();
+            }
+
             return new TimeSpan(-t.Ticks);
         }
 

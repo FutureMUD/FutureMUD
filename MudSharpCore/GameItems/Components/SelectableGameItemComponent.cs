@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Xml.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -9,109 +6,113 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
 public class SelectableGameItemComponent : GameItemComponent, ISelectable
 {
-	protected SelectableGameItemComponentProto _prototype;
-	public override IGameItemComponentProto Prototype => _prototype;
+    protected SelectableGameItemComponentProto _prototype;
+    public override IGameItemComponentProto Prototype => _prototype;
 
-	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-	{
-		return new SelectableGameItemComponent(this, newParent, temporary);
-	}
+    public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
+    {
+        return new SelectableGameItemComponent(this, newParent, temporary);
+    }
 
-	public override bool DescriptionDecorator(DescriptionType type)
-	{
-		return type == DescriptionType.Full;
-	}
+    public override bool DescriptionDecorator(DescriptionType type)
+    {
+        return type == DescriptionType.Full;
+    }
 
-	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
-		bool colour, PerceiveIgnoreFlags flags)
-	{
-		var options =
-			_prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(voyeur, Parent)).ToList();
-		return !options.Any()
-			? description
-			: $"{description}\n\nIt has the following selections available (see {"help select".FluentTagMXP("send", "href='help select' hint='show the helpfile for the select command'")} for more info):\n{options.Select(x => $"{x.Description} [{x.Keyword.Proper().Colour(Telnet.Yellow)}]").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n", article: "\t")}";
-	}
+    public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
+        bool colour, PerceiveIgnoreFlags flags)
+    {
+        List<SelectableOption> options =
+            _prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(voyeur, Parent)).ToList();
+        return !options.Any()
+            ? description
+            : $"{description}\n\nIt has the following selections available (see {"help select".FluentTagMXP("send", "href='help select' hint='show the helpfile for the select command'")} for more info):\n{options.Select(x => $"{x.Description} [{x.Keyword.Proper().Colour(Telnet.Yellow)}]").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n", article: "\t")}";
+    }
 
-	public override int DecorationPriority => int.MaxValue;
+    public override int DecorationPriority => int.MaxValue;
 
-	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-	{
-		_prototype = (SelectableGameItemComponentProto)newProto;
-	}
+    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+    {
+        _prototype = (SelectableGameItemComponentProto)newProto;
+    }
 
-	#region Constructors
+    #region Constructors
 
-	public SelectableGameItemComponent(SelectableGameItemComponent rhs, IGameItem newParent, bool temporary = false) :
-		base(rhs, newParent, temporary)
-	{
-		_prototype = rhs._prototype;
-	}
+    public SelectableGameItemComponent(SelectableGameItemComponent rhs, IGameItem newParent, bool temporary = false) :
+        base(rhs, newParent, temporary)
+    {
+        _prototype = rhs._prototype;
+    }
 
-	public SelectableGameItemComponent(SelectableGameItemComponentProto proto, IGameItem parent,
-		bool temporary = false)
-		: base(parent, proto, temporary)
-	{
-		_prototype = proto;
-	}
+    public SelectableGameItemComponent(SelectableGameItemComponentProto proto, IGameItem parent,
+        bool temporary = false)
+        : base(parent, proto, temporary)
+    {
+        _prototype = proto;
+    }
 
-	public SelectableGameItemComponent(MudSharp.Models.GameItemComponent component,
-		SelectableGameItemComponentProto proto,
-		IGameItem parent) : base(component, parent)
-	{
-		_prototype = proto;
-	}
+    public SelectableGameItemComponent(MudSharp.Models.GameItemComponent component,
+        SelectableGameItemComponentProto proto,
+        IGameItem parent) : base(component, parent)
+    {
+        _prototype = proto;
+    }
 
-	protected override string SaveToXml()
-	{
-		return "<Definition></Definition>";
-	}
+    protected override string SaveToXml()
+    {
+        return "<Definition></Definition>";
+    }
 
-	protected void LoadFromXml(XElement root)
-	{
-		// Do nothing
-	}
+    protected void LoadFromXml(XElement root)
+    {
+        // Do nothing
+    }
 
-	#endregion
+    #endregion
 
-	#region Implementation of ISelectable
+    #region Implementation of ISelectable
 
-	public bool CanSelect(ICharacter character, string argument)
-	{
-		return
-			_prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent))
-			          .Any(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));
-	}
+    public bool CanSelect(ICharacter character, string argument)
+    {
+        return
+            _prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent))
+                      .Any(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));
+    }
 
-	public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
-	{
-		var options =
-			_prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent)).ToList();
-		var option =
-			options.FirstOrDefault(x => x.Keyword.Equals(argument, StringComparison.InvariantCultureIgnoreCase)) ??
-			options.FirstOrDefault(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));
-		if (option == null)
-		{
-			character.Send("That is not a valid selection to make.");
-			return false;
-		}
+    public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
+    {
+        List<SelectableOption> options =
+            _prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent)).ToList();
+        SelectableOption option =
+            options.FirstOrDefault(x => x.Keyword.Equals(argument, StringComparison.InvariantCultureIgnoreCase)) ??
+            options.FirstOrDefault(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));
+        if (option == null)
+        {
+            character.Send("That is not a valid selection to make.");
+            return false;
+        }
 
-		if (!silent)
-		{
-			character.OutputHandler.Handle(
-				new MixedEmoteOutput(
-					new Emote(
-						$"@ select|selects the '{option.Keyword.Proper().Colour(Telnet.Green)}' option on $1",
-						character, character, Parent)).Append(playerEmote));
-		}
+        if (!silent)
+        {
+            character.OutputHandler.Handle(
+                new MixedEmoteOutput(
+                    new Emote(
+                        $"@ select|selects the '{option.Keyword.Proper().Colour(Telnet.Green)}' option on $1",
+                        character, character, Parent)).Append(playerEmote));
+        }
 
-		option.OnSelectProg.Execute(character, Parent);
-		return true;
-	}
+        option.OnSelectProg.Execute(character, Parent);
+        return true;
+    }
 
-	#endregion
+    #endregion
 }

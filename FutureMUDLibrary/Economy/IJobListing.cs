@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Economy.Currency;
@@ -12,10 +7,15 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
 using MudSharp.Work.Projects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Economy
 {
-    #nullable enable
+#nullable enable
     public interface IJobListing : ISaveable, IEditableItem
     {
         IEconomicZone EconomicZone { get; }

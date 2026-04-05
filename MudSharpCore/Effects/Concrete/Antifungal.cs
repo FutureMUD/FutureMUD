@@ -9,27 +9,27 @@ namespace MudSharp.Effects.Concrete;
 
 public class Antifungal : Effect, IInfectionResistanceEffect
 {
-	public Antifungal(IBody owner, double intensityPerGramMass) : base(owner)
-	{
-		IntensityPerGramMass = intensityPerGramMass;
-		InfectionBonusToIntensityMultiplier =
-			owner.Gameworld.GetStaticDouble("AntifungalInfectionBonusToIntensityMultiplier");
-	}
+    public Antifungal(IBody owner, double intensityPerGramMass) : base(owner)
+    {
+        IntensityPerGramMass = intensityPerGramMass;
+        InfectionBonusToIntensityMultiplier =
+            owner.Gameworld.GetStaticDouble("AntifungalInfectionBonusToIntensityMultiplier");
+    }
 
-	public double InfectionBonusToIntensityMultiplier { get; set; }
-	public double IntensityPerGramMass { get; set; }
+    public double InfectionBonusToIntensityMultiplier { get; set; }
+    public double IntensityPerGramMass { get; set; }
 
-	protected override string SpecificEffectType => "Antifungal";
+    protected override string SpecificEffectType => "Antifungal";
 
-	public double InfectionResistanceBonus => IntensityPerGramMass * InfectionBonusToIntensityMultiplier;
+    public double InfectionResistanceBonus => IntensityPerGramMass * InfectionBonusToIntensityMultiplier;
 
-	public bool AppliesToType(InfectionType type)
-	{
-		return type == InfectionType.FungalGrowth;
-	}
+    public bool AppliesToType(InfectionType type)
+    {
+        return type == InfectionType.FungalGrowth;
+    }
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Antifungal resistance bonus of {InfectionResistanceBonus:N2}";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Antifungal resistance bonus of {InfectionResistanceBonus:N2}";
+    }
 }

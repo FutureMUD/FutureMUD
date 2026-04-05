@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MudSharp.Character;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using MudSharp.Character;
 
 namespace MudSharp.RPG.Law
 {

@@ -1,8 +1,10 @@
 ﻿using MudSharp.Character;
 using MudSharp.Framework.Revision;
 
-namespace MudSharp.GameItems {
-    public interface IGameItemComponentProto : IEditableRevisableItem {
+namespace MudSharp.GameItems
+{
+    public interface IGameItemComponentProto : IEditableRevisableItem
+    {
         string Description { get; }
         string TypeDescription { get; }
 

@@ -1,6 +1,6 @@
-﻿using System;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
+using System;
 
 namespace MudSharp.Effects
 {

@@ -1,82 +1,82 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MudSharp.Character;
-using MudSharp.FutureProg.Variables;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
 internal class ToTerrain : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
+    public IFuturemud Gameworld { get; set; }
 
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"ToTerrain".ToLowerInvariant(),
-				new[] { ProgVariableTypes.Number },
-				(pars, gameworld) => new ToTerrain(pars, gameworld),
-				new List<string> { "id" },
-				new List<string> { "The ID to look up" },
-				"Converts an ID number into the specified type, if one exists",
-				"Lookup",
-				ProgVariableTypes.Terrain
-			)
-		);
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "ToTerrain".ToLowerInvariant(),
+                new[] { ProgVariableTypes.Number },
+                (pars, gameworld) => new ToTerrain(pars, gameworld),
+                new List<string> { "id" },
+                new List<string> { "The ID to look up" },
+                "Converts an ID number into the specified type, if one exists",
+                "Lookup",
+                ProgVariableTypes.Terrain
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"ToTerrain".ToLowerInvariant(),
-				new[] { ProgVariableTypes.Text },
-				(pars, gameworld) => new ToTerrain(pars, gameworld),
-				new List<string> { "name" },
-				new List<string> { "The name to look up" },
-				"Converts a name into the specified type, if one exists",
-				"Lookup",
-				ProgVariableTypes.Terrain
-			)
-		);
-	}
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "ToTerrain".ToLowerInvariant(),
+                new[] { ProgVariableTypes.Text },
+                (pars, gameworld) => new ToTerrain(pars, gameworld),
+                new List<string> { "name" },
+                new List<string> { "The name to look up" },
+                "Converts a name into the specified type, if one exists",
+                "Lookup",
+                ProgVariableTypes.Terrain
+            )
+        );
+    }
 
-	#endregion
+    #endregion
 
-	#region Constructors
+    #region Constructors
 
-	protected ToTerrain(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
+    protected ToTerrain(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
 
-	#endregion
+    #endregion
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Terrain;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Terrain;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
-			? Gameworld.Terrains.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
-			: Gameworld.Terrains.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
+        Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
+            ? Gameworld.Terrains.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
+            : Gameworld.Terrains.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 }

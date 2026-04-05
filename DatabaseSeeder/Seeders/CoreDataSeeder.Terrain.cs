@@ -15,70 +15,70 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CoreDataSeeder
 {
-	private static readonly (string Name, string Parent)[] StockTerrainTagDefinitions =
-	[
-		("Terrain", ""),
-		("Wild", "Terrain"),
-		("Human Influenced", "Terrain"),
-		("Urban", "Human Influenced"),
-		("Rural", "Human Influenced"),
-		("Public", "Urban"),
-		("Private", "Urban"),
-		("Commercial", "Urban"),
-		("Residential", "Urban"),
-		("Administrative", "Urban"),
-		("Industrial", "Urban"),
-		("Natural", "Urban"),
-		("Diggable Soil", "Terrain"),
-		("Foragable Clay", "Terrain"),
-		("Foragable Sand", "Terrain"),
-		("Terrestrial", "Wild"),
-		("Riparian", "Wild"),
-		("Littoral", "Wild"),
-		("Aquatic", "Wild")
-	];
+    private static readonly (string Name, string Parent)[] StockTerrainTagDefinitions =
+    [
+        ("Terrain", ""),
+        ("Wild", "Terrain"),
+        ("Human Influenced", "Terrain"),
+        ("Urban", "Human Influenced"),
+        ("Rural", "Human Influenced"),
+        ("Public", "Urban"),
+        ("Private", "Urban"),
+        ("Commercial", "Urban"),
+        ("Residential", "Urban"),
+        ("Administrative", "Urban"),
+        ("Industrial", "Urban"),
+        ("Natural", "Urban"),
+        ("Diggable Soil", "Terrain"),
+        ("Foragable Clay", "Terrain"),
+        ("Foragable Sand", "Terrain"),
+        ("Terrestrial", "Wild"),
+        ("Riparian", "Wild"),
+        ("Littoral", "Wild"),
+        ("Aquatic", "Wild")
+    ];
 
-	internal static IReadOnlyCollection<string> StockTerrainTagNamesForTesting =>
-		StockTerrainTagDefinitions.Select(x => x.Name).ToArray();
+    internal static IReadOnlyCollection<string> StockTerrainTagNamesForTesting =>
+        StockTerrainTagDefinitions.Select(x => x.Name).ToArray();
 
-	internal static void SeedTerrainFoundationsForTesting(FuturemudDatabaseContext context)
-	{
-		SeedTerrainFoundationsCore(context);
-	}
+    internal static void SeedTerrainFoundationsForTesting(FuturemudDatabaseContext context)
+    {
+        SeedTerrainFoundationsCore(context);
+    }
 
-	private void SeedTerrainFoundations(FuturemudDatabaseContext context)
-	{
-		SeedTerrainFoundationsCore(context);
-	}
+    private void SeedTerrainFoundations(FuturemudDatabaseContext context)
+    {
+        SeedTerrainFoundationsCore(context);
+    }
 
-	private static void SeedTerrainFoundationsCore(FuturemudDatabaseContext context)
-	{
-		var tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-		foreach (var (name, parent) in StockTerrainTagDefinitions)
-		{
-			AddTerrainTag(context, tags, name, parent);
-		}
+    private static void SeedTerrainFoundationsCore(FuturemudDatabaseContext context)
+    {
+        DictionaryWithDefault<string, Tag> tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+        foreach ((string? name, string? parent) in StockTerrainTagDefinitions)
+        {
+            AddTerrainTag(context, tags, name, parent);
+        }
 
-		context.SaveChanges();
-		SeedStockTerrainCatalogue(context, tags);
-	}
+        context.SaveChanges();
+        SeedStockTerrainCatalogue(context, tags);
+    }
 
-	private static void AddTerrainTag(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tags,
-		string name, string parent)
-	{
-		if (tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
-		{
-			return;
-		}
+    private static void AddTerrainTag(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tags,
+        string name, string parent)
+    {
+        if (tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+        {
+            return;
+        }
 
-		var tag = new Tag
-		{
-			Name = name,
-			Parent = string.IsNullOrEmpty(parent) ? null : tags[parent]
-		};
-		tags[name] = tag;
-		context.Tags.Add(tag);
-	}
+        Tag tag = new()
+        {
+            Name = name,
+            Parent = string.IsNullOrEmpty(parent) ? null : tags[parent]
+        };
+        tags[name] = tag;
+        context.Tags.Add(tag);
+    }
 
     internal static void SeedStockTerrainCatalogue(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tagLookup,
         ICollection<string>? errors = null)
@@ -121,13 +121,13 @@ public partial class CoreDataSeeder
             context.SaveChanges();
         }
 
-        var poolwater = context.Liquids.First(x => x.Name == "pool water");
-        var springwater = context.Liquids.First(x => x.Name == "spring water");
-        var saltwater = context.Liquids.First(x => x.Name == "salt water");
-        var brackishwater = context.Liquids.First(x => x.Name == "brackish water");
-        var riverwater = context.Liquids.First(x => x.Name == "river water");
-        var lakewater = context.Liquids.First(x => x.Name == "lake water");
-        var swampwater = context.Liquids.First(x => x.Name == "swamp water");
+        Liquid poolwater = context.Liquids.First(x => x.Name == "pool water");
+        Liquid springwater = context.Liquids.First(x => x.Name == "spring water");
+        Liquid saltwater = context.Liquids.First(x => x.Name == "salt water");
+        Liquid brackishwater = context.Liquids.First(x => x.Name == "brackish water");
+        Liquid riverwater = context.Liquids.First(x => x.Name == "river water");
+        Liquid lakewater = context.Liquids.First(x => x.Name == "lake water");
+        Liquid swampwater = context.Liquids.First(x => x.Name == "swamp water");
 
         #region Urban
 

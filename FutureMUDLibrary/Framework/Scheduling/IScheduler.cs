@@ -1,8 +1,10 @@
 using System;
 using System.Text;
 
-namespace MudSharp.Framework.Scheduling {
-    public interface IScheduler {
+namespace MudSharp.Framework.Scheduling
+{
+    public interface IScheduler
+    {
         void AddSchedule(ISchedule schedule);
         void AddOrDelaySchedule(ISchedule schedule, IFrameworkItem item);
         void CheckSchedules();

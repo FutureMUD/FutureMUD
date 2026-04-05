@@ -1,7 +1,9 @@
 ﻿using MudSharp.FutureProg;
 
-namespace MudSharp.Events.Hooks {
-    public interface IDefaultHook {
+namespace MudSharp.Events.Hooks
+{
+    public interface IDefaultHook
+    {
         IHook Hook { get; }
         IFutureProg EligibilityProg { get; }
         string PerceivableType { get; }

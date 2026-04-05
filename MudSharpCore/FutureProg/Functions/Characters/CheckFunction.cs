@@ -1,14 +1,14 @@
-﻿using System;
+﻿using MudSharp.Body.Traits;
+using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.FutureProg.Variables;
+using MudSharp.RPG.Checks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Body.Traits;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg.Variables;
-using MudSharp.RPG.Checks;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
@@ -48,7 +48,7 @@ internal class CheckFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        var difficultyNum = (int)(decimal)ParameterFunctions[2].Result.GetObject;
+        int difficultyNum = (int)(decimal)ParameterFunctions[2].Result.GetObject;
         if (difficultyNum < (int)Difficulty.Automatic)
         {
             difficultyNum = (int)Difficulty.Automatic;
@@ -58,7 +58,7 @@ internal class CheckFunction : BuiltInFunction
             difficultyNum = (int)Difficulty.Impossible;
         }
 
-        var difficulty = (Difficulty)difficultyNum;
+        Difficulty difficulty = (Difficulty)difficultyNum;
         Result = new NumberVariable(Gameworld.GetCheck(CheckType.ProgSkillUseCheck).Check(character, difficulty, trait)
                                              .CheckDegrees());
         return StatementResult.Normal;

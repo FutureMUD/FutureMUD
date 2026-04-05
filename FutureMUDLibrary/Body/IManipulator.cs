@@ -3,8 +3,10 @@ using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 
-namespace MudSharp.Body {
-    public interface IManipulator {
+namespace MudSharp.Body
+{
+    public interface IManipulator
+    {
         string WhyCannotOpen { get; }
         string WhyCannotClose { get; }
         bool CanOpen(IOpenable openable);

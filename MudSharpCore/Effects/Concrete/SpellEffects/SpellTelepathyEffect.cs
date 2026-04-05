@@ -1,9 +1,9 @@
-using System;
-using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -23,7 +23,7 @@ public class SpellTelepathyEffect : MagicSpellEffectBase, ITelepathyEffect
 
     protected SpellTelepathyEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
-        var tr = root.Element("Effect");
+        XElement tr = root.Element("Effect");
         ShowThinks = bool.Parse(tr.Element("Thinks").Value);
         ShowFeels = bool.Parse(tr.Element("Feels").Value);
         ShowThinkEmoteFlag = bool.Parse(tr.Element("Emote").Value);
@@ -50,7 +50,18 @@ public class SpellTelepathyEffect : MagicSpellEffectBase, ITelepathyEffect
     public bool ShowFeels { get; set; }
     private bool ShowThinkEmoteFlag { get; set; }
 
-    public bool ShowDescription(ICharacter thinker) => true;
-    public bool ShowName(ICharacter thinker) => false;
-    public bool ShowThinkEmote(ICharacter thinker) => ShowThinkEmoteFlag;
+    public bool ShowDescription(ICharacter thinker)
+    {
+        return true;
+    }
+
+    public bool ShowName(ICharacter thinker)
+    {
+        return false;
+    }
+
+    public bool ShowThinkEmote(ICharacter thinker)
+    {
+        return ShowThinkEmoteFlag;
+    }
 }

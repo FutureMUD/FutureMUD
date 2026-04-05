@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Form.Characteristics;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
-using MudSharp.Form.Shape;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -36,13 +36,32 @@ public class CharacteristicParsingTests
         public ICharacteristicDefinition Parent => null;
         public bool Changed { get; set; }
         public IFuturemud Gameworld { get; }
-        public bool IsValue(ICharacteristicValue value) => value?.Definition == this;
-        public bool IsDefaultValue(ICharacteristicValue value) => value == DefaultValue;
-        public ICharacteristicValue GetRandomValue() => DefaultValue;
-        public void SetDefaultValue(ICharacteristicValue theDefault) => DefaultValue = theDefault;
+        public bool IsValue(ICharacteristicValue value)
+        {
+            return value?.Definition == this;
+        }
+
+        public bool IsDefaultValue(ICharacteristicValue value)
+        {
+            return value == DefaultValue;
+        }
+
+        public ICharacteristicValue GetRandomValue()
+        {
+            return DefaultValue;
+        }
+
+        public void SetDefaultValue(ICharacteristicValue theDefault)
+        {
+            DefaultValue = theDefault;
+        }
+
         public void Save() { }
         public void BuildingCommand(MudSharp.Character.ICharacter actor, MudSharp.Framework.StringStack command) { }
-        public string Show(MudSharp.Character.ICharacter actor) => string.Empty;
+        public string Show(MudSharp.Character.ICharacter actor)
+        {
+            return string.Empty;
+        }
     }
 
     private class TestCharacteristicValue : ICharacteristicValue
@@ -68,8 +87,15 @@ public class CharacteristicParsingTests
         public string GetFancyValue => GetValue;
         public PluralisationType Pluralisation { get; }
         public void BuildingCommand(MudSharp.Character.ICharacter actor, MudSharp.Framework.StringStack command) { }
-        public string Show(MudSharp.Character.ICharacter actor) => string.Empty;
-        public ICharacteristicValue Clone(string newName) => new TestCharacteristicValue(newName, Definition, Pluralisation);
+        public string Show(MudSharp.Character.ICharacter actor)
+        {
+            return string.Empty;
+        }
+
+        public ICharacteristicValue Clone(string newName)
+        {
+            return new TestCharacteristicValue(newName, Definition, Pluralisation);
+        }
     }
 
     private static IFuturemud Gameworld => new GameworldStub().ToMock();
@@ -77,37 +103,40 @@ public class CharacteristicParsingTests
     [TestMethod]
     public void ParseCharacteristicsAbsolute_BasicSubstitution()
     {
-        var gameworld = Gameworld;
-        var def = new TestCharacteristicDefinition("colour", "colour", gameworld);
-        var val = new TestCharacteristicValue("red", def);
+        IFuturemud gameworld = Gameworld;
+        TestCharacteristicDefinition def = new("colour", "colour", gameworld);
+        TestCharacteristicValue val = new("red", def);
         def.SetDefaultValue(val);
-        var list = new List<(ICharacteristicDefinition, ICharacteristicValue)> { (def, val) };
+        List<(ICharacteristicDefinition, ICharacteristicValue)> list = new()
+        { (def, val) };
 
-        var result = IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute("Hair is $colour.", list, Gendering.Get(Gender.Male), gameworld);
+        string result = IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute("Hair is $colour.", list, Gendering.Get(Gender.Male), gameworld);
         Assert.AreEqual("Hair is red.", result);
     }
 
     [TestMethod]
     public void ParseCharacteristicsAbsolute_AAnSubstitution()
     {
-        var gameworld = Gameworld;
-        var def = new TestCharacteristicDefinition("fruit", "fruit", gameworld);
-        var val = new TestCharacteristicValue("apple", def);
-        var list = new List<(ICharacteristicDefinition, ICharacteristicValue)> { (def, val) };
+        IFuturemud gameworld = Gameworld;
+        TestCharacteristicDefinition def = new("fruit", "fruit", gameworld);
+        TestCharacteristicValue val = new("apple", def);
+        List<(ICharacteristicDefinition, ICharacteristicValue)> list = new()
+        { (def, val) };
 
-        var result = IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute("&a_an[$fruit]", list, Gendering.Get(Gender.Female), gameworld);
+        string result = IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute("&a_an[$fruit]", list, Gendering.Get(Gender.Female), gameworld);
         Assert.AreEqual("an apple", result);
     }
 
     [TestMethod]
     public void ParseCharacteristicsAbsolute_AAnPlural_NoArticle()
     {
-        var gameworld = Gameworld;
-        var def = new TestCharacteristicDefinition("item", "item", gameworld);
-        var val = new TestCharacteristicValue("oranges", def, PluralisationType.Plural);
-        var list = new List<(ICharacteristicDefinition, ICharacteristicValue)> { (def, val) };
+        IFuturemud gameworld = Gameworld;
+        TestCharacteristicDefinition def = new("item", "item", gameworld);
+        TestCharacteristicValue val = new("oranges", def, PluralisationType.Plural);
+        List<(ICharacteristicDefinition, ICharacteristicValue)> list = new()
+        { (def, val) };
 
-        var result = IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute("&?a_an[$item]", list, Gendering.Get(Gender.NonBinary), gameworld);
+        string result = IHaveCharacteristicsExtensions.ParseCharacteristicsAbsolute("&?a_an[$item]", list, Gendering.Get(Gender.NonBinary), gameworld);
         Assert.AreEqual("oranges", result);
     }
 }

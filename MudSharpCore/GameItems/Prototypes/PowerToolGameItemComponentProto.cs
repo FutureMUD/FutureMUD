@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using ExpressionEngine;
+﻿using ExpressionEngine;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
@@ -13,6 +7,12 @@ using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -145,10 +145,10 @@ public class PowerToolGameItemComponentProto : GameItemComponentProto
             return false;
         }
 
-        var exprText = command.PopSpeech();
+        string exprText = command.PopSpeech();
         try
         {
-            var expr = new Expression(exprText);
+            Expression expr = new(exprText);
             // Test it
             expr.EvaluateDoubleWith(("quality", (int)ItemQuality.Standard));
             ToolDurabilitySecondsExpression = expr;
@@ -173,7 +173,7 @@ public class PowerToolGameItemComponentProto : GameItemComponentProto
             return false;
         }
 
-        if (!NumberUtilities.TryParsePercentage(command.PopSpeech(), out var value))
+        if (!NumberUtilities.TryParsePercentage(command.PopSpeech(), out double value))
         {
             actor.OutputHandler.Send("That discount is not a valid percentage.");
             return false;
@@ -194,7 +194,7 @@ public class PowerToolGameItemComponentProto : GameItemComponentProto
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out var value) || value < 0.0)
+        if (!double.TryParse(command.PopSpeech(), out double value) || value < 0.0)
         {
             actor.OutputHandler.Send("You must enter a valid number.");
             return false;
@@ -215,7 +215,7 @@ public class PowerToolGameItemComponentProto : GameItemComponentProto
             return false;
         }
 
-        if (!NumberUtilities.TryParsePercentage(command.PopSpeech(), out var value))
+        if (!NumberUtilities.TryParsePercentage(command.PopSpeech(), out double value))
         {
             actor.OutputHandler.Send("That base multiplier is not a valid percentage.");
             return false;

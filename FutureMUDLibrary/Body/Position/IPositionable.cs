@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
+using System.Collections.Generic;
 
-namespace MudSharp.Body.Position {
+namespace MudSharp.Body.Position
+{
     /// <summary>
     ///     An IPositionable is something that can be given an RPG position relative to another in the same ILocation
     /// </summary>
-    public interface IPositionable {
+    public interface IPositionable
+    {
         IPositionState PositionState { get; set; }
         IPerceivable PositionTarget { get; set; }
         PositionModifier PositionModifier { get; set; }

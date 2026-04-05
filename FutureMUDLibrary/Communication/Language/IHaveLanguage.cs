@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body.Traits;
+﻿using MudSharp.Body.Traits;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System.Collections.Generic;
 
-namespace MudSharp.Communication.Language {
-    public interface IHaveLanguage : IHaveTraits {
+namespace MudSharp.Communication.Language
+{
+    public interface IHaveLanguage : IHaveTraits
+    {
         IEnumerable<ILanguage> Languages { get; }
         ILanguage CurrentLanguage { get; set; }
         ILanguage CurrentWritingLanguage { get; set; }
@@ -35,6 +37,6 @@ namespace MudSharp.Communication.Language {
 
     public interface ILanguagePerceiver : IPerceiver, IPerceivableHaveTraits, IHaveLanguage
     {
-	    bool CanIdentifyLanguage(ILanguage language);
+        bool CanIdentifyLanguage(ILanguage language);
     }
 }

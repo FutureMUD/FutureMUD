@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
-using MudSharp.Framework;
+﻿using MudSharp.Character;
 using MudSharp.Construction.Boundary;
+using MudSharp.Framework;
+using System.Collections.Generic;
 
-namespace MudSharp.Movement {
-    public interface IParty : IMove {
+namespace MudSharp.Movement
+{
+    public interface IParty : IMove
+    {
         ICharacter Leader { get; }
         IEnumerable<IMove> Members { get; }
         IEnumerable<ICharacter> CharacterMembers { get; }

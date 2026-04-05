@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
@@ -19,8 +19,8 @@ internal class GetPath : BuiltInFunction
             new FunctionCompilerInformation(
                 "getpath",
                 [
-                    ProgVariableTypes.Character, 
-					ProgVariableTypes.Location
+                    ProgVariableTypes.Character,
+                    ProgVariableTypes.Location
                 ], // the parameters the function takes
                 (pars, gameworld) => new GetPath(pars, gameworld, PathSearchMode.IncludeUnlockableDoors),
                 [
@@ -106,15 +106,15 @@ internal class GetPath : BuiltInFunction
 
     #endregion
 
-	internal enum PathSearchMode
-	{
-		IncludeUnlockableDoors,
-		IncludeUnlockedDoors,
-		IgnoreDoors,
+    internal enum PathSearchMode
+    {
+        IncludeUnlockableDoors,
+        IncludeUnlockedDoors,
+        IgnoreDoors,
         RespectClosedDoors
     }
 
-	public PathSearchMode SearchMode {get;}
+    public PathSearchMode SearchMode { get; }
 
     #region Constructors
 
@@ -152,16 +152,17 @@ internal class GetPath : BuiltInFunction
             return StatementResult.Normal;
         }
 
-		var path = target
-			.PathBetween(location, 50, 
-			SearchMode switch { 
-				PathSearchMode.IgnoreDoors => PathSearch.PathIgnoreDoors(target),
-				PathSearchMode.IncludeUnlockableDoors => PathSearch.PathIncludeUnlockableDoors(target),
-				PathSearchMode.IncludeUnlockedDoors => PathSearch.PathIncludeUnlockedDoors(target),
-				PathSearchMode.RespectClosedDoors => PathSearch.PathRespectClosedDoors(target),
+        List<string> path = target
+            .PathBetween(location, 50,
+            SearchMode switch
+            {
+                PathSearchMode.IgnoreDoors => PathSearch.PathIgnoreDoors(target),
+                PathSearchMode.IncludeUnlockableDoors => PathSearch.PathIncludeUnlockableDoors(target),
+                PathSearchMode.IncludeUnlockedDoors => PathSearch.PathIncludeUnlockedDoors(target),
+                PathSearchMode.RespectClosedDoors => PathSearch.PathRespectClosedDoors(target),
                 _ => PathSearch.PathIncludeUnlockableDoors(target)
-			}
-			)
+            }
+            )
             .Select(x =>
             {
                 if (x.OutboundDirection != CardinalDirection.Unknown)

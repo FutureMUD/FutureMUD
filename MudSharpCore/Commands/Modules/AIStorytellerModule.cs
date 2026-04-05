@@ -7,15 +7,15 @@ namespace MudSharp.Commands.Modules;
 
 internal class AIStorytellerModule : BaseBuilderModule
 {
-	private AIStorytellerModule()
-		: base("AIStoryteller")
-	{
-		IsNecessary = true;
-	}
+    private AIStorytellerModule()
+        : base("AIStoryteller")
+    {
+        IsNecessary = true;
+    }
 
-	public static AIStorytellerModule Instance { get; } = new();
+    public static AIStorytellerModule Instance { get; } = new();
 
-	public const string AIStorytellerHelp = @"The #3AIStoryteller#0 command is used to create, edit and inspect AI storytellers.
+    public const string AIStorytellerHelp = @"The #3AIStoryteller#0 command is used to create, edit and inspect AI storytellers.
 
 You can use the following syntax:
 
@@ -27,16 +27,16 @@ You can use the following syntax:
 	#3ais show <id|name>#0 - shows a storyteller
 	#3ais set ...#0 - applies one of the storyteller building commands";
 
-	[PlayerCommand("AIStoryteller", "aistoryteller", "ais")]
-	[CommandPermission(PermissionLevel.SeniorAdmin)]
-	[HelpInfo("aistoryteller", AIStorytellerHelp, AutoHelp.HelpArgOrNoArg)]
-	protected static void AIStoryteller(ICharacter actor, string command)
-	{
-		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.AIStorytellerHelper);
-	}
+    [PlayerCommand("AIStoryteller", "aistoryteller", "ais")]
+    [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("aistoryteller", AIStorytellerHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void AIStoryteller(ICharacter actor, string command)
+    {
+        GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.AIStorytellerHelper);
+    }
 
-	public const string AIStorytellerReferenceHelp =
-		@"The #3AIStorytellerReference#0 command is used to create, edit and inspect storyteller reference documents.
+    public const string AIStorytellerReferenceHelp =
+        @"The #3AIStorytellerReference#0 command is used to create, edit and inspect storyteller reference documents.
 
 You can use the following syntax:
 
@@ -48,12 +48,12 @@ You can use the following syntax:
 	#3aisr show <id|name>#0 - shows a document
 	#3aisr set ...#0 - applies one of the document building commands";
 
-	[PlayerCommand("AIStorytellerReference", "aistorytellerreference", "aisr")]
-	[CommandPermission(PermissionLevel.SeniorAdmin)]
-	[HelpInfo("aistorytellerreference", AIStorytellerReferenceHelp, AutoHelp.HelpArgOrNoArg)]
-	protected static void AIStorytellerReference(ICharacter actor, string command)
-	{
-		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()),
-			EditableItemHelper.AIStorytellerReferenceDocumentHelper);
-	}
+    [PlayerCommand("AIStorytellerReference", "aistorytellerreference", "aisr")]
+    [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("aistorytellerreference", AIStorytellerReferenceHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void AIStorytellerReference(ICharacter actor, string command)
+    {
+        GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()),
+            EditableItemHelper.AIStorytellerReferenceDocumentHelper);
+    }
 }

@@ -1,7 +1,7 @@
-using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -19,7 +19,7 @@ public class SpellStaminaExpenditureEffect : MagicSpellEffectBase, IStaminaExpen
 
     protected SpellStaminaExpenditureEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
-        var trueRoot = root.Element("Effect");
+        XElement trueRoot = root.Element("Effect");
         Multiplier = double.Parse(trueRoot.Element("Multiplier")!.Value);
     }
 

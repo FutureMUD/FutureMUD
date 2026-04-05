@@ -1,49 +1,49 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character.Heritage;
+﻿using MudSharp.Character.Heritage;
 using MudSharp.FutureProg.Variables;
+using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
 internal class SameRaceFunction : BuiltInFunction
 {
-	public SameRaceFunction(IList<IFunction> parameters)
-		: base(parameters)
-	{
-	}
+    public SameRaceFunction(IList<IFunction> parameters)
+        : base(parameters)
+    {
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var race2 = ParameterFunctions[1].Result.GetObject as IRace;
+        IRace race2 = ParameterFunctions[1].Result.GetObject as IRace;
 
-		if (ParameterFunctions[0].Result.GetObject is not IRace race1)
-		{
-			ErrorMessage = "The first race in the SameRace function cannot be null";
-			return StatementResult.Error;
-		}
+        if (ParameterFunctions[0].Result.GetObject is not IRace race1)
+        {
+            ErrorMessage = "The first race in the SameRace function cannot be null";
+            return StatementResult.Error;
+        }
 
-		Result = new BooleanVariable(race1.SameRace(race2));
-		return StatementResult.Normal;
-	}
+        Result = new BooleanVariable(race1.SameRace(race2));
+        return StatementResult.Normal;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"samerace",
-				new[] { ProgVariableTypes.Race, ProgVariableTypes.Race },
-				(pars, gameworld) => new SameRaceFunction(pars)
-			)
-		);
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "samerace",
+                new[] { ProgVariableTypes.Race, ProgVariableTypes.Race },
+                (pars, gameworld) => new SameRaceFunction(pars)
+            )
+        );
+    }
 }

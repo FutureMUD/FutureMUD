@@ -1,32 +1,32 @@
-﻿using MudSharp.Models;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
+using MudSharp.Models;
 
 namespace MudSharp.Body.PartProtos;
 
 public class EsophagusProto : InternalOrganProto
 {
-	public EsophagusProto(BodypartProto proto, IFuturemud game)
-		: base(proto, game)
-	{
-	}
+    public EsophagusProto(BodypartProto proto, IFuturemud game)
+        : base(proto, game)
+    {
+    }
 
-	public EsophagusProto(EsophagusProto rhs, string newName) : base(rhs, newName)
-	{
-	}
+    public EsophagusProto(EsophagusProto rhs, string newName) : base(rhs, newName)
+    {
+    }
 
-	public override IBodypart Clone(string newName)
-	{
-		return new EsophagusProto(this, newName);
-	}
+    public override IBodypart Clone(string newName)
+    {
+        return new EsophagusProto(this, newName);
+    }
 
-	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Esophagus;
+    public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Esophagus;
 
-	public new double PainFactor => 0.0;
+    public new double PainFactor => 0.0;
 
-	#region Overrides of InternalOrganProto
+    #region Overrides of InternalOrganProto
 
-	protected override bool AffectedByBloodBuildup => true;
-	protected override double BloodVolumeForTotalFailure => 0.2;
+    protected override bool AffectedByBloodBuildup => true;
+    protected override double BloodVolumeForTotalFailure => 0.2;
 
-	#endregion
+    #endregion
 }

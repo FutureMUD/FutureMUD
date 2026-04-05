@@ -1,41 +1,41 @@
-﻿using System;
+﻿using MudSharp.FutureProg.Variables;
+using System;
 using System.Collections.Generic;
-using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
 internal class MaxFunction : BuiltInFunction
 {
-	public MaxFunction(IList<IFunction> parameters)
-		: base(parameters)
-	{
-	}
+    public MaxFunction(IList<IFunction> parameters)
+        : base(parameters)
+    {
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Number;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Number;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		Result =
-			new NumberVariable(Math.Max((decimal)ParameterFunctions[0].Result.GetObject,
-				(decimal)ParameterFunctions[1].Result.GetObject));
-		return StatementResult.Normal;
-	}
+        Result =
+            new NumberVariable(Math.Max((decimal)ParameterFunctions[0].Result.GetObject,
+                (decimal)ParameterFunctions[1].Result.GetObject));
+        return StatementResult.Normal;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"max",
-			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
-			(pars, gameworld) => new MaxFunction(pars)
-		));
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "max",
+            new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
+            (pars, gameworld) => new MaxFunction(pars)
+        ));
+    }
 }

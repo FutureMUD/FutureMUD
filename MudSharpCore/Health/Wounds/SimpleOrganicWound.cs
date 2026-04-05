@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using MudSharp.Models;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -18,2197 +12,2204 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Logging;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Work.Projects.Impacts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 namespace MudSharp.Health.Wounds;
 
 public class SimpleOrganicWound : PerceivedItem, IWound
 {
-	private BleedStatus _bleedStatus;
-	private bool _cleanAttempted;
-	private bool _cleaned;
-	private bool _antisepticTreated;
-	private bool _hadInfection;
-	private SurgicalProcedureType? _scarSurgicalProcedureType;
-	private int _scarSurgeryCheckDegrees;
-
-	private string _damageDescription;
-
-	private IInfection _infection;
-
-	public SimpleOrganicWound(IHaveWounds parent, Wound wound, IFuturemud gameworld)
-	{
-		Gameworld = gameworld;
-		_parent = parent;
-		LoadFromDb(wound);
-		//LoadEffects(wound.Effects);
-	}
-
-	private static double _baseFluidOrganBloodlossPerWoundSeverity;
-
-	public static double BaseFluidOrganBloodlossPerWoundSeverity
-	{
-		get
-		{
-			if (_baseFluidOrganBloodlossPerWoundSeverity == 0)
-			{
-				_baseFluidOrganBloodlossPerWoundSeverity = Futuremud.Games.First()
-				                                                    .GetStaticDouble(
-					                                                    "BaseFluidOrganBloodlossPerWoundSeverity");
-			}
-
-			return _baseFluidOrganBloodlossPerWoundSeverity;
-		}
-	}
-
-	private static double _percentageExternalBloodlossPerWoundSeverity;
-
-	public static double PercentageExternalBloodlossPerWoundSeverity
-	{
-		get
-		{
-			if (_percentageExternalBloodlossPerWoundSeverity == 0)
-			{
-				_percentageExternalBloodlossPerWoundSeverity = Futuremud.Games.First()
-				                                                        .GetStaticDouble(
-					                                                        "PercentageExternalBloodlossPerWoundSeverity");
-			}
-
-			return _percentageExternalBloodlossPerWoundSeverity;
-		}
-	}
-
-	private bool IsNecroticDamage => DamageType == DamageType.Necrotic;
-
-	private double InfectionPain => _infection?.Pain ?? 0.0;
-
-	protected void CheckForOrganBleeding()
-	{
-		if (!DamageType.CanCauseOrganBleeding())
-		{
-			return;
-		}
-
-		var organ = Bodypart as IOrganProto;
-		var body = CharacterParent.Body;
-		var effect = body.EffectsOfType<InternalBleeding>().FirstOrDefault(x => x.Organ == organ);
-		if (effect == null)
-		{
-			effect = new InternalBleeding(body, organ, 0.0);
-			body.AddEffect(effect);
-		}
-
-		effect.BloodlossPerTick = BaseFluidOrganBloodlossPerWoundSeverity * (int)Severity * organ.BleedModifier;
-	}
-
-	public SimpleOrganicWound(IFuturemud gameworld, ICharacter owner, double damage, double pain, double stun,
-		DamageType damageType, IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin,
-		ICharacter actorOrigin)
-	{
-		if (bodypart == null)
-		{
-			throw new ArgumentNullException(nameof(bodypart));
-		}
-
-		Gameworld = gameworld;
-		_parent = owner ?? throw new ArgumentNullException(nameof(owner));
-		DamageType = damageType;
-		_currentDamage = Math.Max(0.0,
-			Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
-		_originalDamage = Math.Max(0.0,
-			Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
-		_currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, pain * bodypart.PainModifier);
-		_currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, stun * bodypart.StunModifier);
-		Bodypart = bodypart;
-		_lodged = lodged;
-		_actorOriginId = actorOrigin?.Id ?? 0;
-		_toolOriginId = toolOrigin?.Id ?? 0;
-		if (actorOrigin?.Combat?.Friendly == true)
-		{
-			IsFriendlyWound = true;
-		}
-
-		if (Bodypart is IOrganProto organ)
-		{
-			CheckForOrganBleeding();
-		}
-		else if (owner.Race.BloodLiquid is null)
-		{
-			_bleedStatus = BleedStatus.NeverBled;
-		}
-		else
-		{
-			switch (damageType)
-			{
-				case DamageType.Slashing:
-				case DamageType.Claw:
-				case DamageType.Chopping:
-				case DamageType.Ballistic:
-				case DamageType.BallisticArmourPiercing:
-				case DamageType.Shearing:
-				case DamageType.Arcane:
-					_bleedStatus = Severity >= WoundSeverity.Moderate
-						? BleedStatus.Bleeding
-						: BleedStatus.NeverBled;
-					break;
-				case DamageType.Piercing:
-				case DamageType.ArmourPiercing:
-				case DamageType.Bite:
-				case DamageType.Shrapnel:
-					_bleedStatus = Severity >= WoundSeverity.Severe ? BleedStatus.Bleeding : BleedStatus.NeverBled;
-					break;
-				case DamageType.Wrenching:
-					_bleedStatus = Severity >= WoundSeverity.Horrifying ? BleedStatus.Bleeding : BleedStatus.NeverBled;
-					break;
-				case DamageType.Falling:
-					_bleedStatus = Severity >= WoundSeverity.Grievous ? BleedStatus.Bleeding : BleedStatus.NeverBled;
-					break;
-				default:
-					_bleedStatus = BleedStatus.NeverBled;
-					break;
-			}
-		}
-
-		_damageDescription = GetWoundDescription(damageType, Severity);
-		Gameworld.SaveManager.AddInitialisation(this);
-	}
-
-	public override void Register(IOutputHandler handler)
-	{
-		// Do nothing
-	}
-
-	public override string FrameworkItemType => "Wound";
-
-	public override void Save()
-	{
-		using (new FMDB())
-		{
-			var dbitem = FMDB.Context.Wounds.Find(Id);
-			if (dbitem != null)
-			{
-				dbitem.CurrentDamage = _currentDamage;
-				dbitem.OriginalDamage = OriginalDamage;
-				dbitem.CurrentPain = _currentPain;
-				dbitem.CurrentStun = _currentStun;
-				dbitem.LodgedItem = FMDB.Context.GameItems.Find(Lodged?.Id);
-				dbitem.ExtraInformation = SaveExtras();
-			}
-		}
-
-		base.Save();
-	}
-
-	public void Delete(bool ignoreDatabaseDeletion = false)
-	{
-		_noSave = true;
-		Changed = false;
-		Gameworld.SaveManager.Abort(this);
-		Lodged?.Delete();
-		_lodged = null;
-		Infection?.Delete();
-		_infection = null;
-		if (!IdInitialised || ignoreDatabaseDeletion)
-		{
-			return;
-		}
-
-		using (new FMDB())
-		{
-			Gameworld.SaveManager.Flush();
-			var dbitem = FMDB.Context.Wounds.Find(Id);
-			if (dbitem != null)
-			{
-				FMDB.Context.Wounds.Remove(dbitem);
-				FMDB.Context.SaveChanges();
-			}
-			//FMDB.Context.Entry(new MudSharp.Models.Wound{Id = _ID}).State = EntityState.Deleted;
-			//FMDB.Context.SaveChanges();
-		}
-	}
-
-	public bool Repairable => false;
-
-	public BleedStatus BleedStatus
-	{
-		get => _bleedStatus;
-		set
-		{
-			_bleedStatus = value;
-			Changed = true;
-		}
-	}
-
-	public DamageType DamageType { get; set; }
-
-	public IInfection Infection
-	{
-		get => _infection;
-		set
-		{
-			if (IsNecroticDamage && value is not null)
-			{
-				value.Delete();
-				_infection = null;
-				Changed = true;
-				return;
-			}
-
-			_infection = value;
-			if (value is not null)
-			{
-				_hadInfection = true;
-			}
-			Changed = true;
-		}
-	}
-
-	#region IFutureProgVariable Implementation
-
-	public override ProgVariableTypes Type => ProgVariableTypes.Error;
-
-	#endregion
-
-	public static string GetWoundDescription(DamageType type, WoundSeverity severity)
-	{
-		switch (type)
-		{
-			case DamageType.Slashing:
-			case DamageType.Chopping:
-				if (severity <= WoundSeverity.Small)
-				{
-					switch (Dice.Roll(1, 6))
-					{
-						case 1:
-							return "Nick";
-						case 2:
-						case 3:
-							return "Cut";
-						case 4:
-							return "Gash";
-						case 5:
-							return "Laceration";
-						case 6:
-							return "Slash";
-					}
-				}
-
-				switch (Dice.Roll(1, 6))
-				{
-					case 1:
-					case 2:
-						return "Cut";
-					case 3:
-					case 4:
-						return "Slash";
-					case 5:
-						return "Laceration";
-					case 6:
-						return "Gash";
-
-					default:
-						return "Cut";
-				}
-			case DamageType.Shearing:
-				switch (Dice.Roll(1, 6))
-				{
-					case 1:
-					case 2:
-						return "Tear";
-					case 3:
-					case 4:
-						return "Cut";
-					case 5:
-						return "Shear";
-					default:
-						return "Gash";
-				}
-			case DamageType.Crushing:
-				if (severity <= WoundSeverity.Small)
-				{
-					return "Bruise";
-				}
-
-				return severity <= WoundSeverity.Severe ? "Contusion" : "Crush";
-			case DamageType.Falling:
-				if (severity <= WoundSeverity.Small)
-				{
-					switch (Dice.Roll(1, 4))
-					{
-						case 1:
-							return "Bruise";
-						case 2:
-							return "Sprain";
-						case 3:
-							return "Twist";
-						case 4:
-							return "Scrape";
-					}
-				}
-
-				return severity <= WoundSeverity.Severe ? "Contusion" : "Crush";
-			case DamageType.Piercing:
-			case DamageType.ArmourPiercing:
-				switch (Dice.Roll(1, 5))
-				{
-					case 1:
-						return "Perforation";
-					case 2:
-						return "Piercing";
-					case 3:
-						return "Puncture";
-					case 4:
-						return "Stab";
-					case 5:
-						return "Hole";
-					default:
-						return "Hole";
-				}
-			case DamageType.Ballistic:
-			case DamageType.BallisticArmourPiercing:
-				if (severity <= WoundSeverity.Small)
-				{
-					return "Graze";
-				}
-
-				switch (Dice.Roll(1, 5))
-				{
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-						return "Gunshot Wound";
-					case 5:
-						return "Hole";
-					default:
-						return "Hole";
-				}
-			case DamageType.Shrapnel:
-				if (severity <= WoundSeverity.Small)
-				{
-					return "Graze";
-				}
-
-				switch (Dice.Roll(1, 5))
-				{
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-						return "Shrapnel Wound";
-					case 5:
-						return "Shrapnel Hole";
-					default:
-						return "Shrapnel Hole";
-				}
-			case DamageType.Necrotic:
-				return "Necrosis";
-			case DamageType.Burning:
-				if (severity <= WoundSeverity.Small)
-				{
-					return Dice.Roll(1, 2) == 1 ? "Blistering" : "Burn";
-				}
-
-				switch (Dice.Roll(1, 3))
-				{
-					case 1:
-						return "Burn";
-					case 2:
-						return "Scorch";
-					case 3:
-						return "Sear";
-					default:
-						return "Burn";
-				}
-			case DamageType.Eldritch:
-				if (severity <= WoundSeverity.Small)
-				{
-					return "Blistering";
-				}
-
-				switch (Dice.Roll(1, 4))
-				{
-					case 1:
-						return "Necrotic Burn";
-					case 2:
-						return "Rotting Scorch";
-					case 3:
-						return "Disintegration Burn";
-					default:
-						return "Eldritch Burn";
-				}
-			case DamageType.Arcane:
-				if (severity <= WoundSeverity.Small)
-				{
-					return Dice.Roll(1, 2) == 1 ? "Blistering" : "Burn";
-				}
-
-				switch (Dice.Roll(1, 3))
-				{
-					case 1:
-						return "Burn";
-					case 2:
-						return "Scorch";
-					case 3:
-						return "Sear";
-					default:
-						return "Burn";
-				}
-			case DamageType.Freezing:
-				return "Frostburn";
-			case DamageType.Chemical:
-				return "Chemical Burn";
-			case DamageType.Shockwave:
-			case DamageType.Sonic:
-				return "Bruise";
-			case DamageType.Bite:
-				switch (Dice.Roll(1, 3))
-				{
-					case 1:
-						return "Bite";
-					case 2:
-						return "Puncture";
-					case 3:
-						return "Tooth-Puncture";
-					default:
-						return "Bite";
-				}
-			case DamageType.Claw:
-				switch (Dice.Roll(1, 3))
-				{
-					case 1:
-						return "Gash";
-					case 2:
-						return "Rake";
-					case 3:
-						return "Claw-Gash";
-					default:
-						return "Gash";
-				}
-			case DamageType.Electrical:
-				return "Burn";
-			case DamageType.Hypoxia:
-				return "Cyanosis";
-			case DamageType.Cellular:
-				return "Tissue Death";
-			case DamageType.Wrenching:
-				if (severity <= WoundSeverity.Small)
-				{
-					return Dice.Roll(1, 2) == 1 ? "Sprain" : "Twist";
-				}
-
-				return "Break";
-		}
-
-		return "Unknown";
-	}
-
-	public override object DatabaseInsert()
-	{
-		if (Parent.Id == 0)
-		{
-			return null;
-		}
-
-		var dbitem = new Wound();
-		FMDB.Context.Wounds.Add(dbitem);
-		dbitem.WoundType = "SimpleOrganic";
-		dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
-		dbitem.GameItemId = (Parent as IGameItem)?.Id;
-		dbitem.OriginalDamage = OriginalDamage;
-		dbitem.CurrentDamage = _currentDamage;
-		dbitem.CurrentPain = _currentPain;
-		dbitem.CurrentStun = _currentStun;
-		dbitem.DamageType = (int)DamageType;
-		dbitem.BodypartProtoId = Bodypart?.Id;
-		dbitem.LodgedItemId = Lodged?.Id;
-		dbitem.ActorOriginId = _actorOriginId != 0 ? _actorOriginId : default(long?);
-		dbitem.ToolOriginId = _toolOriginId != 0 ? _toolOriginId : default(long?);
-		dbitem.ExtraInformation = SaveExtras();
-		return dbitem;
-	}
-
-	public override void SetIDFromDatabase(object dbitem)
-	{
-		_id = ((Wound)dbitem)?.Id ?? 0;
-	}
-
-	private void LoadFromDb(Wound wound)
-	{
-		_id = wound.Id;
-		IdInitialised = true;
-		_name = string.Empty;
-		_currentDamage = wound.CurrentDamage;
-		_originalDamage = wound.OriginalDamage;
-		_currentPain = wound.CurrentPain;
-		_currentStun = wound.CurrentStun;
-		DamageType = (DamageType)wound.DamageType;
-		if (IsNecroticDamage)
-		{
-			_currentPain = 0.0;
-			_currentStun = 0.0;
-		}
-		_bodypart = Gameworld.BodypartPrototypes.Get(wound.BodypartProtoId ?? 0);
-		if (wound.LodgedItemId.HasValue)
-		{
-			_lodged = Gameworld.TryGetItem(wound.LodgedItemId ?? 0, true);
-		}
-
-		_actorOriginId = wound.ActorOriginId ?? 0;
-		_toolOriginId = wound.ToolOriginId ?? 0;
-
-		var root = XElement.Parse(wound.ExtraInformation);
-		var element = root.Element("DamageDescription");
-		if (element != null)
-		{
-			_damageDescription = element.Value;
-		}
-
-		element = root.Element("Cleaned");
-		if (element != null)
-		{
-			_cleaned = bool.Parse(element.Value);
-		}
-
-		element = root.Element("CleanAttempted");
-		if (element != null)
-		{
-			_cleanAttempted = bool.Parse(element.Value);
-		}
-
-		element = root.Element("BleedStatus");
-		if (element != null)
-		{
-			_bleedStatus = (BleedStatus)int.Parse(element.Value);
-		}
-
-		element = root.Element("Tended");
-		if (element != null)
-		{
-			_tended = (Outcome)int.Parse(element.Value);
-		}
-
-		element = root.Element("AntisepticTreated");
-		if (element != null)
-		{
-			_antisepticTreated = bool.Parse(element.Value);
-		}
-
-		element = root.Element("HadInfection");
-		if (element != null)
-		{
-			_hadInfection = bool.Parse(element.Value);
-		}
-
-		element = root.Element("ScarSurgicalProcedureType");
-		if (element != null && int.TryParse(element.Value, out var scarSurgeryType))
-		{
-			_scarSurgicalProcedureType = (SurgicalProcedureType)scarSurgeryType;
-		}
-
-		element = root.Element("ScarSurgeryCheckDegrees");
-		if (element != null)
-		{
-			_scarSurgeryCheckDegrees = int.Parse(element.Value);
-		}
-
-		element = root.Element("TreatmentAttempts");
-		if (element != null)
-		{
-			_unsuccessfulTreatmentAttempts = int.Parse(element.Value);
-		}
-
-		IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
-	}
-
-	#region Overrides of LateKeywordedInitialisingItem
-
-	public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
-
-	#endregion
-
-	public string SaveExtras()
-	{
-		return new XElement("Definition",
-			new XElement("DamageDescription", _damageDescription),
-			new XElement("Cleaned", _cleaned),
-			new XElement("CleanAttempted", _cleanAttempted),
-			new XElement("AntisepticTreated", _antisepticTreated),
-			new XElement("BleedStatus", (int)BleedStatus),
-			new XElement("Tended", (int)_tended),
-			new XElement("HadInfection", _hadInfection),
-			new XElement("ScarSurgicalProcedureType", _scarSurgicalProcedureType.HasValue ? (int)_scarSurgicalProcedureType.Value : -1),
-			new XElement("ScarSurgeryCheckDegrees", _scarSurgeryCheckDegrees),
-			new XElement("TreatmentAttempts", _unsuccessfulTreatmentAttempts),
-			new XElement("IsFriendlyWound", IsFriendlyWound)
-		).ToString();
-	}
-
-	public string TextForAdminWoundsCommand
-	{
-		get
-		{
-			var conditions = new List<string>();
-			switch (BleedStatus)
-			{
-				case BleedStatus.Bleeding:
-					conditions.Add("Bleeding".Colour(Telnet.Red));
-					break;
-				case BleedStatus.TraumaControlled:
-					conditions.Add("Bound".Colour(Telnet.BoldPink));
-					break;
-				case BleedStatus.Closed:
-					conditions.Add("Sutured".Colour(Telnet.BoldCyan));
-					break;
-			}
-
-			if (Infection is not null)
-			{
-				conditions.Add($"{Infection.VirulenceDifficulty.DescribeColoured()} {Infection.InfectionType.DescribeEnum().Colour(Telnet.BoldGreen)} ({Infection.Intensity.ToStringP2Colour()}|{Infection.Immunity.ToStringP2Colour()})");
-			}
-
-			if (CharacterParent.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
-			{
-				conditions.Add("Antiseptic".Colour(Telnet.Yellow));
-			}
-
-			if (CharacterParent.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart))
-			{
-				conditions.Add("Anti-Inflammatory".Colour(Telnet.BoldGreen));
-			}
-
-			if (_cleaned)
-			{
-				conditions.Add("Cleaned".Colour(Telnet.Cyan));
-			}
-			else if (_cleanAttempted)
-			{
-				conditions.Add("Cleanish".Colour(Telnet.BoldYellow));
-			}
-
-			if (_tended != Outcome.None)
-			{
-				conditions.Add($"Tended ({_tended.DescribeColour()})");
-			}
-
-			return conditions.ListToCommaSeparatedValues(", ").ToString();
-		}
-	}
-
-	#region IWound Members
-
-	public void SetNewOwner(IHaveWounds newOwner)
-	{
-		using (new FMDB())
-		{
-			var dbwound = FMDB.Context.Wounds.Find(Id);
-			if (dbwound == null)
-			{
-				return;
-			}
-
-			dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
-			dbwound.GameItemId = (newOwner as IGameItem)?.Id;
-			FMDB.Context.SaveChanges();
-		}
-
-		_parent = newOwner;
-	}
-
-	public void SufferAdditionalDamage(IDamage damage)
-	{
-		OriginalDamage += damage.DamageAmount;
-		CurrentDamage += damage.DamageAmount;
-		if (!IsNecroticDamage)
-		{
-			_currentPain += damage.PainAmount;
-			CurrentStun += damage.StunAmount;
-		}
-		_cleanAttempted = false;
-		_cleaned = false;
-		_tended = Outcome.None;
-		_unsuccessfulTreatmentAttempts = 0;
-	}
-
-	public bool UseDamagePercentageSeverities => false;
-
-	public void OnWoundSuffered()
-	{
-		// Do nothing
-	}
-
-	public bool ShouldWoundBeRemoved()
-	{
-		return
-			_currentDamage <= 0.0 &&
-			_currentPain <= 0.0 &&
-			_currentStun <= 0.0 &&
-			_infection == null &&
-			_bleedStatus != BleedStatus.Bleeding &&
-			_lodged == null;
-	}
-
-	private Outcome _tended = Outcome.None;
-
-	private long _toolOriginId;
-
-	public IGameItem ToolOrigin
-	{
-		get => Gameworld.TryGetItem(_toolOriginId);
-		set
-		{
-			_toolOriginId = value?.Id ?? 0;
-			Changed = true;
-		}
-	}
-
-	private long _actorOriginId;
-
-	public ICharacter ActorOrigin
-	{
-		get => Gameworld.TryGetCharacter(_actorOriginId, true);
-		set
-		{
-			_actorOriginId = value?.Id ?? 0;
-			Changed = true;
-		}
-	}
-
-	private IGameItem _lodged;
-
-	public IGameItem Lodged
-	{
-		get => _lodged;
-		set
-		{
-			_lodged = value;
-			Changed = true;
-		}
-	}
-
-	private double _currentPain;
-
-	public double CurrentPain
-	{
-		get => _parent is ICharacter ch
-			? this.ApplyPainReduction(ch, _currentPain + InfectionPain)
-			: _currentPain + InfectionPain;
-		set
-		{
-			_currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, value - InfectionPain);
-			Changed = true;
-		}
-	}
-
-	private double _currentStun;
-
-	public double CurrentStun
-	{
-		get => _currentStun;
-		set
-		{
-			_currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, value);
-			Changed = true;
-		}
-	}
-
-	public double CurrentShock { get; set; } = 0;
-
-	private double _originalDamage;
-
-	public double OriginalDamage
-	{
-		get => _originalDamage;
-		set
-		{
-			_originalDamage = value;
-			Changed = true;
-		}
-	}
-
-	private double _currentDamage;
-
-	public double CurrentDamage
-	{
-		get => _currentDamage;
-		set
-		{
-			var oldDamage = _currentDamage;
-			_currentDamage = Math.Max(0.0, value);
-			Changed = true;
-			if (oldDamage < _currentDamage && Bodypart is IOrganProto)
-			{
-				CheckForOrganBleeding();
-			}
-		}
-	}
-
-	public IBodypart SeveredBodypart { get; set; }
-
-	public WoundSeverity Severity => Parent.GetSeverityFor(this);
-
-	public bool Internal => Bodypart is IOrganProto;
-
-	private IHaveWounds _parent;
-
-	public IHaveWounds Parent
-	{
-		get => _parent;
-		set
-		{
-			_parent = value;
-			Changed = true;
-		}
-	}
-
-	public ICharacter CharacterParent
-	{
-		get
-		{
-			if (_parent is ICharacter ch)
-			{
-				return ch;
-			}
-
-			return ((IGameItem)_parent).GetItemType<ISeveredBodypart>().OriginalCharacter;
-		}
-	}
-
-	private IBodypart _bodypart;
-
-	public IBodypart Bodypart
-	{
-		get => _bodypart;
-		init
-		{
-			_bodypart = value;
-			Changed = true;
-		}
-	}
-
-	public string Describe(WoundExaminationType type, Outcome outcome)
-	{
-		if (type == WoundExaminationType.Glance)
-		{
-			// Depending on the outcome, glances might not see certain levels of wounds
-			var i = outcome.IsPass() ? 3 - outcome.SuccessDegrees() : 3 + outcome.FailureDegrees();
-			if (Severity.StageDown(i) == WoundSeverity.None)
-			{
-				return "";
-			}
-		}
-
-		if (Severity == WoundSeverity.None && type != WoundExaminationType.Self)
-		{
-			return "";
-		}
-
-		switch (type)
-		{
-			case WoundExaminationType.Glance:
-				return $"{Severity.Describe()} {_damageDescription}".A_An().ToLowerInvariant();
-			case WoundExaminationType.Look:
-				return
-					$"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
-						.A_An().ToLowerInvariant();
-			case WoundExaminationType.Self:
-			{
-				var painfulThreshold = CurrentDamage * Gameworld.GetStaticDouble("WoundPainfulRatioThreshold");
-				return
-					$"{Severity.Describe()} {_damageDescription}{(CurrentPain > painfulThreshold ? " (Painful)" : "")}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
-						.A_An().ToLowerInvariant();
-			}
-			case WoundExaminationType.Examination:
-			case WoundExaminationType.Triage:
-			case WoundExaminationType.SurgicalExamination:
-			case WoundExaminationType.Omniscient:
-				return
-					$"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome).LeadingSpaceIfNotEmpty() ?? ""}"
-						.A_An().ToLowerInvariant();
-		}
-
-		return "";
-	}
-
-	public string WoundTypeDescription => _damageDescription;
-
-	public Difficulty CanBeTreated(TreatmentType type)
-	{
-		if (!(_parent is ICharacter ch))
-		{
-			return Difficulty.Impossible;
-		}
-
-		if (Severity == WoundSeverity.None)
-		{
-			return Difficulty.Impossible;
-		}
-
-		switch (type)
-		{
-			case TreatmentType.Repair:
-			case TreatmentType.Relocation:
-			case TreatmentType.Set:
-				return Difficulty.Impossible;
-		}
-
-		if (type == TreatmentType.Remove && Lodged == null)
-		{
-			return Difficulty.Impossible;
-		}
-
-		if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Tend) &&
-		    _bleedStatus == BleedStatus.Bleeding)
-		{
-			return Difficulty.Impossible;
-		}
-
-		if (type == TreatmentType.Close && _bleedStatus != BleedStatus.TraumaControlled)
-		{
-			return Difficulty.Impossible;
-		}
-
-		if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Close ||
-		     type == TreatmentType.Tend) &&
-		    Lodged != null)
-		{
-			return Difficulty.Impossible;
-		}
-
-		if (type == TreatmentType.Trauma && _bleedStatus != BleedStatus.Bleeding)
-		{
-			return Difficulty.Impossible;
-		}
-
-		if (type == TreatmentType.Clean && (_cleaned || _cleanAttempted))
-		{
-			return Difficulty.Impossible;
-		}
-
-		if (type == TreatmentType.AntiInflammatory)
-		{
-			if (_bleedStatus == BleedStatus.Bleeding)
-			{
-				return Difficulty.Impossible;
-			}
-
-			if (Lodged != null)
-			{
-				return Difficulty.Impossible;
-			}
-
-			if (_currentPain <= 0.0 && InfectionPain <= 0.0)
-			{
-				return Difficulty.Impossible;
-			}
-
-			return Difficulty.VeryEasy;
-		}
-
-		if (type == TreatmentType.Antiseptic && _cleaned &&
-		    ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
-		{
-			return Difficulty.Impossible;
-		}
-
-		if (type == TreatmentType.Clean || type == TreatmentType.Antiseptic)
-		{
-			return Difficulty.VeryEasy;
-		}
-
-		if (type == TreatmentType.Tend && _tended == Outcome.MajorPass)
-		{
-			return Difficulty.Impossible;
-		}
-
-		var difficulty = Difficulty.Impossible;
-		switch (Severity)
-		{
-			case WoundSeverity.Superficial:
-				difficulty = Difficulty.Automatic;
-				break;
-			case WoundSeverity.Minor:
-				difficulty = Difficulty.Trivial;
-				break;
-			case WoundSeverity.Small:
-				difficulty = Difficulty.ExtremelyEasy;
-				break;
-			case WoundSeverity.Moderate:
-				difficulty = Difficulty.VeryEasy;
-				break;
-			case WoundSeverity.Severe:
-				difficulty = Difficulty.Easy;
-				break;
-			case WoundSeverity.VerySevere:
-				difficulty = Difficulty.Normal;
-				break;
-			case WoundSeverity.Grievous:
-				difficulty = Difficulty.Hard;
-				break;
-			case WoundSeverity.Horrifying:
-				difficulty = Difficulty.VeryHard;
-				break;
-		}
-
-		if (type == TreatmentType.Trauma)
-		{
-			switch (DamageType)
-			{
-				case DamageType.Claw:
-				case DamageType.Chopping:
-					difficulty = difficulty.StageUp(1);
-					break;
-				case DamageType.Ballistic:
-				case DamageType.Bite:
-					difficulty = difficulty.StageUp(2);
-					break;
-				case DamageType.Shearing:
-				case DamageType.Slashing:
-					difficulty = difficulty.StageUp(3);
-					break;
-			}
-		}
-
-		if (difficulty == Difficulty.Impossible)
-		{
-			difficulty = Difficulty.Insane;
-		}
-
-		if (_unsuccessfulTreatmentAttempts > 0)
-		{
-			difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts /
-			                               Math.Max(1, Gameworld.GetStaticInt("WoundTreatmentAttemptPenaltyInterval")));
-		}
-
-		return difficulty;
-	}
-
-	public string WhyCannotBeTreated(TreatmentType type)
-	{
-		if (!(_parent is ICharacter ch))
-		{
-			return "Wounds on severed bodyparts cannot be treated.";
-		}
-
-		switch (type)
-		{
-			case TreatmentType.Repair:
-			case TreatmentType.Relocation:
-			case TreatmentType.Set:
-				return "That kind of treatment cannot be applied to that wound.";
-		}
-
-		if (type == TreatmentType.Remove && Lodged == null)
-		{
-			return "There is nothing in that wound that requires removal.";
-		}
-
-		if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Tend) &&
-		    _bleedStatus == BleedStatus.Bleeding)
-		{
-			return "Before a wound can be cleaned or tended to, the bleeding must have stopped";
-		}
-
-		if (type == TreatmentType.Close && _bleedStatus != BleedStatus.TraumaControlled)
-		{
-			return "Only wounds that have been stabilised can be sutured closed.";
-		}
-
-		if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Close ||
-		     type == TreatmentType.Tend) &&
-		    Lodged != null)
-		{
-			return
-				"Foreign objects must be removed from the wound before it can be successfully cleaned, tended or closed.";
-		}
-
-		if (type == TreatmentType.Trauma && _bleedStatus == BleedStatus.NeverBled)
-		{
-			return "There is no bleeding trauma on that wound to address.";
-		}
-
-		if (type == TreatmentType.Clean && _cleaned)
-		{
-			return "That wound is already as clean as it's going to get with conventional cleaning.";
-		}
-
-		if (type == TreatmentType.AntiInflammatory)
-		{
-			if (_bleedStatus == BleedStatus.Bleeding)
-			{
-				return "You must first stop the bleeding before anti-inflammatory care will do any good.";
-			}
-
-			if (Lodged != null)
-			{
-				return "Foreign objects must be removed from the wound before anti-inflammatory treatment can be applied.";
-			}
-
-			if (_currentPain <= 0.0 && InfectionPain <= 0.0)
-			{
-				return "That wound is not causing any inflammatory pain that anti-inflammatory treatment would improve.";
-			}
-		}
-
-		if (type == TreatmentType.Antiseptic && _cleaned &&
-		    ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart) == true)
-		{
-			return "That wound is both clean and antiseptically treated, and cannot benefit from another treatment.";
-		}
-
-		if (type == TreatmentType.Tend && _tended == Outcome.MajorPass)
-		{
-			return "That wound has already been tended as skillfully and successfully as is possible.";
-		}
-
-		return "That kind of treatment cannot be applied to that wound.";
-	}
-
-	private int _unsuccessfulTreatmentAttempts;
-
-	public void Treat(IPerceiver treater, TreatmentType type, ITreatment treatmentItem, Outcome testOutcome,
-		bool silent)
-	{
-		if (!(_parent is ICharacter ch))
-		{
-			return;
-		}
-
-		// Mending would generally be magical healing
-		switch (type)
-		{
-			case TreatmentType.Mend:
-				if (testOutcome.IsFail() && testOutcome != Outcome.MinorFail)
-				{
-					_unsuccessfulTreatmentAttempts++;
-					Changed = true;
-					if (treater != null && !silent)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} have only succeeded in making things worse!",
-							treater, treater, CharacterParent)));
-					}
-				}
-				else if (testOutcome == Outcome.MinorFail)
-				{
-					if (treater != null && !silent)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} has not succeeded.",
-							treater, treater, CharacterParent)));
-					}
-				}
-				else
-				{
-					if (treater != null && !silent)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's effort to mend {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
-							treater, treater, CharacterParent)));
-					}
-
-					_unsuccessfulTreatmentAttempts = 0;
-					CurrentDamage = Parent.GetSeverityFloor(Severity.StageDown(testOutcome.SuccessDegrees()));
-					_currentPain = Math.Min(_currentPain, CurrentDamage);
-					Changed = true;
-					CurrentStun = Math.Min(CurrentStun, CurrentDamage);
-				}
-
-				if (_bleedStatus == BleedStatus.Bleeding)
-				{
-					_bleedStatus = BleedStatus.TraumaControlled;
-					if (!silent)
-					{
-						Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"{Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} has stopped bleeding.", treater, treater, CharacterParent))
-							,
-							OutputRange.Local);
-					}
-				}
-
-				return;
-			case TreatmentType.AntiInflammatory:
-			{
-				var strength = testOutcome switch
-				{
-					Outcome.MajorPass => 4,
-					Outcome.Pass => 3,
-					Outcome.MinorPass => 2,
-					Outcome.MinorFail => 1,
-					_ => 0
-				};
-
-				treatmentItem?.UseTreatment();
-				if (strength <= 0)
-				{
-					if (treater != null && !silent)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to calm the inflammation in {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} have been unsuccessful.",
-							treater, treater, CharacterParent)));
-					}
-
-					return;
-				}
-
-				var multiplier = Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumPainMultiplier"),
-					1.0 - strength * Gameworld.GetStaticDouble("AntiInflammatoryPainMultiplierReductionPerStrength"));
-				var flatReduction = Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumFlatReduction"),
-					strength * (int)Severity * Gameworld.GetStaticDouble("AntiInflammatoryOrganicFlatReductionPerSeverity"));
-				var duration = TimeSpan.FromMinutes(
-					Gameworld.GetStaticDouble("AntiInflammatoryBaseDurationMinutes") +
-					strength * Gameworld.GetStaticDouble("AntiInflammatoryDurationMinutesPerStrength"));
-				AntiInflammatoryTreatment.ApplyOrUpdate(ch.Body, Bodypart, multiplier, flatReduction, duration);
-				if (treater != null && !silent)
-				{
-					treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-						treatmentItem == null
-							? $"$0 finish|finishes applying anti-inflammatory care to {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()}."
-							: $"$0 finish|finishes applying anti-inflammatory care to {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} with $2.",
-						treater, treater, CharacterParent, treatmentItem?.Parent)));
-				}
-
-				return;
-			}
-			case TreatmentType.Trauma:
-				if (testOutcome == Outcome.MajorFail || (treatmentItem == null && testOutcome.IsFail()))
-				{
-					if (treater == null || silent)
-					{
-						return;
-					}
-
-					treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-						$"Despite $0's efforts, #0 are|is unable to stop {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} from bleeding.",
-						treater, treater, CharacterParent)));
-					return;
-				}
-
-				if (treater != null && !silent)
-				{
-					if (treatmentItem == null)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent)));
-					}
-					else
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts with $2 have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent, treatmentItem.Parent)));
-					}
-				}
-
-				treatmentItem?.UseTreatment();
-				_bleedStatus = BleedStatus.TraumaControlled;
-				Changed = true;
-				return;
-			case TreatmentType.Tend:
-				if (treater != null && !silent)
-				{
-					if (treatmentItem == null)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent)));
-					}
-					else
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} with $2.",
-							treater, treater, CharacterParent, treatmentItem.Parent)));
-					}
-				}
-
-				treatmentItem?.UseTreatment();
-				if (!silent && treater != null)
-				{
-					if (testOutcome > _tended)
-					{
-						switch (testOutcome)
-						{
-							case Outcome.MajorFail:
-								treater.Send(
-									"You're pretty sure you've done a terrible job, but any treatment is better than none right?."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.Fail:
-							case Outcome.MinorFail:
-								treater.Send(
-									"You're pretty sure you could have done a better job, but the wound is better tended than it was."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.MinorPass:
-							case Outcome.Pass:
-								treater.Send(
-									"You're pretty sure you've done a good job, and the wound is better tended than it was."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.MajorPass:
-								treater.Send(
-									"You're pretty sure you've done an excellent job, and the wound won't need any further treatment."
-										.Colour(Telnet.Yellow));
-								break;
-						}
-					}
-					else if (testOutcome == _tended)
-					{
-						switch (testOutcome)
-						{
-							case Outcome.MajorFail:
-								treater.Send(
-									"You're pretty sure you've done a terrible job, but at least you haven't made things any worse."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.Fail:
-							case Outcome.MinorFail:
-								treater.Send(
-									"You're pretty sure you could have done a better job, but the wound is no better off than it was before your efforts."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.MinorPass:
-							case Outcome.Pass:
-								treater.Send(
-									"You're pretty sure you've done a good job, but the wound is no better off than it was before your efforts."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.MajorPass:
-								treater.Send(
-									"You're pretty sure you've done an excellent job, but the wound is no better off than it was before your efforts."
-										.Colour(Telnet.Yellow));
-								break;
-						}
-					}
-					else
-					{
-						switch (testOutcome)
-						{
-							case Outcome.MajorFail:
-								treater.Send(
-									"You're pretty sure you've done a terrible job, but at least you haven't made things any worse."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.Fail:
-							case Outcome.MinorFail:
-								treater.Send(
-									"You're pretty sure you could have done a better job, but fortunately someone else has already done a better job than you."
-										.Colour(Telnet.Yellow));
-								break;
-							case Outcome.MinorPass:
-							case Outcome.Pass:
-								treater.Send(
-									"You're pretty sure you've done a good job, but fortunately someone else has already done a better job than you."
-										.Colour(Telnet.Yellow));
-								break;
-						}
-					}
-				}
-
-				_tended = _tended.Best(testOutcome);
-				Changed = true;
-				return;
-			case TreatmentType.Clean:
-			case TreatmentType.Antiseptic:
-				_cleaned = _cleaned || testOutcome.IsPass() ||
-				           (treatmentItem != null && testOutcome != Outcome.MajorFail);
-				_cleanAttempted = true;
-				if (_cleaned && type == TreatmentType.Antiseptic)
-				{
-					_antisepticTreated = true;
-					var antisepticDuration = TimeSpan.FromSeconds(
-						Gameworld.GetStaticInt("AntisepticProtectionBaseDurationSeconds") +
-						testOutcome.SuccessDegrees() *
-						Gameworld.GetStaticInt("AntisepticProtectionDurationSecondsPerSuccessDegree"));
-					if (ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
-					{
-						ch.Body.Reschedule(
-							ch.Body.EffectsOfType<IAntisepticTreatmentEffect>().First(x => x.Bodypart == Bodypart),
-							antisepticDuration);
-					}
-					else
-					{
-						ch.Body.AddEffect(new AntisepticProtection(ch.Body, Bodypart, null),
-							antisepticDuration);
-					}
-				}
-
-				Changed = true;
-				if (treater != null && !silent)
-				{
-					if (treatmentItem == null)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent)));
-					}
-					else
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} with $2.",
-							treater, treater, CharacterParent, treatmentItem.Parent)));
-					}
-				}
-
-				treatmentItem?.UseTreatment();
-				return;
-			case TreatmentType.Close:
-				if (testOutcome == Outcome.MajorFail || (treatmentItem == null && testOutcome.IsFail()))
-				{
-					if (treater != null && !silent)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"Despite $0's efforts, #0 are|is unable to close up {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent)));
-					}
-
-					return;
-				}
-
-				if (treater != null && !silent)
-				{
-					if (treatmentItem == null)
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent)));
-					}
-					else
-					{
-						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts with $2 have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
-							treater, treater, CharacterParent, treatmentItem.Parent)));
-					}
-				}
-
-				treatmentItem?.UseTreatment();
-				_bleedStatus = BleedStatus.Closed;
-				Changed = true;
-				break;
-		}
-	}
-
-	public Outcome BestTendedOutcome => _tended;
-	public bool WasCleaned => _cleaned;
-	public bool WasAntisepticTreated => _antisepticTreated;
-	public bool HadInfection => _hadInfection;
-	public bool WasClosed => _bleedStatus == BleedStatus.Closed;
-	public bool WasTraumaControlled => _bleedStatus == BleedStatus.TraumaControlled;
-	public SurgicalProcedureType? ScarSurgicalProcedureType => _scarSurgicalProcedureType;
-	public int ScarSurgeryCheckDegrees => _scarSurgeryCheckDegrees;
-
-	public void MarkScarFromSurgery(SurgicalProcedureType type, int checkDegrees)
-	{
-		_scarSurgicalProcedureType = type;
-		_scarSurgeryCheckDegrees = checkDegrees;
-		Changed = true;
-	}
-
-	public BleedResult Bleed(double currentBloodLitres, ExertionLevel activityExertionLevel,
-		double totalBloodLitres)
-	{
-		if (_bleedStatus == BleedStatus.NeverBled || !(_parent is ICharacter ch))
-		{
-			return BleedResult.NoBleed;
-		}
-
-		if (currentBloodLitres / totalBloodLitres < Gameworld.GetStaticDouble("WoundMinimumExternalBleedingBloodRatio"))
-		{
-			currentBloodLitres = Gameworld.GetStaticDouble("WoundMinimumExternalBleedingBloodRatio") *
-			                    totalBloodLitres;
-		}
-
-		return _bleedStatus switch
-		{
-			BleedStatus.Bleeding => HandleActiveBleeding(ch, currentBloodLitres, activityExertionLevel),
-			BleedStatus.TraumaControlled => HandleTraumaControlledBleeding(activityExertionLevel),
-			BleedStatus.Closed => HandleClosedBleeding(activityExertionLevel),
-			_ => BleedResult.NoBleed
-		};
-	}
-
-	private BleedResult HandleActiveBleeding(ICharacter ch, double currentBloodLitres,
-		ExertionLevel activityExertionLevel)
-	{
-		if (ch.Body.BloodLiquid == null)
-		{
-			_bleedStatus = BleedStatus.NeverBled;
-			Changed = true;
-			return BleedResult.NoBleed;
-		}
-
-		var beingBounds = Parent.EffectsOfType<BeingBound>().Where(x => x.Bodypart == Bodypart).ToList();
-		var bleedPercentage =
-			Math.Max(0,
-				(int)Severity + (int)activityExertionLevel -
-				Gameworld.GetStaticInt("ExternalBleedingSeverityExertionOffset")) *
-		                      PercentageExternalBloodlossPerWoundSeverity *
-		                      Bodypart.BleedModifier *
-		                      (beingBounds.Any() ? Gameworld.GetStaticDouble("BoundBleedingMultiplier") : 1);
-		var bleeding = bleedPercentage * currentBloodLitres;
-		if (bleeding <= 0.0)
-		{
-			return BleedResult.NoBleed;
-		}
-
-		var items = ch.Body.WornItemsProfilesFor(Bodypart);
-		var item = ch.Body.WornItemsFor(Bodypart).FirstOrDefault();
-		var mixture = new LiquidMixture(new BloodLiquidInstance(ch, bleeding), Gameworld);
-		item?.ExposeToLiquid(mixture, Bodypart, LiquidExposureDirection.FromUnderneath);
-		if (!mixture.IsEmpty)
-		{
-			ExposeBleedMixture(ch, mixture, beingBounds);
-		}
-
-		if (items.All(x => x.Item2.Transparent))
-		{
-			return new BleedResult
-			{
-				BloodAmount = bleeding,
-				CoverItem = null,
-				Visible = true,
-				Bodypart = Bodypart
-			};
-		}
-
-		if (items.All(x => x.Item1.SaturationLevel > ItemSaturationLevel.Wet))
-		{
-			return new BleedResult
-			{
-				BloodAmount = bleeding,
-				CoverItem = items.Last().Item1,
-				Visible = true,
-				Bodypart = Bodypart
-			};
-		}
-
-		return new BleedResult { BloodAmount = bleeding, Visible = false, Bodypart = Bodypart };
-	}
-
-	private void ExposeBleedMixture(ICharacter ch, LiquidMixture mixture, IEnumerable<BeingBound> beingBounds)
-	{
-		var binders = beingBounds
-		              .Select(x => (x.Binder, x.Binder.Body.HoldLocs))
-		              .ToList();
-		var bindingPartCount = binders.Sum(x => x.HoldLocs.Count());
-		if (bindingPartCount <= 0)
-		{
-			PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, ch.Location, ch.RoomLayer, ch);
-			return;
-		}
-
-		var mixtures = new Queue<LiquidMixture>(mixture.Split(bindingPartCount));
-		foreach (var (binder, locs) in binders)
-		{
-			foreach (var loc in locs)
-			{
-				binder.Body.ExposeToLiquid(mixtures.Dequeue(), loc, LiquidExposureDirection.Irrelevant);
-			}
-		}
-	}
-
-	private BleedResult HandleTraumaControlledBleeding(ExertionLevel activityExertionLevel)
-	{
-		if (activityExertionLevel > ExertionLevel.Normal &&
-		    Dice.Roll(1, 100) <
-		    ((int)activityExertionLevel + (int)Severity -
-		     Gameworld.GetStaticInt("TraumaBleedReopenSeverityExertionOffset")) *
-		    Gameworld.GetStaticInt("TraumaBleedReopenChancePerStep"))
-		{
-			_bleedStatus = BleedStatus.Bleeding;
-			_cleaned = false;
-			_cleanAttempted = false;
-			Parent.OutputHandler.Handle(
-				new EmoteOutput(
-					new Emote(
-						string.Format(
-							"$0's exertion has caused {0} on &0's {1} to start bleeding!".Colour(Telnet.Red),
-							Describe(WoundExaminationType.Glance, Outcome.MajorPass),
-							Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
-			Changed = true;
-		}
-
-		return BleedResult.NoBleed;
-	}
-
-	private BleedResult HandleClosedBleeding(ExertionLevel activityExertionLevel)
-	{
-		if (activityExertionLevel > ExertionLevel.Heavy &&
-		    Dice.Roll(1, 100) <
-		    ((int)activityExertionLevel + (int)Severity -
-		     Gameworld.GetStaticInt("ClosedWoundReopenSeverityExertionOffset")) *
-		    Gameworld.GetStaticInt("ClosedWoundReopenChancePerStep"))
-		{
-			_bleedStatus = BleedStatus.TraumaControlled;
-			Parent.OutputHandler.Handle(
-				new EmoteOutput(
-					new Emote(
-						string.Format("$0's exertion has reopened {0} on &0's {1}!".Colour(Telnet.Red),
-							Describe(WoundExaminationType.Glance, Outcome.MajorPass),
-							Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
-			Changed = true;
-		}
-
-		return BleedResult.NoBleed;
-	}
-
-	public double PeekBleed(double bloodTotal, ExertionLevel activityExertionLevel)
-	{
-		if (_bleedStatus == BleedStatus.Bleeding)
-		{
-			return Math.Max(0, (int)Severity + (int)activityExertionLevel -
-			                    Gameworld.GetStaticInt("ExternalBleedingSeverityExertionOffset")) *
-			       PercentageExternalBloodlossPerWoundSeverity * Bodypart.BleedModifier *
-			       bloodTotal;
-		}
-
-		return 0;
-	}
-
-	public double Exert(ExertionType exertion)
-	{
-		return 0;
-	}
-
-	public bool EligableForInfection()
-	{
-		if (IsNecroticDamage || Infection != null || !(_parent is ICharacter ch))
-		{
-			return false;
-		}
-
-		switch (DamageType)
-		{
-			case DamageType.Crushing:
-			case DamageType.Electrical:
-			case DamageType.Shockwave:
-				return false;
-		}
-
-		//If the wound has healed up 50% from its original level, let's never give it an infection
-		if (CurrentDamage <= OriginalDamage * Gameworld.GetStaticDouble("WoundInfectionHealedDamageRatioThreshold"))
-		{
-			return false;
-		}
-
-		if (Severity == WoundSeverity.Superficial)
-		{
-			return false;
-		}
-
-		return ch.Body.EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
-	}
-
-	/// <summary>
-	///     Called in the health heartbeat to determine whether an uninfected wound becomes infected, and also to trigger
-	///     subsequent processing if there is an existing infection
-	/// </summary>
-	private void CheckInfection()
-	{
-		if (!(_parent is ICharacter ch))
-		{
-			return;
-		}
-
-		var hadInfection = Infection != null;
-		TickExistingInfection();
-		if (hadInfection || Infection != null || !EligableForInfection())
-		{
-			return;
-		}
-
-		var terrain = ch.Location.Terrain(ch);
-		if (RandomUtilities.DoubleRandom(0.0, 1.0) > CalculateInfectionChance(ch, terrain))
-		{
-			return;
-		}
-
-		if (InfectionPreventedByCleaning(ch))
-		{
-			return;
-		}
-
-		StartNewInfection(ch, terrain);
-	}
-
-	private void TickExistingInfection()
-	{
-		Infection?.InfectionTick();
-		if (Infection?.InfectionHealed() != true)
-		{
-			return;
-		}
-
-		Infection.Delete();
-		Infection = null;
-	}
-
-	private double GetInfectionChanceDamageMultiplier()
-	{
-		return DamageType switch
-		{
-			DamageType.Ballistic => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBallistic"),
-			DamageType.Bite => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBite"),
-			DamageType.Burning => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBurning"),
-			DamageType.Chemical => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierChemical"),
-			DamageType.Chopping => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierChopping"),
-			DamageType.Claw => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierClaw"),
-			DamageType.Freezing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierFreezing"),
-			DamageType.Piercing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierPiercing"),
-			DamageType.Slashing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierSlashing"),
-			DamageType.Hypoxia => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierHypoxia"),
-			DamageType.Cellular => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierCellular"),
-			_ => 1.0
-		};
-	}
-
-	private double GetInfectionChanceSeverityMultiplier()
-	{
-		return Severity switch
-		{
-			WoundSeverity.Moderate => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierModerate"),
-			WoundSeverity.Severe => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierSevere"),
-			WoundSeverity.VerySevere => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierVerySevere"),
-			WoundSeverity.Grievous => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierGrievous"),
-			WoundSeverity.Horrifying => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierHorrifying"),
-			_ => 1.0
-		};
-	}
-
-	private double CalculateInfectionChance(ICharacter ch, ITerrain terrain)
-	{
-		var chance = Gameworld.GetStaticDouble("BaseInfectionChance");
-		chance *= GetInfectionChanceDamageMultiplier();
-
-		chance *= ch.CurrentProject.Labour?.LabourImpacts.OfType<ILabourImpactHealing>()
-		            .Aggregate(1.0, (sum, x) => sum * x.InfectionChanceMultiplier) ?? 1.0;
-		chance *= terrain.InfectionMultiplier;
-
-		chance *= GetInfectionChanceSeverityMultiplier();
-
-		if (BleedStatus is BleedStatus.TraumaControlled or BleedStatus.Bleeding)
-		{
-			chance *= Gameworld.GetStaticDouble("WoundInfectionBleedingMultiplier");
-		}
-
-		return chance;
-	}
-
-	private bool InfectionPreventedByCleaning(ICharacter ch)
-	{
-		if (_cleaned &&
-		    RandomUtilities.DoubleRandom(0.0, 1.0) <= Gameworld.GetStaticDouble("WoundInfectionProtectionChanceCleaned"))
-		{
-			SendCleaningProtectionEcho(ch, "clean wound");
-			return true;
-		}
-
-		if (!_cleanAttempted ||
-		    RandomUtilities.DoubleRandom(0.0, 1.0) >
-		    Gameworld.GetStaticDouble("WoundInfectionProtectionChanceCleanAttempted"))
-		{
-			return false;
-		}
-
-		SendCleaningProtectionEcho(ch, "clean attempt");
-		return true;
-	}
-
-	private void SendCleaningProtectionEcho(ICharacter ch, string reason)
-	{
+    private BleedStatus _bleedStatus;
+    private bool _cleanAttempted;
+    private bool _cleaned;
+    private bool _antisepticTreated;
+    private bool _hadInfection;
+    private SurgicalProcedureType? _scarSurgicalProcedureType;
+    private int _scarSurgeryCheckDegrees;
+
+    private string _damageDescription;
+
+    private IInfection _infection;
+
+    public SimpleOrganicWound(IHaveWounds parent, Wound wound, IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+        _parent = parent;
+        LoadFromDb(wound);
+        //LoadEffects(wound.Effects);
+    }
+
+    private static double _baseFluidOrganBloodlossPerWoundSeverity;
+
+    public static double BaseFluidOrganBloodlossPerWoundSeverity
+    {
+        get
+        {
+            if (_baseFluidOrganBloodlossPerWoundSeverity == 0)
+            {
+                _baseFluidOrganBloodlossPerWoundSeverity = Futuremud.Games.First()
+                                                                    .GetStaticDouble(
+                                                                        "BaseFluidOrganBloodlossPerWoundSeverity");
+            }
+
+            return _baseFluidOrganBloodlossPerWoundSeverity;
+        }
+    }
+
+    private static double _percentageExternalBloodlossPerWoundSeverity;
+
+    public static double PercentageExternalBloodlossPerWoundSeverity
+    {
+        get
+        {
+            if (_percentageExternalBloodlossPerWoundSeverity == 0)
+            {
+                _percentageExternalBloodlossPerWoundSeverity = Futuremud.Games.First()
+                                                                        .GetStaticDouble(
+                                                                            "PercentageExternalBloodlossPerWoundSeverity");
+            }
+
+            return _percentageExternalBloodlossPerWoundSeverity;
+        }
+    }
+
+    private bool IsNecroticDamage => DamageType == DamageType.Necrotic;
+
+    private double InfectionPain => _infection?.Pain ?? 0.0;
+
+    protected void CheckForOrganBleeding()
+    {
+        if (!DamageType.CanCauseOrganBleeding())
+        {
+            return;
+        }
+
+        IOrganProto organ = Bodypart as IOrganProto;
+        IBody body = CharacterParent.Body;
+        InternalBleeding effect = body.EffectsOfType<InternalBleeding>().FirstOrDefault(x => x.Organ == organ);
+        if (effect == null)
+        {
+            effect = new InternalBleeding(body, organ, 0.0);
+            body.AddEffect(effect);
+        }
+
+        effect.BloodlossPerTick = BaseFluidOrganBloodlossPerWoundSeverity * (int)Severity * organ.BleedModifier;
+    }
+
+    public SimpleOrganicWound(IFuturemud gameworld, ICharacter owner, double damage, double pain, double stun,
+        DamageType damageType, IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin,
+        ICharacter actorOrigin)
+    {
+        if (bodypart == null)
+        {
+            throw new ArgumentNullException(nameof(bodypart));
+        }
+
+        Gameworld = gameworld;
+        _parent = owner ?? throw new ArgumentNullException(nameof(owner));
+        DamageType = damageType;
+        _currentDamage = Math.Max(0.0,
+            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+        _originalDamage = Math.Max(0.0,
+            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+        _currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, pain * bodypart.PainModifier);
+        _currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, stun * bodypart.StunModifier);
+        Bodypart = bodypart;
+        _lodged = lodged;
+        _actorOriginId = actorOrigin?.Id ?? 0;
+        _toolOriginId = toolOrigin?.Id ?? 0;
+        if (actorOrigin?.Combat?.Friendly == true)
+        {
+            IsFriendlyWound = true;
+        }
+
+        if (Bodypart is IOrganProto organ)
+        {
+            CheckForOrganBleeding();
+        }
+        else if (owner.Race.BloodLiquid is null)
+        {
+            _bleedStatus = BleedStatus.NeverBled;
+        }
+        else
+        {
+            switch (damageType)
+            {
+                case DamageType.Slashing:
+                case DamageType.Claw:
+                case DamageType.Chopping:
+                case DamageType.Ballistic:
+                case DamageType.BallisticArmourPiercing:
+                case DamageType.Shearing:
+                case DamageType.Arcane:
+                    _bleedStatus = Severity >= WoundSeverity.Moderate
+                        ? BleedStatus.Bleeding
+                        : BleedStatus.NeverBled;
+                    break;
+                case DamageType.Piercing:
+                case DamageType.ArmourPiercing:
+                case DamageType.Bite:
+                case DamageType.Shrapnel:
+                    _bleedStatus = Severity >= WoundSeverity.Severe ? BleedStatus.Bleeding : BleedStatus.NeverBled;
+                    break;
+                case DamageType.Wrenching:
+                    _bleedStatus = Severity >= WoundSeverity.Horrifying ? BleedStatus.Bleeding : BleedStatus.NeverBled;
+                    break;
+                case DamageType.Falling:
+                    _bleedStatus = Severity >= WoundSeverity.Grievous ? BleedStatus.Bleeding : BleedStatus.NeverBled;
+                    break;
+                default:
+                    _bleedStatus = BleedStatus.NeverBled;
+                    break;
+            }
+        }
+
+        _damageDescription = GetWoundDescription(damageType, Severity);
+        Gameworld.SaveManager.AddInitialisation(this);
+    }
+
+    public override void Register(IOutputHandler handler)
+    {
+        // Do nothing
+    }
+
+    public override string FrameworkItemType => "Wound";
+
+    public override void Save()
+    {
+        using (new FMDB())
+        {
+            Wound dbitem = FMDB.Context.Wounds.Find(Id);
+            if (dbitem != null)
+            {
+                dbitem.CurrentDamage = _currentDamage;
+                dbitem.OriginalDamage = OriginalDamage;
+                dbitem.CurrentPain = _currentPain;
+                dbitem.CurrentStun = _currentStun;
+                dbitem.LodgedItem = FMDB.Context.GameItems.Find(Lodged?.Id);
+                dbitem.ExtraInformation = SaveExtras();
+            }
+        }
+
+        base.Save();
+    }
+
+    public void Delete(bool ignoreDatabaseDeletion = false)
+    {
+        _noSave = true;
+        Changed = false;
+        Gameworld.SaveManager.Abort(this);
+        Lodged?.Delete();
+        _lodged = null;
+        Infection?.Delete();
+        _infection = null;
+        if (!IdInitialised || ignoreDatabaseDeletion)
+        {
+            return;
+        }
+
+        using (new FMDB())
+        {
+            Gameworld.SaveManager.Flush();
+            Wound dbitem = FMDB.Context.Wounds.Find(Id);
+            if (dbitem != null)
+            {
+                FMDB.Context.Wounds.Remove(dbitem);
+                FMDB.Context.SaveChanges();
+            }
+            //FMDB.Context.Entry(new MudSharp.Models.Wound{Id = _ID}).State = EntityState.Deleted;
+            //FMDB.Context.SaveChanges();
+        }
+    }
+
+    public bool Repairable => false;
+
+    public BleedStatus BleedStatus
+    {
+        get => _bleedStatus;
+        set
+        {
+            _bleedStatus = value;
+            Changed = true;
+        }
+    }
+
+    public DamageType DamageType { get; set; }
+
+    public IInfection Infection
+    {
+        get => _infection;
+        set
+        {
+            if (IsNecroticDamage && value is not null)
+            {
+                value.Delete();
+                _infection = null;
+                Changed = true;
+                return;
+            }
+
+            _infection = value;
+            if (value is not null)
+            {
+                _hadInfection = true;
+            }
+            Changed = true;
+        }
+    }
+
+    #region IFutureProgVariable Implementation
+
+    public override ProgVariableTypes Type => ProgVariableTypes.Error;
+
+    #endregion
+
+    public static string GetWoundDescription(DamageType type, WoundSeverity severity)
+    {
+        switch (type)
+        {
+            case DamageType.Slashing:
+            case DamageType.Chopping:
+                if (severity <= WoundSeverity.Small)
+                {
+                    switch (Dice.Roll(1, 6))
+                    {
+                        case 1:
+                            return "Nick";
+                        case 2:
+                        case 3:
+                            return "Cut";
+                        case 4:
+                            return "Gash";
+                        case 5:
+                            return "Laceration";
+                        case 6:
+                            return "Slash";
+                    }
+                }
+
+                switch (Dice.Roll(1, 6))
+                {
+                    case 1:
+                    case 2:
+                        return "Cut";
+                    case 3:
+                    case 4:
+                        return "Slash";
+                    case 5:
+                        return "Laceration";
+                    case 6:
+                        return "Gash";
+
+                    default:
+                        return "Cut";
+                }
+            case DamageType.Shearing:
+                switch (Dice.Roll(1, 6))
+                {
+                    case 1:
+                    case 2:
+                        return "Tear";
+                    case 3:
+                    case 4:
+                        return "Cut";
+                    case 5:
+                        return "Shear";
+                    default:
+                        return "Gash";
+                }
+            case DamageType.Crushing:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return "Bruise";
+                }
+
+                return severity <= WoundSeverity.Severe ? "Contusion" : "Crush";
+            case DamageType.Falling:
+                if (severity <= WoundSeverity.Small)
+                {
+                    switch (Dice.Roll(1, 4))
+                    {
+                        case 1:
+                            return "Bruise";
+                        case 2:
+                            return "Sprain";
+                        case 3:
+                            return "Twist";
+                        case 4:
+                            return "Scrape";
+                    }
+                }
+
+                return severity <= WoundSeverity.Severe ? "Contusion" : "Crush";
+            case DamageType.Piercing:
+            case DamageType.ArmourPiercing:
+                switch (Dice.Roll(1, 5))
+                {
+                    case 1:
+                        return "Perforation";
+                    case 2:
+                        return "Piercing";
+                    case 3:
+                        return "Puncture";
+                    case 4:
+                        return "Stab";
+                    case 5:
+                        return "Hole";
+                    default:
+                        return "Hole";
+                }
+            case DamageType.Ballistic:
+            case DamageType.BallisticArmourPiercing:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return "Graze";
+                }
+
+                switch (Dice.Roll(1, 5))
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        return "Gunshot Wound";
+                    case 5:
+                        return "Hole";
+                    default:
+                        return "Hole";
+                }
+            case DamageType.Shrapnel:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return "Graze";
+                }
+
+                switch (Dice.Roll(1, 5))
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        return "Shrapnel Wound";
+                    case 5:
+                        return "Shrapnel Hole";
+                    default:
+                        return "Shrapnel Hole";
+                }
+            case DamageType.Necrotic:
+                return "Necrosis";
+            case DamageType.Burning:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return Dice.Roll(1, 2) == 1 ? "Blistering" : "Burn";
+                }
+
+                switch (Dice.Roll(1, 3))
+                {
+                    case 1:
+                        return "Burn";
+                    case 2:
+                        return "Scorch";
+                    case 3:
+                        return "Sear";
+                    default:
+                        return "Burn";
+                }
+            case DamageType.Eldritch:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return "Blistering";
+                }
+
+                switch (Dice.Roll(1, 4))
+                {
+                    case 1:
+                        return "Necrotic Burn";
+                    case 2:
+                        return "Rotting Scorch";
+                    case 3:
+                        return "Disintegration Burn";
+                    default:
+                        return "Eldritch Burn";
+                }
+            case DamageType.Arcane:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return Dice.Roll(1, 2) == 1 ? "Blistering" : "Burn";
+                }
+
+                switch (Dice.Roll(1, 3))
+                {
+                    case 1:
+                        return "Burn";
+                    case 2:
+                        return "Scorch";
+                    case 3:
+                        return "Sear";
+                    default:
+                        return "Burn";
+                }
+            case DamageType.Freezing:
+                return "Frostburn";
+            case DamageType.Chemical:
+                return "Chemical Burn";
+            case DamageType.Shockwave:
+            case DamageType.Sonic:
+                return "Bruise";
+            case DamageType.Bite:
+                switch (Dice.Roll(1, 3))
+                {
+                    case 1:
+                        return "Bite";
+                    case 2:
+                        return "Puncture";
+                    case 3:
+                        return "Tooth-Puncture";
+                    default:
+                        return "Bite";
+                }
+            case DamageType.Claw:
+                switch (Dice.Roll(1, 3))
+                {
+                    case 1:
+                        return "Gash";
+                    case 2:
+                        return "Rake";
+                    case 3:
+                        return "Claw-Gash";
+                    default:
+                        return "Gash";
+                }
+            case DamageType.Electrical:
+                return "Burn";
+            case DamageType.Hypoxia:
+                return "Cyanosis";
+            case DamageType.Cellular:
+                return "Tissue Death";
+            case DamageType.Wrenching:
+                if (severity <= WoundSeverity.Small)
+                {
+                    return Dice.Roll(1, 2) == 1 ? "Sprain" : "Twist";
+                }
+
+                return "Break";
+        }
+
+        return "Unknown";
+    }
+
+    public override object DatabaseInsert()
+    {
+        if (Parent.Id == 0)
+        {
+            return null;
+        }
+
+        Wound dbitem = new();
+        FMDB.Context.Wounds.Add(dbitem);
+        dbitem.WoundType = "SimpleOrganic";
+        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.GameItemId = (Parent as IGameItem)?.Id;
+        dbitem.OriginalDamage = OriginalDamage;
+        dbitem.CurrentDamage = _currentDamage;
+        dbitem.CurrentPain = _currentPain;
+        dbitem.CurrentStun = _currentStun;
+        dbitem.DamageType = (int)DamageType;
+        dbitem.BodypartProtoId = Bodypart?.Id;
+        dbitem.LodgedItemId = Lodged?.Id;
+        dbitem.ActorOriginId = _actorOriginId != 0 ? _actorOriginId : default(long?);
+        dbitem.ToolOriginId = _toolOriginId != 0 ? _toolOriginId : default(long?);
+        dbitem.ExtraInformation = SaveExtras();
+        return dbitem;
+    }
+
+    public override void SetIDFromDatabase(object dbitem)
+    {
+        _id = ((Wound)dbitem)?.Id ?? 0;
+    }
+
+    private void LoadFromDb(Wound wound)
+    {
+        _id = wound.Id;
+        IdInitialised = true;
+        _name = string.Empty;
+        _currentDamage = wound.CurrentDamage;
+        _originalDamage = wound.OriginalDamage;
+        _currentPain = wound.CurrentPain;
+        _currentStun = wound.CurrentStun;
+        DamageType = (DamageType)wound.DamageType;
+        if (IsNecroticDamage)
+        {
+            _currentPain = 0.0;
+            _currentStun = 0.0;
+        }
+        _bodypart = Gameworld.BodypartPrototypes.Get(wound.BodypartProtoId ?? 0);
+        if (wound.LodgedItemId.HasValue)
+        {
+            _lodged = Gameworld.TryGetItem(wound.LodgedItemId ?? 0, true);
+        }
+
+        _actorOriginId = wound.ActorOriginId ?? 0;
+        _toolOriginId = wound.ToolOriginId ?? 0;
+
+        XElement root = XElement.Parse(wound.ExtraInformation);
+        XElement element = root.Element("DamageDescription");
+        if (element != null)
+        {
+            _damageDescription = element.Value;
+        }
+
+        element = root.Element("Cleaned");
+        if (element != null)
+        {
+            _cleaned = bool.Parse(element.Value);
+        }
+
+        element = root.Element("CleanAttempted");
+        if (element != null)
+        {
+            _cleanAttempted = bool.Parse(element.Value);
+        }
+
+        element = root.Element("BleedStatus");
+        if (element != null)
+        {
+            _bleedStatus = (BleedStatus)int.Parse(element.Value);
+        }
+
+        element = root.Element("Tended");
+        if (element != null)
+        {
+            _tended = (Outcome)int.Parse(element.Value);
+        }
+
+        element = root.Element("AntisepticTreated");
+        if (element != null)
+        {
+            _antisepticTreated = bool.Parse(element.Value);
+        }
+
+        element = root.Element("HadInfection");
+        if (element != null)
+        {
+            _hadInfection = bool.Parse(element.Value);
+        }
+
+        element = root.Element("ScarSurgicalProcedureType");
+        if (element != null && int.TryParse(element.Value, out int scarSurgeryType))
+        {
+            _scarSurgicalProcedureType = (SurgicalProcedureType)scarSurgeryType;
+        }
+
+        element = root.Element("ScarSurgeryCheckDegrees");
+        if (element != null)
+        {
+            _scarSurgeryCheckDegrees = int.Parse(element.Value);
+        }
+
+        element = root.Element("TreatmentAttempts");
+        if (element != null)
+        {
+            _unsuccessfulTreatmentAttempts = int.Parse(element.Value);
+        }
+
+        IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
+    }
+
+    #region Overrides of LateKeywordedInitialisingItem
+
+    public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
+
+    #endregion
+
+    public string SaveExtras()
+    {
+        return new XElement("Definition",
+            new XElement("DamageDescription", _damageDescription),
+            new XElement("Cleaned", _cleaned),
+            new XElement("CleanAttempted", _cleanAttempted),
+            new XElement("AntisepticTreated", _antisepticTreated),
+            new XElement("BleedStatus", (int)BleedStatus),
+            new XElement("Tended", (int)_tended),
+            new XElement("HadInfection", _hadInfection),
+            new XElement("ScarSurgicalProcedureType", _scarSurgicalProcedureType.HasValue ? (int)_scarSurgicalProcedureType.Value : -1),
+            new XElement("ScarSurgeryCheckDegrees", _scarSurgeryCheckDegrees),
+            new XElement("TreatmentAttempts", _unsuccessfulTreatmentAttempts),
+            new XElement("IsFriendlyWound", IsFriendlyWound)
+        ).ToString();
+    }
+
+    public string TextForAdminWoundsCommand
+    {
+        get
+        {
+            List<string> conditions = new();
+            switch (BleedStatus)
+            {
+                case BleedStatus.Bleeding:
+                    conditions.Add("Bleeding".Colour(Telnet.Red));
+                    break;
+                case BleedStatus.TraumaControlled:
+                    conditions.Add("Bound".Colour(Telnet.BoldPink));
+                    break;
+                case BleedStatus.Closed:
+                    conditions.Add("Sutured".Colour(Telnet.BoldCyan));
+                    break;
+            }
+
+            if (Infection is not null)
+            {
+                conditions.Add($"{Infection.VirulenceDifficulty.DescribeColoured()} {Infection.InfectionType.DescribeEnum().Colour(Telnet.BoldGreen)} ({Infection.Intensity.ToStringP2Colour()}|{Infection.Immunity.ToStringP2Colour()})");
+            }
+
+            if (CharacterParent.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
+            {
+                conditions.Add("Antiseptic".Colour(Telnet.Yellow));
+            }
+
+            if (CharacterParent.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart))
+            {
+                conditions.Add("Anti-Inflammatory".Colour(Telnet.BoldGreen));
+            }
+
+            if (_cleaned)
+            {
+                conditions.Add("Cleaned".Colour(Telnet.Cyan));
+            }
+            else if (_cleanAttempted)
+            {
+                conditions.Add("Cleanish".Colour(Telnet.BoldYellow));
+            }
+
+            if (_tended != Outcome.None)
+            {
+                conditions.Add($"Tended ({_tended.DescribeColour()})");
+            }
+
+            return conditions.ListToCommaSeparatedValues(", ").ToString();
+        }
+    }
+
+    #region IWound Members
+
+    public void SetNewOwner(IHaveWounds newOwner)
+    {
+        using (new FMDB())
+        {
+            Wound dbwound = FMDB.Context.Wounds.Find(Id);
+            if (dbwound == null)
+            {
+                return;
+            }
+
+            dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
+            dbwound.GameItemId = (newOwner as IGameItem)?.Id;
+            FMDB.Context.SaveChanges();
+        }
+
+        _parent = newOwner;
+    }
+
+    public void SufferAdditionalDamage(IDamage damage)
+    {
+        OriginalDamage += damage.DamageAmount;
+        CurrentDamage += damage.DamageAmount;
+        if (!IsNecroticDamage)
+        {
+            _currentPain += damage.PainAmount;
+            CurrentStun += damage.StunAmount;
+        }
+        _cleanAttempted = false;
+        _cleaned = false;
+        _tended = Outcome.None;
+        _unsuccessfulTreatmentAttempts = 0;
+    }
+
+    public bool UseDamagePercentageSeverities => false;
+
+    public void OnWoundSuffered()
+    {
+        // Do nothing
+    }
+
+    public bool ShouldWoundBeRemoved()
+    {
+        return
+            _currentDamage <= 0.0 &&
+            _currentPain <= 0.0 &&
+            _currentStun <= 0.0 &&
+            _infection == null &&
+            _bleedStatus != BleedStatus.Bleeding &&
+            _lodged == null;
+    }
+
+    private Outcome _tended = Outcome.None;
+
+    private long _toolOriginId;
+
+    public IGameItem ToolOrigin
+    {
+        get => Gameworld.TryGetItem(_toolOriginId);
+        set
+        {
+            _toolOriginId = value?.Id ?? 0;
+            Changed = true;
+        }
+    }
+
+    private long _actorOriginId;
+
+    public ICharacter ActorOrigin
+    {
+        get => Gameworld.TryGetCharacter(_actorOriginId, true);
+        set
+        {
+            _actorOriginId = value?.Id ?? 0;
+            Changed = true;
+        }
+    }
+
+    private IGameItem _lodged;
+
+    public IGameItem Lodged
+    {
+        get => _lodged;
+        set
+        {
+            _lodged = value;
+            Changed = true;
+        }
+    }
+
+    private double _currentPain;
+
+    public double CurrentPain
+    {
+        get => _parent is ICharacter ch
+            ? this.ApplyPainReduction(ch, _currentPain + InfectionPain)
+            : _currentPain + InfectionPain;
+        set
+        {
+            _currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, value - InfectionPain);
+            Changed = true;
+        }
+    }
+
+    private double _currentStun;
+
+    public double CurrentStun
+    {
+        get => _currentStun;
+        set
+        {
+            _currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, value);
+            Changed = true;
+        }
+    }
+
+    public double CurrentShock { get; set; } = 0;
+
+    private double _originalDamage;
+
+    public double OriginalDamage
+    {
+        get => _originalDamage;
+        set
+        {
+            _originalDamage = value;
+            Changed = true;
+        }
+    }
+
+    private double _currentDamage;
+
+    public double CurrentDamage
+    {
+        get => _currentDamage;
+        set
+        {
+            double oldDamage = _currentDamage;
+            _currentDamage = Math.Max(0.0, value);
+            Changed = true;
+            if (oldDamage < _currentDamage && Bodypart is IOrganProto)
+            {
+                CheckForOrganBleeding();
+            }
+        }
+    }
+
+    public IBodypart SeveredBodypart { get; set; }
+
+    public WoundSeverity Severity => Parent.GetSeverityFor(this);
+
+    public bool Internal => Bodypart is IOrganProto;
+
+    private IHaveWounds _parent;
+
+    public IHaveWounds Parent
+    {
+        get => _parent;
+        set
+        {
+            _parent = value;
+            Changed = true;
+        }
+    }
+
+    public ICharacter CharacterParent
+    {
+        get
+        {
+            if (_parent is ICharacter ch)
+            {
+                return ch;
+            }
+
+            return ((IGameItem)_parent).GetItemType<ISeveredBodypart>().OriginalCharacter;
+        }
+    }
+
+    private IBodypart _bodypart;
+
+    public IBodypart Bodypart
+    {
+        get => _bodypart;
+        init
+        {
+            _bodypart = value;
+            Changed = true;
+        }
+    }
+
+    public string Describe(WoundExaminationType type, Outcome outcome)
+    {
+        if (type == WoundExaminationType.Glance)
+        {
+            // Depending on the outcome, glances might not see certain levels of wounds
+            int i = outcome.IsPass() ? 3 - outcome.SuccessDegrees() : 3 + outcome.FailureDegrees();
+            if (Severity.StageDown(i) == WoundSeverity.None)
+            {
+                return "";
+            }
+        }
+
+        if (Severity == WoundSeverity.None && type != WoundExaminationType.Self)
+        {
+            return "";
+        }
+
+        switch (type)
+        {
+            case WoundExaminationType.Glance:
+                return $"{Severity.Describe()} {_damageDescription}".A_An().ToLowerInvariant();
+            case WoundExaminationType.Look:
+                return
+                    $"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
+                        .A_An().ToLowerInvariant();
+            case WoundExaminationType.Self:
+                {
+                    double painfulThreshold = CurrentDamage * Gameworld.GetStaticDouble("WoundPainfulRatioThreshold");
+                    return
+                        $"{Severity.Describe()} {_damageDescription}{(CurrentPain > painfulThreshold ? " (Painful)" : "")}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
+                            .A_An().ToLowerInvariant();
+                }
+            case WoundExaminationType.Examination:
+            case WoundExaminationType.Triage:
+            case WoundExaminationType.SurgicalExamination:
+            case WoundExaminationType.Omniscient:
+                return
+                    $"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome).LeadingSpaceIfNotEmpty() ?? ""}"
+                        .A_An().ToLowerInvariant();
+        }
+
+        return "";
+    }
+
+    public string WoundTypeDescription => _damageDescription;
+
+    public Difficulty CanBeTreated(TreatmentType type)
+    {
+        if (!(_parent is ICharacter ch))
+        {
+            return Difficulty.Impossible;
+        }
+
+        if (Severity == WoundSeverity.None)
+        {
+            return Difficulty.Impossible;
+        }
+
+        switch (type)
+        {
+            case TreatmentType.Repair:
+            case TreatmentType.Relocation:
+            case TreatmentType.Set:
+                return Difficulty.Impossible;
+        }
+
+        if (type == TreatmentType.Remove && Lodged == null)
+        {
+            return Difficulty.Impossible;
+        }
+
+        if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Tend) &&
+            _bleedStatus == BleedStatus.Bleeding)
+        {
+            return Difficulty.Impossible;
+        }
+
+        if (type == TreatmentType.Close && _bleedStatus != BleedStatus.TraumaControlled)
+        {
+            return Difficulty.Impossible;
+        }
+
+        if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Close ||
+             type == TreatmentType.Tend) &&
+            Lodged != null)
+        {
+            return Difficulty.Impossible;
+        }
+
+        if (type == TreatmentType.Trauma && _bleedStatus != BleedStatus.Bleeding)
+        {
+            return Difficulty.Impossible;
+        }
+
+        if (type == TreatmentType.Clean && (_cleaned || _cleanAttempted))
+        {
+            return Difficulty.Impossible;
+        }
+
+        if (type == TreatmentType.AntiInflammatory)
+        {
+            if (_bleedStatus == BleedStatus.Bleeding)
+            {
+                return Difficulty.Impossible;
+            }
+
+            if (Lodged != null)
+            {
+                return Difficulty.Impossible;
+            }
+
+            if (_currentPain <= 0.0 && InfectionPain <= 0.0)
+            {
+                return Difficulty.Impossible;
+            }
+
+            return Difficulty.VeryEasy;
+        }
+
+        if (type == TreatmentType.Antiseptic && _cleaned &&
+            ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
+        {
+            return Difficulty.Impossible;
+        }
+
+        if (type == TreatmentType.Clean || type == TreatmentType.Antiseptic)
+        {
+            return Difficulty.VeryEasy;
+        }
+
+        if (type == TreatmentType.Tend && _tended == Outcome.MajorPass)
+        {
+            return Difficulty.Impossible;
+        }
+
+        Difficulty difficulty = Difficulty.Impossible;
+        switch (Severity)
+        {
+            case WoundSeverity.Superficial:
+                difficulty = Difficulty.Automatic;
+                break;
+            case WoundSeverity.Minor:
+                difficulty = Difficulty.Trivial;
+                break;
+            case WoundSeverity.Small:
+                difficulty = Difficulty.ExtremelyEasy;
+                break;
+            case WoundSeverity.Moderate:
+                difficulty = Difficulty.VeryEasy;
+                break;
+            case WoundSeverity.Severe:
+                difficulty = Difficulty.Easy;
+                break;
+            case WoundSeverity.VerySevere:
+                difficulty = Difficulty.Normal;
+                break;
+            case WoundSeverity.Grievous:
+                difficulty = Difficulty.Hard;
+                break;
+            case WoundSeverity.Horrifying:
+                difficulty = Difficulty.VeryHard;
+                break;
+        }
+
+        if (type == TreatmentType.Trauma)
+        {
+            switch (DamageType)
+            {
+                case DamageType.Claw:
+                case DamageType.Chopping:
+                    difficulty = difficulty.StageUp(1);
+                    break;
+                case DamageType.Ballistic:
+                case DamageType.Bite:
+                    difficulty = difficulty.StageUp(2);
+                    break;
+                case DamageType.Shearing:
+                case DamageType.Slashing:
+                    difficulty = difficulty.StageUp(3);
+                    break;
+            }
+        }
+
+        if (difficulty == Difficulty.Impossible)
+        {
+            difficulty = Difficulty.Insane;
+        }
+
+        if (_unsuccessfulTreatmentAttempts > 0)
+        {
+            difficulty = difficulty.StageUp(_unsuccessfulTreatmentAttempts /
+                                           Math.Max(1, Gameworld.GetStaticInt("WoundTreatmentAttemptPenaltyInterval")));
+        }
+
+        return difficulty;
+    }
+
+    public string WhyCannotBeTreated(TreatmentType type)
+    {
+        if (!(_parent is ICharacter ch))
+        {
+            return "Wounds on severed bodyparts cannot be treated.";
+        }
+
+        switch (type)
+        {
+            case TreatmentType.Repair:
+            case TreatmentType.Relocation:
+            case TreatmentType.Set:
+                return "That kind of treatment cannot be applied to that wound.";
+        }
+
+        if (type == TreatmentType.Remove && Lodged == null)
+        {
+            return "There is nothing in that wound that requires removal.";
+        }
+
+        if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Tend) &&
+            _bleedStatus == BleedStatus.Bleeding)
+        {
+            return "Before a wound can be cleaned or tended to, the bleeding must have stopped";
+        }
+
+        if (type == TreatmentType.Close && _bleedStatus != BleedStatus.TraumaControlled)
+        {
+            return "Only wounds that have been stabilised can be sutured closed.";
+        }
+
+        if ((type == TreatmentType.Clean || type == TreatmentType.Antiseptic || type == TreatmentType.Close ||
+             type == TreatmentType.Tend) &&
+            Lodged != null)
+        {
+            return
+                "Foreign objects must be removed from the wound before it can be successfully cleaned, tended or closed.";
+        }
+
+        if (type == TreatmentType.Trauma && _bleedStatus == BleedStatus.NeverBled)
+        {
+            return "There is no bleeding trauma on that wound to address.";
+        }
+
+        if (type == TreatmentType.Clean && _cleaned)
+        {
+            return "That wound is already as clean as it's going to get with conventional cleaning.";
+        }
+
+        if (type == TreatmentType.AntiInflammatory)
+        {
+            if (_bleedStatus == BleedStatus.Bleeding)
+            {
+                return "You must first stop the bleeding before anti-inflammatory care will do any good.";
+            }
+
+            if (Lodged != null)
+            {
+                return "Foreign objects must be removed from the wound before anti-inflammatory treatment can be applied.";
+            }
+
+            if (_currentPain <= 0.0 && InfectionPain <= 0.0)
+            {
+                return "That wound is not causing any inflammatory pain that anti-inflammatory treatment would improve.";
+            }
+        }
+
+        if (type == TreatmentType.Antiseptic && _cleaned &&
+            ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart) == true)
+        {
+            return "That wound is both clean and antiseptically treated, and cannot benefit from another treatment.";
+        }
+
+        if (type == TreatmentType.Tend && _tended == Outcome.MajorPass)
+        {
+            return "That wound has already been tended as skillfully and successfully as is possible.";
+        }
+
+        return "That kind of treatment cannot be applied to that wound.";
+    }
+
+    private int _unsuccessfulTreatmentAttempts;
+
+    public void Treat(IPerceiver treater, TreatmentType type, ITreatment treatmentItem, Outcome testOutcome,
+        bool silent)
+    {
+        if (!(_parent is ICharacter ch))
+        {
+            return;
+        }
+
+        // Mending would generally be magical healing
+        switch (type)
+        {
+            case TreatmentType.Mend:
+                if (testOutcome.IsFail() && testOutcome != Outcome.MinorFail)
+                {
+                    _unsuccessfulTreatmentAttempts++;
+                    Changed = true;
+                    if (treater != null && !silent)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} have only succeeded in making things worse!",
+                            treater, treater, CharacterParent)));
+                    }
+                }
+                else if (testOutcome == Outcome.MinorFail)
+                {
+                    if (treater != null && !silent)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} has not succeeded.",
+                            treater, treater, CharacterParent)));
+                    }
+                }
+                else
+                {
+                    if (treater != null && !silent)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's effort to mend {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
+                            treater, treater, CharacterParent)));
+                    }
+
+                    _unsuccessfulTreatmentAttempts = 0;
+                    CurrentDamage = Parent.GetSeverityFloor(Severity.StageDown(testOutcome.SuccessDegrees()));
+                    _currentPain = Math.Min(_currentPain, CurrentDamage);
+                    Changed = true;
+                    CurrentStun = Math.Min(CurrentStun, CurrentDamage);
+                }
+
+                if (_bleedStatus == BleedStatus.Bleeding)
+                {
+                    _bleedStatus = BleedStatus.TraumaControlled;
+                    if (!silent)
+                    {
+                        Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"{Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} has stopped bleeding.", treater, treater, CharacterParent))
+                            ,
+                            OutputRange.Local);
+                    }
+                }
+
+                return;
+            case TreatmentType.AntiInflammatory:
+                {
+                    int strength = testOutcome switch
+                    {
+                        Outcome.MajorPass => 4,
+                        Outcome.Pass => 3,
+                        Outcome.MinorPass => 2,
+                        Outcome.MinorFail => 1,
+                        _ => 0
+                    };
+
+                    treatmentItem?.UseTreatment();
+                    if (strength <= 0)
+                    {
+                        if (treater != null && !silent)
+                        {
+                            treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                                $"$0's efforts to calm the inflammation in {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} have been unsuccessful.",
+                                treater, treater, CharacterParent)));
+                        }
+
+                        return;
+                    }
+
+                    double multiplier = Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumPainMultiplier"),
+                        1.0 - strength * Gameworld.GetStaticDouble("AntiInflammatoryPainMultiplierReductionPerStrength"));
+                    double flatReduction = Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumFlatReduction"),
+                        strength * (int)Severity * Gameworld.GetStaticDouble("AntiInflammatoryOrganicFlatReductionPerSeverity"));
+                    TimeSpan duration = TimeSpan.FromMinutes(
+                    Gameworld.GetStaticDouble("AntiInflammatoryBaseDurationMinutes") +
+                    strength * Gameworld.GetStaticDouble("AntiInflammatoryDurationMinutesPerStrength"));
+                    AntiInflammatoryTreatment.ApplyOrUpdate(ch.Body, Bodypart, multiplier, flatReduction, duration);
+                    if (treater != null && !silent)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            treatmentItem == null
+                                ? $"$0 finish|finishes applying anti-inflammatory care to {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()}."
+                                : $"$0 finish|finishes applying anti-inflammatory care to {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} with $2.",
+                            treater, treater, CharacterParent, treatmentItem?.Parent)));
+                    }
+
+                    return;
+                }
+            case TreatmentType.Trauma:
+                if (testOutcome == Outcome.MajorFail || (treatmentItem == null && testOutcome.IsFail()))
+                {
+                    if (treater == null || silent)
+                    {
+                        return;
+                    }
+
+                    treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                        $"Despite $0's efforts, #0 are|is unable to stop {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} from bleeding.",
+                        treater, treater, CharacterParent)));
+                    return;
+                }
+
+                if (treater != null && !silent)
+                {
+                    if (treatmentItem == null)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's efforts have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent)));
+                    }
+                    else
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's efforts with $2 have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent, treatmentItem.Parent)));
+                    }
+                }
+
+                treatmentItem?.UseTreatment();
+                _bleedStatus = BleedStatus.TraumaControlled;
+                Changed = true;
+                return;
+            case TreatmentType.Tend:
+                if (treater != null && !silent)
+                {
+                    if (treatmentItem == null)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent)));
+                    }
+                    else
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} with $2.",
+                            treater, treater, CharacterParent, treatmentItem.Parent)));
+                    }
+                }
+
+                treatmentItem?.UseTreatment();
+                if (!silent && treater != null)
+                {
+                    if (testOutcome > _tended)
+                    {
+                        switch (testOutcome)
+                        {
+                            case Outcome.MajorFail:
+                                treater.Send(
+                                    "You're pretty sure you've done a terrible job, but any treatment is better than none right?."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.Fail:
+                            case Outcome.MinorFail:
+                                treater.Send(
+                                    "You're pretty sure you could have done a better job, but the wound is better tended than it was."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.MinorPass:
+                            case Outcome.Pass:
+                                treater.Send(
+                                    "You're pretty sure you've done a good job, and the wound is better tended than it was."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.MajorPass:
+                                treater.Send(
+                                    "You're pretty sure you've done an excellent job, and the wound won't need any further treatment."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                        }
+                    }
+                    else if (testOutcome == _tended)
+                    {
+                        switch (testOutcome)
+                        {
+                            case Outcome.MajorFail:
+                                treater.Send(
+                                    "You're pretty sure you've done a terrible job, but at least you haven't made things any worse."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.Fail:
+                            case Outcome.MinorFail:
+                                treater.Send(
+                                    "You're pretty sure you could have done a better job, but the wound is no better off than it was before your efforts."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.MinorPass:
+                            case Outcome.Pass:
+                                treater.Send(
+                                    "You're pretty sure you've done a good job, but the wound is no better off than it was before your efforts."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.MajorPass:
+                                treater.Send(
+                                    "You're pretty sure you've done an excellent job, but the wound is no better off than it was before your efforts."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (testOutcome)
+                        {
+                            case Outcome.MajorFail:
+                                treater.Send(
+                                    "You're pretty sure you've done a terrible job, but at least you haven't made things any worse."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.Fail:
+                            case Outcome.MinorFail:
+                                treater.Send(
+                                    "You're pretty sure you could have done a better job, but fortunately someone else has already done a better job than you."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                            case Outcome.MinorPass:
+                            case Outcome.Pass:
+                                treater.Send(
+                                    "You're pretty sure you've done a good job, but fortunately someone else has already done a better job than you."
+                                        .Colour(Telnet.Yellow));
+                                break;
+                        }
+                    }
+                }
+
+                _tended = _tended.Best(testOutcome);
+                Changed = true;
+                return;
+            case TreatmentType.Clean:
+            case TreatmentType.Antiseptic:
+                _cleaned = _cleaned || testOutcome.IsPass() ||
+                           (treatmentItem != null && testOutcome != Outcome.MajorFail);
+                _cleanAttempted = true;
+                if (_cleaned && type == TreatmentType.Antiseptic)
+                {
+                    _antisepticTreated = true;
+                    TimeSpan antisepticDuration = TimeSpan.FromSeconds(
+                        Gameworld.GetStaticInt("AntisepticProtectionBaseDurationSeconds") +
+                        testOutcome.SuccessDegrees() *
+                        Gameworld.GetStaticInt("AntisepticProtectionDurationSecondsPerSuccessDegree"));
+                    if (ch.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
+                    {
+                        ch.Body.Reschedule(
+                            ch.Body.EffectsOfType<IAntisepticTreatmentEffect>().First(x => x.Bodypart == Bodypart),
+                            antisepticDuration);
+                    }
+                    else
+                    {
+                        ch.Body.AddEffect(new AntisepticProtection(ch.Body, Bodypart, null),
+                            antisepticDuration);
+                    }
+                }
+
+                Changed = true;
+                if (treater != null && !silent)
+                {
+                    if (treatmentItem == null)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent)));
+                    }
+                    else
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} with $2.",
+                            treater, treater, CharacterParent, treatmentItem.Parent)));
+                    }
+                }
+
+                treatmentItem?.UseTreatment();
+                return;
+            case TreatmentType.Close:
+                if (testOutcome == Outcome.MajorFail || (treatmentItem == null && testOutcome.IsFail()))
+                {
+                    if (treater != null && !silent)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"Despite $0's efforts, #0 are|is unable to close up {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent)));
+                    }
+
+                    return;
+                }
+
+                if (treater != null && !silent)
+                {
+                    if (treatmentItem == null)
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's efforts have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent)));
+                    }
+                    else
+                    {
+                        treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+                            $"$0's efforts with $2 have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+                            treater, treater, CharacterParent, treatmentItem.Parent)));
+                    }
+                }
+
+                treatmentItem?.UseTreatment();
+                _bleedStatus = BleedStatus.Closed;
+                Changed = true;
+                break;
+        }
+    }
+
+    public Outcome BestTendedOutcome => _tended;
+    public bool WasCleaned => _cleaned;
+    public bool WasAntisepticTreated => _antisepticTreated;
+    public bool HadInfection => _hadInfection;
+    public bool WasClosed => _bleedStatus == BleedStatus.Closed;
+    public bool WasTraumaControlled => _bleedStatus == BleedStatus.TraumaControlled;
+    public SurgicalProcedureType? ScarSurgicalProcedureType => _scarSurgicalProcedureType;
+    public int ScarSurgeryCheckDegrees => _scarSurgeryCheckDegrees;
+
+    public void MarkScarFromSurgery(SurgicalProcedureType type, int checkDegrees)
+    {
+        _scarSurgicalProcedureType = type;
+        _scarSurgeryCheckDegrees = checkDegrees;
+        Changed = true;
+    }
+
+    public BleedResult Bleed(double currentBloodLitres, ExertionLevel activityExertionLevel,
+        double totalBloodLitres)
+    {
+        if (_bleedStatus == BleedStatus.NeverBled || !(_parent is ICharacter ch))
+        {
+            return BleedResult.NoBleed;
+        }
+
+        if (currentBloodLitres / totalBloodLitres < Gameworld.GetStaticDouble("WoundMinimumExternalBleedingBloodRatio"))
+        {
+            currentBloodLitres = Gameworld.GetStaticDouble("WoundMinimumExternalBleedingBloodRatio") *
+                                totalBloodLitres;
+        }
+
+        return _bleedStatus switch
+        {
+            BleedStatus.Bleeding => HandleActiveBleeding(ch, currentBloodLitres, activityExertionLevel),
+            BleedStatus.TraumaControlled => HandleTraumaControlledBleeding(activityExertionLevel),
+            BleedStatus.Closed => HandleClosedBleeding(activityExertionLevel),
+            _ => BleedResult.NoBleed
+        };
+    }
+
+    private BleedResult HandleActiveBleeding(ICharacter ch, double currentBloodLitres,
+        ExertionLevel activityExertionLevel)
+    {
+        if (ch.Body.BloodLiquid == null)
+        {
+            _bleedStatus = BleedStatus.NeverBled;
+            Changed = true;
+            return BleedResult.NoBleed;
+        }
+
+        List<BeingBound> beingBounds = Parent.EffectsOfType<BeingBound>().Where(x => x.Bodypart == Bodypart).ToList();
+        double bleedPercentage =
+            Math.Max(0,
+                (int)Severity + (int)activityExertionLevel -
+                Gameworld.GetStaticInt("ExternalBleedingSeverityExertionOffset")) *
+                              PercentageExternalBloodlossPerWoundSeverity *
+                              Bodypart.BleedModifier *
+                              (beingBounds.Any() ? Gameworld.GetStaticDouble("BoundBleedingMultiplier") : 1);
+        double bleeding = bleedPercentage * currentBloodLitres;
+        if (bleeding <= 0.0)
+        {
+            return BleedResult.NoBleed;
+        }
+
+        IEnumerable<Tuple<IGameItem, IWearlocProfile>> items = ch.Body.WornItemsProfilesFor(Bodypart);
+        IGameItem item = ch.Body.WornItemsFor(Bodypart).FirstOrDefault();
+        LiquidMixture mixture = new(new BloodLiquidInstance(ch, bleeding), Gameworld);
+        item?.ExposeToLiquid(mixture, Bodypart, LiquidExposureDirection.FromUnderneath);
+        if (!mixture.IsEmpty)
+        {
+            ExposeBleedMixture(ch, mixture, beingBounds);
+        }
+
+        if (items.All(x => x.Item2.Transparent))
+        {
+            return new BleedResult
+            {
+                BloodAmount = bleeding,
+                CoverItem = null,
+                Visible = true,
+                Bodypart = Bodypart
+            };
+        }
+
+        if (items.All(x => x.Item1.SaturationLevel > ItemSaturationLevel.Wet))
+        {
+            return new BleedResult
+            {
+                BloodAmount = bleeding,
+                CoverItem = items.Last().Item1,
+                Visible = true,
+                Bodypart = Bodypart
+            };
+        }
+
+        return new BleedResult { BloodAmount = bleeding, Visible = false, Bodypart = Bodypart };
+    }
+
+    private void ExposeBleedMixture(ICharacter ch, LiquidMixture mixture, IEnumerable<BeingBound> beingBounds)
+    {
+        List<(ICharacter Binder, IEnumerable<IGrab> HoldLocs)> binders = beingBounds
+                      .Select(x => (x.Binder, x.Binder.Body.HoldLocs))
+                      .ToList();
+        int bindingPartCount = binders.Sum(x => x.HoldLocs.Count());
+        if (bindingPartCount <= 0)
+        {
+            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, ch.Location, ch.RoomLayer, ch);
+            return;
+        }
+
+        Queue<LiquidMixture> mixtures = new(mixture.Split(bindingPartCount));
+        foreach ((ICharacter binder, IEnumerable<IGrab> locs) in binders)
+        {
+            foreach (IGrab loc in locs)
+            {
+                binder.Body.ExposeToLiquid(mixtures.Dequeue(), loc, LiquidExposureDirection.Irrelevant);
+            }
+        }
+    }
+
+    private BleedResult HandleTraumaControlledBleeding(ExertionLevel activityExertionLevel)
+    {
+        if (activityExertionLevel > ExertionLevel.Normal &&
+            Dice.Roll(1, 100) <
+            ((int)activityExertionLevel + (int)Severity -
+             Gameworld.GetStaticInt("TraumaBleedReopenSeverityExertionOffset")) *
+            Gameworld.GetStaticInt("TraumaBleedReopenChancePerStep"))
+        {
+            _bleedStatus = BleedStatus.Bleeding;
+            _cleaned = false;
+            _cleanAttempted = false;
+            Parent.OutputHandler.Handle(
+                new EmoteOutput(
+                    new Emote(
+                        string.Format(
+                            "$0's exertion has caused {0} on &0's {1} to start bleeding!".Colour(Telnet.Red),
+                            Describe(WoundExaminationType.Glance, Outcome.MajorPass),
+                            Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
+            Changed = true;
+        }
+
+        return BleedResult.NoBleed;
+    }
+
+    private BleedResult HandleClosedBleeding(ExertionLevel activityExertionLevel)
+    {
+        if (activityExertionLevel > ExertionLevel.Heavy &&
+            Dice.Roll(1, 100) <
+            ((int)activityExertionLevel + (int)Severity -
+             Gameworld.GetStaticInt("ClosedWoundReopenSeverityExertionOffset")) *
+            Gameworld.GetStaticInt("ClosedWoundReopenChancePerStep"))
+        {
+            _bleedStatus = BleedStatus.TraumaControlled;
+            Parent.OutputHandler.Handle(
+                new EmoteOutput(
+                    new Emote(
+                        string.Format("$0's exertion has reopened {0} on &0's {1}!".Colour(Telnet.Red),
+                            Describe(WoundExaminationType.Glance, Outcome.MajorPass),
+                            Bodypart.FullDescription()), (IPerceiver)Parent, Parent)));
+            Changed = true;
+        }
+
+        return BleedResult.NoBleed;
+    }
+
+    public double PeekBleed(double bloodTotal, ExertionLevel activityExertionLevel)
+    {
+        if (_bleedStatus == BleedStatus.Bleeding)
+        {
+            return Math.Max(0, (int)Severity + (int)activityExertionLevel -
+                                Gameworld.GetStaticInt("ExternalBleedingSeverityExertionOffset")) *
+                   PercentageExternalBloodlossPerWoundSeverity * Bodypart.BleedModifier *
+                   bloodTotal;
+        }
+
+        return 0;
+    }
+
+    public double Exert(ExertionType exertion)
+    {
+        return 0;
+    }
+
+    public bool EligableForInfection()
+    {
+        if (IsNecroticDamage || Infection != null || !(_parent is ICharacter ch))
+        {
+            return false;
+        }
+
+        switch (DamageType)
+        {
+            case DamageType.Crushing:
+            case DamageType.Electrical:
+            case DamageType.Shockwave:
+                return false;
+        }
+
+        //If the wound has healed up 50% from its original level, let's never give it an infection
+        if (CurrentDamage <= OriginalDamage * Gameworld.GetStaticDouble("WoundInfectionHealedDamageRatioThreshold"))
+        {
+            return false;
+        }
+
+        if (Severity == WoundSeverity.Superficial)
+        {
+            return false;
+        }
+
+        return ch.Body.EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
+    }
+
+    /// <summary>
+    ///     Called in the health heartbeat to determine whether an uninfected wound becomes infected, and also to trigger
+    ///     subsequent processing if there is an existing infection
+    /// </summary>
+    private void CheckInfection()
+    {
+        if (!(_parent is ICharacter ch))
+        {
+            return;
+        }
+
+        bool hadInfection = Infection != null;
+        TickExistingInfection();
+        if (hadInfection || Infection != null || !EligableForInfection())
+        {
+            return;
+        }
+
+        ITerrain terrain = ch.Location.Terrain(ch);
+        if (RandomUtilities.DoubleRandom(0.0, 1.0) > CalculateInfectionChance(ch, terrain))
+        {
+            return;
+        }
+
+        if (InfectionPreventedByCleaning(ch))
+        {
+            return;
+        }
+
+        StartNewInfection(ch, terrain);
+    }
+
+    private void TickExistingInfection()
+    {
+        Infection?.InfectionTick();
+        if (Infection?.InfectionHealed() != true)
+        {
+            return;
+        }
+
+        Infection.Delete();
+        Infection = null;
+    }
+
+    private double GetInfectionChanceDamageMultiplier()
+    {
+        return DamageType switch
+        {
+            DamageType.Ballistic => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBallistic"),
+            DamageType.Bite => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBite"),
+            DamageType.Burning => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierBurning"),
+            DamageType.Chemical => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierChemical"),
+            DamageType.Chopping => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierChopping"),
+            DamageType.Claw => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierClaw"),
+            DamageType.Freezing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierFreezing"),
+            DamageType.Piercing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierPiercing"),
+            DamageType.Slashing => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierSlashing"),
+            DamageType.Hypoxia => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierHypoxia"),
+            DamageType.Cellular => Gameworld.GetStaticDouble("InfectionChanceDamageMultiplierCellular"),
+            _ => 1.0
+        };
+    }
+
+    private double GetInfectionChanceSeverityMultiplier()
+    {
+        return Severity switch
+        {
+            WoundSeverity.Moderate => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierModerate"),
+            WoundSeverity.Severe => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierSevere"),
+            WoundSeverity.VerySevere => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierVerySevere"),
+            WoundSeverity.Grievous => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierGrievous"),
+            WoundSeverity.Horrifying => Gameworld.GetStaticDouble("WoundInfectionSeverityMultiplierHorrifying"),
+            _ => 1.0
+        };
+    }
+
+    private double CalculateInfectionChance(ICharacter ch, ITerrain terrain)
+    {
+        double chance = Gameworld.GetStaticDouble("BaseInfectionChance");
+        chance *= GetInfectionChanceDamageMultiplier();
+
+        chance *= ch.CurrentProject.Labour?.LabourImpacts.OfType<ILabourImpactHealing>()
+                    .Aggregate(1.0, (sum, x) => sum * x.InfectionChanceMultiplier) ?? 1.0;
+        chance *= terrain.InfectionMultiplier;
+
+        chance *= GetInfectionChanceSeverityMultiplier();
+
+        if (BleedStatus is BleedStatus.TraumaControlled or BleedStatus.Bleeding)
+        {
+            chance *= Gameworld.GetStaticDouble("WoundInfectionBleedingMultiplier");
+        }
+
+        return chance;
+    }
+
+    private bool InfectionPreventedByCleaning(ICharacter ch)
+    {
+        if (_cleaned &&
+            RandomUtilities.DoubleRandom(0.0, 1.0) <= Gameworld.GetStaticDouble("WoundInfectionProtectionChanceCleaned"))
+        {
+            SendCleaningProtectionEcho(ch, "clean wound");
+            return true;
+        }
+
+        if (!_cleanAttempted ||
+            RandomUtilities.DoubleRandom(0.0, 1.0) >
+            Gameworld.GetStaticDouble("WoundInfectionProtectionChanceCleanAttempted"))
+        {
+            return false;
+        }
+
+        SendCleaningProtectionEcho(ch, "clean attempt");
+        return true;
+    }
+
+    private void SendCleaningProtectionEcho(ICharacter ch, string reason)
+    {
 #if DEBUG
-		Console.WriteLine(
-			$"Infection for {ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} stopped by {reason}.");
+        Console.WriteLine(
+            $"Infection for {ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} stopped by {reason}.");
 #endif
-		ch.Send(
-			$"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
-		_cleaned = false;
-		_cleanAttempted = false;
-		Changed = true;
-	}
+        ch.Send(
+            $"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
+        _cleaned = false;
+        _cleanAttempted = false;
+        Changed = true;
+    }
 
-	private void StartNewInfection(ICharacter ch, ITerrain terrain)
-	{
-		var virulence =
-			ch.Merits.OfType<IInfectionResistanceMerit>()
-			  .Where(x => x.Applies(ch))
-			  .Select(x => x.GetNewInfectionDifficulty(terrain.InfectionVirulence, terrain.PrimaryInfection))
-			  .DefaultIfEmpty(terrain.InfectionVirulence)
-			  .Min();
+    private void StartNewInfection(ICharacter ch, ITerrain terrain)
+    {
+        Difficulty virulence =
+            ch.Merits.OfType<IInfectionResistanceMerit>()
+              .Where(x => x.Applies(ch))
+              .Select(x => x.GetNewInfectionDifficulty(terrain.InfectionVirulence, terrain.PrimaryInfection))
+              .DefaultIfEmpty(terrain.InfectionVirulence)
+              .Min();
 #if DEBUG
-		if (virulence != terrain.InfectionVirulence)
-		{
-			Console.WriteLine(
-				$"Infection Virulance Changed by Merits - Original {terrain.InfectionVirulence.Describe()} New {virulence.Describe()}.");
-		}
+        if (virulence != terrain.InfectionVirulence)
+        {
+            Console.WriteLine(
+                $"Infection Virulance Changed by Merits - Original {terrain.InfectionVirulence.Describe()} New {virulence.Describe()}.");
+        }
 #endif
-		Infection = Infections.Infection.LoadNewInfection(terrain.PrimaryInfection, virulence,
-			Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), ch.Body, this, Bodypart,
-			terrain.InfectionMultiplier);
-		Changed = true;
+        Infection = Infections.Infection.LoadNewInfection(terrain.PrimaryInfection, virulence,
+            Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), ch.Body, this, Bodypart,
+            terrain.InfectionMultiplier);
+        Changed = true;
 #if DEBUG
-		Console.WriteLine(
-			$"{ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} has become infected with {terrain.PrimaryInfection} {terrain.InfectionVirulence}.");
+        Console.WriteLine(
+            $"{ch.HowSeen(ch, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)} on {Describe(WoundExaminationType.Look, Outcome.MajorPass)} has become infected with {terrain.PrimaryInfection} {terrain.InfectionVirulence}.");
 #endif
-	}
+    }
 
-	private double GetOfflineTendAmount()
-	{
-		return _tended switch
-		{
-			Outcome.Fail => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierFail"),
-			Outcome.MinorFail => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMinorFail"),
-			Outcome.MinorPass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMinorPass"),
-			Outcome.Pass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierPass"),
-			Outcome.MajorPass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMajorPass"),
-			_ => 1.0
-		};
-	}
+    private double GetOfflineTendAmount()
+    {
+        return _tended switch
+        {
+            Outcome.Fail => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierFail"),
+            Outcome.MinorFail => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMinorFail"),
+            Outcome.MinorPass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMinorPass"),
+            Outcome.Pass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierPass"),
+            Outcome.MajorPass => Gameworld.GetStaticDouble("WoundOfflineTendMultiplierMajorPass"),
+            _ => 1.0
+        };
+    }
 
-	private double GetHealingTendAmount()
-	{
-		return _tended switch
-		{
-			Outcome.Fail => Gameworld.GetStaticDouble("WoundHealingTendMultiplierFail"),
-			Outcome.MinorFail => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMinorFail"),
-			Outcome.MinorPass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMinorPass"),
-			Outcome.Pass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierPass"),
-			Outcome.MajorPass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMajorPass"),
-			_ => 1.0
-		};
-	}
+    private double GetHealingTendAmount()
+    {
+        return _tended switch
+        {
+            Outcome.Fail => Gameworld.GetStaticDouble("WoundHealingTendMultiplierFail"),
+            Outcome.MinorFail => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMinorFail"),
+            Outcome.MinorPass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMinorPass"),
+            Outcome.Pass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierPass"),
+            Outcome.MajorPass => Gameworld.GetStaticDouble("WoundHealingTendMultiplierMajorPass"),
+            _ => 1.0
+        };
+    }
 
-	private void RecoverOfflineStun(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed)
-	{
-		if (_currentStun <= 0.0)
-		{
-			return;
-		}
+    private void RecoverOfflineStun(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed)
+    {
+        if (_currentStun <= 0.0)
+        {
+            return;
+        }
 
-		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
-		var amount =
-			Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
-			            amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
-				            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
-				            0.01) *
-			            timePassed.TotalMinutes);
-		CurrentStun = Math.Max(_currentStun - amount, 0);
-	}
+        ICheck stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
+        double amount =
+            Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Stun) *
+                        amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
+                            stunCheck.TargetNumber(ch, Difficulty.Normal, null, externalBonus: externalCheckBonus) *
+                            0.01) *
+                        timePassed.TotalMinutes);
+        CurrentStun = Math.Max(_currentStun - amount, 0);
+    }
 
-	private void RecoverOfflinePain(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed,
-		Difficulty difficulty)
-	{
-		if (_currentPain <= 0.0 || IsNecroticDamage)
-		{
-			return;
-		}
+    private void RecoverOfflinePain(ICharacter ch, double amountModifier, double externalCheckBonus, TimeSpan timePassed,
+        Difficulty difficulty)
+    {
+        if (_currentPain <= 0.0 || IsNecroticDamage)
+        {
+            return;
+        }
 
-		var painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
-		var amount =
-			Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Pain) *
-			            amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
-				            painCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) *
-				            0.01) *
-			            timePassed.TotalMinutes);
-		_currentPain = Math.Max(
-			CurrentDamage * Bodypart.PainModifier * Gameworld.GetStaticDouble("WoundPainMinimumDamageRatio"),
-			_currentPain - amount);
-		Changed = true;
-	}
+        ICheck painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
+        double amount =
+            Math.Max(0, Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Pain) *
+                        amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
+                            painCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) *
+                            0.01) *
+                        timePassed.TotalMinutes);
+        _currentPain = Math.Max(
+            CurrentDamage * Bodypart.PainModifier * Gameworld.GetStaticDouble("WoundPainMinimumDamageRatio"),
+            _currentPain - amount);
+        Changed = true;
+    }
 
-	private bool TryAutoCloseTraumaOffline(ICharacter ch, double externalCheckBonus, ref TimeSpan timePassed)
-	{
-		if (_bleedStatus != BleedStatus.TraumaControlled)
-		{
-			return false;
-		}
+    private bool TryAutoCloseTraumaOffline(ICharacter ch, double externalCheckBonus, ref TimeSpan timePassed)
+    {
+        if (_bleedStatus != BleedStatus.TraumaControlled)
+        {
+            return false;
+        }
 
-		var traumaCheck = Gameworld.GetCheck(CheckType.WoundCloseCheck);
-		if (traumaCheck.TargetNumber(ch, CanBeTreated(TreatmentType.Close), null,
-			    externalBonus: externalCheckBonus) * timePassed.TotalMinutes <
-		    Gameworld.GetStaticDouble("WoundOfflineAutoCloseTargetThreshold"))
-		{
-			return false;
-		}
+        ICheck traumaCheck = Gameworld.GetCheck(CheckType.WoundCloseCheck);
+        if (traumaCheck.TargetNumber(ch, CanBeTreated(TreatmentType.Close), null,
+                externalBonus: externalCheckBonus) * timePassed.TotalMinutes <
+            Gameworld.GetStaticDouble("WoundOfflineAutoCloseTargetThreshold"))
+        {
+            return false;
+        }
 
-		_bleedStatus = BleedStatus.Closed;
-		Changed = true;
-		timePassed = TimeSpan.FromTicks(timePassed.Ticks / 2);
-		return true;
-	}
+        _bleedStatus = BleedStatus.Closed;
+        Changed = true;
+        timePassed = TimeSpan.FromTicks(timePassed.Ticks / 2);
+        return true;
+    }
 
-	private void RecoverActiveStun(ICharacter ch, double amountModifier, double externalCheckBonus)
-	{
-		if (CurrentStun <= 0.0)
-		{
-			return;
-		}
+    private void RecoverActiveStun(ICharacter ch, double amountModifier, double externalCheckBonus)
+    {
+        if (CurrentStun <= 0.0)
+        {
+            return;
+        }
 
-		var stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
-		var result = stunCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
-		if (!result.IsPass())
-		{
-			return;
-		}
+        ICheck stunCheck = Gameworld.GetCheck(CheckType.StunRecoveryCheck);
+        CheckOutcome result = stunCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
+        if (!result.IsPass())
+        {
+            return;
+        }
 
-		CurrentStun =
-			Math.Max(
-				CurrentStun -
-				Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Stun) *
-				amountModifier, 0);
-	}
+        CurrentStun =
+            Math.Max(
+                CurrentStun -
+                Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Stun) *
+                amountModifier, 0);
+    }
 
-	private double GetNeedHealingMultiplier(NeedsResult needStatus)
-	{
-		var multiplier = 1.0;
-		if (needStatus.HasFlag(NeedsResult.Parched))
-		{
-			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyParched");
-		}
-		else if (needStatus.HasFlag(NeedsResult.Thirsty))
-		{
-			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyThirsty");
-		}
+    private double GetNeedHealingMultiplier(NeedsResult needStatus)
+    {
+        double multiplier = 1.0;
+        if (needStatus.HasFlag(NeedsResult.Parched))
+        {
+            multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyParched");
+        }
+        else if (needStatus.HasFlag(NeedsResult.Thirsty))
+        {
+            multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyThirsty");
+        }
 
-		if (needStatus.HasFlag(NeedsResult.Starving))
-		{
-			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyStarving");
-		}
-		else if (needStatus.HasFlag(NeedsResult.Hungry))
-		{
-			multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyHungry");
-		}
+        if (needStatus.HasFlag(NeedsResult.Starving))
+        {
+            multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyStarving");
+        }
+        else if (needStatus.HasFlag(NeedsResult.Hungry))
+        {
+            multiplier -= Gameworld.GetStaticDouble("WoundHealingNeedPenaltyHungry");
+        }
 
-		return multiplier;
-	}
+        return multiplier;
+    }
 
-	public void DoOfflineHealing(TimeSpan timePassed, double externalRateMultiplier, double externalCheckBonus)
-	{
-		if (_bleedStatus == BleedStatus.Bleeding || Lodged != null || !(_parent is ICharacter ch) || IsNecroticDamage)
-		{
-			return;
-		}
+    public void DoOfflineHealing(TimeSpan timePassed, double externalRateMultiplier, double externalCheckBonus)
+    {
+        if (_bleedStatus == BleedStatus.Bleeding || Lodged != null || !(_parent is ICharacter ch) || IsNecroticDamage)
+        {
+            return;
+        }
 
-		var amountModifier = GetOfflineTendAmount() * externalRateMultiplier;
-		RecoverOfflineStun(ch, amountModifier, externalCheckBonus, timePassed);
+        double amountModifier = GetOfflineTendAmount() * externalRateMultiplier;
+        RecoverOfflineStun(ch, amountModifier, externalCheckBonus, timePassed);
 
-		if (_infection != null)
-		{
-			return;
-		}
+        if (_infection != null)
+        {
+            return;
+        }
 
-		TryAutoCloseTraumaOffline(ch, externalCheckBonus, ref timePassed);
+        TryAutoCloseTraumaOffline(ch, externalCheckBonus, ref timePassed);
 
-		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
-		if (_currentDamage > 0)
-		{
-			var healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
-			var amount =
-				Math.Max(0,
-					Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Damage) *
-					amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
-						healthCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) * 0.01) *
-					Gameworld.GetStaticDouble("WoundOfflineHealingRateMultiplier") *
-					timePassed.TotalMinutes);
-			CurrentDamage = Math.Max(_currentDamage - amount, 0);
-			// TODO - hunger and thirst?
-		}
+        Difficulty difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
+        if (_currentDamage > 0)
+        {
+            ICheck healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
+            double amount =
+                Math.Max(0,
+                    Parent.HealthStrategy.GetHealingTickAmount(this, Outcome.MinorPass, HealthDamageType.Damage) *
+                    amountModifier * Math.Max(Gameworld.GetStaticDouble("WoundHealingMinimumTargetNumberFactor"),
+                        healthCheck.TargetNumber(ch, difficulty, null, externalBonus: externalCheckBonus) * 0.01) *
+                    Gameworld.GetStaticDouble("WoundOfflineHealingRateMultiplier") *
+                    timePassed.TotalMinutes);
+            CurrentDamage = Math.Max(_currentDamage - amount, 0);
+            // TODO - hunger and thirst?
+        }
 
-		RecoverOfflinePain(ch, amountModifier, externalCheckBonus, timePassed, difficulty);
-	}
+        RecoverOfflinePain(ch, amountModifier, externalCheckBonus, timePassed, difficulty);
+    }
 
-	public bool HealingTick(double externalRateMultiplier, double externalCheckBonus)
-	{
-		if (!(_parent is ICharacter ch))
-		{
-			return false;
-		}
+    public bool HealingTick(double externalRateMultiplier, double externalCheckBonus)
+    {
+        if (!(_parent is ICharacter ch))
+        {
+            return false;
+        }
 
-		if (_bleedStatus == BleedStatus.Bleeding)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealBleeding,
-				Outcome.NotTested);
-			CheckInfection();
-			return false;
-		}
+        if (_bleedStatus == BleedStatus.Bleeding)
+        {
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealBleeding,
+                Outcome.NotTested);
+            CheckInfection();
+            return false;
+        }
 
-		CheckInfection();
+        CheckInfection();
 
-		if (ch?.Combat != null)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInCombat,
-				Outcome.NotTested);
-			return false;
-		}
+        if (ch?.Combat != null)
+        {
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInCombat,
+                Outcome.NotTested);
+            return false;
+        }
 
-		if (Lodged != null)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealLodged,
-				Outcome.NotTested);
-			return false;
-		}
+        if (Lodged != null)
+        {
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealLodged,
+                Outcome.NotTested);
+            return false;
+        }
 
-		var amountModifer =
-			(ch.State.HasFlag(CharacterState.Sleeping)
-				? Gameworld.GetStaticDouble("WoundHealingSleepingMultiplier")
-				: 1.0) *
-			GetHealingTendAmount() *
-			externalRateMultiplier;
+        double amountModifer =
+            (ch.State.HasFlag(CharacterState.Sleeping)
+                ? Gameworld.GetStaticDouble("WoundHealingSleepingMultiplier")
+                : 1.0) *
+            GetHealingTendAmount() *
+            externalRateMultiplier;
 
-		RecoverActiveStun(ch, amountModifer, externalCheckBonus);
+        RecoverActiveStun(ch, amountModifer, externalCheckBonus);
 
-		// You must be breathing for healing to take place
-		if (ch.NeedsToBreathe && !ch.IsBreathing)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealCantBreathe,
-				Outcome.NotTested);
-			return false;
-		}
+        // You must be breathing for healing to take place
+        if (ch.NeedsToBreathe && !ch.IsBreathing)
+        {
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealCantBreathe,
+                Outcome.NotTested);
+            return false;
+        }
 
-		// Healing types other than stun and blood recovery don't occur with infected wounds
-		if (_infection != null)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInfected,
-				Outcome.NotTested);
-			return false;
-		}
+        // Healing types other than stun and blood recovery don't occur with infected wounds
+        if (_infection != null)
+        {
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealInfected,
+                Outcome.NotTested);
+            return false;
+        }
 
-		if (IsNecroticDamage)
-		{
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealNecrotic,
-				Outcome.NotTested);
-			return false;
-		}
+        if (IsNecroticDamage)
+        {
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealNecrotic,
+                Outcome.NotTested);
+            return false;
+        }
 
-		// Trauma wounds don't heal, but they may close on their own
-		if (_bleedStatus == BleedStatus.TraumaControlled)
-		{
-			var traumaCheck = Gameworld.GetCheck(CheckType.WoundCloseCheck);
-			if (traumaCheck.Check(ch, CanBeTreated(TreatmentType.Close)).IsPass())
-			{
-				// TODO - highly likely to get infected if healed this way
-				_bleedStatus = BleedStatus.Closed;
-				Changed = true;
-				Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-					CurrentDamage, CurrentPain, CurrentStun, DamageType,
-					WoundHealingTickResult.NoHealNotSuturedAutoClosed, Outcome.NotTested);
-				return true;
-			}
+        // Trauma wounds don't heal, but they may close on their own
+        if (_bleedStatus == BleedStatus.TraumaControlled)
+        {
+            ICheck traumaCheck = Gameworld.GetCheck(CheckType.WoundCloseCheck);
+            if (traumaCheck.Check(ch, CanBeTreated(TreatmentType.Close)).IsPass())
+            {
+                // TODO - highly likely to get infected if healed this way
+                _bleedStatus = BleedStatus.Closed;
+                Changed = true;
+                Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                    CurrentDamage, CurrentPain, CurrentStun, DamageType,
+                    WoundHealingTickResult.NoHealNotSuturedAutoClosed, Outcome.NotTested);
+                return true;
+            }
 
-			Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-				CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealNotSutured,
-				Outcome.NotTested);
-			return false;
-		}
+            Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.NoHealNotSutured,
+                Outcome.NotTested);
+            return false;
+        }
 
-		var multiplier = GetNeedHealingMultiplier(ch.Body.NeedsModel.Status);
-		var difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
-		if (_currentDamage > 0 && ch.Body.CurrentExertion <= ExertionLevel.Rest)
-		{
-			var healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
-			var healthResult = healthCheck.Check(ch, difficulty, externalBonus: externalCheckBonus);
-			if (healthResult.IsPass())
-			{
-				var healing = Parent.HealthStrategy.GetHealingTickAmount(this, healthResult, HealthDamageType.Damage) *
-				              amountModifer * multiplier;
-				CurrentDamage = Math.Max(_currentDamage - healing, 0);
-				ch.Body.NeedsModel.FulfilNeeds(new NeedFulfiller
-				{
-					ThirstPoints = Gameworld.GetStaticDouble("WoundHealingThirstPointsPerDamageHundred") *
-					               CurrentDamage / 100,
-					WaterLitres = Gameworld.GetStaticDouble("WoundHealingWaterLitresPerDamageHundred") *
-					              CurrentDamage / 100,
-					SatiationPoints = Gameworld.GetStaticDouble("WoundHealingSatiationPointsPerDamageHundred") *
-					                  CurrentDamage / 100
-				}, true);
-				Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
-					CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.Healed, healthResult,
-					healing);
-			}
-		}
+        double multiplier = GetNeedHealingMultiplier(ch.Body.NeedsModel.Status);
+        Difficulty difficulty = CanBeTreated(TreatmentType.Mend).StageUp(_tended != Outcome.None ? -1 : 0);
+        if (_currentDamage > 0 && ch.Body.CurrentExertion <= ExertionLevel.Rest)
+        {
+            ICheck healthCheck = Gameworld.GetCheck(CheckType.HealingCheck);
+            CheckOutcome healthResult = healthCheck.Check(ch, difficulty, externalBonus: externalCheckBonus);
+            if (healthResult.IsPass())
+            {
+                double healing = Parent.HealthStrategy.GetHealingTickAmount(this, healthResult, HealthDamageType.Damage) *
+                              amountModifer * multiplier;
+                CurrentDamage = Math.Max(_currentDamage - healing, 0);
+                ch.Body.NeedsModel.FulfilNeeds(new NeedFulfiller
+                {
+                    ThirstPoints = Gameworld.GetStaticDouble("WoundHealingThirstPointsPerDamageHundred") *
+                                   CurrentDamage / 100,
+                    WaterLitres = Gameworld.GetStaticDouble("WoundHealingWaterLitresPerDamageHundred") *
+                                  CurrentDamage / 100,
+                    SatiationPoints = Gameworld.GetStaticDouble("WoundHealingSatiationPointsPerDamageHundred") *
+                                      CurrentDamage / 100
+                }, true);
+                Gameworld.LogManager.CustomLogEntry(LogEntryType.HealingTick, Parent, Severity, OriginalDamage,
+                    CurrentDamage, CurrentPain, CurrentStun, DamageType, WoundHealingTickResult.Healed, healthResult,
+                    healing);
+            }
+        }
 
-		if (_currentPain > 0)
-		{
-			var painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
-			var result = painCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
-			double painhealing = 0;
-			if (result.IsPass())
-			{
-				painhealing = Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Pain) *
-				              amountModifer;
-			}
+        if (_currentPain > 0)
+        {
+            ICheck painCheck = Gameworld.GetCheck(CheckType.PainRecoveryCheck);
+            CheckOutcome result = painCheck.Check(ch, Difficulty.Normal, externalBonus: externalCheckBonus);
+            double painhealing = 0;
+            if (result.IsPass())
+            {
+                painhealing = Parent.HealthStrategy.GetHealingTickAmount(this, result, HealthDamageType.Pain) *
+                              amountModifer;
+            }
 
-			// Pain is never less than half current damage
-			_currentPain = Math.Max(
-				CurrentDamage * Bodypart.PainModifier * Gameworld.GetStaticDouble("WoundPainMinimumDamageRatio"),
-				_currentPain - painhealing);
-			Changed = true;
-		}
+            // Pain is never less than half current damage
+            _currentPain = Math.Max(
+                CurrentDamage * Bodypart.PainModifier * Gameworld.GetStaticDouble("WoundPainMinimumDamageRatio"),
+                _currentPain - painhealing);
+            Changed = true;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public Difficulty ConcentrationDifficulty
-	{
-		get
-		{
-			Difficulty difficulty;
-			switch (Severity)
-			{
-				case WoundSeverity.None:
-					difficulty = Difficulty.Automatic;
-					break;
-				case WoundSeverity.Superficial:
-					difficulty = Difficulty.Trivial;
-					break;
-				case WoundSeverity.Minor:
-					difficulty = Difficulty.ExtremelyEasy;
-					break;
-				case WoundSeverity.Small:
-					difficulty = Difficulty.VeryEasy;
-					break;
-				case WoundSeverity.Moderate:
-					difficulty = Difficulty.Easy;
-					break;
-				case WoundSeverity.Severe:
-					difficulty = Difficulty.Normal;
-					break;
-				case WoundSeverity.VerySevere:
-					difficulty = Difficulty.Hard;
-					break;
-				case WoundSeverity.Grievous:
-					difficulty = Difficulty.VeryHard;
-					break;
-				case WoundSeverity.Horrifying:
-					difficulty = Difficulty.ExtremelyHard;
-					break;
-				default:
-					difficulty = Difficulty.Automatic;
-					break;
-			}
+    public Difficulty ConcentrationDifficulty
+    {
+        get
+        {
+            Difficulty difficulty;
+            switch (Severity)
+            {
+                case WoundSeverity.None:
+                    difficulty = Difficulty.Automatic;
+                    break;
+                case WoundSeverity.Superficial:
+                    difficulty = Difficulty.Trivial;
+                    break;
+                case WoundSeverity.Minor:
+                    difficulty = Difficulty.ExtremelyEasy;
+                    break;
+                case WoundSeverity.Small:
+                    difficulty = Difficulty.VeryEasy;
+                    break;
+                case WoundSeverity.Moderate:
+                    difficulty = Difficulty.Easy;
+                    break;
+                case WoundSeverity.Severe:
+                    difficulty = Difficulty.Normal;
+                    break;
+                case WoundSeverity.VerySevere:
+                    difficulty = Difficulty.Hard;
+                    break;
+                case WoundSeverity.Grievous:
+                    difficulty = Difficulty.VeryHard;
+                    break;
+                case WoundSeverity.Horrifying:
+                    difficulty = Difficulty.ExtremelyHard;
+                    break;
+                default:
+                    difficulty = Difficulty.Automatic;
+                    break;
+            }
 
-			if (CurrentPain > CurrentDamage * Gameworld.GetStaticDouble("WoundPainfulRatioThreshold"))
-			{
-				difficulty = difficulty.StageUp(1);
-			}
+            if (CurrentPain > CurrentDamage * Gameworld.GetStaticDouble("WoundPainfulRatioThreshold"))
+            {
+                difficulty = difficulty.StageUp(1);
+            }
 
-			return difficulty;
-		}
-	}
+            return difficulty;
+        }
+    }
 
-	public bool IsFriendlyWound { get; protected set; }
+    public bool IsFriendlyWound { get; protected set; }
 
-	#endregion
+    #endregion
 }

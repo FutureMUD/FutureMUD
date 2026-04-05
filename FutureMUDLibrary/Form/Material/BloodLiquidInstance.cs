@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Framework;
 using MudSharp.Health;
 using System;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MudSharp.Character.Heritage;
 
 namespace MudSharp.Form.Material
 {
@@ -47,7 +47,8 @@ namespace MudSharp.Form.Material
             BloodType = Gameworld.Bloodtypes.Get(long.Parse(root.Attribute("bloodtype").Value));
         }
 
-        public BloodLiquidInstance(BloodLiquidInstance rhs) : base(rhs) {
+        public BloodLiquidInstance(BloodLiquidInstance rhs) : base(rhs)
+        {
             Gameworld = rhs.Gameworld;
             _sourceCharacterId = rhs._sourceCharacterId;
             _source = rhs._source;
@@ -55,8 +56,10 @@ namespace MudSharp.Form.Material
             BloodType = rhs.BloodType;
         }
 
-        public ICharacter Source {
-            get {
+        public ICharacter Source
+        {
+            get
+            {
                 if (_source == null && _sourceCharacterId != 0)
                 {
                     _source = Gameworld.TryGetCharacter(_sourceCharacterId, true);
@@ -82,7 +85,8 @@ namespace MudSharp.Form.Material
 
         #region Overrides of LiquidInstance
 
-        public override LiquidInstance Copy() {
+        public override LiquidInstance Copy()
+        {
             return new BloodLiquidInstance(this);
         }
 
@@ -92,7 +96,7 @@ namespace MudSharp.Form.Material
 
         public override XElement SaveToXml()
         {
-            var root = base.SaveToXml();
+            XElement root = base.SaveToXml();
             root.Add(new XAttribute("instancetype", "blood"));
             root.Add(new XAttribute("source", Source?.Id ?? 0));
             root.Add(new XAttribute("race", Race.Id));

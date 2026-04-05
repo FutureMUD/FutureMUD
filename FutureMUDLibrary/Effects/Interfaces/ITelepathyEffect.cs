@@ -1,7 +1,9 @@
 ﻿using MudSharp.Character;
 
-namespace MudSharp.Effects.Interfaces {
-    public interface ITelepathyEffect : IEffectSubtype {
+namespace MudSharp.Effects.Interfaces
+{
+    public interface ITelepathyEffect : IEffectSubtype
+    {
         bool ShowThinks { get; }
         bool ShowFeels { get; }
 

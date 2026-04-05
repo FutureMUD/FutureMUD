@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -14,105 +8,111 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
 
 public class MagicInvisibility : ConcentrationConsumingEffect, IMagicEffect, ICheckBonusEffect
 {
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void InitialiseEffectType()
-	{
-		RegisterFactory("MagicInvisibility", (effect, owner) => new MagicInvisibility(effect, owner));
-	}
+    public static void InitialiseEffectType()
+    {
+        RegisterFactory("MagicInvisibility", (effect, owner) => new MagicInvisibility(effect, owner));
+    }
 
-	#endregion
+    #endregion
 
-	public InvisibilityPower InvisibilityPower { get; protected set; }
+    public InvisibilityPower InvisibilityPower { get; protected set; }
 
-	#region Constructors
+    #region Constructors
 
-	public MagicInvisibility(ICharacter owner, InvisibilityPower power) : base(owner, power.School,
-		power.ConcentrationPointsToSustain)
-	{
-		InvisibilityPower = power;
-		ApplicabilityProg = power.InvisibilityAppliesProg;
-		Login();
-	}
+    public MagicInvisibility(ICharacter owner, InvisibilityPower power) : base(owner, power.School,
+        power.ConcentrationPointsToSustain)
+    {
+        InvisibilityPower = power;
+        ApplicabilityProg = power.InvisibilityAppliesProg;
+        Login();
+    }
 
-	protected MagicInvisibility(XElement effect, IPerceivable owner) : base(effect, owner)
-	{
-		var root = effect.Element("Effect");
-		InvisibilityPower = (InvisibilityPower)Gameworld.MagicPowers.Get(long.Parse(root.Element("Power").Value));
-		ApplicabilityProg = InvisibilityPower.InvisibilityAppliesProg;
-	}
+    protected MagicInvisibility(XElement effect, IPerceivable owner) : base(effect, owner)
+    {
+        XElement root = effect.Element("Effect");
+        InvisibilityPower = (InvisibilityPower)Gameworld.MagicPowers.Get(long.Parse(root.Element("Power").Value));
+        ApplicabilityProg = InvisibilityPower.InvisibilityAppliesProg;
+    }
 
-	#endregion
+    #endregion
 
-	#region Saving and Loading
+    #region Saving and Loading
 
-	protected override XElement SaveDefinition()
-	{
-		return SaveToXml(new XElement("Power", PowerOrigin.Id));
-	}
+    protected override XElement SaveDefinition()
+    {
+        return SaveToXml(new XElement("Power", PowerOrigin.Id));
+    }
 
-	#endregion
+    #endregion
 
-	#region Overrides of Effect
-		protected override void RegisterEvents()
-	{
-		base.RegisterEvents();
-		Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += DoSustainCostsTick;
-	}
+    #region Overrides of Effect
+    protected override void RegisterEvents()
+    {
+        base.RegisterEvents();
+        Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += DoSustainCostsTick;
+    }
 
-	public override void ReleaseEvents()
-	{
-		base.ReleaseEvents();
-		Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= DoSustainCostsTick;
-	}
+    public override void ReleaseEvents()
+    {
+        base.ReleaseEvents();
+        Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= DoSustainCostsTick;
+    }
 
-	protected override string SpecificEffectType => "MagicInvisibility";
+    protected override string SpecificEffectType => "MagicInvisibility";
 
-	/// <summary>Fires when an effect is removed, including a matured scheduled effect</summary>
-	public override void RemovalEffect()
-	{
-		ReleaseEvents();
-	}
+    /// <summary>Fires when an effect is removed, including a matured scheduled effect</summary>
+    public override void RemovalEffect()
+    {
+        ReleaseEvents();
+    }
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Magic Invisibility from the {PowerOrigin.Name.Colour(Telnet.Cyan)} power.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Magic Invisibility from the {PowerOrigin.Name.Colour(Telnet.Cyan)} power.";
+    }
 
-	public override bool SavingEffect => true;
+    public override bool SavingEffect => true;
 
-	public override PerceptionTypes Obscuring => InvisibilityPower.PerceptionTypes;
+    public override PerceptionTypes Obscuring => InvisibilityPower.PerceptionTypes;
 
-	public override bool Applies(object target)
-	{
-		if (target is InvisibilityPower power)
-		{
-			return InvisibilityPower == power;
-		}
+    public override bool Applies(object target)
+    {
+        if (target is InvisibilityPower power)
+        {
+            return InvisibilityPower == power;
+        }
 
-		return base.Applies(target);
-	}
+        return base.Applies(target);
+    }
 
-	#endregion
+    #endregion
 
-	public IMagicPower PowerOrigin => InvisibilityPower;
-	public Difficulty DetectMagicDifficulty => InvisibilityPower.DetectableWithDetectMagic;
+    public IMagicPower PowerOrigin => InvisibilityPower;
+    public Difficulty DetectMagicDifficulty => InvisibilityPower.DetectableWithDetectMagic;
 
-	public bool AppliesToCheck(CheckType type)
-	{
-		return type.IsDefensiveCombatAction() || type.IsOffensiveCombatAction() || type.IsGeneralActivityCheck() ||
-		       type.IsTargettedFriendlyCheck() || type.IsTargettedHostileCheck();
-	}
+    public bool AppliesToCheck(CheckType type)
+    {
+        return type.IsDefensiveCombatAction() || type.IsOffensiveCombatAction() || type.IsGeneralActivityCheck() ||
+               type.IsTargettedFriendlyCheck() || type.IsTargettedHostileCheck();
+    }
 
-	public double CheckBonus => InvisibilityPower.SustainPenalty;
+    public double CheckBonus => InvisibilityPower.SustainPenalty;
 
-	private void DoSustainCostsTick()
-	{
-		InvisibilityPower.DoSustainCostsTick(CharacterOwner);
-	}
+    private void DoSustainCostsTick()
+    {
+        InvisibilityPower.DoSustainCostsTick(CharacterOwner);
+    }
 }

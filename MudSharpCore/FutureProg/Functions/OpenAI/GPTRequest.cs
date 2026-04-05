@@ -1,4 +1,6 @@
 ﻿using MudSharp.Character;
+using MudSharp.Character.Name;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
@@ -11,154 +13,152 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MudSharp.Character.Name;
-using MudSharp.Database;
 
 namespace MudSharp.FutureProg.Functions.OpenAI;
 #nullable enable
 internal class GPTRequest : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
+    public IFuturemud Gameworld { get; set; }
 
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"GPTRequest".ToLowerInvariant(),
-				new[]
-				{
-					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Character,
-					ProgVariableTypes.Number, ProgVariableTypes.Text
-				}, // the parameters the function takes
-				(pars, gameworld) => new GPTRequest(pars, gameworld),
-				new List<string>
-				{
-					"Thread",
-					"Message",
-					"User",
-					"MaximumHistory",
-					"Function"
-				}, // parameter names
-				new List<string>
-				{
-					"The GPTThread to Call",
-					"The message to send to GPT",
-					"The user whose history is being invoked",
-					"The maximum history entries",
-					"A Prog to call with the results of this request"
-				}, // parameter help text
-				"This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
-				"OpenAI", // the category to which this function belongs,
-				ProgVariableTypes.Boolean // the return type of the function
-			)
-		);
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "GPTRequest".ToLowerInvariant(),
+                new[]
+                {
+                    ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Character,
+                    ProgVariableTypes.Number, ProgVariableTypes.Text
+                }, // the parameters the function takes
+                (pars, gameworld) => new GPTRequest(pars, gameworld),
+                new List<string>
+                {
+                    "Thread",
+                    "Message",
+                    "User",
+                    "MaximumHistory",
+                    "Function"
+                }, // parameter names
+                new List<string>
+                {
+                    "The GPTThread to Call",
+                    "The message to send to GPT",
+                    "The user whose history is being invoked",
+                    "The maximum history entries",
+                    "A Prog to call with the results of this request"
+                }, // parameter help text
+                "This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
+                "OpenAI", // the category to which this function belongs,
+                ProgVariableTypes.Boolean // the return type of the function
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"GPTRequest".ToLowerInvariant(),
-				new[]
-				{
-					ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Character,
-					ProgVariableTypes.Number, ProgVariableTypes.Text
-				}, // the parameters the function takes
-				(pars, gameworld) => new GPTRequest(pars, gameworld),
-				new List<string>
-				{
-					"Thread",
-					"Message",
-					"User",
-					"MaximumHistory",
-					"Function"
-				}, // parameter names
-				new List<string>
-				{
-					"The GPTThread to Call",
-					"The message to send to GPT",
-					"The user whose history is being invoked",
-					"The maximum history entries",
-					"A Prog to call with the results of this request"
-				}, // parameter help text
-				"This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
-				"OpenAI", // the category to which this function belongs,
-				ProgVariableTypes.Boolean // the return type of the function
-			)
-		);
-	}
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "GPTRequest".ToLowerInvariant(),
+                new[]
+                {
+                    ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Character,
+                    ProgVariableTypes.Number, ProgVariableTypes.Text
+                }, // the parameters the function takes
+                (pars, gameworld) => new GPTRequest(pars, gameworld),
+                new List<string>
+                {
+                    "Thread",
+                    "Message",
+                    "User",
+                    "MaximumHistory",
+                    "Function"
+                }, // parameter names
+                new List<string>
+                {
+                    "The GPTThread to Call",
+                    "The message to send to GPT",
+                    "The user whose history is being invoked",
+                    "The maximum history entries",
+                    "A Prog to call with the results of this request"
+                }, // parameter help text
+                "This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
+                "OpenAI", // the category to which this function belongs,
+                ProgVariableTypes.Boolean // the return type of the function
+            )
+        );
+    }
 
-	#endregion
+    #endregion
 
-	#region Constructors
+    #region Constructors
 
-	protected GPTRequest(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
+    protected GPTRequest(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
 
-	#endregion
+    #endregion
 
-	public override ProgVariableTypes ReturnType
-	{
-		get { return ProgVariableTypes.Text; }
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Text;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
-		var messageText = (string)(ParameterFunctions[1].Result?.GetObject ?? "");
-		var character = (ICharacter?)ParameterFunctions[2].Result?.GetObject;
-		var history = (int)(decimal)(ParameterFunctions[3].Result?.GetObject ?? -1.0M);
-		using (new FMDB())
-		{
-			Models.GPTThread? thread;
-			if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Number))
-			{
-				thread = FMDB.Context.GPTThreads.Find((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0M));
-			}
-			else
-			{
-				var name = (string)(ParameterFunctions[0].Result?.GetObject ?? "");
-				thread = FMDB.Context.GPTThreads.FirstOrDefault(x => x.Name == name);
-			}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
+        string messageText = (string)(ParameterFunctions[1].Result?.GetObject ?? "");
+        ICharacter? character = (ICharacter?)ParameterFunctions[2].Result?.GetObject;
+        int history = (int)(decimal)(ParameterFunctions[3].Result?.GetObject ?? -1.0M);
+        using (new FMDB())
+        {
+            Models.GPTThread? thread;
+            if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Number))
+            {
+                thread = FMDB.Context.GPTThreads.Find((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0M));
+            }
+            else
+            {
+                string name = (string)(ParameterFunctions[0].Result?.GetObject ?? "");
+                thread = FMDB.Context.GPTThreads.FirstOrDefault(x => x.Name == name);
+            }
 
-			if (thread is null)
-			{
-				Result = new BooleanVariable(false);
-				return StatementResult.Normal;
-			}
+            if (thread is null)
+            {
+                Result = new BooleanVariable(false);
+                return StatementResult.Normal;
+            }
 
-			var prog = new ProgLookupFromBuilderInput(Gameworld, null, (string)(ParameterFunctions[4].Result?.GetObject ?? ""),
-				ProgVariableTypes.Void, new List<IEnumerable<ProgVariableTypes>>
-				{
-					new []
-					{
-						ProgVariableTypes.Text,
-						ProgVariableTypes.Character
-					},
-					new []
-					{
-						ProgVariableTypes.Text,
-					},
-				}).LookupProg();
-			if (prog is null)
-			{
-				Result = new BooleanVariable(false);
-				return StatementResult.Normal;
-			}
+            IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, null, (string)(ParameterFunctions[4].Result?.GetObject ?? ""),
+                ProgVariableTypes.Void, new List<IEnumerable<ProgVariableTypes>>
+                {
+                    new []
+                    {
+                        ProgVariableTypes.Text,
+                        ProgVariableTypes.Character
+                    },
+                    new []
+                    {
+                        ProgVariableTypes.Text,
+                    },
+                }).LookupProg();
+            if (prog is null)
+            {
+                Result = new BooleanVariable(false);
+                return StatementResult.Normal;
+            }
 
-			MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(thread, messageText, character, text =>
-			{
-				prog.Execute(text, character);
-			}, history);
+            MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(thread, messageText, character, text =>
+            {
+                prog.Execute(text, character);
+            }, history);
 
-		}
+        }
 
-		Result = new BooleanVariable(true);
-		return StatementResult.Normal;
-	}
+        Result = new BooleanVariable(true);
+        return StatementResult.Normal;
+    }
 }

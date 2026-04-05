@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Body.Needs {
-    public interface INeedsModel {
+﻿namespace MudSharp.Body.Needs
+{
+    public interface INeedsModel
+    {
         NeedsResult Status { get; }
 
         /// <summary>

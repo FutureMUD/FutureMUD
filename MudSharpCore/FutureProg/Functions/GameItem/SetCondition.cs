@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
-using MudSharp.Framework;
 using MudSharp.GameItems;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.GameItem;
 
@@ -22,7 +22,7 @@ internal class SetCondition : BuiltInFunction
                 new List<string> { "item", "condition" },
                 new List<string>
                 {
-                    "The item whose condition you wish to set", 
+                    "The item whose condition you wish to set",
                     "The condition of the item, between 0.0 and 1.0"
                 },
                 "This function sets the condition percentage of an item to whatever amount you specify.",
@@ -56,14 +56,14 @@ internal class SetCondition : BuiltInFunction
             return StatementResult.Error;
         }
 
-        var item = (IGameItem)ParameterFunctions[0].Result?.GetObject;
+        IGameItem item = (IGameItem)ParameterFunctions[0].Result?.GetObject;
         if (item == null)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-        var condition = Convert.ToDouble(ParameterFunctions[1].Result?.GetObject ?? 0.0);
+        double condition = Convert.ToDouble(ParameterFunctions[1].Result?.GetObject ?? 0.0);
         if (condition < 0.0)
         {
             condition = 0.0;

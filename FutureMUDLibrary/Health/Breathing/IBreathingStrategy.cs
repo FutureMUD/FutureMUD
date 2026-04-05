@@ -10,7 +10,7 @@ namespace MudSharp.Health.Breathing
 {
     public interface IBreathingStrategy
     {
-        string Name {get;}
+        string Name { get; }
         bool NeedsToBreathe { get; }
         bool IsBreathing(IBody body);
         bool CanBreathe(IBody body);

@@ -1,13 +1,15 @@
-﻿using System;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
+using System;
 
-namespace MudSharp.Health {
-    public class BleedResult {
+namespace MudSharp.Health
+{
+    public class BleedResult
+    {
         public double BloodAmount { get; init; }
         public bool Visible { get; init; }
         public IGameItem CoverItem { get; init; }
@@ -16,7 +18,8 @@ namespace MudSharp.Health {
         public static BleedResult NoBleed { get; } = new();
     }
 
-    public interface IWound : IPerceivable {
+    public interface IWound : IPerceivable
+    {
         bool IsFriendlyWound { get; }
         bool Repairable { get; }
         /// <summary>

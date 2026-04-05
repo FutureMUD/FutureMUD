@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
+using System.Collections.Generic;
 
-namespace MudSharp.Economy.Currency {
-    public interface ICurrency : IEditableItem, IProgVariable {
+namespace MudSharp.Economy.Currency
+{
+    public interface ICurrency : IEditableItem, IProgVariable
+    {
         /// <summary>
         ///     All Currency Divisions belonging to this Currency
         /// </summary>

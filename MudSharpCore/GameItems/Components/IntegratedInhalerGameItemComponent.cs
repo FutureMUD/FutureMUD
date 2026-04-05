@@ -1,13 +1,14 @@
-using System;
-using System.Linq;
-using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Form.Material;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -89,7 +90,7 @@ public class IntegratedInhalerGameItemComponent : GameItemComponent, IPuffable
         }
 
         character.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ puff|puffs on $0", character, Parent), flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        var gas = InternalContainer.Gas;
+        IGas gas = InternalContainer.Gas;
         if (gas?.Drug != null && gas.Drug.DrugVectors.HasFlag(DrugVector.Inhaled))
         {
             character.Body.Dose(gas.Drug, DrugVector.Inhaled, gas.DrugGramsPerUnitVolume * _prototype.GasPerPuff);

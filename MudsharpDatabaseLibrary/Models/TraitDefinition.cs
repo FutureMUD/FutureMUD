@@ -42,9 +42,9 @@ namespace MudSharp.Models
         public int LearnDifficulty { get; set; }
         public string ValueExpression { get; set; }
         public int DisplayOrder { get; set; }
-        public bool DisplayAsSubAttribute { get; set;}
-        public bool ShowInScoreCommand { get;set; }
-        public bool ShowInAttributeCommand { get;set; }
+        public bool DisplayAsSubAttribute { get; set; }
+        public bool ShowInScoreCommand { get; set; }
+        public bool ShowInAttributeCommand { get; set; }
 
         public virtual FutureProg AvailabilityProg { get; set; }
         public virtual TraitExpression Expression { get; set; }

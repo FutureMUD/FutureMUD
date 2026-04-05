@@ -1,16 +1,16 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
+using MudSharp.Work.Crafts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Character;
-using MudSharp.Framework.Revision;
-using MudSharp.FutureProg;
-using MudSharp.Work.Crafts;
 
 namespace MudSharp.GameItems
 {
-    #nullable enable
+#nullable enable
     public interface IGameItemSkin : IEditableRevisableItem
     {
         IGameItemSkin Clone(ICharacter author, string newName);

@@ -1,8 +1,8 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MudSharp.Framework;
 
 namespace MudSharp_Unit_Tests;
 
@@ -12,14 +12,14 @@ public class CollectionDictionaryExtensionsTests
     [TestMethod]
     public void ToCollectionDictionary_ValueTupleEnumerable_GroupsValues()
     {
-        var items = new (string Key, int Value)[]
+        (string Key, int Value)[] items = new (string Key, int Value)[]
         {
             ("A", 1),
             ("B", 2),
             ("A", 3)
         };
 
-        var cd = items.ToCollectionDictionary<string, int>();
+        CollectionDictionary<string, int> cd = items.ToCollectionDictionary<string, int>();
 
         CollectionAssert.AreEquivalent(new[] { "A", "B" }, cd.Keys.ToList());
         CollectionAssert.AreEquivalent(new[] { 1, 3 }, cd["A"]);
@@ -29,14 +29,14 @@ public class CollectionDictionaryExtensionsTests
     [TestMethod]
     public void ToCollectionDictionary_TupleEnumerable_GroupsValues()
     {
-        var items = new[]
+        Tuple<string, int>[] items = new[]
         {
             Tuple.Create("A", 1),
             Tuple.Create("B", 2),
             Tuple.Create("A", 3)
         };
 
-        var cd = items.ToCollectionDictionary<string, int>();
+        CollectionDictionary<string, int> cd = items.ToCollectionDictionary<string, int>();
 
         CollectionAssert.AreEquivalent(new[] { "A", "B" }, cd.Keys.ToList());
         CollectionAssert.AreEquivalent(new[] { 1, 3 }, cd["A"]);
@@ -46,14 +46,14 @@ public class CollectionDictionaryExtensionsTests
     [TestMethod]
     public void ToCollectionDictionary_KeyValuePairEnumerable_GroupsValues()
     {
-        var items = new List<KeyValuePair<string, int>>
+        List<KeyValuePair<string, int>> items = new()
         {
             new("A", 1),
             new("B", 2),
             new("A", 3)
         };
 
-        var cd = items.ToCollectionDictionary<string, int>();
+        CollectionDictionary<string, int> cd = items.ToCollectionDictionary<string, int>();
 
         CollectionAssert.AreEquivalent(new[] { "A", "B" }, cd.Keys.ToList());
         CollectionAssert.AreEquivalent(new[] { 1, 3 }, cd["A"]);
@@ -63,12 +63,12 @@ public class CollectionDictionaryExtensionsTests
     [TestMethod]
     public void ToCollectionDictionary_TransformsToNewKeyValueTypes()
     {
-        var cd = new CollectionDictionary<int, string>();
+        CollectionDictionary<int, string> cd = new();
         cd.AddRange(1, new[] { "one", "uno" });
         cd.Add(2, "two");
         cd.Add(3, "three");
 
-        var transformed = cd.ToCollectionDictionary<int, string, string, int>(
+        CollectionDictionary<string, int> transformed = cd.ToCollectionDictionary<int, string, string, int>(
             k => k % 2 == 0 ? "even" : "odd",
             v => v.Length);
 

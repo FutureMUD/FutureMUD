@@ -1,143 +1,143 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Variables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Statements;
 
 internal class DeclareAndAssignVariable : Statement
 {
-	private static readonly Regex DeclareAndAssignVariableCompileRegex =
-		new(@"^\s*var (?<varname>[a-z0-9_]+)\s*=\s*(?<function>.+)\s*$",
-			RegexOptions.Multiline | RegexOptions.IgnoreCase);
+    private static readonly Regex DeclareAndAssignVariableCompileRegex =
+        new(@"^\s*var (?<varname>[a-z0-9_]+)\s*=\s*(?<function>.+)\s*$",
+            RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
-	protected string NameToDeclare;
-	protected ProgVariableTypes TypeToDeclare;
-	protected IFunction ValueFunction;
+    protected string NameToDeclare;
+    protected ProgVariableTypes TypeToDeclare;
+    protected IFunction ValueFunction;
 
-	protected DeclareAndAssignVariable(string name, ProgVariableTypes type, IFunction valueFunction)
-	{
-		NameToDeclare = name;
-		TypeToDeclare = type;
-		ValueFunction = valueFunction;
-	}
+    protected DeclareAndAssignVariable(string name, ProgVariableTypes type, IFunction valueFunction)
+    {
+        NameToDeclare = name;
+        TypeToDeclare = type;
+        ValueFunction = valueFunction;
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (variables.HasVariable(NameToDeclare))
-		{
-			ErrorMessage =
-				$"Declare Variable with name {NameToDeclare} of type {TypeToDeclare} failed due to it being already defined.";
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (variables.HasVariable(NameToDeclare))
+        {
+            ErrorMessage =
+                $"Declare Variable with name {NameToDeclare} of type {TypeToDeclare} failed due to it being already defined.";
+            return StatementResult.Error;
+        }
 
-		if (TypeToDeclare.HasFlag(ProgVariableTypes.Collection))
-		{
-			variables.SetVariable(NameToDeclare,
-				new CollectionVariable(new List<IProgVariable>(),
-					TypeToDeclare ^ ProgVariableTypes.Collection));
-		}
-		else if (TypeToDeclare.HasFlag(ProgVariableTypes.Dictionary))
-		{
-			variables.SetVariable(NameToDeclare,
-				new DictionaryVariable(new Dictionary<string, IProgVariable>(),
-					TypeToDeclare ^ ProgVariableTypes.Dictionary));
-		}
-		else if (TypeToDeclare.HasFlag(ProgVariableTypes.CollectionDictionary))
-		{
-			variables.SetVariable(NameToDeclare,
-				new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
-					TypeToDeclare ^ ProgVariableTypes.CollectionDictionary));
-		}
-		else
-		{
-			variables.SetVariable(NameToDeclare, new NullVariable(TypeToDeclare));
-		}
+        if (TypeToDeclare.HasFlag(ProgVariableTypes.Collection))
+        {
+            variables.SetVariable(NameToDeclare,
+                new CollectionVariable(new List<IProgVariable>(),
+                    TypeToDeclare ^ ProgVariableTypes.Collection));
+        }
+        else if (TypeToDeclare.HasFlag(ProgVariableTypes.Dictionary))
+        {
+            variables.SetVariable(NameToDeclare,
+                new DictionaryVariable(new Dictionary<string, IProgVariable>(),
+                    TypeToDeclare ^ ProgVariableTypes.Dictionary));
+        }
+        else if (TypeToDeclare.HasFlag(ProgVariableTypes.CollectionDictionary))
+        {
+            variables.SetVariable(NameToDeclare,
+                new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
+                    TypeToDeclare ^ ProgVariableTypes.CollectionDictionary));
+        }
+        else
+        {
+            variables.SetVariable(NameToDeclare, new NullVariable(TypeToDeclare));
+        }
 
-		var result = ValueFunction.Execute(variables);
-		if (result == StatementResult.Error)
-		{
-			ErrorMessage = ValueFunction.ErrorMessage;
-			return StatementResult.Error;
-		}
+        StatementResult result = ValueFunction.Execute(variables);
+        if (result == StatementResult.Error)
+        {
+            ErrorMessage = ValueFunction.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		variables.SetVariable(NameToDeclare, ValueFunction.Result);
-		return StatementResult.Normal;
-	}
+        variables.SetVariable(NameToDeclare, ValueFunction.Result);
+        return StatementResult.Normal;
+    }
 
-	private static ICompileInfo DeclareAndAssignVariableCompile(IEnumerable<string> lines,
-		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
-	{
-		var match = DeclareAndAssignVariableCompileRegex.Match(lines.First());
-		var variableName = match.Groups["varname"].Value.Trim().ToLowerInvariant();
+    private static ICompileInfo DeclareAndAssignVariableCompile(IEnumerable<string> lines,
+        IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+    {
+        Match match = DeclareAndAssignVariableCompileRegex.Match(lines.First());
+        string variableName = match.Groups["varname"].Value.Trim().ToLowerInvariant();
 
-		if (variableName.EqualTo("return"))
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError("The variable name \"Return\" is a reserved keyword and cannot be used.",
-					           lineNumber);
-		}
+        if (variableName.EqualTo("return"))
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError("The variable name \"Return\" is a reserved keyword and cannot be used.",
+                               lineNumber);
+        }
 
-		if (variableSpace.ContainsKey(variableName))
-		{
-			return CompileInfo.GetFactory().CreateError("Variable name is already declared.", lineNumber);
-		}
+        if (variableSpace.ContainsKey(variableName))
+        {
+            return CompileInfo.GetFactory().CreateError("Variable name is already declared.", lineNumber);
+        }
 
-		var rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
-		if (rhsInfo.IsError)
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError($"Error with RHS of set variable statement: {rhsInfo.ErrorMessage}",
-					           lineNumber);
-		}
+        ICompileInfo rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
+        if (rhsInfo.IsError)
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError($"Error with RHS of set variable statement: {rhsInfo.ErrorMessage}",
+                               lineNumber);
+        }
 
-		var function = (IFunction)rhsInfo.CompiledStatement;
+        IFunction function = (IFunction)rhsInfo.CompiledStatement;
 
-		var type = function.ReturnType & ~ProgVariableTypes.Literal;
+        ProgVariableTypes type = function.ReturnType & ~ProgVariableTypes.Literal;
 
-		var newVar = new DeclareAndAssignVariable(variableName, type, function);
-		variableSpace.Add(newVar.NameToDeclare, newVar.TypeToDeclare);
-		return CompileInfo.GetFactory().CreateNew(newVar, variableSpace, lines.Skip(1), lineNumber, lineNumber);
-	}
+        DeclareAndAssignVariable newVar = new(variableName, type, function);
+        variableSpace.Add(newVar.NameToDeclare, newVar.TypeToDeclare);
+        return CompileInfo.GetFactory().CreateNew(newVar, variableSpace, lines.Skip(1), lineNumber, lineNumber);
+    }
 
-	private static string ColouriseStatement(string line)
-	{
-		var match = DeclareAndAssignVariableCompileRegex.Match(line);
-		return
-			$"{"var".Colour(Telnet.Blue, Telnet.Black)} {match.Groups["varname"].Value} = {FunctionHelper.ColouriseFunction(match.Groups[2].Value)}";
-	}
+    private static string ColouriseStatement(string line)
+    {
+        Match match = DeclareAndAssignVariableCompileRegex.Match(line);
+        return
+            $"{"var".Colour(Telnet.Blue, Telnet.Black)} {match.Groups["varname"].Value} = {FunctionHelper.ColouriseFunction(match.Groups[2].Value)}";
+    }
 
-	private static string ColouriseStatementDarkMode(string line)
-	{
-		var match = DeclareAndAssignVariableCompileRegex.Match(line);
-		return
-			$"{"var".Colour(Telnet.KeywordBlue)} {match.Groups["varname"].Value.Colour(Telnet.VariableCyan)} = {FunctionHelper.ColouriseFunction(match.Groups[2].Value, true)}";
-	}
+    private static string ColouriseStatementDarkMode(string line)
+    {
+        Match match = DeclareAndAssignVariableCompileRegex.Match(line);
+        return
+            $"{"var".Colour(Telnet.KeywordBlue)} {match.Groups["varname"].Value.Colour(Telnet.VariableCyan)} = {FunctionHelper.ColouriseFunction(match.Groups[2].Value, true)}";
+    }
 
-	public static void RegisterCompiler()
-	{
-		FutureProg.RegisterStatementCompiler(
-			new Tuple
-			<Regex,
-				Func
-				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-				DeclareAndAssignVariableCompileRegex, DeclareAndAssignVariableCompile)
-		);
+    public static void RegisterCompiler()
+    {
+        FutureProg.RegisterStatementCompiler(
+            new Tuple
+            <Regex,
+                Func
+                <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+                DeclareAndAssignVariableCompileRegex, DeclareAndAssignVariableCompile)
+        );
 
-		FutureProg.RegisterStatementColouriser(
-			new Tuple<Regex, Func<string, string>>(DeclareAndAssignVariableCompileRegex, ColouriseStatement)
-		);
+        FutureProg.RegisterStatementColouriser(
+            new Tuple<Regex, Func<string, string>>(DeclareAndAssignVariableCompileRegex, ColouriseStatement)
+        );
 
-		FutureProg.RegisterStatementColouriser(
-			new Tuple<Regex, Func<string, string>>(DeclareAndAssignVariableCompileRegex, ColouriseStatementDarkMode), true
-		);
+        FutureProg.RegisterStatementColouriser(
+            new Tuple<Regex, Func<string, string>>(DeclareAndAssignVariableCompileRegex, ColouriseStatementDarkMode), true
+        );
 
-		// Note - help for var is on DeclareVariable
-	}
+        // Note - help for var is on DeclareVariable
+    }
 }

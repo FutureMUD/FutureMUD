@@ -13,51 +13,51 @@ namespace MudSharp.Effects.Concrete;
 
 public class CommandDelayMagicPower : Effect
 {
-	public static void InitialiseEffectType()
-	{
-		RegisterFactory("CommandDelayMagicPower", (effect, owner) => new CommandDelayMagicPower(effect, owner));
-	}
+    public static void InitialiseEffectType()
+    {
+        RegisterFactory("CommandDelayMagicPower", (effect, owner) => new CommandDelayMagicPower(effect, owner));
+    }
 
-	public IMagicPower Power { get; protected set; }
+    public IMagicPower Power { get; protected set; }
 
-	public CommandDelayMagicPower(IPerceivable owner, IMagicPower power) : base(owner)
-	{
-		Power = power;
-	}
+    public CommandDelayMagicPower(IPerceivable owner, IMagicPower power) : base(owner)
+    {
+        Power = power;
+    }
 
-	protected CommandDelayMagicPower(XElement root, IPerceivable owner) : base(root, owner)
-	{
-		Power = Gameworld.MagicPowers.Get(long.Parse(root.Value));
-	}
+    protected CommandDelayMagicPower(XElement root, IPerceivable owner) : base(root, owner)
+    {
+        Power = Gameworld.MagicPowers.Get(long.Parse(root.Value));
+    }
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Blocked from using the {Power.Name.Colour(Power.School.PowerListColour)} power.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Blocked from using the {Power.Name.Colour(Power.School.PowerListColour)} power.";
+    }
 
-	public override bool Applies(object target)
-	{
-		if (target is IMagicPower power)
-		{
-			return Power == power;
-		}
+    public override bool Applies(object target)
+    {
+        if (target is IMagicPower power)
+        {
+            return Power == power;
+        }
 
-		return base.Applies(target);
-	}
+        return base.Applies(target);
+    }
 
-	protected override string SpecificEffectType => "CommandDelayMagicPower";
+    protected override string SpecificEffectType => "CommandDelayMagicPower";
 
-	public override bool SavingEffect => true;
+    public override bool SavingEffect => true;
 
-	protected override XElement SaveDefinition()
-	{
-		return new XElement("Power", Power.Id);
-	}
+    protected override XElement SaveDefinition()
+    {
+        return new XElement("Power", Power.Id);
+    }
 
-	public override void ExpireEffect()
-	{
-		base.ExpireEffect();
-		((ICharacter)Owner).OutputHandler.Send(
-			$"You can use the {Power.Name.TitleCase().Colour(Power.School.PowerListColour)} power again.");
-	}
+    public override void ExpireEffect()
+    {
+        base.ExpireEffect();
+        ((ICharacter)Owner).OutputHandler.Send(
+            $"You can use the {Power.Name.TitleCase().Colour(Power.School.PowerListColour)} power again.");
+    }
 }

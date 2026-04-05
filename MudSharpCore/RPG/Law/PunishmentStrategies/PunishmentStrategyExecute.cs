@@ -11,51 +11,51 @@ namespace MudSharp.RPG.Law.PunishmentStrategies;
 
 internal class PunishmentStrategyExecute : PunishmentStrategyBase
 {
-	public PunishmentStrategyExecute(IFuturemud gameworld) : base(gameworld)
-	{
-	}
+    public PunishmentStrategyExecute(IFuturemud gameworld) : base(gameworld)
+    {
+    }
 
-	public PunishmentStrategyExecute(IFuturemud gameworld, XElement root) : base(gameworld, root)
-	{
-	}
+    public PunishmentStrategyExecute(IFuturemud gameworld, XElement root) : base(gameworld, root)
+    {
+    }
 
-	public override string TypeSpecificHelpText => @"";
+    public override string TypeSpecificHelpText => @"";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"a death sentence";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"a death sentence";
+    }
 
-	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
-	{
-		switch (command.PopForSwitch())
-		{
-			default:
-				return base.BuildingCommand(actor, authority, command.GetUndo());
-		}
-	}
+    public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            default:
+                return base.BuildingCommand(actor, authority, command.GetUndo());
+        }
+    }
 
-	public override string Show(ICharacter actor)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine($"Death Sentence".ColourName());
-		BaseShowText(actor, sb);
-		return sb.ToString();
-	}
+    public override string Show(ICharacter actor)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine($"Death Sentence".ColourName());
+        BaseShowText(actor, sb);
+        return sb.ToString();
+    }
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
-	{
-		return new PunishmentResult { Execution = true };
-	}
+    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    {
+        return new PunishmentResult { Execution = true };
+    }
 
-	/// <inheritdoc />
-	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
-	{
-		return new PunishmentOptions { CanBeExecuted = true };
-	}
+    /// <inheritdoc />
+    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    {
+        return new PunishmentOptions { CanBeExecuted = true };
+    }
 
-	protected override void SaveSpecificType(XElement root)
-	{
-		root.Add(new XAttribute("type", "execute"));
-	}
+    protected override void SaveSpecificType(XElement root)
+    {
+        root.Add(new XAttribute("type", "execute"));
+    }
 }

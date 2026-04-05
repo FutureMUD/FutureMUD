@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace MudSharp.Network {
+namespace MudSharp.Network
+{
     public delegate void AddConnectionCallback(IPlayerConnection connection);
 
-    public interface IServer {
+    public interface IServer
+    {
         IPAddress IPAddress { get; }
 
         int Port { get; }

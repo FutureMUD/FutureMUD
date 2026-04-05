@@ -5,18 +5,18 @@ namespace MudSharp.Commands.Trees;
 
 internal class FounderCommandTree : AdminCommandTree
 {
-	protected FounderCommandTree()
-	{
-	}
+    protected FounderCommandTree()
+    {
+    }
 
-	public new static FounderCommandTree Instance { get; } = new()
-	{
-		PermissionLevel = PermissionLevel.Founder
-	};
+    public new static FounderCommandTree Instance { get; } = new()
+    {
+        PermissionLevel = PermissionLevel.Founder
+    };
 
-	protected override void ProcessCommands()
-	{
-		base.ProcessCommands();
-		Commands.AddFrom(ImplementorModule.Instance.Commands);
-	}
+    protected override void ProcessCommands()
+    {
+        base.ProcessCommands();
+        Commands.AddFrom(ImplementorModule.Instance.Commands);
+    }
 }

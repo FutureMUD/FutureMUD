@@ -1,5 +1,7 @@
-﻿using MudSharp.Character;
+﻿using JetBrains.Annotations;
+using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory;
 using System;
 using System.Collections.Generic;
@@ -7,8 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using JetBrains.Annotations;
-using MudSharp.FutureProg;
 
 namespace MudSharp.GameItems
 {

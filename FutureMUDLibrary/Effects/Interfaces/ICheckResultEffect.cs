@@ -2,8 +2,10 @@
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.Effects.Interfaces {
-    public interface ICheckResultEffect : IEffectSubtype {
+namespace MudSharp.Effects.Interfaces
+{
+    public interface ICheckResultEffect : IEffectSubtype
+    {
         CheckType Check { get; }
         Difficulty Difficulty { get; }
         long? TargetID { get; }

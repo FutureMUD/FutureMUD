@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
-using MudSharp.CharacterCreation.Resources;
+﻿using MudSharp.CharacterCreation.Resources;
+using System.Collections.Generic;
 
-namespace MudSharp.CharacterCreation {
-    public enum ChargenScreenState {
+namespace MudSharp.CharacterCreation
+{
+    public enum ChargenScreenState
+    {
         Incomplete,
         PartiallyComplete,
         Complete
     }
 
-    public interface IChargenScreen {
+    public interface IChargenScreen
+    {
         ChargenScreenState State { get; }
         ChargenStage AssociatedStage { get; }
         IChargenScreen NextScreen { get; }

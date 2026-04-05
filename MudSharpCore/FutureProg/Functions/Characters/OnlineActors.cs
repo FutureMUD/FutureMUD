@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
@@ -40,7 +40,7 @@ internal class OnlineActors : BuiltInFunction
 
     public override ProgVariableTypes ReturnType
     {
-        get { return ProgVariableTypes.Character | ProgVariableTypes.Collection; }
+        get => ProgVariableTypes.Character | ProgVariableTypes.Collection;
         protected set { }
     }
 

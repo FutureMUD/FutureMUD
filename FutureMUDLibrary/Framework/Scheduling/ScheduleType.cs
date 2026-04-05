@@ -1,8 +1,10 @@
-﻿namespace MudSharp.Framework.Scheduling {
+﻿namespace MudSharp.Framework.Scheduling
+{
     /// <summary>
     ///     This enum provides -specific- identification for each schedule.
     /// </summary>
-    public enum ScheduleType {
+    public enum ScheduleType
+    {
         TEST = 0,
         Effect = 1,
         System = 2,

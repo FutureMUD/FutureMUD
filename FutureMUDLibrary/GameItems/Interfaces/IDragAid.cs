@@ -1,5 +1,7 @@
-﻿namespace MudSharp.GameItems.Interfaces {
-    public interface IDragAid : IGameItemComponent {
+﻿namespace MudSharp.GameItems.Interfaces
+{
+    public interface IDragAid : IGameItemComponent
+    {
         double EffortMultiplier { get; }
         int MaximumUsers { get; }
     }

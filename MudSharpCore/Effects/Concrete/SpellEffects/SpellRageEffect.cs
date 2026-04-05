@@ -1,8 +1,8 @@
-using System;
-using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -20,7 +20,7 @@ public class SpellRageEffect : MagicSpellEffectBase, IRageEffect
 
     protected SpellRageEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
-        var tr = root.Element("Effect");
+        XElement tr = root.Element("Effect");
         IntensityPerGramMass = double.Parse(tr.Element("Intensity").Value);
     }
 

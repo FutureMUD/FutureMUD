@@ -1,11 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.PerceptionEngine;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace MudSharp.Health.Bloodtypes;
 
@@ -27,7 +27,8 @@ public class Bloodtype : SaveableItem, IBloodtype
         _name = name;
         using (new FMDB())
         {
-            var dbitem = new MudSharp.Models.Bloodtype { Name = name };
+            Models.Bloodtype dbitem = new()
+            { Name = name };
             FMDB.Context.Bloodtypes.Add(dbitem);
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -38,10 +39,10 @@ public class Bloodtype : SaveableItem, IBloodtype
 
     public override void Save()
     {
-        var dbitem = FMDB.Context.Bloodtypes.Find(Id);
+        Models.Bloodtype? dbitem = FMDB.Context.Bloodtypes.Find(Id);
         dbitem.Name = Name;
         FMDB.Context.BloodtypesBloodtypeAntigens.RemoveRange(dbitem.BloodtypesBloodtypeAntigens);
-        foreach (var antigen in _antigens)
+        foreach (IBloodtypeAntigen antigen in _antigens)
         {
             dbitem.BloodtypesBloodtypeAntigens.Add(new MudSharp.Models.BloodtypesBloodtypeAntigens
             {
@@ -56,8 +57,10 @@ public class Bloodtype : SaveableItem, IBloodtype
     private readonly List<IBloodtypeAntigen> _antigens = new();
     public IEnumerable<IBloodtypeAntigen> Antigens => _antigens;
 
-    public bool IsCompatibleWithDonorBlood(IBloodtype donorBloodtype) =>
-        donorBloodtype.Antigens.All(x => _antigens.Contains(x));
+    public bool IsCompatibleWithDonorBlood(IBloodtype donorBloodtype)
+    {
+        return donorBloodtype.Antigens.All(x => _antigens.Contains(x));
+    }
 
     public const string HelpText = @"You can use the following options with this command:
 
@@ -87,7 +90,7 @@ antigen <antigen> - toggles an antigen for this blood type";
             return false;
         }
 
-        var name = command.SafeRemainingArgument.TitleCase();
+        string name = command.SafeRemainingArgument.TitleCase();
         if (Gameworld.Bloodtypes.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send($"There is already a blood type named {name.ColourName()}.");
@@ -108,7 +111,7 @@ antigen <antigen> - toggles an antigen for this blood type";
             return false;
         }
 
-        var antigen = Gameworld.BloodtypeAntigens.GetByIdOrName(command.SafeRemainingArgument);
+        IBloodtypeAntigen? antigen = Gameworld.BloodtypeAntigens.GetByIdOrName(command.SafeRemainingArgument);
         if (antigen is null)
         {
             actor.OutputHandler.Send($"There is no blood antigen identified by {command.SafeRemainingArgument.ColourCommand()}.");
@@ -132,7 +135,7 @@ antigen <antigen> - toggles an antigen for this blood type";
 
     public string Show(ICharacter actor)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine($"Blood Type #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine();
         sb.AppendLine($"Antigens: {_antigens.Select(x => x.Name.ColourValue()).ListToString()}");

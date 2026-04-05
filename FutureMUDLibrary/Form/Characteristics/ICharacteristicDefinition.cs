@@ -1,11 +1,13 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System;
+using System.Text.RegularExpressions;
 
-namespace MudSharp.Form.Characteristics {
-    public enum CharacteristicType {
+namespace MudSharp.Form.Characteristics
+{
+    public enum CharacteristicType
+    {
         RelativeHeight = 0,
         Standard = 1,
         Coloured = 2,
@@ -13,9 +15,12 @@ namespace MudSharp.Form.Characteristics {
         Growable = 4
     }
 
-    public static class CharacteristicTypeExtensions {
-        public static string Describe(this CharacteristicType type) {
-            switch (type) {
+    public static class CharacteristicTypeExtensions
+    {
+        public static string Describe(this CharacteristicType type)
+        {
+            switch (type)
+            {
                 case CharacteristicType.Coloured:
                     return "Coloured";
                 case CharacteristicType.Multiform:
@@ -31,8 +36,10 @@ namespace MudSharp.Form.Characteristics {
             }
         }
 
-        public static string Describe(this CharacterGenerationDisplayType type) {
-            switch (type) {
+        public static string Describe(this CharacterGenerationDisplayType type)
+        {
+            switch (type)
+            {
                 case CharacterGenerationDisplayType.DisplayAll:
                     return "Display All";
                 case CharacterGenerationDisplayType.GroupByBasic:
@@ -45,13 +52,15 @@ namespace MudSharp.Form.Characteristics {
         }
     }
 
-    public enum CharacterGenerationDisplayType {
+    public enum CharacterGenerationDisplayType
+    {
         DisplayAll = 0,
         GroupByBasic = 1,
         DisplayTable = 2
     }
-    
-    public interface ICharacteristicDefinition : IFrameworkItem, ISaveable {
+
+    public interface ICharacteristicDefinition : IFrameworkItem, ISaveable
+    {
         /// <summary>
         ///     The Regex that matches this characteristic definition
         /// </summary>

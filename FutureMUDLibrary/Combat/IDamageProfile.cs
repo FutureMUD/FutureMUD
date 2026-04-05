@@ -2,8 +2,10 @@
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.Combat {
-    public interface IDamageProfile {
+namespace MudSharp.Combat
+{
+    public interface IDamageProfile
+    {
         Difficulty BaseAttackerDifficulty { get; set; }
         Difficulty BaseBlockDifficulty { get; set; }
         Difficulty BaseDodgeDifficulty { get; set; }

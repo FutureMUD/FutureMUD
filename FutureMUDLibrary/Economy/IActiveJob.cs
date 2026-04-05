@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
 using MudSharp.Work.Projects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Economy
 {
-    #nullable enable
+#nullable enable
     public interface IActiveJob : IFrameworkItem, ISaveable
     {
         IJobListing Listing { get; }

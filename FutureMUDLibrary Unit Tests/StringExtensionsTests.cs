@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MudSharp.Framework;
-using MudSharp.Accounts;
 using Moq;
+using MudSharp.Accounts;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,15 +130,15 @@ public class StringExtensionsTests
     [TestMethod]
     public void ReplaceFirst_StringOverload()
     {
-        Assert.AreEqual("fooYYbarXX", "fooXXbarXX".ReplaceFirst("XX","YY"));
-        Assert.AreEqual("foobar", "foobar".ReplaceFirst("XX","YY"));
+        Assert.AreEqual("fooYYbarXX", "fooXXbarXX".ReplaceFirst("XX", "YY"));
+        Assert.AreEqual("foobar", "foobar".ReplaceFirst("XX", "YY"));
     }
 
     [TestMethod]
     public void ReplaceFirst_CharOverload()
     {
-        Assert.AreEqual("fZobar", "foobar".ReplaceFirst('o','Z'));
-        Assert.AreEqual("abc", "abc".ReplaceFirst('x','y'));
+        Assert.AreEqual("fZobar", "foobar".ReplaceFirst('o', 'Z'));
+        Assert.AreEqual("abc", "abc".ReplaceFirst('x', 'y'));
     }
 
     [TestMethod]
@@ -164,10 +164,11 @@ public class StringExtensionsTests
     [TestMethod]
     public void HasWord_SearchesList()
     {
-        var words = new List<string>{"foo","bar"};
+        List<string> words = new()
+        { "foo","bar"};
         Assert.IsTrue(words.HasWord("foo"));
-        Assert.IsFalse(words.HasWord("f", abbreviated:false));
-        Assert.IsTrue(words.HasWord(new[]{"foo","bar"}));
+        Assert.IsFalse(words.HasWord("f", abbreviated: false));
+        Assert.IsTrue(words.HasWord(new[] { "foo", "bar" }));
     }
 
     [TestMethod]
@@ -196,14 +197,14 @@ public class StringExtensionsTests
     [TestMethod]
     public void EqualToAny_ChecksCollection()
     {
-        Assert.IsTrue("a".EqualToAny("b","A"));
-        Assert.IsFalse("a".EqualToAny("b","c"));
+        Assert.IsTrue("a".EqualToAny("b", "A"));
+        Assert.IsFalse("a".EqualToAny("b", "c"));
     }
 
     [TestMethod]
     public void Strip_RemovesChars()
     {
-        Assert.AreEqual("ace", "abcde".Strip(c => c=='b' || c=='d'));
+        Assert.AreEqual("ace", "abcde".Strip(c => c == 'b' || c == 'd'));
     }
 
     [TestMethod]
@@ -222,7 +223,7 @@ public class StringExtensionsTests
     [TestMethod]
     public void NormaliseSpacing_IgnoresPunctuationWhenRequested()
     {
-        var text = "Hello ,  world !This   is  test.";
+        string text = "Hello ,  world !This   is  test.";
         Assert.AreEqual("Hello , world !This is test.", text.NormaliseSpacing(true));
     }
 
@@ -236,43 +237,43 @@ public class StringExtensionsTests
     [TestMethod]
     public void RawText_StripsAnsiAndMxp()
     {
-        var text = $"{Telnet.Red}abc{Telnet.RESET}{MXP.BeginMXP}tag{MXP.EndMXP}d";
+        string text = $"{Telnet.Red}abc{Telnet.RESET}{MXP.BeginMXP}tag{MXP.EndMXP}d";
         Assert.AreEqual("abcd", text.RawText());
     }
 
     [TestMethod]
     public void RawTextLength_IgnoresCodes()
     {
-        var text = $"{Telnet.Red}abc{Telnet.RESET}";
+        string text = $"{Telnet.Red}abc{Telnet.RESET}";
         Assert.AreEqual(3, text.RawTextLength());
     }
 
     [TestMethod]
     public void RawTextSubstring_ReturnsPlainSubstring()
     {
-        Assert.AreEqual("cdef", "abcdef".RawTextSubstring(2,5));
+        Assert.AreEqual("cdef", "abcdef".RawTextSubstring(2, 5));
     }
 
     [TestMethod]
     public void RawTextSubstring_ReturnsAnsiSubstring()
     {
-        var text = $"{Telnet.Green}abc{Telnet.RESET}def";
-        var expected = $"{Telnet.Green}abc{Telnet.RESET}def";
-        Assert.AreEqual(expected, text.RawTextSubstring(0,6));
+        string text = $"{Telnet.Green}abc{Telnet.RESET}def";
+        string expected = $"{Telnet.Green}abc{Telnet.RESET}def";
+        Assert.AreEqual(expected, text.RawTextSubstring(0, 6));
     }
 
     [TestMethod]
     public void RawTextSubstring_HandlesCodes()
     {
-        var text = $"{Telnet.Red}abc{Telnet.RESET}de";
-        var expected = $"c{Telnet.RESET}d";
-        Assert.AreEqual(expected, text.RawTextSubstring(2,2));
+        string text = $"{Telnet.Red}abc{Telnet.RESET}de";
+        string expected = $"c{Telnet.RESET}d";
+        Assert.AreEqual(expected, text.RawTextSubstring(2, 2));
     }
 
     [TestMethod]
     public void RawTextPadLeftRight_PadsProperly()
     {
-        var raw = $"{Telnet.Red}ab{Telnet.RESET}";
+        string raw = $"{Telnet.Red}ab{Telnet.RESET}";
         Assert.IsTrue(raw.RawTextPadLeft(4).EndsWith(raw));
         Assert.IsTrue(raw.RawTextPadRight(4).StartsWith(raw));
     }
@@ -280,14 +281,14 @@ public class StringExtensionsTests
     [TestMethod]
     public void RemoveBlankLines_RemovesExtraBlankLines()
     {
-        var input = "Line1\n\n\nLine2\n";
+        string input = "Line1\n\n\nLine2\n";
         Assert.AreEqual("Line1\n\nLine2\n", input.RemoveBlankLines());
     }
 
     [TestMethod]
     public void RemoveBlankLines_RemovesAllWhenConfigured()
     {
-        var input = "Line1\n\nLine2\n";
+        string input = "Line1\n\nLine2\n";
         Assert.AreEqual("Line1\nLine2\n", input.RemoveBlankLines(false));
     }
 
@@ -300,8 +301,8 @@ public class StringExtensionsTests
     [TestMethod]
     public void SplitStringsForDiscord_SplitsAt1950()
     {
-        var message = new string('a', 1900) + "\n" + new string('b', 100);
-        var parts = message.SplitStringsForDiscord().ToList();
+        string message = new string('a', 1900) + "\n" + new string('b', 100);
+        List<string> parts = message.SplitStringsForDiscord().ToList();
         Assert.AreEqual(2, parts.Count);
         Assert.AreEqual(1900, parts[0].Length);
         Assert.AreEqual(100, parts[1].Length);
@@ -310,19 +311,19 @@ public class StringExtensionsTests
     [TestMethod]
     public void RawTextForDiscord_ReplacesColours()
     {
-        var text = $"{Telnet.Red}abc{Telnet.RESET}";
+        string text = $"{Telnet.Red}abc{Telnet.RESET}";
         Assert.AreEqual("**abc**", text.RawTextForDiscord());
     }
 
     [TestMethod]
     public void GetLineWithTitle_UsesAccountSettings()
     {
-        var account = new Mock<IAccount>();
+        Mock<IAccount> account = new();
         account.SetupGet(a => a.LineFormatLength).Returns(40);
         account.SetupGet(a => a.UseUnicode).Returns(true);
-        var person = new Mock<IHaveAccount>();
+        Mock<IHaveAccount> person = new();
         person.SetupGet(p => p.Account).Returns(account.Object);
-        var result = "Title".GetLineWithTitle(person.Object, null, null);
+        string result = "Title".GetLineWithTitle(person.Object, null, null);
         Assert.IsTrue(result.Contains("Title"));
         Assert.AreEqual(40, result.RawTextLength());
     }
@@ -330,12 +331,12 @@ public class StringExtensionsTests
     [TestMethod]
     public void GetLineWithTitleInner_UsesInnerLengthAndAscii()
     {
-        var account = new Mock<IAccount>();
+        Mock<IAccount> account = new();
         account.SetupGet(a => a.InnerLineFormatLength).Returns(30);
         account.SetupGet(a => a.UseUnicode).Returns(false);
-        var person = new Mock<IHaveAccount>();
+        Mock<IHaveAccount> person = new();
         person.SetupGet(p => p.Account).Returns(account.Object);
-        var result = "Title".GetLineWithTitleInner(person.Object, null, null);
+        string result = "Title".GetLineWithTitleInner(person.Object, null, null);
         Assert.AreEqual("=======[ Title ]==============", result);
     }
 
@@ -369,7 +370,8 @@ public class StringExtensionsTests
     [TestMethod]
     public void NameOrAppendNumberToName_AddsNext()
     {
-        var list = new List<string>{"item","item1","item3"};
+        List<string> list = new()
+        { "item","item1","item3"};
         Assert.AreEqual("item4", list.NameOrAppendNumberToName("item"));
         Assert.AreEqual("new", list.NameOrAppendNumberToName("new"));
     }
@@ -397,16 +399,16 @@ public class StringExtensionsTests
     [TestMethod]
     public void Wrap_Simple()
     {
-        var wrapped = "a b c d".Wrap(3);
+        string wrapped = "a b c d".Wrap(3);
         Assert.IsTrue(wrapped.Contains("\n"));
     }
 
     [TestMethod]
     public void Wrap_CustomIndent_MultipleLines()
     {
-        var text = "one two three four";
-        var wrapped = text.Wrap(10, "--");
-        var newline = Environment.NewLine;
+        string text = "one two three four";
+        string wrapped = text.Wrap(10, "--");
+        string newline = Environment.NewLine;
         Assert.AreEqual($"--one two{newline}--three four", wrapped);
     }
 
@@ -419,112 +421,112 @@ public class StringExtensionsTests
     [TestMethod]
     public void NormaliseOutputSentences_Capitalises()
     {
-        var result = "hello world. this is a test.".NormaliseOutputSentences();
+        string result = "hello world. this is a test.".NormaliseOutputSentences();
         Assert.AreEqual("Hello world. This is a test.", result);
     }
 
     [TestMethod]
     public void ConvertEncodings_Work()
     {
-        var latin1 = "café".ConvertToLatin1();
+        string latin1 = "café".ConvertToLatin1();
         Assert.IsNotNull(latin1);
-        var ascii = "café".ConvertToAscii();
+        string ascii = "café".ConvertToAscii();
         Assert.IsTrue(ascii.Contains("cafe"));
     }
 
     [TestMethod]
     public void ToTitleCaseAP_FormatsAccordingToRules()
     {
-        var result = "the quick brown fox jumps over the lazy dog".ToTitleCaseAP();
+        string result = "the quick brown fox jumps over the lazy dog".ToTitleCaseAP();
         Assert.AreEqual("The Quick Brown Fox Jumps Over the Lazy Dog", result);
     }
 
-	[TestMethod]
-	public void RawTextSubstring_StartIndexOnly_ReturnsExpectedSegment()
-	{
-		Assert.AreEqual("cdef", "abcdef".RawTextSubstring(2));
-	}
+    [TestMethod]
+    public void RawTextSubstring_StartIndexOnly_ReturnsExpectedSegment()
+    {
+        Assert.AreEqual("cdef", "abcdef".RawTextSubstring(2));
+    }
 
-	[TestMethod]
-	public void RawTextPad_NoPaddingWhenLongEnough_ReturnsOriginal()
-	{
-		Assert.AreEqual("abcd", "abcd".RawTextPadLeft(2));
-		Assert.AreEqual("abcd", "abcd".RawTextPadRight(2));
-	}
+    [TestMethod]
+    public void RawTextPad_NoPaddingWhenLongEnough_ReturnsOriginal()
+    {
+        Assert.AreEqual("abcd", "abcd".RawTextPadLeft(2));
+        Assert.AreEqual("abcd", "abcd".RawTextPadRight(2));
+    }
 
-	[TestMethod]
-	public void Wrap_WidthLessThanOne_ReturnsOriginal()
-	{
-		var text = "one two";
-		Assert.AreEqual(text, text.Wrap(0));
-	}
+    [TestMethod]
+    public void Wrap_WidthLessThanOne_ReturnsOriginal()
+    {
+        string text = "one two";
+        Assert.AreEqual(text, text.Wrap(0));
+    }
 
-	[TestMethod]
-	public void Wrap_NoWrapPrefix_StripsPrefix()
-	{
-		var text = $"{Telnet.NoWordWrapChar}Do not wrap";
-		Assert.AreEqual("Do not wrap", text.Wrap(4));
-	}
+    [TestMethod]
+    public void Wrap_NoWrapPrefix_StripsPrefix()
+    {
+        string text = $"{Telnet.NoWordWrapChar}Do not wrap";
+        Assert.AreEqual("Do not wrap", text.Wrap(4));
+    }
 
-	[TestMethod]
-	public void Wrap_TrailingNewline_IsPreserved()
-	{
-		var text = "a b\n";
-		var wrapped = text.Wrap(10);
-		Assert.IsTrue(wrapped.EndsWith("\n", StringComparison.Ordinal));
-	}
+    [TestMethod]
+    public void Wrap_TrailingNewline_IsPreserved()
+    {
+        string text = "a b\n";
+        string wrapped = text.Wrap(10);
+        Assert.IsTrue(wrapped.EndsWith("\n", StringComparison.Ordinal));
+    }
 
-	[TestMethod]
-	public void NormaliseOutputSentences_PreservesCodesAndPunctuation()
-	{
-		var input = $"{Telnet.Red}hello{Telnet.RESET}!? {MXP.BeginMXP}tag{MXP.EndMXP}wow!!!";
-		var result = input.NormaliseOutputSentences();
-		Assert.IsTrue(result.Contains(Telnet.Red.ToString(), StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains(Telnet.RESET, StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains(MXP.BeginMXP, StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains(MXP.EndMXP, StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains("Hello", StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains($"{Telnet.RESET}!?", StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains("Wow!", StringComparison.Ordinal));
-	}
+    [TestMethod]
+    public void NormaliseOutputSentences_PreservesCodesAndPunctuation()
+    {
+        string input = $"{Telnet.Red}hello{Telnet.RESET}!? {MXP.BeginMXP}tag{MXP.EndMXP}wow!!!";
+        string result = input.NormaliseOutputSentences();
+        Assert.IsTrue(result.Contains(Telnet.Red.ToString(), StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains(Telnet.RESET, StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains(MXP.BeginMXP, StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains(MXP.EndMXP, StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains("Hello", StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains($"{Telnet.RESET}!?", StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains("Wow!", StringComparison.Ordinal));
+    }
 
-	[TestMethod]
-	public void ProperSentences_UppercasesAfterSentenceEnd()
-	{
-		var input = "hello. this is a test.";
-		Assert.AreEqual("Hello. This is a test.", input.ProperSentences());
-	}
+    [TestMethod]
+    public void ProperSentences_UppercasesAfterSentenceEnd()
+    {
+        string input = "hello. this is a test.";
+        Assert.AreEqual("Hello. This is a test.", input.ProperSentences());
+    }
 
-	[TestMethod]
-	public void GetLineWithTitle_WithColours_IncludesAnsiCodes()
-	{
-		var result = "Title".GetLineWithTitle(20, false, Telnet.Green, Telnet.Cyan);
-		Assert.IsTrue(result.Contains(Telnet.Green.Colour, StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains(Telnet.Cyan.Colour, StringComparison.Ordinal));
-		Assert.IsTrue(result.Contains(Telnet.RESET, StringComparison.Ordinal));
-	}
+    [TestMethod]
+    public void GetLineWithTitle_WithColours_IncludesAnsiCodes()
+    {
+        string result = "Title".GetLineWithTitle(20, false, Telnet.Green, Telnet.Cyan);
+        Assert.IsTrue(result.Contains(Telnet.Green.Colour, StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains(Telnet.Cyan.Colour, StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains(Telnet.RESET, StringComparison.Ordinal));
+    }
 
-	[TestMethod]
-	public void SplitStringsForDiscord_NoNewline_SplitsAtLimit()
-	{
-		var message = new string('a', 2000);
-		var parts = message.SplitStringsForDiscord().ToList();
-		Assert.AreEqual(2, parts.Count);
-		Assert.AreEqual(1950, parts[0].Length);
-		Assert.AreEqual(50, parts[1].Length);
-	}
+    [TestMethod]
+    public void SplitStringsForDiscord_NoNewline_SplitsAtLimit()
+    {
+        string message = new('a', 2000);
+        List<string> parts = message.SplitStringsForDiscord().ToList();
+        Assert.AreEqual(2, parts.Count);
+        Assert.AreEqual(1950, parts[0].Length);
+        Assert.AreEqual(50, parts[1].Length);
+    }
 
-	[TestMethod]
-	public void TransformRegexIntoPattern_RemovesRegexSyntax()
-	{
-		var regex = new Regex("^foo(bar|baz)$");
-		Assert.AreEqual("foobar", regex.TransformRegexIntoPattern());
-	}
+    [TestMethod]
+    public void TransformRegexIntoPattern_RemovesRegexSyntax()
+    {
+        Regex regex = new("^foo(bar|baz)$");
+        Assert.AreEqual("foobar", regex.TransformRegexIntoPattern());
+    }
 
-	[TestMethod]
-	public void IncrementNumberOrAddNumber_LargeNumber_NoGrouping()
-	{
-		Assert.AreEqual("item1000", "item999".IncrementNumberOrAddNumber());
-	}
+    [TestMethod]
+    public void IncrementNumberOrAddNumber_LargeNumber_NoGrouping()
+    {
+        Assert.AreEqual("item1000", "item999".IncrementNumberOrAddNumber());
+    }
 }
 

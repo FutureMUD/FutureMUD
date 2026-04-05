@@ -22,7 +22,7 @@ public class NonCommunicatorCommunicationStrategy : IBodyCommunicationStrategy
     public void Emote(IBody body, string emote, bool permitSpeech = true,
         OutputFlags additionalConditions = OutputFlags.Normal)
     {
-        var emoteData = new PlayerEmote(emote, body.Actor, true, PermitLanguageOptions.IgnoreLanguage);
+        PlayerEmote emoteData = new(emote, body.Actor, true, PermitLanguageOptions.IgnoreLanguage);
         if (emoteData.Valid)
         {
             body.OutputHandler.Handle(new EmoteOutput(emoteData, flags: additionalConditions));

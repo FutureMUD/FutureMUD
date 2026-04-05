@@ -4,36 +4,36 @@ namespace MudSharp.Communication.Language.Scramblers;
 
 public class ElectronicWordMaskScrambler : WordMaskScrambler
 {
-	protected ElectronicWordMaskScrambler()
-	{
-	}
+    protected ElectronicWordMaskScrambler()
+    {
+    }
 
-	public new static ElectronicWordMaskScrambler Instance { get; } = new();
+    public new static ElectronicWordMaskScrambler Instance { get; } = new();
 
-	#region Overrides of WordMaskScrambler
+    #region Overrides of WordMaskScrambler
 
-	public override string Mask
-	{
-		get
-		{
-			switch (Dice.Roll(1, 5))
-			{
-				case 1:
-					return "...";
-				case 2:
-					return "*pop*";
-				case 3:
-					return "*whistle*";
-				case 4:
-					return "*indistinct*";
-				case 5:
-					return "*scratch*";
-			}
+    public override string Mask
+    {
+        get
+        {
+            switch (Dice.Roll(1, 5))
+            {
+                case 1:
+                    return "...";
+                case 2:
+                    return "*pop*";
+                case 3:
+                    return "*whistle*";
+                case 4:
+                    return "*indistinct*";
+                case 5:
+                    return "*scratch*";
+            }
 
-			return string.Empty;
-		}
-		protected set { }
-	}
+            return string.Empty;
+        }
+        protected set { }
+    }
 
-	#endregion
+    #endregion
 }

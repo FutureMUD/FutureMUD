@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Health {
-    public enum WoundHealingTickResult {
+﻿namespace MudSharp.Health
+{
+    public enum WoundHealingTickResult
+    {
         NoHealBleeding,
         NoHealInCombat,
         NoHealLodged,
@@ -10,7 +12,8 @@
         NoHealNotSuturedAutoClosed,
         Healed
     }
-    public enum ExertionType {
+    public enum ExertionType
+    {
         NonExertive = 0, // the action does not register as a physical exertion
         Reflexive = 1, // breathing, etc
         VeryLight = 2,
@@ -21,7 +24,8 @@
         Extreme = 7
     }
 
-    public enum TreatmentType {
+    public enum TreatmentType
+    {
         None = 0,
         Antiseptic = 1, // stops infection
         Trauma = 2, // stops bleeding
@@ -37,7 +41,8 @@
         SurgicalSet = 12, // Surgical setting and reinforcement of a broken bone
     }
 
-    public enum WoundSeverity {
+    public enum WoundSeverity
+    {
         None = 0,
         Superficial = 1,
         Minor = 2,
@@ -49,7 +54,8 @@
         Horrifying = 8
     }
 
-    public enum DamageType {
+    public enum DamageType
+    {
         Slashing = 0,
         Chopping = 1,
         Crushing = 2,
@@ -76,7 +82,8 @@
         ArmourPiercing = 23
     }
 
-    public enum WoundExaminationType {
+    public enum WoundExaminationType
+    {
         /// <summary>
         ///     A glance is a look in a stressful scenario, for example when in combat
         /// </summary>
@@ -110,7 +117,8 @@
         Self = 6
     }
 
-    public enum BleedStatus {
+    public enum BleedStatus
+    {
         /// <summary>
         ///     NeverBled means this wound was never bleeding and never will be
         /// </summary>

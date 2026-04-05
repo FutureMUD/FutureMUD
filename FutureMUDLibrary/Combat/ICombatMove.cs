@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MudSharp.Combat {
-    public class CombatMoveResult {
+namespace MudSharp.Combat
+{
+    public class CombatMoveResult
+    {
         public static CombatMoveResult Irrelevant { get; } = new()
         {
             MoveWasSuccessful = false,
@@ -25,7 +27,8 @@ namespace MudSharp.Combat {
         public IEnumerable<IWound> SelfWoundsCaused { get; set; } = Enumerable.Empty<IWound>();
     }
 
-    public interface ICombatMove : IHaveFuturemud {
+    public interface ICombatMove : IHaveFuturemud
+    {
         string Description { get; }
         double StaminaCost { get; }
         Difficulty CheckDifficulty { get; }

@@ -1,7 +1,7 @@
-﻿using System;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System;
 
 namespace MudSharp.RPG.Knowledge
 {

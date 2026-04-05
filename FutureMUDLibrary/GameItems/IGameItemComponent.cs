@@ -1,5 +1,4 @@
-﻿using System;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -8,12 +7,15 @@ using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System;
 
-namespace MudSharp.GameItems {
+namespace MudSharp.GameItems
+{
     /// <summary>
     ///     An IGameItemComponent is a sub-type of item with some specific function
     /// </summary>
-    public interface IGameItemComponent : IFrameworkItem, ISaveable, IHandleEvents {
+    public interface IGameItemComponent : IFrameworkItem, ISaveable, IHandleEvents
+    {
         IGameItem Parent { get; }
         IGameItemComponentProto Prototype { get; }
 

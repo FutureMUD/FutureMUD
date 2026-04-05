@@ -1,158 +1,156 @@
-using System.Linq;
-using MudSharp.Framework;
 using MudSharp.Character;
+using MudSharp.Framework;
+using System.Linq;
 
 namespace MudSharp.Framework.Save;
 
 #nullable enable
 public abstract class SaveableItem : FrameworkItem, ISaveable
 {
-	public override long Id
-	{
-		get
-		{
-			// If a SaveableItem is asked for its ID, it may not have saved yet - save first
-			if (_id == 0 && !_noSave)
-			{
-				Gameworld.SaveManager.Flush();
-			}
+    public override long Id
+    {
+        get
+        {
+            // If a SaveableItem is asked for its ID, it may not have saved yet - save first
+            if (_id == 0 && !_noSave)
+            {
+                Gameworld.SaveManager.Flush();
+            }
 
-			return _id;
-		}
-		set => _id = value;
-	}
+            return _id;
+        }
+        set => _id = value;
+    }
 
-	#region IHaveFuturemud Members
+    #region IHaveFuturemud Members
 
-	private IFuturemud? _gameworld;
+    private IFuturemud? _gameworld;
 
-	public IFuturemud Gameworld
-	{
-		get => _gameworld ??= Futuremud.Games.First();
-		protected init { _gameworld = value; }
-	}
+    public IFuturemud Gameworld
+    {
+        get => _gameworld ??= Futuremud.Games.First(); protected init => _gameworld = value;
+    }
 
-	#endregion
+    #endregion
 
-	#region ISaveable Members
+    #region ISaveable Members
 
-	protected bool _noSave = false;
-	private bool _changed;
+    protected bool _noSave = false;
+    private bool _changed;
 
-	public bool Changed
-	{
-		get => _changed;
-		set
-		{
-			if (value)
-			{
-				if (!_changed && !_noSave && Gameworld != null)
-				{
-					Gameworld.SaveManager.Add(this);
-					_changed = true;
-				}
-			}
-			else
-			{
-				_changed = false;
-			}
-		}
-	}
+    public bool Changed
+    {
+        get => _changed;
+        set
+        {
+            if (value)
+            {
+                if (!_changed && !_noSave && Gameworld != null)
+                {
+                    Gameworld.SaveManager.Add(this);
+                    _changed = true;
+                }
+            }
+            else
+            {
+                _changed = false;
+            }
+        }
+    }
 
-	public abstract void Save();
+    public abstract void Save();
 
-	public void SetNoSave(bool value)
-	{
-		_noSave = value;
-		if (!value)
-		{
-			return;
-		}
+    public void SetNoSave(bool value)
+    {
+        _noSave = value;
+        if (!value)
+        {
+            return;
+        }
 
-		_changed = false;
-		_gameworld?.SaveManager.Abort(this);
-	}
+        _changed = false;
+        _gameworld?.SaveManager.Abort(this);
+    }
 
-	public bool GetNoSave()
-	{
-		return _noSave;
-	}
+    public bool GetNoSave()
+    {
+        return _noSave;
+    }
 
-	#endregion
+    #endregion
 }
 
 public abstract class SavableKeywordedItem : KeywordedItem, ISaveable
 {
-	public override long Id
-	{
-		get
-		{
-			// If a SavableKeywordedItem is asked for its ID, it may not have saved yet - save first
-			if (_id == 0 && !_noSave)
-			{
-				Gameworld.SaveManager.Flush();
-			}
+    public override long Id
+    {
+        get
+        {
+            // If a SavableKeywordedItem is asked for its ID, it may not have saved yet - save first
+            if (_id == 0 && !_noSave)
+            {
+                Gameworld.SaveManager.Flush();
+            }
 
-			return _id;
-		}
-		set => _id = value;
-	}
+            return _id;
+        }
+        set => _id = value;
+    }
 
-	#region IHaveFuturemud Members
+    #region IHaveFuturemud Members
 
-	private IFuturemud? _gameworld;
+    private IFuturemud? _gameworld;
 
-	public IFuturemud Gameworld
-	{
-		get => _gameworld ?? Futuremud.Games.First();
-		protected set { _gameworld = value; }
-	}
+    public IFuturemud Gameworld
+    {
+        get => _gameworld ?? Futuremud.Games.First(); protected set => _gameworld = value;
+    }
 
-	#endregion
+    #endregion
 
-	#region ISaveable Members
+    #region ISaveable Members
 
-	protected bool _noSave = false;
-	private bool _changed;
+    protected bool _noSave = false;
+    private bool _changed;
 
-	public bool Changed
-	{
-		get => _changed;
-		set
-		{
-			if (value)
-			{
-				if (!_changed && !_noSave)
-				{
-					Gameworld?.SaveManager.Add(this);
-					_changed = true;
-				}
-			}
-			else
-			{
-				_changed = false;
-			}
-		}
-	}
+    public bool Changed
+    {
+        get => _changed;
+        set
+        {
+            if (value)
+            {
+                if (!_changed && !_noSave)
+                {
+                    Gameworld?.SaveManager.Add(this);
+                    _changed = true;
+                }
+            }
+            else
+            {
+                _changed = false;
+            }
+        }
+    }
 
-	public abstract void Save();
+    public abstract void Save();
 
-	public void SetNoSave(bool value)
-	{
-		_noSave = value;
-		if (!value)
-		{
-			return;
-		}
+    public void SetNoSave(bool value)
+    {
+        _noSave = value;
+        if (!value)
+        {
+            return;
+        }
 
-		_changed = false;
-		_gameworld?.SaveManager.Abort(this);
-	}
+        _changed = false;
+        _gameworld?.SaveManager.Abort(this);
+    }
 
-	public bool GetNoSave()
-	{
-		return _noSave;
-	}
+    public bool GetNoSave()
+    {
+        return _noSave;
+    }
 
-	#endregion
+    #endregion
 }

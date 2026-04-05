@@ -9,34 +9,34 @@ namespace MudSharp.FutureProg.Functions;
 
 internal class DictionaryIndexFunction : Function
 {
-	public string WhichVariable { get; }
-	public IFunction IndexFunction { get; }
+    public string WhichVariable { get; }
+    public IFunction IndexFunction { get; }
 
-	public DictionaryIndexFunction(string whichVariable, IFunction indexFunction, ProgVariableTypes returnType)
-	{
-		WhichVariable = whichVariable;
-		IndexFunction = indexFunction;
-		ReturnType = returnType;
-	}
+    public DictionaryIndexFunction(string whichVariable, IFunction indexFunction, ProgVariableTypes returnType)
+    {
+        WhichVariable = whichVariable;
+        IndexFunction = indexFunction;
+        ReturnType = returnType;
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		var dictionary = (Dictionary<string, IProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
-		if (dictionary == null)
-		{
-			ErrorMessage = "Dictionary was null";
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        Dictionary<string, IProgVariable> dictionary = (Dictionary<string, IProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
+        if (dictionary == null)
+        {
+            ErrorMessage = "Dictionary was null";
+            return StatementResult.Error;
+        }
 
-		var result = IndexFunction.Execute(variables);
-		if (result == StatementResult.Error)
-		{
-			ErrorMessage = IndexFunction.ErrorMessage;
-			return StatementResult.Error;
-		}
+        StatementResult result = IndexFunction.Execute(variables);
+        if (result == StatementResult.Error)
+        {
+            ErrorMessage = IndexFunction.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		var index = IndexFunction.Result?.ToString();
-		Result = index != null && dictionary.ContainsKey(index) ? dictionary[index] : new NullVariable(ReturnType);
-		return StatementResult.Normal;
-	}
+        string index = IndexFunction.Result?.ToString();
+        Result = index != null && dictionary.ContainsKey(index) ? dictionary[index] : new NullVariable(ReturnType);
+        return StatementResult.Normal;
+    }
 }

@@ -1,9 +1,9 @@
 ﻿using JetBrains.Annotations;
+using MudSharp.Framework;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using MudSharp.Framework;
 
 namespace Terrain_Planner_Tool
 {
@@ -13,16 +13,22 @@ namespace Terrain_Planner_Tool
         {
             private Terrain _terrain;
 
-            public Terrain Terrain {
-                get { return _terrain; }
-                set {
-                    if (Equals(value, _terrain)) return;
+            public Terrain Terrain
+            {
+                get => _terrain;
+                set
+                {
+                    if (Equals(value, _terrain))
+                    {
+                        return;
+                    }
+
                     _terrain = value;
                     OnPropertyChanged();
                 }
             }
 
-            private readonly List<string> _features = new List<string>();
+            private readonly List<string> _features = new();
 
             public List<string> Features => _features;
 

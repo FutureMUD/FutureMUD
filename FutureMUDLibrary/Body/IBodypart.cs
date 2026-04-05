@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Combat;
@@ -8,8 +7,10 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using System.Collections.Generic;
 
-namespace MudSharp.Body {
+namespace MudSharp.Body
+{
     public enum BodypartTypeEnum
     {
         Wear = 0,
@@ -49,14 +50,15 @@ namespace MudSharp.Body {
         NonImmobilisingBonyDrapeable = 34,
         SensorArray = 35,
     }
-    
-    public interface IBodypart : IKeywordedItem, IDescribable, IHaveFuturemud, ISaveable, ILateInitialisingItem {
+
+    public interface IBodypart : IKeywordedItem, IDescribable, IHaveFuturemud, ISaveable, ILateInitialisingItem
+    {
 
         [CanBeNull]
         IBodypart UpstreamConnection { get; }
 
         IEnumerable<IOrganProto> Organs { get; }
-        Dictionary<IOrganProto,BodypartInternalInfo> OrganInfo { get; }
+        Dictionary<IOrganProto, BodypartInternalInfo> OrganInfo { get; }
 
         IEnumerable<IBone> Bones { get; }
         Dictionary<IBone, BodypartInternalInfo> BoneInfo { get; }

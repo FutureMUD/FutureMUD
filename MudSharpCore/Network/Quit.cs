@@ -1,7 +1,7 @@
-﻿using System;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
+using System;
 
 namespace MudSharp.Network;
 
@@ -10,47 +10,47 @@ namespace MudSharp.Network;
 /// </summary>
 public class Quit : IControllable
 {
-	IControllable IControllable.SubContext { get; } = null;
+    IControllable IControllable.SubContext { get; } = null;
 
-	IControllable IControllable.NextContext { get; } = null;
+    IControllable IControllable.NextContext { get; } = null;
 
-	public int Timeout => 0;
+    public int Timeout => 0;
 
-	bool IControllable.HasPrompt => false;
+    bool IControllable.HasPrompt => false;
 
-	string IControllable.Prompt => throw new NotSupportedException();
+    string IControllable.Prompt => throw new NotSupportedException();
 
-	public IOutputHandler OutputHandler => new NonPlayerOutputHandler();
+    public IOutputHandler OutputHandler => new NonPlayerOutputHandler();
 
-	public void AssumeControl(IController controller)
-	{
-		Controller = controller;
-		controller.Close();
-		(Controller as ICharacterController)?.UpdateControlFocus(null);
-	}
+    public void AssumeControl(IController controller)
+    {
+        Controller = controller;
+        controller.Close();
+        (Controller as ICharacterController)?.UpdateControlFocus(null);
+    }
 
-	public void SilentAssumeControl(IController controller)
-	{
-		AssumeControl(controller);
-	}
+    public void SilentAssumeControl(IController controller)
+    {
+        AssumeControl(controller);
+    }
 
-	public bool ExecuteCommand(string command)
-	{
-		return false;
-	}
+    public bool ExecuteCommand(string command)
+    {
+        return false;
+    }
 
-	public void LoseControl(IController controller)
-	{
-	}
+    public void LoseControl(IController controller)
+    {
+    }
 
-	public bool HandleSubContext(string command)
-	{
-		return false;
-	}
+    public bool HandleSubContext(string command)
+    {
+        return false;
+    }
 
-	public void Register(IOutputHandler handler)
-	{
-	}
+    public void Register(IOutputHandler handler)
+    {
+    }
 
-	public IController Controller { get; protected set; }
+    public IController Controller { get; protected set; }
 }

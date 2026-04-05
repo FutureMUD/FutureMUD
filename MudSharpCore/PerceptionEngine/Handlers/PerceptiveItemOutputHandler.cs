@@ -1,67 +1,67 @@
-﻿using System;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using System;
 
 namespace MudSharp.PerceptionEngine.Handlers;
 
 public class PerceptiveItemOutputHandler : IOutputHandler
 {
-        private readonly IGameItem _item;
+    private readonly IGameItem _item;
 
-        public PerceptiveItemOutputHandler(IGameItem item)
+    public PerceptiveItemOutputHandler(IGameItem item)
+    {
+        _item = item;
+        Perceiver = item;
+    }
+
+    public IPerceiver Perceiver { get; protected set; }
+
+    public bool HasBufferedOutput => false;
+
+    public string BufferedOutput => null;
+
+    public bool Send(string text, bool newline = true, bool nopage = false)
+    {
+        if (QuietMode || string.IsNullOrEmpty(text))
         {
-                _item = item;
-                Perceiver = item;
+            return false;
         }
 
-        public IPerceiver Perceiver { get; protected set; }
+        this.Handle(text, OutputRange.Local);
+        return true;
+    }
 
-        public bool HasBufferedOutput => false;
-
-        public string BufferedOutput => null;
-
-        public bool Send(string text, bool newline = true, bool nopage = false)
+    public bool Send(IOutput output, bool newline = true, bool nopage = false)
+    {
+        if (output == null)
         {
-                if (QuietMode || string.IsNullOrEmpty(text))
-                {
-                        return false;
-                }
-
-                this.Handle(text, OutputRange.Local);
-                return true;
+            return false;
         }
 
-        public bool Send(IOutput output, bool newline = true, bool nopage = false)
-        {
-                if (output == null)
-                {
-                        return false;
-                }
+        this.Handle(output, OutputRange.Local);
+        return true;
+    }
 
-                this.Handle(output, OutputRange.Local);
-                return true;
-        }
+    public bool SendPrompt()
+    {
+        return false;
+    }
 
-        public bool SendPrompt()
-        {
-                return false;
-        }
+    public void Flush()
+    {
+    }
 
-        public void Flush()
-        {
-        }
+    public bool Register(IPerceiver perceiver)
+    {
+        return false;
+    }
 
-        public bool Register(IPerceiver perceiver)
-        {
-                return false;
-        }
+    public bool QuietMode { get; set; }
 
-	public bool QuietMode { get; set; }
-
-	public void More()
-	{
-		// Do nothing
-	}
+    public void More()
+    {
+        // Do nothing
+    }
 }

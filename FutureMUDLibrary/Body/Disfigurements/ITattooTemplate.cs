@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
-using MudSharp.PerceptionEngine;
+﻿using MudSharp.Character;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
+using MudSharp.PerceptionEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Body.Disfigurements
 {
-    public interface ITattooTemplate : IDisfigurementTemplate {
+    public interface ITattooTemplate : IDisfigurementTemplate
+    {
         SizeCategory Size { get; }
         int TicksToCompleteTattoo { get; }
         bool CanSeeTattooInList(ICharacter character);
         bool CanProduceTattoo(ICharacter character);
         ITattoo ProduceTattoo(ICharacter tatooist, ICharacter target, IBodypart bodypart,
-	        IEnumerable<ITattooTextValue> textValues = null, bool hasUnreadableCopyPenalty = false);
+            IEnumerable<ITattooTextValue> textValues = null, bool hasUnreadableCopyPenalty = false);
         IEnumerable<(IColour Colour, double Amount)> InkColours { get; }
         IInventoryPlan GetInkPlan(ICharacter tattooist);
         IEnumerable<ITattooTemplateTextSlot> TextSlots { get; }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace MudSharp.Framework
 {
-    public interface IUneditableAll<T> : IEnumerable<T> where T : class, IFrameworkItem {
+    public interface IUneditableAll<T> : IEnumerable<T> where T : class, IFrameworkItem
+    {
         bool Has(T value);
         bool Has(long id);
         bool Has(string name);
@@ -17,5 +18,5 @@ namespace MudSharp.Framework
 
         void ForEach(Action<T> action);
         int Count { get; }
-	}
+    }
 }

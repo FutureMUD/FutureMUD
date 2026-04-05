@@ -3,8 +3,10 @@ using MudSharp.Character;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.Health {
-    public interface IDamage {
+namespace MudSharp.Health
+{
+    public interface IDamage
+    {
         DamageType DamageType { get; }
         double DamageAmount { get; }
         double PainAmount { get; }

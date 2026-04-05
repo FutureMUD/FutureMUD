@@ -17,69 +17,69 @@ namespace MudSharp.Effects.Concrete;
 
 public class AwaitingSentencing : Effect, IEffect
 {
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void InitialiseEffectType()
-	{
-		RegisterFactory("AwaitingSentencing", (effect, owner) => new AwaitingSentencing(effect, owner));
-	}
+    public static void InitialiseEffectType()
+    {
+        RegisterFactory("AwaitingSentencing", (effect, owner) => new AwaitingSentencing(effect, owner));
+    }
 
-	#endregion
+    #endregion
 
-	public ILegalAuthority LegalAuthority { get; set; }
-	public MudDateTime ArrestTime { get; set; }
+    public ILegalAuthority LegalAuthority { get; set; }
+    public MudDateTime ArrestTime { get; set; }
 
-	#region Constructors
+    #region Constructors
 
-	public AwaitingSentencing(ICharacter owner, ILegalAuthority legalAuthority, MudDateTime arrestTime) : base(owner,
-		null)
-	{
-		LegalAuthority = legalAuthority;
-		ArrestTime = arrestTime;
-	}
+    public AwaitingSentencing(ICharacter owner, ILegalAuthority legalAuthority, MudDateTime arrestTime) : base(owner,
+        null)
+    {
+        LegalAuthority = legalAuthority;
+        ArrestTime = arrestTime;
+    }
 
-	protected AwaitingSentencing(XElement effect, IPerceivable owner) : base(effect, owner)
-	{
-		var root = effect.Element("Effect");
-		LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-		ArrestTime = new MudDateTime(root.Element("ArrestTime").Value, Gameworld);
-	}
+    protected AwaitingSentencing(XElement effect, IPerceivable owner) : base(effect, owner)
+    {
+        XElement root = effect.Element("Effect");
+        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
+        ArrestTime = new MudDateTime(root.Element("ArrestTime").Value, Gameworld);
+    }
 
-	#endregion
+    #endregion
 
-	#region Saving and Loading
+    #region Saving and Loading
 
-	protected override XElement SaveDefinition()
-	{
-		return new XElement("Effect",
-			new XElement("LegalAuthority", LegalAuthority.Id),
-			new XElement("ArrestTime", new XCData(ArrestTime.GetDateTimeString()))
-		);
-	}
+    protected override XElement SaveDefinition()
+    {
+        return new XElement("Effect",
+            new XElement("LegalAuthority", LegalAuthority.Id),
+            new XElement("ArrestTime", new XCData(ArrestTime.GetDateTimeString()))
+        );
+    }
 
-	#endregion
+    #endregion
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	protected override string SpecificEffectType => "AwaitingSentencing";
+    protected override string SpecificEffectType => "AwaitingSentencing";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return
-			$"Awaiting sentencing in the {LegalAuthority.Name.ColourName()} jurisdiction since {ArrestTime.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return
+            $"Awaiting sentencing in the {LegalAuthority.Name.ColourName()} jurisdiction since {ArrestTime.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
+    }
 
-	public override bool SavingEffect => true;
+    public override bool SavingEffect => true;
 
-	public override bool Applies(object target)
-	{
-		if (target is ILegalAuthority authority)
-		{
-			return base.Applies(target) && authority == LegalAuthority;
-		}
+    public override bool Applies(object target)
+    {
+        if (target is ILegalAuthority authority)
+        {
+            return base.Applies(target) && authority == LegalAuthority;
+        }
 
-		return base.Applies(target);
-	}
+        return base.Applies(target);
+    }
 
-	#endregion
+    #endregion
 }

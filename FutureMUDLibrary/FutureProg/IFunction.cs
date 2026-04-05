@@ -1,5 +1,7 @@
-﻿namespace MudSharp.FutureProg {
-    public enum FunctionType {
+﻿namespace MudSharp.FutureProg
+{
+    public enum FunctionType
+    {
         BinaryLogicComparer,
         BinaryLogicCombiner,
         BinaryOperation,
@@ -14,7 +16,8 @@
         Error
     }
 
-    public interface IFunction : IStatement {
+    public interface IFunction : IStatement
+    {
         IProgVariable Result { get; }
         ProgVariableTypes ReturnType { get; }
     }

@@ -13,37 +13,37 @@ namespace MudSharp.Effects.Concrete;
 
 public class CriticalInjureKnockout : Effect
 {
-	public DateTime WakeupTime { get; set; }
+    public DateTime WakeupTime { get; set; }
 
-	public CriticalInjureKnockout(IPerceivable owner, DateTime wakeupTime) : base(owner, null)
-	{
-		WakeupTime = wakeupTime;
-	}
+    public CriticalInjureKnockout(IPerceivable owner, DateTime wakeupTime) : base(owner, null)
+    {
+        WakeupTime = wakeupTime;
+    }
 
-	protected CriticalInjureKnockout(XElement root, IPerceivable owner) : base(root, owner)
-	{
-		WakeupTime = DateTime.Parse(root.Element("WakeupTime")?.Value ?? DateTime.UtcNow.ToString("O"), null,
-			System.Globalization.DateTimeStyles.RoundtripKind);
-	}
+    protected CriticalInjureKnockout(XElement root, IPerceivable owner) : base(root, owner)
+    {
+        WakeupTime = DateTime.Parse(root.Element("WakeupTime")?.Value ?? DateTime.UtcNow.ToString("O"), null,
+            System.Globalization.DateTimeStyles.RoundtripKind);
+    }
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return "Knocked out from taking critical damage.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return "Knocked out from taking critical damage.";
+    }
 
-	protected override string SpecificEffectType => "CriticalInjureKnockout";
+    protected override string SpecificEffectType => "CriticalInjureKnockout";
 
-	public static void InitialiseEffectType()
-	{
-		RegisterFactory("CriticalInjureKnockout", (effect, owner) => new CriticalInjureKnockout(effect, owner));
-	}
+    public static void InitialiseEffectType()
+    {
+        RegisterFactory("CriticalInjureKnockout", (effect, owner) => new CriticalInjureKnockout(effect, owner));
+    }
 
-	public override bool SavingEffect => true;
+    public override bool SavingEffect => true;
 
-	protected override XElement SaveDefinition()
-	{
-		return new XElement("Effect",
-			new XElement("WakeupTime", WakeupTime.ToString("O"))
-		);
-	}
+    protected override XElement SaveDefinition()
+    {
+        return new XElement("Effect",
+            new XElement("WakeupTime", WakeupTime.ToString("O"))
+        );
+    }
 }

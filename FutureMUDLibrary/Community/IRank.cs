@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.Community {
-    public interface IRank : IFrameworkItem, ISaveable, IProgVariable {
+namespace MudSharp.Community
+{
+    public interface IRank : IFrameworkItem, ISaveable, IProgVariable
+    {
         IClan Clan { get; }
 
         IEnumerable<string> Abbreviations { get; }
@@ -24,7 +26,7 @@ namespace MudSharp.Community {
 
         IGameItemProto InsigniaGameItem { get; set; }
 
-        ClanFameType FameType {get;set;}
+        ClanFameType FameType { get; set; }
 
         int RankNumber { get; set; }
 

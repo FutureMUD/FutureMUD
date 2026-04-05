@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System.Collections.Generic;
 
 namespace MudSharp.Work.Projects
 {

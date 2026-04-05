@@ -1,151 +1,151 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using System.Text;
-using System.Linq;
 using MudSharp.RPG.Checks;
-using MudSharp.Database;
-using MudSharp.Character;
-using MudSharp.Character;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace MudSharp.Form.Audio.HearingProfiles;
 
 public abstract class HearingProfile : SaveableItem, IHearingProfile
 {
-        protected HearingProfile(MudSharp.Models.HearingProfile profile)
+    protected HearingProfile(MudSharp.Models.HearingProfile profile)
+    {
+        _id = profile.Id;
+        _name = profile.Name;
+        SurveyDescription = profile.SurveyDescription;
+    }
+
+    protected HearingProfile(IFuturemud game, string name, string type)
+    {
+        Gameworld = game;
+        _name = name;
+        SurveyDescription = string.Empty;
+        using (new FMDB())
         {
-                _id = profile.Id;
-                _name = profile.Name;
-                SurveyDescription = profile.SurveyDescription;
+            Models.HearingProfile dbitem = new()
+            {
+                Name = name,
+                Type = type,
+                SurveyDescription = SurveyDescription,
+                Definition = "<Definition />"
+            };
+            FMDB.Context.HearingProfiles.Add(dbitem);
+            FMDB.Context.SaveChanges();
+            _id = dbitem.Id;
         }
+    }
 
-        protected HearingProfile(IFuturemud game, string name, string type)
+    public abstract void Initialise(MudSharp.Models.HearingProfile profile, IFuturemud game);
+
+    public static HearingProfile LoadProfile(MudSharp.Models.HearingProfile profile)
+    {
+        switch (profile.Type)
         {
-                Gameworld = game;
-                _name = name;
-                SurveyDescription = string.Empty;
-                using (new FMDB())
-                {
-                        var dbitem = new MudSharp.Models.HearingProfile
-                        {
-                                Name = name,
-                                Type = type,
-                                SurveyDescription = SurveyDescription,
-                                Definition = "<Definition />"
-                        };
-                        FMDB.Context.HearingProfiles.Add(dbitem);
-                        FMDB.Context.SaveChanges();
-                        _id = dbitem.Id;
-                }
+            case "Simple":
+                return new SimpleHearingProfile(profile);
+            case "Temporal":
+                return new TemporalHearingProfile(profile);
+            case "Weekday":
+                return new WeekdayHearingProfile(profile);
+            default:
+                throw new NotSupportedException("Invalid HearingProfile type in HearingProfile.LoadProfile");
         }
+    }
 
-	public abstract void Initialise(MudSharp.Models.HearingProfile profile, IFuturemud game);
+    #region IHearingProfile Members
 
-	public static HearingProfile LoadProfile(MudSharp.Models.HearingProfile profile)
-	{
-		switch (profile.Type)
-		{
-			case "Simple":
-				return new SimpleHearingProfile(profile);
-			case "Temporal":
-				return new TemporalHearingProfile(profile);
-			case "Weekday":
-				return new WeekdayHearingProfile(profile);
-			default:
-				throw new NotSupportedException("Invalid HearingProfile type in HearingProfile.LoadProfile");
-		}
-	}
+    public abstract Difficulty AudioDifficulty(ILocation location, AudioVolume volume, Proximity proximity);
 
-	#region IHearingProfile Members
+    public string SurveyDescription { get; set; }
 
-	public abstract Difficulty AudioDifficulty(ILocation location, AudioVolume volume, Proximity proximity);
+    public virtual IHearingProfile CurrentProfile(ILocation location)
+    {
+        return this;
+    }
 
-	public string SurveyDescription { get; set; }
+    public abstract string Type { get; }
 
-        public virtual IHearingProfile CurrentProfile(ILocation location)
-        {
-                return this;
-        }
+    protected abstract string SaveDefinition();
 
-        public abstract string Type { get; }
+    public override void Save()
+    {
+        Models.HearingProfile dbitem = FMDB.Context.HearingProfiles.Find(Id);
+        dbitem.Name = Name;
+        dbitem.SurveyDescription = SurveyDescription;
+        dbitem.Definition = SaveDefinition();
+        dbitem.Type = Type;
+        Changed = false;
+    }
 
-        protected abstract string SaveDefinition();
-
-        public override void Save()
-        {
-                var dbitem = FMDB.Context.HearingProfiles.Find(Id);
-                dbitem.Name = Name;
-                dbitem.SurveyDescription = SurveyDescription;
-                dbitem.Definition = SaveDefinition();
-                dbitem.Type = Type;
-                Changed = false;
-        }
-
-        public virtual string HelpText => @"You can use the following options with this item:
+    public virtual string HelpText => @"You can use the following options with this item:
 
         #3name <name>#0 - renames this hearing profile
         #3survey <text>#0 - sets the survey description";
 
-        public virtual bool BuildingCommand(ICharacter actor, StringStack command)
+    public virtual bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
         {
-                switch (command.PopForSwitch())
-                {
-                        case "name":
-                                return BuildingCommandName(actor, command);
-                        case "survey":
-                        case "description":
-                        case "desc":
-                                return BuildingCommandSurvey(actor, command);
-                        default:
-                                actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
-                                return false;
-                }
+            case "name":
+                return BuildingCommandName(actor, command);
+            case "survey":
+            case "description":
+            case "desc":
+                return BuildingCommandSurvey(actor, command);
+            default:
+                actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+                return false;
+        }
+    }
+
+    private bool BuildingCommandName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What name do you want to give to this hearing profile?");
+            return false;
         }
 
-        private bool BuildingCommandName(ICharacter actor, StringStack command)
+        string name = command.SafeRemainingArgument.TitleCase();
+        if (Gameworld.HearingProfiles.Any(x => x.Name.EqualTo(name)))
         {
-                if (command.IsFinished)
-                {
-                        actor.OutputHandler.Send("What name do you want to give to this hearing profile?");
-                        return false;
-                }
-
-                var name = command.SafeRemainingArgument.TitleCase();
-                if (Gameworld.HearingProfiles.Any(x => x.Name.EqualTo(name)))
-                {
-                        actor.OutputHandler.Send($"There is already a hearing profile called {name.ColourName()}. Names must be unique.");
-                        return false;
-                }
-
-                actor.OutputHandler.Send($"You rename the hearing profile {_name.ColourName()} to {name.ColourName()}.");
-                _name = name;
-                Changed = true;
-                return true;
+            actor.OutputHandler.Send($"There is already a hearing profile called {name.ColourName()}. Names must be unique.");
+            return false;
         }
 
-        private bool BuildingCommandSurvey(ICharacter actor, StringStack command)
-        {
-                if (command.IsFinished)
-                {
-                        actor.OutputHandler.Send("What survey description do you want to set?");
-                        return false;
-                }
+        actor.OutputHandler.Send($"You rename the hearing profile {_name.ColourName()} to {name.ColourName()}.");
+        _name = name;
+        Changed = true;
+        return true;
+    }
 
-                SurveyDescription = command.SafeRemainingArgument;
-                actor.OutputHandler.Send("Survey description set.");
-                Changed = true;
-                return true;
+    private bool BuildingCommandSurvey(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What survey description do you want to set?");
+            return false;
         }
 
-        public virtual string Show(ICharacter actor)
-        {
-                var sb = new StringBuilder();
-                sb.AppendLine($"Hearing Profile #{Id.ToString("N0", actor)} - {Name.ColourName()}");
-                sb.AppendLine($"Type: {Type.ColourValue()}");
-                sb.AppendLine($"Survey Description: {SurveyDescription.ColourCommand()}");
-                return sb.ToString();
-        }
+        SurveyDescription = command.SafeRemainingArgument;
+        actor.OutputHandler.Send("Survey description set.");
+        Changed = true;
+        return true;
+    }
 
-	#endregion
+    public virtual string Show(ICharacter actor)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine($"Hearing Profile #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+        sb.AppendLine($"Type: {Type.ColourValue()}");
+        sb.AppendLine($"Survey Description: {SurveyDescription.ColourCommand()}");
+        return sb.ToString();
+    }
+
+    #endregion
 }

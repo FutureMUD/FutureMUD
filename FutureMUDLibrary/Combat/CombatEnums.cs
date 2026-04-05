@@ -1,15 +1,18 @@
 ﻿using System;
 
-namespace MudSharp.Combat {
+namespace MudSharp.Combat
+{
     [Flags]
-    public enum DefenseType {
+    public enum DefenseType
+    {
         None = 0,
         Dodge = 1 << 0,
         Block = 1 << 1,
         Parry = 1 << 2
     }
 
-    public enum AttackHandednessOptions {
+    public enum AttackHandednessOptions
+    {
         Any = 0,
         OneHandedOnly = 1,
         TwoHandedOnly = 2,
@@ -17,14 +20,16 @@ namespace MudSharp.Combat {
         SwordAndBoardOnly = 4
     }
 
-    public enum PursuitMode {
+    public enum PursuitMode
+    {
         NeverPursue,
         OnlyAttemptToStop,
         OnlyPursueIfWholeGroupPursue,
         AlwaysPursue
     }
 
-    public enum BuiltInCombatMoveType {
+    public enum BuiltInCombatMoveType
+    {
         UseWeaponAttack,
         NaturalWeaponAttack,
         Dodge,
@@ -107,7 +112,8 @@ namespace MudSharp.Combat {
         BuffetingNaturalAttack,
     }
 
-    public enum WeaponClassification {
+    public enum WeaponClassification
+    {
         None,
         NonLethal,
         Lethal,
@@ -120,7 +126,8 @@ namespace MudSharp.Combat {
         Shield
     }
 
-    public enum CombatStrategyMode {
+    public enum CombatStrategyMode
+    {
         StandardMelee,
         StandardRange,
         CoveringFire,
@@ -143,7 +150,8 @@ namespace MudSharp.Combat {
         Swooper
     }
 
-    public enum RangedWeaponType {
+    public enum RangedWeaponType
+    {
         Thrown,
         Firearm,
         ModernFirearm,
@@ -154,14 +162,16 @@ namespace MudSharp.Combat {
         Musket
     }
 
-    public enum RangedScatterType {
+    public enum RangedScatterType
+    {
         Arcing,
         Ballistic,
         Light,
         Spread
     }
 
-    public enum MeleeWeaponVerb {
+    public enum MeleeWeaponVerb
+    {
         Swing,
         Chop,
         Thrust,
@@ -186,7 +196,8 @@ namespace MudSharp.Combat {
     /// <summary>
     /// These enum flags determine what the core intention of a combat move is, for use in preferencing
     /// </summary>
-    public enum CombatMoveIntentions : long {
+    public enum CombatMoveIntentions : long
+    {
         None = 0b_0,
 
         /// <summary>

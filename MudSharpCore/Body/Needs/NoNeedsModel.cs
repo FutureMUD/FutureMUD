@@ -6,43 +6,43 @@
 /// </summary>
 public class NoNeedsModel : INeedsModel
 {
-	#region INeedsModel Members
+    #region INeedsModel Members
 
-	public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
-	{
-		return NeedsResult.None;
-	}
+    public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
+    {
+        return NeedsResult.None;
+    }
 
-	public void NeedsHeartbeat()
-	{
-		// Do nothing
-	}
+    public void NeedsHeartbeat()
+    {
+        // Do nothing
+    }
 
-	public double AlcoholLitres
-	{
-		get => 0;
-		set { }
-	}
+    public double AlcoholLitres
+    {
+        get => 0;
+        set { }
+    }
 
-	public double WaterLitres => 0.0;
+    public double WaterLitres => 0.0;
 
-	public double FoodSatiatedHours => double.MaxValue;
+    public double FoodSatiatedHours => double.MaxValue;
 
-	public double DrinkSatiatedHours => double.MaxValue;
+    public double DrinkSatiatedHours => double.MaxValue;
 
-	public double SatiationReserve => 0.0;
+    public double SatiationReserve => 0.0;
 
-	public double StarvationLevel => 0.0;
+    public double StarvationLevel => 0.0;
 
-	public double OversatiationLevel => 0.0;
+    public double OversatiationLevel => 0.0;
 
-	public double SatiationExcess => 0.0;
+    public double SatiationExcess => 0.0;
 
-	public double SatiationDeficit => 0.0;
+    public double SatiationDeficit => 0.0;
 
-	public bool NeedsSave => false;
+    public bool NeedsSave => false;
 
-	public NeedsResult Status => NeedsResult.AbsolutelyStuffed | NeedsResult.Sated | NeedsResult.Sober;
+    public NeedsResult Status => NeedsResult.AbsolutelyStuffed | NeedsResult.Sated | NeedsResult.Sober;
 
-	#endregion
+    #endregion
 }

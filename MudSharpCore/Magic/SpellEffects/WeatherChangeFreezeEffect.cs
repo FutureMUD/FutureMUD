@@ -1,5 +1,3 @@
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Construction;
@@ -8,6 +6,8 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -23,7 +23,7 @@ public class WeatherChangeFreezeEffect : IMagicSpellEffectTemplate
 
     private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands, IMagicSpell spell)
     {
-        var weather = spell.Gameworld.WeatherEvents.First();
+        IWeatherEvent weather = spell.Gameworld.WeatherEvents.First();
         return (new WeatherChangeFreezeEffect(new XElement("Effect",
                 new XAttribute("type", "weatherchangefreeze"),
                 new XElement("WeatherEvent", weather.Id),
@@ -78,7 +78,7 @@ public class WeatherChangeFreezeEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send("Which weather event?");
             return false;
         }
-        var we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
+        IWeatherEvent we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
         if (we == null)
         {
             actor.OutputHandler.Send("No such weather event.");
@@ -98,7 +98,11 @@ public class WeatherChangeFreezeEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -125,7 +129,7 @@ public class WeatherChangeFreezeEffect : IMagicSpellEffectTemplate
                 sender.WeatherChanged -= Handler;
                 sender.SetWeather(WeatherEvent);
                 sender.FreezeWeather();
-                var eff = new SpellWeatherFreezeEffect(loc, parent, null);
+                SpellWeatherFreezeEffect eff = new(loc, parent, null);
                 parent.AddSpellEffect(eff);
                 loc.AddEffect(eff);
             }
@@ -140,5 +144,8 @@ public class WeatherChangeFreezeEffect : IMagicSpellEffectTemplate
         }
     }
 
-    public IMagicSpellEffectTemplate Clone() => new WeatherChangeFreezeEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new WeatherChangeFreezeEffect(SaveToXml(), Spell);
+    }
 }

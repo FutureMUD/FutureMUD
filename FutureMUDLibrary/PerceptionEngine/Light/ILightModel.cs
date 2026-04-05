@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using MudSharp.RPG.Checks;
+﻿using MudSharp.RPG.Checks;
+using System.Collections.Generic;
 
 namespace MudSharp.PerceptionEngine.Light
 {

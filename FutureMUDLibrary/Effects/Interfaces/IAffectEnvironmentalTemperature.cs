@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Interfaces
 {
-	public interface IAffectEnvironmentalTemperature : IEffect
-	{
-		double TemperatureDelta { get; }
-	}
+    public interface IAffectEnvironmentalTemperature : IEffect
+    {
+        double TemperatureDelta { get; }
+    }
 }

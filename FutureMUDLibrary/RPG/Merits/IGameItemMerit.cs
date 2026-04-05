@@ -1,4 +1,6 @@
-﻿namespace MudSharp.RPG.Merits {
-    public interface IGameItemMerit : IMerit {
+﻿namespace MudSharp.RPG.Merits
+{
+    public interface IGameItemMerit : IMerit
+    {
     }
 }

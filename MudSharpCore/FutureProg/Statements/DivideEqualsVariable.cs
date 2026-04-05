@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
 using MudSharp.FutureProg.Variables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Statements;
 
@@ -28,7 +28,7 @@ internal class DivideEqualsVariable : Statement
     private static ICompileInfo SetVariableCompile(IEnumerable<string> lines,
         IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
     {
-        var match = CompileRegex.Match(lines.First());
+        Match match = CompileRegex.Match(lines.First());
 
         if (!variableSpace.ContainsKey(match.Groups[1].Value.ToLowerInvariant()))
         {
@@ -37,7 +37,7 @@ internal class DivideEqualsVariable : Statement
                            .CreateError($"Variable {match.Groups[1].Value} has not been declared.", lineNumber);
         }
 
-        var rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
+        ICompileInfo rhsInfo = FunctionHelper.CompileFunction(match.Groups[2].Value, variableSpace, lineNumber, gameworld);
         if (rhsInfo.IsError)
         {
             return
@@ -46,14 +46,14 @@ internal class DivideEqualsVariable : Statement
                                lineNumber);
         }
 
-        var lhsType = variableSpace[match.Groups[1].Value.ToLowerInvariant()];
+        ProgVariableTypes lhsType = variableSpace[match.Groups[1].Value.ToLowerInvariant()];
         if (!lhsType.CompatibleWith(ProgVariableTypes.Number))
         {
             return CompileInfo.GetFactory().CreateError(
                 $"Tried to use /= operator on variable of type {lhsType.Describe()}, which is not supported.", lineNumber);
         }
 
-        var function = (IFunction)rhsInfo.CompiledStatement;
+        IFunction function = (IFunction)rhsInfo.CompiledStatement;
         if (!lhsType.CompatibleWith(function.ReturnType))
         {
             return CompileInfo.GetFactory().CreateError(
@@ -70,13 +70,13 @@ internal class DivideEqualsVariable : Statement
 
     private static string ColouriseStatement(string line)
     {
-        var match = CompileRegex.Match(line);
+        Match match = CompileRegex.Match(line);
         return $"{match.Groups[1].Value} /= {FunctionHelper.ColouriseFunction(match.Groups[2].Value)}";
     }
 
     private static string ColouriseStatementDarkMode(string line)
     {
-        var match = CompileRegex.Match(line);
+        Match match = CompileRegex.Match(line);
         return $"{match.Groups[1].Value.Colour(Telnet.VariableCyan)} /= {FunctionHelper.ColouriseFunction(match.Groups[2].Value, true)}";
     }
 
@@ -115,21 +115,21 @@ See also #3=#0, #3+=#0, #3-=#0, #3*=#0, #3%=#0 and #3^=#0 for other ways of assi
 
     public override StatementResult Execute(IVariableSpace variables)
     {
-        var result = ValueFunction.Execute(variables);
+        StatementResult result = ValueFunction.Execute(variables);
         if (result == StatementResult.Error)
         {
             ErrorMessage = ValueFunction.ErrorMessage;
             return StatementResult.Error;
         }
 
-        var current = variables.GetVariable(NameToSet);
-        var number = (decimal?)current?.GetObject;
+        IProgVariable current = variables.GetVariable(NameToSet);
+        decimal? number = (decimal?)current?.GetObject;
         if (number is null)
         {
             ErrorMessage = "Tried to /= a null number.";
             return StatementResult.Error;
         }
-        var newValue = number / (decimal?)ValueFunction.Result?.GetObject ?? 0.0M;
+        decimal newValue = number / (decimal?)ValueFunction.Result?.GetObject ?? 0.0M;
         variables.SetVariable(NameToSet, new NumberVariable(newValue));
         return StatementResult.Normal;
     }

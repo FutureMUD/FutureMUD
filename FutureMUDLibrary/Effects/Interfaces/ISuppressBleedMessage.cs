@@ -1,4 +1,6 @@
-﻿namespace MudSharp.Effects.Interfaces {
-    public interface ISuppressBleedMessage : IEffectSubtype {
+﻿namespace MudSharp.Effects.Interfaces
+{
+    public interface ISuppressBleedMessage : IEffectSubtype
+    {
     }
 }

@@ -1,9 +1,11 @@
-﻿namespace MudSharp.Framework {
+﻿namespace MudSharp.Framework
+{
     /// <summary>
     ///     An IProposal is designed to be partnered with an "Accept" effect type, for actions that a player must accept (such
     ///     as a clan invitation)
     /// </summary>
-    public interface IProposal : IKeyworded {
+    public interface IProposal : IKeyworded
+    {
         /// <summary>
         ///     Signals to the proposal that it has been accepted by the Supplicant, and it should take action to resolve the
         ///     Proposition.

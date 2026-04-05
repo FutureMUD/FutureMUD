@@ -1,12 +1,15 @@
-﻿using System;
+﻿using MudSharp.Form.Shape;
+using System;
 using System.Collections.Generic;
-using MudSharp.Form.Shape;
 
-namespace MudSharp.FutureProg.Variables {
-    public class GenderVariable : ProgVariable {
+namespace MudSharp.FutureProg.Variables
+{
+    public class GenderVariable : ProgVariable
+    {
         protected Gender UnderlyingGender;
 
-        public GenderVariable(Gender gender) {
+        public GenderVariable(Gender gender)
+        {
             UnderlyingGender = gender;
         }
 
@@ -14,7 +17,7 @@ namespace MudSharp.FutureProg.Variables {
 
         public override object GetObject => UnderlyingGender;
 
-        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
         {
             return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -26,7 +29,7 @@ namespace MudSharp.FutureProg.Variables {
             };
         }
 
-        private static IReadOnlyDictionary<string,string> DotReferenceHelp()
+        private static IReadOnlyDictionary<string, string> DotReferenceHelp()
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -38,13 +41,16 @@ namespace MudSharp.FutureProg.Variables {
             };
         }
 
-        public static void RegisterFutureProgCompiler() {
+        public static void RegisterFutureProgCompiler()
+        {
             ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Gender, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IProgVariable GetProperty(string property) {
-            var gender = Gendering.Get(UnderlyingGender);
-            switch (property.ToLowerInvariant()) {
+        public override IProgVariable GetProperty(string property)
+        {
+            Gendering gender = Gendering.Get(UnderlyingGender);
+            switch (property.ToLowerInvariant())
+            {
                 case "he":
                     return new TextVariable(gender.Subjective());
                 case "him":

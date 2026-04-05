@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface IProsthetic : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface IProsthetic : IGameItemComponent
+    {
         bool Obvious { get; }
         bool Functional { get; }
         IBodyPrototype TargetBody { get; }

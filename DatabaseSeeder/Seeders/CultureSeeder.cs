@@ -1,20 +1,20 @@
-﻿using System;
+﻿using MudSharp.Database;
+using MudSharp.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MudSharp.Database;
-using MudSharp.Framework;
 
 namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder : IDatabaseSeeder
 {
-	public IEnumerable<(string Id, string Question,
-		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
-		new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
-			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
-		{
-			("culturepacks", @"#DCulture Packs#F
+    public IEnumerable<(string Id, string Question,
+        Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+        Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+        new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
+            Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
+        {
+            ("culturepacks", @"#DCulture Packs#F
 
 The FutureMUD Database Seeder currently has the following culture packs, which include full suites of naming conventions, languages and dialects and sometimes more for various real world or fictional settings.
 
@@ -26,85 +26,81 @@ The FutureMUD Database Seeder currently has the following culture packs, which i
 #1Note: Even if you choose none of the above, some useful culture-related defaults will be installed to make things easier for you#F
 
 You can either use 'none' to select none of the above, or use one of the pack names to install that pack.",
-				(context, answers) => true, (text, context) =>
-				{
-					if (!text.EqualToAny("none", "earth-modern", "earth-medievaleurope", "earth-antiquity",
-						    "middle-earth"))
-						return (false, "You must select one of the pack names, or use 'none' to select none of them.");
+                (context, answers) => true, (text, context) =>
+                {
+                    if (!text.EqualToAny("none", "earth-modern", "earth-medievaleurope", "earth-antiquity",
+                            "middle-earth")) { return (false, "You must select one of the pack names, or use 'none' to select none of them."); } return (true, string.Empty);
+                }),
 
-					return (true, string.Empty);
-				}),
-
-			("seednames",
-				@"Would you like to install the naming cultures and random name generators from your chosen culture pack?
+            ("seednames",
+                @"Would you like to install the naming cultures and random name generators from your chosen culture pack?
 
 Please answer #3yes#f or #3no#f. ", (context, answers) => true,
-				(text, context) =>
-				{
-					if (!text.EqualToAny("yes", "y", "no", "n")) return (false, "Please choose yes or no.");
+                (text, context) =>
+                {
+                    if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
+                }),
 
-					return (true, string.Empty);
-				}),
-
-			("seedlanguages",
-				@"Would you like to install the languages, accents, and scripts from your chosen culture pack?
+            ("seedlanguages",
+                @"Would you like to install the languages, accents, and scripts from your chosen culture pack?
 
 Please answer #3yes#f or #3no#f. ", (context, answers) => true,
-				(text, context) =>
-				{
-					if (!text.EqualToAny("yes", "y", "no", "n")) return (false, "Please choose yes or no.");
+                (text, context) =>
+                {
+                    if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
+                }),
 
-					return (true, string.Empty);
-				}),
-
-			("seedheritage",
-				@"Would you like to install the races, ethnicities and cultures from your chosen culture pack?
+            ("seedheritage",
+                @"Would you like to install the races, ethnicities and cultures from your chosen culture pack?
 
 Please answer #3yes#f or #3no#f. ", (context, answers) => true,
-				(text, context) =>
-				{
-					if (!text.EqualToAny("yes", "y", "no", "n")) return (false, "Please choose yes or no.");
+                (text, context) =>
+                {
+                    if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
+                })
+        };
 
-					return (true, string.Empty);
-				})
-		};
+    public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        context.Database.BeginTransaction();
+        _context = context;
+        SeedSimple(context);
+        if (!questionAnswers["culturepacks"].EqualToAny("none"))
+        {
+            SeedCulturePacks(context, questionAnswers);
+        }
 
-	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		context.Database.BeginTransaction();
-		_context = context;
-		SeedSimple(context);
-		if (!questionAnswers["culturepacks"].EqualToAny("none")) SeedCulturePacks(context, questionAnswers);
+        context.Database.CommitTransaction();
+        return "Completed successfully.";
+    }
 
-		context.Database.CommitTransaction();
-		return "Completed successfully.";
-	}
+    public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
+    {
+        if (!context.Races.Any(x => x.Name == "Human") || !context.TraitDecorators.Any(x => x.Name.Contains("Skill")))
+        {
+            return ShouldSeedResult.PrerequisitesNotMet;
+        }
 
-	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
-	{
-		if (!context.Races.Any(x => x.Name == "Human") || !context.TraitDecorators.Any(x => x.Name.Contains("Skill")))
-			return ShouldSeedResult.PrerequisitesNotMet;
+        if (ChargenSizeProgMarkers.Any(marker => !context.FutureProgs.Any(x => x.FunctionName == marker)))
+        {
+            return ShouldSeedResult.PrerequisitesNotMet;
+        }
 
-		if (ChargenSizeProgMarkers.Any(marker => !context.FutureProgs.Any(x => x.FunctionName == marker)))
-		{
-			return ShouldSeedResult.PrerequisitesNotMet;
-		}
+        return SeederRepeatabilityHelper.ClassifyByPresence(
+            StockNameCultureMarkers.Select(marker => context.NameCultures.Any(x => x.Name == marker))
+                .Concat(StockRandomProfileMarkers.Select(marker => context.RandomNameProfiles.Any(x => x.Name == marker)))
+                .Concat(StockCulturePackageMarkers.Select(marker =>
+                    context.Languages.Any(x => x.Name == marker) ||
+                    context.Ethnicities.Any(x => x.Name == marker) ||
+                    context.Cultures.Any(x => x.Name == marker))));
+    }
 
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-			StockNameCultureMarkers.Select(marker => context.NameCultures.Any(x => x.Name == marker))
-				.Concat(StockRandomProfileMarkers.Select(marker => context.RandomNameProfiles.Any(x => x.Name == marker)))
-				.Concat(StockCulturePackageMarkers.Select(marker =>
-					context.Languages.Any(x => x.Name == marker) ||
-					context.Ethnicities.Any(x => x.Name == marker) ||
-					context.Cultures.Any(x => x.Name == marker))));
-	}
+    public int SortOrder => 101;
+    public string Name => "Culture Seeder";
+    public string Tagline => "Add Name Cultures, Random Names and optionally culture packs";
 
-	public int SortOrder => 101;
-	public string Name => "Culture Seeder";
-	public string Tagline => "Add Name Cultures, Random Names and optionally culture packs";
-
-	public string FullDescription =>
-		@"This package will setup a few culture related items in the engine such as naming cultures, random name options and also optionally some earth-based cultural items such as languages and dialects.
+    public string FullDescription =>
+        @"This package will setup a few culture related items in the engine such as naming cultures, random name options and also optionally some earth-based cultural items such as languages and dialects.
 
 1) Naming Cultures are prerequisites for all Cultures - a culture must have a naming culture. This defines how names from that culture are put together (what elements they have, what order they appear in and so forth). The seeder provides a few simple examples from the real world, which you can adapt to your own purposes if your own world does something differently.
 

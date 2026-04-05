@@ -1,13 +1,13 @@
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
-using MudSharp.Effects.Interfaces;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -103,7 +103,7 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandHunger(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+        if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value))
         {
             actor.OutputHandler.Send("Enter a valid percentage.");
             return false;
@@ -116,7 +116,7 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandThirst(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+        if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value))
         {
             actor.OutputHandler.Send("Enter a valid percentage.");
             return false;
@@ -129,7 +129,7 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandDrunk(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+        if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value))
         {
             actor.OutputHandler.Send("Enter a valid percentage.");
             return false;
@@ -142,14 +142,18 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        var type = AppliesToPassive ? "Passive" : "Active";
+        string type = AppliesToPassive ? "Passive" : "Active";
         return $"NeedRate {type} - H:{HungerMultiplier.ToStringP2(actor)} T:{ThirstMultiplier.ToStringP2(actor)} D:{DrunkennessMultiplier.ToStringP2(actor)}";
     }
 
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => IsCompatibleWithTrigger(trigger.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger trigger)
+    {
+        return IsCompatibleWithTrigger(trigger.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -165,9 +169,15 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
         if (target is not ICharacter ch)
+        {
             return null;
+        }
+
         return new SpellNeedRateEffect(ch, parent, null, HungerMultiplier, ThirstMultiplier, DrunkennessMultiplier, AppliesToPassive, AppliesToActive);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new NeedRateSpellEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new NeedRateSpellEffect(SaveToXml(), Spell);
+    }
 }

@@ -1,13 +1,14 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace MudSharp.Health.Bloodtypes;
 
@@ -21,7 +22,7 @@ public class PopulationBloodModel : SaveableItem, IPopulationBloodModel
         Gameworld = gameworld;
         _id = model.Id;
         _name = model.Name;
-        foreach (var type in model.PopulationBloodModelsBloodtypes)
+        foreach (PopulationBloodModelsBloodtype? type in model.PopulationBloodModelsBloodtypes)
         {
             _bloodTypes.Add((gameworld.Bloodtypes.Get(type.BloodtypeId), type.Weight));
         }
@@ -38,7 +39,8 @@ public class PopulationBloodModel : SaveableItem, IPopulationBloodModel
         _name = name;
         using (new FMDB())
         {
-            var dbitem = new MudSharp.Models.PopulationBloodModel { Name = name };
+            Models.PopulationBloodModel dbitem = new()
+            { Name = name };
             FMDB.Context.PopulationBloodModels.Add(dbitem);
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -49,10 +51,10 @@ public class PopulationBloodModel : SaveableItem, IPopulationBloodModel
 
     public override void Save()
     {
-        var dbitem = FMDB.Context.PopulationBloodModels.Find(Id);
+        Models.PopulationBloodModel? dbitem = FMDB.Context.PopulationBloodModels.Find(Id);
         dbitem.Name = Name;
         FMDB.Context.PopulationBloodModelsBloodtypes.RemoveRange(dbitem.PopulationBloodModelsBloodtypes);
-        foreach (var (bloodtype, weight) in _bloodTypes)
+        foreach ((IBloodtype? bloodtype, double weight) in _bloodTypes)
         {
             dbitem.PopulationBloodModelsBloodtypes.Add(new MudSharp.Models.PopulationBloodModelsBloodtype
             {
@@ -73,7 +75,7 @@ public class PopulationBloodModel : SaveableItem, IPopulationBloodModel
     {
         if (character?.SelectedMerits.OfType<IFixedBloodTypeMerit>().Any() == true)
         {
-            var bloodtype = character.SelectedMerits.OfType<IFixedBloodTypeMerit>().First().Bloodtype;
+            IBloodtype bloodtype = character.SelectedMerits.OfType<IFixedBloodTypeMerit>().First().Bloodtype;
             if (_bloodTypes.Any(x => x.Bloodtype == bloodtype))
             {
                 return bloodtype;
@@ -115,7 +117,7 @@ remove <bloodtype> - removes a blood type from this model";
             return false;
         }
 
-        var name = command.SafeRemainingArgument.TitleCase();
+        string name = command.SafeRemainingArgument.TitleCase();
         if (Gameworld.PopulationBloodModels.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send($"There is already a population blood model named {name.ColourName()}.");
@@ -136,14 +138,14 @@ remove <bloodtype> - removes a blood type from this model";
             return false;
         }
 
-        var bt = Gameworld.Bloodtypes.GetByIdOrName(command.PopSpeech());
+        IBloodtype? bt = Gameworld.Bloodtypes.GetByIdOrName(command.PopSpeech());
         if (bt is null)
         {
             actor.OutputHandler.Send("That is not a valid blood type.");
             return false;
         }
 
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var weight) || weight <= 0)
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double weight) || weight <= 0)
         {
             actor.OutputHandler.Send("You must supply a positive weight.");
             return false;
@@ -174,14 +176,14 @@ remove <bloodtype> - removes a blood type from this model";
             return false;
         }
 
-        var bt = Gameworld.Bloodtypes.GetByIdOrName(command.SafeRemainingArgument);
+        IBloodtype? bt = Gameworld.Bloodtypes.GetByIdOrName(command.SafeRemainingArgument);
         if (bt is null)
         {
             actor.OutputHandler.Send("That is not a valid blood type.");
             return false;
         }
 
-        var removed = _bloodTypes.RemoveAll(x => x.Bloodtype == bt);
+        int removed = _bloodTypes.RemoveAll(x => x.Bloodtype == bt);
         if (removed == 0)
         {
             actor.OutputHandler.Send("That blood type is not part of this model.");
@@ -200,12 +202,12 @@ remove <bloodtype> - removes a blood type from this model";
 
     public string Show(ICharacter actor)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine($"Population Blood Model #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine();
         sb.AppendLine($"Blood Model: {BloodModel?.Name.ColourValue() ?? "None"}");
-        var total = _bloodTypes.Sum(x => x.Weight);
-        foreach (var (blood, weight) in _bloodTypes.OrderByDescending(x => x.Weight))
+        double total = _bloodTypes.Sum(x => x.Weight);
+        foreach ((IBloodtype? blood, double weight) in _bloodTypes.OrderByDescending(x => x.Weight))
         {
             sb.AppendLine($"{blood.Name.ColourValue(),-20} {(weight / total).ToStringP2Colour(actor)}");
         }

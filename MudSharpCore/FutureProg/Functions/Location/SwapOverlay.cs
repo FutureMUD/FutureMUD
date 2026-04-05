@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg.Variables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Location;
 
@@ -57,7 +57,7 @@ internal class SwapOverlay : BuiltInFunction
 
         if (_package)
         {
-            foreach (var cell in _gameworld.Cells.Where(x => x.Overlays.Any(y => y.Package == package)).ToList())
+            foreach (ICell cell in _gameworld.Cells.Where(x => x.Overlays.Any(y => y.Package == package)).ToList())
             {
                 cell.SetCurrentOverlay(package);
                 _gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
@@ -65,7 +65,7 @@ internal class SwapOverlay : BuiltInFunction
         }
         else
         {
-            var location = (ICell)ParameterFunctions[1].Result;
+            ICell location = (ICell)ParameterFunctions[1].Result;
             if (location == null)
             {
                 Result = new BooleanVariable(false);

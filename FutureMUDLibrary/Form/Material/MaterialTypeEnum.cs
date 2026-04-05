@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Form.Material {
-    public enum MaterialType {
+﻿namespace MudSharp.Form.Material
+{
+    public enum MaterialType
+    {
         Solid,
         Liquid,
         Gas,

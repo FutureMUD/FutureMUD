@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MudSharp.Economy.Currency;
+using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Intervals;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Economy.Currency;
-using MudSharp.TimeAndDate;
-using MudSharp.TimeAndDate.Intervals;
 
 namespace MudSharp.Economy
 {

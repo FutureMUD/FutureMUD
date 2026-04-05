@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.CompilerServices;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace MudSharp.Framework
 {
-    public class Counter<T> : IEnumerable<KeyValuePair<T,int>>, IReadOnlyDictionary<T,int>
+    public class Counter<T> : IEnumerable<KeyValuePair<T, int>>, IReadOnlyDictionary<T, int>
     {
         private readonly Dictionary<T, int> _internal;
 
@@ -33,21 +33,25 @@ namespace MudSharp.Framework
                 _internal[thing] = 0;
             }
         }
-        
-        public int this[T key] {
-            get {
+
+        public int this[T key]
+        {
+            get
+            {
                 CheckOrInitialise(key);
                 return _internal[key];
             }
-            set {
+            set
+            {
                 CheckOrInitialise(key);
                 _internal[key] = value;
             }
         }
 
-        public void Clear(){
-			_internal.Clear();
-		}
+        public void Clear()
+        {
+            _internal.Clear();
+        }
 
         public int Count(T thing)
         {
@@ -82,7 +86,10 @@ namespace MudSharp.Framework
             return _internal.GetEnumerator();
         }
 
-        public IReadOnlyDictionary<T, int> AsReadOnlyDictionary() => this;
+        public IReadOnlyDictionary<T, int> AsReadOnlyDictionary()
+        {
+            return this;
+        }
 
         public Dictionary<T, int>.KeyCollection Keys => _internal.Keys;
         public Dictionary<T, int>.ValueCollection Values => _internal.Values;
@@ -108,7 +115,7 @@ namespace MudSharp.Framework
 
         public static Counter<T> operator +(Counter<T> counter1, Counter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, int> item in counter2)
             {
                 counter1[item.Key] += item.Value;
             }
@@ -117,7 +124,7 @@ namespace MudSharp.Framework
 
         public static Counter<T> operator -(Counter<T> counter1, Counter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, int> item in counter2)
             {
                 counter1[item.Key] -= item.Value;
             }
@@ -126,7 +133,7 @@ namespace MudSharp.Framework
 
         public static Counter<T> operator *(Counter<T> counter1, Counter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, int> item in counter2)
             {
                 counter1[item.Key] *= item.Value;
             }
@@ -135,7 +142,7 @@ namespace MudSharp.Framework
 
         public static Counter<T> operator /(Counter<T> counter1, Counter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, int> item in counter2)
             {
                 counter1[item.Key] /= item.Value;
             }
@@ -143,7 +150,7 @@ namespace MudSharp.Framework
         }
     }
 
-    public class DoubleCounter<T> : IEnumerable<KeyValuePair<T,double>>, IReadOnlyDictionary<T,double>
+    public class DoubleCounter<T> : IEnumerable<KeyValuePair<T, double>>, IReadOnlyDictionary<T, double>
     {
         private readonly Dictionary<T, double> _internal;
 
@@ -170,20 +177,24 @@ namespace MudSharp.Framework
             }
         }
 
-        public double this[T key] {
-            get {
+        public double this[T key]
+        {
+            get
+            {
                 CheckOrInitialise(key);
                 return _internal[key];
             }
-            set {
+            set
+            {
                 CheckOrInitialise(key);
                 _internal[key] = value;
             }
         }
-		
-		public void Clear(){
-			_internal.Clear();
-		}
+
+        public void Clear()
+        {
+            _internal.Clear();
+        }
 
         public double Count(T thing)
         {
@@ -212,11 +223,14 @@ namespace MudSharp.Framework
             return _internal.GetEnumerator();
         }
 
-        public Dictionary<T,double>.KeyCollection Keys => _internal.Keys;
+        public Dictionary<T, double>.KeyCollection Keys => _internal.Keys;
         public Dictionary<T, double>.ValueCollection Values => _internal.Values;
 
-        public IReadOnlyDictionary<T, double> AsReadOnlyDictionary() => this;
-        
+        public IReadOnlyDictionary<T, double> AsReadOnlyDictionary()
+        {
+            return this;
+        }
+
         int IReadOnlyCollection<KeyValuePair<T, double>>.Count => _internal.Count;
         public bool ContainsKey(T key)
         {
@@ -239,7 +253,7 @@ namespace MudSharp.Framework
 
         public static DoubleCounter<T> operator +(DoubleCounter<T> counter1, DoubleCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, double> item in counter2)
             {
                 counter1[item.Key] += item.Value;
             }
@@ -248,7 +262,7 @@ namespace MudSharp.Framework
 
         public static DoubleCounter<T> operator -(DoubleCounter<T> counter1, DoubleCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, double> item in counter2)
             {
                 counter1[item.Key] -= item.Value;
             }
@@ -257,7 +271,7 @@ namespace MudSharp.Framework
 
         public static DoubleCounter<T> operator *(DoubleCounter<T> counter1, DoubleCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, double> item in counter2)
             {
                 counter1[item.Key] *= item.Value;
             }
@@ -266,7 +280,7 @@ namespace MudSharp.Framework
 
         public static DoubleCounter<T> operator /(DoubleCounter<T> counter1, DoubleCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, double> item in counter2)
             {
                 counter1[item.Key] /= item.Value;
             }
@@ -301,20 +315,24 @@ namespace MudSharp.Framework
             }
         }
 
-        public decimal this[T key] {
-            get {
+        public decimal this[T key]
+        {
+            get
+            {
                 CheckOrInitialise(key);
                 return _internal[key];
             }
-            set {
+            set
+            {
                 CheckOrInitialise(key);
                 _internal[key] = value;
             }
         }
-		
-		public void Clear(){
-			_internal.Clear();
-		}
+
+        public void Clear()
+        {
+            _internal.Clear();
+        }
 
         public decimal Count(T thing)
         {
@@ -346,7 +364,10 @@ namespace MudSharp.Framework
         public Dictionary<T, decimal>.KeyCollection Keys => _internal.Keys;
         public Dictionary<T, decimal>.ValueCollection Values => _internal.Values;
 
-        public IReadOnlyDictionary<T, decimal> AsReadOnlyDictionary() => this;
+        public IReadOnlyDictionary<T, decimal> AsReadOnlyDictionary()
+        {
+            return this;
+        }
 
         int IReadOnlyCollection<KeyValuePair<T, decimal>>.Count => _internal.Count;
         public bool ContainsKey(T key)
@@ -370,7 +391,7 @@ namespace MudSharp.Framework
 
         public void Add(DecimalCounter<T> other)
         {
-            foreach (var item in other)
+            foreach (KeyValuePair<T, decimal> item in other)
             {
                 CheckOrInitialise(item.Key);
                 _internal[item.Key] += item.Value;
@@ -379,7 +400,7 @@ namespace MudSharp.Framework
 
         public void Subtract(DecimalCounter<T> other)
         {
-            foreach (var item in other)
+            foreach (KeyValuePair<T, decimal> item in other)
             {
                 CheckOrInitialise(item.Key);
                 _internal[item.Key] -= item.Value;
@@ -388,7 +409,7 @@ namespace MudSharp.Framework
 
         public static DecimalCounter<T> operator +(DecimalCounter<T> counter1, DecimalCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, decimal> item in counter2)
             {
                 counter1[item.Key] += item.Value;
             }
@@ -397,7 +418,7 @@ namespace MudSharp.Framework
 
         public static DecimalCounter<T> operator -(DecimalCounter<T> counter1, DecimalCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, decimal> item in counter2)
             {
                 counter1[item.Key] -= item.Value;
             }
@@ -406,7 +427,7 @@ namespace MudSharp.Framework
 
         public static DecimalCounter<T> operator *(DecimalCounter<T> counter1, DecimalCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, decimal> item in counter2)
             {
                 counter1[item.Key] *= item.Value;
             }
@@ -415,7 +436,7 @@ namespace MudSharp.Framework
 
         public static DecimalCounter<T> operator /(DecimalCounter<T> counter1, DecimalCounter<T> counter2)
         {
-            foreach (var item in counter2)
+            foreach (KeyValuePair<T, decimal> item in counter2)
             {
                 counter1[item.Key] /= item.Value;
             }

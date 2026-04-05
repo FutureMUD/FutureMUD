@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Form.Audio;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Strategies.BodyStratagies;
+using System;
+using System.Linq;
 
 namespace MudSharp.Body.CommunicationStrategies;
 
@@ -51,7 +51,7 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
 
     public override bool CanVocalise(IBody body, AudioVolume volume)
     {
-        var synthFunction = body.OrganFunction<SpeechSynthesizer>();
+        double synthFunction = body.OrganFunction<SpeechSynthesizer>();
         if (!HasSpeechSynthesizerFunctionForVolume(synthFunction, volume))
         {
             return false;
@@ -62,7 +62,7 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
 
     public override string WhyCannotVocalise(IBody body, AudioVolume volume)
     {
-        var synthFunction = body.OrganFunction<SpeechSynthesizer>();
+        double synthFunction = body.OrganFunction<SpeechSynthesizer>();
         if (!HasSpeechSynthesizerFunctionForVolume(synthFunction, volume))
         {
             return "You are lacking speech synthesizer function for a vocalisation of that volume.";

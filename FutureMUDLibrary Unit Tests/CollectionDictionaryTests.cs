@@ -1,8 +1,8 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MudSharp.Framework;
 
 namespace MudSharp_Unit_Tests;
 
@@ -12,7 +12,7 @@ public class CollectionDictionaryTests
     [TestMethod]
     public void Add_AddRange_Indexer_CreateListsOnDemand()
     {
-        var cd = new CollectionDictionary<string, int>();
+        CollectionDictionary<string, int> cd = new();
 
         // Add should create list for new key
         cd.Add("A", 1);
@@ -29,7 +29,7 @@ public class CollectionDictionaryTests
         Assert.AreEqual(1, cd["C"].Count, "AddRange did not create list for key C.");
 
         // AddRange(T, IEnumerable<U>) should append values
-        cd.AddRange("A", new[] {5, 6});
+        cd.AddRange("A", new[] { 5, 6 });
         Assert.AreEqual(3, cd["A"].Count, "AddRange(key, IEnumerable) did not append values to key A.");
 
         // Indexer getter should create an empty list for missing key
@@ -39,13 +39,13 @@ public class CollectionDictionaryTests
     [TestMethod]
     public void RemoveMethods_RemoveExpectedEntries()
     {
-        var cd = new CollectionDictionary<string, int>();
+        CollectionDictionary<string, int> cd = new();
         cd.Add("A", 1);
         cd.Add("A", 2);
         cd.Add("B", 3);
         cd.Add("C", 4);
 
-        cd.RemoveRange("A", new[] {1});
+        cd.RemoveRange("A", new[] { 1 });
         Assert.AreEqual(false, cd["A"].Contains(1), "RemoveRange did not remove the specified value.");
         Assert.AreEqual(1, cd["A"].Count, "RemoveRange removed incorrect number of items.");
 
@@ -58,8 +58,8 @@ public class CollectionDictionaryTests
     [TestMethod]
     public void Swap_SetValueAtIndex_InvalidIndicesReturnFalse()
     {
-        var cd = new CollectionDictionary<string, int>();
-        cd.AddRange("A", new[] {1, 2, 3});
+        CollectionDictionary<string, int> cd = new();
+        cd.AddRange("A", new[] { 1, 2, 3 });
 
         Assert.AreEqual(false, cd.Swap("A", -1, 1), "Swap should return false for a negative index.");
         Assert.AreEqual(false, cd.Swap("A", 0, 5), "Swap should return false for an index beyond the list length.");
@@ -71,15 +71,15 @@ public class CollectionDictionaryTests
     [TestMethod]
     public void AsReadOnlyCollectionDictionary_ReturnsReadOnlyEnumerables()
     {
-        var cd = new CollectionDictionary<string, int>();
+        CollectionDictionary<string, int> cd = new();
         cd.Add("A", 1);
-        var ro = cd.AsReadOnlyCollectionDictionary();
+        IReadOnlyCollectionDictionary<string, int> ro = cd.AsReadOnlyCollectionDictionary();
 
-        var keysCollection = ro.Keys as ICollection<string>;
+        ICollection<string> keysCollection = ro.Keys as ICollection<string>;
         Assert.IsNotNull(keysCollection, "Keys did not return a collection.");
         Assert.AreEqual(true, keysCollection.IsReadOnly, "Keys collection was not read-only.");
 
-        var values = ro["A"] as ICollection<int>;
+        ICollection<int> values = ro["A"] as ICollection<int>;
         Assert.IsNotNull(values, "Indexer did not return a collection.");
         Assert.AreEqual(true, values.IsReadOnly, "Values enumeration was not read-only.");
     }

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using MudSharp.Community;
+﻿using MudSharp.Community;
+using System.Collections.Generic;
 
 namespace MudSharp.CharacterCreation.Roles
 {

@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MudSharp.GameItems;
+using System;
 using System.Collections.Generic;
-using MudSharp.GameItems;
 
-namespace MudSharp.Economy.Currency {
-    public interface ICurrencyPile : IGameItemComponent {
+namespace MudSharp.Economy.Currency
+{
+    public interface ICurrencyPile : IGameItemComponent
+    {
         ICurrency Currency { get; set; }
         IEnumerable<Tuple<ICoin, int>> Coins { get; }
         decimal TotalValue { get; }

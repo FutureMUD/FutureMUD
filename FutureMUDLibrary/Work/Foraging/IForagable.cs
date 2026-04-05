@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
+using System.Collections.Generic;
 
-namespace MudSharp.Work.Foraging {
+namespace MudSharp.Work.Foraging
+{
     /// <summary>
     ///     A foragable is an option that may be selected when someone uses the forage command
     /// </summary>
-    public interface IForagable : IEditableRevisableItem {
+    public interface IForagable : IEditableRevisableItem
+    {
         /// <summary>
         ///     Which keywords for foraging this item may be used, e.g. food, stone, artifacts, etc.
         /// </summary>

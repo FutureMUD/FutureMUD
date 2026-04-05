@@ -1,8 +1,10 @@
-﻿namespace MudSharp.Economy.Currency {
+﻿namespace MudSharp.Economy.Currency
+{
     /// <summary>
     ///     Any object implementing IHaveCurrency has a current ICurrency
     /// </summary>
-    public interface IHaveCurrency {
+    public interface IHaveCurrency
+    {
         ICurrency Currency { get; set; }
     }
 }

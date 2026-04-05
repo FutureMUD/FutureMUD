@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using MudSharp.CharacterCreation;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using System.Collections.Generic;
 
 namespace MudSharp.Health;
 

@@ -159,7 +159,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudsharpDatabaseLibrary Uni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBotCore Unit Tests", "DiscordBotCore Unit Tests\DiscordBotCore Unit Tests.csproj", "{0BDE9694-D275-4C01-B760-95C7C3A7A880}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temporary Scratch App", "Temporary Scratch App\Temporary Scratch App.csproj", "{B6759D5E-4025-4CC6-B45F-8495797429D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temporary Work App", "Temporary Scratch App\Temporary Work App.csproj", "{B6759D5E-4025-4CC6-B45F-8495797429D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

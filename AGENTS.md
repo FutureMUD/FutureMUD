@@ -135,6 +135,10 @@ This project contains the long-running climate and weather regression checks use
 
 - [Project MudSharpCore Climate Tests](./MudSharpCore%20Climate%20Tests/AGENTS.md)
 
+###
+
+- [Project Temporary Work App](./Temporary Work App/Agents.MD)
+
 ## Code Style
 - Use **tabs** for indentation.
 - Use file-scoped namespaces (`namespace MudSharp.Commands;`) for new files.

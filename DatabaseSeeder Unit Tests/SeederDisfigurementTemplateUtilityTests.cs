@@ -52,8 +52,8 @@ public class SeederDisfigurementTemplateUtilityTests
             SizeSteps: 2,
             Distinctiveness: 4,
             Unique: true,
-            DamageHealingScarChance: 0.35,
-            SurgeryHealingScarChance: 0.6,
+            DamageHealingScarWeight: 0.35,
+            SurgeryHealingScarWeight: 0.6,
             DamageTypes: new Dictionary<DamageType, WoundSeverity>
             {
                 [DamageType.Slashing] = WoundSeverity.Severe
@@ -85,8 +85,8 @@ public class SeederDisfigurementTemplateUtilityTests
 
         XElement definitionXml = XElement.Parse(template.Definition);
         Assert.AreEqual("Scar", definitionXml.Name.LocalName);
-        Assert.AreEqual("0.35", definitionXml.Element("DamageHealingScarChance")?.Value);
-        Assert.AreEqual("0.6", definitionXml.Element("SurgeryHealingScarChance")?.Value);
+        Assert.AreEqual("0.35", definitionXml.Element("DamageHealingScarWeight")?.Value);
+        Assert.AreEqual("0.6", definitionXml.Element("SurgeryHealingScarWeight")?.Value);
         Assert.AreEqual("scarred", definitionXml.Element("OverrideCharacteristicPlain")?.Value);
         Assert.AreEqual("scarred", definitionXml.Element("OverrideCharacteristicWith")?.Value);
         CollectionAssert.AreEqual(
@@ -107,7 +107,7 @@ public class SeederDisfigurementTemplateUtilityTests
         {
             ShortDescription = "a refined battle scar",
             Distinctiveness = 6,
-            DamageHealingScarChance = 0.8
+            DamageHealingScarWeight = 0.8
         };
         SeederDisfigurementTemplateUtilities.SeedTemplates(context, body, scarDefinitions: [updatedDefinition]);
 
@@ -118,7 +118,7 @@ public class SeederDisfigurementTemplateUtilityTests
         Assert.AreEqual(1, context.DisfigurementTemplates.Count(),
             "Reseeding the same scar template should update in place rather than creating a duplicate current revision.");
         Assert.AreEqual("a refined battle scar", template.ShortDescription);
-        Assert.AreEqual("0.8", definitionXml.Element("DamageHealingScarChance")?.Value);
+        Assert.AreEqual("0.8", definitionXml.Element("DamageHealingScarWeight")?.Value);
         Assert.AreEqual("6", definitionXml.Element("Distinctiveness")?.Value);
     }
 

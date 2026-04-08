@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.Framework;
 
@@ -328,6 +330,7 @@ public static class DefaultStaticSettings
             { "ScarringEnabled", "true" },
             { "ScarGenerationOverallChanceUpperBound", "0.999" },
             { "ScarGenerationChanceClampMaximum", "0.95" },
+            { "ScarGenerationChanceMatrix", GetDefaultScarGenerationChanceMatrix() },
             { "ScarGenerationOrganicSurgerySeverityPerLevel", "0.04" },
             { "ScarGenerationOrganicSurgeryHadInfectionModifier", "0.18" },
             { "ScarGenerationOrganicSurgeryCleanedModifier", "-0.05" },
@@ -1068,6 +1071,92 @@ Your password will be used to access your account, and will be stored securely o
         {"ExplosionHeardEcho", "An explosion can be heard {0}."},
         {"LaserHeardEcho", "A laser blast can be heard {0}."},
     };
+
+    private static string GetDefaultScarGenerationChanceMatrix()
+    {
+        return new XElement("ScarGenerationChanceMatrix",
+            from damageType in Enum.GetValues<Health.DamageType>()
+            select new XElement("Damage",
+                new XAttribute("Type", damageType),
+                from severity in Enum.GetValues<Health.WoundSeverity>()
+                select new XElement("Chance",
+                    new XAttribute("Severity", severity),
+                    GetDefaultScarGenerationDamageChance(damageType, severity).ToString(CultureInfo.InvariantCulture))
+            ),
+            new XElement("Surgery",
+                from severity in Enum.GetValues<Health.WoundSeverity>()
+                select new XElement("Chance",
+                    new XAttribute("Severity", severity),
+                    GetDefaultScarGenerationSurgeryChance(severity).ToString(CultureInfo.InvariantCulture))
+            )
+        ).ToString();
+    }
+
+    private static double GetDefaultScarGenerationDamageChance(Health.DamageType damageType, Health.WoundSeverity severity)
+    {
+        return GetDefaultScarGenerationSeverityBase(severity) * (damageType switch
+        {
+            Health.DamageType.Slashing => 1.15,
+            Health.DamageType.Chopping => 1.2,
+            Health.DamageType.Crushing => 0.75,
+            Health.DamageType.Piercing => 0.95,
+            Health.DamageType.Ballistic => 1.0,
+            Health.DamageType.Burning => 1.1,
+            Health.DamageType.Freezing => 0.85,
+            Health.DamageType.Chemical => 1.05,
+            Health.DamageType.Shockwave => 0.7,
+            Health.DamageType.Bite => 1.0,
+            Health.DamageType.Claw => 1.15,
+            Health.DamageType.Electrical => 0.85,
+            Health.DamageType.Hypoxia => 0.25,
+            Health.DamageType.Cellular => 0.35,
+            Health.DamageType.Sonic => 0.65,
+            Health.DamageType.Shearing => 1.1,
+            Health.DamageType.BallisticArmourPiercing => 1.05,
+            Health.DamageType.Wrenching => 0.8,
+            Health.DamageType.Shrapnel => 1.0,
+            Health.DamageType.Necrotic => 0.9,
+            Health.DamageType.Falling => 0.7,
+            Health.DamageType.Eldritch => 1.1,
+            Health.DamageType.Arcane => 1.0,
+            Health.DamageType.ArmourPiercing => 1.0,
+            _ => 1.0
+        });
+    }
+
+    private static double GetDefaultScarGenerationSeverityBase(Health.WoundSeverity severity)
+    {
+        return severity switch
+        {
+            Health.WoundSeverity.None => 0.0,
+            Health.WoundSeverity.Superficial => 0.02,
+            Health.WoundSeverity.Minor => 0.04,
+            Health.WoundSeverity.Small => 0.07,
+            Health.WoundSeverity.Moderate => 0.11,
+            Health.WoundSeverity.Severe => 0.16,
+            Health.WoundSeverity.VerySevere => 0.22,
+            Health.WoundSeverity.Grievous => 0.30,
+            Health.WoundSeverity.Horrifying => 0.40,
+            _ => 0.0
+        };
+    }
+
+    private static double GetDefaultScarGenerationSurgeryChance(Health.WoundSeverity severity)
+    {
+        return severity switch
+        {
+            Health.WoundSeverity.None => 0.0,
+            Health.WoundSeverity.Superficial => 0.03,
+            Health.WoundSeverity.Minor => 0.05,
+            Health.WoundSeverity.Small => 0.08,
+            Health.WoundSeverity.Moderate => 0.12,
+            Health.WoundSeverity.Severe => 0.17,
+            Health.WoundSeverity.VerySevere => 0.23,
+            Health.WoundSeverity.Grievous => 0.30,
+            Health.WoundSeverity.Horrifying => 0.38,
+            _ => 0.0
+        };
+    }
 
     #endregion
 }

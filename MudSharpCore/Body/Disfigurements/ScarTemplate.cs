@@ -9,6 +9,7 @@ using MudSharp.GameItems;
 using MudSharp.Health;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -43,8 +44,8 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         SizeSteps = int.Parse(root.Element("SizeSteps").Value);
         Unique = bool.Parse(root.Element("Unique").Value);
         Distinctiveness = int.Parse(root.Element("Distinctiveness").Value);
-        DamageHealingScarChance = double.Parse(root.Element("DamageHealingScarChance")?.Value ?? "0.0");
-        SurgeryHealingScarChance = double.Parse(root.Element("SurgeryHealingScarChance")?.Value ?? "0.0");
+        DamageHealingScarWeight = LoadHealingScarWeight(root, "DamageHealingScarWeight", "DamageHealingScarChance");
+        SurgeryHealingScarWeight = LoadHealingScarWeight(root, "SurgeryHealingScarWeight", "SurgeryHealingScarChance");
         foreach (XElement element in root.Element("Surgeries").Elements())
         {
             _surgicalProcedureTypes.Add((SurgicalProcedureType)int.Parse(element.Value));
@@ -77,8 +78,8 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         SizeSteps = rhs.SizeSteps;
         Unique = rhs.Unique;
         Distinctiveness = rhs.Distinctiveness;
-        DamageHealingScarChance = rhs.DamageHealingScarChance;
-        SurgeryHealingScarChance = rhs.SurgeryHealingScarChance;
+        DamageHealingScarWeight = rhs.DamageHealingScarWeight;
+        SurgeryHealingScarWeight = rhs.SurgeryHealingScarWeight;
         Changed = true;
     }
 
@@ -121,8 +122,8 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
             new XElement("SizeSteps", SizeSteps),
             new XElement("Distinctiveness", Distinctiveness),
             new XElement("Unique", Unique),
-            new XElement("DamageHealingScarChance", DamageHealingScarChance),
-            new XElement("SurgeryHealingScarChance", SurgeryHealingScarChance),
+            new XElement("DamageHealingScarWeight", DamageHealingScarWeight),
+            new XElement("SurgeryHealingScarWeight", SurgeryHealingScarWeight),
             new XElement("Shapes",
                 from shape in _permittedShapes
                 select new XElement("Shape", shape.Id)
@@ -169,8 +170,8 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         sb.AppendLine($"Can Only Have One: {Unique.ToColouredString()}");
         sb.AppendLine($"Sizes Below Bodypart Size: {SizeSteps.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Distinctiveness: {Distinctiveness.ToString("N0", actor).ColourValue()}");
-        sb.AppendLine($"Damage Healing Chance: {DamageHealingScarChance.ToString("P2", actor).ColourValue()}");
-        sb.AppendLine($"Surgery Healing Chance: {SurgeryHealingScarChance.ToString("P2", actor).ColourValue()}");
+        sb.AppendLine($"Damage Healing Weight: {DamageHealingScarWeight.ToString("P2", actor).ColourValue()}");
+        sb.AppendLine($"Surgery Healing Weight: {SurgeryHealingScarWeight.ToString("P2", actor).ColourValue()}");
         sb.AppendLine(
             $"Permitted Bodyparts: {(_permittedShapes.Any() ? _permittedShapes.Select(x => x.Name.ColourValue()).ListToString() : "Any".ColourValue())}");
         sb.AppendLine(
@@ -215,8 +216,8 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
     public int SizeSteps { get; protected set; }
     public int Distinctiveness { get; protected set; }
     public bool Unique { get; protected set; }
-    public double DamageHealingScarChance { get; protected set; }
-    public double SurgeryHealingScarChance { get; protected set; }
+    public double DamageHealingScarWeight { get; protected set; }
+    public double SurgeryHealingScarWeight { get; protected set; }
     private readonly List<SurgicalProcedureType> _surgicalProcedureTypes = new();
     private readonly Dictionary<DamageType, WoundSeverity> _damageTypesAndSeverities = new();
 
@@ -279,8 +280,8 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
 	#3damage <type> <severity>#0 - set a damage type and minimum severity for this scar
 	#3damage <type>#0 - clears a damage type
 	#3bodypart <shape>#0 - sets the target bodypart shapes
-	#3damagechance <percent>#0 - sets the base chance from ordinary wound healing
-	#3surgerychance <percent>#0 - sets the base chance from surgery recovery wounds
+	#3damageweight <percent>#0 - sets the relative selection weight from ordinary wound healing
+	#3surgeryweight <percent>#0 - sets the relative selection weight from surgery recovery wounds
 	#3chargen [<amount> <resource>]#0 - toggles scar selectable in chargen. Admins only.
 	#3prog <prog>#0 - sets the prog that controls appearance in chargen. Admins only.
 	#3override ""<plain>"" ""<with>""#0 - special override descriptions for sdescs, both a plain form and a with form.";
@@ -301,12 +302,18 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
             case "part":
             case "shape":
                 return BuildingCommandBodypart(actor, command);
+            case "damageweight":
+            case "damageweights":
             case "damagechance":
             case "damagehealingchance":
+            case "damagehealingweight":
             case "damagehealing":
                 return BuildingCommandHealingChance(actor, command, true);
+            case "surgeryweight":
+            case "surgeryweights":
             case "surgerychance":
             case "surgeryhealingchance":
+            case "surgeryhealingweight":
             case "surgeryhealing":
                 return BuildingCommandHealingChance(actor, command, false);
             case "chargen":
@@ -344,7 +351,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         if (command.PeekSpeech().EqualToAny("none", "clear", "remove", "delete"))
         {
             CanSelectInChargenProg = null;
-            Changed = true;
+            MarkChanged();
             actor.OutputHandler.Send(
                 "This scar will no longer use a prog to determine who can select it in chargen. This means it will always be selectable if it has been approved for chargen.");
             return true;
@@ -372,7 +379,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         }
 
         CanSelectInChargenProg = prog;
-        Changed = true;
+        MarkChanged();
         actor.OutputHandler.Send(
             $"This scar will now use the prog {prog.MXPClickableFunctionNameWithId()} to determine whether it can be selected in chargen.");
         return true;
@@ -405,7 +412,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
             _damageTypesAndSeverities.Remove(value);
             actor.OutputHandler.Send(
                 $"The {value.Describe().ColourValue()} damage type will no longer cause this scar.");
-            Changed = true;
+            MarkChanged();
             return true;
         }
 
@@ -417,7 +424,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         }
 
         _damageTypesAndSeverities[value] = sValue;
-        Changed = true;
+        MarkChanged();
         actor.OutputHandler.Send(
             $"This scar can now be caused by {value.Describe().ColourValue()} damage of severity {sValue.Describe().ColourValue()} or worse.");
         return true;
@@ -427,13 +434,13 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("What chance do you want to set? You can specify either a 0-1 value or a 0-100 percentage.");
+            actor.OutputHandler.Send("What relative selection weight do you want to set? You can specify either a 0-1 value or a 0-100 percentage.");
             return false;
         }
 
         if (!double.TryParse(command.PopSpeech(), out double value) || value < 0.0)
         {
-            actor.OutputHandler.Send("You must enter a valid non-negative numeric chance.");
+            actor.OutputHandler.Send("You must enter a valid non-negative numeric weight.");
             return false;
         }
 
@@ -444,22 +451,22 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
 
         if (value > 1.0)
         {
-            actor.OutputHandler.Send("That chance must be no more than 100%.");
+            actor.OutputHandler.Send("That weight must be no more than 100%.");
             return false;
         }
 
         if (damageHealing)
         {
-            DamageHealingScarChance = value;
+            DamageHealingScarWeight = value;
         }
         else
         {
-            SurgeryHealingScarChance = value;
+            SurgeryHealingScarWeight = value;
         }
 
-        Changed = true;
+        MarkChanged();
         actor.OutputHandler.Send(
-            $"This scar now has a base {(damageHealing ? "damage-healing" : "surgery-healing")} chance of {value.ToString("P2", actor).ColourValue()}.");
+            $"This scar now has a {(damageHealing ? "damage-healing" : "surgery-healing")} selection weight of {value.ToString("P2", actor).ColourValue()}.");
         return true;
     }
 
@@ -482,14 +489,14 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         if (_surgicalProcedureTypes.Contains(value))
         {
             _surgicalProcedureTypes.Remove(value);
-            Changed = true;
+            MarkChanged();
             actor.OutputHandler.Send(
                 $"Surgeries of type {value.DescribeEnum().ColourValue()} will no longer be able to cause this scar.");
             return true;
         }
 
         _surgicalProcedureTypes.Add(value);
-        Changed = true;
+        MarkChanged();
         actor.OutputHandler.Send(
             $"Surgeries of type {value.DescribeEnum().ColourValue()} will now be able to cause this scar.");
         return true;
@@ -505,7 +512,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         }
 
         SizeSteps = value;
-        Changed = true;
+        MarkChanged();
         actor.OutputHandler.Send(
             $"This scar is now {SizeSteps.ToString("N0", actor).ColourValue()} steps smaller than its parent bodypart. For example, this scar on a size {SizeCategory.Normal.Describe().ColourValue()} bodypart would be size {SizeCategory.Normal.ChangeSize(SizeSteps).Describe().ColourValue()}.");
         return true;
@@ -519,7 +526,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
                 $"This scar will {(CanSelectInChargen ? "no longer" : "now")} be selectable in character creation.");
             CanSelectInChargen = !CanSelectInChargen;
             ChargenCosts.Clear();
-            Changed = true;
+            MarkChanged();
             return true;
         }
 
@@ -555,7 +562,7 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
         CanSelectInChargen = true;
         actor.OutputHandler.Send(
             $"This scar is now selectable in chargen for a cost of {ChargenCosts.Select(x => $"{x.Value} {x.Key.Alias}".ColourValue()).ListToString()}.");
-        Changed = true;
+        MarkChanged();
         return true;
     }
 
@@ -582,14 +589,14 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
             actor.OutputHandler.Send(
                 $"This scar will no longer be possible to occur on bodyparts of type {shape.Name.Colour(Telnet.Yellow)}.");
             _permittedShapes.Remove(shape);
-            Changed = true;
+            MarkChanged();
             return true;
         }
 
         actor.OutputHandler.Send(
             $"This scar will now be possible to occur on bodyparts of type {shape.Name.Colour(Telnet.Yellow)}.");
         _permittedShapes.Add(shape);
-        Changed = true;
+        MarkChanged();
         return true;
     }
 
@@ -610,11 +617,39 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
 
         _overrideCharacteristicWith = command.PopSpeech();
         _overrideCharacteristicPlain = plain;
-        Changed = true;
+        MarkChanged();
         actor.OutputHandler.Send(
             $"This scar will now provide an override of {_overrideCharacteristicPlain.ColourCharacter()} with the &scars sdesc tag and {_overrideCharacteristicWith.ColourCharacter()} with the &withscars sdesc tag.");
         return true;
     }
 
     #endregion
+
+    public override bool ChangeStatus(RevisionStatus status, string comment, IAccount reviewer)
+    {
+        bool wasCurrent = Status == RevisionStatus.Current;
+        bool result = base.ChangeStatus(status, comment, reviewer);
+        if (result && (wasCurrent || status == RevisionStatus.Current))
+        {
+            ScarTemplateIndex.Invalidate(Gameworld);
+        }
+
+        return result;
+    }
+
+    internal static double LoadHealingScarWeight(XElement root, string preferredElementName, string legacyElementName)
+    {
+        return double.Parse(
+            root.Element(preferredElementName)?.Value ?? root.Element(legacyElementName)?.Value ?? "0.0",
+            CultureInfo.InvariantCulture);
+    }
+
+    private void MarkChanged()
+    {
+        Changed = true;
+        if (Status == RevisionStatus.Current)
+        {
+            ScarTemplateIndex.Invalidate(Gameworld);
+        }
+    }
 }

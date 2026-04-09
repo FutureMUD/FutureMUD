@@ -248,6 +248,7 @@ internal static class SeederDisfigurementTemplateUtilities
         EditableItem editableItem = CreateEditableItem(context);
         template = new MudSharp.Models.DisfigurementTemplate
         {
+            Id = GetNextDisfigurementTemplateId(context),
             RevisionNumber = 0,
             EditableItem = editableItem
         };
@@ -272,6 +273,20 @@ internal static class SeederDisfigurementTemplateUtilities
         };
         context.EditableItems.Add(editableItem);
         return editableItem;
+    }
+
+    private static long GetNextDisfigurementTemplateId(FuturemudDatabaseContext context)
+    {
+        // Editable-item tables with (Id, RevisionNumber) keys do not always use database-generated IDs.
+        // Disfigurement templates are one of those cases, so the seeder must allocate the next stable ID itself.
+        return context.DisfigurementTemplates.Local
+            .Select(x => x.Id)
+            .Concat(context.DisfigurementTemplates
+                .AsNoTracking()
+                .Select(x => x.Id)
+                .AsEnumerable())
+            .DefaultIfEmpty(0L)
+            .Max() + 1;
     }
 
     private static void EnsureEditableItemMetadata(FuturemudDatabaseContext context, EditableItem editableItem)

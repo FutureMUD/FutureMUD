@@ -91,6 +91,7 @@ public class ScarSeederWork
 
             var json = JsonSerializer.Serialize(payload, options);
             File.WriteAllText(outputPath, json);
+            File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "human_scar_templates.cs"), new GenerateHumanScarTemplatesField().Generate(json));
 
             Console.WriteLine($"Wrote {export.Count} scar templates to:");
             Console.WriteLine(outputPath);
@@ -605,16 +606,6 @@ public class ScarSeederWork
         1,
         0.003),
     new HighSeverityScarDamageSpec(
-        MudSharp.Health.DamageType.Crushing,
-        "Crushing",
-        "puckered crush scar",
-        "puckered crush scar",
-        "where the tissue was pulped under impact and set into hard, warped ridges",
-        "Warp",
-        1,
-        0,
-        0.002),
-    new HighSeverityScarDamageSpec(
         MudSharp.Health.DamageType.Piercing,
         "Piercing",
         "puncture scar",
@@ -705,36 +696,6 @@ public class ScarSeederWork
         1,
         0.003),
     new HighSeverityScarDamageSpec(
-        MudSharp.Health.DamageType.Hypoxia,
-        "Hypoxia",
-        "pale hypoxic scar",
-        "pale hypoxic scar",
-        "where deprived tissue died shallowly and healed into a pale, shrunken patch",
-        "Patch",
-        0,
-        0,
-        0.001),
-    new HighSeverityScarDamageSpec(
-        MudSharp.Health.DamageType.Cellular,
-        "Cellular",
-        "sunken cellular-collapse scar",
-        "sunken cellular-collapse scar",
-        "where deep systemic tissue damage broke the skin down and healed in a sunken, unhealthy scar",
-        "Patch",
-        1,
-        1,
-        0.002),
-    new HighSeverityScarDamageSpec(
-        MudSharp.Health.DamageType.Sonic,
-        "Sonic",
-        "rupture scar",
-        "rupture scar",
-        "where violent vibration ruptured the tissue in a harsh, irregular band",
-        "Line",
-        0,
-        0,
-        0.001),
-    new HighSeverityScarDamageSpec(
         MudSharp.Health.DamageType.Shearing,
         "Shearing",
         "split shear scar",
@@ -784,16 +745,6 @@ public class ScarSeederWork
         1,
         1,
         0.004),
-    new HighSeverityScarDamageSpec(
-        MudSharp.Health.DamageType.Falling,
-        "Falling",
-        "impact scar",
-        "impact scar",
-        "where a violent fall crushed and ripped the tissue into a broad, uneven knot of scar",
-        "Warp",
-        1,
-        0,
-        0.002),
     new HighSeverityScarDamageSpec(
         MudSharp.Health.DamageType.Eldritch,
         "Eldritch",

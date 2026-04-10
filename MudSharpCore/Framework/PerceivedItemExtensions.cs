@@ -1220,7 +1220,7 @@ public static class PerceivedItemExtensions
     /// <returns>The lowest unused Id</returns>
     public static long NextID<T>(this IEnumerable<T> source) where T : IFrameworkItem
     {
-        long priorNumber = 1;
+        long priorNumber = 0;
 
         foreach (long number in source.Select(x => x.Id).OrderBy(n => n))
         {

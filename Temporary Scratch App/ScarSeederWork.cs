@@ -1,4 +1,5 @@
 ﻿using MudSharp.Communication.Language;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using System.Text.Encodings.Web;
@@ -347,9 +348,9 @@ public class ScarSeederWork
 
     private static readonly IReadOnlyList<ScarSeveritySpec> HumanScarSeveritySpecs = new[]
     {
-    new ScarSeveritySpec("VerySevere", MudSharp.Health.WoundSeverity.VerySevere, "heavy", "heavy", 0, 2, 0.018),
-    new ScarSeveritySpec("Grievous", MudSharp.Health.WoundSeverity.Grievous, "deep", "deep", 0, 3, 0.014),
-    new ScarSeveritySpec("Horrifying", MudSharp.Health.WoundSeverity.Horrifying, "catastrophic", "catastrophic", 1, 4, 0.011)
+    new ScarSeveritySpec("VerySevere", MudSharp.Health.WoundSeverity.VerySevere, "", "severe", 0, 2, 0.018),
+    new ScarSeveritySpec("Grievous", MudSharp.Health.WoundSeverity.Grievous, "grevious", "grevious", 0, 3, 0.014),
+    new ScarSeveritySpec("Horrifying", MudSharp.Health.WoundSeverity.Horrifying, "horrifying", "horrifying", 1, 4, 0.011)
 };
 
     private static readonly IReadOnlyList<HighSeverityScarOrientationSpec> Broad5Orientations = new[]
@@ -840,7 +841,7 @@ public class ScarSeederWork
 
         return new SeederScarTemplateDefinition(
             $"{severity.Label} {shape.CodeName} {damage.CodeName} {orientation.NameFragment} Scar",
-            $"a {severity.ShortModifier} {shortBase}",
+            $"a {severity.ShortModifier.SpaceIfNotEmpty()}{shortBase}",
             $"A {severity.FullModifier} {fullBase} {GetOrientationPhrase(orientation, patternFamily, shape.Geometry)}; {causePhrase}.",
             SizeSteps: sizeSteps,
             Distinctiveness: distinctiveness,

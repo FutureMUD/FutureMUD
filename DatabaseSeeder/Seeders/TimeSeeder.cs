@@ -203,6 +203,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 </Clock>");
 
                 utc = EnsureTimezone(context, clock, "PMT", "Paris Mean Time (PMT)", 0, 0);
+                EnsureTimezone(context, clock, "UTC", "Universal Time Clock (UTC)", 0, 0);
                 context.SaveChanges();
                 clock.PrimaryTimezoneId = utc.Id;
                 SetupFrenchRepublican(context, clock, questionAnswers);

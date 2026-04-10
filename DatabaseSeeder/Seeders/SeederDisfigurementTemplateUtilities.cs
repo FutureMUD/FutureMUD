@@ -275,18 +275,33 @@ internal static class SeederDisfigurementTemplateUtilities
         return editableItem;
     }
 
+    private static FuturemudDatabaseContext _context;
+
+    private static long _nextDisfigurementTemplateId = 0;
+
+    private static long NextDisfigurementTemplateId
+    {
+        get
+        {
+            if (_nextDisfigurementTemplateId == 0)
+            {
+                _nextDisfigurementTemplateId = _context.DisfigurementTemplates
+                    .Select(x => x.Id)
+                    .AsEnumerable()
+                    .DefaultIfEmpty(0L)
+                    .Max();
+            }
+
+            return _nextDisfigurementTemplateId++;
+        }
+    }
+
     private static long GetNextDisfigurementTemplateId(FuturemudDatabaseContext context)
     {
+        _context = context;
         // Editable-item tables with (Id, RevisionNumber) keys do not always use database-generated IDs.
         // Disfigurement templates are one of those cases, so the seeder must allocate the next stable ID itself.
-        return context.DisfigurementTemplates.Local
-            .Select(x => x.Id)
-            .Concat(context.DisfigurementTemplates
-                .AsNoTracking()
-                .Select(x => x.Id)
-                .AsEnumerable())
-            .DefaultIfEmpty(0L)
-            .Max() + 1;
+        return NextDisfigurementTemplateId;
     }
 
     private static void EnsureEditableItemMetadata(FuturemudDatabaseContext context, EditableItem editableItem)
@@ -466,7 +481,7 @@ internal static class SeederDisfigurementTemplateUtilities
             .FirstOrDefault(x => string.Equals(x.Name, languageName, StringComparison.OrdinalIgnoreCase));
         if (language is null)
         {
-            throw new InvalidOperationException($"Could not resolve language {languageName}.");
+            return 0L;
         }
 
         return language.Id;
@@ -484,7 +499,7 @@ internal static class SeederDisfigurementTemplateUtilities
             .FirstOrDefault(x => string.Equals(x.Name, scriptName, StringComparison.OrdinalIgnoreCase));
         if (script is null)
         {
-            throw new InvalidOperationException($"Could not resolve script {scriptName}.");
+            return 0L;
         }
 
         return script.Id;

@@ -25,11 +25,13 @@ namespace DatabaseSeeder.Seeders
                     OnlyOnce = false
                 };
                 context.Dreams.Add(dream);
+                var phaseId = 1;
                 foreach ((string Text, string Command, int SecondsDelay) phase in phases)
                 {
                     context.DreamPhases.Add(new DreamPhase
                     {
                         Dream = dream,
+                        PhaseId = phaseId++,
                         DreamerText = phase.Text,
                         DreamerCommand = phase.Command,
                         WaitSeconds = phase.SecondsDelay

@@ -106,11 +106,73 @@ Please make your choice: ",
     public string Name => "Currency";
     public string Tagline => "Set up a currency (or currencies) for your game";
 
-    public string FullDescription =>
-        "This package sets up everything you need to get a currency in game. It is intended to be additive, so reruns can install more stock currency packages. This is required for some of the clan templates.";
+	public string FullDescription =>
+		"This package sets up everything you need to get a currency in game. It is intended to be additive, so reruns can install more stock currency packages. This is required for some of the clan templates.";
 
-    private void SeedDollars(FuturemudDatabaseContext context, ICollection<string> errors)
-    {
+	private static FutureProg EnsureNumericLessThanProg(FuturemudDatabaseContext context, string functionName, string thresholdText)
+	{
+		var prog = context.FutureProgs.FirstOrDefault(x => x.FunctionName == functionName);
+		if (prog is not null)
+		{
+			return prog;
+		}
+
+		prog = new FutureProg
+		{
+			FunctionName = functionName,
+			AcceptsAnyParameters = false,
+			ReturnType = 4,
+			Category = "Core",
+			Subcategory = "Universal",
+			Public = true,
+			FunctionComment = $"Accepts a number and returns true if it is less than {thresholdText}.",
+			FunctionText = $"return @number < {thresholdText}",
+			StaticType = 0
+		};
+		prog.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = prog,
+			ParameterIndex = 0,
+			ParameterName = "number",
+			ParameterType = 2
+		});
+		context.FutureProgs.Add(prog);
+		context.SaveChanges();
+		return prog;
+	}
+
+	private static void AddSpecialValue(CurrencyDescriptionPatternElement element, decimal value, string text)
+	{
+		element.CurrencyDescriptionPatternElementSpecialValues.Add(new CurrencyDescriptionPatternElementSpecialValues
+		{
+			CurrencyDescriptionPatternElement = element,
+			Value = value,
+			Text = text
+		});
+	}
+
+	private static void AddSterlingFractionalPenceSpecialValues(CurrencyDescriptionPatternElement element, string suffix)
+	{
+		foreach (var (fraction, glyph) in new[]
+		         {
+			         (0.25M, "¼"),
+			         (0.5M, "½"),
+			         (0.75M, "¾")
+		         })
+		{
+			for (var wholePence = 0; wholePence < 12; wholePence++)
+			{
+				var value = wholePence + fraction;
+				var text = wholePence == 0
+					? $"{glyph}{suffix}"
+					: $"{wholePence}{glyph}{suffix}";
+				AddSpecialValue(element, value, text);
+			}
+		}
+	}
+
+	private void SeedDollars(FuturemudDatabaseContext context, ICollection<string> errors)
+	{
         Currency currency = new()
         {
             Name = "Dollars"
@@ -882,258 +944,282 @@ Please make your choice: ",
         context.SaveChanges();
     }
 
-    private void SeedPounds(FuturemudDatabaseContext context, ICollection<string> errors)
-    {
-        Currency currency = new()
-        {
-            Name = "Pounds"
-        };
-        context.Currencies.Add(currency);
-        context.SaveChanges();
+	private void SeedPounds(FuturemudDatabaseContext context, ICollection<string> errors)
+	{
+		var currency = new Currency
+		{
+			Name = "Pounds"
+		};
+		context.Currencies.Add(currency);
+		context.SaveChanges();
 
-        CurrencyDivision division = new()
-        {
-            Currency = currency,
-            Name = "penny",
-            BaseUnitConversionRate = 4.0M
-        };
-        context.CurrencyDivisions.Add(division);
-        CurrencyDivision pennyDivision = division;
-        division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
-        { CurrencyDivision = division, Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:penny|pennies|p|d))$" });
-        context.SaveChanges();
+		var division = new CurrencyDivision
+		{
+			Currency = currency,
+			Name = "penny",
+			BaseUnitConversionRate = 4.0M
+		};
+		context.CurrencyDivisions.Add(division);
+		var pennyDivision = division;
+		division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
+		{
+			CurrencyDivision = division,
+			Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:penny|pennies|p|d))$"
+		});
+		context.SaveChanges();
 
-        division = new CurrencyDivision
-        {
-            Currency = currency,
-            Name = "shilling",
-            BaseUnitConversionRate = 48.0M
-        };
-        context.CurrencyDivisions.Add(division);
-        CurrencyDivision shillingDivision = division;
-        division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
-        { CurrencyDivision = division, Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:shillings|shilling|s))$" });
-        context.SaveChanges();
+		division = new CurrencyDivision
+		{
+			Currency = currency,
+			Name = "shilling",
+			BaseUnitConversionRate = 48.0M
+		};
+		context.CurrencyDivisions.Add(division);
+		var shillingDivision = division;
+		division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
+		{
+			CurrencyDivision = division,
+			Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:shillings|shilling|s))$"
+		});
+		context.SaveChanges();
 
-        division = new CurrencyDivision
-        {
-            Currency = currency,
-            Name = "pound",
-            BaseUnitConversionRate = 960.0M
-        };
-        context.CurrencyDivisions.Add(division);
-        CurrencyDivision poundDivision = division;
-        division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
-        { CurrencyDivision = division, Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:pounds|pound|l|lb|£))$" });
-        context.SaveChanges();
+		division = new CurrencyDivision
+		{
+			Currency = currency,
+			Name = "pound",
+			BaseUnitConversionRate = 960.0M
+		};
+		context.CurrencyDivisions.Add(division);
+		var poundDivision = division;
+		division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
+		{
+			CurrencyDivision = division,
+			Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:pounds|pound|l|lb|£))$"
+		});
+		context.SaveChanges();
 
-        division = new CurrencyDivision
-        {
-            Currency = currency,
-            Name = "farthing",
-            BaseUnitConversionRate = 1.0M
-        };
-        context.CurrencyDivisions.Add(division);
-        CurrencyDivision farthingDivision = division;
-        division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
-        { CurrencyDivision = division, Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:farthings|farthing|f))$" });
-        context.SaveChanges();
+		division = new CurrencyDivision
+		{
+			Currency = currency,
+			Name = "farthing",
+			BaseUnitConversionRate = 1.0M
+		};
+		context.CurrencyDivisions.Add(division);
+		var farthingDivision = division;
+		division.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
+		{
+			CurrencyDivision = division,
+			Pattern = @"(-?\d+(?:\.\d+)*)(?:\s*(?:farthings|farthing|f))$"
+		});
+		context.SaveChanges();
 
-        foreach (CurrencyDescriptionPatternType type in Enum.GetValues(typeof(CurrencyDescriptionPatternType))
-                     .OfType<CurrencyDescriptionPatternType>())
-        {
-            string prefix;
-            switch (type)
-            {
-                case CurrencyDescriptionPatternType.Casual:
-                case CurrencyDescriptionPatternType.Wordy:
-                    prefix = "negative ";
-                    break;
-                case CurrencyDescriptionPatternType.Long:
-                case CurrencyDescriptionPatternType.Short:
-                case CurrencyDescriptionPatternType.ShortDecimal:
-                    prefix = "-";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+		var lessThanOneShillingProg = EnsureNumericLessThanProg(context, "IsLessThanFortyEight", "48");
+		var lessThanOnePoundProg = EnsureNumericLessThanProg(context, "IsLessThanNineHundredSixty", "960");
 
-            CurrencyDescriptionPattern pattern = new()
-            {
-                Currency = currency,
-                Type = (int)type,
-                NegativePrefix = prefix,
-                Order = 1,
-                UseNaturalAggregationStyle = true
-            };
-            context.CurrencyDescriptionPatterns.Add(pattern);
-            switch (type)
-            {
-                case CurrencyDescriptionPatternType.Casual:
-                case CurrencyDescriptionPatternType.Wordy:
-                    pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0} pound",
-                        Order = 1,
-                        ShowIfZero = false,
-                        CurrencyDivision = poundDivision,
-                        PluraliseWord = "pound",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = false
-                    });
-                    pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0} shilling",
-                        Order = 2,
-                        ShowIfZero = false,
-                        CurrencyDivision = shillingDivision,
-                        PluraliseWord = "shilling",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = false
-                    });
-                    CurrencyDescriptionPatternElement pennyElement = new()
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0} penny",
-                        Order = 3,
-                        ShowIfZero = false,
-                        CurrencyDivision = pennyDivision,
-                        PluraliseWord = "penny",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = true
-                    };
-                    pattern.CurrencyDescriptionPatternElements.Add(pennyElement);
+		foreach (var type in Enum.GetValues(typeof(CurrencyDescriptionPatternType)).OfType<CurrencyDescriptionPatternType>())
+		{
+			string prefix;
+			switch (type)
+			{
+				case CurrencyDescriptionPatternType.Casual:
+				case CurrencyDescriptionPatternType.Wordy:
+					prefix = "negative ";
+					break;
+				case CurrencyDescriptionPatternType.Long:
+				case CurrencyDescriptionPatternType.Short:
+				case CurrencyDescriptionPatternType.ShortDecimal:
+					prefix = "-";
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 
-                    pennyElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = pennyElement,
-                            Value = 8.0M,
-                            Text = "tuppence"
-                        });
+			if (type is CurrencyDescriptionPatternType.Casual or CurrencyDescriptionPatternType.Wordy)
+			{
+				var pattern = new CurrencyDescriptionPattern
+				{
+					Currency = currency,
+					Type = (int)type,
+					NegativePrefix = prefix,
+					Order = 1,
+					UseNaturalAggregationStyle = true
+				};
+				context.CurrencyDescriptionPatterns.Add(pattern);
 
-                    pennyElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = pennyElement,
-                            Value = 12.0M,
-                            Text = "thruppence"
-                        });
+				pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
+				{
+					CurrencyDescriptionPattern = pattern,
+					Pattern = "{0} pound",
+					Order = 1,
+					ShowIfZero = false,
+					CurrencyDivision = poundDivision,
+					PluraliseWord = "pound",
+					RoundingMode = (int)RoundingMode.Truncate,
+					SpecialValuesOverrideFormat = false
+				});
+				pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
+				{
+					CurrencyDescriptionPattern = pattern,
+					Pattern = "{0} shilling",
+					Order = 2,
+					ShowIfZero = false,
+					CurrencyDivision = shillingDivision,
+					PluraliseWord = "shilling",
+					RoundingMode = (int)RoundingMode.Truncate,
+					SpecialValuesOverrideFormat = false
+				});
 
-                    pennyElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = pennyElement,
-                            Value = 16.0M,
-                            Text = "fourpence"
-                        });
+				var pennyElement = new CurrencyDescriptionPatternElement
+				{
+					CurrencyDescriptionPattern = pattern,
+					Pattern = "{0} penny",
+					Order = 3,
+					ShowIfZero = false,
+					CurrencyDivision = pennyDivision,
+					PluraliseWord = "penny",
+					RoundingMode = (int)RoundingMode.Truncate,
+					SpecialValuesOverrideFormat = true
+				};
+				pattern.CurrencyDescriptionPatternElements.Add(pennyElement);
+				AddSpecialValue(pennyElement, 2.0M, "tuppence");
+				AddSpecialValue(pennyElement, 3.0M, "thruppence");
+				AddSpecialValue(pennyElement, 4.0M, "fourpence");
+				AddSpecialValue(pennyElement, 6.0M, "sixpence");
 
-                    pennyElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = pennyElement,
-                            Value = 24.0M,
-                            Text = "sixpence"
-                        });
+				var farthingElement = new CurrencyDescriptionPatternElement
+				{
+					CurrencyDescriptionPattern = pattern,
+					Pattern = "{0} farthing",
+					Order = 4,
+					ShowIfZero = false,
+					CurrencyDivision = farthingDivision,
+					PluraliseWord = "farthing",
+					RoundingMode = (int)RoundingMode.Truncate,
+					SpecialValuesOverrideFormat = true
+				};
+				pattern.CurrencyDescriptionPatternElements.Add(farthingElement);
+				AddSpecialValue(farthingElement, 1.0M, "farthing");
+				AddSpecialValue(farthingElement, 2.0M, "ha'penny");
+				AddSpecialValue(farthingElement, 3.0M, "three farthings");
+				continue;
+			}
 
-                    CurrencyDescriptionPatternElement farthingElement = new()
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0} farthing",
-                        Order = 4,
-                        ShowIfZero = false,
-                        CurrencyDivision = farthingDivision,
-                        PluraliseWord = "farthing",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = true
-                    };
-                    pattern.CurrencyDescriptionPatternElements.Add(farthingElement);
+			var pencePattern = new CurrencyDescriptionPattern
+			{
+				Currency = currency,
+				Type = (int)type,
+				NegativePrefix = prefix,
+				Order = 10,
+				UseNaturalAggregationStyle = false,
+				FutureProg = lessThanOneShillingProg
+			};
+			context.CurrencyDescriptionPatterns.Add(pencePattern);
+			var penceElement = new CurrencyDescriptionPatternElement
+			{
+				CurrencyDescriptionPattern = pencePattern,
+				Pattern = "{0:0}d",
+				Order = 1,
+				ShowIfZero = false,
+				CurrencyDivision = pennyDivision,
+				PluraliseWord = "",
+				RoundingMode = (int)RoundingMode.NoRounding,
+				SpecialValuesOverrideFormat = true
+			};
+			pencePattern.CurrencyDescriptionPatternElements.Add(penceElement);
+			AddSterlingFractionalPenceSpecialValues(penceElement, "d");
 
-                    farthingElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = farthingElement,
-                            Value = 1.0M,
-                            Text = "farthing"
-                        });
+			var shillingPattern = new CurrencyDescriptionPattern
+			{
+				Currency = currency,
+				Type = (int)type,
+				NegativePrefix = prefix,
+				Order = 20,
+				UseNaturalAggregationStyle = false,
+				FutureProg = lessThanOnePoundProg
+			};
+			context.CurrencyDescriptionPatterns.Add(shillingPattern);
+			shillingPattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
+			{
+				CurrencyDescriptionPattern = shillingPattern,
+				Pattern = "{0:0}/",
+				Order = 1,
+				ShowIfZero = false,
+				CurrencyDivision = shillingDivision,
+				PluraliseWord = "",
+				RoundingMode = (int)RoundingMode.Truncate,
+				SpecialValuesOverrideFormat = false
+			});
+			var slashPenceElement = new CurrencyDescriptionPatternElement
+			{
+				CurrencyDescriptionPattern = shillingPattern,
+				Pattern = "{0:0}",
+				Order = 2,
+				ShowIfZero = true,
+				CurrencyDivision = pennyDivision,
+				PluraliseWord = "",
+				RoundingMode = (int)RoundingMode.NoRounding,
+				SpecialValuesOverrideFormat = true
+			};
+			shillingPattern.CurrencyDescriptionPatternElements.Add(slashPenceElement);
+			AddSpecialValue(slashPenceElement, 0.0M, "–");
+			AddSterlingFractionalPenceSpecialValues(slashPenceElement, string.Empty);
 
-                    farthingElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = farthingElement,
-                            Value = 2.0M,
-                            Text = "hapenny"
-                        });
+			var poundPattern = new CurrencyDescriptionPattern
+			{
+				Currency = currency,
+				Type = (int)type,
+				NegativePrefix = prefix,
+				Order = 30,
+				UseNaturalAggregationStyle = false
+			};
+			context.CurrencyDescriptionPatterns.Add(poundPattern);
+			poundPattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
+			{
+				CurrencyDescriptionPattern = poundPattern,
+				Pattern = "£{0:0}/",
+				Order = 1,
+				ShowIfZero = false,
+				CurrencyDivision = poundDivision,
+				PluraliseWord = "",
+				RoundingMode = (int)RoundingMode.Truncate,
+				SpecialValuesOverrideFormat = false
+			});
+			var poundShillingElement = new CurrencyDescriptionPatternElement
+			{
+				CurrencyDescriptionPattern = poundPattern,
+				Pattern = "{0:0}/",
+				Order = 2,
+				ShowIfZero = true,
+				CurrencyDivision = shillingDivision,
+				PluraliseWord = "",
+				RoundingMode = (int)RoundingMode.Truncate,
+				SpecialValuesOverrideFormat = true
+			};
+			poundPattern.CurrencyDescriptionPatternElements.Add(poundShillingElement);
+			AddSpecialValue(poundShillingElement, 0.0M, "–/");
 
-                    farthingElement.CurrencyDescriptionPatternElementSpecialValues.Add(
-                        new CurrencyDescriptionPatternElementSpecialValues
-                        {
-                            CurrencyDescriptionPatternElement = farthingElement,
-                            Value = 3.0M,
-                            Text = "three farthing"
-                        });
-                    break;
-                case CurrencyDescriptionPatternType.Long:
-                case CurrencyDescriptionPatternType.Short:
-                case CurrencyDescriptionPatternType.ShortDecimal:
-                    pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "£{0}",
-                        Order = 1,
-                        ShowIfZero = false,
-                        CurrencyDivision = poundDivision,
-                        PluraliseWord = "",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = false
-                    });
-                    pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0}s",
-                        Order = 2,
-                        ShowIfZero = false,
-                        CurrencyDivision = shillingDivision,
-                        PluraliseWord = "",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = false
-                    });
-                    pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0}d",
-                        Order = 3,
-                        ShowIfZero = false,
-                        CurrencyDivision = pennyDivision,
-                        PluraliseWord = "",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = false
-                    });
-                    pattern.CurrencyDescriptionPatternElements.Add(new CurrencyDescriptionPatternElement
-                    {
-                        CurrencyDescriptionPattern = pattern,
-                        Pattern = "{0}f",
-                        Order = 4,
-                        ShowIfZero = false,
-                        CurrencyDivision = farthingDivision,
-                        PluraliseWord = "",
-                        RoundingMode = (int)RoundingMode.Truncate,
-                        SpecialValuesOverrideFormat = false
-                    });
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+			var poundPenceElement = new CurrencyDescriptionPatternElement
+			{
+				CurrencyDescriptionPattern = poundPattern,
+				Pattern = "{0:0}",
+				Order = 3,
+				ShowIfZero = true,
+				CurrencyDivision = pennyDivision,
+				PluraliseWord = "",
+				RoundingMode = (int)RoundingMode.NoRounding,
+				SpecialValuesOverrideFormat = true
+			};
+			poundPattern.CurrencyDescriptionPatternElements.Add(poundPenceElement);
+			AddSpecialValue(poundPenceElement, 0.0M, "–");
+			AddSterlingFractionalPenceSpecialValues(poundPenceElement, string.Empty);
+		}
 
-        context.SaveChanges();
+		context.SaveChanges();
 
-        Coin coin = new()
-        {
-            Name = "farthing",
-            ShortDescription = "a farthing",
+		var coin = new Coin
+		{
+			Name = "farthing",
+			ShortDescription = "a farthing",
             FullDescription =
                 "This is a small coin made of copper approximately 21mm in diameter. It is worth the least of all of the coins.",
             Value = 1.0M,
@@ -1145,9 +1231,9 @@ Please make your choice: ",
         context.Coins.Add(coin);
         context.SaveChanges();
 
-        coin = new Coin
-        {
-            Name = "ha'penny",
+		coin = new Coin
+		{
+			Name = "ha'penny",
             ShortDescription = "a ha'penny bit",
             FullDescription = "This is a small coin made of copper approximately 26mm in diameter.",
             Value = 2.0M,

@@ -29,12 +29,13 @@ namespace MudSharp.Arenas;
 
 public sealed class ArenaEvent : SaveableItem, IArenaEvent
 {
-    private readonly List<ArenaParticipant> _participants = new();
-    private readonly List<ArenaReservation> _reservations = new();
-    private readonly HashSet<long> _surrenderedParticipantIds = new();
-    private ArenaEventState _state;
-    private ArenaOutcome? _outcome;
-    private IReadOnlyCollection<int>? _winningSides;
+	private readonly List<ArenaParticipant> _participants = new();
+	private readonly List<ArenaReservation> _reservations = new();
+	private readonly List<ArenaScoringSnapshot> _scoringSnapshots = new();
+	private readonly HashSet<long> _surrenderedParticipantIds = new();
+	private ArenaEventState _state;
+	private ArenaOutcome? _outcome;
+	private IReadOnlyCollection<int>? _winningSides;
 
     public ArenaEvent(MudSharp.Models.ArenaEvent model, CombatArena arena, ArenaEventType eventType)
     {
@@ -147,13 +148,14 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     public TimeSpan? TimeLimit { get; }
     public BettingModel BettingModel { get; }
     public decimal AppearanceFee { get; }
-    public decimal VictoryFee { get; }
-    public bool PayNpcAppearanceFee { get; }
+	public decimal VictoryFee { get; }
+	public bool PayNpcAppearanceFee { get; }
 
-    public IEnumerable<IArenaParticipant> Participants => _participants;
-    public IEnumerable<IArenaReservation> Reservations => _reservations;
-    public string Show(ICharacter actor)
-    {
+	public IEnumerable<IArenaParticipant> Participants => _participants;
+	public IEnumerable<IArenaReservation> Reservations => _reservations;
+	internal IReadOnlyList<ArenaScoringSnapshot> ScoringSnapshots => _scoringSnapshots;
+	public string Show(ICharacter actor)
+	{
         StringBuilder sb = new();
         sb.AppendLine(
             $"Arena Event #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
@@ -285,22 +287,23 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         ExecuteIntroProg();
     }
 
-    public void StartLive()
-    {
-        StartedAt ??= DateTime.UtcNow;
-        if (_state >= ArenaEventState.Live)
-        {
+	public void StartLive()
+	{
+		StartedAt ??= DateTime.UtcNow;
+		if (_state >= ArenaEventState.Live)
+		{
             EnforceState(ArenaEventState.Live);
             Changed = true;
             ApplyCombatPhaseEffects();
             return;
-        }
+		}
 
-        EnforceState(ArenaEventState.Live);
-        Changed = true;
-        ApplyCombatPhaseEffects();
-        MoveParticipantsToArena();
-        ExecuteScoringProg();
+		_scoringSnapshots.Clear();
+		EnforceState(ArenaEventState.Live);
+		Changed = true;
+		ApplyCombatPhaseEffects();
+		MoveParticipantsToArena();
+		ExecuteScoringProg();
     }
 
     public void MercyStop()
@@ -648,37 +651,60 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             count >= side.Capacity);
     }
 
-    public void Withdraw(ICharacter character)
-    {
-        if (character == null)
-        {
-            return;
-        }
+	public void Withdraw(ICharacter character)
+	{
+		if (character == null)
+		{
+			return;
+		}
 
-        if (_state > ArenaEventState.RegistrationOpen)
-        {
-            throw new InvalidOperationException("You can no longer withdraw from that event.");
-        }
+		if (_state > ArenaEventState.RegistrationOpen)
+		{
+			throw new InvalidOperationException("You can no longer withdraw from that event.");
+		}
 
-        ArenaParticipant? participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
-        if (participant == null)
-        {
-            return;
-        }
+		ArenaParticipant? participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+		if (participant == null)
+		{
+			return;
+		}
 
-        using (new FMDB())
-        {
-            Models.ArenaSignup? dbSignup = FMDB.Context.ArenaSignups.Find(participant.SignupId);
-            if (dbSignup != null)
-            {
-                FMDB.Context.ArenaSignups.Remove(dbSignup);
-                FMDB.Context.SaveChanges();
-            }
-        }
+		using (new FMDB())
+		{
+			Models.ArenaSignup? dbSignup = FMDB.Context.ArenaSignups.Find(participant.SignupId);
+			if (dbSignup != null)
+			{
+				FMDB.Context.ArenaSignups.Remove(dbSignup);
+				FMDB.Context.SaveChanges();
+			}
+		}
 
-        _participants.Remove(participant);
-        ClearStagingEffect(character);
-    }
+		_participants.Remove(participant);
+		ClearStagingEffect(character);
+	}
+
+	internal void RecordScoringCandidate(ArenaScoringSnapshot snapshot)
+	{
+		if (_state != ArenaEventState.Live)
+		{
+			return;
+		}
+
+		_scoringSnapshots.Add(snapshot);
+	}
+
+	internal bool TryGetParticipantSideIndex(ICharacter character, out int sideIndex)
+	{
+		ArenaParticipant? participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+		if (participant is null)
+		{
+			sideIndex = default;
+			return false;
+		}
+
+		sideIndex = participant.SideIndex;
+		return true;
+	}
 
     public void AddReservation(IArenaReservation reservation)
     {

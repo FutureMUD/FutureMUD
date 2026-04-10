@@ -60,19 +60,21 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => true,
                 })
         };
 
-    public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-    {
-        context.Database.BeginTransaction();
-        _context = context;
-        SeedSimple(context);
-        if (!questionAnswers["culturepacks"].EqualToAny("none"))
-        {
-            SeedCulturePacks(context, questionAnswers);
-        }
+	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		context.Database.BeginTransaction();
+		_context = context;
+		SeedSimple(context);
+		if (!questionAnswers["culturepacks"].EqualToAny("none"))
+		{
+			SeedCulturePacks(context, questionAnswers);
+		}
 
-        context.Database.CommitTransaction();
-        return "Completed successfully.";
-    }
+		EnsureFallbackRandomNameProfiles();
+
+		context.Database.CommitTransaction();
+		return "Completed successfully.";
+	}
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {

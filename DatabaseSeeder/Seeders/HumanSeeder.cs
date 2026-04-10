@@ -530,11 +530,11 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
         SetupSpeeds(humanoidBody);
         SetupBodyparts(humanoidBody, organicBody);
+        SetupHeightWeightModels();
         Race human = SetupRaces(humanoidBody, organicBody, strategy, healthTrait, strengthTrait);
         SeedHumanDisfigurementTemplates(organicBody);
         SetupCharacteristics(questionAnswers["distinctive"].EqualToAny("yes", "y"), human.ParentRace);
         SetupDescriptions();
-        SetupHeightWeightModels();
 
         #region Avatar Creation
         Race race = _context.Races.First(x => x.Name == "Human");

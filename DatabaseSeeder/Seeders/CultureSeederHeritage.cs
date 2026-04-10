@@ -1466,6 +1466,7 @@ public partial class CultureSeeder
         AddEthnicityVariable("Moorish", "Eye Colour", "brown_blue_eyes");
         AddEthnicityVariable("North African", "Eye Colour", "brown_blue_eyes");
         #endregion
+        ApplyMedievalEuropeEthnicityNameCultureMappings();
         _context.SaveChanges();
     }
 

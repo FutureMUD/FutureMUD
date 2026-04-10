@@ -23,7 +23,7 @@ public class EconomySeeder : IDatabaseSeeder
     private const string MarketSuffix = "Economy Template Market";
     private const string DefaultMarketPriceFormula =
         "if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))";
-    private const string HelperProgPrefix = "EconomySeeder";
+    private const string HelperProgPrefix = "Market";
 
     public static readonly IReadOnlyDictionary<string, string[]> RequiredMarketTagHierarchy =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
@@ -1213,8 +1213,8 @@ public class EconomySeeder : IDatabaseSeeder
     private static readonly IReadOnlyList<StressLevelDefinition> StressLevels =
     [
         new("Strained", 0.12m, 0.05, -0.18, -0.08, -0.06, 0.05, 0.04, -0.04),
-        new("Hardship", 0.28m, 0.10, -0.40, -0.18, -0.16, 0.10, 0.08, -0.10),
-        new("Crisis", 0.50m, 0.18, -0.72, -0.30, -0.24, 0.16, 0.14, -0.18)
+        new("Suffering Hardship", 0.28m, 0.10, -0.40, -0.18, -0.16, 0.10, 0.08, -0.10),
+        new("In Crisis", 0.50m, 0.18, -0.72, -0.30, -0.24, 0.16, 0.14, -0.18)
     ];
 
     private static readonly IReadOnlyDictionary<string, string> FamilySectorMap =

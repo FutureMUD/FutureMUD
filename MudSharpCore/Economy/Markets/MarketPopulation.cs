@@ -609,10 +609,12 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
     public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
-        sb.AppendLine($"Market Population #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+        sb.AppendLine($"Market Population #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Yellow, Telnet.BoldWhite));
         sb.AppendLine();
         sb.AppendLine($"Market: {Market.Name.ColourValue()}");
         sb.AppendLine($"Population Scale: {PopulationScale.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Current Stress: {CurrentStress.ToStringP2Colour(actor)}");
+        sb.AppendLine($"Current Stress Point: {CurrentStressPoint?.Name.ColourValue() ?? "Not Stressed".ColourValue()}");
         sb.AppendLine("Description:");
         sb.AppendLine();
         sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
@@ -625,18 +627,18 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         }
         sb.AppendLine();
         sb.AppendLine("Stress Points:");
-        sb.AppendLine();
         MarketStressPoint? active = CurrentStressPoint;
         foreach (MarketStressPoint? stress in MarketStressPoints.OrderBy(x => x.StressThreshold))
         {
-            sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)}".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+            sb.AppendLine();
+            sb.AppendLine($"{stress.Name}".GetLineWithTitleInner(actor, Telnet.Red, Telnet.BoldWhite));
             if (stress == active)
             {
-                sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)} (Active)".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+                sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)} (Active)".GetLineWithTitleInner(actor, Telnet.Red, Telnet.BoldWhite));
             }
             else
             {
-                sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)}".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+                sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)}".GetLineWithTitleInner(actor, Telnet.Red, Telnet.BoldWhite));
             }
 
             sb.AppendLine();

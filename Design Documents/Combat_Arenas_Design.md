@@ -8,7 +8,7 @@ Arenas are configurable venues that host structured combats - manual or automate
 
 This feature must remain **data-driven**, **extensible**, and **safe under failure** (cancel and refund on reboot).
 
-### 1.1 Implementation Snapshot (2026-02-25)
+### 1.1 Implementation Snapshot (2026-04-10)
 - Event types now expose explicit elimination terms via `ArenaEliminationMode`: `NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`.
 - Event types now include an explicit `AllowSurrender` toggle.
 - Player surrender is implemented as `arena surrender [<event>]`; while in combat, this is the only allowed `arena` subcommand.
@@ -35,12 +35,19 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - NPC full-restore paths now explicitly clear `PainTolerance` effects so reused arena NPCs do not carry boosted pass-out thresholds into future bouts.
 - Staged participant placement now uses randomized, evenly spaced side start anchors across arena floor cells so opposing teams start as far apart as possible while varying room assignments between bouts.
 - `ArenaSeeder` now treats the named stock arena package as rerunnable: helper progs, combatant classes, event types, and event sides are refreshed in place by stable names, while room wiring, finances, schedules, ratings, and live event data remain builder-owned runtime state.
+- The rerunnable stock arena package now seeds `Duel` (1v1 Gladiator), `Team Skirmish` (2v2 Gladiator), `Squad Skirmish` (3v3 Gladiator), `Boxing Match`, `Wrestling Match`, `Champion Challenge`, and `Animal Bohort`.
+- Stock arena combatant classes now include `Gladiator`, `Boxer`, `Wrestler`, and `Arena Animal`.
+- `Champion Challenge` now seeds as a 1v1 format with an open challenger side and a closed, stable-backed champion side that auto-fills NPCs and enforces a minimum Gladiator rating of 1800.
+- `Animal Bohort` now seeds with the shared `isanimal(character)` eligibility helper and a blank stock NPC loader prog that intentionally returns an empty character collection for builder override.
+- Arena scoring progs now receive appended live scoring telemetry collections for scoring attackers/defenders, side indices, landed-hit flags, undefended-hit flags, normalized impact locations, and impact bodypart descriptions. These collections are populated only for successful live combat resolutions where both combatants are active participants in the same arena event.
+- The seeded boxing scoring prog now awards exactly 1 point per landed, undefended strike to the head or torso, independent of wound count.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).
 - **Managers**: configure event types, schedules, fees, funds, NPC policies, launch/abort events, and reserve slots; no admin needed except to wire NPC loader progs.
 - **Combatant Classes**: name/description; eligibility prog; optional admin-only NPC loader prog; independent `resurrect NPC on death` and `fully restore NPC on completion` flags; per-combatant identity metadata (optional stage-name random profile, signature colour/items).
 - **Event Types**: immutable templates (multi-side, multi-room support); define side capacities (fixed at type), eligible classes per side, optional per-side rating gates, fees (appearance/victory), BYO toggle, per-side outfit prog, scoring prog, elimination mode, surrender policy, NPC signup/auto-fill flags, and registration/prep/time-limit durations. Managers can **clone** types for quick variants (for example, different capacities).
+- **Seeded Formats**: the stock arena package provides open-entry gladiator duels/skirmishes, regulated boxing and wrestling 1v1s, rating-gated champion challenges, and animal-only bohort examples as editable templates rather than hard-coded runtime special cases.
 - **Elimination Terms**: event types define explicit elimination modes (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`). Higher-severity outcomes still count (for example, death satisfies knockout/knockdown conditions).
 - **Surrender**: event types can explicitly enable/disable surrender. Combatants can surrender with `arena surrender`.
 - **Events (instances)**: created from an Event Type, optionally with **reserved slots** for characters/clans when **manually launched**; progress via a lifecycle (below).
@@ -110,6 +117,13 @@ Minimum strategies:
 2. **HitsToVitals** (uses "Vital" bodypart flag; counts damaging hits)
 3. **HitsWithSeverity(>=X)**
 4. **NoScore**
+
+Current scoring prog contract:
+- Event scoring progs still receive the original append-only event context `(participants, sideIndices, arenaCell, eventTypeName, arenaName, eventName)`.
+- New live-scoring telemetry is appended after the legacy arguments as collections: `scoringAttackers`, `scoringDefenders`, `scoringAttackerSides`, `scoringDefenderSides`, `landedHits`, `undefendedHits`, `impactLocations`, `impactBodyparts`.
+- Older scoring progs remain valid because they can keep using any prefix of the argument list.
+- `impactLocations` is normalized to coarse values such as `head`, `torso`, `upper-limb`, `lower-limb`, `appendage`, `other`, or `unknown`.
+- The stock boxing scorer uses this appended telemetry and counts one point only when `landedHits > 0`, `undefendedHits > 0`, and the matching `impactLocations` entry is `head` or `torso`.
 
 **Responsibilities**:
 - Subscribe to combat events.
@@ -241,9 +255,10 @@ Treat the following as **storage shape suggestions**; map to existing EF convent
 ## 16) Prog Hooks (context & intent only)
 - Arena/Event lifecycle: `OnEventCreated`, `OnRegistrationOpened`, `OnPreparing`, `OnStaged`, `OnLive`, `OnResolve`, `OnCleanup`
 - Arena phase transition: `OnArenaEventPhase(arenaId:number, eventId:number, eventName:text, phaseName:text)`.
-- Per‑actor: `OnEliminate`, `OnKill`, `OnCritInjury`
+- Per-actor: `OnEliminate`, `OnKill`, `OnCritInjury`
 - Ratings: `OnRatingAdjust` (returns Δ/override)
 - Hooks receive a context map (event, arena, side, combatant, cause, etc.) using existing **ProgVariableTypes**.
+- Shared arena-oriented FutureProg helpers now include `arenarating(character, combatantClass)`, `isanimal(character)`, and `emptycharacters()` for stock template authoring.
 
 
 ## 17) Implementation Plan (tasks for Codex)

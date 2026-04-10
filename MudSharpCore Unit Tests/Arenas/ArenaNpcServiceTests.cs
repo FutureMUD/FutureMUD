@@ -9,9 +9,12 @@ using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
+using MudSharp.FutureProg;
+using MudSharp.NPC;
 using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests.Arenas;
 
@@ -110,8 +113,8 @@ public class ArenaNpcServiceTests
     }
 
     [TestMethod]
-    public void ReturnNpc_FullRestoreBeforeInventory_RestoresBodyBeforeGet()
-    {
+	public void ReturnNpc_FullRestoreBeforeInventory_RestoresBodyBeforeGet()
+	{
         Mock<IFuturemud> gameworld = new();
         ArenaNpcService service = new(gameworld.Object);
         Mock<ICell> location = new();
@@ -171,7 +174,65 @@ public class ArenaNpcServiceTests
 
         Assert.IsTrue(callOrder.Contains("Restore"));
         Assert.IsTrue(callOrder.Contains("Get"));
-        Assert.IsTrue(callOrder.IndexOf("Restore") < callOrder.IndexOf("Get"));
-        body.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()), Times.Once);
-    }
+		Assert.IsTrue(callOrder.IndexOf("Restore") < callOrder.IndexOf("Get"));
+		body.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void AutoFill_StableNpcCandidates_MustMeetSideRatingRequirement()
+	{
+		Mock<IArenaRatingsService> ratingsService = new();
+		Mock<IFuturemud> gameworld = new();
+		gameworld.SetupGet(x => x.ArenaRatingsService).Returns(ratingsService.Object);
+		ArenaNpcService service = new(gameworld.Object);
+
+		Mock<IFutureProg> eligibilityProg = new();
+		eligibilityProg.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns(true);
+
+		Mock<ICombatantClass> combatantClass = new();
+		combatantClass.SetupGet(x => x.EligibilityProg).Returns(eligibilityProg.Object);
+
+		Mock<IArenaEventTypeSide> side = new();
+		side.SetupGet(x => x.Index).Returns(1);
+		side.SetupGet(x => x.MinimumRating).Returns(1800.0m);
+		side.SetupGet(x => x.MaximumRating).Returns(() => null);
+		side.SetupGet(x => x.EligibleClasses).Returns([combatantClass.Object]);
+		side.SetupGet(x => x.NpcLoaderProg).Returns(() => null);
+
+		Mock<INPC> lowRatedNpc = new();
+		lowRatedNpc.SetupGet(x => x.IsPlayerCharacter).Returns(false);
+		lowRatedNpc.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		lowRatedNpc.SetupGet(x => x.Id).Returns(1001L);
+		lowRatedNpc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+		Mock<INPC> championNpc = new();
+		championNpc.SetupGet(x => x.IsPlayerCharacter).Returns(false);
+		championNpc.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		championNpc.SetupGet(x => x.Id).Returns(1002L);
+		championNpc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+		ratingsService.Setup(x => x.GetRating(lowRatedNpc.Object, combatantClass.Object)).Returns(1700.0m);
+		ratingsService.Setup(x => x.GetRating(championNpc.Object, combatantClass.Object)).Returns(1900.0m);
+
+		Mock<ICell> stableCell = new();
+		stableCell.SetupGet(x => x.Characters).Returns([lowRatedNpc.Object, championNpc.Object]);
+
+		Mock<IArenaEventType> eventType = new();
+		eventType.SetupGet(x => x.Sides).Returns([side.Object]);
+
+		Mock<ICombatArena> arena = new();
+		arena.SetupGet(x => x.NpcStablesCells).Returns([stableCell.Object]);
+		arena.SetupGet(x => x.ActiveEvents).Returns(Enumerable.Empty<IArenaEvent>());
+
+		Mock<IArenaEvent> arenaEvent = new();
+		arenaEvent.SetupGet(x => x.EventType).Returns(eventType.Object);
+		arenaEvent.SetupGet(x => x.Arena).Returns(arena.Object);
+
+		List<ICharacter> selected = service.AutoFill(arenaEvent.Object, 1, 1).ToList();
+
+		Assert.AreEqual(1, selected.Count);
+		Assert.AreSame(championNpc.Object, selected[0]);
+		ratingsService.Verify(x => x.GetRating(lowRatedNpc.Object, combatantClass.Object), Times.Once);
+		ratingsService.Verify(x => x.GetRating(championNpc.Object, combatantClass.Object), Times.Once);
+	}
 }

@@ -377,10 +377,23 @@ public class ArenaNpcService : IArenaNpcService
         {
             try
             {
-                if (combatantClass.EligibilityProg.Execute<bool?>(npc) != false)
+                if (combatantClass.EligibilityProg.Execute<bool?>(npc) == false)
                 {
-                    return true;
+                    continue;
                 }
+
+                decimal rating = npc.Gameworld.ArenaRatingsService.GetRating(npc, combatantClass);
+                if (side.MinimumRating.HasValue && rating < side.MinimumRating.Value)
+                {
+                    continue;
+                }
+
+                if (side.MaximumRating.HasValue && rating > side.MaximumRating.Value)
+                {
+                    continue;
+                }
+
+                return true;
             }
             catch
             {

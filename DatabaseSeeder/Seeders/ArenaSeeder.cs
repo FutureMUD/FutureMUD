@@ -115,10 +115,8 @@ builders can expand upon. Physical rooms for the arena still need to be construc
             };
             context.SaveChanges();
 
-            ArenaEventType duelEvent = EnsureEventType(context, arena, "Duel", true, 600, 120, 900,
-                (int)BettingModel.FixedOdds, introProg.Id);
-            ArenaEventType skirmishEvent = EnsureEventType(context, arena, "Team Skirmish", true, 900, 180, 1200,
-                (int)BettingModel.PariMutuel, introProg.Id);
+            ArenaEventType duelEvent = EnsureEventType(context, arena, "Duel", true, 600, 120, 900, (int)BettingModel.FixedOdds, introProg.Id);
+            ArenaEventType skirmishEvent = EnsureEventType(context, arena, "Team Skirmish", true, 900, 180, 1200, (int)BettingModel.PariMutuel, introProg.Id);
             context.SaveChanges();
 
             List<ArenaEventTypeSide> duelSides = new()

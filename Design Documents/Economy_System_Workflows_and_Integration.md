@@ -104,6 +104,7 @@ Practical note:
 - currency design is not only cosmetic
 - regex abbreviations determine what players can type successfully
 - description patterns determine how values are surfaced all across the engine
+- the stock Pounds package now seeds historical compact `£sd` notation, using `d` forms below one shilling, slash forms from one shilling to less than one pound, full `£/s/d` forms above one pound, quarter-penny glyphs (`¼`, `½`, `¾`), and `–` for zero slots in slash notation
 
 ### Economic Zones and Taxes
 Builders use economic zones to define:

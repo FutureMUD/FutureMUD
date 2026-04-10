@@ -16,18 +16,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="DatabaseSeeder">
-			<HintPath>..\DatabaseSeeder\bin\$(Configuration)\net10.0\DatabaseSeeder.dll</HintPath>
-		</Reference>
-		<Reference Include="FutureMUDLibrary">
-			<HintPath>..\FutureMUDLibrary\bin\$(Configuration)\net10.0\FutureMUDLibrary.dll</HintPath>
-		</Reference>
-		<Reference Include="MudSharp">
-			<HintPath>..\MudSharpCore\bin\$(Configuration)\net10.0\MudSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="MudsharpDatabaseLibrary">
-			<HintPath>..\MudsharpDatabaseLibrary\bin\$(Configuration)\net10.0\MudsharpDatabaseLibrary.dll</HintPath>
-		</Reference>
+		<ProjectReference Include="..\DatabaseSeeder\DatabaseSeeder.csproj" />
+		<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+		<ProjectReference Include="..\MudSharpCore\MudSharpCore.csproj" />
+		<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
 	</ItemGroup>
 
 </Project>

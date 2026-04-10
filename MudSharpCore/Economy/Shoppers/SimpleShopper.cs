@@ -245,10 +245,10 @@ internal class SimpleShopper : ShopperBase
     {
         StringBuilder sb = new();
         sb.AppendLine($"Budget Per Shop: {EconomicZone.Currency.Describe(BudgetPerShop, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-        sb.AppendLine($"Will Shop At Shop: {WillShopAtShopProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Shop Selection Weight: {ShopSelectionWeightProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Will Buy Item: {WillBuyItemProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Item Buy Weight: {ItemBuyWeightProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Will Shop At Shop: {WillShopAtShopProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Shop Selection Weight: {ShopSelectionWeightProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Will Buy Item: {WillBuyItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Item Buy Weight: {ItemBuyWeightProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Skip Empty Shops: {SkipEmptyShops.ToColouredString()}");
         return sb.ToString();
     }
@@ -256,6 +256,13 @@ internal class SimpleShopper : ShopperBase
     /// <inheritdoc />
     public override void DoShop()
     {
+        if (WillShopAtShopProg is null || ShopSelectionWeightProg is null || WillBuyItemProg is null || ItemBuyWeightProg is null)
+        {
+            DoLogEntry("noshop", "One or more of the required progs (WillShopAtShopProg, ShopSelectionWeightProg, WillBuyItemProg, ItemBuyWeightProg) are not set. Skipped shopping.");
+            FlushLogEntries();
+            return;
+        }
+
         IShop shop = Gameworld.Shops
                             .Where(x => x.EconomicZone == EconomicZone)
                             .Where(x => x.IsReadyToDoBusiness && x.IsTrading)

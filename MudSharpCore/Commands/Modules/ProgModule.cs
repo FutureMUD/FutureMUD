@@ -75,6 +75,15 @@ You can use the following commands to interact with progs:
 	#3prog compile#0 - forces all progs to recompile (if necessary for some reason)
 	#3prog execute <prog> [<parameters>]#0 - manually executes a prog. You must be able to resolve the parameters.
 
+The following filters can be used with #3prog list#0:
+
+    #6<category>#0 - shows only progs in the specified category
+    #6*<subcategory>#0 - shows only progs in the specified subcategory
+    #6+<keyword>#0 - shows progs with the specified keyword in the name or comments
+    #6-<keyword>#0 - shows progs without the specified keyword in the name or comments
+    #6&<keyword>#0 - shows progs with the specified keyword in the name, comments or function body
+    #6uncompiled#0 - shows progs that haven't compiled and have an error
+
 The following commands are used to edit a prog:
 
 	#3prog set name <name>#0 - sets a new name for this prog
@@ -86,9 +95,9 @@ The following commands are used to edit a prog:
 	#3prog set static#0 - toggles this prog being static (same output regardless of input). Use with caution.
 	#3prog set text#0 - drops you into an editor to set the content of the prog
 	#3prog set append#0 - the same as above, except keeps existing text rather than clearing it.
-	#3prog parameter add <name> <type>#0 - adds an input parameter to the prog
-	#3prog parameter remove <name>#0 - deletes an input parameter from the prog
-	#3prog paramater swap <par1> <par2>#0 - swaps the order of two parameters
+	#3prog set parameter add <name> <type>#0 - adds an input parameter to the prog
+	#3prog set parameter remove <name>#0 - deletes an input parameter from the prog
+	#3prog set paramater swap <par1> <par2>#0 - swaps the order of two parameters
 
 There are also a few commands relating to prog help:
 

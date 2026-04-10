@@ -9590,6 +9590,7 @@ The syntax for this command is as follows:
 
         MarketInfluence influence = new(market, template, template.Name, begin, end);
         actor.Gameworld.Add(influence);
+        market.ApplyMarketInfluence(influence);
         actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
         actor.AddEffect(new BuilderEditingEffect<IMarketInfluence>(actor) { EditingItem = influence });
         actor.OutputHandler.Send($"You are create a new market influence for the {market.Name.ColourName()} market from the template {template.Name.ColourValue()}, which you are now editing.");
@@ -9638,6 +9639,7 @@ The syntax for this command is as follows:
 
         MarketInfluence influence = new(market, name, "This influence has no detailed description", date, null);
         actor.Gameworld.Add(influence);
+        market.ApplyMarketInfluence(influence);
         actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
         actor.AddEffect(new BuilderEditingEffect<IMarketInfluence>(actor) { EditingItem = influence });
         actor.OutputHandler.Send($"You are create a new market influence for the {market.Name.ColourName()} market called {name.ColourValue()}, which you are now editing.");

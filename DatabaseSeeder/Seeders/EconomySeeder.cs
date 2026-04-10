@@ -2043,7 +2043,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             "Seeder",
             ProgVariableTypes.Boolean,
             $"Determines whether the {ShopperName(era, blueprint)} will buy an item.",
-            $"return {condition};",
+            $"return {condition}",
             false,
             false,
             FutureProgStaticType.NotStatic,
@@ -2148,27 +2148,27 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
     private static string ExternalTemplateName(EraDefinition era, SectorInfluenceBlueprint blueprint)
     {
-        return $"{HelperProgPrefix} External {era.DisplayName} {blueprint.Name}";
+        return $"{blueprint.Name}";
     }
 
     private static string PopulationName(EraDefinition era, PopulationBlueprint blueprint)
     {
-        return $"{era.DisplayName} {blueprint.Name}";
+        return $"{blueprint.Name}";
     }
 
     private static string StressTemplateName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level)
     {
-        return $"{HelperProgPrefix} Stress {PopulationName(era, blueprint)} {level.DisplayName}";
+        return $"{PopulationName(era, blueprint)} {level.DisplayName}";
     }
 
     private static string StressStartProgName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level)
     {
-        return $"{HelperProgPrefix} Start {PopulationName(era, blueprint)} {level.DisplayName}";
+        return $"{HelperProgPrefix}Start{PopulationName(era, blueprint)}{level.DisplayName}";
     }
 
     private static string StressEndProgName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level)
     {
-        return $"{HelperProgPrefix} End {PopulationName(era, blueprint)} {level.DisplayName}";
+        return $"{HelperProgPrefix}End{PopulationName(era, blueprint)}{level.DisplayName}";
     }
 
     private static string ShopperName(EraDefinition era, PopulationBlueprint blueprint)
@@ -2178,12 +2178,12 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
     private static string PopulationBuyProgName(EraDefinition era, PopulationBlueprint blueprint)
     {
-        return $"{HelperProgPrefix} Buy {PopulationName(era, blueprint)}";
+        return $"{HelperProgPrefix}Buy{PopulationName(era, blueprint)}";
     }
 
     private static string PopulationItemWeightProgName(EraDefinition era, PopulationBlueprint blueprint)
     {
-        return $"{HelperProgPrefix} Weight {PopulationName(era, blueprint)}";
+        return $"{HelperProgPrefix}Weight{PopulationName(era, blueprint)}";
     }
 
     private static string ExtractTimezoneName(string referenceTime)

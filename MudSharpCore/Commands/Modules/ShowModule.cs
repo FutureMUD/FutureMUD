@@ -3189,6 +3189,18 @@ public class ShowModule : Module<ICharacter>
                 continue;
             }
 
+            if (keyword[0] == '&')
+            {
+                keyword = keyword[1..];
+                progs = progs
+                        .Where(x => x.FunctionName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+                                    x.FunctionComment.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+                                    x.FunctionText.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
+                        )
+                        .ToList();
+                continue;
+            }
+
             if (keyword[0] == '*')
             {
                 keyword = keyword[1..];
@@ -3203,6 +3215,7 @@ public class ShowModule : Module<ICharacter>
                 progs = progs
                         .Where(x => !string.IsNullOrEmpty(x.CompileError))
                         .ToList();
+                continue;
             }
 
             progs = progs.Where(x => x.Category.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))

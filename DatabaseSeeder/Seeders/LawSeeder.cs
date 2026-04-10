@@ -1815,7 +1815,7 @@ return true"
                     CreateLaw(crime.DescribeEnum(true), crime, EnforcementStrategy.ArrestAndDetain, sophontVictims,
                         sophontPerps, crimeContext with
                         {
-                            Automatic = true,
+                            Automatic = false,
                             CanBeArrested = true,
                             CanBeOfferedBail = true,
                             BondLength = MudTimeSpan.FromMonths(1),

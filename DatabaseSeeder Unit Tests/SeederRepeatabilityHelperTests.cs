@@ -7,12 +7,15 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Celestial;
 using MudSharp.Database;
-using MudSharp.FutureProg;
+using MudSharp.Framework;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CrimeTypes = MudSharp.RPG.Law.CrimeTypes;
+using EnforcementStrategy = MudSharp.RPG.Law.EnforcementStrategy;
+using ProgVariableTypes = MudSharp.FutureProg.ProgVariableTypes;
 
 namespace MudSharp_Unit_Tests;
 
@@ -78,6 +81,79 @@ public class SeederRepeatabilityHelperTests
             .GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
             .GetSetMethod(true)!
             .Invoke(seeder, [value]);
+    }
+
+    private static void AddLawSeederPrerequisites(FuturemudDatabaseContext context)
+    {
+        context.Accounts.Add(new Account
+        {
+            Id = 1,
+            Name = "SeederTest",
+            Password = "password",
+            Salt = 1,
+            AccessStatus = 0,
+            Email = "seeder@example.com",
+            LastLoginIp = "127.0.0.1",
+            FormatLength = 80,
+            InnerFormatLength = 78,
+            UseMxp = false,
+            UseMsp = false,
+            UseMccp = false,
+            ActiveCharactersAllowed = 1,
+            UseUnicode = true,
+            TimeZoneId = "UTC",
+            CultureName = "en-AU",
+            RegistrationCode = string.Empty,
+            IsRegistered = true,
+            RecoveryCode = string.Empty,
+            UnitPreference = "metric",
+            CreationDate = DateTime.UtcNow,
+            PageLength = 22,
+            PromptType = 0,
+            TabRoomDescriptions = false,
+            CodedRoomDescriptionAdditionsOnNewLine = false,
+            CharacterNameOverlaySetting = 0,
+            AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
+            ActLawfully = false,
+            HasBeenActiveInWeek = true,
+            HintsEnabled = true,
+            AutoReacquireTargets = false
+        });
+        context.Currencies.Add(new Currency
+        {
+            Id = 1,
+            Name = "Bits",
+            BaseCurrencyToGlobalBaseCurrencyConversion = 1.0m
+        });
+        context.SaveChanges();
+    }
+
+    private static Dictionary<string, string> BuildLawSeederAnswers(
+        string punishmentLevel = "western",
+        string createAi = "no",
+        string classes = "noble citizen enforcer")
+    {
+        return new Dictionary<string, string>
+        {
+            ["name"] = "TestAuthority",
+            ["currency"] = "1",
+            ["createai"] = createAi,
+            ["separatepowers"] = "yes",
+            ["punishmentlevel"] = punishmentLevel,
+            ["classes"] = classes,
+            ["religiouslaws"] = "no",
+            ["penaltyunits"] = "100"
+        };
+    }
+
+    private static string SeedLawSeeder(
+        FuturemudDatabaseContext context,
+        string punishmentLevel = "western",
+        string createAi = "no",
+        string classes = "noble citizen enforcer")
+    {
+        LawSeeder seeder = new();
+        return seeder.SeedData(context, BuildLawSeederAnswers(punishmentLevel, createAi, classes));
     }
 
     [TestMethod]
@@ -318,5 +394,96 @@ public class SeederRepeatabilityHelperTests
         Assert.IsNotNull(profile.ReportingMultiplierProg);
         Assert.AreEqual(2, context.FutureProgs.Count());
         Assert.AreEqual(1, context.WitnessProfiles.Count());
+    }
+
+    [TestMethod]
+    public void LawSeeder_SeedData_WithCreateAi_SeedsAuthorityAiAndRerunsIdempotently()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        AddLawSeederPrerequisites(context);
+
+        string firstResult = SeedLawSeeder(context, createAi: "yes");
+        string secondResult = SeedLawSeeder(context, createAi: "yes");
+
+        Assert.AreEqual("Successfully set up a legal authority.", firstResult);
+        Assert.AreEqual("Successfully set up a legal authority.", secondResult);
+        Assert.AreEqual(3, context.ArtificialIntelligences.Count());
+        Assert.AreEqual(1, context.ArtificialIntelligences.Count(x => x.Name == "EnforcerTestAuthority"));
+        Assert.AreEqual(1, context.ArtificialIntelligences.Count(x => x.Name == "JudgeTestAuthority"));
+        Assert.AreEqual(1, context.ArtificialIntelligences.Count(x => x.Name == "LawyerTestAuthority"));
+        Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == "LawyerCanHireTemplateTestAuthority"));
+        Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == "LawyerFeeTemplateTestAuthority"));
+        Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == "LawyerHomeBaseTemplateTestAuthority"));
+        Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == "LawyerBankAccountTemplateTestAuthority"));
+
+        ArtificialIntelligence judgeAi = context.ArtificialIntelligences.Single(x => x.Name == "JudgeTestAuthority");
+        ArtificialIntelligence lawyerAi = context.ArtificialIntelligences.Single(x => x.Name == "LawyerTestAuthority");
+        FutureProg identifyProg = context.FutureProgs.Single(x => x.FunctionName == "IsIdentityKnownTestAuthority");
+        FutureProg feeProg = context.FutureProgs.Single(x => x.FunctionName == "LawyerFeeTemplateTestAuthority");
+        FutureProg homeProg = context.FutureProgs.Single(x => x.FunctionName == "LawyerHomeBaseTemplateTestAuthority");
+        FutureProg bankProg = context.FutureProgs.Single(x => x.FunctionName == "LawyerBankAccountTemplateTestAuthority");
+        FutureProg hireProg = context.FutureProgs.Single(x => x.FunctionName == "LawyerCanHireTemplateTestAuthority");
+
+        StringAssert.Contains(judgeAi.Definition, $"<IdentityProg>{identifyProg.Id}</IdentityProg>");
+        StringAssert.Contains(judgeAi.Definition, "<IntroductionDelay>15</IntroductionDelay>");
+        StringAssert.Contains(lawyerAi.Definition, $"<CanBeHiredProg>{hireProg.Id}</CanBeHiredProg>");
+        StringAssert.Contains(lawyerAi.Definition, $"<FeeProg>{feeProg.Id}</FeeProg>");
+        StringAssert.Contains(lawyerAi.Definition, $"<HomeBaseProg>{homeProg.Id}</HomeBaseProg>");
+        StringAssert.Contains(lawyerAi.Definition, $"<BankAccountProg>{bankProg.Id}</BankAccountProg>");
+    }
+
+    [TestMethod]
+    public void LawSeeder_SeedData_AssignsLawAppliesProgToEverySeededLaw()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        AddLawSeederPrerequisites(context);
+
+        SeedLawSeeder(context);
+
+        Assert.IsTrue(context.Laws.Any());
+        Assert.AreEqual(context.Laws.Count(), context.Laws.Count(x => x.LawAppliesProgId != null));
+
+        Law murderLaw = context.Laws.Single(x => x.Name == "Murder");
+        FutureProg murderApplicabilityProg = context.FutureProgs.Single(x => x.Id == murderLaw.LawAppliesProgId);
+
+        Assert.AreEqual("return true", murderApplicabilityProg.FunctionText);
+    }
+
+    [TestMethod]
+    public void LawSeeder_SeedData_Tiered_SplitsVictimBasedCrimesAndLeavesVictimlessCrimesFlat()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        AddLawSeederPrerequisites(context);
+
+        SeedLawSeeder(context, punishmentLevel: "tiered");
+
+        Law murderLaw = context.Laws.Single(x => x.Name == "Murder");
+        Law murderAgainstInferiorLaw = context.Laws.Single(x => x.Name == "Murder Against Inferior");
+        FutureProg murderApplicabilityProg = context.FutureProgs.Single(x => x.Id == murderLaw.LawAppliesProgId);
+        FutureProg murderAgainstInferiorApplicabilityProg =
+            context.FutureProgs.Single(x => x.Id == murderAgainstInferiorLaw.LawAppliesProgId);
+
+        Assert.AreEqual(EnforcementStrategy.LethalForceArrestAndDetain.DescribeEnum(), murderLaw.EnforcementStrategy);
+        Assert.AreEqual(EnforcementStrategy.NoActiveEnforcement.DescribeEnum(), murderAgainstInferiorLaw.EnforcementStrategy);
+        Assert.IsFalse(murderAgainstInferiorLaw.CanBeArrested);
+        Assert.IsFalse(murderAgainstInferiorLaw.CanBeOfferedBail);
+        StringAssert.Contains(murderAgainstInferiorLaw.PunishmentStrategy, "type=\"fine\"");
+        Assert.IsFalse(murderAgainstInferiorLaw.PunishmentStrategy.Contains("type=\"jail\""));
+        Assert.IsFalse(murderAgainstInferiorLaw.PunishmentStrategy.Contains("type=\"execute\""));
+        StringAssert.Contains(murderApplicabilityProg.FunctionText, "isnull(@victim)");
+        StringAssert.Contains(murderAgainstInferiorApplicabilityProg.FunctionText, "isnull(@victim)");
+
+        Law theftAgainstInferiorLaw = context.Laws.Single(x => x.Name == "Theft Against Inferior");
+        StringAssert.Contains(theftAgainstInferiorLaw.PunishmentStrategy, "type=\"fine\"");
+        Assert.AreEqual(EnforcementStrategy.NoActiveEnforcement.DescribeEnum(), theftAgainstInferiorLaw.EnforcementStrategy);
+
+        List<Law> gamblingLaws = context.Laws.Where(x => x.CrimeType == (int)CrimeTypes.Gambling).ToList();
+        Assert.AreEqual(1, gamblingLaws.Count);
+        Assert.AreEqual(0, context.Laws.Count(x => x.Name == "Gambling Against Inferior"));
+
+        FutureProg gamblingApplicabilityProg =
+            context.FutureProgs.Single(x => x.Id == gamblingLaws.Single().LawAppliesProgId);
+        Assert.AreEqual("return true", gamblingApplicabilityProg.FunctionText);
+        Assert.AreEqual(EnforcementStrategy.ArrestAndDetain.DescribeEnum(), gamblingLaws.Single().EnforcementStrategy);
     }
 }

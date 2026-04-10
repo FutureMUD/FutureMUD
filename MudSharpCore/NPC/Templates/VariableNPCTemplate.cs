@@ -117,6 +117,44 @@ public class VariableNPCTemplate : NPCTemplateBase
 
     public override string FrameworkItemType => "VariableNPCTemplate";
 
+    internal static INameCulture ResolveAutomaticNameCulture(ICulture culture, IEthnicity ethnicity, Gender gender)
+    {
+        return ethnicity?.NameCultureForGender(gender) ?? culture?.NameCultureForGender(gender);
+    }
+
+    internal static IRandomNameProfile ResolveAutomaticNameProfile(ICulture culture, IEthnicity ethnicity, Gender gender)
+    {
+        INameCulture nameCulture = ResolveAutomaticNameCulture(culture, ethnicity, gender);
+        return nameCulture?.RandomNameProfiles
+                          .Where(x => x.IsReady && x.IsCompatibleGender(gender))
+                          .GetRandomElement();
+    }
+
+    private void RefreshAutomaticNameProfiles()
+    {
+        foreach (Gender gender in _nameProfiles.Keys.Where(x => _genderChances.All(y => y.Value != x)).ToList())
+        {
+            _nameProfiles.Remove(gender);
+        }
+
+        if (_culture == null)
+        {
+            return;
+        }
+
+        foreach ((Gender Value, int Weight) gender in _genderChances)
+        {
+            IRandomNameProfile profile = ResolveAutomaticNameProfile(_culture, _ethnicity, gender.Value);
+            if (profile == null)
+            {
+                _nameProfiles.Remove(gender.Value);
+                continue;
+            }
+
+            _nameProfiles[gender.Value] = profile;
+        }
+    }
+
     private void LoadFromXml(XElement root)
     {
         XElement element = root.Element("GenderChances");
@@ -992,7 +1030,7 @@ public class VariableNPCTemplate : NPCTemplateBase
             }
         }
 
-        INameCulture nc = _ethnicity?.NameCultureForGender(gender) ?? _culture.NameCultureForGender(gender);
+        INameCulture nc = ResolveAutomaticNameCulture(_culture, _ethnicity, gender);
         if (nc != profile.Culture)
         {
             actor.OutputHandler.Send(
@@ -1065,10 +1103,7 @@ public class VariableNPCTemplate : NPCTemplateBase
             }
         }
 
-        foreach (Gender gender in _nameProfiles.Keys.Where(x => _genderChances.All(y => y.Value != x)).ToList())
-        {
-            _nameProfiles.Remove(gender);
-        }
+        RefreshAutomaticNameProfiles();
 
         _priorityAttributeDefinitions.RemoveAll(x => !_race.Attributes.Contains(x));
         Changed = true;
@@ -1099,26 +1134,7 @@ public class VariableNPCTemplate : NPCTemplateBase
         }
 
         _culture = culture;
-        _nameProfiles.Clear();
-        foreach ((Gender Value, int Weight) gender in _genderChances)
-        {
-            INameCulture nc =
-                _ethnicity?.NameCultureForGender(gender.Value) ??
-                _culture.NameCultureForGender(gender.Value);
-            if (_nameProfiles.ContainsKey(gender.Value) && nc == _nameProfiles[gender.Value].Culture)
-            {
-                continue;
-            }
-
-            IRandomNameProfile profile =
-                _culture.NameCultureForGender(gender.Value).RandomNameProfiles
-                        .Where(x => x.IsReady && x.IsCompatibleGender(gender.Value)).GetRandomElement();
-
-            if (profile != null)
-            {
-                _nameProfiles[gender.Value] = profile;
-            }
-        }
+        RefreshAutomaticNameProfiles();
 
         Changed = true;
         actor.OutputHandler.Send($"You set the culture of this NPC to {_culture.Name.Proper().Colour(Telnet.Cyan)}.");
@@ -1160,6 +1176,7 @@ public class VariableNPCTemplate : NPCTemplateBase
         }
 
         _ethnicity = ethnicity;
+        RefreshAutomaticNameProfiles();
         Changed = true;
         actor.OutputHandler.Send(
             $"You set the ethnicity of this NPC to {_ethnicity.Name.Proper().Colour(Telnet.Cyan)}.");

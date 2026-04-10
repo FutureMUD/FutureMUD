@@ -21,6 +21,7 @@ The current repository has two dedicated economy seeders:
 
 - stock currency packages such as dollars, pounds, fantasy, roman, bits, and Gondor
 - stock divisions, coins, description patterns, and parsing abbreviations
+- historical compact `£sd` formatting for the stock Pounds package, including sub-shilling `d` notation, slash notation above one shilling, full `£/s/d` notation above one pound, quarter-penny glyph fractions, and `–` zero slots in slash forms
 - supporting FutureProg content for some currency pattern applicability
 - additive rerun behavior so multiple currencies can coexist
 

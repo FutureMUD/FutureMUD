@@ -416,11 +416,11 @@ public partial class CultureSeeder
         return culture;
     }
 
-    private void ReplaceCultureNameLinks(Culture culture, params (Gender Gender, string NameCulture)[] mappings)
-    {
-        foreach (CulturesNameCultures? existing in culture.CulturesNameCultures.ToList())
-        {
-            _context.CulturesNameCultures.Remove(existing);
+	private void ReplaceCultureNameLinks(Culture culture, params (Gender Gender, string NameCulture)[] mappings)
+	{
+		foreach (CulturesNameCultures? existing in culture.CulturesNameCultures.ToList())
+		{
+			_context.CulturesNameCultures.Remove(existing);
         }
 
         foreach ((Gender gender, string? cultureName) in mappings)
@@ -433,6 +433,32 @@ public partial class CultureSeeder
             });
         }
 
-        _context.SaveChanges();
-    }
+		_context.SaveChanges();
+	}
+
+	private void ReplaceEthnicityNameLinks(Ethnicity ethnicity, params (Gender Gender, string NameCulture)[] mappings)
+	{
+		foreach (EthnicitiesNameCultures? existing in ethnicity.EthnicitiesNameCultures.ToList())
+		{
+			_context.EthnicitiesNameCultures.Remove(existing);
+		}
+
+		foreach ((Gender gender, string cultureName) in mappings)
+		{
+			NameCulture? nameCulture = _context.NameCultures.FirstOrDefault(x => x.Name == cultureName);
+			if (nameCulture is null)
+			{
+				continue;
+			}
+
+			ethnicity.EthnicitiesNameCultures.Add(new EthnicitiesNameCultures
+			{
+				Ethnicity = ethnicity,
+				NameCulture = nameCulture,
+				Gender = (short)gender
+			});
+		}
+
+		_context.SaveChanges();
+	}
 }

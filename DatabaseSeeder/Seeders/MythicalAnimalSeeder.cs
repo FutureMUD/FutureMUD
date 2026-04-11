@@ -225,8 +225,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         _defaultPopulationBloodModel = _humanRace.Ethnicities.FirstOrDefault()?.PopulationBloodModel ??
                                        _context.PopulationBloodModels.FirstOrDefault();
         _personWordDefinition = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");
-        _humanoidNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Human Natural Armour");
-        _animalNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Non-Human Natural Armour");
+		_humanoidNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Human Racial Tissue Armour");
+		_animalNaturalArmour = null;
         _nextBodyProtoId = _context.BodyProtos.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
         _healthTrait = _context.TraitDefinitions
@@ -960,11 +960,11 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             MaximumLiftWeightExpression = $"str:{_strengthTrait.Id}*10000",
             MaximumDragWeightExpression = $"str:{_strengthTrait.Id}*40000",
             DefaultHeightWeightModelMale = _context.HeightWeightModels.First(x => x.Name == template.MaleHeightWeightModel),
-            DefaultHeightWeightModelFemale = _context.HeightWeightModels.First(x => x.Name == template.FemaleHeightWeightModel),
-            DefaultHeightWeightModelNeuter = _context.HeightWeightModels.First(x => x.Name == template.MaleHeightWeightModel),
-            DefaultHeightWeightModelNonBinary = _context.HeightWeightModels.First(x => x.Name == template.FemaleHeightWeightModel),
-            NaturalArmourType = usesHumanoidDefaults ? _humanoidNaturalArmour : _animalNaturalArmour
-        };
+			DefaultHeightWeightModelFemale = _context.HeightWeightModels.First(x => x.Name == template.FemaleHeightWeightModel),
+			DefaultHeightWeightModelNeuter = _context.HeightWeightModels.First(x => x.Name == template.MaleHeightWeightModel),
+			DefaultHeightWeightModelNonBinary = _context.HeightWeightModels.First(x => x.Name == template.FemaleHeightWeightModel),
+			NaturalArmourType = usesHumanoidDefaults ? _humanoidNaturalArmour : null
+		};
 
         _context.Races.Add(race);
         _context.SaveChanges();
@@ -999,24 +999,29 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         _context.SaveChanges();
     }
 
-    private void ApplyDefaultCombatSettingsToSeededRaces()
-    {
-        foreach (MythicalRaceTemplate template in Templates.Values)
-        {
-            Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+	private void ApplyDefaultCombatSettingsToSeededRaces()
+	{
+		foreach (MythicalRaceTemplate template in Templates.Values)
+		{
+			Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
             if (race is null)
             {
                 continue;
             }
 
-            CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
-            if (race.DefaultCombatSettingId == setting.Id)
-            {
-                continue;
-            }
+			CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
+			bool usesHumanoidDefaults = template.HumanoidVariety ||
+			                          (template.CanUseWeapons && template.BodyKey.EqualTo("Organic Humanoid"));
+			ArmourType? expectedArmour = usesHumanoidDefaults ? _humanoidNaturalArmour : null;
+			if (race.DefaultCombatSettingId == setting.Id &&
+			    race.NaturalArmourTypeId == expectedArmour?.Id)
+			{
+				continue;
+			}
 
-            race.DefaultCombatSetting = setting;
-        }
+			race.DefaultCombatSetting = setting;
+			race.NaturalArmourType = expectedArmour;
+		}
 
         _context.SaveChanges();
     }

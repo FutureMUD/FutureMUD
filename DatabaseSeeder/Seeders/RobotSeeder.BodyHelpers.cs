@@ -11,7 +11,31 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class RobotSeeder
 {
-    private BodypartProto AddRobotOrgan(
+	private static int NormalizeRobotSeverThreshold(string alias, int severedThreshold, SizeCategory size,
+		BodypartTypeEnum type)
+	{
+		if (severedThreshold <= 0)
+		{
+			return severedThreshold;
+		}
+
+		if (type == BodypartTypeEnum.Eye ||
+		    alias.Contains("sensor", StringComparison.OrdinalIgnoreCase) ||
+		    alias.Contains("antenna", StringComparison.OrdinalIgnoreCase) ||
+		    alias.Contains("mandible", StringComparison.OrdinalIgnoreCase))
+		{
+			return Math.Min(severedThreshold, 18);
+		}
+
+		return size switch
+		{
+			SizeCategory.Tiny => Math.Min(severedThreshold, 12),
+			SizeCategory.VerySmall => Math.Min(severedThreshold, 18),
+			_ => Math.Min(severedThreshold, 27)
+		};
+	}
+
+	private BodypartProto AddRobotOrgan(
         BodyProto body,
         string alias,
         string description,
@@ -87,13 +111,13 @@ public partial class RobotSeeder
             Body = body,
             Name = alias,
             Description = description,
-            BodypartShape = _context.BodypartShapes.First(x => x.Name == shapeName),
-            BodypartType = (int)type,
-            Alignment = (int)alignment,
-            Location = (int)orientation,
-            RelativeHitChance = relativeHitChance,
-            SeveredThreshold = severedThreshold,
-            MaxLife = maxLife,
+			BodypartShape = _context.BodypartShapes.First(x => x.Name == shapeName),
+			BodypartType = (int)type,
+			Alignment = (int)alignment,
+			Location = (int)orientation,
+			RelativeHitChance = relativeHitChance,
+			SeveredThreshold = NormalizeRobotSeverThreshold(alias, severedThreshold, size, type),
+			MaxLife = maxLife,
             DisplayOrder = displayOrder,
             DefaultMaterial = material,
             Size = (int)size,

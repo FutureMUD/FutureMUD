@@ -229,6 +229,112 @@ Families intentionally left unchanged in this pass:
 - stab-vest families
 - weapon damage formulas
 
+## Non-Human Stock Notes
+
+### Animal full-model fracture bands
+Stock non-human `ComplexLiving` bodies now use the same tightened percentage bands as stock full humans:
+
+| Severity | Lower % | Upper % |
+| --- | ---: | ---: |
+| `Superficial` | `0.00` | `0.15` |
+| `Minor` | `0.15` | `0.30` |
+| `Small` | `0.30` | `0.45` |
+| `Moderate` | `0.45` | `0.60` |
+| `Severe` | `0.60` | `0.75` |
+| `VerySevere` | `0.75` | `0.87` |
+| `Grievous` | `0.87` | `0.95` |
+| `Horrifying` | `0.95` | `1.00+` |
+
+### Animal natural armour
+Ordinary seeded animals still do not get a separate race-level natural-armour layer. Their stock external routing remains:
+
+`attack damage -> bodypart natural armour -> bone routing -> bone natural armour -> organ routing`
+
+`Non-Human Natural Armour` was adjusted so that:
+
+- cut and pierce hits pass more meaningful damage inward
+- blunt hits still attenuate more than edges and points, but less than before
+- ordinary flesh layers are less eager to convert edge and point damage into `Crushing`
+
+Current non-human flesh-only downgrade policy:
+
+| From | To | Threshold |
+| --- | --- | --- |
+| `Slashing` | `Crushing` | `<= Small` |
+| `Chopping` | `Crushing` | `<= Small` |
+| `Bite` | `Crushing` | `<= Small` |
+| `Claw` | `Crushing` | `<= Small` |
+| `Shearing` | `Crushing` | `<= Small` |
+| `Wrenching` | `Crushing` | `<= Small` |
+| `Piercing` | `Crushing` | `<= Superficial` |
+| `Ballistic` | `Crushing` | `<= Superficial` |
+| `Shrapnel` | `Crushing` | `<= Superficial` |
+| `ArmourPiercing` | stays `ArmourPiercing` | explicitly neutralised |
+
+Current non-human natural-armour pass-through:
+
+- cut / pierce / slash-like damage: `damage * 0.90`
+- impact-like damage: `damage * 0.85`
+- other damage: `damage * 0.80`
+
+### Animal sever policy
+Animal bodypart sever thresholds are still authored per body, but the shared seeder now caps positive thresholds down into severity-aligned ranges instead of leaving many stock parts at `50-100`:
+
+- tiny severables cap to `12`
+- very small and explicit minor appendages cap to `18`
+- other positive severables cap to `27`
+
+This cap only lowers existing positive sever thresholds; it does not make non-severable parts severable.
+
+## Mythical Race Armour Inheritance
+Seeded mythical races now follow the stock model they are actually built from:
+
+- humanoid-default mythical races use `Human Racial Tissue Armour`
+- animal-default mythical races use no extra race-level natural armour
+
+That removes the old accidental double-layering on animal-default mythics, where they were receiving both:
+
+- a race-level `Non-Human Natural Armour`
+- cloned animal bodyparts that already had `Non-Human Natural Armour`
+
+Humanoid-default mythics still inherit the human racial/bodypart/cranial split through their cloned humanoid body parts plus human-style racial tissue.
+
+## Robot Protection Stack
+Seeded robots now use a three-part protection model rather than reusing old human-flesh armour definitions for every layer.
+
+### Race-level robot armour
+
+| Setting | Value |
+| --- | --- |
+| `NaturalArmourType` | `Robot Frame Armour` |
+| `NaturalArmourMaterial` | `Robot Chassis Alloy` |
+| `NaturalArmourQuality` | `4` |
+
+`Robot Frame Armour` is a light structural baseline, not the main protective wall.
+
+### Robot bodypart armour
+
+| Layer | Role |
+| --- | --- |
+| `Robot Natural Armour` | main heavy plating for articulated robot externals |
+| `Robot Light Armour` | lighter external plating for utility and small chassis bodies |
+| `Robot Internal Armour` | internal component damping for robot organs / circuitry |
+
+Robot plating now:
+
+- leaks more meaningful damage than the old double-cloned natural-armour stack
+- still tends to blunt defeated cuts and chops into `Crushing`
+- stays stronger against edges than against heavy crushing or determined penetration
+
+### Robot sever policy
+Custom robot bodyparts now use the same first-pass cap logic as the animal sweep:
+
+- tiny parts cap to `12`
+- eyes, sensors, antennae, and similar minor externals cap to `18`
+- larger positive severables cap to `27`
+
+This mostly matters for custom robot chassis parts such as sensor pods, wheels, tracks, and attachments, because humanoid-derived robot bodies already inherit the updated humanoid sever thresholds.
+
 ## Anatomy Highlights Used In Validation
 These seeded stock-human internals matter most for the first-pass validation set:
 

@@ -11,6 +11,7 @@ The intended audience is:
 ## Reading Guide
 This is the head document for the health system set:
 
+- [Damage_System_Design.md](./Damage_System_Design.md) covers end-to-end damage flow, seeded damage formulas, armour layering, bodypart and internal routing, and worked examples.
 - [Core_Runtime.md](./Core_Runtime.md) covers `IBody`, biology, health strategies, wounds, infections, and health-related merits.
 - [Medical_Interactions.md](./Medical_Interactions.md) covers bedside treatment, surgery, CPR, defibrillation, drugs, and the main command surface.
 - [Adjacencies_and_Items.md](./Adjacencies_and_Items.md) covers breathing, needs, corpses, severed bodyparts, implants, artificial organs, rebreathers, cannulae, prosthetics, and cross-cutting effects.

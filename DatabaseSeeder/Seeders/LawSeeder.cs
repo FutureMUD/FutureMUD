@@ -20,22 +20,6 @@ public class LawSeeder : IDatabaseSeeder
         "Assault"
     ];
 
-    private static readonly string[] StockTierOrder =
-    [
-        "sovereign",
-        "noble",
-        "officer",
-        "soldier",
-        "enforcer",
-        "citizen",
-        "noncitizen",
-        "felon",
-        "criminal",
-        "slave",
-        "pet",
-        "other"
-    ];
-
     public FuturemudDatabaseContext Context { get; private set; }
     public IReadOnlyDictionary<string, string> QuestionAnswers { get; private set; }
     public string AuthorityName { get; private set; }
@@ -293,29 +277,7 @@ Please enter your penalty unit: ", (context, answers) => true,
 
     private string BuildTierComparisonText(bool offenderOutranksVictim)
     {
-        List<string> conditions = new();
-        List<string> availableClasses = StockTierOrder.Where(Classes.ContainsKey).ToList();
-
-        for (int i = 0; i < availableClasses.Count; i++)
-        {
-            List<string> lowerClasses = availableClasses.Skip(i + 1).ToList();
-            if (!lowerClasses.Any())
-            {
-                continue;
-            }
-
-            string offenderCheck = $"{ProgLookup[$"is{availableClasses[i]}"].FunctionName}(@criminal)";
-            string victimCheck = string.Join(" or ",
-                lowerClasses.Select(x => $"{ProgLookup[$"is{x}"].FunctionName}(@victim)"));
-            conditions.Add($"({offenderCheck} and ({victimCheck}))");
-        }
-
-        if (!conditions.Any())
-        {
-            return $"return {(offenderOutranksVictim ? "false" : "true")}";
-        }
-
-        string outranksCheck = string.Join(" or ", conditions);
+        string outranksCheck = $"LegalClassOutranks(@criminal, @victim, ToLegalAuthority({Authority.Id}))";
         return $@"if (isnull(@victim))
   return false
 end if

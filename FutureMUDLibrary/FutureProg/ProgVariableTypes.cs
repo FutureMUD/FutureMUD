@@ -82,17 +82,19 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
     public static readonly ProgVariableTypes Market = FromLegacyBitIndex(57);
     public static readonly ProgVariableTypes MarketCategory = FromLegacyBitIndex(58);
     public static readonly ProgVariableTypes LiquidMixture = FromLegacyBitIndex(59);
-    public static readonly ProgVariableTypes Script = FromLegacyBitIndex(60);
-    public static readonly ProgVariableTypes Writing = FromLegacyBitIndex(61);
-    public static readonly ProgVariableTypes Area = FromLegacyBitIndex(62);
+	public static readonly ProgVariableTypes Script = FromLegacyBitIndex(60);
+	public static readonly ProgVariableTypes Writing = FromLegacyBitIndex(61);
+	public static readonly ProgVariableTypes Area = FromLegacyBitIndex(62);
+	public static readonly ProgVariableTypes LegalClass = FromLegacyBitIndex(63);
 
     public static readonly ProgVariableTypes CollectionItem =
         Number | Boolean | Gender | Text | DateTime | TimeSpan | Character | Item | Chargen | Location | Zone |
         Shard | Accent | Language | Race | Culture | Trait | Clan | ClanRank | ClanAppointment | ClanPaygrade |
         Currency | Exit | Merit | MudDateTime | Calendar | Clock | Effect | Knowledge | Role | Ethnicity | Drug |
-        WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project | Solid |
-        Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType |
-        LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing | Area;
+		WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project | Solid |
+		Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType |
+		LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing | Area |
+		LegalClass;
 
     public static readonly ProgVariableTypes Perceivable = Item | Character | Location | Zone | Shard;
     public static readonly ProgVariableTypes Perceiver = Item | Character;

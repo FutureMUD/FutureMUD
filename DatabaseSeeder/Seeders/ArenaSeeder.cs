@@ -63,7 +63,7 @@ builders can expand upon. Physical rooms for the arena still need to be construc
                 "Eligibility",
                 ProgVariableTypes.Boolean,
                 "Default eligibility prog that accepts all characters.",
-                "return true;",
+                "return true",
                 (ProgVariableTypes.Character, "character"));
 
             FutureProg outfitProg = EnsureProg(context,
@@ -72,7 +72,7 @@ builders can expand upon. Physical rooms for the arena still need to be construc
                 "Loadout",
                 ProgVariableTypes.Void,
                 "Placeholder outfit prog for bring-your-own events.",
-                "return;",
+                "return",
                 (ProgVariableTypes.Anything, "event"),
                 (ProgVariableTypes.Number, "side"),
                 (ProgVariableTypes.Character | ProgVariableTypes.Collection, "participants"));
@@ -83,7 +83,7 @@ builders can expand upon. Physical rooms for the arena still need to be construc
                 "Lifecycle",
                 ProgVariableTypes.Void,
                 "Placeholder intro prog that performs no announcements.",
-                "return;",
+                "return",
                 (ProgVariableTypes.Anything, "event"));
 
             context.SaveChanges();

@@ -811,7 +811,7 @@ public sealed partial class Futuremud : IDisposable
                             Subcategory = "Universal",
                             Public = true,
                             FunctionComment = "Accepts any parameters, and returns a universal error message.",
-                            FunctionText = @"return """"You cannot do that for an unspecified reason.""""",
+                            FunctionText = @"return ""You cannot do that for an unspecified reason.""",
                             StaticType = 2
                         };
                         FMDB.Context.FutureProgs.Add(dbitem);

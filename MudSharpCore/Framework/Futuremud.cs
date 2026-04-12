@@ -931,10 +931,6 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IDisfigurementTemplate template)
     {
         _disfigurementTemplates.Add(template);
-        if (template is IScarTemplate)
-        {
-            ScarTemplateIndex.Invalidate(this);
-        }
     }
 
     public void Add(IActiveProject project)
@@ -1838,10 +1834,6 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IDisfigurementTemplate template)
     {
         _disfigurementTemplates.Remove(template);
-        if (template is IScarTemplate)
-        {
-            ScarTemplateIndex.Invalidate(this);
-        }
     }
 
     public void Destroy(IActiveProject project)

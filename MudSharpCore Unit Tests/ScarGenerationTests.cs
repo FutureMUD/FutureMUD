@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -16,6 +16,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.CharacterMerits;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp_Unit_Tests;
 
@@ -118,39 +119,33 @@ public class ScarGenerationTests
 	}
 
 	[TestMethod]
-	public void ScarTemplateIndexSnapshot_ReturnsOnlyValidDamageCandidates()
+	public void GenerateScar_UsesOrientationMappingAndPersistsGeneratedState()
 	{
-		var body = new Mock<IBody>();
-		var shape = CreateShape(10, "Arm");
-		var otherShape = CreateShape(11, "Leg");
+		var gameworld = CreateGameworldWithMatrix(new XElement("ScarGenerationChanceMatrix",
+			new XElement("Damage",
+				new XAttribute("Type", DamageType.Slashing),
+				new XElement("Chance", new XAttribute("Severity", WoundSeverity.Severe), "0.42")),
+			new XElement("Surgery")));
+		gameworld.Setup(x => x.GetStaticConfiguration("ScarOrientationByBodypartShape")).Returns(
+			new XElement("ScarOrientationProfiles",
+				new XAttribute("Default", "linear"),
+				new XElement("Shape", new XAttribute("Name", "forearm"), new XAttribute("Profile", "linear")))
+			.ToString());
+
+		var race = new Mock<IRace>();
+		race.Setup(x => x.ModifiedSize(It.IsAny<IBodypart>())).Returns(SizeCategory.Normal);
+
+		var shape = new Mock<IBodypartShape>();
+		shape.SetupGet(x => x.Name).Returns("forearm");
+
 		var bodypart = new Mock<IBodypart>();
 		bodypart.SetupGet(x => x.Shape).Returns(shape.Object);
+		bodypart.SetupGet(x => x.Name).Returns("lforearm");
+		bodypart.Setup(x => x.FullDescription()).Returns("left forearm");
 
-		var wildcardTemplate = CreateScarTemplate("wildcard",
-			bodypartShapes: [],
-			canApplyToBodypart: true,
-			canApplyFromDamage: (type, severity) => type == DamageType.Slashing && severity >= WoundSeverity.Moderate);
-		var shapeTemplate = CreateScarTemplate("shape",
-			bodypartShapes: [shape.Object],
-			canApplyToBodypart: true,
-			canApplyFromDamage: (type, severity) => type == DamageType.Slashing && severity >= WoundSeverity.Moderate);
-		var wrongShapeTemplate = CreateScarTemplate("wrong-shape",
-			bodypartShapes: [otherShape.Object],
-			canApplyToBodypart: true,
-			canApplyFromDamage: (type, severity) => true);
-		var uniqueRejectedTemplate = CreateScarTemplate("unique-rejected",
-			bodypartShapes: [shape.Object],
-			canApplyToBodypart: false,
-			canApplyFromDamage: (type, severity) => true);
+		var scarTime = new MudDateTime("2025-12-31 00:00:00", gameworld.Object);
 
-		var snapshot = new ScarTemplateIndexSnapshot([
-			wildcardTemplate.Object,
-			shapeTemplate.Object,
-			wrongShapeTemplate.Object,
-			uniqueRejectedTemplate.Object
-		]);
-
-		var results = snapshot.GetCandidates(body.Object, bodypart.Object, new ScarWoundContext(
+		var scar = ScarGeneration.GenerateScar(gameworld.Object, race.Object, bodypart.Object, new ScarWoundContext(
 			false,
 			DamageType.Slashing,
 			WoundSeverity.Severe,
@@ -161,66 +156,49 @@ public class ScarGenerationTests
 			false,
 			false,
 			false,
-			false)).ToList();
+			false), scarTime, 0);
 
-		CollectionAssert.AreEquivalent(
-			new[] { wildcardTemplate.Object, shapeTemplate.Object },
-			results,
-			"Damage candidate lookup should intersect shape and damage buckets and still honour runtime eligibility checks.");
+		var xml = scar.SaveToXml();
+		Assert.IsTrue(scar.ShortDescription.Contains("slash scar", System.StringComparison.InvariantCultureIgnoreCase));
+		Assert.IsTrue(scar.FullDescription.Contains("left forearm", System.StringComparison.InvariantCultureIgnoreCase));
+		Assert.AreEqual("Slashing", xml.Element("DamageType")?.Value);
+		Assert.AreEqual("Severe", xml.Element("Severity")?.Value);
+		Assert.AreEqual("False", xml.Element("IsSurgical")?.Value);
 	}
 
 	[TestMethod]
-	public void ScarTemplateIndexSnapshot_ReturnsOnlyValidSurgeryCandidates()
+	public void GenerateScarOptions_ReturnDistinctChoicesForChargen()
 	{
-		var body = new Mock<IBody>();
-		var shape = CreateShape(10, "Arm");
+		var gameworld = CreateGameworldWithMatrix(new XElement("ScarGenerationChanceMatrix",
+			new XElement("Damage",
+				new XAttribute("Type", DamageType.Burning),
+				new XElement("Chance", new XAttribute("Severity", WoundSeverity.Grievous), "0.42")),
+			new XElement("Surgery")));
+		gameworld.Setup(x => x.GetStaticConfiguration("ScarOrientationByBodypartShape")).Returns(
+			new XElement("ScarOrientationProfiles",
+				new XAttribute("Default", "broad"),
+				new XElement("Shape", new XAttribute("Name", "abdomen"), new XAttribute("Profile", "broad")))
+			.ToString());
+
+		var race = new Mock<IRace>();
+		race.Setup(x => x.ModifiedSize(It.IsAny<IBodypart>())).Returns(SizeCategory.Large);
+
+		var shape = new Mock<IBodypartShape>();
+		shape.SetupGet(x => x.Name).Returns("abdomen");
+
 		var bodypart = new Mock<IBodypart>();
 		bodypart.SetupGet(x => x.Shape).Returns(shape.Object);
+		bodypart.SetupGet(x => x.Name).Returns("abdomen");
+		bodypart.Setup(x => x.FullDescription()).Returns("abdomen");
 
-		var matchingTemplate = CreateScarTemplate("matching",
-			bodypartShapes: [shape.Object],
-			canApplyToBodypart: true,
-			canApplyFromDamage: (type, severity) => false,
-			canApplyFromSurgery: type => type == SurgicalProcedureType.InvasiveProcedureFinalisation);
-		var wrongSurgeryTemplate = CreateScarTemplate("wrong-surgery",
-			bodypartShapes: [shape.Object],
-			canApplyToBodypart: true,
-			canApplyFromDamage: (type, severity) => false,
-			canApplyFromSurgery: type => type == SurgicalProcedureType.Amputation);
+		var options = ScarGeneration.GenerateScarOptions(gameworld.Object, race.Object, bodypart.Object,
+			new ScarWoundContext(false, DamageType.Burning, WoundSeverity.Grievous, null, 0, Outcome.None, false, false,
+				false, false, false),
+			new MudDateTime("2025-12-31 00:00:00", gameworld.Object),
+			4);
 
-		var snapshot = new ScarTemplateIndexSnapshot([matchingTemplate.Object, wrongSurgeryTemplate.Object]);
-
-		var results = snapshot.GetCandidates(body.Object, bodypart.Object, new ScarWoundContext(
-			true,
-			DamageType.Slashing,
-			WoundSeverity.Severe,
-			SurgicalProcedureType.InvasiveProcedureFinalisation,
-			2,
-			Outcome.Pass,
-			false,
-			false,
-			false,
-			false,
-			false)).ToList();
-
-		CollectionAssert.AreEqual(new[] { matchingTemplate.Object }, results);
-	}
-
-	[TestMethod]
-	public void ScarTemplate_LoadHealingScarWeight_LoadsLegacyChanceElements()
-	{
-		var xml = XElement.Parse("""
-			<Scar>
-				<DamageHealingScarChance>0.35</DamageHealingScarChance>
-				<SurgeryHealingScarChance>0.60</SurgeryHealingScarChance>
-			</Scar>
-			""");
-
-		var damageWeight = ScarTemplate.LoadHealingScarWeight(xml, "DamageHealingScarWeight", "DamageHealingScarChance");
-		var surgeryWeight = ScarTemplate.LoadHealingScarWeight(xml, "SurgeryHealingScarWeight", "SurgeryHealingScarChance");
-
-		Assert.AreEqual(0.35, damageWeight, 0.0001);
-		Assert.AreEqual(0.60, surgeryWeight, 0.0001);
+		Assert.AreEqual(4, options.Count);
+		Assert.AreEqual(4, options.Select(x => x.FullDescription).Distinct().Count());
 	}
 
 	[TestMethod]
@@ -270,37 +248,26 @@ public class ScarGenerationTests
 
 	private static Mock<IFuturemud> CreateGameworldWithMatrix(XElement matrix)
 	{
+		var calendar = new Mock<ICalendar>();
+		calendar.SetupGet(x => x.CurrentDateTime).Returns(new MudDateTime("2026-01-02 00:00:00", Mock.Of<IFuturemud>()));
+
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.GetStaticConfiguration("ScarGenerationChanceMatrix")).Returns(matrix.ToString());
-		gameworld.Setup(x => x.GetStaticDouble(It.IsAny<string>())).Returns(0.0);
+		gameworld.Setup(x => x.GetStaticConfiguration("ScarOrientationByBodypartShape")).Returns(
+			new XElement("ScarOrientationProfiles", new XAttribute("Default", "linear")).ToString());
+		gameworld.Setup(x => x.GetStaticString("ScarSDescFresh")).Returns("{0}");
+		gameworld.Setup(x => x.GetStaticString("ScarSDescRecent")).Returns("{0}");
+		gameworld.Setup(x => x.GetStaticString("ScarSDescOld")).Returns("{0}");
+		gameworld.Setup(x => x.GetStaticString("ScarFDescFresh")).Returns("{0}");
+		gameworld.Setup(x => x.GetStaticString("ScarFDescRecent")).Returns("{0}");
+		gameworld.Setup(x => x.GetStaticString("ScarFDescOld")).Returns("{0}");
+		gameworld.Setup(x => x.GetStaticDouble(It.IsAny<string>())).Returns<string>(key => key switch
+		{
+			"ScarDaysForOld" => 999.0,
+			"ScarDaysForRecent" => 999.0,
+			_ => 0.0
+		});
 		return gameworld;
-	}
-
-	private static Mock<IBodypartShape> CreateShape(long id, string name)
-	{
-		var shape = new Mock<IBodypartShape>();
-		shape.SetupGet(x => x.Id).Returns(id);
-		shape.SetupGet(x => x.Name).Returns(name);
-		return shape;
-	}
-
-	private static Mock<IScarTemplate> CreateScarTemplate(
-		string name,
-		IEnumerable<IBodypartShape> bodypartShapes,
-		bool canApplyToBodypart,
-		System.Func<DamageType, WoundSeverity, bool> canApplyFromDamage,
-		System.Func<SurgicalProcedureType, bool>? canApplyFromSurgery = null)
-	{
-		var template = new Mock<IScarTemplate>();
-		template.SetupGet(x => x.Name).Returns(name);
-		template.SetupGet(x => x.Id).Returns(name.GetHashCode());
-		template.SetupGet(x => x.BodypartShapes).Returns(bodypartShapes.ToList());
-		template.Setup(x => x.CanBeAppliedToBodypart(It.IsAny<IBody>(), It.IsAny<IBodypart>())).Returns(canApplyToBodypart);
-		template.Setup(x => x.CanBeAppliedFromDamage(It.IsAny<DamageType>(), It.IsAny<WoundSeverity>()))
-			.Returns<DamageType, WoundSeverity>((type, severity) => canApplyFromDamage(type, severity));
-		template.Setup(x => x.CanBeAppliedFromSurgery(It.IsAny<SurgicalProcedureType>()))
-			.Returns<SurgicalProcedureType>(type => canApplyFromSurgery?.Invoke(type) ?? false);
-		return template;
 	}
 
 	private static ScarChanceMerit LoadScarChanceMerit(XElement definition)

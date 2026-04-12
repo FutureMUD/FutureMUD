@@ -825,111 +825,6 @@ internal class EditableRevisableItemHelper
 
         #endregion
 
-        #region Scars
-
-        ScarHelper = new EditableRevisableItemHelper
-        {
-            ItemName = "Scar Template",
-            ItemNamePlural = "Scar Templates",
-            DeleteEditableItemAction = item =>
-            {
-                using (new FMDB())
-                {
-                    Models.DisfigurementTemplate dbproto = FMDB.Context.DisfigurementTemplates.Find(item.Id, item.RevisionNumber);
-                    if (dbproto != null)
-                    {
-                        FMDB.Context.DisfigurementTemplates.Remove(dbproto);
-                        Models.EditableItem dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
-                        FMDB.Context.EditableItems.Remove(dbeditable);
-                        FMDB.Context.SaveChanges();
-                    }
-
-                    item.Gameworld.Destroy((IDisfigurementTemplate)item);
-                }
-            },
-            SetEditableItemAction = (character, item) =>
-            {
-                character.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IDisfigurementTemplate>>());
-                if (item == null)
-                {
-                    return;
-                }
-
-                character.AddEffect(new BuilderEditingEffect<IDisfigurementTemplate>(character)
-                { EditingItem = (IDisfigurementTemplate)item });
-            },
-            GetEditableItemFunc = character =>
-                character.EffectsOfType<BuilderEditingEffect<IDisfigurementTemplate>>().FirstOrDefault()?.EditingItem,
-            EditableNewAction = (actor, input) =>
-            {
-                if (input.IsFinished)
-                {
-                    actor.OutputHandler.Send("You must specify a name for your new scar.");
-                    return;
-                }
-
-                string name = input.PopSpeech();
-                if (actor.Gameworld.DisfigurementTemplates.OfType<IScarTemplate>().Any(x => x.Name.EqualTo(name)))
-                {
-                    actor.OutputHandler.Send(
-                        "There is already a scar with that name. You must ensure that your scars have unique names.");
-                    return;
-                }
-
-                ScarTemplate scar = new(actor.Account, name);
-                actor.Gameworld.Add(scar);
-                actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IDisfigurementTemplate>>());
-                actor.AddEffect(new BuilderEditingEffect<IDisfigurementTemplate>(actor) { EditingItem = scar });
-                actor.OutputHandler.Send("You create a new scar template with ID " + scar.Id + ".");
-            },
-            AddItemToGameWorldAction = item => item.Gameworld.Add((IScarTemplate)item),
-            GetAllEditableItems = character => character.Gameworld.DisfigurementTemplates.OfType<IScarTemplate>(),
-            GetAllEditableItemsByIdFunc = (character, id) =>
-                character.Gameworld.DisfigurementTemplates.GetAll(id).OfType<IScarTemplate>(),
-            GetEditableItemByIdFunc = (character, id) =>
-                character.Gameworld.DisfigurementTemplates.Get(id) as IScarTemplate,
-            GetEditableItemByIdRevNumFunc =
-                (character, id, revision) =>
-                    character.Gameworld.DisfigurementTemplates.Get(id, revision) as IScarTemplate,
-            GetReviewTableContentsFunc = (actor, protos) =>
-            {
-                using (new FMDB())
-                {
-                    return from proto in protos.OfType<IScarTemplate>()
-                           select
-                               new[]
-                               {
-                                   proto.Id.ToString("N0", actor), proto.RevisionNumber.ToString("N0", actor),
-                                   proto.Name.Proper(),
-                                   proto.ShortDescription,
-                                   FMDB.Context.Accounts.Find(proto.BuilderAccountID).Name, proto.BuilderComment ?? ""
-                               };
-                }
-            },
-            GetReviewTableHeaderFunc =
-                character => new[] { "ID#", "Rev#", "Name", "Short Description", "Builder", "Comment" },
-            GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IScarTemplate>()
-                                                              select
-                                                                  new[]
-                                                                  {
-                                                                      proto.Id.ToString("N0", character),
-                                                                      proto.RevisionNumber.ToString("N0", character),
-                                                                      proto.Name.Proper(),
-                                                                      proto.ShortDescription,
-                                                                      proto.Status.Describe()
-                                                                  },
-            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Short Description", "Status" },
-            GetReviewProposalEffectFunc =
-                (protos, character) =>
-                    new Accept(character,
-                        new EditableItemReviewProposal<IScarTemplate>(character,
-                            protos.Cast<IScarTemplate>().ToList())),
-            CastToType = typeof(IScarTemplate),
-            CustomSearch = (protos, keyword, gameworld) => protos
-        };
-
-        #endregion
-
         #region Item Skins
 
         ItemSkinHelper = new EditableRevisableItemHelper
@@ -1083,7 +978,6 @@ internal class EditableRevisableItemHelper
     public static EditableRevisableItemHelper CraftHelper { get; }
     public static EditableRevisableItemHelper ProjectHelper { get; }
     public static EditableRevisableItemHelper TattooHelper { get; }
-    public static EditableRevisableItemHelper ScarHelper { get; }
     public static EditableRevisableItemHelper ItemSkinHelper { get; }
 
     public string ItemName { get; private set; }

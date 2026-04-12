@@ -113,6 +113,10 @@ public record SimpleCharacterTemplate : ICharacterTemplate
         );
 
         SelectedRace = Gameworld.Races.Get(long.Parse(definition.Element("SelectedRace").Value));
+        SelectedScars = new(
+            from item in definition.Element("SelectedScars")?.Elements("Scar") ?? Enumerable.Empty<XElement>()
+            select (IScar)new Scar(item, Gameworld, SelectedRace)
+        );
         SelectedRoles = new(
             from item in definition.Element("SelectedRoles").Elements("Role")
             let role = Gameworld.Roles.Get(long.Parse(item.Value))
@@ -172,6 +176,10 @@ public record SimpleCharacterTemplate : ICharacterTemplate
                     new XAttribute("template", item.Disfigurement.Id),
                     new XAttribute("bodypart", item.Bodypart.Id)
                 )
+            ),
+            new XElement("SelectedScars",
+                from item in SelectedScars
+                select item.SaveToXml()
             ),
             new XElement("SelectedTattoos",
                 from item in SelectedTattoos
@@ -277,6 +285,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
     public List<IBodypart> MissingBodyparts { get; init; }
 
     public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; init; }
+    public List<IScar> SelectedScars { get; init; } = [];
     public List<ISelectedTattoo> SelectedTattoos { get; init; } = [];
 
     public List<IGameItemProto> SelectedProstheses { get; init; }

@@ -915,7 +915,11 @@ For information on the syntax to use in emotes (such as those included in bracke
         List<Models.DisfigurementTemplate> templates = FMDB.Context.DisfigurementTemplates.Include(x => x.EditableItem).AsNoTracking().ToList();
         foreach (Models.DisfigurementTemplate template in templates)
         {
-            _disfigurementTemplates.Add(DisfigurementFactory.LoadTemplate(template, this));
+            IDisfigurementTemplate loaded = DisfigurementFactory.LoadTemplate(template, this);
+            if (loaded is not null)
+            {
+                _disfigurementTemplates.Add(loaded);
+            }
         }
 #if DEBUG
         sw.Stop();

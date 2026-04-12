@@ -10,7 +10,9 @@ using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Health;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -725,13 +727,16 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
         private readonly List<string> _filteredKeywords = new();
         private readonly List<IBodypart> _missingBodyparts = new();
         private readonly List<IGameItemProto> _selectedProstheses = new();
-        private readonly List<(IScarTemplate Scar, IBodypart Bodypart)> _selectedScars = new();
+        private readonly List<IScar> _selectedScars = new();
         private readonly List<ISelectedTattoo> _selectedTattoos = new();
         private List<IBodypart> _effectiveBodyparts = new();
-        private List<IScarTemplate> _filteredScars = new();
+        private List<IScar> _generatedScars = new();
         private List<ITattooTemplate> _filteredTattoos = new();
-        private List<IScarTemplate> _scarTemplates = new();
-        private IScarTemplate _selectedScar;
+        private IBodypart _selectedScarBodypart;
+        private bool? _selectedScarIsSurgery;
+        private DamageType? _selectedScarDamageType;
+        private SurgicalProcedureType? _selectedScarSurgeryType;
+        private WoundSeverity? _selectedScarSeverity;
         private ITattooTemplate _selectedTattoo;
         private IBodypart _selectedTattooBodypart;
         private readonly Dictionary<string, ITattooTextValue> _selectedTattooTextValues =
@@ -748,11 +753,10 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
             chargen.SelectedTattoos ??= new List<ISelectedTattoo>();
             chargen.SelectedProstheses ??= new List<IGameItemProto>();
             chargen.MissingBodyparts ??= new List<IBodypart>();
+            chargen.SelectedScars ??= new List<IScar>();
             _missingBodyparts.AddRange(chargen.MissingBodyparts);
             _selectedProstheses.AddRange(chargen.SelectedProstheses);
-            _selectedScars.AddRange(chargen.SelectedDisfigurements
-                .Where(x => x.Disfigurement is IScarTemplate)
-                .Select(x => ((IScarTemplate)x.Disfigurement, x.Bodypart)));
+            _selectedScars.AddRange(chargen.SelectedScars);
             _selectedTattoos.AddRange(chargen.SelectedTattoos);
             _selectedTattoos.AddRange(chargen.SelectedDisfigurements
                 .Where(x => x.Disfigurement is ITattooTemplate)
@@ -842,10 +846,8 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                     _tattooTemplates.Clear();
                     break;
                 case DisfigurementPickerStage.Scars:
-                    _selectedScar = null;
                     _selectedScars.Clear();
-                    _filteredScars.Clear();
-                    _scarTemplates.Clear();
+                    ClearPendingScarSelection();
                     break;
                 case DisfigurementPickerStage.MissingBodyparts:
                     _missingBodyparts.Clear();
@@ -885,7 +887,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                 else
                 {
                     SetupScars();
-                    if (!_scarTemplates.Any())
+                    if (!_effectiveBodyparts.Any())
                     {
                         PickerStage = DisfigurementPickerStage.Tattoos;
                     }
@@ -929,14 +931,10 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 
         private void SetupScars()
         {
-            _scarTemplates = Storyboard.Gameworld.DisfigurementTemplates
-                                       .Where(x => x.Status == RevisionStatus.Current &&
-                                                   x.AppearInChargenList(Chargen) &&
-                                                   (!x.BodypartShapes.Any() ||
-                                                    _effectiveBodyparts.Any(y => x.BodypartShapes.Contains(y.Shape))))
-                                       .OfType<IScarTemplate>()
-                                       .ToList();
-            _filteredScars = _scarTemplates.Take(25).ToList();
+            if (_selectedScarBodypart is not null && _selectedScarSeverity.HasValue)
+            {
+                RegenerateScarOptions();
+            }
         }
 
         public override string Display()
@@ -971,11 +969,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                 ;
         }
 
-        private IEnumerable<IBodypart> BodypartsForScar(IScarTemplate template)
-        {
-            return _effectiveBodyparts
-                .Where(x => !template.BodypartShapes.Any() || template.BodypartShapes.Contains(x.Shape));
-        }
+        private IEnumerable<IBodypart> BodypartsForScar() => _effectiveBodyparts;
 
         private string DisplayTattoos()
         {
@@ -1077,70 +1071,74 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
         private string DisplayScars()
         {
             StringBuilder sb = new();
-            if (_selectedScar != null)
-            {
-                sb.AppendLine($"Showing Scar {_selectedScar.ShortDescriptionForChargen.Colour(Telnet.BoldPink)}");
-                sb.AppendLine();
-                sb.AppendLine(
-                    $"{_selectedScar.FullDescriptionForChargen.ProperSentences().Wrap(Account.InnerLineFormatLength, "\t")}");
-                sb.AppendLine(
-                    $"Can Be Installed On: {BodypartsForScar(_selectedScar).Select(x => x.Name.Colour(Telnet.Yellow)).ListToString()}");
-                sb.AppendLine(
-                    $"Costs: {_selectedScar.ChargenCosts.Select(x => $"{x.Value.ToString("N0", Account)} {x.Key.Name}".ColourValue()).DefaultIfEmpty("none".ColourValue()).ListToString()}");
-                sb.AppendLine(
-                    $"Do you want to select this scar? Type the name of the bodypart to inflict it on or {"no".ColourCommand()} to decline.");
-                return sb.ToString();
-            }
-
-
             sb.AppendLine("Scar Selection".Colour(Telnet.Cyan));
             sb.AppendLine(Storyboard.ScarBlurb.Wrap(Account.InnerLineFormatLength));
             sb.AppendLine();
-            int i = 1;
+
+            if (_selectedScarBodypart == null)
+            {
+                sb.AppendLine("Choose a bodypart to scar:");
+                sb.AppendLine(
+                    BodypartsForScar().Select(x => x.FullDescription().Colour(Telnet.Yellow)).ListToCommaSeparatedValues("\n"));
+                AppendSelectedScarsSummary(sb);
+                sb.AppendLine(
+                    $"Type a bodypart name to begin, {"mine".ColourCommand()} to review your current scars, {"reset".ColourCommand()} to clear them, or {"done".ColourCommand()} when you are finished.");
+                return sb.ToString();
+            }
+
+            sb.AppendLine($"Bodypart: {_selectedScarBodypart.FullDescription().Colour(Telnet.Yellow)}");
+            if (!_selectedScarIsSurgery.HasValue)
+            {
+                sb.AppendLine(
+                    $"Type {"damage".ColourCommand()} or {"surgery".ColourCommand()} to choose what kind of scar this is, or {"no".ColourCommand()} to start over.");
+                return sb.ToString();
+            }
+
+            sb.AppendLine($"Origin: {(_selectedScarIsSurgery.Value ? "surgery" : "damage").ColourValue()}");
+            if (_selectedScarIsSurgery.Value && !_selectedScarSurgeryType.HasValue)
+            {
+                sb.AppendLine(
+                    $"Choose a surgery type: {Enum.GetValues<SurgicalProcedureType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}");
+                sb.AppendLine($"Type {"no".ColourCommand()} to choose a different bodypart.");
+                return sb.ToString();
+            }
+            if (!_selectedScarIsSurgery.Value && !_selectedScarDamageType.HasValue)
+            {
+                sb.AppendLine(
+                    $"Choose a damage type: {Enum.GetValues<DamageType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}");
+                sb.AppendLine($"Type {"no".ColourCommand()} to choose a different bodypart.");
+                return sb.ToString();
+            }
+            if (!_selectedScarSeverity.HasValue)
+            {
+                sb.AppendLine(
+                    $"Choose a severity: {Enum.GetValues<WoundSeverity>().Where(x => x != WoundSeverity.None).Select(x => x.Describe().ColourName()).ListToString()}");
+                sb.AppendLine($"Type {"no".ColourCommand()} to start the scar over.");
+                return sb.ToString();
+            }
+
+            if (!_generatedScars.Any())
+            {
+                RegenerateScarOptions();
+            }
+
+            var i = 1;
             sb.AppendLine(StringUtilities.GetTextTable(
-                from scar in _filteredScars
+                from scar in _generatedScars
                 select new[]
                 {
                     (i++).ToString("N0", Account),
                     scar.ShortDescription,
-                    scar.BodypartShapes.Select(x => x.Name).ListToString()
+                    scar.Size.Describe(),
+                    scar.Distinctiveness.ToString("N0", Account)
                 },
-                new[] { "#", "Scar", "Bodyparts", "Cost" },
+                new[] { "#", "Scar", "Size", "Distinctiveness" },
                 Account.LineFormatLength,
                 colour: Telnet.Cyan,
                 unicodeTable: Account.UseUnicode
             ));
-            sb.AppendLine(
-                $"There are a total of {_scarTemplates.Count.ToString("N0", Chargen.Account)} scars to choose from.");
-            sb.AppendLine("Type a number to select or show more information about a scar.");
-            if (!_filteredKeywords.Any())
-            {
-                sb.AppendLine(
-                    $"You can also type {"filter <keywords>".ColourCommand()} to filter for particular scars containing the mentioned keywords.");
-            }
-            else
-            {
-                sb.AppendLine(
-                    $"You are currently filtering by the keywords {_filteredKeywords.Select(x => x.Colour(Telnet.Cyan)).ListToString()}. Type {"clear".ColourCommand()} to reset this filter.");
-            }
-
-            if (CanGoBack(PickerStage))
-            {
-                sb.AppendLine($"Type {"back".ColourCommand()} to return to an earlier stage.");
-            }
-
-            if (_scarTemplates.Count > 25 && !_filteredKeywords.Any())
-            {
-                sb.AppendLine($"Type {"shuffle".ColourCommand()} to see another random 25 scars you can choose from.");
-            }
-
-            if (_selectedScars.Any())
-            {
-                sb.AppendLine(
-                    $"You have selected {_selectedScars.Count.ToString("N0", Account).ColourValue()} {(_selectedScars.Count == 1 ? "scar" : "scars")}. Type {"reset".ColourCommand()} to clear them or {"mine".ColourCommand()} to see the ones you already have.");
-            }
-
-            sb.AppendLine($"Type {"done".ColourCommand()} when you are done picking scars.");
+            sb.AppendLine("Type a number to choose a scar, `view <number>` to inspect one, `reroll` for another set, or `no` to restart this scar.");
+            AppendSelectedScarsSummary(sb);
             return sb.ToString();
         }
 
@@ -1209,12 +1207,62 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
         private void UpdateChargen()
         {
             Chargen.MissingBodyparts = _missingBodyparts.ToList();
-            Chargen.SelectedDisfigurements =
-                _selectedScars
-                    .Select(x => ((IDisfigurementTemplate)x.Scar, x.Bodypart))
-                    .ToList();
+            Chargen.SelectedDisfigurements = [];
+            Chargen.SelectedScars = _selectedScars.ToList();
             Chargen.SelectedTattoos = _selectedTattoos.ToList();
             Chargen.SelectedProstheses = _selectedProstheses.ToList();
+        }
+
+        private void AppendSelectedScarsSummary(StringBuilder sb)
+        {
+            if (!_selectedScars.Any())
+            {
+                return;
+            }
+
+            sb.AppendLine();
+            sb.AppendLine(
+                $"You have selected {_selectedScars.Count.ToString("N0", Account).ColourValue()} {(_selectedScars.Count == 1 ? "scar" : "scars")}. Type {"mine".ColourCommand()} to review them or {"reset".ColourCommand()} to clear them.");
+        }
+
+        private void ClearPendingScarSelection()
+        {
+            _selectedScarBodypart = null;
+            _selectedScarIsSurgery = null;
+            _selectedScarDamageType = null;
+            _selectedScarSurgeryType = null;
+            _selectedScarSeverity = null;
+            _generatedScars.Clear();
+        }
+
+        private void RegenerateScarOptions()
+        {
+            if (_selectedScarBodypart is null || !_selectedScarSeverity.HasValue || !_selectedScarIsSurgery.HasValue)
+            {
+                _generatedScars.Clear();
+                return;
+            }
+
+            ScarWoundContext context = new(
+                _selectedScarIsSurgery.Value,
+                _selectedScarDamageType ?? DamageType.Slashing,
+                _selectedScarSeverity.Value,
+                _selectedScarIsSurgery.Value ? _selectedScarSurgeryType : null,
+                0,
+                Outcome.None,
+                false,
+                false,
+                false,
+                false,
+                false);
+            _generatedScars = ScarGeneration.GenerateScarOptions(
+                Storyboard.Gameworld,
+                Chargen.SelectedRace,
+                _selectedScarBodypart,
+                context,
+                Chargen.SelectedCulture.PrimaryCalendar.CurrentDateTime,
+                Math.Max(1, Storyboard.Gameworld.GetStaticInt("ScarChargenOptionsCount")))
+                .ToList();
         }
 
         public override string HandleCommand(string command)
@@ -1593,29 +1641,6 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 
         private string HandleCommandScars(string command)
         {
-            if (_selectedScar != null)
-            {
-                if (command.EqualTo("no"))
-                {
-                    _selectedScar = null;
-                    return Display();
-                }
-
-                IBodypart bodypart = BodypartsForScar(_selectedScar).FirstOrDefault(x => x.Name.EqualTo(command));
-                if (bodypart == null)
-                {
-                    return
-                        $"Your character possesses no such bodypart. Please enter a valid bodypart or {"no".ColourCommand()} to clear your selection.";
-                }
-
-                _selectedScars.Add((_selectedScar, bodypart));
-                IScarTemplate scar = _selectedScar;
-                _selectedScar = null;
-                UpdateChargen();
-                return
-                    $"You add {scar.ShortDescriptionForChargen.Colour(Telnet.BoldPink)} to your {bodypart.FullDescription().Colour(Telnet.Yellow)}.\n\n{Display()}";
-            }
-
             if (command.EqualTo("back"))
             {
                 if (!CanGoBack(DisfigurementPickerStage.Scars))
@@ -1631,9 +1656,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
             if (command.EqualTo("reset"))
             {
                 _selectedScars.Clear();
-                _selectedScar = null;
-                _filteredScars.Clear();
-                SetupScars();
+                ClearPendingScarSelection();
                 UpdateChargen();
                 return Display();
             }
@@ -1658,97 +1681,122 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
                 }
 
                 return
-                    $"You have selected the following scars:\n{_selectedScars.Select(x => $"\t{x.Scar.ShortDescriptionForChargen.Colour(Telnet.BoldPink)} on the {x.Bodypart.FullDescription().Colour(Telnet.Yellow)}").ListToCommaSeparatedValues("\n")}";
+                    $"You have selected the following scars:\n{_selectedScars.Select(x => $"\t{x.ShortDescription.Colour(Telnet.BoldPink)} on the {x.Bodypart.FullDescription().Colour(Telnet.Yellow)}").ListToCommaSeparatedValues("\n")}";
             }
 
-            if (command.EqualTo("shuffle"))
+            if (command.EqualTo("no"))
             {
-                if (!_filteredKeywords.Any())
+                ClearPendingScarSelection();
+                return Display();
+            }
+
+            if (_selectedScarBodypart is null)
+            {
+                IBodypart bodypart = BodypartsForScar().FirstOrDefault(x =>
+                    x.Name.EqualTo(command) ||
+                    x.FullDescription().EqualTo(command) ||
+                    x.FullDescription().StartsWith(command, StringComparison.InvariantCultureIgnoreCase));
+                if (bodypart == null)
                 {
-                    _filteredScars = _scarTemplates.Except(_filteredScars).Shuffle().Take(25).ToList();
+                    return "That is not a valid bodypart.";
+                }
+
+                _selectedScarBodypart = bodypart;
+                return Display();
+            }
+
+            if (!_selectedScarIsSurgery.HasValue)
+            {
+                if (command.EqualTo("damage"))
+                {
+                    _selectedScarIsSurgery = false;
                     return Display();
                 }
 
-                List<IScarTemplate> filtered = new();
-                foreach (IScarTemplate scar in _scarTemplates)
+                if (command.EqualTo("surgery"))
                 {
-                    if (_filteredScars.Contains(scar))
-                    {
-                        continue;
-                    }
-
-                    if (_filteredKeywords.All(x =>
-                            scar.FullDescriptionForChargen.Contains(x, StringComparison.InvariantCultureIgnoreCase) ||
-                            scar.ShortDescriptionForChargen.Contains(x, StringComparison.InvariantCultureIgnoreCase)))
-                    {
-                        filtered.Add(scar);
-                        if (filtered.Count >= 25)
-                        {
-                            break;
-                        }
-                    }
+                    _selectedScarIsSurgery = true;
+                    return Display();
                 }
 
-                _filteredScars = filtered;
+                return "You must choose either damage or surgery.";
+            }
+
+            if (_selectedScarIsSurgery.Value && !_selectedScarSurgeryType.HasValue)
+            {
+                if (!Utilities.TryParseEnum<SurgicalProcedureType>(command, out var surgeryType))
+                {
+                    return "That is not a valid surgery type.";
+                }
+
+                _selectedScarSurgeryType = surgeryType;
+                return Display();
+            }
+
+            if (!_selectedScarIsSurgery.Value && !_selectedScarDamageType.HasValue)
+            {
+                if (!Utilities.TryParseEnum<DamageType>(command, out var damageType))
+                {
+                    return "That is not a valid damage type.";
+                }
+
+                _selectedScarDamageType = damageType;
+                return Display();
+            }
+
+            if (!_selectedScarSeverity.HasValue)
+            {
+                if (!Utilities.TryParseEnum<WoundSeverity>(command, out var severity) || severity == WoundSeverity.None)
+                {
+                    return "That is not a valid scar severity.";
+                }
+
+                _selectedScarSeverity = severity;
+                RegenerateScarOptions();
                 return Display();
             }
 
             StringStack ss = new(command);
             string cmd = ss.PopSpeech();
-            if (cmd.EqualTo("filter"))
+            if (cmd.EqualTo("view"))
             {
-                if (ss.IsFinished)
+                if (!int.TryParse(ss.PopSpeech(), out int viewValue))
                 {
-                    return
-                        $"You must either specify keywords to toggle or use {"clear".ColourCommand()} to clear your existing filters.";
+                    return "You must specify the number of the scar you want to inspect.";
                 }
 
-                while (!ss.IsFinished)
+                IScar viewedScar = _generatedScars.ElementAtOrDefault(viewValue - 1);
+                if (viewedScar == null)
                 {
-                    cmd = ss.PopSpeech().ToLowerInvariant();
-                    if (!_filteredKeywords.Remove(cmd))
-                    {
-                        _filteredKeywords.Add(cmd);
-                    }
+                    return "There is no such scar option.";
                 }
 
-                if (!_filteredKeywords.Any())
-                {
-                    _filteredScars = _scarTemplates.Shuffle().Take(25).ToList();
-                    return Display();
-                }
+                return
+                    $"{viewedScar.ShortDescription.Colour(Telnet.BoldPink)}\n\n{viewedScar.FullDescription.ProperSentences().Wrap(Account.InnerLineFormatLength, "\t")}";
+            }
 
-                List<IScarTemplate> filtered = new();
-                foreach (IScarTemplate scar in _scarTemplates)
-                {
-                    if (_filteredKeywords.All(x =>
-                            scar.FullDescriptionForChargen.Contains(x, StringComparison.InvariantCultureIgnoreCase) ||
-                            scar.ShortDescriptionForChargen.Contains(x, StringComparison.InvariantCultureIgnoreCase)))
-                    {
-                        filtered.Add(scar);
-                        if (filtered.Count >= 25)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                _filteredScars = filtered;
+            if (command.EqualTo("reroll"))
+            {
+                RegenerateScarOptions();
                 return Display();
             }
 
             if (!int.TryParse(command, out int value))
             {
-                return "That is not a valid scar number or command.";
+                return "That is not a valid scar option or command.";
             }
 
-            _selectedScar = _filteredScars.ElementAtOrDefault(value - 1);
-            if (_selectedScar == null)
+            IScar scar = _generatedScars.ElementAtOrDefault(value - 1);
+            if (scar == null)
             {
-                return "There is no such scar.";
+                return "There is no such scar option.";
             }
 
-            return Display();
+            _selectedScars.Add(scar);
+            ClearPendingScarSelection();
+            UpdateChargen();
+            return
+                $"You add {scar.ShortDescription.Colour(Telnet.BoldPink)} to your {scar.Bodypart.FullDescription().Colour(Telnet.Yellow)}.\n\n{Display()}";
         }
 
         private string HandleCommandBodyparts(string command)

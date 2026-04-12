@@ -331,6 +331,8 @@ public static class DefaultStaticSettings
             { "ScarGenerationOverallChanceUpperBound", "0.999" },
             { "ScarGenerationChanceClampMaximum", "0.95" },
             { "ScarGenerationChanceMatrix", GetDefaultScarGenerationChanceMatrix() },
+            { "ScarOrientationByBodypartShape", GetDefaultScarOrientationConfiguration() },
+            { "ScarChargenOptionsCount", "5" },
             { "ScarGenerationOrganicSurgerySeverityPerLevel", "0.04" },
             { "ScarGenerationOrganicSurgeryHadInfectionModifier", "0.18" },
             { "ScarGenerationOrganicSurgeryCleanedModifier", "-0.05" },
@@ -1089,6 +1091,42 @@ Your password will be used to access your account, and will be stored securely o
                     new XAttribute("Severity", severity),
                     GetDefaultScarGenerationSurgeryChance(severity).ToString(CultureInfo.InvariantCulture))
             )
+        ).ToString();
+    }
+
+    private static string GetDefaultScarOrientationConfiguration()
+    {
+        return new XElement("ScarOrientationProfiles",
+            new XAttribute("Default", "linear"),
+            new XElement("Shape", new XAttribute("Name", "abdomen"), new XAttribute("Profile", "broad")),
+            new XElement("Shape", new XAttribute("Name", "ankle"), new XAttribute("Profile", "ring")),
+            new XElement("Shape", new XAttribute("Name", "arm"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "back"), new XAttribute("Profile", "broad")),
+            new XElement("Shape", new XAttribute("Name", "breast"), new XAttribute("Profile", "breast")),
+            new XElement("Shape", new XAttribute("Name", "calf"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "cheek"), new XAttribute("Profile", "facial")),
+            new XElement("Shape", new XAttribute("Name", "chin"), new XAttribute("Profile", "facial")),
+            new XElement("Shape", new XAttribute("Name", "ear"), new XAttribute("Profile", "ear")),
+            new XElement("Shape", new XAttribute("Name", "elbow"), new XAttribute("Profile", "joint")),
+            new XElement("Shape", new XAttribute("Name", "eye"), new XAttribute("Profile", "eye")),
+            new XElement("Shape", new XAttribute("Name", "face"), new XAttribute("Profile", "facial")),
+            new XElement("Shape", new XAttribute("Name", "foot"), new XAttribute("Profile", "broad")),
+            new XElement("Shape", new XAttribute("Name", "forearm"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "forehead"), new XAttribute("Profile", "facial")),
+            new XElement("Shape", new XAttribute("Name", "groin"), new XAttribute("Profile", "groin")),
+            new XElement("Shape", new XAttribute("Name", "hand"), new XAttribute("Profile", "broad")),
+            new XElement("Shape", new XAttribute("Name", "jaw"), new XAttribute("Profile", "facial")),
+            new XElement("Shape", new XAttribute("Name", "knee"), new XAttribute("Profile", "joint")),
+            new XElement("Shape", new XAttribute("Name", "leg"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "mouth"), new XAttribute("Profile", "mouth")),
+            new XElement("Shape", new XAttribute("Name", "neck"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "nose"), new XAttribute("Profile", "nose")),
+            new XElement("Shape", new XAttribute("Name", "scalp"), new XAttribute("Profile", "facial")),
+            new XElement("Shape", new XAttribute("Name", "shoulder"), new XAttribute("Profile", "joint")),
+            new XElement("Shape", new XAttribute("Name", "thigh"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "tongue"), new XAttribute("Profile", "mouth")),
+            new XElement("Shape", new XAttribute("Name", "upperarm"), new XAttribute("Profile", "linear")),
+            new XElement("Shape", new XAttribute("Name", "wrist"), new XAttribute("Profile", "ring"))
         ).ToString();
     }
 

@@ -472,6 +472,10 @@ public class SeederRepeatabilityHelperTests
         Assert.IsFalse(murderAgainstInferiorLaw.PunishmentStrategy.Contains("type=\"execute\""));
         StringAssert.Contains(murderApplicabilityProg.FunctionText, "isnull(@victim)");
         StringAssert.Contains(murderAgainstInferiorApplicabilityProg.FunctionText, "isnull(@victim)");
+        StringAssert.Contains(murderApplicabilityProg.FunctionText, "LegalClassOutranks(@criminal, @victim, ToLegalAuthority(");
+        StringAssert.Contains(murderAgainstInferiorApplicabilityProg.FunctionText, "LegalClassOutranks(@criminal, @victim, ToLegalAuthority(");
+        Assert.IsFalse(murderApplicabilityProg.FunctionText.Contains("IsLegalClass", StringComparison.Ordinal));
+        Assert.IsFalse(murderAgainstInferiorApplicabilityProg.FunctionText.Contains("IsLegalClass", StringComparison.Ordinal));
 
         Law theftAgainstInferiorLaw = context.Laws.Single(x => x.Name == "Theft Against Inferior");
         StringAssert.Contains(theftAgainstInferiorLaw.PunishmentStrategy, "type=\"fine\"");

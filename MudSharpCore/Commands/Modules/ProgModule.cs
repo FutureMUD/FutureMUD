@@ -615,6 +615,11 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             return sb.ToString();
         }
 
+        if (returnType == ProgVariableTypes.LegalClass)
+        {
+            return $"the {((IFrameworkItem)result).Name.ColourValue()} legal class";
+        }
+
         switch (returnType.LegacyCode)
         {
             case ProgVariableTypeCode.Boolean:
@@ -866,6 +871,18 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
         }
 
         string parameterArgument = parNumber > 0 ? $" at parameter {parNumber.ToString("N0", actor)}" : "";
+
+        if (type == ProgVariableTypes.LegalClass)
+        {
+            ILegalClass legalClass = actor.Gameworld.LegalClasses.GetByIdOrName(parText);
+            if (legalClass is null)
+            {
+                actor.OutputHandler.Send($"There is no such legal class{parameterArgument}");
+                return (null, false);
+            }
+
+            return (legalClass, true);
+        }
 
         switch (type.LegacyCode)
         {
@@ -1282,7 +1299,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
                 return (gas, true);
             case ProgVariableTypeCode.LegalAuthority:
-                ICellOverlayPackage legal = actor.Gameworld.CellOverlayPackages.GetByIdOrName(parText);
+                ILegalAuthority legal = actor.Gameworld.LegalAuthorities.GetByIdOrName(parText);
                 if (legal is null)
                 {
                     actor.OutputHandler.Send($"There is no such legal authority{parameterArgument}");

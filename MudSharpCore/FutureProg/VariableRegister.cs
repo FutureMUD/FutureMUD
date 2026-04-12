@@ -636,10 +636,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
         #region IVariableValue Members
 
-        public IProgVariable GetVariable(IFuturemud game)
-        {
-            switch (Type.LegacyCode)
-            {
+		public IProgVariable GetVariable(IFuturemud game)
+		{
+			if (Type == ProgVariableTypes.LegalClass)
+			{
+				return game.LegalClasses.Get(ID);
+			}
+
+			switch (Type.LegacyCode)
+			{
                 case ProgVariableTypeCode.Character:
                     return game.TryGetCharacter(ID, true);
                 case ProgVariableTypeCode.Item:

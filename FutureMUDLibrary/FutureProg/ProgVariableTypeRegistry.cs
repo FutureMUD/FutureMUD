@@ -96,9 +96,10 @@ public static class ProgVariableTypeRegistry
         RegisterExact(ProgTypeKind.Market, ProgVariableTypes.Market, "Market", "market");
         RegisterExact(ProgTypeKind.MarketCategory, ProgVariableTypes.MarketCategory, "MarketCategory", "marketcategory");
         RegisterExact(ProgTypeKind.LiquidMixture, ProgVariableTypes.LiquidMixture, "LiquidMixture", "liquidmixture");
-        RegisterExact(ProgTypeKind.Script, ProgVariableTypes.Script, "Script", "script");
-        RegisterExact(ProgTypeKind.Writing, ProgVariableTypes.Writing, "Writing", "writing");
-        RegisterExact(ProgTypeKind.Area, ProgVariableTypes.Area, "Area", "area");
+		RegisterExact(ProgTypeKind.Script, ProgVariableTypes.Script, "Script", "script");
+		RegisterExact(ProgTypeKind.Writing, ProgVariableTypes.Writing, "Writing", "writing");
+		RegisterExact(ProgTypeKind.Area, ProgVariableTypes.Area, "Area", "area");
+		RegisterExact(ProgTypeKind.LegalClass, ProgVariableTypes.LegalClass, "LegalClass", "legalclass");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

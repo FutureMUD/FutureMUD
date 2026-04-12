@@ -46,6 +46,8 @@ public partial class MythicalAnimalSeeder
         string MaleHeightWeightModel,
         string FemaleHeightWeightModel,
         MythicalAgeProfile AgeProfile,
+        NonHumanAttributeProfile AttributeProfile,
+        double BodypartHealthMultiplier,
         bool HumanoidVariety,
         bool CanUseWeapons,
         bool CanClimb,
@@ -109,6 +111,11 @@ public partial class MythicalAnimalSeeder
             return new(name, values);
         }
 
+        static NonHumanAttributeProfile Stats(int strength, int constitution, int agility, int dexterity)
+        {
+            return new(strength, constitution, agility, dexterity);
+        }
+
         static IReadOnlyList<StockDescriptionVariant> Variants(
                     params (string ShortDescription, string FullDescription)[] variants)
         {
@@ -126,6 +133,8 @@ public partial class MythicalAnimalSeeder
                     IReadOnlyList<StockDescriptionVariant> descriptionVariants,
                     IReadOnlyList<MythicalAttackTemplate> attacks,
                     IReadOnlyList<MythicalBodypartUsageTemplate>? usages = null,
+                    NonHumanAttributeProfile? attributeProfile = null,
+                    double bodypartHealthMultiplier = 1.0,
                     bool canClimb = false,
                     bool canSwim = true,
                     bool playable = false,
@@ -139,6 +148,8 @@ public partial class MythicalAnimalSeeder
                         model,
                         model,
                         ageProfile,
+                        attributeProfile ?? Stats(0, 0, 0, 0),
+                        bodypartHealthMultiplier,
                         false,
                         false,
                         canClimb,
@@ -169,6 +180,8 @@ public partial class MythicalAnimalSeeder
                     IReadOnlyList<string> personWords,
                     IReadOnlyList<StockDescriptionVariant>? overlayDescriptionVariants = null,
                     IReadOnlyList<MythicalBodypartUsageTemplate>? usages = null,
+                    NonHumanAttributeProfile? attributeProfile = null,
+                    double bodypartHealthMultiplier = 1.0,
                     bool canClimb = false,
                     bool canSwim = true,
                     string? facialHairProfile = null,
@@ -181,6 +194,8 @@ public partial class MythicalAnimalSeeder
                         maleModel,
                         femaleModel,
                         ageProfile,
+                        attributeProfile ?? Stats(0, 0, 0, 0),
+                        bodypartHealthMultiplier,
                         true,
                         true,
                         canClimb,
@@ -211,6 +226,8 @@ public partial class MythicalAnimalSeeder
                     IReadOnlyList<StockDescriptionVariant> descriptionVariants,
                     IReadOnlyList<MythicalAttackTemplate> attacks,
                     IReadOnlyList<MythicalBodypartUsageTemplate>? usages = null,
+                    NonHumanAttributeProfile? attributeProfile = null,
+                    double bodypartHealthMultiplier = 1.0,
                     bool canClimb = false,
                     bool canSwim = true,
                     IReadOnlyList<MythicalCharacteristicTemplate>? additionalCharacteristics = null,
@@ -223,6 +240,8 @@ public partial class MythicalAnimalSeeder
                         maleModel,
                         femaleModel,
                         ageProfile,
+                        attributeProfile ?? Stats(0, 0, 0, 0),
+                        bodypartHealthMultiplier,
                         false,
                         true,
                         canClimb,
@@ -273,6 +292,8 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
+                attributeProfile: Stats(12, 11, 0, -2),
+                bodypartHealthMultiplier: 2.4,
                 additionalCharacteristics:
                 [
                     Characteristic("Scale Colour", "red", "green", "black", "gold")
@@ -300,6 +321,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Tail Slap", ItemQuality.Standard, "ltail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
+                attributeProfile: Stats(7, 6, 3, 1),
+                bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Swooper"
             ),
             ["Hippogriff"] = BeastRace(
@@ -322,6 +345,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
+                attributeProfile: Stats(6, 5, 2, 0),
+                bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
             ["Unicorn"] = BeastRace(
@@ -346,6 +371,8 @@ public partial class MythicalAnimalSeeder
                 [
                     Usage("horn", "general")
                 ],
+                attributeProfile: Stats(7, 6, 2, 0),
+                bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Behemoth"
             ),
             ["Pegasus"] = BeastRace(
@@ -374,6 +401,8 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
+                attributeProfile: Stats(6, 5, 3, 0),
+                bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
             ["Minotaur"] = HumanoidRace(
@@ -398,7 +427,9 @@ public partial class MythicalAnimalSeeder
                 [
                     Usage("rhorn", "general"),
                     Usage("lhorn", "general")
-                ]
+                ],
+                attributeProfile: Stats(5, 4, -1, -1),
+                bodypartHealthMultiplier: 1.2
             ),
             ["Eastern Dragon"] = BeastRace(
                 "Eastern Dragon",
@@ -421,6 +452,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
                     Attack("Tail Slap", ItemQuality.Good, "ltail")
                 ],
+                attributeProfile: Stats(11, 10, 1, -1),
+                bodypartHealthMultiplier: 2.3,
                 additionalCharacteristics:
                 [
                     Characteristic("Scale Colour", "red", "green", "black", "gold")
@@ -446,6 +479,8 @@ public partial class MythicalAnimalSeeder
                     ("a coiled naga", "This naga presents a recognisably humanoid upper torso above a long serpentine lower body, the whole figure poised in smooth, deliberate coils."),
                     ("a serpent-bodied naga", "This naga's human-like arms and shoulders rise from a scaled, sinuous body whose coiling strength and low centre of gravity suggest sudden violence.")
                 ),
+                attributeProfile: Stats(1, 2, 1, 1),
+                bodypartHealthMultiplier: 1.15,
                 canClimb: true,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -468,6 +503,8 @@ public partial class MythicalAnimalSeeder
                     ("a fin-tailed merfolk", "This merfolk body combines a humanoid upper torso with a powerful scaled tail, built more for darting turns and long swims than for any life on land."),
                     ("a sea-borne merfolk", "This merfolk's shoulders and arms are recognisably person-like, but the gleam of scales and the muscular sweep of the tail place them firmly in the water's domain.")
                 ),
+                attributeProfile: Stats(0, 1, 1, 1),
+                bodypartHealthMultiplier: 1.0,
                 combatStrategyKey: "Melee (Auto)"
             ),
             ["Manticore"] = BeastRace(
@@ -499,6 +536,8 @@ public partial class MythicalAnimalSeeder
                     Usage("lwing", "general"),
                     Usage("stinger", "general")
                 ],
+                attributeProfile: Stats(8, 6, 2, 0),
+                bodypartHealthMultiplier: 1.8,
                 combatStrategyKey: "Beast Artillery"
             ),
             ["Wyvern"] = BeastRace(
@@ -523,6 +562,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Tail Slap", ItemQuality.Standard, "tail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
+                attributeProfile: Stats(8, 6, 2, 0),
+                bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Artillery"
             ),
             ["Phoenix"] = BeastRace(
@@ -544,6 +585,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Bite", ItemQuality.Standard, "beak"),
                     Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons")
                 ],
+                attributeProfile: Stats(3, 3, 4, 2),
+                bodypartHealthMultiplier: 1.1,
                 combatStrategyKey: "Beast Swooper"
             ),
             ["Basilisk"] = BeastRace(
@@ -565,6 +608,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Tail Slap", ItemQuality.Standard, "tail")
                 ],
+                attributeProfile: Stats(6, 6, 1, 0),
+                bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Clincher"
             ),
             ["Cockatrice"] = BeastRace(
@@ -586,6 +631,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Bite", ItemQuality.Terrible, "beak"),
                     Attack("Talon Strike", ItemQuality.Standard, "rtalons", "ltalons")
                 ],
+                attributeProfile: Stats(0, 0, 3, 1),
+                bodypartHealthMultiplier: 0.7,
                 combatStrategyKey: "Beast Swooper"
             ),
             ["Hippocamp"] = BeastRace(
@@ -607,6 +654,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Hoof Stomp", ItemQuality.Standard, "rfhoof", "lfhoof"),
                     Attack("Tail Slap", ItemQuality.Good, "caudalfin")
                 ],
+                attributeProfile: Stats(7, 6, 1, -1),
+                bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Behemoth"
             ),
             ["Selkie"] = HumanoidRace(
@@ -627,6 +676,8 @@ public partial class MythicalAnimalSeeder
                     ("a seal-blooded selkie", "This selkie has a recognisably humanoid frame softened by an aquatic grace, the race's seal-blooded heritage evident in the smooth lines and sea-going poise."),
                     ("a sea-graceful selkie", "This selkie carries themself with the easy balance of someone more at home on wave-washed rock and in cold surf than on dry inland roads.")
                 ),
+                attributeProfile: Stats(0, 1, 1, 0),
+                bodypartHealthMultiplier: 1.0,
                 combatStrategyKey: "Melee (Auto)"
             ),
             ["Myconid"] = SapientRace(
@@ -652,6 +703,8 @@ public partial class MythicalAnimalSeeder
                 [
                     Characteristic("Fungus Colour", "white", "brown", "red", "purple")
                 ],
+                attributeProfile: Stats(-1, 2, -1, -2),
+                bodypartHealthMultiplier: 1.1,
                 combatStrategyKey: "Melee (Auto)"
             ),
             ["Plantfolk"] = SapientRace(
@@ -673,6 +726,8 @@ public partial class MythicalAnimalSeeder
                     Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
                     Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
                 ],
+                attributeProfile: Stats(2, 4, -1, -2),
+                bodypartHealthMultiplier: 1.2,
                 combatStrategyKey: "Melee (Auto)"
             ),
             ["Owlkin"] = HumanoidRace(
@@ -699,6 +754,8 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
+                attributeProfile: Stats(0, 0, 1, 1),
+                bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 facialHairProfile: "No_Facial_Hair",
                 combatStrategyKey: "Melee (Auto)"
@@ -727,6 +784,8 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
+                attributeProfile: Stats(0, 0, 1, 1),
+                bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 facialHairProfile: "No_Facial_Hair",
                 combatStrategyKey: "Melee (Auto)"
@@ -750,6 +809,8 @@ public partial class MythicalAnimalSeeder
                     ("a deep-chested centaur", "This centaur combines a humanoid torso and arms with a powerful equine lower body, making the whole figure look fast, stable and difficult to dislodge."),
                     ("a long-striding centaur", "This centaur's human upper body rises from a broad horse-frame whose musculature and stance suggest endurance, mobility and hard impact.")
                 ),
+                attributeProfile: Stats(6, 5, 1, 0),
+                bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Melee (Auto)"
             ),
             ["Pegacorn"] = BeastRace(
@@ -778,6 +839,8 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
+                attributeProfile: Stats(8, 7, 2, 0),
+                bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Swooper"
             )
         };

@@ -231,6 +231,31 @@ Families intentionally left unchanged in this pass:
 
 ## Non-Human Stock Notes
 
+### Animal offensive and durability scaling
+Seeded ordinary animals no longer use an all-zero racial attribute bonus prog.
+
+Current stock animal scaling is now authored in three layers:
+
+- a size-based physical baseline
+- an attack-loadout role adjustment
+- a bodypart-health-derived toughness adjustment
+
+That means the stock animal catalogue now uses race attributes to reinforce what the body and attack templates were already implying:
+
+- tiny nuisance animals lose a large amount of effective `Strength` and `Constitution`
+- ordinary predators gain moderate `Strength` with some speed retained
+- large apex predators and megafauna gain major `Strength` and `Constitution`
+- the existing `BodypartHealthMultiplier` values now line up with the same offensive/durability story instead of floating beside a flat attribute model
+
+Representative seeded outcomes from the April 2026 animal and mythic attribute pass:
+
+- `Mouse`: average stock bite packet dropped from about `16.5` to `4.3`
+- `Wolf`: average stock bite packet rose from about `64.9` to `77.2`
+- `Bear`: average claw packet rose from about `79.6` to `109.0`
+- `Hippopotamus`: average bite packet rose from about `87.0` to `118.8`
+- `Elephant`: average gore packet rose from about `53.9` to `89.2`
+- `Orca`: average bite packet rose from about `101.7` to `138.4`
+
 ### Animal full-model fracture bands
 Stock non-human `ComplexLiving` bodies now use the same tightened percentage bands as stock full humans:
 
@@ -298,6 +323,29 @@ That removes the old accidental double-layering on animal-default mythics, where
 - cloned animal bodyparts that already had `Non-Human Natural Armour`
 
 Humanoid-default mythics still inherit the human racial/bodypart/cranial split through their cloned humanoid body parts plus human-style racial tissue.
+
+## Mythical Offensive and Durability Scaling
+Seeded mythical races no longer use the shared `_alwaysZero` racial attribute prog.
+
+Current stock mythical tuning is explicit per race:
+
+- every mythic race now carries a seeded `NonHumanAttributeProfile`
+- every mythic race now carries an intentional `BodypartHealthMultiplier`
+- `SeedRace` turns that profile into the race's actual `AttributeBonusProg`
+
+This means mythical catalogue entries now have distinct physical ceilings instead of sharing the same baseline:
+
+- small mythics such as `Cockatrice` stay dangerous mainly through attack type and temperament rather than giant raw stats
+- combat hybrids such as `Griffin`, `Wyvern`, and `Centaur` now sit clearly above ordinary animals of comparable scale
+- colossal mythics such as `Dragon` and `Eastern Dragon` now combine top-end attack quality with appropriately huge physical stats and bodypart HP scaling
+
+Representative seeded outcomes from the same deterministic validation:
+
+- `Cockatrice`: average peck damage stays around `23.7`, but bodypart scale drops from `111.5` to `78.0`
+- `Griffin`: average claw packet rises from about `72.3` to `89.4`, bodypart scale from `111.5` to `188.0`
+- `Wyvern`: average bite packet rises from about `72.3` to `91.9`, bodypart scale from `111.5` to `199.8`
+- `Dragon`: average bite packet rises from about `109.0` to `138.4`, bodypart scale from `111.5` to `294.0`
+- `Centaur`: average hoof packet rises from about `46.1` to `57.8`, bodypart scale from `111.5` to `174.8`
 
 ## Robot Protection Stack
 Seeded robots now use a three-part protection model rather than reusing old human-flesh armour definitions for every layer.

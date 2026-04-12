@@ -3744,35 +3744,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             }
         }
 
-        StringBuilder sb = new();
-        sb.AppendLine("switch (@trait.Name)");
-        foreach (TraitDefinition? attribute in _context.TraitDefinitions.Where(x => x.Type == (int)TraitType.Attribute))
-        {
-            sb.AppendLine($"  case (\"{attribute.Name}\")");
-            sb.AppendLine("    return 0");
-        }
-
-        sb.AppendLine("end switch\nreturn 0");
-        string progText = sb.ToString();
-
-        FutureProg attributeBonusProg = new()
-        {
-            FunctionName = $"{name.CollapseString()}AttributeBonus",
-            FunctionComment = $"Racial attribute bonuses for the {name} race",
-            AcceptsAnyParameters = false,
-            Category = "Character",
-            Subcategory = "Attributes",
-            ReturnType = (long)ProgVariableTypes.Number,
-            FunctionText = progText
-        };
-        attributeBonusProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = attributeBonusProg,
-            ParameterIndex = 0,
-            ParameterName = "trait",
-            ParameterType = (long)ProgVariableTypes.Trait
-        });
-        _context.FutureProgs.Add(attributeBonusProg);
+        FutureProg attributeBonusProg = CreateAnimalAttributeBonusProg(
+            name,
+            raceTemplate is not null
+                ? GetAnimalAttributeProfile(raceTemplate)
+                : new NonHumanAttributeProfile(0, 0, 0, 0));
 
         Material driedBlood = new()
         {

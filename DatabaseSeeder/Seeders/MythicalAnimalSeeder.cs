@@ -905,6 +905,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     {
         bool usesHumanoidDefaults = template.HumanoidVariety ||
                                   (template.CanUseWeapons && template.BodyKey.EqualTo("Organic Humanoid"));
+        FutureProg attributeBonusProg = CreateMythicalAttributeBonusProg(template);
         Race race = new()
         {
             Name = template.Name,
@@ -912,7 +913,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             BaseBody = body,
             AllowedGenders = usesHumanoidDefaults ? _organicHumanoidRace.AllowedGenders : "2 3",
             ParentRace = template.HumanoidVariety ? _organicHumanoidRace : null,
-            AttributeBonusProg = _alwaysZero,
+            AttributeBonusProg = attributeBonusProg,
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == (int)TraitType.Attribute) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -940,7 +941,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             CanClimb = template.CanClimb,
             CanSwim = template.CanSwim,
             MinimumSleepingPosition = 4,
-            BodypartHealthMultiplier = 1.0,
+            BodypartHealthMultiplier = template.BodypartHealthMultiplier,
             BodypartSizeModifier = 0,
             TemperatureRangeCeiling = 40,
             TemperatureRangeFloor = 0,

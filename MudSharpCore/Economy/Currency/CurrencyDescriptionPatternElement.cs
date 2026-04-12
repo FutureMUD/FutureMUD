@@ -22,7 +22,7 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
     {
         Gameworld = parent.Gameworld;
         _id = element.Id;
-        Order = element.Order;
+        _order = element.Order;
         Pattern = element.Pattern;
         AlternatePattern = element.AlternatePattern;
         PluraliseWord = element.PluraliseWord;
@@ -163,8 +163,7 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
         dbitem.CurrencyDivisionId = TargetDivision.Id;
         dbitem.SpecialValuesOverrideFormat = SpecialValuesOverridePattern;
         dbitem.ShowIfZero = ShowIfZero;
-        FMDB.Context.CurrencyDescriptionPatternElementSpecialValues.RemoveRange(dbitem
-            .CurrencyDescriptionPatternElementSpecialValues);
+        FMDB.Context.CurrencyDescriptionPatternElementSpecialValues.RemoveRange(dbitem.CurrencyDescriptionPatternElementSpecialValues);
         foreach (KeyValuePair<decimal, string> item in SpecialValues)
         {
             dbitem.CurrencyDescriptionPatternElementSpecialValues.Add(new CurrencyDescriptionPatternElementSpecialValues

@@ -202,7 +202,7 @@ public partial class RobotSeeder
             "Determines the stamina gain per 10 seconds for robotic characters",
             (long)ProgVariableTypes.Number,
             $"return max(10, GetTrait(@ch, ToTrait({_healthTrait.Id})) * 3)",
-            ("ch", (long)ProgVariableTypes.Toon));
+            ("ch", ProgVariableTypes.Toon));
 
         TraitExpression articulatedMaxHp = EnsureTraitExpression("Robot Max HP Formula", $"140+(con:{_healthTrait.Id}*2)");
         TraitExpression articulatedMaxStun = EnsureTraitExpression("Robot Max Stun Formula",

@@ -694,7 +694,7 @@ Before sending:
             {
                 FutureProg = prog,
                 ParameterIndex = index,
-                ParameterType = (long)type,
+                ParameterTypeDefinition = type.ToStorageString(),
                 ParameterName = name
             });
         }

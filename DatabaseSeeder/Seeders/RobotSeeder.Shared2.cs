@@ -232,7 +232,7 @@ public partial class RobotSeeder
     }
 
     private FutureProg EnsureFutureProg(string functionName, string category, string subcategory, string comment,
-        long returnType, string functionText, params (string Name, long Type)[] parameters)
+        long returnType, string functionText, params (string Name, ProgVariableTypes Type)[] parameters)
     {
         FutureProg? existing = _context.FutureProgs.FirstOrDefault(x => x.FunctionName == functionName);
         if (existing is not null)
@@ -259,7 +259,7 @@ public partial class RobotSeeder
                 FutureProg = prog,
                 ParameterIndex = i,
                 ParameterName = parameters[i].Name,
-                ParameterType = parameters[i].Type
+                ParameterTypeDefinition = parameters[i].Type.ToStorageString()
             });
         }
 

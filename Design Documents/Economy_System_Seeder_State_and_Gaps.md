@@ -30,6 +30,7 @@ The current repository has two dedicated economy seeders:
 - a new stock `EconomicZone` shell tied to a chosen currency and physical zone
 - a stock market attached to that zone
 - market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags such as later-era communications (`Postal Services`, `Printed News`) and personal-service (`Barbering`, `Laundry Services`) needs
+- stock combination-category examples for setting-agnostic family baskets such as `Medicine`, `Writing Materials`, `Clothing`, `Household Goods`, `Hospitality`, `Entertainment`, `Personal Services`, `Communications`, `Military Goods`, and `Professional Tools`, each seeded as an equal-weight roll-up of its direct child categories
 - a reusable library of external market influence templates grouped by sector family, with substantially broader positive and negative scenario coverage than the first pass
 - per-category tariff and subsidy templates for all seeded market categories, using flat percentage price pressure rather than supply or demand pressure
 - dedicated income-focused influence templates for each seeded era, covering wage squeezes, hiring booms, credit crunches, patronage windfalls, and similar household-income shocks
@@ -165,7 +166,7 @@ The market and shopper subsystems are also good seeder targets because they are 
 Feasible seed content:
 
 - broad food, seasonings, medicine, writing-material, luxury, industrial, military, logistics, and raw-material categories
-- optional combination categories that roll seeded leaf categories into reusable aggregate baskets such as staple foods or household essentials
+- seeded combination categories for the more setting-agnostic family groups, plus standalone parent categories where the stock seeder deliberately avoids imposing a world-specific basket definition
 - event-style influence templates such as harvest failure, bumper harvest, embargo, caravan surplus, piracy, mining trouble, and war mobilisation
 - price-only adjustment templates such as tariffs, duties, and subsidies that should act as flat percentage pressure on final price
 - income-focused templates that target specific household archetypes without changing supply or demand
@@ -186,6 +187,7 @@ Current stock package limits:
 - the seeded populations are builder-friendly archetypes, not a claim of historical simulation completeness
 - seeded money values are intended as builder-facing baselines, not audited historical wage tables; the seeder now normalizes them against era and currency assumptions so stock packages start closer to plausible local price scales
 - the new income, savings, and stress-hysteresis fields give builders a better baseline for resilience, but they are still broad tuning defaults rather than researched historical household balance sheets
+- some broad parent tags such as `Nourishment` remain standalone on purpose because the right weighted basket is highly setting-dependent; builders are expected to tune or replace those with their own combination categories if the stock example set is not enough
 
 ## Possible but World-Dependent Seeder Candidates
 ### Markets tied to seeded economic zones

@@ -64,6 +64,22 @@ public class EconomySeeder : IDatabaseSeeder
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
 
+    private static readonly IReadOnlySet<string> StockCombinationFamilyExamples =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Medicine",
+            "Writing Materials",
+            "Clothing",
+            "Intoxicants",
+            "Household Goods",
+            "Hospitality",
+            "Entertainment",
+            "Personal Services",
+            "Communications",
+            "Military Goods",
+            "Professional Tools"
+        };
+
     private static readonly IReadOnlyList<EraDefinition> EraDefinitions =
     [
         new(
@@ -1590,8 +1606,10 @@ It is intended to be additive across eras and safe to rerun to restore or refres
     private static Dictionary<long, MarketCategory> EnsureMarketCategories(FuturemudDatabaseContext context, IEnumerable<Tag> tags)
     {
         List<Tag> allTags = context.Tags.ToList();
+        List<Tag> marketTags = tags.OrderBy(x => x.Name).ToList();
+        Dictionary<long, List<Tag>> childTagsByParentId = BuildChildTagMap(marketTags);
         Dictionary<long, MarketCategory> result = new();
-        foreach (Tag? tag in tags.OrderBy(x => x.Name))
+        foreach (Tag? tag in marketTags)
         {
             string familyName = ResolveTopFamilyName(tag, allTags);
             (double Under, double Over) elasticity = FamilyElasticityMap.TryGetValue(familyName, out (double Under, double Over) value)
@@ -1616,6 +1634,30 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             category.Tags = new XElement("Tags", new XElement("Tag", tag.Id)).ToString();
             category.CombinationCategories = new XElement("Components").ToString();
             result[tag.Id] = category;
+        }
+
+        foreach (Tag tag in marketTags)
+        {
+            if (!ShouldSeedCombinationCategory(tag, childTagsByParentId))
+            {
+                continue;
+            }
+
+            List<MarketCategory> componentCategories = childTagsByParentId[tag.Id]
+                .Where(x => result.ContainsKey(x.Id))
+                .Select(x => result[x.Id])
+                .OrderBy(x => x.Name)
+                .ToList();
+            if (componentCategories.Count < 2)
+            {
+                continue;
+            }
+
+            MarketCategory category = result[tag.Id];
+            category.Description =
+                $"{CategoryPrefix}: seeded aggregate {tag.Name} basket priced as an equal-weight combination of {string.Join(", ", componentCategories.Select(x => x.Name))}.";
+            category.MarketCategoryType = 1;
+            category.CombinationCategories = SaveCombinationCategories(componentCategories.Select(x => x.Id));
         }
 
         return result;
@@ -1760,10 +1802,12 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         IReadOnlyDictionary<long, MarketCategory> categoriesByTagId)
     {
         Dictionary<long, Tag> tagsById = context.Tags.ToList().ToDictionary(x => x.Id);
+        Dictionary<long, List<Tag>> childTagsByParentId = BuildChildTagMap(descendantTags);
         Dictionary<string, Tag> tagsByName = descendantTags.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, MarketCategory> categoriesByName = categoriesByTagId.Values.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, string> categorySectorMap = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, List<MarketCategory>> categoriesBySector = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<MarketCategory>> impactCategoriesBySector = new(StringComparer.OrdinalIgnoreCase);
         foreach (Tag tag in descendantTags)
         {
             string familyName = ResolveTopFamilyName(tag, tagsById);
@@ -1779,7 +1823,35 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             categoriesBySector[sector].Add(categoriesByTagId[tag.Id]);
         }
 
-        return new CategoryContext(marketRoot, tagsById, tagsByName, categoriesByName, categorySectorMap, categoriesBySector);
+        foreach (Tag familyTag in descendantTags
+                     .Where(x => x.ParentId == marketRoot.Id)
+                     .OrderBy(x => x.Name))
+        {
+            string sector = categorySectorMap[familyTag.Name];
+            if (!impactCategoriesBySector.ContainsKey(sector))
+            {
+                impactCategoriesBySector[sector] = [];
+            }
+
+            impactCategoriesBySector[sector].AddRange(GetSectorImpactCategories(familyTag, childTagsByParentId, categoriesByTagId));
+        }
+
+        foreach ((string sector, List<MarketCategory> categories) in impactCategoriesBySector.ToList())
+        {
+            impactCategoriesBySector[sector] = categories
+                .DistinctBy(x => x.Id)
+                .OrderBy(x => x.Name)
+                .ToList();
+        }
+
+        return new CategoryContext(
+            marketRoot,
+            tagsById,
+            tagsByName,
+            categoriesByName,
+            categorySectorMap,
+            categoriesBySector,
+            impactCategoriesBySector);
     }
 
     private static void EnsureExternalInfluenceTemplates(
@@ -1792,7 +1864,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         foreach (SectorInfluenceBlueprint blueprint in ExternalInfluenceBlueprints)
         {
             List<MarketCategory> affectedCategories = blueprint.Sectors
-                .SelectMany(sector => categoryContext.CategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories) ? categories : [])
+                .SelectMany(sector => categoryContext.ImpactCategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories) ? categories : [])
                 .DistinctBy(x => x.Id)
                 .OrderBy(x => x.Name)
                 .ToList();
@@ -2026,7 +2098,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
         void ApplySupplyImpact(string sector, double supplyImpact)
         {
-            if (!categoryContext.CategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories))
+            if (!categoryContext.ImpactCategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories))
             {
                 return;
             }
@@ -2298,6 +2370,14 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                 new XAttribute("expenditure", need.BaseExpenditure.ToString(CultureInfo.InvariantCulture))))).ToString();
     }
 
+    private static string SaveCombinationCategories(IEnumerable<long> categoryIds)
+    {
+        return new XElement("Components",
+            categoryIds.Select(categoryId => new XElement("Component",
+                new XAttribute("category", categoryId),
+                new XAttribute("weight", 1.0m.ToString(CultureInfo.InvariantCulture))))).ToString();
+    }
+
     private static string SaveStressPoints(IEnumerable<StressPointValue> stressPoints)
     {
         return new XElement("Stresses",
@@ -2328,6 +2408,64 @@ It is intended to be additive across eras and safe to rerun to restore or refres
     private static string ResolveTopFamilyName(Tag tag, IReadOnlyCollection<Tag> allTags)
     {
         return ResolveTopFamilyName(tag, allTags.ToDictionary(x => x.Id));
+    }
+
+    private static Dictionary<long, List<Tag>> BuildChildTagMap(IEnumerable<Tag> tags)
+    {
+        return tags
+            .Where(x => x.ParentId.HasValue)
+            .GroupBy(x => x.ParentId!.Value)
+            .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Name).ToList());
+    }
+
+    private static bool ShouldSeedCombinationCategory(Tag tag, IReadOnlyDictionary<long, List<Tag>> childTagsByParentId)
+    {
+        return StockCombinationFamilyExamples.Contains(tag.Name)
+               && childTagsByParentId.TryGetValue(tag.Id, out List<Tag>? childTags)
+               && childTags.Count > 1;
+    }
+
+    private static IEnumerable<MarketCategory> GetSectorImpactCategories(
+        Tag familyTag,
+        IReadOnlyDictionary<long, List<Tag>> childTagsByParentId,
+        IReadOnlyDictionary<long, MarketCategory> categoriesByTagId)
+    {
+        if (!categoriesByTagId.TryGetValue(familyTag.Id, out MarketCategory? familyCategory))
+        {
+            return [];
+        }
+
+        if (familyCategory.MarketCategoryType == 1)
+        {
+            return [familyCategory];
+        }
+
+        return EnumerateTagAndDescendants(familyTag, childTagsByParentId)
+            .Where(x => categoriesByTagId.ContainsKey(x.Id))
+            .Select(x => categoriesByTagId[x.Id])
+            .DistinctBy(x => x.Id)
+            .ToList();
+    }
+
+    private static IEnumerable<Tag> EnumerateTagAndDescendants(
+        Tag rootTag,
+        IReadOnlyDictionary<long, List<Tag>> childTagsByParentId)
+    {
+        Queue<Tag> queue = new([rootTag]);
+        while (queue.Count > 0)
+        {
+            Tag current = queue.Dequeue();
+            yield return current;
+            if (!childTagsByParentId.TryGetValue(current.Id, out List<Tag>? childTags))
+            {
+                continue;
+            }
+
+            foreach (Tag childTag in childTags)
+            {
+                queue.Enqueue(childTag);
+            }
+        }
     }
 
     private static string EconomicZoneName(EraDefinition era)
@@ -2604,7 +2742,8 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         IReadOnlyDictionary<string, Tag> TagsByName,
         IReadOnlyDictionary<string, MarketCategory> CategoriesByName,
         IReadOnlyDictionary<string, string> CategorySectorMap,
-        IReadOnlyDictionary<string, List<MarketCategory>> CategoriesBySector);
+        IReadOnlyDictionary<string, List<MarketCategory>> CategoriesBySector,
+        IReadOnlyDictionary<string, List<MarketCategory>> ImpactCategoriesBySector);
     private sealed record MarketImpactValue(long CategoryId, double SupplyImpact, double DemandImpact, double FlatPriceImpact = 0.0);
     private sealed record PopulationIncomeImpactValue(long PopulationId, decimal AdditiveIncomeImpact, decimal MultiplicativeIncomeImpact);
     private sealed record MarketNeedValue(long CategoryId, decimal BaseExpenditure);

@@ -391,6 +391,7 @@ Verified current active behavior:
 - standalone categories still calculate supply, demand, and flat-price pressure directly from active influences
 - combination categories now read cached per-market weighted averages of their constituent categories rather than recursively querying live child prices on every access
 - item market pricing still selects the highest applicable category multiplier, and combination categories participate in that same max-selection logic when their tags match an item
+- the stock seeder now demonstrates this with family-level combination categories such as `Medicine`, `Writing Materials`, `Clothing`, `Household Goods`, `Hospitality`, `Entertainment`, `Personal Services`, `Communications`, `Military Goods`, and `Professional Tools`, while leaving more world-specific baskets such as `Nourishment` for builders to tune themselves
 - a population's effective income factor is now `(base income factor + additive impacts) * multiplicative impacts`, clamped to zero or above
 - population savings and savings caps are stored as budget-cycle multiples rather than literal time spans
 

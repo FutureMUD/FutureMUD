@@ -25,6 +25,21 @@ public class EconomySeederTests
     private const string StandardScale = "Standard";
     private const string HelperProgPrefix = "EconomySeeder";
     private const string ExternalTemplatePrefix = "EconomySeeder External ";
+    private static readonly IReadOnlySet<string> StockCombinationFamilies =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Medicine",
+            "Writing Materials",
+            "Clothing",
+            "Intoxicants",
+            "Household Goods",
+            "Hospitality",
+            "Entertainment",
+            "Personal Services",
+            "Communications",
+            "Military Goods",
+            "Professional Tools"
+        };
 
     private static readonly IReadOnlyDictionary<string, string[]> FamilyTags =
         new Dictionary<string, string[]>
@@ -287,6 +302,9 @@ public class EconomySeederTests
 
     private static Dictionary<long, (int Upward, int Downward)> GetExternalCoverageByCategory(FuturemudDatabaseContext context)
     {
+        Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
+            .AsEnumerable()
+            .ToDictionary(x => x.Id);
         Dictionary<long, (int Upward, int Downward)> coverage = context.MarketCategories.ToDictionary(x => x.Id, _ => (Upward: 0, Downward: 0));
         foreach (MarketInfluenceTemplate? template in context.MarketInfluenceTemplates
                      .AsEnumerable()
@@ -299,20 +317,60 @@ public class EconomySeederTests
                 double demand = double.Parse(impact.Attribute("demand")!.Value, CultureInfo.InvariantCulture);
                 double supply = double.Parse(impact.Attribute("supply")!.Value, CultureInfo.InvariantCulture);
                 double pressure = demand - supply;
-                if (pressure > 0)
+                foreach (long effectiveCategoryId in ExpandEffectiveCategoryIds(categoryId, categoriesById))
                 {
-                    coverage[categoryId] = (coverage[categoryId].Upward + 1, coverage[categoryId].Downward);
-                    continue;
-                }
+                    if (pressure > 0)
+                    {
+                        coverage[effectiveCategoryId] = (coverage[effectiveCategoryId].Upward + 1, coverage[effectiveCategoryId].Downward);
+                        continue;
+                    }
 
-                if (pressure < 0)
-                {
-                    coverage[categoryId] = (coverage[categoryId].Upward, coverage[categoryId].Downward + 1);
+                    if (pressure < 0)
+                    {
+                        coverage[effectiveCategoryId] = (coverage[effectiveCategoryId].Upward, coverage[effectiveCategoryId].Downward + 1);
+                    }
                 }
             }
         }
 
         return coverage;
+    }
+
+    private static HashSet<long> ExpandEffectiveCategoryIds(
+        long categoryId,
+        IReadOnlyDictionary<long, MarketCategory> categoriesById)
+    {
+        HashSet<long> impactedCategoryIds = [categoryId];
+        ExpandEffectiveCategoryIds(categoryId, categoriesById, impactedCategoryIds, new HashSet<long>());
+        return impactedCategoryIds;
+    }
+
+    private static void ExpandEffectiveCategoryIds(
+        long categoryId,
+        IReadOnlyDictionary<long, MarketCategory> categoriesById,
+        ISet<long> impactedCategoryIds,
+        ISet<long> visitedCategoryIds)
+    {
+        if (!visitedCategoryIds.Add(categoryId)
+            || !categoriesById.TryGetValue(categoryId, out MarketCategory? category)
+            || category.MarketCategoryType != 1)
+        {
+            return;
+        }
+
+        foreach (long componentId in GetCombinationComponentIds(category))
+        {
+            impactedCategoryIds.Add(componentId);
+            ExpandEffectiveCategoryIds(componentId, categoriesById, impactedCategoryIds, visitedCategoryIds);
+        }
+    }
+
+    private static List<long> GetCombinationComponentIds(MarketCategory category)
+    {
+        return XElement.Parse(category.CombinationCategories ?? "<Components />")
+            .Elements("Component")
+            .Select(x => long.Parse(x.Attribute("category")!.Value, CultureInfo.InvariantCulture))
+            .ToList();
     }
 
     private static List<XElement> GetPopulationIncomeImpacts(MarketInfluenceTemplate template)
@@ -478,6 +536,45 @@ public class EconomySeederTests
         {
             Assert.IsTrue(coverage[category.Id].Upward >= 3, $"{category.Name} should have at least three upward-pressure external templates.");
             Assert.IsTrue(coverage[category.Id].Downward >= 3, $"{category.Name} should have at least three downward-pressure external templates.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedData_SeedsSettingAgnosticCombinationCategoryExamples()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedEconomyPrerequisites(context);
+
+        new EconomySeeder().SeedData(context, BuildAnswers());
+
+        Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
+            .AsEnumerable()
+            .ToDictionary(x => x.Id);
+
+        foreach ((string familyName, string[] leafNames) in FamilyTags
+                     .Where(x => StockCombinationFamilies.Contains(x.Key)))
+        {
+            MarketCategory familyCategory = context.MarketCategories.Single(x => x.Name == familyName);
+            Assert.AreEqual(1, familyCategory.MarketCategoryType, $"{familyName} should seed as a combination category example.");
+
+            List<string> componentNames = GetCombinationComponentIds(familyCategory)
+                .Select(id => categoriesById[id].Name)
+                .OrderBy(x => x)
+                .ToList();
+            CollectionAssert.AreEquivalent(leafNames, componentNames, $"{familyName} should be composed of its direct seeded child categories.");
+
+            foreach (XElement component in XElement.Parse(familyCategory.CombinationCategories).Elements("Component"))
+            {
+                Assert.AreEqual(1.0m, decimal.Parse(component.Attribute("weight")!.Value, CultureInfo.InvariantCulture), $"{familyName} should seed equal-weight component examples.");
+            }
+        }
+
+        foreach (string familyName in new[] { "Nourishment", "Domestic Heating", "Luxury Drinks", "Transportation" })
+        {
+            Assert.AreEqual(
+                0,
+                context.MarketCategories.Single(x => x.Name == familyName).MarketCategoryType,
+                $"{familyName} should remain standalone in the stock seeder.");
         }
     }
 

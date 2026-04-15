@@ -34,7 +34,7 @@ Most economy content is authored as world data, not hard-coded content. The engi
 The current stock seeder path now covers two useful starting points:
 
 - `CurrencySeeder` for currencies, divisions, coins, and parsing/description patterns
-- `EconomySeeder` for a template economic zone shell, one market, market categories derived from `UsefulSeeder` market tags, stock influence templates, broader era-specific populations including priestly and monastic households, and matching `SimpleShopper` records
+- `EconomySeeder` for a template economic zone shell, one market, market categories derived from `UsefulSeeder` market tags, seeded combination-category examples for setting-agnostic family baskets, stock influence templates, broader era-specific populations including priestly and monastic households, and matching `SimpleShopper` records
 
 ## Minimum Viable Economy Setup
 The current runtime supports a lot of optional depth, but the minimum viable path is smaller.
@@ -160,6 +160,8 @@ Practical note on the stock seeder package:
 - market influence templates and live influences can now express both flat percentage price pressure and direct income pressure on named populations
 - combination categories let builders create higher-level sectors such as staple foods or luxury baskets without duplicating direct pricing data on the aggregate category itself
 - combination-targeted influences are applied to the constituent standalone categories in normalized proportion, so builders can target a broad basket while still moving the underlying goods
+- the stock seeder now uses that pattern directly for family categories such as `Medicine`, `Writing Materials`, `Clothing`, `Household Goods`, `Hospitality`, `Entertainment`, `Personal Services`, `Communications`, `Military Goods`, and `Professional Tools`
+- seeded sector-wide external and stress templates now target either those aggregate family categories or the remaining standalone families, so builders can inspect working examples of combination-aware influence authoring
 - tariff and subsidy style templates now model flat percentage price adjustments rather than trying to fake those effects through supply or demand alone
 - the seeded populations assume medicine is a universal household need and now use seasonings tags such as `Salt` and `Spices`, writing-material tags such as `Wax Tablets`, `Parchment`, `Paper`, and `Ink`, plus hospitality / entertainment / communications / personal-service tags in later eras where appropriate
 - seeded stress templates now model both demand contraction and some supply contraction tied to the sectors a stressed population plausibly anchors

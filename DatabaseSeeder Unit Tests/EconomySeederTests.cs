@@ -315,6 +315,13 @@ public class EconomySeederTests
         return coverage;
     }
 
+    private static List<XElement> GetPopulationIncomeImpacts(MarketInfluenceTemplate template)
+    {
+        return XElement.Parse(template.PopulationImpacts ?? "<PopulationImpacts />")
+            .Elements("PopulationImpact")
+            .ToList();
+    }
+
     [TestMethod]
     public void ShouldSeedData_MissingPrerequisites_ReturnsBlocked()
     {
@@ -372,6 +379,36 @@ public class EconomySeederTests
         Assert.AreEqual(expectedCategoryCount, context.MarketCategories.Count());
         Assert.AreEqual(60, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
             x.Name.StartsWith(ExternalTemplatePrefix, StringComparison.OrdinalIgnoreCase)));
+        Assert.AreEqual(expectedCategoryCount * 4, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.EndsWith("Minor Tariff", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.EndsWith("Major Tariff", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.EndsWith("Minor Subsidy", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.EndsWith("Major Subsidy", StringComparison.OrdinalIgnoreCase)));
+        Assert.AreEqual(10, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Wage Squeeze", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Hiring Season", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Credit Crunch", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Trade Windfall", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Garrison Muster", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Demobilisation Glut", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Tithe Boom", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Alms Shortfall", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Noble Rent Increase", StringComparison.OrdinalIgnoreCase) ||
+            x.Name.StartsWith($"{ClassicalEra} ", StringComparison.OrdinalIgnoreCase) &&
+            x.Name.Contains("Patronage Windfall", StringComparison.OrdinalIgnoreCase)));
         Assert.AreEqual(21, context.MarketInfluenceTemplates.AsEnumerable().Count(x =>
             x.Name.StartsWith($"{HelperProgPrefix} Stress ", StringComparison.OrdinalIgnoreCase)));
         Assert.AreEqual(7, context.MarketPopulations.Count());
@@ -485,6 +522,98 @@ public class EconomySeederTests
             Assert.IsTrue(
                 impacts.Any(x => double.Parse(x.Attribute("supply")!.Value, CultureInfo.InvariantCulture) < 0.0),
                 $"{template.Name} should include at least one negative supply impact.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedData_PopulationsPersistIncomeFactorSavingsAndSavingsCaps()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedEconomyPrerequisites(context);
+
+        new EconomySeeder().SeedData(context, BuildAnswers());
+
+        foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
+        {
+            Assert.AreEqual(1.0m, population.IncomeFactor, $"{population.Name} should seed with a neutral base income factor.");
+            Assert.AreEqual(0.0m, population.Savings, $"{population.Name} should start with no accumulated savings.");
+            Assert.IsTrue(population.SavingsCap > 0.0m, $"{population.Name} should seed with a visible savings cap.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedData_EveryCategory_GetsTariffAndSubsidyTemplatesWithFlatPriceOnly()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedEconomyPrerequisites(context);
+
+        new EconomySeeder().SeedData(context, BuildAnswers());
+
+        foreach (MarketCategory? category in context.MarketCategories.OrderBy(x => x.Name))
+        {
+            foreach ((string Suffix, double ExpectedPrice) adjustment in new[]
+                     {
+                         ("Minor Tariff", 0.05),
+                         ("Major Tariff", 0.12),
+                         ("Minor Subsidy", -0.05),
+                         ("Major Subsidy", -0.12)
+                     })
+            {
+                MarketInfluenceTemplate template = context.MarketInfluenceTemplates.AsEnumerable()
+                    .Single(x => x.Name == $"{ClassicalEra} {category.Name} {adjustment.Suffix}");
+                XElement impact = XElement.Parse(template.Impacts).Elements("Impact").Single();
+
+                Assert.AreEqual(0.0, double.Parse(impact.Attribute("supply")!.Value, CultureInfo.InvariantCulture), 0.0001, $"{template.Name} should not alter supply.");
+                Assert.AreEqual(0.0, double.Parse(impact.Attribute("demand")!.Value, CultureInfo.InvariantCulture), 0.0001, $"{template.Name} should not alter demand.");
+                Assert.AreEqual(adjustment.ExpectedPrice, double.Parse(impact.Attribute("price")!.Value, CultureInfo.InvariantCulture), 0.0001, $"{template.Name} should use the expected flat price adjustment.");
+                Assert.AreEqual(0, GetPopulationIncomeImpacts(template).Count, $"{template.Name} should not include population income impacts.");
+            }
+        }
+    }
+
+    [TestMethod]
+    public void SeedData_CreatesDedicatedIncomeTemplatesAndUpdatesSelectedExistingTemplates()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedEconomyPrerequisites(context);
+
+        new EconomySeeder().SeedData(context, BuildAnswers());
+
+        string[] incomeTemplateNames =
+        [
+            "Rural Wage Squeeze",
+            "Bountiful Hiring Season",
+            "Merchant Credit Crunch",
+            "Trade Windfall",
+            "Garrison Muster",
+            "Demobilisation Glut",
+            "Tithe Boom",
+            "Alms Shortfall",
+            "Noble Rent Increase",
+            "Patronage Windfall"
+        ];
+
+        foreach (string templateName in incomeTemplateNames)
+        {
+            MarketInfluenceTemplate template = context.MarketInfluenceTemplates.AsEnumerable()
+                .Single(x => x.Name == $"{ClassicalEra} {templateName}");
+            Assert.AreEqual(0, XElement.Parse(template.Impacts).Elements("Impact").Count(), $"{template.Name} should be income-only.");
+            Assert.IsTrue(GetPopulationIncomeImpacts(template).Count > 0, $"{template.Name} should include income impacts.");
+        }
+
+        foreach (string templateName in new[]
+                 {
+                     $"{ExternalTemplatePrefix}{ClassicalEra} Harvest Failure",
+                     $"{ExternalTemplatePrefix}{ClassicalEra} River Trade Disruption",
+                     $"{ExternalTemplatePrefix}{ClassicalEra} Bumper Harvest",
+                     $"{ExternalTemplatePrefix}{ClassicalEra} Caravan Surplus",
+                     $"{ExternalTemplatePrefix}{ClassicalEra} Local War",
+                     $"{ExternalTemplatePrefix}{ClassicalEra} Disbanded Levies",
+                     $"{ExternalTemplatePrefix}{ClassicalEra} Smithy Subsidy"
+                 })
+        {
+            MarketInfluenceTemplate template = context.MarketInfluenceTemplates.AsEnumerable().Single(x => x.Name == templateName);
+            Assert.IsTrue(GetPopulationIncomeImpacts(template).Count > 0, $"{template.Name} should now include population income impacts.");
         }
     }
 

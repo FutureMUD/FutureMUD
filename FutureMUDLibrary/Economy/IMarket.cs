@@ -19,8 +19,12 @@ public interface IMarket : ISaveable, IEditableItem, IProgVariable
     string Description { get; }
     IEnumerable<IMarketInfluence> MarketInfluences { get; }
     IEnumerable<IMarketCategory> MarketCategories { get; }
+    decimal EffectiveIncomeFactorForPopulation(IMarketPopulation population);
+    decimal FlatPriceAdjustmentForCategory(IMarketCategory? category);
     decimal PriceMultiplierForCategory(IMarketCategory? category);
+    decimal FlatPriceAdjustmentForItem(IGameItem item);
     decimal PriceMultiplierForItem(IGameItem item);
+    decimal FlatPriceAdjustmentForItem(IGameItemProto item);
     decimal PriceMultiplierForItem(IGameItemProto item);
     void ApplyMarketInfluence(IMarketInfluence influence);
     void RemoveMarketInfluence(IMarketInfluence influence);

@@ -82,7 +82,8 @@ internal class Market : SaveableItem, IMarket
                     CharacterKnowsAboutInfluenceProgId = influence.CharacterKnowsAboutInfluenceProg.Id,
                     MarketInfluenceTemplateId = influence.MarketInfluenceTemplate?.Id,
                     Market = dbitem,
-                    Impacts = influence.SaveImpacts().ToString()
+                    Impacts = influence.SaveImpacts().ToString(),
+                    PopulationImpacts = SavePopulationImpacts(influence.PopulationIncomeImpacts).ToString()
 
                 };
                 dbitem.Influences.Add(dbinfluence);
@@ -312,6 +313,7 @@ In the market price formula, you can use the following variables:
                 item.ElasticityFactorAbove.ToString("N3", actor),
                 NetSupply(item).ToString("P2", actor),
                 NetDemand(item).ToString("P2", actor),
+                FlatPriceAdjustmentForCategory(item).ToString("P2", actor),
                 PriceMultiplierForCategory(item).ToString("P3", actor),
                 Gameworld.ItemProtos.GetAllApprovedOrMostRecent().Count(x => item.BelongsToCategory(x)).ToString("N0", actor)
             },
@@ -323,6 +325,7 @@ In the market price formula, you can use the following variables:
                 "E(Over)",
                 "Supply",
                 "Demand",
+                "Flat Price",
                 "Current Price %",
                 "# Items"
             },
@@ -387,6 +390,16 @@ In the market price formula, you can use the following variables:
                .ToList();
     }
 
+    private IReadOnlyCollection<MarketPopulationIncomeImpact> ApplicablePopulationIncomeImpacts(IMarketPopulation population)
+    {
+        MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+        return _marketInfluences
+               .Where(x => x.Applies(null, now))
+               .SelectMany(x => x.PopulationIncomeImpacts)
+               .Where(x => x.MarketPopulation == population)
+               .ToList();
+    }
+
     public double NetDemand(IMarketCategory category)
     {
         return ApplicableMarketImpacts(category).Sum(x => x.DemandImpact) + 1;
@@ -395,6 +408,17 @@ In the market price formula, you can use the following variables:
     public double NetSupply(IMarketCategory category)
     {
         return ApplicableMarketImpacts(category).Sum(x => x.SupplyImpact) + 1;
+    }
+
+    /// <inheritdoc />
+    public decimal FlatPriceAdjustmentForCategory(IMarketCategory category)
+    {
+        if (category is null)
+        {
+            return 0.0M;
+        }
+
+        return (decimal)ApplicableMarketImpacts(category).Sum(x => x.FlatPriceImpact);
     }
 
     /// <inheritdoc />
@@ -410,11 +434,29 @@ In the market price formula, you can use the following variables:
         double demand = impacts.Sum(x => x.DemandImpact) + 1;
         double elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
 
-        return MarketPriceFormula.EvaluateDecimalWith(
+        decimal formulaMultiplier = MarketPriceFormula.EvaluateDecimalWith(
             ("supply", supply),
             ("demand", demand),
             ("elasticity", elasticity)
         );
+        return decimal.Max(0.0M, formulaMultiplier + FlatPriceAdjustmentForCategory(category));
+    }
+
+    public decimal EffectiveIncomeFactorForPopulation(IMarketPopulation population)
+    {
+        IReadOnlyCollection<MarketPopulationIncomeImpact> impacts = ApplicablePopulationIncomeImpacts(population);
+        decimal additiveImpact = impacts.Sum(x => x.AdditiveIncomeImpact);
+        decimal multiplicativeImpact = impacts.Aggregate(1.0M, (current, impact) => current * impact.MultiplicativeIncomeImpact);
+        return decimal.Max(0.0M, (population.IncomeFactor + additiveImpact) * multiplicativeImpact);
+    }
+
+    /// <inheritdoc />
+    public decimal FlatPriceAdjustmentForItem(IGameItem item)
+    {
+        return MarketCategories.Where(x => x.BelongsToCategory(item))
+                               .Select(x => FlatPriceAdjustmentForCategory(x))
+                               .DefaultIfEmpty(0.0M)
+                               .Max();
     }
 
     public decimal PriceMultiplierForItem(IGameItem item)
@@ -422,6 +464,15 @@ In the market price formula, you can use the following variables:
         return MarketCategories.Where(x => x.BelongsToCategory(item))
                                .Select(x => PriceMultiplierForCategory(x))
                                .DefaultIfEmpty(1.0M)
+                               .Max();
+    }
+
+    /// <inheritdoc />
+    public decimal FlatPriceAdjustmentForItem(IGameItemProto item)
+    {
+        return MarketCategories.Where(x => x.BelongsToCategory(item))
+                               .Select(x => FlatPriceAdjustmentForCategory(x))
+                               .DefaultIfEmpty(0.0M)
                                .Max();
     }
 
@@ -443,6 +494,18 @@ In the market price formula, you can use the following variables:
     public void RemoveMarketInfluence(IMarketInfluence influence)
     {
         _marketInfluences.Remove(influence);
+    }
+
+    private static XElement SavePopulationImpacts(IEnumerable<MarketPopulationIncomeImpact> impacts)
+    {
+        return new XElement("PopulationImpacts",
+            from impact in impacts
+            select new XElement("PopulationImpact",
+                new XAttribute("population", impact.MarketPopulation.Id),
+                new XAttribute("additive", impact.AdditiveIncomeImpact),
+                new XAttribute("multiplier", impact.MultiplicativeIncomeImpact)
+            )
+        );
     }
 
     #region FutureProgs

@@ -69,6 +69,18 @@ namespace MudSharp.Database
                       .OnDelete(DeleteBehavior.SetNull)
                       .HasConstraintName("FK_ShopDeals_FutureProgs");
             });
+
+            modelBuilder.Entity<MarketPopulation>(entity =>
+            {
+                entity.Property(e => e.IncomeFactor)
+                      .HasDefaultValue(1.0m);
+
+                entity.Property(e => e.Savings)
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.SavingsCap)
+                      .HasDefaultValue(0.0m);
+            });
         }
     }
 }

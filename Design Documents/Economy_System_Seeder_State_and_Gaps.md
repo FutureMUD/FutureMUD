@@ -31,7 +31,10 @@ The current repository has two dedicated economy seeders:
 - a stock market attached to that zone
 - market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags such as later-era communications (`Postal Services`, `Printed News`) and personal-service (`Barbering`, `Laundry Services`) needs
 - a reusable library of external market influence templates grouped by sector family, with substantially broader positive and negative scenario coverage than the first pass
+- per-category tariff and subsidy templates for all seeded market categories, using flat percentage price pressure rather than supply or demand pressure
+- dedicated income-focused influence templates for each seeded era, covering wage squeezes, hiring booms, credit crunches, patronage windfalls, and similar household-income shocks
 - era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
+- explicit population income factors and non-zero savings caps so seeded households can accumulate reserves before becoming stressed
 - population-stress influence templates and their helper FutureProgs, with stress now reducing lower-priority demand while also contracting supply in the sectors that stressed populations plausibly sustain
 - one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures now scaled by both era assumptions and the chosen currency package
 
@@ -163,6 +166,8 @@ Feasible seed content:
 
 - broad food, seasonings, medicine, writing-material, luxury, industrial, military, logistics, and raw-material categories
 - event-style influence templates such as harvest failure, bumper harvest, embargo, caravan surplus, piracy, mining trouble, and war mobilisation
+- price-only adjustment templates such as tariffs, duties, and subsidies that should act as flat percentage pressure on final price
+- income-focused templates that target specific household archetypes without changing supply or demand
 - sample populations representing commoners, merchants, martial households, priestly households, monastic households, literate middling households in later eras, and elites across multiple historical eras
 - reusable `SimpleShopper` templates seeded as live stock shoppers with scale-adjusted budgets
 
@@ -178,6 +183,7 @@ Current stock package limits:
 - the seeded shopper progs are intentionally broad and tag-driven rather than world-specific retail logic
 - the seeded populations are builder-friendly archetypes, not a claim of historical simulation completeness
 - seeded money values are intended as builder-facing baselines, not audited historical wage tables; the seeder now normalizes them against era and currency assumptions so stock packages start closer to plausible local price scales
+- the new income and savings fields give builders a better baseline for resilience, but they are still broad tuning defaults rather than researched historical household balance sheets
 
 ## Possible but World-Dependent Seeder Candidates
 ### Markets tied to seeded economic zones
@@ -286,14 +292,14 @@ The codebase still contains more economy runtime than stock seeding. That gap ma
 - documentation and seeding strategy need to stay aligned so this does not look more complete than it is
 
 ### Automated test coverage is extremely thin
-The current economy test coverage is concentrated in `ShopTests.cs`.
+The current economy test coverage is still light outside shops, but it now also includes targeted coverage for market price pressure, population income-factor stacking, savings accumulation/depletion, and seeded economy package invariants.
 
 There is little or no automated coverage for:
 
 - currency parsing and description behavior
 - bank fees, account permissions, and transfers
 - tax calculation and financial-period rollover
-- markets, populations, influences, and shoppers
+- broader market, shopper, and influence behavior beyond the new targeted income / savings / flat-price tests
 - property workflows
 - auctions
 - job lifecycle behavior

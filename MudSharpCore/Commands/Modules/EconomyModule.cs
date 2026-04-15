@@ -9175,7 +9175,7 @@ Note: There may be additional properties that can be edited depending on the typ
     #region Market Related Code
 
     #region Market Influence Templates
-    public const string MarketInfluenceTemplateHelpText = @"This command is used to create and edit Market Influence Templates. These are templates for creating market influences which apply supply or demand changes for goods in a market.
+    public const string MarketInfluenceTemplateHelpText = @"This command is used to create and edit Market Influence Templates. These are templates for creating market influences which apply supply, demand, flat price or income changes in a market.
 
 It is recommended that you use this command rather than creating market influences directly with #3MARKETINFLUENCE#0, but that is also an option.
 
@@ -9192,8 +9192,10 @@ The syntax for this command is as follows:
 	#3mit set about#0 - drops you into an editor to write an about info for builders
 	#3mit set desc#0 - drops you into an editor to write a description for players
 	#3mit set know <prog>#0 - sets the prog that controls if players know about this
-	#3mit set impact <category> <supply%> <demand%>#0 - adds or edits an impact for a category
-	#3mit set remimpact <category>#0 - removes the impact for a category";
+	#3mit set impact <category> <supply%> <demand%> [<price%>]#0 - adds or edits an impact for a category
+	#3mit set remimpact <category>#0 - removes the impact for a category
+	#3mit set popimpact <population> <additive%> <multiplier>#0 - adds or edits an income impact for a population
+	#3mit set rempopimpact <population>#0 - removes the income impact for a population";
 
     [PlayerCommand("MarketInfluenceTemplate", "marketinfluencetemplate", "mit")]
     [CommandPermission(PermissionLevel.Admin)]
@@ -9413,8 +9415,10 @@ The syntax for this command is as follows:
 	#3mi set name <name>#0 - sets a new name
 	#3mi set desc#0 - drops you into an editor to write a description for players
 	#3mi set know <prog>#0 - sets the prog that controls if players know about this
-	#3mi set impact <category> <supply%> <demand%>#0 - adds or edits an impact for a category
+	#3mi set impact <category> <supply%> <demand%> [<price%>]#0 - adds or edits an impact for a category
 	#3mi set remimpact <category>#0 - removes the impact for a category
+	#3mi set popimpact <population> <additive%> <multiplier>#0 - adds or edits an income impact for a population
+	#3mi set rempopimpact <population>#0 - removes the income impact for a population
 	#3mi set applies <date>#0 - the date that this impact applies from
 	#3mi set until <date>#0 - the date that this impact applies until
 	#3mi set until always#0 - removes the expiry date for this impact
@@ -10277,6 +10281,9 @@ The syntax for this command is as follows:
 	#3market set name <name>#0 - renames this market population
 	#3market set desc#0 - drops you into an editor to edit the description
 	#3market set scale <number>#0 - sets the number of people represented by this pop
+	#3market set income <factor>#0 - sets the base income factor for this population
+	#3market set savings <cycles>#0 - sets current savings in budget-cycle multiples
+	#3market set savingscap <cycles>#0 - sets the savings cap in budget-cycle multiples
 	#3market set need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
 	#3market set stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
 	#3market set stress <threshold> remove#0 - permanently removes a stress threshold
@@ -10404,6 +10411,8 @@ The syntax for this command is as follows:
                 item.Id.ToString("N0", actor),
                 item.Name,
                 item.Market.Name,
+                item.IncomeFactor.ToString("N3", actor),
+                item.Savings.ToString("N3", actor),
                 item.CurrentStress.ToString("P2", actor),
                 item.CurrentStressPoint?.Name ?? "",
                 item.PopulationScale.ToString("N0", actor),
@@ -10414,6 +10423,8 @@ The syntax for this command is as follows:
                 "ID",
                 "Name",
                 "Market",
+                "Income",
+                "Savings",
                 "Stress",
                 "Stress Name",
                 "Population",

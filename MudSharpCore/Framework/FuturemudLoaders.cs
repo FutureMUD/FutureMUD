@@ -785,6 +785,15 @@ For information on the syntax to use in emotes (such as those included in bracke
         {
             _marketPopulations.Add(new Economy.Markets.MarketPopulation(this, item));
         }
+        foreach (var template in _marketInfluenceTemplates.OfType<Economy.Markets.MarketInfluenceTemplate>())
+        {
+            template.ResolvePopulationImpacts();
+        }
+
+        foreach (var influence in _marketInfluences.OfType<Economy.Markets.MarketInfluence>())
+        {
+            influence.ResolvePopulationImpacts();
+        }
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

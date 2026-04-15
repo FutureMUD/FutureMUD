@@ -10,6 +10,7 @@ using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         Market = Gameworld.Markets.Get(population.MarketId)!;
         Description = population.Description;
         PopulationScale = population.PopulationScale;
+        IncomeFactor = population.IncomeFactor;
+        Savings = population.Savings;
+        SavingsCap = population.SavingsCap;
         LoadNeeds(XElement.Parse(population.MarketPopulationNeeds));
         LoadStresses(XElement.Parse(population.MarketStressPoints));
         RecalculateStress();
@@ -43,6 +47,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         _name = name;
         Description = rhs.Description;
         PopulationScale = rhs.PopulationScale;
+        IncomeFactor = rhs.IncomeFactor;
+        Savings = rhs.Savings;
+        SavingsCap = rhs.SavingsCap;
         LoadNeeds(rhs.SaveNeeds());
         LoadStresses(rhs.SaveStresses());
         RecalculateStress();
@@ -53,6 +60,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
                 Name = Name,
                 Description = Description,
                 PopulationScale = PopulationScale,
+                IncomeFactor = IncomeFactor,
+                Savings = Savings,
+                SavingsCap = SavingsCap,
                 MarketPopulationNeeds = SaveNeeds().ToString(),
                 MarketStressPoints = SaveStresses().ToString(),
                 MarketId = Market.Id
@@ -70,6 +80,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         _name = name;
         Description = "An undescribed market population";
         PopulationScale = 10000;
+        IncomeFactor = 1.0M;
+        Savings = 0.0M;
+        SavingsCap = 0.0M;
         using (new FMDB())
         {
             Models.MarketPopulation dbitem = new()
@@ -77,6 +90,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
                 Name = Name,
                 Description = Description,
                 PopulationScale = PopulationScale,
+                IncomeFactor = IncomeFactor,
+                Savings = Savings,
+                SavingsCap = SavingsCap,
                 MarketPopulationNeeds = SaveNeeds().ToString(),
                 MarketStressPoints = SaveStresses().ToString(),
                 MarketId = Market.Id
@@ -126,6 +142,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         dbitem!.Name = Name;
         dbitem.Description = Description;
         dbitem.PopulationScale = PopulationScale;
+        dbitem.IncomeFactor = IncomeFactor;
+        dbitem.Savings = Savings;
+        dbitem.SavingsCap = SavingsCap;
         dbitem.MarketStressPoints = SaveStresses().ToString();
         dbitem.MarketPopulationNeeds = SaveNeeds().ToString();
         Changed = false;
@@ -161,6 +180,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 	#3name <name>#0 - renames this market population
 	#3desc#0 - drops you into an editor to edit the description
 	#3scale <number>#0 - sets the number of people represented by this pop
+	#3income <factor>#0 - sets the base income factor for this population
+	#3savings <cycles>#0 - sets the current savings reserve in budget-cycle multiples
+	#3savingscap <cycles>#0 - sets the largest savings reserve in budget-cycle multiples
 	#3need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
 	#3stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
 	#3stress <threshold> remove#0 - permanently removes a stress threshold
@@ -185,6 +207,14 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
             case "pop":
             case "populationscale":
                 return BuildingCommandPopulationScale(actor, command);
+            case "income":
+            case "incomefactor":
+                return BuildingCommandIncomeFactor(actor, command);
+            case "savings":
+                return BuildingCommandSavings(actor, command);
+            case "savingscap":
+            case "cap":
+                return BuildingCommandSavingsCap(actor, command);
             case "need":
                 return BuildingCommandNeed(actor, command);
             case "stress":
@@ -531,6 +561,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         Changed = true;
         if (value <= 0.0M)
         {
+            RecalculateStress();
             actor.OutputHandler.Send($"This population will no longer need any {category.Name.ColourName()}.");
             return true;
         }
@@ -540,8 +571,73 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
             MarketCategory = category,
             BaseExpenditure = value
         });
+        RecalculateStress();
 
         actor.OutputHandler.Send($"This population will now prefer to spend {Market.EconomicZone.Currency.Describe(value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} on {category.Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandIncomeFactor(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What income factor should this population use?");
+            return false;
+        }
+
+        if (!TryParseDecimalOrPercentage(actor, command.SafeRemainingArgument, out decimal value) || value < 0.0M)
+        {
+            actor.OutputHandler.Send("You must enter a non-negative decimal value or percentage.");
+            return false;
+        }
+
+        IncomeFactor = value;
+        Changed = true;
+        RecalculateStress();
+        actor.OutputHandler.Send($"This market population now has a base income factor of {IncomeFactor.ToString("N3", actor).ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandSavings(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("How many budget cycles of savings should this population currently hold?");
+            return false;
+        }
+
+        if (!decimal.TryParse(command.SafeRemainingArgument, NumberStyles.Number, actor.Account.Culture, out decimal value) || value < 0.0M)
+        {
+            actor.OutputHandler.Send("You must enter a non-negative decimal number.");
+            return false;
+        }
+
+        Savings = decimal.Min(value, SavingsCap);
+        Changed = true;
+        RecalculateStress();
+        actor.OutputHandler.Send($"This market population now has {Savings.ToString("N3", actor).ColourValue()} budget cycles of savings.");
+        return true;
+    }
+
+    private bool BuildingCommandSavingsCap(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should the maximum savings reserve be, in budget-cycle multiples?");
+            return false;
+        }
+
+        if (!decimal.TryParse(command.SafeRemainingArgument, NumberStyles.Number, actor.Account.Culture, out decimal value) || value < 0.0M)
+        {
+            actor.OutputHandler.Send("You must enter a non-negative decimal number.");
+            return false;
+        }
+
+        SavingsCap = value;
+        Savings = decimal.Min(Savings, SavingsCap);
+        Changed = true;
+        RecalculateStress();
+        actor.OutputHandler.Send($"This market population can now save up to {SavingsCap.ToString("N3", actor).ColourValue()} budget cycles.");
         return true;
     }
 
@@ -613,6 +709,10 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
         sb.AppendLine();
         sb.AppendLine($"Market: {Market.Name.ColourValue()}");
         sb.AppendLine($"Population Scale: {PopulationScale.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Income Factor: {IncomeFactor.ToString("N3", actor).ColourValue()}");
+        sb.AppendLine($"Effective Income Factor: {Market.EffectiveIncomeFactorForPopulation(this).ToString("N3", actor).ColourValue()}");
+        sb.AppendLine($"Savings: {Savings.ToString("N3", actor).ColourValue()}");
+        sb.AppendLine($"Savings Cap: {SavingsCap.ToString("N3", actor).ColourValue()}");
         sb.AppendLine($"Current Stress: {CurrentStress.ToStringP2Colour(actor)}");
         sb.AppendLine($"Current Stress Point: {CurrentStressPoint?.Name.ColourValue() ?? "Not Stressed".ColourValue()}");
         sb.AppendLine("Description:");
@@ -653,6 +753,15 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
     /// <inheritdoc />
     public int PopulationScale { get; set; }
 
+    /// <inheritdoc />
+    public decimal IncomeFactor { get; set; }
+
+    /// <inheritdoc />
+    public decimal Savings { get; private set; }
+
+    /// <inheritdoc />
+    public decimal SavingsCap { get; set; }
+
     public string Description { get; set; }
 
     /// <inheritdoc />
@@ -677,21 +786,38 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
     private void RecalculateStress()
     {
-        if (_marketPopulationNeeds.Count == 0)
-        {
-            CurrentStress = 0.0M;
-            return;
-        }
-
         decimal expectedSpend = MarketPopulationNeeds.Sum(x => x.BaseExpenditure);
-        if (expectedSpend == 0.0M)
+        if (expectedSpend <= 0.0M)
         {
             CurrentStress = 0.0M;
             return;
         }
 
+        decimal incomeBudget = expectedSpend * Market.EffectiveIncomeFactorForPopulation(this);
         decimal actualSpend = MarketPopulationNeeds.Sum(x => Market.PriceMultiplierForCategory(x.MarketCategory) * x.BaseExpenditure);
-        CurrentStress = (actualSpend / expectedSpend) - 1.0M;
+
+        if (incomeBudget >= actualSpend)
+        {
+            CurrentStress = 0.0M;
+            decimal newSavings = decimal.Min(SavingsCap, Savings + ((incomeBudget - actualSpend) / expectedSpend));
+            if (newSavings != Savings)
+            {
+                Savings = newSavings;
+                Changed = true;
+            }
+
+            return;
+        }
+
+        decimal shortfall = (actualSpend - incomeBudget) / expectedSpend;
+        decimal consumedSavings = decimal.Min(Savings, shortfall);
+        if (consumedSavings > 0.0M)
+        {
+            Savings -= consumedSavings;
+            Changed = true;
+        }
+
+        CurrentStress = decimal.Max(0.0M, shortfall - consumedSavings);
     }
 
     public MarketStressPoint? CurrentStressPoint => _marketStressPoints
@@ -712,5 +838,15 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
         old?.ExecuteOnEnd?.Execute(Id, CurrentStress > previous, Market);
         stress?.ExecuteOnStart?.Execute(Id, CurrentStress > previous, Market);
+    }
+
+    private bool TryParseDecimalOrPercentage(ICharacter actor, string text, out decimal value)
+    {
+        if (decimal.TryParse(text, NumberStyles.Number, actor.Account.Culture, out value))
+        {
+            return true;
+        }
+
+        return text.TryParsePercentageDecimal(actor.Account.Culture, out value);
     }
 }

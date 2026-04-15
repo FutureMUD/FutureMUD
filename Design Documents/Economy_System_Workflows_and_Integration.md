@@ -145,7 +145,7 @@ Current builder steps usually include:
 - review or extend the generated market categories that follow `UsefulSeeder` market tags
 - create one or more markets per economic region
 - add market influence templates or live influences
-- define or tune market populations and their spending needs
+- define or tune market populations and their spending needs, base income factor, current savings, and savings cap
 - create or tune shoppers, usually `SimpleShopper`, with scripted selection behavior
 - point relevant shops at a market for pricing purposes
 
@@ -156,8 +156,11 @@ Practical note on the stock seeder package:
 - the seeded market is a starting template, not a claim that the world should only have one market
 - the seeded external templates are intended to be balanced examples and can be reused or edited
 - the seeded population stress hooks already demonstrate the begin/end influence pattern through stock FutureProgs
+- market influence templates and live influences can now express both flat percentage price pressure and direct income pressure on named populations
+- tariff and subsidy style templates now model flat percentage price adjustments rather than trying to fake those effects through supply or demand alone
 - the seeded populations assume medicine is a universal household need and now use seasonings tags such as `Salt` and `Spices`, writing-material tags such as `Wax Tablets`, `Parchment`, `Paper`, and `Ink`, plus hospitality / entertainment / communications / personal-service tags in later eras where appropriate
 - seeded stress templates now model both demand contraction and some supply contraction tied to the sectors a stressed population plausibly anchors
+- seeded populations now start with explicit income factors plus non-zero savings caps so the savings mechanic is visible without additional builder setup
 - seeded money values are scaled against the selected currency package and a simple era baseline so builders start closer to plausible local price magnitudes
 - the seeded shopper progs assume goods are tagged with the same market tags used by the generated categories
 
@@ -281,6 +284,12 @@ In both cases, preserve the separation between:
 
 - reusable templates
 - live influences applied to a market
+
+Current practical guidance:
+
+- use flat price pressure for tariffs, duties, subsidies, and other fees that should directly move the final multiplier
+- use supply and demand pressure when the world event should still flow through the market formula
+- use population income impacts when the event changes what households can spend rather than what goods cost
 
 ### Adding New Currency Patterns
 Currency extension should generally stay pattern-driven.

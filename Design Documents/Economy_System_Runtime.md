@@ -189,8 +189,9 @@ The current model works roughly like this:
 
 - market categories classify goods, usually through tags or category mappings
 - a market owns categories and active influences
-- market influences adjust prices through typed impact data
-- market populations define spending needs and stress thresholds
+- market influences adjust prices through typed impact data, which now includes supply pressure, demand pressure, and flat percentage price pressure
+- market influences and influence templates can also target specific market populations with additive and multiplicative income-factor adjustments
+- market populations define spending needs, base income, savings reserves, savings caps, and stress thresholds
 - shoppers choose shops and items using FutureProg-driven selection rules
 - shops can point at a market for pricing purposes
 
@@ -374,8 +375,17 @@ Verified current active behavior:
 
 - market populations receive a heartbeat on the scheduler
 - populations recalculate stress against configured needs and thresholds
+- population stress is now the uncovered budget shortfall after applying both income and any accumulated savings
+- populations can accumulate savings when their effective income exceeds current market-adjusted costs, up to a per-population savings cap
+- populations consume savings before any remaining shortfall becomes stress
 - thresholds can execute progs on entry or exit
 - shoppers can choose shops and items according to scripted weights and buy items through the shop-facing virtual shopper path
+
+### Verified current market-price and income calculation shape
+- category price multipliers are now calculated as the market formula result plus the summed flat percentage price adjustments for that category, clamped to zero or above
+- item market pricing still selects the highest applicable category multiplier, so the flat percentage additions automatically flow through to shop pricing
+- a population's effective income factor is now `(base income factor + additive impacts) * multiplicative impacts`, clamped to zero or above
+- population savings and savings caps are stored as budget-cycle multiples rather than literal time spans
 
 This means the current implementation already supports a light economic simulation layer without requiring every purchase to come from a live player.
 

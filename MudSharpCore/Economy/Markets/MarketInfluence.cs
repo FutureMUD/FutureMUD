@@ -201,6 +201,14 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		Changed = false;
 	}
 
+	private void InvalidatePricingCache()
+	{
+		if (Market is Market market)
+		{
+			market.InvalidatePricingCache();
+		}
+	}
+
 	public XElement SaveImpacts()
 	{
 		return new XElement("Impacts",
@@ -303,6 +311,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		actor.OutputHandler.Send(
 			$"This influence now applies for {value.DescribePrecise(actor).ColourValue()}, until {AppliesUntil.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()}.");
 		Changed = true;
+		InvalidatePricingCache();
 		return true;
 	}
 
@@ -318,6 +327,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		{
 			AppliesUntil = null;
 			Changed = true;
+			InvalidatePricingCache();
 			actor.OutputHandler.Send("This influence will now apply until manually removed.");
 			return true;
 		}
@@ -338,6 +348,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 
 		AppliesUntil = date;
 		Changed = true;
+		InvalidatePricingCache();
 		actor.OutputHandler.Send(
 			$"This influence now applies until {date.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()}.");
 		return true;
@@ -367,6 +378,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 
 		AppliesFrom = date;
 		Changed = true;
+		InvalidatePricingCache();
 		actor.OutputHandler.Send(
 			$"This influence now applies from {date.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()}.");
 		return true;
@@ -429,6 +441,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		actor.OutputHandler.Send(
 			$"You set the impact for the {category.Name.ColourValue()} market category to {supply.ToBonusPercentageString(actor)} supply, {demand.ToBonusPercentageString(actor)} demand and {price.ToBonusPercentageString(actor)} flat price.");
 		Changed = true;
+		InvalidatePricingCache();
 		return true;
 	}
 
@@ -515,6 +528,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		actor.OutputHandler.Send(
 			$"You remove all impacts associated with the {category.Name.ColourValue()} market category.");
 		Changed = true;
+		InvalidatePricingCache();
 		return true;
 	}
 
@@ -681,6 +695,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		}
 
 		AppliesUntil = now;
+		InvalidatePricingCache();
 	}
 
 	public void Delete()

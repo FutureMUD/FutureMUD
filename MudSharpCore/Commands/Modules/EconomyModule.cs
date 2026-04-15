@@ -9811,6 +9811,9 @@ The syntax for working with categories is as follows:
 	#3mc set name <name>#0 - changes the name
 	#3mc set eover <%>#0 - changes the elasticity for oversupply
 	#3mc set eunder <%>#0 - changes the elasticity for undersupply
+	#3mc set type <standalone|combination>#0 - sets the category type
+	#3mc set component <category> <weight>#0 - adds or updates a combination component
+	#3mc set remcomponent <category>#0 - removes a combination component
 	#3mc set desc#0 - drops you into an editor to set the description
 	#3mc set tag <tag>#0 - toggles an item tag as being a part of this category";
 
@@ -10284,6 +10287,7 @@ The syntax for this command is as follows:
 	#3market set income <factor>#0 - sets the base income factor for this population
 	#3market set savings <cycles>#0 - sets current savings in budget-cycle multiples
 	#3market set savingscap <cycles>#0 - sets the savings cap in budget-cycle multiples
+	#3market set flicker <%>#0 - sets the stress hysteresis threshold for this population
 	#3market set need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
 	#3market set stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
 	#3market set stress <threshold> remove#0 - permanently removes a stress threshold

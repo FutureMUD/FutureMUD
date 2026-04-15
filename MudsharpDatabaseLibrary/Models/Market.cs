@@ -71,6 +71,8 @@ public class MarketCategory
     public string Description { get; set; }
     public double ElasticityFactorAbove { get; set; }
     public double ElasticityFactorBelow { get; set; }
+    public int MarketCategoryType { get; set; }
     public string Tags { get; set; }
+    public string CombinationCategories { get; set; }
     public virtual ICollection<Market> Markets { get; set; }
 }

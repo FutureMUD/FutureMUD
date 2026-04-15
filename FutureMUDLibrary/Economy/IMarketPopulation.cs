@@ -28,6 +28,11 @@ public interface IMarketPopulation : ISaveable, IEditableItem
     decimal SavingsCap { get; }
 
     /// <summary>
+    /// The absolute hysteresis buffer applied when stress is falling so thresholds do not rapidly toggle on and off.
+    /// </summary>
+    decimal StressFlickerThreshold { get; }
+
+    /// <summary>
     /// The market this market population belongs to
     /// </summary>
     IMarket Market { get; }

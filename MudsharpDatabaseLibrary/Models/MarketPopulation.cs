@@ -15,6 +15,7 @@ public class MarketPopulation
     public decimal IncomeFactor { get; set; }
     public decimal Savings { get; set; }
     public decimal SavingsCap { get; set; }
+    public decimal StressFlickerThreshold { get; set; }
     public long MarketId { get; set; }
     public string MarketPopulationNeeds { get; set; }
     public string MarketStressPoints { get; set; }

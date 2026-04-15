@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Expression = ExpressionEngine.Expression;
 
@@ -24,122 +23,127 @@ namespace MudSharp.Economy.Markets;
 
 internal class Market : SaveableItem, IMarket
 {
-    /// <inheritdoc />
-    public sealed override string FrameworkItemType => "Market";
+	/// <inheritdoc />
+	public sealed override string FrameworkItemType => "Market";
 
-    public Market(IFuturemud gameworld, Models.Market dbitem)
-    {
-        Gameworld = gameworld;
-        _id = dbitem.Id;
-        _name = dbitem.Name;
-        Description = dbitem.Description;
-        EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
-        MarketPriceFormula = new Expression(dbitem.MarketPriceFormula);
-        foreach (Models.MarketCategory item in dbitem.MarketCategories)
-        {
-            _marketCategories.AddNotNull(Gameworld.MarketCategories.Get(item.Id));
-        }
+	public Market(IFuturemud gameworld, Models.Market dbitem)
+	{
+		Gameworld = gameworld;
+		_id = dbitem.Id;
+		_name = dbitem.Name;
+		Description = dbitem.Description;
+		EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
+		MarketPriceFormula = new Expression(dbitem.MarketPriceFormula);
+		foreach (Models.MarketCategory item in dbitem.MarketCategories)
+		{
+			_marketCategories.AddNotNull(Gameworld.MarketCategories.Get(item.Id));
+		}
 
-        foreach (Models.MarketInfluence influence in dbitem.Influences)
-        {
-            MarketInfluence inf = new(this, influence);
-            _marketInfluences.Add(inf);
-            Gameworld.Add(inf);
-        }
-    }
+		foreach (Models.MarketInfluence influence in dbitem.Influences)
+		{
+			MarketInfluence inf = new(this, influence);
+			_marketInfluences.Add(inf);
+			Gameworld.Add(inf);
+		}
+	}
 
-    public IMarket Clone(string newName)
-    {
-        return new Market(this, newName);
-    }
+	public IMarket Clone(string newName)
+	{
+		return new Market(this, newName);
+	}
 
-    public Market(Market rhs, string name)
-    {
-        Gameworld = rhs.Gameworld;
-        _name = name;
-        Description = rhs.Description;
-        EconomicZone = rhs.EconomicZone;
-        MarketPriceFormula = new Expression(rhs.MarketPriceFormula.OriginalExpression);
-        _marketCategories.AddRange(rhs.MarketCategories);
-        using (new FMDB())
-        {
-            Models.Market dbitem = new()
-            {
-                Name = Name,
-                Description = Description,
-                EconomicZoneId = EconomicZone.Id,
-                MarketPriceFormula = MarketPriceFormula.OriginalExpression
-            };
-            dbitem.MarketCategories = new HashSet<Models.MarketCategory>(rhs.MarketCategories.Select(x => FMDB.Context.MarketCategories.Find(x.Id)));
-            foreach (IMarketInfluence influence in rhs.MarketInfluences)
-            {
-                Models.MarketInfluence dbinfluence = new()
-                {
-                    Name = influence.Name,
-                    Description = influence.Description,
-                    AppliesFrom = influence.AppliesFrom.GetDateTimeString(),
-                    AppliesUntil = influence.AppliesUntil?.GetDateTimeString(),
-                    CharacterKnowsAboutInfluenceProgId = influence.CharacterKnowsAboutInfluenceProg.Id,
-                    MarketInfluenceTemplateId = influence.MarketInfluenceTemplate?.Id,
-                    Market = dbitem,
-                    Impacts = influence.SaveImpacts().ToString(),
-                    PopulationImpacts = SavePopulationImpacts(influence.PopulationIncomeImpacts).ToString()
+	public Market(Market rhs, string name)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = name;
+		Description = rhs.Description;
+		EconomicZone = rhs.EconomicZone;
+		MarketPriceFormula = new Expression(rhs.MarketPriceFormula.OriginalExpression);
+		_marketCategories.AddRange(rhs.MarketCategories);
+		using (new FMDB())
+		{
+			Models.Market dbitem = new()
+			{
+				Name = Name,
+				Description = Description,
+				EconomicZoneId = EconomicZone.Id,
+				MarketPriceFormula = MarketPriceFormula.OriginalExpression
+			};
+			dbitem.MarketCategories = new HashSet<Models.MarketCategory>(
+				rhs.MarketCategories
+				   .Select(x => FMDB.Context.MarketCategories.Find(x.Id))
+				   .Where(x => x is not null)!);
+			foreach (IMarketInfluence influence in rhs.MarketInfluences)
+			{
+				Models.MarketInfluence dbinfluence = new()
+				{
+					Name = influence.Name,
+					Description = influence.Description,
+					AppliesFrom = influence.AppliesFrom.GetDateTimeString(),
+					AppliesUntil = influence.AppliesUntil?.GetDateTimeString(),
+					CharacterKnowsAboutInfluenceProgId = influence.CharacterKnowsAboutInfluenceProg.Id,
+					MarketInfluenceTemplateId = influence.MarketInfluenceTemplate?.Id,
+					Market = dbitem,
+					Impacts = influence.SaveImpacts().ToString(),
+					PopulationImpacts = SavePopulationImpacts(influence.PopulationIncomeImpacts).ToString()
+				};
+				dbitem.Influences.Add(dbinfluence);
+			}
 
-                };
-                dbitem.Influences.Add(dbinfluence);
-            }
-            FMDB.Context.Markets.Add(dbitem);
-            FMDB.Context.SaveChanges();
-            _id = dbitem.Id;
+			FMDB.Context.Markets.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
 
-            foreach (Models.MarketInfluence influence in dbitem.Influences)
-            {
-                MarketInfluence inf = new(this, influence);
-                _marketInfluences.Add(inf);
-                Gameworld.Add(inf);
-            }
-        }
-    }
+			foreach (Models.MarketInfluence influence in dbitem.Influences)
+			{
+				MarketInfluence inf = new(this, influence);
+				_marketInfluences.Add(inf);
+				Gameworld.Add(inf);
+			}
+		}
+	}
 
-    public Market(IFuturemud gameworld, string name, IEconomicZone zone)
-    {
-        Gameworld = gameworld;
-        _name = name;
-        EconomicZone = zone;
-        Description = "An undescribed market.";
-        MarketPriceFormula = new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))");
-        using (new FMDB())
-        {
-            Models.Market dbitem = new()
-            {
-                Name = name,
-                EconomicZoneId = zone.Id,
-                Description = Description,
-                MarketPriceFormula = MarketPriceFormula.OriginalExpression
-            };
-            FMDB.Context.Markets.Add(dbitem);
-            FMDB.Context.SaveChanges();
-            _id = dbitem.Id;
-        }
-    }
+	public Market(IFuturemud gameworld, string name, IEconomicZone zone)
+	{
+		Gameworld = gameworld;
+		_name = name;
+		EconomicZone = zone;
+		Description = "An undescribed market.";
+		MarketPriceFormula =
+			new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))");
+		using (new FMDB())
+		{
+			Models.Market dbitem = new()
+			{
+				Name = name,
+				EconomicZoneId = zone.Id,
+				Description = Description,
+				MarketPriceFormula = MarketPriceFormula.OriginalExpression
+			};
+			FMDB.Context.Markets.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
 
-    /// <inheritdoc />
-    public override void Save()
-    {
-        Models.Market dbitem = FMDB.Context.Markets.Find(Id);
-        dbitem.Name = Name;
-        dbitem.EconomicZoneId = EconomicZone.Id;
-        dbitem.Description = Description;
-        dbitem.MarketPriceFormula = MarketPriceFormula.OriginalExpression;
-        dbitem.MarketCategories.Clear();
-        foreach (IMarketCategory item in MarketCategories)
-        {
-            dbitem.MarketCategories.Add(FMDB.Context.MarketCategories.Find(item.Id));
-        }
-        Changed = false;
-    }
+	/// <inheritdoc />
+	public override void Save()
+	{
+		Models.Market dbitem = FMDB.Context.Markets.Find(Id);
+		dbitem.Name = Name;
+		dbitem.EconomicZoneId = EconomicZone.Id;
+		dbitem.Description = Description;
+		dbitem.MarketPriceFormula = MarketPriceFormula.OriginalExpression;
+		dbitem.MarketCategories.Clear();
+		foreach (IMarketCategory item in MarketCategories)
+		{
+			dbitem.MarketCategories.Add(FMDB.Context.MarketCategories.Find(item.Id));
+		}
 
-    public const string HelpText = @"You can use the following options with this command:
+		Changed = false;
+	}
+
+	public const string HelpText = @"You can use the following options with this command:
 
 	#3name <name>#0 - changes the name
 	#3ez <zone>#0 - changes the economic zone
@@ -153,413 +157,663 @@ In the market price formula, you can use the following variables:
 	#6supply#0 - the net supply percentage
 	#6demand#0 - the net demand percentage";
 
-    /// <inheritdoc />
-    public bool BuildingCommand(ICharacter actor, StringStack command)
-    {
-        switch (command.PopForSwitch())
-        {
-            case "name":
-                return BuildingCommandName(actor, command);
-            case "ez":
-            case "economiczone":
-            case "zone":
-                return BuildingCommandEconomicZone(actor, command);
-            case "formula":
-                return BuildingCommandFormula(actor, command);
-            case "category":
-                return BuildingCommandCategory(actor, command);
-            case "description":
-            case "desc":
-                return BuildingCommandDescription(actor);
+	/// <inheritdoc />
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "ez":
+			case "economiczone":
+			case "zone":
+				return BuildingCommandEconomicZone(actor, command);
+			case "formula":
+				return BuildingCommandFormula(actor, command);
+			case "category":
+				return BuildingCommandCategory(actor, command);
+			case "description":
+			case "desc":
+				return BuildingCommandDescription(actor);
+		}
 
-        }
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
 
-        actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
-        return false;
-    }
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.EditorMode(DescriptionPost, DescriptionCancel, suppliedArguments: [actor.InnerLineFormatLength]);
+		return true;
+	}
 
-    private bool BuildingCommandDescription(ICharacter actor)
-    {
-        actor.EditorMode(DescriptionPost, DescriptionCancel, suppliedArguments: [actor.InnerLineFormatLength]);
-        return true;
-    }
+	private void DescriptionPost(string text, IOutputHandler handler, object[] args)
+	{
+		Description = text;
+		Changed = true;
+		InvalidatePricingCache();
+		handler.Send($"You set the description for this market to:\n\n{Description.Wrap((int)args[0], "\t")}");
+	}
 
-    private void DescriptionPost(string text, IOutputHandler handler, object[] args)
-    {
-        Description = text;
-        Changed = true;
-        handler.Send($"You set the description for this market to:\n\n{Description.Wrap((int)args[0], "\t")}");
-    }
+	private void DescriptionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the description.");
+	}
 
-    private void DescriptionCancel(IOutputHandler handler, object[] args)
-    {
-        handler.Send("You decide not to edit the description.");
-    }
+	private bool BuildingCommandCategory(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market category do you want to toggle as belonging to this market?");
+			return false;
+		}
 
-    private bool BuildingCommandCategory(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which market category do you want to toggle as belonging to this market?");
-            return false;
-        }
+		IMarketCategory category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no such market category.");
+			return false;
+		}
 
-        IMarketCategory category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
-        if (category is null)
-        {
-            actor.OutputHandler.Send("There is no such market category.");
-            return false;
-        }
+		Changed = true;
+		InvalidatePricingCache();
+		if (_marketCategories.Contains(category))
+		{
+			_marketCategories.Remove(category);
+			actor.OutputHandler.Send(
+				$"This market will no longer contain the {category.Name.ColourValue()} market category.");
+			return true;
+		}
 
-        Changed = true;
-        if (_marketCategories.Contains(category))
-        {
-            _marketCategories.Remove(category);
-            actor.OutputHandler.Send($"This market will no longer contain the {category.Name.ColourValue()} market category.");
-            return true;
-        }
+		_marketCategories.Add(category);
+		actor.OutputHandler.Send($"This market will now contain the {category.Name.ColourValue()} market category.");
+		return true;
+	}
 
-        _marketCategories.Add(category);
-        actor.OutputHandler.Send($"This market will now contain the {category.Name.ColourValue()} market category.");
-        return true;
-    }
+	private bool BuildingCommandFormula(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What formula would you like to use for prices for this market?");
+			return false;
+		}
 
-    private bool BuildingCommandFormula(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What formula would you like to use for prices for this market?");
-            return false;
-        }
+		Expression formula = new(command.SafeRemainingArgument);
+		if (formula.HasErrors())
+		{
+			actor.OutputHandler.Send(formula.Error);
+			return false;
+		}
 
-        Expression formula = new(command.SafeRemainingArgument);
-        if (formula.HasErrors())
-        {
-            actor.OutputHandler.Send(formula.Error);
-            return false;
-        }
+		MarketPriceFormula = formula;
+		Changed = true;
+		InvalidatePricingCache();
+		actor.OutputHandler.Send(
+			$"The formula for this market's prices is now {formula.OriginalExpression.ColourCommand()}.");
+		return true;
+	}
 
-        MarketPriceFormula = formula;
-        Changed = true;
-        actor.OutputHandler.Send($"The formula for this market's prices is now {formula.OriginalExpression.ColourCommand()}.");
-        return true;
-    }
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What new name do you want to give to this market?");
+			return false;
+		}
 
-    private bool BuildingCommandName(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What new name do you want to give to this market?");
-            return false;
-        }
+		string name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
 
-        string name = command.SafeRemainingArgument.TitleCase();
-        if (Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
-        {
-            actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
-            return false;
-        }
+		actor.OutputHandler.Send($"You rename this market from {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
 
-        actor.OutputHandler.Send(
-            $"You rename this market from {Name.ColourName()} to {name.ColourName()}.");
-        _name = name;
-        Changed = true;
-        return true;
-    }
+	private bool BuildingCommandEconomicZone(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which economic zone do you want to change this market to?");
+			return false;
+		}
 
-    private bool BuildingCommandEconomicZone(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which economic zone do you want to change this market to?");
-            return false;
-        }
+		IEconomicZone ez = Gameworld.EconomicZones.GetByIdOrName(command.SafeRemainingArgument);
+		if (ez is null)
+		{
+			actor.OutputHandler.Send("There is no such economic zones.");
+			return false;
+		}
 
-        IEconomicZone ez = Gameworld.EconomicZones.GetByIdOrName(command.SafeRemainingArgument);
-        if (ez is null)
-        {
-            actor.OutputHandler.Send("There is no such economic zones.");
-            return false;
-        }
+		EconomicZone = ez;
+		Changed = true;
+		InvalidatePricingCache();
+		actor.OutputHandler.Send($"This market now belongs to the {ez.Name.ColourName()} economic zones.");
+		return true;
+	}
 
-        EconomicZone = ez;
-        Changed = true;
-        actor.OutputHandler.Send($"This market now belongs to the {ez.Name.ColourName()} economic zones.");
-        return true;
-    }
+	/// <inheritdoc />
+	public string Show(ICharacter actor)
+	{
+		StringBuilder sb = new();
+		sb.AppendLine(
+			$"Market #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Description:");
+		sb.AppendLine();
+		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand());
+		sb.AppendLine();
+		sb.AppendLine($"Price Formula: {MarketPriceFormula.OriginalExpression.ColourCommand()}");
+		sb.AppendLine();
+		sb.AppendLine("Categories:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _marketCategories
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.CategoryType.DescribeEnum(),
+				item.ElasticityFactorBelow.ToString("N3", actor),
+				item.ElasticityFactorAbove.ToString("N3", actor),
+				NetSupply(item).ToString("P2", actor),
+				NetDemand(item).ToString("P2", actor),
+				FlatPriceAdjustmentForCategory(item).ToString("P2", actor),
+				PriceMultiplierForCategory(item).ToString("P3", actor),
+				Gameworld.ItemProtos.GetAllApprovedOrMostRecent().Count(x => item.BelongsToCategory(x))
+				         .ToString("N0", actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Type",
+				"E(Under)",
+				"E(Over)",
+				"Supply",
+				"Demand",
+				"Flat Price",
+				"Current Price %",
+				"# Items"
+			},
+			actor,
+			Telnet.BoldYellow
+		));
+		sb.AppendLine();
+		sb.AppendLine("Influences:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in MarketInfluences
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.AppliesFrom.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+				item.AppliesUntil?.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short) ?? "Until Removed",
+				item.Applies(null, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime).ToColouredString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"From",
+				"Until",
+				"Active?"
+			},
+			actor,
+			Telnet.BoldYellow
+		));
+		foreach (IMarketInfluence influence in _marketInfluences)
+		{
+			sb.AppendLine(influence.TextForMarketShow(actor));
+		}
 
-    /// <inheritdoc />
-    public string Show(ICharacter actor)
-    {
-        StringBuilder sb = new();
-        sb.AppendLine($"Market #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
-        sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourValue()}");
-        sb.AppendLine();
-        sb.AppendLine("Description:");
-        sb.AppendLine();
-        sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand());
-        sb.AppendLine();
-        sb.AppendLine($"Price Formula: {MarketPriceFormula.OriginalExpression.ColourCommand()}");
-        sb.AppendLine();
-        sb.AppendLine("Categories:");
-        sb.AppendLine();
-        sb.AppendLine(StringUtilities.GetTextTable(
-            from item in _marketCategories
-            select new List<string>
-            {
-                item.Id.ToString("N0", actor),
-                item.Name,
-                item.ElasticityFactorBelow.ToString("N3", actor),
-                item.ElasticityFactorAbove.ToString("N3", actor),
-                NetSupply(item).ToString("P2", actor),
-                NetDemand(item).ToString("P2", actor),
-                FlatPriceAdjustmentForCategory(item).ToString("P2", actor),
-                PriceMultiplierForCategory(item).ToString("P3", actor),
-                Gameworld.ItemProtos.GetAllApprovedOrMostRecent().Count(x => item.BelongsToCategory(x)).ToString("N0", actor)
-            },
-            new List<string>
-            {
-                "Id",
-                "Name",
-                "E(Under)",
-                "E(Over)",
-                "Supply",
-                "Demand",
-                "Flat Price",
-                "Current Price %",
-                "# Items"
-            },
-            actor,
-            Telnet.BoldYellow
-        ));
-        sb.AppendLine();
-        sb.AppendLine("Influences:");
-        sb.AppendLine();
-        sb.AppendLine(StringUtilities.GetTextTable(
-            from item in MarketInfluences
-            select new List<string>
-            {
-                item.Id.ToString("N0", actor),
-                item.Name,
-                item.AppliesFrom.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                item.AppliesUntil?.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short) ?? "Until Removed",
-                item.Applies(null, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime).ToColouredString()
-            },
-            new List<string>
-            {
-                "Id",
-                "Name",
-                "From",
-                "Until",
-                "Active?"
-            },
-            actor,
-            Telnet.BoldYellow
-        ));
-        foreach (IMarketInfluence influence in _marketInfluences)
-        {
-            sb.AppendLine(influence.TextForMarketShow(actor));
-        }
+		return sb.ToString();
+	}
 
-        return sb.ToString();
-    }
+	/// <inheritdoc />
+	public IEconomicZone EconomicZone { get; set; }
 
-    /// <inheritdoc />
-    public IEconomicZone EconomicZone { get; set; }
+	/// <inheritdoc />
+	public string Description { get; set; }
 
-    /// <inheritdoc />
-    public string Description { get; set; }
+	private readonly List<IMarketInfluence> _marketInfluences = [];
 
-    private readonly List<IMarketInfluence> _marketInfluences = new();
+	/// <inheritdoc />
+	public IEnumerable<IMarketInfluence> MarketInfluences => _marketInfluences;
 
-    /// <inheritdoc />
-    public IEnumerable<IMarketInfluence> MarketInfluences => _marketInfluences;
+	private readonly List<IMarketCategory> _marketCategories = [];
 
-    private readonly List<IMarketCategory> _marketCategories = new();
-    public IEnumerable<IMarketCategory> MarketCategories => _marketCategories;
+	public IEnumerable<IMarketCategory> MarketCategories => _marketCategories;
 
-    public Expression MarketPriceFormula { get; private set; }
+	public Expression MarketPriceFormula { get; private set; }
 
-    public IReadOnlyCollection<MarketImpact> ApplicableMarketImpacts(IMarketCategory category)
-    {
-        MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-        return _marketInfluences
-               .Where(x => x.Applies(category, now))
-               .SelectMany(x => x.MarketImpacts)
-               .Where(x => x.MarketCategory == category)
-               .ToList();
-    }
+	private readonly Dictionary<long, CategoryPricingSnapshot> _categoryPricingCache = [];
+	private Dictionary<long, IReadOnlyCollection<ExpandedMarketImpact>> _expandedImpactLookup = [];
+	private bool _pricingCacheDirty = true;
+	private DateTime? _pricingCacheLastUpdatedUtc;
+	private bool _rebuildingPricingCache;
+	private static readonly TimeSpan PricingCacheRefreshInterval = TimeSpan.FromMinutes(60);
+	private static readonly CategoryPricingSnapshot DefaultPricingSnapshot = new(1.0, 1.0, 0.0m, 1.0m);
 
-    private IReadOnlyCollection<MarketPopulationIncomeImpact> ApplicablePopulationIncomeImpacts(IMarketPopulation population)
-    {
-        MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-        return _marketInfluences
-               .Where(x => x.Applies(null, now))
-               .SelectMany(x => x.PopulationIncomeImpacts)
-               .Where(x => x.MarketPopulation == population)
-               .ToList();
-    }
+	public void InvalidatePricingCache()
+	{
+		_pricingCacheDirty = true;
+	}
 
-    public double NetDemand(IMarketCategory category)
-    {
-        return ApplicableMarketImpacts(category).Sum(x => x.DemandImpact) + 1;
-    }
+	public void RefreshPricingCache()
+	{
+		EnsurePricingCache(force: true);
+	}
 
-    public double NetSupply(IMarketCategory category)
-    {
-        return ApplicableMarketImpacts(category).Sum(x => x.SupplyImpact) + 1;
-    }
+	private void EnsurePricingCache(bool force = false)
+	{
+		if (_rebuildingPricingCache)
+		{
+			return;
+		}
 
-    /// <inheritdoc />
-    public decimal FlatPriceAdjustmentForCategory(IMarketCategory category)
-    {
-        if (category is null)
-        {
-            return 0.0M;
-        }
+		var now = DateTime.UtcNow;
+		if (!force &&
+		    !_pricingCacheDirty &&
+		    _pricingCacheLastUpdatedUtc.HasValue &&
+		    now - _pricingCacheLastUpdatedUtc.Value < PricingCacheRefreshInterval)
+		{
+			return;
+		}
 
-        return (decimal)ApplicableMarketImpacts(category).Sum(x => x.FlatPriceImpact);
-    }
+		RebuildPricingCache();
+	}
 
-    /// <inheritdoc />
-    public decimal PriceMultiplierForCategory(IMarketCategory category)
-    {
-        if (category is null)
-        {
-            return 1.0M;
-        }
+	private void RebuildPricingCache()
+	{
+		_rebuildingPricingCache = true;
+		try
+		{
+			_categoryPricingCache.Clear();
+			_expandedImpactLookup = BuildExpandedImpactLookup();
+			foreach (var category in _marketCategories)
+			{
+				GetCategoryPricingSnapshot(category, []);
+			}
 
-        IReadOnlyCollection<MarketImpact> impacts = ApplicableMarketImpacts(category);
-        double supply = impacts.Sum(x => x.SupplyImpact) + 1;
-        double demand = impacts.Sum(x => x.DemandImpact) + 1;
-        double elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
+			_pricingCacheDirty = false;
+			_pricingCacheLastUpdatedUtc = DateTime.UtcNow;
+		}
+		finally
+		{
+			_rebuildingPricingCache = false;
+		}
+	}
 
-        decimal formulaMultiplier = MarketPriceFormula.EvaluateDecimalWith(
-            ("supply", supply),
-            ("demand", demand),
-            ("elasticity", elasticity)
-        );
-        return decimal.Max(0.0M, formulaMultiplier + FlatPriceAdjustmentForCategory(category));
-    }
+	private Dictionary<long, IReadOnlyCollection<ExpandedMarketImpact>> BuildExpandedImpactLookup()
+	{
+		Dictionary<long, List<ExpandedMarketImpact>> lookup = [];
+		MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		foreach (var impact in _marketInfluences
+			             .Where(x => x.Applies(null, now))
+			             .SelectMany(x => x.MarketImpacts))
+		{
+			foreach (var expanded in ExpandImpactToLeafCategories(impact))
+			{
+				if (!lookup.TryGetValue(expanded.MarketCategory.Id, out var list))
+				{
+					list = [];
+					lookup[expanded.MarketCategory.Id] = list;
+				}
 
-    public decimal EffectiveIncomeFactorForPopulation(IMarketPopulation population)
-    {
-        IReadOnlyCollection<MarketPopulationIncomeImpact> impacts = ApplicablePopulationIncomeImpacts(population);
-        decimal additiveImpact = impacts.Sum(x => x.AdditiveIncomeImpact);
-        decimal multiplicativeImpact = impacts.Aggregate(1.0M, (current, impact) => current * impact.MultiplicativeIncomeImpact);
-        return decimal.Max(0.0M, (population.IncomeFactor + additiveImpact) * multiplicativeImpact);
-    }
+				list.Add(expanded);
+			}
+		}
 
-    /// <inheritdoc />
-    public decimal FlatPriceAdjustmentForItem(IGameItem item)
-    {
-        return MarketCategories.Where(x => x.BelongsToCategory(item))
-                               .Select(x => FlatPriceAdjustmentForCategory(x))
-                               .DefaultIfEmpty(0.0M)
-                               .Max();
-    }
+		return lookup.ToDictionary(x => x.Key, x => (IReadOnlyCollection<ExpandedMarketImpact>)x.Value);
+	}
 
-    public decimal PriceMultiplierForItem(IGameItem item)
-    {
-        return MarketCategories.Where(x => x.BelongsToCategory(item))
-                               .Select(x => PriceMultiplierForCategory(x))
-                               .DefaultIfEmpty(1.0M)
-                               .Max();
-    }
+	private IEnumerable<ExpandedMarketImpact> ExpandImpactToLeafCategories(MarketImpact impact)
+	{
+		foreach (var component in ExpandCategoryToLeafWeights(impact.MarketCategory))
+		{
+			yield return new ExpandedMarketImpact(
+				component.MarketCategory,
+				impact.SupplyImpact * (double)component.Weight,
+				impact.DemandImpact * (double)component.Weight,
+				impact.FlatPriceImpact * (double)component.Weight);
+		}
+	}
 
-    /// <inheritdoc />
-    public decimal FlatPriceAdjustmentForItem(IGameItemProto item)
-    {
-        return MarketCategories.Where(x => x.BelongsToCategory(item))
-                               .Select(x => FlatPriceAdjustmentForCategory(x))
-                               .DefaultIfEmpty(0.0M)
-                               .Max();
-    }
+	private IReadOnlyCollection<MarketCategoryComponent> ExpandCategoryToLeafWeights(IMarketCategory category)
+	{
+		Dictionary<long, MarketCategoryComponent> results = [];
+		ExpandCategoryToLeafWeights(category, 1.0m, [], results);
+		return results.Values.ToList();
+	}
 
-    public decimal PriceMultiplierForItem(IGameItemProto item)
-    {
-        return MarketCategories.Where(x => x.BelongsToCategory(item))
-                               .Select(x => PriceMultiplierForCategory(x))
-                               .DefaultIfEmpty(1.0M)
-                               .Max();
-    }
+	private void ExpandCategoryToLeafWeights(IMarketCategory category, decimal weight, HashSet<long> visiting,
+		Dictionary<long, MarketCategoryComponent> results)
+	{
+		if (weight <= 0.0m)
+		{
+			return;
+		}
 
-    /// <inheritdoc />
-    public void ApplyMarketInfluence(IMarketInfluence influence)
-    {
-        _marketInfluences.Add(influence);
-    }
+		if (!visiting.Add(category.Id))
+		{
+			return;
+		}
 
-    /// <inheritdoc />
-    public void RemoveMarketInfluence(IMarketInfluence influence)
-    {
-        _marketInfluences.Remove(influence);
-    }
+		try
+		{
+			var normalizedComponents = GetNormalizedComponents(category);
+			if (category.CategoryType != MarketCategoryType.Combination || normalizedComponents.Count == 0)
+			{
+				if (results.TryGetValue(category.Id, out var existing))
+				{
+					results[category.Id] = existing with { Weight = existing.Weight + weight };
+				}
+				else
+				{
+					results[category.Id] = new MarketCategoryComponent
+					{
+						MarketCategory = category,
+						Weight = weight
+					};
+				}
 
-    private static XElement SavePopulationImpacts(IEnumerable<MarketPopulationIncomeImpact> impacts)
-    {
-        return new XElement("PopulationImpacts",
-            from impact in impacts
-            select new XElement("PopulationImpact",
-                new XAttribute("population", impact.MarketPopulation.Id),
-                new XAttribute("additive", impact.AdditiveIncomeImpact),
-                new XAttribute("multiplier", impact.MultiplicativeIncomeImpact)
-            )
-        );
-    }
+				return;
+			}
 
-    #region FutureProgs
+			foreach (var component in normalizedComponents)
+			{
+				ExpandCategoryToLeafWeights(component.MarketCategory, weight * component.Weight, visiting, results);
+			}
+		}
+		finally
+		{
+			visiting.Remove(category.Id);
+		}
+	}
 
-    /// <inheritdoc />
-    public ProgVariableTypes Type => ProgVariableTypes.Market;
+	private static IReadOnlyCollection<MarketCategoryComponent> GetNormalizedComponents(IMarketCategory category)
+	{
+		if (category.CategoryType != MarketCategoryType.Combination)
+		{
+			return [];
+		}
 
-    /// <inheritdoc />
-    public object GetObject => this;
+		var validComponents = category.CombinationComponents
+		                              .Where(x => x.Weight > 0.0m && x.MarketCategory is not null &&
+		                                          x.MarketCategory.Id != category.Id)
+		                              .ToList();
+		if (!validComponents.Any())
+		{
+			return [];
+		}
 
-    /// <inheritdoc />
-    public IProgVariable GetProperty(string property)
-    {
-        switch (property.ToLowerInvariant())
-        {
-            case "id":
-                return new NumberVariable(Id);
-            case "name":
-                return new TextVariable(Name);
-            case "categories":
-                return new CollectionVariable(_marketCategories.ToList(), ProgVariableTypes.MarketCategory);
-            case "influences":
-                return new DictionaryVariable(_marketInfluences.ToDictionary<IMarketInfluence, string, IProgVariable>(x => x.Name, x => new NumberVariable(x.Id)), ProgVariableTypes.Number);
-        }
+		var totalWeight = validComponents.Sum(x => x.Weight);
+		if (totalWeight <= 0.0m)
+		{
+			return [];
+		}
 
-        throw new ArgumentOutOfRangeException(nameof(property));
-    }
+		return validComponents
+		      .Select(x => x with { Weight = x.Weight / totalWeight })
+		      .ToList();
+	}
 
-    private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
-    {
-        return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
-        {
-            { "name", ProgVariableTypes.Text },
-            { "id", ProgVariableTypes.Number },
-            { "categories", ProgVariableTypes.MarketCategory | ProgVariableTypes.Collection },
-            { "influences", ProgVariableTypes.Dictionary | ProgVariableTypes.Number }
-        };
-    }
+	private CategoryPricingSnapshot GetCategoryPricingSnapshot(IMarketCategory category, HashSet<long> visiting)
+	{
+		if (category is null)
+		{
+			return DefaultPricingSnapshot;
+		}
 
-    private static IReadOnlyDictionary<string, string> DotReferenceHelp()
-    {
-        return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
-        {
-            { "name", "The name of the market" },
-            { "id", "The Id of the market" },
-            { "categories", "The market categories that apply in this market" },
-            { "influences", "A dictionary with the names and IDs of influences effecting this market"}
-        };
-    }
+		EnsurePricingCache();
+		if (_categoryPricingCache.TryGetValue(category.Id, out var snapshot))
+		{
+			return snapshot;
+		}
 
-    public static void RegisterFutureProgCompiler()
-    {
-        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Market, DotReferenceHandler(),
-            DotReferenceHelp());
-    }
-    #endregion
+		if (!visiting.Add(category.Id))
+		{
+			return DefaultPricingSnapshot;
+		}
+
+		try
+		{
+			snapshot = category.CategoryType == MarketCategoryType.Combination
+				? BuildCombinationPricingSnapshot(category, visiting)
+				: BuildStandalonePricingSnapshot(category);
+			_categoryPricingCache[category.Id] = snapshot;
+			return snapshot;
+		}
+		finally
+		{
+			visiting.Remove(category.Id);
+		}
+	}
+
+	private CategoryPricingSnapshot BuildCombinationPricingSnapshot(IMarketCategory category, HashSet<long> visiting)
+	{
+		var components = GetNormalizedComponents(category);
+		if (!components.Any())
+		{
+			return DefaultPricingSnapshot;
+		}
+
+		double supply = 0.0;
+		double demand = 0.0;
+		decimal flatPrice = 0.0m;
+		decimal multiplier = 0.0m;
+		foreach (var component in components)
+		{
+			var snapshot = GetCategoryPricingSnapshot(component.MarketCategory, visiting);
+			supply += snapshot.Supply * (double)component.Weight;
+			demand += snapshot.Demand * (double)component.Weight;
+			flatPrice += snapshot.FlatPriceAdjustment * component.Weight;
+			multiplier += snapshot.PriceMultiplier * component.Weight;
+		}
+
+		return new CategoryPricingSnapshot(supply, demand, flatPrice, multiplier);
+	}
+
+	private CategoryPricingSnapshot BuildStandalonePricingSnapshot(IMarketCategory category)
+	{
+		var impacts = _expandedImpactLookup.TryGetValue(category.Id, out var impactList)
+			? impactList
+			: Array.Empty<ExpandedMarketImpact>();
+		double supply = impacts.Sum(x => x.SupplyImpact) + 1.0;
+		double demand = impacts.Sum(x => x.DemandImpact) + 1.0;
+		double elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
+		decimal formulaMultiplier = MarketPriceFormula.EvaluateDecimalWith(
+			("supply", supply),
+			("demand", demand),
+			("elasticity", elasticity)
+		);
+		decimal flatPrice = (decimal)impacts.Sum(x => x.FlatPriceImpact);
+		return new CategoryPricingSnapshot(
+			supply,
+			demand,
+			flatPrice,
+			decimal.Max(0.0m, formulaMultiplier + flatPrice));
+	}
+
+	private IReadOnlyCollection<MarketPopulationIncomeImpact> ApplicablePopulationIncomeImpacts(IMarketPopulation population)
+	{
+		MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		return _marketInfluences
+		       .Where(x => x.Applies(null, now))
+		       .SelectMany(x => x.PopulationIncomeImpacts)
+		       .Where(x => x.MarketPopulation == population)
+		       .ToList();
+	}
+
+	public double NetDemand(IMarketCategory category)
+	{
+		return GetCategoryPricingSnapshot(category, []).Demand;
+	}
+
+	public double NetSupply(IMarketCategory category)
+	{
+		return GetCategoryPricingSnapshot(category, []).Supply;
+	}
+
+	/// <inheritdoc />
+	public decimal FlatPriceAdjustmentForCategory(IMarketCategory? category)
+	{
+		if (category is null)
+		{
+			return 0.0M;
+		}
+
+		return GetCategoryPricingSnapshot(category, []).FlatPriceAdjustment;
+	}
+
+	/// <inheritdoc />
+	public decimal PriceMultiplierForCategory(IMarketCategory? category)
+	{
+		if (category is null)
+		{
+			return 1.0M;
+		}
+
+		return GetCategoryPricingSnapshot(category, []).PriceMultiplier;
+	}
+
+	public decimal EffectiveIncomeFactorForPopulation(IMarketPopulation population)
+	{
+		IReadOnlyCollection<MarketPopulationIncomeImpact> impacts = ApplicablePopulationIncomeImpacts(population);
+		decimal additiveImpact = impacts.Sum(x => x.AdditiveIncomeImpact);
+		decimal multiplicativeImpact =
+			impacts.Aggregate(1.0M, (current, impact) => current * impact.MultiplicativeIncomeImpact);
+		return decimal.Max(0.0M, (population.IncomeFactor + additiveImpact) * multiplicativeImpact);
+	}
+
+	/// <inheritdoc />
+	public decimal FlatPriceAdjustmentForItem(IGameItem item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(FlatPriceAdjustmentForCategory)
+		                       .DefaultIfEmpty(0.0M)
+		                       .Max();
+	}
+
+	public decimal PriceMultiplierForItem(IGameItem item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(PriceMultiplierForCategory)
+		                       .DefaultIfEmpty(1.0M)
+		                       .Max();
+	}
+
+	/// <inheritdoc />
+	public decimal FlatPriceAdjustmentForItem(IGameItemProto item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(FlatPriceAdjustmentForCategory)
+		                       .DefaultIfEmpty(0.0M)
+		                       .Max();
+	}
+
+	public decimal PriceMultiplierForItem(IGameItemProto item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(PriceMultiplierForCategory)
+		                       .DefaultIfEmpty(1.0M)
+		                       .Max();
+	}
+
+	/// <inheritdoc />
+	public void ApplyMarketInfluence(IMarketInfluence influence)
+	{
+		_marketInfluences.Add(influence);
+		InvalidatePricingCache();
+	}
+
+	/// <inheritdoc />
+	public void RemoveMarketInfluence(IMarketInfluence influence)
+	{
+		_marketInfluences.Remove(influence);
+		InvalidatePricingCache();
+	}
+
+	private static XElement SavePopulationImpacts(IEnumerable<MarketPopulationIncomeImpact> impacts)
+	{
+		return new XElement("PopulationImpacts",
+			from impact in impacts
+			select new XElement("PopulationImpact",
+				new XAttribute("population", impact.MarketPopulation.Id),
+				new XAttribute("additive", impact.AdditiveIncomeImpact),
+				new XAttribute("multiplier", impact.MultiplicativeIncomeImpact)
+			)
+		);
+	}
+
+	#region FutureProgs
+
+	/// <inheritdoc />
+	public ProgVariableTypes Type => ProgVariableTypes.Market;
+
+	/// <inheritdoc />
+	public object GetObject => this;
+
+	/// <inheritdoc />
+	public IProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "id":
+				return new NumberVariable(Id);
+			case "name":
+				return new TextVariable(Name);
+			case "categories":
+				return new CollectionVariable(_marketCategories.ToList(), ProgVariableTypes.MarketCategory);
+			case "influences":
+				return new DictionaryVariable(
+					_marketInfluences.ToDictionary<IMarketInfluence, string, IProgVariable>(x => x.Name,
+						x => new NumberVariable(x.Id)), ProgVariableTypes.Number);
+		}
+
+		throw new ArgumentOutOfRangeException(nameof(property));
+	}
+
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
+	{
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "categories", ProgVariableTypes.MarketCategory | ProgVariableTypes.Collection },
+			{ "influences", ProgVariableTypes.Dictionary | ProgVariableTypes.Number }
+		};
+	}
+
+	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
+	{
+		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "name", "The name of the market" },
+			{ "id", "The Id of the market" },
+			{ "categories", "The market categories that apply in this market" },
+			{ "influences", "A dictionary with the names and IDs of influences effecting this market" }
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Market, DotReferenceHandler(),
+			DotReferenceHelp());
+	}
+
+	#endregion
+
+	private sealed record ExpandedMarketImpact(IMarketCategory MarketCategory, double SupplyImpact, double DemandImpact,
+		double FlatPriceImpact);
+
+	private sealed record CategoryPricingSnapshot(double Supply, double Demand, decimal FlatPriceAdjustment,
+		decimal PriceMultiplier);
 }

@@ -475,6 +475,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
         Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this,
             fm =>
             {
+                foreach (Economy.Markets.Market market in fm.Markets.OfType<Economy.Markets.Market>())
+                {
+                    market.RefreshPricingCache();
+                }
+
                 foreach (IMarketPopulation population in fm.MarketPopulations)
                 {
                     population.MarketPopulationHeartbeat();
@@ -720,6 +725,11 @@ For information on the syntax to use in emotes (such as those included in bracke
         foreach (MarketCategory item in categories)
         {
             _marketCategories.Add(new Economy.Markets.MarketCategory(this, item));
+        }
+
+        foreach (var category in _marketCategories.OfType<Economy.Markets.MarketCategory>())
+        {
+            category.ResolveCombinationComponents();
         }
 
 #if DEBUG

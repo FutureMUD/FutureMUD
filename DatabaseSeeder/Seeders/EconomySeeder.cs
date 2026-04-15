@@ -1612,7 +1612,9 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             category.Description = $"{CategoryPrefix}: items carrying the {tag.Name} market tag.";
             category.ElasticityFactorBelow = elasticity.Under;
             category.ElasticityFactorAbove = elasticity.Over;
+            category.MarketCategoryType = 0;
             category.Tags = new XElement("Tags", new XElement("Tag", tag.Id)).ToString();
+            category.CombinationCategories = new XElement("Components").ToString();
             result[tag.Id] = category;
         }
 
@@ -1963,6 +1965,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             population.IncomeFactor = blueprint.IncomeFactor;
             population.Savings = 0.0m;
             population.SavingsCap = blueprint.SeedSavingsCap;
+            population.StressFlickerThreshold = 0.01m;
             population.MarketId = market.Id;
             List<MarketNeedValue> scaledNeeds = blueprint.Needs
                 .Select(need => new MarketNeedValue(

@@ -39,6 +39,7 @@ The economy system is loaded late in the boot sequence, after the world, future 
 
 ### Verified current scheduled runtime hooks
 - market populations receive an hourly heartbeat through the scheduler
+- markets refresh their cached category-pricing snapshots on that same hourly cadence before population heartbeats run
 - shops run hourly automatic tax payment through `Shop.DoAutopayShopTaxes`
 - economic zones schedule financial-period closure using in-game date listeners rather than a fixed real-time scheduler
 
@@ -187,11 +188,13 @@ Verified current parts:
 
 The current model works roughly like this:
 
-- market categories classify goods, usually through tags or category mappings
+- market categories now come in two modes: standalone categories that price themselves directly and combination categories that derive price from weighted child categories
+- both standalone and combination categories can still classify goods through tags or category mappings
 - a market owns categories and active influences
 - market influences adjust prices through typed impact data, which now includes supply pressure, demand pressure, and flat percentage price pressure
+- if an influence targets a combination category, the impact is expanded through that category's normalized component weights until it reaches standalone leaf categories
 - market influences and influence templates can also target specific market populations with additive and multiplicative income-factor adjustments
-- market populations define spending needs, base income, savings reserves, savings caps, and stress thresholds
+- market populations define spending needs, base income, savings reserves, savings caps, stress thresholds, and a hysteresis / flicker threshold for stress-point demotion
 - shoppers choose shops and items using FutureProg-driven selection rules
 - shops can point at a market for pricing purposes
 
@@ -374,16 +377,20 @@ Markets are not only static price tables.
 Verified current active behavior:
 
 - market populations receive a heartbeat on the scheduler
+- markets rebuild cached category-pricing snapshots hourly and also invalidate those caches immediately when category, market, or influence data changes
 - populations recalculate stress against configured needs and thresholds
 - population stress is now the uncovered budget shortfall after applying both income and any accumulated savings
 - populations can accumulate savings when their effective income exceeds current market-adjusted costs, up to a per-population savings cap
 - populations consume savings before any remaining shortfall becomes stress
-- thresholds can execute progs on entry or exit
+- stress thresholds can execute progs on entry or exit
+- falling stress uses a per-population hysteresis buffer so a threshold stays active until stress drops below `threshold - flicker threshold`, preventing rapid on/off oscillation around the boundary
 - shoppers can choose shops and items according to scripted weights and buy items through the shop-facing virtual shopper path
 
 ### Verified current market-price and income calculation shape
 - category price multipliers are now calculated as the market formula result plus the summed flat percentage price adjustments for that category, clamped to zero or above
-- item market pricing still selects the highest applicable category multiplier, so the flat percentage additions automatically flow through to shop pricing
+- standalone categories still calculate supply, demand, and flat-price pressure directly from active influences
+- combination categories now read cached per-market weighted averages of their constituent categories rather than recursively querying live child prices on every access
+- item market pricing still selects the highest applicable category multiplier, and combination categories participate in that same max-selection logic when their tags match an item
 - a population's effective income factor is now `(base income factor + additive impacts) * multiplicative impacts`, clamped to zero or above
 - population savings and savings caps are stored as budget-cycle multiples rather than literal time spans
 

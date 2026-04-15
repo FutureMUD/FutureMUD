@@ -165,6 +165,7 @@ The market and shopper subsystems are also good seeder targets because they are 
 Feasible seed content:
 
 - broad food, seasonings, medicine, writing-material, luxury, industrial, military, logistics, and raw-material categories
+- optional combination categories that roll seeded leaf categories into reusable aggregate baskets such as staple foods or household essentials
 - event-style influence templates such as harvest failure, bumper harvest, embargo, caravan surplus, piracy, mining trouble, and war mobilisation
 - price-only adjustment templates such as tariffs, duties, and subsidies that should act as flat percentage pressure on final price
 - income-focused templates that target specific household archetypes without changing supply or demand
@@ -174,7 +175,8 @@ Feasible seed content:
 Why they are seed-friendly now:
 
 - categories and templates are reusable content by design
-- market population needs and stress thresholds are already serialized data
+- market category composition is serialized data, so aggregate baskets can be shipped without special code
+- market population needs, stress thresholds, and flicker thresholds are already serialized data
 - shopper behavior is explicitly configured through progs rather than baked into code paths
 
 Current stock package limits:
@@ -183,7 +185,7 @@ Current stock package limits:
 - the seeded shopper progs are intentionally broad and tag-driven rather than world-specific retail logic
 - the seeded populations are builder-friendly archetypes, not a claim of historical simulation completeness
 - seeded money values are intended as builder-facing baselines, not audited historical wage tables; the seeder now normalizes them against era and currency assumptions so stock packages start closer to plausible local price scales
-- the new income and savings fields give builders a better baseline for resilience, but they are still broad tuning defaults rather than researched historical household balance sheets
+- the new income, savings, and stress-hysteresis fields give builders a better baseline for resilience, but they are still broad tuning defaults rather than researched historical household balance sheets
 
 ## Possible but World-Dependent Seeder Candidates
 ### Markets tied to seeded economic zones
@@ -292,14 +294,14 @@ The codebase still contains more economy runtime than stock seeding. That gap ma
 - documentation and seeding strategy need to stay aligned so this does not look more complete than it is
 
 ### Automated test coverage is extremely thin
-The current economy test coverage is still light outside shops, but it now also includes targeted coverage for market price pressure, population income-factor stacking, savings accumulation/depletion, and seeded economy package invariants.
+The current economy test coverage is still light outside shops, but it now also includes targeted coverage for market price pressure, combination-category weighted pricing, influence redistribution through aggregate categories, population income-factor stacking, savings accumulation/depletion, stress hysteresis, and seeded economy package invariants.
 
 There is little or no automated coverage for:
 
 - currency parsing and description behavior
 - bank fees, account permissions, and transfers
 - tax calculation and financial-period rollover
-- broader market, shopper, and influence behavior beyond the new targeted income / savings / flat-price tests
+- broader market, shopper, and influence behavior beyond the new targeted income / savings / flat-price / combination-category tests
 - property workflows
 - auctions
 - job lifecycle behavior

@@ -5,6 +5,7 @@ using MudSharp.Economy;
 using MudSharp.Economy.Markets;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using System;
@@ -23,25 +24,224 @@ public class MarketEconomyTests
 	public void PriceMultiplierForCategory_AddsFlatPricePressureToFormulaResult()
 	{
 		var category = CreateCategory(5L, "Staple Food");
-		var influence = new Mock<IMarketInfluence>();
-		influence.Setup(x => x.Applies(It.IsAny<IMarketCategory>(), It.IsAny<MudDateTime>()))
-		         .Returns<IMarketCategory, MudDateTime>((target, _) => target == category.Object);
-		influence.SetupGet(x => x.MarketImpacts).Returns(
-		[
+		var influence = CreateApplicableInfluence(
 			new MarketImpact
 			{
 				MarketCategory = category.Object,
 				SupplyImpact = 0.10,
 				DemandImpact = 0.25,
 				FlatPriceImpact = 0.15
-			}
-		]);
-		influence.SetupGet(x => x.PopulationIncomeImpacts).Returns([]);
+			});
 
-		var market = CreateMarket(new Expression("1.10"), influence.Object);
+		var market = CreateMarket(new Expression("1.10"), influences: influence.Object);
 
 		Assert.AreEqual(0.15m, market.FlatPriceAdjustmentForCategory(category.Object));
 		Assert.AreEqual(1.25m, market.PriceMultiplierForCategory(category.Object));
+	}
+
+	[TestMethod]
+	public void CombinationCategory_PricesAsWeightedAverageOfConstituentCategories()
+	{
+		var wheat = CreateCategory(1L, "Wheat");
+		var oliveOil = CreateCategory(2L, "Olive Oil");
+		var stapleFood = CreateCategory(3L, "Staple Food", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = wheat.Object,
+					Weight = 8.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 2.0m
+				}
+			]);
+		var wheatInfluence = CreateApplicableInfluence(
+			new MarketImpact
+			{
+				MarketCategory = wheat.Object,
+				SupplyImpact = 0.0,
+				DemandImpact = 0.0,
+				FlatPriceImpact = 0.10
+			});
+		var oliveInfluence = CreateApplicableInfluence(
+			new MarketImpact
+			{
+				MarketCategory = oliveOil.Object,
+				SupplyImpact = 0.0,
+				DemandImpact = 0.0,
+				FlatPriceImpact = 0.20
+			});
+
+		var market = CreateMarket(new Expression("1.0"),
+			[wheat.Object, oliveOil.Object, stapleFood.Object],
+			wheatInfluence.Object,
+			oliveInfluence.Object);
+
+		Assert.AreEqual(1.10m, market.PriceMultiplierForCategory(wheat.Object));
+		Assert.AreEqual(1.20m, market.PriceMultiplierForCategory(oliveOil.Object));
+		Assert.AreEqual(0.12m, decimal.Round(market.FlatPriceAdjustmentForCategory(stapleFood.Object), 2));
+		Assert.AreEqual(1.12m, decimal.Round(market.PriceMultiplierForCategory(stapleFood.Object), 2));
+	}
+
+	[TestMethod]
+	public void NestedCombinationCategories_ResolveToNormalizedLeafWeights()
+	{
+		var wheat = CreateCategory(1L, "Wheat");
+		var oliveOil = CreateCategory(2L, "Olive Oil");
+		var stapleFood = CreateCategory(3L, "Staple Food", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = wheat.Object,
+					Weight = 8.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 2.0m
+				}
+			]);
+		var feastFoods = CreateCategory(4L, "Feast Foods", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = stapleFood.Object,
+					Weight = 5.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 5.0m
+				}
+			]);
+		var feastInfluence = CreateApplicableInfluence(
+			new MarketImpact
+			{
+				MarketCategory = feastFoods.Object,
+				SupplyImpact = 0.0,
+				DemandImpact = 0.0,
+				FlatPriceImpact = 0.10
+			});
+
+		var market = CreateMarket(new Expression("1.0"),
+			[wheat.Object, oliveOil.Object, stapleFood.Object, feastFoods.Object],
+			feastInfluence.Object);
+
+		Assert.AreEqual(0.04m, decimal.Round(market.FlatPriceAdjustmentForCategory(wheat.Object), 2));
+		Assert.AreEqual(0.06m, decimal.Round(market.FlatPriceAdjustmentForCategory(oliveOil.Object), 2));
+		Assert.AreEqual(1.044m, decimal.Round(market.PriceMultiplierForCategory(stapleFood.Object), 3));
+		Assert.AreEqual(1.052m, decimal.Round(market.PriceMultiplierForCategory(feastFoods.Object), 3));
+	}
+
+	[TestMethod]
+	public void ComboTargetedInfluence_RedistributesSupplyDemandAndFlatPriceToConstituents()
+	{
+		var wheat = CreateCategory(1L, "Wheat");
+		var oliveOil = CreateCategory(2L, "Olive Oil");
+		var stapleFood = CreateCategory(3L, "Staple Food", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = wheat.Object,
+					Weight = 8.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 2.0m
+				}
+			]);
+		var influence = CreateApplicableInfluence(
+			new MarketImpact
+			{
+				MarketCategory = stapleFood.Object,
+				SupplyImpact = 0.50,
+				DemandImpact = 0.25,
+				FlatPriceImpact = 0.10
+			});
+
+		var market = CreateMarket(new Expression("1.0"),
+			[wheat.Object, oliveOil.Object, stapleFood.Object],
+			influence.Object);
+
+		Assert.AreEqual(1.40, market.NetSupply(wheat.Object), 0.0001);
+		Assert.AreEqual(1.20, market.NetDemand(wheat.Object), 0.0001);
+		Assert.AreEqual(0.08m, decimal.Round(market.FlatPriceAdjustmentForCategory(wheat.Object), 2));
+		Assert.AreEqual(1.08m, decimal.Round(market.PriceMultiplierForCategory(wheat.Object), 2));
+
+		Assert.AreEqual(1.10, market.NetSupply(oliveOil.Object), 0.0001);
+		Assert.AreEqual(1.05, market.NetDemand(oliveOil.Object), 0.0001);
+		Assert.AreEqual(0.02m, decimal.Round(market.FlatPriceAdjustmentForCategory(oliveOil.Object), 2));
+		Assert.AreEqual(1.02m, decimal.Round(market.PriceMultiplierForCategory(oliveOil.Object), 2));
+
+		Assert.AreEqual(1.34, market.NetSupply(stapleFood.Object), 0.0001);
+		Assert.AreEqual(1.17, market.NetDemand(stapleFood.Object), 0.0001);
+		Assert.AreEqual(0.068m, decimal.Round(market.FlatPriceAdjustmentForCategory(stapleFood.Object), 3));
+		Assert.AreEqual(1.068m, decimal.Round(market.PriceMultiplierForCategory(stapleFood.Object), 3));
+	}
+
+	[TestMethod]
+	public void CombinationCategories_ParticipateInItemPricingAlongsideStandaloneCategories()
+	{
+		var comboOnlyProto = new Mock<IGameItemProto>();
+		var sharedProto = new Mock<IGameItemProto>();
+		var wheat = CreateCategory(1L, "Wheat");
+		var oliveOil = CreateCategory(2L, "Olive Oil");
+		var stapleFood = CreateCategory(3L, "Staple Food", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = wheat.Object,
+					Weight = 8.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 2.0m
+				}
+			],
+			belongsToProto: proto => ReferenceEquals(proto, comboOnlyProto.Object) || ReferenceEquals(proto, sharedProto.Object));
+		var luxury = CreateCategory(4L, "Luxury Goods",
+			belongsToProto: proto => ReferenceEquals(proto, sharedProto.Object));
+		var influences =
+			new[]
+			{
+				CreateApplicableInfluence(
+					new MarketImpact
+					{
+						MarketCategory = wheat.Object,
+						SupplyImpact = 0.0,
+						DemandImpact = 0.0,
+						FlatPriceImpact = 0.10
+					}),
+				CreateApplicableInfluence(
+					new MarketImpact
+					{
+						MarketCategory = oliveOil.Object,
+						SupplyImpact = 0.0,
+						DemandImpact = 0.0,
+						FlatPriceImpact = 0.20
+					}),
+				CreateApplicableInfluence(
+					new MarketImpact
+					{
+						MarketCategory = luxury.Object,
+						SupplyImpact = 0.0,
+						DemandImpact = 0.0,
+						FlatPriceImpact = 0.30
+					})
+			};
+
+		var market = CreateMarket(new Expression("1.0"),
+			[wheat.Object, oliveOil.Object, stapleFood.Object, luxury.Object],
+			influences.Select(x => x.Object).ToArray());
+
+		Assert.AreEqual(1.12m, decimal.Round(market.PriceMultiplierForItem(comboOnlyProto.Object), 2));
+		Assert.AreEqual(0.12m, decimal.Round(market.FlatPriceAdjustmentForItem(comboOnlyProto.Object), 2));
+		Assert.AreEqual(1.30m, decimal.Round(market.PriceMultiplierForItem(sharedProto.Object), 2));
+		Assert.AreEqual(0.30m, decimal.Round(market.FlatPriceAdjustmentForItem(sharedProto.Object), 2));
 	}
 
 	[TestMethod]
@@ -52,7 +252,7 @@ public class MarketEconomyTests
 
 		var influenceOne = new Mock<IMarketInfluence>();
 		influenceOne.Setup(x => x.Applies(It.IsAny<IMarketCategory>(), It.IsAny<MudDateTime>()))
-		            .Returns<IMarketCategory, MudDateTime>((category, _) => category is null);
+		            .Returns(true);
 		influenceOne.SetupGet(x => x.MarketImpacts).Returns([]);
 		influenceOne.SetupGet(x => x.PopulationIncomeImpacts).Returns(
 		[
@@ -66,7 +266,7 @@ public class MarketEconomyTests
 
 		var influenceTwo = new Mock<IMarketInfluence>();
 		influenceTwo.Setup(x => x.Applies(It.IsAny<IMarketCategory>(), It.IsAny<MudDateTime>()))
-		            .Returns<IMarketCategory, MudDateTime>((category, _) => category is null);
+		            .Returns(true);
 		influenceTwo.SetupGet(x => x.MarketImpacts).Returns([]);
 		influenceTwo.SetupGet(x => x.PopulationIncomeImpacts).Returns(
 		[
@@ -96,11 +296,15 @@ public class MarketEconomyTests
 			incomeFactor: 1.00m,
 			savings: 0.00m,
 			savingsCap: 0.50m,
-			new MarketPopulationNeed
-			{
-				MarketCategory = category.Object,
-				BaseExpenditure = 100.0m
-			});
+			stressFlickerThreshold: 0.01m,
+			needs:
+			[
+				new MarketPopulationNeed
+				{
+					MarketCategory = category.Object,
+					BaseExpenditure = 100.0m
+				}
+			]);
 
 		population.MarketPopulationHeartbeat();
 
@@ -121,11 +325,15 @@ public class MarketEconomyTests
 			incomeFactor: 1.00m,
 			savings: 0.30m,
 			savingsCap: 0.50m,
-			new MarketPopulationNeed
-			{
-				MarketCategory = category.Object,
-				BaseExpenditure = 100.0m
-			});
+			stressFlickerThreshold: 0.01m,
+			needs:
+			[
+				new MarketPopulationNeed
+				{
+					MarketCategory = category.Object,
+					BaseExpenditure = 100.0m
+				}
+			]);
 
 		population.MarketPopulationHeartbeat();
 
@@ -146,16 +354,171 @@ public class MarketEconomyTests
 			incomeFactor: 1.00m,
 			savings: 0.10m,
 			savingsCap: 0.50m,
-			new MarketPopulationNeed
-			{
-				MarketCategory = category.Object,
-				BaseExpenditure = 100.0m
-			});
+			stressFlickerThreshold: 0.01m,
+			needs:
+			[
+				new MarketPopulationNeed
+				{
+					MarketCategory = category.Object,
+					BaseExpenditure = 100.0m
+				}
+			]);
 
 		population.MarketPopulationHeartbeat();
 
 		Assert.AreEqual(0.00m, population.Savings);
 		Assert.AreEqual(0.20m, population.CurrentStress);
+	}
+
+	[TestMethod]
+	public void MarketPopulationHeartbeat_UsesFlickerThresholdWhenStressFalls()
+	{
+		var category = CreateCategory(1L, "Staple Food");
+		var incomeFactor = 0.90m;
+		var priceMultiplier = 1.00m;
+		var market = new Mock<IMarket>();
+		market.Setup(x => x.EffectiveIncomeFactorForPopulation(It.IsAny<IMarketPopulation>()))
+		      .Returns(() => incomeFactor);
+		market.Setup(x => x.PriceMultiplierForCategory(category.Object))
+		      .Returns(() => priceMultiplier);
+		var mildStress = new MarketStressPoint
+		{
+			Name = "Mild",
+			Description = "desc",
+			StressThreshold = 0.10m,
+			ExecuteOnStart = null,
+			ExecuteOnEnd = null
+		};
+		var population = CreatePopulation(
+			market.Object,
+			incomeFactor: 1.00m,
+			savings: 0.00m,
+			savingsCap: 0.00m,
+			stressFlickerThreshold: 0.01m,
+			needs:
+			[
+				new MarketPopulationNeed
+				{
+					MarketCategory = category.Object,
+					BaseExpenditure = 100.0m
+				}
+			],
+			stressPoints:
+			[
+				mildStress
+			]);
+
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.10m, population.CurrentStress);
+		Assert.AreSame(mildStress, population.CurrentStressPoint);
+
+		incomeFactor = 0.909m;
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.091m, population.CurrentStress);
+		Assert.AreSame(mildStress, population.CurrentStressPoint);
+
+		incomeFactor = 0.911m;
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.089m, population.CurrentStress);
+		Assert.IsNull(population.CurrentStressPoint);
+	}
+
+	[TestMethod]
+	public void MarketPopulationHeartbeat_PromotesAndDemotesAcrossMultipleThresholdsWithHysteresis()
+	{
+		var category = CreateCategory(1L, "Staple Food");
+		var incomeFactor = 0.79m;
+		var market = new Mock<IMarket>();
+		market.Setup(x => x.EffectiveIncomeFactorForPopulation(It.IsAny<IMarketPopulation>()))
+		      .Returns(() => incomeFactor);
+		market.Setup(x => x.PriceMultiplierForCategory(category.Object)).Returns(1.00m);
+		var mildStress = new MarketStressPoint
+		{
+			Name = "Mild",
+			Description = "desc",
+			StressThreshold = 0.10m,
+			ExecuteOnStart = null,
+			ExecuteOnEnd = null
+		};
+		var severeStress = new MarketStressPoint
+		{
+			Name = "Severe",
+			Description = "desc",
+			StressThreshold = 0.20m,
+			ExecuteOnStart = null,
+			ExecuteOnEnd = null
+		};
+		var population = CreatePopulation(
+			market.Object,
+			incomeFactor: 1.00m,
+			savings: 0.00m,
+			savingsCap: 0.00m,
+			stressFlickerThreshold: 0.01m,
+			needs:
+			[
+				new MarketPopulationNeed
+				{
+					MarketCategory = category.Object,
+					BaseExpenditure = 100.0m
+				}
+			],
+			stressPoints:
+			[
+				mildStress,
+				severeStress
+			]);
+
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.21m, population.CurrentStress);
+		Assert.AreSame(severeStress, population.CurrentStressPoint);
+
+		incomeFactor = 0.805m;
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.195m, population.CurrentStress);
+		Assert.AreSame(severeStress, population.CurrentStressPoint);
+
+		incomeFactor = 0.815m;
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.185m, population.CurrentStress);
+		Assert.AreSame(mildStress, population.CurrentStressPoint);
+
+		incomeFactor = 0.905m;
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.095m, population.CurrentStress);
+		Assert.AreSame(mildStress, population.CurrentStressPoint);
+
+		incomeFactor = 0.915m;
+		population.MarketPopulationHeartbeat();
+		Assert.AreEqual(0.085m, population.CurrentStress);
+		Assert.IsNull(population.CurrentStressPoint);
+	}
+
+	[TestMethod]
+	public void MarketPopulation_LoadDefaultsLegacyStressFlickerThreshold()
+	{
+		var market = new Mock<IMarket>();
+		market.SetupGet(x => x.Id).Returns(7L);
+		var markets = new Mock<IUneditableAll<IMarket>>();
+		markets.Setup(x => x.Get(7L)).Returns(market.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Markets).Returns(markets.Object);
+
+		var population = new MarketPopulation(gameworld.Object, new MudSharp.Models.MarketPopulation
+		{
+			Id = 1L,
+			Name = "Legacy Population",
+			MarketId = 7L,
+			Description = "desc",
+			PopulationScale = 1000,
+			IncomeFactor = 1.0m,
+			Savings = 0.0m,
+			SavingsCap = 0.0m,
+			StressFlickerThreshold = 0.0m,
+			MarketPopulationNeeds = "<Needs />",
+			MarketStressPoints = "<Stresses />"
+		});
+
+		Assert.AreEqual(0.01m, population.StressFlickerThreshold);
 	}
 
 	[TestMethod]
@@ -169,7 +532,7 @@ public class MarketEconomyTests
 		marketPopulations.Setup(x => x.Get(It.IsAny<long>()))
 		                 .Returns<long>(id => populationLookup.TryGetValue(id, out var population) ? population : null);
 		var futureProgs = new Mock<IUneditableAll<IFutureProg>>();
-		futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg)null);
+		futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg)null!);
 		var alwaysTrueProg = new Mock<IFutureProg>();
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.MarketCategories).Returns(marketCategories.Object);
@@ -205,7 +568,23 @@ public class MarketEconomyTests
 		Assert.AreEqual(0.90m, populationImpact.MultiplicativeIncomeImpact);
 	}
 
+	private static Mock<IMarketInfluence> CreateApplicableInfluence(params MarketImpact[] impacts)
+	{
+		var influence = new Mock<IMarketInfluence>();
+		influence.Setup(x => x.Applies(It.IsAny<IMarketCategory>(), It.IsAny<MudDateTime>()))
+		         .Returns(true);
+		influence.SetupGet(x => x.MarketImpacts).Returns(impacts);
+		influence.SetupGet(x => x.PopulationIncomeImpacts).Returns([]);
+		return influence;
+	}
+
 	private static Market CreateMarket(Expression formula, params IMarketInfluence[] influences)
+	{
+		return CreateMarket(formula, [], influences);
+	}
+
+	private static Market CreateMarket(Expression formula, IEnumerable<IMarketCategory> categories,
+		params IMarketInfluence[] influences)
 	{
 		var market = (Market)RuntimeHelpers.GetUninitializedObject(typeof(Market));
 		var calendar = new Mock<ICalendar>();
@@ -216,7 +595,12 @@ public class MarketEconomyTests
 		market.EconomicZone = economicZone.Object;
 		SetAutoProperty(market, nameof(Market.MarketPriceFormula), formula);
 		SetField(market, "_marketInfluences", influences.ToList());
-		SetField(market, "_marketCategories", new List<IMarketCategory>());
+		SetField(market, "_marketCategories", categories.ToList());
+		InitialiseField(market, "_categoryPricingCache");
+		InitialiseField(market, "_expandedImpactLookup");
+		SetField(market, "_pricingCacheDirty", true);
+		SetField(market, "_pricingCacheLastUpdatedUtc", null!);
+		SetField(market, "_rebuildingPricingCache", false);
 		SetField(market, "_noSave", true);
 		return market;
 	}
@@ -226,27 +610,49 @@ public class MarketEconomyTests
 		decimal incomeFactor,
 		decimal savings,
 		decimal savingsCap,
-		params MarketPopulationNeed[] needs)
+		decimal stressFlickerThreshold,
+		IEnumerable<MarketPopulationNeed> needs,
+		IEnumerable<MarketStressPoint>? stressPoints = null)
 	{
 		var population = (MarketPopulation)RuntimeHelpers.GetUninitializedObject(typeof(MarketPopulation));
 		population.Market = market;
 		population.IncomeFactor = incomeFactor;
 		population.SavingsCap = savingsCap;
+		population.StressFlickerThreshold = stressFlickerThreshold;
 		SetAutoProperty(population, nameof(MarketPopulation.Savings), savings);
 		SetField(population, "_marketPopulationNeeds", needs.ToList());
-		SetField(population, "_marketStressPoints", new List<MarketStressPoint>());
+		SetField(population, "_marketStressPoints", (stressPoints ?? []).OrderBy(x => x.StressThreshold).ToList());
 		SetField(population, "_noSave", true);
 		return population;
 	}
 
-	private static Mock<IMarketCategory> CreateCategory(long id, string name)
+	private static Mock<IMarketCategory> CreateCategory(long id, string name,
+		MarketCategoryType categoryType = MarketCategoryType.Standalone,
+		IEnumerable<MarketCategoryComponent>? combinationComponents = null,
+		Func<IGameItem, bool>? belongsToItem = null,
+		Func<IGameItemProto, bool>? belongsToProto = null)
 	{
+		var components = combinationComponents?.ToList() ?? [];
 		var category = new Mock<IMarketCategory>();
 		category.SetupGet(x => x.Id).Returns(id);
 		category.SetupGet(x => x.Name).Returns(name);
 		category.SetupGet(x => x.ElasticityFactorAbove).Returns(0.25);
 		category.SetupGet(x => x.ElasticityFactorBelow).Returns(0.10);
+		category.SetupGet(x => x.CategoryType).Returns(categoryType);
+		category.SetupGet(x => x.CombinationComponents).Returns(components);
+		category.Setup(x => x.BelongsToCategory(It.IsAny<IGameItem>()))
+		        .Returns<IGameItem>(item => belongsToItem?.Invoke(item) ?? false);
+		category.Setup(x => x.BelongsToCategory(It.IsAny<IGameItemProto>()))
+		        .Returns<IGameItemProto>(proto => belongsToProto?.Invoke(proto) ?? false);
 		return category;
+	}
+
+	private static void InitialiseField(object target, string fieldName)
+	{
+		var field = FindField(target.GetType(), fieldName);
+		Assert.IsNotNull(field, $"Expected field {fieldName} to exist on {target.GetType().Name}.");
+		var value = Activator.CreateInstance(field!.FieldType);
+		field.SetValue(target, value);
 	}
 
 	private static void SetField(object target, string fieldName, object value)

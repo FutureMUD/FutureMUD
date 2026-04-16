@@ -10,11 +10,20 @@ namespace MudSharp.GameItems.Components;
 
 public static class SignalComponentUtilities
 {
+	public const string DefaultLocalSignalEndpointKey = "signal";
+
 	public static bool SignalsEqual(ComputerSignal lhs, ComputerSignal rhs)
 	{
 		return Math.Abs(lhs.Value - rhs.Value) < 0.0000001 &&
 		       lhs.Duration == rhs.Duration &&
 		       lhs.PulseInterval == rhs.PulseInterval;
+	}
+
+	public static string NormaliseSignalEndpointKey(string? endpointKey)
+	{
+		return string.IsNullOrWhiteSpace(endpointKey)
+			? DefaultLocalSignalEndpointKey
+			: endpointKey.Trim().ToLowerInvariant();
 	}
 
 	public static bool IsActiveSignal(double value, double threshold, bool activeWhenAboveThreshold)
@@ -41,20 +50,34 @@ public static class SignalComponentUtilities
 
 	public static string DescribeSignalComponent(IFuturemud gameworld, long sourceComponentId, string sourceComponentName)
 	{
+		return DescribeSignalComponent(gameworld, sourceComponentId, sourceComponentName,
+			DefaultLocalSignalEndpointKey);
+	}
+
+	public static string DescribeSignalComponent(IFuturemud gameworld, long sourceComponentId, string sourceComponentName,
+		string? sourceEndpointKey)
+	{
+		var endpointKey = NormaliseSignalEndpointKey(sourceEndpointKey);
+		string? componentDescription = null;
 		if (sourceComponentId > 0)
 		{
 			var prototype = gameworld.ItemComponentProtos.Get(sourceComponentId);
 			if (prototype is not null)
 			{
-				return prototype.Name;
+				componentDescription = prototype.Name;
 			}
 		}
 
-		return sourceComponentName;
+		componentDescription ??= !string.IsNullOrWhiteSpace(sourceComponentName)
+			? sourceComponentName
+			: sourceComponentId > 0
+				? $"#{sourceComponentId.ToString("N0")}"
+				: "unknown";
+		return $"{componentDescription}:{endpointKey}";
 	}
 
 	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, long sourceComponentId,
-		string sourceComponentName,
+		string sourceComponentName, string? sourceEndpointKey = null,
 		IGameItemComponent? excludedComponent = null)
 	{
 		if (sourceComponentId <= 0 && string.IsNullOrWhiteSpace(sourceComponentName))
@@ -62,9 +85,11 @@ public static class SignalComponentUtilities
 			return null;
 		}
 
+		var endpointKey = NormaliseSignalEndpointKey(sourceEndpointKey);
 		return parent.GetItemTypes<ISignalSourceComponent>()
 			.FirstOrDefault(x =>
 				!ReferenceEquals(x, excludedComponent) &&
+				x.EndpointKey.Equals(endpointKey, StringComparison.InvariantCultureIgnoreCase) &&
 				(sourceComponentId > 0
 					? x.LocalSignalSourceIdentifier == sourceComponentId
 					: ((IGameItemComponent)x).Name.Equals(sourceComponentName, StringComparison.InvariantCultureIgnoreCase)));

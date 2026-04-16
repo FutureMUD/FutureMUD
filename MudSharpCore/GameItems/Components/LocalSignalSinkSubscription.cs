@@ -22,10 +22,11 @@ internal sealed class LocalSignalSinkSubscription
 
 	public ISignalSource? UpstreamSource => _source;
 
-	public void Reconnect(long sourceIdentifier, string sourceComponentName)
+	public void Reconnect(long sourceIdentifier, string sourceComponentName, string? sourceEndpointKey)
 	{
 		Detach();
-		_source = SignalComponentUtilities.FindSignalSource(_parent, sourceIdentifier, sourceComponentName, _owner);
+		_source = SignalComponentUtilities.FindSignalSource(_parent, sourceIdentifier, sourceComponentName,
+			sourceEndpointKey, _owner);
 		if (_source is null)
 		{
 			return;

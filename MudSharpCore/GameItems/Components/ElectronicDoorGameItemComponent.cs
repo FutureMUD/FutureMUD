@@ -47,6 +47,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 	public override IGameItemComponentProto Prototype => _prototype;
 	public long SourceComponentId => _prototype.SourceComponentId;
 	public string SourceComponentName => _prototype.SourceComponentName;
+	public string SourceEndpointKey => _prototype.SourceEndpointKey;
 	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 
@@ -60,7 +61,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 	{
 		var baseDescription = base.Decorate(voyeur, name, description, type, colour, flags);
 		return
-			$"{baseDescription}\n\nIts electronic controller is listening to {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} with a current control signal of {CurrentValue.ToString("N2", voyeur).ColourValue()}, and is presently commanding the door to {(_desiredOpen ? "open".ColourValue() : "remain closed".ColourName())}.";
+			$"{baseDescription}\n\nIts electronic controller is listening to {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName, SourceEndpointKey).ColourName()} with a current control signal of {CurrentValue.ToString("N2", voyeur).ColourValue()}, and is presently commanding the door to {(_desiredOpen ? "open".ColourValue() : "remain closed".ColourName())}.";
 	}
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -91,7 +92,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 
 	public void ReconnectSource()
 	{
-		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		_binding.Reconnect(SourceComponentId, SourceComponentName, SourceEndpointKey);
 		if (_binding.UpstreamSource is not null)
 		{
 			return;

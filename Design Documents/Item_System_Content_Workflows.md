@@ -228,8 +228,8 @@ For exchange-hosted voicemail, extend that pass with:
 For the current microcontroller workflow, a practical end-to-end pass is:
 1. Create a `pushbutton` component and set its keyword, signal value, duration, and emote.
 2. Alternatively create a `timersensor` component and set its active and inactive values, durations, and initial phase for a recurring local input.
-3. Create either a `signallight`, `electronicdoor`, `electroniclock`, or `alarmsiren` sink component and set its source component prototype, threshold, and invert mode.
-4. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source component prototype.
+3. Create either a `signallight`, `electronicdoor`, `electroniclock`, or `alarmsiren` sink component and set its source component prototype, threshold, and invert mode. In the current shipped slice, this binds to that source component family's default local `signal` endpoint.
+4. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source component prototype. In the current shipped slice, these input bindings also target the source component's default local `signal` endpoint.
 5. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
 6. Attach the authored components to the same item prototype with `item set add`.
 7. Load the item and exercise the input:
@@ -245,7 +245,7 @@ For the current microcontroller workflow, a practical end-to-end pass is:
 - boot-time load fails: likely missing or mismatched database loader registration.
 - updated component changes do not appear on old content: update workflow was not run or the update hooks are incomplete.
 - a microcontroller refuses submission: its inline logic probably does not compile in the `ComputerFunction` context or one of its input names is invalid
-- a sink never responds: the authored sibling source component name probably does not match any component on the same item
+- a sink never responds: the authored sibling source component prototype probably does not match any source component instance on the same item, or the expected local endpoint is not present
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

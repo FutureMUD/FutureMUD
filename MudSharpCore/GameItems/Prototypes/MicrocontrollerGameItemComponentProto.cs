@@ -16,23 +16,27 @@ namespace MudSharp.GameItems.Prototypes;
 
 public sealed class MicrocontrollerInputDefinition
 {
-	public MicrocontrollerInputDefinition(string variableName, long sourceComponentId, string sourceComponentName)
+	public MicrocontrollerInputDefinition(string variableName, long sourceComponentId, string sourceComponentName,
+		string sourceEndpointKey)
 	{
 		VariableName = variableName;
 		SourceComponentId = sourceComponentId;
 		SourceComponentName = sourceComponentName;
+		SourceEndpointKey = SignalComponentUtilities.NormaliseSignalEndpointKey(sourceEndpointKey);
 	}
 
 	public string VariableName { get; }
 	public long SourceComponentId { get; }
 	public string SourceComponentName { get; }
+	public string SourceEndpointKey { get; }
 
 	public XElement SaveToXml()
 	{
 		return new XElement("Input",
 			new XAttribute("variable", VariableName),
 			new XAttribute("sourceid", SourceComponentId),
-			new XAttribute("source", SourceComponentName));
+			new XAttribute("source", SourceComponentName),
+			new XAttribute("endpoint", SourceEndpointKey));
 	}
 
 	public static MicrocontrollerInputDefinition LoadFromXml(XElement element)
@@ -40,7 +44,8 @@ public sealed class MicrocontrollerInputDefinition
 		return new MicrocontrollerInputDefinition(
 			element.Attribute("variable")?.Value ?? string.Empty,
 			long.TryParse(element.Attribute("sourceid")?.Value, out var sourceId) ? sourceId : 0L,
-			element.Attribute("source")?.Value ?? string.Empty);
+			element.Attribute("source")?.Value ?? string.Empty,
+			element.Attribute("endpoint")?.Value ?? SignalComponentUtilities.DefaultLocalSignalEndpointKey);
 	}
 }
 
@@ -48,7 +53,7 @@ public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemC
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 	All powered-machine options, plus:
-	input add <variable> <sourcecomponent> - adds an input variable bound to a sibling signal source component
+	input add <variable> <sourcecomponent> - adds an input variable bound to a sibling signal source component's default signal endpoint
 	input remove <variable> - removes an input binding
 	logic - edits the controller logic in the multiline editor
 	logic <text> - sets the controller logic directly
@@ -86,7 +91,7 @@ Notes:
 		var inputs = !_inputs.Any()
 			? "None".ColourError()
 			: _inputs.Select(x =>
-					$"{x.VariableName.ColourCommand()} <- {SignalComponentUtilities.DescribeSignalComponent(Gameworld, x.SourceComponentId, x.SourceComponentName).ColourName()}")
+					$"{x.VariableName.ColourCommand()} <- {SignalComponentUtilities.DescribeSignalComponent(Gameworld, x.SourceComponentId, x.SourceComponentName, x.SourceEndpointKey).ColourName()}")
 				.ListToString();
 
 		var compileStatus = string.IsNullOrEmpty(CompileError)
@@ -186,13 +191,14 @@ Notes:
 
 		var sourceComponentIdentifier = command.SafeRemainingArgument.Trim();
 		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, sourceComponentIdentifier,
-			    out var sourcePrototype))
+			    out var sourcePrototype) || sourcePrototype is null)
 		{
 			actor.Send("There is no such item component prototype.");
 			return false;
 		}
 
-		_inputs.Add(new MicrocontrollerInputDefinition(variableName, sourcePrototype.Id, sourcePrototype.Name));
+		_inputs.Add(new MicrocontrollerInputDefinition(variableName, sourcePrototype.Id, sourcePrototype.Name,
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey));
 		Changed = true;
 		CompileControllerLogic();
 		actor.Send(

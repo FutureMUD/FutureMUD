@@ -14,7 +14,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 	All programmable-lock options, plus:
-	source <component> - the signal source component prototype name or id that drives this lock
+	source <component> - the signal source component prototype name or id whose default signal endpoint drives this lock
 	threshold <number> - the numeric threshold used to determine when the lock is active
 	invert - toggles whether the lock activates above or below the threshold";
 
@@ -23,6 +23,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 	{
 		SourceComponentId = 0L;
 		SourceComponentName = string.Empty;
+		SourceEndpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 		ActivationThreshold = 0.5;
 		LockWhenAboveThreshold = true;
 	}
@@ -34,6 +35,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 
 	public long SourceComponentId { get; protected set; }
 	public string SourceComponentName { get; protected set; } = string.Empty;
+	public string SourceEndpointKey { get; protected set; } = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 	public double ActivationThreshold { get; protected set; }
 	public bool LockWhenAboveThreshold { get; protected set; }
 	public override string TypeDescription => "Electronic Lock";
@@ -43,6 +45,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 		base.LoadFromXml(root);
 		SourceComponentId = long.TryParse(root.Element("SourceComponentId")?.Value, out var sourceId) ? sourceId : 0L;
 		SourceComponentName = root.Element("SourceComponentName")?.Value ?? string.Empty;
+		SourceEndpointKey = SignalComponentUtilities.NormaliseSignalEndpointKey(root.Element("SourceEndpointKey")?.Value);
 		ActivationThreshold = double.Parse(root.Element("ActivationThreshold")?.Value ?? "0.5");
 		LockWhenAboveThreshold = bool.Parse(root.Element("LockWhenAboveThreshold")?.Value ?? "true");
 	}
@@ -59,6 +62,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 			new XElement("LockType", LockType ?? string.Empty),
 			new XElement("SourceComponentId", SourceComponentId),
 			new XElement("SourceComponentName", new XCData(SourceComponentName)),
+			new XElement("SourceEndpointKey", new XCData(SourceEndpointKey)),
 			new XElement("ActivationThreshold", ActivationThreshold),
 			new XElement("LockWhenAboveThreshold", LockWhenAboveThreshold)
 		).ToString();
@@ -90,7 +94,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 		}
 
 		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, command.SafeRemainingArgument.Trim(),
-			    out var sourcePrototype))
+			    out var sourcePrototype) || sourcePrototype is null)
 		{
 			actor.Send("There is no such item component prototype.");
 			return false;
@@ -98,9 +102,10 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 
 		SourceComponentId = sourcePrototype.Id;
 		SourceComponentName = sourcePrototype.Name;
+		SourceEndpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 		Changed = true;
 		actor.Send(
-			$"This electronic lock is now driven by the signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
+			$"This electronic lock is now driven by the {SourceEndpointKey.ColourCommand()} endpoint on signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
 		return true;
 	}
 
@@ -151,7 +156,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return
-			$"{"Electronic Lock Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis is a signal-driven lock using keys of type {LockType.ColourValue()}.\nSource Component: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(LockWhenAboveThreshold ? "Locks at or above threshold".ColourValue() : "Locks below threshold".ColourValue())}\nLock (No Actor): {LockEmoteNoActor.ColourCommand()}\nUnlock (No Actor): {UnlockEmoteNoActor.ColourCommand()}";
+			$"{"Electronic Lock Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis is a signal-driven lock using keys of type {LockType.ColourValue()}.\nSource Endpoint: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName, SourceEndpointKey).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(LockWhenAboveThreshold ? "Locks at or above threshold".ColourValue() : "Locks below threshold".ColourValue())}\nLock (No Actor): {LockEmoteNoActor.ColourCommand()}\nUnlock (No Actor): {UnlockEmoteNoActor.ColourCommand()}";
 	}
 
 	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)

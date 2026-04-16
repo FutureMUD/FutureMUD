@@ -9,6 +9,7 @@ public readonly record struct ComputerSignal(double Value, TimeSpan? Duration, T
 public interface ISignalSource
 {
 	string Name { get; }
+	string EndpointKey { get; }
 	double CurrentValue { get; }
 	TimeSpan? Duration { get; }
 	TimeSpan? PulseInterval { get; }

@@ -120,9 +120,10 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
 
 Current runtime connection rules for that slice are:
-- sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers based on sibling component prototype ids on the same parent item
+- sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers plus explicit endpoint keys on the same parent item
+- the currently shipped built-in local source families each expose a single default output endpoint key named `signal`
 - builder commands still accept component prototype names or ids, but stored bindings no longer depend on future component renames
-- one sink definition points at one source component
+- one sink definition points at one source endpoint
 - microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs

@@ -17,7 +17,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 	All powered-machine options, plus:
-	source <component> - the signal source component prototype name or id that drives this alarm
+	source <component> - the signal source component prototype name or id whose default signal endpoint drives this alarm
 	threshold <number> - the numeric threshold used to determine when the alarm is active
 	invert - toggles whether the alarm activates above or below the threshold
 	volume <volume> - sets the alarm volume
@@ -28,6 +28,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 	{
 		SourceComponentId = 0L;
 		SourceComponentName = string.Empty;
+		SourceEndpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 		ActivationThreshold = 0.5;
 		SoundWhenAboveThreshold = true;
 		AlarmVolume = AudioVolume.VeryLoud;
@@ -41,6 +42,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 
 	public long SourceComponentId { get; protected set; }
 	public string SourceComponentName { get; protected set; } = string.Empty;
+	public string SourceEndpointKey { get; protected set; } = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 	public double ActivationThreshold { get; protected set; }
 	public bool SoundWhenAboveThreshold { get; protected set; }
 	public AudioVolume AlarmVolume { get; protected set; }
@@ -52,7 +54,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 	protected override string ComponentDescriptionOLCAddendum(ICharacter actor)
 	{
 		return
-			$"Source Component: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(SoundWhenAboveThreshold ? "Sounds at or above threshold".ColourValue() : "Sounds below threshold".ColourValue())}\nVolume: {AlarmVolume.Describe().ColourValue()}\nAlarm Emote: {AlarmEmote.ColourCommand()}";
+			$"Source Endpoint: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName, SourceEndpointKey).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(SoundWhenAboveThreshold ? "Sounds at or above threshold".ColourValue() : "Sounds below threshold".ColourValue())}\nVolume: {AlarmVolume.Describe().ColourValue()}\nAlarm Emote: {AlarmEmote.ColourCommand()}";
 	}
 
 	protected override void LoadFromXml(XElement root)
@@ -60,6 +62,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 		base.LoadFromXml(root);
 		SourceComponentId = long.TryParse(root.Element("SourceComponentId")?.Value, out var sourceId) ? sourceId : 0L;
 		SourceComponentName = root.Element("SourceComponentName")?.Value ?? string.Empty;
+		SourceEndpointKey = SignalComponentUtilities.NormaliseSignalEndpointKey(root.Element("SourceEndpointKey")?.Value);
 		ActivationThreshold = double.Parse(root.Element("ActivationThreshold")?.Value ?? "0.5");
 		SoundWhenAboveThreshold = bool.Parse(root.Element("SoundWhenAboveThreshold")?.Value ?? "true");
 		AlarmVolume = int.TryParse(root.Element("AlarmVolume")?.Value, out var volume) &&
@@ -73,6 +76,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 	{
 		root.Add(new XElement("SourceComponentId", SourceComponentId));
 		root.Add(new XElement("SourceComponentName", new XCData(SourceComponentName)));
+		root.Add(new XElement("SourceEndpointKey", new XCData(SourceEndpointKey)));
 		root.Add(new XElement("ActivationThreshold", ActivationThreshold));
 		root.Add(new XElement("SoundWhenAboveThreshold", SoundWhenAboveThreshold));
 		root.Add(new XElement("AlarmVolume", (int)AlarmVolume));
@@ -112,7 +116,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 		}
 
 		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, command.SafeRemainingArgument.Trim(),
-			    out var sourcePrototype))
+			    out var sourcePrototype) || sourcePrototype is null)
 		{
 			actor.Send("There is no such item component prototype.");
 			return false;
@@ -120,9 +124,10 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 
 		SourceComponentId = sourcePrototype.Id;
 		SourceComponentName = sourcePrototype.Name;
+		SourceEndpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 		Changed = true;
 		actor.Send(
-			$"This alarm siren is now driven by the signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
+			$"This alarm siren is now driven by the {SourceEndpointKey.ColourCommand()} endpoint on signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
 		return true;
 	}
 

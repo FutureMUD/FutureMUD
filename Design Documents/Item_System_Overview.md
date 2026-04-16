@@ -57,7 +57,7 @@ The first shipped automation slice now includes:
 - `ElectronicLock`
 - `AlarmSiren`
 
-That slice currently uses same-item sibling wiring with stable local source identifiers derived from component prototype ids rather than freeform cross-item electrical graphs. Builders still author bindings by component prototype name or id, but runtime resolution no longer depends on later component renames. It is enough to support authored control panels, timed local automation, indicator lights, signal-driven doors and locks, and motion-triggered local alarms on a single composed item, while leaving broader wiring, richer sensors, and networked hosts for later phases.
+That slice currently uses same-item sibling wiring with stable local source identifiers derived from component prototype ids plus explicit local endpoint keys rather than freeform cross-item electrical graphs. Builders still author bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. It is enough to support authored control panels, timed local automation, indicator lights, signal-driven doors and locks, and motion-triggered local alarms on a single composed item, while leaving broader wiring, richer sensors, and networked hosts for later phases.
 
 ## Thermal Sources
 Room temperature now includes three layers:

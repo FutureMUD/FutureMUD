@@ -161,7 +161,8 @@ return @togglevalue");
 		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
 			.Returns(new[] { renamedSource.Object });
 
-		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 41L, "OriginalButton");
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 41L, "OriginalButton",
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey);
 
 		Assert.AreSame(renamedSource.Object, resolved);
 	}
@@ -175,9 +176,38 @@ return @togglevalue");
 		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
 			.Returns(new[] { firstSource.Object, secondSource.Object });
 
-		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 99L, "SignalSource");
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 99L, "SignalSource",
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey);
 
 		Assert.AreSame(secondSource.Object, resolved);
+	}
+
+	[TestMethod]
+	public void SignalComponentUtilities_FindSignalSource_UsesEndpointKeyAsPartOfStableIdentity()
+	{
+		var firstSource = CreateSignalSourceMock(41L, "SignalSource", "signal");
+		var secondSource = CreateSignalSourceMock(41L, "SignalSource", "aux");
+		var parent = new Mock<IGameItem>();
+		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(new[] { firstSource.Object, secondSource.Object });
+
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 41L, "SignalSource", "aux");
+
+		Assert.AreSame(secondSource.Object, resolved);
+	}
+
+	[TestMethod]
+	public void SignalComponentUtilities_FindSignalSource_ReturnsNullWhenEndpointKeyDoesNotMatch()
+	{
+		var source = CreateSignalSourceMock(41L, "SignalSource", "aux");
+		var parent = new Mock<IGameItem>();
+		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(new[] { source.Object });
+
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 41L, "SignalSource",
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey);
+
+		Assert.IsNull(resolved);
 	}
 
 	[TestMethod]
@@ -188,7 +218,8 @@ return @togglevalue");
 		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
 			.Returns(new[] { source.Object });
 
-		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 0L, "LegacyButton");
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 0L, "LegacyButton",
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey);
 
 		Assert.AreSame(source.Object, resolved);
 	}
@@ -220,7 +251,8 @@ return @togglevalue");
 		Assert.IsFalse(outcome.RequiresRetry);
 	}
 
-	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name)
+	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name,
+		string endpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey)
 	{
 		var source = new Mock<ISignalSourceComponent>();
 		source.SetupGet(x => x.LocalSignalSourceIdentifier).Returns(identifier);
@@ -230,6 +262,7 @@ return @togglevalue");
 		source.SetupGet(x => x.PulseInterval).Returns((TimeSpan?)null);
 		source.As<IFrameworkItem>().SetupGet(x => x.Name).Returns(name);
 		source.As<ISignalSource>().SetupGet(x => x.Name).Returns(name);
+		source.As<ISignalSource>().SetupGet(x => x.EndpointKey).Returns(endpointKey);
 		return source;
 	}
 }

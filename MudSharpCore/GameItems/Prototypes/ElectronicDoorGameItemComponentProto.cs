@@ -15,7 +15,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 	All door options, plus:
-	source <component> - the signal source component prototype name or id that drives this door
+	source <component> - the signal source component prototype name or id whose default signal endpoint drives this door
 	threshold <number> - the numeric threshold used to determine when the door is commanded open
 	invert - toggles whether the door opens above or below the threshold
 	openemote <emote> - the emote shown when the door opens automatically. Use @ for the item
@@ -26,6 +26,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 	{
 		SourceComponentId = 0L;
 		SourceComponentName = string.Empty;
+		SourceEndpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 		ActivationThreshold = 0.5;
 		OpenWhenAboveThreshold = true;
 		OpenEmoteNoActor = "@ slide|slides open";
@@ -40,6 +41,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 
 	public long SourceComponentId { get; protected set; }
 	public string SourceComponentName { get; protected set; } = string.Empty;
+	public string SourceEndpointKey { get; protected set; } = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 	public double ActivationThreshold { get; protected set; }
 	public bool OpenWhenAboveThreshold { get; protected set; }
 	public string OpenEmoteNoActor { get; protected set; } = string.Empty;
@@ -51,6 +53,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 		LoadDoorPrototypeData(root);
 		SourceComponentId = long.TryParse(root.Element("SourceComponentId")?.Value, out var sourceId) ? sourceId : 0L;
 		SourceComponentName = root.Element("SourceComponentName")?.Value ?? string.Empty;
+		SourceEndpointKey = SignalComponentUtilities.NormaliseSignalEndpointKey(root.Element("SourceEndpointKey")?.Value);
 		ActivationThreshold = double.Parse(root.Element("ActivationThreshold")?.Value ?? "0.5");
 		OpenWhenAboveThreshold = bool.Parse(root.Element("OpenWhenAboveThreshold")?.Value ?? "true");
 		OpenEmoteNoActor = root.Element("OpenEmoteNoActor")?.Value ?? "@ slide|slides open";
@@ -62,6 +65,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 		return SaveDoorPrototypeData(new XElement("Definition",
 			new XElement("SourceComponentId", SourceComponentId),
 			new XElement("SourceComponentName", new XCData(SourceComponentName)),
+			new XElement("SourceEndpointKey", new XCData(SourceEndpointKey)),
 			new XElement("ActivationThreshold", ActivationThreshold),
 			new XElement("OpenWhenAboveThreshold", OpenWhenAboveThreshold),
 			new XElement("OpenEmoteNoActor", new XCData(OpenEmoteNoActor)),
@@ -127,7 +131,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 		}
 
 		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, command.SafeRemainingArgument.Trim(),
-			    out var sourcePrototype))
+			    out var sourcePrototype) || sourcePrototype is null)
 		{
 			actor.Send("There is no such item component prototype.");
 			return false;
@@ -135,9 +139,10 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 
 		SourceComponentId = sourcePrototype.Id;
 		SourceComponentName = sourcePrototype.Name;
+		SourceEndpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 		Changed = true;
 		actor.Send(
-			$"This electronic door is now driven by the signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
+			$"This electronic door is now driven by the {SourceEndpointKey.ColourCommand()} endpoint on signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
 		return true;
 	}
 
@@ -231,7 +236,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return
-			$"{"Electronic Door Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\n{DescribeDoorCharacteristics(actor, true)}\nSource Component: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(OpenWhenAboveThreshold ? "Opens at or above threshold".ColourValue() : "Opens below threshold".ColourValue())}\nOpen Emote: {OpenEmoteNoActor.ColourCommand()}\nClose Emote: {CloseEmoteNoActor.ColourCommand()}";
+			$"{"Electronic Door Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\n{DescribeDoorCharacteristics(actor, true)}\nSource Endpoint: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName, SourceEndpointKey).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(OpenWhenAboveThreshold ? "Opens at or above threshold".ColourValue() : "Opens below threshold".ColourValue())}\nOpen Emote: {OpenEmoteNoActor.ColourCommand()}\nClose Emote: {CloseEmoteNoActor.ColourCommand()}";
 	}
 
 	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)

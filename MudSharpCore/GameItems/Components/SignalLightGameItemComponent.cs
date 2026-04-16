@@ -41,6 +41,7 @@ public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalS
 
 	public long SourceComponentId => _signalPrototype.SourceComponentId;
 	public string SourceComponentName => _signalPrototype.SourceComponentName;
+	public string SourceEndpointKey => _signalPrototype.SourceEndpointKey;
 	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 
@@ -74,7 +75,7 @@ public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalS
 
 	public void ReconnectSource()
 	{
-		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		_binding.Reconnect(SourceComponentId, SourceComponentName, SourceEndpointKey);
 		if (_binding.UpstreamSource is not null)
 		{
 			return;

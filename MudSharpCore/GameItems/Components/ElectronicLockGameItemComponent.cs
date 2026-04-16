@@ -37,6 +37,7 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, ISigna
 
 	public long SourceComponentId => _prototype.SourceComponentId;
 	public string SourceComponentName => _prototype.SourceComponentName;
+	public string SourceEndpointKey => _prototype.SourceEndpointKey;
 	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 
@@ -70,7 +71,7 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, ISigna
 
 	public void ReconnectSource()
 	{
-		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		_binding.Reconnect(SourceComponentId, SourceComponentName, SourceEndpointKey);
 		if (_binding.UpstreamSource is not null)
 		{
 			return;

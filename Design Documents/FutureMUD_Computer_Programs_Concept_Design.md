@@ -19,25 +19,29 @@ The first implementation slice for this design has now landed. The currently imp
   - `MotionSensor`
   - `TimerSensor`
   - `Microcontroller`
+  - `AutomationMountHost`
+  - `AutomationHousing`
+  - `SignalCableSegment`
   - `SignalLight`
   - `ElectronicDoor`
   - `ElectronicLock`
   - `AlarmSiren`
 
-The current signal-automation slice is intentionally local to a single parent item. Wiring is authored with sibling component prototype names or ids, but runtime bindings are stored and resolved through stable local source identifiers plus explicit local endpoint keys. In the current shipped slice, all built-in local signal sources expose a single default endpoint key of `signal`. Inter-item wiring, reusable wire objects, and persisted signal-graph topologies are still future phases.
+The current signal-automation slice now has two shipped wiring tiers. Local sink and microcontroller bindings are still authored with sibling component prototype names or ids and are stored/resolved through stable local source identifiers plus explicit local endpoint keys. In addition, `Microcontroller` can now exist as a separate mountable item installed into an `AutomationMountHost`, and `SignalCableSegment` is now a reusable one-hop wire item that mirrors a source endpoint across a specific adjacent-room exit. In the current shipped slice, all built-in local signal sources expose a single default endpoint key of `signal`, longer signal runs are built by chaining more cable segments one room at a time, and broader persisted signal-graph topologies are still future phases.
 
 The first player-facing command surface for this slice has also now landed:
 
-- `electrical` inspects and live-configures configurable local signal sinks on an item
-- `programming` inspects and live-programs microcontrollers on an item
+- `electrical` inspects and live-configures configurable signal sinks on an item, installs and removes mountable modules, and routes or unroutes one-hop signal cable segments
+- `programming` inspects and live-programs real microcontroller items, including mounted ones targeted through `host@module`
 - both verbs currently operate through multistage delayed actions rather than instant changes
 - those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
 - `programming` uses `ProgrammingComponentCheck`
-- `electrical` uses `InstallElectricalComponentCheck` for rewiring work and `ConfigureElectricalComponentCheck` for threshold/mode clearing work
+- `electrical` uses `InstallElectricalComponentCheck` for install/remove/routing work and `ConfigureElectricalComponentCheck` for rebinding and threshold/mode work
 - failed checks still cost time because the delayed action runs to completion before the check resolves
 - abject electrical failures trigger electrical shock damage and an electrical-shock emote, but still do not consume tools or materials
+- dedicated `AutomationHousing` components now gate concealed automation modules and cable ends through the normal container/openable/lockable access path rather than relying on arbitrary generic container items
 
-The remaining work is still substantial. In particular, persistence tables, resumable runtime execution, terminal sessions, inter-item signal wiring, and data networking are still future phases.
+The remaining work is still substantial. In particular, dedicated computer persistence tables, resumable runtime execution, terminal sessions, richer multi-port inter-item signal graphs, and data networking are still future phases.
 
 ## Core Concepts
 
@@ -162,7 +166,10 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
   - `MotionSensor` is a witnessed-movement input that emits a numeric signal for an authored duration when same-location movement matches its configured mode and minimum size
   - `TimerSensor` is a recurring same-item input that alternates between authored active and inactive numeric phases from a persisted cycle anchor
-  - `Microcontroller` is a powered machine component whose inputs are sibling signal sources resolved through stable local source identifiers plus endpoint keys and whose inline logic compiles as a `ComputerFunction`
+  - `Microcontroller` is a powered machine component whose inputs are local signal sources resolved through stable local source identifiers plus endpoint keys, whose inline logic compiles as a `ComputerFunction`, and which can now also be installed as a separate module item into an automation host bay
+  - `AutomationMountHost` provides named bays for separate automation modules and can require a sibling openable maintenance panel before those bays are serviceable
+  - `AutomationHousing` is a dedicated housing or junction component family that composes with ordinary container/openable/lockable capabilities and exposes concealed automation items only while service access is open
+  - `SignalCableSegment` is a reusable one-hop adjacent-room wire item that persists its source binding, source and destination cells, and routed exit id
   - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
   - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base, uses threshold logic, and retries opening while the signal remains active
   - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
@@ -170,7 +177,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
 - Implemented in the current first player-facing slice:
   - a `programming` command verb that lets players inspect microcontrollers, replace logic, and add or remove local input bindings on live items
-  - an `electrical` command verb that lets players inspect configurable sinks, rebind them to local signal sources, clear bindings, and retune thresholds or activation mode on live items
+  - an `electrical` command verb that lets players inspect configurable sinks, rebind them to local signal sources, clear bindings, retune thresholds or activation mode, install or remove separate mountable modules, and route or unroute cable segments one room at a time, including targeting a dedicated automation housing or junction for concealed cable placement
   - both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
   - abject failures on electrical work can cause electrical shock damage
 - Both of these command verbs should be able to be surpressed so that they don't appear on non-modern MUDs.
@@ -178,11 +185,11 @@ The baseline built-in application list for the computer subsystem is now fixed a
 ## Unsolved Design Questions
 
 - Signals will likely be initiated by events (player input, movement, recurring timers, and actual Events from the Event System). They will also typically have a fixed duration that they're sent and/or pulsed for. We want to make it so that ideally if nothing changes we don't have to constantly reassess the logic and the signals so there needs to be consideration to that in how things are implemented. The pulsing is mostly to give microcontrollers the opportunity to reassess their logic - if their output stays the same pulse to pulse the signal should be considered continuous.
-- The current first slice only supports sibling-component wiring on the same item. Those local bindings now target stable component-prototype ids plus explicit local endpoint keys rather than transient component names. Future phases still need to decide how explicit electrical wiring, cross-item routing, install locations, richer multi-port authoring, and builder-facing wiring verbs should persist and present themselves.
+- The current first slice now supports sibling-component local wiring, separate mounted modules, dedicated automation housings or junctions, and one-hop adjacent-room cable segments. Future phases still need to decide how richer multi-port authoring, longer persisted signal graphs, and broader builder-facing wiring verbs should persist and present themselves.
 
 ## Conceptual Example - Motion Activated Door
 
-This remains a target design example, not current shipped behaviour. The current implementation only supports same-item sibling signal components, so a motion sensor installed elsewhere and connected across items is still future work.
+This remains a target design example, not exact current shipped behaviour. The current implementation now supports separate-item mounted microcontrollers and one-room cable runs, but richer named door channels and a motion sensor installed on a cell exit rather than an item are still future work.
 
 - There is an item with an Electronic Door item component which uses a signal channel to decide whether it's open or closed. 
 - Electronic Door is an IAutomationEnabled item which exposes signal channels and can have those channels connected to other items and have microcontrollers installed in those channels as well

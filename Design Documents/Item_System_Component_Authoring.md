@@ -252,6 +252,9 @@ Implemented builder-facing component types:
 - `motionsensor`
 - `timersensor`
 - `microcontroller`
+- `automationmounthost`
+- `automationhousing`
+- `signalcable`
 - `signallight`
 - `electronicdoor`
 - `electroniclock`
@@ -261,6 +264,9 @@ Current authoring pattern:
 - sources author their own output behaviour and expose `ISignalSourceComponent`
 - sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
 - microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`; the binding command accepts a component prototype name or id and stores a stable local source identifier plus the current default local endpoint key
+- automation hosts author one or more named bays plus an optional sibling maintenance-panel component prototype that must be open for service access
+- automation housings author which categories of automation items they may conceal, and rely on sibling container/openable/lockable capabilities on the same parent item for actual service access
+- signal cables have no meaningful static routing fields on the proto; they are routed at runtime and persist that live route on the component instance
 - `motionsensor` authors signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
 - `timersensor` authors active and inactive values, active and inactive durations, and its initial phase
 - `electronicdoor` authors source component prototype, threshold, invert mode, and automatic open and close emotes
@@ -280,7 +286,7 @@ This is the reference approach for the early phases of computerised items:
 1. put the shared signal contract on interfaces first
 2. keep authored thresholds, keywords, and sibling-source names on the proto
 3. keep live signal state and subscriptions on the runtime component
-4. treat cross-item wiring as a later concern unless the task explicitly implements it
+4. treat broader cross-item graphs as a later concern, but follow the current reference patterns for automation host bays, automation housings, and one-hop cable items when the task explicitly implements them
 
 ## Thermal Source Components
 The thermal-source family is the reference for "same gameplay concept, multiple activation models".

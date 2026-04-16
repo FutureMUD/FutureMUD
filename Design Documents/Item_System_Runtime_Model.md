@@ -110,10 +110,12 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `MotionSensor` is a same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
 - `TimerSensor` is a same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
 - `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
-  - binds named inputs to sibling `ISignalSourceComponent` instances
+  - binds named inputs to local `ISignalSourceComponent` instances
   - keeps live numeric input values
   - compiles authored inline logic in the `ComputerFunction` compilation context
   - emits a single numeric output signal
+- `AutomationMountHost` is an `IConnectable` plus `IAutomationMountHost` component that owns named automation bays, persists installed module item ids, and can require a sibling openable maintenance panel before those bays are serviceable
+- `SignalCableSegment` is an `ISignalSourceComponent` wire item that stores a source binding plus source and destination cells and a routed exit id, then mirrors the source endpoint across that one adjacent-room hop
 - `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
 - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base and retries until it reaches the currently commanded open or closed state
 - `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
@@ -125,7 +127,10 @@ The current live-configuration runtime layer also adds:
 - `LocalSignalBinding` and `MicrocontrollerRuntimeInputBinding` as the stable runtime payloads for live local endpoint bindings
 
 Current runtime connection rules for that slice are:
-- sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers plus explicit endpoint keys on the same parent item
+- sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers plus explicit endpoint keys
+- purely local live bindings still resolve on the same parent item
+- mounted modules remain separate `IGameItem` instances connected through `AutomationMountHost` bays and move with the host item
+- `SignalCableSegment` is the current external wiring layer: one item mirrors one source endpoint across one adjacent-room exit hop, and longer runs require more cable items
 - live player rewiring stores the runtime component id plus endpoint key in `LocalSignalBinding`, while builder-authored prototype defaults still use prototype-oriented identifiers
 - the currently shipped built-in local source families each expose a single default output endpoint key named `signal`
 - builder commands still accept component prototype names or ids, but stored bindings no longer depend on future component renames
@@ -134,10 +139,13 @@ Current runtime connection rules for that slice are:
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
-- there is not yet a persisted cross-item signal graph, installable wire object, or explicit electrical-network runtime object
+- `AutomationHousing` is the dedicated housing or junction component family for concealed automation modules and cable ends, but it still composes with ordinary container/openable/lockable item capabilities for service access
+- automation hosts still use sibling openable maintenance panels for mount-bay service access
+- there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments
 
 The current player-work runtime flow for that slice is:
 - `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
+- `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
 - actions are modelled as targeted delayed effects rather than instant mutation
 - required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials
 - success, progress, cancel, failure, and shock output are driven by configurable static strings rather than hard-coded prose

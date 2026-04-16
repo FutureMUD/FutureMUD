@@ -163,13 +163,17 @@ The current signal-automation slice has its own presentation and integration rul
 - `MotionSensor` decorates the full description to show whether it is currently active plus the movement mode and minimum size it watches for
 - `TimerSensor` decorates the full description to show its active and inactive values, its cycle timings, and which phase it is currently in
 - `Microcontroller` decorates the full description with its current on/off state and numeric output value
+- `AutomationMountHost` decorates the full description with named bay state and whether the host is presently serviceable through its maintenance access path
+- `SignalCableSegment` decorates the full description with whether it is routed, which source endpoint it mirrors, and which exit hop it currently spans
+- `AutomationHousing` decorates the full description with whether the housing is sealed or open for service, and when open it lists the concealed automation items inside
 - `SignalLight` and `ElectronicLock` reuse the existing light and lock presentation behaviour, but now integrate with sibling signal sources resolved through stable local identifiers plus explicit endpoint keys
 - `ElectronicDoor` is its own door component family on the shared internal door base, adds control-state detail to the full description, and emits automatic open or close emotes when the commanded state changes
 - `AlarmSiren` decorates short and full descriptions to show whether it is sounding, and integrates audible room output with sibling signal sources plus power state
 - `component show` output for signal-driven sinks should present the bound local source endpoint, not just the component family, so future multi-port source families stay understandable
-- because the first slice is same-item-only, presentation should explain sibling control surfaces on one composed item rather than implying a visible external wiring graph
+- the current slice is not purely same-item any more, but the external graph is still intentionally modest: presentation should explain mounted modules and one-hop cable segments without implying a full arbitrary wiring network
 - the live `electrical` and `programming` verbs are now part of the player-facing integration surface for these items, and their staged begin/continue/success/failure output should be authored through configurable static strings rather than embedded per-component prose
 - abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
+- `AutomationHousing` is now the dedicated housing or junction presentation family, but it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

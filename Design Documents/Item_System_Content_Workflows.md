@@ -36,6 +36,8 @@ Signal-automation examples now include:
 - `comp edit new motionsensor`
 - `comp edit new timersensor`
 - `comp edit new microcontroller`
+- `comp edit new automationmounthost`
+- `comp edit new signalcable`
 - `comp edit new signallight`
 - `comp edit new electronicdoor`
 - `comp edit new electroniclock`
@@ -140,11 +142,14 @@ For the current signal-automation slice, also validate:
 - whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration
 - whether `timersensor` alternates between its authored active and inactive values on the expected schedule
 - whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
+- whether `automationmounthost` bay names, mount types, and optional maintenance-panel access requirements match the intended content composition
+- whether `signalcable` successfully mirrors a source across the intended one-room exit hop and clears correctly when unrouted
 - whether `signallight` responds to threshold and invert settings without redundant extra echoes when the effective lit state is unchanged
 - whether `electronicdoor` responds to threshold and invert settings and reaches the commanded open or closed state once any lock conditions permit it
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 - whether the live `electrical` and `programming` verbs target the intended component ids shown in their inspection output
+- whether service access is correctly blocked by a closed maintenance panel or by a closed `AutomationHousing` item around a cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
 - whether abject failure on electrical work produces the intended shock echo and electrical damage
 
@@ -244,14 +249,18 @@ For the current microcontroller workflow, a practical end-to-end pass is:
 
 For the live player workflow on an already loaded composed item, a practical end-to-end pass is:
 1. Use `electrical <item>` to inspect local signal sources and configurable sinks and note the live component ids.
-2. Use `programming <item>` to inspect the live microcontroller list, compile state, and current input bindings.
-3. Use `programming <item> logic <component>` or `programming <item> logic <component> <text>` to replace controller logic on the live item.
-4. Use `programming <item> input add <component> <variable> <source> [<endpoint>]` and `programming <item> input remove <component> <variable>` to manage live input bindings.
-5. Use `electrical <item> bind <component> <source> [<endpoint>]`, `clear`, `threshold`, and `mode` to reconfigure live sinks.
-6. Confirm those actions run as staged delayed work rather than instantaneous mutation.
-7. Confirm the required tool tag is available, the actor holds or readies the needed tool through the inventory plan, and the tool is restored after completion or cancellation.
-8. Confirm ordinary failures cost the action time but do not consume materials.
-9. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
+2. If the item is an automation host, use `electrical install <host> <module> [<bay>]` to install a loose microcontroller or other compatible module item into a named bay.
+3. If there is a maintenance panel or `AutomationHousing`, confirm it must be open before install, remove, programming, or rewiring is allowed.
+4. Use `programming <item>` or `programming <host@module>` to inspect the live microcontroller list, compile state, and current input bindings.
+5. Use `programming <item> logic <component>` or `programming <item> logic <component> <text>` to replace controller logic on the live item.
+6. Use `programming <item> input add <component> <variable> <source> [<endpoint>]` and `programming <item> input remove <component> <variable>` to manage live input bindings.
+7. Use `electrical <item> bind <component> <source> [<endpoint>]`, `clear`, `threshold`, and `mode` to reconfigure live sinks.
+8. Use `electrical route <cable> <source> <exit> [<housing>]` to route a signal cable one room hop away and optionally place its destination end inside an adjacent `AutomationHousing` item.
+9. Use `electrical unroute <cable>` and `electrical remove <host> <bay>` to undo the physical setup.
+10. Confirm those actions run as staged delayed work rather than instantaneous mutation.
+11. Confirm the required tool tag is available, the actor holds or readies the needed tool through the inventory plan, and the tool is restored after completion or cancellation.
+12. Confirm ordinary failures cost the action time but do not consume materials.
+13. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

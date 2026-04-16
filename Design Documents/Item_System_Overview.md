@@ -52,16 +52,24 @@ The first shipped automation slice now includes:
 - `MotionSensor`
 - `TimerSensor`
 - `Microcontroller`
+- `AutomationMountHost`
+- `AutomationHousing`
+- `SignalCableSegment`
 - `SignalLight`
 - `ElectronicDoor`
 - `ElectronicLock`
 - `AlarmSiren`
 
-That slice currently uses same-item sibling wiring with stable local source identifiers derived from component prototype ids plus explicit local endpoint keys rather than freeform cross-item electrical graphs. Builders still author bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. It is enough to support authored control panels, timed local automation, indicator lights, signal-driven doors and locks, and motion-triggered local alarms on a single composed item, while leaving broader wiring, richer sensors, and networked hosts for later phases.
+That slice now combines three patterns:
+- same-item local bindings with stable local source identifiers plus explicit local endpoint keys
+- separate mountable modules installed into `AutomationMountHost` bays as real items rather than collapsed components
+- adjacent-room one-hop signal cable items that mirror one source endpoint across a specific exit
+
+Builders still author local bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. `AutomationHousing` is now the dedicated housing or junction component family for concealed modules and cable ends, while still composing with ordinary container/openable/lockable behaviour on the parent item. This is enough to support authored control panels, timed local automation, mounted controllers, indicator lights, signal-driven doors and locks, motion-triggered alarms, concealed service housings, and one-room-at-a-time wiring while leaving broader graphs, richer sensors, and networked hosts for later phases.
 
 The first live player command surface for that slice is also now present:
-- `electrical` for inspecting and configuring local signal-driven sinks
-- `programming` for inspecting and live-programming microcontrollers
+- `electrical` for inspecting signal-driven items, installing or removing mountable modules, routing or unrouting cable segments, and configuring sinks
+- `programming` for inspecting and live-programming real microcontroller items, including mounted ones
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

@@ -58,6 +58,8 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 	public LocalSignalBinding CurrentBinding => _runtimeBinding ?? new LocalSignalBinding(
+		0L,
+		string.Empty,
 		_prototype.SourceComponentId,
 		_prototype.SourceComponentName,
 		_prototype.SourceEndpointKey);
@@ -102,6 +104,8 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		if (runtimeSourceId is not null)
 		{
 			_runtimeBinding = new LocalSignalBinding(
+				long.TryParse(root.Element("RuntimeSourceItemId")?.Value, out var sourceItemId) ? sourceItemId : 0L,
+				root.Element("RuntimeSourceItemName")?.Value ?? string.Empty,
 				long.TryParse(runtimeSourceId.Value, out var sourceId) ? sourceId : 0L,
 				root.Element("RuntimeSourceComponentName")?.Value ?? string.Empty,
 				SignalComponentUtilities.NormaliseSignalEndpointKey(root.Element("RuntimeSourceEndpointKey")?.Value));
@@ -122,6 +126,8 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 	{
 		if (_runtimeBinding is not null)
 		{
+			root.Add(new XElement("RuntimeSourceItemId", _runtimeBinding.SourceItemId));
+			root.Add(new XElement("RuntimeSourceItemName", new XCData(_runtimeBinding.SourceItemName)));
 			root.Add(new XElement("RuntimeSourceComponentId", _runtimeBinding.SourceComponentId));
 			root.Add(new XElement("RuntimeSourceComponentName", new XCData(_runtimeBinding.SourceComponentName)));
 			root.Add(new XElement("RuntimeSourceEndpointKey", new XCData(_runtimeBinding.SourceEndpointKey)));
@@ -171,7 +177,7 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 
 	public void ReconnectSource()
 	{
-		_binding.Reconnect(SourceComponentId, SourceComponentName, SourceEndpointKey);
+		_binding.Reconnect(CurrentBinding);
 		if (_binding.UpstreamSource is not null)
 		{
 			return;

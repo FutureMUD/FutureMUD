@@ -17,8 +17,10 @@ namespace MudSharp.Effects.Concrete;
 
 public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 {
+	private readonly IReadOnlyCollection<IInventoryPlan> _inventoryPlans;
 	private readonly Func<CheckOutcome> _checkAction;
 	private readonly Func<CheckOutcome, bool> _successAction;
+	private readonly Func<CheckOutcome, IList<IGameItem>>? _successExemptItemsAction;
 	private readonly Action<CheckOutcome>? _failureAction;
 	private readonly Action<CheckOutcome>? _abjectFailureAction;
 	private readonly string _beginEmote;
@@ -27,6 +29,8 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 	private readonly string _failureEmote;
 	private readonly TimeSpan _stageDuration;
 	private readonly int _totalStages;
+	private bool _completedSuccessfully;
+	private IList<IGameItem>? _successExemptItems;
 
 	public ItemComponentConfigurationAction(
 		ICharacter owner,
@@ -43,14 +47,40 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 		int totalStages,
 		Func<CheckOutcome> checkAction,
 		Func<CheckOutcome, bool> successAction,
+		Func<CheckOutcome, IList<IGameItem>>? successExemptItemsAction = null,
+		Action<CheckOutcome>? failureAction = null,
+		Action<CheckOutcome>? abjectFailureAction = null)
+		: this(owner, target, tool, [inventoryPlan], actionDescription, beginEmote, continueEmote, cancelEmote,
+			successEmote, failureEmote, stageDuration, totalStages, checkAction, successAction,
+			successExemptItemsAction, failureAction, abjectFailureAction)
+	{
+	}
+
+	public ItemComponentConfigurationAction(
+		ICharacter owner,
+		IGameItem target,
+		IGameItem tool,
+		IEnumerable<IInventoryPlan> inventoryPlans,
+		string actionDescription,
+		string beginEmote,
+		string continueEmote,
+		string cancelEmote,
+		string successEmote,
+		string failureEmote,
+		TimeSpan stageDuration,
+		int totalStages,
+		Func<CheckOutcome> checkAction,
+		Func<CheckOutcome, bool> successAction,
+		Func<CheckOutcome, IList<IGameItem>>? successExemptItemsAction = null,
 		Action<CheckOutcome>? failureAction = null,
 		Action<CheckOutcome>? abjectFailureAction = null)
 		: base(owner, target, [(tool, DesiredItemState.Held)])
 	{
-		InventoryPlan = inventoryPlan;
+		_inventoryPlans = inventoryPlans.ToList();
 		Tool = tool;
 		_checkAction = checkAction;
 		_successAction = successAction;
+		_successExemptItemsAction = successExemptItemsAction;
 		_failureAction = failureAction;
 		_abjectFailureAction = abjectFailureAction;
 		_beginEmote = beginEmote;
@@ -67,7 +97,7 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 		_blocks.Add("movement");
 	}
 
-	public IInventoryPlan InventoryPlan { get; }
+	public IInventoryPlan InventoryPlan => _inventoryPlans.First();
 	public IGameItem Tool { get; }
 	public int CurrentStage { get; private set; }
 
@@ -106,8 +136,10 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 		}
 
 		var outcome = _checkAction();
-		if (outcome.IsPass() && _successAction(outcome))
+		_completedSuccessfully = outcome.IsPass() && _successAction(outcome);
+		if (_completedSuccessfully)
 		{
+			_successExemptItems = _successExemptItemsAction?.Invoke(outcome);
 			if (!string.IsNullOrWhiteSpace(_successEmote))
 			{
 				CharacterOwner.OutputHandler.Handle(
@@ -136,7 +168,17 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 
 	public override void RemovalEffect()
 	{
-		InventoryPlan.FinalisePlan();
+		foreach (var plan in _inventoryPlans.Distinct())
+		{
+			if (_completedSuccessfully && _successExemptItems?.Any() == true)
+			{
+				plan.FinalisePlanWithExemptions(_successExemptItems);
+				continue;
+			}
+
+			plan.FinalisePlan();
+		}
+
 		ReleaseEventHandlers();
 	}
 }

@@ -7,6 +7,8 @@ using System.Text;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Commands.Trees;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -24,27 +26,33 @@ namespace MudSharp.Commands.Modules;
 
 internal class ElectronicsModule : Module<ICharacter>
 {
-	private const string ElectricalHelpText = @"The #3electrical#0 command is used to inspect and configure signal-driven electrical components on an item.
+	private const string ElectricalHelpText = @"The #3electrical#0 command is used to inspect, install, route, and configure signal-driven electrical systems.
 
 You can use the following syntax:
 	#3electrical <item>#0 - shows the signal sources and configurable electrical components on the item
+	#3electrical install <host> <module> [<bay>]#0 - installs a loose automation module item into an automation bay
+	#3electrical remove <host> <bay>#0 - removes a mounted automation module from a host item
+	#3electrical route <cable> <source> <exit> [<housing>]#0 - routes a loose signal cable one room hop away and optionally places it in an automation housing or junction
+	#3electrical unroute <cable>#0 - clears a routed cable segment
 	#3electrical <item> bind <component> <source> [<endpoint>]#0 - rewires a configurable sink to a local source component
-	#3electrical <item> clear <component>#0 - clears any live rewiring on a configurable sink
+	#3electrical <item> clear <component>#0 - clears any live rewiring on a configurable sink, or clears a routed cable on a cable item
 	#3electrical <item> threshold <component> <value>#0 - changes the component's activation threshold
 	#3electrical <item> mode <component> above|below#0 - changes whether the sink activates above or below the threshold
 
-Component and source identifiers can be either the live component #6id#0 shown in the inspection output or the component name.";
+Component and source identifiers can be either the live component #6id#0 shown in the inspection output, the component name, or #6item@component#0 when needed.
+Routed cables are one-room segments. Longer runs are built by chaining another cable in the next room.";
 
 	private const string ProgrammingHelpText = @"The #3programming#0 command is used to inspect and live-program microcontrollers on an item.
 
 You can use the following syntax:
 	#3programming <item>#0 - shows all programmable microcontrollers on the item
-	#3programming <item> logic <component>#0 - opens an editor to replace the controller logic
-	#3programming <item> logic <component> <text>#0 - directly replaces the controller logic
-	#3programming <item> input add <component> <variable> <source> [<endpoint>]#0 - binds an input variable to a local signal source
-	#3programming <item> input remove <component> <variable>#0 - removes an input variable
+	#3programming <item> logic [<component>]#0 - opens an editor to replace the controller logic
+	#3programming <item> logic [<component>] <text>#0 - directly replaces the controller logic
+	#3programming <item> input add [<component>] <variable> <source> [<endpoint>]#0 - binds an input variable to a local signal source
+	#3programming <item> input remove [<component>] <variable>#0 - removes an input variable
 
-Component and source identifiers can be either the live component #6id#0 shown in the inspection output or the component name.";
+When the target item only has one programmable microcontroller component, you can omit the component identifier.
+Mounted microcontrollers remain separate items, so you can target them with syntax like #6host@module#0 when they are installed behind an open access panel.";
 
 	private ElectronicsModule()
 		: base("Electronics")
@@ -74,14 +82,33 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			return;
 		}
 
-		var item = actor.TargetItem(ss.PopSpeech());
+		var firstToken = ss.PopSpeech();
+		switch (firstToken.ToLowerInvariant())
+		{
+			case "install":
+				ElectricalInstall(actor, ss);
+				return;
+			case "remove":
+			case "uninstall":
+				ElectricalRemove(actor, ss);
+				return;
+			case "route":
+				ElectricalRoute(actor, ss);
+				return;
+			case "unroute":
+			case "deroute":
+				ElectricalUnroute(actor, ss);
+				return;
+		}
+
+		var item = actor.TargetItem(firstToken);
 		if (item is null)
 		{
 			actor.Send("You do not see anything like that to work on.");
 			return;
 		}
 
-		var manipulation = actor.CanManipulateItem(item);
+		var manipulation = CanManipulateElectronicsTarget(actor, item);
 		if (!manipulation.Truth)
 		{
 			actor.OutputHandler.Send(manipulation.Message);
@@ -141,7 +168,7 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			return;
 		}
 
-		var manipulation = actor.CanManipulateItem(item);
+		var manipulation = CanManipulateElectronicsTarget(actor, item);
 		if (!manipulation.Truth)
 		{
 			actor.OutputHandler.Send(manipulation.Message);
@@ -170,15 +197,406 @@ Component and source identifiers can be either the live component #6id#0 shown i
 		}
 	}
 
+	private static void ElectricalInstall(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which automation host item do you want to install a module into?");
+			return;
+		}
+
+		var hostItem = actor.TargetItem(ss.PopSpeech());
+		if (hostItem is null)
+		{
+			actor.Send("You do not see any such automation host here.");
+			return;
+		}
+
+		var hostManipulation = CanManipulateElectronicsTarget(actor, hostItem);
+		if (!hostManipulation.Truth)
+		{
+			actor.Send(hostManipulation.Message);
+			return;
+		}
+
+		var host = ResolveAutomationMountHost(actor, hostItem);
+		if (host is null)
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Which loose automation module item do you want to install?");
+			return;
+		}
+
+		var moduleItem = actor.TargetItem(ss.PopSpeech());
+		if (moduleItem is null)
+		{
+			actor.Send("You do not see any such automation module here.");
+			return;
+		}
+
+		var moduleManipulation = CanManipulateElectronicsTarget(actor, moduleItem);
+		if (!moduleManipulation.Truth)
+		{
+			actor.Send(moduleManipulation.Message);
+			return;
+		}
+
+		var module = moduleItem.GetItemType<IAutomationMountable>();
+		if (module is null)
+		{
+			actor.Send($"{moduleItem.HowSeen(actor, true)} is not an installable automation module.");
+			return;
+		}
+
+		var bayName = ss.IsFinished
+			? ResolveDefaultCompatibleMountBay(actor, host, module, hostItem)
+			: ss.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(bayName))
+		{
+			return;
+		}
+
+		if (!TryAcquireSpecificItemPlan(actor, moduleItem, out var modulePlan))
+		{
+			return;
+		}
+
+		StartElectricalAction(
+			actor,
+			hostItem,
+			"ElectricalInstallActionDurationSeconds",
+			CheckType.InstallElectricalComponentCheck,
+			"ElectricalInstallTraitName",
+			"ElectricalToolTagName",
+			"installing $1 into $0",
+			"ElectricalInstallActionBeginEmote",
+			"ElectricalInstallActionContinueEmote",
+			"ElectricalInstallActionCancelEmote",
+			"ElectricalInstallActionSuccessEmote",
+			"ElectricalInstallActionFailureEmote",
+			outcome =>
+			{
+				if (!host.InstallModule(actor, module, bayName, out var error))
+				{
+					actor.Send(error);
+					return false;
+				}
+
+				actor.Send(
+					$"You install {moduleItem.HowSeen(actor, true).ColourName()} into the {bayName.ColourCommand()} bay on {hostItem.HowSeen(actor, true).ColourName()}.");
+				return true;
+			},
+			[modulePlan],
+			_ => [moduleItem],
+			() => EnumerateShockRiskItems(hostItem, moduleItem));
+	}
+
+	private static void ElectricalRemove(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which automation host item do you want to remove a module from?");
+			return;
+		}
+
+		var hostItem = actor.TargetItem(ss.PopSpeech());
+		if (hostItem is null)
+		{
+			actor.Send("You do not see any such automation host here.");
+			return;
+		}
+
+		var hostManipulation = CanManipulateElectronicsTarget(actor, hostItem);
+		if (!hostManipulation.Truth)
+		{
+			actor.Send(hostManipulation.Message);
+			return;
+		}
+
+		var host = ResolveAutomationMountHost(actor, hostItem);
+		if (host is null)
+		{
+			return;
+		}
+
+		var bayName = ss.IsFinished ? ResolveDefaultOccupiedMountBay(actor, host, hostItem) : ss.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(bayName))
+		{
+			return;
+		}
+
+		StartElectricalAction(
+			actor,
+			hostItem,
+			"ElectricalInstallActionDurationSeconds",
+			CheckType.InstallElectricalComponentCheck,
+			"ElectricalInstallTraitName",
+			"ElectricalToolTagName",
+			"removing a module from $0",
+			"ElectricalInstallActionBeginEmote",
+			"ElectricalInstallActionContinueEmote",
+			"ElectricalInstallActionCancelEmote",
+			"ElectricalInstallActionSuccessEmote",
+			"ElectricalInstallActionFailureEmote",
+			outcome =>
+			{
+				if (!host.RemoveModule(actor, bayName, out var moduleItem, out var error))
+				{
+					actor.Send(error);
+					return false;
+				}
+
+				actor.Send(
+					$"You remove {moduleItem!.HowSeen(actor, true).ColourName()} from the {bayName.ColourCommand()} bay on {hostItem.HowSeen(actor, true).ColourName()}.");
+				return true;
+			},
+			null,
+			null,
+			() => EnumerateShockRiskItems(hostItem));
+	}
+
+	private static void ElectricalRoute(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which loose signal cable item do you want to route?");
+			return;
+		}
+
+		var cableItem = actor.TargetItem(ss.PopSpeech());
+		if (cableItem is null)
+		{
+			actor.Send("You do not see any such signal cable here.");
+			return;
+		}
+
+		var cableManipulation = CanManipulateElectronicsTarget(actor, cableItem);
+		if (!cableManipulation.Truth)
+		{
+			actor.Send(cableManipulation.Message);
+			return;
+		}
+
+		var cable = ResolveSignalCableSegment(actor, cableItem);
+		if (cable is null)
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Which signal source should this cable mirror?");
+			return;
+		}
+
+		var source = ResolveActorLocalSignalSource(actor, ss.PopSpeech());
+		if (source is null)
+		{
+			return;
+		}
+
+		if (!CanServiceElectronicsTarget(actor, source.Parent, out var sourceError))
+		{
+			actor.Send(sourceError);
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Through which exit should the cable be routed?");
+			return;
+		}
+
+		var exit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
+		if (exit is null)
+		{
+			actor.Send("You do not see any such exit to route the cable through.");
+			return;
+		}
+
+		var destinationCell = exit.Destination;
+		IGameItem? housingItem = null;
+		IAutomationHousing? destinationHousing = null;
+		IContainer? destinationContainer = null;
+		if (!ss.IsFinished)
+		{
+			var housingIdentifier = ss.SafeRemainingArgument;
+			var (target, path) = actor.TargetDistantItem(housingIdentifier, exit, 1, true, false);
+			if (target is null || target.TrueLocations.All(x => x != destinationCell) || path.All(x => x != exit))
+			{
+				actor.Send("You do not see any such adjacent-room housing or junction there.");
+				return;
+			}
+
+			housingItem = target;
+			destinationHousing = ResolveAutomationHousing(actor, housingItem);
+			if (destinationHousing is null)
+			{
+				return;
+			}
+
+			if (!destinationHousing.CanAccessHousing(actor, out var housingError))
+			{
+				actor.Send(housingError);
+				return;
+			}
+
+			if (!destinationHousing.CanConcealItem(cableItem, out housingError))
+			{
+				actor.Send(housingError);
+				return;
+			}
+
+			destinationContainer = housingItem.GetItemType<IContainer>();
+			if (destinationContainer is null)
+			{
+				actor.Send($"{housingItem.HowSeen(actor, true)} is not configured with a service cavity.");
+				return;
+			}
+
+			if (!destinationContainer.CanPut(cableItem))
+			{
+				actor.Send(destinationContainer.WhyCannotPut(cableItem) switch
+				{
+					WhyCannotPutReason.ContainerClosed => $"{housingItem.HowSeen(actor, true)} is closed.",
+					WhyCannotPutReason.ContainerFull => $"{housingItem.HowSeen(actor, true)} is too full to accept that cable.",
+					WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity => $"{housingItem.HowSeen(actor, true)} does not have enough room for that cable.",
+					WhyCannotPutReason.ItemTooLarge => $"{cableItem.HowSeen(actor, true)} is too large to fit into {housingItem.HowSeen(actor, true)}.",
+					WhyCannotPutReason.NotCorrectItemType => $"{housingItem.HowSeen(actor, true)} is not configured to accept that cable.",
+					WhyCannotPutReason.CantPutContainerInItself => "You cannot put an item inside itself.",
+					_ => $"{housingItem.HowSeen(actor, true)} cannot accept that cable."
+				});
+				return;
+			}
+		}
+
+		if (!TryAcquireSpecificItemPlan(actor, cableItem, out var cablePlan))
+		{
+			return;
+		}
+
+		StartElectricalAction(
+			actor,
+			cableItem,
+			"ElectricalInstallActionDurationSeconds",
+			CheckType.InstallElectricalComponentCheck,
+			"ElectricalInstallTraitName",
+			"ElectricalToolTagName",
+			"routing $0",
+			"ElectricalInstallActionBeginEmote",
+			"ElectricalInstallActionContinueEmote",
+			"ElectricalInstallActionCancelEmote",
+			"ElectricalInstallActionSuccessEmote",
+			"ElectricalInstallActionFailureEmote",
+			outcome =>
+			{
+				if (!RelocateLooseItem(cableItem, destinationCell, destinationContainer, out var error))
+				{
+					actor.Send(error);
+					return false;
+				}
+
+				if (!cable.ConfigureRoute(source, exit.Exit.Id, out error))
+				{
+					actor.Send(error);
+					return false;
+				}
+
+				if (housingItem is null)
+				{
+					actor.Send(
+						$"You route {cableItem.HowSeen(actor, true).ColourName()} through {exit.OutboundDirectionDescription.ColourCommand()} so it now mirrors {DescribeComponent(actor, source).ColourName()} one room away.");
+				}
+				else
+				{
+					actor.Send(
+						$"You route {cableItem.HowSeen(actor, true).ColourName()} through {exit.OutboundDirectionDescription.ColourCommand()} into {housingItem.HowSeen(actor, true).ColourName()}, where it now mirrors {DescribeComponent(actor, source).ColourName()}.");
+				}
+
+				return true;
+			},
+			[cablePlan],
+			_ => [cableItem],
+			() => EnumerateShockRiskItems(cableItem, source.Parent, housingItem));
+	}
+
+	private static void ElectricalUnroute(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which signal cable item do you want to unroute?");
+			return;
+		}
+
+		var cableItem = actor.TargetItem(ss.PopSpeech());
+		if (cableItem is null)
+		{
+			actor.Send("You do not see any such signal cable here.");
+			return;
+		}
+
+		var manipulation = CanManipulateElectronicsTarget(actor, cableItem);
+		if (!manipulation.Truth)
+		{
+			actor.Send(manipulation.Message);
+			return;
+		}
+
+		var cable = ResolveSignalCableSegment(actor, cableItem);
+		if (cable is null)
+		{
+			return;
+		}
+
+		if (!cable.IsRouted)
+		{
+			actor.Send($"{cableItem.HowSeen(actor, true)} is not currently routed to anything.");
+			return;
+		}
+
+		StartElectricalAction(
+			actor,
+			cableItem,
+			"ElectricalConfigureActionDurationSeconds",
+			CheckType.ConfigureElectricalComponentCheck,
+			"ElectricalConfigureTraitName",
+			"ElectricalToolTagName",
+			"disconnecting $0",
+			"ElectricalConfigureActionBeginEmote",
+			"ElectricalConfigureActionContinueEmote",
+			"ElectricalConfigureActionCancelEmote",
+			"ElectricalConfigureActionSuccessEmote",
+			"ElectricalConfigureActionFailureEmote",
+			outcome =>
+			{
+				cable.ClearRoute();
+				actor.Send($"You disconnect and clear the routing on {cableItem.HowSeen(actor, true).ColourName()}.");
+				return true;
+			},
+			null,
+			null,
+			() => EnumerateShockRiskItems(cableItem));
+	}
+
 	private static void ElectricalBind(ICharacter actor, IGameItem item, StringStack ss)
 	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.Send("Which configurable electrical component do you want to rewire?");
 			return;
 		}
 
-		var sink = ResolveComponent<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
+		var sink = ResolveComponentOnItem<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
 			"configurable electrical component");
 		if (sink is null)
 		{
@@ -191,9 +609,15 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			return;
 		}
 
-		var source = ResolveComponent<ISignalSourceComponent>(actor, item, ss.PopSpeech(), "signal source component");
+		var source = ResolveNearbySignalSource(actor, item, ss.PopSpeech(), "signal source component");
 		if (source is null)
 		{
+			return;
+		}
+
+		if (!CanServiceElectronicsTarget(actor, source.Parent, out var sourceError))
+		{
+			actor.Send(sourceError);
 			return;
 		}
 
@@ -222,54 +646,129 @@ Component and source identifiers can be either the live component #6id#0 shown i
 				actor.Send(
 					$"You rewire {DescribeComponent(actor, sink).ColourName()} so it now listens to {DescribeComponent(actor, source).ColourName()} on the {SignalComponentUtilities.NormaliseSignalEndpointKey(endpointKey).ColourCommand()} endpoint.");
 				return true;
-			});
+			},
+			null,
+			null,
+			() => EnumerateShockRiskItems(item, source.Parent));
 	}
 
 	private static void ElectricalClear(ICharacter actor, IGameItem item, StringStack ss)
 	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
+			if (TryResolveSingleComponentOnItem<ISignalCableSegment>(item, out var singleCable))
+			{
+				StartElectricalAction(
+					actor,
+					item,
+					"ElectricalConfigureActionDurationSeconds",
+					CheckType.ConfigureElectricalComponentCheck,
+					"ElectricalConfigureTraitName",
+					"ElectricalToolTagName",
+					"disconnecting $0",
+					"ElectricalConfigureActionBeginEmote",
+					"ElectricalConfigureActionContinueEmote",
+					"ElectricalConfigureActionCancelEmote",
+					"ElectricalConfigureActionSuccessEmote",
+					"ElectricalConfigureActionFailureEmote",
+					outcome =>
+					{
+						singleCable.ClearRoute();
+						actor.Send($"You clear the routing on {item.HowSeen(actor, true).ColourName()}.");
+						return true;
+					},
+					null,
+					null,
+					() => EnumerateShockRiskItems(item));
+				return;
+			}
+
 			actor.Send("Which configurable electrical component do you want to clear?");
 			return;
 		}
 
-		var sink = ResolveComponent<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
-			"configurable electrical component");
-		if (sink is null)
+		var identifier = ss.PopSpeech();
+		var sink = TryResolveComponentOnItem<IRuntimeConfigurableSignalSinkComponent>(item, identifier);
+		if (sink is not null)
 		{
+			StartElectricalAction(
+				actor,
+				item,
+				"ElectricalConfigureActionDurationSeconds",
+				CheckType.ConfigureElectricalComponentCheck,
+				"ElectricalConfigureTraitName",
+				"ElectricalToolTagName",
+				"configuring $1",
+				"ElectricalConfigureActionBeginEmote",
+				"ElectricalConfigureActionContinueEmote",
+				"ElectricalConfigureActionCancelEmote",
+				"ElectricalConfigureActionSuccessEmote",
+				"ElectricalConfigureActionFailureEmote",
+				outcome =>
+				{
+					sink.ClearSignalBinding();
+					actor.Send($"You clear any live rewiring from {DescribeComponent(actor, sink).ColourName()}.");
+					return true;
+				},
+				null,
+				null,
+				() => EnumerateShockRiskItems(item));
 			return;
 		}
 
-		StartElectricalAction(
-			actor,
-			item,
-			"ElectricalConfigureActionDurationSeconds",
-			CheckType.ConfigureElectricalComponentCheck,
-			"ElectricalConfigureTraitName",
-			"ElectricalToolTagName",
-			"configuring $1",
-			"ElectricalConfigureActionBeginEmote",
-			"ElectricalConfigureActionContinueEmote",
-			"ElectricalConfigureActionCancelEmote",
-			"ElectricalConfigureActionSuccessEmote",
-			"ElectricalConfigureActionFailureEmote",
-			outcome =>
-			{
-				sink.ClearSignalBinding();
-				actor.Send($"You clear any live rewiring from {DescribeComponent(actor, sink).ColourName()}.");
-				return true;
-			});
+		var cable = TryResolveComponentOnItem<ISignalCableSegment>(item, identifier);
+		if (cable is not null)
+		{
+			StartElectricalAction(
+				actor,
+				item,
+				"ElectricalConfigureActionDurationSeconds",
+				CheckType.ConfigureElectricalComponentCheck,
+				"ElectricalConfigureTraitName",
+				"ElectricalToolTagName",
+				"disconnecting $0",
+				"ElectricalConfigureActionBeginEmote",
+				"ElectricalConfigureActionContinueEmote",
+				"ElectricalConfigureActionCancelEmote",
+				"ElectricalConfigureActionSuccessEmote",
+				"ElectricalConfigureActionFailureEmote",
+				outcome =>
+				{
+					cable.ClearRoute();
+					actor.Send($"You clear the routing on {DescribeComponent(actor, cable).ColourName()}.");
+					return true;
+				},
+				null,
+				null,
+				() => EnumerateShockRiskItems(item));
+			return;
+		}
+
+		actor.Send(
+			$"You must specify one of the following configurable electrical components on {item.HowSeen(actor, true)}:\n{DescribeAvailableElectricalTargets(actor, item)}");
 	}
 
 	private static void ElectricalThreshold(ICharacter actor, IGameItem item, StringStack ss)
 	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.Send("Which configurable electrical component do you want to retune?");
 			return;
 		}
 
-		var sink = ResolveComponent<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
+		var sink = ResolveComponentOnItem<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
 			"configurable electrical component");
 		if (sink is null)
 		{
@@ -306,18 +805,27 @@ Component and source identifiers can be either the live component #6id#0 shown i
 				actor.Send(
 					$"You set {DescribeComponent(actor, sink).ColourName()} to trigger at {threshold.ToString("N2", actor).ColourValue()}.");
 				return true;
-			});
+			},
+			null,
+			null,
+			() => EnumerateShockRiskItems(item));
 	}
 
 	private static void ElectricalMode(ICharacter actor, IGameItem item, StringStack ss)
 	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.Send("Which configurable electrical component do you want to reconfigure?");
 			return;
 		}
 
-		var sink = ResolveComponent<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
+		var sink = ResolveComponentOnItem<IRuntimeConfigurableSignalSinkComponent>(actor, item, ss.PopSpeech(),
 			"configurable electrical component");
 		if (sink is null)
 		{
@@ -364,19 +872,21 @@ Component and source identifiers can be either the live component #6id#0 shown i
 				actor.Send(
 					$"You set {DescribeComponent(actor, sink).ColourName()} to trigger when its control signal is {(activeWhenAboveThreshold.Value ? "at or above".ColourValue() : "below".ColourValue())} the configured threshold.");
 				return true;
-			});
+			},
+			null,
+			null,
+			() => EnumerateShockRiskItems(item));
 	}
 
 	private static void ProgrammingLogic(ICharacter actor, IGameItem item, StringStack ss)
 	{
-		if (ss.IsFinished)
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
 		{
-			actor.Send("Which programmable microcontroller do you want to update?");
+			actor.Send(serviceError);
 			return;
 		}
 
-		var controller = ResolveComponent<IRuntimeProgrammableMicrocontroller>(actor, item, ss.PopSpeech(),
-			"programmable microcontroller");
+		var controller = ResolveOptionalController(actor, item, ss, "programmable microcontroller");
 		if (controller is null)
 		{
 			return;
@@ -428,6 +938,12 @@ Component and source identifiers can be either the live component #6id#0 shown i
 
 	private static void ProgrammingInput(ICharacter actor, IGameItem item, StringStack ss)
 	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.Send("Do you want to add or remove an input binding?");
@@ -453,14 +969,7 @@ Component and source identifiers can be either the live component #6id#0 shown i
 
 	private static void ProgrammingInputAdd(ICharacter actor, IGameItem item, StringStack ss)
 	{
-		if (ss.IsFinished)
-		{
-			actor.Send("Which programmable microcontroller do you want to change?");
-			return;
-		}
-
-		var controller = ResolveComponent<IRuntimeProgrammableMicrocontroller>(actor, item, ss.PopSpeech(),
-			"programmable microcontroller");
+		var controller = ResolveOptionalController(actor, item, ss, "programmable microcontroller");
 		if (controller is null)
 		{
 			return;
@@ -479,9 +988,15 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			return;
 		}
 
-		var source = ResolveComponent<ISignalSourceComponent>(actor, item, ss.PopSpeech(), "signal source component");
+		var source = ResolveNearbySignalSource(actor, item, ss.PopSpeech(), "signal source component");
 		if (source is null)
 		{
+			return;
+		}
+
+		if (!CanServiceElectronicsTarget(actor, source.Parent, out var sourceError))
+		{
+			actor.Send(sourceError);
 			return;
 		}
 
@@ -506,14 +1021,7 @@ Component and source identifiers can be either the live component #6id#0 shown i
 
 	private static void ProgrammingInputRemove(ICharacter actor, IGameItem item, StringStack ss)
 	{
-		if (ss.IsFinished)
-		{
-			actor.Send("Which programmable microcontroller do you want to change?");
-			return;
-		}
-
-		var controller = ResolveComponent<IRuntimeProgrammableMicrocontroller>(actor, item, ss.PopSpeech(),
-			"programmable microcontroller");
+		var controller = ResolveOptionalController(actor, item, ss, "programmable microcontroller");
 		if (controller is null)
 		{
 			return;
@@ -563,13 +1071,18 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			"ProgrammingActionFailureEmote",
 			successAction,
 			null,
+			null,
+			null,
 			null);
 	}
 
 	private static void StartElectricalAction(ICharacter actor, IGameItem item, string durationConfigKey,
 		CheckType checkType, string traitConfigKey, string toolTagConfigKey, string actionDescription,
 		string beginEmoteKey, string continueEmoteKey, string cancelEmoteKey, string successEmoteKey,
-		string failureEmoteKey, Func<CheckOutcome, bool> successAction)
+		string failureEmoteKey, Func<CheckOutcome, bool> successAction,
+		IEnumerable<IInventoryPlan>? additionalInventoryPlans,
+		Func<CheckOutcome, IList<IGameItem>>? successExemptItemsAction,
+		Func<IEnumerable<IGameItem>>? shockRiskItemsProvider)
 	{
 		StartConfiguredAction(
 			actor,
@@ -586,18 +1099,34 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			successEmoteKey,
 			failureEmoteKey,
 			successAction,
+			additionalInventoryPlans,
+			successExemptItemsAction,
 			null,
-			outcome => ApplyElectricalShock(actor, item));
+			outcome =>
+			{
+				if (shockRiskItemsProvider?.Invoke().Any(IsElectricallyLive) == true)
+				{
+					ApplyElectricalShock(actor, item);
+				}
+			});
 	}
 
 	private static void StartConfiguredAction(ICharacter actor, IGameItem item, string toolTagConfigKey,
 		string traitConfigKey, string durationConfigKey, CheckType checkType, Difficulty difficulty,
 		string actionDescription, string beginEmoteKey, string continueEmoteKey, string cancelEmoteKey,
 		string successEmoteKey, string failureEmoteKey, Func<CheckOutcome, bool> successAction,
+		IEnumerable<IInventoryPlan>? additionalInventoryPlans,
+		Func<CheckOutcome, IList<IGameItem>>? successExemptItemsAction,
 		Action<CheckOutcome>? failureAction, Action<CheckOutcome>? abjectFailureAction)
 	{
+		var extraPlans = additionalInventoryPlans?.ToList() ?? [];
 		if (!TryAcquireToolPlan(actor, toolTagConfigKey, out var plan, out var tool))
 		{
+			foreach (var extraPlan in extraPlans)
+			{
+				extraPlan.FinalisePlan();
+			}
+
 			return;
 		}
 
@@ -605,16 +1134,23 @@ Component and source identifiers can be either the live component #6id#0 shown i
 		if (trait is null)
 		{
 			plan.FinalisePlan();
+			foreach (var extraPlan in extraPlans)
+			{
+				extraPlan.FinalisePlan();
+			}
+
 			return;
 		}
 
 		var totalDuration = TimeSpan.FromSeconds(Math.Max(3.0, actor.Gameworld.GetStaticDouble(durationConfigKey)));
 		var stageDuration = TimeSpan.FromMilliseconds(totalDuration.TotalMilliseconds / 3.0);
+		var inventoryPlans = new List<IInventoryPlan> { plan };
+		inventoryPlans.AddRange(extraPlans);
 		var effect = new ItemComponentConfigurationAction(
 			actor,
 			item,
 			tool,
-			plan,
+			inventoryPlans,
 			actionDescription,
 			actor.Gameworld.GetStaticString(beginEmoteKey),
 			actor.Gameworld.GetStaticString(continueEmoteKey),
@@ -626,6 +1162,7 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			() => actor.Gameworld.GetCheck(checkType)
 				.Check(actor, difficulty, trait, item, externalBonus: ToolQualityBonus(tool)),
 			successAction,
+			successExemptItemsAction,
 			failureAction,
 			abjectFailureAction);
 		actor.AddEffect(effect, stageDuration);
@@ -633,25 +1170,71 @@ Component and source identifiers can be either the live component #6id#0 shown i
 
 	private static void ShowElectricalStatus(ICharacter actor, IGameItem item)
 	{
-		var sources = item.Components.OfType<ISignalSourceComponent>().ToList();
-		var sinks = item.Components.OfType<IRuntimeConfigurableSignalSinkComponent>().ToList();
-		if (!sources.Any() && !sinks.Any())
+		var statusItems = EnumerateElectricalStatusItems(actor, item).ToList();
+		var sources = statusItems.SelectMany(x => x.Components.OfType<ISignalSourceComponent>()).ToList();
+		var sinks = statusItems.SelectMany(x => x.Components.OfType<IRuntimeConfigurableSignalSinkComponent>()).ToList();
+		var hosts = statusItems.SelectMany(x => x.Components.OfType<IAutomationMountHost>()).ToList();
+		var housings = statusItems.SelectMany(x => x.Components.OfType<IAutomationHousing>()).Distinct().ToList();
+		if (!sources.Any() && !sinks.Any() && !hosts.Any() && !housings.Any())
 		{
-			actor.Send($"{item.HowSeen(actor, true)} has no signal-capable electrical components.");
+			actor.Send($"{item.HowSeen(actor, true)} has no signal-capable electrical systems.");
 			return;
 		}
 
 		var sb = new StringBuilder();
 		sb.AppendLine($"{item.HowSeen(actor, true)} has the following electrical components:");
+		if (hosts.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Automation Bays:");
+			foreach (var host in hosts.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
+			{
+				sb.AppendLine($"\t{DescribeComponent(actor, host).ColourName()}:");
+				foreach (var bay in host.Bays.OrderBy(x => x.Name))
+				{
+					sb.AppendLine(
+						$"\t\t{bay.Name.ColourCommand()} ({bay.MountType.ColourValue()}) - {(bay.Occupied ? bay.MountedItem!.HowSeen(actor, true).ColourName() : "empty".ColourError())}");
+				}
+			}
+		}
+
+		if (housings.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Automation Housings:");
+			foreach (var housing in housings.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
+			{
+				var accessText = housing.CanAccessHousing(actor, out _)
+					? "open for service".ColourValue()
+					: "sealed".ColourName();
+				sb.AppendLine($"\t{DescribeComponent(actor, housing).ColourName()} - {accessText}");
+				if (!housing.CanAccessHousing(actor, out _))
+				{
+					continue;
+				}
+
+				var concealed = housing.ConcealedItems.ToList();
+				if (!concealed.Any())
+				{
+					sb.AppendLine("\t\tNo concealed automation items.");
+					continue;
+				}
+
+				foreach (var concealedItem in concealed.OrderBy(x => x.Id))
+				{
+					sb.AppendLine($"\t\t{concealedItem.HowSeen(actor, true).ColourName()}");
+				}
+			}
+		}
+
 		if (sources.Any())
 		{
 			sb.AppendLine();
 			sb.AppendLine("Sources:");
-			foreach (var source in sources.OrderBy(x => ((IGameItemComponent)x).Id))
+			foreach (var source in sources.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
 			{
-				var component = (IGameItemComponent)source;
 				sb.AppendLine(
-					$"\t[{component.Id.ToString("N0", actor)}] {component.Name.ColourName()} -> {source.CurrentValue.ToString("N2", actor).ColourValue()} on {source.EndpointKey.ColourCommand()}");
+					$"\t{DescribeComponent(actor, source).ColourName()} -> {source.CurrentValue.ToString("N2", actor).ColourValue()} on {source.EndpointKey.ColourCommand()}");
 			}
 		}
 
@@ -659,11 +1242,10 @@ Component and source identifiers can be either the live component #6id#0 shown i
 		{
 			sb.AppendLine();
 			sb.AppendLine("Configurable Sinks:");
-			foreach (var sink in sinks.OrderBy(x => ((IGameItemComponent)x).Id))
+			foreach (var sink in sinks.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
 			{
-				var component = (IGameItemComponent)sink;
 				sb.AppendLine(
-					$"\t[{component.Id.ToString("N0", actor)}] {component.Name.ColourName()} <- {SignalComponentUtilities.DescribeSignalComponent(sink.CurrentBinding).ColourCommand()}, threshold {sink.ActivationThreshold.ToString("N2", actor).ColourValue()}, mode {(sink.ActiveWhenAboveThreshold ? "above/equal".ColourValue() : "below".ColourValue())}");
+					$"\t{DescribeComponent(actor, sink).ColourName()} <- {SignalComponentUtilities.DescribeSignalComponent(sink.CurrentBinding).ColourCommand()}, threshold {sink.ActivationThreshold.ToString("N2", actor).ColourValue()}, mode {(sink.ActiveWhenAboveThreshold ? "above/equal".ColourValue() : "below".ColourValue())}");
 			}
 		}
 
@@ -702,7 +1284,7 @@ Component and source identifiers can be either the live component #6id#0 shown i
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static TComponent? ResolveComponent<TComponent>(ICharacter actor, IGameItem item, string identifier,
+	private static TComponent? ResolveComponentOnItem<TComponent>(ICharacter actor, IGameItem item, string identifier,
 		string componentTypeDescription)
 		where TComponent : class, IGameItemComponent
 	{
@@ -711,6 +1293,69 @@ Component and source identifiers can be either the live component #6id#0 shown i
 		{
 			actor.Send($"{item.HowSeen(actor, true)} has no {componentTypeDescription}s.");
 			return null;
+		}
+
+		var resolved = TryResolveComponentOnItem<TComponent>(item, identifier);
+		if (resolved is not null)
+		{
+			return resolved;
+		}
+
+		actor.Send(
+			$"You must specify one of the following {componentTypeDescription}s on {item.HowSeen(actor, true)}:\n{components.Select(x => $"\t[{x.Id.ToString("N0", actor)}] {x.Name.ColourName()}").ListToLines()}");
+		return null;
+	}
+
+	private static ISignalSourceComponent? ResolveNearbySignalSource(ICharacter actor, IGameItem anchorItem, string identifier,
+		string componentTypeDescription)
+	{
+		return ResolveComponentFromItems<ISignalSourceComponent>(actor, EnumerateNearbySignalItems(actor, anchorItem), identifier,
+			componentTypeDescription);
+	}
+
+	private static ISignalSourceComponent? ResolveActorLocalSignalSource(ICharacter actor, string identifier)
+	{
+		return ResolveComponentFromItems<ISignalSourceComponent>(actor, EnumerateActorLocalSignalItems(actor), identifier,
+			"signal source component");
+	}
+
+	private static TComponent? ResolveComponentFromItems<TComponent>(ICharacter actor, IEnumerable<IGameItem> items,
+		string identifier, string componentTypeDescription)
+		where TComponent : class, IGameItemComponent
+	{
+		var candidateItems = items.Distinct().ToList();
+		var components = candidateItems.SelectMany(x => x.Components.OfType<TComponent>()).Distinct().ToList();
+		if (!components.Any())
+		{
+			actor.Send($"There are no accessible {componentTypeDescription}s here.");
+			return null;
+		}
+
+		if (identifier.Contains('@'))
+		{
+			var split = identifier.Split('@', 2, StringSplitOptions.RemoveEmptyEntries);
+			if (split.Length == 2)
+			{
+				var itemMatch = ResolveItemReference(candidateItems, split[0]);
+				if (itemMatch is not null)
+				{
+					var directMatch = TryResolveComponentOnItem<TComponent>(itemMatch, split[1]);
+					if (directMatch is not null)
+					{
+						return directMatch;
+					}
+
+					var attachedMatch = ResolveItemReference(itemMatch.AttachedAndConnectedItems.Distinct(), split[1]);
+					if (attachedMatch is not null)
+					{
+						var attachedComponents = attachedMatch.Components.OfType<TComponent>().ToList();
+						if (attachedComponents.Count == 1)
+						{
+							return attachedComponents[0];
+						}
+					}
+				}
+			}
 		}
 
 		if (long.TryParse(identifier, out var componentId))
@@ -738,9 +1383,379 @@ Component and source identifiers can be either the live component #6id#0 shown i
 			return prefixMatches[0];
 		}
 
+		var itemMatchByName = ResolveItemReference(candidateItems, identifier);
+		if (itemMatchByName is not null)
+		{
+			var itemComponents = itemMatchByName.Components.OfType<TComponent>().ToList();
+			if (itemComponents.Count == 1)
+			{
+				return itemComponents[0];
+			}
+		}
+
 		actor.Send(
-			$"You must specify one of the following {componentTypeDescription}s on {item.HowSeen(actor, true)}:\n{components.Select(x => $"\t[{x.Id.ToString("N0", actor)}] {x.Name.ColourName()}").ListToLines()}");
+			$"You must specify one of the following {componentTypeDescription}s:\n{components.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id).Select(x => $"\t{DescribeComponent(actor, x).ColourName()}").ListToLines()}");
 		return null;
+	}
+
+	private static TComponent? TryResolveComponentOnItem<TComponent>(IGameItem item, string identifier)
+		where TComponent : class, IGameItemComponent
+	{
+		var components = item.Components.OfType<TComponent>().ToList();
+		if (!components.Any())
+		{
+			return null;
+		}
+
+		if (long.TryParse(identifier, out var componentId))
+		{
+			var idMatch = components.FirstOrDefault(x => x.Id == componentId);
+			if (idMatch is not null)
+			{
+				return idMatch;
+			}
+		}
+
+		var exactMatches = components
+			.Where(x => x.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exactMatches.Count == 1)
+		{
+			return exactMatches[0];
+		}
+
+		var prefixMatches = components
+			.Where(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		return prefixMatches.Count == 1 ? prefixMatches[0] : null;
+	}
+
+	private static bool TryResolveSingleComponentOnItem<TComponent>(IGameItem item, out TComponent component)
+		where TComponent : class, IGameItemComponent
+	{
+		var components = item.Components.OfType<TComponent>().ToList();
+		component = components.Count == 1 ? components[0] : null!;
+		return components.Count == 1;
+	}
+
+	private static IRuntimeProgrammableMicrocontroller? ResolveOptionalController(ICharacter actor, IGameItem item,
+		StringStack ss, string componentTypeDescription)
+	{
+		var controllers = item.Components.OfType<IRuntimeProgrammableMicrocontroller>().ToList();
+		if (!controllers.Any())
+		{
+			actor.Send($"{item.HowSeen(actor, true)} has no {componentTypeDescription}s.");
+			return null;
+		}
+
+		if (controllers.Count == 1)
+		{
+			if (!ss.IsFinished)
+			{
+				var explicitController = TryResolveComponentOnItem<IRuntimeProgrammableMicrocontroller>(item, ss.PeekSpeech());
+				if (explicitController is not null)
+				{
+					ss.PopSpeech();
+					return explicitController;
+				}
+			}
+
+			return controllers[0];
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send($"Which {componentTypeDescription} do you mean?");
+			return null;
+		}
+
+		return ResolveComponentOnItem<IRuntimeProgrammableMicrocontroller>(actor, item, ss.PopSpeech(),
+			componentTypeDescription);
+	}
+
+	private static IAutomationMountHost? ResolveAutomationMountHost(ICharacter actor, IGameItem item)
+	{
+		var host = item.GetItemType<IAutomationMountHost>();
+		if (host is null)
+		{
+			actor.Send($"{item.HowSeen(actor, true)} is not configured with any automation mount bays.");
+		}
+
+		return host;
+	}
+
+	private static ISignalCableSegment? ResolveSignalCableSegment(ICharacter actor, IGameItem item)
+	{
+		var cable = item.GetItemType<ISignalCableSegment>();
+		if (cable is null)
+		{
+			actor.Send($"{item.HowSeen(actor, true)} is not a signal cable segment.");
+		}
+
+		return cable;
+	}
+
+	private static IAutomationHousing? ResolveAutomationHousing(ICharacter actor, IGameItem item)
+	{
+		var housing = item.GetItemType<IAutomationHousing>();
+		if (housing is null)
+		{
+			actor.Send($"{item.HowSeen(actor, true)} is not an automation housing or junction.");
+		}
+
+		return housing;
+	}
+
+	private static string? ResolveDefaultCompatibleMountBay(ICharacter actor, IAutomationMountHost host,
+		IAutomationMountable module, IGameItem hostItem)
+	{
+		var compatible = host.Bays
+			.Where(x => !x.Occupied && x.MountType.Equals(module.MountType, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (compatible.Count == 1)
+		{
+			return compatible[0].Name;
+		}
+
+		if (!compatible.Any())
+		{
+			actor.Send($"{hostItem.HowSeen(actor, true)} has no compatible free bays for a {module.MountType.ColourCommand()} module.");
+			return null;
+		}
+
+		actor.Send(
+			$"You must specify which compatible bay you want to use on {hostItem.HowSeen(actor, true)}:\n{compatible.Select(x => $"\t{x.Name.ColourCommand()}").ListToLines()}");
+		return null;
+	}
+
+	private static string? ResolveDefaultOccupiedMountBay(ICharacter actor, IAutomationMountHost host, IGameItem hostItem)
+	{
+		var occupied = host.Bays.Where(x => x.Occupied).ToList();
+		if (occupied.Count == 1)
+		{
+			return occupied[0].Name;
+		}
+
+		if (!occupied.Any())
+		{
+			actor.Send($"{hostItem.HowSeen(actor, true)} does not currently have any installed modules.");
+			return null;
+		}
+
+		actor.Send(
+			$"You must specify which occupied bay you want to clear on {hostItem.HowSeen(actor, true)}:\n{occupied.Select(x => $"\t{x.Name.ColourCommand()}").ListToLines()}");
+		return null;
+	}
+
+	private static IEnumerable<IGameItem> EnumerateElectricalStatusItems(ICharacter actor, IGameItem item)
+	{
+		var rootItems = new[] { item }
+			.Concat(item.AttachedAndConnectedItems)
+			.Distinct()
+			.ToList();
+		return rootItems
+			.Concat(EnumerateAccessibleAutomationHousingContents(actor, rootItems))
+			.Distinct();
+	}
+
+	private static IEnumerable<IGameItem> EnumerateNearbySignalItems(ICharacter actor, IGameItem anchorItem)
+	{
+		var items = new List<IGameItem> { anchorItem };
+		items.AddRange(anchorItem.AttachedAndConnectedItems);
+		foreach (var cell in anchorItem.TrueLocations.OfType<ICell>().Distinct())
+		{
+			items.AddRange(cell.LayerGameItems(anchorItem.RoomLayer));
+		}
+
+		var rootItems = items
+			.Distinct()
+			.SelectMany(x => new[] { x }.Concat(x.AttachedAndConnectedItems))
+			.Distinct()
+			.ToList();
+		return rootItems
+			.Concat(EnumerateAccessibleAutomationHousingContents(actor, rootItems))
+			.Distinct();
+	}
+
+	private static IEnumerable<IGameItem> EnumerateActorLocalSignalItems(ICharacter actor)
+	{
+		var items = actor.Body.ExternalItems
+			.Concat(actor.Location.LayerGameItems(actor.RoomLayer))
+			.Distinct()
+			.ToList();
+		var rootItems = items
+			.SelectMany(x => new[] { x }.Concat(x.AttachedAndConnectedItems))
+			.Distinct()
+			.ToList();
+		return rootItems
+			.Concat(EnumerateAccessibleAutomationHousingContents(actor, rootItems))
+			.Distinct();
+	}
+
+	private static IEnumerable<IGameItem> EnumerateAccessibleAutomationHousingContents(ICharacter actor,
+		IEnumerable<IGameItem> items)
+	{
+		return items
+			.Distinct()
+			.SelectMany(x =>
+				x.GetItemType<IAutomationHousing>() is IAutomationHousing housing &&
+				housing.CanAccessHousing(actor, out _)
+					? housing.ConcealedItems
+					: []);
+	}
+
+	private static IGameItem? ResolveItemReference(IEnumerable<IGameItem> items, string identifier)
+	{
+		var candidateItems = items.Distinct().ToList();
+		if (long.TryParse(identifier, out var itemId))
+		{
+			var idMatch = candidateItems.FirstOrDefault(x => x.Id == itemId);
+			if (idMatch is not null)
+			{
+				return idMatch;
+			}
+		}
+
+		var exactMatches = candidateItems
+			.Where(x => x.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exactMatches.Count == 1)
+		{
+			return exactMatches[0];
+		}
+
+		var prefixMatches = candidateItems
+			.Where(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		return prefixMatches.Count == 1 ? prefixMatches[0] : null;
+	}
+
+	private static string DescribeAvailableElectricalTargets(ICharacter actor, IGameItem item)
+	{
+		var items = new[] { item }
+			.Concat(item.GetItemType<IAutomationHousing>() is IAutomationHousing housing &&
+			        housing.CanAccessHousing(actor, out _)
+				? housing.ConcealedItems
+				: [])
+			.Distinct()
+			.ToList();
+		var components = items
+			.SelectMany(x => x.Components)
+			.OfType<IGameItemComponent>()
+			.Where(x => x is IRuntimeConfigurableSignalSinkComponent || x is ISignalCableSegment)
+			.ToList();
+		return !components.Any()
+			? "\tNone"
+			: components.Select(x => $"\t{DescribeComponent(actor, x).ColourName()}").ListToLines();
+	}
+
+	private static (bool Truth, string Message) CanManipulateElectronicsTarget(ICharacter actor, IGameItem item)
+	{
+		if (item.GetItemType<IAutomationMountable>() is IAutomationMountable { MountHost: not null } mountable)
+		{
+			var hostManipulation = actor.CanManipulateItem(mountable.MountHost.Parent);
+			if (!hostManipulation.Truth)
+			{
+				return hostManipulation;
+			}
+
+			if (!mountable.MountHost.CanAccessMounts(actor, out var mountError))
+			{
+				return (false, mountError);
+			}
+
+			return CheckContainingAutomationHousing(actor, mountable.MountHost.Parent);
+		}
+
+		var manipulation = actor.CanManipulateItem(item);
+		if (!manipulation.Truth)
+		{
+			return manipulation;
+		}
+
+		return CheckContainingAutomationHousing(actor, item);
+	}
+
+	private static bool CanServiceElectronicsTarget(ICharacter actor, IGameItem item, out string error)
+	{
+		var manipulation = CanManipulateElectronicsTarget(actor, item);
+		if (!manipulation.Truth)
+		{
+			error = manipulation.Message;
+			return false;
+		}
+
+		if (item.GetItemType<IAutomationMountHost>() is IAutomationMountHost host &&
+		    !host.CanAccessMounts(actor, out error))
+		{
+			return false;
+		}
+
+		if (item.GetItemType<IAutomationHousing>() is IAutomationHousing housing &&
+		    !housing.CanAccessHousing(actor, out error))
+		{
+			return false;
+		}
+
+		error = string.Empty;
+		return true;
+	}
+
+	private static (bool Truth, string Message) CheckContainingAutomationHousing(ICharacter actor, IGameItem item)
+	{
+		if (item.ContainedIn?.GetItemType<IAutomationHousing>() is not IAutomationHousing housing)
+		{
+			return (true, string.Empty);
+		}
+
+		var housingManipulation = actor.CanManipulateItem(housing.Parent);
+		if (!housingManipulation.Truth)
+		{
+			return housingManipulation;
+		}
+
+		return housing.CanAccessHousing(actor, out var housingError)
+			? (true, string.Empty)
+			: (false, housingError);
+	}
+
+	private static bool TryAcquireSpecificItemPlan(ICharacter actor, IGameItem item, out IInventoryPlan plan)
+	{
+		var template = new InventoryPlanTemplate(actor.Gameworld, new[]
+		{
+			new InventoryPlanActionHold(actor.Gameworld, 0, 0, x => ReferenceEquals(x, item), null, 1)
+			{
+				ItemsAlreadyInPlaceOverrideFitnessScore = true
+			}
+		});
+		plan = template.CreatePlan(actor);
+		switch (plan.PlanIsFeasible())
+		{
+			case InventoryPlanFeasibility.Feasible:
+				break;
+			case InventoryPlanFeasibility.NotFeasibleMissingItems:
+				actor.Send($"You cannot get hold of {item.HowSeen(actor, true)} to work with it.");
+				return false;
+			case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
+				actor.Send("You do not have enough free hands to ready that item for the work.");
+				return false;
+			case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
+				actor.Send("You cannot get that item into the right state for the work.");
+				return false;
+			default:
+				actor.Send($"You cannot get hold of {item.HowSeen(actor, true)} right now.");
+				return false;
+		}
+
+		var results = plan.ExecuteWholePlan().ToList();
+		if (!results.Any(x => ReferenceEquals(x.PrimaryTarget, item)))
+		{
+			plan.FinalisePlan();
+			actor.Send($"You fail to get hold of {item.HowSeen(actor, true)}.");
+			return false;
+		}
+
+		return true;
 	}
 
 	private static ITraitDefinition? ResolveTrait(ICharacter actor, string traitConfigKey)
@@ -823,6 +1838,74 @@ Component and source identifiers can be either the live component #6id#0 shown i
 		return true;
 	}
 
+	private static bool RelocateLooseItem(IGameItem item, ICell destinationCell, IContainer? destinationContainer, out string error)
+	{
+		ReleaseItemFromCurrentState(item);
+		if (destinationContainer is not null)
+		{
+			if (!destinationContainer.CanPut(item))
+			{
+				error = "The destination housing cannot accept that item.";
+				return false;
+			}
+
+			destinationContainer.Put(null, item, false);
+			error = string.Empty;
+			return true;
+		}
+
+		item.Drop(destinationCell);
+		error = string.Empty;
+		return true;
+	}
+
+	private static void ReleaseItemFromCurrentState(IGameItem item)
+	{
+		if (item.GetItemType<IHoldable>()?.HeldBy != null)
+		{
+			item.GetItemType<IHoldable>()!.HeldBy.Take(item);
+			return;
+		}
+
+		if (item.ContainedIn != null)
+		{
+			item.ContainedIn.Take(item);
+			return;
+		}
+
+		item.Location?.Extract(item);
+	}
+
+	private static IEnumerable<IGameItem> EnumerateShockRiskItems(params IGameItem?[] items)
+	{
+		return items.Where(x => x is not null).Cast<IGameItem>().Distinct();
+	}
+
+	private static bool IsElectricallyLive(IGameItem item)
+	{
+		if (item.GetItemTypes<IProducePower>().Any(x => x.ProducingPower))
+		{
+			return true;
+		}
+
+		foreach (var consumer in item.GetItemTypes<IConsumePower>())
+		{
+			if (consumer is IOnOff onOff)
+			{
+				if (onOff.SwitchedOn)
+				{
+					return true;
+				}
+
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private static void ApplyElectricalShock(ICharacter actor, IGameItem item)
 	{
 		actor.OutputHandler.Handle(
@@ -840,7 +1923,7 @@ Component and source identifiers can be either the live component #6id#0 shown i
 
 	private static string DescribeComponent(ICharacter actor, IGameItemComponent component)
 	{
-		return $"[{component.Id.ToString("N0", actor)}] {component.Name}";
+		return $"[{component.Id.ToString("N0", actor)}] {component.Parent.HowSeen(actor, true)}@{component.Name}";
 	}
 
 	private static double ToolQualityBonus(IGameItem tool)

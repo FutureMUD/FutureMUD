@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Computers;
+using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -15,8 +16,9 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemComponent, IRuntimeProgrammableMicrocontroller
+public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemComponent, IRuntimeProgrammableMicrocontroller, IAutomationMountable, IConnectable
 {
+	private static readonly ConnectorType MountConnector = new(Gender.Male, "Automation:Microcontroller", false);
 	private readonly Dictionary<string, ISignalSourceComponent> _inputSources =
 		new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly Dictionary<string, double> _inputValues =
@@ -27,6 +29,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	private IFutureProg? _compiledLogic;
 	private string _logicText = string.Empty;
 	private string _compileError = string.Empty;
+	private IConnectable? _mountedHost;
+	private long? _pendingMountedHostId;
 
 	public MicrocontrollerGameItemComponent(MicrocontrollerGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
@@ -65,6 +69,11 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public string EndpointKey => SignalComponentUtilities.DefaultLocalSignalEndpointKey;
 	public ComputerSignal CurrentSignal => _currentSignal;
 	public event SignalChangedEvent? SignalChanged;
+	public IEnumerable<ConnectorType> Connections => [MountConnector];
+	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems =>
+		_mountedHost is not null ? [Tuple.Create(MountConnector, _mountedHost)] : [];
+	public IEnumerable<ConnectorType> FreeConnections => _mountedHost is null ? Connections : [];
+	public bool Independent => false;
 	public double CurrentValue => _currentSignal.Value;
 	public TimeSpan? Duration => _currentSignal.Duration;
 	public TimeSpan? PulseInterval => _currentSignal.PulseInterval;
@@ -73,6 +82,9 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public string CompileError => _compileError;
 	public bool LogicCompiles => _compiledLogic is not null && string.IsNullOrEmpty(_compileError);
 	public IReadOnlyCollection<MicrocontrollerRuntimeInputBinding> InputBindings => _inputBindings.AsReadOnly();
+	public string MountType => "Microcontroller";
+	public bool IsMounted => _mountedHost is not null;
+	public IAutomationMountHost? MountHost => _mountedHost?.Parent.GetItemType<IAutomationMountHost>();
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -106,11 +118,18 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 			.Select(x => new MicrocontrollerRuntimeInputBinding(
 				x.Attribute("variable")?.Value ?? string.Empty,
 				new LocalSignalBinding(
+					long.TryParse(x.Attribute("sourceitemid")?.Value, out var sourceItemId) ? sourceItemId : 0L,
+					x.Attribute("sourceitem")?.Value ?? string.Empty,
 					long.TryParse(x.Attribute("sourceid")?.Value, out var sourceId) ? sourceId : 0L,
 					x.Attribute("source")?.Value ?? string.Empty,
 					SignalComponentUtilities.NormaliseSignalEndpointKey(x.Attribute("endpoint")?.Value)),
 				0.0))
 			.ToList();
+		var mountedToElement = root.Element("MountedTo");
+		if (mountedToElement is not null && long.TryParse(mountedToElement.Value, out var mountedId) && mountedId > 0)
+		{
+			_pendingMountedHostId = mountedId;
+		}
 
 		if (logicElement is null && !bindings.Any())
 		{
@@ -130,14 +149,27 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		root.Add(new XElement("LogicText", new XCData(_logicText)));
 		root.Add(_inputBindings.Select(x => new XElement("InputBinding",
 			new XAttribute("variable", x.VariableName),
+			new XAttribute("sourceitemid", x.Binding.SourceItemId),
+			new XAttribute("sourceitem", x.Binding.SourceItemName),
 			new XAttribute("sourceid", x.Binding.SourceComponentId),
 			new XAttribute("source", x.Binding.SourceComponentName),
 			new XAttribute("endpoint", x.Binding.SourceEndpointKey))));
+		if (_mountedHost is not null)
+		{
+			root.Add(new XElement("MountedTo", _mountedHost.Parent.Id));
+		}
 		return root;
 	}
 
 	public override void FinaliseLoad()
 	{
+		if (_pendingMountedHostId.HasValue)
+		{
+			_mountedHost = Gameworld.TryGetItem(_pendingMountedHostId.Value, true)?.GetItemTypes<IConnectable>()
+				.FirstOrDefault(x => x.ConnectedItems.Any(y => ReferenceEquals(y.Item2.Parent, Parent)));
+			_mountedHost ??= Gameworld.TryGetItem(_pendingMountedHostId.Value, true)?.GetItemType<IConnectable>();
+		}
+
 		ReconnectSources();
 		RecomputeOutput();
 	}
@@ -170,8 +202,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		SeedInputValues();
 		foreach (var input in _inputBindings)
 		{
-			var source = SignalComponentUtilities.FindSignalSource(Parent, input.Binding.SourceComponentId,
-				input.Binding.SourceComponentName, input.Binding.SourceEndpointKey, this);
+			var source = SignalComponentUtilities.FindSignalSource(Parent, input.Binding, this);
 			if (source is null)
 			{
 				continue;
@@ -322,6 +353,19 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		SignalChanged?.Invoke(this, _currentSignal);
 	}
 
+	public override bool Take(IGameItem item)
+	{
+		if (item is null || _mountedHost?.Parent != item)
+		{
+			return false;
+		}
+
+		_mountedHost.RawDisconnect(this, true);
+		_mountedHost = null;
+		Changed = true;
+		return true;
+	}
+
 	private void InitialiseRuntimeStateFromPrototype()
 	{
 		_logicText = _prototype.LogicText;
@@ -330,7 +374,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		_inputBindings.Clear();
 		_inputBindings.AddRange(_prototype.Inputs.Select(x => new MicrocontrollerRuntimeInputBinding(
 			x.VariableName,
-			new LocalSignalBinding(x.SourceComponentId, x.SourceComponentName, x.SourceEndpointKey),
+			new LocalSignalBinding(0L, string.Empty, x.SourceComponentId, x.SourceComponentName, x.SourceEndpointKey),
 			0.0)));
 		SeedInputValues();
 	}
@@ -351,5 +395,112 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 			$"microcontroller_runtime_{Id}_{DateTime.UtcNow.Ticks}",
 			variableNames,
 			logicText);
+	}
+
+	public bool CanBeConnectedTo(IConnectable other)
+	{
+		return false;
+	}
+
+	public bool CanConnect(ICharacter actor, IConnectable other)
+	{
+		if (_mountedHost is not null || !other.FreeConnections.Any())
+		{
+			return false;
+		}
+
+		return other.FreeConnections.Any(x => x.CompatibleWith(MountConnector)) && other.CanBeConnectedTo(this);
+	}
+
+	public void Connect(ICharacter actor, IConnectable other)
+	{
+		_mountedHost = other;
+		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(MountConnector)));
+		Changed = true;
+		if (Parent.GetItemType<IHoldable>()?.HeldBy != null)
+		{
+			Parent.GetItemType<IHoldable>()!.HeldBy.Take(Parent);
+			return;
+		}
+
+		if (Parent.ContainedIn != null)
+		{
+			Parent.ContainedIn.Take(Parent);
+			return;
+		}
+
+		Parent.Location?.Extract(Parent);
+	}
+
+	public void RawConnect(IConnectable other, ConnectorType type)
+	{
+		_mountedHost = other;
+		Parent.ConnectedItem(other, type);
+		Changed = true;
+	}
+
+	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	{
+		if (_mountedHost is not null)
+		{
+			return
+				$"You cannot install {Parent.HowSeen(actor)} because it is already mounted on {_mountedHost.Parent.HowSeen(actor)}.";
+		}
+
+		if (!other.FreeConnections.Any())
+		{
+			return $"You cannot install {Parent.HowSeen(actor)} there because there are no compatible free mount bays.";
+		}
+
+		if (!other.FreeConnections.Any(x => x.CompatibleWith(MountConnector)))
+		{
+			return $"You cannot install {Parent.HowSeen(actor)} there because the available mount bays are not compatible.";
+		}
+
+		return !other.CanBeConnectedTo(this)
+			? $"You cannot install {Parent.HowSeen(actor)} there because that item does not accept this module."
+			: $"You cannot install {Parent.HowSeen(actor)} there for an unknown reason.";
+	}
+
+	public bool CanBeDisconnectedFrom(IConnectable other)
+	{
+		return true;
+	}
+
+	public bool CanDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _mountedHost == other;
+	}
+
+	public void Disconnect(ICharacter actor, IConnectable other)
+	{
+		RawDisconnect(other, true);
+		if (actor?.Body.CanGet(Parent, 0) == true)
+		{
+			actor.Body.Get(Parent, silent: true);
+			return;
+		}
+
+		(actor?.Location ?? Parent.TrueLocations.FirstOrDefault())?.Insert(Parent);
+	}
+
+	public void RawDisconnect(IConnectable other, bool handleEvents)
+	{
+		_mountedHost = null;
+		if (handleEvents)
+		{
+			other.RawDisconnect(this, false);
+			Parent.DisconnectedItem(other, MountConnector);
+			other.Parent.DisconnectedItem(this, MountConnector);
+		}
+
+		Changed = true;
+	}
+
+	public string WhyCannotDisconnect(ICharacter actor, IConnectable other)
+	{
+		return _mountedHost != other
+			? $"You cannot remove {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} because it is not installed there."
+			: $"You cannot remove {Parent.HowSeen(actor)} from {other.Parent.HowSeen(actor)} for an unknown reason.";
 	}
 }

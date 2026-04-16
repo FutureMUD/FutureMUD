@@ -4,6 +4,7 @@ using MudSharp.Computers;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MudSharp.GameItems.Components;
@@ -56,15 +57,30 @@ public static class SignalComponentUtilities
 
 	public static LocalSignalBinding CreateBinding(ISignalSourceComponent source, string? endpointKey = null)
 	{
+		var component = (IGameItemComponent)source;
 		return new LocalSignalBinding(
-			((IGameItemComponent)source).Id,
-			((IGameItemComponent)source).Name,
+			component.Parent.Id,
+			component.Parent.Name,
+			component.Id,
+			component.Name,
 			NormaliseSignalEndpointKey(endpointKey ?? source.EndpointKey));
 	}
 
 	public static string DescribeSignalComponent(LocalSignalBinding binding)
 	{
-		return $"{(string.IsNullOrWhiteSpace(binding.SourceComponentName) ? $"#{binding.SourceComponentId.ToString("N0")}" : binding.SourceComponentName)}:{NormaliseSignalEndpointKey(binding.SourceEndpointKey)}";
+		var itemDescription = string.IsNullOrWhiteSpace(binding.SourceItemName)
+			? binding.SourceItemId > 0
+				? $"#{binding.SourceItemId:N0}"
+				: string.Empty
+			: binding.SourceItemName;
+		var componentDescription = string.IsNullOrWhiteSpace(binding.SourceComponentName)
+			? binding.SourceComponentId > 0
+				? $"#{binding.SourceComponentId:N0}"
+				: "unknown"
+			: binding.SourceComponentName;
+		return string.IsNullOrWhiteSpace(itemDescription)
+			? $"{componentDescription}:{NormaliseSignalEndpointKey(binding.SourceEndpointKey)}"
+			: $"{itemDescription}@{componentDescription}:{NormaliseSignalEndpointKey(binding.SourceEndpointKey)}";
 	}
 
 	public static string DescribeSignalComponent(IFuturemud gameworld, long sourceComponentId, string sourceComponentName,
@@ -89,8 +105,60 @@ public static class SignalComponentUtilities
 		return $"{componentDescription}:{endpointKey}";
 	}
 
+	public static IEnumerable<IGameItem> EnumerateAccessibleSignalItems(IGameItem parent)
+	{
+		yield return parent;
+
+		foreach (var item in parent.AttachedAndConnectedItems.Distinct())
+		{
+			yield return item;
+		}
+	}
+
+	public static bool ItemsAreSignalAccessible(IGameItem origin, IGameItem target)
+	{
+		if (ReferenceEquals(origin, target))
+		{
+			return true;
+		}
+
+		if (origin.AttachedAndConnectedItems.Contains(target) || target.AttachedAndConnectedItems.Contains(origin))
+		{
+			return true;
+		}
+
+		return origin.TrueLocations.Intersect(target.TrueLocations).Any();
+	}
+
+	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, LocalSignalBinding binding,
+		IGameItemComponent? excludedComponent = null)
+	{
+		return FindSignalSource(parent, binding.SourceItemId, binding.SourceItemName, binding.SourceComponentId,
+			binding.SourceComponentName, binding.SourceEndpointKey, excludedComponent);
+	}
+
+	public static ISignalSourceComponent? FindSignalSourceOnItem(IGameItem item, long sourceComponentId,
+		string sourceComponentName, string endpointKey, IGameItemComponent? excludedComponent = null)
+	{
+		return item.GetItemTypes<ISignalSourceComponent>()
+			.FirstOrDefault(x =>
+				!ReferenceEquals(x, excludedComponent) &&
+				x.EndpointKey.Equals(endpointKey, StringComparison.InvariantCultureIgnoreCase) &&
+				(sourceComponentId > 0
+					? ((IGameItemComponent)x).Id == sourceComponentId || x.LocalSignalSourceIdentifier == sourceComponentId
+					: ((IGameItemComponent)x).Name.Equals(sourceComponentName, StringComparison.InvariantCultureIgnoreCase)));
+	}
+
 	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, long sourceComponentId,
 		string sourceComponentName, string? sourceEndpointKey = null,
+		IGameItemComponent? excludedComponent = null)
+	{
+		return FindSignalSource(parent, 0L, string.Empty, sourceComponentId, sourceComponentName, sourceEndpointKey,
+			excludedComponent);
+	}
+
+	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, long sourceItemId, string sourceItemName,
+		long sourceComponentId, string sourceComponentName, string? sourceEndpointKey = null,
 		IGameItemComponent? excludedComponent = null)
 	{
 		if (sourceComponentId <= 0 && string.IsNullOrWhiteSpace(sourceComponentName))
@@ -99,13 +167,31 @@ public static class SignalComponentUtilities
 		}
 
 		var endpointKey = NormaliseSignalEndpointKey(sourceEndpointKey);
-		return parent.GetItemTypes<ISignalSourceComponent>()
-			.FirstOrDefault(x =>
-				!ReferenceEquals(x, excludedComponent) &&
-				x.EndpointKey.Equals(endpointKey, StringComparison.InvariantCultureIgnoreCase) &&
-				(sourceComponentId > 0
-					? ((IGameItemComponent)x).Id == sourceComponentId || x.LocalSignalSourceIdentifier == sourceComponentId
-					: ((IGameItemComponent)x).Name.Equals(sourceComponentName, StringComparison.InvariantCultureIgnoreCase)));
+		if (sourceItemId > 0)
+		{
+			var item = parent.Gameworld.TryGetItem(sourceItemId, true);
+			if (item is not null && ItemsAreSignalAccessible(parent, item))
+			{
+				var itemMatch = FindSignalSourceOnItem(item, sourceComponentId, sourceComponentName, endpointKey,
+					excludedComponent);
+				if (itemMatch is not null)
+				{
+					return itemMatch;
+				}
+			}
+		}
+
+		foreach (var item in EnumerateAccessibleSignalItems(parent).Distinct())
+		{
+			var match = FindSignalSourceOnItem(item, sourceComponentId, sourceComponentName, endpointKey,
+				excludedComponent);
+			if (match is not null)
+			{
+				return match;
+			}
+		}
+
+		return null;
 	}
 
 	public static TTarget? FindSiblingComponent<TTarget>(IGameItem parent, string componentName,

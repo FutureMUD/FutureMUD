@@ -168,6 +168,33 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void SignalComponentUtilities_CreateBinding_UsesRuntimeComponentIdAndNormalisedEndpointKey()
+	{
+		var source = CreateSignalSourceMock(41L, "SignalSource", "AuX", 208L);
+
+		var binding = SignalComponentUtilities.CreateBinding(source.Object, "  AUX  ");
+
+		Assert.AreEqual(208L, binding.SourceComponentId);
+		Assert.AreEqual("SignalSource", binding.SourceComponentName);
+		Assert.AreEqual("aux", binding.SourceEndpointKey);
+	}
+
+	[TestMethod]
+	public void SignalComponentUtilities_FindSignalSource_ResolvesRuntimeComponentIdBeforePrototypeIdentifier()
+	{
+		var runtimeSource = CreateSignalSourceMock(41L, "SignalSource", componentId: 208L);
+		var prototypeSource = CreateSignalSourceMock(208L, "OtherSource", componentId: 41L);
+		var parent = new Mock<IGameItem>();
+		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(new[] { runtimeSource.Object, prototypeSource.Object });
+
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 208L, "SignalSource",
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey);
+
+		Assert.AreSame(runtimeSource.Object, resolved);
+	}
+
+	[TestMethod]
 	public void SignalComponentUtilities_FindSignalSource_ResolvesCorrectSourceWhenNamesOverlap()
 	{
 		var firstSource = CreateSignalSourceMock(41L, "SignalSource");
@@ -252,10 +279,11 @@ return @togglevalue");
 	}
 
 	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name,
-		string endpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey)
+		string endpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey, long? componentId = null)
 	{
 		var source = new Mock<ISignalSourceComponent>();
 		source.SetupGet(x => x.LocalSignalSourceIdentifier).Returns(identifier);
+		source.SetupGet(x => x.Id).Returns(componentId ?? identifier);
 		source.SetupGet(x => x.CurrentSignal).Returns(default(ComputerSignal));
 		source.SetupGet(x => x.CurrentValue).Returns(0.0);
 		source.SetupGet(x => x.Duration).Returns((TimeSpan?)null);

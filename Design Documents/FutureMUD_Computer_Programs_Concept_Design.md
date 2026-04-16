@@ -26,6 +26,17 @@ The first implementation slice for this design has now landed. The currently imp
 
 The current signal-automation slice is intentionally local to a single parent item. Wiring is authored with sibling component prototype names or ids, but runtime bindings are stored and resolved through stable local source identifiers plus explicit local endpoint keys. In the current shipped slice, all built-in local signal sources expose a single default endpoint key of `signal`. Inter-item wiring, reusable wire objects, and persisted signal-graph topologies are still future phases.
 
+The first player-facing command surface for this slice has also now landed:
+
+- `electrical` inspects and live-configures configurable local signal sinks on an item
+- `programming` inspects and live-programs microcontrollers on an item
+- both verbs currently operate through multistage delayed actions rather than instant changes
+- those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
+- `programming` uses `ProgrammingComponentCheck`
+- `electrical` uses `InstallElectricalComponentCheck` for rewiring work and `ConfigureElectricalComponentCheck` for threshold/mode clearing work
+- failed checks still cost time because the delayed action runs to completion before the check resolves
+- abject electrical failures trigger electrical shock damage and an electrical-shock emote, but still do not consume tools or materials
+
 The remaining work is still substantial. In particular, persistence tables, resumable runtime execution, terminal sessions, inter-item signal wiring, and data networking are still future phases.
 
 ## Core Concepts
@@ -157,8 +168,11 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
   - `AlarmSiren` is a powered signal-driven audible sink that repeats a configured alarm emote and room audio echo while active
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
-- A programming check and command verb that allows players to write programs
-- An electrical check and command verb that allows players to install systems, microcontrollers, wire signals together etc. This verb should be able to be used unskilled but carry the risk of electrocution.
+- Implemented in the current first player-facing slice:
+  - a `programming` command verb that lets players inspect microcontrollers, replace logic, and add or remove local input bindings on live items
+  - an `electrical` command verb that lets players inspect configurable sinks, rebind them to local signal sources, clear bindings, and retune thresholds or activation mode on live items
+  - both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
+  - abject failures on electrical work can cause electrical shock damage
 - Both of these command verbs should be able to be surpressed so that they don't appear on non-modern MUDs.
 
 ## Unsolved Design Questions

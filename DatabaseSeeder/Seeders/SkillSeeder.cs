@@ -398,6 +398,9 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.FireSling:
                 case CheckType.KeepAimTargetMoved:
                 case CheckType.ProgSkillUseCheck:
+                case CheckType.ProgrammingComponentCheck:
+                case CheckType.InstallElectricalComponentCheck:
+                case CheckType.ConfigureElectricalComponentCheck:
                 case CheckType.MagicConcentrationOnWounded:
                 case CheckType.ConnectMindPower:
                 case CheckType.PsychicLanguageHearCheck:

@@ -998,6 +998,9 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 case CheckType.FireSling:
                 case CheckType.KeepAimTargetMoved:
                 case CheckType.ProgSkillUseCheck:
+                case CheckType.ProgrammingComponentCheck:
+                case CheckType.InstallElectricalComponentCheck:
+                case CheckType.ConfigureElectricalComponentCheck:
                 case CheckType.MagicConcentrationOnWounded:
                 case CheckType.ConnectMindPower:
                 case CheckType.PsychicLanguageHearCheck:

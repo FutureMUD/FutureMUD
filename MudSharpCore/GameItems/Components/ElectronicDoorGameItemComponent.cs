@@ -8,15 +8,19 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISignalSinkComponent
+public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRuntimeConfigurableSignalSinkComponent
 {
 	private ElectronicDoorGameItemComponentProto _prototype;
 	private readonly LocalSignalSinkSubscription _binding;
 	private bool _desiredOpen;
 	private bool _heartbeatSubscribed;
+	private LocalSignalBinding? _runtimeBinding;
+	private double? _runtimeActivationThreshold;
+	private bool? _runtimeActiveWhenAboveThreshold;
 
 	public ElectronicDoorGameItemComponent(ElectronicDoorGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
@@ -32,6 +36,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 	{
 		_prototype = proto;
 		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
+		LoadRuntimeConfiguration(XElement.Parse(component.Definition));
 	}
 
 	public ElectronicDoorGameItemComponent(ElectronicDoorGameItemComponent rhs, IGameItem newParent,
@@ -42,14 +47,23 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 		_binding = new LocalSignalSinkSubscription(newParent, this, HandleSourceChanged);
 		_desiredOpen = rhs._desiredOpen;
 		CurrentValue = rhs.CurrentValue;
+		_runtimeBinding = rhs._runtimeBinding;
+		_runtimeActivationThreshold = rhs._runtimeActivationThreshold;
+		_runtimeActiveWhenAboveThreshold = rhs._runtimeActiveWhenAboveThreshold;
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
-	public long SourceComponentId => _prototype.SourceComponentId;
-	public string SourceComponentName => _prototype.SourceComponentName;
-	public string SourceEndpointKey => _prototype.SourceEndpointKey;
+	public long SourceComponentId => CurrentBinding.SourceComponentId;
+	public string SourceComponentName => CurrentBinding.SourceComponentName;
+	public string SourceEndpointKey => CurrentBinding.SourceEndpointKey;
 	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
+	public LocalSignalBinding CurrentBinding => _runtimeBinding ?? new LocalSignalBinding(
+		_prototype.SourceComponentId,
+		_prototype.SourceComponentName,
+		_prototype.SourceEndpointKey);
+	public double ActivationThreshold => _runtimeActivationThreshold ?? _prototype.ActivationThreshold;
+	public bool ActiveWhenAboveThreshold => _runtimeActiveWhenAboveThreshold ?? _prototype.OpenWhenAboveThreshold;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -68,6 +82,27 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 	{
 		base.UpdateComponentNewPrototype(newProto);
 		_prototype = (ElectronicDoorGameItemComponentProto)newProto;
+	}
+
+	protected override void SaveAdditionalToXml(XElement root)
+	{
+		base.SaveAdditionalToXml(root);
+		if (_runtimeBinding is not null)
+		{
+			root.Add(new XElement("RuntimeSourceComponentId", _runtimeBinding.SourceComponentId));
+			root.Add(new XElement("RuntimeSourceComponentName", new XCData(_runtimeBinding.SourceComponentName)));
+			root.Add(new XElement("RuntimeSourceEndpointKey", new XCData(_runtimeBinding.SourceEndpointKey)));
+		}
+
+		if (_runtimeActivationThreshold.HasValue)
+		{
+			root.Add(new XElement("RuntimeActivationThreshold", _runtimeActivationThreshold.Value));
+		}
+
+		if (_runtimeActiveWhenAboveThreshold.HasValue)
+		{
+			root.Add(new XElement("RuntimeActiveWhenAboveThreshold", _runtimeActiveWhenAboveThreshold.Value));
+		}
 	}
 
 	public override void FinaliseLoad()
@@ -109,8 +144,8 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 	private void ApplySignalValue(double value)
 	{
 		CurrentValue = value;
-		_desiredOpen = SignalComponentUtilities.IsActiveSignal(value, _prototype.ActivationThreshold,
-			_prototype.OpenWhenAboveThreshold);
+		_desiredOpen = SignalComponentUtilities.IsActiveSignal(value, ActivationThreshold,
+			ActiveWhenAboveThreshold);
 		EvaluateDoorState();
 	}
 
@@ -184,5 +219,65 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISigna
 
 		Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatTick;
 		_heartbeatSubscribed = false;
+	}
+
+	public bool ConfigureSignalBinding(ISignalSourceComponent source, string? endpointKey, out string error)
+	{
+		_runtimeBinding = SignalComponentUtilities.CreateBinding(source, endpointKey);
+		Changed = true;
+		ReconnectSource();
+		error = string.Empty;
+		return true;
+	}
+
+	public void ClearSignalBinding()
+	{
+		_runtimeBinding = null;
+		Changed = true;
+		ReconnectSource();
+	}
+
+	public bool SetActivationThreshold(double threshold, out string error)
+	{
+		if (double.IsNaN(threshold) || double.IsInfinity(threshold))
+		{
+			error = "That is not a valid numeric threshold.";
+			return false;
+		}
+
+		_runtimeActivationThreshold = threshold;
+		Changed = true;
+		ApplySignalValue(CurrentValue);
+		error = string.Empty;
+		return true;
+	}
+
+	public void SetActiveWhenAboveThreshold(bool activeWhenAboveThreshold)
+	{
+		_runtimeActiveWhenAboveThreshold = activeWhenAboveThreshold;
+		Changed = true;
+		ApplySignalValue(CurrentValue);
+	}
+
+	private void LoadRuntimeConfiguration(XElement root)
+	{
+		var runtimeSourceId = root.Element("RuntimeSourceComponentId");
+		if (runtimeSourceId is not null)
+		{
+			_runtimeBinding = new LocalSignalBinding(
+				long.TryParse(runtimeSourceId.Value, out var sourceId) ? sourceId : 0L,
+				root.Element("RuntimeSourceComponentName")?.Value ?? string.Empty,
+				SignalComponentUtilities.NormaliseSignalEndpointKey(root.Element("RuntimeSourceEndpointKey")?.Value));
+		}
+
+		if (double.TryParse(root.Element("RuntimeActivationThreshold")?.Value, out var activationThreshold))
+		{
+			_runtimeActivationThreshold = activationThreshold;
+		}
+
+		if (bool.TryParse(root.Element("RuntimeActiveWhenAboveThreshold")?.Value, out var activeWhenAboveThreshold))
+		{
+			_runtimeActiveWhenAboveThreshold = activeWhenAboveThreshold;
+		}
 	}
 }

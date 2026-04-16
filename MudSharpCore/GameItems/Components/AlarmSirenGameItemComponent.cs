@@ -14,12 +14,15 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, ISignalSinkComponent
+public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, IRuntimeConfigurableSignalSinkComponent
 {
 	private AlarmSirenGameItemComponentProto _prototype;
 	private readonly LocalSignalSinkSubscription _binding;
 	private bool _heartbeatSubscribed;
 	private bool _signalActive;
+	private LocalSignalBinding? _runtimeBinding;
+	private double? _runtimeActivationThreshold;
+	private bool? _runtimeActiveWhenAboveThreshold;
 
 	public AlarmSirenGameItemComponent(AlarmSirenGameItemComponentProto proto, IGameItem parent, bool temporary = false)
 		: base(proto, parent, temporary)
@@ -43,14 +46,23 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		_binding = new LocalSignalSinkSubscription(newParent, this, HandleSourceChanged);
 		_signalActive = rhs._signalActive;
 		CurrentValue = rhs.CurrentValue;
+		_runtimeBinding = rhs._runtimeBinding;
+		_runtimeActivationThreshold = rhs._runtimeActivationThreshold;
+		_runtimeActiveWhenAboveThreshold = rhs._runtimeActiveWhenAboveThreshold;
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
-	public long SourceComponentId => _prototype.SourceComponentId;
-	public string SourceComponentName => _prototype.SourceComponentName;
-	public string SourceEndpointKey => _prototype.SourceEndpointKey;
+	public long SourceComponentId => CurrentBinding.SourceComponentId;
+	public string SourceComponentName => CurrentBinding.SourceComponentName;
+	public string SourceEndpointKey => CurrentBinding.SourceEndpointKey;
 	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
+	public LocalSignalBinding CurrentBinding => _runtimeBinding ?? new LocalSignalBinding(
+		_prototype.SourceComponentId,
+		_prototype.SourceComponentName,
+		_prototype.SourceEndpointKey);
+	public double ActivationThreshold => _runtimeActivationThreshold ?? _prototype.ActivationThreshold;
+	public bool ActiveWhenAboveThreshold => _runtimeActiveWhenAboveThreshold ?? _prototype.SoundWhenAboveThreshold;
 	private bool IsSounding => _signalActive && SwitchedOn && _onAndPowered;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -83,8 +95,48 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		_prototype = (AlarmSirenGameItemComponentProto)newProto;
 	}
 
+	protected override void LoadFromXml(XElement root)
+	{
+		base.LoadFromXml(root);
+		var runtimeSourceId = root.Element("RuntimeSourceComponentId");
+		if (runtimeSourceId is not null)
+		{
+			_runtimeBinding = new LocalSignalBinding(
+				long.TryParse(runtimeSourceId.Value, out var sourceId) ? sourceId : 0L,
+				root.Element("RuntimeSourceComponentName")?.Value ?? string.Empty,
+				SignalComponentUtilities.NormaliseSignalEndpointKey(root.Element("RuntimeSourceEndpointKey")?.Value));
+		}
+
+		if (double.TryParse(root.Element("RuntimeActivationThreshold")?.Value, out var activationThreshold))
+		{
+			_runtimeActivationThreshold = activationThreshold;
+		}
+
+		if (bool.TryParse(root.Element("RuntimeActiveWhenAboveThreshold")?.Value, out var activeWhenAboveThreshold))
+		{
+			_runtimeActiveWhenAboveThreshold = activeWhenAboveThreshold;
+		}
+	}
+
 	protected override XElement SaveToXml(XElement root)
 	{
+		if (_runtimeBinding is not null)
+		{
+			root.Add(new XElement("RuntimeSourceComponentId", _runtimeBinding.SourceComponentId));
+			root.Add(new XElement("RuntimeSourceComponentName", new XCData(_runtimeBinding.SourceComponentName)));
+			root.Add(new XElement("RuntimeSourceEndpointKey", new XCData(_runtimeBinding.SourceEndpointKey)));
+		}
+
+		if (_runtimeActivationThreshold.HasValue)
+		{
+			root.Add(new XElement("RuntimeActivationThreshold", _runtimeActivationThreshold.Value));
+		}
+
+		if (_runtimeActiveWhenAboveThreshold.HasValue)
+		{
+			root.Add(new XElement("RuntimeActiveWhenAboveThreshold", _runtimeActiveWhenAboveThreshold.Value));
+		}
+
 		return root;
 	}
 
@@ -136,8 +188,8 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 	private void ApplySignalValue(double value)
 	{
 		CurrentValue = value;
-		_signalActive = SignalComponentUtilities.IsActiveSignal(value, _prototype.ActivationThreshold,
-			_prototype.SoundWhenAboveThreshold);
+		_signalActive = SignalComponentUtilities.IsActiveSignal(value, ActivationThreshold,
+			ActiveWhenAboveThreshold);
 		EvaluateAlarmState();
 	}
 
@@ -202,5 +254,43 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		{
 			location.HandleAudioEcho("You hear an alarm siren {0}.", _prototype.AlarmVolume, Parent, Parent.RoomLayer);
 		}
+	}
+
+	public bool ConfigureSignalBinding(ISignalSourceComponent source, string? endpointKey, out string error)
+	{
+		_runtimeBinding = SignalComponentUtilities.CreateBinding(source, endpointKey);
+		Changed = true;
+		ReconnectSource();
+		error = string.Empty;
+		return true;
+	}
+
+	public void ClearSignalBinding()
+	{
+		_runtimeBinding = null;
+		Changed = true;
+		ReconnectSource();
+	}
+
+	public bool SetActivationThreshold(double threshold, out string error)
+	{
+		if (double.IsNaN(threshold) || double.IsInfinity(threshold))
+		{
+			error = "That is not a valid numeric threshold.";
+			return false;
+		}
+
+		_runtimeActivationThreshold = threshold;
+		Changed = true;
+		ApplySignalValue(CurrentValue);
+		error = string.Empty;
+		return true;
+	}
+
+	public void SetActiveWhenAboveThreshold(bool activeWhenAboveThreshold)
+	{
+		_runtimeActiveWhenAboveThreshold = activeWhenAboveThreshold;
+		Changed = true;
+		ApplySignalValue(CurrentValue);
 	}
 }

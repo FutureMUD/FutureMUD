@@ -271,6 +271,10 @@ Important implementation details from this slice:
 - input variable names are validated and normalised to lower case at compile time
 - sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown using stable local source identifiers plus endpoint keys rather than transient component names
 - signal propagation is event-based, so components should avoid re-emitting unchanged values
+- live player reconfiguration is a separate runtime concern from builder authoring:
+  - configurable sinks that support live rewiring should implement `IRuntimeConfigurableSignalSinkComponent`
+  - live-programmable controllers should implement `IRuntimeProgrammableMicrocontroller`
+  - those runtime interfaces are what the `electrical` and `programming` command verbs target on loaded items
 
 This is the reference approach for the early phases of computerised items:
 1. put the shared signal contract on interfaces first

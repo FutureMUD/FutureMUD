@@ -54,6 +54,19 @@ public static class SignalComponentUtilities
 			DefaultLocalSignalEndpointKey);
 	}
 
+	public static LocalSignalBinding CreateBinding(ISignalSourceComponent source, string? endpointKey = null)
+	{
+		return new LocalSignalBinding(
+			((IGameItemComponent)source).Id,
+			((IGameItemComponent)source).Name,
+			NormaliseSignalEndpointKey(endpointKey ?? source.EndpointKey));
+	}
+
+	public static string DescribeSignalComponent(LocalSignalBinding binding)
+	{
+		return $"{(string.IsNullOrWhiteSpace(binding.SourceComponentName) ? $"#{binding.SourceComponentId.ToString("N0")}" : binding.SourceComponentName)}:{NormaliseSignalEndpointKey(binding.SourceEndpointKey)}";
+	}
+
 	public static string DescribeSignalComponent(IFuturemud gameworld, long sourceComponentId, string sourceComponentName,
 		string? sourceEndpointKey)
 	{
@@ -91,7 +104,7 @@ public static class SignalComponentUtilities
 				!ReferenceEquals(x, excludedComponent) &&
 				x.EndpointKey.Equals(endpointKey, StringComparison.InvariantCultureIgnoreCase) &&
 				(sourceComponentId > 0
-					? x.LocalSignalSourceIdentifier == sourceComponentId
+					? ((IGameItemComponent)x).Id == sourceComponentId || x.LocalSignalSourceIdentifier == sourceComponentId
 					: ((IGameItemComponent)x).Name.Equals(sourceComponentName, StringComparison.InvariantCultureIgnoreCase)));
 	}
 

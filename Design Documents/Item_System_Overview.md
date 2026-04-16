@@ -59,6 +59,12 @@ The first shipped automation slice now includes:
 
 That slice currently uses same-item sibling wiring with stable local source identifiers derived from component prototype ids plus explicit local endpoint keys rather than freeform cross-item electrical graphs. Builders still author bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. It is enough to support authored control panels, timed local automation, indicator lights, signal-driven doors and locks, and motion-triggered local alarms on a single composed item, while leaving broader wiring, richer sensors, and networked hosts for later phases.
 
+The first live player command surface for that slice is also now present:
+- `electrical` for inspecting and configuring local signal-driven sinks
+- `programming` for inspecting and live-programming microcontrollers
+
+Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
+
 ## Thermal Sources
 Room temperature now includes three layers:
 - base weather and climate

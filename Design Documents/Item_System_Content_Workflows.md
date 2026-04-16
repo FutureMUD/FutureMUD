@@ -134,7 +134,7 @@ For telecommunications content, also validate:
 - whether keypad-driven targets receive `TelephoneDigitsReceived` with the expected source item and digit string
 
 For the current signal-automation slice, also validate:
-- whether source and sink component names match the authored sibling component names on the same item
+- whether source and sink bindings resolve to the intended local sibling component ids and endpoint keys on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
 - whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration
@@ -144,6 +144,9 @@ For the current signal-automation slice, also validate:
 - whether `electronicdoor` responds to threshold and invert settings and reaches the commanded open or closed state once any lock conditions permit it
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
+- whether the live `electrical` and `programming` verbs target the intended component ids shown in their inspection output
+- whether check failure still costs time, but does not permanently consume tools or materials
+- whether abject failure on electrical work produces the intended shock echo and electrical damage
 
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.
@@ -239,6 +242,17 @@ For the current microcontroller workflow, a practical end-to-end pass is:
    - wait through at least one full active/inactive cycle for `timersensor`
 8. Confirm the sink reacts through the authored sibling source component prototype or through the microcontroller output as authored.
 
+For the live player workflow on an already loaded composed item, a practical end-to-end pass is:
+1. Use `electrical <item>` to inspect local signal sources and configurable sinks and note the live component ids.
+2. Use `programming <item>` to inspect the live microcontroller list, compile state, and current input bindings.
+3. Use `programming <item> logic <component>` or `programming <item> logic <component> <text>` to replace controller logic on the live item.
+4. Use `programming <item> input add <component> <variable> <source> [<endpoint>]` and `programming <item> input remove <component> <variable>` to manage live input bindings.
+5. Use `electrical <item> bind <component> <source> [<endpoint>]`, `clear`, `threshold`, and `mode` to reconfigure live sinks.
+6. Confirm those actions run as staged delayed work rather than instantaneous mutation.
+7. Confirm the required tool tag is available, the actor holds or readies the needed tool through the inventory plan, and the tool is restored after completion or cancellation.
+8. Confirm ordinary failures cost the action time but do not consume materials.
+9. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
+
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
 - item loads but does nothing: the item probably lacks the component or the runtime component is not implementing the expected interface.
@@ -246,6 +260,8 @@ For the current microcontroller workflow, a practical end-to-end pass is:
 - updated component changes do not appear on old content: update workflow was not run or the update hooks are incomplete.
 - a microcontroller refuses submission: its inline logic probably does not compile in the `ComputerFunction` context or one of its input names is invalid
 - a sink never responds: the authored sibling source component prototype probably does not match any source component instance on the same item, or the expected local endpoint is not present
+- `electrical` or `programming` starts but immediately aborts: the configured tool tag or trait static setting is probably missing or resolves to a non-existent content record
+- a live reconfiguration appears to complete but nothing changes: the targeted component may not implement the runtime-configurable interface, or the wrong live component id may have been selected
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

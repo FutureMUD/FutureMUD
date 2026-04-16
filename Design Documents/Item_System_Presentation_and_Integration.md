@@ -168,6 +168,8 @@ The current signal-automation slice has its own presentation and integration rul
 - `AlarmSiren` decorates short and full descriptions to show whether it is sounding, and integrates audible room output with sibling signal sources plus power state
 - `component show` output for signal-driven sinks should present the bound local source endpoint, not just the component family, so future multi-port source families stay understandable
 - because the first slice is same-item-only, presentation should explain sibling control surfaces on one composed item rather than implying a visible external wiring graph
+- the live `electrical` and `programming` verbs are now part of the player-facing integration surface for these items, and their staged begin/continue/success/failure output should be authored through configurable static strings rather than embedded per-component prose
+- abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

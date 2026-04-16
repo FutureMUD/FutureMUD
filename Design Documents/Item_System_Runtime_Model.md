@@ -119,8 +119,14 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
 - `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
 
+The current live-configuration runtime layer also adds:
+- `IRuntimeConfigurableSignalSinkComponent` for sinks whose local binding, threshold, and activation mode can be changed on a live item
+- `IRuntimeProgrammableMicrocontroller` for controllers whose inline logic and local input bindings can be changed on a live item
+- `LocalSignalBinding` and `MicrocontrollerRuntimeInputBinding` as the stable runtime payloads for live local endpoint bindings
+
 Current runtime connection rules for that slice are:
 - sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers plus explicit endpoint keys on the same parent item
+- live player rewiring stores the runtime component id plus endpoint key in `LocalSignalBinding`, while builder-authored prototype defaults still use prototype-oriented identifiers
 - the currently shipped built-in local source families each expose a single default output endpoint key named `signal`
 - builder commands still accept component prototype names or ids, but stored bindings no longer depend on future component renames
 - one sink definition points at one source endpoint
@@ -129,6 +135,13 @@ Current runtime connection rules for that slice are:
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
 - there is not yet a persisted cross-item signal graph, installable wire object, or explicit electrical-network runtime object
+
+The current player-work runtime flow for that slice is:
+- `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
+- actions are modelled as targeted delayed effects rather than instant mutation
+- required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials
+- success, progress, cancel, failure, and shock output are driven by configurable static strings rather than hard-coded prose
+- electrical work uses dedicated install/configure checks, and abject electrical failures can apply electrical damage
 
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:

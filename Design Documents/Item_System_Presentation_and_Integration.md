@@ -157,6 +157,13 @@ Telecommunications items also expose scripting hooks through item and endpoint q
 
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
 
+The current signal-automation slice has its own presentation and integration rules:
+- `PushButton` decorates the full description to show the selectable keyword and whether it is currently active
+- `ToggleSwitch` decorates short and full descriptions to show whether it is currently on or off
+- `Microcontroller` decorates the full description with its current on/off state and numeric output value
+- `SignalLight` and `ElectronicLock` reuse the existing light and lock presentation behaviour, but now integrate with sibling signal sources
+- because the first slice is same-item-only, presentation should explain sibling control surfaces on one composed item rather than implying a visible external wiring graph
+
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.
 
@@ -191,6 +198,7 @@ When troubleshooting strange item behaviour, always verify whether one of these 
 - If a feature touches health, magic, or scripted behaviour, document the integration explicitly rather than treating it as incidental.
 - If a feature represents a networked device, decide what description state players need to see: power, number, grid membership, signal coverage, off-hook state, ringing state, and connected peers are all presentation concerns rather than purely backend details.
 - If a feature owns a subordinate runtime object such as a grid, document what happens when that subordinate object fails to load. Creator-backed grids now recreate and reinitialise themselves instead of leaving the parent item in a broken null-grid state.
+- If a feature is part of the current signal-automation slice, document both the physical control surface players interact with and the sibling signal dependency that drives the response.
 
 ## Thermal Source Presentation and Integration
 Thermal-source items are both presentation features and simulation features.

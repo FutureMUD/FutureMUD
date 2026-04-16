@@ -44,6 +44,7 @@ If the feature also needs shared immutable value objects rather than only a quer
 
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
+- item-facing component contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` belong in `FutureMUDLibrary/GameItems/Interfaces`
 - concrete behaviours such as `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, or `ComputerTerminal` should still be separate runtime components and component protos in `MudSharpCore`
 - avoid collapsing multiple distinct automation behaviours into one generic "sensor" or "actuator" component unless the gameplay contract is genuinely identical
 
@@ -241,6 +242,33 @@ Use this checklist when adding a new capability:
 - `ContainerGameItemComponentProto` and `ContainerGameItemComponent`
 - `WearableGameItemComponentProto` and `WearableGameItemComponent`
 - `HoldableGameItemComponentProto` and `HoldableGameItemComponent` for the read-only special-case pattern
+
+## Signal Automation Authoring
+The current computer-automation slice is a good reference for "shared contracts, separate concrete behaviours".
+
+Implemented builder-facing component types:
+- `pushbutton`
+- `toggleswitch`
+- `microcontroller`
+- `signallight`
+- `electroniclock`
+
+Current authoring pattern:
+- sources author their own output behaviour and expose `ISignalSourceComponent`
+- sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
+- microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`
+
+Important implementation details from this slice:
+- microcontroller inline logic is compiled immediately as a `ComputerFunction` and must return a number
+- input variable names are validated and normalised to lower case at compile time
+- sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown
+- signal propagation is event-based, so components should avoid re-emitting unchanged values
+
+This is the reference approach for the early phases of computerised items:
+1. put the shared signal contract on interfaces first
+2. keep authored thresholds, keywords, and sibling-source names on the proto
+3. keep live signal state and subscriptions on the runtime component
+4. treat cross-item wiring as a later concern unless the task explicitly implements it
 
 ## Thermal Source Components
 The thermal-source family is the reference for "same gameplay concept, multiple activation models".

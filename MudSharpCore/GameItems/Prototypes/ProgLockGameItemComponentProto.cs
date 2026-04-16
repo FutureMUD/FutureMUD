@@ -137,7 +137,12 @@ public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpl
     }
 
     protected ProgLockGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-        : base(gameworld, originator, "Prog Lock")
+        : this(gameworld, originator, "Prog Lock")
+    {
+    }
+
+    protected ProgLockGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+        : base(gameworld, originator, type)
     {
         ForceDifficulty = Difficulty.Normal;
         PickDifficulty = Difficulty.Normal;

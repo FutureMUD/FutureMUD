@@ -46,6 +46,15 @@ The intended component families are:
 
 Those families should share common computer/signal contracts, but each concrete behaviour should still have its own prototype, runtime component, builder help, and persistence rules.
 
+The first shipped automation slice now includes:
+- `PushButton`
+- `ToggleSwitch`
+- `Microcontroller`
+- `SignalLight`
+- `ElectronicLock`
+
+That slice currently uses same-item sibling wiring by component name rather than freeform cross-item electrical graphs. It is enough to support authored control panels, indicator lights, and signal-driven locks on a single composed item, while leaving broader wiring, sensors, and networked hosts for later phases.
+
 ## Thermal Sources
 Room temperature now includes three layers:
 - base weather and climate

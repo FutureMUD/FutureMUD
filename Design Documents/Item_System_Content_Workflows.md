@@ -30,6 +30,13 @@ Telecommunications examples include:
 - `comp edit new tape`
 - `comp edit new answeringmachine`
 
+Signal-automation examples now include:
+- `comp edit new pushbutton`
+- `comp edit new toggleswitch`
+- `comp edit new microcontroller`
+- `comp edit new signallight`
+- `comp edit new electroniclock`
+
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered
 - the builder loader name is wrong
@@ -122,6 +129,14 @@ For telecommunications content, also validate:
 - whether `dial <phone> <digits>` starts a call while idle and sends keypad digits once the call is already connected
 - whether keypad-driven targets receive `TelephoneDigitsReceived` with the expected source item and digit string
 
+For the current signal-automation slice, also validate:
+- whether source and sink component names match the authored sibling component names on the same item
+- whether `pushbutton` emits the expected value and then returns to zero after its authored duration
+- whether `toggleswitch` changes between its authored on and off values through the normal switch flow
+- whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
+- whether `signallight` responds to threshold and invert settings without redundant extra echoes when the effective lit state is unchanged
+- whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
+
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.
 
@@ -202,11 +217,24 @@ For exchange-hosted voicemail, extend that pass with:
 4. Speak a test message, then hang up or send `#` to end the recording.
 5. From the subscribed line, dial the hosted voicemail access number and use keypad digits such as `1`, `3`, `7`, `9`, and `#` to validate playback, deletion, menu repeat, and hangup.
 
+For the current microcontroller workflow, a practical end-to-end pass is:
+1. Create a `pushbutton` component and set its keyword, signal value, duration, and emote.
+2. Create either a `signallight` or `electroniclock` sink component and set its source name, threshold, and invert mode.
+3. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source.
+4. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
+5. Attach the authored components to the same item prototype with `item set add`.
+6. Load the item and exercise the input:
+   - `select <item> <button keyword>` for `pushbutton`
+   - `switch <item> on` / `switch <item> off` for `toggleswitch`
+7. Confirm the sink reacts through the sibling source name or through the microcontroller output as authored.
+
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
 - item loads but does nothing: the item probably lacks the component or the runtime component is not implementing the expected interface.
 - boot-time load fails: likely missing or mismatched database loader registration.
 - updated component changes do not appear on old content: update workflow was not run or the update hooks are incomplete.
+- a microcontroller refuses submission: its inline logic probably does not compile in the `ComputerFunction` context or one of its input names is invalid
+- a sink never responds: the authored sibling source component name probably does not match any component on the same item
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

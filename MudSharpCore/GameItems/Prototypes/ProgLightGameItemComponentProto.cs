@@ -11,7 +11,12 @@ namespace MudSharp.GameItems.Prototypes;
 public class ProgLightGameItemComponentProto : GameItemComponentProto
 {
     protected ProgLightGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-        : base(gameworld, originator, "Prog Light")
+        : this(gameworld, originator, "Prog Light")
+    {
+    }
+
+    protected ProgLightGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+        : base(gameworld, originator, type)
     {
         IlluminationProvided = 400;
         Changed = true;

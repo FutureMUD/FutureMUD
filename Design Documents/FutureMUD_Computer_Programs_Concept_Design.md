@@ -11,9 +11,18 @@ The first implementation slice for this design has now landed. The currently imp
 - compiler-time restriction of computer-safe statements via statement registration metadata
 - compiler-time blocking of user-defined `@SomeProg(...)` FutureProg calls inside computer compilation contexts
 - shared computer and signal interfaces in `FutureMUDLibrary/Computers`
+- item-facing signal component contracts in `FutureMUDLibrary/GameItems/Interfaces`
 - core runtime scaffolding for computer executables, programs, files, hosts, processes, and built-in applications in `MudSharpCore/Computers`
+- a first usable signal-automation slice in `MudSharpCore/GameItems`:
+  - `PushButton`
+  - `ToggleSwitch`
+  - `Microcontroller`
+  - `SignalLight`
+  - `ElectronicLock`
 
-The remaining work is still substantial. In particular, item components, persistence tables, resumable runtime execution, terminal sessions, and data networking are still future phases.
+The current signal-automation slice is intentionally local to a single parent item. Wiring is done by naming sibling source components from sink and controller definitions. Inter-item wiring, reusable wire objects, and persisted signal-graph topologies are still future phases.
+
+The remaining work is still substantial. In particular, persistence tables, resumable runtime execution, terminal sessions, inter-item signal wiring, and data networking are still future phases.
 
 ## Core Concepts
 
@@ -133,6 +142,12 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - Logic: `Microcontroller`
   - Outputs: `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, `AlarmSiren`
   - Host systems: `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`
+- Implemented in the first slice:
+  - `PushButton` is a selectable momentary input that emits a numeric signal for an authored duration
+  - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
+  - `Microcontroller` is a powered machine component whose inputs are sibling signal sources and whose inline logic compiles as a `ComputerFunction`
+  - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
+  - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
 - A programming check and command verb that allows players to write programs
 - An electrical check and command verb that allows players to install systems, microcontrollers, wire signals together etc. This verb should be able to be used unskilled but carry the risk of electrocution.
@@ -141,9 +156,11 @@ The baseline built-in application list for the computer subsystem is now fixed a
 ## Unsolved Design Questions
 
 - Signals will likely be initiated by events (player input, movement, and actual Events from the Event System. They will also typically have a fixed duration that they're sent and/or pulsed for. We want to make it so that ideally if nothing changes we don't have to constantly reassess the logic and the signals so there needs to be consideration to that in how things are implemented. The pulsing is mostly to give microcontrollers the opportunity to reassess their logic - if their output stays the same pulse to pulse the signal should be considered continuous.
-- 
+- The current first slice only supports sibling-component wiring on the same item. Future phases still need to decide how explicit electrical wiring, cross-item routing, install locations, and builder-facing wiring verbs should persist and present themselves.
 
 ## Conceptual Example - Motion Activated Door
+
+This remains a target design example, not current shipped behaviour. The current implementation only supports same-item sibling signal components, so a motion sensor installed elsewhere and connected across items is still future work.
 
 - There is an item with an Electronic Door item component which uses a signal channel to decide whether it's open or closed. 
 - Electronic Door is an IAutomationEnabled item which exposes signal channels and can have those channels connected to other items and have microcontrollers installed in those channels as well

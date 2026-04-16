@@ -91,6 +91,7 @@ Some subsystems also need reusable runtime data that is not owned by one concret
 ### Computers and signal automation pattern
 The planned computer-programs subsystem follows the same composition rules:
 - shared contracts live in `FutureMUDLibrary/Computers`
+- item-facing automation contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` live in `FutureMUDLibrary/GameItems/Interfaces`
 - live item behaviour should come from item components, not special-case `GameItem` subclasses
 - common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
 - concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
@@ -102,6 +103,24 @@ This means "computerised" items are expected to compose multiple capabilities:
 - ordinary door, lock, light, or switch components when the item also has traditional physical behaviour
 
 As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
+
+The currently implemented automation runtime slice is intentionally narrower than the full target design:
+- `PushButton` is an `ISelectable` same-item signal source with authored keyword, signal value, duration, and press emote
+- `ToggleSwitch` is an `ISwitchable` same-item signal source with authored on and off values
+- `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
+  - binds named inputs to sibling `ISignalSourceComponent` instances
+  - keeps live numeric input values
+  - compiles authored inline logic in the `ComputerFunction` compilation context
+  - emits a single numeric output signal
+- `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
+- `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
+
+Current runtime connection rules for that slice are:
+- sinks and microcontroller inputs resolve their upstream sources by sibling component name on the same parent item
+- one sink definition points at one source component name
+- microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
+- output propagation is event-driven and suppressed when the computed signal value has not actually changed
+- there is not yet a persisted cross-item signal graph, installable wire object, or explicit electrical-network runtime object
 
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:

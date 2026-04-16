@@ -225,7 +225,10 @@ internal class Switch : Statement
         <Regex,
             Func<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
             SwitchCompileRegex, SwitchCompile
-        ));
+        ),
+		FutureProgCompilationContext.StandardFutureProg,
+		FutureProgCompilationContext.ComputerFunction,
+		FutureProgCompilationContext.ComputerProgram);
 
         FutureProg.RegisterStatementColouriser(new Tuple<Regex, Func<string, string>>(
             SwitchCompileRegex, ColouriseSwitchStatement

@@ -44,19 +44,18 @@ public class FutureProg : SaveableItem, IFutureProg
     protected static List<Tuple<Regex, Func<string, string>>> StatementColourisersDarkMode =
         new();
 
-    protected static
-        List
-        <
-            Tuple
-            <Regex,
-                Func
-                <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>>
-        StatementCompilers =
-            new();
+    private static List<StatementCompilerInformation> StatementCompilers =
+        new();
+
+	[ThreadStatic] private static FutureProgCompilationContext _currentCompilationContext;
 
     protected static Dictionary<string, (string HelpText, string Related)> StatementHelps = new(StringComparer.InvariantCultureIgnoreCase);
 
     public static IReadOnlyDictionary<string, (string HelpText, string Related)> StatementHelpTexts => StatementHelps;
+	public static FutureProgCompilationContext CurrentCompilationContext =>
+		_currentCompilationContext == default
+			? FutureProgCompilationContext.StandardFutureProg
+			: _currentCompilationContext;
 
     private static readonly Regex _depthDecreasingStatementsRegex =
         new(@"^\s*(end if|end while|end for|end foreach)", RegexOptions.IgnoreCase);
@@ -78,9 +77,11 @@ public class FutureProg : SaveableItem, IFutureProg
     private readonly List<IStatement> _statements = new();
 
     private string _functionText;
+	private readonly FutureProgCompilationContext _compilationContext;
 
     public FutureProg(IFuturemud gameworld, string functionName, ProgVariableTypes returnType,
-        IEnumerable<Tuple<ProgVariableTypes, string>> parameters, string text)
+        IEnumerable<Tuple<ProgVariableTypes, string>> parameters, string text,
+		FutureProgCompilationContext compilationContext = FutureProgCompilationContext.StandardFutureProg)
     {
         Gameworld = gameworld;
         _noSave = true;
@@ -89,6 +90,7 @@ public class FutureProg : SaveableItem, IFutureProg
         ReturnType = returnType;
         NamedParameters = parameters.ToList();
         FunctionText = text;
+		_compilationContext = compilationContext;
         ColouriseFunctionText();
     }
 
@@ -113,6 +115,7 @@ public class FutureProg : SaveableItem, IFutureProg
         ColouriseFunctionText();
         AcceptsAnyParameters = prog.AcceptsAnyParameters;
         StaticType = (FutureProgStaticType)prog.StaticType;
+		_compilationContext = FutureProgCompilationContext.StandardFutureProg;
         _noSave = false;
     }
 
@@ -213,6 +216,22 @@ public class FutureProg : SaveableItem, IFutureProg
         _staticValueSet = false;
         _statements.Clear();
 
+		if (!ComputerCompilationRestrictions.TryValidateTypeForContext(ReturnType, _compilationContext,
+			    out var returnTypeError))
+		{
+			CompileError = returnTypeError;
+			return false;
+		}
+
+		var invalidParameter = NamedParameters.FirstOrDefault(x =>
+			!ComputerCompilationRestrictions.TryValidateTypeForContext(x.Item1, _compilationContext, out _));
+		if (invalidParameter != null)
+		{
+			CompileError =
+				$"Parameter {invalidParameter.Item2} uses unsupported type {invalidParameter.Item1.Describe()} for {_compilationContext.Describe()} compilation.";
+			return false;
+		}
+
         Stopwatch sw = new();
         sw.Start();
         // Split the raw text into lines
@@ -232,40 +251,43 @@ public class FutureProg : SaveableItem, IFutureProg
             variableSpace.Add("return", ReturnType);
         }
 
-        // Iteratively compile the program one statement at a time
-        ICompileInfo compileResult = CompileNextStatement(lines, variableSpace, 1, Gameworld);
-        while (true)
-        {
-            if (compileResult.IsError)
-            {
-                CompileError = $"Line {compileResult.ErrorLineNumber:N0}: {compileResult.ErrorMessage}";
-                _statements.Clear();
-                return false;
-            }
+		using (new CompilationContextScope(_compilationContext))
+		{
+			// Iteratively compile the program one statement at a time
+			ICompileInfo compileResult = CompileNextStatement(lines, variableSpace, 1, Gameworld);
+			while (true)
+			{
+				if (compileResult.IsError)
+				{
+					CompileError = $"Line {compileResult.ErrorLineNumber:N0}: {compileResult.ErrorMessage}";
+					_statements.Clear();
+					return false;
+				}
 
-            // We don't expect to see continue or return statements at top level
-            if (!compileResult.IsComment)
-            {
-                if (compileResult.CompiledStatement.ExpectedResult == StatementResult.Continue ||
-                    compileResult.CompiledStatement.ExpectedResult == StatementResult.Break)
-                {
-                    CompileError =
-                        $"Line {compileResult.EndingLineNumber:N0}: Found a {(compileResult.CompiledStatement.ExpectedResult == StatementResult.Break ? "break" : "continue")} statement outside of an appropriate block.";
-                    _statements.Clear();
-                    return false;
-                }
+				// We don't expect to see continue or return statements at top level
+				if (!compileResult.IsComment)
+				{
+					if (compileResult.CompiledStatement.ExpectedResult == StatementResult.Continue ||
+					    compileResult.CompiledStatement.ExpectedResult == StatementResult.Break)
+					{
+						CompileError =
+							$"Line {compileResult.EndingLineNumber:N0}: Found a {(compileResult.CompiledStatement.ExpectedResult == StatementResult.Break ? "break" : "continue")} statement outside of an appropriate block.";
+						_statements.Clear();
+						return false;
+					}
 
-                _statements.Add(compileResult.CompiledStatement);
-            }
+					_statements.Add(compileResult.CompiledStatement);
+				}
 
-            if (!compileResult.RemainingLines.Any())
-            {
-                break;
-            }
+				if (!compileResult.RemainingLines.Any())
+				{
+					break;
+				}
 
-            compileResult = CompileNextStatement(compileResult.RemainingLines, compileResult.VariableSpace,
-                compileResult.EndingLineNumber + 1, Gameworld);
-        }
+				compileResult = CompileNextStatement(compileResult.RemainingLines, compileResult.VariableSpace,
+					compileResult.EndingLineNumber + 1, Gameworld);
+			}
+		}
 
         // Check for a final return statement if there is one
         if (ReturnType != ProgVariableTypes.Void)
@@ -679,9 +701,18 @@ public class FutureProg : SaveableItem, IFutureProg
             return CompileInfo.GetFactory().CreateComment(variableSpace, lines.Skip(1), lineNumber);
         }
 
-        Tuple<Regex, Func<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>> compiler = StatementCompilers.FirstOrDefault(x => x.Item1.IsMatch(line));
+        var matchingCompilers = StatementCompilers.Where(x => x.Regex.IsMatch(line)).ToList();
+		StatementCompilerInformation compiler = matchingCompilers.FirstOrDefault(x =>
+			x.SupportsContext(CurrentCompilationContext));
         if (compiler == null)
         {
+			if (matchingCompilers.Any())
+			{
+				return CompileInfo.GetFactory().CreateError(
+					$"The statement on this line is not valid in {CurrentCompilationContext.Describe()} compilation.",
+					lineNumber);
+			}
+
             ICompileInfo functionResult = FunctionHelper.CompileFunction(line, variableSpace, lineNumber, gameworld);
             if (functionResult.IsError)
             {
@@ -695,7 +726,7 @@ public class FutureProg : SaveableItem, IFutureProg
                                lines.Skip(1), lineNumber, lineNumber);
         }
 
-        return compiler.Item2(lines, variableSpace, lineNumber, gameworld);
+        return compiler.CompilerFunction(lines, variableSpace, lineNumber, gameworld);
     }
 
     public static XElement GetFunctionInfo()
@@ -723,17 +754,27 @@ public class FutureProg : SaveableItem, IFutureProg
     public static FunctionCompilerResult GetBuiltInFunctionCompiler(string functionName, IList<IFunction> parameters,
         IFuturemud gameworld)
     {
-        FunctionCompilerInformation compiler =
-            BuiltInFunctionCompilers.FirstOrDefault(
-                x =>
-                    x.FunctionName == functionName.ToLowerInvariant() &&
-                    x.Parameters.SequenceEqual(parameters.Select(y => y.ReturnType),
-                        FutureProgVariableComparer.Instance) &&
-                    x.CompilerFilterFunction(parameters.Select(y => y.ReturnType), gameworld));
+        var compilers =
+			BuiltInFunctionCompilers.Where(
+					x =>
+						x.FunctionName == functionName.ToLowerInvariant() &&
+						x.Parameters.SequenceEqual(parameters.Select(y => y.ReturnType),
+							FutureProgVariableComparer.Instance) &&
+						x.CompilerFilterFunction(parameters.Select(y => y.ReturnType), gameworld))
+				.ToList();
+		FunctionCompilerInformation compiler = compilers.FirstOrDefault(x =>
+			ComputerCompilationRestrictions.TryValidateBuiltInFunction(x, parameters, CurrentCompilationContext, out _));
         if (compiler != null)
         {
             return compiler.Compile(parameters, gameworld);
         }
+
+		if (compilers.Any())
+		{
+			ComputerCompilationRestrictions.TryValidateBuiltInFunction(compilers.First(), parameters,
+				CurrentCompilationContext, out var errorMessage);
+			return new FunctionCompilerResult(false, errorMessage, null);
+		}
 
         return new FunctionCompilerResult(false,
             BuiltInFunctionCompilers.Any(x => x.FunctionName.ToLowerInvariant() == functionName)
@@ -879,9 +920,10 @@ public class FutureProg : SaveableItem, IFutureProg
         Tuple
             <Regex,
                 Func<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>
-            compiler)
+            compiler,
+		params FutureProgCompilationContext[] allowedContexts)
     {
-        StatementCompilers.Add(compiler);
+        StatementCompilers.Add(new StatementCompilerInformation(compiler.Item1, compiler.Item2, allowedContexts));
     }
 
     public static void RegisterStatementHelp(string statement, string helpText, string related = "")
@@ -949,6 +991,22 @@ public class FutureProg : SaveableItem, IFutureProg
     }
 
     protected bool DisplayInDarkMode => Gameworld.GetStaticBool("DisplayProgsInDarkMode");
+
+	private sealed class CompilationContextScope : IDisposable
+	{
+		private readonly FutureProgCompilationContext _previousContext;
+
+		public CompilationContextScope(FutureProgCompilationContext context)
+		{
+			_previousContext = CurrentCompilationContext;
+			_currentCompilationContext = context;
+		}
+
+		public void Dispose()
+		{
+			_currentCompilationContext = _previousContext;
+		}
+	}
 
     public void ColouriseFunctionText()
     {

@@ -23,6 +23,8 @@ public class FunctionCompilerResult
 
 public class FunctionCompilerInformation
 {
+	private readonly HashSet<FutureProgCompilationContext> _allowedContexts;
+
     public Func<IList<IFunction>, IFuturemud, IFunction> CompilerFunction { get; protected set; }
 
     public FunctionCompilerInformation(string functionName, IEnumerable<ProgVariableTypes> parameters,
@@ -32,7 +34,8 @@ public class FunctionCompilerInformation
         string functionHelp = null,
         string category = "Uncategorised",
         ProgVariableTypes? returnType = null,
-        Func<IEnumerable<ProgVariableTypes>, IFuturemud, bool> filterFunction = null)
+        Func<IEnumerable<ProgVariableTypes>, IFuturemud, bool> filterFunction = null,
+		IEnumerable<FutureProgCompilationContext> allowedContexts = null)
     {
         FunctionName = functionName;
         Parameters = parameters;
@@ -50,6 +53,10 @@ public class FunctionCompilerInformation
         {
             CompilerFilterFunction = filterFunction;
         }
+
+		_allowedContexts = new HashSet<FutureProgCompilationContext>(
+			allowedContexts?.Distinct() ??
+			Enum.GetValues<FutureProgCompilationContext>());
     }
 
     public string FunctionName { get; protected set; }
@@ -59,6 +66,7 @@ public class FunctionCompilerInformation
     public string FunctionHelp { get; protected set; }
     public string Category { get; protected set; }
     public ProgVariableTypes ReturnType { get; protected set; }
+	public IEnumerable<FutureProgCompilationContext> AllowedContexts => _allowedContexts;
 
     public string FunctionDisplayForm
     {
@@ -109,6 +117,11 @@ public class FunctionCompilerInformation
     ///     Used to specify more advanced constraints on arguments
     /// </summary>
     public Func<IEnumerable<ProgVariableTypes>, IFuturemud, bool> CompilerFilterFunction { get; protected set; }
+
+	public bool SupportsContext(FutureProgCompilationContext context)
+	{
+		return _allowedContexts.Contains(context);
+	}
 
     public FunctionCompilerResult Compile(IList<IFunction> parameterFunctions, IFuturemud gameworld)
     {

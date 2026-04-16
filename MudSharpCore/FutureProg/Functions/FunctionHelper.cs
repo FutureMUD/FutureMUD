@@ -900,6 +900,12 @@ public static class FunctionHelper
                         : compileInfoFactory.CreateError(result.ErrorMessage, lineNumber);
 
                 case UnaryFunctionType.UserDefinedFunction:
+					if (FutureProg.CurrentCompilationContext.IsComputerContext())
+					{
+						return compileInfoFactory.CreateError(
+							"User defined functions are not available in computer compilation contexts.", lineNumber);
+					}
+
                     IFutureProg udfResult =
                         gameworld.FutureProgs.FirstOrDefault(
                             x =>

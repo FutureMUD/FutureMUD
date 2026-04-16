@@ -31,8 +31,20 @@ Most gameplay-facing item behaviour is discovered by checking whether an item co
 ## Important Notes
 - The fastest way to add a new item capability is usually to add a new component prototype and component pair, not a new `GameItem` subclass.
 - Telecommunications items follow the same composition model: a wired telephone handset, a telecommunications outlet, a telecommunications feeder, a cell tower, a cellular handset, and an implant telephone are all ordinary item capabilities expressed through components and public interfaces.
+- Computer and signal automation work should follow the same pattern. Shared interfaces such as `IComputerHost`, `IComputerFileSystem`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary`, while concrete behaviour should be delivered through distinct item component families rather than one generic "automation item" component.
 - The `Item Templates/GameItem` template is intended to be a starting skeleton, not a complete implementation. The authoring document calls out the manual work the template does not solve.
 - Some component types are special cases. For example, `Holdable` is a read-only auto-initialised component type and should be treated differently from ordinary editable component prototypes.
+
+## Computers And Signals
+The planned computer-programs subsystem is an item-system feature, not a separate inheritance tree.
+
+The intended component families are:
+- host components such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, and `NetworkAdapter`
+- logic components such as `Microcontroller`
+- signal-input components such as `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `TimerSensor`, and `Keypad`
+- signal-output components such as `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, and `AlarmSiren`
+
+Those families should share common computer/signal contracts, but each concrete behaviour should still have its own prototype, runtime component, builder help, and persistence rules.
 
 ## Thermal Sources
 Room temperature now includes three layers:

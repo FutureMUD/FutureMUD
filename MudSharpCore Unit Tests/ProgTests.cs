@@ -249,4 +249,67 @@ return @item");
             Assert.AreNotEqual(ProgVariableTypes.Void, FutureProg.GetTypeByName(type.DescribeEnum()), $"There was no round-trip GetTypeByName for type {type.DescribeEnum()}");
         }
     }
+
+	[TestMethod]
+	public void ComputerProgramContext_AllowsSafeCollectionWorkflows()
+	{
+		FutureProg prog = new(_gameworld,
+			"ComputerSplit",
+			ProgVariableTypes.Text | ProgVariableTypes.Collection,
+			new[]
+			{
+				Tuple.Create(ProgVariableTypes.Text, "text"),
+				Tuple.Create(ProgVariableTypes.Text, "separator")
+			},
+			@"var parts = SplitText(@text, @separator)
+return @parts",
+			FutureProgCompilationContext.ComputerProgram);
+
+		Assert.IsTrue(prog.Compile(), prog.CompileError);
+		CollectionAssert.AreEqual(
+			new[] { "alpha", "beta", "gamma" },
+			prog.ExecuteCollection<string>("alpha,beta,gamma", ",").ToList());
+	}
+
+	[TestMethod]
+	public void ComputerProgramContext_RejectsUnsupportedTypes()
+	{
+		FutureProg prog = new(_gameworld,
+			"ComputerLoadItem",
+			ProgVariableTypes.Item,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"return LoadItem(780)",
+			FutureProgCompilationContext.ComputerProgram);
+
+		Assert.IsFalse(prog.Compile());
+		StringAssert.Contains(prog.CompileError, "not supported");
+	}
+
+	[TestMethod]
+	public void ComputerProgramContext_RejectsStandardOnlyStatements()
+	{
+		FutureProg prog = new(_gameworld,
+			"ComputerConsole",
+			ProgVariableTypes.Void,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"console ""hello world""",
+			FutureProgCompilationContext.ComputerProgram);
+
+		Assert.IsFalse(prog.Compile());
+		StringAssert.Contains(prog.CompileError, "not valid in computer program compilation");
+	}
+
+	[TestMethod]
+	public void ComputerProgramContext_RejectsUserDefinedFunctions()
+	{
+		FutureProg prog = new(_gameworld,
+			"ComputerCallsProg",
+			ProgVariableTypes.Number,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"return @SomeProg()",
+			FutureProgCompilationContext.ComputerProgram);
+
+		Assert.IsFalse(prog.Compile());
+		StringAssert.Contains(prog.CompileError, "User defined functions are not available");
+	}
 }

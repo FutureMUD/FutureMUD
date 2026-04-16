@@ -88,6 +88,21 @@ Some subsystems also need reusable runtime data that is not owned by one concret
 - each segment snapshots the language id, accent id, raw text, volume, speech outcome, and immutable speaker identity metadata needed to recreate later playback without consulting the speaker's current state
 - the shared model owns XML round-tripping so stage-1 item implementations can persist recordings in ordinary component XML rather than new database tables
 
+### Computers and signal automation pattern
+The planned computer-programs subsystem follows the same composition rules:
+- shared contracts live in `FutureMUDLibrary/Computers`
+- live item behaviour should come from item components, not special-case `GameItem` subclasses
+- common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
+- concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
+
+This means "computerised" items are expected to compose multiple capabilities:
+- a host component to own files, executables, and running processes
+- one or more terminal or network-facing components for user and remote interaction
+- signal source and sink components for electrical-style automation
+- ordinary door, lock, light, or switch components when the item also has traditional physical behaviour
+
+As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
+
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:
 - wired handsets implement `ITelephone`, but the active phone number may belong to a separate `ITelephoneNumberOwner` endpoint such as a telecommunications outlet

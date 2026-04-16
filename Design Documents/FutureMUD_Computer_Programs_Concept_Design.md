@@ -2,11 +2,24 @@
 
 This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. This system is not yet implemented.
 
+## Current Implementation Status
+
+The first implementation slice for this design has now landed. The currently implemented foundation is:
+
+- explicit compilation contexts for `StandardFutureProg`, `ComputerFunction`, and `ComputerProgram`
+- compiler-time restriction of computer-safe variable types
+- compiler-time restriction of computer-safe statements via statement registration metadata
+- compiler-time blocking of user-defined `@SomeProg(...)` FutureProg calls inside computer compilation contexts
+- shared computer and signal interfaces in `FutureMUDLibrary/Computers`
+- core runtime scaffolding for computer executables, programs, files, hosts, processes, and built-in applications in `MudSharpCore/Computers`
+
+The remaining work is still substantial. In particular, item components, persistence tables, resumable runtime execution, terminal sessions, and data networking are still future phases.
+
 ## Core Concepts
 
 - The Program system will be shared between computers, microcomputers, controllers and other small bits of in-world compute type tasks
-- The system will use a cut-down version of the FutureProg system - in fact, these will be an implementation of IFutureProg, just with greatly reduced variable types and function restrictions
-- IComputerProgram will be the interface which extends IFutureProg but signals that the type behaves like an IComputerProgram.
+- The system will use FutureProg syntax and most of the existing compiler front-end, but computer code is no longer modelled as ordinary global `IFutureProg` instances
+- Shared abstractions are defined in `FutureMUDLibrary/Computers` around `IComputerExecutable`, `IComputerFunction`, `IComputerProgramDefinition`, `IComputerProcess`, `IComputerHost`, `IComputerFileSystem`, `IComputerFile`, `ISignalSource`, and `ISignalSink`
 - There are ComputerPrograms, which are executed on in-game computers and run some code until they exit or terminate
 - Some ComputerPrograms are hard-coded by FutureMUD and they handle complex systems, like mail or chat or whatnot
 - Other ComputerPrograms are soft-coded by users and these are CustomComputerPrograms
@@ -14,6 +27,7 @@ This is a concept design document to outline a system in FutureMUD for in-world 
 - These are designed to be stored as text on other data structures like items, computers and the like rather than sitting in a central repository like conventional IFutureProgs
 - They are still compiled before being executed
 - IComputerPrograms don't always run to completion. They often have wait points like waiting for a user input or a signal input. This will be handled through custom functions and statement types.
+- Variable references continue to use the normal `@variable` syntax when read in expressions
 
 ### Available Types
 
@@ -24,9 +38,9 @@ Only the following list of types will be permitted in Custom Computer Programs:
 - Text
 - MudDateTime
 - TimeSpan
-- Collections
-- Dictionaries
-- Collection Dictionaries
+- Typed Collections of the above scalar types
+- Typed Dictionaries of the above scalar types
+- Typed Collection Dictionaries of the above scalar types
 
 ### Variable Registers
 
@@ -38,13 +52,15 @@ The Computer system would have a concept of files. Files are essentially all jus
 
 ### Restricted Statements
 
-All statements will be available except for the below statements:
+Computer compilation contexts work as an allow-list, not a deny-list. The currently enabled statement families are:
 
-- Console
-- Delay
-- DelayProg
-- Force
-- Send
+- variable declaration and assignment
+- arithmetic assignment
+- collection and dictionary mutation helpers
+- `if`, `switch`, `while`, `for`, `foreach`
+- `break`, `continue`, and `return`
+
+Statements like `console`, `delay`, `delayprog`, `force`, `send`, and `setregister` remain standard-prog-only.
 
 ### Additional Statements
 
@@ -54,11 +70,19 @@ There are a few statements that will be only available for Custom Computer Progr
 
 ### Statement Handling
 
-All IStatements will have boolean properties that say whether they are valid in regular progs or computer progs. Using an incorrect statement will produce a compile time error.
+Statement availability is now handled at compiler-registration time rather than by flags on compiled statement instances. Each statement compiler registers the compilation contexts that it supports, and using a statement in the wrong context produces a compile-time error.
+
+The three contexts are:
+
+- `StandardFutureProg`
+- `ComputerFunction`
+- `ComputerProgram`
 
 ### Restricted Functions
 
-By default none of the built-in functions will be available in Custom Computer Programs. Only those that specifically opt-in will be permitted. A tentative list of these would be:
+Computer compilation contexts use a restricted built-in-function path. User-defined FutureProg calls are always blocked in computer contexts. Built-in functions are additionally filtered so that computer code only sees function signatures compatible with the restricted computer type set and the approved computer-safe function categories.
+
+The intended safe families remain:
 
 - Functions that work with timespans and muddatetimes
 - Text manipulation functions, including ToText overrides for the available types
@@ -86,14 +110,29 @@ There would be some functions that would only be available for Custom Computer P
 - WriteFileRemote/AppendFileRemote/FileExistsRemote/GetFilesRemote - for interacting over an internet network delivered via an IGrid
 - LaunchProgram / KillProgram - to launch or kill other computer programs
 
+### Hard-Coded Applications
+
+The baseline built-in application list for the computer subsystem is now fixed as:
+
+- `Mail` - asynchronous email client plus store-and-forward mail service
+- `Boards` - bulletin board and newsreader client plus board service
+- `Messenger` - live pager-style messaging client plus relay service
+- `FileManager` - local and remote file browser and copy utility
+- `Directory` - address book and service discovery utility
+- `SysMon` - diagnostics, process manager, storage monitor, signal inspector, and fault log viewer
+
 ## Systems Needed
 
-- Concrete types for ComputerPrograms, CustomComputerPrograms ComputerFunctions and Files
-- A way of marking statements and functions as being available for FutureProgs vs ComputerFunctions. FutureProgs would be enabled by default unless disabled. ComputerFunctions is disabled by default unless enabled.
-- Some of the core language handling might need some branching, like for example the ability to call FutureProgs with the @ syntax would need to be unavailable in ComputerFunctions or alternately map to those instead
+- Concrete runtime persistence and save/load support for ComputerPrograms, ComputerFunctions, Files, SuspendedProcesses, and signal wiring
+- A way of marking statements and functions as being available for FutureProgs vs ComputerFunctions. This is now partially implemented via compile contexts and statement registration metadata, but still needs fuller function-by-function rollout
+- A dedicated resumable program executor for sleeps, user input waits, and signal waits
 - A desktop computer item to run these programs on
 - A microcontroller item type that has input channels and output channels that can be connected to other items, and can run ComputerFunctions on its channels to handle logic
-- A couple of signal channel enabled item types to test around with, like a lock that can be controlled by a signal and/or a light and/or a power switch, as well as items to feed signals in like a push button, movement sensor, light sensor etc.
+- Signal-capable item component families. These should share `ISignalSource` / `ISignalSink` contracts but remain distinct concrete item component types:
+  - Inputs: `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `TimerSensor`, `Keypad`
+  - Logic: `Microcontroller`
+  - Outputs: `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, `AlarmSiren`
+  - Host systems: `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
 - A programming check and command verb that allows players to write programs
 - An electrical check and command verb that allows players to install systems, microcontrollers, wire signals together etc. This verb should be able to be used unskilled but carry the risk of electrocution.
@@ -118,7 +157,7 @@ The Microcontroller is programmed with an input parameter of "Signal1" and retur
 The player programs the Microcontroller with the following function:
 
 ```
-// Short circuit exit if signal is close
+// Short circuit exit if signal is low
 if (@Signal1 == 0)
   return 0
 end if
@@ -131,7 +170,7 @@ end if
 return 0
 ```
 
-The player installs the microcontroller on the door and maps its "Signal1" input to the "DoorOpen" output of the door.
+The player installs the microcontroller on the door and maps its `DoorOpen` output to the `DoorOpen` input on the electronic door component.
 
 They then install the Movement Sensor on the CellExit that the door is installed in and connect its "MotionDetected" signal to "Signal1" on the microcontroller on the door. They set the motion detection to MinimumSize=Normal and SignalDuration to 45 seconds.
 

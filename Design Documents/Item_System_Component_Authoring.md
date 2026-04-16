@@ -42,6 +42,11 @@ If the feature also needs shared immutable value objects rather than only a quer
 - gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`
 - XML helpers live with the shared models so stage-1 persistence can stay inside normal item/component XML without feature-specific database tables
 
+Computer-program and signal-automation work should follow the same rule:
+- shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
+- concrete behaviours such as `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, or `ComputerTerminal` should still be separate runtime components and component protos in `MudSharpCore`
+- avoid collapsing multiple distinct automation behaviours into one generic "sensor" or "actuator" component unless the gameplay contract is genuinely identical
+
 ## Step 2: Start from the GameItem Template
 The repaired `Item Templates/GameItem` template should now generate a coherent pair:
 - `ExampleGameItemComponent`

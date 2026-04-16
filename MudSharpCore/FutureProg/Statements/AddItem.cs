@@ -112,7 +112,10 @@ internal class AddItem : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                AddItemCompileRegex, AddItemCompile)
+                AddItemCompileRegex, AddItemCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementHelp("additem", @"The AddItem function is used to add an item to a collection. Note that you can only add items to collections that are local variables. Collections that are properties of other objects are read-only and usually have other ways of interacting with them.

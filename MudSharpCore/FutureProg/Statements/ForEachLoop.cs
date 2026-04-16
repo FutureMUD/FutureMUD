@@ -133,7 +133,10 @@ internal class ForEachLoop : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                ForEachLoopCompileRegex, ForEachLoopCompile)
+                ForEachLoopCompileRegex, ForEachLoopCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

@@ -113,6 +113,7 @@ public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComp
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
+	public long LocalSignalSourceIdentifier => Prototype.Id;
 	public ComputerSignal CurrentSignal => _currentSignal;
 	public event SignalChangedEvent? SignalChanged;
 	public double CurrentValue => _currentSignal.Value;

@@ -16,19 +16,22 @@ namespace MudSharp.GameItems.Prototypes;
 
 public sealed class MicrocontrollerInputDefinition
 {
-	public MicrocontrollerInputDefinition(string variableName, string sourceComponentName)
+	public MicrocontrollerInputDefinition(string variableName, long sourceComponentId, string sourceComponentName)
 	{
 		VariableName = variableName;
+		SourceComponentId = sourceComponentId;
 		SourceComponentName = sourceComponentName;
 	}
 
 	public string VariableName { get; }
+	public long SourceComponentId { get; }
 	public string SourceComponentName { get; }
 
 	public XElement SaveToXml()
 	{
 		return new XElement("Input",
 			new XAttribute("variable", VariableName),
+			new XAttribute("sourceid", SourceComponentId),
 			new XAttribute("source", SourceComponentName));
 	}
 
@@ -36,6 +39,7 @@ public sealed class MicrocontrollerInputDefinition
 	{
 		return new MicrocontrollerInputDefinition(
 			element.Attribute("variable")?.Value ?? string.Empty,
+			long.TryParse(element.Attribute("sourceid")?.Value, out var sourceId) ? sourceId : 0L,
 			element.Attribute("source")?.Value ?? string.Empty);
 	}
 }
@@ -82,7 +86,7 @@ Notes:
 		var inputs = !_inputs.Any()
 			? "None".ColourError()
 			: _inputs.Select(x =>
-					$"{x.VariableName.ColourCommand()} <- {x.SourceComponentName.ColourName()}")
+					$"{x.VariableName.ColourCommand()} <- {SignalComponentUtilities.DescribeSignalComponent(Gameworld, x.SourceComponentId, x.SourceComponentName).ColourName()}")
 				.ListToString();
 
 		var compileStatus = string.IsNullOrEmpty(CompileError)
@@ -176,16 +180,23 @@ Notes:
 
 		if (command.IsFinished)
 		{
-			actor.Send("Which sibling signal source component name should feed that input?");
+			actor.Send("Which signal source component prototype should feed that input?");
 			return false;
 		}
 
-		var sourceComponentName = command.SafeRemainingArgument.Trim();
-		_inputs.Add(new MicrocontrollerInputDefinition(variableName, sourceComponentName));
+		var sourceComponentIdentifier = command.SafeRemainingArgument.Trim();
+		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, sourceComponentIdentifier,
+			    out var sourcePrototype))
+		{
+			actor.Send("There is no such item component prototype.");
+			return false;
+		}
+
+		_inputs.Add(new MicrocontrollerInputDefinition(variableName, sourcePrototype.Id, sourcePrototype.Name));
 		Changed = true;
 		CompileControllerLogic();
 		actor.Send(
-			$"This microcontroller now binds input variable {variableName.ColourCommand()} to the sibling signal source component {sourceComponentName.ColourName()}.");
+			$"This microcontroller now binds input variable {variableName.ColourCommand()} to the signal source component prototype {sourcePrototype.Name.ColourName()} (#{sourcePrototype.Id.ToString("N0", actor)}).");
 		ShowCompileResult(actor);
 		return true;
 	}

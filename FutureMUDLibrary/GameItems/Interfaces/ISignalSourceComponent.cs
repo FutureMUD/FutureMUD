@@ -8,6 +8,7 @@ public delegate void SignalChangedEvent(ISignalSourceComponent source, ComputerS
 
 public interface ISignalSourceComponent : IGameItemComponent, ISignalSource
 {
+	long LocalSignalSourceIdentifier { get; }
 	ComputerSignal CurrentSignal { get; }
 	event SignalChangedEvent? SignalChanged;
 }

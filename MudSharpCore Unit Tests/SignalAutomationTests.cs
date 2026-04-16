@@ -1,11 +1,15 @@
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using MudSharp.Computers;
 using MudSharp.Events;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -147,5 +151,85 @@ return @togglevalue");
 			anchor.AddSeconds(120));
 		Assert.IsFalse(wrappedState.IsActive);
 		Assert.AreEqual(anchor.AddSeconds(165), wrappedState.NextTransition);
+	}
+
+	[TestMethod]
+	public void SignalComponentUtilities_FindSignalSource_UsesStableIdentifierAcrossRenames()
+	{
+		var renamedSource = CreateSignalSourceMock(41L, "RenamedButton");
+		var parent = new Mock<IGameItem>();
+		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(new[] { renamedSource.Object });
+
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 41L, "OriginalButton");
+
+		Assert.AreSame(renamedSource.Object, resolved);
+	}
+
+	[TestMethod]
+	public void SignalComponentUtilities_FindSignalSource_ResolvesCorrectSourceWhenNamesOverlap()
+	{
+		var firstSource = CreateSignalSourceMock(41L, "SignalSource");
+		var secondSource = CreateSignalSourceMock(99L, "SignalSource");
+		var parent = new Mock<IGameItem>();
+		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(new[] { firstSource.Object, secondSource.Object });
+
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 99L, "SignalSource");
+
+		Assert.AreSame(secondSource.Object, resolved);
+	}
+
+	[TestMethod]
+	public void SignalComponentUtilities_FindSignalSource_FallsBackToLegacyNameWhenIdentifierMissing()
+	{
+		var source = CreateSignalSourceMock(41L, "LegacyButton");
+		var parent = new Mock<IGameItem>();
+		parent.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(new[] { source.Object });
+
+		var resolved = SignalComponentUtilities.FindSignalSource(parent.Object, 0L, "LegacyButton");
+
+		Assert.AreSame(source.Object, resolved);
+	}
+
+	[TestMethod]
+	public void ElectronicDoorControlEvaluator_Evaluate_RequestsOpenWhenClosedDoorCanOpen()
+	{
+		var outcome = ElectronicDoorControlEvaluator.Evaluate(true, false, true, false);
+
+		Assert.AreEqual(ElectronicDoorControlAction.Open, outcome.Action);
+		Assert.IsFalse(outcome.RequiresRetry);
+	}
+
+	[TestMethod]
+	public void ElectronicDoorControlEvaluator_Evaluate_RequestsRetryWhenOpeningIsBlocked()
+	{
+		var outcome = ElectronicDoorControlEvaluator.Evaluate(true, false, false, false);
+
+		Assert.AreEqual(ElectronicDoorControlAction.None, outcome.Action);
+		Assert.IsTrue(outcome.RequiresRetry);
+	}
+
+	[TestMethod]
+	public void ElectronicDoorControlEvaluator_Evaluate_RequestsCloseWhenOpenDoorCanClose()
+	{
+		var outcome = ElectronicDoorControlEvaluator.Evaluate(false, true, false, true);
+
+		Assert.AreEqual(ElectronicDoorControlAction.Close, outcome.Action);
+		Assert.IsFalse(outcome.RequiresRetry);
+	}
+
+	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name)
+	{
+		var source = new Mock<ISignalSourceComponent>();
+		source.SetupGet(x => x.LocalSignalSourceIdentifier).Returns(identifier);
+		source.SetupGet(x => x.CurrentSignal).Returns(default(ComputerSignal));
+		source.SetupGet(x => x.CurrentValue).Returns(0.0);
+		source.SetupGet(x => x.Duration).Returns((TimeSpan?)null);
+		source.SetupGet(x => x.PulseInterval).Returns((TimeSpan?)null);
+		source.As<IFrameworkItem>().SetupGet(x => x.Name).Returns(name);
+		source.As<ISignalSource>().SetupGet(x => x.Name).Returns(name);
+		return source;
 	}
 }

@@ -260,16 +260,16 @@ Implemented builder-facing component types:
 Current authoring pattern:
 - sources author their own output behaviour and expose `ISignalSourceComponent`
 - sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
-- microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`
+- microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`; the binding command accepts a component prototype name or id and stores a stable local source identifier
 - `motionsensor` authors signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
 - `timersensor` authors active and inactive values, active and inactive durations, and its initial phase
-- `electronicdoor` authors source component name, threshold, invert mode, and automatic open and close emotes
-- `alarmsiren` authors source component name, threshold, invert mode, volume, and repeated alarm emote
+- `electronicdoor` authors source component prototype, threshold, invert mode, and automatic open and close emotes
+- `alarmsiren` authors source component prototype, threshold, invert mode, volume, and repeated alarm emote
 
 Important implementation details from this slice:
 - microcontroller inline logic is compiled immediately as a `ComputerFunction` and must return a number
 - input variable names are validated and normalised to lower case at compile time
-- sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown
+- sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown using stable local source identifiers rather than transient component names
 - signal propagation is event-based, so components should avoid re-emitting unchanged values
 
 This is the reference approach for the early phases of computerised items:

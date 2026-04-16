@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Computers;
+using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using System;
 using System.Linq;
@@ -23,10 +24,40 @@ public static class SignalComponentUtilities
 			: value < threshold;
 	}
 
-	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, string sourceComponentName,
+	public static bool TryResolveSignalComponentPrototype(IFuturemud gameworld, string componentIdentifier,
+		out IGameItemComponentProto? prototype)
+	{
+		prototype = null;
+		if (string.IsNullOrWhiteSpace(componentIdentifier))
+		{
+			return false;
+		}
+
+		prototype = long.TryParse(componentIdentifier, out var prototypeId)
+			? gameworld.ItemComponentProtos.Get(prototypeId)
+			: gameworld.ItemComponentProtos.GetByName(componentIdentifier);
+		return prototype is not null;
+	}
+
+	public static string DescribeSignalComponent(IFuturemud gameworld, long sourceComponentId, string sourceComponentName)
+	{
+		if (sourceComponentId > 0)
+		{
+			var prototype = gameworld.ItemComponentProtos.Get(sourceComponentId);
+			if (prototype is not null)
+			{
+				return prototype.Name;
+			}
+		}
+
+		return sourceComponentName;
+	}
+
+	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, long sourceComponentId,
+		string sourceComponentName,
 		IGameItemComponent? excludedComponent = null)
 	{
-		if (string.IsNullOrWhiteSpace(sourceComponentName))
+		if (sourceComponentId <= 0 && string.IsNullOrWhiteSpace(sourceComponentName))
 		{
 			return null;
 		}
@@ -34,7 +65,9 @@ public static class SignalComponentUtilities
 		return parent.GetItemTypes<ISignalSourceComponent>()
 			.FirstOrDefault(x =>
 				!ReferenceEquals(x, excludedComponent) &&
-				((IGameItemComponent)x).Name.Equals(sourceComponentName, StringComparison.InvariantCultureIgnoreCase));
+				(sourceComponentId > 0
+					? x.LocalSignalSourceIdentifier == sourceComponentId
+					: ((IGameItemComponent)x).Name.Equals(sourceComponentName, StringComparison.InvariantCultureIgnoreCase)));
 	}
 
 	public static TTarget? FindSiblingComponent<TTarget>(IGameItem parent, string componentName,

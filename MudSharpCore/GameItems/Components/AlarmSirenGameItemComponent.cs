@@ -17,7 +17,7 @@ namespace MudSharp.GameItems.Components;
 public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, ISignalSinkComponent
 {
 	private AlarmSirenGameItemComponentProto _prototype;
-	private ISignalSourceComponent? _source;
+	private readonly LocalSignalSinkSubscription _binding;
 	private bool _heartbeatSubscribed;
 	private bool _signalActive;
 
@@ -25,6 +25,7 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public AlarmSirenGameItemComponent(MudSharp.Models.GameItemComponent component, AlarmSirenGameItemComponentProto proto,
@@ -32,19 +33,22 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		: base(component, proto, parent)
 	{
 		_prototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public AlarmSirenGameItemComponent(AlarmSirenGameItemComponent rhs, IGameItem newParent, bool temporary = false)
 		: base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_binding = new LocalSignalSinkSubscription(newParent, this, HandleSourceChanged);
 		_signalActive = rhs._signalActive;
 		CurrentValue = rhs.CurrentValue;
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
+	public long SourceComponentId => _prototype.SourceComponentId;
 	public string SourceComponentName => _prototype.SourceComponentName;
-	public ISignalSource? UpstreamSource => _source;
+	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 	private bool IsSounding => _signalActive && SwitchedOn && _onAndPowered;
 
@@ -90,14 +94,14 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 
 	public override void Delete()
 	{
-		DetachSource();
+		_binding.Detach();
 		RemoveHeartbeatSubscription();
 		base.Delete();
 	}
 
 	public override void Quit()
 	{
-		DetachSource();
+		_binding.Detach();
 		RemoveHeartbeatSubscription();
 		base.Quit();
 	}
@@ -114,24 +118,24 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 
 	public void ReconnectSource()
 	{
-		DetachSource();
-		_source = SignalComponentUtilities.FindSignalSource(Parent, SourceComponentName, this);
-		if (_source is null)
+		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		if (_binding.UpstreamSource is not null)
 		{
-			CurrentValue = 0.0;
-			_signalActive = false;
-			EvaluateAlarmState();
 			return;
 		}
 
-		_source.SignalChanged += HandleSourceChanged;
-		ReceiveSignal(_source.CurrentSignal, _source);
+		ApplySignalValue(0.0);
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)
 	{
-		CurrentValue = signal.Value;
-		_signalActive = SignalComponentUtilities.IsActiveSignal(signal.Value, _prototype.ActivationThreshold,
+		ApplySignalValue(signal.Value);
+	}
+
+	private void ApplySignalValue(double value)
+	{
+		CurrentValue = value;
+		_signalActive = SignalComponentUtilities.IsActiveSignal(value, _prototype.ActivationThreshold,
 			_prototype.SoundWhenAboveThreshold);
 		EvaluateAlarmState();
 	}
@@ -139,17 +143,6 @@ public class AlarmSirenGameItemComponent : PoweredMachineBaseGameItemComponent, 
 	private void HandleSourceChanged(ISignalSourceComponent source, ComputerSignal signal)
 	{
 		ReceiveSignal(signal, source);
-	}
-
-	private void DetachSource()
-	{
-		if (_source is null)
-		{
-			return;
-		}
-
-		_source.SignalChanged -= HandleSourceChanged;
-		_source = null;
 	}
 
 	private void AlarmHeartbeat()

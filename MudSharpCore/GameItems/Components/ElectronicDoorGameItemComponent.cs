@@ -3,7 +3,6 @@
 using MudSharp.Computers;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
-using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
@@ -12,10 +11,10 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Components;
 
-public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSinkComponent
+public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, ISignalSinkComponent
 {
 	private ElectronicDoorGameItemComponentProto _prototype;
-	private ISignalSourceComponent? _source;
+	private readonly LocalSignalSinkSubscription _binding;
 	private bool _desiredOpen;
 	private bool _heartbeatSubscribed;
 
@@ -24,6 +23,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public ElectronicDoorGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -31,6 +31,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 		: base(component, proto, parent)
 	{
 		_prototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public ElectronicDoorGameItemComponent(ElectronicDoorGameItemComponent rhs, IGameItem newParent,
@@ -38,12 +39,15 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 		: base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_binding = new LocalSignalSinkSubscription(newParent, this, HandleSourceChanged);
 		_desiredOpen = rhs._desiredOpen;
 		CurrentValue = rhs.CurrentValue;
 	}
 
+	public override IGameItemComponentProto Prototype => _prototype;
+	public long SourceComponentId => _prototype.SourceComponentId;
 	public string SourceComponentName => _prototype.SourceComponentName;
-	public ISignalSource? UpstreamSource => _source;
+	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -56,7 +60,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 	{
 		var baseDescription = base.Decorate(voyeur, name, description, type, colour, flags);
 		return
-			$"{baseDescription}\n\nIts electronic controller is listening to {SourceComponentName.ColourName()} with a current control signal of {CurrentValue.ToString("N2", voyeur).ColourValue()}, and is presently commanding the door to {(_desiredOpen ? "open".ColourValue() : "remain closed".ColourName())}.";
+			$"{baseDescription}\n\nIts electronic controller is listening to {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} with a current control signal of {CurrentValue.ToString("N2", voyeur).ColourValue()}, and is presently commanding the door to {(_desiredOpen ? "open".ColourValue() : "remain closed".ColourName())}.";
 	}
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -73,39 +77,38 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 
 	public override void Delete()
 	{
-		DetachSource();
+		_binding.Detach();
 		RemoveHeartbeatSubscription();
 		base.Delete();
 	}
 
 	public override void Quit()
 	{
-		DetachSource();
+		_binding.Detach();
 		RemoveHeartbeatSubscription();
 		base.Quit();
 	}
 
 	public void ReconnectSource()
 	{
-		DetachSource();
-		_source = SignalComponentUtilities.FindSignalSource(Parent, SourceComponentName, this);
-		if (_source is null)
+		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		if (_binding.UpstreamSource is not null)
 		{
-			CurrentValue = 0.0;
-			_desiredOpen = SignalComponentUtilities.IsActiveSignal(0.0, _prototype.ActivationThreshold,
-				_prototype.OpenWhenAboveThreshold);
-			EvaluateDoorState();
 			return;
 		}
 
-		_source.SignalChanged += HandleSourceChanged;
-		ReceiveSignal(_source.CurrentSignal, _source);
+		ApplySignalValue(0.0);
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)
 	{
-		CurrentValue = signal.Value;
-		_desiredOpen = SignalComponentUtilities.IsActiveSignal(signal.Value, _prototype.ActivationThreshold,
+		ApplySignalValue(signal.Value);
+	}
+
+	private void ApplySignalValue(double value)
+	{
+		CurrentValue = value;
+		_desiredOpen = SignalComponentUtilities.IsActiveSignal(value, _prototype.ActivationThreshold,
 			_prototype.OpenWhenAboveThreshold);
 		EvaluateDoorState();
 	}
@@ -117,23 +120,19 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 
 	private void EvaluateDoorState()
 	{
-		var wasOpen = IsOpen;
-		if (_desiredOpen)
+		var previousState = IsOpen;
+		var outcome = ElectronicDoorControlEvaluator.Evaluate(_desiredOpen, IsOpen, CanOpen(null), CanClose(null));
+		switch (outcome.Action)
 		{
-			if (!IsOpen && CanOpen(null))
-			{
+			case ElectronicDoorControlAction.Open:
 				Open();
-			}
-		}
-		else
-		{
-			if (IsOpen && CanClose(null))
-			{
+				break;
+			case ElectronicDoorControlAction.Close:
 				Close();
-			}
+				break;
 		}
 
-		if (_desiredOpen != IsOpen)
+		if (outcome.RequiresRetry)
 		{
 			EnsureHeartbeatSubscription();
 		}
@@ -142,7 +141,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 			RemoveHeartbeatSubscription();
 		}
 
-		if (wasOpen == IsOpen)
+		if (previousState == IsOpen)
 		{
 			return;
 		}
@@ -184,16 +183,5 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponent, ISignalSin
 
 		Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatTick;
 		_heartbeatSubscribed = false;
-	}
-
-	private void DetachSource()
-	{
-		if (_source is null)
-		{
-			return;
-		}
-
-		_source.SignalChanged -= HandleSourceChanged;
-		_source = null;
 	}
 }

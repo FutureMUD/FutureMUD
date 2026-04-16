@@ -46,6 +46,7 @@ public class ToggleSwitchGameItemComponent : GameItemComponent, ISignalSourceCom
 	private bool _switchedOn;
 
 	public override IGameItemComponentProto Prototype => _prototype;
+	public long LocalSignalSourceIdentifier => Prototype.Id;
 	public ComputerSignal CurrentSignal => new(SwitchedOn ? _prototype.OnValue : _prototype.OffValue, null, null);
 	public event SignalChangedEvent? SignalChanged;
 	public double CurrentValue => CurrentSignal.Value;

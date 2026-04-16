@@ -13,13 +13,14 @@ namespace MudSharp.GameItems.Components;
 public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalSinkComponent
 {
 	private SignalLightGameItemComponentProto _signalPrototype;
-	private ISignalSourceComponent? _source;
+	private readonly LocalSignalSinkSubscription _binding;
 
 	public SignalLightGameItemComponent(SignalLightGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
 		: base(proto, parent, temporary)
 	{
 		_signalPrototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public SignalLightGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -27,6 +28,7 @@ public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalS
 		: base(component, proto, parent)
 	{
 		_signalPrototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public SignalLightGameItemComponent(SignalLightGameItemComponent rhs, IGameItem newParent,
@@ -34,10 +36,12 @@ public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalS
 		: base(rhs, newParent, temporary)
 	{
 		_signalPrototype = rhs._signalPrototype;
+		_binding = new LocalSignalSinkSubscription(newParent, this, HandleSourceChanged);
 	}
 
+	public long SourceComponentId => _signalPrototype.SourceComponentId;
 	public string SourceComponentName => _signalPrototype.SourceComponentName;
-	public ISignalSource? UpstreamSource => _source;
+	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -58,35 +62,38 @@ public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalS
 
 	public override void Delete()
 	{
-		DetachSource();
+		_binding.Detach();
 		base.Delete();
 	}
 
 	public override void Quit()
 	{
-		DetachSource();
+		_binding.Detach();
 		base.Quit();
 	}
 
 	public void ReconnectSource()
 	{
-		DetachSource();
-		_source = SignalComponentUtilities.FindSignalSource(Parent, SourceComponentName, this);
-		if (_source is null)
+		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		if (_binding.UpstreamSource is not null)
 		{
 			return;
 		}
 
-		_source.SignalChanged += HandleSourceChanged;
-		ReceiveSignal(_source.CurrentSignal, _source);
+		ApplySignalValue(0.0);
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)
 	{
 		CurrentValue = signal.Value;
-		var desiredLit =
-			SignalComponentUtilities.IsActiveSignal(signal.Value, _signalPrototype.ActivationThreshold,
-				_signalPrototype.LitWhenAboveThreshold);
+		ApplySignalValue(signal.Value);
+	}
+
+	private void ApplySignalValue(double value)
+	{
+		CurrentValue = value;
+		var desiredLit = SignalComponentUtilities.IsActiveSignal(value, _signalPrototype.ActivationThreshold,
+			_signalPrototype.LitWhenAboveThreshold);
 		if (desiredLit == Lit)
 		{
 			return;
@@ -105,16 +112,5 @@ public class SignalLightGameItemComponent : ProgLightGameItemComponent, ISignalS
 	private void HandleSourceChanged(ISignalSourceComponent source, ComputerSignal signal)
 	{
 		ReceiveSignal(signal, source);
-	}
-
-	private void DetachSource()
-	{
-		if (_source is null)
-		{
-			return;
-		}
-
-		_source.SignalChanged -= HandleSourceChanged;
-		_source = null;
 	}
 }

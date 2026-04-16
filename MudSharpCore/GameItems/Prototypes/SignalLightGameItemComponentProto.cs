@@ -15,7 +15,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 	All programmable-light options, plus:
-	source <componentname> - the sibling signal source component name that drives this light
+	source <component> - the signal source component prototype name or id that drives this light
 	threshold <number> - the numeric threshold used to determine when the light is active
 	invert - toggles whether the light is active above or below the threshold
 	onemote <emote> - the emote shown when the signal lights this component
@@ -24,6 +24,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 	protected SignalLightGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Signal Light")
 	{
+		SourceComponentId = 0L;
 		SourceComponentName = string.Empty;
 		ActivationThreshold = 0.5;
 		LitWhenAboveThreshold = true;
@@ -36,6 +37,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 	{
 	}
 
+	public long SourceComponentId { get; protected set; }
 	public string SourceComponentName { get; protected set; } = string.Empty;
 	public double ActivationThreshold { get; protected set; }
 	public bool LitWhenAboveThreshold { get; protected set; }
@@ -46,6 +48,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 	protected override void LoadFromXml(XElement root)
 	{
 		base.LoadFromXml(root);
+		SourceComponentId = long.TryParse(root.Element("SourceComponentId")?.Value, out var sourceId) ? sourceId : 0L;
 		SourceComponentName = root.Element("SourceComponentName")?.Value ?? string.Empty;
 		ActivationThreshold = double.Parse(root.Element("ActivationThreshold")?.Value ?? "0.5");
 		LitWhenAboveThreshold = bool.Parse(root.Element("LitWhenAboveThreshold")?.Value ?? "true");
@@ -57,6 +60,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 	{
 		return new XElement("Definition",
 			new XElement("IlluminationProvided", IlluminationProvided),
+			new XElement("SourceComponentId", SourceComponentId),
 			new XElement("SourceComponentName", new XCData(SourceComponentName)),
 			new XElement("ActivationThreshold", ActivationThreshold),
 			new XElement("LitWhenAboveThreshold", LitWhenAboveThreshold),
@@ -90,13 +94,22 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Which sibling signal source component name should drive this light?");
+			actor.Send("Which signal source component prototype should drive this light?");
 			return false;
 		}
 
-		SourceComponentName = command.SafeRemainingArgument.Trim();
+		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, command.SafeRemainingArgument.Trim(),
+			    out var sourcePrototype))
+		{
+			actor.Send("There is no such item component prototype.");
+			return false;
+		}
+
+		SourceComponentId = sourcePrototype.Id;
+		SourceComponentName = sourcePrototype.Name;
 		Changed = true;
-		actor.Send($"This signal light is now driven by the sibling component named {SourceComponentName.ColourName()}.");
+		actor.Send(
+			$"This signal light is now driven by the signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
 		return true;
 	}
 
@@ -173,14 +186,14 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 
 	public override bool CanSubmit()
 	{
-		return !string.IsNullOrWhiteSpace(SourceComponentName) && base.CanSubmit();
+		return (SourceComponentId > 0 || !string.IsNullOrWhiteSpace(SourceComponentName)) && base.CanSubmit();
 	}
 
 	public override string WhyCannotSubmit()
 	{
-		if (string.IsNullOrWhiteSpace(SourceComponentName))
+		if (SourceComponentId <= 0 && string.IsNullOrWhiteSpace(SourceComponentName))
 		{
-			return "You must specify a sibling signal source component name for this light.";
+			return "You must specify a signal source component prototype for this light.";
 		}
 
 		return base.WhyCannotSubmit();
@@ -189,7 +202,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return
-			$"{"Signal Light Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis is a signal-driven light that provides {IlluminationProvided.ToString("N2", actor).ColourValue()} lux when active.\nSource Component: {SourceComponentName.ColourName()}\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(LitWhenAboveThreshold ? "Active above/equal threshold".ColourValue() : "Active below threshold".ColourValue())}\nOn Emote: {LightOnEmote.ColourCommand()}\nOff Emote: {LightOffEmote.ColourCommand()}";
+			$"{"Signal Light Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis is a signal-driven light that provides {IlluminationProvided.ToString("N2", actor).ColourValue()} lux when active.\nSource Component: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(LitWhenAboveThreshold ? "Active above/equal threshold".ColourValue() : "Active below threshold".ColourValue())}\nOn Emote: {LightOnEmote.ColourCommand()}\nOff Emote: {LightOffEmote.ColourCommand()}";
 	}
 
 	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)

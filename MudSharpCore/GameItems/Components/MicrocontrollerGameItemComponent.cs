@@ -50,6 +50,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
+	public long LocalSignalSourceIdentifier => Prototype.Id;
 	public ComputerSignal CurrentSignal => _currentSignal;
 	public event SignalChangedEvent? SignalChanged;
 	public double CurrentValue => _currentSignal.Value;
@@ -120,7 +121,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		DisconnectSources();
 		foreach (var input in _prototype.Inputs)
 		{
-			var source = SignalComponentUtilities.FindSignalSource(Parent, input.SourceComponentName, this);
+			var source = SignalComponentUtilities.FindSignalSource(Parent, input.SourceComponentId,
+				input.SourceComponentName, this);
 			if (source is null)
 			{
 				_inputValues[input.VariableName] = 0.0;

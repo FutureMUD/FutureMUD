@@ -115,13 +115,14 @@ The currently implemented automation runtime slice is intentionally narrower tha
   - compiles authored inline logic in the `ComputerFunction` compilation context
   - emits a single numeric output signal
 - `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
-- `ElectronicDoor` is a signal sink layered on top of door runtime behaviour and retries until it reaches the currently commanded open or closed state
+- `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base and retries until it reaches the currently commanded open or closed state
 - `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
 - `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
 
 Current runtime connection rules for that slice are:
-- sinks and microcontroller inputs resolve their upstream sources by sibling component name on the same parent item
-- one sink definition points at one source component name
+- sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers based on sibling component prototype ids on the same parent item
+- builder commands still accept component prototype names or ids, but stored bindings no longer depend on future component renames
+- one sink definition points at one source component
 - microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs

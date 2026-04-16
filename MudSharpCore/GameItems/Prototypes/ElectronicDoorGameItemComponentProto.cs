@@ -11,19 +11,20 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
+public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBase
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 	All door options, plus:
-	source <componentname> - the sibling signal source component name that drives this door
+	source <component> - the signal source component prototype name or id that drives this door
 	threshold <number> - the numeric threshold used to determine when the door is commanded open
 	invert - toggles whether the door opens above or below the threshold
 	openemote <emote> - the emote shown when the door opens automatically. Use @ for the item
 	closeemote <emote> - the emote shown when the door closes automatically. Use @ for the item";
 
 	protected ElectronicDoorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator)
+		: base(gameworld, originator, "Electronic Door")
 	{
+		SourceComponentId = 0L;
 		SourceComponentName = string.Empty;
 		ActivationThreshold = 0.5;
 		OpenWhenAboveThreshold = true;
@@ -32,12 +33,12 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 		CanBeOpenedByPlayers = false;
 	}
 
-	protected ElectronicDoorGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto,
-		IFuturemud gameworld)
+	protected ElectronicDoorGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
 		: base(proto, gameworld)
 	{
 	}
 
+	public long SourceComponentId { get; protected set; }
 	public string SourceComponentName { get; protected set; } = string.Empty;
 	public double ActivationThreshold { get; protected set; }
 	public bool OpenWhenAboveThreshold { get; protected set; }
@@ -47,7 +48,8 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 
 	protected override void LoadFromXml(XElement root)
 	{
-		base.LoadFromXml(root);
+		LoadDoorPrototypeData(root);
+		SourceComponentId = long.TryParse(root.Element("SourceComponentId")?.Value, out var sourceId) ? sourceId : 0L;
 		SourceComponentName = root.Element("SourceComponentName")?.Value ?? string.Empty;
 		ActivationThreshold = double.Parse(root.Element("ActivationThreshold")?.Value ?? "0.5");
 		OpenWhenAboveThreshold = bool.Parse(root.Element("OpenWhenAboveThreshold")?.Value ?? "true");
@@ -57,13 +59,14 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 
 	protected override string SaveToXml()
 	{
-		var root = XElement.Parse(base.SaveToXml());
-		root.Add(new XElement("SourceComponentName", new XCData(SourceComponentName)));
-		root.Add(new XElement("ActivationThreshold", ActivationThreshold));
-		root.Add(new XElement("OpenWhenAboveThreshold", OpenWhenAboveThreshold));
-		root.Add(new XElement("OpenEmoteNoActor", new XCData(OpenEmoteNoActor)));
-		root.Add(new XElement("CloseEmoteNoActor", new XCData(CloseEmoteNoActor)));
-		return root.ToString();
+		return SaveDoorPrototypeData(new XElement("Definition",
+			new XElement("SourceComponentId", SourceComponentId),
+			new XElement("SourceComponentName", new XCData(SourceComponentName)),
+			new XElement("ActivationThreshold", ActivationThreshold),
+			new XElement("OpenWhenAboveThreshold", OpenWhenAboveThreshold),
+			new XElement("OpenEmoteNoActor", new XCData(OpenEmoteNoActor)),
+			new XElement("CloseEmoteNoActor", new XCData(CloseEmoteNoActor))
+		)).ToString();
 	}
 
 	public override string ShowBuildingHelp => BuildingHelpText;
@@ -84,6 +87,32 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 			case "closeemote":
 			case "closeecho":
 				return BuildingCommandCloseEmote(actor, command);
+			case "removable":
+			case "uninstall":
+			case "uninstallable":
+				return BuildingCommandUninstallable(actor, command);
+			case "smashable":
+				return BuildingCommandSmashable(actor, command);
+			case "installed description":
+			case "installed":
+			case "installed_description":
+			case "exit_description":
+			case "exit description":
+			case "exitdesc":
+			case "exit":
+				return BuildingCommandInstalledExitDescription(actor, command);
+			case "see through":
+			case "seethrough":
+			case "transparent":
+			case "opaque":
+				return BuildingCommandSeeThrough(actor, command);
+			case "fire":
+				return BuildingCommandFire(actor);
+			case "open":
+			case "openable":
+			case "canbeopened":
+			case "canopen":
+				return BuildingCommandCanBeOpenedByPlayers(actor);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
@@ -93,13 +122,22 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Which sibling signal source component name should drive this electronic door?");
+			actor.Send("Which signal source component prototype should drive this electronic door?");
 			return false;
 		}
 
-		SourceComponentName = command.SafeRemainingArgument.Trim();
+		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, command.SafeRemainingArgument.Trim(),
+			    out var sourcePrototype))
+		{
+			actor.Send("There is no such item component prototype.");
+			return false;
+		}
+
+		SourceComponentId = sourcePrototype.Id;
+		SourceComponentName = sourcePrototype.Name;
 		Changed = true;
-		actor.Send($"This electronic door is now driven by the sibling component named {SourceComponentName.ColourName()}.");
+		actor.Send(
+			$"This electronic door is now driven by the signal source component prototype {SourceComponentName.ColourName()} (#{SourceComponentId.ToString("N0", actor)}).");
 		return true;
 	}
 
@@ -177,14 +215,14 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 
 	public override bool CanSubmit()
 	{
-		return !string.IsNullOrWhiteSpace(SourceComponentName) && base.CanSubmit();
+		return (SourceComponentId > 0 || !string.IsNullOrWhiteSpace(SourceComponentName)) && base.CanSubmit();
 	}
 
 	public override string WhyCannotSubmit()
 	{
-		if (string.IsNullOrWhiteSpace(SourceComponentName))
+		if (SourceComponentId <= 0 && string.IsNullOrWhiteSpace(SourceComponentName))
 		{
-			return "You must specify a sibling signal source component name for this electronic door.";
+			return "You must specify a signal source component prototype for this electronic door.";
 		}
 
 		return base.WhyCannotSubmit();
@@ -193,7 +231,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return
-			$"{"Electronic Door Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis is a signal-driven door shown in exits as {InstalledExitDescription.ColourCommand()}.\nSource Component: {SourceComponentName.ColourName()}\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(OpenWhenAboveThreshold ? "Opens at or above threshold".ColourValue() : "Opens below threshold".ColourValue())}\nOpen Emote: {OpenEmoteNoActor.ColourCommand()}\nClose Emote: {CloseEmoteNoActor.ColourCommand()}\nPlayers may {(CanBeOpenedByPlayers ? "open it normally".ColourValue() : "not open it normally".ColourError())}.";
+			$"{"Electronic Door Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\n{DescribeDoorCharacteristics(actor, true)}\nSource Component: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(OpenWhenAboveThreshold ? "Opens at or above threshold".ColourValue() : "Opens below threshold".ColourValue())}\nOpen Emote: {OpenEmoteNoActor.ColourCommand()}\nClose Emote: {CloseEmoteNoActor.ColourCommand()}";
 	}
 
 	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -206,7 +244,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProto
 			(proto, gameworld) => new ElectronicDoorGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"ElectronicDoor",
-			$"A {"[door]".Colour(Telnet.Yellow)} that opens and closes in response to a sibling signal source component",
+			$"A {"[door]".Colour(Telnet.Yellow)} with built-in signal-driven opening and closing behaviour",
 			BuildingHelpText);
 	}
 

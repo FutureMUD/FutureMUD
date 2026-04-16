@@ -9,13 +9,14 @@ namespace MudSharp.GameItems.Components;
 public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, ISignalSinkComponent
 {
 	private ElectronicLockGameItemComponentProto _prototype;
-	private ISignalSourceComponent? _source;
+	private readonly LocalSignalSinkSubscription _binding;
 
 	public ElectronicLockGameItemComponent(ElectronicLockGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public ElectronicLockGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -23,6 +24,7 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, ISigna
 		: base(component, proto, parent)
 	{
 		_prototype = proto;
+		_binding = new LocalSignalSinkSubscription(parent, this, HandleSourceChanged);
 	}
 
 	public ElectronicLockGameItemComponent(ElectronicLockGameItemComponent rhs, IGameItem newParent,
@@ -30,10 +32,12 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, ISigna
 		: base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_binding = new LocalSignalSinkSubscription(newParent, this, HandleSourceChanged);
 	}
 
+	public long SourceComponentId => _prototype.SourceComponentId;
 	public string SourceComponentName => _prototype.SourceComponentName;
-	public ISignalSource? UpstreamSource => _source;
+	public ISignalSource? UpstreamSource => _binding.UpstreamSource;
 	public double CurrentValue { get; private set; }
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -54,51 +58,42 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, ISigna
 
 	public override void Delete()
 	{
-		DetachSource();
+		_binding.Detach();
 		base.Delete();
 	}
 
 	public override void Quit()
 	{
-		DetachSource();
+		_binding.Detach();
 		base.Quit();
 	}
 
 	public void ReconnectSource()
 	{
-		DetachSource();
-		_source = SignalComponentUtilities.FindSignalSource(Parent, SourceComponentName, this);
-		if (_source is null)
+		_binding.Reconnect(SourceComponentId, SourceComponentName);
+		if (_binding.UpstreamSource is not null)
 		{
 			return;
 		}
 
-		_source.SignalChanged += HandleSourceChanged;
-		ReceiveSignal(_source.CurrentSignal, _source);
+		ApplySignalValue(0.0);
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)
 	{
-		CurrentValue = signal.Value;
-		var shouldLock =
-			SignalComponentUtilities.IsActiveSignal(signal.Value, _prototype.ActivationThreshold,
-				_prototype.LockWhenAboveThreshold);
+		ApplySignalValue(signal.Value);
+	}
+
+	private void ApplySignalValue(double value)
+	{
+		CurrentValue = value;
+		var shouldLock = SignalComponentUtilities.IsActiveSignal(value, _prototype.ActivationThreshold,
+			_prototype.LockWhenAboveThreshold);
 		SetLocked(shouldLock, true);
 	}
 
 	private void HandleSourceChanged(ISignalSourceComponent source, ComputerSignal signal)
 	{
 		ReceiveSignal(signal, source);
-	}
-
-	private void DetachSource()
-	{
-		if (_source is null)
-		{
-			return;
-		}
-
-		_source.SignalChanged -= HandleSourceChanged;
-		_source = null;
 	}
 }

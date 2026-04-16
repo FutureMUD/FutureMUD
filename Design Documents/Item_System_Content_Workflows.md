@@ -228,8 +228,8 @@ For exchange-hosted voicemail, extend that pass with:
 For the current microcontroller workflow, a practical end-to-end pass is:
 1. Create a `pushbutton` component and set its keyword, signal value, duration, and emote.
 2. Alternatively create a `timersensor` component and set its active and inactive values, durations, and initial phase for a recurring local input.
-3. Create either a `signallight`, `electronicdoor`, `electroniclock`, or `alarmsiren` sink component and set its source name, threshold, and invert mode.
-4. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source.
+3. Create either a `signallight`, `electronicdoor`, `electroniclock`, or `alarmsiren` sink component and set its source component prototype, threshold, and invert mode.
+4. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source component prototype.
 5. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
 6. Attach the authored components to the same item prototype with `item set add`.
 7. Load the item and exercise the input:
@@ -237,7 +237,7 @@ For the current microcontroller workflow, a practical end-to-end pass is:
    - `switch <item> on` / `switch <item> off` for `toggleswitch`
    - move through the same location as the composed item for `motionsensor`
    - wait through at least one full active/inactive cycle for `timersensor`
-8. Confirm the sink reacts through the sibling source name or through the microcontroller output as authored.
+8. Confirm the sink reacts through the authored sibling source component prototype or through the microcontroller output as authored.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

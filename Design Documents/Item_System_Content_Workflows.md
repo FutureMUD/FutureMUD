@@ -33,9 +33,11 @@ Telecommunications examples include:
 Signal-automation examples now include:
 - `comp edit new pushbutton`
 - `comp edit new toggleswitch`
+- `comp edit new motionsensor`
 - `comp edit new microcontroller`
 - `comp edit new signallight`
 - `comp edit new electroniclock`
+- `comp edit new alarmsiren`
 
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered
@@ -133,9 +135,11 @@ For the current signal-automation slice, also validate:
 - whether source and sink component names match the authored sibling component names on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
+- whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration
 - whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
 - whether `signallight` responds to threshold and invert settings without redundant extra echoes when the effective lit state is unchanged
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
+- whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.
@@ -219,13 +223,14 @@ For exchange-hosted voicemail, extend that pass with:
 
 For the current microcontroller workflow, a practical end-to-end pass is:
 1. Create a `pushbutton` component and set its keyword, signal value, duration, and emote.
-2. Create either a `signallight` or `electroniclock` sink component and set its source name, threshold, and invert mode.
+2. Create either a `signallight`, `electroniclock`, or `alarmsiren` sink component and set its source name, threshold, and invert mode.
 3. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source.
 4. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
 5. Attach the authored components to the same item prototype with `item set add`.
 6. Load the item and exercise the input:
    - `select <item> <button keyword>` for `pushbutton`
    - `switch <item> on` / `switch <item> off` for `toggleswitch`
+   - move through the same location as the composed item for `motionsensor`
 7. Confirm the sink reacts through the sibling source name or through the microcontroller output as authored.
 
 ## Failure Patterns to Watch

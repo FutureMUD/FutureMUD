@@ -107,6 +107,7 @@ As with telecommunications, the runtime goal is interface-first integration. Gam
 The currently implemented automation runtime slice is intentionally narrower than the full target design:
 - `PushButton` is an `ISelectable` same-item signal source with authored keyword, signal value, duration, and press emote
 - `ToggleSwitch` is an `ISwitchable` same-item signal source with authored on and off values
+- `MotionSensor` is a same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
 - `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
   - binds named inputs to sibling `ISignalSourceComponent` instances
   - keeps live numeric input values
@@ -114,12 +115,14 @@ The currently implemented automation runtime slice is intentionally narrower tha
   - emits a single numeric output signal
 - `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
 - `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
+- `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
 
 Current runtime connection rules for that slice are:
 - sinks and microcontroller inputs resolve their upstream sources by sibling component name on the same parent item
 - one sink definition points at one source component name
 - microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
+- motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
 - there is not yet a persisted cross-item signal graph, installable wire object, or explicit electrical-network runtime object
 
 ### Telecommunications and cellular pattern

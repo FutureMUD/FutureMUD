@@ -2,7 +2,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Computers;
+using MudSharp.Events;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using System.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -68,10 +70,27 @@ return @togglevalue");
 		var helpTypes = manager.TypeHelpInfo.Select(x => x.Name).ToList();
 
 		CollectionAssert.IsSubsetOf(
-			new[] { "pushbutton", "toggleswitch", "microcontroller", "signallight", "electroniclock" },
+			new[] { "pushbutton", "toggleswitch", "motionsensor", "microcontroller", "signallight", "electroniclock", "alarmsiren" },
 			primaryTypes);
 		CollectionAssert.IsSubsetOf(
-			new[] { "PushButton", "ToggleSwitch", "Microcontroller", "SignalLight", "ElectronicLock" },
+			new[] { "PushButton", "ToggleSwitch", "MotionSensor", "Microcontroller", "SignalLight", "ElectronicLock", "AlarmSiren" },
 			helpTypes);
+	}
+
+	[TestMethod]
+	public void MotionSensorDetectionMode_MatchesExpectedWitnessEvents()
+	{
+		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterBeginMovementWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterStopMovementClosedDoorWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterCellItems));
+		Assert.IsTrue(MotionSensorDetectionMode.BeginMovement.MatchesEventType(EventType.CharacterBeginMovementWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.BeginMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.EnterCell.MatchesEventType(EventType.CharacterEnterCellWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.EnterCell.MatchesEventType(EventType.CharacterBeginMovementWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementClosedDoorWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
 	}
 }

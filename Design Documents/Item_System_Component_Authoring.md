@@ -249,14 +249,18 @@ The current computer-automation slice is a good reference for "shared contracts,
 Implemented builder-facing component types:
 - `pushbutton`
 - `toggleswitch`
+- `motionsensor`
 - `microcontroller`
 - `signallight`
 - `electroniclock`
+- `alarmsiren`
 
 Current authoring pattern:
 - sources author their own output behaviour and expose `ISignalSourceComponent`
 - sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
 - microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`
+- `motionsensor` authors signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
+- `alarmsiren` authors source component name, threshold, invert mode, volume, and repeated alarm emote
 
 Important implementation details from this slice:
 - microcontroller inline logic is compiled immediately as a `ComputerFunction` and must return a number

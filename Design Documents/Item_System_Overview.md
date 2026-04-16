@@ -49,11 +49,13 @@ Those families should share common computer/signal contracts, but each concrete 
 The first shipped automation slice now includes:
 - `PushButton`
 - `ToggleSwitch`
+- `MotionSensor`
 - `Microcontroller`
 - `SignalLight`
 - `ElectronicLock`
+- `AlarmSiren`
 
-That slice currently uses same-item sibling wiring by component name rather than freeform cross-item electrical graphs. It is enough to support authored control panels, indicator lights, and signal-driven locks on a single composed item, while leaving broader wiring, sensors, and networked hosts for later phases.
+That slice currently uses same-item sibling wiring by component name rather than freeform cross-item electrical graphs. It is enough to support authored control panels, indicator lights, signal-driven locks, and motion-triggered local alarms on a single composed item, while leaving broader wiring, richer sensors, and networked hosts for later phases.
 
 ## Thermal Sources
 Room temperature now includes three layers:

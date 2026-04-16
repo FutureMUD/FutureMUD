@@ -16,9 +16,11 @@ The first implementation slice for this design has now landed. The currently imp
 - a first usable signal-automation slice in `MudSharpCore/GameItems`:
   - `PushButton`
   - `ToggleSwitch`
+  - `MotionSensor`
   - `Microcontroller`
   - `SignalLight`
   - `ElectronicLock`
+  - `AlarmSiren`
 
 The current signal-automation slice is intentionally local to a single parent item. Wiring is done by naming sibling source components from sink and controller definitions. Inter-item wiring, reusable wire objects, and persisted signal-graph topologies are still future phases.
 
@@ -145,9 +147,11 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - Implemented in the first slice:
   - `PushButton` is a selectable momentary input that emits a numeric signal for an authored duration
   - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
+  - `MotionSensor` is a witnessed-movement input that emits a numeric signal for an authored duration when same-location movement matches its configured mode and minimum size
   - `Microcontroller` is a powered machine component whose inputs are sibling signal sources and whose inline logic compiles as a `ComputerFunction`
   - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
   - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
+  - `AlarmSiren` is a powered signal-driven audible sink that repeats a configured alarm emote and room audio echo while active
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
 - A programming check and command verb that allows players to write programs
 - An electrical check and command verb that allows players to install systems, microcontrollers, wire signals together etc. This verb should be able to be used unskilled but carry the risk of electrocution.

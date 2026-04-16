@@ -160,8 +160,10 @@ Telephone presentation is not only textual state. For room-facing telephones and
 The current signal-automation slice has its own presentation and integration rules:
 - `PushButton` decorates the full description to show the selectable keyword and whether it is currently active
 - `ToggleSwitch` decorates short and full descriptions to show whether it is currently on or off
+- `MotionSensor` decorates the full description to show whether it is currently active plus the movement mode and minimum size it watches for
 - `Microcontroller` decorates the full description with its current on/off state and numeric output value
 - `SignalLight` and `ElectronicLock` reuse the existing light and lock presentation behaviour, but now integrate with sibling signal sources
+- `AlarmSiren` decorates short and full descriptions to show whether it is sounding, and integrates audible room output with sibling signal sources plus power state
 - because the first slice is same-item-only, presentation should explain sibling control surfaces on one composed item rather than implying a visible external wiring graph
 
 ## Real Example: Container as Presentation + Integration

@@ -108,12 +108,14 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `PushButton` is an `ISelectable` same-item signal source with authored keyword, signal value, duration, and press emote
 - `ToggleSwitch` is an `ISwitchable` same-item signal source with authored on and off values
 - `MotionSensor` is a same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
+- `TimerSensor` is a same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
 - `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
   - binds named inputs to sibling `ISignalSourceComponent` instances
   - keeps live numeric input values
   - compiles authored inline logic in the `ComputerFunction` compilation context
   - emits a single numeric output signal
 - `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
+- `ElectronicDoor` is a signal sink layered on top of door runtime behaviour and retries until it reaches the currently commanded open or closed state
 - `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
 - `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
 
@@ -123,6 +125,7 @@ Current runtime connection rules for that slice are:
 - microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
+- timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
 - there is not yet a persisted cross-item signal graph, installable wire object, or explicit electrical-network runtime object
 
 ### Telecommunications and cellular pattern

@@ -161,8 +161,10 @@ The current signal-automation slice has its own presentation and integration rul
 - `PushButton` decorates the full description to show the selectable keyword and whether it is currently active
 - `ToggleSwitch` decorates short and full descriptions to show whether it is currently on or off
 - `MotionSensor` decorates the full description to show whether it is currently active plus the movement mode and minimum size it watches for
+- `TimerSensor` decorates the full description to show its active and inactive values, its cycle timings, and which phase it is currently in
 - `Microcontroller` decorates the full description with its current on/off state and numeric output value
 - `SignalLight` and `ElectronicLock` reuse the existing light and lock presentation behaviour, but now integrate with sibling signal sources
+- `ElectronicDoor` reuses door presentation, adds control-state detail to the full description, and emits automatic open or close emotes when the commanded state changes
 - `AlarmSiren` decorates short and full descriptions to show whether it is sounding, and integrates audible room output with sibling signal sources plus power state
 - because the first slice is same-item-only, presentation should explain sibling control surfaces on one composed item rather than implying a visible external wiring graph
 

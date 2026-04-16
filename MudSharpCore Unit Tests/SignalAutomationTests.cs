@@ -5,6 +5,7 @@ using MudSharp.Computers;
 using MudSharp.Events;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
+using System;
 using System.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -70,10 +71,18 @@ return @togglevalue");
 		var helpTypes = manager.TypeHelpInfo.Select(x => x.Name).ToList();
 
 		CollectionAssert.IsSubsetOf(
-			new[] { "pushbutton", "toggleswitch", "motionsensor", "microcontroller", "signallight", "electroniclock", "alarmsiren" },
+			new[]
+			{
+				"pushbutton", "toggleswitch", "motionsensor", "timersensor", "microcontroller", "signallight",
+				"electroniclock", "electronicdoor", "alarmsiren"
+			},
 			primaryTypes);
 		CollectionAssert.IsSubsetOf(
-			new[] { "PushButton", "ToggleSwitch", "MotionSensor", "Microcontroller", "SignalLight", "ElectronicLock", "AlarmSiren" },
+			new[]
+			{
+				"PushButton", "ToggleSwitch", "MotionSensor", "TimerSensor", "Microcontroller", "SignalLight",
+				"ElectronicLock", "ElectronicDoor", "AlarmSiren"
+			},
 			helpTypes);
 	}
 
@@ -92,5 +101,51 @@ return @togglevalue");
 		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementClosedDoorWitness));
 		Assert.IsFalse(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
+	}
+
+	[TestMethod]
+	public void TimerSensorCycleScheduler_ResolvesActiveAnchorsAcrossCycles()
+	{
+		var anchor = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+		var activeDuration = TimeSpan.FromSeconds(10);
+		var inactiveDuration = TimeSpan.FromSeconds(20);
+
+		var activeState = TimerSensorCycleScheduler.Resolve(anchor, true, activeDuration, inactiveDuration,
+			anchor.AddSeconds(5));
+		Assert.IsTrue(activeState.IsActive);
+		Assert.AreEqual(anchor.AddSeconds(10), activeState.NextTransition);
+
+		var inactiveState = TimerSensorCycleScheduler.Resolve(anchor, true, activeDuration, inactiveDuration,
+			anchor.AddSeconds(10));
+		Assert.IsFalse(inactiveState.IsActive);
+		Assert.AreEqual(anchor.AddSeconds(30), inactiveState.NextTransition);
+
+		var nextCycleState = TimerSensorCycleScheduler.Resolve(anchor, true, activeDuration, inactiveDuration,
+			anchor.AddSeconds(35));
+		Assert.IsTrue(nextCycleState.IsActive);
+		Assert.AreEqual(anchor.AddSeconds(40), nextCycleState.NextTransition);
+	}
+
+	[TestMethod]
+	public void TimerSensorCycleScheduler_ResolvesInactiveAnchorsAcrossCycles()
+	{
+		var anchor = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+		var activeDuration = TimeSpan.FromSeconds(15);
+		var inactiveDuration = TimeSpan.FromSeconds(45);
+
+		var inactiveState = TimerSensorCycleScheduler.Resolve(anchor, false, activeDuration, inactiveDuration,
+			anchor.AddSeconds(30));
+		Assert.IsFalse(inactiveState.IsActive);
+		Assert.AreEqual(anchor.AddSeconds(45), inactiveState.NextTransition);
+
+		var activeState = TimerSensorCycleScheduler.Resolve(anchor, false, activeDuration, inactiveDuration,
+			anchor.AddSeconds(50));
+		Assert.IsTrue(activeState.IsActive);
+		Assert.AreEqual(anchor.AddSeconds(60), activeState.NextTransition);
+
+		var wrappedState = TimerSensorCycleScheduler.Resolve(anchor, false, activeDuration, inactiveDuration,
+			anchor.AddSeconds(120));
+		Assert.IsFalse(wrappedState.IsActive);
+		Assert.AreEqual(anchor.AddSeconds(165), wrappedState.NextTransition);
 	}
 }

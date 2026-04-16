@@ -250,8 +250,10 @@ Implemented builder-facing component types:
 - `pushbutton`
 - `toggleswitch`
 - `motionsensor`
+- `timersensor`
 - `microcontroller`
 - `signallight`
+- `electronicdoor`
 - `electroniclock`
 - `alarmsiren`
 
@@ -260,6 +262,8 @@ Current authoring pattern:
 - sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
 - microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`
 - `motionsensor` authors signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
+- `timersensor` authors active and inactive values, active and inactive durations, and its initial phase
+- `electronicdoor` authors source component name, threshold, invert mode, and automatic open and close emotes
 - `alarmsiren` authors source component name, threshold, invert mode, volume, and repeated alarm emote
 
 Important implementation details from this slice:

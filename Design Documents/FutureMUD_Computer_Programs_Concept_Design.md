@@ -17,8 +17,10 @@ The first implementation slice for this design has now landed. The currently imp
   - `PushButton`
   - `ToggleSwitch`
   - `MotionSensor`
+  - `TimerSensor`
   - `Microcontroller`
   - `SignalLight`
+  - `ElectronicDoor`
   - `ElectronicLock`
   - `AlarmSiren`
 
@@ -148,8 +150,10 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `PushButton` is a selectable momentary input that emits a numeric signal for an authored duration
   - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
   - `MotionSensor` is a witnessed-movement input that emits a numeric signal for an authored duration when same-location movement matches its configured mode and minimum size
+  - `TimerSensor` is a recurring same-item input that alternates between authored active and inactive numeric phases from a persisted cycle anchor
   - `Microcontroller` is a powered machine component whose inputs are sibling signal sources and whose inline logic compiles as a `ComputerFunction`
   - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
+  - `ElectronicDoor` is a signal-driven door that wraps the existing door runtime, uses threshold logic, and retries opening while the signal remains active
   - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
   - `AlarmSiren` is a powered signal-driven audible sink that repeats a configured alarm emote and room audio echo while active
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
@@ -159,7 +163,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 
 ## Unsolved Design Questions
 
-- Signals will likely be initiated by events (player input, movement, and actual Events from the Event System. They will also typically have a fixed duration that they're sent and/or pulsed for. We want to make it so that ideally if nothing changes we don't have to constantly reassess the logic and the signals so there needs to be consideration to that in how things are implemented. The pulsing is mostly to give microcontrollers the opportunity to reassess their logic - if their output stays the same pulse to pulse the signal should be considered continuous.
+- Signals will likely be initiated by events (player input, movement, recurring timers, and actual Events from the Event System). They will also typically have a fixed duration that they're sent and/or pulsed for. We want to make it so that ideally if nothing changes we don't have to constantly reassess the logic and the signals so there needs to be consideration to that in how things are implemented. The pulsing is mostly to give microcontrollers the opportunity to reassess their logic - if their output stays the same pulse to pulse the signal should be considered continuous.
 - The current first slice only supports sibling-component wiring on the same item. Future phases still need to decide how explicit electrical wiring, cross-item routing, install locations, and builder-facing wiring verbs should persist and present themselves.
 
 ## Conceptual Example - Motion Activated Door

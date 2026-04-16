@@ -34,8 +34,10 @@ Signal-automation examples now include:
 - `comp edit new pushbutton`
 - `comp edit new toggleswitch`
 - `comp edit new motionsensor`
+- `comp edit new timersensor`
 - `comp edit new microcontroller`
 - `comp edit new signallight`
+- `comp edit new electronicdoor`
 - `comp edit new electroniclock`
 - `comp edit new alarmsiren`
 
@@ -136,8 +138,10 @@ For the current signal-automation slice, also validate:
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
 - whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration
+- whether `timersensor` alternates between its authored active and inactive values on the expected schedule
 - whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
 - whether `signallight` responds to threshold and invert settings without redundant extra echoes when the effective lit state is unchanged
+- whether `electronicdoor` responds to threshold and invert settings and reaches the commanded open or closed state once any lock conditions permit it
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 
@@ -223,15 +227,17 @@ For exchange-hosted voicemail, extend that pass with:
 
 For the current microcontroller workflow, a practical end-to-end pass is:
 1. Create a `pushbutton` component and set its keyword, signal value, duration, and emote.
-2. Create either a `signallight`, `electroniclock`, or `alarmsiren` sink component and set its source name, threshold, and invert mode.
-3. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source.
-4. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
-5. Attach the authored components to the same item prototype with `item set add`.
-6. Load the item and exercise the input:
+2. Alternatively create a `timersensor` component and set its active and inactive values, durations, and initial phase for a recurring local input.
+3. Create either a `signallight`, `electronicdoor`, `electroniclock`, or `alarmsiren` sink component and set its source name, threshold, and invert mode.
+4. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source.
+5. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
+6. Attach the authored components to the same item prototype with `item set add`.
+7. Load the item and exercise the input:
    - `select <item> <button keyword>` for `pushbutton`
    - `switch <item> on` / `switch <item> off` for `toggleswitch`
    - move through the same location as the composed item for `motionsensor`
-7. Confirm the sink reacts through the sibling source name or through the microcontroller output as authored.
+   - wait through at least one full active/inactive cycle for `timersensor`
+8. Confirm the sink reacts through the sibling source name or through the microcontroller output as authored.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

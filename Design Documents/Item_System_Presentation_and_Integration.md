@@ -172,6 +172,7 @@ The current signal-automation slice has its own presentation and integration rul
 - `component show` output for signal-driven sinks should present the bound local source endpoint, not just the component family, so future multi-port source families stay understandable
 - the current slice is not purely same-item any more, but the external graph is still intentionally modest: presentation should explain mounted modules and one-hop cable segments without implying a full arbitrary wiring network
 - the live `electrical` and `programming` verbs are now part of the player-facing integration surface for these items, and their staged begin/continue/success/failure output should be authored through configurable static strings rather than embedded per-component prose
+- `programming help` should mirror the normal `prog help` structure, but filtered to the computer-safe subset so the player-facing language reference stays aligned with the actual compiler/runtime surface
 - abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
 - `AutomationHousing` is now the dedicated housing or junction presentation family, but it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
 

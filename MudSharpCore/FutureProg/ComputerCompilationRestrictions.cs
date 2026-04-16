@@ -10,6 +10,36 @@ namespace MudSharp.FutureProg;
 
 internal static class ComputerCompilationRestrictions
 {
+	private static readonly HashSet<string> ComputerStatementNames = new(StringComparer.InvariantCultureIgnoreCase)
+	{
+		"additem",
+		"addrange",
+		"break",
+		"continue",
+		"else",
+		"elseif",
+		"end",
+		"for",
+		"foreach",
+		"if",
+		"removeitem",
+		"removeitemindex",
+		"return",
+		"sleep",
+		"switch",
+		"case",
+		"default",
+		"var",
+		"while",
+		"=",
+		"+=",
+		"-=",
+		"*=",
+		"/=",
+		"%=",
+		"^="
+	};
+
 	private static readonly HashSet<string> DisallowedFunctionCategories = new(StringComparer.InvariantCultureIgnoreCase)
 	{
 		"AI Storyteller",
@@ -132,5 +162,57 @@ internal static class ComputerCompilationRestrictions
 
 		errorMessage = string.Empty;
 		return true;
+	}
+
+	public static bool IsBuiltInFunctionHelpVisible(FunctionCompilerInformation compiler,
+		FutureProgCompilationContext context)
+	{
+		if (!compiler.SupportsContext(context))
+		{
+			return false;
+		}
+
+		if (!context.IsComputerContext())
+		{
+			return true;
+		}
+
+		if (DisallowedFunctionCategories.Contains(compiler.Category))
+		{
+			return false;
+		}
+
+		if (compiler.FunctionName.EqualTo("null"))
+		{
+			return true;
+		}
+
+		if (!IsTypeAllowedInContext(compiler.ReturnType, context))
+		{
+			return false;
+		}
+
+		return compiler.Parameters.All(x => IsTypeAllowedInContext(x, context));
+	}
+
+	public static bool IsCollectionHelpVisible(CollectionExtensionFunctionCompilerInformation compiler,
+		FutureProgCompilationContext context)
+	{
+		if (!context.IsComputerContext())
+		{
+			return true;
+		}
+
+		return IsTypeAllowedInContext(compiler.InnerFunctionReturnType, context);
+	}
+
+	public static bool IsStatementHelpVisible(string statementName, FutureProgCompilationContext context)
+	{
+		if (!context.IsComputerContext())
+		{
+			return true;
+		}
+
+		return ComputerStatementNames.Contains(statementName);
 	}
 }

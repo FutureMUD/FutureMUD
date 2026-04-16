@@ -15,6 +15,7 @@ using MudSharp.CharacterCreation.Resources;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Climate;
 using MudSharp.Combat;
+using MudSharp.Computers;
 using MudSharp.Commands.Trees;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
@@ -142,6 +143,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         ArenaCommandService = new ArenaCommandService(this);
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
+        ComputerHelpService = new ComputerHelpService();
+        ComputerExecutionService = new ComputerExecutionService(this);
 
         server?.Bind(_connections, AddConnection);
 

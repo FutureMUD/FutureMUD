@@ -20,6 +20,10 @@ internal class WhileLoop : Statement
     protected IEnumerable<IStatement> ContainedBlock;
     protected IFunction WhileFunction;
 
+	internal IFunction ConditionFunction => WhileFunction;
+	internal IReadOnlyList<IStatement> BodyStatements =>
+		ContainedBlock as IReadOnlyList<IStatement> ?? ContainedBlock.ToList();
+
     public override bool IsReturnOrContainsReturnOnAllBranches()
     {
         return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;

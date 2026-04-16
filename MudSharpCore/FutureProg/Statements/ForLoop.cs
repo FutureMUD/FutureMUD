@@ -22,6 +22,11 @@ internal class ForLoop : Statement
 
     protected IFunction RepetitionsFunction;
 
+	internal IFunction RepetitionsExpression => RepetitionsFunction;
+	internal string LoopVariableName => LoopVarName;
+	internal IReadOnlyList<IStatement> BodyStatements =>
+		ContainedBlock as IReadOnlyList<IStatement> ?? ContainedBlock.ToList();
+
     public override bool IsReturnOrContainsReturnOnAllBranches()
     {
         return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;

@@ -50,6 +50,8 @@ public class FutureProg : SaveableItem, IFutureProg
 	[ThreadStatic] private static FutureProgCompilationContext _currentCompilationContext;
 
     protected static Dictionary<string, (string HelpText, string Related)> StatementHelps = new(StringComparer.InvariantCultureIgnoreCase);
+	protected static Dictionary<string, HashSet<FutureProgCompilationContext>> StatementHelpContexts =
+		new(StringComparer.InvariantCultureIgnoreCase);
 
     public static IReadOnlyDictionary<string, (string HelpText, string Related)> StatementHelpTexts => StatementHelps;
 	public static FutureProgCompilationContext CurrentCompilationContext =>
@@ -128,6 +130,9 @@ public class FutureProg : SaveableItem, IFutureProg
     public string CompileError { get; protected set; }
 
     public string FunctionComment { get; set; }
+
+	internal IReadOnlyList<IStatement> Statements => _statements;
+	internal IFuturemud InternalGameworld => Gameworld;
 
     private string _functionName;
 
@@ -926,10 +931,36 @@ public class FutureProg : SaveableItem, IFutureProg
         StatementCompilers.Add(new StatementCompilerInformation(compiler.Item1, compiler.Item2, allowedContexts));
     }
 
-    public static void RegisterStatementHelp(string statement, string helpText, string related = "")
+    public static void RegisterStatementHelp(string statement, string helpText, string related = "",
+		params FutureProgCompilationContext[] allowedContexts)
     {
         StatementHelps[statement] = (helpText, related);
+		StatementHelpContexts[statement] = new HashSet<FutureProgCompilationContext>(
+			allowedContexts != null && allowedContexts.Any()
+				? allowedContexts.Distinct()
+				: [FutureProgCompilationContext.StandardFutureProg]);
     }
+
+	public static IEnumerable<KeyValuePair<string, (string HelpText, string Related)>> GetStatementHelpTexts(
+		FutureProgCompilationContext context)
+	{
+		return StatementHelps.Where(x =>
+			StatementHelpContexts.TryGetValue(x.Key, out var contexts) && contexts.Contains(context));
+	}
+
+	public static bool TryGetStatementHelp(string statement, FutureProgCompilationContext context,
+		out (string HelpText, string Related) help)
+	{
+		if (StatementHelps.TryGetValue(statement, out help) &&
+		    StatementHelpContexts.TryGetValue(statement, out var contexts) &&
+		    contexts.Contains(context))
+		{
+			return true;
+		}
+
+		help = default;
+		return false;
+	}
 
     protected static void InitialiseCompilers()
     {

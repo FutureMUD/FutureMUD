@@ -69,7 +69,9 @@ Builders still author local bindings by component prototype name or id, and the 
 
 The first live player command surface for that slice is also now present:
 - `electrical` for inspecting signal-driven items, installing or removing mountable modules, routing or unrouting cable segments, and configuring sinks
-- `programming` for inspecting and live-programming real microcontroller items, including mounted ones
+- `programming` as a hybrid surface for both:
+  - a private workspace of computer functions and programs
+  - inspecting and live-programming real microcontroller items, including mounted ones
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

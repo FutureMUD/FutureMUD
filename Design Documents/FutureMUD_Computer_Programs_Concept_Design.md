@@ -1,6 +1,6 @@
 # FutureMUD Computer Program Design
 
-This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. This system is not yet implemented.
+This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. The overall system is still incomplete, but the current shipped slice now includes signal automation, player-facing `electrical` and `programming` verbs, a private character-owned computer workspace, and sleep-capable persisted computer-program execution.
 
 ## Current Implementation Status
 
@@ -13,6 +13,10 @@ The first implementation slice for this design has now landed. The currently imp
 - shared computer and signal interfaces in `FutureMUDLibrary/Computers`
 - item-facing signal component contracts in `FutureMUDLibrary/GameItems/Interfaces`
 - core runtime scaffolding for computer executables, programs, files, hosts, processes, and built-in applications in `MudSharpCore/Computers`
+- dedicated persistence models and EF tables for character-owned computer executables, executable parameters, and computer-program processes
+- a private character-owned workspace for computer functions and computer programs, exposed through `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`
+- a resumable `sleep`-only computer-program executor with persisted frame/local state and scheduler-driven wake-up
+- computer-safe help formatting that mirrors the FutureProg help sources while filtering to the allowed computer subset
 - a first usable signal-automation slice in `MudSharpCore/GameItems`:
   - `PushButton`
   - `ToggleSwitch`
@@ -32,7 +36,10 @@ The current signal-automation slice now has two shipped wiring tiers. Local sink
 The first player-facing command surface for this slice has also now landed:
 
 - `electrical` inspects and live-configures configurable signal sinks on an item, installs and removes mountable modules, and routes or unroutes one-hop signal cable segments
-- `programming` inspects and live-programs real microcontroller items, including mounted ones targeted through `host@module`
+- `programming` now has two scopes:
+  - a private character-owned workspace for creating, editing, compiling, executing, listing, and killing computer functions and computer programs
+  - live inspection and programming of real microcontroller items, including mounted ones targeted through `host@module`
+- `programming help` mirrors the `prog help` categories but filters to the computer-safe subset of types, statements, functions, and collection helpers
 - both verbs currently operate through multistage delayed actions rather than instant changes
 - those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
 - `programming` uses `ProgrammingComponentCheck`
@@ -41,7 +48,7 @@ The first player-facing command surface for this slice has also now landed:
 - abject electrical failures trigger electrical shock damage and an electrical-shock emote, but still do not consume tools or materials
 - dedicated `AutomationHousing` components now gate concealed automation modules and cable ends through the normal container/openable/lockable access path rather than relying on arbitrary generic container items
 
-The remaining work is still substantial. In particular, dedicated computer persistence tables, resumable runtime execution, terminal sessions, richer multi-port inter-item signal graphs, and data networking are still future phases.
+The remaining work is still substantial. In particular, computer file systems, real computer host and terminal items, waits beyond `sleep`, richer multi-port inter-item signal graphs, remote execution, and data networking are still future phases.
 
 ## Core Concepts
 
@@ -56,6 +63,8 @@ The remaining work is still substantial. In particular, dedicated computer persi
 - They are still compiled before being executed
 - IComputerPrograms don't always run to completion. They often have wait points like waiting for a user input or a signal input. This will be handled through custom functions and statement types.
 - Variable references continue to use the normal `@variable` syntax when read in expressions
+- In the current shipped phase there is not yet a real `ComputerHost` item component, so standalone functions and programs live in a private character-owned workspace rather than on an in-world computer item
+- Those workspace artifacts persist in dedicated tables keyed to the owning character, and suspended program processes persist locals, frame state, wake time, result, and last error separately from item revision data
 
 ### Available Types
 
@@ -72,7 +81,7 @@ Only the following list of types will be permitted in Custom Computer Programs:
 
 ### Variable Registers
 
-The traditional variable register would not be available to Custom Computer Programs and ComputerFunctions. 
+The traditional variable register is not available to Custom Computer Programs and ComputerFunctions.
 
 ### File System
 
@@ -92,9 +101,9 @@ Statements like `console`, `delay`, `delayprog`, `force`, `send`, and `setregist
 
 ### Additional Statements
 
-There are a few statements that will be only available for Custom Computer Programs and not regular progs. A non-exhaustive list would include:
+There are a few statements that will be only available for Custom Computer Programs and not regular progs. In the currently shipped phase this list contains:
 
-- Sleep (a way of waiting a period of time and yielding control back)
+- Sleep (a way of waiting a period of real time, yielding control back, and resuming through a persisted process record)
 
 ### Statement Handling
 
@@ -120,7 +129,7 @@ The intended safe families remain:
 
 ### New Functions
 
-There would be some functions that would only be available for Custom Computer Programs and not regular progs. A non-exhaustive list would include:
+There would be some functions that would only be available for Custom Computer Programs and not regular progs. A future non-exhaustive list would include:
 
 - CollectionToFile / DictionaryToFile / CollectionDictionaryToFile: write the contents of a collection, dictionary or collectiondictionary to a file in a way that can be roundtripped
 - CollectionFromFile / DictionaryFromFile / CollectionDictionaryFromFile: read the contents of a file back out into a collection type
@@ -176,9 +185,13 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `AlarmSiren` is a powered signal-driven audible sink that repeats a configured alarm emote and room audio echo while active
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
 - Implemented in the current first player-facing slice:
-  - a `programming` command verb that lets players inspect microcontrollers, replace logic, and add or remove local input bindings on live items
+  - a `programming` command verb that now lets players both:
+    - manage a private workspace of computer functions and computer programs (`list`, `new`, `edit`, `set`, `parameter`, `compile`, `execute`, `processes`, `kill`, `help`)
+    - inspect microcontrollers, replace logic, and add or remove local input bindings on live items through `programming item <item>` or the existing item-first short form
   - an `electrical` command verb that lets players inspect configurable sinks, rebind them to local signal sources, clear bindings, retune thresholds or activation mode, install or remove separate mountable modules, and route or unroute cable segments one room at a time, including targeting a dedicated automation housing or junction for concealed cable placement
   - both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
+  - workspace authoring currently uses immediate ownership-checked edits rather than tool-gated physical actions because there is not yet a real computer terminal/host item path
+  - workspace program execution currently supports completion or persisted `sleep` suspension only; terminal IO, `UserInput`, `WaitSignal`, remote file access, and host-control functions are future phases
   - abject failures on electrical work can cause electrical shock damage
 - Both of these command verbs should be able to be surpressed so that they don't appear on non-modern MUDs.
 

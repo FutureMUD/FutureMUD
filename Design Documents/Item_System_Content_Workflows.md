@@ -262,6 +262,14 @@ For the live player workflow on an already loaded composed item, a practical end
 12. Confirm ordinary failures cost the action time but do not consume materials.
 13. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
 
+For the standalone player-owned computer-program workflow in the current phase, a practical pass is:
+1. Use `programming help` to inspect the computer-safe subset of FutureProg types, statements, functions, and collection helpers.
+2. Use `programming new function <name>` or `programming new program <name>` to create a workspace executable.
+3. Use `programming set return <type>`, `programming parameter add|remove|swap`, and `programming set source` while editing it.
+4. Use `programming compile` to verify the executable in the relevant computer context.
+5. Use `programming execute <which> [<parameters>]` to run it manually.
+6. If the executable is a program that calls `sleep`, use `programming processes` and `programming kill <process>` to inspect or terminate persisted processes.
+
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
 - item loads but does nothing: the item probably lacks the component or the runtime component is not implementing the expected interface.

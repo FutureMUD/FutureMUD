@@ -84,6 +84,8 @@ namespace MudSharp.Database
                 entity.Property(e => e.StressFlickerThreshold)
                       .HasDefaultValue(0.01m);
             });
+
+            ConfigureCharacterComputerWorkspace(modelBuilder);
         }
     }
 }

@@ -8,9 +8,11 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
 
-public class ComputerExecutableDefinition : IComputerExecutable
+public class ComputerExecutableDefinition : IComputerExecutableDefinition
 {
+	public long Id { get; init; }
 	public string Name { get; init; } = string.Empty;
+	public string FrameworkItemType => "ComputerExecutable";
 	public string SourceCode { get; init; } = string.Empty;
 	public ProgVariableTypes ReturnType { get; init; } = ProgVariableTypes.Void;
 	public IReadOnlyCollection<ComputerExecutableParameter> Parameters { get; init; } =
@@ -19,6 +21,12 @@ public class ComputerExecutableDefinition : IComputerExecutable
 		FutureProgCompilationContext.ComputerProgram;
 	public ComputerCompilationStatus CompilationStatus { get; init; } = ComputerCompilationStatus.NotCompiled;
 	public string CompileError { get; init; } = string.Empty;
+	public long? OwnerCharacterId { get; init; }
+	public long? OwnerHostItemId { get; init; }
+	public long? OwnerStorageItemId { get; init; }
+	public ComputerExecutableKind ExecutableKind { get; init; } = ComputerExecutableKind.Program;
+	public DateTime CreatedAtUtc { get; init; } = DateTime.UtcNow;
+	public DateTime LastModifiedAtUtc { get; init; } = DateTime.UtcNow;
 }
 
 public sealed class ComputerFunctionDefinition : ComputerExecutableDefinition, IComputerFunction
@@ -32,14 +40,22 @@ public sealed class ComputerProgramDefinition : ComputerExecutableDefinition, IC
 
 public sealed class ComputerProcessDefinition : IComputerProcess
 {
+	public long Id { get; init; }
 	public string ProcessName { get; init; } = string.Empty;
+	public long OwnerCharacterId { get; init; }
 	public required IComputerProgramDefinition Program { get; init; }
 	public required IComputerHost Host { get; init; }
+	public ComputerProcessStatus Status { get; init; } = ComputerProcessStatus.NotStarted;
 	public ComputerProcessWaitType WaitType { get; init; }
 	public DateTime? WakeTimeUtc { get; init; }
 	public string? WaitArgument { get; init; }
-	public bool IsRunning { get; init; }
+	public bool IsRunning => Status is ComputerProcessStatus.Running or ComputerProcessStatus.Sleeping;
 	public ComputerPowerLossBehaviour PowerLossBehaviour { get; init; } = ComputerPowerLossBehaviour.Terminate;
+	public object? Result { get; init; }
+	public string? LastError { get; init; }
+	public DateTime StartedAtUtc { get; init; } = DateTime.UtcNow;
+	public DateTime LastUpdatedAtUtc { get; init; } = DateTime.UtcNow;
+	public DateTime? EndedAtUtc { get; init; }
 }
 
 public sealed class ComputerTextFile : IComputerFile

@@ -28,6 +28,12 @@ internal class IfBlock : Statement
     protected IEnumerable<IStatement> TrueBlock;
     protected IEnumerable<(IFunction ElseLogic, IEnumerable<IStatement> Statements)> ElseIfBlocks;
 
+	internal IFunction ConditionFunction => LogicFunction;
+	internal IReadOnlyList<IStatement> TrueStatements => TrueBlock as IReadOnlyList<IStatement> ?? TrueBlock.ToList();
+	internal IReadOnlyList<IStatement> FalseStatements => FalseBlock as IReadOnlyList<IStatement> ?? FalseBlock.ToList();
+	internal IReadOnlyList<(IFunction ElseLogic, IReadOnlyList<IStatement> Statements)> ElseIfStatementBlocks =>
+		ElseIfBlocks.Select(x => (x.ElseLogic, (IReadOnlyList<IStatement>)(x.Statements as IReadOnlyList<IStatement> ?? x.Statements.ToList()))).ToList();
+
     public override bool IsReturnOrContainsReturnOnAllBranches()
     {
         return (TrueBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false) &&

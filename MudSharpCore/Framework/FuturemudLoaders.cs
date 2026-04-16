@@ -20,6 +20,7 @@ using MudSharp.Commands.Trees;
 using MudSharp.Communication.Language;
 using MudSharp.Community;
 using MudSharp.Community.Boards;
+using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Construction.Grids;
@@ -159,6 +160,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IClockManager ClockManager { get; protected set; }
     public IUnitManager UnitManager { get; protected set; }
     public IHeartbeatManager HeartbeatManager { get; protected set; }
+    public IComputerExecutionService ComputerExecutionService { get; protected set; }
+    public IComputerHelpService ComputerHelpService { get; protected set; }
     public IEnumerable<IPlayerConnection> Connections => _connections;
 
     void IFuturemudLoader.LoadFromDatabase()
@@ -496,6 +499,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
         {
             CheckNewPlayerHints();
         }, ScheduleType.System, TimeSpan.FromMinutes(1), "Check New Player Hints"));
+        if (ComputerExecutionService is ComputerExecutionService computerExecutionService)
+        {
+            computerExecutionService.LoadPersistedState();
+        }
         sw.Stop();
         ConsoleUtilities.WriteLine($"Total Boot Time: #2{TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}#0");
         foreach (ICharacter npc in NPCs)

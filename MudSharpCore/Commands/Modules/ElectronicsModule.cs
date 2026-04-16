@@ -6,11 +6,14 @@ using System.Linq;
 using System.Text;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Computers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -42,17 +45,50 @@ You can use the following syntax:
 Component and source identifiers can be either the live component #6id#0 shown in the inspection output, the component name, or #6item@component#0 when needed.
 Routed cables are one-room segments. Longer runs are built by chaining another cable in the next room.";
 
-	private const string ProgrammingHelpText = @"The #3programming#0 command is used to inspect and live-program microcontrollers on an item.
+	private const string ProgrammingHelpText = @"The #3programming#0 command is used to inspect and work with computer functions, computer programs, and installed microcontrollers.
 
 You can use the following syntax:
-	#3programming <item>#0 - shows all programmable microcontrollers on the item
-	#3programming <item> logic [<component>]#0 - opens an editor to replace the controller logic
-	#3programming <item> logic [<component>] <text>#0 - directly replaces the controller logic
-	#3programming <item> input add [<component>] <variable> <source> [<endpoint>]#0 - binds an input variable to a local signal source
-	#3programming <item> input remove [<component>] <variable>#0 - removes an input variable
+	#3programming list [functions|programs]#0 - lists your workspace computer executables
+	#3programming new function|program <name>#0 - creates a new workspace executable and begins editing it
+	#3programming edit <which>#0 - begins editing a workspace executable
+	#3programming close#0 - stops editing a workspace executable
+	#3programming show [<which>]#0 - shows a workspace executable
+	#3programming set name <name>#0 - renames the currently edited workspace executable
+	#3programming set return <type>#0 - changes the return type of the currently edited workspace executable
+	#3programming set source [<text>]#0 - directly replaces the source, or opens an editor if no text is supplied
+	#3programming parameter add <name> <type>#0 - adds a parameter to the currently edited workspace executable
+	#3programming parameter remove <name>#0 - removes a parameter from the currently edited workspace executable
+	#3programming parameter swap <first> <second>#0 - swaps parameter order on the currently edited workspace executable
+	#3programming compile [<which>]#0 - compiles a workspace executable
+	#3programming execute <which> [<parameters>]#0 - executes a workspace executable
+	#3programming processes#0 - shows your recent computer-program processes
+	#3programming kill <process>#0 - kills one of your running or sleeping computer-program processes
+	#3programming help <topic>#0 - shows programming help filtered to the computer-safe language subset
+	#3programming item <item>#0 - shows all programmable microcontrollers on the item
+	#3programming item <item> logic [<component>]#0 - opens an editor to replace the controller logic
+	#3programming item <item> logic [<component>] <text>#0 - directly replaces the controller logic
+	#3programming item <item> input add [<component>] <variable> <source> [<endpoint>]#0 - binds an input variable to a local signal source
+	#3programming item <item> input remove [<component>] <variable>#0 - removes an input variable
 
-When the target item only has one programmable microcontroller component, you can omit the component identifier.
+The old short form of #3programming <item>#0 still works for item-targeted microcontroller programming whenever the first word is not one of the reserved workspace verbs.
 Mounted microcontrollers remain separate items, so you can target them with syntax like #6host@module#0 when they are installed behind an open access panel.";
+
+	private static readonly HashSet<string> ReservedProgrammingWorkspaceVerbs = new(StringComparer.InvariantCultureIgnoreCase)
+	{
+		"help",
+		"list",
+		"show",
+		"new",
+		"edit",
+		"close",
+		"delete",
+		"set",
+		"parameter",
+		"compile",
+		"execute",
+		"processes",
+		"kill"
+	};
 
 	private ElectronicsModule()
 		: base("Electronics")
@@ -155,6 +191,80 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		}
 
 		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		var firstToken = ss.PopSpeech();
+		if (firstToken.EqualTo("item"))
+		{
+			ProgrammingItem(actor, ss);
+			return;
+		}
+
+		if (ReservedProgrammingWorkspaceVerbs.Contains(firstToken))
+		{
+			ProgrammingWorkspace(actor, firstToken, ss);
+			return;
+		}
+
+		ProgrammingItem(actor,
+			new StringStack(ss.IsFinished ? firstToken : $"{firstToken} {ss.RemainingArgument}"));
+	}
+
+	private static void ProgrammingWorkspace(ICharacter actor, string verb, StringStack ss)
+	{
+		switch (verb.ToLowerInvariant())
+		{
+			case "help":
+				ProgrammingWorkspaceHelp(actor, ss);
+				return;
+			case "list":
+				ProgrammingWorkspaceList(actor, ss);
+				return;
+			case "show":
+				ProgrammingWorkspaceShow(actor, ss);
+				return;
+			case "new":
+				ProgrammingWorkspaceNew(actor, ss);
+				return;
+			case "edit":
+				ProgrammingWorkspaceEdit(actor, ss);
+				return;
+			case "close":
+				ProgrammingWorkspaceClose(actor);
+				return;
+			case "delete":
+				ProgrammingWorkspaceDelete(actor, ss);
+				return;
+			case "set":
+				ProgrammingWorkspaceSet(actor, ss);
+				return;
+			case "parameter":
+				ProgrammingWorkspaceParameter(actor, ss);
+				return;
+			case "compile":
+				ProgrammingWorkspaceCompile(actor, ss);
+				return;
+			case "execute":
+				ProgrammingWorkspaceExecute(actor, ss);
+				return;
+			case "processes":
+				ProgrammingWorkspaceProcesses(actor);
+				return;
+			case "kill":
+				ProgrammingWorkspaceKill(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ProgrammingItem(ICharacter actor, StringStack ss)
+	{
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
@@ -876,6 +986,833 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			null,
 			null,
 			() => EnumerateShockRiskItems(item));
+	}
+
+	private static void ProgrammingWorkspaceHelp(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "types":
+				actor.OutputHandler.Send(
+					ComputerHelpFormatter.GetTypesText(
+						actor.Gameworld.ComputerHelpService.GetAvailableTypes(FutureProgCompilationContext.ComputerProgram),
+						true),
+					nopage: true);
+				return;
+			case "type":
+				ProgrammingWorkspaceHelpType(actor, ss);
+				return;
+			case "statements":
+				actor.OutputHandler.Send(
+					ComputerHelpFormatter.GetStatementsText(
+						actor.Gameworld.ComputerHelpService.GetStatementHelp(FutureProgCompilationContext.ComputerProgram),
+						GetProgrammingStatementAvailability,
+						actor.LineFormatLength,
+						actor.Account.UseUnicode,
+						true),
+					nopage: true);
+				return;
+			case "statement":
+				ProgrammingWorkspaceHelpStatement(actor, ss);
+				return;
+			case "functions":
+				ProgrammingWorkspaceHelpFunctions(actor, ss);
+				return;
+			case "function":
+				ProgrammingWorkspaceHelpFunction(actor, ss);
+				return;
+			case "collections":
+				actor.OutputHandler.Send(
+					ComputerHelpFormatter.GetCollectionsText(
+						GetProgrammingCollectionHelpInfos(actor),
+						actor.LineFormatLength,
+						actor.Account.UseUnicode,
+						true),
+					nopage: true);
+				return;
+			case "collection":
+				ProgrammingWorkspaceHelpCollection(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ProgrammingWorkspaceHelpType(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("What type do you want to see property help for?");
+			return;
+		}
+
+		var type = MudSharp.FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
+		if (type == ProgVariableTypes.Error ||
+		    !ComputerCompilationRestrictions.IsTypeAllowedInContext(type, FutureProgCompilationContext.ComputerProgram))
+		{
+			actor.Send("That is not a programming-safe type.");
+			return;
+		}
+
+		var text = ProgModule.GetProgTypeHelpText(type, actor.LineFormatLength, actor.Account.UseUnicode, true);
+		actor.OutputHandler.Send(text ?? $"The type {type.Describe().ColourName()} does not have any help.", nopage: true);
+	}
+
+	private static void ProgrammingWorkspaceHelpStatement(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which statement do you want to see help for?");
+			return;
+		}
+
+		var statement = ss.SafeRemainingArgument;
+		var help = actor.Gameworld.ComputerHelpService.GetStatementHelp(statement, FutureProgCompilationContext.ComputerProgram);
+		if (help is null)
+		{
+			actor.Send("There is no such programming-safe statement.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			ComputerHelpFormatter.GetStatementText(
+				statement,
+				help.Value,
+				GetProgrammingStatementAvailability(statement),
+				actor.LineFormatLength,
+				true));
+	}
+
+	private static void ProgrammingWorkspaceHelpFunctions(ICharacter actor, StringStack ss)
+	{
+		var infos = GetProgrammingFunctionHelpInfos(actor);
+		if (!ss.IsFinished)
+		{
+			var category = ss.SafeRemainingArgument;
+			infos = infos
+				.Where(x => x.Category.EqualTo(category) ||
+				            x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+		}
+
+		actor.OutputHandler.Send(
+			ComputerHelpFormatter.GetFunctionsText(infos, actor.LineFormatLength, actor.Account.UseUnicode, true),
+			nopage: true);
+	}
+
+	private static void ProgrammingWorkspaceHelpFunction(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which function do you want to see help for?");
+			return;
+		}
+
+		var which = ss.SafeRemainingArgument;
+		var functions = GetProgrammingFunctionHelpInfos(actor)
+			.Where(x => x.FunctionName.EqualTo(which))
+			.ToList();
+		if (!functions.Any())
+		{
+			actor.Send("There are no such programming-safe functions.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			ComputerHelpFormatter.GetFunctionText(
+				functions,
+				actor.LineFormatLength,
+				actor.InnerLineFormatLength,
+				actor.Account.UseUnicode,
+				true));
+	}
+
+	private static void ProgrammingWorkspaceHelpCollection(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which collection function do you want to see help for?");
+			return;
+		}
+
+		var which = ss.SafeRemainingArgument;
+		var info = GetProgrammingCollectionHelpInfos(actor).FirstOrDefault(x => x.FunctionName.EqualTo(which));
+		if (info is null)
+		{
+			actor.Send("There is no such programming-safe collection function.");
+			return;
+		}
+
+		actor.OutputHandler.Send(ComputerHelpFormatter.GetCollectionText(info, actor.LineFormatLength, true));
+	}
+
+	private static List<ComputerFunctionHelpInfo> GetProgrammingFunctionHelpInfos(ICharacter actor)
+	{
+		return actor.Gameworld.ComputerHelpService.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)
+			.Concat(actor.Gameworld.ComputerHelpService.GetFunctionHelp(FutureProgCompilationContext.ComputerProgram))
+			.GroupBy(x =>
+				$"{x.FunctionName}|{x.ReturnType.ToStorageString()}|{string.Join(",", x.Parameters.Select(y => y.ToStorageString()))}")
+			.Select(group =>
+			{
+				var first = group.First();
+				return new ComputerFunctionHelpInfo
+				{
+					FunctionName = first.FunctionName,
+					Parameters = first.Parameters.ToList(),
+					ParameterNames = first.ParameterNames.ToList(),
+					ParameterHelp = first.ParameterHelp.ToList(),
+					FunctionHelp = first.FunctionHelp,
+					Category = first.Category,
+					ReturnType = first.ReturnType,
+					AllowedContexts = group.SelectMany(x => x.AllowedContexts).Distinct().ToList()
+				};
+			})
+			.OrderBy(x => x.Category)
+			.ThenBy(x => x.FunctionName)
+			.ThenBy(x => x.Parameters.Count())
+			.ToList();
+	}
+
+	private static List<ComputerCollectionHelpInfo> GetProgrammingCollectionHelpInfos(ICharacter actor)
+	{
+		return actor.Gameworld.ComputerHelpService.GetCollectionHelp(FutureProgCompilationContext.ComputerProgram)
+			.GroupBy(x => $"{x.FunctionName}|{x.InnerFunctionReturnType.ToStorageString()}|{x.FunctionReturnInfo}")
+			.Select(x => x.First())
+			.OrderBy(x => x.FunctionName)
+			.ToList();
+	}
+
+	private static string GetProgrammingStatementAvailability(string statement)
+	{
+		return statement.EqualTo("sleep") ? "Program" : "Both";
+	}
+
+	private static void ProgrammingWorkspaceList(ICharacter actor, StringStack ss)
+	{
+		var executables = actor.Gameworld.ComputerExecutionService.GetExecutables(actor).ToList();
+		if (!executables.Any())
+		{
+			actor.Send("You do not have any workspace computer executables.");
+			return;
+		}
+
+		if (!ss.IsFinished)
+		{
+			var filter = ss.PopSpeech().ToLowerInvariant();
+			executables = filter switch
+			{
+				"function" or "functions" => executables.Where(x => x.ExecutableKind == ComputerExecutableKind.Function).ToList(),
+				"program" or "programs" => executables.Where(x => x.ExecutableKind == ComputerExecutableKind.Program).ToList(),
+				_ => executables
+			};
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			executables.Select(x => new List<string>
+			{
+				x.Id.ToString("N0", actor),
+				x.Name,
+				x.ExecutableKind.DescribeEnum(),
+				x.ReturnType.Describe(),
+				x.CompilationStatus == ComputerCompilationStatus.Compiled ? "Compiled" : x.CompilationStatus.DescribeEnum()
+			}),
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Kind",
+				"Return",
+				"Status"
+			},
+			actor.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			actor.Account.UseUnicode), nopage: true);
+	}
+
+	private static void ProgrammingWorkspaceNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to create a function or a program?");
+			return;
+		}
+
+		var kindText = ss.PopSpeech().ToLowerInvariant();
+		var kind = kindText switch
+		{
+			"function" => ComputerExecutableKind.Function,
+			"program" => ComputerExecutableKind.Program,
+			_ => (ComputerExecutableKind?)null
+		};
+		if (!kind.HasValue)
+		{
+			actor.Send("You must specify either function or program.");
+			return;
+		}
+
+		var name = ss.IsFinished ? $"Unnamed{kind.Value.DescribeEnum()}" : ss.SafeRemainingArgument.Trim();
+		if (actor.Gameworld.ComputerExecutionService.GetExecutables(actor)
+			    .Any(x => x.Name.EqualTo(name)))
+		{
+			actor.Send("You already have a workspace executable with that name.");
+			return;
+		}
+
+		var executable = actor.Gameworld.ComputerExecutionService.CreateExecutable(actor, kind.Value, name);
+		SetEditingComputerExecutable(actor, executable);
+		actor.Send(
+			$"You create the {kind.Value.DescribeEnum().ToLowerInvariant().ColourValue()} {executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}], which you are now editing.");
+	}
+
+	private static void ProgrammingWorkspaceEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var editing = GetEditingComputerExecutable(actor);
+			if (editing is null)
+			{
+				actor.Send("Which workspace executable do you want to edit?");
+				return;
+			}
+
+			ShowWorkspaceExecutable(actor, editing);
+			return;
+		}
+
+		var executable = ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		if (executable is null)
+		{
+			return;
+		}
+
+		SetEditingComputerExecutable(actor, executable);
+		actor.Send($"You are now editing {executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}].");
+	}
+
+	private static void ProgrammingWorkspaceClose(ICharacter actor)
+	{
+		var editing = GetEditingComputerExecutable(actor);
+		if (editing is null)
+		{
+			actor.Send("You are not currently editing any workspace executable.");
+			return;
+		}
+
+		actor.RemoveAllEffects<ComputerExecutableEditingEffect>();
+		actor.Send($"You are no longer editing {editing.Name.ColourName()}.");
+	}
+
+	private static void ProgrammingWorkspaceShow(ICharacter actor, StringStack ss)
+	{
+		var executable = ss.IsFinished ? GetEditingComputerExecutable(actor) : ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		if (executable is null)
+		{
+			actor.Send(ss.IsFinished
+				? "You are not currently editing any workspace executable."
+				: "There is no such workspace executable.");
+			return;
+		}
+
+		ShowWorkspaceExecutable(actor, executable);
+	}
+
+	private static void ProgrammingWorkspaceDelete(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which workspace executable do you want to delete?");
+			return;
+		}
+
+		var executable = ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		if (executable is null)
+		{
+			return;
+		}
+
+		if (!actor.Gameworld.ComputerExecutionService.DeleteExecutable(actor, executable, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		if (GetEditingComputerExecutable(actor)?.Id == executable.Id)
+		{
+			actor.RemoveAllEffects<ComputerExecutableEditingEffect>();
+		}
+
+		actor.Send($"You delete the workspace executable {executable.Name.ColourName()}.");
+	}
+
+	private static void ProgrammingWorkspaceSet(ICharacter actor, StringStack ss)
+	{
+		var executable = GetEditingComputerExecutable(actor);
+		if (executable is null)
+		{
+			actor.Send("You are not currently editing any workspace executable.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "name":
+				ProgrammingWorkspaceSetName(actor, executable, ss);
+				return;
+			case "return":
+			case "returns":
+				ProgrammingWorkspaceSetReturn(actor, executable, ss);
+				return;
+			case "source":
+			case "text":
+				ProgrammingWorkspaceSetSource(actor, executable, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ProgrammingWorkspaceSetName(ICharacter actor, IComputerExecutableDefinition executable, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("What new name do you want to give to that workspace executable?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.Trim();
+		if (actor.Gameworld.ComputerExecutionService.GetExecutables(actor)
+			    .Any(x => x.Id != executable.Id && x.Name.EqualTo(name)))
+		{
+			actor.Send("You already have another workspace executable with that name.");
+			return;
+		}
+
+		((ComputerWorkspaceExecutableBase)executable).Name = name;
+		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+		AutoCompileWorkspaceExecutable(actor, executable,
+			$"You rename the workspace executable to {name.ColourName()}.");
+	}
+
+	private static void ProgrammingWorkspaceSetReturn(ICharacter actor, IComputerExecutableDefinition executable,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("What return type do you want to use?");
+			return;
+		}
+
+		var type = MudSharp.FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
+		if (type == ProgVariableTypes.Error ||
+		    !ComputerCompilationRestrictions.IsTypeAllowedInContext(type, executable.CompilationContext))
+		{
+			actor.Send("That is not a valid programming-safe return type for that executable.");
+			return;
+		}
+
+		((ComputerWorkspaceExecutableBase)executable).ReturnType = type;
+		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+		AutoCompileWorkspaceExecutable(actor, executable,
+			$"You change the return type of {executable.Name.ColourName()} to {type.Describe().ColourValue()}.");
+	}
+
+	private static void ProgrammingWorkspaceSetSource(ICharacter actor, IComputerExecutableDefinition executable,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Enter the replacement source code in the editor below.");
+			actor.EditorMode(
+				(text, handler, _) =>
+				{
+					((ComputerWorkspaceExecutableBase)executable).SourceCode = text;
+					actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+					AutoCompileWorkspaceExecutable(actor, executable,
+						$"You replace the source code for {executable.Name.ColourName()}.");
+				},
+				(handler, _) => handler.Send("You decide not to change the workspace source code."),
+				1.0,
+				recallText: executable.SourceCode,
+				options: EditorOptions.PermitEmpty);
+			return;
+		}
+
+		((ComputerWorkspaceExecutableBase)executable).SourceCode = ss.SafeRemainingArgument;
+		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+		AutoCompileWorkspaceExecutable(actor, executable,
+			$"You replace the source code for {executable.Name.ColourName()}.");
+	}
+
+	private static void ProgrammingWorkspaceParameter(ICharacter actor, StringStack ss)
+	{
+		var executable = GetEditingComputerExecutable(actor);
+		if (executable is null)
+		{
+			actor.Send("You are not currently editing any workspace executable.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to add, remove, or swap a parameter?");
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "add":
+				ProgrammingWorkspaceParameterAdd(actor, executable, ss);
+				return;
+			case "remove":
+			case "delete":
+				ProgrammingWorkspaceParameterRemove(actor, executable, ss);
+				return;
+			case "swap":
+				ProgrammingWorkspaceParameterSwap(actor, executable, ss);
+				return;
+			default:
+				actor.Send("Do you want to add, remove, or swap a parameter?");
+				return;
+		}
+	}
+
+	private static void ProgrammingWorkspaceParameterAdd(ICharacter actor, IComputerExecutableDefinition executable,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("What variable name do you want to add?");
+			return;
+		}
+
+		var variableName = ss.PopSpeech().Trim().ToLowerInvariant();
+		if (!ComputerExecutableCompiler.IsValidVariableName(variableName))
+		{
+			actor.Send("That is not a valid variable name.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("What parameter type should that variable use?");
+			return;
+		}
+
+		var type = MudSharp.FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
+		if (type == ProgVariableTypes.Error ||
+		    !ComputerCompilationRestrictions.IsTypeAllowedInContext(type, executable.CompilationContext))
+		{
+			actor.Send("That is not a valid programming-safe parameter type for that executable.");
+			return;
+		}
+
+		var parameters = executable.Parameters.ToList();
+		if (parameters.Any(x => x.Name.EqualTo(variableName)))
+		{
+			actor.Send("That executable already has a parameter with that name.");
+			return;
+		}
+
+		parameters.Add(new ComputerExecutableParameter(variableName, type));
+		((ComputerWorkspaceExecutableBase)executable).Parameters = parameters;
+		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+		AutoCompileWorkspaceExecutable(actor, executable,
+			$"You add the parameter {variableName.ColourCommand()} as {type.Describe().ColourValue()}.");
+	}
+
+	private static void ProgrammingWorkspaceParameterRemove(ICharacter actor, IComputerExecutableDefinition executable,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which parameter do you want to remove?");
+			return;
+		}
+
+		var variableName = ss.PopSpeech().Trim();
+		var parameters = executable.Parameters.ToList();
+		var parameter = parameters.FirstOrDefault(x => x.Name.EqualTo(variableName));
+		if (parameter == default)
+		{
+			actor.Send("There is no such parameter on that executable.");
+			return;
+		}
+
+		parameters.Remove(parameter);
+		((ComputerWorkspaceExecutableBase)executable).Parameters = parameters;
+		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+		AutoCompileWorkspaceExecutable(actor, executable,
+			$"You remove the parameter {parameter.Name.ColourCommand()}.");
+	}
+
+	private static void ProgrammingWorkspaceParameterSwap(ICharacter actor, IComputerExecutableDefinition executable,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which parameter do you want to move?");
+			return;
+		}
+
+		var first = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			actor.Send("Which parameter do you want to swap it with?");
+			return;
+		}
+
+		var second = ss.PopSpeech();
+		var parameters = executable.Parameters.ToList();
+		var firstIndex = parameters.FindIndex(x => x.Name.EqualTo(first));
+		var secondIndex = parameters.FindIndex(x => x.Name.EqualTo(second));
+		if (firstIndex == -1 || secondIndex == -1)
+		{
+			actor.Send("You must specify two existing parameters.");
+			return;
+		}
+
+		(parameters[firstIndex], parameters[secondIndex]) = (parameters[secondIndex], parameters[firstIndex]);
+		((ComputerWorkspaceExecutableBase)executable).Parameters = parameters;
+		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
+		AutoCompileWorkspaceExecutable(actor, executable,
+			$"You swap the order of {first.ColourCommand()} and {second.ColourCommand()}.");
+	}
+
+	private static void ProgrammingWorkspaceCompile(ICharacter actor, StringStack ss)
+	{
+		var executable = ss.IsFinished ? GetEditingComputerExecutable(actor) : ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		if (executable is null)
+		{
+			actor.Send(ss.IsFinished
+				? "You are not currently editing any workspace executable."
+				: "There is no such workspace executable.");
+			return;
+		}
+
+		AutoCompileWorkspaceExecutable(actor, executable, $"You compile {executable.Name.ColourName()}.");
+	}
+
+	private static void ProgrammingWorkspaceExecute(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which workspace executable do you want to execute?");
+			return;
+		}
+
+		var executable = ResolveWorkspaceExecutable(actor, ss.PopSpeech());
+		if (executable is null)
+		{
+			return;
+		}
+
+		List<object?> parameters = new();
+		for (var i = 0; i < executable.Parameters.Count; i++)
+		{
+			var parameter = executable.Parameters.ElementAt(i);
+			var raw = ss.PopParentheses();
+			if (string.IsNullOrEmpty(raw))
+			{
+				raw = ss.PopSpeech();
+			}
+
+			if (string.IsNullOrEmpty(raw))
+			{
+				actor.Send(
+					$"You must supply a value for parameter {parameter.Name.ColourCommand()} of type {parameter.Type.Describe().ColourValue()}.");
+				return;
+			}
+
+			var outcome = ProgModule.GetArgument(parameter.Type, raw, i + 1, actor);
+			if (!outcome.success)
+			{
+				return;
+			}
+
+			parameters.Add(outcome.result);
+		}
+
+		var result = actor.Gameworld.ComputerExecutionService.Execute(actor, executable, parameters);
+		if (!result.Success && result.Status != ComputerProcessStatus.Completed)
+		{
+			actor.Send(result.ErrorMessage);
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Executing {executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}]...");
+		if (parameters.Any())
+		{
+			sb.AppendLine();
+			foreach (var parameter in executable.Parameters.Select((value, index) => (value, index)))
+			{
+				sb.AppendLine(
+					$"\t{parameter.value.Type.Describe().ColourValue()} {parameter.value.Name.ColourCommand()}: {ProgModule.DescribeProgVariable(actor, parameter.value.Type, parameters[parameter.index])}");
+			}
+		}
+
+		if (result.Process is not null)
+		{
+			sb.AppendLine();
+			sb.AppendLine($"Process: {result.Process.Id.ToString("N0", actor).ColourValue()} ({result.Status.DescribeEnum().ColourName()})");
+		}
+
+		switch (result.Status)
+		{
+			case ComputerProcessStatus.Sleeping:
+				sb.AppendLine(
+					$"The program suspended until {(result.Process?.WakeTimeUtc?.ToString(actor) ?? "now").ColourValue()}.");
+				break;
+			case ComputerProcessStatus.Completed:
+				sb.AppendLine(
+					$"It returned {ProgModule.DescribeProgVariable(actor, executable.ReturnType, result.Result)}.");
+				break;
+			default:
+				if (!string.IsNullOrEmpty(result.ErrorMessage))
+				{
+					sb.AppendLine(result.ErrorMessage.ColourError());
+				}
+				break;
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void ProgrammingWorkspaceProcesses(ICharacter actor)
+	{
+		var processes = actor.Gameworld.ComputerExecutionService.GetProcesses(actor).ToList();
+		if (!processes.Any())
+		{
+			actor.Send("You do not have any computer-program processes.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			processes.Select(x => new List<string>
+			{
+				x.Id.ToString("N0", actor),
+				x.ProcessName,
+				x.Status.DescribeEnum(),
+				x.WaitType == ComputerProcessWaitType.Sleep && x.WakeTimeUtc.HasValue
+					? x.WakeTimeUtc.Value.ToString(actor)
+					: x.WaitType.DescribeEnum(),
+				x.LastUpdatedAtUtc.ToString(actor)
+			}),
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Status",
+				"Waiting",
+				"Updated"
+			},
+			actor.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			actor.Account.UseUnicode), nopage: true);
+	}
+
+	private static void ProgrammingWorkspaceKill(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var processId))
+		{
+			actor.Send("Which process id do you want to kill?");
+			return;
+		}
+
+		if (!actor.Gameworld.ComputerExecutionService.KillProcess(actor, processId, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"You kill the computer-program process {processId.ToString("N0", actor).ColourValue()}.");
+	}
+
+	private static IComputerExecutableDefinition? GetEditingComputerExecutable(ICharacter actor)
+	{
+		return actor.CombinedEffectsOfType<ComputerExecutableEditingEffect>().FirstOrDefault()?.EditingItem;
+	}
+
+	private static void SetEditingComputerExecutable(ICharacter actor, IComputerExecutableDefinition executable)
+	{
+		actor.RemoveAllEffects<ComputerExecutableEditingEffect>();
+		actor.AddEffect(new ComputerExecutableEditingEffect(actor) { EditingItem = executable });
+	}
+
+	private static IComputerExecutableDefinition? ResolveWorkspaceExecutable(ICharacter actor, string identifier)
+	{
+		var executable = actor.Gameworld.ComputerExecutionService.GetExecutable(actor, identifier);
+		if (executable is not null)
+		{
+			return executable;
+		}
+
+		actor.Send("There is no such workspace executable.");
+		return null;
+	}
+
+	private static void AutoCompileWorkspaceExecutable(ICharacter actor, IComputerExecutableDefinition executable,
+		string successPrefix)
+	{
+		var result = actor.Gameworld.ComputerExecutionService.CompileExecutable(executable);
+		if (result.Success)
+		{
+			actor.Send($"{successPrefix} It compiled successfully.".ColourBold(Telnet.Green));
+			return;
+		}
+
+		actor.Send($"{successPrefix} It failed to compile: {result.ErrorMessage.ColourError()}");
+	}
+
+	private static void ShowWorkspaceExecutable(ICharacter actor, IComputerExecutableDefinition executable)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine(
+			$"{executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}] - {executable.ExecutableKind.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Return Type: {executable.ReturnType.Describe().ColourValue()}");
+		sb.AppendLine($"Status: {executable.CompilationStatus.DescribeEnum().ColourName()}");
+		if (!string.IsNullOrWhiteSpace(executable.CompileError))
+		{
+			sb.AppendLine($"Compile Error: {executable.CompileError.ColourError()}");
+		}
+
+		sb.AppendLine("Parameters:");
+		if (!executable.Parameters.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			foreach (var parameter in executable.Parameters)
+			{
+				sb.AppendLine($"\t{parameter.Name.ColourCommand()} as {parameter.Type.Describe().ColourValue()}");
+			}
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Source:");
+		sb.AppendLine(string.IsNullOrWhiteSpace(executable.SourceCode)
+			? "\t<empty>".ColourError()
+			: executable.SourceCode);
+		actor.OutputHandler.Send(sb.ToString(), nopage: true);
 	}
 
 	private static void ProgrammingLogic(ICharacter actor, IGameItem item, StringStack ss)

@@ -281,6 +281,7 @@ Important implementation details from this slice:
   - configurable sinks that support live rewiring should implement `IRuntimeConfigurableSignalSinkComponent`
   - live-programmable controllers should implement `IRuntimeProgrammableMicrocontroller`
   - those runtime interfaces are what the `electrical` and `programming` command verbs target on loaded items
+  - standalone character-owned workspace executables are not item components and are instead managed through the computer-runtime services in `MudSharpCore/Computers`
 
 This is the reference approach for the early phases of computerised items:
 1. put the shared signal contract on interfaces first

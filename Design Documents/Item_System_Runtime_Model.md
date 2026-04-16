@@ -95,6 +95,7 @@ The planned computer-programs subsystem follows the same composition rules:
 - live item behaviour should come from item components, not special-case `GameItem` subclasses
 - common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
 - concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
+- standalone player-owned computer code currently lives outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`
 
 This means "computerised" items are expected to compose multiple capabilities:
 - a host component to own files, executables, and running processes
@@ -145,6 +146,7 @@ Current runtime connection rules for that slice are:
 
 The current player-work runtime flow for that slice is:
 - `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
+- `programming` also targets the standalone character-owned workspace when the first token is a reserved workspace verb
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
 - actions are modelled as targeted delayed effects rather than instant mutation
 - required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials

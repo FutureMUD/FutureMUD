@@ -15,6 +15,8 @@ Current behavioural notes:
 - administrator characters perform `electrical` and item-targeted `programming` actions instantly without tool requirements, skill checks, or delayed stages
 - service housings on door or host items can be accessed through normal `open` / `close` subtarget syntax, for example `open north panel`
 - ordinary `look` output focuses on physical state; live signal diagnostics are expected in `electrical <item>`
+- live source and component targeting should use normal parent-item keywords, with `item@component` only when the component itself must be named explicitly
+- duplicate nearby items should be disambiguated with ordinary numeric item targeting such as `2.sensor`, not raw component ids
 
 ## Assumptions
 - Use the normal `comp edit submit`, review, and approval workflow for components.

@@ -177,6 +177,7 @@ The current signal-automation slice has its own presentation and integration rul
 - `AutomationHousing` is now the dedicated housing or junction presentation family, and because it is itself the lockable-container capability, it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
 - those housings should be presented as ordinary openable service panels on the parent item, reached through normal `open` / `close` subtargets rather than bespoke verbs
 - ordinary `look` output for signal-driven items should emphasize physical state and serviceability; live control-signal and binding diagnostics should be presented by `electrical` inspection instead
+- player-facing automation and programming diagnostics should prefer parent item keywords and `item@component` notation where needed, rather than exposing raw component ids
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

@@ -136,7 +136,7 @@ For telecommunications content, also validate:
 - whether keypad-driven targets receive `TelephoneDigitsReceived` with the expected source item and digit string
 
 For the current signal-automation slice, also validate:
-- whether source and sink bindings resolve to the intended local sibling component ids and endpoint keys on the same item
+- whether source and sink bindings resolve to the intended local sibling components and endpoint keys on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
 - whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration and only while powered
@@ -148,7 +148,7 @@ For the current signal-automation slice, also validate:
 - whether `electronicdoor` responds to threshold and invert settings and reaches the commanded open or closed state once any lock conditions permit it
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
-- whether the live `electrical` and `programming` verbs target the intended component ids shown in their inspection output
+- whether the live `electrical` and `programming` verbs target the intended parent items and components through normal keyword targeting, without relying on raw component ids
 - whether service access is correctly blocked by a closed `AutomationHousing` item around a mount bay or cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
 - whether abject failure on electrical work produces the intended shock echo and electrical damage
@@ -248,13 +248,13 @@ For the current microcontroller workflow, a practical end-to-end pass is:
 8. Confirm the sink reacts through the authored sibling source component prototype or through the microcontroller output as authored.
 
 For the live player workflow on an already loaded composed item, a practical end-to-end pass is:
-1. Use `electrical <item>` to inspect local signal sources and configurable sinks and note the live component ids.
+1. Use `electrical <item>` to inspect local signal sources and configurable sinks and note the parent item / component names you intend to target.
 2. If the item is an automation host, use `electrical install <host> <module> [<bay>]` to install a loose microcontroller or other compatible module item into a named bay.
 3. If there is an `AutomationHousing`, confirm it must be open before install, remove, programming, or rewiring is allowed, and confirm access can be reached through normal `open` / `close` subtargets such as `open north panel`.
 4. Use `programming <item>` or `programming <host@module>` to inspect the live microcontroller list, compile state, and current input bindings.
 5. Use `programming <item> logic <component>` or `programming <item> logic <component> <text>` to replace controller logic on the live item.
 6. Use `programming <item> input add <component> <variable> <source> [<endpoint>]` and `programming <item> input remove <component> <variable>` to manage live input bindings.
-7. Use `electrical <item> bind <component> <source> [<endpoint>]`, `clear`, `threshold`, and `mode` to reconfigure live sinks.
+7. Use `electrical <item> bind <component> <source> [<endpoint>]`, `clear`, `threshold`, and `mode` to reconfigure live sinks, targeting sources by their parent item keywords unless an explicit `item@component` form is needed.
 8. Use `electrical route <cable> <source> <exit> [<housing>]` to route a signal cable one room hop away and optionally place its destination end inside an adjacent `AutomationHousing` item.
 9. Use `electrical unroute <cable>` and `electrical remove <host> <bay>` to undo the physical setup.
 10. Confirm those actions run as staged delayed work rather than instantaneous mutation.
@@ -281,7 +281,7 @@ For the standalone player-owned computer-program workflow in the current phase, 
 - a microcontroller refuses submission: its inline logic probably does not compile in the `ComputerFunction` context or one of its input names is invalid
 - a sink never responds: the authored sibling source component prototype probably does not match any source component instance on the same item, or the expected local endpoint is not present
 - `electrical` or `programming` starts but immediately aborts: the configured tool tag or trait static setting is probably missing or resolves to a non-existent content record
-- a live reconfiguration appears to complete but nothing changes: the targeted component may not implement the runtime-configurable interface, or the wrong live component id may have been selected
+- a live reconfiguration appears to complete but nothing changes: the targeted component may not implement the runtime-configurable interface, or the wrong nearby item / component may have been selected
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

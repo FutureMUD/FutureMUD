@@ -42,7 +42,8 @@ You can use the following syntax:
 	#3electrical <item> threshold <component> <value>#0 - changes the component's activation threshold
 	#3electrical <item> mode <component> above|below#0 - changes whether the sink activates above or below the threshold
 
-Component and source identifiers can be either the live component #6id#0 shown in the inspection output, the component name, or #6item@component#0 when needed.
+Component and source identifiers use the parent item's normal keywords, or #6item@component#0 when you need to name a specific component on a specific item.
+Duplicate nearby items can be disambiguated with the normal numeric item targeting syntax, e.g. #62.sensor#0.
 Routed cables are one-room segments. Longer runs are built by chaining another cable in the next room.";
 
 	private const string ProgrammingHelpText = @"The #3programming#0 command is used to inspect and work with computer functions, computer programs, and installed microcontrollers.
@@ -2287,7 +2288,9 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 	private static ISignalSourceComponent? ResolveNearbySignalSource(ICharacter actor, IGameItem anchorItem, string identifier,
 		string componentTypeDescription)
 	{
-		return ResolveComponentFromItems<ISignalSourceComponent>(actor, EnumerateNearbySignalItems(actor, anchorItem), identifier,
+		return ResolveComponentFromItems<ISignalSourceComponent>(actor,
+			EnumerateNearbySignalItems(actor, ResolveSignalSearchAnchorItem(anchorItem)),
+			identifier,
 			componentTypeDescription);
 	}
 
@@ -2314,7 +2317,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			var split = identifier.Split('@', 2, StringSplitOptions.RemoveEmptyEntries);
 			if (split.Length == 2)
 			{
-				var itemMatch = ResolveItemReference(candidateItems, split[0]);
+				var itemMatch = ResolveItemReference(actor, candidateItems, split[0]);
 				if (itemMatch is not null)
 				{
 					var directMatch = TryResolveComponentOnItem<TComponent>(itemMatch, split[1]);
@@ -2323,7 +2326,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 						return directMatch;
 					}
 
-					var attachedMatch = ResolveItemReference(itemMatch.AttachedAndConnectedItems.Distinct(), split[1]);
+					var attachedMatch = ResolveItemReference(actor, itemMatch.AttachedAndConnectedItems.Distinct(), split[1]);
 					if (attachedMatch is not null)
 					{
 						var attachedComponents = attachedMatch.Components.OfType<TComponent>().ToList();
@@ -2333,6 +2336,16 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 						}
 					}
 				}
+			}
+		}
+
+		var itemMatchByKeyword = ResolveItemReference(actor, candidateItems, identifier);
+		if (itemMatchByKeyword is not null)
+		{
+			var itemComponents = itemMatchByKeyword.Components.OfType<TComponent>().ToList();
+			if (itemComponents.Count == 1)
+			{
+				return itemComponents[0];
 			}
 		}
 
@@ -2359,16 +2372,6 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		if (prefixMatches.Count == 1)
 		{
 			return prefixMatches[0];
-		}
-
-		var itemMatchByName = ResolveItemReference(candidateItems, identifier);
-		if (itemMatchByName is not null)
-		{
-			var itemComponents = itemMatchByName.Components.OfType<TComponent>().ToList();
-			if (itemComponents.Count == 1)
-			{
-				return itemComponents[0];
-			}
 		}
 
 		actor.Send(
@@ -2570,6 +2573,13 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			.Distinct();
 	}
 
+	private static IGameItem ResolveSignalSearchAnchorItem(IGameItem item)
+	{
+		return item.GetItemType<IAutomationMountable>() is IAutomationMountable { MountHost: not null } mountable
+			? mountable.MountHost.Parent
+			: item;
+	}
+
 	private static IEnumerable<IGameItem> EnumerateAccessibleAutomationHousingContents(ICharacter actor,
 		IEnumerable<IGameItem> items)
 	{
@@ -2582,9 +2592,15 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 					: []);
 	}
 
-	private static IGameItem? ResolveItemReference(IEnumerable<IGameItem> items, string identifier)
+	private static IGameItem? ResolveItemReference(ICharacter actor, IEnumerable<IGameItem> items, string identifier)
 	{
 		var candidateItems = items.Distinct().ToList();
+		var directTarget = actor.TargetItem(identifier);
+		if (directTarget is not null && candidateItems.Any(x => ReferenceEquals(x, directTarget)))
+		{
+			return directTarget;
+		}
+
 		if (long.TryParse(identifier, out var itemId))
 		{
 			var idMatch = candidateItems.FirstOrDefault(x => x.Id == itemId);
@@ -2594,18 +2610,8 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			}
 		}
 
-		var exactMatches = candidateItems
-			.Where(x => x.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
-			.ToList();
-		if (exactMatches.Count == 1)
-		{
-			return exactMatches[0];
-		}
-
-		var prefixMatches = candidateItems
-			.Where(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
-			.ToList();
-		return prefixMatches.Count == 1 ? prefixMatches[0] : null;
+		return candidateItems.GetFromItemListByKeyword(identifier, actor) ??
+		       candidateItems.GetFromItemListByKeywordIncludingNames(identifier, actor);
 	}
 
 	private static string DescribeAvailableElectricalTargets(ICharacter actor, IGameItem item)
@@ -2901,7 +2907,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 	private static string DescribeComponent(ICharacter actor, IGameItemComponent component)
 	{
-		return $"[{component.Id.ToString("N0", actor)}] {component.Parent.HowSeen(actor, true)}@{component.Name}";
+		return $"{component.Parent.HowSeen(actor, true)}@{component.Name}";
 	}
 
 	private static double ToolQualityBonus(IGameItem tool)

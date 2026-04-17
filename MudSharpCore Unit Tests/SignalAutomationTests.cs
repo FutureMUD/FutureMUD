@@ -716,6 +716,54 @@ return @togglevalue");
 		Assert.IsFalse(description.Contains("current control signal", StringComparison.InvariantCulture));
 	}
 
+	[TestMethod]
+	public void ElectronicsModule_ResolveNearbySignalSource_UsesMountedHostLocationAndPlayerItemKeywords()
+	{
+		var gameworld = CreateGameworld();
+		var cell = CreateCell(907L);
+		var hostItem = CreateBasicItem(gameworld.Object, 9070L, "Electronic Door", cell.Object);
+		var moduleItem = CreateBasicItem(gameworld.Object, 9071L, "Airlock Controller Module");
+		var sourceItem = CreateBasicItem(gameworld.Object, 9072L, "Outside Motion Sensor", cell.Object);
+		var source = CreateSignalSourceMock(9073L, "Door Outside Motion Sensor", parent: sourceItem.Object,
+			componentId: 9074L);
+		var host = new Mock<IAutomationMountHost>();
+		var mountable = new Mock<IAutomationMountable>();
+		var actor = new Mock<ICharacter>();
+
+		host.SetupGet(x => x.Parent).Returns(hostItem.Object);
+		mountable.SetupGet(x => x.MountHost).Returns(host.Object);
+		moduleItem.Setup(x => x.GetItemType<IAutomationMountable>()).Returns(mountable.Object);
+		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
+		actor.Setup(x => x.TargetItem("outside")).Returns(sourceItem.Object);
+		cell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([hostItem.Object, sourceItem.Object]);
+
+		var method = typeof(ElectronicDoorGameItemComponent).Assembly
+			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!
+			.GetMethod("ResolveNearbySignalSource", BindingFlags.Static | BindingFlags.NonPublic);
+
+		var resolved = method!.Invoke(null, [actor.Object, moduleItem.Object, "outside", "signal source component"]);
+
+		Assert.AreSame(source.Object, resolved);
+	}
+
+	[TestMethod]
+	public void ElectronicsModule_DescribeComponent_DoesNotIncludeRawIds()
+	{
+		var gameworld = CreateGameworld();
+		var actor = new Mock<ICharacter>();
+		var item = CreateBasicItem(gameworld.Object, 9080L, "Outside Motion Sensor");
+		var source = CreateSignalSourceMock(9081L, "Door Outside Motion Sensor", parent: item.Object, componentId: 9082L);
+		var method = typeof(ElectronicDoorGameItemComponent).Assembly
+			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!
+			.GetMethod("DescribeComponent", BindingFlags.Static | BindingFlags.NonPublic);
+
+		var description = (string)method!.Invoke(null, [actor.Object, source.Object])!;
+
+		Assert.AreEqual("Outside Motion Sensor@Door Outside Motion Sensor", description);
+		Assert.IsFalse(description.Contains("[", StringComparison.InvariantCulture));
+		Assert.IsFalse(description.Contains("9082", StringComparison.InvariantCulture));
+	}
+
 	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name,
 		string endpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey, long? componentId = null,
 		IGameItem? parent = null, ComputerSignal? signal = null)

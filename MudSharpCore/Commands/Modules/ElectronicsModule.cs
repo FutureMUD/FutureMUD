@@ -2150,6 +2150,13 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 	private static void ShowElectricalStatus(ICharacter actor, IGameItem item)
 	{
 		var statusItems = EnumerateElectricalStatusItems(actor, item).ToList();
+		var anchorItem = ResolveSignalSearchAnchorItem(item);
+		var nearbyCables = EnumerateNearbySignalItems(actor, anchorItem)
+			.SelectMany(x => x.Components.OfType<SignalCableSegmentGameItemComponent>())
+			.Distinct()
+			.OrderBy(x => x.Parent.Id)
+			.ThenBy(x => x.Id)
+			.ToList();
 		var sources = statusItems.SelectMany(x => x.Components.OfType<ISignalSourceComponent>()).ToList();
 		var sinks = statusItems.SelectMany(x => x.Components.OfType<IRuntimeConfigurableSignalSinkComponent>()).ToList();
 		var controllers = statusItems.SelectMany(x => x.Components.OfType<IRuntimeProgrammableMicrocontroller>()).ToList();
@@ -2236,6 +2243,16 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			}
 		}
 
+		if (nearbyCables.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Nearby Cable Routes:");
+			foreach (var cable in nearbyCables)
+			{
+				sb.AppendLine($"\t{DescribeCableRoute(actor, cable)}");
+			}
+		}
+
 		if (controllers.Any())
 		{
 			sb.AppendLine();
@@ -2276,6 +2293,18 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static string DescribeCableRoute(ICharacter actor, SignalCableSegmentGameItemComponent cable)
+	{
+		if (!cable.IsRouted)
+		{
+			return $"{DescribeComponent(actor, cable).ColourName()} - {"not currently routed".ColourError()}";
+		}
+
+		var upstreamSource = SignalComponentUtilities.FindSignalSource(cable.Parent, cable.CurrentBinding, cable);
+		return
+			$"{DescribeComponent(actor, cable).ColourName()} - mirroring {DescribeSignalBinding(actor, cable.CurrentBinding).ColourCommand()} across {cable.RouteDescription.ColourCommand()} ({(upstreamSource is null ? "route broken".ColourError() : "route live".ColourValue())}), current {cable.CurrentValue.ToString("N2", actor).ColourValue()} on {cable.EndpointKey.ColourCommand()}";
 	}
 
 	private static void ShowProgrammingStatus(ICharacter actor, IGameItem item)

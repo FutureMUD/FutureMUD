@@ -792,6 +792,11 @@ public partial class Cell : Location, IDisposable, ICell
         {
             foreach (ICharacter member in move.CharacterMovers)
             {
+				if (MovementEventUtilities.ShouldSuppressMovementEvents(member))
+				{
+					continue;
+				}
+
                 member.HandleEvent(EventType.CharacterEnterCell, member, this, move.Exit);
                 foreach (IHandleEvents witness in EventHandlers.Except(member))
                 {
@@ -808,6 +813,11 @@ public partial class Cell : Location, IDisposable, ICell
         {
             foreach (ICharacter member in move.CharacterMovers)
             {
+				if (MovementEventUtilities.ShouldSuppressMovementEvents(member))
+				{
+					continue;
+				}
+
                 member.HandleEvent(EventType.CharacterBeginMovement, member, this, move.Exit);
                 foreach (IHandleEvents witness in EventHandlers.Except(member))
                 {
@@ -832,6 +842,11 @@ public partial class Cell : Location, IDisposable, ICell
             {
                 foreach (ICharacter member in move.CharacterMovers)
                 {
+					if (MovementEventUtilities.ShouldSuppressMovementEvents(member))
+					{
+						continue;
+					}
+
                     member.HandleEvent(EventType.CharacterEnterCellFinish, member, this, move.Exit);
                     foreach (IHandleEvents witness in EventHandlers.Except(member))
                     {
@@ -850,6 +865,11 @@ public partial class Cell : Location, IDisposable, ICell
             {
                 foreach (ICharacter member in move.CharacterMovers)
                 {
+					if (MovementEventUtilities.ShouldSuppressMovementEvents(member))
+					{
+						continue;
+					}
+
                     member.HandleEvent(EventType.CharacterEnterCell, member, this, move.Exit);
                     foreach (IHandleEvents witness in EventHandlers.Except(member))
                     {

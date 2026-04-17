@@ -43,7 +43,7 @@ The first player-facing command surface for this slice has also now landed:
 - both verbs currently operate through multistage delayed actions rather than instant changes
 - those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
 - administrator characters bypass the tool, skill-check, and delayed-action requirements for live `electrical` and item-targeted `programming` work; those actions resolve immediately for them
-- `electrical` inspection now surfaces the live automation chain rather than just authored bindings, including mounted-controller input mappings, cable mirror routes, current values, switch and power state where relevant, and resolved versus broken links
+- `electrical` inspection now surfaces the live automation chain rather than just authored bindings, including mounted-controller input mappings, cable mirror routes, nearby routed cable segments where relevant, current values, switch and power state where relevant, and resolved versus broken links
 - `programming` uses `ProgrammingComponentCheck`
 - `electrical` uses `InstallElectricalComponentCheck` for install/remove/routing work and `ConfigureElectricalComponentCheck` for rebinding and threshold/mode work
 - failed checks still cost time because the delayed action runs to completion before the check resolves
@@ -51,8 +51,9 @@ The first player-facing command surface for this slice has also now landed:
 - dedicated `AutomationHousing` components now gate concealed automation modules and cable ends by being the actual lockable-container capability on the item, integrating directly with the normal container/openable/lockable and legal/crime handling path rather than relying on arbitrary generic container items
 - mounted microcontrollers now restore their mount-host relationship lazily from saved host identity during load and login, so host-derived power and local signal access survive reboot/load ordering
 - mounted microcontrollers also refresh their live input-source subscriptions during login and power cut-in, so late-resolved nearby sensors and cable sources seed current values correctly after reboot/load ordering
-- mounted powered automation modules now perform a short post-login retry pass for host-derived power resolution when they are switched on but their host's usable power source was not yet discoverable on the first login tick
+- mounted powered automation modules and other powered-machine-based automation components now treat power discovery as an ongoing topology-aware process: they retry for a longer post-login window when switched on but initially unpowered, and they also refresh power resolution when relevant parent or host connectivity changes reveal usable power later in the boot sequence
 - `ElectronicDoor` likewise retries late signal-source reconnection after load/login so a controller that becomes spatially or structurally discoverable later in the reboot sequence can still drive the door without manual intervention
+- witnessed-movement automation ignores movers with `IImmwalkEffect`, so administrator immwalk traversal does not trip motion sensors or movement-driven door logic during testing or live operations
 
 The remaining work is still substantial. In particular, computer file systems, real computer host and terminal items, waits beyond `sleep`, richer multi-port inter-item signal graphs, remote execution, and data networking are still future phases.
 

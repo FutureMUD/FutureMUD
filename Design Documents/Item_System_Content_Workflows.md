@@ -150,9 +150,12 @@ For the current signal-automation slice, also validate:
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 - whether the live `electrical` and `programming` verbs target the intended parent items and components through normal keyword targeting, without relying on raw component ids
 - whether live `electrical` inspection clearly shows controller input bindings, cable mirror routes, current values, and resolved versus broken signal links so end-to-end debugging is practical in game
+- whether live `electrical` inspection also surfaces nearby routed cable segments clearly enough that builders can see which cable mirrors which source and through which exit hop
 - whether service access is correctly blocked by a closed `AutomationHousing` item around a mount bay or cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
 - whether abject failure on electrical work produces the intended shock echo and electrical damage
+- whether switched-on mounted powered machines recover host-derived power after reboot or late topology initialisation without requiring a manual off/on cycle
+- whether motion sensors ignore administrator movement when the mover is using `IImmwalkEffect`
 
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.
@@ -258,12 +261,13 @@ For the live player workflow on an already loaded composed item, a practical end
 7. Use `electrical <item> bind <component> <source> [<endpoint>]`, `clear`, `threshold`, and `mode` to reconfigure live sinks, targeting sources by their parent item keywords unless an explicit `item@component` form is needed.
 8. Use `electrical route <cable> <source> <exit> [<housing>]` to route a signal cable one room hop away and optionally place its destination end inside an adjacent `AutomationHousing` item.
 9. Use `electrical unroute <cable>` and `electrical remove <host> <bay>` to undo the physical setup.
-10. Use `electrical <item>` during debugging to confirm not just the authored bindings but also the live resolved chain, including controller inputs, cable mirror sources, current signal values, and whether each link is presently resolved or broken.
+10. Use `electrical <item>` during debugging to confirm not just the authored bindings but also the live resolved chain, including controller inputs, cable mirror sources, nearby routed cable segments, current signal values, and whether each link is presently resolved or broken.
 11. Confirm those actions run as staged delayed work rather than instantaneous mutation.
 12. Confirm the required tool tag is available, the actor holds or readies the needed tool through the inventory plan, and the tool is restored after completion or cancellation.
 13. Confirm ordinary failures cost the action time but do not consume materials.
 14. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
 15. Confirm administrator characters bypass the tool, check, and delay layer for those live item actions while still respecting visibility and service-access gating.
+16. When testing movement-driven automation, use an ordinary mover rather than an administrator with `IImmwalkEffect`, because immwalk movement no longer emits the witnessed movement events that motion sensors consume.
 
 For broader manual regression coverage of the current shipped automation slice, use the dedicated [Automation End-To-End Test Scenarios](./Automation_End_To_End_Test_Scenarios.md) document.
 

@@ -137,7 +137,8 @@ public class MotionSensorGameItemComponent : PoweredMachineBaseGameItemComponent
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		if (!SwitchedOn || !_onAndPowered || !_prototype.DetectionMode.MatchesEventType(type) || arguments.Length == 0 ||
-		    arguments[0] is not ICharacter mover || mover.Size < _prototype.MinimumSize)
+		    arguments[0] is not ICharacter mover || mover.Size < _prototype.MinimumSize ||
+		    MovementEventUtilities.ShouldSuppressMovementEvents(mover))
 		{
 			return false;
 		}

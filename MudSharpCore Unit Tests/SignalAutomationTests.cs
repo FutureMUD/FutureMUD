@@ -9,6 +9,7 @@ using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -527,6 +528,7 @@ return @togglevalue");
 		attachedHostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
 		attachedHostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
 		attachedHostPower.SetupGet(x => x.ProducingPower).Returns(true);
+		attachedHostPower.Setup(x => x.CanBeginDrawDown(It.IsAny<double>())).Returns(true);
 		attachedGeneratorItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([attachedHostPower.Object]);
 		attachedGeneratorItem.Setup(x => x.GetItemType<IProducePower>()).Returns(attachedHostPower.Object);
 		hostItem.Setup(x => x.AttachedAndConnectedItems).Returns([attachedGeneratorItem.Object]);
@@ -690,6 +692,7 @@ return @togglevalue");
 		hostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
 		hostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
 		hostPower.SetupGet(x => x.ProducingPower).Returns(true);
+		hostPower.Setup(x => x.CanBeginDrawDown(It.IsAny<double>())).Returns(true);
 		hostPower.Setup(x => x.BeginDrawdown(It.IsAny<IConsumePower>()))
 			.Callback<IConsumePower>(x => x.OnPowerCutIn());
 		generatorItem.Setup(x => x.GetItemType<IProducePower>()).Returns(hostPower.Object);
@@ -702,6 +705,48 @@ return @togglevalue");
 
 		Assert.IsTrue(controller.IsPowered);
 		hostPower.Verify(x => x.BeginDrawdown(controller), Times.Once);
+	}
+
+	[TestMethod]
+	public void PoweredMachineBase_RetriesSameProducerWhenPowerBecomesAvailableLater()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 415L, "Mounted Controller");
+		var canBeginDraw = false;
+		var producer = new Mock<IProducePower>();
+		producer.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		producer.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		producer.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		producer.SetupGet(x => x.ProducingPower).Returns(() => canBeginDraw);
+		producer.Setup(x => x.CanBeginDrawDown(It.IsAny<double>())).Returns(() => canBeginDraw);
+		producer.Setup(x => x.BeginDrawdown(It.IsAny<IConsumePower>()))
+			.Callback<IConsumePower>(x =>
+			{
+				if (canBeginDraw)
+				{
+					x.OnPowerCutIn();
+				}
+			});
+		item.Setup(x => x.GetItemType<IProducePower>()).Returns(producer.Object);
+		item.Setup(x => x.GetItemTypes<IProducePower>()).Returns([producer.Object]);
+
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			item.Object,
+			true)
+		{
+			SwitchedOn = true
+		};
+
+		controller.Login();
+		Assert.IsFalse(controller.IsPowered);
+
+		canBeginDraw = true;
+		typeof(PoweredMachineBaseGameItemComponent)
+			.GetMethod("RetryPowerConnectionHeartbeat", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(controller, []);
+
+		Assert.IsTrue(controller.IsPowered);
+		producer.Verify(x => x.BeginDrawdown(controller), Times.AtLeastOnce);
 	}
 
 	[TestMethod]
@@ -726,6 +771,25 @@ return @togglevalue");
 		sensor.OnPowerCutIn();
 		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
 		Assert.AreEqual(1.0, sensor.CurrentValue, 0.0001);
+	}
+
+	[TestMethod]
+	public void MotionSensor_IgnoresImmwalkMovers()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 501L, "Motion Sensor");
+		var sensor = new MotionSensorGameItemComponent(CreateMotionSensorProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+		var mover = new Mock<ICharacter>();
+		mover.SetupGet(x => x.Size).Returns(SizeCategory.Normal);
+		mover.Setup(x => x.CombinedEffectsOfType<IImmwalkEffect>()).Returns([Mock.Of<IImmwalkEffect>()]);
+
+		sensor.OnPowerCutIn();
+		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
+
+		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
 	}
 
 	[TestMethod]
@@ -1136,6 +1200,58 @@ return @togglevalue");
 		StringAssert.Contains(stripped, "Programmable Controllers:");
 		StringAssert.Contains(stripped, "outside <- Outside Motion Sensor@Door Outside Motion Sensor:signal = 1.00");
 		StringAssert.Contains(stripped, "resolved to Outside Motion Sensor@Door Outside Motion Sensor");
+	}
+
+	[TestMethod]
+	public void ElectronicsModule_ShowElectricalStatus_DisplaysNearbyCableRoutesForInspectedSensor()
+	{
+		var gameworld = CreateGameworld();
+		var sharedCell = CreateCell(9090L);
+		var outputHandler = new Mock<IOutputHandler>();
+		var actor = new Mock<ICharacter>();
+		string? statusText = null;
+		actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<string, bool, bool>((text, _, _) => statusText = text);
+
+		var sensorItem = CreateBasicItem(gameworld.Object, 9091L, "Outside Motion Sensor", sharedCell.Object);
+		var sensor = CreateSignalSourceMock(9092L, "Door Outside Motion Sensor", parent: sensorItem.Object,
+			componentId: 9093L,
+			signal: new ComputerSignal(1.0, TimeSpan.FromSeconds(10), null));
+		sensorItem.SetupGet(x => x.Components).Returns([sensor.Object]);
+		sensorItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([sensor.Object]);
+
+		var cableItem = CreateBasicItem(gameworld.Object, 9094L, "Signal Cable", sharedCell.Object);
+		var cable = new SignalCableSegmentGameItemComponent(CreateSignalCableProto(gameworld.Object), cableItem.Object,
+			true);
+		cableItem.SetupGet(x => x.Components).Returns([cable]);
+		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sensorItem.Object, cableItem.Object]);
+		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
+			.Returns((long id, bool _) => id == sensorItem.Object.Id ? sensorItem.Object : null);
+
+		var exit = new Mock<IExit>();
+		exit.SetupGet(x => x.Id).Returns(9095L);
+		var route = new Mock<ICellExit>();
+		route.SetupGet(x => x.Exit).Returns(exit.Object);
+		route.SetupGet(x => x.Destination).Returns(sharedCell.Object);
+		route.SetupGet(x => x.OutboundDirectionDescription).Returns("south");
+		sharedCell.Setup(x => x.ExitsFor(sensorItem.Object)).Returns([route.Object]);
+
+		Assert.IsTrue(cable.ConfigureRoute(sensor.Object, exit.Object.Id, out var error), error);
+
+		var method = typeof(ElectronicDoorGameItemComponent).Assembly
+			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!
+			.GetMethod("ShowElectricalStatus", BindingFlags.Static | BindingFlags.NonPublic);
+
+		method!.Invoke(null, [actor.Object, sensorItem.Object]);
+
+		Assert.IsNotNull(statusText);
+		var stripped = statusText!.StripANSIColour();
+		StringAssert.Contains(stripped, "Nearby Cable Routes:");
+		StringAssert.Contains(stripped, "Signal Cable");
+		StringAssert.Contains(stripped, "route live");
+		StringAssert.Contains(stripped, "south");
 	}
 
 	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name,

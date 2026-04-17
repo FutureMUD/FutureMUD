@@ -16,55 +16,65 @@ namespace MudSharp.GameItems.Components;
 
 public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, IConsumePower, ISwitchable, IOnOff
 {
-    private PoweredMachineBaseGameItemComponentProto _prototype;
+	private const int PowerRetryAttemptsAfterLogin = 60;
+	private PoweredMachineBaseGameItemComponentProto _prototype;
 	private IProducePower? _powerSource;
 	private bool _drawingPower;
 	private bool _powerRetrySubscribed;
 	private int _powerRetryAttemptsRemaining;
-    public override IGameItemComponentProto Prototype => _prototype;
+	private IGameItem? _subscribedHostPowerItem;
+	public override IGameItemComponentProto Prototype => _prototype;
 
-    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-    {
-        _prototype = (PoweredMachineBaseGameItemComponentProto)newProto;
+	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+	{
+		_prototype = (PoweredMachineBaseGameItemComponentProto)newProto;
+		RefreshPowerTopologySubscriptions();
 		RefreshPowerSourceConnection();
-    }
+	}
 
     #region Constructors
 
-    protected PoweredMachineBaseGameItemComponent(PoweredMachineBaseGameItemComponentProto proto, IGameItem parent,
-        bool temporary = false) : base(parent, proto, temporary)
-    {
-        _prototype = proto;
-        if (!_prototype.Switchable)
-        {
-            _switchedOn = true;
-        }
-    }
+	protected PoweredMachineBaseGameItemComponent(PoweredMachineBaseGameItemComponentProto proto, IGameItem parent,
+		bool temporary = false) : base(parent, proto, temporary)
+	{
+		_prototype = proto;
+		Parent.OnConnected += Parent_OnConnected;
+		Parent.OnDisconnected += Parent_OnDisconnected;
+		if (!_prototype.Switchable)
+		{
+			_switchedOn = true;
+		}
+	}
 
-    protected PoweredMachineBaseGameItemComponent(MudSharp.Models.GameItemComponent component,
-        PoweredMachineBaseGameItemComponentProto proto, IGameItem parent) : base(component, parent)
-    {
-        _prototype = proto;
-        _noSave = true;
-        LoadFromXml(XElement.Parse(component.Definition));
-        _noSave = false;
-    }
+	protected PoweredMachineBaseGameItemComponent(MudSharp.Models.GameItemComponent component,
+		PoweredMachineBaseGameItemComponentProto proto, IGameItem parent) : base(component, parent)
+	{
+		_prototype = proto;
+		Parent.OnConnected += Parent_OnConnected;
+		Parent.OnDisconnected += Parent_OnDisconnected;
+		_noSave = true;
+		LoadFromXml(XElement.Parse(component.Definition));
+		_noSave = false;
+	}
 
-    protected PoweredMachineBaseGameItemComponent(PoweredMachineBaseGameItemComponent rhs, IGameItem newParent,
-        bool temporary = false) : base(rhs, newParent, temporary)
-    {
-        _prototype = rhs._prototype;
-        _switchedOn = rhs._switchedOn;
-    }
+	protected PoweredMachineBaseGameItemComponent(PoweredMachineBaseGameItemComponent rhs, IGameItem newParent,
+		bool temporary = false) : base(rhs, newParent, temporary)
+	{
+		_prototype = rhs._prototype;
+		_switchedOn = rhs._switchedOn;
+		Parent.OnConnected += Parent_OnConnected;
+		Parent.OnDisconnected += Parent_OnDisconnected;
+	}
 
-    protected virtual void LoadFromXml(XElement root)
-    {
-        _switchedOn = bool.Parse(root.Element("SwitchedOn").Value);
-    }
+	protected virtual void LoadFromXml(XElement root)
+	{
+		_switchedOn = bool.Parse(root.Element("SwitchedOn").Value);
+	}
 
-    public override void FinaliseLoad()
-    {
-    }
+	public override void FinaliseLoad()
+	{
+		RefreshPowerTopologySubscriptions();
+	}
 
     #endregion
 
@@ -81,74 +91,79 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     #endregion
 
-    public override void Delete()
-    {
+	public override void Delete()
+	{
+		ReleasePowerTopologySubscriptions();
 		StopPowerRetry();
 		EndPowerDrawdown();
-        base.Delete();
-    }
+		base.Delete();
+	}
 
-    public override void Quit()
-    {
+	public override void Quit()
+	{
+		ReleasePowerTopologySubscriptions();
 		StopPowerRetry();
 		EndPowerDrawdown();
-        base.Quit();
-    }
+		base.Quit();
+	}
 
-    public override void Login()
-    {
-        if (SwitchedOn)
-        {
+	public override void Login()
+	{
+		RefreshPowerTopologySubscriptions();
+		if (SwitchedOn)
+		{
 			BeginPowerDrawdown();
-        }
+		}
 
-        base.Login();
+		base.Login();
 		BeginPostLoginPowerRetryIfRequired();
-    }
+	}
 
     #region IConsumePower Implementation
 
-    protected bool _onAndPowered;
+	protected bool _onAndPowered;
 	public bool IsPowered => _onAndPowered;
 
-    public void OnPowerCutIn()
-    {
+	public void OnPowerCutIn()
+	{
 		StopPowerRetry();
-        if (SwitchedOn)
-        {
-            Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent),
-                flags: OutputFlags.SuppressObscured), OutputRange.Local);
-            _prototype.OnPoweredProg?.Execute(Parent);
-            _onAndPowered = true;
-            OnPowerCutInAction();
-        }
-    }
+		if (SwitchedOn)
+		{
+			_drawingPower = true;
+			Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent),
+				flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			_prototype.OnPoweredProg?.Execute(Parent);
+			_onAndPowered = true;
+			OnPowerCutInAction();
+		}
+	}
 
     protected abstract void OnPowerCutInAction();
     protected abstract void OnPowerCutOutAction();
 
-    public void OnPowerCutOut()
-    {
-        if (_onAndPowered)
-        {
-            Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOffEmote, Parent, Parent),
-                flags: OutputFlags.SuppressObscured), OutputRange.Local);
-            _prototype.OnUnpoweredProg?.Execute(Parent);
-            OnPowerCutOutAction();
-            _onAndPowered = false;
-        }
+	public void OnPowerCutOut()
+	{
+		_drawingPower = false;
+		if (_onAndPowered)
+		{
+			Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOffEmote, Parent, Parent),
+				flags: OutputFlags.SuppressObscured), OutputRange.Local);
+			_prototype.OnUnpoweredProg?.Execute(Parent);
+			OnPowerCutOutAction();
+			_onAndPowered = false;
+		}
 
 		BeginPostLoginPowerRetryIfRequired();
-    }
+	}
 
-    public double PowerConsumptionInWatts =>
-        SwitchedOn ? _prototype.Wattage - _prototype.WattageDiscountPerQuality * (int)Parent.Quality : 0.0;
+	public double PowerConsumptionInWatts =>
+		SwitchedOn ? _prototype.Wattage - _prototype.WattageDiscountPerQuality * (int)Parent.Quality : 0.0;
 
     #endregion
 
     #region IOnOff Implementation
 
-    private bool _switchedOn;
+	private bool _switchedOn;
 
     public bool SwitchedOn
     {
@@ -282,6 +297,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	protected void RefreshPowerSourceConnection()
 	{
+		RefreshPowerTopologySubscriptions();
 		if (!SwitchedOn)
 		{
 			return;
@@ -302,7 +318,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 			return;
 		}
 
-		_powerRetryAttemptsRemaining = 5;
+		_powerRetryAttemptsRemaining = PowerRetryAttemptsAfterLogin;
 		Gameworld.HeartbeatManager.SecondHeartbeat += RetryPowerConnectionHeartbeat;
 		_powerRetrySubscribed = true;
 	}
@@ -358,12 +374,93 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 			_powerSource = powerSource;
 		}
 
-		if (_powerSource is null || _drawingPower)
+		if (_powerSource is null || _drawingPower || !_powerSource.CanBeginDrawDown(PowerConsumptionInWatts))
 		{
 			return;
 		}
 
 		_powerSource.BeginDrawdown(this);
-		_drawingPower = true;
+		_drawingPower = _onAndPowered;
+	}
+
+	private void Parent_OnConnected(IConnectable other, ConnectorType type)
+	{
+		HandlePowerTopologyChanged();
+	}
+
+	private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
+	{
+		HandlePowerTopologyChanged();
+	}
+
+	private void HostPowerItem_OnConnected(IConnectable other, ConnectorType type)
+	{
+		HandlePowerTopologyChanged();
+	}
+
+	private void HostPowerItem_OnDisconnected(IConnectable other, ConnectorType type)
+	{
+		HandlePowerTopologyChanged();
+	}
+
+	private void HandlePowerTopologyChanged()
+	{
+		RefreshPowerTopologySubscriptions();
+		if (!SwitchedOn)
+		{
+			return;
+		}
+
+		RefreshPowerSourceConnection();
+		BeginPostLoginPowerRetryIfRequired();
+	}
+
+	private void RefreshPowerTopologySubscriptions()
+	{
+		var currentHostPowerItem = ResolveHostPowerItem();
+		if (ReferenceEquals(_subscribedHostPowerItem, currentHostPowerItem))
+		{
+			return;
+		}
+
+		if (_subscribedHostPowerItem is not null)
+		{
+			_subscribedHostPowerItem.OnConnected -= HostPowerItem_OnConnected;
+			_subscribedHostPowerItem.OnDisconnected -= HostPowerItem_OnDisconnected;
+		}
+
+		_subscribedHostPowerItem = currentHostPowerItem;
+		if (_subscribedHostPowerItem is null || ReferenceEquals(_subscribedHostPowerItem, Parent))
+		{
+			return;
+		}
+
+		_subscribedHostPowerItem.OnConnected += HostPowerItem_OnConnected;
+		_subscribedHostPowerItem.OnDisconnected += HostPowerItem_OnDisconnected;
+	}
+
+	private IGameItem? ResolveHostPowerItem()
+	{
+		if (!_prototype.UseMountHostPowerSource ||
+		    this is not IAutomationMountable { IsMounted: true, MountHost: not null } mountable)
+		{
+			return null;
+		}
+
+		return mountable.MountHost.Parent;
+	}
+
+	private void ReleasePowerTopologySubscriptions()
+	{
+		Parent.OnConnected -= Parent_OnConnected;
+		Parent.OnDisconnected -= Parent_OnDisconnected;
+		if (_subscribedHostPowerItem is null)
+		{
+			return;
+		}
+
+		_subscribedHostPowerItem.OnConnected -= HostPowerItem_OnConnected;
+		_subscribedHostPowerItem.OnDisconnected -= HostPowerItem_OnDisconnected;
+		_subscribedHostPowerItem = null;
 	}
 }

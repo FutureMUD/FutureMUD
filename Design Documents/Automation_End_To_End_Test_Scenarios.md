@@ -17,7 +17,8 @@ Current behavioural notes:
 - ordinary `look` output focuses on physical state; live signal diagnostics are expected in `electrical <item>`
 - live source and component targeting should use normal parent-item keywords, with `item@component` only when the component itself must be named explicitly
 - duplicate nearby items should be disambiguated with ordinary numeric item targeting such as `2.sensor`, not raw component ids
-- `electrical <item>` should now be the primary debugging surface for automation chains, showing controller inputs, cable mirror routes, current values, machine state, and whether links are currently resolved or broken
+- `electrical <item>` should now be the primary debugging surface for automation chains, showing controller inputs, cable mirror routes, nearby routed cable segments, current values, machine state, and whether links are currently resolved or broken
+- use an ordinary non-immwalk mover for motion-sensor testing; administrators with `IImmwalkEffect` no longer emit the witnessed movement events that motion sensors consume
 
 ## Assumptions
 - Use the normal `comp edit submit`, review, and approval workflow for components.
@@ -196,6 +197,7 @@ programming item "an electronic security door@an airlock controller module" inpu
 programming item "an electronic security door@an airlock controller module"
 electrical "an electronic security door"
 electrical "an electronic security door@an airlock controller module"
+electrical "an outside motion sensor"
 ```
 17. Close the housing:
 ```text
@@ -210,6 +212,8 @@ or the specific housing-bearing item, depending on your content setup.
 - If the door is locked against opening, it should stay shut rather than bypassing the lock.
 - Reopening access after the blocking condition clears should allow the signal-driven open attempt to succeed.
 - Closed housing access should block install, remove, rewiring, and microcontroller programming.
+- After reboot, a switched-on mounted controller should recover host-derived power without needing a manual off/on cycle.
+- `electrical "an outside motion sensor"` should make the routed outside cable visible enough to confirm what it mirrors and through which exit it is routed.
 
 ## Scenario 2: Multi-Room Automation Housing Chain With Push Button, Light, And Alarm
 

@@ -74,19 +74,49 @@ namespace MudSharp.Framework
             }
         }
 
-        public void Add(BoundRange<T> value)
-        {
-            _ranges.Add(value);
-        }
+		public void Add(BoundRange<T> value)
+		{
+			_ranges.Add(value);
+		}
 
-        public void Sort()
-        {
-            _ranges.Sort((x, y) => x.LowerLimit.CompareTo(y.LowerLimit));
-            Floor = _ranges.Min(x => x.LowerLimit);
-            Ceiling = _ranges.Max(x => x.UpperLimit);
-            Circumference = Ceiling - Floor;
-        }
-    }
+		public bool Remove(BoundRange<T> value)
+		{
+			var result = _ranges.Remove(value);
+			if (result)
+			{
+				ResetBounds();
+			}
+
+			return result;
+		}
+
+		public void RemoveAt(int index)
+		{
+			_ranges.RemoveAt(index);
+			ResetBounds();
+		}
+
+		private void ResetBounds()
+		{
+			if (!_ranges.Any())
+			{
+				Floor = 0.0;
+				Ceiling = 1.0;
+				Circumference = 1.0;
+				return;
+			}
+
+			Floor = _ranges.Min(x => x.LowerLimit);
+			Ceiling = _ranges.Max(x => x.UpperLimit);
+			Circumference = Ceiling - Floor;
+		}
+
+		public void Sort()
+		{
+			_ranges.Sort((x, y) => x.LowerLimit.CompareTo(y.LowerLimit));
+			ResetBounds();
+		}
+	}
 
     public class BoundRange<T>
     {

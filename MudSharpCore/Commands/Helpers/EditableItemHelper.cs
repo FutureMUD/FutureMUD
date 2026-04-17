@@ -2810,9 +2810,62 @@ public partial class EditableItemHelper
             actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = profile });
             actor.OutputHandler.Send($"You create a new {type} hearing profile called {name.ColourValue()}, which you are now editing.");
         },
-        GetListTableHeaderFunc = character => new List<string> { "Id", "Name", "Type" },
+        EditableCloneAction = (actor, input) =>
+        {
+            if (input.IsFinished)
+            {
+                actor.OutputHandler.Send("Which hearing profile do you want to clone?");
+                return;
+            }
+
+            HearingProfile profile = actor.Gameworld.HearingProfiles.GetByIdOrName(input.PopSpeech()) as HearingProfile;
+            if (profile is null)
+            {
+                actor.OutputHandler.Send($"There is no hearing profile identified by the text {input.Last.ColourCommand()}.");
+                return;
+            }
+
+            if (input.IsFinished)
+            {
+                actor.OutputHandler.Send("You must specify a name for your new hearing profile.");
+                return;
+            }
+
+            string name = input.SafeRemainingArgument.TitleCase();
+            if (actor.Gameworld.HearingProfiles.Any(x => x.Name.EqualTo(name)))
+            {
+                actor.OutputHandler.Send($"There is already a hearing profile called {name.ColourName()}.");
+                return;
+            }
+
+            HearingProfile clone = profile.Clone(name);
+            actor.Gameworld.Add(clone);
+            actor.RemoveAllEffects<BuilderEditingEffect<IHearingProfile>>();
+            actor.AddEffect(new BuilderEditingEffect<IHearingProfile>(actor) { EditingItem = clone });
+            actor.OutputHandler.Send(
+                $"You clone a new hearing profile called {clone.Name.ColourName()} from {profile.Name.ColourName()}, which you are now editing.");
+        },
+        GetListTableHeaderFunc = character => new List<string> { "Id", "Name", "Type", "Survey Description" },
         GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IHearingProfile>()
-                                                          select new List<string> { proto.Id.ToString("N0", character), proto.Name, (proto as HearingProfile)?.Type ?? "" },
+                                                          select new List<string>
+                                                          {
+                                                              proto.Id.ToString("N0", character),
+                                                              proto.Name,
+                                                              (proto as HearingProfile)?.Type ?? "",
+                                                              proto.SurveyDescription ?? ""
+                                                          },
+        CustomSearch = (protos, keyword, gameworld) =>
+        {
+            return protos
+                   .OfType<IHearingProfile>()
+                   .Where(x =>
+                       x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+                       ((x as HearingProfile)?.Type.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ??
+                        false) ||
+                       (x.SurveyDescription?.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ?? false))
+                   .Cast<IEditableItem>()
+                   .ToList();
+        },
         DefaultCommandHelp = BuilderModule.HearingProfileHelpText,
         GetEditHeader = item => $"Hearing Profile #{item.Id:N0} ({item.Name})"
     };

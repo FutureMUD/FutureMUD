@@ -3067,7 +3067,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         Dictionary<long, Tuple<HearingProfile, Form.Audio.HearingProfiles.HearingProfile>> stagingtable = new();
         foreach (HearingProfile profile in profiles)
         {
-            Form.Audio.HearingProfiles.HearingProfile newprofile = Form.Audio.HearingProfiles.HearingProfile.LoadProfile(profile);
+            Form.Audio.HearingProfiles.HearingProfile newprofile = Form.Audio.HearingProfiles.HearingProfile.LoadProfile(profile, this);
             stagingtable.Add(profile.Id, Tuple.Create(profile, newprofile));
             _hearingProfiles.Add(newprofile);
         }

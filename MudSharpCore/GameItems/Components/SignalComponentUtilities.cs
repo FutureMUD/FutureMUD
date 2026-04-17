@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Computers;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using System;
@@ -107,14 +108,50 @@ public static class SignalComponentUtilities
 		return $"{componentDescription}:{endpointKey}";
 	}
 
+	public static IGameItem ResolveSignalSearchAnchorItem(IGameItem item)
+	{
+		return item.GetItemType<IAutomationMountable>() is IAutomationMountable { MountHost: not null } mountable
+			? mountable.MountHost.Parent
+			: item;
+	}
+
+	public static IEnumerable<ICell> EnumerateSignalAccessibilityCells(IGameItem item)
+	{
+		var anchorItem = ResolveSignalSearchAnchorItem(item);
+		return anchorItem.TrueLocations
+			.OfType<ICell>()
+			.Concat(item.TrueLocations.OfType<ICell>())
+			.Distinct();
+	}
+
 	public static IEnumerable<IGameItem> EnumerateAccessibleSignalItems(IGameItem parent)
 	{
-		yield return parent;
-
-		foreach (var item in parent.AttachedAndConnectedItems.Distinct())
+		var rootItems = new List<IGameItem> { parent };
+		var anchorItem = ResolveSignalSearchAnchorItem(parent);
+		if (!ReferenceEquals(anchorItem, parent))
 		{
-			yield return item;
+			rootItems.Add(anchorItem);
 		}
+
+		rootItems.AddRange(parent.AttachedAndConnectedItems);
+		if (!ReferenceEquals(anchorItem, parent))
+		{
+			rootItems.AddRange(anchorItem.AttachedAndConnectedItems);
+		}
+
+		var roomLayers = rootItems
+			.Select(x => x.RoomLayer)
+			.Distinct()
+			.ToList();
+		foreach (var cell in EnumerateSignalAccessibilityCells(parent))
+		{
+			foreach (var roomLayer in roomLayers)
+			{
+				rootItems.AddRange(cell.LayerGameItems(roomLayer));
+			}
+		}
+
+		return rootItems.Distinct();
 	}
 
 	public static bool ItemsAreSignalAccessible(IGameItem origin, IGameItem target)
@@ -129,7 +166,9 @@ public static class SignalComponentUtilities
 			return true;
 		}
 
-		return origin.TrueLocations.Intersect(target.TrueLocations).Any();
+		var originCells = EnumerateSignalAccessibilityCells(origin).ToList();
+		var targetCells = EnumerateSignalAccessibilityCells(target).ToList();
+		return originCells.Intersect(targetCells).Any();
 	}
 
 	public static ISignalSourceComponent? FindSignalSource(IGameItem parent, LocalSignalBinding binding,

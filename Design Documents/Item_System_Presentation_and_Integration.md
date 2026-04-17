@@ -178,6 +178,8 @@ The current signal-automation slice has its own presentation and integration rul
 - those housings should be presented as ordinary openable service panels on the parent item, reached through normal `open` / `close` subtargets rather than bespoke verbs
 - ordinary `look` output for signal-driven items should emphasize physical state and serviceability; live control-signal and binding diagnostics should be presented by `electrical` inspection instead
 - player-facing automation and programming diagnostics should prefer parent item keywords and `item@component` notation where needed, rather than exposing raw component ids
+- `electrical` inspection should now explicitly present controller input bindings, cable mirror routes, current signal values, switch and power state where relevant, and whether each upstream dependency is currently resolved or broken
+- mounted modules should resolve and present nearby signal sources through the spatial context of their mount host rather than behaving like disconnected pocket items
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

@@ -701,6 +701,7 @@ public class Movement : IMovement
     /// <inheritdoc />
     public void InitialAction()
     {
+        Exit.Origin.RegisterMovement(this);
         foreach (ICharacter ch in CharacterMovers)
         {
             ch.StartMove(this);

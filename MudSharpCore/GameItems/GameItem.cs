@@ -1499,6 +1499,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             return beltable.ConnectedTo.Parent.TrueLocations;
         }
 
+        IAutomationMountable mountable = GetItemType<IAutomationMountable>();
+        if (mountable?.MountHost != null && !itemsConsidered.Contains(mountable.MountHost.Parent))
+        {
+            itemsConsidered.Add(mountable.MountHost.Parent);
+            List<ICell> location = mountable.MountHost.Parent.TrueLocationsExcept(itemsConsidered).ToList();
+            if (location.Any())
+            {
+                return location;
+            }
+        }
+
         IConnectable connectable = GetItemType<IConnectable>();
         if (connectable?.ConnectedItems.Any() ?? false)
         {
@@ -1546,6 +1557,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             if (beltable?.ConnectedTo != null)
             {
                 return beltable.ConnectedTo.Parent.TrueLocations;
+            }
+
+            IAutomationMountable mountable = GetItemType<IAutomationMountable>();
+            if (mountable?.MountHost != null)
+            {
+                List<ICell> location = mountable.MountHost.Parent.TrueLocationsExcept(new List<IGameItem> { this }).ToList();
+                if (location.Any())
+                {
+                    return location;
+                }
             }
 
             IConnectable connectable = GetItemType<IConnectable>();

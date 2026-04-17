@@ -17,6 +17,7 @@ Current behavioural notes:
 - ordinary `look` output focuses on physical state; live signal diagnostics are expected in `electrical <item>`
 - live source and component targeting should use normal parent-item keywords, with `item@component` only when the component itself must be named explicitly
 - duplicate nearby items should be disambiguated with ordinary numeric item targeting such as `2.sensor`, not raw component ids
+- `electrical <item>` should now be the primary debugging surface for automation chains, showing controller inputs, cable mirror routes, current values, machine state, and whether links are currently resolved or broken
 
 ## Assumptions
 - Use the normal `comp edit submit`, review, and approval workflow for components.
@@ -194,6 +195,7 @@ programming item "an electronic security door@an airlock controller module" inpu
 ```text
 programming item "an electronic security door@an airlock controller module"
 electrical "an electronic security door"
+electrical "an electronic security door@an airlock controller module"
 ```
 17. Close the housing:
 ```text

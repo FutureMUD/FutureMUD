@@ -43,6 +43,7 @@ The first player-facing command surface for this slice has also now landed:
 - both verbs currently operate through multistage delayed actions rather than instant changes
 - those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
 - administrator characters bypass the tool, skill-check, and delayed-action requirements for live `electrical` and item-targeted `programming` work; those actions resolve immediately for them
+- `electrical` inspection now surfaces the live automation chain rather than just authored bindings, including mounted-controller input mappings, cable mirror routes, current values, switch and power state where relevant, and resolved versus broken links
 - `programming` uses `ProgrammingComponentCheck`
 - `electrical` uses `InstallElectricalComponentCheck` for install/remove/routing work and `ConfigureElectricalComponentCheck` for rebinding and threshold/mode work
 - failed checks still cost time because the delayed action runs to completion before the check resolves
@@ -203,6 +204,8 @@ The baseline built-in application list for the computer subsystem is now fixed a
 
 - Signals will likely be initiated by events (player input, movement, recurring timers, and actual Events from the Event System). They will also typically have a fixed duration that they're sent and/or pulsed for. We want to make it so that ideally if nothing changes we don't have to constantly reassess the logic and the signals so there needs to be consideration to that in how things are implemented. The pulsing is mostly to give microcontrollers the opportunity to reassess their logic - if their output stays the same pulse to pulse the signal should be considered continuous.
 - The current first slice now supports sibling-component local wiring, separate mounted modules, dedicated automation housings or junctions, and one-hop adjacent-room cable segments. Future phases still need to decide how richer multi-port authoring, longer persisted signal graphs, and broader builder-facing wiring verbs should persist and present themselves.
+- Mounted automation modules now inherit the host item's spatial context for `TrueLocations`, perception, and local signal targeting while installed in an automation bay.
+- Mounted automation modules also now resolve room-local signal sources for live runtime subscriptions through that host spatial context, so mounted controllers behave like installed hardware rather than isolated loose items.
 - ordinary item descriptions should present the physical state of housings, doors, locks, and bays; live signal/control diagnostics belong to `electrical` inspection rather than ordinary `look`
 
 ## Conceptual Example - Motion Activated Door

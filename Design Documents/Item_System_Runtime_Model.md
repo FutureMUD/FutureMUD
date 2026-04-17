@@ -131,6 +131,7 @@ Current runtime connection rules for that slice are:
 - sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers plus explicit endpoint keys
 - purely local live bindings still resolve on the same parent item
 - mounted modules remain separate `IGameItem` instances connected through `AutomationMountHost` bays and move with the host item
+- mounted modules inherit spatial context through their host item for `TrueLocations`, perception, and local signal discovery even while removed from ordinary room inventory
 - `SignalCableSegment` is the current external wiring layer: one item mirrors one source endpoint across one adjacent-room exit hop, and longer runs require more cable items
 - live player rewiring stores the runtime component id plus endpoint key in `LocalSignalBinding`, while builder-authored prototype defaults still use prototype-oriented identifiers
 - the currently shipped built-in local source families each expose a single default output endpoint key named `signal`

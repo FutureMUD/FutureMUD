@@ -2152,9 +2152,10 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		var statusItems = EnumerateElectricalStatusItems(actor, item).ToList();
 		var sources = statusItems.SelectMany(x => x.Components.OfType<ISignalSourceComponent>()).ToList();
 		var sinks = statusItems.SelectMany(x => x.Components.OfType<IRuntimeConfigurableSignalSinkComponent>()).ToList();
+		var controllers = statusItems.SelectMany(x => x.Components.OfType<IRuntimeProgrammableMicrocontroller>()).ToList();
 		var hosts = statusItems.SelectMany(x => x.Components.OfType<IAutomationMountHost>()).ToList();
 		var housings = statusItems.SelectMany(x => x.Components.OfType<IAutomationHousing>()).Distinct().ToList();
-		if (!sources.Any() && !sinks.Any() && !hosts.Any() && !housings.Any())
+		if (!sources.Any() && !sinks.Any() && !controllers.Any() && !hosts.Any() && !housings.Any())
 		{
 			actor.Send($"{item.HowSeen(actor, true)} has no signal-capable electrical systems.");
 			return;
@@ -2212,8 +2213,52 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			sb.AppendLine("Sources:");
 			foreach (var source in sources.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
 			{
+				var details = new List<string>
+				{
+					$"{source.CurrentValue.ToString("N2", actor).ColourValue()} on {source.EndpointKey.ColourCommand()}"
+				};
+				var machineState = DescribeElectricalMachineState(source);
+				if (!string.IsNullOrWhiteSpace(machineState))
+				{
+					details.Add(machineState);
+				}
+
+				if (source is SignalCableSegmentGameItemComponent cable)
+				{
+					var upstreamSource = SignalComponentUtilities.FindSignalSource(cable.Parent, cable.CurrentBinding, cable);
+					details.Add(
+						cable.IsRouted
+							? $"mirroring {DescribeSignalBinding(actor, cable.CurrentBinding).ColourCommand()} across {cable.RouteDescription.ColourCommand()} ({(upstreamSource is null ? "route broken".ColourError() : "route live".ColourValue())})"
+							: "not currently routed".ColourError());
+				}
+
+				sb.AppendLine($"\t{DescribeComponent(actor, source).ColourName()} -> {string.Join(", ", details)}");
+			}
+		}
+
+		if (controllers.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Programmable Controllers:");
+			foreach (var controller in controllers.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
+			{
+				var controllerComponent = (IGameItemComponent)controller;
+				var controllerSource = (ISignalSourceComponent)controller;
 				sb.AppendLine(
-					$"\t{DescribeComponent(actor, source).ColourName()} -> {source.CurrentValue.ToString("N2", actor).ColourValue()} on {source.EndpointKey.ColourCommand()}");
+					$"\t{DescribeComponent(actor, controllerComponent).ColourName()} - {(controller.LogicCompiles ? "compiled".ColourValue() : controller.CompileError.ColourError())}, output {controllerSource.CurrentValue.ToString("N2", actor).ColourValue()} on {controllerSource.EndpointKey.ColourCommand()}{DescribeElectricalMachineStateSuffix(controllerComponent)}");
+				if (!controller.InputBindings.Any())
+				{
+					sb.AppendLine("\t\tInputs: none");
+					continue;
+				}
+
+				foreach (var binding in controller.InputBindings.OrderBy(x => x.VariableName))
+				{
+					var resolvedSource = SignalComponentUtilities.FindSignalSource(controllerComponent.Parent, binding.Binding,
+						controllerComponent);
+					sb.AppendLine(
+						$"\t\t{binding.VariableName.ColourCommand()} <- {DescribeSignalBinding(actor, binding.Binding).ColourCommand()} = {binding.CurrentValue.ToString("N2", actor).ColourValue()} ({(resolvedSource is null ? "unresolved".ColourError() : $"resolved to {DescribeComponent(actor, resolvedSource).ColourName()}")})");
+				}
 			}
 		}
 
@@ -2223,8 +2268,10 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			sb.AppendLine("Configurable Sinks:");
 			foreach (var sink in sinks.OrderBy(x => x.Parent.Id).ThenBy(x => x.Id))
 			{
+				var resolvedSource = SignalComponentUtilities.FindSignalSource(sink.Parent, sink.CurrentBinding,
+					sink as IGameItemComponent);
 				sb.AppendLine(
-					$"\t{DescribeComponent(actor, sink).ColourName()} <- {SignalComponentUtilities.DescribeSignalComponent(sink.CurrentBinding).ColourCommand()}, threshold {sink.ActivationThreshold.ToString("N2", actor).ColourValue()}, mode {(sink.ActiveWhenAboveThreshold ? "above/equal".ColourValue() : "below".ColourValue())}");
+					$"\t{DescribeComponent(actor, sink).ColourName()} <- {DescribeSignalBinding(actor, sink.CurrentBinding).ColourCommand()}, threshold {sink.ActivationThreshold.ToString("N2", actor).ColourValue()}, mode {(sink.ActiveWhenAboveThreshold ? "above/equal".ColourValue() : "below".ColourValue())} ({(resolvedSource is null ? "unresolved".ColourError() : $"resolved to {DescribeComponent(actor, resolvedSource).ColourName()} at {resolvedSource.CurrentValue.ToString("N2", actor).ColourValue()}")})");
 			}
 		}
 
@@ -2245,8 +2292,9 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		foreach (var controller in controllers.OrderBy(x => ((IGameItemComponent)x).Id))
 		{
 			var component = (IGameItemComponent)controller;
+			var controllerSource = (ISignalSourceComponent)controller;
 			sb.AppendLine(
-				$"\t[{component.Id.ToString("N0", actor)}] {component.Name.ColourName()} - {(controller.LogicCompiles ? "compiled".ColourValue() : controller.CompileError.ColourError())}");
+				$"\t{DescribeComponent(actor, component).ColourName()} - {(controller.LogicCompiles ? "compiled".ColourValue() : controller.CompileError.ColourError())}, output {controllerSource.CurrentValue.ToString("N2", actor).ColourValue()} on {controllerSource.EndpointKey.ColourCommand()}{DescribeElectricalMachineStateSuffix(component)}");
 			if (!controller.InputBindings.Any())
 			{
 				sb.AppendLine("\t\tInputs: none");
@@ -2255,8 +2303,9 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 			foreach (var binding in controller.InputBindings.OrderBy(x => x.VariableName))
 			{
+				var resolvedSource = SignalComponentUtilities.FindSignalSource(component.Parent, binding.Binding, component);
 				sb.AppendLine(
-					$"\t\t{binding.VariableName.ColourCommand()} <- {SignalComponentUtilities.DescribeSignalComponent(binding.Binding).ColourCommand()} ({binding.CurrentValue.ToString("N2", actor).ColourValue()})");
+					$"\t\t{binding.VariableName.ColourCommand()} <- {DescribeSignalBinding(actor, binding.Binding).ColourCommand()} = {binding.CurrentValue.ToString("N2", actor).ColourValue()} ({(resolvedSource is null ? "unresolved".ColourError() : $"resolved to {DescribeComponent(actor, resolvedSource).ColourName()}")})");
 			}
 		}
 
@@ -2543,7 +2592,13 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 	{
 		var items = new List<IGameItem> { anchorItem };
 		items.AddRange(anchorItem.AttachedAndConnectedItems);
-		foreach (var cell in anchorItem.TrueLocations.OfType<ICell>().Distinct())
+		var anchorCells = anchorItem.TrueLocations.OfType<ICell>().Distinct().ToList();
+		if (!anchorCells.Any() && actor.Location is not null)
+		{
+			anchorCells.Add(actor.Location);
+		}
+
+		foreach (var cell in anchorCells)
 		{
 			items.AddRange(cell.LayerGameItems(anchorItem.RoomLayer));
 		}
@@ -2575,9 +2630,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 	private static IGameItem ResolveSignalSearchAnchorItem(IGameItem item)
 	{
-		return item.GetItemType<IAutomationMountable>() is IAutomationMountable { MountHost: not null } mountable
-			? mountable.MountHost.Parent
-			: item;
+		return SignalComponentUtilities.ResolveSignalSearchAnchorItem(item);
 	}
 
 	private static IEnumerable<IGameItem> EnumerateAccessibleAutomationHousingContents(ICharacter actor,
@@ -2908,6 +2961,38 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 	private static string DescribeComponent(ICharacter actor, IGameItemComponent component)
 	{
 		return $"{component.Parent.HowSeen(actor, true)}@{component.Name}";
+	}
+
+	private static string DescribeSignalBinding(ICharacter actor, LocalSignalBinding binding)
+	{
+		var sourceItem = binding.SourceItemId > 0
+			? actor.Gameworld.TryGetItem(binding.SourceItemId, true)
+			: null;
+		var itemDescription = sourceItem?.HowSeen(actor, true) ??
+		                      (!string.IsNullOrWhiteSpace(binding.SourceItemName)
+			                      ? binding.SourceItemName
+			                      : "unknown item");
+		var componentDescription = !string.IsNullOrWhiteSpace(binding.SourceComponentName)
+			? binding.SourceComponentName
+			: "unknown component";
+		return
+			$"{itemDescription}@{componentDescription}:{SignalComponentUtilities.NormaliseSignalEndpointKey(binding.SourceEndpointKey)}";
+	}
+
+	private static string DescribeElectricalMachineState(IGameItemComponent component)
+	{
+		return component switch
+		{
+			PoweredMachineBaseGameItemComponent machine => $"{(machine.SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError())}, {(machine.IsPowered ? "powered".ColourValue() : "not powered".ColourError())}",
+			IOnOff onOff => onOff.SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError(),
+			_ => string.Empty
+		};
+	}
+
+	private static string DescribeElectricalMachineStateSuffix(IGameItemComponent component)
+	{
+		var state = DescribeElectricalMachineState(component);
+		return string.IsNullOrWhiteSpace(state) ? string.Empty : $", {state}";
 	}
 
 	private static double ToolQualityBonus(IGameItem tool)

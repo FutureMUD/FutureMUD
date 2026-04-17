@@ -104,6 +104,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
     #region IConsumePower Implementation
 
     protected bool _onAndPowered;
+	public bool IsPowered => _onAndPowered;
 
     public void OnPowerCutIn()
     {

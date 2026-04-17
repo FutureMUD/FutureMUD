@@ -81,7 +81,13 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public string LogicText => _logicText;
 	public string CompileError => _compileError;
 	public bool LogicCompiles => _compiledLogic is not null && string.IsNullOrEmpty(_compileError);
-	public IReadOnlyCollection<MicrocontrollerRuntimeInputBinding> InputBindings => _inputBindings.AsReadOnly();
+	public IReadOnlyCollection<MicrocontrollerRuntimeInputBinding> InputBindings => _inputBindings
+		.Select(x => x with
+		{
+			CurrentValue = _inputValues.TryGetValue(x.VariableName, out var value) ? value : 0.0
+		})
+		.ToList()
+		.AsReadOnly();
 	public string MountType => "Microcontroller";
 	public bool IsMounted => _mountedHost is not null;
 	public IAutomationMountHost? MountHost =>

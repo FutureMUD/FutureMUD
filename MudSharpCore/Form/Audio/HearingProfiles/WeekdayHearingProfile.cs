@@ -4,6 +4,7 @@ using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -20,8 +21,8 @@ public class WeekdayHearingProfile : HearingProfile
 
     private ICalendar _calendar;
 
-    public WeekdayHearingProfile(MudSharp.Models.HearingProfile profile)
-            : base(profile)
+    public WeekdayHearingProfile(MudSharp.Models.HearingProfile profile, IFuturemud game)
+            : base(profile, game)
     {
     }
 
@@ -30,18 +31,58 @@ public class WeekdayHearingProfile : HearingProfile
     {
     }
 
+    private WeekdayHearingProfile(WeekdayHearingProfile rhs, string name)
+            : base(rhs.Gameworld, name, rhs.Type)
+    {
+        CopyBaseSettingsFrom(rhs);
+        _calendar = rhs._calendar;
+        foreach (BoundRange<IHearingProfile> range in rhs._weekdayRanges.Ranges)
+        {
+            _weekdayRanges.Add(new BoundRange<IHearingProfile>(_weekdayRanges, range.Value, range.LowerLimit,
+                range.UpperLimit));
+        }
+
+        if (_weekdayRanges.Ranges.Any())
+        {
+            _weekdayRanges.Sort();
+        }
+
+        Changed = true;
+    }
+
     public override string FrameworkItemType => "WeekdayHearingProfile";
 
     public override string Type => "Weekday";
 
     public override IHearingProfile CurrentProfile(ILocation location)
     {
-        return _weekdayRanges.Get(location.Date(_calendar).WeekdayIndex);
+        if (_calendar is null || !_weekdayRanges.Ranges.Any())
+        {
+            return this;
+        }
+
+        return _weekdayRanges.Get(location.Date(_calendar)?.WeekdayIndex ?? 0);
     }
 
     public override Difficulty AudioDifficulty(ILocation location, AudioVolume volume, Proximity proximity)
     {
+        if (_calendar is null || !_weekdayRanges.Ranges.Any())
+        {
+            return Difficulty.Automatic;
+        }
+
         return CurrentProfile(location).AudioDifficulty(location, volume, proximity);
+    }
+
+    public override HearingProfile Clone(string name)
+    {
+        return new WeekdayHearingProfile(this, name);
+    }
+
+    public override bool DependsOn(IHearingProfile profile)
+    {
+        return base.DependsOn(profile) ||
+               _weekdayRanges.Ranges.Any(x => x.Value is HearingProfile hearingProfile && hearingProfile.DependsOn(profile));
     }
 
     protected override string SaveDefinition()
@@ -59,9 +100,9 @@ public class WeekdayHearingProfile : HearingProfile
 
     public override string HelpText => base.HelpText + @"
 
-        #3calendar <which>#0 - sets the calendar used
-        #3weekday add <lower> <upper> <profile>#0 - adds a weekday range
-        #3weekday remove <##>#0 - removes a weekday range";
+	#3calendar <which>#0 - sets the calendar used
+	#3weekday add <lower> <upper> <profile>#0 - adds a weekday range using weekday indexes from the selected calendar
+	#3weekday remove <##>#0 - removes a weekday range";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -114,6 +155,12 @@ public class WeekdayHearingProfile : HearingProfile
 
     private bool BuildingCommandWeekdayAdd(ICharacter actor, StringStack command)
     {
+        if (_calendar is null)
+        {
+            actor.OutputHandler.Send("You must set a calendar before you can add weekday ranges.");
+            return false;
+        }
+
         if (command.CountRemainingArguments() < 3)
         {
             actor.OutputHandler.Send("You must specify a lower bound, upper bound and profile.");
@@ -132,10 +179,29 @@ public class WeekdayHearingProfile : HearingProfile
             return false;
         }
 
-        IHearingProfile profile = actor.Gameworld.HearingProfiles.GetByIdOrName(command.SafeRemainingArgument);
+        if (lower < 0.0 || lower > _calendar.Weekdays.Count || upper < 0.0 || upper > _calendar.Weekdays.Count)
+        {
+            actor.OutputHandler.Send(
+                $"Weekday bounds must both be between 0 and {_calendar.Weekdays.Count.ToString("N0", actor)}.");
+            return false;
+        }
+
+        if (Math.Abs(lower - upper) < 0.000001)
+        {
+            actor.OutputHandler.Send("The lower and upper bounds must not be the same.");
+            return false;
+        }
+
+        HearingProfile profile = actor.Gameworld.HearingProfiles.GetByIdOrName(command.SafeRemainingArgument) as HearingProfile;
         if (profile == null)
         {
             actor.OutputHandler.Send("There is no such hearing profile.");
+            return false;
+        }
+
+        if (profile.DependsOn(this))
+        {
+            actor.OutputHandler.Send("You cannot create a cyclical hearing profile reference.");
             return false;
         }
 
@@ -148,20 +214,60 @@ public class WeekdayHearingProfile : HearingProfile
 
     private bool BuildingCommandWeekdayRemove(ICharacter actor, StringStack command)
     {
-        actor.OutputHandler.Send("Removing weekday ranges is not currently supported.");
-        return false;
+        if (command.IsFinished || !int.TryParse(command.PopSpeech(), out int index))
+        {
+            actor.OutputHandler.Send("Which numbered weekday range do you want to remove?");
+            return false;
+        }
+
+        List<BoundRange<IHearingProfile>> ranges = _weekdayRanges.Ranges.ToList();
+        if (index < 1 || index > ranges.Count)
+        {
+            actor.OutputHandler.Send("There is no such numbered weekday range.");
+            return false;
+        }
+
+        BoundRange<IHearingProfile> range = ranges[index - 1];
+        _weekdayRanges.RemoveAt(index - 1);
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"You remove weekday range #{index.ToString("N0", actor)}, from {range.LowerLimit.ToString("N2", actor).ColourValue()} to {range.UpperLimit.ToString("N2", actor).ColourValue()}, which pointed at {range.Value.Name.ColourName()}.");
+        return true;
     }
 
     public override string Show(ICharacter actor)
     {
         StringBuilder sb = new();
         sb.Append(base.Show(actor));
-        sb.AppendLine($"Calendar: {_calendar?.Name ?? "None"}");
-        int i = 1;
-        foreach (BoundRange<IHearingProfile> range in _weekdayRanges.Ranges)
+        sb.AppendLine();
+        sb.AppendLine($"Calendar: {_calendar?.Name.ColourName() ?? "None".ColourError()}");
+        sb.AppendLine();
+        if (_weekdayRanges.Ranges.Any())
         {
-            sb.AppendLine($"{i++,3}. {range.LowerLimit}-{range.UpperLimit} -> {range.Value.Name.ColourValue()}");
+            sb.AppendLine(StringUtilities.GetTextTable(
+                _weekdayRanges.Ranges.Select((range, index) => new List<string>
+                {
+                    (index + 1).ToString("N0", actor),
+                    range.LowerLimit.ToString("N2", actor),
+                    range.UpperLimit.ToString("N2", actor),
+                    range.Value.Name.ColourName()
+                }),
+                new List<string>
+                {
+                    "#",
+                    "Lower",
+                    "Upper",
+                    "Profile"
+                },
+                actor,
+                Telnet.Green
+            ));
         }
+        else
+        {
+            sb.AppendLine("No weekday ranges are configured.");
+        }
+
         return sb.ToString();
     }
 

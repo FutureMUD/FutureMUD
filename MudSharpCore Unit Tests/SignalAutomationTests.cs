@@ -634,15 +634,17 @@ return @togglevalue");
 			componentId: 411L, signal: currentSignal);
 		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
 		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
+		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([hostItem.Object, sourceItem.Object]);
 
 		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
 			moduleItem.Object,
 			true);
+		moduleItem.Setup(x => x.GetItemType<IAutomationMountable>()).Returns(controller);
 
 		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
-		Assert.IsTrue(controller.SetLogicText("return @outside", out error), error);
 		Assert.IsTrue(controller.SetInputBinding("outside", source.Object,
 			SignalComponentUtilities.DefaultLocalSignalEndpointKey, out error), error);
+		Assert.IsTrue(controller.SetLogicText("return @outside", out error), error);
 
 		typeof(MicrocontrollerGameItemComponent)
 			.GetMethod("DisconnectSources", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -651,6 +653,55 @@ return @togglevalue");
 		controller.Login();
 
 		Assert.AreEqual(1.0, controller.Inputs["outside"], 0.0001);
+	}
+
+	[TestMethod]
+	public void Microcontroller_Login_RetriesPowerResolutionUntilHostPowerBecomesAccessible()
+	{
+		var gameworld = CreateGameworld();
+		var hostLocation = CreateCell(47L);
+		var hostItem = CreateBasicItem(gameworld.Object, 412L, "Security Door", hostLocation.Object);
+		IGameItem[] attachedItems = [];
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+		hostItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(() => attachedItems);
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower?)null);
+		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns(Array.Empty<IProducePower>());
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+
+		var moduleItem = CreateBasicItem(gameworld.Object, 413L, "Airlock Controller Module");
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			moduleItem.Object,
+			true);
+
+		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
+		controller.SwitchedOn = true;
+		controller.Login();
+		Assert.IsFalse(controller.IsPowered);
+
+		var generatorItem = CreateBasicItem(gameworld.Object, 414L, "Unlimited Generator", hostLocation.Object);
+		var hostPower = new Mock<IProducePower>();
+		hostPower.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		hostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		hostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		hostPower.SetupGet(x => x.ProducingPower).Returns(true);
+		hostPower.Setup(x => x.BeginDrawdown(It.IsAny<IConsumePower>()))
+			.Callback<IConsumePower>(x => x.OnPowerCutIn());
+		generatorItem.Setup(x => x.GetItemType<IProducePower>()).Returns(hostPower.Object);
+		generatorItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([hostPower.Object]);
+		attachedItems = [generatorItem.Object];
+
+		typeof(PoweredMachineBaseGameItemComponent)
+			.GetMethod("RetryPowerConnectionHeartbeat", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(controller, []);
+
+		Assert.IsTrue(controller.IsPowered);
+		hostPower.Verify(x => x.BeginDrawdown(controller), Times.Once);
 	}
 
 	[TestMethod]
@@ -898,6 +949,44 @@ return @togglevalue");
 		Assert.AreEqual("Base description", description.TrimEnd('\r', '\n'));
 		Assert.IsFalse(description.Contains("electronic controller is listening", StringComparison.InvariantCulture));
 		Assert.IsFalse(description.Contains("current control signal", StringComparison.InvariantCulture));
+	}
+
+	[TestMethod]
+	public void ElectronicDoor_HeartbeatReconnect_ResolvesLateSourceAndOpensWhenSignalIsActive()
+	{
+		var gameworld = CreateGameworld();
+		var sharedCell = CreateCell(9061L);
+		var currentLocations = Array.Empty<ICell>();
+		var doorItem = CreateBasicItem(gameworld.Object, 9062L, "Electronic Door");
+		doorItem.SetupGet(x => x.TrueLocations).Returns(() => currentLocations);
+		doorItem.SetupGet(x => x.Location).Returns(() => currentLocations.FirstOrDefault());
+		doorItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(Array.Empty<IGameItem>());
+
+		var sourceItem = CreateBasicItem(gameworld.Object, 9063L, "Airlock Controller Module", sharedCell.Object);
+		var source = CreateSignalSourceMock(1L, "DoorController",
+			parent: sourceItem.Object,
+			componentId: 1L,
+			signal: new ComputerSignal(1.0, null, null));
+		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
+		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
+
+		var door = new ElectronicDoorGameItemComponent(CreateElectronicDoorProto(gameworld.Object), doorItem.Object, true)
+		{
+			State = DoorState.Closed
+		};
+
+		door.FinaliseLoad();
+		door.Login();
+		Assert.IsFalse(door.IsOpen);
+
+		currentLocations = [sharedCell.Object];
+		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([doorItem.Object, sourceItem.Object]);
+
+		typeof(ElectronicDoorGameItemComponent)
+			.GetMethod("HeartbeatTick", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(door, []);
+
+		Assert.IsTrue(door.IsOpen);
 	}
 
 	[TestMethod]

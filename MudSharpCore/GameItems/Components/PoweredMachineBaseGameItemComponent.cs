@@ -19,6 +19,8 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
     private PoweredMachineBaseGameItemComponentProto _prototype;
 	private IProducePower? _powerSource;
 	private bool _drawingPower;
+	private bool _powerRetrySubscribed;
+	private int _powerRetryAttemptsRemaining;
     public override IGameItemComponentProto Prototype => _prototype;
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -81,12 +83,14 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     public override void Delete()
     {
+		StopPowerRetry();
 		EndPowerDrawdown();
         base.Delete();
     }
 
     public override void Quit()
     {
+		StopPowerRetry();
 		EndPowerDrawdown();
         base.Quit();
     }
@@ -99,6 +103,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
         }
 
         base.Login();
+		BeginPostLoginPowerRetryIfRequired();
     }
 
     #region IConsumePower Implementation
@@ -108,6 +113,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     public void OnPowerCutIn()
     {
+		StopPowerRetry();
         if (SwitchedOn)
         {
             Parent.Handle(new EmoteOutput(new Emote(_prototype.PowerOnEmote, Parent, Parent),
@@ -131,6 +137,8 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
             OnPowerCutOutAction();
             _onAndPowered = false;
         }
+
+		BeginPostLoginPowerRetryIfRequired();
     }
 
     public double PowerConsumptionInWatts =>
@@ -157,9 +165,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
             if (value)
             {
 				BeginPowerDrawdown();
+				BeginPostLoginPowerRetryIfRequired();
             }
             else
             {
+				StopPowerRetry();
 				EndPowerDrawdown();
             }
         }
@@ -283,6 +293,45 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	private void BeginPowerDrawdown()
 	{
 		SetPowerSource(ResolvePowerSource());
+	}
+
+	private void BeginPostLoginPowerRetryIfRequired()
+	{
+		if (!SwitchedOn || _onAndPowered || _powerRetrySubscribed)
+		{
+			return;
+		}
+
+		_powerRetryAttemptsRemaining = 5;
+		Gameworld.HeartbeatManager.SecondHeartbeat += RetryPowerConnectionHeartbeat;
+		_powerRetrySubscribed = true;
+	}
+
+	private void RetryPowerConnectionHeartbeat()
+	{
+		if (!SwitchedOn || _onAndPowered || _powerRetryAttemptsRemaining-- <= 0)
+		{
+			StopPowerRetry();
+			return;
+		}
+
+		RefreshPowerSourceConnection();
+		if (_onAndPowered)
+		{
+			StopPowerRetry();
+		}
+	}
+
+	private void StopPowerRetry()
+	{
+		if (!_powerRetrySubscribed)
+		{
+			return;
+		}
+
+		Gameworld.HeartbeatManager.SecondHeartbeat -= RetryPowerConnectionHeartbeat;
+		_powerRetrySubscribed = false;
+		_powerRetryAttemptsRemaining = 0;
 	}
 
 	private void EndPowerDrawdown()

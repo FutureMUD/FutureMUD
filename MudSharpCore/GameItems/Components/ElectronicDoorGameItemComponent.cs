@@ -113,6 +113,12 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 		ReconnectSource();
 	}
 
+	public override void Login()
+	{
+		base.Login();
+		ReconnectSource();
+	}
+
 	public override void Delete()
 	{
 		_binding.Detach();
@@ -132,10 +138,12 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 		_binding.Reconnect(CurrentBinding);
 		if (_binding.UpstreamSource is not null)
 		{
+			RemoveHeartbeatSubscription();
 			return;
 		}
 
 		ApplySignalValue(0.0);
+		EnsureHeartbeatSubscription();
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)
@@ -198,6 +206,12 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 
 	private void HeartbeatTick()
 	{
+		if (_binding.UpstreamSource is null)
+		{
+			ReconnectSource();
+			return;
+		}
+
 		EvaluateDoorState();
 	}
 

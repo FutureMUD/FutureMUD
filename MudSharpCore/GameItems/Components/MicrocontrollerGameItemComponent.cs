@@ -71,8 +71,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public event SignalChangedEvent? SignalChanged;
 	public IEnumerable<ConnectorType> Connections => [MountConnector];
 	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems =>
-		_mountedHost is not null ? [Tuple.Create(MountConnector, _mountedHost)] : [];
-	public IEnumerable<ConnectorType> FreeConnections => _mountedHost is null ? Connections : [];
+		ResolveMountedHostConnectable() is { } hostConnectable ? [Tuple.Create(MountConnector, hostConnectable)] : [];
+	public IEnumerable<ConnectorType> FreeConnections => ResolveMountedHostConnectable() is null ? Connections : [];
 	public bool Independent => false;
 	public double CurrentValue => _currentSignal.Value;
 	public TimeSpan? Duration => _currentSignal.Duration;
@@ -89,9 +89,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		.ToList()
 		.AsReadOnly();
 	public string MountType => "Microcontroller";
-	public bool IsMounted => _mountedHost is not null;
-	public IAutomationMountHost? MountHost =>
-		_mountedHost as IAutomationMountHost ?? _mountedHost?.Parent.GetItemType<IAutomationMountHost>();
+	public bool IsMounted => ResolveMountedHostConnectable() is not null || _pendingMountedHostId.HasValue;
+	public IAutomationMountHost? MountHost => ResolveMountedHost();
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -170,15 +169,15 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public override void FinaliseLoad()
 	{
-		if (_pendingMountedHostId.HasValue)
-		{
-			_mountedHost = Gameworld.TryGetItem(_pendingMountedHostId.Value, true)?.GetItemTypes<IConnectable>()
-				.FirstOrDefault(x => x.ConnectedItems.Any(y => ReferenceEquals(y.Item2.Parent, Parent)));
-			_mountedHost ??= Gameworld.TryGetItem(_pendingMountedHostId.Value, true)?.GetItemType<IConnectable>();
-		}
-
+		ResolveMountedHost();
 		ReconnectSources();
 		RecomputeOutput();
+	}
+
+	public override void Login()
+	{
+		ResolveMountedHost();
+		base.Login();
 	}
 
 	public override void Delete()
@@ -393,6 +392,62 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		{
 			_inputValues[input.VariableName] = 0.0;
 		}
+	}
+
+	private IConnectable? ResolveMountedHostConnectable()
+	{
+		if (_mountedHost is not null)
+		{
+			return _mountedHost;
+		}
+
+		ResolveMountedHost();
+		return _mountedHost;
+	}
+
+	private IAutomationMountHost? ResolveMountedHost()
+	{
+		if (_mountedHost is IAutomationMountHost mountedHost)
+		{
+			return mountedHost;
+		}
+
+		if (_mountedHost?.Parent.GetItemType<IAutomationMountHost>() is { } parentMountHost)
+		{
+			_mountedHost = parentMountHost as IConnectable ?? _mountedHost;
+			return parentMountHost;
+		}
+
+		if (!_pendingMountedHostId.HasValue)
+		{
+			return null;
+		}
+
+		var hostItem = Gameworld.TryGetItem(_pendingMountedHostId.Value, true);
+		if (hostItem is null)
+		{
+			return null;
+		}
+
+		var resolvedMountHost = hostItem.GetItemTypes<IAutomationMountHost>()
+			                        .FirstOrDefault(x => x.GetBayNameForMountedItem(Parent) is not null) ??
+		                        hostItem.GetItemType<IAutomationMountHost>();
+		_mountedHost = resolvedMountHost as IConnectable;
+
+		if (_mountedHost is null)
+		{
+			_mountedHost = hostItem.GetItemTypes<IConnectable>()
+				               .FirstOrDefault(x => x.ConnectedItems.Any(y => ReferenceEquals(y.Item2.Parent, Parent))) ??
+			               hostItem.GetItemType<IConnectable>();
+			resolvedMountHost = _mountedHost as IAutomationMountHost ?? _mountedHost?.Parent.GetItemType<IAutomationMountHost>();
+		}
+
+		if (resolvedMountHost is not null)
+		{
+			_pendingMountedHostId = null;
+		}
+
+		return resolvedMountHost;
 	}
 
 	private (IFutureProg? Prog, string Error) CompileLogic(string logicText, IEnumerable<string> variableNames)

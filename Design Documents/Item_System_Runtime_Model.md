@@ -142,6 +142,7 @@ Current runtime connection rules for that slice are:
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
 - powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise powered machines still resolve power from their own parent item
+- mounted automation modules lazily restore their host linkage from saved host identity during load/login so host-derived power, signal access, and room context continue to work after a reboot
 - `AutomationHousing` is the dedicated housing or junction component family for concealed automation modules and cable ends, and is itself the lockable-container service-access capability on the item rather than a passive sibling marker
 - automation hosts now use sibling `AutomationHousing` components for mount-bay service access
 - there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments

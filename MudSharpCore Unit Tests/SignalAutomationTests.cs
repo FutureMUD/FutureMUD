@@ -555,6 +555,57 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void Microcontroller_RestoresMountHostFromPendingHostIdForPowerResolution()
+	{
+		var gameworld = CreateGameworld();
+		var hostLocation = CreateCell(44L);
+		var hostItem = CreateBasicItem(gameworld.Object, 405L, "Security Door", hostLocation.Object);
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+		var hostPower = new Mock<IProducePower>();
+		hostPower.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		hostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		hostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		hostPower.SetupGet(x => x.ProducingPower).Returns(true);
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns(hostPower.Object);
+		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([hostPower.Object]);
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+		hostItem.Setup(x => x.GetItemType<IAutomationMountHost>()).Returns(host);
+		hostItem.Setup(x => x.GetItemTypes<IAutomationMountHost>()).Returns([host]);
+		hostItem.Setup(x => x.GetItemType<IConnectable>()).Returns(host);
+		hostItem.Setup(x => x.GetItemTypes<IConnectable>()).Returns([host]);
+		gameworld.Setup(x => x.TryGetItem(hostItem.Object.Id, true)).Returns(hostItem.Object);
+
+		var moduleLocation = CreateCell(45L);
+		var moduleItem = CreateBasicItem(gameworld.Object, 406L, "Mounted Controller", moduleLocation.Object);
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			moduleItem.Object,
+			true);
+
+		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
+
+		typeof(MicrocontrollerGameItemComponent)
+			.GetField("_mountedHost", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(controller, null);
+		typeof(MicrocontrollerGameItemComponent)
+			.GetField("_pendingMountedHostId", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(controller, hostItem.Object.Id);
+
+		Assert.IsTrue(controller.IsMounted);
+		Assert.AreSame(host, controller.MountHost);
+
+		var method = typeof(PoweredMachineBaseGameItemComponent)
+			.GetMethod("ResolvePowerSource", BindingFlags.Instance | BindingFlags.NonPublic);
+		var resolved = (IProducePower?)method!.Invoke(controller, []);
+		Assert.AreSame(hostPower.Object, resolved);
+	}
+
+	[TestMethod]
 	public void MotionSensor_DoesNotEmitSignalsUntilPowered()
 	{
 		var gameworld = CreateGameworld();

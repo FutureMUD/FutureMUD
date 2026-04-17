@@ -235,10 +235,40 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 		if (_prototype.UseMountHostPowerSource &&
 		    this is IAutomationMountable { IsMounted: true, MountHost: not null } mountable)
 		{
-			return mountable.MountHost.Parent.GetItemType<IProducePower>() ?? Parent.GetItemType<IProducePower>();
+			return ResolvePowerSourceForItem(mountable.MountHost.Parent) ?? ResolvePowerSourceForItem(Parent);
 		}
 
-		return Parent.GetItemType<IProducePower>();
+		return ResolvePowerSourceForItem(Parent);
+	}
+
+	private static IProducePower? ResolvePowerSourceForItem(IGameItem item)
+	{
+		return ResolvePowerSourceFromComponents(item)
+		       ?? item.AttachedAndConnectedItems
+			       .Select(ResolvePowerSourceFromComponents)
+			       .FirstOrDefault(x => x is not null);
+	}
+
+	private static IProducePower? ResolvePowerSourceFromComponents(IGameItem item)
+	{
+		var producers = item.GetItemTypes<IProducePower>()
+			.ToList();
+		if (!producers.Any())
+		{
+			var producer = item.GetItemType<IProducePower>();
+			if (producer is not null)
+			{
+				producers.Add(producer);
+			}
+		}
+
+		return producers
+			.Where(x => x.PrimaryLoadTimePowerProducer || x.PrimaryExternalConnectionPowerProducer ||
+			            x.MaximumPowerInWatts > 0.0)
+			.OrderByDescending(x => x.ProducingPower)
+			.ThenByDescending(x => x.PrimaryExternalConnectionPowerProducer)
+			.ThenByDescending(x => x.PrimaryLoadTimePowerProducer)
+			.FirstOrDefault();
 	}
 
 	protected void RefreshPowerSourceConnection()

@@ -477,7 +477,12 @@ return @togglevalue");
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
 		var hostPower = new Mock<IProducePower>();
+		hostPower.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		hostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		hostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		hostPower.SetupGet(x => x.ProducingPower).Returns(true);
 		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns(hostPower.Object);
+		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([hostPower.Object]);
 
 		var host = new AutomationMountHostGameItemComponent(
 			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
@@ -489,6 +494,54 @@ return @togglevalue");
 		var moduleItem = CreateBasicItem(gameworld.Object, 401L, "Mounted Controller", moduleLocation.Object);
 		var localPower = new Mock<IProducePower>();
 		moduleItem.Setup(x => x.GetItemType<IProducePower>()).Returns(localPower.Object);
+		moduleItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([localPower.Object]);
+
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			moduleItem.Object,
+			true);
+
+		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
+
+		var method = typeof(PoweredMachineBaseGameItemComponent)
+			.GetMethod("ResolvePowerSource", BindingFlags.Instance | BindingFlags.NonPublic);
+		var resolved = (IProducePower?)method!.Invoke(controller, []);
+
+		Assert.AreSame(hostPower.Object, resolved);
+		Assert.AreNotSame(localPower.Object, resolved);
+	}
+
+	[TestMethod]
+	public void Microcontroller_UsesAttachedHostPowerProducerWhenMounted()
+	{
+		var gameworld = CreateGameworld();
+		var hostLocation = CreateCell(42L);
+		var hostItem = CreateBasicItem(gameworld.Object, 402L, "Security Door", hostLocation.Object);
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower?)null);
+		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns(Array.Empty<IProducePower>());
+
+		var attachedGeneratorItem = CreateBasicItem(gameworld.Object, 403L, "Unlimited Generator", hostLocation.Object);
+		var attachedHostPower = new Mock<IProducePower>();
+		attachedHostPower.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		attachedHostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		attachedHostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		attachedHostPower.SetupGet(x => x.ProducingPower).Returns(true);
+		attachedGeneratorItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([attachedHostPower.Object]);
+		attachedGeneratorItem.Setup(x => x.GetItemType<IProducePower>()).Returns(attachedHostPower.Object);
+		hostItem.Setup(x => x.AttachedAndConnectedItems).Returns([attachedGeneratorItem.Object]);
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+
+		var moduleLocation = CreateCell(43L);
+		var moduleItem = CreateBasicItem(gameworld.Object, 404L, "Mounted Controller", moduleLocation.Object);
+		var localPower = new Mock<IProducePower>();
+		moduleItem.Setup(x => x.GetItemType<IProducePower>()).Returns(localPower.Object);
+		moduleItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([localPower.Object]);
 
 		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
 			moduleItem.Object,
@@ -497,7 +550,7 @@ return @togglevalue");
 		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
 		controller.SwitchedOn = true;
 
-		hostPower.Verify(x => x.BeginDrawdown(controller), Times.Once);
+		attachedHostPower.Verify(x => x.BeginDrawdown(controller), Times.Once);
 		localPower.Verify(x => x.BeginDrawdown(controller), Times.Never);
 	}
 
@@ -881,8 +934,8 @@ return @togglevalue");
 
 		actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		outputHandler.Setup(x => x.Send(It.IsAny<string>()))
-			.Callback<string>(text => statusText = text);
+		outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<string, bool, bool>((text, _, _) => statusText = text);
 
 		var method = typeof(ElectronicDoorGameItemComponent).Assembly
 			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!

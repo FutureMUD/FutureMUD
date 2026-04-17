@@ -25,7 +25,7 @@ Current behavioural notes:
 - Reuse your game's existing ordinary container/openable/lockable support components where this document says to do so.
 - Powered machines must still be powered by the game's normal live power infrastructure.
 - `MotionSensor`, `TimerSensor`, and `Microcontroller` are powered machines in the current slice.
-- `MotionSensor`, `TimerSensor`, and `Microcontroller` can be authored to draw from an automation host's parent-item power source when mounted by setting `comp set mountpower`.
+- `MotionSensor`, `TimerSensor`, and `Microcontroller` can be authored to draw from an automation host's parent-item power source when mounted by setting `comp set mountpower`. That host-side power can come from a producer component on the host item itself or from a compatible attached/connected power item.
 - If `mountpower` is off, powered machines look for an `IProducePower` source on their own parent item.
 - `AutomationHousing` is itself the concealment and service-access container component. It should be paired with the normal openable and lockable behaviour on the same item, not treated as a passive marker.
 

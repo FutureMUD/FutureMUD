@@ -167,7 +167,6 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     #endregion
 
-
     #region ISwitchable Implementation
 
     public IEnumerable<string> SwitchSettings => _prototype.Switchable ? new[] { "on", "off" } : new string[] { };

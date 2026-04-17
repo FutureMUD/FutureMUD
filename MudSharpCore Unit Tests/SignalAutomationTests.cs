@@ -606,6 +606,54 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void Microcontroller_Login_ReconnectsSourcesAndSeedsCurrentValues()
+	{
+		var gameworld = CreateGameworld();
+		var sharedCell = CreateCell(46L);
+		var hostItem = CreateBasicItem(gameworld.Object, 407L, "Security Door", sharedCell.Object);
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+		var hostPower = new Mock<IProducePower>();
+		hostPower.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		hostPower.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		hostPower.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		hostPower.SetupGet(x => x.ProducingPower).Returns(true);
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns(hostPower.Object);
+		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([hostPower.Object]);
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+
+		var moduleItem = CreateBasicItem(gameworld.Object, 408L, "Airlock Controller Module");
+		var sourceItem = CreateBasicItem(gameworld.Object, 409L, "Outside Motion Sensor", sharedCell.Object);
+		var currentSignal = new ComputerSignal(1.0, TimeSpan.FromSeconds(10), null);
+		var source = CreateSignalSourceMock(410L, "Door Outside Motion Sensor", parent: sourceItem.Object,
+			componentId: 411L, signal: currentSignal);
+		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
+		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
+
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			moduleItem.Object,
+			true);
+
+		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
+		Assert.IsTrue(controller.SetLogicText("return @outside", out error), error);
+		Assert.IsTrue(controller.SetInputBinding("outside", source.Object,
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey, out error), error);
+
+		typeof(MicrocontrollerGameItemComponent)
+			.GetMethod("DisconnectSources", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(controller, []);
+
+		controller.Login();
+
+		Assert.AreEqual(1.0, controller.Inputs["outside"], 0.0001);
+	}
+
+	[TestMethod]
 	public void MotionSensor_DoesNotEmitSignalsUntilPowered()
 	{
 		var gameworld = CreateGameworld();

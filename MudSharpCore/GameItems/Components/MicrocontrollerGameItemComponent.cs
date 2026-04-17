@@ -177,6 +177,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public override void Login()
 	{
 		ResolveMountedHost();
+		ReconnectSources();
 		base.Login();
 	}
 
@@ -194,6 +195,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	protected override void OnPowerCutInAction()
 	{
+		ReconnectSources();
 		RecomputeOutput();
 	}
 

@@ -50,6 +50,7 @@ The first player-facing command surface for this slice has also now landed:
 - abject electrical failures trigger electrical shock damage and an electrical-shock emote, but still do not consume tools or materials
 - dedicated `AutomationHousing` components now gate concealed automation modules and cable ends by being the actual lockable-container capability on the item, integrating directly with the normal container/openable/lockable and legal/crime handling path rather than relying on arbitrary generic container items
 - mounted microcontrollers now restore their mount-host relationship lazily from saved host identity during load and login, so host-derived power and local signal access survive reboot/load ordering
+- mounted microcontrollers also refresh their live input-source subscriptions during login and power cut-in, so late-resolved nearby sensors and cable sources seed current values correctly after reboot/load ordering
 
 The remaining work is still substantial. In particular, computer file systems, real computer host and terminal items, waits beyond `sleep`, richer multi-port inter-item signal graphs, remote execution, and data networking are still future phases.
 

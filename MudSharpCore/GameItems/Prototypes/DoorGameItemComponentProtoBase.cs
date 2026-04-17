@@ -318,4 +318,39 @@ public abstract class DoorGameItemComponentProtoBase : GameItemComponentProto
 			: "This door can no longer be opened by players using ordinary means, and must be opened and closed automatically.");
 		return true;
 	}
+
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "removable":
+            case "uninstall":
+            case "uninstallable":
+                return BuildingCommandUninstallable(actor, command);
+            case "smashable":
+                return BuildingCommandSmashable(actor, command);
+            case "installed description":
+            case "installed":
+            case "installed_description":
+            case "exit_description":
+            case "exit description":
+            case "exitdesc":
+            case "exit":
+                return BuildingCommandInstalledExitDescription(actor, command);
+            case "see through":
+            case "seethrough":
+            case "transparent":
+            case "opaque":
+                return BuildingCommandSeeThrough(actor, command);
+            case "fire":
+                return BuildingCommandFire(actor);
+            case "open":
+            case "openable":
+            case "canbeopened":
+            case "canopen":
+                return BuildingCommandCanBeOpenedByPlayers(actor);
+            default:
+                return base.BuildingCommand(actor, command);
+        }
+    }
 }

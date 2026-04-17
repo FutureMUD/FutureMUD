@@ -97,7 +97,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 			case "panel":
 				return BuildingCommandAccess(actor, command);
 			default:
-				return base.BuildingCommand(actor, command.GetUndo());
+				return base.BuildingCommand(actor, command);
 		}
 	}
 

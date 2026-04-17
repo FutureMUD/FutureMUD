@@ -48,6 +48,12 @@ public class SignalCableSegmentGameItemComponentProto : GameItemComponentProto
 
 	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+		command.PopForSwitch();
+        return base.BuildingCommand(actor, command);
+    }
+
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return

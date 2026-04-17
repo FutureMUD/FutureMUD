@@ -91,6 +91,11 @@ Typical registration includes:
 - `AddDatabaseLoader(...)` for boot-time loading from the stored type string
 - `AddTypeHelpInfo(...)` for type listings and builder help
 
+For automation and signal-capable types, use the type-summary text intentionally:
+- signal emitters should usually advertise a coloured `[signal generator]` tag
+- signal-driven sinks should usually advertise a coloured `[signal consumer]` tag
+- components that both accept and emit signals, such as relays or microcontrollers, should usually advertise both
+
 Use the builder loader names intentionally:
 - one primary name should be the main builder-facing type keyword
 - optional aliases can be added as non-primary names

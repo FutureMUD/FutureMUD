@@ -230,7 +230,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 			(proto, gameworld) => new SignalLightGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"SignalLight",
-			$"A {"[light source]".Colour(Telnet.Pink)} driven by a sibling signal source component",
+			$"A {"[light source]".Colour(Telnet.Pink)} {SignalComponentUtilities.SignalConsumerTag} driven by a sibling signal source component",
 			CombinedBuildingHelpText);
 	}
 

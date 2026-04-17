@@ -204,10 +204,15 @@ public class VariableGameItemComponentProto : GameItemComponentProto
         return true;
     }
 
-    private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tvariable add <which> <profile> - adds a variable with the specified random profile\n\tvariable remove <which> - removes a variable";
+    protected const string SpecificBuildingHelpText = @"
+	#3variable add <which> <profile>#0 - adds a variable with the specified random profile
+	#3variable remove <which>#0 - removes a variable";
 
-    public override string ShowBuildingHelp => BuildingHelpText;
+    private static readonly string CombinedBuildingHelpText = @$"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component{SpecificBuildingHelpText}";
+
+    public override string ShowBuildingHelp => CombinedBuildingHelpText;
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -262,7 +267,7 @@ public class VariableGameItemComponentProto : GameItemComponentProto
         manager.AddTypeHelpInfo(
             "Variable",
             $"Gives an item {"[characteristics]".Colour(Telnet.Yellow)} (a.k.a. variables) that can be randomised.",
-            BuildingHelpText
+            CombinedBuildingHelpText
         );
     }
 

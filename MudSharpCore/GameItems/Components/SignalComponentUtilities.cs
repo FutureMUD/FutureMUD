@@ -12,6 +12,8 @@ namespace MudSharp.GameItems.Components;
 public static class SignalComponentUtilities
 {
 	public const string DefaultLocalSignalEndpointKey = "signal";
+	public static string SignalGeneratorTag => "[signal generator]".Colour(Telnet.BoldCyan);
+	public static string SignalConsumerTag => "[signal consumer]".Colour(Telnet.BoldMagenta);
 
 	public static bool SignalsEqual(ComputerSignal lhs, ComputerSignal rhs)
 	{

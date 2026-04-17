@@ -66,7 +66,7 @@ public class SignalCableSegmentGameItemComponentProto : GameItemComponentProto
 			(proto, gameworld) => new SignalCableSegmentGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"Signal Cable Segment",
-			$"Makes an item a one-hop {"[signal cable]".Colour(Telnet.BoldGreen)} that mirrors an adjacent-room source",
+			$"Makes an item a one-hop {"[signal cable]".Colour(Telnet.BoldGreen)} {SignalComponentUtilities.SignalGeneratorTag} {SignalComponentUtilities.SignalConsumerTag} that mirrors an adjacent-room source",
 			CombinedBuildingHelpText);
 	}
 

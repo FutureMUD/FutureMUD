@@ -142,7 +142,7 @@ public class ToggleSwitchGameItemComponentProto : GameItemComponentProto
 			(proto, gameworld) => new ToggleSwitchGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"ToggleSwitch",
-			$"A {"[switchable]".Colour(Telnet.Yellow)} persistent signal input for computer-controlled items",
+			$"A {"[switchable]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalGeneratorTag} persistent signal input for computer-controlled items",
 			CombinedBuildingHelpText);
 	}
 

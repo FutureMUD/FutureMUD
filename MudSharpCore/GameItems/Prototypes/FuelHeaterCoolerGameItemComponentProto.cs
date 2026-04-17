@@ -141,7 +141,7 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
             case "connector":
                 return BuildingCommandConnection(actor, command);
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 
@@ -263,7 +263,7 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
     }
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tmedium <liquid|gas> - sets what kind of fuel it consumes\n\tfuel <fuel> - sets the specific liquid or gas that it burns\n\trate <amount> - sets the fuel use per second\n\tconnection <gender> <type> - sets the single connector type" +
+        "You can use the following options with this component:\n\t#3name <name>#0 - sets the name of the component\n\t#3desc <desc>#0 - sets the description of the component\n\t#3medium <liquid|gas>#0 - sets what kind of fuel it consumes\n\t#3fuel <fuel>#0 - sets the specific liquid or gas that it burns\n\t#3rate <amount>#0 - sets the fuel use per second\n\t#3connection <gender> <type>#0 - sets the single connector type" +
         SwitchableThermalBuildingHelpText;
 
     public override string ShowBuildingHelp => BuildingHelpText;

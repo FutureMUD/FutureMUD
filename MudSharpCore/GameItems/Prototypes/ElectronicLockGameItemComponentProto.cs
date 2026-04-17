@@ -185,7 +185,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 			(proto, gameworld) => new ElectronicLockGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"ElectronicLock",
-			$"A {"[lock]".Colour(Telnet.Yellow)} that responds automatically to a sibling signal source component",
+			$"A {"[lock]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalConsumerTag} that responds automatically to a sibling signal source component",
 			CombinedBuildingHelpText);
 	}
 

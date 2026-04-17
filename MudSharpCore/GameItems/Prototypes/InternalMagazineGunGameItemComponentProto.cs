@@ -129,8 +129,8 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
             "InternalMagazineGun",
             $"Makes an item a {"[ranged weapon]".Colour(Telnet.BoldCyan)} with internal-magazine semi-automatic gun mechanics",
             $@"{BuildingHelpText}
-	capacity <number> - sets the internal magazine capacity
-	ejectonfire - toggles whether casings are ejected on fire or on ready"
+	#3capacity <number>#0 - sets the internal magazine capacity
+	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready"
         );
     }
 
@@ -160,7 +160,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
             case "amount":
                 return BuildingCommandCapacity(actor, command);
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 

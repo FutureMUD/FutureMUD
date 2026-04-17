@@ -112,7 +112,7 @@ public class DoorGameItemComponentProto : DoorGameItemComponentProtoBase
 			case "canopen":
 				return BuildingCommandCanBeOpenedByPlayers(actor);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 }

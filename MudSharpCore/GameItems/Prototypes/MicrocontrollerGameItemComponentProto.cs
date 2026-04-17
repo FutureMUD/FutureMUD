@@ -303,7 +303,7 @@ public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemC
 			(proto, gameworld) => new MicrocontrollerGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"Microcontroller",
-			$"A {"[powered]".Colour(Telnet.Magenta)} controller that evaluates inline computer-function logic from sibling signal inputs",
+			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} {SignalComponentUtilities.SignalConsumerTag} controller that evaluates inline computer-function logic from sibling signal inputs",
 			CombinedBuildingHelpText);
 	}
 

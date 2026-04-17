@@ -239,7 +239,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 			(proto, gameworld) => new ElectronicDoorGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"ElectronicDoor",
-			$"A {"[door]".Colour(Telnet.Yellow)} with built-in signal-driven opening and closing behaviour",
+			$"A {"[door]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalConsumerTag} with built-in signal-driven opening and closing behaviour",
 			CombinedBuildingHelpText);
 	}
 

@@ -209,7 +209,7 @@ public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComp
 			(proto, gameworld) => new MotionSensorGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"MotionSensor",
-			$"A {"[powered signal source]".Colour(Telnet.Yellow)} that emits a timed signal when it witnesses configured movement",
+			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalGeneratorTag} that emits a timed signal when it witnesses configured movement",
 			CombinedBuildingHelpText);
 	}
 

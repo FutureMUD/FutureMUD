@@ -193,7 +193,7 @@ public class LockingDoorGameItemComponentProto : DoorGameItemComponentProtoBase,
 			case "fire":
 				return BuildingCommandFire(actor);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 

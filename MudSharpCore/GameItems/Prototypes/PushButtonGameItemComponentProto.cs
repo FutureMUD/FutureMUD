@@ -199,7 +199,7 @@ public class PushButtonGameItemComponentProto : GameItemComponentProto
 			(proto, gameworld) => new PushButtonGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"PushButton",
-			$"A {"[selectable]".Colour(Telnet.Yellow)} momentary signal input for computer-controlled items",
+			$"A {"[selectable]".Colour(Telnet.Yellow)} {SignalComponentUtilities.SignalGeneratorTag} momentary signal input for computer-controlled items",
 			CombinedBuildingHelpText);
 	}
 

@@ -228,7 +228,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 			(proto, gameworld) => new AlarmSirenGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"AlarmSiren",
-			$"A {"[powered]".Colour(Telnet.Magenta)} audible alarm driven by a sibling signal source component",
+			$"A {"[powered]".Colour(Telnet.Magenta)} {SignalComponentUtilities.SignalConsumerTag} audible alarm driven by a sibling signal source component",
 			CombinedBuildingHelpText);
 	}
 

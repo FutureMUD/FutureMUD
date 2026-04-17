@@ -163,7 +163,7 @@ The current signal-automation slice has its own presentation and integration rul
 - `MotionSensor` decorates the full description to show whether it is currently active plus the movement mode and minimum size it watches for
 - `TimerSensor` decorates the full description to show its active and inactive values, its cycle timings, and which phase it is currently in
 - `Microcontroller` decorates the full description with its current on/off state and numeric output value
-- `AutomationMountHost` decorates the full description with named bay state and whether the host is presently serviceable through its maintenance access path
+- `AutomationMountHost` decorates the full description with named bay state and whether the host is presently serviceable through its sibling `AutomationHousing` access path
 - `SignalCableSegment` decorates the full description with whether it is routed, which source endpoint it mirrors, and which exit hop it currently spans
 - `AutomationHousing` decorates the full description with whether the housing is sealed or open for service, and when open it lists the concealed automation items inside
 - `SignalLight` and `ElectronicLock` reuse the existing light and lock presentation behaviour, but now integrate with sibling signal sources resolved through stable local identifiers plus explicit endpoint keys
@@ -174,7 +174,7 @@ The current signal-automation slice has its own presentation and integration rul
 - the live `electrical` and `programming` verbs are now part of the player-facing integration surface for these items, and their staged begin/continue/success/failure output should be authored through configurable static strings rather than embedded per-component prose
 - `programming help` should mirror the normal `prog help` structure, but filtered to the computer-safe subset so the player-facing language reference stays aligned with the actual compiler/runtime surface
 - abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
-- `AutomationHousing` is now the dedicated housing or junction presentation family, but it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
+- `AutomationHousing` is now the dedicated housing or junction presentation family, and because it is itself the lockable-container capability, it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

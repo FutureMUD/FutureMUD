@@ -11,11 +11,19 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class SignalCableSegmentGameItemComponentProto : GameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
+	private const string SpecificBuildingHelpText = @"
 
-Signal cable segments are routed at runtime with the electrical command and mirror a source from an adjacent room.";
+#6Notes:#0
+
+	Signal cable segments are routed at runtime with the electrical command and mirror a source from an adjacent room.";
+
+	private const string CombinedBuildingHelpText = @"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+
+#6Notes:#0
+
+	Signal cable segments are routed at runtime with the electrical command and mirror a source from an adjacent room.";
 
 	public SignalCableSegmentGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Signal Cable Segment")
@@ -38,7 +46,7 @@ Signal cable segments are routed at runtime with the electrical command and mirr
 		return new System.Xml.Linq.XElement("Definition").ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
@@ -59,7 +67,7 @@ Signal cable segments are routed at runtime with the electrical command and mirr
 		manager.AddTypeHelpInfo(
 			"Signal Cable Segment",
 			$"Makes an item a one-hop {"[signal cable]".Colour(Telnet.BoldGreen)} that mirrors an adjacent-room source",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

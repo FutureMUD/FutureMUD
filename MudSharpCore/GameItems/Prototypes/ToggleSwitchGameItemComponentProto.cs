@@ -12,12 +12,17 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class ToggleSwitchGameItemComponentProto : GameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	onvalue <number> - signal value emitted when the switch is on
-	offvalue <number> - signal value emitted when the switch is off
-	initial - toggles whether the switch starts on or off";
+	private const string SpecificBuildingHelpText = @"
+	#3onvalue <number>#0 - signal value emitted when the switch is on
+	#3offvalue <number>#0 - signal value emitted when the switch is off
+	#3initial#0 - toggles whether the switch starts on or off";
+
+	private const string CombinedBuildingHelpText = @"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3onvalue <number>#0 - signal value emitted when the switch is on
+	#3offvalue <number>#0 - signal value emitted when the switch is off
+	#3initial#0 - toggles whether the switch starts on or off";
 
 	protected ToggleSwitchGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Toggle Switch")
@@ -53,11 +58,11 @@ public class ToggleSwitchGameItemComponentProto : GameItemComponentProto
 		).ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "onvalue":
 			case "on":
@@ -69,7 +74,7 @@ public class ToggleSwitchGameItemComponentProto : GameItemComponentProto
 			case "initially":
 				return BuildingCommandInitial(actor);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -138,7 +143,7 @@ public class ToggleSwitchGameItemComponentProto : GameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"ToggleSwitch",
 			$"A {"[switchable]".Colour(Telnet.Yellow)} persistent signal input for computer-controlled items",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

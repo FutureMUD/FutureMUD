@@ -19,13 +19,18 @@ public sealed record AutomationMountBayDefinition(string Name, string MountType)
 
 public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	bay add <name> <mounttype> - adds a named automation mount bay
-	bay remove <name> - removes a named automation mount bay
-	access none - clears any maintenance access panel requirement
-	access <componentproto> - sets a sibling openable/container component prototype that must be open for service";
+	private const string BaseBuildingHelpText = @"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component";
+
+	private const string SpecificBuildingHelpText = @"
+	#3bay add <name> <mounttype>#0 - adds a named automation mount bay
+	#3bay remove <name>#0 - removes a named automation mount bay
+	#3access none#0 - clears any maintenance housing requirement
+	#3access <componentproto>#0 - sets a sibling automation housing component prototype that must be open for service";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{BaseBuildingHelpText}{SpecificBuildingHelpText}";
 
 	private readonly List<AutomationMountBayDefinition> _bays = [];
 
@@ -79,11 +84,11 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 		).ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "bay":
 			case "bays":
@@ -92,7 +97,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 			case "panel":
 				return BuildingCommandAccess(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -104,7 +109,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 				return BuildingCommandBayAdd(actor, command);
@@ -180,7 +185,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Which sibling openable/container component prototype should gate service access, or NONE?");
+			actor.Send("Which sibling automation housing component prototype should gate service access, or NONE?");
 			return false;
 		}
 
@@ -189,17 +194,13 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 			AccessPanelPrototypeId = 0L;
 			AccessPanelPrototypeName = string.Empty;
 			Changed = true;
-			actor.Send("This automation host no longer requires a maintenance access panel.");
+			actor.Send("This automation host no longer requires a maintenance housing to be opened for service.");
 			return true;
 		}
 
-		if (!SignalComponentUtilities.TryResolveSignalComponentPrototype(Gameworld, command.SafeRemainingArgument,
-			    out var prototype) || prototype is null)
-		{
-			prototype = long.TryParse(command.SafeRemainingArgument, out var protoId)
-				? Gameworld.ItemComponentProtos.Get(protoId)
-				: Gameworld.ItemComponentProtos.GetByName(command.SafeRemainingArgument);
-		}
+		var prototype = long.TryParse(command.SafeRemainingArgument, out var protoId)
+			? Gameworld.ItemComponentProtos.Get(protoId)
+			: Gameworld.ItemComponentProtos.GetByName(command.SafeRemainingArgument);
 
 		if (prototype is null)
 		{
@@ -207,11 +208,17 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
+		if (prototype is not AutomationHousingGameItemComponentProto)
+		{
+			actor.Send("You must specify an automation housing component prototype for maintenance access.");
+			return false;
+		}
+
 		AccessPanelPrototypeId = prototype.Id;
 		AccessPanelPrototypeName = prototype.Name;
 		Changed = true;
 		actor.Send(
-			$"This automation host now requires the sibling component prototype {prototype.Name.ColourName()} to be open for service access.");
+			$"This automation host now requires the sibling automation housing prototype {prototype.Name.ColourName()} to be open for service access.");
 		return true;
 	}
 
@@ -236,7 +243,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 			? $"{AccessPanelPrototypeName.ColourName()} (#{AccessPanelPrototypeId.ToString("N0", actor)})"
 			: "none".ColourError();
 		return
-			$"{"Automation Mount Host Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}, {Name})\n\nBays: {bays}\nAccess Panel: {access}";
+			$"{"Automation Mount Host Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}, {Name})\n\nBays: {bays}\nAccess Housing: {access}";
 	}
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -252,7 +259,7 @@ public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"Automation Mount Host",
 			$"Adds named {"[automation bays]".Colour(Telnet.BoldGreen)} for installable modules such as microcontrollers",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

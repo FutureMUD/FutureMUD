@@ -46,7 +46,7 @@ The first player-facing command surface for this slice has also now landed:
 - `electrical` uses `InstallElectricalComponentCheck` for install/remove/routing work and `ConfigureElectricalComponentCheck` for rebinding and threshold/mode work
 - failed checks still cost time because the delayed action runs to completion before the check resolves
 - abject electrical failures trigger electrical shock damage and an electrical-shock emote, but still do not consume tools or materials
-- dedicated `AutomationHousing` components now gate concealed automation modules and cable ends through the normal container/openable/lockable access path rather than relying on arbitrary generic container items
+- dedicated `AutomationHousing` components now gate concealed automation modules and cable ends by being the actual lockable-container capability on the item, integrating directly with the normal container/openable/lockable and legal/crime handling path rather than relying on arbitrary generic container items
 
 The remaining work is still substantial. In particular, computer file systems, real computer host and terminal items, waits beyond `sleep`, richer multi-port inter-item signal graphs, remote execution, and data networking are still future phases.
 
@@ -173,11 +173,12 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - Implemented in the first slice:
   - `PushButton` is a selectable momentary input that emits a numeric signal for an authored duration
   - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
-  - `MotionSensor` is a witnessed-movement input that emits a numeric signal for an authored duration when same-location movement matches its configured mode and minimum size
-  - `TimerSensor` is a recurring same-item input that alternates between authored active and inactive numeric phases from a persisted cycle anchor
+  - `MotionSensor` is a powered witnessed-movement input that emits a numeric signal for an authored duration when same-location movement matches its configured mode and minimum size
+  - `TimerSensor` is a powered recurring same-item input that alternates between authored active and inactive numeric phases from a persisted cycle anchor
   - `Microcontroller` is a powered machine component whose inputs are local signal sources resolved through stable local source identifiers plus endpoint keys, whose inline logic compiles as a `ComputerFunction`, and which can now also be installed as a separate module item into an automation host bay
-  - `AutomationMountHost` provides named bays for separate automation modules and can require a sibling openable maintenance panel before those bays are serviceable
-  - `AutomationHousing` is a dedicated housing or junction component family that composes with ordinary container/openable/lockable capabilities and exposes concealed automation items only while service access is open
+  - powered machine automation modules and sensors can optionally be authored to draw power from an automation host's parent-item power source when mounted; otherwise they look for a power source on their own parent item
+  - `AutomationMountHost` provides named bays for separate automation modules and can require a sibling `AutomationHousing` component before those bays are serviceable
+  - `AutomationHousing` is a dedicated housing or junction component family that is itself the service-access container capability, reusing the normal lockable/openable/container and legal-system path while exposing concealed automation items only when service access is open
   - `SignalCableSegment` is a reusable one-hop adjacent-room wire item that persists its source binding, source and destination cells, and routed exit id
   - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
   - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base, uses threshold logic, and retries opening while the signal remains active

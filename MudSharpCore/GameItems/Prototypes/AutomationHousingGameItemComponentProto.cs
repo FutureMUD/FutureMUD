@@ -1,25 +1,31 @@
 #nullable enable
 
+using System;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class AutomationHousingGameItemComponentProto : GameItemComponentProto
+public class AutomationHousingGameItemComponentProto : LockingContainerGameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	cables <true|false> - whether this housing can conceal signal cable segments
-	modules <true|false> - whether this housing can conceal automation module items
-	signalitems <true|false> - whether this housing can conceal other signal-capable items
+	private const string AutomationHousingBuildingHelpText = @"
+	#3cables <true|false>#0 - whether this housing can conceal signal cable segments
+	#3modules <true|false>#0 - whether this housing can conceal automation module items
+	#3signalitems <true|false>#0 - whether this housing can conceal other signal-capable items
 
-Automation housings rely on existing container/openable/lockable components on the same parent item for their physical service access.";
+#6Notes:#0
+
+	This component is itself the service housing. It reuses locking-container behaviour for access, locking, and legal handling.";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{BuildingHelpText}{AutomationHousingBuildingHelpText}";
 
 	protected AutomationHousingGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Automation Housing")
@@ -42,6 +48,7 @@ Automation housings rely on existing container/openable/lockable components on t
 
 	protected override void LoadFromXml(XElement root)
 	{
+		base.LoadFromXml(root);
 		AllowCableSegments = bool.Parse(root.Element("AllowCableSegments")?.Value ?? "true");
 		AllowMountableModules = bool.Parse(root.Element("AllowMountableModules")?.Value ?? "true");
 		AllowSignalItems = bool.Parse(root.Element("AllowSignalItems")?.Value ?? "true");
@@ -49,18 +56,18 @@ Automation housings rely on existing container/openable/lockable components on t
 
 	protected override string SaveToXml()
 	{
-		return new XElement("Definition",
-			new XElement("AllowCableSegments", AllowCableSegments),
-			new XElement("AllowMountableModules", AllowMountableModules),
-			new XElement("AllowSignalItems", AllowSignalItems)
-		).ToString();
+		var root = XElement.Parse(base.SaveToXml());
+		root.Add(new XElement("AllowCableSegments", AllowCableSegments));
+		root.Add(new XElement("AllowMountableModules", AllowMountableModules));
+		root.Add(new XElement("AllowSignalItems", AllowSignalItems));
+		return root.ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{AutomationHousingBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "cables":
 			case "cable":
@@ -76,7 +83,7 @@ Automation housings rely on existing container/openable/lockable components on t
 				return BuildingCommandToggle(actor, command, value => AllowSignalItems = value,
 					() => AllowSignalItems, "other signal-capable items");
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -95,7 +102,18 @@ Automation housings rely on existing container/openable/lockable components on t
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return
-			$"{"Automation Housing Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nAllows Cables: {AllowCableSegments.ToColouredString()}\nAllows Modules: {AllowMountableModules.ToColouredString()}\nAllows Signal Items: {AllowSignalItems.ToColouredString()}";
+			$@"{"Automation Housing Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})
+
+This item is a lockable automation housing or junction. It can contain {Gameworld.UnitManager.Describe(WeightLimit, UnitType.Mass, actor)} and up to {MaximumContentsSize.Describe().ColourValue()} size objects, described as {ContentsPreposition.ColourCommand()} the housing. It {(Transparent ? "is".ColourValue() : "is not".ColourError())} transparent when closed.
+It uses a built-in lock of type {(LockType ?? "None").ColourValue()}, with pick difficulty {PickDifficulty.DescribeColoured()} and force difficulty {ForceDifficulty.DescribeColoured()}.
+
+Allows Cables: {AllowCableSegments.ToColouredString()}
+Allows Modules: {AllowMountableModules.ToColouredString()}
+Allows Signal Items: {AllowSignalItems.ToColouredString()}
+Lock Emote: {LockEmote.ColourCommand()}
+Unlock Emote: {UnlockEmote.ColourCommand()}
+Lock (No Actor): {LockEmoteNoActor.ColourCommand()}
+Unlock (No Actor): {UnlockEmoteNoActor.ColourCommand()}";
 	}
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -112,8 +130,8 @@ Automation housings rely on existing container/openable/lockable components on t
 			(proto, gameworld) => new AutomationHousingGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"Automation Housing",
-			$"Marks an item as an {"[automation housing or junction]".Colour(Telnet.BoldGreen)} for concealed service hardware",
-			BuildingHelpText);
+			$"Makes an item a {"[lockable automation housing]".Colour(Telnet.BoldGreen)} for concealed service hardware",
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
@@ -132,8 +150,8 @@ Automation housings rely on existing container/openable/lockable components on t
 			(proto, gameworld) => new AutomationHousingGameItemComponentProto(proto, gameworld));
 	}
 
-	private bool BuildingCommandToggle(ICharacter actor, StringStack command, System.Action<bool> setter,
-		System.Func<bool> getter, string label)
+	private bool BuildingCommandToggle(ICharacter actor, StringStack command, Action<bool> setter,
+		Func<bool> getter, string label)
 	{
 		if (command.IsFinished)
 		{

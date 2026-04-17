@@ -82,7 +82,7 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		var sb = new StringBuilder(description);
 		sb.AppendLine();
 		sb.AppendLine();
-		sb.AppendLine($"Its automation bays are {(CanAccessMounts(voyeur as ICharacter, out _) ? "accessible".ColourValue() : "sealed behind a maintenance panel".ColourName())}:");
+		sb.AppendLine($"Its automation bays are {(CanAccessMounts(voyeur as ICharacter, out _) ? "accessible".ColourValue() : "sealed behind an automation housing".ColourName())}:");
 		foreach (var bay in Bays)
 		{
 			sb.AppendLine(
@@ -100,16 +100,15 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 			return true;
 		}
 
-		var accessPanel = ResolveAccessPanel();
-		if (accessPanel is null)
+		var accessHousing = ResolveAccessHousing();
+		if (accessHousing is null)
 		{
-			return true;
+			error = $"{Parent.HowSeen(actor, true)} is configured to use an automation housing for service access, but no matching housing is installed.";
+			return false;
 		}
 
-		if (accessPanel.Parent.GetItemType<IOpenable>() is IOpenable openable && !openable.IsOpen)
+		if (!accessHousing.CanAccessHousing(actor, out error))
 		{
-			var voyeur = actor as IPerceiver ?? accessPanel.Parent;
-			error = $"You need to open {accessPanel.Parent.HowSeen(voyeur, true)} to service those automation bays.";
 			return false;
 		}
 
@@ -382,14 +381,14 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		}
 	}
 
-	private IGameItemComponent? ResolveAccessPanel()
+	private IAutomationHousing? ResolveAccessHousing()
 	{
 		if (_prototype.AccessPanelPrototypeId <= 0 && string.IsNullOrWhiteSpace(_prototype.AccessPanelPrototypeName))
 		{
 			return null;
 		}
 
-		return Parent.Components.FirstOrDefault(x =>
+		return Parent.Components.OfType<IAutomationHousing>().FirstOrDefault(x =>
 			(_prototype.AccessPanelPrototypeId > 0 &&
 			 (x.Prototype.Id == _prototype.AccessPanelPrototypeId || x.Id == _prototype.AccessPanelPrototypeId)) ||
 			(!string.IsNullOrWhiteSpace(_prototype.AccessPanelPrototypeName) &&

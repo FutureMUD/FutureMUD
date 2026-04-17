@@ -84,7 +84,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public IReadOnlyCollection<MicrocontrollerRuntimeInputBinding> InputBindings => _inputBindings.AsReadOnly();
 	public string MountType => "Microcontroller";
 	public bool IsMounted => _mountedHost is not null;
-	public IAutomationMountHost? MountHost => _mountedHost?.Parent.GetItemType<IAutomationMountHost>();
+	public IAutomationMountHost? MountHost =>
+		_mountedHost as IAutomationMountHost ?? _mountedHost?.Parent.GetItemType<IAutomationMountHost>();
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -416,6 +417,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	{
 		_mountedHost = other;
 		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(MountConnector)));
+		RefreshPowerSourceConnection();
 		Changed = true;
 		if (Parent.GetItemType<IHoldable>()?.HeldBy != null)
 		{
@@ -436,6 +438,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	{
 		_mountedHost = other;
 		Parent.ConnectedItem(other, type);
+		RefreshPowerSourceConnection();
 		Changed = true;
 	}
 
@@ -494,6 +497,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 			other.Parent.DisconnectedItem(this, MountConnector);
 		}
 
+		RefreshPowerSourceConnection();
 		Changed = true;
 	}
 

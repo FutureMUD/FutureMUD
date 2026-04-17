@@ -11,11 +11,13 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Form.Shape;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -344,22 +346,15 @@ return @togglevalue");
 
 		var host = new AutomationMountHostGameItemComponent(
 			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")], 501L,
-				"Maintenance Panel"),
+				"Maintenance Housing"),
 			hostItem.Object,
 			true);
-		var panelProto = new Mock<IGameItemComponentProto>();
-		panelProto.SetupGet(x => x.Id).Returns(501L);
-		panelProto.SetupGet(x => x.Name).Returns("Maintenance Panel");
-		var panel = new Mock<IGameItemComponent>();
-		panel.SetupGet(x => x.Id).Returns(502L);
-		panel.SetupGet(x => x.Name).Returns("Maintenance Panel");
-		panel.SetupGet(x => x.Parent).Returns(hostItem.Object);
-		panel.SetupGet(x => x.Prototype).Returns(panelProto.Object);
-		hostComponents = [host, panel.Object];
-
-		var openable = new Mock<IOpenable>();
-		openable.SetupGet(x => x.IsOpen).Returns(false);
-		hostItem.Setup(x => x.GetItemType<IOpenable>()).Returns(openable.Object);
+		var housing = new AutomationHousingGameItemComponent(
+			CreateAutomationHousingProto(gameworld.Object, 501L, "Maintenance Housing"),
+			hostItem.Object,
+			true);
+		housing.Close();
+		hostComponents = [host, housing];
 		hostItem.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
 			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("sealed cabinet");
 
@@ -374,16 +369,10 @@ return @togglevalue");
 	{
 		var gameworld = CreateGameworld();
 		var housingItem = CreateBasicItem(gameworld.Object, 120L, "Cable Junction");
-		var container = new Mock<IContainer>();
-		container.SetupGet(x => x.Contents).Returns(Array.Empty<IGameItem>());
-		var openable = new Mock<IOpenable>();
-		openable.SetupGet(x => x.IsOpen).Returns(false);
-		housingItem.Setup(x => x.GetItemType<IContainer>()).Returns(container.Object);
-		housingItem.Setup(x => x.GetItemType<IOpenable>()).Returns(openable.Object);
-
 		var housing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object),
 			housingItem.Object,
 			true);
+		housing.Close();
 		var actor = new Mock<ICharacter>();
 
 		Assert.IsFalse(housing.CanAccessHousing(actor.Object, out var error));
@@ -395,10 +384,6 @@ return @togglevalue");
 	{
 		var gameworld = CreateGameworld();
 		var housingItem = CreateBasicItem(gameworld.Object, 121L, "Service Housing");
-		var container = new Mock<IContainer>();
-		container.SetupGet(x => x.Contents).Returns(Array.Empty<IGameItem>());
-		housingItem.Setup(x => x.GetItemType<IContainer>()).Returns(container.Object);
-
 		var housing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object),
 			housingItem.Object,
 			true);
@@ -436,17 +421,71 @@ return @togglevalue");
 		var concealedItems = new[] { cableItem.Object, signalItem.Object, mundaneItem.Object };
 
 		var housingItem = CreateBasicItem(gameworld.Object, 129L, "Service Housing");
-		var container = new Mock<IContainer>();
-		container.SetupGet(x => x.Contents).Returns(concealedItems);
-		housingItem.Setup(x => x.GetItemType<IContainer>()).Returns(container.Object);
-
 		var housing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object),
 			housingItem.Object,
 			true);
+		AddHousingContents(housing, concealedItems);
 
 		var concealed = housing.ConcealedItems.ToList();
 
 		CollectionAssert.AreEquivalent(new[] { cableItem.Object, signalItem.Object }, concealed);
+	}
+
+	[TestMethod]
+	public void Microcontroller_UsesMountedHostPowerWhenConfigured()
+	{
+		var gameworld = CreateGameworld();
+		var hostLocation = CreateCell(40L);
+		var hostItem = CreateBasicItem(gameworld.Object, 400L, "Automation Cabinet", hostLocation.Object);
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+		var hostPower = new Mock<IProducePower>();
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns(hostPower.Object);
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+
+		var moduleLocation = CreateCell(41L);
+		var moduleItem = CreateBasicItem(gameworld.Object, 401L, "Mounted Controller", moduleLocation.Object);
+		var localPower = new Mock<IProducePower>();
+		moduleItem.Setup(x => x.GetItemType<IProducePower>()).Returns(localPower.Object);
+
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			moduleItem.Object,
+			true);
+
+		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
+		controller.SwitchedOn = true;
+
+		hostPower.Verify(x => x.BeginDrawdown(controller), Times.Once);
+		localPower.Verify(x => x.BeginDrawdown(controller), Times.Never);
+	}
+
+	[TestMethod]
+	public void MotionSensor_DoesNotEmitSignalsUntilPowered()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 500L, "Motion Sensor");
+		var power = new Mock<IProducePower>();
+		item.Setup(x => x.GetItemType<IProducePower>()).Returns(power.Object);
+
+		var sensor = new MotionSensorGameItemComponent(CreateMotionSensorProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+
+		var mover = new Mock<ICharacter>();
+		mover.SetupGet(x => x.Size).Returns(SizeCategory.Normal);
+
+		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
+		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
+
+		sensor.OnPowerCutIn();
+		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
+		Assert.AreEqual(1.0, sensor.CurrentValue, 0.0001);
 	}
 
 	[TestMethod]
@@ -530,10 +569,13 @@ return @togglevalue");
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var heartbeatManager = new Mock<IHeartbeatManager>();
+		var futureProgs = new Mock<IUneditableAll<MudSharp.FutureProg.IFutureProg>>();
 		var itemList = (items ?? Enumerable.Empty<IGameItem>()).ToList();
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
+		gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
 			.Returns((long id, bool _) => itemList.FirstOrDefault(x => x.Id == id));
+		futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((MudSharp.FutureProg.IFutureProg?)null);
 		return gameworld;
 	}
 
@@ -625,9 +667,21 @@ return @togglevalue");
 	}
 
 	private static AutomationHousingGameItemComponentProto CreateAutomationHousingProto(IFuturemud gameworld,
-		bool allowCableSegments = true, bool allowMountableModules = true, bool allowSignalItems = true)
+		long id = 403L, string name = "Automation Housing", bool allowCableSegments = true,
+		bool allowMountableModules = true, bool allowSignalItems = true)
 	{
 		var definition = new XElement("Definition",
+			new XAttribute("Weight", 1000.0),
+			new XAttribute("MaxSize", (int)SizeCategory.Small),
+			new XAttribute("Preposition", "in"),
+			new XAttribute("Transparent", false),
+			new XElement("ForceDifficulty", (int)Difficulty.Normal),
+			new XElement("PickDifficulty", (int)Difficulty.Normal),
+			new XElement("LockEmote", new XCData("@ lock|locks $1$?2| with $2||$")),
+			new XElement("UnlockEmote", new XCData("@ unlock|unlocks $1$?2| with $2||$")),
+			new XElement("LockEmoteNoActor", new XCData("@ lock|locks")),
+			new XElement("UnlockEmoteNoActor", new XCData("@ unlock|unlocks")),
+			new XElement("LockType", "Lever Lock"),
 			new XElement("AllowCableSegments", allowCableSegments),
 			new XElement("AllowMountableModules", allowMountableModules),
 			new XElement("AllowSignalItems", allowSignalItems)
@@ -639,8 +693,8 @@ return @togglevalue");
 			.Invoke([
 				new MudSharp.Models.GameItemComponentProto
 				{
-					Id = 403L,
-					Name = "Automation Housing",
+					Id = id,
+					Name = name,
 					Description = "Test",
 					RevisionNumber = 1,
 					Definition = definition.ToString(),
@@ -652,5 +706,86 @@ return @togglevalue");
 				},
 				gameworld
 			]);
+	}
+
+	private static MicrocontrollerGameItemComponentProto CreateMicrocontrollerProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 650.0),
+			new XElement("WattageDiscount", 30.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("LogicText", new XCData("return 0"))
+		);
+
+		return (MicrocontrollerGameItemComponentProto)typeof(MicrocontrollerGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 404L,
+					Name = "Microcontroller",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static MotionSensorGameItemComponentProto CreateMotionSensorProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 50.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("SignalValue", 1.0),
+			new XElement("SignalDurationSeconds", 10.0),
+			new XElement("MinimumSize", SizeCategory.Normal),
+			new XElement("DetectionMode", MotionSensorDetectionMode.AnyMovement)
+		);
+
+		return (MotionSensorGameItemComponentProto)typeof(MotionSensorGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 405L,
+					Name = "Motion Sensor",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static void AddHousingContents(AutomationHousingGameItemComponent housing, IEnumerable<IGameItem> items)
+	{
+		var field = typeof(LockingContainerGameItemComponent).GetField("_contents",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		var contents = (List<IGameItem>)field!.GetValue(housing)!;
+		contents.AddRange(items);
 	}
 }

@@ -13,13 +13,29 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBase
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	All door options, plus:
-	source <component> - the signal source component prototype name or id whose default signal endpoint drives this door
-	threshold <number> - the numeric threshold used to determine when the door is commanded open
-	invert - toggles whether the door opens above or below the threshold
-	openemote <emote> - the emote shown when the door opens automatically. Use @ for the item
-	closeemote <emote> - the emote shown when the door closes automatically. Use @ for the item";
+	private const string BaseDoorBuildingHelpText = @"You can use the following options with this component:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3uninstallable <hinge side difficulty> <other side difficulty> <uninstall trait>#0 - sets the door as uninstallable
+	#3uninstallable#0 - sets the door as not uninstallable by players
+	#3smashable <difficulty>#0 - sets the door as smashable by players
+	#3smashable#0 - sets the door as not smashable
+	#3installed <keyword>#0 - sets the keyword for this door as viewed in exits (e.g. iron door)
+	#3transparent#0 - sets the door as transparent
+	#3opaque#0 - sets the door as opaque
+	#3fire#0 - toggles whether the door can be fired through (e.g. gate)
+	#3openable#0 - toggles whether players can open this door with the OPEN/CLOSE commands";
+
+	private const string SpecificBuildingHelpText = @"
+	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this door
+	#3threshold <number>#0 - the numeric threshold used to determine when the door is commanded open
+	#3invert#0 - toggles whether the door opens above or below the threshold
+	#3openemote <emote>#0 - the emote shown when the door opens automatically. Use $0 for the item
+	#3closeemote <emote>#0 - the emote shown when the door closes automatically. Use $0 for the item";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{BaseDoorBuildingHelpText}{SpecificBuildingHelpText}";
 
 	protected ElectronicDoorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Electronic Door")
@@ -73,11 +89,11 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 		)).ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "source":
 				return BuildingCommandSource(actor, command);
@@ -91,34 +107,8 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 			case "closeemote":
 			case "closeecho":
 				return BuildingCommandCloseEmote(actor, command);
-			case "removable":
-			case "uninstall":
-			case "uninstallable":
-				return BuildingCommandUninstallable(actor, command);
-			case "smashable":
-				return BuildingCommandSmashable(actor, command);
-			case "installed description":
-			case "installed":
-			case "installed_description":
-			case "exit_description":
-			case "exit description":
-			case "exitdesc":
-			case "exit":
-				return BuildingCommandInstalledExitDescription(actor, command);
-			case "see through":
-			case "seethrough":
-			case "transparent":
-			case "opaque":
-				return BuildingCommandSeeThrough(actor, command);
-			case "fire":
-				return BuildingCommandFire(actor);
-			case "open":
-			case "openable":
-			case "canbeopened":
-			case "canopen":
-				return BuildingCommandCanBeOpenedByPlayers(actor);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -250,7 +240,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 		manager.AddTypeHelpInfo(
 			"ElectronicDoor",
 			$"A {"[door]".Colour(Telnet.Yellow)} with built-in signal-driven opening and closing behaviour",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

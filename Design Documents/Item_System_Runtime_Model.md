@@ -108,14 +108,14 @@ As with telecommunications, the runtime goal is interface-first integration. Gam
 The currently implemented automation runtime slice is intentionally narrower than the full target design:
 - `PushButton` is an `ISelectable` same-item signal source with authored keyword, signal value, duration, and press emote
 - `ToggleSwitch` is an `ISwitchable` same-item signal source with authored on and off values
-- `MotionSensor` is a same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
-- `TimerSensor` is a same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
+- `MotionSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
+- `TimerSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
 - `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
   - binds named inputs to local `ISignalSourceComponent` instances
   - keeps live numeric input values
   - compiles authored inline logic in the `ComputerFunction` compilation context
   - emits a single numeric output signal
-- `AutomationMountHost` is an `IConnectable` plus `IAutomationMountHost` component that owns named automation bays, persists installed module item ids, and can require a sibling openable maintenance panel before those bays are serviceable
+- `AutomationMountHost` is an `IConnectable` plus `IAutomationMountHost` component that owns named automation bays, persists installed module item ids, and can require a sibling `AutomationHousing` component before those bays are serviceable
 - `SignalCableSegment` is an `ISignalSourceComponent` wire item that stores a source binding plus source and destination cells and a routed exit id, then mirrors the source endpoint across that one adjacent-room hop
 - `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
 - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base and retries until it reaches the currently commanded open or closed state
@@ -140,8 +140,9 @@ Current runtime connection rules for that slice are:
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
-- `AutomationHousing` is the dedicated housing or junction component family for concealed automation modules and cable ends, but it still composes with ordinary container/openable/lockable item capabilities for service access
-- automation hosts still use sibling openable maintenance panels for mount-bay service access
+- powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted; otherwise powered machines still resolve power from their own parent item
+- `AutomationHousing` is the dedicated housing or junction component family for concealed automation modules and cable ends, and is itself the lockable-container service-access capability on the item rather than a passive sibling marker
+- automation hosts now use sibling `AutomationHousing` components for mount-bay service access
 - there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments
 
 The current player-work runtime flow for that slice is:

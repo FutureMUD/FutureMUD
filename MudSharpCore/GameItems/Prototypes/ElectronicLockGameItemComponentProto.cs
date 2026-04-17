@@ -12,11 +12,27 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	All programmable-lock options, plus:
-	source <component> - the signal source component prototype name or id whose default signal endpoint drives this lock
-	threshold <number> - the numeric threshold used to determine when the lock is active
-	invert - toggles whether the lock activates above or below the threshold";
+	private const string SpecificBuildingHelpText = @"
+	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this lock
+	#3threshold <number>#0 - the numeric threshold used to determine when the lock is active
+	#3invert#0 - toggles whether the lock activates above or below the threshold";
+
+	private const string CombinedBuildingHelpText = @"You can use the following options with this component:
+
+	#3name <name>#0 - renames the component
+	#3desc <description>#0 - sets the description of the component
+    #3type <type>#0 - sets the lock type that is used to match keys.
+	#3pick <difficulty>#0 - sets the difficulty to pick the lock on this container.
+	#3force <difficulty>#0 - sets the difficulty to forcibly open the lock on this container
+	#3lock <emote>#0 - sets the emote when locked. $0 is locker, $1 is container, $2 is key.
+	#3unlock <emote>#0 - sets the emote when unlocked. $0 is locker, $1 is container, $2 is key.
+	#3olock <emote>#0 - sets the emote for the other side of a container when locked. $0 is locker, $1 is container, $2 is key.
+	#3ounlock <emote>#0 - sets the emote for the other side of a container when unlocked. $0 is locker, $1 is container, $2 is key.
+	#3locknoactor <emote>#0 - sets the emote when locked by prog. $0 is the container.
+	#3unlocknoactor <emote>#0 - sets the emote when unlocked by prog. $0 is the container.
+	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this lock
+	#3threshold <number>#0 - the numeric threshold used to determine when the lock is active
+	#3invert#0 - toggles whether the lock activates above or below the threshold";
 
 	protected ElectronicLockGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Electronic Lock")
@@ -68,11 +84,11 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 		).ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "source":
 				return BuildingCommandSource(actor, command);
@@ -81,7 +97,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 			case "invert":
 				return BuildingCommandInvert(actor);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -170,7 +186,7 @@ public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentPro
 		manager.AddTypeHelpInfo(
 			"ElectronicLock",
 			$"A {"[lock]".Colour(Telnet.Yellow)} that responds automatically to a sibling signal source component",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

@@ -14,13 +14,19 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class PushButtonGameItemComponentProto : GameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	keyword <keyword> - the select keyword for the button
-	value <number> - the signal value emitted while the button is active
-	duration <seconds> - how long the button stays active after being pressed
-	emote <emote> - the emote shown when the button is pressed. Use @ for the presser and $1 for the item";
+	private const string SpecificBuildingHelpText = @"
+	#3keyword <keyword>#0 - the select keyword for the button
+	#3value <number>#0 - the signal value emitted while the button is active
+	#3duration <seconds>#0 - how long the button stays active after being pressed
+	#3emote <emote>#0 - the emote shown when the button is pressed. Use @ for the presser and $1 for the item";
+
+	private const string CombinedBuildingHelpText = @"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3keyword <keyword>#0 - the select keyword for the button
+	#3value <number>#0 - the signal value emitted while the button is active
+	#3duration <seconds>#0 - how long the button stays active after being pressed
+	#3emote <emote>#0 - the emote shown when the button is pressed. Use @ for the presser and $1 for the item";
 
 	protected PushButtonGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Push Button")
@@ -60,11 +66,11 @@ public class PushButtonGameItemComponentProto : GameItemComponentProto
 		).ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "keyword":
 				return BuildingCommandKeyword(actor, command);
@@ -78,7 +84,7 @@ public class PushButtonGameItemComponentProto : GameItemComponentProto
 			case "press":
 				return BuildingCommandEmote(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -194,7 +200,7 @@ public class PushButtonGameItemComponentProto : GameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"PushButton",
 			$"A {"[selectable]".Colour(Telnet.Yellow)} momentary signal input for computer-controlled items",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

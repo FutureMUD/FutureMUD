@@ -1,30 +1,36 @@
 #nullable enable
 
+using System;
+using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TimerSensorGameItemComponentProto : GameItemComponentProto
+public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	activevalue <number> - the signal value emitted during the active phase
-	inactivevalue <number> - the signal value emitted during the inactive phase
-	activeduration <seconds> - how long each active phase lasts
-	inactiveduration <seconds> - how long each inactive phase lasts
-	initial <active|inactive> - whether the timer starts in its active or inactive phase";
+	private const string SpecificBuildingHelpText = @"
+	#3activevalue <number>#0 - the signal value emitted during the active phase
+	#3inactivevalue <number>#0 - the signal value emitted during the inactive phase
+	#3activeduration <seconds>#0 - how long each active phase lasts
+	#3inactiveduration <seconds>#0 - how long each inactive phase lasts
+	#3initial <active|inactive>#0 - whether the timer starts in its active or inactive phase
+
+#6Notes:#0
+
+	This sensor only emits its timer-cycle signal while it is switched on and receiving power.";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{PoweredMachineBaseGameItemComponentProto.BuildingHelpText}{SpecificBuildingHelpText}";
 
 	protected TimerSensorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Timer Sensor")
 	{
+		UseMountHostPowerSource = true;
 		ActiveValue = 1.0;
 		InactiveValue = 0.0;
 		ActiveDuration = TimeSpan.FromSeconds(5);
@@ -44,8 +50,17 @@ public class TimerSensorGameItemComponentProto : GameItemComponentProto
 	public bool StartActive { get; protected set; }
 	public override string TypeDescription => "Timer Sensor";
 
+	protected override string ComponentDescriptionOLCByline => "This item is a powered timer sensor";
+
+	protected override string ComponentDescriptionOLCAddendum(ICharacter actor)
+	{
+		return
+			$"Active Value: {ActiveValue.ToString("N2", actor).ColourValue()}\nInactive Value: {InactiveValue.ToString("N2", actor).ColourValue()}\nActive Duration: {ActiveDuration.Describe(actor).ColourValue()}\nInactive Duration: {InactiveDuration.Describe(actor).ColourValue()}\nInitial Phase: {(StartActive ? "Active".ColourValue() : "Inactive".ColourName())}";
+	}
+
 	protected override void LoadFromXml(XElement root)
 	{
+		base.LoadFromXml(root);
 		ActiveValue = double.Parse(root.Element("ActiveValue")?.Value ?? "1.0");
 		InactiveValue = double.Parse(root.Element("InactiveValue")?.Value ?? "0.0");
 		ActiveDuration = TimeSpan.FromSeconds(double.Parse(root.Element("ActiveDurationSeconds")?.Value ?? "5.0"));
@@ -54,22 +69,21 @@ public class TimerSensorGameItemComponentProto : GameItemComponentProto
 		StartActive = bool.Parse(root.Element("StartActive")?.Value ?? "false");
 	}
 
-	protected override string SaveToXml()
+	protected override XElement SaveSubtypeToXml(XElement root)
 	{
-		return new XElement("Definition",
-			new XElement("ActiveValue", ActiveValue),
-			new XElement("InactiveValue", InactiveValue),
-			new XElement("ActiveDurationSeconds", ActiveDuration.TotalSeconds),
-			new XElement("InactiveDurationSeconds", InactiveDuration.TotalSeconds),
-			new XElement("StartActive", StartActive)
-		).ToString();
+		root.Add(new XElement("ActiveValue", ActiveValue));
+		root.Add(new XElement("InactiveValue", InactiveValue));
+		root.Add(new XElement("ActiveDurationSeconds", ActiveDuration.TotalSeconds));
+		root.Add(new XElement("InactiveDurationSeconds", InactiveDuration.TotalSeconds));
+		root.Add(new XElement("StartActive", StartActive));
+		return root;
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "activevalue":
 			case "onvalue":
@@ -87,7 +101,7 @@ public class TimerSensorGameItemComponentProto : GameItemComponentProto
 			case "start":
 				return BuildingCommandInitialPhase(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -224,12 +238,6 @@ public class TimerSensorGameItemComponentProto : GameItemComponentProto
 		return base.WhyCannotSubmit();
 	}
 
-	public override string ComponentDescriptionOLC(ICharacter actor)
-	{
-		return
-			$"{"Timer Sensor Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis component alternates between emitting {ActiveValue.ToString("N2", actor).ColourValue()} for {ActiveDuration.Describe(actor).ColourValue()} and {InactiveValue.ToString("N2", actor).ColourValue()} for {InactiveDuration.Describe(actor).ColourValue()}. It begins in its {(StartActive ? "active".ColourValue() : "inactive".ColourName())} phase.";
-	}
-
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
 		manager.AddBuilderLoader("timersensor", true,
@@ -240,8 +248,8 @@ public class TimerSensorGameItemComponentProto : GameItemComponentProto
 			(proto, gameworld) => new TimerSensorGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"TimerSensor",
-			$"A {"[signal source]".Colour(Telnet.Yellow)} that emits a repeating active/inactive signal cycle",
-			BuildingHelpText);
+			$"A {"[powered signal source]".Colour(Telnet.Yellow)} that emits a repeating active/inactive signal cycle",
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

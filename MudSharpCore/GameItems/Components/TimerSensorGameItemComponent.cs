@@ -1,14 +1,13 @@
 #nullable enable
 
+using System;
+using System.Xml.Linq;
 using MudSharp.Computers;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
-using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
-using System;
-using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -62,7 +61,7 @@ internal static class TimerSensorCycleScheduler
 	}
 }
 
-public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComponent
+public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent, ISignalSourceComponent
 {
 	private TimerSensorGameItemComponentProto _prototype;
 	private DateTime _cycleAnchor;
@@ -74,7 +73,7 @@ public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComp
 
 	public TimerSensorGameItemComponent(TimerSensorGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
-		: base(parent, proto, temporary)
+		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
 		var now = DateTime.UtcNow;
@@ -89,7 +88,7 @@ public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComp
 
 	public TimerSensorGameItemComponent(MudSharp.Models.GameItemComponent component,
 		TimerSensorGameItemComponentProto proto, IGameItem parent)
-		: base(component, parent)
+		: base(component, proto, parent)
 	{
 		_prototype = proto;
 		_noSave = true;
@@ -138,15 +137,36 @@ public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComp
 			? (_nextTransition - DateTime.UtcNow).Describe(voyeur).ColourValue()
 			: "less than a second".ColourValue();
 		return
-			$"{description}\n\nIts timer sensor alternates between {_prototype.ActiveValue.ToString("N2", voyeur).ColourValue()} for {_prototype.ActiveDuration.Describe(voyeur).ColourValue()} and {_prototype.InactiveValue.ToString("N2", voyeur).ColourValue()} for {_prototype.InactiveDuration.Describe(voyeur).ColourValue()}. It is currently {(_isActive ? "active".ColourValue() : "inactive".ColourName())} and will change state in {untilTransition}.";
+			$"{description}\n\nIts timer sensor is {(SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError())}, {(_onAndPowered ? "powered".ColourValue() : "not powered".ColourError())}, alternates between {_prototype.ActiveValue.ToString("N2", voyeur).ColourValue()} for {_prototype.ActiveDuration.Describe(voyeur).ColourValue()} and {_prototype.InactiveValue.ToString("N2", voyeur).ColourValue()} for {_prototype.InactiveDuration.Describe(voyeur).ColourValue()}. It is currently {(_isActive ? "active".ColourValue() : "inactive".ColourName())} and will change state in {untilTransition}.";
 	}
 
 	public override int DecorationPriority => 1000;
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
 	{
+		base.UpdateComponentNewPrototype(newProto);
 		_prototype = (TimerSensorGameItemComponentProto)newProto;
 		RefreshState(DateTime.UtcNow, true);
+	}
+
+	protected override void LoadFromXml(XElement root)
+	{
+		base.LoadFromXml(root);
+		var cycleAnchorElement = root.Element("CycleAnchorTicks");
+		if (cycleAnchorElement is not null && long.TryParse(cycleAnchorElement.Value, out var cycleAnchorTicks) &&
+		    cycleAnchorTicks > 0)
+		{
+			_cycleAnchor = new DateTime(cycleAnchorTicks, DateTimeKind.Utc);
+		}
+		else
+		{
+			_cycleAnchor = DateTime.UtcNow;
+		}
+
+		var startsActiveElement = root.Element("StartsActive");
+		_startsActive = startsActiveElement is not null
+			? bool.Parse(startsActiveElement.Value)
+			: _prototype.StartActive;
 	}
 
 	public override void FinaliseLoad()
@@ -174,31 +194,22 @@ public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComp
 		base.Quit();
 	}
 
-	protected override string SaveToXml()
+	protected override XElement SaveToXml(XElement root)
 	{
-		return new XElement("Definition",
-			new XElement("CycleAnchorTicks", _cycleAnchor.Ticks),
-			new XElement("StartsActive", _startsActive)
-		).ToString();
+		root.Add(new XElement("CycleAnchorTicks", _cycleAnchor.Ticks));
+		root.Add(new XElement("StartsActive", _startsActive));
+		return root;
 	}
 
-	private void LoadFromXml(XElement root)
+	protected override void OnPowerCutInAction()
 	{
-		var cycleAnchorElement = root.Element("CycleAnchorTicks");
-		if (cycleAnchorElement is not null && long.TryParse(cycleAnchorElement.Value, out var cycleAnchorTicks) &&
-		    cycleAnchorTicks > 0)
-		{
-			_cycleAnchor = new DateTime(cycleAnchorTicks, DateTimeKind.Utc);
-		}
-		else
-		{
-			_cycleAnchor = DateTime.UtcNow;
-		}
+		RefreshState(DateTime.UtcNow, true);
+	}
 
-		var startsActiveElement = root.Element("StartsActive");
-		_startsActive = startsActiveElement is not null
-			? bool.Parse(startsActiveElement.Value)
-			: _prototype.StartActive;
+	protected override void OnPowerCutOutAction()
+	{
+		SetCurrentSignal(default, true);
+		HandleDescriptionUpdate();
 	}
 
 	private void HeartbeatTick()
@@ -235,20 +246,21 @@ public class TimerSensorGameItemComponent : GameItemComponent, ISignalSourceComp
 			_prototype.InactiveDuration, now);
 		_isActive = state.IsActive;
 		_nextTransition = state.NextTransition;
-		SetCurrentSignal(_isActive
-			? new ComputerSignal(_prototype.ActiveValue, _prototype.ActiveDuration, null)
-			: new ComputerSignal(_prototype.InactiveValue, _prototype.InactiveDuration, null), markChanged);
-		if (previousIsActive == _isActive)
+		var desiredSignal = SwitchedOn && _onAndPowered
+			? (_isActive
+				? new ComputerSignal(_prototype.ActiveValue, _prototype.ActiveDuration, null)
+				: new ComputerSignal(_prototype.InactiveValue, _prototype.InactiveDuration, null))
+			: default;
+		SetCurrentSignal(desiredSignal, markChanged);
+		if (previousIsActive != _isActive)
 		{
-			return;
-		}
+			if (markChanged)
+			{
+				Changed = true;
+			}
 
-		if (markChanged)
-		{
-			Changed = true;
+			HandleDescriptionUpdate();
 		}
-
-		HandleDescriptionUpdate();
 	}
 
 	private void SetCurrentSignal(ComputerSignal signal, bool markChanged)

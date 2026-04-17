@@ -17,11 +17,14 @@ namespace MudSharp.GameItems.Components;
 public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, IConsumePower, ISwitchable, IOnOff
 {
     private PoweredMachineBaseGameItemComponentProto _prototype;
+	private IProducePower? _powerSource;
+	private bool _drawingPower;
     public override IGameItemComponentProto Prototype => _prototype;
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
         _prototype = (PoweredMachineBaseGameItemComponentProto)newProto;
+		RefreshPowerSourceConnection();
     }
 
     #region Constructors
@@ -78,13 +81,13 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
     public override void Delete()
     {
-        Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
+		EndPowerDrawdown();
         base.Delete();
     }
 
     public override void Quit()
     {
-        Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
+		EndPowerDrawdown();
         base.Quit();
     }
 
@@ -92,7 +95,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
     {
         if (SwitchedOn)
         {
-            Parent.GetItemType<IProducePower>()?.BeginDrawdown(this);
+			BeginPowerDrawdown();
         }
 
         base.Login();
@@ -143,16 +146,20 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
         get => _switchedOn;
         set
         {
+			if (_switchedOn == value)
+			{
+				return;
+			}
+
             _switchedOn = value;
             Changed = true;
-            IProducePower power = Parent.GetItemType<IProducePower>();
             if (value)
             {
-                power.BeginDrawdown(this);
+				BeginPowerDrawdown();
             }
             else
             {
-                power.EndDrawdown(this);
+				EndPowerDrawdown();
             }
         }
     }
@@ -199,15 +206,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
     private bool SwitchOn(ICharacter actor)
     {
         SwitchedOn = true;
-        Changed = true;
-        Parent.GetItemType<IProducePower>()?.BeginDrawdown(this);
         return true;
     }
 
     private bool SwitchOff(ICharacter actor)
     {
-        Changed = true;
-        Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
         SwitchedOn = false;
         return true;
     }
@@ -225,4 +228,63 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
     }
 
     #endregion
+
+	protected virtual IProducePower? ResolvePowerSource()
+	{
+		if (_prototype.UseMountHostPowerSource &&
+		    this is IAutomationMountable { IsMounted: true, MountHost: not null } mountable)
+		{
+			return mountable.MountHost.Parent.GetItemType<IProducePower>() ?? Parent.GetItemType<IProducePower>();
+		}
+
+		return Parent.GetItemType<IProducePower>();
+	}
+
+	protected void RefreshPowerSourceConnection()
+	{
+		if (!SwitchedOn)
+		{
+			return;
+		}
+
+		SetPowerSource(ResolvePowerSource());
+	}
+
+	private void BeginPowerDrawdown()
+	{
+		SetPowerSource(ResolvePowerSource());
+	}
+
+	private void EndPowerDrawdown()
+	{
+		if (_powerSource is not null && _drawingPower)
+		{
+			_powerSource.EndDrawdown(this);
+		}
+
+		_powerSource = null;
+		_drawingPower = false;
+	}
+
+	private void SetPowerSource(IProducePower? powerSource)
+	{
+		if (!ReferenceEquals(_powerSource, powerSource))
+		{
+			if (_powerSource is not null && _drawingPower)
+			{
+				_powerSource.EndDrawdown(this);
+				_drawingPower = false;
+			}
+
+			_powerSource = powerSource;
+		}
+
+		if (_powerSource is null || _drawingPower)
+		{
+			return;
+		}
+
+		_powerSource.BeginDrawdown(this);
+		_drawingPower = true;
+	}
 }

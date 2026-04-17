@@ -20,14 +20,15 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
 {
     #region Constructors
 
-    protected PoweredMachineBaseGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type) : base(
-        gameworld, originator, type)
-    {
-        Switchable = true;
-        Wattage = 650;
-        WattageDiscountPerQuality = 30;
-        PowerOnEmote = "@ hum|hums briefly as it powers on";
-        PowerOffEmote = "@ shudder|shudders as it powers down.";
+	protected PoweredMachineBaseGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type) : base(
+		gameworld, originator, type)
+	{
+		Switchable = true;
+		UseMountHostPowerSource = false;
+		Wattage = 650;
+		WattageDiscountPerQuality = 30;
+		PowerOnEmote = "@ hum|hums briefly as it powers on";
+		PowerOffEmote = "@ shudder|shudders as it powers down.";
     }
 
     protected PoweredMachineBaseGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto,
@@ -35,15 +36,21 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
     {
     }
 
-    protected override void LoadFromXml(XElement root)
-    {
-        Wattage = double.Parse(root.Element("Wattage").Value);
-        WattageDiscountPerQuality = double.Parse(root.Element("WattageDiscount").Value);
-        Switchable = bool.Parse(root.Element("Switchable").Value);
-        PowerOnEmote = root.Element("PowerOnEmote").Value;
-        PowerOffEmote = root.Element("PowerOffEmote").Value;
-        OnPoweredProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnPoweredProg").Value));
-        OnUnpoweredProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnUnpoweredProg").Value));
+	protected override void LoadFromXml(XElement root)
+	{
+		Wattage = double.Parse(root.Element("Wattage")?.Value ?? "650");
+		WattageDiscountPerQuality = double.Parse(root.Element("WattageDiscount")?.Value ?? "30");
+		Switchable = bool.Parse(root.Element("Switchable")?.Value ?? "true");
+		UseMountHostPowerSource = bool.Parse(root.Element("UseMountHostPowerSource")?.Value ?? "false");
+		PowerOnEmote = root.Element("PowerOnEmote")?.Value ?? "@ hum|hums briefly as it powers on";
+		PowerOffEmote = root.Element("PowerOffEmote")?.Value ?? "@ shudder|shudders as it powers down.";
+		OnPoweredProg = long.TryParse(root.Element("OnPoweredProg")?.Value, out var onPoweredProgId) && onPoweredProgId > 0
+			? Gameworld.FutureProgs?.Get(onPoweredProgId)
+			: null;
+		OnUnpoweredProg =
+			long.TryParse(root.Element("OnUnpoweredProg")?.Value, out var onUnpoweredProgId) && onUnpoweredProgId > 0
+				? Gameworld.FutureProgs?.Get(onUnpoweredProgId)
+				: null;
     }
 
     #endregion
@@ -54,14 +61,15 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
 
     protected sealed override string SaveToXml()
     {
-        return SaveSubtypeToXml(new XElement("Definition",
-            new XElement("Wattage", Wattage),
-            new XElement("WattageDiscount", WattageDiscountPerQuality),
-            new XElement("Switchable", Switchable),
-            new XElement("PowerOnEmote", new XCData(PowerOnEmote)),
-            new XElement("PowerOffEmote", new XCData(PowerOffEmote)),
-            new XElement("OnPoweredProg", OnPoweredProg?.Id ?? 0),
-            new XElement("OnUnpoweredProg", OnUnpoweredProg?.Id ?? 0)
+		return SaveSubtypeToXml(new XElement("Definition",
+			new XElement("Wattage", Wattage),
+			new XElement("WattageDiscount", WattageDiscountPerQuality),
+			new XElement("Switchable", Switchable),
+			new XElement("UseMountHostPowerSource", UseMountHostPowerSource),
+			new XElement("PowerOnEmote", new XCData(PowerOnEmote)),
+			new XElement("PowerOffEmote", new XCData(PowerOffEmote)),
+			new XElement("OnPoweredProg", OnPoweredProg?.Id ?? 0),
+			new XElement("OnUnpoweredProg", OnUnpoweredProg?.Id ?? 0)
         )).ToString();
     }
 
@@ -225,6 +233,15 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
         return true;
     }
 
+	private bool BuildingCommandMountPower(ICharacter actor)
+	{
+		UseMountHostPowerSource = !UseMountHostPowerSource;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This machine will {(UseMountHostPowerSource ? "now".ColourValue() : "no longer".ColourError())} draw power from an automation mount host when mounted.");
+		return true;
+	}
+
     private bool BuildingCommandQualityDiscount(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -253,12 +270,24 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
         return true;
     }
 
-    public override string ShowBuildingHelp =>
-        "You can use the following options with this command:\n\twattage <watts> - set power usage\n\tdiscount <watts> - a wattage discount per quality\n\tswitchable - toggles whether players can switch this on\n\tonemote <emote> - sets the emote when powered on. Use $0 for the machine.\n\toffemote <emote> - sets the emote when powered down. Use $0 for the machine.\n\tonprog <prog> - sets a prog to execute when the machine is powered on\n\toffprog <prog> - sets a prog to execute when the machine is powered down";
+    protected const string BuildingHelpText = @"You can use the following options with this command:
+
+    #3name <name>#0 - renames the component
+    #3desc <description>#0 - sets the description of the component
+	#3wattage <watts>#0 - set power usage
+	#3discount <watts>#0 - a wattage discount per quality
+	#3switchable#0 - toggles whether players can switch this on
+	#3mountpower#0 - toggles whether this machine draws power from its automation mount host when mounted
+	#3onemote <emote>#0 - sets the emote when powered on. Use $0 for the machine.
+	#3offemote <emote>#0 - sets the emote when powered down. Use $0 for the machine.
+	#3onprog <prog>#0 - sets a prog to execute when the machine is powered on
+	#3offprog <prog>#0 - sets a prog to execute when the machine is powered down";
+
+    public override string ShowBuildingHelp => BuildingHelpText;
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
-        switch (command.PopSpeech().ToLowerInvariant())
+        switch (command.PopForSwitch())
         {
             case "wattage":
             case "watts":
@@ -288,6 +317,13 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
                 return BuildingCommandOffProg(actor, command);
             case "switchable":
                 return BuildingCommandSwitchable(actor, command);
+            case "mountpower":
+            case "mount power":
+            case "mountedpower":
+            case "mounted power":
+            case "hostpower":
+            case "host power":
+                return BuildingCommandMountPower(actor);
             default:
                 return base.BuildingCommand(actor, command);
         }
@@ -302,6 +338,7 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
     public IFutureProg OnPoweredProg { get; protected set; }
     public IFutureProg OnUnpoweredProg { get; protected set; }
     public bool Switchable { get; protected set; }
+    public bool UseMountHostPowerSource { get; protected set; }
 
     protected abstract string ComponentDescriptionOLCByline { get; }
 
@@ -323,7 +360,7 @@ public abstract class PoweredMachineBaseGameItemComponentProto : GameItemCompone
             PowerOffEmote.ColourCommand(),
             OnPoweredProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red),
             OnUnpoweredProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red),
-            ComponentDescriptionOLCAddendum(actor)
+            $"{ComponentDescriptionOLCAddendum(actor)}\nMount Power Mode: {(UseMountHostPowerSource ? "Uses host power when mounted".ColourValue() : "Uses only parent-item power".ColourName())}"
         );
     }
 }

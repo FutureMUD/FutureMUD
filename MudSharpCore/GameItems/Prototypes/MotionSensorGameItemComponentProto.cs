@@ -1,31 +1,36 @@
 #nullable enable
 
-using MudSharp.Accounts;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Framework.Revision;
-using MudSharp.Form.Shape;
-using MudSharp.GameItems;
-using MudSharp.GameItems.Components;
-using MudSharp.PerceptionEngine;
 using System;
 using System.Xml.Linq;
+using MudSharp.Accounts;
+using MudSharp.Character;
+using MudSharp.Form.Shape;
+using MudSharp.Framework;
+using MudSharp.Framework.Revision;
+using MudSharp.GameItems.Components;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MotionSensorGameItemComponentProto : GameItemComponentProto
+public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	value <number> - the signal value emitted while the sensor is active
-	duration <seconds> - how long the sensor remains active after motion is detected
-	size <size> - the minimum target size category that can trigger the sensor
-	mode <any|begin|enter|stop> - which witnessed movement events trigger the sensor";
+	private const string SpecificBuildingHelpText = @"
+	#3value <number>#0 - the signal value emitted while the sensor is active
+	#3duration <seconds>#0 - how long the sensor remains active after motion is detected
+	#3size <size>#0 - the minimum target size category that can trigger the sensor
+	#3mode <any|begin|enter|stop>#0 - which witnessed movement events trigger the sensor
+
+#6Notes:#0
+
+	This sensor only emits a signal while it is switched on and receiving power.";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{PoweredMachineBaseGameItemComponentProto.BuildingHelpText}{SpecificBuildingHelpText}";
 
 	protected MotionSensorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Motion Sensor")
 	{
+		UseMountHostPowerSource = true;
 		SignalValue = 1.0;
 		SignalDuration = TimeSpan.FromSeconds(10);
 		MinimumSize = SizeCategory.Normal;
@@ -43,8 +48,17 @@ public class MotionSensorGameItemComponentProto : GameItemComponentProto
 	public MotionSensorDetectionMode DetectionMode { get; protected set; }
 	public override string TypeDescription => "Motion Sensor";
 
+	protected override string ComponentDescriptionOLCByline => "This item is a powered motion sensor";
+
+	protected override string ComponentDescriptionOLCAddendum(ICharacter actor)
+	{
+		return
+			$"Signal Value: {SignalValue.ToString("N2", actor).ColourValue()}\nActive Duration: {SignalDuration.Describe(actor).ColourValue()}\nMinimum Size: {MinimumSize.Describe().ColourValue()}\nDetection Mode: {DetectionMode.Describe().ColourValue()}";
+	}
+
 	protected override void LoadFromXml(XElement root)
 	{
+		base.LoadFromXml(root);
 		SignalValue = double.Parse(root.Element("SignalValue")?.Value ?? "1.0");
 		SignalDuration = TimeSpan.FromSeconds(double.Parse(root.Element("SignalDurationSeconds")?.Value ?? "10.0"));
 		MinimumSize = Enum.TryParse<SizeCategory>(root.Element("MinimumSize")?.Value, out var minimumSize)
@@ -55,21 +69,20 @@ public class MotionSensorGameItemComponentProto : GameItemComponentProto
 			: MotionSensorDetectionMode.AnyMovement;
 	}
 
-	protected override string SaveToXml()
+	protected override XElement SaveSubtypeToXml(XElement root)
 	{
-		return new XElement("Definition",
-			new XElement("SignalValue", SignalValue),
-			new XElement("SignalDurationSeconds", SignalDuration.TotalSeconds),
-			new XElement("MinimumSize", MinimumSize),
-			new XElement("DetectionMode", DetectionMode)
-		).ToString();
+		root.Add(new XElement("SignalValue", SignalValue));
+		root.Add(new XElement("SignalDurationSeconds", SignalDuration.TotalSeconds));
+		root.Add(new XElement("MinimumSize", MinimumSize));
+		root.Add(new XElement("DetectionMode", DetectionMode));
+		return root;
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "value":
 			case "signal":
@@ -84,7 +97,7 @@ public class MotionSensorGameItemComponentProto : GameItemComponentProto
 			case "mode":
 				return BuildingCommandDetectionMode(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -186,12 +199,6 @@ public class MotionSensorGameItemComponentProto : GameItemComponentProto
 		return base.WhyCannotSubmit();
 	}
 
-	public override string ComponentDescriptionOLC(ICharacter actor)
-	{
-		return
-			$"{"Motion Sensor Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\nThis component emits a signal value of {SignalValue.ToString("N2", actor).ColourValue()} for {SignalDuration.Describe(actor).ColourValue()} whenever it witnesses {DetectionMode.Describe().ColourValue()} from {MinimumSize.Describe().ColourValue()} or larger targets.";
-	}
-
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
 		manager.AddBuilderLoader("motionsensor", true,
@@ -202,8 +209,8 @@ public class MotionSensorGameItemComponentProto : GameItemComponentProto
 			(proto, gameworld) => new MotionSensorGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
 			"MotionSensor",
-			$"A {"[signal source]".Colour(Telnet.Yellow)} that emits a timed signal when it witnesses configured movement",
-			BuildingHelpText);
+			$"A {"[powered signal source]".Colour(Telnet.Yellow)} that emits a timed signal when it witnesses configured movement",
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

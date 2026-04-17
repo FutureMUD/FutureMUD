@@ -15,13 +15,15 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	All powered-machine options, plus:
-	source <component> - the signal source component prototype name or id whose default signal endpoint drives this alarm
-	threshold <number> - the numeric threshold used to determine when the alarm is active
-	invert - toggles whether the alarm activates above or below the threshold
-	volume <volume> - sets the alarm volume
-	emote <emote> - the audible emote shown whenever the alarm sounds. Use @ for the item";
+	private const string SpecificBuildingHelpText = @"
+	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this alarm
+	#3threshold <number>#0 - the numeric threshold used to determine when the alarm is active
+	#3invert#0 - toggles whether the alarm activates above or below the threshold
+	#3volume <volume>#0 - sets the alarm volume
+	#3emote <emote>#0 - the audible emote shown whenever the alarm sounds. Use $0 for the item";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{PoweredMachineBaseGameItemComponentProto.BuildingHelpText}{SpecificBuildingHelpText}";
 
 	protected AlarmSirenGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Alarm Siren")
@@ -84,11 +86,11 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 		return root;
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "source":
 				return BuildingCommandSource(actor, command);
@@ -103,7 +105,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 			case "alarm":
 				return BuildingCommandEmote(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -227,7 +229,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 		manager.AddTypeHelpInfo(
 			"AlarmSiren",
 			$"A {"[powered]".Colour(Telnet.Magenta)} audible alarm driven by a sibling signal source component",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

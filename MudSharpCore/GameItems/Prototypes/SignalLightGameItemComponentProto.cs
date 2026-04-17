@@ -13,13 +13,23 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 {
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	All programmable-light options, plus:
-	source <component> - the signal source component prototype name or id whose default signal endpoint drives this light
-	threshold <number> - the numeric threshold used to determine when the light is active
-	invert - toggles whether the light is active above or below the threshold
-	onemote <emote> - the emote shown when the signal lights this component
-	offemote <emote> - the emote shown when the signal extinguishes this component";
+	private const string SpecificBuildingHelpText = @"
+	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this light
+	#3threshold <number>#0 - the numeric threshold used to determine when the light is active
+	#3invert#0 - toggles whether the light is active above or below the threshold
+	#3onemote <emote>#0 - the emote shown when the signal lights this component
+	#3offemote <emote>#0 - the emote shown when the signal extinguishes this component";
+
+	private const string CombinedBuildingHelpText = @"You can use the following options with this component:
+
+	#3name <name>#0 - renames the component
+	#3desc <description>#0 - sets the description of the component
+	#3illumination <lux>#0 - sets how much light this provides
+	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this light
+	#3threshold <number>#0 - the numeric threshold used to determine when the light is active
+	#3invert#0 - toggles whether the light is active above or below the threshold
+	#3onemote <emote>#0 - the emote shown when the signal lights this component
+	#3offemote <emote>#0 - the emote shown when the signal extinguishes this component";
 
 	protected SignalLightGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Signal Light")
@@ -73,11 +83,11 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 		).ToString();
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "source":
 				return BuildingCommandSource(actor, command);
@@ -90,7 +100,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 			case "offemote":
 				return BuildingCommandOffEmote(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -221,7 +231,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"SignalLight",
 			$"A {"[light source]".Colour(Telnet.Pink)} driven by a sibling signal source component",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

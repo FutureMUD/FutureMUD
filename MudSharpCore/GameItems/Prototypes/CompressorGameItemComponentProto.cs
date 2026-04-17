@@ -121,14 +121,14 @@ public class CompressorGameItemComponentProto : PoweredMachineBaseGameItemCompon
 
     #region Building Commands
 
-    private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twattage <watts> - set power usage\n\tdiscount <watts> - a wattage discount per quality\n\tswitchable - toggles whether players can switch this on\n\tonemote <emote> - sets the emote when powered on. Use $0 for the machine.\n\toffemote <emote> - sets the emote when powered down. Use $0 for the machine.\n\tonprog <prog> - sets a prog to execute when the machine is powered on\n\toffprog <prog> - sets a prog to execute when the machine is powered downflow <rate> - sets the flow rate in volume per 10 seconds\n\ttype add <male|female|neuter> <type name> - adds a connection of the specified gender and name\n\ttype remove <male|female|neuter> <type name> - removes a connection of the specified gender and name";
-
-    public override string ShowBuildingHelp => BuildingHelpText;
+    public override string ShowBuildingHelp => $@"{base.ShowBuildingHelp}
+    #3type add <male|female|neuter> <type name>#0 - adds a connection of the specified gender and name
+	#3type remove <male|female|neuter> <type name>#0 - removes a connection of the specified gender and name
+    #3flow <rate>#0 - sets the flow rate per 10 seconds";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
-        switch (command.PopSpeech().ToLowerInvariant())
+        switch (command.PopForSwitch())
         {
             case "type":
             case "connection":
@@ -141,7 +141,7 @@ public class CompressorGameItemComponentProto : PoweredMachineBaseGameItemCompon
             case "rate":
                 return BuildingCommandFlowRate(actor, command);
             default:
-                return base.BuildingCommand(actor, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"));
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 

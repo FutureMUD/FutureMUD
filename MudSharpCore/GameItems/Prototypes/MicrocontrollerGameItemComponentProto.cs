@@ -50,24 +50,27 @@ public sealed class MicrocontrollerInputDefinition
 }
 
 public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
-{
-	private const string BuildingHelpText = @"You can use the following options with this component:
-	All powered-machine options, plus:
-	input add <variable> <sourcecomponent> - adds an input variable bound to a sibling signal source component's default signal endpoint
-	input remove <variable> - removes an input binding
-	logic - edits the controller logic in the multiline editor
-	logic <text> - sets the controller logic directly
-
-Notes:
-	The controller logic must compile as a computer function and return a number.
-	Input variable names must be valid FutureProg variable names and are automatically lower-cased.";
-
+{	
 	private readonly List<MicrocontrollerInputDefinition> _inputs = [];
 	private IFutureProg? _compiledLogic;
+	private const string SpecificBuildingHelpText = @"
+	#3input add <variable> <sourcecomponent>#0 - adds an input variable bound to a sibling signal source component's default signal endpoint
+	#3input remove <variable>#0 - removes an input binding
+	#3logic#0 - edits the controller logic in the multiline editor
+	#3logic <text>#0 - sets the controller logic directly
+
+#6Notes:#0
+
+	The controller logic must compile as a computer function and return a number.
+	Input variable names must be valid prog variable names and are automatically lower-cased.";
+
+	private static readonly string CombinedBuildingHelpText =
+		$@"{PoweredMachineBaseGameItemComponentProto.BuildingHelpText}{SpecificBuildingHelpText}";
 
 	public MicrocontrollerGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Microcontroller")
 	{
+		UseMountHostPowerSource = true;
 		LogicText = "return 0";
 		CompileError = string.Empty;
 		CompileControllerLogic();
@@ -122,11 +125,11 @@ Notes:
 		return root;
 	}
 
-	public override string ShowBuildingHelp => BuildingHelpText;
+	public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "input":
 			case "inputs":
@@ -135,7 +138,7 @@ Notes:
 			case "code":
 				return BuildingCommandLogic(actor, command);
 			default:
-				return base.BuildingCommand(actor, command);
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
 	}
 
@@ -301,7 +304,7 @@ Notes:
 		manager.AddTypeHelpInfo(
 			"Microcontroller",
 			$"A {"[powered]".Colour(Telnet.Magenta)} controller that evaluates inline computer-function logic from sibling signal inputs",
-			BuildingHelpText);
+			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)

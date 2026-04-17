@@ -129,13 +129,21 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto
     }
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description\n\tquantity <weight> - sets total weight of cream\n\tdrug add <which> <grams per gram> <absorption> - adds or edits a drug\n\tdrug remove <which> - removes a drug\n\tprog <which> - sets a prog to execute when the cream is applied\n\tprog clear - removes the on-apply prog";
+        @"You can use the following options with this component:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description
+	#3quantity <weight>#0 - sets total weight of cream
+	#3drug add <which> <grams per gram> <absorption>#0 - adds or edits a drug
+	#3drug remove <which>#0 - removes a drug
+	#3prog <which>#0 - sets a prog to execute when the cream is applied
+	#3prog clear#0 - removes the on-apply prog";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
-        switch (command.PopSpeech().ToLowerInvariant())
+        switch (command.PopForSwitch())
         {
             case "quantity":
             case "weight":
@@ -146,7 +154,7 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto
             case "onapply":
                 return BuildingCommandOnApplyProg(actor, command);
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 

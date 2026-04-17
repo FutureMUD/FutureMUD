@@ -1,10 +1,8 @@
 #nullable enable
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -14,25 +12,22 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Components;
 
-public class AutomationHousingGameItemComponent : GameItemComponent, IAutomationHousing
+public class AutomationHousingGameItemComponent : LockingContainerGameItemComponent, IAutomationHousing
 {
 	private AutomationHousingGameItemComponentProto _prototype;
 
 	public AutomationHousingGameItemComponent(AutomationHousingGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
-		: base(parent, proto, temporary)
+		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
 	}
 
 	public AutomationHousingGameItemComponent(MudSharp.Models.GameItemComponent component,
 		AutomationHousingGameItemComponentProto proto, IGameItem parent)
-		: base(component, parent)
+		: base(component, proto, parent)
 	{
 		_prototype = proto;
-		_noSave = true;
-		LoadFromXml(XElement.Parse(component.Definition));
-		_noSave = false;
 	}
 
 	public AutomationHousingGameItemComponent(AutomationHousingGameItemComponent rhs, IGameItem newParent,
@@ -43,10 +38,7 @@ public class AutomationHousingGameItemComponent : GameItemComponent, IAutomation
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
-
-	public IEnumerable<IGameItem> ConcealedItems => Parent.GetItemType<IContainer>()?.Contents
-		.Where(IsSupportedAutomationItem)
-		.ToList() ?? [];
+	public IEnumerable<IGameItem> ConcealedItems => Contents.Where(IsSupportedAutomationItem).ToList();
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -55,27 +47,22 @@ public class AutomationHousingGameItemComponent : GameItemComponent, IAutomation
 
 	public override bool DescriptionDecorator(DescriptionType type)
 	{
-		return type == DescriptionType.Full;
+		return type == DescriptionType.Full || base.DescriptionDecorator(type);
 	}
 
 	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type, bool colour,
 		PerceiveIgnoreFlags flags)
 	{
+		var baseDescription = base.Decorate(voyeur, name, description, type, colour, flags);
 		if (type != DescriptionType.Full)
 		{
-			return description;
+			return baseDescription;
 		}
 
-		var sb = new StringBuilder(description);
+		var sb = new StringBuilder(baseDescription);
 		sb.AppendLine();
 		sb.AppendLine();
-		if (Parent.GetItemType<IContainer>() is not IContainer)
-		{
-			sb.AppendLine("Its automation housing is misconfigured and has no service cavity.");
-			return sb.ToString();
-		}
-
-		if (Parent.GetItemType<IOpenable>() is IOpenable { IsOpen: false })
+		if (!IsOpen)
 		{
 			sb.AppendLine("Its automation housing is sealed shut.");
 			return sb.ToString();
@@ -98,15 +85,24 @@ public class AutomationHousingGameItemComponent : GameItemComponent, IAutomation
 		return sb.ToString();
 	}
 
+	public override bool CanPut(IGameItem item)
+	{
+		return IsSupportedAutomationItem(item) && base.CanPut(item);
+	}
+
+	public override int CanPutAmount(IGameItem item)
+	{
+		return IsSupportedAutomationItem(item) ? base.CanPutAmount(item) : 0;
+	}
+
+	public override WhyCannotPutReason WhyCannotPut(IGameItem item)
+	{
+		return IsSupportedAutomationItem(item) ? base.WhyCannotPut(item) : WhyCannotPutReason.NotCorrectItemType;
+	}
+
 	public bool CanAccessHousing(ICharacter actor, out string error)
 	{
-		if (Parent.GetItemType<IContainer>() is not IContainer)
-		{
-			error = $"{Parent.HowSeen(actor, true)} is not configured with a service cavity.";
-			return false;
-		}
-
-		if (Parent.GetItemType<IOpenable>() is IOpenable { IsOpen: false })
+		if (!IsOpen)
 		{
 			error = $"You need to open {Parent.HowSeen(actor, true)} before you can service the concealed automation items.";
 			return false;
@@ -118,12 +114,6 @@ public class AutomationHousingGameItemComponent : GameItemComponent, IAutomation
 
 	public bool CanConcealItem(IGameItem item, out string error)
 	{
-		if (Parent.GetItemType<IContainer>() is not IContainer)
-		{
-			error = $"{Parent.HowSeen(item, true)} is not configured with a service cavity.";
-			return false;
-		}
-
 		if (IsSupportedAutomationItem(item))
 		{
 			error = string.Empty;
@@ -136,16 +126,8 @@ public class AutomationHousingGameItemComponent : GameItemComponent, IAutomation
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
 	{
+		base.UpdateComponentNewPrototype(newProto);
 		_prototype = (AutomationHousingGameItemComponentProto)newProto;
-	}
-
-	protected override string SaveToXml()
-	{
-		return new XElement("Definition").ToString();
-	}
-
-	private void LoadFromXml(XElement root)
-	{
 	}
 
 	private bool IsSupportedAutomationItem(IGameItem item)

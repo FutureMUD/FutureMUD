@@ -264,11 +264,12 @@ Current authoring pattern:
 - sources author their own output behaviour and expose `ISignalSourceComponent`
 - sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
 - microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`; the binding command accepts a component prototype name or id and stores a stable local source identifier plus the current default local endpoint key
-- automation hosts author one or more named bays plus an optional sibling maintenance-panel component prototype that must be open for service access
-- automation housings author which categories of automation items they may conceal, and rely on sibling container/openable/lockable capabilities on the same parent item for actual service access
+- automation hosts author one or more named bays plus an optional sibling `automationhousing` component prototype that must be open for service access
+- automation housings author which categories of automation items they may conceal and are themselves the dedicated lockable-container service-access capability on the item
 - signal cables have no meaningful static routing fields on the proto; they are routed at runtime and persist that live route on the component instance
-- `motionsensor` authors signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
-- `timersensor` authors active and inactive values, active and inactive durations, and its initial phase
+- `motionsensor` authors powered-machine settings plus signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
+- `timersensor` authors powered-machine settings plus active and inactive values, active and inactive durations, and its initial phase
+- `microcontroller` authors powered-machine settings, including optional mount-host power draw via `mountpower`
 - `electronicdoor` authors source component prototype, threshold, invert mode, and automatic open and close emotes
 - `alarmsiren` authors source component prototype, threshold, invert mode, volume, and repeated alarm emote
 

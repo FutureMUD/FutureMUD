@@ -139,17 +139,17 @@ For the current signal-automation slice, also validate:
 - whether source and sink bindings resolve to the intended local sibling component ids and endpoint keys on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
-- whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration
-- whether `timersensor` alternates between its authored active and inactive values on the expected schedule
+- whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration and only while powered
+- whether `timersensor` alternates between its authored active and inactive values on the expected schedule and only emits live signal while powered
 - whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
-- whether `automationmounthost` bay names, mount types, and optional maintenance-panel access requirements match the intended content composition
+- whether `automationmounthost` bay names, mount types, optional `AutomationHousing` access requirements, and mounted-power expectations match the intended content composition
 - whether `signalcable` successfully mirrors a source across the intended one-room exit hop and clears correctly when unrouted
 - whether `signallight` responds to threshold and invert settings without redundant extra echoes when the effective lit state is unchanged
 - whether `electronicdoor` responds to threshold and invert settings and reaches the commanded open or closed state once any lock conditions permit it
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 - whether the live `electrical` and `programming` verbs target the intended component ids shown in their inspection output
-- whether service access is correctly blocked by a closed maintenance panel or by a closed `AutomationHousing` item around a cable end
+- whether service access is correctly blocked by a closed `AutomationHousing` item around a mount bay or cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
 - whether abject failure on electrical work produces the intended shock echo and electrical damage
 
@@ -250,7 +250,7 @@ For the current microcontroller workflow, a practical end-to-end pass is:
 For the live player workflow on an already loaded composed item, a practical end-to-end pass is:
 1. Use `electrical <item>` to inspect local signal sources and configurable sinks and note the live component ids.
 2. If the item is an automation host, use `electrical install <host> <module> [<bay>]` to install a loose microcontroller or other compatible module item into a named bay.
-3. If there is a maintenance panel or `AutomationHousing`, confirm it must be open before install, remove, programming, or rewiring is allowed.
+3. If there is an `AutomationHousing`, confirm it must be open before install, remove, programming, or rewiring is allowed.
 4. Use `programming <item>` or `programming <host@module>` to inspect the live microcontroller list, compile state, and current input bindings.
 5. Use `programming <item> logic <component>` or `programming <item> logic <component> <text>` to replace controller logic on the live item.
 6. Use `programming <item> input add <component> <variable> <source> [<endpoint>]` and `programming <item> input remove <component> <variable>` to manage live input bindings.
@@ -261,6 +261,8 @@ For the live player workflow on an already loaded composed item, a practical end
 11. Confirm the required tool tag is available, the actor holds or readies the needed tool through the inventory plan, and the tool is restored after completion or cancellation.
 12. Confirm ordinary failures cost the action time but do not consume materials.
 13. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
+
+For broader manual regression coverage of the current shipped automation slice, use the dedicated [Automation End-To-End Test Scenarios](./Automation_End_To_End_Test_Scenarios.md) document.
 
 For the standalone player-owned computer-program workflow in the current phase, a practical pass is:
 1. Use `programming help` to inspect the computer-safe subset of FutureProg types, statements, functions, and collection helpers.

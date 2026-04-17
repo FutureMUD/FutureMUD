@@ -11,6 +11,11 @@ These are developer test scripts, not player documentation. They are intended fo
 - automation housings
 - one-room-at-a-time cable routing
 
+Current behavioural notes:
+- administrator characters perform `electrical` and item-targeted `programming` actions instantly without tool requirements, skill checks, or delayed stages
+- service housings on door or host items can be accessed through normal `open` / `close` subtarget syntax, for example `open north panel`
+- ordinary `look` output focuses on physical state; live signal diagnostics are expected in `electrical <item>`
+
 ## Assumptions
 - Use the normal `comp edit submit`, review, and approval workflow for components.
 - Use the normal `item edit`, `item set add`, and item approval workflow for items.
@@ -137,9 +142,10 @@ Create the following item prototypes:
 3. Load `an outside motion sensor` in Room B.
 4. Load `an electronic security door` on the exit.
 5. Load `an airlock controller module` near the door.
-6. Open the service housing with the normal `open` verb.
+6. Open the service housing with the normal `open` verb and panel subtarget.
 7. Inspect the host and housing:
 ```text
+open north panel
 electrical "an electronic security door"
 ```
 8. Install the controller into the bay:

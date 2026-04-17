@@ -250,7 +250,7 @@ For the current microcontroller workflow, a practical end-to-end pass is:
 For the live player workflow on an already loaded composed item, a practical end-to-end pass is:
 1. Use `electrical <item>` to inspect local signal sources and configurable sinks and note the live component ids.
 2. If the item is an automation host, use `electrical install <host> <module> [<bay>]` to install a loose microcontroller or other compatible module item into a named bay.
-3. If there is an `AutomationHousing`, confirm it must be open before install, remove, programming, or rewiring is allowed.
+3. If there is an `AutomationHousing`, confirm it must be open before install, remove, programming, or rewiring is allowed, and confirm access can be reached through normal `open` / `close` subtargets such as `open north panel`.
 4. Use `programming <item>` or `programming <host@module>` to inspect the live microcontroller list, compile state, and current input bindings.
 5. Use `programming <item> logic <component>` or `programming <item> logic <component> <text>` to replace controller logic on the live item.
 6. Use `programming <item> input add <component> <variable> <source> [<endpoint>]` and `programming <item> input remove <component> <variable>` to manage live input bindings.
@@ -261,6 +261,7 @@ For the live player workflow on an already loaded composed item, a practical end
 11. Confirm the required tool tag is available, the actor holds or readies the needed tool through the inventory plan, and the tool is restored after completion or cancellation.
 12. Confirm ordinary failures cost the action time but do not consume materials.
 13. Confirm abject electrical failure produces electrical shock rather than deleting or breaking components.
+14. Confirm administrator characters bypass the tool, check, and delay layer for those live item actions while still respecting visibility and service-access gating.
 
 For broader manual regression coverage of the current shipped automation slice, use the dedicated [Automation End-To-End Test Scenarios](./Automation_End_To_End_Test_Scenarios.md) document.
 

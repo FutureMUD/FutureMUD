@@ -2,10 +2,13 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -13,10 +16,12 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
@@ -546,6 +551,171 @@ return @togglevalue");
 		Assert.AreEqual(0.0, cable.CurrentValue, 0.0001);
 	}
 
+	[TestMethod]
+	public void ElectronicsModule_AdminFastPath_ExecutesImmediatelyAndFinalisesPlansWithExemptions()
+	{
+		var actor = new Mock<ICharacter>();
+		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(true);
+		var firstPlan = new Mock<IInventoryPlan>();
+		var secondPlan = new Mock<IInventoryPlan>();
+		var exemptionItem = CreateBasicItem(CreateGameworld().Object, 900L, "Mounted Module").Object;
+		var successInvoked = false;
+		var method = typeof(ElectronicDoorGameItemComponent).Assembly
+			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!
+			.GetMethod("TryExecuteConfiguredActionImmediatelyForAdministrator",
+				BindingFlags.Static | BindingFlags.NonPublic);
+
+		var handled = (bool)method!.Invoke(null,
+		[
+			actor.Object,
+			CheckType.ConfigureElectricalComponentCheck,
+			new[] { firstPlan.Object, secondPlan.Object },
+			(Func<CheckOutcome, bool>)(outcome =>
+			{
+				successInvoked = true;
+				Assert.IsTrue(outcome.IsPass());
+				return true;
+			}),
+			(Func<CheckOutcome, IList<IGameItem>>)(_ => [exemptionItem])
+		])!;
+
+		Assert.IsTrue(handled);
+		Assert.IsTrue(successInvoked);
+		firstPlan.Verify(x => x.FinalisePlanWithExemptions(
+			It.Is<IList<IGameItem>>(items => items.Count == 1 && ReferenceEquals(items[0], exemptionItem))), Times.Once);
+		secondPlan.Verify(x => x.FinalisePlanWithExemptions(
+			It.Is<IList<IGameItem>>(items => items.Count == 1 && ReferenceEquals(items[0], exemptionItem))), Times.Once);
+		firstPlan.Verify(x => x.FinalisePlan(), Times.Never);
+		secondPlan.Verify(x => x.FinalisePlan(), Times.Never);
+	}
+
+	[TestMethod]
+	public void ManipulationModule_ServicePanelResolver_ResolvesSingleHousingAlias()
+	{
+		var gameworld = CreateGameworld();
+		var parentItem = CreateBasicItem(gameworld.Object, 901L, "Electronic Door");
+		IGameItemComponent[] components = [];
+		parentItem.SetupGet(x => x.Components).Returns(() => components);
+		var housing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object),
+			parentItem.Object,
+			true);
+		components = [housing];
+		var actor = new Mock<ICharacter>();
+		parentItem.Setup(x => x.HowSeen(actor.Object, true, It.IsAny<DescriptionType>(), It.IsAny<bool>(),
+			It.IsAny<PerceiveIgnoreFlags>())).Returns("electronic door");
+
+		var method = typeof(ElectronicDoorGameItemComponent).Assembly
+			.GetType("MudSharp.Commands.Modules.ManipulationModule", true)!
+			.GetMethod("TryResolveAutomationServicePanelOpenable", BindingFlags.Static | BindingFlags.NonPublic);
+		var arguments = new object?[] { actor.Object, parentItem.Object, "panel", null, null };
+
+		var resolved = (bool)method!.Invoke(null, arguments)!;
+
+		Assert.IsTrue(resolved);
+		Assert.AreSame(housing, arguments[3]);
+		Assert.AreEqual(string.Empty, arguments[4]);
+	}
+
+	[TestMethod]
+	public void ManipulationModule_ServicePanelResolver_RejectsAmbiguousAlias()
+	{
+		var gameworld = CreateGameworld();
+		var parentItem = CreateBasicItem(gameworld.Object, 902L, "Electronic Door");
+		IGameItemComponent[] components = [];
+		parentItem.SetupGet(x => x.Components).Returns(() => components);
+		var firstHousing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object, 403L,
+				"First Housing"),
+			parentItem.Object,
+			true);
+		var secondHousing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object, 404L,
+				"Second Housing"),
+			parentItem.Object,
+			true);
+		components = [firstHousing, secondHousing];
+		var actor = new Mock<ICharacter>();
+		parentItem.Setup(x => x.HowSeen(actor.Object, true, It.IsAny<DescriptionType>(), It.IsAny<bool>(),
+			It.IsAny<PerceiveIgnoreFlags>())).Returns("electronic door");
+
+		var method = typeof(ElectronicDoorGameItemComponent).Assembly
+			.GetType("MudSharp.Commands.Modules.ManipulationModule", true)!
+			.GetMethod("TryResolveAutomationServicePanelOpenable", BindingFlags.Static | BindingFlags.NonPublic);
+		var arguments = new object?[] { actor.Object, parentItem.Object, "panel", null, null };
+
+		var resolved = (bool)method!.Invoke(null, arguments)!;
+
+		Assert.IsFalse(resolved);
+		Assert.IsNull(arguments[3]);
+		StringAssert.Contains(arguments[4]?.ToString() ?? string.Empty, "more than one");
+	}
+
+	[TestMethod]
+	public void ItemComponentConfigurationAction_RemovalEffect_IsIdempotent()
+	{
+		var actor = new Mock<ICharacter>();
+		var body = new Mock<IBody>();
+		var outputHandler = new Mock<IOutputHandler>();
+		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+
+		var target = CreateBasicItem(CreateGameworld().Object, 903L, "Target Panel");
+		var tool = CreateBasicItem(CreateGameworld().Object, 904L, "Tool");
+		var plan = new Mock<IInventoryPlan>();
+		var effect = new ItemComponentConfigurationAction(
+			actor.Object,
+			target.Object,
+			tool.Object,
+			plan.Object,
+			"configuring $0",
+			"@ begin|begins configuring $0 with $1.",
+			"@ continue|continues configuring $0 with $1.",
+			"@ stop|stops configuring $0.",
+			"@ finish|finishes configuring $0 with $1.",
+			"@ fail|fails to configure $0 with $1.",
+			TimeSpan.FromSeconds(1),
+			3,
+			() => CheckOutcome.SimpleOutcome(CheckType.ConfigureElectricalComponentCheck, Outcome.Pass),
+			_ => true);
+
+		effect.RemovalEffect();
+		effect.RemovalEffect();
+
+		plan.Verify(x => x.FinalisePlan(), Times.Once);
+	}
+
+	[TestMethod]
+	public void AutomationHousing_Decorate_FullDescription_DoesNotRepeatBaseDescription()
+	{
+		var gameworld = CreateGameworld();
+		var housingItem = CreateBasicItem(gameworld.Object, 905L, "Service Housing");
+		var housing = new AutomationHousingGameItemComponent(CreateAutomationHousingProto(gameworld.Object),
+			housingItem.Object,
+			true);
+		housing.Open();
+
+		var description = housing.Decorate(Mock.Of<IPerceiver>(), housing.Name, "Base description",
+			DescriptionType.Full,
+			true,
+			PerceiveIgnoreFlags.None);
+
+		Assert.AreEqual(1, CountOccurrences(description, "Base description"));
+	}
+
+	[TestMethod]
+	public void ElectronicDoor_Decorate_DoesNotExposeControllerDiagnostics()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 906L, "Electronic Door");
+		var door = new ElectronicDoorGameItemComponent(CreateElectronicDoorProto(gameworld.Object), item.Object, true);
+
+		var description = door.Decorate(Mock.Of<IPerceiver>(), door.Name, "Base description", DescriptionType.Full,
+			true,
+			PerceiveIgnoreFlags.None);
+
+		Assert.AreEqual("Base description", description.TrimEnd('\r', '\n'));
+		Assert.IsFalse(description.Contains("electronic controller is listening", StringComparison.InvariantCulture));
+		Assert.IsFalse(description.Contains("current control signal", StringComparison.InvariantCulture));
+	}
+
 	private static Mock<ISignalSourceComponent> CreateSignalSourceMock(long identifier, string name,
 		string endpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey, long? componentId = null,
 		IGameItem? parent = null, ComputerSignal? signal = null)
@@ -779,6 +949,64 @@ return @togglevalue");
 				},
 				gameworld
 			]);
+	}
+
+	private static ElectronicDoorGameItemComponentProto CreateElectronicDoorProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XAttribute("SeeThrough", false),
+			new XAttribute("CanFireThrough", false),
+			new XElement("InstalledExitDescription", "door"),
+			new XElement("CanBeOpenedByPlayers", false),
+			new XElement("Uninstall",
+				new XAttribute("CanPlayersUninstall", false),
+				new XAttribute("UninstallDifficultyHingeSide", (int)Difficulty.Impossible),
+				new XAttribute("UninstallDifficultyNotHingeSide", (int)Difficulty.Impossible),
+				new XAttribute("UninstallTrait", 0)),
+			new XElement("Smash",
+				new XAttribute("CanPlayersSmash", false),
+				new XAttribute("SmashDifficulty", (int)Difficulty.Impossible)),
+			new XElement("SourceComponentId", 1L),
+			new XElement("SourceComponentName", new XCData("DoorController")),
+			new XElement("SourceEndpointKey", new XCData("signal")),
+			new XElement("ActivationThreshold", 0.5),
+			new XElement("OpenWhenAboveThreshold", true),
+			new XElement("OpenEmoteNoActor", new XCData("@ slide|slides open")),
+			new XElement("CloseEmoteNoActor", new XCData("@ slide|slides closed"))
+		);
+
+		return (ElectronicDoorGameItemComponentProto)typeof(ElectronicDoorGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 406L,
+					Name = "Electronic Door",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static int CountOccurrences(string text, string value)
+	{
+		var count = 0;
+		var index = 0;
+		while ((index = text.IndexOf(value, index, StringComparison.InvariantCulture)) >= 0)
+		{
+			count++;
+			index += value.Length;
+		}
+
+		return count;
 	}
 
 	private static void AddHousingContents(AutomationHousingGameItemComponent housing, IEnumerable<IGameItem> items)

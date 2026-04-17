@@ -15,7 +15,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Effects.Concrete;
 
-public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
+public class ItemComponentConfigurationAction : CharacterActionWithTarget
 {
 	private readonly IReadOnlyCollection<IInventoryPlan> _inventoryPlans;
 	private readonly Func<CheckOutcome> _checkAction;
@@ -29,7 +29,11 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 	private readonly string _failureEmote;
 	private readonly TimeSpan _stageDuration;
 	private readonly int _totalStages;
+	private readonly string _cancelEmote;
 	private bool _completedSuccessfully;
+	private bool _toolHandlersAttached;
+	private bool _teardownStarted;
+	private bool _plansFinalised;
 	private IList<IGameItem>? _successExemptItems;
 
 	public ItemComponentConfigurationAction(
@@ -74,7 +78,7 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 		Func<CheckOutcome, IList<IGameItem>>? successExemptItemsAction = null,
 		Action<CheckOutcome>? failureAction = null,
 		Action<CheckOutcome>? abjectFailureAction = null)
-		: base(owner, target, [(tool, DesiredItemState.Held)])
+		: base(owner, target)
 	{
 		_inventoryPlans = inventoryPlans.ToList();
 		Tool = tool;
@@ -89,12 +93,14 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 		_failureEmote = failureEmote;
 		_stageDuration = stageDuration;
 		_totalStages = Math.Max(1, totalStages);
+		_cancelEmote = cancelEmote;
 		ActionDescription = actionDescription;
 		CancelEmoteString = cancelEmote;
 		WhyCannotMoveEmoteString = "@ cannot move because #0 are|is working on $1.";
 		LDescAddendum = "working on $1";
 		_blocks.Add("general");
 		_blocks.Add("movement");
+		AttachToolEventHandlers();
 	}
 
 	public IInventoryPlan InventoryPlan => _inventoryPlans.First();
@@ -168,6 +174,14 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 
 	public override void RemovalEffect()
 	{
+		_teardownStarted = true;
+		ReleaseEventHandlers();
+		if (_plansFinalised)
+		{
+			return;
+		}
+
+		_plansFinalised = true;
 		foreach (var plan in _inventoryPlans.Distinct())
 		{
 			if (_completedSuccessfully && _successExemptItems?.Any() == true)
@@ -179,6 +193,93 @@ public class ItemComponentConfigurationAction : CharacterActionWithTargetAndTool
 			plan.FinalisePlan();
 		}
 
+	}
+
+	protected override void ReleaseEventHandlers()
+	{
+		DetachToolEventHandlers();
+		base.ReleaseEventHandlers();
+	}
+
+	private void AttachToolEventHandlers()
+	{
+		if (_toolHandlersAttached)
+		{
+			return;
+		}
+
+		Tool.OnDeath -= Tool_OnDeath;
+		Tool.OnDeath += Tool_OnDeath;
+		Tool.OnDeleted -= Tool_OnDeath;
+		Tool.OnDeleted += Tool_OnDeath;
+		Tool.OnRemovedFromLocation -= Tool_OnRemovedFromLocation;
+		Tool.OnRemovedFromLocation += Tool_OnRemovedFromLocation;
+		CharacterOwner.Body.OnInventoryChange -= Body_OnInventoryChange;
+		CharacterOwner.Body.OnInventoryChange += Body_OnInventoryChange;
+		_toolHandlersAttached = true;
+	}
+
+	private void DetachToolEventHandlers()
+	{
+		if (!_toolHandlersAttached)
+		{
+			return;
+		}
+
+		Tool.OnDeath -= Tool_OnDeath;
+		Tool.OnDeleted -= Tool_OnDeath;
+		Tool.OnRemovedFromLocation -= Tool_OnRemovedFromLocation;
+		CharacterOwner.Body.OnInventoryChange -= Body_OnInventoryChange;
+		_toolHandlersAttached = false;
+	}
+
+	private void Body_OnInventoryChange(Body.InventoryState oldState, Body.InventoryState newState, IGameItem item)
+	{
+		if (_teardownStarted || !ReferenceEquals(item, Tool))
+		{
+			return;
+		}
+
+		if (newState == Body.InventoryState.Held || newState == Body.InventoryState.Wielded)
+		{
+			return;
+		}
+
+		CancelAction($"{_cancelEmote} because #0 are|is no longer holding $1.");
+	}
+
+	private void Tool_OnRemovedFromLocation(IPerceivable owner)
+	{
+		if (_teardownStarted)
+		{
+			return;
+		}
+
+		CancelAction($"{_cancelEmote} because $1 is no longer there.");
+	}
+
+	private void Tool_OnDeath(IPerceivable owner)
+	{
+		if (_teardownStarted)
+		{
+			return;
+		}
+
+		CancelAction($"{_cancelEmote} because #0 no longer have|has $1.");
+	}
+
+	private void CancelAction(string emoteText)
+	{
+		if (_teardownStarted)
+		{
+			return;
+		}
+
+		_teardownStarted = true;
 		ReleaseEventHandlers();
+		CharacterOwner.OutputHandler.Handle(
+			new EmoteOutput(new Emote(emoteText, CharacterOwner, Target, Tool), flags: OutputFlags.SuppressObscured));
+		OnStopAction = null;
+		CharacterOwner.RemoveEffect(this, true);
 	}
 }

@@ -669,7 +669,7 @@ namespace MudSharp.GameItems.Components
                         sb.AppendLine($"It is {(_contents.Sum(x => x.Weight) / _prototype.WeightLimit).ToString("P2", voyeur).Colour(Telnet.Green)} full.");
                     }
 
-                    sb.AppendLine($"{description}\nIt has a built-in lock that accepts key of type {LockType.ColourName()} and {(IsLocked ? "is currently locked." : "is currently unlocked.").Colour(Telnet.Yellow)}");
+                    sb.AppendLine($"It has a built-in lock that accepts key of type {LockType.ColourName()} and {(IsLocked ? "is currently locked." : "is currently unlocked.").Colour(Telnet.Yellow)}");
                     if (Locks.Any())
                     {
                         sb.AppendLine();

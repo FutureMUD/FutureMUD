@@ -42,6 +42,7 @@ The first player-facing command surface for this slice has also now landed:
 - `programming help` mirrors the `prog help` categories but filters to the computer-safe subset of types, statements, functions, and collection helpers
 - both verbs currently operate through multistage delayed actions rather than instant changes
 - those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
+- administrator characters bypass the tool, skill-check, and delayed-action requirements for live `electrical` and item-targeted `programming` work; those actions resolve immediately for them
 - `programming` uses `ProgrammingComponentCheck`
 - `electrical` uses `InstallElectricalComponentCheck` for install/remove/routing work and `ConfigureElectricalComponentCheck` for rebinding and threshold/mode work
 - failed checks still cost time because the delayed action runs to completion before the check resolves
@@ -178,7 +179,8 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `Microcontroller` is a powered machine component whose inputs are local signal sources resolved through stable local source identifiers plus endpoint keys, whose inline logic compiles as a `ComputerFunction`, and which can now also be installed as a separate module item into an automation host bay
   - powered machine automation modules and sensors can optionally be authored to draw power from an automation host's parent-item power source when mounted; otherwise they look for a power source on their own parent item
   - `AutomationMountHost` provides named bays for separate automation modules and can require a sibling `AutomationHousing` component before those bays are serviceable
-  - `AutomationHousing` is a dedicated housing or junction component family that is itself the service-access container capability, reusing the normal lockable/openable/container and legal-system path while exposing concealed automation items only when service access is open
+- `AutomationHousing` is a dedicated housing or junction component family that is itself the service-access container capability, reusing the normal lockable/openable/container and legal-system path while exposing concealed automation items only when service access is open
+- when an automation housing lives on a door or host item, service access is reached through the ordinary `open` / `close` verbs with a subtarget such as `open north panel` or `close <item> housing`
   - `SignalCableSegment` is a reusable one-hop adjacent-room wire item that persists its source binding, source and destination cells, and routed exit id
   - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
   - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base, uses threshold logic, and retries opening while the signal remains active
@@ -190,7 +192,8 @@ The baseline built-in application list for the computer subsystem is now fixed a
     - manage a private workspace of computer functions and computer programs (`list`, `new`, `edit`, `set`, `parameter`, `compile`, `execute`, `processes`, `kill`, `help`)
     - inspect microcontrollers, replace logic, and add or remove local input bindings on live items through `programming item <item>` or the existing item-first short form
   - an `electrical` command verb that lets players inspect configurable sinks, rebind them to local signal sources, clear bindings, retune thresholds or activation mode, install or remove separate mountable modules, and route or unroute cable segments one room at a time, including targeting a dedicated automation housing or junction for concealed cable placement
-  - both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
+- both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
+- administrator characters execute those live item actions instantly and do not require tools or checks
   - workspace authoring currently uses immediate ownership-checked edits rather than tool-gated physical actions because there is not yet a real computer terminal/host item path
   - workspace program execution currently supports completion or persisted `sleep` suspension only; terminal IO, `UserInput`, `WaitSignal`, remote file access, and host-control functions are future phases
   - abject failures on electrical work can cause electrical shock damage
@@ -200,6 +203,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 
 - Signals will likely be initiated by events (player input, movement, recurring timers, and actual Events from the Event System). They will also typically have a fixed duration that they're sent and/or pulsed for. We want to make it so that ideally if nothing changes we don't have to constantly reassess the logic and the signals so there needs to be consideration to that in how things are implemented. The pulsing is mostly to give microcontrollers the opportunity to reassess their logic - if their output stays the same pulse to pulse the signal should be considered continuous.
 - The current first slice now supports sibling-component local wiring, separate mounted modules, dedicated automation housings or junctions, and one-hop adjacent-room cable segments. Future phases still need to decide how richer multi-port authoring, longer persisted signal graphs, and broader builder-facing wiring verbs should persist and present themselves.
+- ordinary item descriptions should present the physical state of housings, doors, locks, and bays; live signal/control diagnostics belong to `electrical` inspection rather than ordinary `look`
 
 ## Conceptual Example - Motion Activated Door
 

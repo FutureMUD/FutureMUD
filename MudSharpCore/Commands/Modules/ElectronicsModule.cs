@@ -2057,13 +2057,15 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		Action<CheckOutcome>? failureAction, Action<CheckOutcome>? abjectFailureAction)
 	{
 		var extraPlans = additionalInventoryPlans?.ToList() ?? [];
+		if (TryExecuteConfiguredActionImmediatelyForAdministrator(actor, checkType, extraPlans, successAction,
+			    successExemptItemsAction))
+		{
+			return;
+		}
+
 		if (!TryAcquireToolPlan(actor, toolTagConfigKey, out var plan, out var tool))
 		{
-			foreach (var extraPlan in extraPlans)
-			{
-				extraPlan.FinalisePlan();
-			}
-
+			FinaliseConfiguredActionInventoryPlans(extraPlans);
 			return;
 		}
 
@@ -2071,11 +2073,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		if (trait is null)
 		{
 			plan.FinalisePlan();
-			foreach (var extraPlan in extraPlans)
-			{
-				extraPlan.FinalisePlan();
-			}
-
+			FinaliseConfiguredActionInventoryPlans(extraPlans);
 			return;
 		}
 
@@ -2103,6 +2101,49 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			failureAction,
 			abjectFailureAction);
 		actor.AddEffect(effect, stageDuration);
+	}
+
+	private static bool TryExecuteConfiguredActionImmediatelyForAdministrator(ICharacter actor, CheckType checkType,
+		IEnumerable<IInventoryPlan> inventoryPlans, Func<CheckOutcome, bool> successAction,
+		Func<CheckOutcome, IList<IGameItem>>? successExemptItemsAction)
+	{
+		if (!actor.IsAdministrator())
+		{
+			return false;
+		}
+
+		var outcome = CheckOutcome.SimpleOutcome(checkType, Outcome.Pass);
+		IList<IGameItem>? exemptions = null;
+		var completedSuccessfully = false;
+		try
+		{
+			completedSuccessfully = successAction(outcome);
+			if (completedSuccessfully)
+			{
+				exemptions = successExemptItemsAction?.Invoke(outcome);
+			}
+		}
+		finally
+		{
+			FinaliseConfiguredActionInventoryPlans(inventoryPlans, completedSuccessfully ? exemptions : null);
+		}
+
+		return true;
+	}
+
+	private static void FinaliseConfiguredActionInventoryPlans(IEnumerable<IInventoryPlan> inventoryPlans,
+		IList<IGameItem>? exemptions = null)
+	{
+		foreach (var inventoryPlan in inventoryPlans.Distinct())
+		{
+			if (exemptions?.Any() == true)
+			{
+				inventoryPlan.FinalisePlanWithExemptions(exemptions);
+				continue;
+			}
+
+			inventoryPlan.FinalisePlan();
+		}
 	}
 
 	private static void ShowElectricalStatus(ICharacter actor, IGameItem item)

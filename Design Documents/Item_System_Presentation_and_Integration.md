@@ -175,6 +175,8 @@ The current signal-automation slice has its own presentation and integration rul
 - `programming help` should mirror the normal `prog help` structure, but filtered to the computer-safe subset so the player-facing language reference stays aligned with the actual compiler/runtime surface
 - abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
 - `AutomationHousing` is now the dedicated housing or junction presentation family, and because it is itself the lockable-container capability, it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
+- those housings should be presented as ordinary openable service panels on the parent item, reached through normal `open` / `close` subtargets rather than bespoke verbs
+- ordinary `look` output for signal-driven items should emphasize physical state and serviceability; live control-signal and binding diagnostics should be presented by `electrical` inspection instead
 
 ## Real Example: Container as Presentation + Integration
 The container implementation is a strong example because it touches both presentation and system integration.

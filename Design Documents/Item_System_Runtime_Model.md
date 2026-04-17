@@ -153,6 +153,9 @@ The current player-work runtime flow for that slice is:
 - required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials
 - success, progress, cancel, failure, and shock output are driven by configurable static strings rather than hard-coded prose
 - electrical work uses dedicated install/configure checks, and abject electrical failures can apply electrical damage
+- administrator characters bypass the live item tool/check/delay layer for `electrical` and item-targeted `programming`, but still go through the same targeting and service-access validation
+- service housings on doors and automation hosts are addressed through normal `open` / `close` subtargets such as `open north panel`
+- live controller and signal diagnostics are part of `electrical <item>` runtime inspection rather than ordinary item descriptions
 
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:

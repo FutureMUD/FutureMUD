@@ -75,9 +75,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type, bool colour,
 		PerceiveIgnoreFlags flags)
 	{
-		var baseDescription = base.Decorate(voyeur, name, description, type, colour, flags);
-		return
-			$"{baseDescription}\n\nIts electronic controller is listening to {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName, SourceEndpointKey).ColourName()} with a current control signal of {CurrentValue.ToString("N2", voyeur).ColourValue()}, and is presently commanding the door to {(_desiredOpen ? "open".ColourValue() : "remain closed".ColourName())}.";
+		return base.Decorate(voyeur, name, description, type, colour, flags);
 	}
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)

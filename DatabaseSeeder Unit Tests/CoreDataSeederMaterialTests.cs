@@ -37,6 +37,14 @@ public class CoreDataSeederMaterialTests
             .Invoke(seeder, [context]);
     }
 
+    private static void SeedMaterialsBase(FuturemudDatabaseContext context)
+    {
+        CoreDataSeeder seeder = new();
+        typeof(CoreDataSeeder)
+            .GetMethod("SeedMaterialsBase", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(seeder, [context]);
+    }
+
     private static Mock<IFuturemud> CreateGameworld(All<ISolid> materials, FuturemudDatabaseContext context)
     {
         All<ITag> tags = new();
@@ -92,5 +100,60 @@ public class CoreDataSeederMaterialTests
 
         Assert.AreEqual("mild steel", materials.GetByName("steel")?.Name);
         Assert.AreEqual("high-density polyethylene", materials.GetByName("hdpe")?.Name);
+    }
+
+    [TestMethod]
+    public void SeedMaterials_CorrectsKnownIssuesAndExpandsCatalogue()
+    {
+        using FuturemudDatabaseContext baselineContext = BuildContext();
+        SeedMaterialsBase(baselineContext);
+        int baselineCount = baselineContext.Materials.Count();
+
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedMaterials(context);
+
+        MudSharp.Models.Material coachwood = context.Materials
+            .Include(x => x.MaterialAliases)
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "coachwood");
+        MudSharp.Models.Material aubergine = context.Materials
+            .Include(x => x.MaterialAliases)
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "aubergine");
+        MudSharp.Models.Material paper = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "paper");
+        MudSharp.Models.Material soap = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "soap");
+        MudSharp.Models.Material paraffinWax = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "paraffin wax");
+        MudSharp.Models.Material salt = context.Materials.Single(x => x.Name == "salt");
+        MudSharp.Models.Material guano = context.Materials.Single(x => x.Name == "guano");
+        MudSharp.Models.Material cream = context.Materials.Single(x => x.Name == "cream");
+
+        Assert.IsTrue(context.Materials.Count() >= Math.Ceiling(baselineCount * 1.25),
+            $"Expected at least a 25% material increase over the baseline catalogue of {baselineCount} materials.");
+        Assert.IsFalse(context.Tags.Any(x => x.Name == "Water Soluable"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Water Soluble"));
+        Assert.IsTrue(coachwood.MaterialAliases.Any(x => x.Alias == "coach"));
+        Assert.IsTrue(aubergine.MaterialAliases.Any(x => x.Alias == "eggplant"));
+        Assert.IsTrue(aubergine.MaterialAliases.Any(x => x.Alias == "brinjal"));
+        Assert.AreEqual((int)MaterialBehaviourType.Feces, guano.BehaviourType);
+        Assert.IsFalse(salt.Organic);
+        Assert.IsTrue(cream.Organic);
+        Assert.IsTrue(paper.MaterialsTags.Any(x => x.Tag.Name == "Paper Product"));
+        Assert.IsTrue(soap.MaterialsTags.Any(x => x.Tag.Name == "Manufactured Materials"));
+        Assert.IsFalse(soap.MaterialsTags.Any(x => x.Tag.Name == "Natural Materials"));
+        Assert.IsFalse(paraffinWax.MaterialsTags.Any(x => x.Tag.Name == "Natural Materials"));
+        Assert.IsTrue(context.Materials.Any(x => x.Name == "bone"));
+        Assert.IsTrue(context.Materials.Any(x => x.Name == "blood"));
+        Assert.IsTrue(context.Materials.Any(x => x.Name == "rosewood"));
     }
 }

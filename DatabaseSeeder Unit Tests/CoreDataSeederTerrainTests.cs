@@ -109,6 +109,21 @@ public class CoreDataSeederTerrainTests
         CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
     }
 
+    private static HashSet<string> GetTerrainTagNames(FuturemudDatabaseContext context, Terrain terrain)
+    {
+        if (string.IsNullOrWhiteSpace(terrain.TagInformation))
+        {
+            return [];
+        }
+
+        Dictionary<long, string> tags = context.Tags.ToDictionary(x => x.Id, x => x.Name);
+        return terrain.TagInformation
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(long.Parse)
+            .Select(x => tags[x])
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
     [TestMethod]
     public void SeedTerrainFoundationsForTesting_SeedsTerrainTagsAndCatalogue()
     {
@@ -158,5 +173,53 @@ public class CoreDataSeederTerrainTests
 
         Assert.IsFalse(ids.Contains("terrain"));
         Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(context));
+    }
+
+    [TestMethod]
+    public void SeedTerrainFoundationsForTesting_CorrectsTerrainBehavioursAndAddsExtraterrestrialTerrains()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+
+        SeedTerrainFoundations(context);
+
+        Terrain cave = context.Terrains.Single(x => x.Name == "Cave");
+        Terrain cavePool = context.Terrains.Single(x => x.Name == "Cave Pool");
+        Terrain undergroundWater = context.Terrains.Single(x => x.Name == "Underground Water");
+        Terrain villageStreet = context.Terrains.Single(x => x.Name == "Village Street");
+        Terrain ruralStreet = context.Terrains.Single(x => x.Name == "Rural Street");
+        Terrain mudflat = context.Terrains.Single(x => x.Name == "Mudflat");
+        long springWaterId = context.Liquids.Single(x => x.Name == "spring water").Id;
+
+        Assert.AreEqual("cave", cave.TerrainBehaviourMode);
+        Assert.AreEqual($"shallowwatercave {springWaterId}", cavePool.TerrainBehaviourMode);
+        Assert.AreEqual($"deepwatercave {springWaterId}", undergroundWater.TerrainBehaviourMode);
+
+        HashSet<string> villageStreetTags = GetTerrainTagNames(context, villageStreet);
+        HashSet<string> ruralStreetTags = GetTerrainTagNames(context, ruralStreet);
+        HashSet<string> mudflatTags = GetTerrainTagNames(context, mudflat);
+
+        Assert.IsTrue(villageStreetTags.Contains("Rural"));
+        Assert.IsFalse(villageStreetTags.Contains("Urban"));
+        Assert.IsTrue(ruralStreetTags.Contains("Rural"));
+        Assert.IsFalse(ruralStreetTags.Contains("Urban"));
+        Assert.IsTrue(mudflatTags.Contains("Littoral"));
+        Assert.IsTrue(mudflatTags.Contains("Wetland"));
+        Assert.IsFalse(mudflatTags.Contains("Aquatic"));
+
+        foreach (string tagName in new[]
+                 { "Extraterrestrial", "Lunar", "Space", "Vacuum", "Arid", "Glacial", "Volcanic", "Wetland" })
+        {
+            Assert.IsTrue(context.Tags.Any(x => x.Name == tagName), $"Expected terrain tag {tagName} to be seeded.");
+        }
+
+        foreach (string terrainName in new[]
+                 {
+                     "Chaparral", "Badlands", "Salt Flat", "Fen", "Marsh", "Oasis", "Volcanic Plain", "Glacier",
+                     "Moon Surface", "Lunar Mare", "Lunar Crater", "Interstellar Space", "Intergalactic Space"
+                 })
+        {
+            Assert.IsTrue(context.Terrains.Any(x => x.Name == terrainName),
+                $"Expected terrain {terrainName} to be present in the stock catalogue.");
+        }
     }
 }

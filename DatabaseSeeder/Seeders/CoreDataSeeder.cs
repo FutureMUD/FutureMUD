@@ -1354,7 +1354,7 @@ Among many other small but necessary things, it does the following:
 8) Sets up socials
 9) Sets up units of measure";
 
-    private static void SeedUnitsOfMeasure(FuturemudDatabaseContext context)
+    private static void SeedUnitsOfMeasureLegacy(FuturemudDatabaseContext context)
     {
         context.UnitsOfMeasure.Add(new UnitOfMeasure
         {
@@ -2564,7 +2564,7 @@ Do you want to use Unicode? (y/n): "
             Id = "CreateAccountUnitPreference",
             Text = @"#3Unit Preference#0
 
-When viewing any quantity units (height, weight, length, volume, etc.) in game, you will see the quantity in the style of your preference. For example, your character's height and weight could be displayed in Imperial (feet/inches and pounds), or Metric (metres and kilograms). Regardless of what system you choose, you can enter quantities in the MUD in any system, this setting only affects how they are displayed to you.
+When viewing any quantity units (height, weight, length, volume, etc.) in game, you will see the quantity in the style of your preference. For example, your character's height and weight could be displayed in the Imperial system (US customary feet/inches and pounds), Imperial-UK (feet/inches and stone or pounds), or Metric (metres and kilograms). Regardless of what system you choose, you can enter quantities in the MUD in any system, this setting only affects how they are displayed to you.
 
 The following systems are available for selection:
 
@@ -8871,7 +8871,7 @@ return IsAdmin(@ch)",
         context.SaveChanges();
     }
 
-    private void SeedMaterials(FuturemudDatabaseContext context)
+    private void SeedMaterialsBase(FuturemudDatabaseContext context)
     {
         #region Tags
 

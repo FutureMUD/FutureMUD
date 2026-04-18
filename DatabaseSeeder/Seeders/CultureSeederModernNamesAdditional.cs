@@ -153,6 +153,8 @@ public partial class CultureSeeder
 				("Reddy", 7), ("Nair", 7), ("Rao", 7), ("Kapoor", 6), ("Malhotra", 6), ("Mehta", 5),
 				("Joshi", 5), ("Shah", 4), ("Iyer", 4), ("Pillai", 4)
 			]);
+
+		SeedModernEthnicityProfiles();
 	}
 
 	private NameCulture EnsureModernGivenFamilyCulture(string name)

@@ -10,17 +10,8 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
-	private void SeedMedievalEuropeNameCorrections()
+	private void SeedDutchProfiles(NameCulture culture)
 	{
-		RepairDutchProfiles();
-		RepairFinnoUgricProfiles();
-		RepairBasqueProfiles();
-		RepairAlbanianProfiles();
-	}
-
-	private void RepairDutchProfiles()
-	{
-		NameCulture culture = _context.NameCultures.First(x => x.Name == "Dutch");
 		IEnumerable<(string Name, int Weight)> surnames =
 		[
 			("de Vries", 10), ("Jansen", 10), ("van den Berg", 9), ("Bakker", 9), ("Janssen", 8), ("Visser", 8),
@@ -53,9 +44,8 @@ public partial class CultureSeeder
 			surnames);
 	}
 
-	private void RepairFinnoUgricProfiles()
+	private void SeedFinnoUgricProfiles(NameCulture culture)
 	{
-		NameCulture culture = _context.NameCultures.First(x => x.Name == "Finno-Ugric");
 		IEnumerable<(string Name, int Weight)> surnames =
 		[
 			("Korhonen", 10), ("Virtanen", 10), ("Nieminen", 9), ("Makela", 9), ("Koskinen", 8), ("Heikkinen", 8),
@@ -86,9 +76,8 @@ public partial class CultureSeeder
 			surnames);
 	}
 
-	private void RepairBasqueProfiles()
+	private void SeedBasqueProfiles(NameCulture culture)
 	{
-		NameCulture culture = _context.NameCultures.First(x => x.Name == "Basque");
 		IEnumerable<(string Name, int Weight)> surnames =
 		[
 			("Aguirre", 10), ("Arana", 9), ("Aramburu", 9), ("Arizmendi", 8), ("Arratia", 8), ("Arrizabalaga", 8),
@@ -116,9 +105,8 @@ public partial class CultureSeeder
 			surnames);
 	}
 
-	private void RepairAlbanianProfiles()
+	private void SeedAlbanianProfiles(NameCulture culture)
 	{
-		NameCulture culture = _context.NameCultures.First(x => x.Name == "Albanian");
 		IEnumerable<(string Name, int Weight)> surnames =
 		[
 			("Berisha", 10), ("Doda", 10), ("Gashi", 10), ("Hoxha", 10), ("Krasniqi", 9), ("Leka", 9),

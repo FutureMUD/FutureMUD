@@ -59,6 +59,9 @@ The first player-facing command surface for this slice has also now landed:
 - mounted powered automation modules and other powered-machine-based automation components now treat power discovery as an ongoing topology-aware process: they retry for a longer post-login window when switched on but initially unpowered, and they also refresh power resolution when relevant parent or host connectivity changes reveal usable power later in the boot sequence
 - `ElectronicDoor` likewise retries late signal-source reconnection after load/login so a controller that becomes spatially or structurally discoverable later in the reboot sequence can still drive the door without manual intervention
 - witnessed-movement automation ignores movers with `IImmwalkEffect`, so administrator immwalk traversal does not trip motion sensors or movement-driven door logic during testing or live operations
+- the shared runtime lifecycle is now explicit for powered and signal-capable items: `FinaliseLoad()` restores structural state, while `Login()` is where power drawdown, signal subscriptions, polling, timers, and retry heartbeats begin
+- the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
+- powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
 
 The remaining work is still substantial. In particular, computer file systems, real computer host and terminal items, waits beyond `sleep`, richer multi-port inter-item signal graphs, remote execution, and data networking are still future phases.
 

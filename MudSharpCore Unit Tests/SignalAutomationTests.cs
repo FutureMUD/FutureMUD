@@ -555,9 +555,38 @@ return @togglevalue");
 
 		Assert.IsTrue(host.InstallModule(null!, controller, "controller", out var error), error);
 		controller.SwitchedOn = true;
+		attachedHostPower.Verify(x => x.BeginDrawdown(controller), Times.Never);
+
+		controller.Login();
 
 		attachedHostPower.Verify(x => x.BeginDrawdown(controller), Times.Once);
 		localPower.Verify(x => x.BeginDrawdown(controller), Times.Never);
+	}
+
+	[TestMethod]
+	public void PoweredMachineBase_DoesNotBeginDrawdownBeforeLogin()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 4041L, "Mounted Controller");
+		var producer = new Mock<IProducePower>();
+		producer.SetupGet(x => x.PrimaryLoadTimePowerProducer).Returns(true);
+		producer.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(false);
+		producer.SetupGet(x => x.MaximumPowerInWatts).Returns(1000.0);
+		producer.SetupGet(x => x.ProducingPower).Returns(true);
+		producer.Setup(x => x.CanBeginDrawDown(It.IsAny<double>())).Returns(true);
+		item.Setup(x => x.GetItemType<IProducePower>()).Returns(producer.Object);
+		item.Setup(x => x.GetItemTypes<IProducePower>()).Returns([producer.Object]);
+
+		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
+			item.Object,
+			true);
+		controller.SwitchedOn = true;
+
+		producer.Verify(x => x.BeginDrawdown(controller), Times.Never);
+
+		controller.Login();
+
+		producer.Verify(x => x.BeginDrawdown(controller), Times.Once);
 	}
 
 	[TestMethod]
@@ -775,6 +804,70 @@ return @togglevalue");
 		sensor.OnPowerCutIn();
 		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
 		Assert.AreEqual(1.0, sensor.CurrentValue, 0.0001);
+	}
+
+	[TestMethod]
+	public void AutomationMountHost_Quit_QuitsMountedModules()
+	{
+		var gameworld = CreateGameworld();
+		var hostLocation = CreateCell(49L);
+		var hostItem = CreateBasicItem(gameworld.Object, 416L, "Automation Cabinet", hostLocation.Object);
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+
+		var moduleLocation = CreateCell(50L);
+		var moduleItem = CreateBasicItem(gameworld.Object, 417L, "Mounted Controller", moduleLocation.Object);
+		var module = new Mock<IAutomationMountable>();
+		var connectable = module.As<IConnectable>();
+		module.SetupGet(x => x.Parent).Returns(moduleItem.Object);
+		module.SetupGet(x => x.MountType).Returns("Microcontroller");
+		module.SetupGet(x => x.IsMounted).Returns(false);
+		connectable.SetupGet(x => x.Parent).Returns(moduleItem.Object);
+		connectable.Setup(x => x.RawConnect(It.IsAny<IConnectable>(), It.IsAny<ConnectorType>()));
+
+		Assert.IsTrue(host.InstallModule(null!, module.Object, "controller", out var error), error);
+
+		host.Quit();
+
+		moduleItem.Verify(x => x.Quit(), Times.Once);
+	}
+
+	[TestMethod]
+	public void AutomationMountHost_Login_LogsInMountedModules()
+	{
+		var gameworld = CreateGameworld();
+		var hostLocation = CreateCell(51L);
+		var hostItem = CreateBasicItem(gameworld.Object, 418L, "Automation Cabinet", hostLocation.Object);
+		IGameItemComponent[] hostComponents = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
+
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")]),
+			hostItem.Object,
+			true);
+		hostComponents = [host];
+
+		var moduleLocation = CreateCell(52L);
+		var moduleItem = CreateBasicItem(gameworld.Object, 419L, "Mounted Controller", moduleLocation.Object);
+		var module = new Mock<IAutomationMountable>();
+		var connectable = module.As<IConnectable>();
+		module.SetupGet(x => x.Parent).Returns(moduleItem.Object);
+		module.SetupGet(x => x.MountType).Returns("Microcontroller");
+		module.SetupGet(x => x.IsMounted).Returns(false);
+		connectable.SetupGet(x => x.Parent).Returns(moduleItem.Object);
+		connectable.Setup(x => x.RawConnect(It.IsAny<IConnectable>(), It.IsAny<ConnectorType>()));
+
+		Assert.IsTrue(host.InstallModule(null!, module.Object, "controller", out var error), error);
+
+		host.Login();
+
+		moduleItem.Verify(x => x.Login(), Times.Once);
 	}
 
 	[TestMethod]

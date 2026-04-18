@@ -96,6 +96,17 @@ public class KeypadGameItemComponent : PoweredMachineBaseGameItemComponent, ISel
 
 	public override void FinaliseLoad()
 	{
+		if (_activeUntil is null || _activeUntil <= DateTime.UtcNow)
+		{
+			_activeUntil = null;
+		}
+
+		RefreshSignalState(false);
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		if (_activeUntil is not null && _activeUntil > DateTime.UtcNow)
 		{
 			EnsureHeartbeatSubscription();

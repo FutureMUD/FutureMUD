@@ -110,7 +110,6 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 	public override void FinaliseLoad()
 	{
 		base.FinaliseLoad();
-		ReconnectSource();
 	}
 
 	public override void Login()

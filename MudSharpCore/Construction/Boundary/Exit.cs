@@ -408,6 +408,7 @@ public class Exit : PerceivedItem, IExit
                     Door = door;
                     door.InstalledExit = this;
                     gitem.FinaliseLoadTimeTasks();
+                    gitem.Login();
                 }
             }
         }

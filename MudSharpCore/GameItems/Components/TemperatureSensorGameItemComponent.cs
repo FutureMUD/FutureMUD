@@ -25,10 +25,6 @@ public class TemperatureSensorGameItemComponent : PoweredMachineBaseGameItemComp
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public TemperatureSensorGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -45,10 +41,6 @@ public class TemperatureSensorGameItemComponent : PoweredMachineBaseGameItemComp
 		_prototype = rhs._prototype;
 		_currentSignal = rhs._currentSignal;
 		_currentTemperatureCelsius = rhs._currentTemperatureCelsius;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -88,6 +80,12 @@ public class TemperatureSensorGameItemComponent : PoweredMachineBaseGameItemComp
 
 	public override void FinaliseLoad()
 	{
+		RefreshSignalState(false);
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		EnsureHeartbeatSubscription();
 		RefreshSignalState(false);
 	}

@@ -148,11 +148,15 @@ Current runtime connection rules for that slice are:
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
 - powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise powered machines still resolve power from their own parent item
 - mounted automation modules lazily restore their host linkage from saved host identity during load/login so host-derived power, signal access, and room context continue to work after a reboot
+- mounted automation modules now follow the shared item lifecycle contract: load restores structure, while `Login()` is the first point where they begin live power drawdown, signal subscriptions, timers, and similar active behaviour
+- world boot now logs in only world-root items that are actually present in cells; items rooted in character inventories stay dormant until their owning body or character logs in and propagates the lifecycle to them
+- `AutomationMountHost` forwards `Login()`, `Quit()`, and `Delete()` to mounted bay items so extracted modules still come online and tear down with their host item even though they are not ordinary cell-contained items
 - powered machine automation modules and other powered-machine-based automation components now treat power resolution as a topology-aware live process rather than a single login-time lookup: they subscribe to relevant parent and host power-topology changes, retry for a longer post-login window if switched on but initially unpowered, and refresh power resolution when connected or mounted power availability changes after reboot/load ordering
 - `ElectronicDoor` now performs the same kind of late reconnect retry for its signal binding after load/login, so a controller or mounted module that becomes discoverable slightly later in the reboot sequence can still subscribe and drive the door without manual rewiring
 - witnessed-movement automation ignores movers with `IImmwalkEffect`, and the movement event pipeline suppresses those events at the source as well, so administrator immwalk traversal does not trip motion-driven automation
 - `AutomationHousing` is the dedicated housing or junction component family for concealed automation modules and cable ends, and is itself the lockable-container service-access capability on the item rather than a passive sibling marker
 - automation hosts now use sibling `AutomationHousing` components for mount-bay service access
+- `AutomationMountHost` forwards `Quit()` / `Delete()` teardown to installed mounted items so extracted bay modules do not remain live when their host leaves the game or is destroyed
 - there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments
 
 The current player-work runtime flow for that slice is:
@@ -238,6 +242,9 @@ When a live item is loaded:
 - the `GameItem` is created from database data
 - each stored component row is mapped back to its component proto and runtime component type
 - component `FinaliseLoad()` hooks run after broader object availability is established
+- `FinaliseLoad()` restores structural scaffolding only: references, pending ids, mount relationships, routed cable metadata, and similar non-live state
+- after structural restoration completes, the world login pass logs in the full live item set rather than only room-contained items
+- `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour
 - item-level late initialisation and effect restoration complete
 
 ### Saving live items

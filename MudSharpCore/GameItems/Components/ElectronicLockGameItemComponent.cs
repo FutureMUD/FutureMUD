@@ -77,6 +77,12 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, IRunti
 
 	public override void FinaliseLoad()
 	{
+		// Runtime signal subscriptions begin at login, not during structural load.
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		ReconnectSource();
 	}
 

@@ -170,15 +170,14 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	public override void FinaliseLoad()
 	{
 		ResolveMountedHost();
-		ReconnectSources();
-		RecomputeOutput();
 	}
 
 	public override void Login()
 	{
 		ResolveMountedHost();
-		ReconnectSources();
 		base.Login();
+		ReconnectSources();
+		RecomputeOutput();
 	}
 
 	public override void Delete()

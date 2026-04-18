@@ -366,6 +366,35 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		}
 	}
 
+	public override void Delete()
+	{
+		foreach (var item in _mountedByBay.Values.Select(x => x.Parent).Distinct().ToList())
+		{
+			item.Delete();
+		}
+
+		base.Delete();
+	}
+
+	public override void Login()
+	{
+		base.Login();
+		foreach (var item in _mountedByBay.Values.Select(x => x.Parent).Distinct().ToList())
+		{
+			item.Login();
+		}
+	}
+
+	public override void Quit()
+	{
+		foreach (var item in _mountedByBay.Values.Select(x => x.Parent).Distinct().ToList())
+		{
+			item.Quit();
+		}
+
+		base.Quit();
+	}
+	
 	private void LoadFromXml(XElement root)
 	{
 		foreach (var element in root.Element("MountedItems")?.Elements("Mounted") ?? Enumerable.Empty<XElement>())

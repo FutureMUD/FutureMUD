@@ -27,10 +27,6 @@ public class RainSensorGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public RainSensorGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -47,10 +43,6 @@ public class RainSensorGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		_currentSignal = rhs._currentSignal;
 		_currentPrecipitation = rhs._currentPrecipitation;
 		_currentRainIntensity = rhs._currentRainIntensity;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -90,6 +82,12 @@ public class RainSensorGameItemComponent : PoweredMachineBaseGameItemComponent, 
 
 	public override void FinaliseLoad()
 	{
+		RefreshSignalState(false);
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		EnsureHeartbeatSubscription();
 		RefreshSignalState(false);
 	}

@@ -80,10 +80,6 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		_cycleAnchor = now;
 		_startsActive = proto.StartActive;
 		RefreshState(now, false);
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public TimerSensorGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -105,10 +101,6 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		_startsActive = rhs._startsActive;
 		_isActive = rhs._isActive;
 		_currentSignal = rhs._currentSignal;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -179,7 +171,13 @@ public class TimerSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		}
 
 		RefreshState(now, false);
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		EnsureHeartbeatSubscription();
+		RefreshState(DateTime.UtcNow, false);
 	}
 
 	public override void Delete()

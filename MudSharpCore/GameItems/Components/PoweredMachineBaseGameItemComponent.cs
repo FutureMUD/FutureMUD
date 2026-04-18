@@ -23,6 +23,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	private bool _powerRetrySubscribed;
 	private int _powerRetryAttemptsRemaining;
 	private IGameItem? _subscribedHostPowerItem;
+	private bool _runtimeActive;
 	public override IGameItemComponentProto Prototype => _prototype;
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -93,6 +94,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	public override void Delete()
 	{
+		_runtimeActive = false;
 		ReleasePowerTopologySubscriptions();
 		StopPowerRetry();
 		EndPowerDrawdown();
@@ -101,6 +103,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	public override void Quit()
 	{
+		_runtimeActive = false;
 		ReleasePowerTopologySubscriptions();
 		StopPowerRetry();
 		EndPowerDrawdown();
@@ -109,6 +112,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	public override void Login()
 	{
+		_runtimeActive = true;
 		RefreshPowerTopologySubscriptions();
 		if (SwitchedOn)
 		{
@@ -153,7 +157,10 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 			_onAndPowered = false;
 		}
 
-		BeginPostLoginPowerRetryIfRequired();
+		if (_runtimeActive)
+		{
+			BeginPostLoginPowerRetryIfRequired();
+		}
 	}
 
 	public double PowerConsumptionInWatts =>
@@ -179,8 +186,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
             Changed = true;
             if (value)
             {
-				BeginPowerDrawdown();
-				BeginPostLoginPowerRetryIfRequired();
+				if (_runtimeActive)
+				{
+					BeginPowerDrawdown();
+					BeginPostLoginPowerRetryIfRequired();
+				}
             }
             else
             {
@@ -298,7 +308,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	protected void RefreshPowerSourceConnection()
 	{
 		RefreshPowerTopologySubscriptions();
-		if (!SwitchedOn)
+		if (!SwitchedOn || !_runtimeActive)
 		{
 			return;
 		}
@@ -308,12 +318,17 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	private void BeginPowerDrawdown()
 	{
+		if (!_runtimeActive)
+		{
+			return;
+		}
+
 		SetPowerSource(ResolvePowerSource());
 	}
 
 	private void BeginPostLoginPowerRetryIfRequired()
 	{
-		if (!SwitchedOn || _onAndPowered || _powerRetrySubscribed)
+		if (!_runtimeActive || !SwitchedOn || _onAndPowered || _powerRetrySubscribed)
 		{
 			return;
 		}
@@ -406,7 +421,7 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	private void HandlePowerTopologyChanged()
 	{
 		RefreshPowerTopologySubscriptions();
-		if (!SwitchedOn)
+		if (!_runtimeActive || !SwitchedOn)
 		{
 			return;
 		}

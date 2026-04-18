@@ -25,10 +25,6 @@ public class LightSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		: base(proto, parent, temporary)
 	{
 		_prototype = proto;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public LightSensorGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -44,10 +40,6 @@ public class LightSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 		_prototype = rhs._prototype;
 		_currentSignal = rhs._currentSignal;
 		_currentIllumination = rhs._currentIllumination;
-		if (!temporary)
-		{
-			EnsureHeartbeatSubscription();
-		}
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -87,6 +79,12 @@ public class LightSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 
 	public override void FinaliseLoad()
 	{
+		RefreshSignalState(false);
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		EnsureHeartbeatSubscription();
 		RefreshSignalState(false);
 	}

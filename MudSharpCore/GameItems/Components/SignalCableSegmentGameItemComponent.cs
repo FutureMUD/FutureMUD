@@ -113,6 +113,13 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 
 	public override void FinaliseLoad()
 	{
+		// Structural route metadata is restored from XML during load. Live source
+		// subscriptions and polling begin when the item logs in.
+	}
+
+	public override void Login()
+	{
+		base.Login();
 		RefreshRoute();
 	}
 

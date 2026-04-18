@@ -2191,21 +2191,15 @@ For information on the syntax to use in emotes (such as those included in bracke
             shop.PostLoadInitialisation();
         }
 
-        ConsoleUtilities.WriteLine("#ELogging in world game items...#0");
-        foreach (IGrouping<Models.Cell, GameItem> cell in cellItems)
-        {
-            if (cell.Key == null)
-            {
-                continue;
-            }
-
-            ICell gcell = _cells.Get(cell.Key.Id);
-            foreach (IGameItem item in gcell.GameItems)
-            {
-                item.Login();
-            }
-        }
-    }
+		ConsoleUtilities.WriteLine("#ELogging in world game items...#0");
+		foreach (ICell cell in _cells)
+		{
+			foreach (IGameItem item in cell.GameItems.ToList())
+			{
+				item.Login();
+			}
+		}
+	}
 
     void IFuturemudLoader.LoadGameItemGroups()
     {

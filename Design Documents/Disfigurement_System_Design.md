@@ -22,22 +22,23 @@ At the interface level:
 
 - `IDisfigurement` is the common runtime abstraction for a concrete mark on a specific bodypart.
 - `IDisfigurementTemplate` is the shared authoring abstraction for reusable templates.
-- `IScar` / `IScarTemplate` and `ITattoo` / `ITattooTemplate` layer type-specific behaviour on top.
+- `IScar` and `ITattoo` are the concrete runtime mark types.
+- only tattoos retain a reusable template type (`ITattooTemplate`)
 
 In practice:
 
-- a template is the builder-authored reusable design
+- a tattoo template is the builder-authored reusable design
 - a disfigurement is the instance attached to a body
 - tattoos are intentionally applied
-- scars are either chosen in chargen, added administratively, or generated automatically from healing
+- scars are chosen in chargen, added administratively, or generated automatically from healing
+- scars now persist their generated description and metadata directly rather than referring back to a scar template
 
 ### Optional subsystem rule
 The engine must always assume that a world may have:
 
-- no scar templates
 - no tattoo templates
-- no matching template for a given anatomy, wound, or surgery
 - automatic scarring disabled entirely
+- no chargen storyboard that permits scar selection
 
 All of those cases are valid and should resolve to a no-op, not a warning or exception.
 
@@ -47,7 +48,7 @@ All of those cases are valid and should resolve to a no-op, not a warning or exc
 - `FutureMUDLibrary/Body/Disfigurements/`
   - interfaces for disfigurements and templates
 - `MudSharpCore/Body/Disfigurements/`
-  - template implementations
+  - tattoo template implementations
   - concrete scar and tattoo runtime instances
   - factory loading
   - scar generation logic
@@ -63,21 +64,24 @@ All of those cases are valid and should resolve to a no-op, not a warning or exc
   - human / animal / mythical seeder hook files
 
 ### Loading and persistence
-Disfigurement templates are stored as `DisfigurementTemplate` records with an XML `Definition` payload and a type discriminator of `Tattoo` or `Scar`.
+Disfigurement templates are stored as `DisfigurementTemplate` records with an XML `Definition` payload.
+
+Only tattoos are expected to use that storage going forward. Legacy scar template rows may still exist in old developer databases, but the runtime no longer depends on them.
 
 Runtime loading works like this:
 
 1. The game loads the database `DisfigurementTemplate`.
 2. `DisfigurementFactory` dispatches by `Type`.
-3. `TattooTemplate` or `ScarTemplate` parses the XML into strongly typed fields.
+3. `TattooTemplate` parses the XML into strongly typed fields.
 
 Body instances persist separately:
 
 - body tattoos are serialized into the body record tattoo XML
 - body scars are serialized into the body record scar XML
 - loaded scars restore race/body context so size and presentation logic still work after reload
+- scar XML now stores the generated descriptive fields directly
 
-The system currently remains XML-backed rather than introducing dedicated scar-generation database columns. That is deliberate. The surgery-origin scar metadata needed for offline healing is stored in wound extra-info XML instead of a schema migration.
+The system remains XML-backed rather than introducing dedicated scar-generation database columns. That is deliberate. The surgery-origin scar metadata needed for offline healing is stored in wound extra-info XML instead of a schema migration.
 
 ## Shared Template Behaviour
 
@@ -240,18 +244,16 @@ Avoid using tattoos as a proxy for scars or other injuries. They should stay del
 ## Scars
 
 ### What scars model
-Scars are healed remnants of injuries or surgery. A scar template describes:
+Scars are healed remnants of injuries or surgery. A scar instance stores:
 
+- generated short and full descriptions
 - size offset relative to the bodypart
 - distinctiveness
-- uniqueness
-- allowed bodypart shapes
-- damage-type and minimum-severity gates
-- permitted surgery types
-- baseline chance from ordinary wound healing
-- baseline chance from surgery recovery healing
-- optional chargen availability and costs
+- whether the scar came from damage or surgery
+- damage type, severity, and optional surgery type
 - optional sdesc override strings
+
+The runtime chooses those values programmatically from the wound context and from static scar-generation configuration.
 
 ### How automatic scar generation works
 Automatic scar generation runs when eligible wounds are removed during healing.
@@ -260,72 +262,49 @@ High-level flow:
 
 1. Confirm `ScarringEnabled` is true.
 2. Confirm the wound belongs to an external bodypart still on the body.
-3. Gather current scar templates.
-4. Filter to templates that:
-   - are current revisions
-   - can apply to the wound's bodypart
-   - match the wound's damage source or surgery source
-   - pass uniqueness rules
-5. Compute a final chance for each candidate.
-6. Combine candidate chances into one overall chance to determine whether any scar happens.
-7. If a scar happens, choose one candidate by weighted random selection.
-8. Produce the scar instance and attach it to the body.
+3. Compute the overall chance that a scar happens from the wound context plus global tuning values.
+4. If the roll succeeds, generate a scar description, size step, distinctiveness, and any characteristic overrides from:
+   - bodypart shape
+   - damage or surgery origin
+   - severity
+   - static scar orientation configuration
+5. Attach the generated scar instance to the body.
 
-If there are no templates or no eligible templates, the system stops at step 4 and creates nothing.
-
-### Scar candidate math
-Each candidate template produces its own chance.
-
+### Scar chance math
 For an ordinary organic damage wound, the implemented structure is:
 
-`candidate chance = clamp(template damage healing base + severity modifier + tended modifier + infection modifier + cleanliness modifier + antiseptic modifier + closure-state modifier)`
+`chance = clamp(matrix damage base + tended modifier + infection modifier + cleanliness modifier + antiseptic modifier + closure-state modifier)`
 
 For an organic surgery-origin wound:
 
-`candidate chance = clamp(template surgery healing base + severity modifier + surgery check modifier + tended modifier + infection modifier + cleanliness modifier + antiseptic modifier + closure-state modifier)`
+`chance = clamp(matrix surgery base + tended modifier + surgery check modifier + infection modifier + cleanliness modifier + antiseptic modifier + closure-state modifier)`
 
 For a serialized healing wound with reduced state available:
 
-- damage-origin healing wounds use template damage base + severity + tending
-- surgery-origin healing wounds use template surgery base + severity + surgery check + tending
+- damage-origin healing wounds use matrix damage base + tending
+- surgery-origin healing wounds use matrix surgery base + surgery check + tending
 
 The current clamp is:
 
 - lower bound: `0.0`
 - upper bound: `ScarGenerationChanceClampMaximum`
 
-The engine then computes the probability that at least one candidate produces a scar:
-
-`overall chance = 1 - product(1 - candidate chance)`
-
-This overall chance is then bounded by:
-
 - `ScarGenerationOverallChanceUpperBound`
-
-If the roll succeeds, a single candidate is selected by weighted random using the candidate chance as its weight.
-
-This means:
-
-- overlapping valid templates increase the chance that some scar happens
-- the individual candidate chance still influences which scar is selected
-- only one scar is created per healed wound
 
 ### Scar tuning inputs
 Scar generation has two layers of tuning:
 
-1. Template-level baseline chances
+1. Static configuration chance matrices
 2. Global static configuration modifiers
 
-Template-level baselines live on scar templates:
-
-- `DamageHealingScarChance`
-- `SurgeryHealingScarChance`
-
-Static configuration now owns the previous hard-coded coefficients:
+Static configuration owns the baseline matrices and the previous hard-coded coefficients:
 
 - `ScarringEnabled`
 - `ScarGenerationOverallChanceUpperBound`
 - `ScarGenerationChanceClampMaximum`
+- `ScarGenerationChanceMatrix`
+- `ScarOrientationByBodypartShape`
+- `ScarChargenOptionsCount`
 - `ScarGenerationOrganicSurgerySeverityPerLevel`
 - `ScarGenerationOrganicSurgeryHadInfectionModifier`
 - `ScarGenerationOrganicSurgeryCleanedModifier`
@@ -360,7 +339,7 @@ Static configuration now owns the previous hard-coded coefficients:
 - `ScarGenerationSurgeryCheckDegreesMinusThreeOrLessModifier`
 
 ### Interpreting the scar math
-The template base chance should represent "if this exact kind of scar is even on the table, how likely is it before situational modifiers?"
+The chance matrix should represent the baseline likelihood that a wound of a given origin and severity scars at all.
 
 The static modifiers then control the world-level style:
 
@@ -370,17 +349,16 @@ The static modifiers then control the world-level style:
 
 This split is intentional:
 
-- builders control what a scar is and when it is conceptually valid
+- static scar data controls description-shape flavour and orientation pools
 - world tuning controls how forgiving or gritty the healing model feels overall
 
 ### Scar data guidance
-Good scar templates should:
+Good scar generation data should:
 
-- be anatomically specific enough to feel believable
-- not overlap excessively unless the overlap is intentional
-- use `Unique` only for genuinely singular marks
-- use bodypart shape filters aggressively for distinctive facial, limb, or torso scars
-- keep `DamageHealingScarChance` and `SurgeryHealingScarChance` modest and let the global tuning do most of the world-style work
+- map bodypart shapes to orientation pools that make anatomical sense
+- keep the descriptive families broad enough to work across many wounds
+- reserve special characteristic overrides for genuinely notable facial scarring
+- keep the chance matrix moderate and let the global tuning do most of the world-style work
 
 As a rule of thumb:
 
@@ -390,24 +368,15 @@ As a rule of thumb:
 ## Builder and Admin Surface
 
 ### Builder OLC
-Scars and tattoos both support the revisable-item workflow:
+Only tattoos still support the revisable-item workflow.
 
-- list
-- show
-- edit
-- new
-- clone
-- set subcommands
-- submit
-- admin review
-
-Scar template editing is intentionally parallel to tattoo template editing where it makes sense, but scars do not have a player-run inscription workflow equivalent to tattoos.
+The `scar` builder command is now informational only and points builders toward the generated-scar model plus the staff and chargen workflows that consume it.
 
 ### Admin commands
 Staff have direct manual intervention tools:
 
 - tattoos can be given, finished, and otherwise managed through the existing tattoo support
-- scars can be applied with `givescar`
+- scars can be applied with `givescar <target> <bodypart> <damage|surgery> <type> <severity>`
 - scars can be removed with `removescar`
 
 Interactive tattoo-creation paths must respect required tattoo text slots:
@@ -433,14 +402,13 @@ The scaffolding therefore has these requirements:
 - human, animal, and mythical seeders should all have extension points
 
 ### Shared utility
-`SeederDisfigurementTemplateUtilities` is the core authoring helper.
+`SeederDisfigurementTemplateUtilities` remains the core authoring helper for tattoo templates.
 
 It provides:
 
 - `SeederDisfigurementTemplateDefinition`
 - `SeederTattooTemplateDefinition`
 - `SeederTattooTextSlotDefinition`
-- `SeederScarTemplateDefinition`
 - `SeedTemplates(...)`
 - `HasMissingDefinitions(...)`
 
@@ -459,11 +427,11 @@ For the current resolver value catalogue and builder-friendly authoring guidance
 The system is intentionally split by seeder:
 
 - `HumanSeeder.Disfigurements.cs`
-  - central empty lists for human tattoo and scar templates
+  - stock tattoo templates
 - `AnimalSeeder.Disfigurements.cs`
-  - per-race optional tattoo and scar template collections
+  - per-race optional tattoo template collections
 - `MythicalAnimalSeeder.Disfigurements.cs`
-  - per-race optional tattoo and scar template collections
+  - per-race optional tattoo template collections
 
 This split matches how anatomy differs between seeded bodies.
 
@@ -547,8 +515,8 @@ Changes in this area should usually consider:
 - `DisfigurementFactory` type dispatch coverage
 - tattoo text-slot fallback and custom-value rendering coverage
 - chargen persistence of selected tattoo text values
-- scar-generation behaviour with and without templates
 - scar-generation behaviour with `ScarringEnabled` off
+- scar-generation description output for representative bodypart shapes and damage families
 - seeder idempotency and empty-definition behaviour
 
 ## Practical Maintenance Checklist

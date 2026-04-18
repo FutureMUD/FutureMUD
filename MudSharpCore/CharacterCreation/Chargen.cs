@@ -340,6 +340,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; set; } =
         [];
+    public List<IScar> SelectedScars { get; set; } = [];
     public List<ISelectedTattoo> SelectedTattoos { get; set; } = [];
 
     public List<IGameItemProto> SelectedProstheses { get; set; } = [];
@@ -1049,6 +1050,7 @@ public partial class Chargen : FrameworkItem, IChargen
             case ChargenStage.SelectDisfigurements:
                 MissingBodyparts.Clear();
                 SelectedDisfigurements.Clear();
+                SelectedScars.Clear();
                 SelectedTattoos.Clear();
                 SelectedProstheses.Clear();
                 break;
@@ -1375,6 +1377,15 @@ public partial class Chargen : FrameworkItem, IChargen
                 }
             }
 
+            element = root.Element("SelectedScars");
+            if (element != null)
+            {
+                foreach (XElement item in element.Elements("Scar"))
+                {
+                    SelectedScars.Add(new Scar(item, Gameworld, SelectedRace));
+                }
+            }
+
             element = root.Element("SelectedTattoos");
             if (element != null)
             {
@@ -1529,6 +1540,9 @@ public partial class Chargen : FrameworkItem, IChargen
                 from disfigurement in SelectedDisfigurements
                 select new XElement("Disfigurement", new XAttribute("id", disfigurement.Disfigurement.Id),
                     new XAttribute("bodypart", disfigurement.Bodypart.Id))),
+            new XElement("SelectedScars",
+                from scar in SelectedScars
+                select scar.SaveToXml()),
             new XElement("SelectedTattoos",
                 from tattoo in SelectedTattoos
                 select new XElement("Tattoo",

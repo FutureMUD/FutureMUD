@@ -12,15 +12,12 @@ public static class DisfigurementFactory
     public static IDisfigurementTemplate LoadTemplate(MudSharp.Models.DisfigurementTemplate template,
         IFuturemud gameworld)
     {
-        switch (template.Type)
+        return template.Type switch
         {
-            case "Tattoo":
-                return new TattooTemplate(template, gameworld);
-            case "Scar":
-                return new ScarTemplate(template, gameworld);
-        }
-
-        throw new ApplicationException("Invalid disfigurement template type in DisfigurementFactory.LoadTemplate: " +
-                                       template.Type);
+            "Tattoo" => new TattooTemplate(template, gameworld),
+            "Scar" => null,
+            _ => throw new ApplicationException(
+                "Invalid disfigurement template type in DisfigurementFactory.LoadTemplate: " + template.Type)
+        };
     }
 }

@@ -184,14 +184,12 @@ public partial class Body : PerceiverItem, IBody
                 continue;
             }
 
-            if (disfigurement.Disfigurement is IScarTemplate st)
-            {
-                _scars.Add(new Scar(st, Gameworld, Actor, disfigurement.Bodypart,
-                    Actor.Culture.PrimaryCalendar.CurrentDateTime));
-                continue;
-            }
-
             throw new ApplicationException("Unknown Disfigurement Type in Body constructor.");
+        }
+
+        foreach (var scar in template.SelectedScars)
+        {
+            _scars.Add(new Scar(scar, Gameworld, Actor.Race));
         }
 
         Bloodtype = template.SelectedEthnicity.PopulationBloodModel?.GetBloodType(template);

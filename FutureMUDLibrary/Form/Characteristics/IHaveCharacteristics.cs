@@ -634,9 +634,9 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                             .ThenByDescending(x => x.Bodypart.IsVital)
                             .ToList();
 
-                            if (scars.Any(x => x.ScarTemplate.HasSpecialScarCharacteristicOverride))
+                            if (scars.Any(x => x.HasSpecialScarCharacteristicOverride))
                             {
-                                return scars.First(x => x.ScarTemplate.HasSpecialScarCharacteristicOverride).ScarTemplate.SpecialScarCharacteristicOverride(false).SpaceIfNotEmpty();
+                                return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(false).SpaceIfNotEmpty();
                             }
 
                             if (scars.Count > 3 || scars.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
@@ -653,16 +653,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                         chargen = owner as ICharacterTemplate;
                         if (chargen != null)
                         {
-                            List<(IScarTemplate Scar, IBodypart Bodypart)> scars = chargen.SelectedDisfigurements
-                            .Where(x => x.Disfigurement is IScarTemplate)
-                            .Select(x => (Scar: (IScarTemplate)x.Disfigurement, x.Bodypart))
-                            .OrderByDescending(x => x.Bodypart.Size.ChangeSize(x.Scar.SizeSteps))
-                            .ThenByDescending(x => x.Bodypart.IsVital)
-                            .ToList();
+                            List<IScar> scars = chargen.SelectedScars
+                                .OrderByDescending(x => x.Size)
+                                .ThenByDescending(x => x.Bodypart.IsVital)
+                                .ToList();
 
-                            if (scars.Any(x => x.Scar.HasSpecialScarCharacteristicOverride))
+                            if (scars.Any(x => x.HasSpecialScarCharacteristicOverride))
                             {
-                                return scars.First(x => x.Scar.HasSpecialScarCharacteristicOverride).Scar.SpecialScarCharacteristicOverride(false).SpaceIfNotEmpty();
+                                return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(false).SpaceIfNotEmpty();
                             }
 
                             if (scars.Count > 3)
@@ -686,9 +684,9 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                             .ThenByDescending(x => x.Bodypart.IsVital)
                             .ToList();
 
-                            if (scars.Any(x => x.ScarTemplate.HasSpecialScarCharacteristicOverride))
+                            if (scars.Any(x => x.HasSpecialScarCharacteristicOverride))
                             {
-                                return scars.First(x => x.ScarTemplate.HasSpecialScarCharacteristicOverride).ScarTemplate.SpecialScarCharacteristicOverride(true).SpaceIfNotEmpty();
+                                return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(true).SpaceIfNotEmpty();
                             }
 
                             if (scars.Count > 3 || scars.Any(x => x.Size >= character.Race.ModifiedSize(x.Bodypart)))
@@ -705,16 +703,14 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                         chargen = owner as ICharacterTemplate;
                         if (chargen != null)
                         {
-                            List<(IScarTemplate Scar, IBodypart Bodypart)> scars = chargen.SelectedDisfigurements
-                            .Where(x => x.Disfigurement is IScarTemplate)
-                            .Select(x => (Scar: (IScarTemplate)x.Disfigurement, x.Bodypart))
-                            .OrderByDescending(x => x.Bodypart.Size.ChangeSize(x.Scar.SizeSteps))
-                            .ThenByDescending(x => x.Bodypart.IsVital)
-                            .ToList();
+                            List<IScar> scars = chargen.SelectedScars
+                                .OrderByDescending(x => x.Size)
+                                .ThenByDescending(x => x.Bodypart.IsVital)
+                                .ToList();
 
-                            if (scars.Any(x => x.Scar.HasSpecialScarCharacteristicOverride))
+                            if (scars.Any(x => x.HasSpecialScarCharacteristicOverride))
                             {
-                                return scars.First(x => x.Scar.HasSpecialScarCharacteristicOverride).Scar.SpecialScarCharacteristicOverride(true).SpaceIfNotEmpty();
+                                return scars.First(x => x.HasSpecialScarCharacteristicOverride).SpecialScarCharacteristicOverride(true).SpaceIfNotEmpty();
                             }
 
                             if (scars.Count > 3)

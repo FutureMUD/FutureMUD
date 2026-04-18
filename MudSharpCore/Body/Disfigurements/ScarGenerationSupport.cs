@@ -7,11 +7,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using MudSharp.Body;
+using MudSharp.Character.Heritage;
 using MudSharp.Framework;
-using MudSharp.Framework.Revision;
 using MudSharp.Health;
 using MudSharp.Health.Wounds;
 using MudSharp.RPG.Checks;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Body.Disfigurements;
 
@@ -31,7 +32,10 @@ internal readonly record struct ScarWoundContext(
 internal static class ScarGenerationSupport
 {
 	internal const string ChanceMatrixConfigurationName = "ScarGenerationChanceMatrix";
+	internal const string OrientationConfigurationName = "ScarOrientationByBodypartShape";
+
 	private static readonly ConditionalWeakTable<IFuturemud, ScarGenerationChanceMatrixCache> ChanceMatrixCache = new();
+	private static readonly ConditionalWeakTable<IFuturemud, ScarOrientationMappingCache> OrientationCache = new();
 
 	internal static ScarWoundContext GetContext(IWound wound)
 	{
@@ -98,11 +102,240 @@ internal static class ScarGenerationSupport
 		return cache.Matrix;
 	}
 
+	internal static IScar CreateScar(
+		IFuturemud gameworld,
+		IRace race,
+		IBodypart bodypart,
+		ScarWoundContext context,
+		MudDateTime timeOfScarring,
+		int? variantSeed)
+	{
+		var shapeName = bodypart.Shape?.Name ?? string.Empty;
+		var orientationPool = GetOrientationMapping(gameworld).ResolveProfile(shapeName, bodypart.Name, bodypart.FullDescription());
+		var orientations = GetOrientationOptions(orientationPool);
+		var orientation = orientations[(variantSeed ?? RandomUtilities.Random(0, orientations.Count)) % orientations.Count];
+		var descriptor = GetDescriptor(context);
+		var severityDescriptor = GetSeverityDescriptor(context.Severity, context.IsSurgery);
+		var partText = bodypart.FullDescription();
+		var shortDescription = BuildShortDescription(severityDescriptor, descriptor.ShortBase);
+		var fullDescription =
+			$"{severityDescriptor.FullPrefix} {descriptor.FullBase} {string.Format(orientation, partText)}; {descriptor.CausePhrase}";
+		var sizeSteps = GetSizeSteps(context);
+		var distinctiveness = GetDistinctiveness(context);
+		var (overridePlain, overrideWith) = GetCharacteristicOverrides(shapeName, bodypart, context, distinctiveness);
+		return new Scar(
+			gameworld,
+			race,
+			bodypart,
+			timeOfScarring,
+			shortDescription,
+			fullDescription,
+			sizeSteps,
+			distinctiveness,
+			overridePlain,
+			overrideWith,
+			context.DamageType,
+			context.Severity,
+			context.IsSurgery,
+			context.SurgicalProcedureType);
+	}
+
+	private static ScarOrientationMapping GetOrientationMapping(IFuturemud gameworld)
+	{
+		var cache = OrientationCache.GetOrCreateValue(gameworld);
+		var rawConfiguration = gameworld.GetStaticConfiguration(OrientationConfigurationName);
+		if (cache.Mapping is not null && string.Equals(cache.RawConfiguration, rawConfiguration, StringComparison.Ordinal))
+		{
+			return cache.Mapping;
+		}
+
+		cache.RawConfiguration = rawConfiguration;
+		cache.Mapping = ScarOrientationMapping.Parse(rawConfiguration);
+		return cache.Mapping;
+	}
+
+	private static ScarDescriptor GetDescriptor(ScarWoundContext context)
+	{
+		if (context.IsSurgery)
+		{
+			return new ScarDescriptor(
+				"surgical seam scar",
+				"surgical seam scar",
+				"where careful incisions were drawn closed and healed into a taut seam.");
+		}
+
+		return context.DamageType switch
+		{
+			DamageType.Slashing or DamageType.Chopping or DamageType.Claw or DamageType.Shearing => new ScarDescriptor(
+				"jagged slash scar",
+				"jagged slash scar",
+				"where a deep cut split the flesh and healed in an uneven seam."),
+			DamageType.Piercing or DamageType.Ballistic or DamageType.ArmourPiercing or DamageType.BallisticArmourPiercing => new ScarDescriptor(
+				"deep puncture scar",
+				"deep puncture scar",
+				"where a penetrating wound healed into a tight, puckered mark."),
+			DamageType.Burning or DamageType.Chemical or DamageType.Electrical => new ScarDescriptor(
+				"glossy burn scar",
+				"glossy burn scar",
+				"where heat or caustic injury tightened the flesh into a smooth, shiny patch."),
+			DamageType.Crushing or DamageType.Falling or DamageType.Shockwave => new ScarDescriptor(
+				"heavy crushed scar",
+				"heavy crushed scar",
+				"where the flesh was mashed and healed into a warped patch."),
+			DamageType.Wrenching => new ScarDescriptor(
+				"twisted wrench scar",
+				"twisted wrench scar",
+				"where the flesh was twisted and torn under strain and healed badly out of line."),
+			DamageType.Bite or DamageType.Shrapnel => new ScarDescriptor(
+				"ragged clustered scar",
+				"ragged clustered scar",
+				"where multiple tearing wounds healed together into a broken pattern."),
+			DamageType.Freezing or DamageType.Necrotic or DamageType.Cellular or DamageType.Hypoxia => new ScarDescriptor(
+				"puckered scar",
+				"puckered scar",
+				"where damaged flesh shrank back and healed into a drawn, uneven patch."),
+			DamageType.Eldritch or DamageType.Arcane or DamageType.Sonic => new ScarDescriptor(
+				"unnatural scar",
+				"unnatural scar",
+				"where strange trauma left the flesh healed in a subtly wrong pattern."),
+			_ => new ScarDescriptor(
+				"visible scar",
+				"visible scar",
+				"where a serious wound healed and left a lasting mark.")
+		};
+	}
+
+	private static SeverityDescriptor GetSeverityDescriptor(WoundSeverity severity, bool isSurgical)
+	{
+		return severity switch
+		{
+			WoundSeverity.None => new SeverityDescriptor("a faint", "A faint"),
+			WoundSeverity.Superficial => new SeverityDescriptor("a faint", "A faint"),
+			WoundSeverity.Minor => new SeverityDescriptor("a slight", "A slight"),
+			WoundSeverity.Small => new SeverityDescriptor("a narrow", "A narrow"),
+			WoundSeverity.Moderate => new SeverityDescriptor("a noticeable", "A noticeable"),
+			WoundSeverity.Severe => new SeverityDescriptor(isSurgical ? "a marked" : "a heavy", isSurgical ? "A marked" : "A heavy"),
+			WoundSeverity.VerySevere => new SeverityDescriptor("a heavy", "A heavy"),
+			WoundSeverity.Grievous => new SeverityDescriptor("a grievous", "A grievous"),
+			WoundSeverity.Horrifying => new SeverityDescriptor("a horrific", "A horrific"),
+			_ => new SeverityDescriptor("a visible", "A visible")
+		};
+	}
+
+	private static string BuildShortDescription(SeverityDescriptor severityDescriptor, string shortBase)
+	{
+		return $"{severityDescriptor.ShortPrefix} {shortBase}";
+	}
+
+	private static int GetSizeSteps(ScarWoundContext context)
+	{
+		var sizeSteps = context.Severity switch
+		{
+			WoundSeverity.None => -2,
+			WoundSeverity.Superficial => -2,
+			WoundSeverity.Minor => -2,
+			WoundSeverity.Small => -1,
+			WoundSeverity.Moderate => -1,
+			WoundSeverity.Severe => 0,
+			WoundSeverity.VerySevere => 0,
+			WoundSeverity.Grievous => 1,
+			WoundSeverity.Horrifying => 1,
+			_ => 0
+		};
+
+		sizeSteps += context.DamageType switch
+		{
+			DamageType.Piercing or DamageType.Ballistic or DamageType.ArmourPiercing or DamageType.BallisticArmourPiercing => -1,
+			DamageType.Burning or DamageType.Chemical or DamageType.Crushing or DamageType.Wrenching => 1,
+			_ => 0
+		};
+
+		return Math.Max(-2, Math.Min(2, sizeSteps));
+	}
+
+	private static int GetDistinctiveness(ScarWoundContext context)
+	{
+		var distinctiveness = context.Severity switch
+		{
+			WoundSeverity.None => 1,
+			WoundSeverity.Superficial => 1,
+			WoundSeverity.Minor => 1,
+			WoundSeverity.Small => 2,
+			WoundSeverity.Moderate => 2,
+			WoundSeverity.Severe => 3,
+			WoundSeverity.VerySevere => 4,
+			WoundSeverity.Grievous => 5,
+			WoundSeverity.Horrifying => 6,
+			_ => 2
+		};
+
+		distinctiveness += context.DamageType switch
+		{
+			DamageType.Burning or DamageType.Chemical or DamageType.Wrenching => 1,
+			DamageType.Piercing => -1,
+			_ => 0
+		};
+
+		return Math.Max(1, distinctiveness);
+	}
+
+	private static (string? Plain, string? With) GetCharacteristicOverrides(
+		string shapeName,
+		IBodypart bodypart,
+		ScarWoundContext context,
+		int distinctiveness)
+	{
+		if (distinctiveness < 4)
+		{
+			return (null, null);
+		}
+
+		var normalised = shapeName.ToLowerInvariant();
+		if (normalised.EqualToAny("eye", "nose", "mouth", "ear", "forehead", "cheek", "chin", "jaw", "scalp"))
+		{
+			return ("facially-scarred", "with facial scarring");
+		}
+
+		if (bodypart.Name.Contains("face", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return ("facially-scarred", "with facial scarring");
+		}
+
+		return (null, null);
+	}
+
+	private static List<string> GetOrientationOptions(string profile)
+	{
+		return profile.ToLowerInvariant() switch
+		{
+			"ring" => ["runs around {0}", "cuts obliquely over {0}", "cuts crosswise over {0}"],
+			"broad" => ["runs lengthwise along {0}", "cuts crosswise over {0}", "slashes diagonally across {0}", "sprawls across {0}", "fans outward over {0}"],
+			"joint" => ["hooks across {0}", "cuts obliquely over {0}", "runs lengthwise beside {0}"],
+			"facial" => ["slashes across {0}", "cuts diagonally over {0}", "marks one side of {0}"],
+			"eye" => ["scores a crescent across {0}", "branches radially across {0}", "rides one side of {0}"],
+			"nose" => ["runs down the bridge of {0}", "cuts crosswise over {0}", "rides one side of {0}"],
+			"mouth" => ["runs along the line of {0}", "splits vertically through one side of {0}", "hooks from one corner of {0} inward"],
+			"ear" => ["runs along the rim of {0}", "cuts across {0}", "runs downward toward the lobe of {0}"],
+			"breast" => ["cuts directly across {0}", "rings {0} in a tight seam", "rides one side of {0}"],
+			"groin" => ["runs down one side of {0}", "cuts low across {0}", "slashes diagonally over {0}"],
+			_ => ["runs lengthwise along {0}", "cuts crosswise over {0}", "slashes diagonally across {0}", "curves across {0}"]
+		};
+	}
+
 	private sealed class ScarGenerationChanceMatrixCache
 	{
 		public string? RawConfiguration { get; set; }
 		public ScarGenerationChanceMatrix? Matrix { get; set; }
 	}
+
+	private sealed class ScarOrientationMappingCache
+	{
+		public string? RawConfiguration { get; set; }
+		public ScarOrientationMapping? Mapping { get; set; }
+	}
+
+	private sealed record SeverityDescriptor(string ShortPrefix, string FullPrefix);
+	private sealed record ScarDescriptor(string ShortBase, string FullBase, string CausePhrase);
 }
 
 internal sealed class ScarGenerationChanceMatrix
@@ -180,152 +413,60 @@ internal sealed class ScarGenerationChanceMatrix
 	}
 }
 
-internal static class ScarTemplateIndex
+internal sealed class ScarOrientationMapping
 {
-	private static readonly ConditionalWeakTable<IFuturemud, ScarTemplateIndexCache> Cache = new();
+	private readonly Dictionary<string, string> _shapeProfiles;
+	private readonly string _defaultProfile;
 
-	internal static void Invalidate(IFuturemud gameworld)
+	private ScarOrientationMapping(Dictionary<string, string> shapeProfiles, string defaultProfile)
 	{
-		Cache.GetOrCreateValue(gameworld).IsDirty = true;
+		_shapeProfiles = shapeProfiles;
+		_defaultProfile = defaultProfile;
 	}
 
-	internal static ScarTemplateIndexSnapshot GetSnapshot(IFuturemud gameworld)
+	internal string ResolveProfile(string shapeName, string bodypartName, string fullDescription)
 	{
-		var cache = Cache.GetOrCreateValue(gameworld);
-		if (!cache.IsDirty && cache.Snapshot is not null)
+		if (!string.IsNullOrWhiteSpace(shapeName) &&
+			_shapeProfiles.TryGetValue(shapeName.Trim().ToLowerInvariant(), out var profile))
 		{
-			return cache.Snapshot;
+			return profile;
 		}
 
-		cache.Snapshot = new ScarTemplateIndexSnapshot(gameworld.DisfigurementTemplates
-			.OfType<IScarTemplate>()
-			.Where(x => x.Status == RevisionStatus.Current)
-			.ToList());
-		cache.IsDirty = false;
-		return cache.Snapshot;
-	}
-
-	private sealed class ScarTemplateIndexCache
-	{
-		public bool IsDirty { get; set; } = true;
-		public ScarTemplateIndexSnapshot? Snapshot { get; set; }
-	}
-}
-
-internal sealed class ScarTemplateIndexSnapshot
-{
-	private readonly Dictionary<long, List<IScarTemplate>> _shapeBuckets = new();
-	private readonly List<IScarTemplate> _wildcardShapeTemplates = [];
-	private readonly Dictionary<DamageType, List<IScarTemplate>> _damageBuckets = new();
-	private readonly Dictionary<SurgicalProcedureType, List<IScarTemplate>> _surgeryBuckets = new();
-
-	internal ScarTemplateIndexSnapshot(IEnumerable<IScarTemplate> templates)
-	{
-		foreach (var template in templates)
+		var combinedText = $"{bodypartName} {fullDescription}".ToLowerInvariant();
+		if (combinedText.Contains("eye"))
 		{
-			IndexTemplateByShape(template);
-			IndexTemplateByDamage(template);
-			IndexTemplateBySurgery(template);
-		}
-	}
-
-	internal IEnumerable<IScarTemplate> GetCandidates(IBody body, IBodypart bodypart, ScarWoundContext context)
-	{
-		var candidates = GetShapeCandidates(bodypart)
-			.Intersect(context.IsSurgery ? GetSurgeryCandidates(context) : GetDamageCandidates(context))
-			.Where(x => x.CanBeAppliedToBodypart(body, bodypart))
-			.Where(x => context.IsSurgery
-				? context.SurgicalProcedureType.HasValue && x.CanBeAppliedFromSurgery(context.SurgicalProcedureType.Value)
-				: x.CanBeAppliedFromDamage(context.DamageType, context.Severity))
-			.ToList();
-		return candidates;
-	}
-
-	private IEnumerable<IScarTemplate> GetShapeCandidates(IBodypart bodypart)
-	{
-		var results = new HashSet<IScarTemplate>(_wildcardShapeTemplates);
-		if (bodypart.Shape is not null && _shapeBuckets.TryGetValue(bodypart.Shape.Id, out var templates))
-		{
-			results.UnionWith(templates);
+			return "eye";
 		}
 
-		return results;
-	}
-
-	private IEnumerable<IScarTemplate> GetDamageCandidates(ScarWoundContext context)
-	{
-		return _damageBuckets.TryGetValue(context.DamageType, out var templates)
-			? templates
-			: Enumerable.Empty<IScarTemplate>();
-	}
-
-	private IEnumerable<IScarTemplate> GetSurgeryCandidates(ScarWoundContext context)
-	{
-		if (!context.SurgicalProcedureType.HasValue)
+		if (combinedText.Contains("nose"))
 		{
-			return Enumerable.Empty<IScarTemplate>();
+			return "nose";
 		}
 
-		return _surgeryBuckets.TryGetValue(context.SurgicalProcedureType.Value, out var templates)
-			? templates
-			: Enumerable.Empty<IScarTemplate>();
+		if (combinedText.Contains("mouth") || combinedText.Contains("lip"))
+		{
+			return "mouth";
+		}
+
+		if (combinedText.Contains("ear"))
+		{
+			return "ear";
+		}
+
+		return _defaultProfile;
 	}
 
-	private void IndexTemplateByShape(IScarTemplate template)
+	internal static ScarOrientationMapping Parse(string xml)
 	{
-		if (!template.BodypartShapes.Any())
-		{
-			_wildcardShapeTemplates.Add(template);
-			return;
-		}
-
-		foreach (var shape in template.BodypartShapes)
-		{
-			if (!_shapeBuckets.TryGetValue(shape.Id, out var templates))
-			{
-				templates = [];
-				_shapeBuckets[shape.Id] = templates;
-			}
-
-			templates.Add(template);
-		}
-	}
-
-	private void IndexTemplateByDamage(IScarTemplate template)
-	{
-		foreach (var damageType in Enum.GetValues<DamageType>())
-		{
-			if (!template.CanBeAppliedFromDamage(damageType, WoundSeverity.Horrifying))
-			{
-				continue;
-			}
-
-			if (!_damageBuckets.TryGetValue(damageType, out var templates))
-			{
-				templates = [];
-				_damageBuckets[damageType] = templates;
-			}
-
-			templates.Add(template);
-		}
-	}
-
-	private void IndexTemplateBySurgery(IScarTemplate template)
-	{
-		foreach (var surgeryType in Enum.GetValues<SurgicalProcedureType>())
-		{
-			if (!template.CanBeAppliedFromSurgery(surgeryType))
-			{
-				continue;
-			}
-
-			if (!_surgeryBuckets.TryGetValue(surgeryType, out var templates))
-			{
-				templates = [];
-				_surgeryBuckets[surgeryType] = templates;
-			}
-
-			templates.Add(template);
-		}
+		var root = XElement.Parse(xml);
+		var defaultProfile = root.Attribute("Default")?.Value ?? "linear";
+		return new ScarOrientationMapping(
+			root.Elements("Shape")
+				.Where(x => x.Attribute("Name") is not null && x.Attribute("Profile") is not null)
+				.ToDictionary(
+					x => x.Attribute("Name")!.Value.Trim().ToLowerInvariant(),
+					x => x.Attribute("Profile")!.Value.Trim(),
+					StringComparer.InvariantCultureIgnoreCase),
+			defaultProfile);
 	}
 }

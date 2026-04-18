@@ -2973,149 +2973,21 @@ The syntax for this command is as follows:
     #region Scars
 
     protected const string ScarHelp =
-        @$"The scar command is used to view, create and manage scar templates.
+        @"Scars are generated programmatically rather than authored as templates.
 
-The following options are used to view, edit and create scar designs:
-
-	#3scar list [all|mine|+key|-key]#0 - lists all scars
-	#3scar edit <id|name>#0 - opens the specified scar for editing
-	#3scar edit new <name>#0 - creates a new scar for editing
-	#3scar edit#0 - equivalent of doing SHOW on your currently editing scar
-	#3scar clone <id|name> <new name>#0 - creates a carbon copy of a scar for editing
-	#3scar show <id|name>#0 - shows a particular scar.
-	#3scar set <subcommand>#0 - changes something about the scar. See its help for more info.
-	#3scar edit submit#0 - submits a scar for review
-
-{GenericReviewableSearchList}";
+Use chargen to pick scars for new characters, or ask staff to use #3GIVESCAR#0 and #3REMOVESCAR#0.";
 
     protected const string ScarAdminHelp =
-        @$"The scar command is used to view, create and manage scar templates.
+        @"Scars are now generated programmatically rather than authored as editable templates.
 
-The following options are used to view, edit and create scar designs:
-
-	#3scar list [all|mine|+key|-key]#0 - lists all scars
-	#3scar edit <id|name>#0 - opens the specified scar for editing
-	#3scar edit new <name>#0 - creates a new scar for editing
-	#3scar edit#0 - equivalent of doing SHOW on your currently editing scar
-	#3scar clone <id|name> <new name>#0 - creates a carbon copy of a scar for editing
-	#3scar show <id|name>#0 - shows a particular scar.
-	#3scar set <subcommand>#0 - changes something about the scar. See its help for more info.
-	#3scar edit submit#0 - submits a scar for review
-	#3scar review all|mine|<id|name>#0 - reviews a submitted scar
-	#3scar review list#0 - shows all scars submitted for review
-
-{GenericReviewableSearchList}
-
-Also, as an admin you should see the related commands #3GIVESCAR#0 and #3REMOVESCAR#0.";
+Use the chargen disfigurement picker or the #3GIVESCAR#0 staff command to create scars.
+Use #3REMOVESCAR#0 to remove an existing scar.";
 
     [PlayerCommand("Scar", "scar")]
     [HelpInfo("scar", ScarHelp, AutoHelp.HelpArgOrNoArg, ScarAdminHelp)]
     protected static void Scar(ICharacter actor, string command)
     {
-        StringStack ss = new(command.RemoveFirstWord());
-        if (ss.IsFinished)
-        {
-            actor.OutputHandler.Send(ScarHelp.SubstituteANSIColour());
-            return;
-        }
-
-        switch (ss.PopSpeech())
-        {
-            case "list":
-                ScarList(actor, ss);
-                break;
-            case "edit":
-                ScarEdit(actor, ss);
-                break;
-            case "set":
-                ScarSet(actor, ss);
-                break;
-            case "clone":
-                ScarClone(actor, ss);
-                break;
-            case "show":
-            case "view":
-                ScarView(actor, ss);
-                break;
-            case "review":
-                ScarReview(actor, ss);
-                break;
-            case "help":
-            case "?":
-            default:
-                actor.OutputHandler.Send(ScarHelp.SubstituteANSIColour());
-                return;
-        }
-    }
-
-    private static void ScarReview(ICharacter actor, StringStack command)
-    {
-        if (!actor.IsAdministrator())
-        {
-            actor.OutputHandler.Send("Only administrators can review scars at this time.");
-            return;
-        }
-
-        GenericReview(actor, command, EditableRevisableItemHelper.ScarHelper);
-    }
-
-    private static void ScarView(ICharacter actor, StringStack command)
-    {
-        GenericRevisableShow(actor, command, EditableRevisableItemHelper.ScarHelper);
-    }
-
-    private static void ScarClone(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which scar do you want to clone?");
-            return;
-        }
-
-        IScarTemplate scar =
-            (long.TryParse(command.PopSpeech(), out long value)
-                ? actor.Gameworld.DisfigurementTemplates.Get(value)
-                : actor.Gameworld.DisfigurementTemplates.GetByName(command.Last)) as IScarTemplate;
-        if (scar == null)
-        {
-            actor.OutputHandler.Send("There is no such scar.");
-            return;
-        }
-
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What name do you want to give to the new scar?");
-            return;
-        }
-
-        string name = command.PopSpeech();
-        if (actor.Gameworld.DisfigurementTemplates.OfType<IScarTemplate>().Any(x => x.Name.EqualTo(name)))
-        {
-            actor.OutputHandler.Send("There is already a scar with that name. Scar names must be unique.");
-            return;
-        }
-
-        IScarTemplate newScar = (IScarTemplate)scar.Clone(actor.Account, name);
-        actor.Gameworld.Add(newScar);
-        actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IDisfigurementTemplate>>());
-        actor.AddEffect(new BuilderEditingEffect<IDisfigurementTemplate>(actor) { EditingItem = newScar });
-        actor.OutputHandler.Send(
-            $"You clone the {scar.Name.ColourName()} into a new scar, called {name.ColourName()}, which you are now editing.");
-    }
-
-    private static void ScarSet(ICharacter actor, StringStack command)
-    {
-        GenericRevisableSet(actor, command, EditableRevisableItemHelper.ScarHelper);
-    }
-
-    private static void ScarEdit(ICharacter actor, StringStack command)
-    {
-        GenericRevisableEdit(actor, command, EditableRevisableItemHelper.ScarHelper);
-    }
-
-    private static void ScarList(ICharacter actor, StringStack command)
-    {
-        GenericRevisableList(actor, command, EditableRevisableItemHelper.ScarHelper);
+        actor.OutputHandler.Send(ScarAdminHelp.SubstituteANSIColour());
     }
 
     #endregion

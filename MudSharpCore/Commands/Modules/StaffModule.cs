@@ -721,7 +721,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("GiveScar", "givescar")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("givescar", "Gives someone a scar. #3Syntax: givescar <target> <scar> <bodypart>#0",
+    [HelpInfo("givescar", "Gives someone a generated scar. #3Syntax: givescar <target> <bodypart> <damage|surgery> <type> <severity>#0",
         AutoHelp.HelpArgOrNoArg)]
     protected static void GiveScar(ICharacter actor, string command)
     {
@@ -735,29 +735,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
         if (ss.IsFinished)
         {
-            actor.OutputHandler.Send("What scar do you want to give them?");
-            return;
-        }
-
-        IDisfigurementTemplate template = long.TryParse(ss.PopSpeech(), out long value)
-            ? actor.Gameworld.DisfigurementTemplates.Get(value)
-            : actor.Gameworld.DisfigurementTemplates.GetByName(ss.Last);
-        if (template is not IScarTemplate scarTemplate)
-        {
-            actor.OutputHandler.Send("There is no such scar template.");
-            return;
-        }
-
-        if (template.Status != RevisionStatus.Current)
-        {
-            actor.OutputHandler.Send(
-                $"That scar is in the {template.Status.DescribeEnum().ColourValue()} status and cannot be used.");
-            return;
-        }
-
-        if (ss.IsFinished)
-        {
-            actor.OutputHandler.Send("Which bodypart do you want to put the scar on?");
+            actor.OutputHandler.Send("Which bodypart do you want to scar?");
             return;
         }
 
@@ -768,16 +746,61 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
             return;
         }
 
-        if (!scarTemplate.CanBeAppliedToBodypart(target.Body, bodypart))
+        if (ss.IsFinished)
         {
-            actor.OutputHandler.Send("That scar cannot be applied to that bodypart.");
+            actor.OutputHandler.Send("Is this a damage scar or a surgery scar?");
             return;
         }
 
-        target.Body.AddScar(scarTemplate.ProduceScar(target, bodypart));
+        ScarWoundContext context;
+        string origin = ss.PopSpeech();
+        if (origin.EqualTo("damage"))
+        {
+            if (ss.IsFinished || !Utilities.TryParseEnum<DamageType>(ss.PopSpeech(), out var damageType))
+            {
+                actor.OutputHandler.Send("You must specify a valid damage type.");
+                return;
+            }
+
+            if (ss.IsFinished || !Utilities.TryParseEnum<WoundSeverity>(ss.PopSpeech(), out var severity) ||
+                severity == WoundSeverity.None)
+            {
+                actor.OutputHandler.Send("You must specify a valid non-zero wound severity.");
+                return;
+            }
+
+            context = new ScarWoundContext(false, damageType, severity, null, 0, Outcome.None, false, false, false,
+                false, false);
+        }
+        else if (origin.EqualTo("surgery"))
+        {
+            if (ss.IsFinished || !Utilities.TryParseEnum<SurgicalProcedureType>(ss.PopSpeech(), out var surgeryType))
+            {
+                actor.OutputHandler.Send("You must specify a valid surgery type.");
+                return;
+            }
+
+            if (ss.IsFinished || !Utilities.TryParseEnum<WoundSeverity>(ss.PopSpeech(), out var severity) ||
+                severity == WoundSeverity.None)
+            {
+                actor.OutputHandler.Send("You must specify a valid non-zero wound severity.");
+                return;
+            }
+
+            context = new ScarWoundContext(true, DamageType.Slashing, severity, surgeryType, 0, Outcome.None, false,
+                false, false, false, false);
+        }
+        else
+        {
+            actor.OutputHandler.Send("You must specify either damage or surgery.");
+            return;
+        }
+
+        var scar = ScarGeneration.GenerateScar(actor.Gameworld, target.Race, bodypart, context, target.Location.DateTime());
+        target.Body.AddScar(scar);
         actor.OutputHandler.Handle(new EmoteOutput(
             new Emote(
-                $"@ mark|marks $1's {bodypart.FullDescription()} with {scarTemplate.ShortDescription.Colour(Telnet.BoldOrange)}.",
+                $"@ mark|marks $1's {bodypart.FullDescription()} with {scar.ShortDescription.Colour(Telnet.BoldOrange)}.",
                 actor, actor, target), flags: OutputFlags.SuppressObscured));
     }
 

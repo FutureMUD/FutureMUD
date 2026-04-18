@@ -8,13 +8,12 @@ using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Body.Disfigurements;
 
 public static class ScarGeneration
 {
-	private sealed record ScarCandidate(IScarTemplate Template, double Weight);
-
 	public static void TryApplyScar(ICharacter owner, IWound wound)
 	{
 		var gameworld = owner.Gameworld;
@@ -33,13 +32,6 @@ public static class ScarGeneration
 			return;
 		}
 
-		var context = ScarGenerationSupport.GetContext(wound);
-		var candidates = GetCandidates(owner, bodypart, context).ToList();
-		if (!candidates.Any())
-		{
-			return;
-		}
-
 		var overallChance = Math.Min(
 			gameworld.GetStaticDouble("ScarGenerationOverallChanceUpperBound"),
 			GetOccurrenceChance(owner, wound));
@@ -48,19 +40,8 @@ public static class ScarGeneration
 			return;
 		}
 
-		var selected = candidates.GetWeightedRandom(x => x.Weight);
-		if (selected is null)
-		{
-			return;
-		}
-
-		owner.Body.AddScar(selected.Template.ProduceScar(owner, bodypart));
-	}
-
-	internal static IEnumerable<IScarTemplate> GetCandidateTemplates(ICharacter owner, IWound wound, IBodypart bodypart)
-	{
 		var context = ScarGenerationSupport.GetContext(wound);
-		return ScarTemplateIndex.GetSnapshot(owner.Gameworld).GetCandidates(owner.Body, bodypart, context);
+		owner.Body.AddScar(GenerateScar(gameworld, owner.Race, bodypart, context, owner.Location.DateTime()));
 	}
 
 	internal static double GetOccurrenceChance(ICharacter owner, IWound wound)
@@ -86,17 +67,46 @@ public static class ScarGeneration
 		return (baseChance + flatModifier) * multiplier;
 	}
 
-	private static IEnumerable<ScarCandidate> GetCandidates(ICharacter owner, IBodypart bodypart, ScarWoundContext context)
+	internal static IScar GenerateScar(
+		IFuturemud gameworld,
+		Character.Heritage.IRace race,
+		IBodypart bodypart,
+		ScarWoundContext context,
+		MudDateTime timeOfScarring,
+		int? variantSeed = null)
 	{
-		return ScarTemplateIndex.GetSnapshot(owner.Gameworld)
-			.GetCandidates(owner.Body, bodypart, context)
-			.Select(x => new ScarCandidate(x, GetSelectionWeight(x, context)))
-			.Where(x => x.Weight > 0.0);
+		return ScarGenerationSupport.CreateScar(gameworld, race, bodypart, context, timeOfScarring, variantSeed);
 	}
 
-	private static double GetSelectionWeight(IScarTemplate template, ScarWoundContext context)
+	internal static IReadOnlyList<IScar> GenerateScarOptions(
+		IFuturemud gameworld,
+		Character.Heritage.IRace race,
+		IBodypart bodypart,
+		ScarWoundContext context,
+		MudDateTime timeOfScarring,
+		int count)
 	{
-		return context.IsSurgery ? template.SurgeryHealingScarWeight : template.DamageHealingScarWeight;
+		HashSet<string> seen = new(StringComparer.InvariantCultureIgnoreCase);
+		List<IScar> scars = [];
+		var attempts = Math.Max(count * 4, count + 2);
+		for (var i = 0; i < attempts && scars.Count < count; i++)
+		{
+			var scar = GenerateScar(gameworld, race, bodypart, context, timeOfScarring, i);
+			var key = $"{scar.ShortDescription}|{scar.FullDescription}";
+			if (!seen.Add(key))
+			{
+				continue;
+			}
+
+			scars.Add(scar);
+		}
+
+		if (!scars.Any())
+		{
+			scars.Add(GenerateScar(gameworld, race, bodypart, context, timeOfScarring, 0));
+		}
+
+		return scars;
 	}
 
 	private static double GetStaticOccurrenceChance(IFuturemud gameworld, ScarWoundContext context)

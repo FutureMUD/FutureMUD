@@ -1,56 +1,260 @@
 ﻿using Humanizer;
 using Microsoft.EntityFrameworkCore.Storage;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Email;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using TimeZoneInfo = MudSharp.Models.TimeZoneInfo;
+using TimeOfDay = MudSharp.Celestial.TimeOfDay;
 
 namespace DatabaseSeeder.Seeders;
 
 public partial class CoreDataSeeder : IDatabaseSeeder
 {
-    private static readonly Regex EmailRegex =
-        new(
-            @"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|us|mil|biz|info|mobi|name|aero|asia|jobs|museum)$",
-            RegexOptions.IgnoreCase);
+	private static readonly Regex EmailRegex =
+		new(
+			@"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|us|mil|biz|info|mobi|name|aero|asia|jobs|museum)$",
+			RegexOptions.IgnoreCase);
 
-    public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-    {
-        DateTime now = DateTime.UtcNow;
+	private static Difficulty ClampHearingDifficulty(int value)
+	{
+		return (Difficulty)Math.Clamp(value, (int)Difficulty.Automatic, (int)Difficulty.Impossible);
+	}
 
-        IDbContextTransaction transaction = context.Database.BeginTransaction();
-        // Set up account authorities
-        AuthorityGroup producer = SeedAuthorities(context);
+	private static string BuildSimpleHearingProfileDefinition(
+		Difficulty defaultDifficulty,
+		IEnumerable<(AudioVolume Volume, Proximity Proximity, Difficulty Difficulty)> difficulties)
+	{
+		return new XElement("Definition",
+				new XElement("DefaultDifficulty", (int)defaultDifficulty),
+				new XElement("Difficulties",
+					from item in difficulties
+					select new XElement("Difficulty",
+						new XAttribute("Volume", (int)item.Volume),
+						new XAttribute("Proximity", (int)item.Proximity),
+						(int)item.Difficulty)))
+			.ToString();
+	}
 
-        // God Account
+	private static string BuildTimeOfDayHearingProfileDefinition(
+		IEnumerable<(TimeOfDay TimeOfDay, HearingProfile Profile)> mappings)
+	{
+		return new XElement("Definition",
+				new XElement("TimeOfDays",
+					from item in mappings
+					select new XElement("TimeOfDay",
+						new XAttribute("Value", (int)item.TimeOfDay),
+						new XAttribute("ProfileID", item.Profile.Id))))
+			.ToString();
+	}
 
-        Account dbaccount = new()
-        {
-            Name = questionAnswers["account"],
-            Salt = 8675309,
-            Password = SecurityUtilities.GetPasswordHash(questionAnswers["password"], 8675309),
-            FormatLength = 180,
-            InnerFormatLength = 80,
-            PageLength = 100,
-            CultureName = "en-US",
-            TimeZoneId = "Eastern Standard Time",
-            UseUnicode = false,
-            Email = questionAnswers["email"],
-            IsRegistered = true,
-            UnitPreference = "metric",
-            ActiveCharactersAllowed = 100,
-            CreationDate = now,
-            RegistrationCode = "abcdefgh",
-            AuthorityGroup = producer
-        };
-        context.Accounts.Add(dbaccount);
+	private static string BuildWeekdayTimeOfDayHearingProfileDefinition(
+		long calendarId,
+		IEnumerable<(double Lower, double Upper, HearingProfile Profile)> ranges)
+	{
+		return new XElement("Definition",
+				new XElement("CalendarID", calendarId),
+				new XElement("Weekdays",
+					from item in ranges
+					select new XElement("Weekday",
+						new XAttribute("ProfileID", item.Profile.Id),
+						new XAttribute("Lower", item.Lower),
+						new XAttribute("Upper", item.Upper))))
+			.ToString();
+	}
+
+	private static HearingProfile SeedHearingProfile(
+		FuturemudDatabaseContext context,
+		string name,
+		string type,
+		string surveyDescription,
+		string definition)
+	{
+		var profile = new HearingProfile
+		{
+			Name = name,
+			Type = type,
+			SurveyDescription = surveyDescription,
+			Definition = definition
+		};
+		context.HearingProfiles.Add(profile);
+		return profile;
+	}
+
+	internal static IReadOnlyDictionary<string, HearingProfile> SeedDefaultHearingProfiles(
+		FuturemudDatabaseContext context)
+	{
+		var universalDifficulties = new[]
+		{
+			(Volume: AudioVolume.Silent, Proximity: Proximity.Intimate, Difficulty: Difficulty.ExtremelyEasy),
+			(Volume: AudioVolume.Faint, Proximity: Proximity.Intimate, Difficulty: Difficulty.Trivial),
+			(Volume: AudioVolume.Silent, Proximity: Proximity.Immediate, Difficulty: Difficulty.VeryEasy),
+			(Volume: AudioVolume.Faint, Proximity: Proximity.Immediate, Difficulty: Difficulty.ExtremelyEasy),
+			(Volume: AudioVolume.Quiet, Proximity: Proximity.Immediate, Difficulty: Difficulty.Trivial),
+			(Volume: AudioVolume.Silent, Proximity: Proximity.Proximate, Difficulty: Difficulty.Easy),
+			(Volume: AudioVolume.Faint, Proximity: Proximity.Proximate, Difficulty: Difficulty.VeryEasy),
+			(Volume: AudioVolume.Quiet, Proximity: Proximity.Proximate, Difficulty: Difficulty.ExtremelyEasy),
+			(Volume: AudioVolume.Silent, Proximity: Proximity.Distant, Difficulty: Difficulty.VeryHard),
+			(Volume: AudioVolume.Faint, Proximity: Proximity.Distant, Difficulty: Difficulty.Hard),
+			(Volume: AudioVolume.Quiet, Proximity: Proximity.Distant, Difficulty: Difficulty.Normal),
+			(Volume: AudioVolume.Decent, Proximity: Proximity.Distant, Difficulty: Difficulty.Easy),
+			(Volume: AudioVolume.Loud, Proximity: Proximity.Distant, Difficulty: Difficulty.VeryEasy),
+			(Volume: AudioVolume.VeryLoud, Proximity: Proximity.Distant, Difficulty: Difficulty.ExtremelyEasy),
+			(Volume: AudioVolume.ExtremelyLoud, Proximity: Proximity.Distant, Difficulty: Difficulty.Trivial)
+		};
+
+		IEnumerable<(AudioVolume Volume, Proximity Proximity, Difficulty Difficulty)> ShiftDifficulties(int shift)
+		{
+			return universalDifficulties.Select(item =>
+				(item.Volume, item.Proximity, ClampHearingDifficulty((int)item.Difficulty + shift)));
+		}
+
+		var seededHearingProfiles = new Dictionary<string, HearingProfile>(StringComparer.InvariantCultureIgnoreCase);
+
+		void AddSimpleProfile(string name, string surveyDescription, Difficulty defaultDifficulty, int shift)
+		{
+			seededHearingProfiles[name] = SeedHearingProfile(
+				context,
+				name,
+				"Simple",
+				surveyDescription,
+				BuildSimpleHearingProfileDefinition(defaultDifficulty, ShiftDifficulties(shift)));
+		}
+
+		AddSimpleProfile("Universal", "The noise level is generally low and otherwise unremarkable.",
+			Difficulty.Automatic, 0);
+		AddSimpleProfile("Extremely Quiet",
+			"The surrounding area is exceptionally still and even subtle sounds carry clearly.", Difficulty.Automatic,
+			-2);
+		AddSimpleProfile("Bustling Daytime",
+			"Steady daytime activity makes it harder to pick out softer or more distant sounds.", Difficulty.Trivial, 2);
+		AddSimpleProfile("Nightlife Crowd",
+			"Conversation, music and late-night activity compete with most softer sounds.", Difficulty.VeryEasy, 3);
+		AddSimpleProfile("Near River", "The steady rush of nearby water masks softer sounds.", Difficulty.Trivial, 1);
+		AddSimpleProfile("Near Ocean",
+			"Breaking surf and coastal wind make quieter sounds harder to catch.", Difficulty.ExtremelyEasy, 2);
+		AddSimpleProfile("Near Waterfall", "The roar of falling water overwhelms almost every softer noise.",
+			Difficulty.Easy, 4);
+		AddSimpleProfile("Near Industrial Machinery",
+			"Grinding, clanging machinery dominates the soundscape almost constantly.", Difficulty.Hard, 5);
+		context.SaveChanges();
+
+		void AddTimeOfDayProfile(
+			string name,
+			string surveyDescription,
+			params (TimeOfDay TimeOfDay, string ProfileName)[] mappings)
+		{
+			seededHearingProfiles[name] = SeedHearingProfile(
+				context,
+				name,
+				"TimeOfDay",
+				surveyDescription,
+				BuildTimeOfDayHearingProfileDefinition(
+					from item in mappings
+					select (item.TimeOfDay, seededHearingProfiles[item.ProfileName])));
+		}
+
+		AddTimeOfDayProfile("Commercial Workday Cycle",
+			"Busiest through the working day, winding down after dusk and becoming extremely quiet overnight.",
+			(TimeOfDay.Night, "Extremely Quiet"),
+			(TimeOfDay.Dawn, "Universal"),
+			(TimeOfDay.Morning, "Bustling Daytime"),
+			(TimeOfDay.Afternoon, "Bustling Daytime"),
+			(TimeOfDay.Dusk, "Universal"));
+		AddTimeOfDayProfile("Commercial Weekend Cycle",
+			"A gentler daytime hum with very quiet nights and calmer dawns.",
+			(TimeOfDay.Night, "Extremely Quiet"),
+			(TimeOfDay.Dawn, "Extremely Quiet"),
+			(TimeOfDay.Morning, "Universal"),
+			(TimeOfDay.Afternoon, "Universal"),
+			(TimeOfDay.Dusk, "Universal"));
+		AddTimeOfDayProfile("Entertainment Weekday Cycle",
+			"Quieter through weekday mornings and afternoons, rising sharply after dusk and into the night.",
+			(TimeOfDay.Night, "Nightlife Crowd"),
+			(TimeOfDay.Dawn, "Universal"),
+			(TimeOfDay.Morning, "Extremely Quiet"),
+			(TimeOfDay.Afternoon, "Universal"),
+			(TimeOfDay.Dusk, "Nightlife Crowd"));
+		AddTimeOfDayProfile("Entertainment Weekend Cycle",
+			"Weekend afternoons are busier and the nightlife stays loud well into the night.",
+			(TimeOfDay.Night, "Nightlife Crowd"),
+			(TimeOfDay.Dawn, "Universal"),
+			(TimeOfDay.Morning, "Universal"),
+			(TimeOfDay.Afternoon, "Bustling Daytime"),
+			(TimeOfDay.Dusk, "Nightlife Crowd"));
+		context.SaveChanges();
+
+		var defaultCalendarId = context.Calendars.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+
+		void AddWeekdayTimeOfDayProfile(
+			string name,
+			string surveyDescription,
+			params (double Lower, double Upper, string ProfileName)[] ranges)
+		{
+			seededHearingProfiles[name] = SeedHearingProfile(
+				context,
+				name,
+				"WeekdayTimeOfDay",
+				surveyDescription,
+				BuildWeekdayTimeOfDayHearingProfileDefinition(
+					defaultCalendarId,
+					from item in ranges
+					select (item.Lower, item.Upper, seededHearingProfiles[item.ProfileName])));
+		}
+
+		AddWeekdayTimeOfDayProfile("Commercial District",
+			"Assuming a seven-day week, this place is noisy during weekday daylight hours, extremely quiet at night, and less noisy across the weekend days.",
+			(0.0, 5.0, "Commercial Workday Cycle"),
+			(5.0, 7.0, "Commercial Weekend Cycle"));
+		AddWeekdayTimeOfDayProfile("Entertainment District",
+			"Assuming a seven-day week, this place is comparatively quiet through weekday days but becomes much louder at night and across the weekend.",
+			(0.0, 5.0, "Entertainment Weekday Cycle"),
+			(5.0, 7.0, "Entertainment Weekend Cycle"));
+		context.SaveChanges();
+
+		return seededHearingProfiles;
+	}
+
+	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		DateTime now = DateTime.UtcNow;
+
+		IDbContextTransaction transaction = context.Database.BeginTransaction();
+		// Set up account authorities
+		AuthorityGroup producer = SeedAuthorities(context);
+
+		// God Account
+
+		Account dbaccount = new()
+		{
+			Name = questionAnswers["account"],
+			Salt = 8675309,
+			Password = SecurityUtilities.GetPasswordHash(questionAnswers["password"], 8675309),
+			FormatLength = 180,
+			InnerFormatLength = 80,
+			PageLength = 100,
+			CultureName = "en-US",
+			TimeZoneId = "Eastern Standard Time",
+			UseUnicode = false,
+			Email = questionAnswers["email"],
+			IsRegistered = true,
+			UnitPreference = "metric",
+			ActiveCharactersAllowed = 100,
+			CreationDate = now,
+			RegistrationCode = "abcdefgh",
+			AuthorityGroup = producer
+		};
+		context.Accounts.Add(dbaccount);
 
         SeedCulturesAndTimezoneInfos(context);
 
@@ -648,33 +852,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         context.GameItemProtos.Add(commodityItem);
         context.SaveChanges();
 
-        // Add Universal Hearing Profile
-        HearingProfile hearing = new()
-        {
-            Name = "Universal",
-            Type = "Simple",
-            SurveyDescription = "The noise level is generally low and otherwise unremarkable.",
-            Definition = @"<Definition>
-   <Difficulties>
-	 <Difficulty Volume=""0"" Proximity=""0"">2</Difficulty>
-	 <Difficulty Volume=""1"" Proximity=""0"">1</Difficulty>
-	 <Difficulty Volume=""0"" Proximity=""1"">3</Difficulty>
-	 <Difficulty Volume=""1"" Proximity=""1"">2</Difficulty>
-	 <Difficulty Volume=""2"" Proximity=""1"">1</Difficulty>
-	 <Difficulty Volume=""0"" Proximity=""2"">4</Difficulty>
-	 <Difficulty Volume=""1"" Proximity=""2"">3</Difficulty>
-	 <Difficulty Volume=""2"" Proximity=""2"">2</Difficulty>
-	 <Difficulty Volume=""0"" Proximity=""3"">7</Difficulty>
-	 <Difficulty Volume=""1"" Proximity=""3"">6</Difficulty>
-	 <Difficulty Volume=""2"" Proximity=""3"">5</Difficulty>
-	 <Difficulty Volume=""3"" Proximity=""3"">4</Difficulty>
-	 <Difficulty Volume=""4"" Proximity=""3"">3</Difficulty>
-	 <Difficulty Volume=""5"" Proximity=""3"">2</Difficulty>
-	 <Difficulty Volume=""6"" Proximity=""3"">1</Difficulty>
-   </Difficulties>
- </Definition>"
-        };
-        context.HearingProfiles.Add(hearing);
+		// Add default hearing profiles
+		IReadOnlyDictionary<string, HearingProfile> seededHearingProfiles = SeedDefaultHearingProfiles(context);
 
         // Default Item Group
         ItemGroup itemGroup = new()
@@ -953,7 +1132,7 @@ public partial class CoreDataSeeder : IDatabaseSeeder
             CellOverlayPackage = package,
             Terrain = terrain,
             AddedLight = 0,
-            HearingProfile = hearing,
+            HearingProfile = seededHearingProfiles["Universal"],
             OutdoorsType = 0,
             AmbientLightFactor = 1.0,
             CellId = cell.Id

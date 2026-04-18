@@ -2779,7 +2779,7 @@ public partial class EditableItemHelper
         {
             if (input.CountRemainingArguments() < 2)
             {
-                actor.OutputHandler.Send("You must specify a type (simple|temporal|weekday) and a name.");
+                actor.OutputHandler.Send("You must specify a type (simple|temporal|timeofday|weekday|weekdaytimeofday) and a name.");
                 return;
             }
 
@@ -2795,13 +2795,16 @@ public partial class EditableItemHelper
             {
                 "simple" => new SimpleHearingProfile(actor.Gameworld, name),
                 "temporal" => new TemporalHearingProfile(actor.Gameworld, name),
+                "timeofday" => new TimeOfDayHearingProfile(actor.Gameworld, name),
                 "weekday" => new WeekdayHearingProfile(actor.Gameworld, name),
+                "weekdaytimeofday" => new WeekdayTimeOfDayHearingProfile(actor.Gameworld, name),
+                "weekdaytime" => new WeekdayTimeOfDayHearingProfile(actor.Gameworld, name),
                 _ => null
             };
 
             if (profile == null)
             {
-                actor.OutputHandler.Send("The type must be simple, temporal or weekday.");
+                actor.OutputHandler.Send("The type must be simple, temporal, timeofday, weekday or weekdaytimeofday.");
                 return;
             }
 

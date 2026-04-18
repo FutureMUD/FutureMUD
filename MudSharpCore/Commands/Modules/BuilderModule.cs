@@ -4515,7 +4515,7 @@ You can use the following syntax with this command:
 
 	#3hearprof list#0 - lists all hearing profiles
 	#3hearprof edit <which>#0 - begins editing a profile
-	#3hearprof edit new <simple|temporal|weekday> <name>#0 - creates a new profile
+	#3hearprof edit new <simple|temporal|timeofday|weekday|weekdaytimeofday> <name>#0 - creates a new profile
 	#3hearprof clone <which> <name>#0 - clones an existing profile
 	#3hearprof close#0 - stops editing a profile
 	#3hearprof show <which>#0 - views a profile

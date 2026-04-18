@@ -254,7 +254,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		return true;
 	}
 
-	public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, ComputerRuntimeProgramBase program)
+	public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, IComputerProgramDefinition program)
 	{
 		var now = DateTime.UtcNow;
 		var process = new ComputerRuntimeProcess

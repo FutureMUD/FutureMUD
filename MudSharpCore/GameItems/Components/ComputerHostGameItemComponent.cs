@@ -77,8 +77,10 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 		foreach (var process in rhs._processes.Values)
 		{
-			if (!_executables.TryGetValue(process.Program.Id, out var executable) ||
-			    executable is not ComputerRuntimeProgramBase program)
+			var program = _executables.TryGetValue(process.Program.Id, out var executable)
+				? executable as IComputerProgramDefinition
+				: BuiltInApplications.FirstOrDefault(x => x.Id == process.Program.Id);
+			if (program is null)
 			{
 				continue;
 			}
@@ -119,7 +121,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public IComputerFileSystem? FileSystem => _fileSystem;
 	public IEnumerable<IComputerExecutableDefinition> Executables => _executables.Values.OrderBy(x => x.Name).ThenBy(x => x.Id);
 	public IEnumerable<IComputerProcess> Processes => _processes.Values.OrderByDescending(x => x.LastUpdatedAtUtc).ThenByDescending(x => x.Id);
-	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => ComputerBuiltInApplications.All;
+	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => ComputerBuiltInApplications.ForHost(Parent.Id);
 	public IEnumerable<IComputerStorage> MountedStorage => _connectedItems.OfType<IComputerStorage>().ToList();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => _connectedItems.OfType<IComputerTerminal>().ToList();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => _connectedItems.OfType<INetworkAdapter>().ToList();
@@ -322,7 +324,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		return true;
 	}
 
-	public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, ComputerRuntimeProgramBase program)
+	public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, IComputerProgramDefinition program)
 	{
 		var now = DateTime.UtcNow;
 		var process = new ComputerRuntimeProcess
@@ -467,7 +469,8 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			         root.Element("Processes"),
 			         _executables,
 			         this,
-			         Gameworld))
+			         Gameworld,
+			         BuiltInApplications))
 		{
 			_processes[process.Key] = process.Value;
 		}

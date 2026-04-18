@@ -109,6 +109,12 @@ The current shipped computer-host slice now provides those first concrete famili
 - `ComputerTerminal` is a powered machine component plus `IConnectable` that owns live player sessions into a connected powered host
 - `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's local network-facing readiness and preferred address
 
+Built-in applications now follow the same host-owned runtime model rather than existing as a disconnected catalog:
+- a real `ComputerHost` exposes built-in application definitions as host-bound built-in programs
+- those built-ins are not exposed by the private workspace or mounted storage devices
+- executing one creates a real host process through the shared computer execution service
+- in the current shipped phase only `SysMon` has implemented built-in behaviour, while the other built-in identities remain reserved for future phases
+
 As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
 
 The currently implemented automation runtime slice is intentionally narrower than the full target design:
@@ -176,12 +182,15 @@ The current player-work runtime flow for that slice is:
 - `programming terminal connect <terminal>` creates a terminal session on a powered connected `ComputerTerminal`
 - `programming terminal owner host` or `programming terminal owner <storage>` selects which real computer owner the workspace-style `programming` verbs mutate
 - when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
+- `programming apps` lists the built-in applications exposed by the connected powered host, regardless of whether the current selected mutable owner is the host or one mounted storage device
+- `programming app <name>` executes the named built-in application on that connected powered host as a real host process
 - `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
 - computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
 - host-backed computer processes can now also suspend in `WaitSignal()` with persisted signal-wait metadata that records the awaited local signal binding on the real execution host item
 - the current v1 `WaitSignal()` implementation resolves only named signal source components on that real execution host item and resumes when that source emits a non-zero signal value
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
 - real host-backed or storage-backed program execution is now blocked when the execution host is not powered
+- built-in application execution is likewise blocked when that connected execution host is not powered
 - actions are modelled as targeted delayed effects rather than instant mutation
 - required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials
 - success, progress, cancel, failure, and shock output are driven by configurable static strings rather than hard-coded prose

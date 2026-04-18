@@ -92,7 +92,8 @@ internal static class ComputerMutableOwnerXmlPersistence
 		XElement? element,
 		IReadOnlyDictionary<long, ComputerRuntimeExecutableBase> executables,
 		IComputerHost host,
-		IFuturemud gameworld)
+		IFuturemud gameworld,
+		IEnumerable<IComputerBuiltInApplication>? additionalPrograms = null)
 	{
 		Dictionary<long, ComputerRuntimeProcess> processes = new();
 		if (element is null)
@@ -107,9 +108,15 @@ internal static class ComputerMutableOwnerXmlPersistence
 				continue;
 			}
 
-			if (!long.TryParse(child.Attribute("executable")?.Value, out var executableId) ||
-			    !executables.TryGetValue(executableId, out var executable) ||
-			    executable is not ComputerRuntimeProgramBase program)
+			if (!long.TryParse(child.Attribute("executable")?.Value, out var executableId))
+			{
+				continue;
+			}
+
+			var program = executables.TryGetValue(executableId, out var executable)
+				? executable as IComputerProgramDefinition
+				: additionalPrograms?.FirstOrDefault(x => x.Id == executableId);
+			if (program is null)
 			{
 				continue;
 			}

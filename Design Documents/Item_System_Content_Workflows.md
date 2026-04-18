@@ -146,6 +146,7 @@ For telecommunications content, also validate:
 
 For the current signal-automation slice, also validate:
 - whether `computerhost` correctly tracks its powered state, mounted storage devices, terminal connections, network adapters, files, and stored executables
+- whether `computerhost` exposes the expected built-in applications through `programming apps` and whether the host reports those applications consistently even when a mounted storage device is selected as the current mutable programming owner
 - whether `computerstorage` mounts into the intended host and exposes the expected files and executables through that host
 - whether `computerterminal` only allows sessions when switched on, powered, and connected to a powered host
 - whether `networkadapter` reports the expected connected host, local address, and local network-ready state
@@ -312,15 +313,19 @@ For the first real in-world computer workflow, a practical pass is:
 8. Use the normal `programming list`, `new`, `edit`, `set`, `parameter`, `compile`, and `execute` verbs and confirm they now operate on the selected real computer owner rather than the private workspace.
 9. Use file-oriented programs to validate `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, and `GetFiles`.
 10. Use terminal-oriented programs to validate `WriteTerminal` and `ClearTerminal`.
-11. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
-12. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
-13. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
-14. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-15. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
-16. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
-17. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
-18. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-19. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+11. Use `programming apps` and confirm the connected powered host exposes the expected built-in application list.
+12. Use `programming app sysmon` and confirm it runs as a host process, writes diagnostics to the connected terminal session, and reports host power, storage, process, and local signal state.
+13. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+14. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+15. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+16. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+17. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+18. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+19. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+20. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+21. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+
+In the current shipped phase, only `SysMon` has built-in application runtime behaviour. `FileManager`, `Directory`, `Mail`, `Boards`, and `Messenger` remain reserved built-in identities for future phases.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
@@ -333,6 +338,7 @@ For the first real in-world computer workflow, a practical pass is:
 - a live reconfiguration appears to complete but nothing changes: the targeted component may not implement the runtime-configurable interface, or the wrong nearby item / component may have been selected
 - `type` says nothing is waiting for terminal input: no program on that terminal session is currently suspended in `UserInput()`, or the active terminal / user pairing does not match the waiting process metadata
 - `waitsignal("<name>")` fails at runtime: the current execution host is not a real in-world host item, or there is no signal source component with that name on the real execution host item
+- `programming app <name>` reports no match or no available applications: the actor is probably not connected to a powered terminal session on a powered host, or the named built-in application is not implemented for the current shipped phase
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

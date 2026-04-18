@@ -119,6 +119,29 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
+	public IEnumerable<IComputerBuiltInApplication> GetBuiltInApplications(IComputerExecutableOwner owner)
+	{
+		EnsureLoadedForOwner(owner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(owner);
+			return owner.ExecutionHost.BuiltInApplications
+				.OrderBy(x => x.Name)
+				.ThenBy(x => x.Id)
+				.ToList();
+		}
+	}
+
+	public IComputerBuiltInApplication? GetBuiltInApplication(IComputerExecutableOwner owner, string identifier)
+	{
+		EnsureLoadedForOwner(owner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(owner);
+			return ResolveBuiltInApplication_NoLock(owner, identifier);
+		}
+	}
+
 	public IComputerExecutableDefinition CreateExecutable(IComputerExecutableOwner owner, ComputerExecutableKind kind,
 		string name)
 	{
@@ -223,6 +246,11 @@ public class ComputerExecutionService : IComputerExecutionService
 	public ComputerExecutionResult Execute(ICharacter? actor, IComputerExecutableOwner owner,
 		IComputerExecutableDefinition executable, IEnumerable<object?> parameters, IComputerTerminalSession? session = null)
 	{
+		if (executable is IComputerBuiltInApplication builtInApplication)
+		{
+			return ExecuteBuiltInApplication(actor, owner, builtInApplication, session);
+		}
+
 		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
@@ -310,6 +338,78 @@ public class ComputerExecutionService : IComputerExecutionService
 
 			var outcome = ComputerProgramExecutor.Execute(program, parameters);
 			outcome = ApplyExecutionOutcome_NoLock(owner, process, outcome);
+
+			return new ComputerExecutionResult
+			{
+				Success = outcome.Status != ComputerProcessStatus.Failed,
+				ErrorMessage = outcome.Error ?? string.Empty,
+				Status = outcome.Status,
+				Result = outcome.Result,
+				Process = process
+			};
+		}
+	}
+
+	public ComputerExecutionResult ExecuteBuiltInApplication(ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerBuiltInApplication application, IComputerTerminalSession? session = null)
+	{
+		EnsureLoadedForOwner(owner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(owner);
+			RegisterOwner_NoLock(owner.ExecutionHost);
+
+			var resolvedApplication = ResolveBuiltInApplication_NoLock(owner, application.ApplicationId) ??
+			                          ResolveBuiltInApplication_NoLock(owner, application.Name);
+			if (resolvedApplication is null || resolvedApplication.Id != application.Id)
+			{
+				return new ComputerExecutionResult
+				{
+					Success = false,
+					ErrorMessage = "That built-in computer application is not available on the current execution host.",
+					Status = ComputerProcessStatus.Failed
+				};
+			}
+
+			if (!owner.ExecutionHost.Powered)
+			{
+				return new ComputerExecutionResult
+				{
+					Success = false,
+					ErrorMessage = $"{owner.ExecutionHost.Name} is not currently powered.",
+					Status = ComputerProcessStatus.Failed
+				};
+			}
+
+			if (owner.ExecutionHost is not IComputerMutableOwner processOwner)
+			{
+				return new ComputerExecutionResult
+				{
+					Success = false,
+					ErrorMessage = $"{owner.ExecutionHost.Name} does not currently support running built-in applications.",
+					Status = ComputerProcessStatus.Failed
+				};
+			}
+
+			var process = processOwner.CreateProcessDefinition(actor, resolvedApplication);
+			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+			{
+				Owner = owner,
+				Host = owner.ExecutionHost,
+				Gameworld = _gameworld,
+				Actor = actor,
+				Session = session,
+				Process = process
+			});
+
+			var outcome = ComputerBuiltInApplicationExecutors.Execute(
+				_gameworld,
+				actor,
+				owner,
+				session,
+				process,
+				resolvedApplication);
+			outcome = ApplyExecutionOutcome_NoLock(owner.ExecutionHost, process, outcome);
 
 			return new ComputerExecutionResult
 			{
@@ -557,6 +657,16 @@ public class ComputerExecutionService : IComputerExecutionService
 
 	public ComputerCompilationResult CompileExecutable(IComputerExecutableDefinition executable)
 	{
+		if (executable is IComputerBuiltInApplication)
+		{
+			return new ComputerCompilationResult
+			{
+				Success = true,
+				ErrorMessage = string.Empty,
+				Executable = executable
+			};
+		}
+
 		EnsureLoadedForExecutable(executable);
 		lock (_sync)
 		{
@@ -665,6 +775,13 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 
 		return owner.Executables.ToList();
+	}
+
+	private IComputerBuiltInApplication? ResolveBuiltInApplication_NoLock(IComputerExecutableOwner owner, string identifier)
+	{
+		return string.IsNullOrWhiteSpace(identifier)
+			? null
+			: ComputerBuiltInApplications.Get(owner.ExecutionHost, identifier.Trim());
 	}
 
 	private IEnumerable<IComputerProcess> ResolveProcesses_NoLock(IComputerExecutableOwner owner)

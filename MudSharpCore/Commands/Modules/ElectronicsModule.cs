@@ -56,6 +56,8 @@ You can use the following syntax:
 	#3programming terminal owner <storage>#0 - selects one mounted storage device as the current programming owner
 	#3type <text>#0 - types into your current terminal session, or a nearby terminal if one can be resolved automatically
 	#3type <terminal> <text>#0 - types into a specific nearby terminal
+	#3programming apps#0 - lists the built-in computer applications available on your connected host
+	#3programming app <name>#0 - runs one built-in computer application on your connected host
 	#3programming list [functions|programs]#0 - lists your workspace computer executables
 	#3programming new function|program <name>#0 - creates a new workspace executable and begins editing it
 	#3programming edit <which>#0 - begins editing a workspace executable
@@ -105,6 +107,8 @@ If more than one terminal could be used, specify one explicitly or connect first
 		"parameter",
 		"compile",
 		"execute",
+		"app",
+		"apps",
 		"processes",
 		"kill",
 		"terminal"
@@ -323,6 +327,12 @@ If more than one terminal could be used, specify one explicitly or connect first
 				return;
 			case "compile":
 				ProgrammingWorkspaceCompile(actor, ss);
+				return;
+			case "app":
+				ProgrammingWorkspaceApplication(actor, ss);
+				return;
+			case "apps":
+				ProgrammingWorkspaceApplications(actor);
 				return;
 			case "execute":
 				ProgrammingWorkspaceExecute(actor, ss);
@@ -1898,6 +1908,88 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		AutoCompileExecutable(actor, executable, $"You compile {executable.Name.ColourName()}.");
+	}
+
+	private static void ProgrammingWorkspaceApplication(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished || ss.PeekSpeech().EqualTo("list"))
+		{
+			if (!ss.IsFinished)
+			{
+				ss.PopSpeech();
+			}
+
+			ProgrammingWorkspaceApplications(actor);
+			return;
+		}
+
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("Built-in computer applications require a connected computer terminal session.");
+			return;
+		}
+
+		var owner = GetCurrentProgrammingOwner(actor);
+		var application = actor.Gameworld.ComputerExecutionService.GetBuiltInApplication(owner, ss.SafeRemainingArgument);
+		if (application is null)
+		{
+			actor.Send(
+				$"There is no such built-in application available on {session.Host.Name.ColourName()}.");
+			return;
+		}
+
+		var result = actor.Gameworld.ComputerExecutionService.ExecuteBuiltInApplication(actor, owner, application, session);
+		if (!result.Success)
+		{
+			actor.Send(result.ErrorMessage);
+			return;
+		}
+
+		if (result.Status == ComputerProcessStatus.Sleeping && result.Process is not null)
+		{
+			actor.Send(
+				$"{application.Name.ColourName()} is now running as process {result.Process.Id.ToString("N0", actor).ColourValue()} on {session.Host.Name.ColourName()}.");
+		}
+	}
+
+	private static void ProgrammingWorkspaceApplications(ICharacter actor)
+	{
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("Built-in computer applications require a connected computer terminal session.");
+			return;
+		}
+
+		var applications = actor.Gameworld.ComputerExecutionService.GetBuiltInApplications(GetCurrentProgrammingOwner(actor))
+			.ToList();
+		if (!applications.Any())
+		{
+			actor.Send($"There are no built-in computer applications available on {session.Host.Name.ColourName()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			applications.Select(x => new List<string>
+			{
+				x.ApplicationId,
+				x.Name,
+				x.IsNetworkService ? "Network" : "Local",
+				x.Summary
+			}),
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Type",
+				"Summary"
+			},
+			actor.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			actor.Account.UseUnicode), nopage: true);
 	}
 
 	private static void ProgrammingWorkspaceExecute(ICharacter actor, StringStack ss)

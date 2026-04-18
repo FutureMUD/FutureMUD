@@ -63,10 +63,9 @@ public interface IComputerFileSystem
 	bool DeleteFile(string fileName);
 }
 
-public interface IComputerBuiltInApplication
+public interface IComputerBuiltInApplication : IComputerProgramDefinition
 {
-	string Id { get; }
-	string Name { get; }
+	string ApplicationId { get; }
 	string Summary { get; }
 	bool IsNetworkService { get; }
 }
@@ -122,12 +121,16 @@ public interface IComputerExecutionService
 	ICharacterComputerWorkspace GetWorkspace(ICharacter owner);
 	IEnumerable<IComputerExecutableDefinition> GetExecutables(IComputerExecutableOwner owner);
 	IComputerExecutableDefinition? GetExecutable(IComputerExecutableOwner owner, string identifier);
+	IEnumerable<IComputerBuiltInApplication> GetBuiltInApplications(IComputerExecutableOwner owner);
+	IComputerBuiltInApplication? GetBuiltInApplication(IComputerExecutableOwner owner, string identifier);
 	IComputerExecutableDefinition CreateExecutable(IComputerExecutableOwner owner, ComputerExecutableKind kind,
 		string name);
 	void SaveExecutable(IComputerExecutableOwner owner, IComputerExecutableDefinition executable);
 	bool DeleteExecutable(IComputerExecutableOwner owner, IComputerExecutableDefinition executable, out string error);
 	ComputerExecutionResult Execute(ICharacter? actor, IComputerExecutableOwner owner,
 		IComputerExecutableDefinition executable, IEnumerable<object?> parameters, IComputerTerminalSession? session = null);
+	ComputerExecutionResult ExecuteBuiltInApplication(ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerBuiltInApplication application, IComputerTerminalSession? session = null);
 	IEnumerable<IComputerProcess> GetProcesses(IComputerExecutableOwner owner);
 	IComputerProcess? GetProcess(IComputerExecutableOwner owner, long processId);
 	bool KillProcess(IComputerExecutableOwner owner, long processId, out string error);

@@ -12,7 +12,7 @@ public class ComputerExecutableDefinition : IComputerExecutableDefinition
 {
 	public long Id { get; init; }
 	public string Name { get; init; } = string.Empty;
-	public string FrameworkItemType => "ComputerExecutable";
+	public string FrameworkItemType { get; init; } = "ComputerExecutable";
 	public string SourceCode { get; init; } = string.Empty;
 	public ProgVariableTypes ReturnType { get; init; } = ProgVariableTypes.Void;
 	public IReadOnlyCollection<ComputerExecutableParameter> Parameters { get; init; } =
@@ -36,6 +36,14 @@ public sealed class ComputerFunctionDefinition : ComputerExecutableDefinition, I
 public sealed class ComputerProgramDefinition : ComputerExecutableDefinition, IComputerProgramDefinition
 {
 	public bool AutorunOnBoot { get; init; }
+}
+
+public sealed class ComputerBuiltInApplicationProgramDefinition : ComputerExecutableDefinition, IComputerBuiltInApplication
+{
+	public string ApplicationId { get; init; } = string.Empty;
+	public string Summary { get; init; } = string.Empty;
+	public bool IsNetworkService { get; init; }
+	public bool AutorunOnBoot => false;
 }
 
 public sealed class ComputerProcessDefinition : IComputerProcess
@@ -118,7 +126,7 @@ public sealed class ComputerHostDefinition : IComputerHost
 		Enumerable.Empty<IComputerExecutableDefinition>();
 	public IEnumerable<IComputerProcess> Processes { get; init; } = Enumerable.Empty<IComputerProcess>();
 	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications { get; init; } =
-		ComputerBuiltInApplications.All;
+		Enumerable.Empty<IComputerBuiltInApplication>();
 	public IEnumerable<IComputerStorage> MountedStorage { get; init; } = Enumerable.Empty<IComputerStorage>();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals { get; init; } = Enumerable.Empty<IComputerTerminal>();
 	public IEnumerable<INetworkAdapter> NetworkAdapters { get; init; } = Enumerable.Empty<INetworkAdapter>();

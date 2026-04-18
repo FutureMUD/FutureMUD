@@ -71,6 +71,9 @@ The first player-facing command surface for this slice has also now landed:
   - `programming terminal status`
   - `programming terminal owner host`
   - `programming terminal owner <storage>`
+- `programming` now also exposes built-in host applications through that same connected terminal session:
+  - `programming apps`
+  - `programming app <name>`
 - `type` is now the player-facing terminal-input verb:
   - `type <text>` uses the current computer terminal session, or auto-selects a nearby terminal if one can be resolved cleanly
   - `type <terminal> <text>` explicitly targets a nearby terminal
@@ -78,6 +81,9 @@ The first player-facing command surface for this slice has also now landed:
   - when a foreground program on that session is suspended in `UserInput()`, `type` resumes it immediately with the supplied text
 - once connected to a powered `ComputerTerminal`, workspace-style authoring commands operate on either the connected `ComputerHost` or one selected mounted `ComputerStorage`
 - real host-backed or storage-backed execution now requires a powered execution host, while the private workspace remains power-free
+- built-in applications are now exposed by the connected powered `ComputerHost`, not by the private workspace or mounted storage
+- `programming apps` lists the built-in applications currently available on that host, even if the selected programming owner is a mounted storage device
+- `programming app <name>` executes the named built-in application on that host and uses the current terminal session for its player-facing output
 - `ComputerHost` powers local executable runtime, owns built-in application exposure, and autoruns host-backed programs marked `AutorunOnBoot` when power comes online
 - `programming help` mirrors the `prog help` categories but filters to the computer-safe subset of types, statements, functions, and collection helpers
 - `programming processes` now distinguishes timed `Sleep` waits from terminal-bound `UserInput` waits and signal-bound `WaitSignal` waits so interactive and event-driven programs can be debugged in game
@@ -99,7 +105,7 @@ The first player-facing command surface for this slice has also now landed:
 - the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
 - powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
 
-The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, remote execution semantics beyond local host launch/kill, built-in application behaviour, and telecom-backed data networking are still future phases.
+The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, broader built-in application coverage beyond the currently shipped `SysMon`, remote execution semantics beyond local host launch/kill, and telecom-backed data networking are still future phases.
 
 ## Core Concepts
 
@@ -227,6 +233,15 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - `Directory` - address book and service discovery utility
 - `SysMon` - diagnostics, process manager, storage monitor, signal inspector, and fault log viewer
 
+In the current shipped phase:
+
+- built-in applications are represented as host-bound built-in program definitions rather than a disconnected catalog
+- they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
+- they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
+- only `SysMon` currently has implemented runtime behaviour
+- `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, running processes, and locally accessible automation signal sources and sinks on the execution host item
+- `Mail`, `Boards`, `Messenger`, `FileManager`, and `Directory` remain reserved built-in application identities for later phases
+
 ## Systems Needed
 
 - Broader generic runtime persistence and save/load support for ComputerPrograms, ComputerFunctions, Files, SuspendedProcesses, and signal wiring beyond the current split of database-backed workspaces plus XML-backed host and storage owners
@@ -266,6 +281,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
 - administrator characters execute those live item actions instantly and do not require tools or checks
   - the same `programming` surface now also has a terminal-first path for real computers, where players connect to a powered `ComputerTerminal` and select either the connected host or a mounted storage device as the current programming owner
+  - `programming apps` and `programming app <name>` now expose host-backed built-in applications through that same connected terminal session
   - the `type` verb is the terminal-facing input surface for real computers and now resumes foreground programs waiting on `UserInput()` for the active terminal session
   - workspace authoring still uses immediate ownership-checked edits rather than tool-gated physical actions
   - real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep`, `UserInput()`, and v1 `WaitSignal()` suspension; broader graph signal functions, remote file access, and broader network functions are future phases

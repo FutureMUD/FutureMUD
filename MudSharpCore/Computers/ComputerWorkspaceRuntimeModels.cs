@@ -111,7 +111,7 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public IComputerFileSystem? FileSystem => null;
 	public IEnumerable<IComputerExecutableDefinition> Executables => _executables();
 	public IEnumerable<IComputerProcess> Processes => _processes();
-	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => ComputerBuiltInApplications.All;
+	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => Enumerable.Empty<IComputerBuiltInApplication>();
 	public IEnumerable<IComputerStorage> MountedStorage => Enumerable.Empty<IComputerStorage>();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Computers;
@@ -692,6 +693,105 @@ return userinput()";
 		StringAssert.Contains(result.ErrorMessage, "real in-world computer host item");
 	}
 
+	[TestMethod]
+	public void ComputerExecutionService_BuiltInApplications_AreAvailableOnHostsButNotWorkspaces()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var owner = CreateOwner(gameworld.Object, 60L);
+		var workspaceHost = new CharacterWorkspaceHost(
+			gameworld.Object,
+			owner.Object.Id,
+			() => Enumerable.Empty<IComputerExecutableDefinition>(),
+			() => Enumerable.Empty<IComputerProcess>());
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var storageOwner = new StubComputerOwner(host, "Archive Drive");
+
+		Assert.IsFalse(service.GetBuiltInApplications(workspaceHost).Any());
+		var applications = service.GetBuiltInApplications(storageOwner).ToList();
+		Assert.IsTrue(applications.Any(x => x.ApplicationId == "sysmon"));
+		Assert.IsNotNull(service.GetBuiltInApplication(storageOwner, "sys"));
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_ExecuteBuiltInApplication_SysMonWritesToTerminalAndCreatesHostProcess()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var owner = new StubComputerOwner(host, "Archive Drive");
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 61L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1201L);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+		var application = service.GetBuiltInApplication(owner, "sysmon");
+
+		Assert.IsNotNull(application);
+		var result = service.ExecuteBuiltInApplication(user.Object, owner, application!, session);
+
+		Assert.IsTrue(result.Success, result.ErrorMessage);
+		Assert.AreEqual(ComputerProcessStatus.Completed, result.Status);
+		Assert.IsNotNull(result.Process);
+		Assert.IsNotNull(host.GetProcess(result.Process!.Id));
+		Assert.IsFalse(owner.Processes.Any(x => x.Id == result.Process.Id));
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("SysMon") && s.Contains("Processes:")),
+				true,
+				true),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_ExecuteBuiltInApplication_RequiresTerminalSession()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var owner = new StubComputerOwner(host, "Archive Drive");
+		var user = CreateOwner(gameworld.Object, 62L);
+		var application = service.GetBuiltInApplication(owner, "sysmon");
+
+		Assert.IsNotNull(application);
+		var result = service.ExecuteBuiltInApplication(user.Object, owner, application!, null);
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual(ComputerProcessStatus.Failed, result.Status);
+		StringAssert.Contains(result.ErrorMessage, "terminal session");
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -800,8 +900,11 @@ return userinput()";
 			.SetValue(null, state.InstanceCount);
 	}
 
-	private sealed class StubComputerHost : IComputerHost
+	private sealed class StubComputerHost : IComputerHost, IComputerMutableOwner
 	{
+		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
+		private long _nextProcessId = 1L;
+
 		public bool Powered { get; set; }
 		public string Name { get; set; } = string.Empty;
 		public long? OwnerCharacterId => null;
@@ -810,15 +913,58 @@ return userinput()";
 		public IComputerHost ExecutionHost => this;
 		public IComputerFileSystem? FileSystem => null;
 		public IEnumerable<IComputerExecutableDefinition> Executables { get; set; } = Enumerable.Empty<IComputerExecutableDefinition>();
-		public IEnumerable<IComputerProcess> Processes { get; set; } = Enumerable.Empty<IComputerProcess>();
-		public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => Enumerable.Empty<IComputerBuiltInApplication>();
+		public IEnumerable<IComputerProcess> Processes => _processes.Values;
+		public IEnumerable<IComputerBuiltInApplication> BuiltInApplications { get; set; } = Enumerable.Empty<IComputerBuiltInApplication>();
 		public IEnumerable<IComputerStorage> MountedStorage { get; set; } = Enumerable.Empty<IComputerStorage>();
 		public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
 		public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
 
 		public IComputerProcess? GetProcess(long processId)
 		{
-			return Processes.FirstOrDefault(x => x.Id == processId);
+			return _processes.TryGetValue(processId, out var process) ? process : null;
+		}
+
+		public IComputerExecutableDefinition CreateExecutableDefinition(ComputerExecutableKind kind, string name)
+		{
+			throw new NotSupportedException();
+		}
+
+		public void SaveExecutableDefinition(IComputerExecutableDefinition executable)
+		{
+		}
+
+		public bool DeleteExecutableDefinition(IComputerExecutableDefinition executable, out string error)
+		{
+			error = "Unsupported";
+			return false;
+		}
+
+		public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, IComputerProgramDefinition program)
+		{
+			var process = new ComputerRuntimeProcess
+			{
+				Id = _nextProcessId++,
+				ProcessName = program.Name,
+				OwnerCharacterId = actor?.Id ?? 0L,
+				Program = program,
+				Host = this,
+				Status = ComputerProcessStatus.Running,
+				WaitType = ComputerProcessWaitType.None,
+				StartedAtUtc = DateTime.UtcNow,
+				LastUpdatedAtUtc = DateTime.UtcNow
+			};
+			_processes[process.Id] = process;
+			return process;
+		}
+
+		public void SaveProcessDefinition(ComputerRuntimeProcess process)
+		{
+			_processes[process.Id] = process;
+		}
+
+		public void DeleteProcessDefinition(IComputerProcess process)
+		{
+			_processes.Remove(process.Id);
 		}
 	}
 
@@ -869,7 +1015,7 @@ return userinput()";
 			return _executables.Remove(executable.Id);
 		}
 
-		public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, ComputerRuntimeProgramBase program)
+		public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, IComputerProgramDefinition program)
 		{
 			var process = new ComputerRuntimeProcess
 			{

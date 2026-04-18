@@ -9,7 +9,7 @@ internal interface IComputerMutableOwner : IComputerExecutableOwner
 	IComputerExecutableDefinition CreateExecutableDefinition(ComputerExecutableKind kind, string name);
 	void SaveExecutableDefinition(IComputerExecutableDefinition executable);
 	bool DeleteExecutableDefinition(IComputerExecutableDefinition executable, out string error);
-	ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, ComputerRuntimeProgramBase program);
+	ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, IComputerProgramDefinition program);
 	void SaveProcessDefinition(ComputerRuntimeProcess process);
 	void DeleteProcessDefinition(IComputerProcess process);
 }

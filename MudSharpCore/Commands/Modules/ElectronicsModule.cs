@@ -2047,6 +2047,12 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return $"User Input ({terminalText})";
 		}
 
+		if (process.WaitType == ComputerProcessWaitType.Signal &&
+		    ComputerProcessWaitArguments.TryParseSignal(process.WaitArgument, out var signalBinding))
+		{
+			return $"Signal ({SignalComponentUtilities.DescribeSignalComponent(signalBinding)})";
+		}
+
 		return process.WaitType.DescribeEnum();
 	}
 

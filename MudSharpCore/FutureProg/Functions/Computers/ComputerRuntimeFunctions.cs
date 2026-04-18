@@ -3,6 +3,8 @@
 using MudSharp.Computers;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +33,69 @@ internal abstract class ComputerRuntimeBuiltInFunction : BuiltInFunction
 	}
 
 	protected static ComputerExecutionContext? CurrentContext => ComputerExecutionContextScope.Current;
+}
+
+internal static class ComputerRuntimeSignalFunctionHelper
+{
+	public static bool TryResolveSignalSource(string sourceIdentifier, out ISignalSourceComponent? source,
+		out LocalSignalBinding binding, out string error)
+	{
+		source = null;
+		binding = new LocalSignalBinding(0L, string.Empty, 0L, string.Empty,
+			SignalComponentUtilities.DefaultLocalSignalEndpointKey);
+		error = string.Empty;
+		var context = ComputerExecutionContextScope.Current;
+		if (context is null)
+		{
+			error = "The waitsignal function requires an active computer execution context.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(sourceIdentifier))
+		{
+			error = "You must specify a signal source component name.";
+			return false;
+		}
+
+		var anchorItemId = context.Host.OwnerHostItemId ?? context.Owner.OwnerHostItemId;
+		if (anchorItemId is not > 0L)
+		{
+			error = "The waitsignal function requires a real in-world computer host item.";
+			return false;
+		}
+
+		var anchorItem = context.Gameworld.TryGetItem(anchorItemId.Value, true);
+		if (anchorItem is null)
+		{
+			error = "The current execution host item is no longer available.";
+			return false;
+		}
+
+		var identifier = sourceIdentifier.Trim();
+		var endpointKey = SignalComponentUtilities.DefaultLocalSignalEndpointKey;
+		var endpointIndex = identifier.LastIndexOf(':');
+		if (endpointIndex > 0 && endpointIndex < identifier.Length - 1)
+		{
+			endpointKey = SignalComponentUtilities.NormaliseSignalEndpointKey(identifier[(endpointIndex + 1)..]);
+			identifier = identifier[..endpointIndex].TrimEnd();
+		}
+
+		source = long.TryParse(identifier, out var componentId)
+			? SignalComponentUtilities.FindSignalSourceOnItem(anchorItem, componentId, string.Empty, endpointKey)
+			: SignalComponentUtilities.FindSignalSourceOnItem(anchorItem, 0L, identifier, endpointKey);
+		if (source is null)
+		{
+			var anchorDescription = context.Actor is not null
+				? anchorItem.HowSeen(context.Actor, true)
+				: anchorItem.Name;
+			error =
+				$"There is no signal source component named {identifier.ColourCommand()} on {anchorDescription}.";
+			return false;
+		}
+
+		binding = SignalComponentUtilities.CreateBinding(source, endpointKey);
+		return true;
+	}
 }
 
 internal class ReadFileFunction : ComputerRuntimeBuiltInFunction
@@ -411,6 +476,70 @@ internal class UserInputFunction : ComputerRuntimeBuiltInFunction
 				context.Session.Terminal.TerminalItemId),
 			context.Session.User.Id,
 			context.Session.Terminal.TerminalItemId);
+	}
+}
+
+internal class WaitSignalFunction : ComputerRuntimeBuiltInFunction
+{
+	public static void RegisterFunctionCompiler()
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"waitsignal",
+			[ProgVariableTypes.Text],
+			(pars, _) => new WaitSignalFunction(pars),
+			["source"],
+			["The signal source component name, optionally suffixed with :endpoint"],
+			"Suspends the current computer program until the named signal source on the execution host item emits a non-zero signal, then returns that numeric signal value.",
+			"Computers",
+			ProgVariableTypes.Number,
+			allowedContexts: ComputerRuntimeFunctionContexts.ProgramOnly));
+	}
+
+	protected WaitSignalFunction(IList<IFunction> parameterFunctions)
+		: base(parameterFunctions)
+	{
+	}
+
+	public override ProgVariableTypes ReturnType
+	{
+		get => ProgVariableTypes.Number;
+		protected set { }
+	}
+
+	public override StatementResult Execute(IVariableSpace variables)
+	{
+		if (base.Execute(variables) == StatementResult.Error)
+		{
+			return StatementResult.Error;
+		}
+
+		var context = CurrentContext;
+		if (context?.Process is null)
+		{
+			ErrorMessage = "The waitsignal function requires a running computer-program process.";
+			return StatementResult.Error;
+		}
+
+		var pendingSignal = context.ConsumePendingSignalInput();
+		if (pendingSignal.HasValue)
+		{
+			Result = new NumberVariable(Convert.ToDecimal(pendingSignal.Value.Value));
+			return StatementResult.Normal;
+		}
+
+		if (!ComputerRuntimeSignalFunctionHelper.TryResolveSignalSource(
+			    ParameterFunctions[0].Result?.GetObject?.ToString() ?? string.Empty,
+			    out _,
+			    out var binding,
+			    out var error))
+		{
+			ErrorMessage = error;
+			return StatementResult.Error;
+		}
+
+		throw new ComputerProgramWaitException(
+			ComputerProcessWaitType.Signal,
+			ComputerProcessWaitArguments.CreateSignal(binding));
 	}
 }
 

@@ -1,6 +1,6 @@
 # FutureMUD Computer Program Design
 
-This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. The overall system is still incomplete, but the current shipped slice now includes signal automation, player-facing `electrical` and `programming` verbs, a private character-owned computer workspace, and persisted computer-program execution with both `sleep` and terminal-session `UserInput()` waits.
+This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. The overall system is still incomplete, but the current shipped slice now includes signal automation, player-facing `electrical` and `programming` verbs, a private character-owned computer workspace, and persisted computer-program execution with `sleep`, terminal-session `UserInput()`, and execution-host `WaitSignal()` waits.
 
 ## Current Implementation Status
 
@@ -24,7 +24,7 @@ The first implementation slice for this design has now landed. The currently imp
   - `ComputerTerminal`
   - `ComputerStorage`
   - `NetworkAdapter`
-- a resumable computer-program executor with persisted frame and local state, supporting scheduler-driven `sleep` wake-up and terminal-session `UserInput()` suspension and resume
+- a resumable computer-program executor with persisted frame and local state, supporting scheduler-driven `sleep` wake-up, terminal-session `UserInput()` suspension and resume, and execution-host `WaitSignal()` suspension and resume
 - local computer runtime functions for:
   - `ReadFile`
   - `WriteFile`
@@ -34,6 +34,7 @@ The first implementation slice for this design has now landed. The currently imp
   - `WriteTerminal`
   - `ClearTerminal`
   - `UserInput`
+  - `WaitSignal`
   - `LaunchProgram`
   - `KillProgram`
 - computer-safe help formatting that mirrors the FutureProg help sources while filtering to the allowed computer subset
@@ -79,7 +80,7 @@ The first player-facing command surface for this slice has also now landed:
 - real host-backed or storage-backed execution now requires a powered execution host, while the private workspace remains power-free
 - `ComputerHost` powers local executable runtime, owns built-in application exposure, and autoruns host-backed programs marked `AutorunOnBoot` when power comes online
 - `programming help` mirrors the `prog help` categories but filters to the computer-safe subset of types, statements, functions, and collection helpers
-- `programming processes` now distinguishes timed `Sleep` waits from terminal-bound `UserInput` waits so interactive programs can be debugged in game
+- `programming processes` now distinguishes timed `Sleep` waits from terminal-bound `UserInput` waits and signal-bound `WaitSignal` waits so interactive and event-driven programs can be debugged in game
 - both verbs currently operate through multistage delayed actions rather than instant changes
 - those delayed actions acquire tools through inventory plans, use configurable static-string echoes for begin/continue/success/failure output, and restore tools rather than permanently consuming them
 - administrator characters bypass the tool, skill-check, and delayed-action requirements for live `electrical` and item-targeted `programming` work; those actions resolve immediately for them
@@ -98,7 +99,7 @@ The first player-facing command surface for this slice has also now landed:
 - the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
 - powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
 
-The remaining work is still substantial. In particular, waits beyond `sleep` and `UserInput()`, richer multi-port inter-item signal graphs, remote execution semantics beyond local host launch/kill, built-in application behaviour, and telecom-backed data networking are still future phases.
+The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, remote execution semantics beyond local host launch/kill, built-in application behaviour, and telecom-backed data networking are still future phases.
 
 ## Core Concepts
 
@@ -111,7 +112,7 @@ The remaining work is still substantial. In particular, waits beyond `sleep` and
 - There are ComputerFunctions, which can be recycled and called by CustomComputerPrograms as well as power things like Microcontrollers
 - These are designed to be stored as text on other data structures like items, computers and the like rather than sitting in a central repository like conventional IFutureProgs
 - They are still compiled before being executed
-- IComputerPrograms don't always run to completion. They often have wait points like sleeping, waiting for terminal user input, or eventually waiting for signal input. This is handled through custom computer-only functions and statement types.
+- IComputerPrograms don't always run to completion. They often have wait points like sleeping, waiting for terminal user input, or waiting for signal input. This is handled through custom computer-only functions and statement types.
 - Variable references continue to use the normal `@variable` syntax when read in expressions
 - In the current shipped phase there are now real `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, and `NetworkAdapter` item components
 - Standalone functions and programs can still live in a private character-owned workspace, but the same runtime now also supports host-owned and storage-owned executables
@@ -157,10 +158,14 @@ There are a few statements and wait behaviours that will be only available for C
 
 - Sleep (a way of waiting a period of real time, yielding control back, and resuming through a persisted process record)
 - `UserInput()` wait behaviour (a way of yielding control until a line of text is typed into the active terminal session and then resuming with that text)
+- `WaitSignal()` wait behaviour (a way of yielding control until a named signal source on the real execution host item emits a non-zero signal and then resuming with that numeric value)
 
-Planned but not yet shipped statement or wait behaviour still includes:
+The currently shipped `WaitSignal()` implementation is intentionally narrow in scope:
 
-- `WaitSignal`
+- it is only available in the `ComputerProgram` compilation context
+- it currently resolves only named signal source components that exist on the real execution host item
+- it resumes when that source emits a non-zero signal and returns the numeric signal value
+- broader graph-wide or remote signal waiting is still a future phase
 
 ### Statement Handling
 
@@ -198,6 +203,7 @@ Currently shipped local computer functions include:
 - `WriteTerminal`
 - `ClearTerminal`
 - `UserInput`
+- `WaitSignal`
 - `LaunchProgram`
 - `KillProgram`
 
@@ -205,7 +211,6 @@ Future non-exhaustive functions still planned include:
 
 - CollectionToFile / DictionaryToFile / CollectionDictionaryToFile: write the contents of a collection, dictionary or collectiondictionary to a file in a way that can be roundtripped
 - CollectionFromFile / DictionaryFromFile / CollectionDictionaryFromFile: read the contents of a file back out into a collection type
-- WaitSignal - sleeps the program until a signal channel is triggered
 - SendSignal - sends a signal via a signal channel with optional duration, as a once off instruction
 - PulseSignal - sends a signal via a signal channel every 5 seconds for a duration (but doesn't count as interrupted in between)
 - WriteFileRemote/AppendFileRemote/FileExistsRemote/GetFilesRemote - for interacting over an internet network delivered via an IGrid
@@ -226,7 +231,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 
 - Broader generic runtime persistence and save/load support for ComputerPrograms, ComputerFunctions, Files, SuspendedProcesses, and signal wiring beyond the current split of database-backed workspaces plus XML-backed host and storage owners
 - A way of marking statements and functions as being available for FutureProgs vs ComputerFunctions. This is now partially implemented via compile contexts and statement registration metadata, but still needs fuller function-by-function rollout
-- Further extension of the dedicated resumable program executor for future wait kinds beyond the currently shipped `Sleep` and `UserInput()` behaviour, especially signal waits
+- Further extension of the dedicated resumable program executor for future wait kinds beyond the currently shipped `Sleep`, `UserInput()`, and the current v1 `WaitSignal()` behaviour
 - Signal-capable item component families. These should share `ISignalSource` / `ISignalSink` contracts but remain distinct concrete item component types:
   - Inputs: `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`
   - Logic: `Microcontroller`
@@ -263,7 +268,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - the same `programming` surface now also has a terminal-first path for real computers, where players connect to a powered `ComputerTerminal` and select either the connected host or a mounted storage device as the current programming owner
   - the `type` verb is the terminal-facing input surface for real computers and now resumes foreground programs waiting on `UserInput()` for the active terminal session
   - workspace authoring still uses immediate ownership-checked edits rather than tool-gated physical actions
-  - real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep` / `UserInput()` suspension; `WaitSignal`, remote file access, and broader network functions are future phases
+  - real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep`, `UserInput()`, and v1 `WaitSignal()` suspension; broader graph signal functions, remote file access, and broader network functions are future phases
   - abject failures on electrical work can cause electrical shock damage
 - Both of these command verbs should be able to be surpressed so that they don't appear on non-modern MUDs.
 

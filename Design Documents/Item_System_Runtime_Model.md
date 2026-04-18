@@ -168,7 +168,7 @@ Current runtime connection rules for that slice are:
   - generic executable ownership through `IComputerExecutableOwner`
   - mutable host and storage owners through `IComputerMutableOwner`
   - terminal-scoped execution context via `IComputerTerminalSession`
-  - local file and terminal functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `UserInput`, `LaunchProgram`, and `KillProgram`
+  - local file, terminal, and signal-wait functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `UserInput`, `WaitSignal`, `LaunchProgram`, and `KillProgram`
 
 The current player-work runtime flow for that slice is:
 - `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
@@ -178,6 +178,8 @@ The current player-work runtime flow for that slice is:
 - when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
 - `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
 - computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
+- host-backed computer processes can now also suspend in `WaitSignal()` with persisted signal-wait metadata that records the awaited local signal binding on the real execution host item
+- the current v1 `WaitSignal()` implementation resolves only named signal source components on that real execution host item and resumes when that source emits a non-zero signal value
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
 - real host-backed or storage-backed program execution is now blocked when the execution host is not powered
 - actions are modelled as targeted delayed effects rather than instant mutation

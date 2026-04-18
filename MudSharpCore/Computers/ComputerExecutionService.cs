@@ -10,6 +10,8 @@ using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 
 namespace MudSharp.Computers;
@@ -22,6 +24,7 @@ public class ComputerExecutionService : IComputerExecutionService
 	private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
 	private readonly Dictionary<long, ICharacterComputerWorkspace> _workspaceOwners = new();
 	private readonly Dictionary<long, IComputerExecutableOwner> _mutableExecutableOwners = new();
+	private readonly Dictionary<long, ComputerSignalWaitSubscription> _signalWaitSubscriptions = new();
 	private bool _loaded;
 
 	public ComputerExecutionService(IFuturemud gameworld)
@@ -204,6 +207,7 @@ public class ComputerExecutionService : IComputerExecutionService
 					}
 
 					_gameworld.Scheduler.Destroy(runtimeProcess, ScheduleType.ComputerProgram);
+					DetachSignalWait_NoLock(runtimeProcess.Id);
 					mutableOwner.DeleteProcessDefinition(runtimeProcess);
 				}
 
@@ -269,6 +273,7 @@ public class ComputerExecutionService : IComputerExecutionService
 				{
 					Owner = owner,
 					Host = owner.ExecutionHost,
+					Gameworld = _gameworld,
 					Actor = actor,
 					Session = session
 				});
@@ -297,6 +302,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			{
 				Owner = owner,
 				Host = owner.ExecutionHost,
+				Gameworld = _gameworld,
 				Actor = actor,
 				Session = session,
 				Process = process
@@ -359,6 +365,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			}
 
 			_gameworld.Scheduler.Destroy(runtimeProcess, ScheduleType.ComputerProgram);
+			DetachSignalWait_NoLock(runtimeProcess.Id);
 			runtimeProcess.Status = ComputerProcessStatus.Killed;
 			runtimeProcess.WaitType = ComputerProcessWaitType.None;
 			runtimeProcess.WakeTimeUtc = null;
@@ -383,6 +390,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			RegisterOwner_NoLock(owner);
 			foreach (var process in ResolveProcesses_NoLock(owner).OfType<ComputerRuntimeProcess>().ToList())
 			{
+				DetachSignalWait_NoLock(process.Id);
 				switch (process.Status)
 				{
 					case ComputerProcessStatus.Running:
@@ -403,6 +411,10 @@ public class ComputerExecutionService : IComputerExecutionService
 					                                     process.WaitType == ComputerProcessWaitType.Sleep:
 						ScheduleResume_NoLock(process);
 						break;
+					case ComputerProcessStatus.Sleeping when owner.ExecutionHost.Powered &&
+					                                     process.WaitType == ComputerProcessWaitType.Signal:
+						AttachSignalWait_NoLock(owner, process, true);
+						break;
 				}
 			}
 		}
@@ -417,6 +429,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			foreach (var process in ResolveProcesses_NoLock(owner).OfType<ComputerRuntimeProcess>().ToList())
 			{
 				_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
+				DetachSignalWait_NoLock(process.Id);
 
 				if (!process.IsRunning)
 				{
@@ -955,6 +968,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 
 		_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
+		DetachSignalWait_NoLock(process.Id);
 		process.Status = outcome.Status;
 		process.WaitType = outcome.WaitType;
 		process.WakeTimeUtc = outcome.WakeTimeUtc;
@@ -972,10 +986,188 @@ public class ComputerExecutionService : IComputerExecutionService
 
 		if (outcome.Status == ComputerProcessStatus.Sleeping && owner.ExecutionHost.Powered)
 		{
-			ScheduleResume_NoLock(process);
+			switch (outcome.WaitType)
+			{
+				case ComputerProcessWaitType.Sleep:
+					ScheduleResume_NoLock(process);
+					break;
+				case ComputerProcessWaitType.Signal:
+					AttachSignalWait_NoLock(owner, process, false);
+					break;
+			}
 		}
 
 		return outcome;
+	}
+
+	private IGameItem? ResolveSignalAnchorItem_NoLock(IComputerExecutableOwner owner)
+	{
+		if (owner.ExecutionHost.OwnerHostItemId is > 0L)
+		{
+			return _gameworld.TryGetItem(owner.ExecutionHost.OwnerHostItemId.Value, true);
+		}
+
+		if (owner.OwnerHostItemId is > 0L)
+		{
+			return _gameworld.TryGetItem(owner.OwnerHostItemId.Value, true);
+		}
+
+		if (owner.ExecutionHost.OwnerStorageItemId is > 0L)
+		{
+			return _gameworld.TryGetItem(owner.ExecutionHost.OwnerStorageItemId.Value, true);
+		}
+
+		if (owner.OwnerStorageItemId is > 0L)
+		{
+			return _gameworld.TryGetItem(owner.OwnerStorageItemId.Value, true);
+		}
+
+		return null;
+	}
+
+	private ISignalSourceComponent? ResolveWaitingSignalSource_NoLock(IComputerExecutableOwner owner,
+		ComputerRuntimeProcess process)
+	{
+		if (!ComputerProcessWaitArguments.TryParseSignal(process.WaitArgument, out var binding))
+		{
+			return null;
+		}
+
+		var anchorItem = ResolveSignalAnchorItem_NoLock(owner);
+		return anchorItem is null
+			? null
+			: SignalComponentUtilities.FindSignalSource(anchorItem, binding);
+	}
+
+	private void AttachSignalWait_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
+		bool triggerImmediately)
+	{
+		if (process.Status != ComputerProcessStatus.Sleeping || process.WaitType != ComputerProcessWaitType.Signal)
+		{
+			return;
+		}
+
+		if (_signalWaitSubscriptions.ContainsKey(process.Id))
+		{
+			return;
+		}
+
+		var source = ResolveWaitingSignalSource_NoLock(owner, process);
+		if (source is null)
+		{
+			ApplyExecutionOutcome_NoLock(owner, process, new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = "The awaited signal source is no longer available."
+			});
+			return;
+		}
+
+		SignalChangedEvent handler = (signalSource, signal) => HandleSignalWaitTriggered(process.Id, signalSource, signal);
+		source.SignalChanged += handler;
+		_signalWaitSubscriptions[process.Id] = new ComputerSignalWaitSubscription
+		{
+			ProcessId = process.Id,
+			Source = source,
+			Handler = handler
+		};
+
+		if (triggerImmediately && Math.Abs(source.CurrentSignal.Value) > 0.0000001)
+		{
+			HandleSignalWaitTriggered_NoLock(owner, process, source.CurrentSignal);
+		}
+	}
+
+	private void DetachSignalWait_NoLock(long processId)
+	{
+		if (!_signalWaitSubscriptions.Remove(processId, out var subscription))
+		{
+			return;
+		}
+
+		subscription.Detach();
+	}
+
+	private void HandleSignalWaitTriggered(long processId, ISignalSourceComponent source, ComputerSignal signal)
+	{
+		lock (_sync)
+		{
+			if (!_signalWaitSubscriptions.TryGetValue(processId, out var subscription) ||
+			    !ReferenceEquals(subscription.Source, source))
+			{
+				return;
+			}
+
+			var process = EnumerateAllProcesses_NoLock()
+				.OfType<ComputerRuntimeProcess>()
+				.FirstOrDefault(x => x.Id == processId);
+			if (process is null)
+			{
+				DetachSignalWait_NoLock(processId);
+				return;
+			}
+
+			var owner = ResolveOwnerForExecutable_NoLock(process.Program);
+			if (owner is null)
+			{
+				DetachSignalWait_NoLock(processId);
+				return;
+			}
+
+			HandleSignalWaitTriggered_NoLock(owner, process, signal);
+		}
+	}
+
+	private void HandleSignalWaitTriggered_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
+		ComputerSignal signal)
+	{
+		if (Math.Abs(signal.Value) < 0.0000001)
+		{
+			return;
+		}
+
+		var liveProcess = ResolveProcesses_NoLock(owner)
+			.OfType<ComputerRuntimeProcess>()
+			.FirstOrDefault(x => x.Id == process.Id);
+		if (liveProcess is null || liveProcess.Status != ComputerProcessStatus.Sleeping ||
+		    liveProcess.WaitType != ComputerProcessWaitType.Signal ||
+		    liveProcess.Program is not ComputerRuntimeProgramBase program ||
+		    !owner.ExecutionHost.Powered)
+		{
+			return;
+		}
+
+		DetachSignalWait_NoLock(liveProcess.Id);
+		if (!EnsureCompiled_NoLock(owner, program, out var compileError))
+		{
+			ApplyExecutionOutcome_NoLock(owner, liveProcess, new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = compileError
+			});
+			return;
+		}
+
+		using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+		{
+			Owner = owner,
+			Host = owner.ExecutionHost,
+			Gameworld = _gameworld,
+			Process = liveProcess,
+			PendingSignalInput = signal
+		});
+
+		liveProcess.Status = ComputerProcessStatus.Running;
+		liveProcess.WaitType = ComputerProcessWaitType.None;
+		liveProcess.WakeTimeUtc = null;
+		liveProcess.WaitArgument = null;
+		liveProcess.WaitingCharacterId = null;
+		liveProcess.WaitingTerminalItemId = null;
+		liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
+		PersistProcess_NoLock(owner, liveProcess);
+
+		var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
+		ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
 	}
 
 	private IEnumerable<ComputerRuntimeProcess> EnumerateAllProcesses_NoLock()
@@ -1037,13 +1229,14 @@ public class ComputerExecutionService : IComputerExecutionService
 			return false;
 		}
 
-		using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
-		{
-			Owner = owner,
-			Host = owner.ExecutionHost,
-			Actor = session.User,
-			Session = session,
-			Process = liveProcess,
+			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+			{
+				Owner = owner,
+				Host = owner.ExecutionHost,
+				Gameworld = _gameworld,
+				Actor = session.User,
+				Session = session,
+				Process = liveProcess,
 			PendingTerminalInput = text
 		});
 
@@ -1238,6 +1431,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			{
 				Owner = owner,
 				Host = owner.ExecutionHost,
+				Gameworld = _gameworld,
 				Process = liveProcess
 			});
 

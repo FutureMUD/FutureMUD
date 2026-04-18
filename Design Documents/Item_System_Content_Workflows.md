@@ -316,8 +316,11 @@ For the first real in-world computer workflow, a practical pass is:
 12. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
 13. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
 14. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-15. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-16. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+15. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+16. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+17. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+18. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+19. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
@@ -329,6 +332,7 @@ For the first real in-world computer workflow, a practical pass is:
 - `electrical` or `programming` starts but immediately aborts: the configured tool tag or trait static setting is probably missing or resolves to a non-existent content record
 - a live reconfiguration appears to complete but nothing changes: the targeted component may not implement the runtime-configurable interface, or the wrong nearby item / component may have been selected
 - `type` says nothing is waiting for terminal input: no program on that terminal session is currently suspended in `UserInput()`, or the active terminal / user pairing does not match the waiting process metadata
+- `waitsignal("<name>")` fails at runtime: the current execution host is not a real in-world host item, or there is no signal source component with that name on the real execution host item
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

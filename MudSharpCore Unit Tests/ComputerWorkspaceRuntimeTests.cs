@@ -11,6 +11,9 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using System;
@@ -88,6 +91,33 @@ return 42");
 	}
 
 	[TestMethod]
+	public void ComputerExecutableCompiler_AllowsWaitSignalOnlyInPrograms()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var (program, programError) = ComputerExecutableCompiler.Compile(
+			gameworld.Object,
+			"SignalProgram",
+			ComputerExecutableKind.Program,
+			ProgVariableTypes.Number,
+			Array.Empty<ComputerExecutableParameter>(),
+			@"return waitsignal(""WakeSensor"")");
+
+		Assert.IsNotNull(program, programError);
+		Assert.AreEqual(string.Empty, programError);
+
+		var (function, functionError) = ComputerExecutableCompiler.Compile(
+			gameworld.Object,
+			"SignalFunction",
+			ComputerExecutableKind.Function,
+			ProgVariableTypes.Number,
+			Array.Empty<ComputerExecutableParameter>(),
+			@"return waitsignal(""WakeSensor"")");
+
+		Assert.IsNull(function);
+		StringAssert.Contains(functionError, "computer function compilation");
+	}
+
+	[TestMethod]
 	public void ComputerHelpService_FiltersToComputerSafeMetadata()
 	{
 		var service = new ComputerHelpService();
@@ -106,8 +136,11 @@ return 42");
 		Assert.IsTrue(functions.Any(), "Expected at least one programming-safe built-in function.");
 		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("LoadItem")));
 		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("UserInput")));
+		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("WaitSignal")));
 		Assert.IsFalse(service.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)
 			.Any(x => x.FunctionName.EqualTo("UserInput")));
+		Assert.IsFalse(service.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)
+			.Any(x => x.FunctionName.EqualTo("WaitSignal")));
 		Assert.IsTrue(functions.All(x => x.AllowedContexts.Contains(FutureProgCompilationContext.ComputerProgram)));
 		Assert.AreEqual("Both",
 			ComputerHelpFormatter.DescribeAvailability(new[]
@@ -569,6 +602,96 @@ return userinput()";
 		StringAssert.Contains(secondResult.ErrorMessage, "already waiting for input");
 	}
 
+	[TestMethod]
+	public void ComputerExecutionService_WaitSignalProgram_SuspendsAndResumesFromSignal()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var (gameworld, _, signalSource, setSignal) = CreateGameworldWithSignalSource(scheduler, "WakeSensor");
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host", OwnerHostItemId = 1L };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var user = CreateOwner(gameworld.Object, 49L);
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "SignalWaiter");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Number;
+		runtimeExecutable.SourceCode = @"return waitsignal(""WakeSensor"")";
+		service.SaveExecutable(owner, executable);
+		Assert.IsTrue(service.CompileExecutable(executable).Success);
+
+		var result = service.Execute(user.Object, owner, executable, Array.Empty<object?>());
+
+		Assert.IsTrue(result.Success, result.ErrorMessage);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, result.Status);
+		Assert.AreEqual(ComputerProcessWaitType.Signal, result.Process!.WaitType);
+
+		setSignal(new ComputerSignal(1.0, null, null));
+		signalSource.Raise(x => x.SignalChanged += null, signalSource.Object, new ComputerSignal(1.0, null, null));
+
+		var process = owner.Processes.Single();
+		Assert.AreEqual(ComputerProcessStatus.Completed, process.Status);
+		Assert.AreEqual(1.0m, Convert.ToDecimal(process.Result));
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_WaitSignalProgram_ResumesWhenOwnerReactivatesToActiveSignal()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var (gameworld, _, _, setSignal) = CreateGameworldWithSignalSource(scheduler, "WakeSensor");
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host", OwnerHostItemId = 1L };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var user = CreateOwner(gameworld.Object, 50L);
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "SignalWaiter");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Number;
+		runtimeExecutable.SourceCode = @"return waitsignal(""WakeSensor"")";
+		service.SaveExecutable(owner, executable);
+		Assert.IsTrue(service.CompileExecutable(executable).Success);
+
+		var result = service.Execute(user.Object, owner, executable, Array.Empty<object?>());
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, result.Status);
+		var process = (ComputerRuntimeProcess)owner.Processes.Single();
+		process.PowerLossBehaviour = ComputerPowerLossBehaviour.PersistSuspended;
+
+		host.Powered = false;
+		service.DeactivateOwner(owner);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, process.Status);
+		Assert.AreEqual(ComputerProcessWaitType.Signal, process.WaitType);
+
+		setSignal(new ComputerSignal(2.5, null, null));
+		host.Powered = true;
+		service.ActivateOwner(owner);
+
+		Assert.AreEqual(ComputerProcessStatus.Completed, process.Status);
+		Assert.AreEqual(2.5m, Convert.ToDecimal(process.Result));
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_WaitSignalProgram_FailsWithoutRealHostItem()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Abstract Host", OwnerHostItemId = null };
+		var owner = new StubComputerOwner(host, "Abstract Host");
+		var user = CreateOwner(gameworld.Object, 51L);
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "SignalWaiter");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Number;
+		runtimeExecutable.SourceCode = @"return waitsignal(""WakeSensor"")";
+		service.SaveExecutable(owner, executable);
+		Assert.IsTrue(service.CompileExecutable(executable).Success);
+
+		var result = service.Execute(user.Object, owner, executable, Array.Empty<object?>());
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual(ComputerProcessStatus.Failed, result.Status);
+		StringAssert.Contains(result.ErrorMessage, "real in-world computer host item");
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -611,6 +734,39 @@ return userinput()";
 		return gameworld;
 	}
 
+	private static (Mock<IFuturemud> Gameworld, Mock<IGameItem> HostItem, Mock<ISignalSourceComponent> SignalSource,
+		Action<ComputerSignal> SetSignal)
+		CreateGameworldWithSignalSource(Mock<IScheduler> scheduler, string sourceName)
+	{
+		var gameworld = CreateGameworld(scheduler);
+		var hostItem = new Mock<IGameItem>();
+		var signalSource = new Mock<ISignalSourceComponent>();
+		var currentSignal = default(ComputerSignal);
+
+		hostItem.SetupGet(x => x.Id).Returns(1L);
+		hostItem.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		hostItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>())
+			.Returns(() => new[] { signalSource.Object });
+
+		signalSource.SetupGet(x => x.Parent).Returns(hostItem.Object);
+		signalSource.SetupGet(x => x.Id).Returns(11L);
+		signalSource.As<IGameItemComponent>()
+			.SetupGet(x => x.Name)
+			.Returns(sourceName);
+		signalSource.As<ISignalSource>()
+			.SetupGet(x => x.Name)
+			.Returns(sourceName);
+		signalSource.SetupGet(x => x.LocalSignalSourceIdentifier).Returns(11L);
+		signalSource.SetupGet(x => x.EndpointKey).Returns(SignalComponentUtilities.DefaultLocalSignalEndpointKey);
+		signalSource.SetupGet(x => x.CurrentSignal).Returns(() => currentSignal);
+		signalSource.SetupGet(x => x.CurrentValue).Returns(() => currentSignal.Value);
+		signalSource.SetupGet(x => x.Duration).Returns(() => currentSignal.Duration);
+		signalSource.SetupGet(x => x.PulseInterval).Returns(() => currentSignal.PulseInterval);
+
+		gameworld.Setup(x => x.TryGetItem(1L, true)).Returns(hostItem.Object);
+		return (gameworld, hostItem, signalSource, signal => currentSignal = signal);
+	}
+
 	private static Mock<ICharacter> CreateOwner(IFuturemud gameworld, long id = 42L)
 	{
 		var owner = new Mock<ICharacter>();
@@ -649,8 +805,8 @@ return userinput()";
 		public bool Powered { get; set; }
 		public string Name { get; set; } = string.Empty;
 		public long? OwnerCharacterId => null;
-		public long? OwnerHostItemId => 1L;
-		public long? OwnerStorageItemId => null;
+		public long? OwnerHostItemId { get; set; } = 1L;
+		public long? OwnerStorageItemId { get; set; }
 		public IComputerHost ExecutionHost => this;
 		public IComputerFileSystem? FileSystem => null;
 		public IEnumerable<IComputerExecutableDefinition> Executables { get; set; } = Enumerable.Empty<IComputerExecutableDefinition>();

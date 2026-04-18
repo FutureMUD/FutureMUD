@@ -2,6 +2,7 @@
 
 using System;
 using MudSharp.Character;
+using MudSharp.Framework;
 
 namespace MudSharp.Computers;
 
@@ -9,15 +10,24 @@ internal sealed class ComputerExecutionContext
 {
 	public required IComputerExecutableOwner Owner { get; init; }
 	public required IComputerHost Host { get; init; }
+	public required IFuturemud Gameworld { get; init; }
 	public ICharacter? Actor { get; init; }
 	public IComputerTerminalSession? Session { get; init; }
 	public ComputerRuntimeProcess? Process { get; init; }
 	public string? PendingTerminalInput { get; internal set; }
+	public ComputerSignal? PendingSignalInput { get; internal set; }
 
 	public string? ConsumePendingTerminalInput()
 	{
 		var input = PendingTerminalInput;
 		PendingTerminalInput = null;
+		return input;
+	}
+
+	public ComputerSignal? ConsumePendingSignalInput()
+	{
+		var input = PendingSignalInput;
+		PendingSignalInput = null;
 		return input;
 	}
 }

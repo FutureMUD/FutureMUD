@@ -184,7 +184,8 @@ The current signal-automation slice has its own presentation and integration rul
 - `programming help` should mirror the normal `prog help` structure, but filtered to the computer-safe subset so the player-facing language reference stays aligned with the actual compiler/runtime surface
 - `programming terminal status` is now part of that player-facing integration surface as well, because it is how players see which powered host they are currently connected to and whether they are editing the host itself or one mounted storage device
 - `type` is now part of that same player-facing integration surface, because it is how players submit text to a terminal session and how terminal programs waiting on `UserInput()` receive and resume from that text
-- `programming processes` should clearly distinguish timed `Sleep` waits from terminal `UserInput()` waits so interactive program state is visible to players and builders
+- `programming processes` should clearly distinguish timed `Sleep` waits from terminal `UserInput()` waits and host-signal `WaitSignal()` waits so interactive and event-driven program state is visible to players and builders
+- signal-wait presentation should use parent-item / component notation rather than raw ids, and it should make it clear that the current v1 `WaitSignal()` implementation is waiting on a signal source component on the real execution host item
 - abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
 - `AutomationHousing` is now the dedicated housing or junction presentation family, and because it is itself the lockable-container capability, it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
 - those housings should be presented as ordinary openable service panels on the parent item, reached through normal `open` / `close` subtargets rather than bespoke verbs

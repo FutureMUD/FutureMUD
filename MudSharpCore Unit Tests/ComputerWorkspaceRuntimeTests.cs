@@ -9,6 +9,7 @@ using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Computers;
 using MudSharp.Database;
+using MudSharp.Editor;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
@@ -792,6 +793,202 @@ return userinput()";
 		StringAssert.Contains(result.ErrorMessage, "terminal session");
 	}
 
+	[TestMethod]
+	public void ComputerExecutionService_ExecuteBuiltInApplication_FileManager_SuspendsForTerminalInput()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			FileSystemStorage = new ComputerMutableFileSystem(4096),
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		host.FileSystemStorage.WriteFile("readme.txt", "hello");
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 63L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1202L);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = host
+		};
+		var application = service.GetBuiltInApplication(host, "filemanager");
+
+		Assert.IsNotNull(application);
+		var result = service.ExecuteBuiltInApplication(user.Object, host, application!, session);
+
+		Assert.IsTrue(result.Success, result.ErrorMessage);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, result.Status);
+		Assert.IsNotNull(result.Process);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, result.Process!.WaitType);
+		Assert.AreEqual(user.Object.Id, result.Process.WaitingCharacterId);
+		Assert.AreEqual(1202L, result.Process.WaitingTerminalItemId);
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("FileManager") && s.Contains("readme.txt")),
+				true,
+				true),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_ResumesBuiltInFileManagerAndCopiesFiles()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			FileSystemStorage = new ComputerMutableFileSystem(4096),
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var storage = new StubComputerOwner(host, "Archive Drive")
+		{
+			OwnerStorageItemIdValue = 99L,
+			FileSystemStorage = new ComputerMutableFileSystem(2048)
+		};
+		storage.FileSystemStorage.WriteFile("notes.txt", "hello world");
+		host.MountedStorage = new[] { storage };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 64L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1203L);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = storage
+		};
+		var application = service.GetBuiltInApplication(storage, "filemanager");
+
+		Assert.IsNotNull(application);
+		var start = service.ExecuteBuiltInApplication(user.Object, storage, application!, session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+		Assert.IsNotNull(start.Process);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, start.Process!.WaitType);
+		Assert.AreEqual(user.Object.Id, start.Process.WaitingCharacterId);
+		Assert.AreEqual(1203L, start.Process.WaitingTerminalItemId);
+		var waitingProcess = host.GetProcess(start.Process.Id);
+		Assert.IsNotNull(waitingProcess);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, waitingProcess!.Status);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, waitingProcess.WaitType);
+		Assert.AreEqual(user.Object.Id, waitingProcess.WaitingCharacterId);
+		Assert.AreEqual(1203L, waitingProcess.WaitingTerminalItemId);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "copy notes.txt host", out var copyError), copyError);
+		Assert.AreEqual("hello world", host.FileSystem!.ReadFile("notes.txt"));
+		var liveProcess = host.GetProcess(start.Process!.Id);
+		Assert.IsNotNull(liveProcess);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, liveProcess!.Status);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, liveProcess.WaitType);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "exit", out var exitError), exitError);
+		Assert.AreEqual(ComputerProcessStatus.Completed, host.GetProcess(start.Process.Id)!.Status);
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Copied") && s.Contains("notes.txt")),
+				true,
+				true),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_FileManagerEditUsesEditorModeAndSavesOnSubmit()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			FileSystemStorage = new ComputerMutableFileSystem(4096),
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var storage = new StubComputerOwner(host, "Archive Drive")
+		{
+			OwnerStorageItemIdValue = 99L,
+			FileSystemStorage = new ComputerMutableFileSystem(2048)
+		};
+		storage.FileSystemStorage.WriteFile("notes.txt", "hello world");
+		host.MountedStorage = new[] { storage };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 65L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		Action<string, IOutputHandler, object[]>? postAction = null;
+		Action<IOutputHandler, object[]>? cancelAction = null;
+		string? capturedRecallText = null;
+		EditorOptions capturedOptions = EditorOptions.None;
+		user.Setup(x => x.EditorMode(
+				It.IsAny<Action<string, IOutputHandler, object[]>>(),
+				It.IsAny<Action<IOutputHandler, object[]>>(),
+				It.IsAny<double>(),
+				It.IsAny<string>(),
+				It.IsAny<EditorOptions>(),
+				It.IsAny<object[]>()))
+			.Callback<Action<string, IOutputHandler, object[]>, Action<IOutputHandler, object[]>, double, string, EditorOptions, object[]>(
+				(post, cancel, _, recall, options, _) =>
+				{
+					postAction = post;
+					cancelAction = cancel;
+					capturedRecallText = recall;
+					capturedOptions = options;
+				});
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1204L);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = storage
+		};
+		var application = service.GetBuiltInApplication(storage, "filemanager");
+
+		Assert.IsNotNull(application);
+		var start = service.ExecuteBuiltInApplication(user.Object, storage, application!, session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "edit notes.txt", out var editError), editError);
+		Assert.IsNotNull(postAction);
+		Assert.IsNotNull(cancelAction);
+		Assert.AreEqual("hello world", capturedRecallText);
+		Assert.IsTrue(capturedOptions.HasFlag(EditorOptions.PermitEmpty));
+		Assert.AreEqual("hello world", storage.FileSystem!.ReadFile("notes.txt"));
+
+		var liveProcess = host.GetProcess(start.Process!.Id);
+		Assert.IsNotNull(liveProcess);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, liveProcess!.Status);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, liveProcess.WaitType);
+
+		postAction!("updated text", output.Object, Array.Empty<object>());
+		Assert.AreEqual("updated text", storage.FileSystem.ReadFile("notes.txt"));
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -911,7 +1108,8 @@ return userinput()";
 		public long? OwnerHostItemId { get; set; } = 1L;
 		public long? OwnerStorageItemId { get; set; }
 		public IComputerHost ExecutionHost => this;
-		public IComputerFileSystem? FileSystem => null;
+		public ComputerMutableFileSystem? FileSystemStorage { get; set; }
+		public IComputerFileSystem? FileSystem => FileSystemStorage;
 		public IEnumerable<IComputerExecutableDefinition> Executables { get; set; } = Enumerable.Empty<IComputerExecutableDefinition>();
 		public IEnumerable<IComputerProcess> Processes => _processes.Values;
 		public IEnumerable<IComputerBuiltInApplication> BuiltInApplications { get; set; } = Enumerable.Empty<IComputerBuiltInApplication>();
@@ -968,7 +1166,7 @@ return userinput()";
 		}
 	}
 
-	private sealed class StubComputerOwner : IComputerMutableOwner
+	private sealed class StubComputerOwner : IComputerMutableOwner, IComputerStorage
 	{
 		private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
 		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
@@ -984,9 +1182,14 @@ return userinput()";
 		public string Name { get; }
 		public long? OwnerCharacterId => null;
 		public long? OwnerHostItemId => null;
-		public long? OwnerStorageItemId => 99L;
+		public long? OwnerStorageItemId => OwnerStorageItemIdValue;
+		public long? OwnerStorageItemIdValue { get; set; } = 99L;
 		public IComputerHost ExecutionHost { get; }
-		public IComputerFileSystem? FileSystem => null;
+		public ComputerMutableFileSystem? FileSystemStorage { get; set; }
+		public IComputerFileSystem? FileSystem => FileSystemStorage;
+		public long CapacityInBytes => FileSystemStorage?.CapacityInBytes ?? 0L;
+		public bool Mounted => MountedHost is not null;
+		public IComputerHost? MountedHost => ExecutionHost;
 		public IEnumerable<IComputerExecutableDefinition> Executables => _executables.Values;
 		public IEnumerable<IComputerProcess> Processes => _processes.Values;
 

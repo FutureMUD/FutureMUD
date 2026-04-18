@@ -315,17 +315,20 @@ For the first real in-world computer workflow, a practical pass is:
 10. Use terminal-oriented programs to validate `WriteTerminal` and `ClearTerminal`.
 11. Use `programming apps` and confirm the connected powered host exposes the expected built-in application list.
 12. Use `programming app sysmon` and confirm it runs as a host process, writes diagnostics to the connected terminal session, and reports host power, storage, process, and local signal state.
-13. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
-14. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
-15. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
-16. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-17. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
-18. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
-19. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
-20. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-21. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+13. Use `programming app filemanager` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+14. Use `type owners`, `type list`, `type show <file>`, `type edit <file>`, `type write <file> <text>`, `type append <file> <text>`, `type copy <file> host`, `type use <storage>`, and `type exit` to confirm the connected terminal session is driving FileManager and that it can move between the host file system and mounted storage devices.
+15. When testing `type edit <file>`, confirm it hands off to the normal multiline editor, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`.
+16. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+17. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+18. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+19. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+20. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+21. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+22. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+23. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+24. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
-In the current shipped phase, only `SysMon` has built-in application runtime behaviour. `FileManager`, `Directory`, `Mail`, `Boards`, and `Messenger` remain reserved built-in identities for future phases.
+In the current shipped phase, `SysMon` and `FileManager` have built-in application runtime behaviour. `Directory`, `Mail`, `Boards`, and `Messenger` remain reserved built-in identities for future phases.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

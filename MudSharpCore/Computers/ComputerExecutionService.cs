@@ -24,6 +24,7 @@ public class ComputerExecutionService : IComputerExecutionService
 	private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
 	private readonly Dictionary<long, ICharacterComputerWorkspace> _workspaceOwners = new();
 	private readonly Dictionary<long, IComputerExecutableOwner> _mutableExecutableOwners = new();
+	private readonly List<IComputerExecutableOwner> _registeredItemOwners = [];
 	private readonly Dictionary<long, ComputerSignalWaitSubscription> _signalWaitSubscriptions = new();
 	private bool _loaded;
 
@@ -761,6 +762,11 @@ public class ComputerExecutionService : IComputerExecutionService
 			return;
 		}
 
+		if (_registeredItemOwners.All(x => !ReferenceEquals(x, owner)))
+		{
+			_registeredItemOwners.Add(owner);
+		}
+
 		foreach (var executable in owner.Executables)
 		{
 			_mutableExecutableOwners[executable.Id] = owner;
@@ -1317,7 +1323,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		string text,
 		out string error)
 	{
-		var owner = ResolveOwnerForExecutable_NoLock(process.Program);
+		var owner = ResolveOwnerForProcess_NoLock(process);
 		if (owner is null)
 		{
 			error = "That computer program's owner is no longer available.";
@@ -1328,23 +1334,24 @@ public class ComputerExecutionService : IComputerExecutionService
 			.OfType<ComputerRuntimeProcess>()
 			.FirstOrDefault(x => x.Id == process.Id);
 		if (liveProcess is null || liveProcess.Status != ComputerProcessStatus.Sleeping ||
-		    liveProcess.WaitType != ComputerProcessWaitType.UserInput ||
-		    liveProcess.Program is not ComputerRuntimeProgramBase program)
+		    liveProcess.WaitType != ComputerProcessWaitType.UserInput)
 		{
 			error = "That computer program is no longer waiting for terminal input.";
 			return false;
 		}
 
-		if (!EnsureCompiled_NoLock(owner, program, out var compileError))
+		if (liveProcess.Program is ComputerRuntimeProgramBase program)
 		{
-			var failureOutcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, new ComputerProgramExecutionOutcome
+			if (!EnsureCompiled_NoLock(owner, program, out var compileError))
 			{
-				Status = ComputerProcessStatus.Failed,
-				Error = compileError
-			});
-			error = failureOutcome.Error ?? compileError;
-			return false;
-		}
+				var failureOutcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, new ComputerProgramExecutionOutcome
+				{
+					Status = ComputerProcessStatus.Failed,
+					Error = compileError
+				});
+				error = failureOutcome.Error ?? compileError;
+				return false;
+			}
 
 			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
 			{
@@ -1366,10 +1373,48 @@ public class ComputerExecutionService : IComputerExecutionService
 		liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
 		PersistProcess_NoLock(owner, liveProcess);
 
-		var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
-		outcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
-		error = outcome.Status == ComputerProcessStatus.Failed ? outcome.Error ?? string.Empty : string.Empty;
-		return outcome.Status != ComputerProcessStatus.Failed;
+			var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
+			outcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
+			error = outcome.Status == ComputerProcessStatus.Failed ? outcome.Error ?? string.Empty : string.Empty;
+			return outcome.Status != ComputerProcessStatus.Failed;
+		}
+
+		if (liveProcess.Program is IComputerBuiltInApplication builtInApplication)
+		{
+			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+			{
+				Owner = owner,
+				Host = owner.ExecutionHost,
+				Gameworld = _gameworld,
+				Actor = session.User,
+				Session = session,
+				Process = liveProcess,
+				PendingTerminalInput = text
+			});
+
+			liveProcess.Status = ComputerProcessStatus.Running;
+			liveProcess.WaitType = ComputerProcessWaitType.None;
+			liveProcess.WakeTimeUtc = null;
+			liveProcess.WaitArgument = null;
+			liveProcess.WaitingCharacterId = null;
+			liveProcess.WaitingTerminalItemId = null;
+			liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
+			PersistProcess_NoLock(owner, liveProcess);
+
+			var outcome = ComputerBuiltInApplicationExecutors.Execute(
+				_gameworld,
+				session.User,
+				owner,
+				session,
+				liveProcess,
+				builtInApplication);
+			outcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
+			error = outcome.Status == ComputerProcessStatus.Failed ? outcome.Error ?? string.Empty : string.Empty;
+			return outcome.Status != ComputerProcessStatus.Failed;
+		}
+
+		error = "That computer program is no longer waiting for terminal input.";
+		return false;
 	}
 
 	private void PersistExecutable_NoLock(IComputerExecutableOwner owner, ComputerRuntimeExecutableBase executable)
@@ -1519,7 +1564,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		EnsureLoaded();
 		lock (_sync)
 		{
-			var owner = ResolveOwnerForExecutable_NoLock(process.Program);
+			var owner = ResolveOwnerForProcess_NoLock(process);
 			if (owner is null)
 			{
 				return;
@@ -1564,6 +1609,31 @@ public class ComputerExecutionService : IComputerExecutionService
 			var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
 			ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
 		}
+	}
+
+	private IComputerExecutableOwner? ResolveOwnerForProcess_NoLock(ComputerRuntimeProcess process)
+	{
+		if (process.Program.OwnerCharacterId is > 0 &&
+		    _workspaceOwners.TryGetValue(process.Program.OwnerCharacterId.Value, out var cachedWorkspace))
+		{
+			return cachedWorkspace;
+		}
+
+		var owner = EnumerateItemOwners()
+			.FirstOrDefault(candidate => ResolveProcesses_NoLock(candidate)
+				.OfType<ComputerRuntimeProcess>()
+				.Any(runtimeProcess => ReferenceEquals(runtimeProcess, process) || runtimeProcess.Id == process.Id));
+		if (owner is not null)
+		{
+			return owner;
+		}
+
+		if (process.Host is IComputerExecutableOwner hostOwner)
+		{
+			return hostOwner;
+		}
+
+		return ResolveOwnerForExecutable_NoLock(process.Program);
 	}
 
 	private IComputerExecutableOwner? ResolveOwnerForExecutable_NoLock(IComputerExecutableDefinition executable)
@@ -1615,6 +1685,7 @@ public class ComputerExecutionService : IComputerExecutionService
 				.Cast<IComputerExecutableOwner>()
 				.Concat(item.Components.OfType<IComputerStorage>()));
 		return worldOwners
+			.Concat(_registeredItemOwners)
 			.Concat(_mutableExecutableOwners.Values.Distinct())
 			.Distinct();
 	}

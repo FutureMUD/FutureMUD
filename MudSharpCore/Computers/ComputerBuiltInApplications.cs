@@ -36,7 +36,7 @@ public static class ComputerBuiltInApplications
 		new(
 			"filemanager",
 			"FileManager",
-			"Local and remote file browser, copy tool, and mounted-storage manager.",
+			"Local file browser, copy tool, and mounted-storage manager.",
 			false),
 		new(
 			"directory",

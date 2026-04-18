@@ -229,7 +229,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - `Mail` - asynchronous email client plus store-and-forward mail service
 - `Boards` - bulletin board and newsreader client plus board service
 - `Messenger` - live pager-style messaging client plus relay service
-- `FileManager` - local and remote file browser and copy utility
+- `FileManager` - local file browser, copy utility, and mounted-storage manager
 - `Directory` - address book and service discovery utility
 - `SysMon` - diagnostics, process manager, storage monitor, signal inspector, and fault log viewer
 
@@ -238,9 +238,10 @@ In the current shipped phase:
 - built-in applications are represented as host-bound built-in program definitions rather than a disconnected catalog
 - they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
 - they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
-- only `SysMon` currently has implemented runtime behaviour
+- `SysMon` and `FileManager` currently have implemented runtime behaviour
 - `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, running processes, and locally accessible automation signal sources and sinks on the execution host item
-- `Mail`, `Boards`, `Messenger`, `FileManager`, and `Directory` remain reserved built-in application identities for later phases
+- `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, and retargeting files between the host and mounted storage devices
+- `Mail`, `Boards`, `Messenger`, and `Directory` remain reserved built-in application identities for later phases
 
 ## Systems Needed
 

@@ -61,6 +61,33 @@ return 42");
 	}
 
 	[TestMethod]
+	public void ComputerExecutableCompiler_AllowsUserInputOnlyInPrograms()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var (program, programError) = ComputerExecutableCompiler.Compile(
+			gameworld.Object,
+			"InteractiveProgram",
+			ComputerExecutableKind.Program,
+			ProgVariableTypes.Text,
+			Array.Empty<ComputerExecutableParameter>(),
+			@"return userinput()");
+
+		Assert.IsNotNull(program, programError);
+		Assert.AreEqual(string.Empty, programError);
+
+		var (function, functionError) = ComputerExecutableCompiler.Compile(
+			gameworld.Object,
+			"InteractiveFunction",
+			ComputerExecutableKind.Function,
+			ProgVariableTypes.Text,
+			Array.Empty<ComputerExecutableParameter>(),
+			@"return userinput()");
+
+		Assert.IsNull(function);
+		StringAssert.Contains(functionError, "computer function compilation");
+	}
+
+	[TestMethod]
 	public void ComputerHelpService_FiltersToComputerSafeMetadata()
 	{
 		var service = new ComputerHelpService();
@@ -78,6 +105,9 @@ return 42");
 		Assert.IsTrue(programStatements.Contains("sleep"));
 		Assert.IsTrue(functions.Any(), "Expected at least one programming-safe built-in function.");
 		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("LoadItem")));
+		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("UserInput")));
+		Assert.IsFalse(service.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)
+			.Any(x => x.FunctionName.EqualTo("UserInput")));
 		Assert.IsTrue(functions.All(x => x.AllowedContexts.Contains(FutureProgCompilationContext.ComputerProgram)));
 		Assert.AreEqual("Both",
 			ComputerHelpFormatter.DescribeAvailability(new[]
@@ -223,6 +253,61 @@ return 42";
 	}
 
 	[TestMethod]
+	public void ComputerExecutionService_PersistsUserInputWaitMetadataForWorkspaceProcesses()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var owner = CreateOwner(gameworld.Object, 43L);
+			var output = new Mock<IOutputHandler>();
+			owner.SetupGet(x => x.OutputHandler).Returns(output.Object);
+			var service = new ComputerExecutionService(gameworld.Object);
+			var workspace = service.GetWorkspace(owner.Object);
+			var host = workspace.ExecutionHost;
+			var terminal = new Mock<IComputerTerminal>();
+			terminal.SetupGet(x => x.TerminalItemId).Returns(501L);
+			var session = new ComputerTerminalSession
+			{
+				User = owner.Object,
+				Terminal = terminal.Object,
+				Host = host,
+				CurrentOwner = workspace
+			};
+
+			var executable = service.CreateExecutable(owner.Object, ComputerExecutableKind.Program, "Interactive");
+			var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+			runtimeExecutable.ReturnType = ProgVariableTypes.Text;
+			runtimeExecutable.SourceCode = @"return userinput()";
+			service.SaveExecutable(executable);
+			Assert.IsTrue(service.CompileExecutable(executable).Success);
+
+			var result = service.Execute(owner.Object, workspace, executable, Array.Empty<object?>(), session);
+			Assert.AreEqual(ComputerProcessStatus.Sleeping, result.Status);
+
+			var persisted = context.CharacterComputerProgramProcesses.Single();
+			Assert.AreEqual((int)ComputerProcessWaitType.UserInput, persisted.WaitType);
+			Assert.IsTrue(ComputerProcessWaitArguments.TryParseUserInput(persisted.WaitArgument, out var waitingCharacterId,
+				out var waitingTerminalItemId));
+			Assert.AreEqual(owner.Object.Id, waitingCharacterId);
+			Assert.AreEqual(501L, waitingTerminalItemId);
+
+			var reloadedService = new ComputerExecutionService(gameworld.Object);
+			var reloadedProcess = reloadedService.GetProcesses(owner.Object).Single();
+			Assert.AreEqual(ComputerProcessWaitType.UserInput, reloadedProcess.WaitType);
+			Assert.AreEqual(owner.Object.Id, reloadedProcess.WaitingCharacterId);
+			Assert.AreEqual(501L, reloadedProcess.WaitingTerminalItemId);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void ComputerExecutionService_RejectsExecutionOnUnpoweredHostOwner()
 	{
 		var scheduler = new Mock<IScheduler>();
@@ -287,6 +372,80 @@ return 42";
 	}
 
 	[TestMethod]
+	public void ComputerExecutionService_UserInputProgram_SuspendsAndResumesFromTerminalInput()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var output = new Mock<IOutputHandler>();
+		var user = CreateOwner(gameworld.Object, 44L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(101L);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "Interactive");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Text;
+		runtimeExecutable.SourceCode = @"writeterminal(""Enter text:"")
+return userinput()";
+		service.SaveExecutable(owner, executable);
+
+		var compile = service.CompileExecutable(executable);
+		Assert.IsTrue(compile.Success, compile.ErrorMessage);
+
+		var result = service.Execute(user.Object, owner, executable, Array.Empty<object?>(), session);
+
+		Assert.IsTrue(result.Success, result.ErrorMessage);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, result.Status);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, result.Process!.WaitType);
+		Assert.AreEqual(user.Object.Id, result.Process.WaitingCharacterId);
+		Assert.AreEqual(101L, result.Process.WaitingTerminalItemId);
+		output.Verify(x => x.Send("Enter text:", true, true), Times.Once);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "hello", out var submitError), submitError);
+
+		var process = owner.Processes.Single();
+		Assert.AreEqual(ComputerProcessStatus.Completed, process.Status);
+		Assert.AreEqual("hello", process.Result);
+		output.Verify(x => x.Send("Enter text:", true, true), Times.Once);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_UserInputProgram_FailsWithoutSession()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var user = CreateOwner(gameworld.Object, 45L);
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "Interactive");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Text;
+		runtimeExecutable.SourceCode = @"return userinput()";
+		service.SaveExecutable(owner, executable);
+
+		var compile = service.CompileExecutable(executable);
+		Assert.IsTrue(compile.Success, compile.ErrorMessage);
+
+		var result = service.Execute(user.Object, owner, executable, Array.Empty<object?>());
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual(ComputerProcessStatus.Failed, result.Status);
+		StringAssert.Contains(result.ErrorMessage, "active computer terminal session");
+	}
+
+	[TestMethod]
 	public void ComputerExecutionService_TrySubmitTerminalInput_RejectsWhenNothingIsWaiting()
 	{
 		var scheduler = new Mock<IScheduler>();
@@ -296,6 +455,7 @@ return 42";
 		var owner = new StubComputerOwner(host, "Local Host");
 		var user = CreateOwner(gameworld.Object);
 		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(102L);
 		var session = new ComputerTerminalSession
 		{
 			User = user.Object,
@@ -308,6 +468,105 @@ return 42";
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(error, "waiting for terminal input");
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_RejectsWrongUserOrTerminal()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var output = new Mock<IOutputHandler>();
+		var waitingUser = CreateOwner(gameworld.Object, 46L);
+		waitingUser.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(103L);
+		var session = new ComputerTerminalSession
+		{
+			User = waitingUser.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "Interactive");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Text;
+		runtimeExecutable.SourceCode = @"return userinput()";
+		service.SaveExecutable(owner, executable);
+		Assert.IsTrue(service.CompileExecutable(executable).Success);
+		var waitingResult = service.Execute(waitingUser.Object, owner, executable, Array.Empty<object?>(), session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, waitingResult.Status);
+
+		var wrongUser = CreateOwner(gameworld.Object, 47L);
+		var wrongUserSession = new ComputerTerminalSession
+		{
+			User = wrongUser.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+		Assert.IsFalse(service.TrySubmitTerminalInput(wrongUserSession, "wrong", out var wrongUserError));
+		StringAssert.Contains(wrongUserError, "waiting for terminal input");
+
+		var wrongTerminal = new Mock<IComputerTerminal>();
+		wrongTerminal.SetupGet(x => x.TerminalItemId).Returns(104L);
+		var wrongTerminalSession = new ComputerTerminalSession
+		{
+			User = waitingUser.Object,
+			Terminal = wrongTerminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+		Assert.IsFalse(service.TrySubmitTerminalInput(wrongTerminalSession, "wrong", out var wrongTerminalError));
+		StringAssert.Contains(wrongTerminalError, "waiting for terminal input");
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_UserInputProgram_RejectsSecondForegroundWaiterOnSameSession()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var output = new Mock<IOutputHandler>();
+		var user = CreateOwner(gameworld.Object, 48L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(105L);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+
+		var firstExecutable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "InteractiveOne");
+		var firstRuntimeExecutable = (ComputerRuntimeExecutableBase)firstExecutable;
+		firstRuntimeExecutable.ReturnType = ProgVariableTypes.Text;
+		firstRuntimeExecutable.SourceCode = @"return userinput()";
+		service.SaveExecutable(owner, firstExecutable);
+		Assert.IsTrue(service.CompileExecutable(firstExecutable).Success);
+
+		var secondExecutable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "InteractiveTwo");
+		var secondRuntimeExecutable = (ComputerRuntimeExecutableBase)secondExecutable;
+		secondRuntimeExecutable.ReturnType = ProgVariableTypes.Text;
+		secondRuntimeExecutable.SourceCode = @"return userinput()";
+		service.SaveExecutable(owner, secondExecutable);
+		Assert.IsTrue(service.CompileExecutable(secondExecutable).Success);
+
+		var firstResult = service.Execute(user.Object, owner, firstExecutable, Array.Empty<object?>(), session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, firstResult.Status);
+
+		var secondResult = service.Execute(user.Object, owner, secondExecutable, Array.Empty<object?>(), session);
+
+		Assert.IsFalse(secondResult.Success);
+		Assert.AreEqual(ComputerProcessStatus.Failed, secondResult.Status);
+		StringAssert.Contains(secondResult.ErrorMessage, "already waiting for input");
 	}
 
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,

@@ -9,6 +9,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.Models;
 
 namespace MudSharp.Computers;
@@ -47,10 +48,15 @@ public class ComputerExecutionService : IComputerExecutionService
 						process.WaitType = ComputerProcessWaitType.None;
 						process.WakeTimeUtc = null;
 						process.WaitArgument = null;
+						process.WaitingCharacterId = null;
+						process.WaitingTerminalItemId = null;
 						PersistWorkspaceProcess_NoLock(process);
 						break;
 					case ComputerProcessStatus.Sleeping:
-						ScheduleResume_NoLock(process);
+						if (process.WaitType == ComputerProcessWaitType.Sleep)
+						{
+							ScheduleResume_NoLock(process);
+						}
 						break;
 				}
 			}
@@ -257,16 +263,16 @@ public class ComputerExecutionService : IComputerExecutionService
 				};
 			}
 
-			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
-			{
-				Owner = owner,
-				Host = owner.ExecutionHost,
-				Actor = actor,
-				Session = session
-			});
-
 			if (runtimeExecutable is ComputerRuntimeFunctionBase function)
 			{
+				using var functionScope = new ComputerExecutionContextScope(new ComputerExecutionContext
+				{
+					Owner = owner,
+					Host = owner.ExecutionHost,
+					Actor = actor,
+					Session = session
+				});
+
 				var result = function.CompiledProg!.Execute(parameters.ToArray());
 				return new ComputerExecutionResult
 				{
@@ -287,8 +293,17 @@ public class ComputerExecutionService : IComputerExecutionService
 			}
 
 			var process = CreateProcess_NoLock(actor, owner, program);
+			using var programScope = new ComputerExecutionContextScope(new ComputerExecutionContext
+			{
+				Owner = owner,
+				Host = owner.ExecutionHost,
+				Actor = actor,
+				Session = session,
+				Process = process
+			});
+
 			var outcome = ComputerProgramExecutor.Execute(program, parameters);
-			ApplyExecutionOutcome_NoLock(owner, process, outcome);
+			outcome = ApplyExecutionOutcome_NoLock(owner, process, outcome);
 
 			return new ComputerExecutionResult
 			{
@@ -348,6 +363,8 @@ public class ComputerExecutionService : IComputerExecutionService
 			runtimeProcess.WaitType = ComputerProcessWaitType.None;
 			runtimeProcess.WakeTimeUtc = null;
 			runtimeProcess.WaitArgument = null;
+			runtimeProcess.WaitingCharacterId = null;
+			runtimeProcess.WaitingTerminalItemId = null;
 			runtimeProcess.LastError = "Killed by user request.";
 			runtimeProcess.LastUpdatedAtUtc = DateTime.UtcNow;
 			runtimeProcess.EndedAtUtc = DateTime.UtcNow;
@@ -378,9 +395,12 @@ public class ComputerExecutionService : IComputerExecutionService
 						process.WaitType = ComputerProcessWaitType.None;
 						process.WakeTimeUtc = null;
 						process.WaitArgument = null;
+						process.WaitingCharacterId = null;
+						process.WaitingTerminalItemId = null;
 						PersistProcess_NoLock(owner, process);
 						break;
-					case ComputerProcessStatus.Sleeping when owner.ExecutionHost.Powered:
+					case ComputerProcessStatus.Sleeping when owner.ExecutionHost.Powered &&
+					                                     process.WaitType == ComputerProcessWaitType.Sleep:
 						ScheduleResume_NoLock(process);
 						break;
 				}
@@ -412,6 +432,8 @@ public class ComputerExecutionService : IComputerExecutionService
 						process.WaitType = ComputerProcessWaitType.None;
 						process.WakeTimeUtc = null;
 						process.WaitArgument = null;
+						process.WaitingCharacterId = null;
+						process.WaitingTerminalItemId = null;
 						process.LastError = "The computer program was interrupted by power loss.";
 						process.LastUpdatedAtUtc = DateTime.UtcNow;
 						process.EndedAtUtc = DateTime.UtcNow;
@@ -431,20 +453,19 @@ public class ComputerExecutionService : IComputerExecutionService
 			return false;
 		}
 
-		EnsureLoadedForOwner(session.CurrentOwner);
+		if (session.CurrentOwner is ICharacterComputerWorkspace)
+		{
+			EnsureLoaded();
+		}
 		lock (_sync)
 		{
-			RegisterOwner_NoLock(session.CurrentOwner);
 			if (!session.Host.Powered)
 			{
 				error = $"{session.Host.Name} is not currently powered.";
 				return false;
 			}
 
-			var waitingProcesses = ResolveProcesses_NoLock(session.CurrentOwner)
-				.OfType<ComputerRuntimeProcess>()
-				.Where(x => x.Status == ComputerProcessStatus.Sleeping)
-				.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
+			var waitingProcesses = FindWaitingUserInputProcesses_NoLock(session)
 				.OrderByDescending(x => x.LastUpdatedAtUtc)
 				.ThenByDescending(x => x.Id)
 				.ToList();
@@ -454,8 +475,14 @@ public class ComputerExecutionService : IComputerExecutionService
 				return false;
 			}
 
-			error = "Interactive terminal input waits are not implemented yet.";
-			return false;
+			if (waitingProcesses.Count > 1)
+			{
+				error =
+					$"More than one program on {session.Host.Name} is waiting for terminal input on that session. Kill one of them before typing again.";
+				return false;
+			}
+
+			return ResumeWaitingProcessFromTerminalInput_NoLock(waitingProcesses.Single(), session, text, out error);
 		}
 	}
 
@@ -697,6 +724,12 @@ public class ComputerExecutionService : IComputerExecutionService
 					EndedAtUtc = process.EndedAtUtc
 				};
 				runtimeProcess.StateJson = process.StateJson ?? string.Empty;
+				if (ComputerProcessWaitArguments.TryParseUserInput(runtimeProcess.WaitArgument, out var waitingCharacterId,
+					    out var waitingTerminalItemId))
+				{
+					runtimeProcess.WaitingCharacterId = waitingCharacterId;
+					runtimeProcess.WaitingTerminalItemId = waitingTerminalItemId;
+				}
 				_processes[runtimeProcess.Id] = runtimeProcess;
 			}
 		}
@@ -902,14 +935,32 @@ public class ComputerExecutionService : IComputerExecutionService
 		throw new NotSupportedException("That computer executable owner does not support creating processes.");
 	}
 
-	private void ApplyExecutionOutcome_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
+	private ComputerProgramExecutionOutcome ApplyExecutionOutcome_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
 		ComputerProgramExecutionOutcome outcome)
 	{
+		if (outcome.Status == ComputerProcessStatus.Sleeping &&
+		    outcome.WaitType == ComputerProcessWaitType.UserInput &&
+		    outcome.WaitingCharacterId.HasValue &&
+		    outcome.WaitingTerminalItemId.HasValue &&
+		    FindWaitingUserInputProcesses_NoLock(
+				    outcome.WaitingCharacterId.Value,
+				    outcome.WaitingTerminalItemId.Value,
+				    process.Id).Any())
+		{
+			outcome = new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = "Another program on that terminal session is already waiting for input."
+			};
+		}
+
 		_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
 		process.Status = outcome.Status;
 		process.WaitType = outcome.WaitType;
 		process.WakeTimeUtc = outcome.WakeTimeUtc;
 		process.WaitArgument = outcome.WaitArgument;
+		process.WaitingCharacterId = outcome.WaitingCharacterId;
+		process.WaitingTerminalItemId = outcome.WaitingTerminalItemId;
 		process.Result = outcome.Result;
 		process.LastError = outcome.Error;
 		process.LastUpdatedAtUtc = DateTime.UtcNow;
@@ -923,6 +974,92 @@ public class ComputerExecutionService : IComputerExecutionService
 		{
 			ScheduleResume_NoLock(process);
 		}
+
+		return outcome;
+	}
+
+	private IEnumerable<ComputerRuntimeProcess> EnumerateAllProcesses_NoLock()
+	{
+		return _processes.Values
+			.Concat(EnumerateItemOwners()
+				.SelectMany(x => x.Processes)
+				.OfType<ComputerRuntimeProcess>());
+	}
+
+	private IEnumerable<ComputerRuntimeProcess> FindWaitingUserInputProcesses_NoLock(IComputerTerminalSession session)
+	{
+		return FindWaitingUserInputProcesses_NoLock(session.User.Id, session.Terminal.TerminalItemId, null);
+	}
+
+	private IEnumerable<ComputerRuntimeProcess> FindWaitingUserInputProcesses_NoLock(long waitingCharacterId,
+		long waitingTerminalItemId,
+		long? excludingProcessId)
+	{
+		return EnumerateAllProcesses_NoLock()
+			.Where(x => x.Status == ComputerProcessStatus.Sleeping)
+			.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
+			.Where(x => x.WaitingCharacterId == waitingCharacterId)
+			.Where(x => x.WaitingTerminalItemId == waitingTerminalItemId)
+			.Where(x => !excludingProcessId.HasValue || x.Id != excludingProcessId.Value)
+			.ToList();
+	}
+
+	private bool ResumeWaitingProcessFromTerminalInput_NoLock(ComputerRuntimeProcess process, IComputerTerminalSession session,
+		string text,
+		out string error)
+	{
+		var owner = ResolveOwnerForExecutable_NoLock(process.Program);
+		if (owner is null)
+		{
+			error = "That computer program's owner is no longer available.";
+			return false;
+		}
+
+		var liveProcess = ResolveProcesses_NoLock(owner)
+			.OfType<ComputerRuntimeProcess>()
+			.FirstOrDefault(x => x.Id == process.Id);
+		if (liveProcess is null || liveProcess.Status != ComputerProcessStatus.Sleeping ||
+		    liveProcess.WaitType != ComputerProcessWaitType.UserInput ||
+		    liveProcess.Program is not ComputerRuntimeProgramBase program)
+		{
+			error = "That computer program is no longer waiting for terminal input.";
+			return false;
+		}
+
+		if (!EnsureCompiled_NoLock(owner, program, out var compileError))
+		{
+			var failureOutcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = compileError
+			});
+			error = failureOutcome.Error ?? compileError;
+			return false;
+		}
+
+		using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+		{
+			Owner = owner,
+			Host = owner.ExecutionHost,
+			Actor = session.User,
+			Session = session,
+			Process = liveProcess,
+			PendingTerminalInput = text
+		});
+
+		liveProcess.Status = ComputerProcessStatus.Running;
+		liveProcess.WaitType = ComputerProcessWaitType.None;
+		liveProcess.WakeTimeUtc = null;
+		liveProcess.WaitArgument = null;
+		liveProcess.WaitingCharacterId = null;
+		liveProcess.WaitingTerminalItemId = null;
+		liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
+		PersistProcess_NoLock(owner, liveProcess);
+
+		var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
+		outcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
+		error = outcome.Status == ComputerProcessStatus.Failed ? outcome.Error ?? string.Empty : string.Empty;
+		return outcome.Status != ComputerProcessStatus.Failed;
 	}
 
 	private void PersistExecutable_NoLock(IComputerExecutableOwner owner, ComputerRuntimeExecutableBase executable)
@@ -1047,6 +1184,11 @@ public class ComputerExecutionService : IComputerExecutionService
 			return;
 		}
 
+		if (process.WaitType != ComputerProcessWaitType.Sleep)
+		{
+			return;
+		}
+
 		var delay = (process.WakeTimeUtc ?? DateTime.UtcNow) - DateTime.UtcNow;
 		if (delay < TimeSpan.Zero)
 		{
@@ -1095,13 +1237,16 @@ public class ComputerExecutionService : IComputerExecutionService
 			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
 			{
 				Owner = owner,
-				Host = owner.ExecutionHost
+				Host = owner.ExecutionHost,
+				Process = liveProcess
 			});
 
 			liveProcess.Status = ComputerProcessStatus.Running;
 			liveProcess.WaitType = ComputerProcessWaitType.None;
 			liveProcess.WakeTimeUtc = null;
 			liveProcess.WaitArgument = null;
+			liveProcess.WaitingCharacterId = null;
+			liveProcess.WaitingTerminalItemId = null;
 			liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
 			PersistProcess_NoLock(owner, liveProcess);
 
@@ -1153,10 +1298,13 @@ public class ComputerExecutionService : IComputerExecutionService
 
 	private IEnumerable<IComputerExecutableOwner> EnumerateItemOwners()
 	{
-		return _gameworld.Items
+		var worldOwners = (_gameworld.Items ?? Enumerable.Empty<IGameItem>())
 			.SelectMany(item => item.Components
 				.OfType<IComputerHost>()
 				.Cast<IComputerExecutableOwner>()
 				.Concat(item.Components.OfType<IComputerStorage>()));
+		return worldOwners
+			.Concat(_mutableExecutableOwners.Values.Distinct())
+			.Distinct();
 	}
 }

@@ -139,6 +139,12 @@ internal static class ComputerMutableOwnerXmlPersistence
 				LastUpdatedAtUtc = TryParseDateTime(child.Attribute("updated")?.Value) ?? DateTime.UtcNow,
 				EndedAtUtc = TryParseDateTime(child.Attribute("ended")?.Value)
 			};
+			if (ComputerProcessWaitArguments.TryParseUserInput(process.WaitArgument, out var waitingCharacterId,
+				    out var waitingTerminalItemId))
+			{
+				process.WaitingCharacterId = waitingCharacterId;
+				process.WaitingTerminalItemId = waitingTerminalItemId;
+			}
 			process.StateJson = child.Element("State")?.Value ?? string.Empty;
 			processes[processId] = process;
 		}

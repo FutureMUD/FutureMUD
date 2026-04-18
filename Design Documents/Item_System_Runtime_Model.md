@@ -168,7 +168,7 @@ Current runtime connection rules for that slice are:
   - generic executable ownership through `IComputerExecutableOwner`
   - mutable host and storage owners through `IComputerMutableOwner`
   - terminal-scoped execution context via `IComputerTerminalSession`
-  - local file and terminal functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, and `KillProgram`
+  - local file and terminal functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `UserInput`, `LaunchProgram`, and `KillProgram`
 
 The current player-work runtime flow for that slice is:
 - `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
@@ -176,7 +176,8 @@ The current player-work runtime flow for that slice is:
 - `programming terminal connect <terminal>` creates a terminal session on a powered connected `ComputerTerminal`
 - `programming terminal owner host` or `programming terminal owner <storage>` selects which real computer owner the workspace-style `programming` verbs mutate
 - when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
-- `type` is now the terminal-facing input verb: it submits text to the current terminal session, or auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly
+- `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
+- computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
 - real host-backed or storage-backed program execution is now blocked when the execution host is not powered
 - actions are modelled as targeted delayed effects rather than instant mutation
@@ -259,7 +260,7 @@ When a live item is loaded:
 - each stored component row is mapped back to its component proto and runtime component type
 - component `FinaliseLoad()` hooks run after broader object availability is established
 - `FinaliseLoad()` restores structural scaffolding only: references, pending ids, mount relationships, routed cable metadata, and similar non-live state
-- after structural restoration completes, the world login pass logs in the full live item set rather than only room-contained items
+- after structural restoration completes, the world login pass logs in world-root items that are actually active in the world, while inventory-rooted item trees remain dormant until their owning body or character logs in
 - `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour
 - item-level late initialisation and effect restoration complete
 

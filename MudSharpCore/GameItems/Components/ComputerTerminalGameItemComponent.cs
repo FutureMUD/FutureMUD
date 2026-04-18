@@ -47,6 +47,7 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
+	public long TerminalItemId => Parent.Id;
 	public IComputerHost? ConnectedHost => _connectedHost as IComputerHost;
 	public IEnumerable<IComputerTerminalSession> Sessions => _sessions.ToList();
 	public IEnumerable<ConnectorType> Connections => [ComputerConnectionTypes.TerminalPlug];

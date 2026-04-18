@@ -312,10 +312,12 @@ For the first real in-world computer workflow, a practical pass is:
 8. Use the normal `programming list`, `new`, `edit`, `set`, `parameter`, `compile`, and `execute` verbs and confirm they now operate on the selected real computer owner rather than the private workspace.
 9. Use file-oriented programs to validate `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, and `GetFiles`.
 10. Use terminal-oriented programs to validate `WriteTerminal` and `ClearTerminal`.
-11. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session rather than the private workspace.
-12. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-13. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-14. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+11. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+12. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+13. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+14. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+15. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+16. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
@@ -326,6 +328,7 @@ For the first real in-world computer workflow, a practical pass is:
 - a sink never responds: the authored sibling source component prototype probably does not match any source component instance on the same item, or the expected local endpoint is not present
 - `electrical` or `programming` starts but immediately aborts: the configured tool tag or trait static setting is probably missing or resolves to a non-existent content record
 - a live reconfiguration appears to complete but nothing changes: the targeted component may not implement the runtime-configurable interface, or the wrong nearby item / component may have been selected
+- `type` says nothing is waiting for terminal input: no program on that terminal session is currently suspended in `UserInput()`, or the active terminal / user pairing does not match the waiting process metadata
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

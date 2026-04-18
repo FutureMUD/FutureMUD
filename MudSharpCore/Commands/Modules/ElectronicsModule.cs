@@ -2006,9 +2006,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 				x.Id.ToString("N0", actor),
 				x.ProcessName,
 				x.Status.DescribeEnum(),
-				x.WaitType == ComputerProcessWaitType.Sleep && x.WakeTimeUtc.HasValue
-					? x.WakeTimeUtc.Value.ToString(actor)
-					: x.WaitType.DescribeEnum(),
+				DescribeComputerProcessWait(actor, x),
 				x.LastUpdatedAtUtc.ToString(actor)
 			}),
 			new List<string>
@@ -2024,6 +2022,32 @@ If more than one terminal could be used, specify one explicitly or connect first
 			Telnet.BoldGreen,
 			1,
 			actor.Account.UseUnicode), nopage: true);
+	}
+
+	private static string DescribeComputerProcessWait(ICharacter actor, IComputerProcess process)
+	{
+		if (process.WaitType == ComputerProcessWaitType.Sleep && process.WakeTimeUtc.HasValue)
+		{
+			return process.WakeTimeUtc.Value.ToString(actor);
+		}
+
+		if (process.WaitType == ComputerProcessWaitType.UserInput &&
+		    process.WaitingTerminalItemId.HasValue)
+		{
+			var terminal = actor.Gameworld.TryGetItem(process.WaitingTerminalItemId.Value, true);
+			var waitingUser = process.WaitingCharacterId.HasValue
+				? actor.Gameworld.TryGetCharacter(process.WaitingCharacterId.Value, true)
+				: null;
+			var terminalText = terminal?.HowSeen(actor, true) ?? $"terminal #{process.WaitingTerminalItemId.Value.ToString("N0", actor)}";
+			if (waitingUser is not null)
+			{
+				return $"User Input ({terminalText}, {waitingUser.HowSeen(actor)})";
+			}
+
+			return $"User Input ({terminalText})";
+		}
+
+		return process.WaitType.DescribeEnum();
 	}
 
 	private static void ProgrammingWorkspaceKill(ICharacter actor, StringStack ss)

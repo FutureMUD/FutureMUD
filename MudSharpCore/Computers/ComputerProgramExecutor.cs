@@ -19,6 +19,8 @@ internal sealed class ComputerProgramExecutionOutcome
 	public ComputerProcessWaitType WaitType { get; init; }
 	public DateTime? WakeTimeUtc { get; init; }
 	public string? WaitArgument { get; init; }
+	public long? WaitingCharacterId { get; init; }
+	public long? WaitingTerminalItemId { get; init; }
 	public object? Result { get; init; }
 	public string? Error { get; init; }
 	public string StateJson { get; init; } = string.Empty;
@@ -245,202 +247,223 @@ internal static class ComputerProgramExecutor
 
 		while (frames.Any())
 		{
-			switch (frames[^1])
+			try
 			{
-				case BlockFrame blockFrame:
+				switch (frames[^1])
 				{
-					var statements = structure.GetBlock(blockFrame.OwnerPath, blockFrame.BranchKey);
-					if (blockFrame.NextIndex >= statements.Count)
+					case BlockFrame blockFrame:
 					{
-						if (blockFrame.OwnerPath == RootPath)
+						var statements = structure.GetBlock(blockFrame.OwnerPath, blockFrame.BranchKey);
+						if (blockFrame.NextIndex >= statements.Count)
 						{
-							return Complete(program.ReturnType, frames);
+							if (blockFrame.OwnerPath == RootPath)
+							{
+								return Complete(program.ReturnType, frames);
+							}
+
+							frames.RemoveAt(frames.Count - 1);
+							continue;
 						}
 
-						frames.RemoveAt(frames.Count - 1);
-						continue;
-					}
-
-					var node = statements[blockFrame.NextIndex];
-					switch (node.Statement)
-					{
-						case SleepStatement sleep:
+						var node = statements[blockFrame.NextIndex];
+						switch (node.Statement)
 						{
-							var variableSpace = BuildVariableSpace(frames);
-							if (sleep.DurationFunction.Execute(variableSpace) == StatementResult.Error)
+							case SleepStatement sleep:
 							{
-								return Failure(sleep.ErrorMessage);
-							}
+								var variableSpace = BuildVariableSpace(frames);
+								if (sleep.DurationFunction.Execute(variableSpace) == StatementResult.Error)
+								{
+									return Failure(sleep.ErrorMessage);
+								}
 
-							var duration = (TimeSpan?)(sleep.DurationFunction.Result?.GetObject) ?? TimeSpan.Zero;
-							if (duration < TimeSpan.Zero)
-							{
-								duration = TimeSpan.Zero;
-							}
+								var duration = (TimeSpan?)(sleep.DurationFunction.Result?.GetObject) ?? TimeSpan.Zero;
+								if (duration < TimeSpan.Zero)
+								{
+									duration = TimeSpan.Zero;
+								}
 
-							blockFrame.NextIndex++;
-							return new ComputerProgramExecutionOutcome
-							{
-								Status = ComputerProcessStatus.Sleeping,
-								WaitType = ComputerProcessWaitType.Sleep,
-								WakeTimeUtc = DateTime.UtcNow + duration,
-								WaitArgument = duration.ToString(),
-								StateJson = PersistFrames(frames)
-							};
-						}
-						case IfBlock ifBlock:
-							blockFrame.NextIndex++;
-							var ifError = ExecuteIf(frames, structure, node.Path, ifBlock);
-							if (!string.IsNullOrEmpty(ifError))
-							{
-								return Failure(ifError);
+								blockFrame.NextIndex++;
+								return new ComputerProgramExecutionOutcome
+								{
+									Status = ComputerProcessStatus.Sleeping,
+									WaitType = ComputerProcessWaitType.Sleep,
+									WakeTimeUtc = DateTime.UtcNow + duration,
+									WaitArgument = duration.ToString(),
+									StateJson = PersistFrames(frames)
+								};
 							}
-							continue;
-						case Switch switchStatement:
-							blockFrame.NextIndex++;
-							var switchError = ExecuteSwitch(frames, structure, node.Path, switchStatement);
-							if (!string.IsNullOrEmpty(switchError))
+							case IfBlock ifBlock:
 							{
-								return Failure(switchError);
+								var ifError = ExecuteIf(frames, structure, node.Path, ifBlock);
+								if (!string.IsNullOrEmpty(ifError))
+								{
+									return Failure(ifError);
+								}
+
+								blockFrame.NextIndex++;
+								continue;
 							}
-							continue;
-						case WhileLoop:
-							blockFrame.NextIndex++;
-							frames.Add(new WhileFrame { StatementPath = node.Path });
-							continue;
-						case ForLoop:
-							blockFrame.NextIndex++;
-							frames.Add(new ForFrame { StatementPath = node.Path });
-							continue;
-						case ForEachLoop:
-							blockFrame.NextIndex++;
-							frames.Add(new ForEachFrame { StatementPath = node.Path });
-							continue;
-						default:
-						{
-							var variableSpace = BuildVariableSpace(frames);
-							var result = node.Statement.Execute(variableSpace);
-							switch (result)
+							case Switch switchStatement:
 							{
-								case StatementResult.Normal:
-									blockFrame.NextIndex++;
-									continue;
-								case StatementResult.Return:
-									return Complete(program.ReturnType, frames);
-								case StatementResult.Error:
-									return Failure(node.Statement.ErrorMessage);
-								case StatementResult.Break:
-								case StatementResult.Continue:
-									if (ConsumeFlowControl(frames, blockFrame, result))
-									{
+								var switchError = ExecuteSwitch(frames, structure, node.Path, switchStatement);
+								if (!string.IsNullOrEmpty(switchError))
+								{
+									return Failure(switchError);
+								}
+
+								blockFrame.NextIndex++;
+								continue;
+							}
+							case WhileLoop:
+								blockFrame.NextIndex++;
+								frames.Add(new WhileFrame { StatementPath = node.Path });
+								continue;
+							case ForLoop:
+								blockFrame.NextIndex++;
+								frames.Add(new ForFrame { StatementPath = node.Path });
+								continue;
+							case ForEachLoop:
+								blockFrame.NextIndex++;
+								frames.Add(new ForEachFrame { StatementPath = node.Path });
+								continue;
+							default:
+							{
+								var variableSpace = BuildVariableSpace(frames);
+								var result = node.Statement.Execute(variableSpace);
+								switch (result)
+								{
+									case StatementResult.Normal:
+										blockFrame.NextIndex++;
 										continue;
-									}
+									case StatementResult.Return:
+										return Complete(program.ReturnType, frames);
+									case StatementResult.Error:
+										return Failure(node.Statement.ErrorMessage);
+									case StatementResult.Break:
+									case StatementResult.Continue:
+										if (ConsumeFlowControl(frames, blockFrame, result))
+										{
+											continue;
+										}
 
-									return Failure($"{result.DescribeEnum()} was encountered outside a valid block.");
-								default:
-									return Failure("Unsupported computer-program execution result.");
+										return Failure($"{result.DescribeEnum()} was encountered outside a valid block.");
+									default:
+										return Failure("Unsupported computer-program execution result.");
+								}
 							}
 						}
 					}
-				}
-				case WhileFrame whileFrame:
-				{
-					var whileLoop = (WhileLoop)structure.GetStatement(whileFrame.StatementPath).Statement;
-					var variableSpace = BuildVariableSpace(frames);
-					if (whileLoop.ConditionFunction.Execute(variableSpace) == StatementResult.Error)
+					case WhileFrame whileFrame:
 					{
-						return Failure(whileLoop.ConditionFunction.ErrorMessage);
-					}
-
-					if (!((bool?)whileLoop.ConditionFunction.Result?.GetObject ?? false))
-					{
-						frames.RemoveAt(frames.Count - 1);
-						continue;
-					}
-
-					if (whileFrame.IterationCount++ > 10000)
-					{
-						return Failure("While loop of greater than 10,000 iterations detected, aborting...");
-					}
-
-					frames.Add(new BlockFrame
-					{
-						OwnerPath = whileFrame.StatementPath,
-						BranchKey = "while:body"
-					});
-					continue;
-				}
-				case ForFrame forFrame:
-				{
-					var forLoop = (ForLoop)structure.GetStatement(forFrame.StatementPath).Statement;
-					var variableSpace = BuildVariableSpace(frames);
-					if (forFrame.TotalIterations is null)
-					{
-						var repetitionsResult = forLoop.RepetitionsExpression.Execute(variableSpace);
-						if (repetitionsResult == StatementResult.Error)
+						var whileLoop = (WhileLoop)structure.GetStatement(whileFrame.StatementPath).Statement;
+						var variableSpace = BuildVariableSpace(frames);
+						if (whileLoop.ConditionFunction.Execute(variableSpace) == StatementResult.Error)
 						{
-							return Failure(forLoop.RepetitionsExpression.ErrorMessage);
+							return Failure(whileLoop.ConditionFunction.ErrorMessage);
 						}
 
-						forFrame.TotalIterations =
-							Convert.ToInt32((decimal?)forLoop.RepetitionsExpression.Result?.GetObject ?? 0.0M);
-					}
-
-					if (forFrame.TotalIterations <= 0 || forFrame.CurrentIndex > forFrame.TotalIterations)
-					{
-						frames.RemoveAt(frames.Count - 1);
-						continue;
-					}
-
-					var locals = new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase)
-					{
-						[forLoop.LoopVariableName] = new MudSharp.FutureProg.Variables.NumberVariable(forFrame.CurrentIndex)
-					};
-					forFrame.CurrentIndex++;
-					frames.Add(new BlockFrame
-					{
-						OwnerPath = forFrame.StatementPath,
-						BranchKey = "for:body",
-						LocalVariables = locals
-					});
-					continue;
-				}
-				case ForEachFrame forEachFrame:
-				{
-					var forEachLoop = (ForEachLoop)structure.GetStatement(forEachFrame.StatementPath).Statement;
-					var variableSpace = BuildVariableSpace(frames);
-					if (forEachFrame.CollectionItems is null)
-					{
-						var collectionResult = forEachLoop.CollectionExpression.Execute(variableSpace);
-						if (collectionResult == StatementResult.Error)
+						if (!((bool?)whileLoop.ConditionFunction.Result?.GetObject ?? false))
 						{
-							return Failure(forEachLoop.CollectionExpression.ErrorMessage);
+							frames.RemoveAt(frames.Count - 1);
+							continue;
 						}
 
-						forEachFrame.CollectionItems = ((IList?)forEachLoop.CollectionExpression.Result?.GetObject)
-							?.OfType<IProgVariable>()
-							.ToList() ?? new List<IProgVariable>();
-					}
+						if (whileFrame.IterationCount++ > 10000)
+						{
+							return Failure("While loop of greater than 10,000 iterations detected, aborting...");
+						}
 
-					if (forEachFrame.CurrentIndex >= forEachFrame.CollectionItems.Count)
-					{
-						frames.RemoveAt(frames.Count - 1);
+						frames.Add(new BlockFrame
+						{
+							OwnerPath = whileFrame.StatementPath,
+							BranchKey = "while:body"
+						});
 						continue;
 					}
+					case ForFrame forFrame:
+					{
+						var forLoop = (ForLoop)structure.GetStatement(forFrame.StatementPath).Statement;
+						var variableSpace = BuildVariableSpace(frames);
+						if (forFrame.TotalIterations is null)
+						{
+							var repetitionsResult = forLoop.RepetitionsExpression.Execute(variableSpace);
+							if (repetitionsResult == StatementResult.Error)
+							{
+								return Failure(forLoop.RepetitionsExpression.ErrorMessage);
+							}
 
-					var locals = new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase)
+							forFrame.TotalIterations =
+								Convert.ToInt32((decimal?)forLoop.RepetitionsExpression.Result?.GetObject ?? 0.0M);
+						}
+
+						if (forFrame.TotalIterations <= 0 || forFrame.CurrentIndex > forFrame.TotalIterations)
+						{
+							frames.RemoveAt(frames.Count - 1);
+							continue;
+						}
+
+						var locals = new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase)
+						{
+							[forLoop.LoopVariableName] = new MudSharp.FutureProg.Variables.NumberVariable(forFrame.CurrentIndex)
+						};
+						forFrame.CurrentIndex++;
+						frames.Add(new BlockFrame
+						{
+							OwnerPath = forFrame.StatementPath,
+							BranchKey = "for:body",
+							LocalVariables = locals
+						});
+						continue;
+					}
+					case ForEachFrame forEachFrame:
 					{
-						[forEachLoop.LoopVariableName] = forEachFrame.CollectionItems[forEachFrame.CurrentIndex]
-					};
-					forEachFrame.CurrentIndex++;
-					frames.Add(new BlockFrame
-					{
-						OwnerPath = forEachFrame.StatementPath,
-						BranchKey = "foreach:body",
-						LocalVariables = locals
-					});
-					continue;
+						var forEachLoop = (ForEachLoop)structure.GetStatement(forEachFrame.StatementPath).Statement;
+						var variableSpace = BuildVariableSpace(frames);
+						if (forEachFrame.CollectionItems is null)
+						{
+							var collectionResult = forEachLoop.CollectionExpression.Execute(variableSpace);
+							if (collectionResult == StatementResult.Error)
+							{
+								return Failure(forEachLoop.CollectionExpression.ErrorMessage);
+							}
+
+							forEachFrame.CollectionItems = ((IList?)forEachLoop.CollectionExpression.Result?.GetObject)
+								?.OfType<IProgVariable>()
+								.ToList() ?? new List<IProgVariable>();
+						}
+
+						if (forEachFrame.CurrentIndex >= forEachFrame.CollectionItems.Count)
+						{
+							frames.RemoveAt(frames.Count - 1);
+							continue;
+						}
+
+						var locals = new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase)
+						{
+							[forEachLoop.LoopVariableName] = forEachFrame.CollectionItems[forEachFrame.CurrentIndex]
+						};
+						forEachFrame.CurrentIndex++;
+						frames.Add(new BlockFrame
+						{
+							OwnerPath = forEachFrame.StatementPath,
+							BranchKey = "foreach:body",
+							LocalVariables = locals
+						});
+						continue;
+					}
 				}
+			}
+			catch (ComputerProgramWaitException wait)
+			{
+				return new ComputerProgramExecutionOutcome
+				{
+					Status = ComputerProcessStatus.Sleeping,
+					WaitType = wait.WaitType,
+					WaitArgument = wait.WaitArgument,
+					WaitingCharacterId = wait.WaitingCharacterId,
+					WaitingTerminalItemId = wait.WaitingTerminalItemId,
+					StateJson = PersistFrames(frames)
+				};
 			}
 		}
 

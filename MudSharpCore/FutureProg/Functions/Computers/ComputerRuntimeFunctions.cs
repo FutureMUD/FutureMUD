@@ -350,6 +350,70 @@ internal class ClearTerminalFunction : ComputerRuntimeBuiltInFunction
 	}
 }
 
+internal class UserInputFunction : ComputerRuntimeBuiltInFunction
+{
+	public static void RegisterFunctionCompiler()
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"userinput",
+			Array.Empty<ProgVariableTypes>(),
+			(pars, _) => new UserInputFunction(pars),
+			Array.Empty<string>(),
+			Array.Empty<string>(),
+			"Suspends the current computer program until the connected terminal user types a line of input, then returns that line as text.",
+			"Computers",
+			ProgVariableTypes.Text,
+			allowedContexts: ComputerRuntimeFunctionContexts.ProgramOnly));
+	}
+
+	protected UserInputFunction(IList<IFunction> parameterFunctions)
+		: base(parameterFunctions)
+	{
+	}
+
+	public override ProgVariableTypes ReturnType
+	{
+		get => ProgVariableTypes.Text;
+		protected set { }
+	}
+
+	public override StatementResult Execute(IVariableSpace variables)
+	{
+		if (base.Execute(variables) == StatementResult.Error)
+		{
+			return StatementResult.Error;
+		}
+
+		var context = CurrentContext;
+		if (context?.Session is null)
+		{
+			ErrorMessage = "The userinput function requires an active computer terminal session.";
+			return StatementResult.Error;
+		}
+
+		var pendingInput = context.ConsumePendingTerminalInput();
+		if (pendingInput is not null)
+		{
+			Result = new TextVariable(pendingInput);
+			return StatementResult.Normal;
+		}
+
+		if (context.Process is null)
+		{
+			ErrorMessage = "The userinput function requires a running computer-program process.";
+			return StatementResult.Error;
+		}
+
+		throw new ComputerProgramWaitException(
+			ComputerProcessWaitType.UserInput,
+			ComputerProcessWaitArguments.CreateUserInput(
+				context.Session.User.Id,
+				context.Session.Terminal.TerminalItemId),
+			context.Session.User.Id,
+			context.Session.Terminal.TerminalItemId);
+	}
+}
+
 internal class LaunchProgramFunction : ComputerRuntimeBuiltInFunction
 {
 	public static void RegisterFunctionCompiler()

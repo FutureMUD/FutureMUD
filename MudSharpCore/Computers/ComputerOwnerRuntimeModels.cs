@@ -89,6 +89,8 @@ public sealed class ComputerRuntimeProcess : IComputerProcess, IFrameworkItem
 	public ComputerProcessWaitType WaitType { get; set; }
 	public DateTime? WakeTimeUtc { get; set; }
 	public string? WaitArgument { get; set; }
+	public long? WaitingCharacterId { get; set; }
+	public long? WaitingTerminalItemId { get; set; }
 	public bool IsRunning => Status is ComputerProcessStatus.Running or ComputerProcessStatus.Sleeping;
 	public ComputerPowerLossBehaviour PowerLossBehaviour { get; set; } = ComputerPowerLossBehaviour.Terminate;
 	public object? Result { get; set; }

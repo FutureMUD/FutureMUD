@@ -94,6 +94,8 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 				WaitType = process.WaitType,
 				WakeTimeUtc = process.WakeTimeUtc,
 				WaitArgument = process.WaitArgument,
+				WaitingCharacterId = process.WaitingCharacterId,
+				WaitingTerminalItemId = process.WaitingTerminalItemId,
 				PowerLossBehaviour = process.PowerLossBehaviour,
 				Result = process.Result,
 				LastError = process.LastError,

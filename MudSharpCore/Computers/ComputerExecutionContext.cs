@@ -11,6 +11,15 @@ internal sealed class ComputerExecutionContext
 	public required IComputerHost Host { get; init; }
 	public ICharacter? Actor { get; init; }
 	public IComputerTerminalSession? Session { get; init; }
+	public ComputerRuntimeProcess? Process { get; init; }
+	public string? PendingTerminalInput { get; internal set; }
+
+	public string? ConsumePendingTerminalInput()
+	{
+		var input = PendingTerminalInput;
+		PendingTerminalInput = null;
+		return input;
+	}
 }
 
 internal sealed class ComputerExecutionContextScope : IDisposable
@@ -30,4 +39,21 @@ internal sealed class ComputerExecutionContextScope : IDisposable
 	{
 		_current = _prior;
 	}
+}
+
+internal sealed class ComputerProgramWaitException : Exception
+{
+	public ComputerProgramWaitException(ComputerProcessWaitType waitType, string? waitArgument = null,
+		long? waitingCharacterId = null, long? waitingTerminalItemId = null)
+	{
+		WaitType = waitType;
+		WaitArgument = waitArgument;
+		WaitingCharacterId = waitingCharacterId;
+		WaitingTerminalItemId = waitingTerminalItemId;
+	}
+
+	public ComputerProcessWaitType WaitType { get; }
+	public string? WaitArgument { get; }
+	public long? WaitingCharacterId { get; }
+	public long? WaitingTerminalItemId { get; }
 }

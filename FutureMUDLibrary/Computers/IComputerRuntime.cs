@@ -30,6 +30,8 @@ public interface IComputerProcess
 	ComputerProcessWaitType WaitType { get; }
 	DateTime? WakeTimeUtc { get; }
 	string? WaitArgument { get; }
+	long? WaitingCharacterId { get; }
+	long? WaitingTerminalItemId { get; }
 	bool IsRunning { get; }
 	ComputerPowerLossBehaviour PowerLossBehaviour { get; }
 	object? Result { get; }
@@ -97,6 +99,7 @@ public interface IComputerTerminalSession
 
 public interface IComputerTerminal
 {
+	long TerminalItemId { get; }
 	IComputerHost? ConnectedHost { get; }
 	IEnumerable<IComputerTerminalSession> Sessions { get; }
 }

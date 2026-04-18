@@ -7,11 +7,12 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
-    private void SeedMedievalEuropeNames()
-    {
-        SeedMedievalEuropeNamesSimple();
-        SeedMedievalEuropeNamesComplexChoices();
-    }
+	private void SeedMedievalEuropeNames()
+	{
+		SeedMedievalEuropeNamesSimple();
+		SeedMedievalEuropeNamesComplexChoices();
+		SeedMedievalEuropeNameCorrections();
+	}
 
     private void SeedMedievalEuropeNamesSimple()
     {

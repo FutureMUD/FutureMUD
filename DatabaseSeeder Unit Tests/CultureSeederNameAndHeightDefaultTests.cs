@@ -116,6 +116,85 @@ public class CultureSeederNameAndHeightDefaultTests
 	}
 
 	[TestMethod]
+	public void ModernNameSeeder_AddsExpectedProfilesAndMappings()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		Race humanRace = new()
+		{
+			Name = "Human",
+			Description = "Test race",
+			AllowedGenders = "0 1 2 3 4",
+			DiceExpression = "1d1",
+			CommunicationStrategyType = "humanoid",
+			MaximumDragWeightExpression = "1",
+			MaximumLiftWeightExpression = "1",
+			HoldBreathLengthExpression = "1",
+			BreathingVolumeExpression = "1",
+			EatCorpseEmoteText = string.Empty,
+			HandednessOptions = "1"
+		};
+		context.Races.Add(humanRace);
+
+		foreach (string ethnicityName in ModernExpectedMappings().Keys)
+		{
+			context.Ethnicities.Add(new Ethnicity
+			{
+				Name = ethnicityName,
+				ChargenBlurb = string.Empty,
+				ParentRace = humanRace,
+				EthnicGroup = "Test"
+			});
+		}
+
+		context.SaveChanges();
+
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+		InvokePrivate(seeder, "SeedEuropeanNames", context);
+		InvokePrivate(seeder, "ApplyModernEthnicityNameCultureMappings");
+
+		foreach (string profileName in new[]
+		{
+			"Modern French Male",
+			"Modern French Female",
+			"Modern German Male",
+			"Modern German Female",
+			"Modern Spanish Male",
+			"Modern Spanish Female",
+			"Modern Portugese Male",
+			"Modern Portugese Female",
+			"Modern Chinese Male",
+			"Modern Chinese Female",
+			"Modern Indian Male",
+			"Modern Indian Female"
+		})
+		{
+			Assert.IsTrue(context.RandomNameProfiles.Any(x => x.Name == profileName),
+				$"Expected {profileName} to be seeded.");
+		}
+
+		AssertCultureHasReadyCompatibleProfile(context, "Modern Chinese", Gender.Male);
+		AssertCultureHasReadyCompatibleProfile(context, "Modern Chinese", Gender.Female);
+		AssertCultureHasReadyCompatibleProfile(context, "Modern Indian", Gender.Male);
+		AssertCultureHasReadyCompatibleProfile(context, "Modern Indian", Gender.Female);
+
+		foreach ((string ethnicityName, (string maleCulture, string femaleCulture)) in ModernExpectedMappings())
+		{
+			Ethnicity ethnicity = context.Ethnicities.Single(x => x.Name == ethnicityName);
+			List<EthnicitiesNameCultures> links = context.EthnicitiesNameCultures
+				.Where(x => x.EthnicityId == ethnicity.Id)
+				.ToList();
+
+			Assert.AreEqual(5, links.Count, $"Expected five name-culture links for ethnicity {ethnicityName}.");
+			AssertGenderLink(links, Gender.Male, maleCulture);
+			AssertGenderLink(links, Gender.Female, femaleCulture);
+			AssertGenderLink(links, Gender.Neuter, maleCulture);
+			AssertGenderLink(links, Gender.NonBinary, femaleCulture);
+			AssertGenderLink(links, Gender.Indeterminate, maleCulture);
+		}
+	}
+
+	[TestMethod]
 	public void StockRaceSeeders_AssignDefaultHeightWeightModelsForAdvertisedGenders()
 	{
 		IReadOnlyList<string> animalIssues = AnimalSeeder.ValidateTemplateCatalogForTesting();
@@ -288,6 +367,16 @@ public class CultureSeederNameAndHeightDefaultTests
 			["Persian"] = ("Persian", "Persian"),
 			["Moorish"] = ("Morrocan", "Morrocan"),
 			["North African"] = ("Morrocan", "Morrocan")
+		};
+	}
+
+	private static IReadOnlyDictionary<string, (string Male, string Female)> ModernExpectedMappings()
+	{
+		return new Dictionary<string, (string Male, string Female)>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Han"] = ("Modern Chinese", "Modern Chinese"),
+			["Dravidian"] = ("Modern Indian", "Modern Indian"),
+			["Indo-Aryan"] = ("Modern Indian", "Modern Indian")
 		};
 	}
 

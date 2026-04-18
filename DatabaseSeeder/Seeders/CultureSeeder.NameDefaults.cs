@@ -68,6 +68,14 @@ public partial class CultureSeeder
 			["North African"] = ("Morrocan", "Morrocan")
 		};
 
+	private static readonly IReadOnlyDictionary<string, (string Male, string Female)> ModernEthnicityNameCultureMappings =
+		new Dictionary<string, (string Male, string Female)>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Han"] = ("Modern Chinese", "Modern Chinese"),
+			["Dravidian"] = ("Modern Indian", "Modern Indian"),
+			["Indo-Aryan"] = ("Modern Indian", "Modern Indian")
+		};
+
 	private static readonly IReadOnlyList<string> FallbackGivenNames =
 		["Alex", "Sam", "Jamie", "Jordan", "Morgan", "Casey", "Riley", "Taylor"];
 
@@ -106,6 +114,11 @@ public partial class CultureSeeder
 	private void ApplyMedievalEuropeEthnicityNameCultureMappings()
 	{
 		ApplyEthnicityNameCultureMappings(MedievalEuropeEthnicityNameCultureMappings);
+	}
+
+	private void ApplyModernEthnicityNameCultureMappings()
+	{
+		ApplyEthnicityNameCultureMappings(ModernEthnicityNameCultureMappings);
 	}
 
 	private void EnsureFallbackRandomNameProfiles()

@@ -709,6 +709,8 @@ public partial class CultureSeeder
             "The working class are those who work for a living in the cities of the world. They are factory workers, construction workers, utility workers and service workers. Their livelihoods are often insecure because they depend on their jobs and have little savings or assets.");
         AddCulture("Third World Rural Poor", "Given and Family",
             "The rural poor are often amongst the poorest people in society, but they have some advantages that the urban poor (or working class) do not. They often own their land and homes, meagre though they might be, and they often have access to supplementary off-market commodities such as food, goods and basic services from their fellow rural poor.");
+
+        ApplyModernEthnicityNameCultureMappings();
     }
 
     public void SeedMedievalHeritage()

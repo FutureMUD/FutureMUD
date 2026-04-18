@@ -94,7 +94,7 @@ The planned computer-programs subsystem follows the same composition rules:
 - item-facing automation contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` live in `FutureMUDLibrary/GameItems/Interfaces`
 - live item behaviour should come from item components, not special-case `GameItem` subclasses
 - common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
-- concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
+- concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `NetworkSwitch`, `WirelessModem`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
 - standalone player-owned computer code still exists outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`, but the same runtime now also supports real host-owned and storage-owned executables through `IComputerExecutableOwner`
 - host-owned and storage-owned file systems now also carry live network-file state such as per-file public visibility flags, while `ComputerHost` runtime configuration additionally carries FTP account data for the built-in remote file-transfer service
 - the broader mutable file-surface contract is now `IComputerFileOwner`, which allows non-executable item components such as automation sources to expose a file system to local or remote file tools without also becoming full executable owners
@@ -109,7 +109,9 @@ The current shipped computer-host slice now provides those first concrete famili
 - `ComputerHost` is a powered machine component plus `IConnectable` that owns files, executables, processes, mounted storage, terminal connections, network adapters, and built-in application exposure
 - `ComputerStorage` is an `IConnectable` storage owner that persists files and executables and can be mounted into a host
 - `ComputerTerminal` is a powered machine component plus `IConnectable` that owns live player sessions into a connected powered host
-- `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's telecom-backed network-facing readiness, preferred address, canonical published address, and attached `ITelecommunicationsGrid`
+- `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's telecom-backed network-facing readiness, preferred address, stable device identifier, access route memberships, canonical published address, and attached `ITelecommunicationsGrid`
+- `NetworkSwitch` is a powered `INetworkInfrastructure` plus `IConnectable` component that can attach directly to a telecommunications grid or uplink through another infrastructure item, then daisy-chain that transport to downstream adapters and switches
+- `WirelessModem` is a powered machine component plus `IConnectable` that exposes the same host-facing network contract as `NetworkAdapter`, but resolves transport by live `ICellPhoneTower` coverage rather than a direct physical uplink
 
 Built-in applications now follow the same host-owned runtime model rather than existing as a disconnected catalog:
 - a real `ComputerHost` exposes built-in application definitions as host-bound built-in programs
@@ -197,6 +199,7 @@ The current player-work runtime flow for that slice is:
 - `FileManager` owner enumeration is now file-owner-aware rather than storage-only, so host-local component owners such as `FileSignalGenerator` appear alongside the host and mounted storage devices as selectable file targets
 - `type edit <file>` hands off to the engine's ordinary multiline editor flow, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`
 - `Directory` is now also a shipped built-in application on that surface: it runs as a host process and uses repeated `type <text>` input to browse the local host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters, and it also supports telecom-backed discovery of reachable hosts through `hosts`, `show <host>`, and `services <host>`
+- `Directory` and `SysMon` now present network adapters in terms of canonical address, stable device id, and access route summary rather than as a flat all-devices-visible network, so players and administrators can see why a host is reachable without being overwhelmed by unrelated infrastructure
 - `Mail` is now also a shipped built-in application on that surface: it runs as a host process, authenticates against reachable hosted domains, and uses repeated `type <text>` input to log in, list inbox state, read and delete mailbox entries, compose drafts, and post messages
 - `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
 - computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
@@ -204,6 +207,7 @@ The current player-work runtime flow for that slice is:
 - the current v1 `WaitSignal()` implementation resolves only named signal source components on that real execution host item and resumes when that source emits a non-zero signal value
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
 - public-file publication and authenticated FTP mutation likewise operate on any reachable `IComputerFileOwner`, so a `FileSignalGenerator` on a host item can expose or accept edits through the same network file infrastructure as the host and its mounted storage
+- reachable remote file and service discovery now respects the same route-key accessibility model as `Directory`, so exchange-private and VPN-scoped devices are not unintentionally exposed to unrelated hosts on the broader linked-grid cluster
 - real host-backed or storage-backed program execution is now blocked when the execution host is not powered
 - built-in application execution is likewise blocked when that connected execution host is not powered
 - actions are modelled as targeted delayed effects rather than instant mutation
@@ -222,8 +226,18 @@ Telecommunications items are a useful example of how multiple item capabilities 
 - a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
 - each telecommunications grid owns exchange-level behaviour such as prefix, subscriber length, maximum rings before timeout, and direct exchange links used for long-distance routing
 - the same telecommunications grid runtime now also serves as the transport substrate for computer networking: attached `NetworkAdapter` components join the grid as runtime-derived endpoints, publish canonical addresses, and can discover other reachable network-ready adapters across the linked-grid graph
+- computer networking now also has an explicit access-scope model layered on top of that transport. Each reachable endpoint publishes one or more route keys, and host discovery only succeeds when the source and target share at least one route key.
 - computer-network reachability is transitive across linked exchanges in this slice, unlike voice-call routing; discovery walks the linked-grid graph breadth-first with cycle protection
 - canonical network addresses prefer a configured adapter address when it is unique within the reachable linked-grid cluster, and otherwise fall back to a stable generated address of the form `adapter-<itemid>`
+- every network-facing device also now has a stable globally unique device identifier of the form `device-<itemid>`, which is the current player-facing equivalent of a hardware-address or IP-like identifier for diagnostics and future tooling
+- current access-scope route keys are:
+  - `public` for devices exposed to the broader telecom-backed network
+  - exchange-private subnet keys scoped to a specific telecommunications grid and subnet name
+  - explicit `vpn:<name>` memberships
+- exchange-private subnet keys are the current reference model for isolated field networks at an exchange. Devices on the same exchange-local subnet can all see each other even when they are intentionally invisible from the broader public network.
+- `NetworkSwitch` is the infrastructure reference pattern for daisy-chained network topology. It can take one upstream telecom path and fan that out to many downstream adapters or further switches without each endpoint needing a direct grid attachment.
+- `WirelessModem` is the infrastructure reference pattern for untethered IoT or field devices. It joins the same telecom-backed network layer through powered cellular coverage and exposes the same public, subnet, and VPN memberships as a wired adapter.
+- future authorised tunnelling, VPN login flows, or hacking should layer on top of this route-key model by granting or emulating additional route membership rather than replacing the underlying discovery rules
 - only implemented built-in applications marked as network services are advertised through the computer discovery layer; `Mail` is now the first shipped one, while reserved identities such as `Boards` and `Messenger` stay hidden until they actually ship
 - `Mail` advertisement is host-service-aware rather than adapter-owned: a host only advertises `Mail` when that host has the service enabled and at least one enabled hosted domain
 - long-distance routing is direct and prefix-based: a call only forwards to directly linked exchanges, never multi-hop chains, and a local-prefix dial always resolves locally instead of forwarding

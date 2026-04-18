@@ -1200,6 +1200,156 @@ return userinput()";
 	}
 
 	[TestMethod]
+	public void TelecommunicationsGrid_GetReachableNetworkEndpoints_SourceFiltersByPublicSubnetAndVpnAccess()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var linkedGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+		localGrid.LinkGrid(linkedGrid);
+
+		var sourceHost = new StubComputerHost { Powered = true, Name = "Source", OwnerHostItemId = 71L };
+		var publicHost = new StubComputerHost { Powered = true, Name = "Public Host", OwnerHostItemId = 72L };
+		var subnetHost = new StubComputerHost { Powered = true, Name = "Subnet Host", OwnerHostItemId = 73L };
+		var vpnHost = new StubComputerHost { Powered = true, Name = "VPN Host", OwnerHostItemId = 74L };
+		var hiddenHost = new StubComputerHost { Powered = true, Name = "Hidden Host", OwnerHostItemId = 75L };
+
+		var sourceAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 601L,
+			ConnectedHost = sourceHost,
+			Powered = true,
+			PublicNetworkEnabled = true,
+			ExchangeSubnetId = "yard",
+			VpnNetworkIds = ["ops"],
+			PreferredNetworkAddress = "source.host",
+			TelecommunicationsGrid = localGrid
+		};
+		var publicAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 602L,
+			ConnectedHost = publicHost,
+			Powered = true,
+			PublicNetworkEnabled = true,
+			PreferredNetworkAddress = "public.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+		var subnetAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 603L,
+			ConnectedHost = subnetHost,
+			Powered = true,
+			PublicNetworkEnabled = false,
+			ExchangeSubnetId = "yard",
+			PreferredNetworkAddress = "subnet.host",
+			TelecommunicationsGrid = localGrid
+		};
+		var vpnAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 604L,
+			ConnectedHost = vpnHost,
+			Powered = true,
+			PublicNetworkEnabled = false,
+			VpnNetworkIds = ["ops"],
+			PreferredNetworkAddress = "vpn.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+		var hiddenAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 605L,
+			ConnectedHost = hiddenHost,
+			Powered = true,
+			PublicNetworkEnabled = false,
+			ExchangeSubnetId = "signals",
+			VpnNetworkIds = ["signals"],
+			PreferredNetworkAddress = "hidden.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+
+		localGrid.JoinGrid(sourceAdapter);
+		localGrid.JoinGrid(subnetAdapter);
+		linkedGrid.JoinGrid(publicAdapter);
+		linkedGrid.JoinGrid(vpnAdapter);
+		linkedGrid.JoinGrid(hiddenAdapter);
+
+		var endpoints = localGrid.GetReachableNetworkEndpoints(sourceAdapter).ToList();
+
+		Assert.IsTrue(endpoints.Any(x => x.CanonicalAddress == "source.host"));
+		Assert.IsTrue(endpoints.Any(x => x.CanonicalAddress == "public.host"));
+		Assert.IsTrue(endpoints.Any(x => x.CanonicalAddress == "subnet.host"));
+		Assert.IsTrue(endpoints.Any(x => x.CanonicalAddress == "vpn.host"));
+		Assert.IsFalse(endpoints.Any(x => x.CanonicalAddress == "hidden.host"));
+		Assert.IsTrue(endpoints.First(x => x.CanonicalAddress == "public.host")
+			.SharedRouteKeys.Contains("public"));
+		Assert.IsTrue(endpoints.First(x => x.CanonicalAddress == "subnet.host")
+			.SharedRouteKeys.Any(x => x.Contains(":yard")));
+		Assert.IsTrue(endpoints.First(x => x.CanonicalAddress == "vpn.host")
+			.SharedRouteKeys.Contains("vpn:ops"));
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_GetReachableHosts_PopulatesDeviceIdentifiersAndAccessDescriptions()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var linkedGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+		localGrid.LinkGrid(linkedGrid);
+
+		var localHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 81L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(81L).ToList()
+		};
+		var remoteHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Remote Host",
+			OwnerHostItemId = 82L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(82L).ToList()
+		};
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 701L,
+			ConnectedHost = localHost,
+			Powered = true,
+			VpnNetworkIds = ["corp"],
+			PreferredNetworkAddress = "local.host",
+			TelecommunicationsGrid = localGrid
+		};
+		var remoteAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 702L,
+			ConnectedHost = remoteHost,
+			Powered = true,
+			VpnNetworkIds = ["corp"],
+			PublicNetworkEnabled = false,
+			PreferredNetworkAddress = "remote.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+
+		localGrid.JoinGrid(localAdapter);
+		linkedGrid.JoinGrid(remoteAdapter);
+		localHost.NetworkAdapters = [localAdapter];
+		remoteHost.NetworkAdapters = [remoteAdapter];
+
+		var hosts = service.GetReachableHosts(localHost).ToList();
+		var remoteSummary = hosts.Single(x => ReferenceEquals(x.Host, remoteHost));
+
+		Assert.AreEqual("device-702", remoteSummary.DeviceIdentifier);
+		Assert.AreEqual("VPN corp", remoteSummary.AccessDescription);
+		Assert.IsTrue(remoteSummary.SharedRouteKeys.Contains("vpn:corp"));
+		var resolved = service.ResolveReachableHost(localHost, "device-702");
+		Assert.IsNotNull(resolved);
+		Assert.AreEqual(remoteSummary.CanonicalAddress, resolved!.CanonicalAddress);
+		Assert.AreEqual(remoteSummary.DeviceIdentifier, resolved.DeviceIdentifier);
+	}
+
+	[TestMethod]
 	public void ComputerExecutionService_GetReachableHosts_ExcludesOfflineHostsAndUnimplementedNetworkServices()
 	{
 		var scheduler = new Mock<IScheduler>();
@@ -2022,6 +2172,11 @@ return userinput()";
 	{
 		public IComputerHost? ConnectedHost { get; set; }
 		public bool Powered { get; set; }
+		public bool PublicNetworkEnabled { get; set; } = true;
+		public string? ExchangeSubnetId { get; set; }
+		public IEnumerable<string> VpnNetworkIds { get; set; } = Enumerable.Empty<string>();
+		public IEnumerable<string> NetworkRouteKeys => ComputerNetworkRoutingUtilities.GetRouteKeys(this);
+		public string DeviceIdentifier => ComputerNetworkRoutingUtilities.GetDeviceIdentifier(NetworkAdapterItemId);
 		public bool NetworkReady => Powered && ConnectedHost?.Powered == true && TelecommunicationsGrid is not null;
 		public string? PreferredNetworkAddress { get; set; }
 		public string? NetworkAddress => TelecommunicationsGrid?.GetCanonicalNetworkAddress(this) ??

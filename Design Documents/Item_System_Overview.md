@@ -39,7 +39,7 @@ Most gameplay-facing item behaviour is discovered by checking whether an item co
 The planned computer-programs subsystem is an item-system feature, not a separate inheritance tree.
 
 The intended component families are:
-- host components such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, and `NetworkAdapter`
+- host and network components such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `NetworkSwitch`, and `WirelessModem`
 - logic components such as `Microcontroller`
 - signal-input components such as `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`, and `FileSignalGenerator`
 - signal-output components such as `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, and `AlarmSiren`
@@ -51,6 +51,8 @@ The first shipped automation slice now includes:
 - `ComputerTerminal`
 - `ComputerStorage`
 - `NetworkAdapter`
+- `NetworkSwitch`
+- `WirelessModem`
 - `PushButton`
 - `ToggleSwitch`
 - `MotionSensor`
@@ -95,6 +97,13 @@ The first real computer-host slice now also includes:
 - shipped built-in host applications `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP`
 - shipped network services `Mail` and `FTP`, including host-scoped service enablement, hosted domains for mail, per-host FTP account and public-file configuration, database-backed mailboxes, and telecom-backed delivery or remote-file access to reachable hosts
 - file-owner-aware local and remote file workflows, where host-local component owners such as `FileSignalGenerator` can participate alongside the host and mounted storage devices
+
+Computer-network visibility is now intentionally scoped rather than globally flat. Adapters and modems expose one or more route memberships, and discovery only shows hosts that share at least one route with the source device. In the current shipped slice those routes are:
+- the public telecom-backed network
+- exchange-local private subnets
+- explicit VPN-style memberships
+
+This keeps `Directory` and related tools from flooding players with every private sensor on the broader linked-grid graph, supports isolated exchange-local operational networks, and leaves space for future authorised tunnelling or hacking flows without changing the underlying addressing model.
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

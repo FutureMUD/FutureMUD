@@ -2,7 +2,6 @@
 
 using MudSharp.Accounts;
 using MudSharp.Character;
-using MudSharp.Computers;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
@@ -13,27 +12,28 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class WirelessModemGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
 {
 	private const string SpecificBuildingHelpText = @"
-	#3address <text>#0 - sets the preferred local network address for this adapter
-	#3public#0 - toggles whether this adapter is visible on the public telecom-backed network
-	#3subnet <name|none>#0 - sets an exchange-private subnet for this adapter
-	#3vpn add <name>#0 - grants this adapter access to a named VPN
-	#3vpn remove <name>#0 - removes a named VPN from this adapter";
+	#3address <text>#0 - sets the preferred local network address for this modem
+	#3public#0 - toggles whether this modem is visible on the public telecom-backed network
+	#3subnet <name|none>#0 - sets an exchange-private subnet for this modem
+	#3vpn add <name>#0 - grants this modem access to a named VPN
+	#3vpn remove <name>#0 - removes a named VPN from this modem";
 
 	private static readonly string CombinedBuildingHelpText =
 		$@"{BuildingHelpText}{SpecificBuildingHelpText}";
 
-	public NetworkAdapterGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-		: base(gameworld, originator, "Network Adapter")
+	public WirelessModemGameItemComponentProto(IFuturemud gameworld, IAccount originator)
+		: base(gameworld, originator, "Wireless Modem")
 	{
 		PreferredNetworkAddress = string.Empty;
 		PublicNetworkEnabled = true;
 		ExchangeSubnetId = string.Empty;
+		Wattage = 8.0;
 	}
 
-	protected NetworkAdapterGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
+	protected WirelessModemGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
 		: base(proto, gameworld)
 	{
 	}
@@ -42,8 +42,11 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 	public bool PublicNetworkEnabled { get; protected set; }
 	public string ExchangeSubnetId { get; protected set; } = string.Empty;
 	public List<string> VpnNetworkIds { get; } = [];
-	public override string TypeDescription => "Network Adapter";
-	protected override string ComponentDescriptionOLCByline => "This item is a powered network adapter for a computer host";
+
+	public override string TypeDescription => "Wireless Modem";
+
+	protected override string ComponentDescriptionOLCByline =>
+		"This item is a powered wireless modem for a computer host that uses cellular coverage";
 
 	protected override string ComponentDescriptionOLCAddendum(ICharacter actor)
 	{
@@ -99,7 +102,7 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("What preferred local network address should this adapter use? Use NONE for automatic addressing.");
+			actor.Send("What preferred local network address should this modem use? Use NONE for automatic addressing.");
 			return false;
 		}
 
@@ -107,13 +110,13 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 		{
 			PreferredNetworkAddress = string.Empty;
 			Changed = true;
-			actor.Send("This adapter will now use automatic local addressing.");
+			actor.Send("This wireless modem will now use automatic local addressing.");
 			return true;
 		}
 
 		PreferredNetworkAddress = command.SafeRemainingArgument.Trim();
 		Changed = true;
-		actor.Send($"This adapter will now prefer the local network address {PreferredNetworkAddress.ColourName()}.");
+		actor.Send($"This wireless modem will now prefer the local network address {PreferredNetworkAddress.ColourName()}.");
 		return true;
 	}
 
@@ -121,7 +124,7 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 	{
 		PublicNetworkEnabled = !PublicNetworkEnabled;
 		Changed = true;
-		actor.Send($"This adapter will {(PublicNetworkEnabled ? "now".ColourValue() : "no longer".ColourError())} be visible on the public telecom-backed network.");
+		actor.Send($"This wireless modem will {(PublicNetworkEnabled ? "now".ColourValue() : "no longer".ColourError())} be visible on the public telecom-backed network.");
 		return true;
 	}
 
@@ -129,7 +132,7 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("What exchange-private subnet should this adapter join? Use NONE to clear it.");
+			actor.Send("What exchange-private subnet should this modem join? Use NONE to clear it.");
 			return false;
 		}
 
@@ -137,13 +140,13 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 		{
 			ExchangeSubnetId = string.Empty;
 			Changed = true;
-			actor.Send("This adapter will no longer participate in any exchange-private subnet.");
+			actor.Send("This wireless modem will no longer participate in any exchange-private subnet.");
 			return true;
 		}
 
 		ExchangeSubnetId = command.SafeRemainingArgument.Trim();
 		Changed = true;
-		actor.Send($"This adapter will now join the exchange-private subnet {ExchangeSubnetId.ColourName()}.");
+		actor.Send($"This wireless modem will now join the exchange-private subnet {ExchangeSubnetId.ColourName()}.");
 		return true;
 	}
 
@@ -168,25 +171,25 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 			case "add":
 				if (VpnNetworkIds.Any(x => x.EqualTo(vpn)))
 				{
-					actor.Send($"This adapter is already a member of VPN {vpn.ColourName()}.");
+					actor.Send($"This wireless modem is already a member of VPN {vpn.ColourName()}.");
 					return false;
 				}
 
 				VpnNetworkIds.Add(vpn);
 				Changed = true;
-				actor.Send($"This adapter now has access to VPN {vpn.ColourName()}.");
+				actor.Send($"This wireless modem now has access to VPN {vpn.ColourName()}.");
 				return true;
 			case "remove":
 			case "delete":
 			case "rem":
 				if (VpnNetworkIds.RemoveAll(x => x.EqualTo(vpn)) == 0)
 				{
-					actor.Send($"This adapter is not currently a member of VPN {vpn.ColourName()}.");
+					actor.Send($"This wireless modem is not currently a member of VPN {vpn.ColourName()}.");
 					return false;
 				}
 
 				Changed = true;
-				actor.Send($"This adapter no longer has access to VPN {vpn.ColourName()}.");
+				actor.Send($"This wireless modem no longer has access to VPN {vpn.ColourName()}.");
 				return true;
 			default:
 				actor.Send("Do you want to add or remove a VPN membership?");
@@ -196,31 +199,35 @@ public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemCo
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
-		manager.AddBuilderLoader("networkadapter", true,
-			(gameworld, account) => new NetworkAdapterGameItemComponentProto(gameworld, account));
-		manager.AddBuilderLoader("network adapter", false,
-			(gameworld, account) => new NetworkAdapterGameItemComponentProto(gameworld, account));
-		manager.AddDatabaseLoader("Network Adapter",
-			(proto, gameworld) => new NetworkAdapterGameItemComponentProto(proto, gameworld));
+		manager.AddBuilderLoader("wirelessmodem", true,
+			(gameworld, account) => new WirelessModemGameItemComponentProto(gameworld, account));
+		manager.AddBuilderLoader("wireless modem", false,
+			(gameworld, account) => new WirelessModemGameItemComponentProto(gameworld, account));
+		manager.AddBuilderLoader("cellularmodem", false,
+			(gameworld, account) => new WirelessModemGameItemComponentProto(gameworld, account));
+		manager.AddBuilderLoader("cellular modem", false,
+			(gameworld, account) => new WirelessModemGameItemComponentProto(gameworld, account));
+		manager.AddDatabaseLoader("Wireless Modem",
+			(proto, gameworld) => new WirelessModemGameItemComponentProto(proto, gameworld));
 		manager.AddTypeHelpInfo(
-			"Network Adapter",
-			$"Makes an item a {"[network adapter]".Colour(Telnet.BoldGreen)} {"[powered]".Colour(Telnet.BoldGreen)} telecom-backed network endpoint for a computer host",
+			"Wireless Modem",
+			$"Makes an item a {"[powered]".Colour(Telnet.BoldGreen)} cellular-backed wireless network modem for a computer host",
 			CombinedBuildingHelpText);
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
 	{
-		return new NetworkAdapterGameItemComponent(this, parent, temporary);
+		return new WirelessModemGameItemComponent(this, parent, temporary);
 	}
 
 	public override IGameItemComponent LoadComponent(MudSharp.Models.GameItemComponent component, IGameItem parent)
 	{
-		return new NetworkAdapterGameItemComponent(component, this, parent);
+		return new WirelessModemGameItemComponent(component, this, parent);
 	}
 
 	public override IEditableRevisableItem CreateNewRevision(ICharacter initiator)
 	{
 		return CreateNewRevision(initiator,
-			(proto, gameworld) => new NetworkAdapterGameItemComponentProto(proto, gameworld));
+			(proto, gameworld) => new WirelessModemGameItemComponentProto(proto, gameworld));
 	}
 }

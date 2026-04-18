@@ -35,6 +35,8 @@ Signal-automation examples now include:
 - `comp edit new computerterminal`
 - `comp edit new computerstorage`
 - `comp edit new networkadapter`
+- `comp edit new networkswitch`
+- `comp edit new wirelessmodem`
 - `comp edit new pushbutton`
 - `comp edit new toggleswitch`
 - `comp edit new motionsensor`
@@ -150,7 +152,9 @@ For the current signal-automation slice, also validate:
 - whether `computerhost` exposes the expected built-in applications through `programming apps` and whether the host reports those applications consistently even when a mounted storage device is selected as the current mutable programming owner
 - whether `computerstorage` mounts into the intended host and exposes the expected files and executables through that host
 - whether `computerterminal` only allows sessions when switched on, powered, and connected to a powered host
-- whether `networkadapter` reports the expected connected host, attached telecommunications grid, canonical published address, and current network-ready state
+- whether `networkadapter` reports the expected connected host, attached telecommunications grid, canonical published address, stable device id, access routes, and current network-ready state
+- whether `networkswitch` correctly passes telecommunications access through one uplink and the expected number of downstream ports, including daisy-chaining to another switch without losing transport state
+- whether `wirelessmodem` joins the expected telecommunications grid through powered `cellphonetower` coverage, loses network transport when coverage is removed, and reports the same address, device-id, and access-route state as a wired adapter
 - whether source and sink bindings resolve to the intended local sibling components and endpoint keys on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
@@ -174,6 +178,9 @@ For the current signal-automation slice, also validate:
 - whether live `electrical` inspection clearly shows controller input bindings, cable mirror routes, current values, and resolved versus broken signal links so end-to-end debugging is practical in game
 - whether live `electrical` inspection for a `filesignalgenerator` also shows the designated signal file, parse status, and whether the file is currently published for anonymous remote access
 - whether live `electrical` inspection also surfaces nearby routed cable segments clearly enough that builders can see which cable mirrors which source and through which exit hop
+- whether `Directory` and `SysMon` show device ids and access-route summaries clearly enough that builders can tell why a host is reachable, private, or exchange-local
+- whether public-network discovery excludes exchange-private or VPN-only devices unless the querying host shares the required subnet or VPN membership
+- whether an exchange-local private subnet behaves like an isolated field network at that exchange, with devices visible to each other but hidden from unrelated public hosts elsewhere on the linked-grid graph
 - whether service access is correctly blocked by a closed `AutomationHousing` item around a mount bay or cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
 - whether abject failure on electrical work produces the intended shock echo and electrical damage

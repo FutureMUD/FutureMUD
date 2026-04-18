@@ -137,9 +137,12 @@ public sealed class ComputerNetworkHostSummary
 	public required INetworkAdapter Adapter { get; init; }
 	public required ITelecommunicationsGrid Grid { get; init; }
 	public string CanonicalAddress { get; init; } = string.Empty;
+	public string DeviceIdentifier { get; init; } = string.Empty;
 	public bool IsLocalGrid { get; init; }
 	public bool Available { get; init; }
 	public int AdvertisedServiceCount { get; init; }
+	public IReadOnlyCollection<string> SharedRouteKeys { get; init; } = Array.Empty<string>();
+	public string AccessDescription { get; init; } = string.Empty;
 }
 
 public sealed class ComputerNetworkServiceSummary
@@ -155,10 +158,21 @@ public interface INetworkAdapter
 	IComputerHost? ConnectedHost { get; }
 	bool Powered { get; }
 	bool NetworkReady { get; }
+	bool PublicNetworkEnabled { get; }
+	string? ExchangeSubnetId { get; }
+	IEnumerable<string> VpnNetworkIds { get; }
+	IEnumerable<string> NetworkRouteKeys { get; }
+	string DeviceIdentifier { get; }
 	string? PreferredNetworkAddress { get; }
 	string? NetworkAddress { get; }
 	long NetworkAdapterItemId { get; }
 	ITelecommunicationsGrid? TelecommunicationsGrid { get; }
+}
+
+public interface INetworkInfrastructure
+{
+	ITelecommunicationsGrid? TelecommunicationsGrid { get; }
+	bool NetworkTransportReady { get; }
 }
 
 public interface ICharacterComputerWorkspace : IComputerExecutableOwner

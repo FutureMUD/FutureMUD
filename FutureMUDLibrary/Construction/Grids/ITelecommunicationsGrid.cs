@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using MudSharp.Computers;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
@@ -13,6 +14,7 @@ public sealed class TelecommunicationsNetworkEndpointInfo
 	public required ITelecommunicationsGrid Grid { get; init; }
 	public string CanonicalAddress { get; init; } = string.Empty;
 	public bool IsLocalGrid { get; init; }
+	public IReadOnlyCollection<string> SharedRouteKeys { get; init; } = Array.Empty<string>();
 }
 
 public interface ITelecommunicationsGrid : IGrid
@@ -39,7 +41,9 @@ public interface ITelecommunicationsGrid : IGrid
     void RecalculateGrid();
     string GetCanonicalNetworkAddress(INetworkAdapter adapter);
     IEnumerable<TelecommunicationsNetworkEndpointInfo> GetReachableNetworkEndpoints();
+    IEnumerable<TelecommunicationsNetworkEndpointInfo> GetReachableNetworkEndpoints(INetworkAdapter source);
     TelecommunicationsNetworkEndpointInfo? ResolveReachableNetworkEndpoint(string address);
+    TelecommunicationsNetworkEndpointInfo? ResolveReachableNetworkEndpoint(INetworkAdapter source, string address);
     bool DrawdownSpike(double wattage);
     bool TryStartCall(ITelephone caller, string number, out string error);
     bool TrySendFax(IFaxMachine sender, string number, IReadOnlyCollection<ICanBeRead> document, out string error);

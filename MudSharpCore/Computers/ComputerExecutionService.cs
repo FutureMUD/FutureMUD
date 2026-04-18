@@ -635,6 +635,19 @@ public class ComputerExecutionService : IComputerExecutionService
 				return null;
 			}
 
+			var exactDevice = summaries
+				.Where(x => x.DeviceIdentifier.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+			if (exactDevice.Count == 1)
+			{
+				return exactDevice.Single();
+			}
+
+			if (exactDevice.Count > 1)
+			{
+				return null;
+			}
+
 			var exactHost = summaries
 				.Where(x => x.Host.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
 				.ToList();
@@ -650,6 +663,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 			var partial = summaries
 				.Where(x => x.CanonicalAddress.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase) ||
+				            x.DeviceIdentifier.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase) ||
 				            x.Host.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
 				.ToList();
 			return partial.Count == 1 ? partial.Single() : null;
@@ -1491,7 +1505,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		return sourceHost.NetworkAdapters
 			.Where(x => x.NetworkReady)
 			.Where(x => x.TelecommunicationsGrid is not null)
-			.SelectMany(x => x.TelecommunicationsGrid!.GetReachableNetworkEndpoints())
+			.SelectMany(x => x.TelecommunicationsGrid!.GetReachableNetworkEndpoints(x))
 			.Where(x => x.Adapter.ConnectedHost is not null)
 			.GroupBy(x => x.Adapter.NetworkAdapterItemId)
 			.Select(x => x.First())
@@ -1505,9 +1519,12 @@ public class ComputerExecutionService : IComputerExecutionService
 					Adapter = endpoint.Adapter,
 					Grid = endpoint.Grid,
 					CanonicalAddress = endpoint.CanonicalAddress,
+					DeviceIdentifier = endpoint.Adapter.DeviceIdentifier,
 					IsLocalGrid = endpoint.IsLocalGrid,
 					Available = endpoint.Adapter.NetworkReady && host.Powered,
-					AdvertisedServiceCount = services.Count
+					AdvertisedServiceCount = services.Count,
+					SharedRouteKeys = endpoint.SharedRouteKeys,
+					AccessDescription = ComputerNetworkRoutingUtilities.DescribeRoutes(endpoint.SharedRouteKeys)
 				};
 			})
 			.Where(x => x.Available)

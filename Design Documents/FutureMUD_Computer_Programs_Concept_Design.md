@@ -24,6 +24,8 @@ The first implementation slice for this design has now landed. The currently imp
   - `ComputerTerminal`
   - `ComputerStorage`
   - `NetworkAdapter`
+  - `NetworkSwitch`
+  - `WirelessModem`
 - a resumable computer-program executor with persisted frame and local state, supporting scheduler-driven `sleep` wake-up, terminal-session `UserInput()` suspension and resume, and execution-host `WaitSignal()` suspension and resume
 - local computer runtime functions for:
   - `ReadFile`
@@ -265,11 +267,22 @@ In the current shipped phase:
 - `Mail` is now the first implemented network-capable built-in application: it runs as an interactive terminal client, authenticates against reachable mail domains, manages inbox and sent mail, and uses the ordinary editor flow to compose message bodies
 - `FTP` is now the second implemented network-capable built-in application: it runs as an interactive terminal client, opens a session to a reachable remote host advertising FTP, allows anonymous access to published public files, and allows authenticated full file manipulation across the target host and mounted storage devices
 - `NetworkAdapter` is no longer just a local readiness marker; it is now a telecom-grid-backed endpoint that restores its attached `ITelecommunicationsGrid`, joins and leaves that grid through runtime lifecycle, and publishes a canonical network address
+- `NetworkSwitch` is now the daisy-chain infrastructure pattern for in-world networks: one powered uplink can feed many downstream adapters or further switches without every endpoint needing its own direct exchange attachment
+- `WirelessModem` is now the untethered transport pattern for IoT-style or mobile devices: it exposes the same host-facing network contract as a wired adapter, but derives its transport from powered cellular coverage instead of a direct cable
 - canonical adapter addresses use `PreferredNetworkAddress` when it is unique within the reachable linked-grid cluster; otherwise they fall back to a stable generated address of the form `adapter-<itemid>`
+- every network-facing device now also has a stable globally unique device identifier of the form `device-<itemid>` for diagnostics, host lookup, and future tooling
+- network visibility is no longer flat across the whole linked-grid cluster. Discovery is now filtered by shared route memberships, which currently include:
+  - `public`
+  - exchange-private subnet scope on a specific telecommunications grid
+  - explicit VPN memberships
+- this route-key model is the current answer to network clutter and operational isolation: `Directory` only shows hosts that are actually reachable through at least one shared route, so large numbers of private sensors do not flood ordinary public discovery
+- exchange-private subnet scope is the current reference model for isolated operational networks such as railway field devices or industrial control systems at one exchange: devices on that subnet can all see each other, but remain invisible from the broader public network unless another shared route exists
 - reachable host discovery is transitive across the linked telecom-grid graph, uses cycle-safe breadth-first traversal, and only includes hosts whose adapters are currently network-ready
 - remote service advertisement is intentionally conservative in the current slice: only built-in applications marked as network services and actually implemented are listed
 - `Mail` is now the first shipped advertised network service, but it is only advertised when the target host has its mail service enabled and at least one enabled hosted domain
 - `FTP` is now the second shipped advertised network service, but it is only advertised when the target host has its FTP service enabled; the advertised details report the count of anonymously readable public files currently exposed by that host and its mounted storage
+- `Directory` and `SysMon` now surface canonical address, stable device id, and access-route summaries for both local adapters and remote hosts, which is the current player/admin UX for understanding why something is or is not reachable
+- future authorised tunnelling, VPN login, and hacking should layer on top of this route-key model by granting or emulating additional route memberships rather than replacing addressability or discovery from scratch
 - `Boards` and `Messenger` remain reserved built-in application identities for later phases
 
 ## Systems Needed
@@ -281,7 +294,7 @@ In the current shipped phase:
   - Inputs: `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`
   - Logic: `Microcontroller`
   - Outputs: `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, `AlarmSiren`
-  - Host systems: `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`
+  - Host systems: `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `NetworkSwitch`, `WirelessModem`
 - Implemented in the first slice:
   - `PushButton` is a selectable momentary input that emits a numeric signal for an authored duration
   - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
@@ -328,6 +341,7 @@ In the current shipped phase:
 - Mounted automation modules now inherit the host item's spatial context for `TrueLocations`, perception, and local signal targeting while installed in an automation bay.
 - Mounted automation modules also now resolve room-local signal sources for live runtime subscriptions through that host spatial context, so mounted controllers behave like installed hardware rather than isolated loose items.
 - ordinary item descriptions should present the physical state of housings, doors, locks, and bays; live signal/control diagnostics belong to `electrical` inspection rather than ordinary `look`
+- the current network-access model already leaves room for future security gameplay, but the runtime does not yet implement explicit player-facing tunnel setup, VPN login, or hostile discovery. Those future features should build on stable device ids plus temporary route memberships rather than introducing a second incompatible addressing model.
 
 ## Conceptual Example - Motion Activated Door
 

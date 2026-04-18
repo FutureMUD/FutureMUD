@@ -1591,18 +1591,20 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			adapters.Select(adapter => new List<string>
 			{
 				DescribeAdapter(user, adapter),
-				adapter.Powered.ToColouredString(),
+				adapter.DeviceIdentifier,
 				adapter.NetworkReady.ToColouredString(),
 				DescribeGrid(user, adapter.TelecommunicationsGrid),
-				adapter.NetworkAddress ?? "-"
+				adapter.NetworkAddress ?? "-",
+				ComputerNetworkRoutingUtilities.DescribeRoutes(adapter.NetworkRouteKeys)
 			}),
 			new List<string>
 			{
 				"Adapter",
-				"Powered",
+				"Device",
 				"Ready",
 				"Grid",
-				"Address"
+				"Address",
+				"Access"
 			},
 			user.LineFormatLength,
 			true,
@@ -1684,18 +1686,20 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			{
 				summary.Host.Name,
 				summary.CanonicalAddress,
+				summary.DeviceIdentifier,
 				DescribeGrid(user, summary.Grid),
 				summary.IsLocalGrid ? "local" : "linked",
-				summary.Host.Powered.ToColouredString(),
+				summary.AccessDescription,
 				summary.AdvertisedServiceCount.ToString("N0", user)
 			}),
 			new List<string>
 			{
 				"Host",
 				"Address",
+				"Device",
 				"Grid",
 				"Scope",
-				"Power",
+				"Access",
 				"Services"
 			},
 			user.LineFormatLength,
@@ -1726,7 +1730,9 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"{summary.Host.Name.ColourName()} :: {summary.CanonicalAddress.ColourCommand()}");
+		sb.AppendLine($"Device Id: {summary.DeviceIdentifier.ColourName()}");
 		sb.AppendLine($"Scope: {(summary.IsLocalGrid ? "local" : "linked").ColourValue()} via {DescribeGrid(user, summary.Grid).ColourValue()}");
+		sb.AppendLine($"Network Access: {summary.AccessDescription.ColourValue()}");
 		sb.AppendLine($"Availability: {(summary.Available ? "reachable".ColourValue() : "offline".ColourError())}");
 		sb.AppendLine($"Host Power: {summary.Host.Powered.ToColouredString()}");
 		sb.AppendLine($"Advertised Services: {services.Count.ToString("N0", user).ColourValue()}");
@@ -1753,6 +1759,8 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"Advertised Services for {summary.Host.Name.ColourName()} ({summary.CanonicalAddress.ColourCommand()}):");
+		sb.AppendLine($"Device Id: {summary.DeviceIdentifier.ColourName()}");
+		sb.AppendLine($"Network Access: {summary.AccessDescription.ColourValue()}");
 		if (!services.Any())
 		{
 			sb.AppendLine($"{summary.Host.Name.ColourName()} does not currently advertise any implemented network services.");
@@ -1818,6 +1826,22 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			return false;
 		}
 
+		var exactDevice = hosts
+			.Where(x => x.DeviceIdentifier.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exactDevice.Count == 1)
+		{
+			summary = exactDevice.Single();
+			error = string.Empty;
+			return true;
+		}
+
+		if (exactDevice.Count > 1)
+		{
+			error = $"More than one reachable host matches {identifier.ColourCommand()} by device identifier.";
+			return false;
+		}
+
 		var exactHost = hosts
 			.Where(x => x.Host.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
@@ -1836,6 +1860,7 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 
 		var partial = hosts
 			.Where(x => x.CanonicalAddress.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase) ||
+			            x.DeviceIdentifier.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase) ||
 			            x.Host.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 		if (partial.Count == 1)
@@ -1846,7 +1871,7 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		}
 
 		error = partial.Count > 1
-			? $"More than one reachable host matches {identifier.ColourCommand()}. Use a more specific name or one of these canonical addresses: {partial.Select(x => x.CanonicalAddress.ColourCommand()).ListToString()}."
+			? $"More than one reachable host matches {identifier.ColourCommand()}. Use a more specific name, device id, or one of these canonical addresses: {partial.Select(x => x.CanonicalAddress.ColourCommand()).ListToString()}."
 			: $"There is no reachable host matching {identifier.ColourCommand()}.";
 		return false;
 	}
@@ -1999,18 +2024,20 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 			adapters.Select(adapter => new List<string>
 			{
 				DescribeAdapter(adapter),
-				adapter.Powered.ToColouredString(),
+				adapter.DeviceIdentifier,
 				adapter.NetworkReady.ToColouredString(),
 				DescribeGrid(user, adapter.TelecommunicationsGrid),
-				adapter.NetworkAddress ?? "-"
+				adapter.NetworkAddress ?? "-",
+				ComputerNetworkRoutingUtilities.DescribeRoutes(adapter.NetworkRouteKeys)
 			}),
 			new List<string>
 			{
 				"Adapter",
-				"Powered",
+				"Device",
 				"Ready",
 				"Grid",
-				"Address"
+				"Address",
+				"Access"
 			},
 			user.LineFormatLength,
 			true,

@@ -46,7 +46,7 @@ Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
 - broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage
 - item-facing component contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` belong in `FutureMUDLibrary/GameItems/Interfaces`
-- concrete behaviours such as `ComputerHost`, `ComputerStorage`, `ComputerTerminal`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, or `ElectronicDoor` should still be separate runtime components and component protos in `MudSharpCore`
+- concrete behaviours such as `ComputerHost`, `ComputerStorage`, `ComputerTerminal`, `NetworkAdapter`, `NetworkSwitch`, `WirelessModem`, `Microcontroller`, `PushButton`, `MotionSensor`, or `ElectronicDoor` should still be separate runtime components and component protos in `MudSharpCore`
 - avoid collapsing multiple distinct automation behaviours into one generic "sensor" or "actuator" component unless the gameplay contract is genuinely identical
 
 ## Step 2: Start from the GameItem Template
@@ -253,6 +253,12 @@ Use this checklist when adding a new capability:
 The current computer-automation slice is a good reference for "shared contracts, separate concrete behaviours".
 
 Implemented builder-facing component types:
+- `computerhost`
+- `computerterminal`
+- `computerstorage`
+- `networkadapter`
+- `networkswitch`
+- `wirelessmodem`
 - `pushbutton`
 - `toggleswitch`
 - `motionsensor`
@@ -273,6 +279,10 @@ Implemented builder-facing component types:
 - `alarmsiren`
 
 Current authoring pattern:
+- host and file-storage components author executable and file-owner behaviour, while transport-facing components author connectivity, addressing, and access-scope rules
+- `networkadapter` authors preferred address, whether it participates in the public network, an optional exchange-private subnet name, and zero or more VPN memberships
+- `networkswitch` authors powered-machine settings plus a port count for downstream daisy-chain or endpoint connections; it does not own host executables or file state
+- `wirelessmodem` authors the same addressing and access-scope surface as `networkadapter`, but its runtime transport comes from cellular coverage rather than a direct physical telecommunications-grid attachment
 - sources author their own output behaviour and expose `ISignalSourceComponent`
 - sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
 - microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`; the binding command accepts a component prototype name or id and stores a stable local source identifier plus the current default local endpoint key
@@ -299,6 +309,7 @@ Important implementation details from this slice:
 - sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown using stable local source identifiers plus endpoint keys rather than transient component names
 - signal propagation is event-based, so components should avoid re-emitting unchanged values
 - file-backed signal generators are the reference pattern for hybrid automation/file components: the runtime component owns a mutable file system, subscribes to its file-change event, reparses the designated text file into a numeric signal, and can participate in `FileManager` / `FTP` as an `IComputerFileOwner`
+- transport-facing network components are also now the reference pattern for future security-layer expansion: current builder authoring sets steady-state public, subnet, and VPN memberships, while later tunnelling or hacking features should add temporary or authorised runtime memberships without changing the authored base config
 - live player reconfiguration is a separate runtime concern from builder authoring:
   - configurable sinks that support live rewiring should implement `IRuntimeConfigurableSignalSinkComponent`
   - live-programmable controllers should implement `IRuntimeProgrammableMicrocontroller`

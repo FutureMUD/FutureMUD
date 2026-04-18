@@ -394,7 +394,28 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
                 Adapter = x.Adapter,
                 Grid = x.Grid,
                 CanonicalAddress = x.Grid.GetCanonicalNetworkAddress(x.Adapter),
-                IsLocalGrid = x.IsLocalGrid
+                IsLocalGrid = x.IsLocalGrid,
+                SharedRouteKeys = Array.Empty<string>()
+            })
+            .ToList();
+    }
+
+    public IEnumerable<TelecommunicationsNetworkEndpointInfo> GetReachableNetworkEndpoints(INetworkAdapter source)
+    {
+        if (!source.NetworkReady)
+        {
+            return Enumerable.Empty<TelecommunicationsNetworkEndpointInfo>();
+        }
+
+        return EnumerateNetworkAdapterCluster(reachableOnly: true)
+            .Where(x => ComputerNetworkRoutingUtilities.CanRouteBetween(source, x.Adapter))
+            .Select(x => new TelecommunicationsNetworkEndpointInfo
+            {
+                Adapter = x.Adapter,
+                Grid = x.Grid,
+                CanonicalAddress = x.Grid.GetCanonicalNetworkAddress(x.Adapter),
+                IsLocalGrid = x.IsLocalGrid,
+                SharedRouteKeys = ComputerNetworkRoutingUtilities.GetSharedRouteKeys(source, x.Adapter)
             })
             .ToList();
     }
@@ -407,6 +428,33 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         }
 
         var endpoints = GetReachableNetworkEndpoints().ToList();
+        var exact = endpoints
+            .Where(x => x.CanonicalAddress.Equals(address, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        if (exact.Count == 1)
+        {
+            return exact.Single();
+        }
+
+        if (exact.Count > 1)
+        {
+            return null;
+        }
+
+        var partial = endpoints
+            .Where(x => x.CanonicalAddress.StartsWith(address, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        return partial.Count == 1 ? partial.Single() : null;
+    }
+
+    public TelecommunicationsNetworkEndpointInfo? ResolveReachableNetworkEndpoint(INetworkAdapter source, string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            return null;
+        }
+
+        var endpoints = GetReachableNetworkEndpoints(source).ToList();
         var exact = endpoints
             .Where(x => x.CanonicalAddress.Equals(address, StringComparison.InvariantCultureIgnoreCase))
             .ToList();

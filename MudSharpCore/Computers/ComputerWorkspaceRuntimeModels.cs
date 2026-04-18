@@ -74,6 +74,7 @@ public sealed class CharacterComputerWorkspace : ICharacterComputerWorkspace
 
 	public ICharacter Owner { get; }
 	public string Name => $"{Owner.HowSeen(Owner, true)} workspace";
+	public long FileOwnerId => Owner.Id;
 	public long? OwnerCharacterId => Owner.Id;
 	public long? OwnerHostItemId => null;
 	public long? OwnerStorageItemId => null;
@@ -103,6 +104,7 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public IFuturemud Gameworld { get; }
 	public long OwnerCharacterId { get; }
 	long? IComputerExecutableOwner.OwnerCharacterId => OwnerCharacterId;
+	public long FileOwnerId => OwnerCharacterId;
 	public long? OwnerHostItemId => null;
 	public long? OwnerStorageItemId => null;
 	public string Name => $"Workspace Host [{OwnerCharacterId:N0}]";

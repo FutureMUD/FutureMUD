@@ -60,7 +60,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 {
 	private sealed class FileManagerState
 	{
-		public long? TargetStorageItemId { get; set; }
+		public long? TargetFileOwnerId { get; set; }
 	}
 
 	public string ApplicationId => "filemanager";
@@ -416,7 +416,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		var targetOwner = ResolveSelectableOwner(host, targetText);
 		if (targetOwner is null)
 		{
-			return ($"You must target either {host.Name.ColourName()} or one of its mounted storage devices.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
+			return ($"You must target one of the available local file owners on {host.Name.ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}", false);
 		}
 
 		if (ReferenceEquals(targetOwner, sourceOwner))
@@ -489,7 +489,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			var explicitTarget = ResolveSelectableOwner(host, ss.SafeRemainingArgument);
 			if (explicitTarget is null)
 			{
-				return ($"You must target either {host.Name.ColourName()} or one of its mounted storage devices.\n\n{RenderPrompt(session.User, host, state, warning)}",
+				return ($"You must target one of the available local file owners on {host.Name.ColourName()}.\n\n{RenderPrompt(session.User, host, state, warning)}",
 					false);
 			}
 
@@ -523,22 +523,22 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 	{
 		if (ss.IsFinished)
 		{
-			return ("Which host or mounted storage device do you want to use?\n\n" + RenderPrompt(session.User, host, state, null), false);
+			return ("Which local file owner do you want to use?\n\n" + RenderPrompt(session.User, host, state, null), false);
 		}
 
 		var targetText = ss.SafeRemainingArgument;
 		var targetOwner = ResolveSelectableOwner(host, targetText);
 		if (targetOwner is null)
 		{
-			return ($"You must target either {host.Name.ColourName()} or one of its mounted storage devices.\n\n{RenderPrompt(session.User, host, state, null)}", false);
+			return ($"You must target one of the available local file owners on {host.Name.ColourName()}.\n\n{RenderPrompt(session.User, host, state, null)}", false);
 		}
 
-		state.TargetStorageItemId = targetOwner is IComputerStorage storage ? storage.OwnerStorageItemId : null;
+		state.TargetFileOwnerId = targetOwner.FileOwnerId > 0L ? targetOwner.FileOwnerId : null;
 		return ($"Now managing files on {DescribeOwner(targetOwner).ColourName()}.\n\n{RenderPrompt(session.User, host, state, null)}", false);
 	}
 
 	private static void SendOverview(IComputerTerminalSession session, IComputerBuiltInApplication application,
-		IComputerHost host, FileManagerState state, IComputerExecutableOwner initialOwner)
+		IComputerHost host, FileManagerState state, IComputerFileOwner initialOwner)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"{application.Name.ColourName()} :: {host.Name.ColourName()}");
@@ -562,7 +562,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		sb.AppendLine($"\t{"write <file> <text>".ColourCommand()} - overwrite a file");
 		sb.AppendLine($"\t{"append <file> <text>".ColourCommand()} - append text to a file");
 		sb.AppendLine($"\t{"delete <file>".ColourCommand()} - delete a file");
-		sb.AppendLine($"\t{"copy <file> <target>".ColourCommand()} - copy a file to the host or a mounted storage device");
+		sb.AppendLine($"\t{"copy <file> <target>".ColourCommand()} - copy a file to any available local file owner");
 		sb.AppendLine($"\t{"copy public <host> <file> [to <target>]".ColourCommand()} - copy a published public network file to a local target");
 		sb.AppendLine($"\t{"owners".ColourCommand()} - list available file owners");
 		sb.AppendLine($"\t{"use <target>".ColourCommand()} - switch the current target");
@@ -642,13 +642,12 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("Available File Targets:");
-		var owners = new List<IComputerExecutableOwner> { host };
-		owners.AddRange(host.MountedStorage);
+		var owners = ComputerFileTransferUtilities.EnumerateOwners(host).ToList();
 		sb.AppendLine(StringUtilities.GetTextTable(
 			owners.Select(owner => new List<string>
 			{
 				DescribeOwner(owner),
-				owner is IComputerStorage storage ? storage.OwnerStorageItemId?.ToString("N0", user) ?? "-" : "host",
+				ComputerFileTransferUtilities.GetOwnerIdentifier(host, owner),
 				(owner.FileSystem?.Files.Count(x => x.PubliclyAccessible) ?? 0).ToString("N0", user),
 				owner.FileSystem?.UsedBytes.ToString("N0", user) ?? "0",
 				owner.FileSystem?.CapacityInBytes.ToString("N0", user) ?? "0"
@@ -656,7 +655,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			new List<string>
 			{
 				"Owner",
-				"Selector",
+				"Use",
 				"Public Files",
 				"Used",
 				"Capacity"
@@ -804,35 +803,35 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 
 		return new FileManagerState
 		{
-			TargetStorageItemId = owner is IComputerStorage storage ? storage.OwnerStorageItemId : null
+			TargetFileOwnerId = owner.FileOwnerId > 0L ? owner.FileOwnerId : null
 		};
 	}
 
-	private static (IComputerExecutableOwner Owner, string? Warning) ResolveTargetOwner(IComputerHost host,
+	private static (IComputerFileOwner Owner, string? Warning) ResolveTargetOwner(IComputerHost host,
 		FileManagerState state)
 	{
-		if (state.TargetStorageItemId is not > 0L)
+		if (state.TargetFileOwnerId is not > 0L)
 		{
 			return (host, null);
 		}
 
-		var storage = host.MountedStorage
-			.FirstOrDefault(x => x.OwnerStorageItemId == state.TargetStorageItemId.Value);
-		if (storage is not null)
+		var owner = ComputerFileTransferUtilities.EnumerateOwners(host)
+			.FirstOrDefault(x => x.FileOwnerId == state.TargetFileOwnerId.Value);
+		if (owner is not null)
 		{
-			return (storage, null);
+			return (owner, null);
 		}
 
-		state.TargetStorageItemId = null;
-		return (host, "The previously selected storage device is no longer mounted, so FileManager has reverted to the host.");
+		state.TargetFileOwnerId = null;
+		return (host, "The previously selected file target is no longer available, so FileManager has reverted to the host.");
 	}
 
-	private static IComputerExecutableOwner? ResolveSelectableOwner(IComputerHost host, string identifier)
+	private static IComputerFileOwner? ResolveSelectableOwner(IComputerHost host, string identifier)
 	{
 		return ComputerFileTransferUtilities.ResolveSelectableOwner(host, identifier, out _);
 	}
 
-	private static string DescribeOwner(IComputerExecutableOwner owner)
+	private static string DescribeOwner(IComputerFileOwner owner)
 	{
 		return ComputerFileTransferUtilities.DescribeOwner(owner);
 	}

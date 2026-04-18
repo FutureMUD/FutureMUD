@@ -131,6 +131,7 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	public long CapacityInBytes { get; set; }
 	public long UsedBytes => _files.Sum(x => x.SizeInBytes);
 	public IEnumerable<IComputerFile> Files => _files;
+	public event ComputerFileSystemChanged? FileChanged;
 
 	public IReadOnlyCollection<ComputerMutableTextFile> MutableFiles => _files.AsReadOnly();
 
@@ -163,11 +164,21 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 				CreatedAtUtc = now,
 				LastModifiedAtUtc = now
 			});
+			FileChanged?.Invoke(this, new ComputerFileSystemChange
+			{
+				FileName = fileName,
+				ChangeType = ComputerFileSystemChangeType.Written
+			});
 			return;
 		}
 
 		existing.TextContents = textContents ?? string.Empty;
 		existing.LastModifiedAtUtc = now;
+		FileChanged?.Invoke(this, new ComputerFileSystemChange
+		{
+			FileName = fileName,
+			ChangeType = ComputerFileSystemChangeType.Written
+		});
 	}
 
 	public void AppendFile(string fileName, string textContents)
@@ -183,11 +194,21 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 				CreatedAtUtc = now,
 				LastModifiedAtUtc = now
 			});
+			FileChanged?.Invoke(this, new ComputerFileSystemChange
+			{
+				FileName = fileName,
+				ChangeType = ComputerFileSystemChangeType.Appended
+			});
 			return;
 		}
 
 		existing.TextContents += textContents ?? string.Empty;
 		existing.LastModifiedAtUtc = now;
+		FileChanged?.Invoke(this, new ComputerFileSystemChange
+		{
+			FileName = fileName,
+			ChangeType = ComputerFileSystemChangeType.Appended
+		});
 	}
 
 	public bool DeleteFile(string fileName)
@@ -199,6 +220,11 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 		}
 
 		_files.Remove(existing);
+		FileChanged?.Invoke(this, new ComputerFileSystemChange
+		{
+			FileName = fileName,
+			ChangeType = ComputerFileSystemChangeType.Deleted
+		});
 		return true;
 	}
 
@@ -212,6 +238,11 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 
 		existing.PubliclyAccessible = isPublic;
 		existing.LastModifiedAtUtc = DateTime.UtcNow;
+		FileChanged?.Invoke(this, new ComputerFileSystemChange
+		{
+			FileName = fileName,
+			ChangeType = ComputerFileSystemChangeType.PublicAccessChanged
+		});
 		return true;
 	}
 

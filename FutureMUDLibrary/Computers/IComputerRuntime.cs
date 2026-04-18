@@ -8,14 +8,35 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
 
-public interface IComputerExecutableOwner
+public sealed class ComputerFileSystemChange
+{
+	public string FileName { get; init; } = string.Empty;
+	public ComputerFileSystemChangeType ChangeType { get; init; }
+}
+
+public enum ComputerFileSystemChangeType
+{
+	Written = 0,
+	Appended = 1,
+	Deleted = 2,
+	PublicAccessChanged = 3
+}
+
+public delegate void ComputerFileSystemChanged(IComputerFileSystem fileSystem, ComputerFileSystemChange change);
+
+public interface IComputerFileOwner
 {
 	string Name { get; }
+	long FileOwnerId { get; }
+	IComputerFileSystem? FileSystem { get; }
+}
+
+public interface IComputerExecutableOwner : IComputerFileOwner
+{
 	long? OwnerCharacterId { get; }
 	long? OwnerHostItemId { get; }
 	long? OwnerStorageItemId { get; }
 	IComputerHost ExecutionHost { get; }
-	IComputerFileSystem? FileSystem { get; }
 	IEnumerable<IComputerExecutableDefinition> Executables { get; }
 	IEnumerable<IComputerProcess> Processes { get; }
 }
@@ -57,6 +78,7 @@ public interface IComputerFileSystem
 	long CapacityInBytes { get; }
 	long UsedBytes { get; }
 	IEnumerable<IComputerFile> Files { get; }
+	event ComputerFileSystemChanged? FileChanged;
 	bool FileExists(string fileName);
 	IComputerFile? GetFile(string fileName);
 	string ReadFile(string fileName);

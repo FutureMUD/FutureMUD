@@ -431,7 +431,7 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 				.FirstOrDefault(x => x.UserName.Equals(userName, StringComparison.InvariantCultureIgnoreCase));
 	}
 
-	private IComputerExecutableOwner? ResolveRemoteOwner(IComputerHost targetHost, string? ownerIdentifier, out string error)
+	private IComputerFileOwner? ResolveRemoteOwner(IComputerHost targetHost, string? ownerIdentifier, out string error)
 	{
 		error = string.Empty;
 		if (string.IsNullOrWhiteSpace(ownerIdentifier))
@@ -452,7 +452,7 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 	}
 
 	private static ComputerRemoteFileSummary ToSummary(IComputerHost targetHost, string hostAddress,
-		IComputerExecutableOwner owner, IComputerFile file, bool readOnly)
+		IComputerFileOwner owner, IComputerFile file, bool readOnly)
 	{
 		return new ComputerRemoteFileSummary
 		{

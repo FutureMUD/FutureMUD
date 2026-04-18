@@ -380,7 +380,7 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 			ss.PopSpeech();
 		}
 
-		var targetOwner = session.CurrentOwner;
+		IComputerFileOwner targetOwner = session.CurrentOwner;
 		if (!ss.IsFinished)
 		{
 			var target = ComputerFileTransferUtilities.ResolveSelectableOwner(session.Host, ss.SafeRemainingArgument, out var targetError);

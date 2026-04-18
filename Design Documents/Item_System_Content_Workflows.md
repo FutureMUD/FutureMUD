@@ -43,6 +43,7 @@ Signal-automation examples now include:
 - `comp edit new temperaturesensor`
 - `comp edit new timersensor`
 - `comp edit new keypad`
+- `comp edit new filesignalgenerator`
 - `comp edit new microcontroller`
 - `comp edit new automationmounthost`
 - `comp edit new signalcable`
@@ -159,6 +160,7 @@ For the current signal-automation slice, also validate:
 - whether `temperaturesensor` emits the current ambient temperature in Celsius while powered and updates when the room temperature changes
 - whether `timersensor` alternates between its authored active and inactive values on the expected schedule and only emits live signal while powered
 - whether `keypad` only emits its configured signal value after the correct numeric code is entered, and otherwise reports no activation
+- whether `filesignalgenerator` creates its designated backing file, parses valid numeric contents into live signal output, drops back to zero on invalid or empty contents, and reports its current file status clearly through `electrical` and `programming`
 - whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
 - whether `automationmounthost` bay names, mount types, optional `AutomationHousing` access requirements, and mounted-power expectations match the intended content composition
 - whether `signalcable` successfully mirrors a source across the intended one-room exit hop and clears correctly when unrouted
@@ -168,7 +170,9 @@ For the current signal-automation slice, also validate:
 - whether `relayswitch` correctly opens or closes its relay according to its configured activation condition and only provides power while effectively closed
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 - whether the live `electrical` and `programming` verbs target the intended parent items and components through normal keyword targeting, without relying on raw component ids
+- whether `programming item <item> file [<component>]`, `file edit`, `file write`, and `file public on|off` can inspect and mutate the backing file on a live `filesignalgenerator`
 - whether live `electrical` inspection clearly shows controller input bindings, cable mirror routes, current values, and resolved versus broken signal links so end-to-end debugging is practical in game
+- whether live `electrical` inspection for a `filesignalgenerator` also shows the designated signal file, parse status, and whether the file is currently published for anonymous remote access
 - whether live `electrical` inspection also surfaces nearby routed cable segments clearly enough that builders can see which cable mirrors which source and through which exit hop
 - whether service access is correctly blocked by a closed `AutomationHousing` item around a mount bay or cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
@@ -317,30 +321,32 @@ For the first real in-world computer workflow, a practical pass is:
 12. Use `programming app sysmon` and confirm it runs as a host process, writes diagnostics to the connected terminal session, and reports host power, storage, process, and local signal state.
 13. Use `programming app filemanager` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
 14. Use `type owners`, `type list`, `type show <file>`, `type edit <file>`, `type write <file> <text>`, `type append <file> <text>`, `type copy <file> host`, `type use <storage>`, and `type exit` to confirm the connected terminal session is driving FileManager and that it can move between the host file system and mounted storage devices.
-15. When testing `type edit <file>`, confirm it hands off to the normal multiline editor, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`.
-16. Use `programming app directory` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-17. If a `networkadapter` is present, attach it to a telecommunications grid and, if desired, link that exchange to another grid that also has a powered reachable host with its own `networkadapter`.
-18. Use `type summary`, `type services`, `type storage`, `type terminals`, `type adapters`, `type hosts`, `type show <host>`, `type services <host>`, and `type exit` to confirm the connected terminal session is driving Directory, that it still exposes the local host and directly connected devices, and that it now discovers reachable hosts across the linked telecommunications-grid graph.
-19. On a reachable host that should act as a mail server, use `programming mail service on`, `programming mail domain add <domain>`, and `programming mail account add <user@domain> <password>` while connected to that host as an administrator.
-20. Use `type services <host>` in `Directory` from another reachable host and confirm the mail server now advertises `Mail` with its hosted domain details instead of reporting no implemented services.
-21. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-22. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable hosted domain and can inspect mailbox state.
-23. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
-24. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
-25. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
-26. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-27. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
-28. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
-29. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
-30. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
-31. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
-32. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
-33. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-34. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
-35. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
-36. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
-37. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-38. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+15. If the host item also has a `filesignalgenerator`, confirm `type owners` lists that component as an additional selectable local file owner and that `type use <owner>` plus `type show <file>` or `type edit <file>` can inspect and change its backing signal file.
+16. When testing `type edit <file>`, confirm it hands off to the normal multiline editor, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`.
+17. Use `programming app directory` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+18. If a `networkadapter` is present, attach it to a telecommunications grid and, if desired, link that exchange to another grid that also has a powered reachable host with its own `networkadapter`.
+19. Use `type summary`, `type services`, `type storage`, `type terminals`, `type adapters`, `type hosts`, `type show <host>`, `type services <host>`, and `type exit` to confirm the connected terminal session is driving Directory, that it still exposes the local host and directly connected devices, and that it now discovers reachable hosts across the linked telecommunications-grid graph.
+20. On a reachable host that should act as a mail server, use `programming mail service on`, `programming mail domain add <domain>`, and `programming mail account add <user@domain> <password>` while connected to that host as an administrator.
+21. Use `type services <host>` in `Directory` from another reachable host and confirm the mail server now advertises `Mail` with its hosted domain details instead of reporting no implemented services.
+22. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+23. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable hosted domain and can inspect mailbox state.
+24. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
+25. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
+26. If that host also has a `filesignalgenerator`, confirm the component owner's backing signal file can be published and later addressed through the same local file-owner selection workflow.
+27. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
+28. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+29. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
+30. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
+31. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
+32. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+33. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+34. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+35. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+36. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+37. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+38. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+39. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+40. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
 In the current shipped phase, `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the currently implemented remote network services when reachable hosts have `Mail` or `FTP` enabled and configured. `Boards` and `Messenger` remain reserved built-in identities for future phases.
 

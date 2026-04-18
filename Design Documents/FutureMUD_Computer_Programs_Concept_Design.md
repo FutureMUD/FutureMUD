@@ -47,6 +47,7 @@ The first implementation slice for this design has now landed. The currently imp
   - `TemperatureSensor`
   - `TimerSensor`
   - `Keypad`
+  - `FileSignalGenerator`
   - `Microcontroller`
   - `AutomationMountHost`
   - `AutomationHousing`
@@ -65,6 +66,7 @@ The first player-facing command surface for this slice has also now landed:
 - `programming` now has two scopes:
   - a private character-owned workspace for creating, editing, compiling, executing, listing, and killing computer functions and computer programs
   - live inspection and programming of real microcontroller items, including mounted ones targeted through `host@module`
+  - live inspection and file editing of file-backed automation signal generators through `programming item <item> file ...`
 - `programming` now also has a terminal-session bridge into real in-world computers:
   - `programming terminal connect <terminal>`
   - `programming terminal disconnect`
@@ -75,12 +77,12 @@ The first player-facing command surface for this slice has also now landed:
   - `programming apps`
   - `programming app <name>`
 - administrator characters now also have host-scoped network-service configuration surfaces through an active terminal session:
- - `programming mail`
- - `programming mail service on|off`
- - `programming mail domain add|remove|enable|disable <domain>`
- - `programming mail account add <user@domain> <password>`
- - `programming mail account enable|disable <user@domain>`
- - `programming mail account password <user@domain> <password>`
+  - `programming mail`
+  - `programming mail service on|off`
+  - `programming mail domain add|remove|enable|disable <domain>`
+  - `programming mail account add <user@domain> <password>`
+  - `programming mail account enable|disable <user@domain>`
+  - `programming mail account password <user@domain> <password>`
   - `programming ftp`
   - `programming ftp service on|off`
   - `programming ftp account add <user> <password>`
@@ -126,6 +128,7 @@ The remaining work is still substantial. In particular, waits beyond `sleep`, `U
 - The Program system will be shared between computers, microcomputers, controllers and other small bits of in-world compute type tasks
 - The system will use FutureProg syntax and most of the existing compiler front-end, but computer code is no longer modelled as ordinary global `IFutureProg` instances
 - Shared abstractions are defined in `FutureMUDLibrary/Computers` around `IComputerExecutable`, `IComputerFunction`, `IComputerProgramDefinition`, `IComputerProcess`, `IComputerHost`, `IComputerFileSystem`, `IComputerFile`, `ISignalSource`, and `ISignalSink`
+- The mutable file-owner surface is now broader than executable ownership: `IComputerFileOwner` lets item components expose a file system to `FileManager`, `FTP`, and related tools without also becoming full executable owners
 - There are ComputerPrograms, which are executed on in-game computers and run some code until they exit or terminate
 - Some ComputerPrograms are hard-coded by FutureMUD and they handle complex systems, like mail or chat or whatnot
 - Other ComputerPrograms are soft-coded by users and these are CustomComputerPrograms
@@ -287,8 +290,9 @@ In the current shipped phase:
   - `RainSensor` is a powered weather measurement input that emits a numeric rain-intensity scale while climate-exposed and zero while sheltered
   - `TemperatureSensor` is a powered ambient measurement input that emits the current room temperature in Celsius as its numeric signal
   - `TimerSensor` is a powered recurring same-item input that alternates between authored active and inactive numeric phases from a persisted cycle anchor
-  - `Keypad` is a powered selectable input that accepts numeric digit entry and emits a momentary signal only when the entered code matches its authored code
-  - `Microcontroller` is a powered machine component whose inputs are local signal sources resolved through stable local source identifiers plus endpoint keys, whose inline logic compiles as a `ComputerFunction`, and which can now also be installed as a separate module item into an automation host bay
+- `Keypad` is a powered selectable input that accepts numeric digit entry and emits a momentary signal only when the entered code matches its authored code
+- `FileSignalGenerator` is a powered file-backed input that owns a small local file system, parses one designated text file into a numeric signal, and updates its live output whenever that file changes
+- `Microcontroller` is a powered machine component whose inputs are local signal sources resolved through stable local source identifiers plus endpoint keys, whose inline logic compiles as a `ComputerFunction`, and which can now also be installed as a separate module item into an automation host bay
 - powered machine automation modules and sensors can optionally be authored to draw power from an automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise they look for a power source on their own parent item
   - `AutomationMountHost` provides named bays for separate automation modules and can require a sibling `AutomationHousing` component before those bays are serviceable
 - `AutomationHousing` is a dedicated housing or junction component family that is itself the service-access container capability, reusing the normal lockable/openable/container and legal-system path while exposing concealed automation items only when service access is open
@@ -305,6 +309,7 @@ In the current shipped phase:
     - manage a private workspace of computer functions and computer programs (`list`, `new`, `edit`, `set`, `parameter`, `compile`, `execute`, `processes`, `kill`, `help`)
     - inspect microcontrollers, replace logic, and add or remove local input bindings on live items through `programming item <item>` or the existing item-first short form
   - an `electrical` command verb that lets players inspect configurable sinks, rebind them to local signal sources, clear bindings, retune thresholds or activation mode, install or remove separate mountable modules, and route or unroute cable segments one room at a time, including targeting a dedicated automation housing or junction for concealed cable placement
+  - file-backed signal generators expose a focused live editing path through `programming item <item> file [<component>]`, `file edit`, `file write`, and `file public on|off`
 - both verbs currently use multistep delayed actions, inventory plans for tools, configurable static-string echoes, and skill checks without consuming materials
 - administrator characters execute those live item actions instantly and do not require tools or checks
   - the same `programming` surface now also has a terminal-first path for real computers, where players connect to a powered `ComputerTerminal` and select either the connected host or a mounted storage device as the current programming owner
@@ -312,6 +317,7 @@ In the current shipped phase:
   - the `type` verb is the terminal-facing input surface for real computers and now resumes foreground programs waiting on `UserInput()` for the active terminal session
   - workspace authoring still uses immediate ownership-checked edits rather than tool-gated physical actions
 - real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep`, `UserInput()`, and v1 `WaitSignal()` suspension; remote file access now exists for players through the `FTP` and `FileManager` built-in applications, while soft-coded remote file functions and broader network execution remain future phases
+- host-local file tooling is now file-owner-aware rather than only storage-aware, so component-owned file systems such as `FileSignalGenerator` can participate in `FileManager`, anonymous public-file browsing, and authenticated `FTP` mutation when they live on a reachable host item
   - abject failures on electrical work can cause electrical shock damage
 - Both of these command verbs should be able to be surpressed so that they don't appear on non-modern MUDs.
 

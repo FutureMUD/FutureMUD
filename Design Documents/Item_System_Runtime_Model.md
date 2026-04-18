@@ -97,6 +97,7 @@ The planned computer-programs subsystem follows the same composition rules:
 - concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
 - standalone player-owned computer code still exists outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`, but the same runtime now also supports real host-owned and storage-owned executables through `IComputerExecutableOwner`
 - host-owned and storage-owned file systems now also carry live network-file state such as per-file public visibility flags, while `ComputerHost` runtime configuration additionally carries FTP account data for the built-in remote file-transfer service
+- the broader mutable file-surface contract is now `IComputerFileOwner`, which allows non-executable item components such as automation sources to expose a file system to local or remote file tools without also becoming full executable owners
 
 This means "computerised" items are expected to compose multiple capabilities:
 - a host component to own files, executables, and running processes
@@ -129,6 +130,7 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `TemperatureSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current ambient temperature and emits that value in Celsius
 - `TimerSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
 - `Keypad` is a `PoweredMachineBaseGameItemComponent` plus `ISelectable` that accepts numeric `select <item> <digits>` input and emits a momentary numeric signal only when the entered code matches its authored code
+- `FileSignalGenerator` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSourceComponent` and `IComputerFileOwner` that owns a small mutable file system, parses one designated text file as a numeric signal, and emits that parsed value while switched on and powered
 - `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
   - binds named inputs to local `ISignalSourceComponent` instances
   - keeps live numeric input values
@@ -161,6 +163,7 @@ Current runtime connection rules for that slice are:
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
 - motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
+- file-backed signal generators treat file changes as their triggering event source: editing the owned file locally or through network file tools recomputes the parsed signal state and re-emits if the live output value changes
 - powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise powered machines still resolve power from their own parent item
 - mounted automation modules lazily restore their host linkage from saved host identity during load/login so host-derived power, signal access, and room context continue to work after a reboot
 - mounted automation modules now follow the shared item lifecycle contract: load restores structure, while `Login()` is the first point where they begin live power drawdown, signal subscriptions, timers, and similar active behaviour
@@ -175,6 +178,7 @@ Current runtime connection rules for that slice are:
 - there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments
 - local computer runtime now also exposes:
   - generic executable ownership through `IComputerExecutableOwner`
+  - generic mutable file ownership through `IComputerFileOwner`
   - mutable host and storage owners through `IComputerMutableOwner`
   - terminal-scoped execution context via `IComputerTerminalSession`
   - local file, terminal, and signal-wait functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `UserInput`, `WaitSignal`, `LaunchProgram`, and `KillProgram`
@@ -187,8 +191,10 @@ The current player-work runtime flow for that slice is:
 - when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
 - `programming apps` lists the built-in applications exposed by the connected powered host, regardless of whether the current selected mutable owner is the host or one mounted storage device
 - `programming app <name>` executes the named built-in application on that connected powered host as a real host process
+- `programming item <item> file [<component>]`, `file edit`, `file write`, and `file public on|off` now provide the live local editing surface for `FileSignalGenerator` components on ordinary loaded items
 - administrator characters can now configure host mail service state through the active terminal session with `programming mail`, `programming mail service ...`, `programming mail domain ...`, and `programming mail account ...`
 - `FileManager` is now a shipped built-in application on that surface: it runs as a host process, keeps its current host-or-storage file target in persisted process state, and uses repeated `type <text>` input to drive `list`, `show`, `edit`, `write`, `append`, `delete`, `copy`, `owners`, `use`, `help`, and `exit`
+- `FileManager` owner enumeration is now file-owner-aware rather than storage-only, so host-local component owners such as `FileSignalGenerator` appear alongside the host and mounted storage devices as selectable file targets
 - `type edit <file>` hands off to the engine's ordinary multiline editor flow, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`
 - `Directory` is now also a shipped built-in application on that surface: it runs as a host process and uses repeated `type <text>` input to browse the local host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters, and it also supports telecom-backed discovery of reachable hosts through `hosts`, `show <host>`, and `services <host>`
 - `Mail` is now also a shipped built-in application on that surface: it runs as a host process, authenticates against reachable hosted domains, and uses repeated `type <text>` input to log in, list inbox state, read and delete mailbox entries, compose drafts, and post messages
@@ -197,6 +203,7 @@ The current player-work runtime flow for that slice is:
 - host-backed computer processes can now also suspend in `WaitSignal()` with persisted signal-wait metadata that records the awaited local signal binding on the real execution host item
 - the current v1 `WaitSignal()` implementation resolves only named signal source components on that real execution host item and resumes when that source emits a non-zero signal value
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
+- public-file publication and authenticated FTP mutation likewise operate on any reachable `IComputerFileOwner`, so a `FileSignalGenerator` on a host item can expose or accept edits through the same network file infrastructure as the host and its mounted storage
 - real host-backed or storage-backed program execution is now blocked when the execution host is not powered
 - built-in application execution is likewise blocked when that connected execution host is not powered
 - actions are modelled as targeted delayed effects rather than instant mutation

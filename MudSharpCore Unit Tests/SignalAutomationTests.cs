@@ -100,6 +100,7 @@ return @togglevalue");
 				"pushbutton", "toggleswitch", "motionsensor", "timersensor", "microcontroller", "signallight",
 				"electroniclock", "electronicdoor", "alarmsiren", "automationmounthost", "signalcable",
 				"lightsensor", "rainsensor", "temperaturesensor", "keypad", "relayswitch",
+				"filesignalgenerator",
 				"automationhousing"
 			},
 			primaryTypes);
@@ -109,9 +110,54 @@ return @togglevalue");
 				"PushButton", "ToggleSwitch", "MotionSensor", "TimerSensor", "Microcontroller", "SignalLight",
 				"ElectronicLock", "ElectronicDoor", "AlarmSiren", "Automation Mount Host", "Signal Cable Segment",
 				"LightSensor", "RainSensor", "TemperatureSensor", "Keypad", "RelaySwitch",
+				"FileSignalGenerator",
 				"Automation Housing"
 			},
 			helpTypes);
+	}
+
+	[TestMethod]
+	public void FileSignalGenerator_UpdatesSignalWhenBackingFileChanges()
+	{
+		var gameworld = CreateGameworld();
+		var cell = CreateCell(9060L);
+		var item = CreateBasicItem(gameworld.Object, 9061L, "Signal Controller", cell.Object);
+		var proto = CreateFileSignalGeneratorProto(gameworld.Object);
+		var component = new FileSignalGeneratorGameItemComponent(proto, item.Object, true);
+
+		component.SwitchedOn = true;
+		component.OnPowerCutIn();
+
+		Assert.AreEqual(0.0, component.CurrentValue, 0.001);
+		component.FileSystem!.WriteFile(component.SignalFileName, "7.5");
+		Assert.AreEqual(7.5, component.CurrentValue, 0.001);
+		Assert.IsTrue(component.FileValueValid);
+
+		component.FileSystem.WriteFile(component.SignalFileName, "invalid");
+		Assert.AreEqual(0.0, component.CurrentValue, 0.001);
+		Assert.IsFalse(component.FileValueValid);
+	}
+
+	[TestMethod]
+	public void ComputerFileTransferUtilities_EnumerateOwners_IncludesHostLocalFileSignalGenerator()
+	{
+		var gameworld = CreateGameworld();
+		var cell = CreateCell(9070L);
+		var hostItem = CreateBasicItem(gameworld.Object, 9071L, "Network Appliance", cell.Object);
+		IGameItemComponent[] components = [];
+		hostItem.SetupGet(x => x.Components).Returns(() => components);
+
+		var host = new ComputerHostGameItemComponent(CreateComputerHostProto(gameworld.Object), hostItem.Object, true);
+		var fileGenerator = new FileSignalGeneratorGameItemComponent(CreateFileSignalGeneratorProto(gameworld.Object),
+			hostItem.Object,
+			true);
+		components = [host, fileGenerator];
+
+		var owners = ComputerFileTransferUtilities.EnumerateOwners(host).ToList();
+
+		Assert.IsTrue(owners.Contains(host));
+		Assert.IsTrue(owners.Contains(fileGenerator));
+		Assert.IsTrue(owners.Any(x => x.FileOwnerId == fileGenerator.Id));
 	}
 
 	[TestMethod]
@@ -1865,6 +1911,82 @@ return @togglevalue");
 				{
 					Id = 4065L,
 					Name = "Relay Switch",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static ComputerHostGameItemComponentProto CreateComputerHostProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 100.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", false),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("StorageCapacityInBytes", 8192L),
+			new XElement("StoragePorts", 1),
+			new XElement("TerminalPorts", 1),
+			new XElement("NetworkPorts", 1)
+		);
+
+		return (ComputerHostGameItemComponentProto)typeof(ComputerHostGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4066L,
+					Name = "Computer Host",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static FileSignalGeneratorGameItemComponentProto CreateFileSignalGeneratorProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 40.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("SignalFileName", new XCData("signal.txt")),
+			new XElement("InitialFileContents", new XCData("0")),
+			new XElement("FileCapacityInBytes", 4096L),
+			new XElement("PubliclyAccessibleByDefault", false)
+		);
+
+		return (FileSignalGeneratorGameItemComponentProto)typeof(FileSignalGeneratorGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4067L,
+					Name = "File Signal Generator",
 					Description = "Test",
 					RevisionNumber = 1,
 					Definition = definition.ToString(),

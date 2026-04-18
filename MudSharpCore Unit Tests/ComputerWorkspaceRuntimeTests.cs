@@ -2039,6 +2039,7 @@ return userinput()";
 
 		public bool Powered { get; set; }
 		public string Name { get; set; } = string.Empty;
+		public long FileOwnerId => OwnerHostItemId ?? 0L;
 		public long? OwnerCharacterId => null;
 		public long? OwnerHostItemId { get; set; } = 1L;
 		public long? OwnerStorageItemId { get; set; }
@@ -2183,6 +2184,7 @@ return userinput()";
 		}
 
 		public string Name { get; }
+		public long FileOwnerId => OwnerStorageItemId ?? 0L;
 		public long? OwnerCharacterId => null;
 		public long? OwnerHostItemId => null;
 		public long? OwnerStorageItemId => OwnerStorageItemIdValue;

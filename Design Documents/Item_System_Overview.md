@@ -41,7 +41,7 @@ The planned computer-programs subsystem is an item-system feature, not a separat
 The intended component families are:
 - host components such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, and `NetworkAdapter`
 - logic components such as `Microcontroller`
-- signal-input components such as `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, and `Keypad`
+- signal-input components such as `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`, and `FileSignalGenerator`
 - signal-output components such as `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, and `AlarmSiren`
 
 Those families should share common computer/signal contracts, but each concrete behaviour should still have its own prototype, runtime component, builder help, and persistence rules.
@@ -59,6 +59,7 @@ The first shipped automation slice now includes:
 - `TemperatureSensor`
 - `TimerSensor`
 - `Keypad`
+- `FileSignalGenerator`
 - `Microcontroller`
 - `AutomationMountHost`
 - `AutomationHousing`
@@ -74,13 +75,14 @@ That slice now combines three patterns:
 - separate mountable modules installed into `AutomationMountHost` bays as real items rather than collapsed components
 - adjacent-room one-hop signal cable items that mirror one source endpoint across a specific exit
 
-Builders still author local bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. `AutomationHousing` is now the dedicated housing or junction component family for concealed modules and cable ends, and is itself the lockable/openable/container access capability on the item. `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`, and `Microcontroller` are now powered-machine or selectable-input implementations, and the powered-machine families can optionally draw power from an automation host's parent-item power source when mounted. This is enough to support authored control panels, ambient and weather-driven automation, timed local automation, keypad entry panels, mounted controllers, relay-controlled power paths, indicator lights, signal-driven doors and locks, motion-triggered alarms, concealed service housings, and one-room-at-a-time wiring while leaving broader graphs, richer sensors, and networked hosts for later phases.
+Builders still author local bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. `AutomationHousing` is now the dedicated housing or junction component family for concealed modules and cable ends, and is itself the lockable/openable/container access capability on the item. `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`, `FileSignalGenerator`, and `Microcontroller` are now powered-machine or selectable-input implementations, and the powered-machine families can optionally draw power from an automation host's parent-item power source when mounted. `FileSignalGenerator` is the first automation source that is also a local computer-style file owner: it persists a small text file on the item component, parses that file as a numeric signal while powered and switched on, and exposes the same file to host-local `FileManager`, public-file publication, and authenticated `FTP` workflows when the component lives on a host item. This is enough to support authored control panels, ambient and weather-driven automation, timed local automation, keypad entry panels, mounted controllers, relay-controlled power paths, indicator lights, signal-driven doors and locks, motion-triggered alarms, concealed service housings, file-driven automation sources, and one-room-at-a-time wiring while leaving broader graphs, richer sensors, and networked hosts for later phases.
 
 The first live player command surface for that slice is also now present:
 - `electrical` for inspecting signal-driven items, installing or removing mountable modules, routing or unrouting cable segments, and configuring sinks
 - `programming` as a hybrid surface for both:
   - a private workspace of computer functions and programs
   - inspecting and live-programming real microcontroller items, including mounted ones
+  - editing file-backed automation signal generators on live items through `programming item <item> file ...`
   - connecting to a powered `ComputerTerminal` and then targeting the connected `ComputerHost` or a mounted `ComputerStorage` as the current programming owner
 
 The first real computer-host slice now also includes:
@@ -92,6 +94,7 @@ The first real computer-host slice now also includes:
 - the terminal-facing `type` verb, which now routes foreground terminal input and resumes programs waiting on `UserInput()`
 - shipped built-in host applications `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP`
 - shipped network services `Mail` and `FTP`, including host-scoped service enablement, hosted domains for mail, per-host FTP account and public-file configuration, database-backed mailboxes, and telecom-backed delivery or remote-file access to reachable hosts
+- file-owner-aware local and remote file workflows, where host-local component owners such as `FileSignalGenerator` can participate alongside the host and mounted storage devices
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

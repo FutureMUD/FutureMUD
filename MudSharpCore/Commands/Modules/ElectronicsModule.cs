@@ -92,6 +92,10 @@ You can use the following syntax:
 	#3programming item <item> logic [<component>] <text>#0 - directly replaces the controller logic
 	#3programming item <item> input add [<component>] <variable> <source> [<endpoint>]#0 - binds an input variable to a local signal source
 	#3programming item <item> input remove [<component>] <variable>#0 - removes an input variable
+	#3programming item <item> file [<component>]#0 - shows the backing file status for a file-driven signal generator
+	#3programming item <item> file edit [<component>]#0 - opens the backing signal file in the normal multiline editor
+	#3programming item <item> file write [<component>] <text>#0 - directly replaces the backing signal file contents
+	#3programming item <item> file public [<component>] on|off#0 - changes whether the backing file is publicly accessible over FTP
 
 Workspace-style authoring commands operate on your current programming owner, which is either your private workspace or the owner selected on your connected computer terminal session.
 The old short form of #3programming <item>#0 still works for item-targeted microcontroller programming whenever the first word is not one of the reserved workspace verbs.
@@ -577,6 +581,10 @@ If more than one terminal could be used, specify one explicitly or connect first
 			case "input":
 			case "inputs":
 				ProgrammingInput(actor, item, ss);
+				return;
+			case "file":
+			case "files":
+				ProgrammingFile(actor, item, ss);
 				return;
 			default:
 				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
@@ -3271,6 +3279,180 @@ If more than one terminal could be used, specify one explicitly or connect first
 			});
 	}
 
+	private static void ProgrammingFile(ICharacter actor, IGameItem item, StringStack ss)
+	{
+		if (!CanServiceElectronicsTarget(actor, item, out var serviceError))
+		{
+			actor.Send(serviceError);
+			return;
+		}
+
+		var actionKeywords = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			"show",
+			"edit",
+			"write",
+			"public"
+		};
+
+		IFileSignalGenerator? generator;
+		if (ss.IsFinished)
+		{
+			generator = ResolveOptionalFileSignalGenerator(actor, item, ss, "file-backed signal generator");
+			if (generator is null)
+			{
+				return;
+			}
+
+			ShowFileSignalGenerator(actor, generator);
+			return;
+		}
+
+		if (actionKeywords.Contains(ss.PeekSpeech()))
+		{
+			generator = ResolveOptionalFileSignalGenerator(actor, item, new StringStack(string.Empty),
+				"file-backed signal generator");
+			if (generator is null)
+			{
+				return;
+			}
+		}
+		else
+		{
+			generator = ResolveOptionalFileSignalGenerator(actor, item, ss, "file-backed signal generator");
+			if (generator is null)
+			{
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				ShowFileSignalGenerator(actor, generator);
+				return;
+			}
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "show":
+				ShowFileSignalGenerator(actor, generator);
+				return;
+			case "edit":
+				ProgrammingFileEdit(actor, item, generator);
+				return;
+			case "write":
+				ProgrammingFileWrite(actor, item, generator, ss);
+				return;
+			case "public":
+				ProgrammingFilePublic(actor, item, generator, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ProgrammingFileEdit(ICharacter actor, IGameItem item, IFileSignalGenerator generator)
+	{
+		var existing = generator.FileSystem?.ReadFile(generator.SignalFileName) ?? string.Empty;
+		actor.Send("Enter the replacement file contents in the editor below.");
+		actor.EditorMode(
+			(text, handler, _) => StartProgrammingAction(
+				actor,
+				item,
+				"programming $1",
+				outcome =>
+				{
+					generator.FileSystem?.WriteFile(generator.SignalFileName, text);
+					actor.Send(
+						$"You replace the contents of {generator.SignalFileName.ColourCommand()} for {DescribeComponent(actor, generator).ColourName()}.");
+					return true;
+				}),
+			(handler, _) => handler.Send("You decide not to change the signal file."),
+			1.0,
+			recallText: existing,
+			options: EditorOptions.PermitEmpty);
+	}
+
+	private static void ProgrammingFileWrite(ICharacter actor, IGameItem item, IFileSignalGenerator generator,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("What text should the backing signal file contain?");
+			return;
+		}
+
+		var text = ss.SafeRemainingArgument;
+		StartProgrammingAction(
+			actor,
+			item,
+			"programming $1",
+			outcome =>
+			{
+				generator.FileSystem?.WriteFile(generator.SignalFileName, text);
+				actor.Send(
+					$"You replace the contents of {generator.SignalFileName.ColourCommand()} for {DescribeComponent(actor, generator).ColourName()}.");
+				return true;
+			});
+	}
+
+	private static void ProgrammingFilePublic(ICharacter actor, IGameItem item, IFileSignalGenerator generator,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Should that backing signal file be public or private?");
+			return;
+		}
+
+		bool? isPublic = ss.PopSpeech().ToLowerInvariant() switch
+		{
+			"on" or "yes" or "true" or "public" => true,
+			"off" or "no" or "false" or "private" => false,
+			_ => null
+		};
+		if (!isPublic.HasValue)
+		{
+			actor.Send("You must specify either on or off.");
+			return;
+		}
+
+		StartProgrammingAction(
+			actor,
+			item,
+			"programming $1",
+			outcome =>
+			{
+				if (generator.FileSystem?.SetFilePubliclyAccessible(generator.SignalFileName, isPublic.Value) != true)
+				{
+					actor.Send("That component does not currently have a backing signal file.");
+					return false;
+				}
+
+				actor.Send(
+					$"{generator.SignalFileName.ColourCommand()} is now {(isPublic.Value ? "public".ColourValue() : "private".ColourError())} for {DescribeComponent(actor, generator).ColourName()}.");
+				return true;
+			});
+	}
+
+	private static void ShowFileSignalGenerator(ICharacter actor, IFileSignalGenerator generator)
+	{
+		var file = generator.FileSystem?.GetFile(generator.SignalFileName);
+		var sb = new StringBuilder();
+		sb.AppendLine($"{DescribeComponent(actor, generator).ColourName()}");
+		sb.AppendLine(
+			$"\tOutput: {generator.CurrentValue.ToString("N2", actor).ColourValue()} on {generator.EndpointKey.ColourCommand()}{DescribeElectricalMachineStateSuffix(generator)}");
+		sb.AppendLine($"\tFile: {generator.SignalFileName.ColourCommand()}");
+		sb.AppendLine(
+			$"\tStatus: {(generator.FileValueValid ? generator.FileStatus.ColourValue() : generator.FileStatus.ColourError())}");
+		sb.AppendLine($"\tPublic: {(file?.PubliclyAccessible ?? false).ToColouredString()}");
+		sb.AppendLine($"\tModified: {(file?.LastModifiedAtUtc.ToString(actor) ?? "never".ColourError())}");
+		sb.AppendLine();
+		sb.AppendLine(file?.TextContents ?? string.Empty);
+		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
 	private static void StartProgrammingAction(ICharacter actor, IGameItem item, string actionDescription,
 		Func<CheckOutcome, bool> successAction)
 	{
@@ -3519,6 +3701,12 @@ If more than one terminal could be used, specify one explicitly or connect first
 							? $"mirroring {DescribeSignalBinding(actor, cable.CurrentBinding).ColourCommand()} across {cable.RouteDescription.ColourCommand()} ({(upstreamSource is null ? "route broken".ColourError() : "route live".ColourValue())})"
 							: "not currently routed".ColourError());
 				}
+				else if (source is IFileSignalGenerator fileGenerator)
+				{
+					var file = fileGenerator.FileSystem?.GetFile(fileGenerator.SignalFileName);
+					details.Add(
+						$"reading {fileGenerator.SignalFileName.ColourCommand()} ({(fileGenerator.FileValueValid ? fileGenerator.FileStatus.ColourValue() : fileGenerator.FileStatus.ColourError())}, public {(file?.PubliclyAccessible ?? false).ToColouredString()})");
+				}
 
 				sb.AppendLine($"\t{DescribeComponent(actor, source).ColourName()} -> {string.Join(", ", details)}");
 			}
@@ -3591,14 +3779,15 @@ If more than one terminal could be used, specify one explicitly or connect first
 	private static void ShowProgrammingStatus(ICharacter actor, IGameItem item)
 	{
 		var controllers = item.Components.OfType<IRuntimeProgrammableMicrocontroller>().ToList();
-		if (!controllers.Any())
+		var fileGenerators = item.Components.OfType<IFileSignalGenerator>().ToList();
+		if (!controllers.Any() && !fileGenerators.Any())
 		{
-			actor.Send($"{item.HowSeen(actor, true)} has no programmable microcontrollers.");
+			actor.Send($"{item.HowSeen(actor, true)} has no programmable microcontrollers or file-backed signal generators.");
 			return;
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine($"{item.HowSeen(actor, true)} has the following programmable microcontrollers:");
+		sb.AppendLine($"{item.HowSeen(actor, true)} has the following programmable electronics:");
 		foreach (var controller in controllers.OrderBy(x => ((IGameItemComponent)x).Id))
 		{
 			var component = (IGameItemComponent)controller;
@@ -3617,6 +3806,15 @@ If more than one terminal could be used, specify one explicitly or connect first
 				sb.AppendLine(
 					$"\t\t{binding.VariableName.ColourCommand()} <- {DescribeSignalBinding(actor, binding.Binding).ColourCommand()} = {binding.CurrentValue.ToString("N2", actor).ColourValue()} ({(resolvedSource is null ? "unresolved".ColourError() : $"resolved to {DescribeComponent(actor, resolvedSource).ColourName()}")})");
 			}
+		}
+
+		foreach (var generator in fileGenerators.OrderBy(x => ((IGameItemComponent)x).Id))
+		{
+			var file = generator.FileSystem?.GetFile(generator.SignalFileName);
+			sb.AppendLine(
+				$"\t{DescribeComponent(actor, generator).ColourName()} - file-driven signal source, output {generator.CurrentValue.ToString("N2", actor).ColourValue()} on {generator.EndpointKey.ColourCommand()}{DescribeElectricalMachineStateSuffix(generator)}");
+			sb.AppendLine(
+				$"\t\t{generator.SignalFileName.ColourCommand()} - {(generator.FileValueValid ? generator.FileStatus.ColourValue() : generator.FileStatus.ColourError())}, public {(file?.PubliclyAccessible ?? false).ToColouredString()}");
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
@@ -3811,6 +4009,40 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		return ResolveComponentOnItem<IRuntimeProgrammableMicrocontroller>(actor, item, ss.PopSpeech(),
 			componentTypeDescription);
+	}
+
+	private static IFileSignalGenerator? ResolveOptionalFileSignalGenerator(ICharacter actor, IGameItem item,
+		StringStack ss, string componentTypeDescription)
+	{
+		var generators = item.Components.OfType<IFileSignalGenerator>().ToList();
+		if (!generators.Any())
+		{
+			actor.Send($"{item.HowSeen(actor, true)} has no {componentTypeDescription}s.");
+			return null;
+		}
+
+		if (generators.Count == 1)
+		{
+			if (!ss.IsFinished)
+			{
+				var explicitGenerator = TryResolveComponentOnItem<IFileSignalGenerator>(item, ss.PeekSpeech());
+				if (explicitGenerator is not null)
+				{
+					ss.PopSpeech();
+					return explicitGenerator;
+				}
+			}
+
+			return generators[0];
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send($"Which {componentTypeDescription} do you mean?");
+			return null;
+		}
+
+		return ResolveComponentOnItem<IFileSignalGenerator>(actor, item, ss.PopSpeech(), componentTypeDescription);
 	}
 
 	private static IAutomationMountHost? ResolveAutomationMountHost(ICharacter actor, IGameItem item)

@@ -44,6 +44,7 @@ If the feature also needs shared immutable value objects rather than only a quer
 
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
+- broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage
 - item-facing component contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` belong in `FutureMUDLibrary/GameItems/Interfaces`
 - concrete behaviours such as `ComputerHost`, `ComputerStorage`, `ComputerTerminal`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, or `ElectronicDoor` should still be separate runtime components and component protos in `MudSharpCore`
 - avoid collapsing multiple distinct automation behaviours into one generic "sensor" or "actuator" component unless the gameplay contract is genuinely identical
@@ -260,6 +261,7 @@ Implemented builder-facing component types:
 - `temperaturesensor`
 - `timersensor`
 - `keypad`
+- `filesignalgenerator`
 - `microcontroller`
 - `automationmounthost`
 - `automationhousing`
@@ -285,6 +287,7 @@ Current authoring pattern:
 - `temperaturesensor` authors powered-machine settings and emits the current ambient temperature as a live numeric signal in Celsius
 - `timersensor` authors powered-machine settings plus active and inactive values, active and inactive durations, and its initial phase
 - `keypad` authors powered-machine settings plus numeric code, emitted signal value, signal duration, and keypad entry emote
+- `filesignalgenerator` authors powered-machine settings plus the designated signal file name, initial file contents, file-system capacity, and whether that file should start publicly accessible for remote file tools
 - `microcontroller` authors powered-machine settings, including optional mount-host power draw via `mountpower`
 - `electronicdoor` authors source component prototype, threshold, invert mode, and automatic open and close emotes
 - `relayswitch` authors source component prototype, threshold, invert mode, and programmable power-supply behaviour through the relay-controlled power base
@@ -295,9 +298,11 @@ Important implementation details from this slice:
 - input variable names are validated and normalised to lower case at compile time
 - sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown using stable local source identifiers plus endpoint keys rather than transient component names
 - signal propagation is event-based, so components should avoid re-emitting unchanged values
+- file-backed signal generators are the reference pattern for hybrid automation/file components: the runtime component owns a mutable file system, subscribes to its file-change event, reparses the designated text file into a numeric signal, and can participate in `FileManager` / `FTP` as an `IComputerFileOwner`
 - live player reconfiguration is a separate runtime concern from builder authoring:
   - configurable sinks that support live rewiring should implement `IRuntimeConfigurableSignalSinkComponent`
   - live-programmable controllers should implement `IRuntimeProgrammableMicrocontroller`
+  - live-editable file-backed signal sources should expose a file-owner surface plus any focused runtime interface needed by `programming item <item> file ...`
   - those runtime interfaces are what the `electrical` and `programming` command verbs target on loaded items
   - standalone character-owned workspace executables are not item components and are instead managed through the computer-runtime services in `MudSharpCore/Computers`
 

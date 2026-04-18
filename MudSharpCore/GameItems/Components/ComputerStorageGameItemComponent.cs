@@ -32,6 +32,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	{
 		_prototype = proto;
 		_fileSystem = new ComputerMutableFileSystem(proto.StorageCapacityInBytes);
+		_fileSystem.FileChanged += FileSystemOnFileChanged;
 	}
 
 	public ComputerStorageGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -41,6 +42,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	{
 		_prototype = proto;
 		_fileSystem = new ComputerMutableFileSystem(proto.StorageCapacityInBytes);
+		_fileSystem.FileChanged += FileSystemOnFileChanged;
 		LoadRuntimeState(XElement.Parse(component.Definition));
 	}
 
@@ -50,6 +52,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	{
 		_prototype = rhs._prototype;
 		_fileSystem = new ComputerMutableFileSystem(rhs._fileSystem.CapacityInBytes);
+		_fileSystem.FileChanged += FileSystemOnFileChanged;
 		_fileSystem.LoadFiles(rhs._fileSystem.MutableFiles.Select(x => new ComputerMutableTextFile
 		{
 			FileName = x.FileName,
@@ -112,6 +115,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 
 	public override IGameItemComponentProto Prototype => _prototype;
 	public string Name => Parent.Name;
+	public long FileOwnerId => Parent.Id;
 	public long? OwnerCharacterId => null;
 	public long? OwnerHostItemId => null;
 	public long? OwnerStorageItemId => Parent.Id;
@@ -448,5 +452,10 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		target.OwnerStorageItemId = source.OwnerStorageItemId;
 		target.CreatedAtUtc = source.CreatedAtUtc;
 		target.LastModifiedAtUtc = source.LastModifiedAtUtc;
+	}
+
+	private void FileSystemOnFileChanged(IComputerFileSystem fileSystem, ComputerFileSystemChange change)
+	{
+		Changed = true;
 	}
 }

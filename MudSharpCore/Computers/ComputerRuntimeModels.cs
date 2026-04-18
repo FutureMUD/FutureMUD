@@ -83,6 +83,12 @@ public sealed class ComputerFileSystemDefinition : IComputerFileSystem
 	public long CapacityInBytes { get; init; }
 	public IEnumerable<IComputerFile> Files { get; init; } = Enumerable.Empty<IComputerFile>();
 	public long UsedBytes => Files.Sum(x => x.SizeInBytes);
+	public event ComputerFileSystemChanged? FileChanged
+	{
+		add { }
+		remove { }
+	}
+
 	public bool FileExists(string fileName)
 	{
 		return Files.Any(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
@@ -122,6 +128,7 @@ public sealed class ComputerFileSystemDefinition : IComputerFileSystem
 public sealed class ComputerHostDefinition : IComputerHost
 {
 	public string Name { get; init; } = string.Empty;
+	public long FileOwnerId => OwnerHostItemId ?? 0L;
 	public long? OwnerCharacterId { get; init; }
 	public long? OwnerHostItemId { get; init; }
 	public long? OwnerStorageItemId { get; init; }

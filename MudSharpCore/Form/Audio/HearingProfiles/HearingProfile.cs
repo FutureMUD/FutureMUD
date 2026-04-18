@@ -50,8 +50,12 @@ public abstract class HearingProfile : SaveableItem, IHearingProfile
 				return new SimpleHearingProfile(profile, game);
 			case "Temporal":
 				return new TemporalHearingProfile(profile, game);
+			case "TimeOfDay":
+				return new TimeOfDayHearingProfile(profile, game);
 			case "Weekday":
 				return new WeekdayHearingProfile(profile, game);
+			case "WeekdayTimeOfDay":
+				return new WeekdayTimeOfDayHearingProfile(profile, game);
 			default:
 				throw new NotSupportedException("Invalid HearingProfile type in HearingProfile.LoadProfile");
 		}

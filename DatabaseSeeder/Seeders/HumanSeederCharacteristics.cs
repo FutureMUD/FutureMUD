@@ -122,7 +122,7 @@ public partial class HumanSeeder
             Type = 2,
             Pattern = "^facialhaircolou?r",
             Description = "The colour of one's facial hair",
-            ParentId = colourDef.Id,
+            ParentId = hairColourDef.Id,
             Model = "Standard",
             ChargenDisplayType = 1,
             Parent = hairColourDef
@@ -162,7 +162,7 @@ public partial class HumanSeeder
             Name = "Skin Colour",
             Type = 3,
             Pattern = "^skin(colou?r|tone)",
-            Description = "The style of one's facial hair",
+            Description = "The colour or tone of one's skin",
             Model = "Standard",
             ChargenDisplayType = 0
         };
@@ -310,7 +310,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Valid Blue Eye Colours",
             Definition =
-                "<Values> <Value>grey</Value> <Value>light grey</Value> <Value>dark grey</Value> <Value>blue</Value> <Value>dark blue</Value> <Value>cerulean</Value> <Value>mist grey</Value> <Value>thistle grey</Value> <Value>slate grey</Value> <Value>soft grey</Value> <Value>chartreuse</Value> <Value>slate blue</Value> <Value>bright blue</Value> <Value>powder blue</Value> <Value>sapphire blue</Value> <Value>royal blue</Value> <Value>ocean blue</Value> <Value>sky blue</Value> <Value>azure</Value> <Value>beryl</Value> <Value>light blue</Value> <Value>pale blue</Value> <Value>deep blue</Value> <Value>winter blue</Value> <Value>storm blue</Value> <Value>cobalt blue</Value> <Value>light steel blue</Value> <Value>steel blue</Value> <Value>azure blue</Value> </Values>"
+                "<Values> <Value>grey</Value> <Value>light grey</Value> <Value>dark grey</Value> <Value>blue</Value> <Value>dark blue</Value> <Value>cerulean</Value> <Value>mist grey</Value> <Value>thistle grey</Value> <Value>slate grey</Value> <Value>soft grey</Value> <Value>slate blue</Value> <Value>bright blue</Value> <Value>powder blue</Value> <Value>sapphire blue</Value> <Value>royal blue</Value> <Value>ocean blue</Value> <Value>sky blue</Value> <Value>azure</Value> <Value>beryl</Value> <Value>light blue</Value> <Value>pale blue</Value> <Value>deep blue</Value> <Value>winter blue</Value> <Value>storm blue</Value> <Value>cobalt blue</Value> <Value>light steel blue</Value> <Value>steel blue</Value> <Value>azure blue</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -340,7 +340,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Valid Black Hair Colours",
             Definition =
-                "<Values> <Value>black</Value> <Value>onyx</Value> <Value>obsidian</Value> <Value>midnight black</Value> <Value>ink black</Value> <Value>jet black</Value> <Value>pitch black</Value> <Value>salt-and-pepper</Value> </Values>"
+                "<Values> <Value>black</Value> <Value>onyx</Value> <Value>obsidian</Value> <Value>midnight black</Value> <Value>ink black</Value> <Value>jet black</Value> <Value>pitch black</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -380,7 +380,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Valid Grey Hair Colours",
             Definition =
-                "<Values> <Value>white</Value> <Value>grey</Value> <Value>light grey</Value> <Value>dark grey</Value> <Value>pale white</Value> <Value>ivory</Value> <Value>seashell</Value> <Value>snow white</Value> <Value>gleaming white</Value> <Value>pure white</Value> <Value>pearl white</Value> <Value>bright white</Value> <Value>bone white</Value> <Value>ghost white</Value> <Value>mist grey</Value> <Value>charcoal grey</Value> <Value>thistle grey</Value> <Value>smoky grey</Value> <Value>slate grey</Value> <Value>silver grey</Value> <Value>soft grey</Value> <Value>ash grey</Value> </Values>"
+                "<Values> <Value>white</Value> <Value>grey</Value> <Value>light grey</Value> <Value>dark grey</Value> <Value>pale white</Value> <Value>ivory</Value> <Value>seashell</Value> <Value>snow white</Value> <Value>gleaming white</Value> <Value>pure white</Value> <Value>pearl white</Value> <Value>bright white</Value> <Value>bone white</Value> <Value>ghost white</Value> <Value>mist grey</Value> <Value>charcoal grey</Value> <Value>thistle grey</Value> <Value>smoky grey</Value> <Value>slate grey</Value> <Value>silver grey</Value> <Value>soft grey</Value> <Value>ash grey</Value> <Value>salt-and-pepper</Value> </Values>"
         });
         _context.SaveChanges();
 
@@ -391,7 +391,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Reddish Brown Skin Tones",
             Definition =
-                "<Values> <Value>russet</Value> <Value>copper</Value> <Value>light copper</Value> <Value>dark copper</Value> <Value>russet</Value> <Value>cinnamon</Value> <Value>mahogany</Value> </Values>"
+                "<Values> <Value>russet</Value> <Value>copper</Value> <Value>light-copper</Value> <Value>dark-copper</Value> <Value>cinnamon</Value> <Value>mahogany</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -401,7 +401,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Black Skin Tones",
             Definition =
-                "<Values> <Value>dark brown</Value> <Value>ebony</Value> <Value>black</Value> <Value>obsidian</Value> <Value>jet</Value> <Value>cocoa</Value> </Values>"
+                "<Values> <Value>dark-brown</Value> <Value>ebony</Value> <Value>black</Value> <Value>obsidian</Value> <Value>jet</Value> <Value>cocoa</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -411,7 +411,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Brown Skin Tones",
             Definition =
-                "<Values>   <Value>dark olive</Value>   <Value>light brown</Value>   <Value>brown</Value>   <Value>caramel</Value>   <Value>swarthy</Value>   <Value>chestnut</Value>   <Value>mocha</Value> </Values>"
+                "<Values> <Value>dark-olive</Value> <Value>light-brown</Value> <Value>medium-brown</Value> <Value>brown</Value> <Value>caramel</Value> <Value>swarthy</Value> <Value>chestnut</Value> <Value>mocha</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -421,7 +421,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Fair Skin Tones",
             Definition =
-                "<Values> <Value>white</Value> <Value>milky white</Value> <Value>pale white</Value> <Value>pasty white</Value> <Value>tanned</Value> <Value>ruddy</Value> <Value>sallow</Value> <Value>pale</Value> <Value>translucent</Value> <Value>pallid</Value> <Value>ashen</Value> <Value>snow white</Value> </Values>"
+                "<Values> <Value>white</Value> <Value>milky-white</Value> <Value>pale-white</Value> <Value>pasty-white</Value> <Value>tanned</Value> <Value>ruddy</Value> <Value>sallow</Value> <Value>pale</Value> <Value>translucent</Value> <Value>pallid</Value> <Value>ashen</Value> <Value>snow white</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -431,7 +431,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Olive Skin Tones",
             Definition =
-                "<Values> <Value>tanned</Value> <Value>olive</Value> <Value>bronzed</Value> <Value>dark olive</Value> <Value>light brown</Value> <Value>pale olive</Value> <Value>dusky</Value> </Values>"
+                "<Values> <Value>tanned</Value> <Value>olive</Value> <Value>bronzed</Value> <Value>dark-olive</Value> <Value>light-brown</Value> <Value>pale-olive</Value> <Value>dusky</Value> </Values>"
         });
 
         _context.CharacteristicProfiles.Add(new CharacteristicProfile
@@ -441,7 +441,7 @@ public partial class HumanSeeder
             Type = "Standard",
             Description = "Golden Skin Tones",
             Definition =
-                "<Values> <Value>white</Value> <Value>milky white</Value> <Value>pale white</Value> <Value>pasty white</Value> <Value>olive</Value> <Value>oriental</Value> <Value>dark olive</Value> <Value>light brown</Value> <Value>pale olive</Value> <Value>golden</Value> <Value>light golden</Value> <Value>tawny</Value> <Value>buttermilk</Value> </Values>"
+                "<Values> <Value>olive</Value> <Value>almond</Value> <Value>bronzed</Value> <Value>dark-olive</Value> <Value>light-brown</Value> <Value>pale-olive</Value> <Value>golden</Value> <Value>light golden</Value> <Value>honey</Value> <Value>tawny</Value> <Value>buttermilk</Value> </Values>"
         });
         _context.SaveChanges();
 
@@ -708,7 +708,7 @@ public partial class HumanSeeder
             FunctionName = "CanPickUnderweightDescs",
             Category = "Character",
             Subcategory = "Descriptions",
-            FunctionComment = "Determines if the character is eligable for \"underweight\" description values.",
+            FunctionComment = "Determines if the character is eligible for \"underweight\" description values.",
             ReturnType = 4,
             StaticType = 0,
             FunctionText = "return @GetBMI(@ch) < 22"
@@ -727,7 +727,7 @@ public partial class HumanSeeder
             FunctionName = "CanPickMidweightDescs",
             Category = "Character",
             Subcategory = "Descriptions",
-            FunctionComment = "Determines if the character is eligable for \"middle weight\" description values.",
+            FunctionComment = "Determines if the character is eligible for \"middle weight\" description values.",
             ReturnType = 4,
             StaticType = 0,
             FunctionText = @"var bmi as number
@@ -748,7 +748,7 @@ return @bmi > 17 and @bmi < 29"
             FunctionName = "CanPickOverweightDescs",
             Category = "Character",
             Subcategory = "Descriptions",
-            FunctionComment = "Determines if the character is eligable for \"overweight\" description values.",
+            FunctionComment = "Determines if the character is eligible for \"overweight\" description values.",
             ReturnType = 4,
             StaticType = 0,
             FunctionText = @"var bmi as number
@@ -769,7 +769,7 @@ return @bmi > 24 and @bmi < 35"
             FunctionName = "CanPickObeseDescs",
             Category = "Character",
             Subcategory = "Descriptions",
-            FunctionComment = "Determines if the character is eligable for \"obese\" description values.",
+            FunctionComment = "Determines if the character is eligible for \"obese\" description values.",
             ReturnType = 4,
             StaticType = 0,
             FunctionText = @"return @GetBMI(@ch) >= 31"
@@ -1142,10 +1142,13 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, eyeShapeDef, "wide", "", "");
         AddCharacteristicValue(nextId++, eyeShapeDef, "large", "", "");
         AddCharacteristicValue(nextId++, eyeShapeDef, "big", "", "");
-        AddCharacteristicValue(nextId++, eyeShapeDef, "small", "", "");
+        AddCharacteristicValue(nextId++, eyeShapeDef, "oval", "", "");
         AddCharacteristicValue(nextId++, eyeShapeDef, "tiny", "", "");
         AddCharacteristicValue(nextId++, eyeShapeDef, "rheumy", "", "");
         AddCharacteristicValue(nextId++, eyeShapeDef, "watery", "", "");
+        AddCharacteristicValue(nextId++, eyeShapeDef, "sleepy", "", "");
+        AddCharacteristicValue(nextId++, eyeShapeDef, "squinting", "", "");
+        AddCharacteristicValue(nextId++, eyeShapeDef, "alert", "", "");
         _context.SaveChanges();
 
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "clean shave", "clean-shaven", "a clean chin with no hair at all", 0, Difficulty.Automatic, 0, true, 0);
@@ -1167,7 +1170,7 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "sidewhiskers", "sidewhiskered", "a pair of muttonchops and connecting moustache, where the portions connecting the sideburns and moustache hang several inches below the chin", 4, Difficulty.Automatic, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "neckbeard", "neckbearded", "a beard that grows only on the neck and under the jaw", 4, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "pencil moustache", "pencil-moustached", "a very thin, very short moustache sitting just above the lip", 2, Difficulty.Automatic, 0);
-        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "shenandoah", "shenandoahed", "a combination of a chin curtain and neckbeard, with full, unmodified growth on the neck, lower jawline, sideburns, but a notably hair free lip", 4, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "shenandoah", "shenandoah-bearded", "a combination of a chin curtain and neckbeard, with full, unmodified growth on the neck, lower jawline, sideburns, but a notably hair free lip", 4, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "soul patch", "soul-patched", "a small, single patch of hair just below the lip", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "stubble", "stubbly", "a short growth of stubble all over &his jaw", 1, Difficulty.Automatic, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "coarse stubble", "coarse-stubbled", "a coarse, prickly growth of stubble all over &his jaw", 2, Difficulty.Automatic, 0, pluralisation: 1);
@@ -1185,6 +1188,13 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "short beard", "short-bearded", "a short full-face beard, in a transitional period between stubble and a real beard", 3, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "pube beard", "pube-bearded", "a nasty, patchy short beard that looks like pubic hair growing on &his chin", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, facialHairStyleDef, "mange beard", "mangey-bearded", "a pathetic bit of facial hair growth. &his beard has bare patches that sort of resemble the early onset of mange", 3, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "thick beard", "thick-bearded", "a thick and full beard", 4, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "scruffy beard", "scruffy-bearded", "a coarse, patchy short beard with an unkempt look", 2, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "uneven beard", "uneven-bearded", "a thin, uneven bit of facial hair growth with conspicuous bare patches", 3, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "designer stubble", "designer-stubbled", "a closely maintained layer of short, even stubble", 2, Difficulty.Automatic, 0, pluralisation: 1);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "van dyke", "van-dyked", "a pointed goatee paired with a detached moustache", 3, Difficulty.Trivial, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "anchor beard", "anchor-bearded", "a narrow beard tracing the jaw and chin, paired with a moustache to resemble an anchor", 4, Difficulty.Trivial, 0);
+        AddStyleableCharacteristic(nextId++, facialHairStyleDef, "balbo beard", "balbo-bearded", "a trimmed beard with a detached moustache and a fuller chin", 4, Difficulty.Trivial, 0);
         _context.SaveChanges();
         AddCharacteristicValue(nextId++, frameDef, "emaciated", "emaciated", "abnormally thin and emaciated", underweightProg);
         AddCharacteristicValue(nextId++, frameDef, "gaunt", "emaciated", "lean and haggard, looking gaunt", underweightProg);
@@ -1246,7 +1256,7 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, frameDef, "broad-shouldered", "muscular", "in possession of wide shoulders that are thickly corded with muscle", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "bull-necked", "muscular", "muscular and hefty, with a thickly-muscled neck disappearing between &his broad shoulders", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "robust", "muscular", "healthy and vigorous, with a richly muscular frame", overweightProg);
-        AddCharacteristicValue(nextId++, frameDef, "brawny", "muscular", "built like a brick shithouse, with very little body fat - mostly muscle over a broad frame", overweightProg);
+        AddCharacteristicValue(nextId++, frameDef, "brawny", "muscular", "built like a wall of muscle, with very little body fat over a broad frame", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "big", "fat", "large and thick-framed, with a build that has gone largely to fat", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "sturdy", "muscular", "sturdily built, with some muscle, some fat, and some solid bones, sinew and joints holding it all together", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "well-built", "normal", "well-built, with a fit frame and well-proportioned arms and legs", normalWeightProg);
@@ -1254,7 +1264,7 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, frameDef, "hardy", "muscular", "muscular and squat, with a hardy, fit frame", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "solid", "muscular", "solidly-built, with a compact frame corded with muscle and padded with fat", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "wide-hipped", "fat", "in possession of wide hips that are amply padded with soft fat", overweightProg);
-        AddCharacteristicValue(nextId++, frameDef, "corpulent", "obese", "unmistakeably large and obese, with an excess of body fat hanging in rolls and fleshy ribbons", obeseProg);
+        AddCharacteristicValue(nextId++, frameDef, "corpulent", "obese", "unmistakably large and obese, with an excess of body fat hanging in rolls and fleshy ribbons", obeseProg);
         AddCharacteristicValue(nextId++, frameDef, "hefty", "fat", "in possession of a large frame that carries a fair amount of muscle and fat on it, though there's more fat than muscle", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "heavy", "fat", "carrying a good deal of body fat, muscle and other weight on &his heavyset frame", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "big-boned", "fat", "large, with broad shoulders and a solid amount of fat and some muscle cording their big-boned frame", overweightProg);
@@ -1266,12 +1276,13 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, frameDef, "chunky", "fat", "rather chunky, with some excess fat on &his frame", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "paunchy", "fat", "in possession of a large, protruding abdomen", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "ample", "fat", "quite large and impressive - impressively chubby, at least", overweightProg);
-        AddCharacteristicValue(nextId++, frameDef, "beer-bellied", "fat", "in possession of a large, prominent abdomen that balloons out - commonly referred to a 'beer belly'", overweightProg);
+        AddCharacteristicValue(nextId++, frameDef, "beer-bellied", "fat", "in possession of a large, prominent abdomen that balloons out - commonly referred to as a 'beer belly'", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "podgy", "fat", "soft and fat, with a short frame that encourages loose folds of chunky skin to wrinkle and roll over on themselves", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "portly", "fat", "squat and round, carrying their excess weight awkwardly on their frame", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "rotund", "fat", "quite rotund in frame and build, with a large gut and rounded shoulders", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "muffin-topped", "fat", "shaped like a muffin - with the excess fat spilling out in rolls around the abdomen, much like a muffin's top", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "badonkadonked", "obese", "in possession of a large, round, firm posterior that watermelons out from the back", obeseProg);
+        AddCharacteristicValue(nextId++, frameDef, "heavy-hipped", "obese", "in possession of broad hips and a large, prominent posterior", obeseProg);
         AddCharacteristicValue(nextId++, frameDef, "waifish", "emaciated", "built waifishly - &he is very thin and fragile seeming, with delicate features", underweightProg);
         AddCharacteristicValue(nextId++, frameDef, "brutish", "fat", "hulking and large, with a hefty, stooped frame corded thickly with muscle and flesh", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "thick-shouldered", "muscular", "in possession of meaty shoulders that are thickly corded with muscle", overweightProg);
@@ -1281,13 +1292,13 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, frameDef, "coltish", "thin", "a lanky look to &him, limbs awkwardly long and gangly", underweightProg);
         AddCharacteristicValue(nextId++, frameDef, "hulking", "fat", "a ponderous person of substantial width and volume principally caused by &his excessively robust bone structure and supplemented by ample softer tissues", overweightProg);
 
-        AddCharacteristicValue(nextId++, frameDef, "wiry", "lean", "in possession of a wiry, sinewy frame, built for agility", normalWeightProg);
+        AddCharacteristicValue(nextId++, frameDef, "wiry", "normal", "in possession of a wiry, sinewy frame, built for agility", normalWeightProg);
         AddCharacteristicValue(nextId++, frameDef, "spindly", "thin", "spindly and lanky, with elongated, fragile limbs", underweightProg);
         AddCharacteristicValue(nextId++, frameDef, "imposing", "fat", "an imposing, almost unbelievably large figure, built to intimidate", overweightProg);
         AddCharacteristicValue(nextId++, frameDef, "rangy", "thin", "rangy and long-limbed, with a rugged build", underweightProg);
         AddCharacteristicValue(nextId++, frameDef, "stooped", "thin", "a thin, stooped posture that lends an air of frailty", underweightProg);
         AddCharacteristicValue(nextId++, frameDef, "reed-thin", "thin", "reed-thin, with an elongated and delicate appearance", underweightProg);
-        AddCharacteristicValue(nextId++, frameDef, "trim", "thin", "trim and sleek, with a fit and elegant figure", underweightProg);
+        AddCharacteristicValue(nextId++, frameDef, "trim", "normal", "trim and sleek, with a fit and elegant figure", normalWeightProg);
         AddCharacteristicValue(nextId++, frameDef, "chiseled", "muscular", "chiseled and sharply defined, like &he has been carved out of stone", overweightProg);
 
         _context.SaveChanges();
@@ -1310,7 +1321,7 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, hairStyleDef, "braid", "braided", "hair woven into a tight braid", 4, Difficulty.Trivial, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "bun", "bun-haired", "hair tied up into a bun atop the head", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "buzz cut", "buzz-cut", "closely cropped hair", 1, Difficulty.Automatic, 7);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "chignon", "chignon-haired", "hair tied into a chingon bun", 4, Difficulty.ExtremelyEasy, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "chignon", "chignon-haired", "hair tied into a chignon bun", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "chonmage", "chonmage-haired", "a shaved pate, with longer back and sides", 4, Difficulty.Trivial, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "combover", "comb-overed", "thin hair combed over a bald spot", 2, Difficulty.Trivial, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "cornrows", "corn-rowed", "hair tied into thin, parallel rows of braids", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
@@ -1324,7 +1335,7 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, hairStyleDef, "fauxhawk", "fauxhawked", "short hair style toward a center spike", 2, Difficulty.Trivial, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "feathered hair", "feathery-haired", "long, unlayered hair with a center part, brushed back at the sides", 4, Difficulty.Trivial, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "fishtail hair", "fishtail-haired", "long hair braided into the shape of a fish's tail", 4, Difficulty.Trivial, 0, pluralisation: 1);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "flattop", "crewcut", "a short, level-topped crewcut", 1, Difficulty.Automatic, 7);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "flattop", "flat-topped", "a short, level-topped crewcut", 1, Difficulty.Automatic, 7);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "layered hair", "layered-haired", "long hair cut unevenly to form layers", 4, Difficulty.ExtremelyEasy, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "long hair", "long-haired", "hair that is cut long and flows freely", 5, Difficulty.Automatic, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "mop top", "mop-topped", "a mid-length haircut extending to the collar with fringe bangs that brush the forehead", 3, Difficulty.Trivial, 0);
@@ -1337,7 +1348,7 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, hairStyleDef, "ponytail", "ponytailed", "medium-length hair pulled back behind the head and tied in place", 4, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "long ponytail", "long-ponytailed", "long hair pulled back behind the head and tied in place", 5, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "rattail", "rattailed", "hair that has been shaved short except for a long braid at the back of the neck", 3, Difficulty.Trivial, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "ringlets", "ringletted", "hair worn in tight curls", 4, Difficulty.ExtremelyEasy, 4, pluralisation: 1);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "ringlets", "ringleted", "hair worn in tight curls", 4, Difficulty.ExtremelyEasy, 4, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "shag hair", "shag-haired", "a choppy, layered hairstyle with fullness at the crown and fringes around the edges", 3, Difficulty.Automatic, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "short hair", "short-haired", "hair that is cut short", 2, Difficulty.Trivial, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "spiky hair", "spike-haired", "hair that sticks up in spikes on top of the head", 2, Difficulty.Trivial, 0, pluralisation: 1);
@@ -1355,21 +1366,21 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, hairStyleDef, "mop hair", "mop-haired", "a mid-length haircut extending to the collar with fringe bangs that brush the forehead", 3, Difficulty.Trivial, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "stubble hair", "stubble-haired", "a thin, even covering of stubble and regrowth atop &his head", 1, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "short ponytail", "short-ponytailed", "short hair pulled back behind the head into a small ponytail, with barely enough hair to make it work", 3, Difficulty.Automatic, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "balding", "balding", "a short shaved hairStyleDef with a bald dome, evidently suffering from pattern baldness", 1, Difficulty.Automatic, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "balding crop", "balding crop-haired", "a mid-length cropped hairstyle with a bald dome, evidently suffering from pattern baldness", 2, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "balding", "balding", "a short shaved hairstyle with a bald dome, evidently suffering from pattern baldness", 1, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "balding crop", "balding-crop-haired", "a mid-length cropped hairstyle with a bald dome, evidently suffering from pattern baldness", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "short afro", "short-afroed", "a short, frizzy halo of hair", 3, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "huge afro", "huge-afroed", "an enormous, frizzy halo of hair, very impractical looking", 5, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "fade cut", "fade-haired", "a short, neatly maintained hairstyle where the hair goes from a combed style on top to a short shave on the back and sides with a seamless transition", 3, Difficulty.ExtremelyEasy, 7);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "mid fade cut", "mid-fade-haired", "a mid-length hairstyle with a wavy combed style on top to a short shaved back and sides in a seamless transition", 3, Difficulty.ExtremelyEasy, 7);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "skin fade", "skin-fade-haired", "a short, neatly maintained hairstyle where the hair goes from a combed style on top to a bare back and sides by way of a seamless transition through a shaved style", 2, Difficulty.ExtremelyEasy, 7);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "short curls", "short-curly-haired", "short hair with natural curls", 2, Difficulty.Automatic, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "quiff", "quiff-haired", "hair swept forwards from the face, similar to a pompodour but jutting forward from the head", 3, Difficulty.Trivial, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "quiff", "quiff-haired", "hair swept forwards from the face, similar to a pompadour but jutting forward from the head", 3, Difficulty.Trivial, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "pompadour mullet", "pompadour-mulleted", "hair that is swept upwards at the front of the face into a pompadour, but long and loose at the back", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "dreadhawk", "dreadhawked", "dreadlocked hair swept back over &his head, and short, shaved hair along the sides", 4, Difficulty.ExtremelyEasy, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "fanhawk", "mohawked", "a hairstyle in which both sides of &his head are shaven, leaving a strip of long hair fanned out in the center", 4, Difficulty.ExtremelyEasy, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "fanhawk", "fanhawked", "a hairstyle in which both sides of &his head are shaven, leaving a strip of long hair fanned out in the center", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "warhawk", "warhawked", "hair style in a very short mohawk, and shaved along the sides of the skull", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "frohawk", "frohawked", "hair style like a typical afro, only the sides of the skull have been shaved", 4, Difficulty.ExtremelyEasy, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "reverse mohawk", "reverse-mohawked", "really, really stupid looking hair: a single strip has been shaved down the middle of &his skull", 4, Difficulty.ExtremelyEasy, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "reverse mohawk", "reverse-mohawked", "a strikingly unconventional hairstyle with a single shaved strip running down the middle of &his skull", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "deathhawk", "deathhawked", "voluminous, backcombed hair style into a loose mohawk, with shaved hair along the sides of the skull", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "rathawk", "rathawked", "a typical, fan-style mohawk that ends in a grungy little rattail", 4, Difficulty.ExtremelyEasy, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "mohawk", "mohawked", "a hairstyle where only the central strip of hair remains, the sides having been shaved", 4, Difficulty.ExtremelyEasy, 0);
@@ -1382,7 +1393,7 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, hairStyleDef, "pixie bob", "pixie-bob-cut", "hair that is very short in the back, but nearly chin-length in the front, angling to match &his jawline", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "varsity style", "varsity-styled", "vintage style hair that is side-parted and slicked, shorter on the sides and in the back", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "cowlick", "cowlicked", "short, undercut hair slicked into a prominent curl at &his forehead", 2, Difficulty.Automatic, 0);
-        AddStyleableCharacteristic(nextId++, hairStyleDef, "slick  hair", "slick-haired", "short hair that has been slicked back away from &his face", 2, Difficulty.Automatic, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "slick hair", "slick-haired", "short hair that has been slicked back away from &his face", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "side part", "side-parted", "short hair parted along one side and combed sideways across &his head", 2, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "high ponytail", "high-ponytailed", "long hair pulled into a ponytail high on &his head", 4, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "devilock", "devilocked", "a long forelock of hair that rigidly sticks down the front of &his face, sides and back otherwise fairly short", 2, Difficulty.Trivial, 0);
@@ -1404,6 +1415,11 @@ return @bmi > 24 and @bmi < 35"
         AddStyleableCharacteristic(nextId++, hairStyleDef, "long mullet", "long-mulleted", "hair that is short at the front, but very long at the back", 5, Difficulty.Automatic, 0);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "long feathered", "long-feathery-haired", "very long, unlayered hair with a center part, brushed back at the sides", 5, Difficulty.Trivial, 0, pluralisation: 1);
         AddStyleableCharacteristic(nextId++, hairStyleDef, "viking braid", "viking-braided", "a tri-line of braids across &his dome, flowing back to the middle twist intertwined in a low ponytail", 5, Difficulty.ExtremelyEasy, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "caesar cut", "caesar-cut", "short hair cut close with a short, horizontal fringe", 2, Difficulty.Trivial, 7);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "top knot", "top-knotted", "long hair gathered and tied into a knot high on the crown", 4, Difficulty.ExtremelyEasy, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "box braids", "box-braided", "hair divided into neat square sections and braided into long plaits", 4, Difficulty.VeryEasy, 0, pluralisation: 1);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "wolf cut", "wolf-cut", "a shaggy, heavily layered cut with volume on top and feathered ends", 3, Difficulty.Trivial, 0);
+        AddStyleableCharacteristic(nextId++, hairStyleDef, "side shave", "side-shaved", "hair worn longer on top with one side clipped close to the scalp", 3, Difficulty.Trivial, 7);
         _context.SaveChanges();
 
         List<(CharacteristicValue Value, double Weight)> personValues = new();
@@ -1435,7 +1451,9 @@ return @bmi > 24 and @bmi < 35"
         AddPersonWord("man", "man", isAdultManProg, 10.0);
         AddPersonWord("gent", "man", isAdultManProg, 1.0);
         AddPersonWord("gentleman", "man", isAdultManProg, 1.0);
-        AddPersonWord("person", "person", isAdultProg, 1.0);
+        AddPersonWord("person", "person", isAdultProg, 0.3);
+        AddPersonWord("adult", "person", isAdultProg, 0.1);
+        AddPersonWord("individual", "person", isAdultProg, 0.3);
         AddPersonWord("woman", "woman", isAdultWomanProg, 10.0);
         AddPersonWord("lady", "woman", isAdultWomanProg, 1.0);
         AddPersonWord("lad", "boy", isBoyProg, 4.0);
@@ -1464,6 +1482,7 @@ return @bmi > 24 and @bmi < 35"
         AddPersonWord("sprite", "youth", isYouthProg, 0.2);
         AddPersonWord("young man", "man", isYoungManProg, 5.0);
         AddPersonWord("youngster", "man", isYoungAdultProg, 1.0);
+        AddPersonWord("young adult", "person", isYoungAdultProg, 2.0);
         AddPersonWord("gaffer", "old man", isOldManProg, 1.0);
         AddPersonWord("lass", "girl", isYoungWomanProg, 1.0);
         AddPersonWord("lassie", "girl", isYoungWomanProg, 0.1);
@@ -1471,7 +1490,7 @@ return @bmi > 24 and @bmi < 35"
         AddPersonWord("teen girl", "girl", isGirlProg, 1.0);
         AddPersonWord("young girl", "girl", isGirlProg, 5.0);
         AddPersonWord("poppet", "girl", isGirlProg, 0.2);
-        AddPersonWord("young woman", "girl", isYoungWomanProg, 5.0);
+        AddPersonWord("young woman", "woman", isYoungWomanProg, 5.0);
         AddPersonWord("maiden", "woman", isYoungWomanProg, 1.0);
         AddPersonWord("damsel", "woman", isYoungWomanProg, 1.0);
         AddPersonWord("crone", "old woman", isOldWomanProg, 1.0);
@@ -1492,9 +1511,11 @@ return @bmi > 24 and @bmi < 35"
         AddPersonWord("bloke", "man", isAdultManProg, 1.0);
         AddPersonWord("fellow", "man", isAdultManProg, 1.0);
         AddPersonWord("adolescent", "young man", isYoungAdultProg, 5.0);
+        AddPersonWord("young person", "person", isYoungAdultProg, 1.0);
         AddPersonWord("hag", "old woman", isOldWomanProg, 1.0);
         AddPersonWord("matron", "old woman", isOldWomanProg, 1.0);
         AddPersonWord("codger", "old man", isOldManProg, 1.0);
+        AddPersonWord("elderly person", "person", isOldPersonProg, 1.0);
 
         if (_questionAnswers["includeextraperson"].EqualToAny("yes", "y"))
         {
@@ -1526,21 +1547,21 @@ return @bmi > 24 and @bmi < 35"
         });
         _context.SaveChanges();
 
-        AddCharacteristicValue(nextId++, skinColourDef, "white", "fair", "of light, caucasian tone");
+        AddCharacteristicValue(nextId++, skinColourDef, "white", "fair", "of a light complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "milky-white", "fair", "of milky, pale white tone");
         AddCharacteristicValue(nextId++, skinColourDef, "pale-white", "fair", "of pale white tone");
         AddCharacteristicValue(nextId++, skinColourDef, "pasty-white", "fair", "of a pasty, pale white tone");
         AddCharacteristicValue(nextId++, skinColourDef, "tanned", "fair", "tanned a healthy brown colour");
         AddCharacteristicValue(nextId++, skinColourDef, "olive", "olive", "of an olive complexion");
-        AddCharacteristicValue(nextId++, skinColourDef, "oriental", "golden", "of an oriental complexion");
-        AddCharacteristicValue(nextId++, skinColourDef, "bronzed", "fair", "of a deep, bronze tone");
+        AddCharacteristicValue(nextId++, skinColourDef, "almond", "golden", "of a warm almond complexion");
+        AddCharacteristicValue(nextId++, skinColourDef, "bronzed", "golden", "of a deep, bronze tone");
         AddCharacteristicValue(nextId++, skinColourDef, "dark-olive", "olive", "of a dark olive complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "light-brown", "brown", "of a light brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "brown", "brown", "of a brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "dark-brown", "brown", "of a dark brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "ebony", "black", "of a deep, ebony complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "black", "black", "of a deep, black complexion");
-        AddCharacteristicValue(nextId++, skinColourDef, "pale-olive", "golden", "of a pale olive complexion");
+        AddCharacteristicValue(nextId++, skinColourDef, "pale-olive", "olive", "of a pale olive complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "ruddy", "fair", "of generally white complexion with areas of a ruddy red");
         AddCharacteristicValue(nextId++, skinColourDef, "golden", "golden", "of a golden complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "sallow", "fair", "of an unhealthy pale yellowed complexion");
@@ -1549,6 +1570,8 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, skinColourDef, "light-copper", "red-brown", "of a light, coppery brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "dark-copper", "red-brown", "of a dark, coppery brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "light golden", "golden", "of a light golden complexion");
+        AddCharacteristicValue(nextId++, skinColourDef, "honey", "golden", "of a warm honey-golden complexion");
+        AddCharacteristicValue(nextId++, skinColourDef, "medium-brown", "brown", "of a medium brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "russet", "red-brown", "of a red-tinged brown complexion");
         AddCharacteristicValue(nextId++, skinColourDef, "pale", "fair", "that is as pale as milk");
         AddCharacteristicValue(nextId++, skinColourDef, "translucent", "fair", "so pale it's translucent, with a frosted purplish tone");
@@ -1651,6 +1674,9 @@ return @bmi > 24 and @bmi < 35"
         AddCharacteristicValue(nextId++, earDef, "tapered", "tapered-eared", "gradually narrowing towards the tip");
         AddCharacteristicValue(nextId++, earDef, "cupped", "cupped-eared", "deeply curved inward, as if to catch sound");
         AddCharacteristicValue(nextId++, earDef, "uneven", "uneven-eared", "one ear visibly higher or lower than the other");
+        AddCharacteristicValue(nextId++, earDef, "attached-lobed", "attached-lobed", "with earlobes that blend directly into the side of &his head");
+        AddCharacteristicValue(nextId++, earDef, "detached-lobed", "detached-lobed", "with earlobes that hang free from the side of &his head");
+
 
         _context.SaveChanges();
 
@@ -1687,12 +1713,13 @@ return @bmi > 24 and @bmi < 35"
             AddCharacteristicValue(nextId++, distinctiveDef, "no lips", "lipless", "no lips at all, only scar tissue and melted skin where lips should be", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "missing left eyebrow", "one-eyebrowed", "only &his left eyebrow remaining");
             AddCharacteristicValue(nextId++, distinctiveDef, "missing right eyebrow", "one-eyebrowed", "only &his right eyebrow remaining");
-            AddCharacteristicValue(nextId++, distinctiveDef, "no eyebrows", "eyebrowless", "no eyebrows at all, which is kinda bizarre", pluralisation: 1);
+            AddCharacteristicValue(nextId++, distinctiveDef, "no eyebrows", "eyebrowless", "a complete absence of eyebrows", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "monobrow", "monobrowed", "a single, thick and bushy monobrow knitting their brows together");
             AddCharacteristicValue(nextId++, distinctiveDef, "beauty mark", "beauty-marked", "a dark beauty spot marring the corner of &his mouth, just below &his nose");
             AddCharacteristicValue(nextId++, distinctiveDef, "hunchback", "hunchbacked", "a hump between &his shoulders hinting at a misshapen spine");
             AddCharacteristicValue(nextId++, distinctiveDef, "clubfoot", "clubfooted", "a deformed foot that appears to have been rotated at the ankle");
             AddCharacteristicValue(nextId++, distinctiveDef, "butt chin", "butt-chinned", "a chin that is so pronounced and jutting that its similarities to a butt cannot be avoided");
+            AddCharacteristicValue(nextId++, distinctiveDef, "cleft chin", "cleft-chinned", "a pronounced chin marked by a deep central cleft");
             AddCharacteristicValue(nextId++, distinctiveDef, "goiter", "goitered", "an unsightly lump growing on &his neck");
             AddCharacteristicValue(nextId++, distinctiveDef, "buck teeth", "buck-toothed", "two large front teeth that jut out");
             AddCharacteristicValue(nextId++, distinctiveDef, "shattered teeth", "shatter-toothed", "a mouth full of broken, chipped and shattered teeth", pluralisation: 1);
@@ -1756,6 +1783,7 @@ return @bmi > 24 and @bmi < 35"
             AddCharacteristicValue(nextId++, distinctiveDef, "overbite", "parrot-mouthed", "a really noticeable overbite, &his lower jaw set well back from the upper");
             AddCharacteristicValue(nextId++, distinctiveDef, "bushy eyebrows", "bushy-browed", "extremely prominent, bushy eyebrows like two caterpillars sitting above &his eyes", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "resting bitch face", "sneering", "a seemingly permanent sneer, &his upper lip drawn back and brows lowered");
+            AddCharacteristicValue(nextId++, distinctiveDef, "resting scowl", "scowling", "a seemingly permanent scowl, with brows lowered and lips drawn into a hard line");
             AddCharacteristicValue(nextId++, distinctiveDef, "haggard appearance", "haggard", "a worn, world-weary look to &him that suggests a life of hardship and deprivation");
             AddCharacteristicValue(nextId++, distinctiveDef, "freckles", "freckled", "a smattering of freckles across &his nose and cheekbones", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "extreme freckles", "heavily-freckled", "copious amounts of freckles over &his whole body", pluralisation: 1);
@@ -1777,24 +1805,26 @@ return @bmi > 24 and @bmi < 35"
             AddCharacteristicValue(nextId++, distinctiveDef, "face like a hatchet", "hatchet-faced", "a thin, sharp-edged face, angular and protruding like a hatchet");
             AddCharacteristicValue(nextId++, distinctiveDef, "owlish gaze", "owlish", "a wide-eyed appearance, as though &he just woke up from a nap, or needs to open &his eyes extra-wide to take in what &he can see");
             AddCharacteristicValue(nextId++, distinctiveDef, "wolfish look", "wolfish", "something predatory about &him, hungry and feral");
-            AddCharacteristicValue(nextId++, distinctiveDef, "austere mein", "austere", "a cold, stern look about &his features");
+            AddCharacteristicValue(nextId++, distinctiveDef, "austere mien", "austere", "a cold, stern look about &his features");
             AddCharacteristicValue(nextId++, distinctiveDef, "horse face", "horse-faced", "a long, narrow face that evokes the image of a horse");
             AddCharacteristicValue(nextId++, distinctiveDef, "hamburger face", "hamburger-faced", "a face that has suffered a heck of a lot of abuse, and now resembles a bunch of ground up raw meat mashed into a vaguely human shape through all the scars and badly reset bones");
+            AddCharacteristicValue(nextId++, distinctiveDef, "battered face", "battered-faced", "a face that has suffered a great deal of abuse, with scars and badly reset bones marring its natural shape");
             AddCharacteristicValue(nextId++, distinctiveDef, "low brow", "low-browed", "a low set brow with a noticeable bone ridge reminsicent of a neanderthal");
             AddCharacteristicValue(nextId++, distinctiveDef, "winsome appearance", "winsome", "an undeniably innocent aura of attractiveness about &his person");
             AddCharacteristicValue(nextId++, distinctiveDef, "pretty appearance", "pretty", "a better than average but not world-beating level of attractiveness; &he is definitely pretty");
             AddCharacteristicValue(nextId++, distinctiveDef, "comely appearance", "comely", "an agreeable, pleasant to look upon overall appearance");
             AddCharacteristicValue(nextId++, distinctiveDef, "good appearance", "good-looking", "an overall appearance that is objectively good looking; better than average at least");
-            AddCharacteristicValue(nextId++, distinctiveDef, "extensive stretchmarks", "stretchmarked", "has countless light, off-colour scars that suggest skin that has been stretched like it were a size too small for &his body", pluralisation: 1);
+            AddCharacteristicValue(nextId++, distinctiveDef, "extensive stretchmarks", "stretch-marked", "has countless light, off-colour scars that suggest skin that has been stretched like it were a size too small for &his body", pluralisation: 1);
 
             AddCharacteristicValue(nextId++, distinctiveDef, "broad jaw", "broad-jawed", "a strong and broad jawline");
             AddCharacteristicValue(nextId++, distinctiveDef, "birthmarked", "birthmarked", "a striking and obvious birthmark");
             AddCharacteristicValue(nextId++, distinctiveDef, "calloused hands", "calloused-handed", "heavily calloused hands, evidence of a lifetime of manual labour", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "dimples", "dimpled", "prominent dimples when &he smiles", pluralisation: 1);
-            AddCharacteristicValue(nextId++, distinctiveDef, "elegant fingers", "elegant fingered", "long and finely shaped fingers, elegant in appearance", pluralisation: 1);
+            AddCharacteristicValue(nextId++, distinctiveDef, "elegant fingers", "elegant-fingered", "long and finely shaped fingers, elegant in appearance", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "light freckles", "lightly-freckled", "a scattering of light freckles, just enough to cover &his cheeks", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "full lips", "full-lipped", "full and striking lips", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "thin lips", "thin-lipped", "a mouth delicately framed with thin lips", pluralisation: 1);
+            AddCharacteristicValue(nextId++, distinctiveDef, "narrow lips", "narrow-lipped", "a mouth delicately framed with narrow lips", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "gaunt cheeks", "gaunt-cheeked", "cheeks sunken and gaunt, hinting at hardship", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "high cheekbones", "high-cheekboned", "sharply defined by high and prominent cheekbones", pluralisation: 1);
             AddCharacteristicValue(nextId++, distinctiveDef, "knobby knuckles", "knobby-knuckled", "hands defined by prominently knobby knuckles", pluralisation: 1);

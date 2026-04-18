@@ -600,17 +600,19 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
-	public IEnumerable<ComputerNetworkHostSummary> GetReachableHosts(IComputerHost sourceHost)
+	public IEnumerable<ComputerNetworkHostSummary> GetReachableHosts(IComputerHost sourceHost,
+		IComputerTerminalSession? session = null)
 	{
 		EnsureLoadedForOwner(sourceHost);
 		lock (_sync)
 		{
 			RegisterOwner_NoLock(sourceHost);
-			return GetReachableHosts_NoLock(sourceHost);
+			return GetReachableHosts_NoLock(sourceHost, ResolveNetworkSession(sourceHost, session));
 		}
 	}
 
-	public ComputerNetworkHostSummary? ResolveReachableHost(IComputerHost sourceHost, string identifier)
+	public ComputerNetworkHostSummary? ResolveReachableHost(IComputerHost sourceHost, string identifier,
+		IComputerTerminalSession? session = null)
 	{
 		if (string.IsNullOrWhiteSpace(identifier))
 		{
@@ -621,7 +623,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		lock (_sync)
 		{
 			RegisterOwner_NoLock(sourceHost);
-			var summaries = GetReachableHosts_NoLock(sourceHost);
+			var summaries = GetReachableHosts_NoLock(sourceHost, ResolveNetworkSession(sourceHost, session));
 			var exactAddress = summaries
 				.Where(x => x.CanonicalAddress.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
 				.ToList();
@@ -670,13 +672,14 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
-	public IEnumerable<ComputerNetworkServiceSummary> GetAdvertisedServices(IComputerHost sourceHost, IComputerHost targetHost)
+	public IEnumerable<ComputerNetworkServiceSummary> GetAdvertisedServices(IComputerHost sourceHost, IComputerHost targetHost,
+		IComputerTerminalSession? session = null)
 	{
 		EnsureLoadedForOwner(sourceHost);
 		lock (_sync)
 		{
 			RegisterOwner_NoLock(sourceHost);
-			return GetReachableHosts_NoLock(sourceHost)
+			return GetReachableHosts_NoLock(sourceHost, ResolveNetworkSession(sourceHost, session))
 				.Any(x => ReferenceEquals(x.Host, targetHost) || x.Host.OwnerHostItemId == targetHost.OwnerHostItemId)
 				? GetAdvertisedServicesForHost_NoLock(targetHost)
 				: Enumerable.Empty<ComputerNetworkServiceSummary>();
@@ -1500,17 +1503,33 @@ public class ComputerExecutionService : IComputerExecutionService
 		return false;
 	}
 
-	private List<ComputerNetworkHostSummary> GetReachableHosts_NoLock(IComputerHost sourceHost)
+	private List<ComputerNetworkHostSummary> GetReachableHosts_NoLock(IComputerHost sourceHost,
+		IComputerTerminalSession? session)
 	{
+		var sessionRouteKeys = session?.ActiveRouteKeys ?? Array.Empty<string>();
 		return sourceHost.NetworkAdapters
 			.Where(x => x.NetworkReady)
 			.Where(x => x.TelecommunicationsGrid is not null)
-			.SelectMany(x => x.TelecommunicationsGrid!.GetReachableNetworkEndpoints(x))
-			.Where(x => x.Adapter.ConnectedHost is not null)
-			.GroupBy(x => x.Adapter.NetworkAdapterItemId)
-			.Select(x => x.First())
-			.Select(endpoint =>
+			.SelectMany(x =>
 			{
+				var effectiveSourceRoutes = ComputerNetworkRoutingUtilities.GetEffectiveRouteKeys(x, sessionRouteKeys);
+				return x.TelecommunicationsGrid!.GetReachableNetworkEndpoints()
+					.Where(endpoint => endpoint.Adapter.ConnectedHost is not null)
+					.Select(endpoint => new
+					{
+						Endpoint = endpoint,
+						SharedRouteKeys = ComputerNetworkRoutingUtilities.GetSharedRouteKeys(
+							effectiveSourceRoutes,
+							endpoint.Adapter.NetworkRouteKeys)
+					})
+					.Where(result => result.SharedRouteKeys.Any());
+			})
+			.Where(x => x.Endpoint.Adapter.ConnectedHost is not null)
+			.GroupBy(x => x.Endpoint.Adapter.NetworkAdapterItemId)
+			.Select(x => x.First())
+			.Select(result =>
+			{
+				var endpoint = result.Endpoint;
 				var host = endpoint.Adapter.ConnectedHost!;
 				var services = GetAdvertisedServicesForHost_NoLock(host);
 				return new ComputerNetworkHostSummary
@@ -1523,8 +1542,8 @@ public class ComputerExecutionService : IComputerExecutionService
 					IsLocalGrid = endpoint.IsLocalGrid,
 					Available = endpoint.Adapter.NetworkReady && host.Powered,
 					AdvertisedServiceCount = services.Count,
-					SharedRouteKeys = endpoint.SharedRouteKeys,
-					AccessDescription = ComputerNetworkRoutingUtilities.DescribeRoutes(endpoint.SharedRouteKeys)
+					SharedRouteKeys = result.SharedRouteKeys,
+					AccessDescription = ComputerNetworkRoutingUtilities.DescribeRoutes(result.SharedRouteKeys)
 				};
 			})
 			.Where(x => x.Available)
@@ -1536,7 +1555,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 	private List<ComputerNetworkServiceSummary> GetAdvertisedServicesForHost_NoLock(IComputerHost targetHost)
 	{
-		return targetHost.BuiltInApplications
+		var services = targetHost.BuiltInApplications
 			.Where(x => x.IsNetworkService)
 			.Where(ComputerBuiltInApplicationExecutors.IsImplemented)
 			.Where(x => targetHost.IsNetworkServiceEnabled(x.ApplicationId))
@@ -1562,6 +1581,36 @@ public class ComputerExecutionService : IComputerExecutionService
 			})
 			.Where(x => x.ApplicationId != "mail" || x.ServiceDetails.Any())
 			.ToList();
+
+		if (targetHost.HostedVpnNetworkIds.Any())
+		{
+			services.Add(new ComputerNetworkServiceSummary
+			{
+				ApplicationId = "vpn",
+				Name = "VPN Gateway",
+				Summary = "Provides authenticated tunnel access to private VPN networks on this host.",
+				ServiceDetails = _gameworld.ComputerNetworkTunnelService.GetAdvertisedServiceDetails(targetHost).ToList()
+			});
+		}
+
+		return services
+			.OrderBy(x => x.Name)
+			.ThenBy(x => x.ApplicationId)
+			.ToList();
+	}
+
+	private static IComputerTerminalSession? ResolveNetworkSession(IComputerHost sourceHost,
+		IComputerTerminalSession? requestedSession)
+	{
+		if (requestedSession is not null && ReferenceEquals(requestedSession.Host, sourceHost))
+		{
+			return requestedSession;
+		}
+
+		var contextSession = ComputerExecutionContextScope.Current?.Session;
+		return contextSession is not null && ReferenceEquals(contextSession.Host, sourceHost)
+			? contextSession
+			: null;
 	}
 
 	private void PersistExecutable_NoLock(IComputerExecutableOwner owner, ComputerRuntimeExecutableBase executable)

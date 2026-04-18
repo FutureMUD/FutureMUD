@@ -79,6 +79,12 @@ The first player-facing command surface for this slice has also now landed:
   - `programming apps`
   - `programming app <name>`
 - administrator characters now also have host-scoped network-service configuration surfaces through an active terminal session:
+  - `programming network`
+  - `programming network domain add|remove|enable|disable <domain>`
+  - `programming network account add <user@domain> <password>`
+  - `programming network account enable|disable <user@domain>`
+  - `programming network account password <user@domain> <password>`
+  - `programming network vpn add|remove <network>`
   - `programming mail`
   - `programming mail service on|off`
   - `programming mail domain add|remove|enable|disable <domain>`
@@ -261,16 +267,17 @@ In the current shipped phase:
 - they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
 - they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
 - `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` currently have implemented runtime behaviour
-- `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, running processes, and locally accessible automation signal sources and sinks on the execution host item
+- `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, hardware route memberships, active session tunnels, running processes, and locally accessible automation signal sources and sinks on the execution host item
 - `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, retargeting, and directly inspecting or importing anonymously accessible public files from reachable remote hosts
-- `Directory` is a terminal-session interactive discovery utility that suspends in `UserInput()` between commands and now supports both local host inspection and telecom-backed reachable-host discovery through `hosts`, `show <host>`, and `services <host>`
-- `Mail` is now the first implemented network-capable built-in application: it runs as an interactive terminal client, authenticates against reachable mail domains, manages inbox and sent mail, and uses the ordinary editor flow to compose message bodies
+- `Directory` is a terminal-session interactive discovery utility that suspends in `UserInput()` between commands and now supports both local host inspection and telecom-backed reachable-host discovery through `hosts`, `show <host>`, and `services <host>`, plus session-scoped route inspection and VPN tunnelling through `routes`, `gateways`, `tunnel connect ...`, and `tunnel disconnect ...`
+- `Mail` is now the first implemented network-capable built-in application: it runs as an interactive terminal client, authenticates against reachable shared network identities in `user@domain` form, manages inbox and sent mail, and uses the ordinary editor flow to compose message bodies
 - `FTP` is now the second implemented network-capable built-in application: it runs as an interactive terminal client, opens a session to a reachable remote host advertising FTP, allows anonymous access to published public files, and allows authenticated full file manipulation across the target host and mounted storage devices
 - `NetworkAdapter` is no longer just a local readiness marker; it is now a telecom-grid-backed endpoint that restores its attached `ITelecommunicationsGrid`, joins and leaves that grid through runtime lifecycle, and publishes a canonical network address
 - `NetworkSwitch` is now the daisy-chain infrastructure pattern for in-world networks: one powered uplink can feed many downstream adapters or further switches without every endpoint needing its own direct exchange attachment
 - `WirelessModem` is now the untethered transport pattern for IoT-style or mobile devices: it exposes the same host-facing network contract as a wired adapter, but derives its transport from powered cellular coverage instead of a direct cable
 - canonical adapter addresses use `PreferredNetworkAddress` when it is unique within the reachable linked-grid cluster; otherwise they fall back to a stable generated address of the form `adapter-<itemid>`
 - every network-facing device now also has a stable globally unique device identifier of the form `device-<itemid>` for diagnostics, host lookup, and future tooling
+- generic network identity is now a first-class runtime abstraction above mail-specific behaviour: shared hosted domains and `user@domain` accounts are now managed through a generic identity service even though the current persisted backing tables are still the mail-domain and mail-account tables
 - network visibility is no longer flat across the whole linked-grid cluster. Discovery is now filtered by shared route memberships, which currently include:
   - `public`
   - exchange-private subnet scope on a specific telecommunications grid
@@ -281,8 +288,10 @@ In the current shipped phase:
 - remote service advertisement is intentionally conservative in the current slice: only built-in applications marked as network services and actually implemented are listed
 - `Mail` is now the first shipped advertised network service, but it is only advertised when the target host has its mail service enabled and at least one enabled hosted domain
 - `FTP` is now the second shipped advertised network service, but it is only advertised when the target host has its FTP service enabled; the advertised details report the count of anonymously readable public files currently exposed by that host and its mounted storage
-- `Directory` and `SysMon` now surface canonical address, stable device id, and access-route summaries for both local adapters and remote hosts, which is the current player/admin UX for understanding why something is or is not reachable
-- future authorised tunnelling, VPN login, and hacking should layer on top of this route-key model by granting or emulating additional route memberships rather than replacing addressability or discovery from scratch
+- hosts that expose one or more hosted VPN networks now also advertise a lightweight VPN gateway service for discovery, and authenticated terminal sessions can open temporary tunnel routes through those gateways
+- those active tunnel routes are session-scoped rather than hardware-scoped: they change discovery only for the authenticated terminal session that opened them and do not mutate the underlying adapter or host configuration
+- `Directory` and `SysMon` now surface canonical address, stable device id, base access-route summaries, and active session tunnels for both local adapters and remote hosts, which is the current player/admin UX for understanding why something is or is not reachable
+- future hacking should layer on top of this same route-key model by granting, emulating, or stealing temporary route memberships rather than replacing addressability or discovery from scratch
 - `Boards` and `Messenger` remain reserved built-in application identities for later phases
 
 ## Systems Needed
@@ -327,6 +336,7 @@ In the current shipped phase:
 - administrator characters execute those live item actions instantly and do not require tools or checks
   - the same `programming` surface now also has a terminal-first path for real computers, where players connect to a powered `ComputerTerminal` and select either the connected host or a mounted storage device as the current programming owner
   - `programming apps` and `programming app <name>` now expose host-backed built-in applications through that same connected terminal session
+  - `programming network` now exposes shared hosted-domain, shared account, and hosted VPN-gateway configuration on the connected host for administrators
   - the `type` verb is the terminal-facing input surface for real computers and now resumes foreground programs waiting on `UserInput()` for the active terminal session
   - workspace authoring still uses immediate ownership-checked edits rather than tool-gated physical actions
 - real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep`, `UserInput()`, and v1 `WaitSignal()` suspension; remote file access now exists for players through the `FTP` and `FileManager` built-in applications, while soft-coded remote file functions and broader network execution remain future phases
@@ -341,7 +351,7 @@ In the current shipped phase:
 - Mounted automation modules now inherit the host item's spatial context for `TrueLocations`, perception, and local signal targeting while installed in an automation bay.
 - Mounted automation modules also now resolve room-local signal sources for live runtime subscriptions through that host spatial context, so mounted controllers behave like installed hardware rather than isolated loose items.
 - ordinary item descriptions should present the physical state of housings, doors, locks, and bays; live signal/control diagnostics belong to `electrical` inspection rather than ordinary `look`
-- the current network-access model already leaves room for future security gameplay, but the runtime does not yet implement explicit player-facing tunnel setup, VPN login, or hostile discovery. Those future features should build on stable device ids plus temporary route memberships rather than introducing a second incompatible addressing model.
+- the current network-access model already leaves room for future security gameplay, and explicit player-facing tunnel setup and VPN login now exist through `Directory` plus the shared identity service. Hostile discovery and hacking remain future features, and they should build on stable device ids plus temporary route memberships rather than introducing a second incompatible addressing model.
 
 ## Conceptual Example - Motion Activated Door
 

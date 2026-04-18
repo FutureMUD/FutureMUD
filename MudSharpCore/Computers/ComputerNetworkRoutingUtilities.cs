@@ -49,6 +49,31 @@ public static class ComputerNetworkRoutingUtilities
 			.ToList();
 	}
 
+	public static IReadOnlyCollection<string> GetSharedRouteKeys(IEnumerable<string> sourceRoutes,
+		IEnumerable<string> targetRoutes)
+	{
+		HashSet<string> sourceSet = new(sourceRoutes, StringComparer.InvariantCultureIgnoreCase);
+		return targetRoutes
+			.Where(sourceSet.Contains)
+			.Distinct(StringComparer.InvariantCultureIgnoreCase)
+			.OrderBy(x => x)
+			.ToList();
+	}
+
+	public static IReadOnlyCollection<string> GetEffectiveRouteKeys(INetworkAdapter adapter,
+		IEnumerable<string>? extraRouteKeys = null)
+	{
+		HashSet<string> routes = new(adapter.NetworkRouteKeys, StringComparer.InvariantCultureIgnoreCase);
+		if (extraRouteKeys is not null)
+		{
+			routes.UnionWith(extraRouteKeys.Where(x => !string.IsNullOrWhiteSpace(x)));
+		}
+
+		return routes
+			.OrderBy(x => x)
+			.ToList();
+	}
+
 	public static bool CanRouteBetween(INetworkAdapter source, INetworkAdapter target)
 	{
 		if (!source.NetworkReady || !target.NetworkReady)
@@ -94,6 +119,26 @@ public static class ComputerNetworkRoutingUtilities
 			.OrderBy(x => x)
 			.ToList();
 		return routes.Any() ? routes.ListToString() : "None";
+	}
+
+	public static string GetVpnRouteKey(string? vpnNetworkId)
+	{
+		return $"vpn:{NormaliseIdentifier(vpnNetworkId)}";
+	}
+
+	public static string GetVpnNetworkIdFromRouteKey(string? routeKey)
+	{
+		if (string.IsNullOrWhiteSpace(routeKey))
+		{
+			return string.Empty;
+		}
+
+		if (!routeKey.StartsWith("vpn:", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return NormaliseIdentifier(routeKey);
+		}
+
+		return NormaliseIdentifier(routeKey["vpn:".Length..]);
 	}
 
 	public static string GetExchangeSubnetRouteKey(long gridId, string? subnetId)

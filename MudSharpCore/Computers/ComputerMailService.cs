@@ -636,11 +636,7 @@ public sealed class ComputerMailService : IComputerMailService
 			return Enumerable.Empty<string>();
 		}
 
-		return GetHostedDomains(host)
-			.Where(x => x.Enabled)
-			.Select(x => x.DomainName)
-			.OrderBy(x => x)
-			.ToList();
+		return _gameworld.ComputerNetworkIdentityService.GetAdvertisedDomainDetails(host);
 	}
 
 	private bool TryEnsureReachableAccount(IComputerHost sourceHost, IComputerMailAccount account,

@@ -103,9 +103,12 @@ public interface IComputerHost : IComputerExecutableOwner
 	IEnumerable<IComputerTerminal> ConnectedTerminals { get; }
 	IEnumerable<INetworkAdapter> NetworkAdapters { get; }
 	IEnumerable<string> EnabledNetworkServices { get; }
+	IEnumerable<string> HostedVpnNetworkIds { get; }
 	IComputerProcess? GetProcess(long processId);
 	bool IsNetworkServiceEnabled(string applicationId);
 	bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error);
+	bool AddHostedVpnNetwork(string networkId, out string error);
+	bool RemoveHostedVpnNetwork(string networkId, out string error);
 }
 
 public interface IComputerStorage : IComputerExecutableOwner
@@ -122,6 +125,8 @@ public interface IComputerTerminalSession
 	IComputerHost Host { get; }
 	IComputerExecutableOwner CurrentOwner { get; }
 	DateTime ConnectedAtUtc { get; }
+	IReadOnlyCollection<ComputerNetworkTunnelInfo> ActiveTunnels { get; }
+	IReadOnlyCollection<string> ActiveRouteKeys { get; }
 }
 
 public interface IComputerTerminal
@@ -201,9 +206,11 @@ public interface IComputerExecutionService
 	void ActivateOwner(IComputerExecutableOwner owner);
 	void DeactivateOwner(IComputerExecutableOwner owner);
 	bool TrySubmitTerminalInput(IComputerTerminalSession session, string text, out string error);
-	IEnumerable<ComputerNetworkHostSummary> GetReachableHosts(IComputerHost sourceHost);
-	ComputerNetworkHostSummary? ResolveReachableHost(IComputerHost sourceHost, string identifier);
-	IEnumerable<ComputerNetworkServiceSummary> GetAdvertisedServices(IComputerHost sourceHost, IComputerHost targetHost);
+	IEnumerable<ComputerNetworkHostSummary> GetReachableHosts(IComputerHost sourceHost, IComputerTerminalSession? session = null);
+	ComputerNetworkHostSummary? ResolveReachableHost(IComputerHost sourceHost, string identifier,
+		IComputerTerminalSession? session = null);
+	IEnumerable<ComputerNetworkServiceSummary> GetAdvertisedServices(IComputerHost sourceHost, IComputerHost targetHost,
+		IComputerTerminalSession? session = null);
 	IEnumerable<IComputerExecutableDefinition> GetExecutables(ICharacter owner);
 	IComputerExecutableDefinition? GetExecutable(ICharacter owner, string identifier);
 	IComputerExecutableDefinition? GetExecutable(long id);

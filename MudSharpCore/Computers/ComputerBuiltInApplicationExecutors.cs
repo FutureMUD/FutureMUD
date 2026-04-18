@@ -1354,15 +1354,18 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		var command = ss.PopSpeech().ToLowerInvariant();
 		return command switch
 		{
-			"" or "summary" or "host" => (RenderSummary(gameworld, session.User, application, host), false),
+			"" or "summary" or "host" => (RenderSummary(gameworld, session.User, application, session, host), false),
 			"help" => (RenderHelp(application), false),
-			"services" or "apps" when ss.IsFinished => (RenderLocalServices(gameworld, session.User, host), false),
-			"services" or "apps" => HandleRemoteServices(gameworld, session.User, host, ss.SafeRemainingArgument),
+			"services" or "apps" when ss.IsFinished => (RenderLocalServices(gameworld, session.User, session, host), false),
+			"services" or "apps" => HandleRemoteServices(gameworld, session.User, session, host, ss.SafeRemainingArgument),
 			"storage" or "drives" => (RenderStorage(session.User, host), false),
 			"terminals" or "sessions" => (RenderTerminals(session.User, host), false),
 			"adapters" or "network" => (RenderAdapters(session.User, host), false),
-			"hosts" => (RenderReachableHosts(gameworld, session.User, host), false),
-			"show" => HandleShowRemoteHost(gameworld, session.User, host, ss),
+			"routes" => (RenderRoutes(session.User, session, host), false),
+			"gateways" => (RenderGateways(gameworld, session), false),
+			"tunnel" => HandleTunnel(gameworld, session, ss),
+			"hosts" => (RenderReachableHosts(gameworld, session.User, session, host), false),
+			"show" => HandleShowRemoteHost(gameworld, session.User, session, host, ss),
 			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
 			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt()}", false)
 		};
@@ -1372,18 +1375,20 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		IComputerHost host)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(RenderSummary(gameworld, session.User, application, host));
+		sb.AppendLine(RenderSummary(gameworld, session.User, application, session, host));
 		sb.AppendLine();
 		sb.Append(RenderHelp(application));
 		session.User.OutputHandler.Send(sb.ToString(), nopage: true);
 	}
 
-	private static string RenderSummary(IFuturemud gameworld, ICharacter user, IComputerBuiltInApplication application, IComputerHost host)
+	private static string RenderSummary(IFuturemud gameworld, ICharacter user, IComputerBuiltInApplication application,
+		IComputerTerminalSession session, IComputerHost host)
 	{
 		var computerService = gameworld.ComputerExecutionService;
 		var reachableHosts = computerService is null
 			? []
-			: computerService.GetReachableHosts(host).ToList();
+			: computerService.GetReachableHosts(host, session).ToList();
+		var gateways = gameworld.ComputerNetworkTunnelService.GetReachableVpnGateways(session).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"{application.Name.ColourName()} :: {host.Name.ColourName()}");
 		sb.AppendLine(
@@ -1403,6 +1408,10 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		sb.AppendLine(
 			$"Network Adapters: {host.NetworkAdapters.Count().ToString("N0", user).ColourValue()}");
 		sb.AppendLine(
+			$"Active Tunnels: {session.ActiveTunnels.Count.ToString("N0", user).ColourValue()}");
+		sb.AppendLine(
+			$"Reachable VPN Gateways: {gateways.Count.ToString("N0", user).ColourValue()}");
+		sb.AppendLine(
 			$"Reachable Hosts: {reachableHosts.Count.ToString("N0", user).ColourValue()}");
 		sb.AppendLine();
 		sb.Append(RenderPrompt());
@@ -1419,6 +1428,10 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		sb.AppendLine($"\t{"storage".ColourCommand()} - list mounted storage devices");
 		sb.AppendLine($"\t{"terminals".ColourCommand()} - list connected terminals and sessions");
 		sb.AppendLine($"\t{"adapters".ColourCommand()} - list local network adapters");
+		sb.AppendLine($"\t{"routes".ColourCommand()} - show hardware and active tunnel routes for this session");
+		sb.AppendLine($"\t{"gateways".ColourCommand()} - list reachable VPN gateways");
+		sb.AppendLine($"\t{"tunnel connect <host> <user@domain> <password> [vpn]".ColourCommand()} - authenticate to a reachable VPN gateway");
+		sb.AppendLine($"\t{"tunnel disconnect [vpn|all]".ColourCommand()} - close one or all active tunnels");
 		sb.AppendLine($"\t{"hosts".ColourCommand()} - list reachable hosts on the telecom-backed network");
 		sb.AppendLine($"\t{"show <host>".ColourCommand()} - show a reachable host summary");
 		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
@@ -1430,7 +1443,8 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		return sb.ToString();
 	}
 
-	private static string RenderLocalServices(IFuturemud gameworld, ICharacter user, IComputerHost host)
+	private static string RenderLocalServices(IFuturemud gameworld, ICharacter user, IComputerTerminalSession session,
+		IComputerHost host)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("Local Services:");
@@ -1446,7 +1460,7 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			return sb.ToString();
 		}
 
-		var advertisedServices = gameworld.ComputerExecutionService?.GetAdvertisedServices(host, host)
+		var advertisedServices = gameworld.ComputerExecutionService?.GetAdvertisedServices(host, host, session)
 			.ToDictionary(x => x.ApplicationId, StringComparer.InvariantCultureIgnoreCase) ??
 			new Dictionary<string, ComputerNetworkServiceSummary>(StringComparer.InvariantCultureIgnoreCase);
 		sb.AppendLine(StringUtilities.GetTextTable(
@@ -1478,6 +1492,152 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		sb.AppendLine();
 		sb.Append(RenderPrompt());
 		return sb.ToString();
+	}
+
+	private static string RenderRoutes(ICharacter user, IComputerTerminalSession session, IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Effective Session Routes:");
+		var baseRoutes = host.NetworkAdapters
+			.SelectMany(x => x.NetworkRouteKeys)
+			.Distinct(StringComparer.InvariantCultureIgnoreCase)
+			.OrderBy(x => x)
+			.ToList();
+		sb.AppendLine($"Hardware Routes: {(baseRoutes.Any() ? ComputerNetworkRoutingUtilities.DescribeRoutes(baseRoutes).ColourValue() : "None".ColourError())}");
+		sb.AppendLine($"Active Tunnel Routes: {(session.ActiveRouteKeys.Any() ? ComputerNetworkRoutingUtilities.DescribeRoutes(session.ActiveRouteKeys).ColourValue() : "None".ColourError())}");
+		if (session.ActiveTunnels.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				session.ActiveTunnels.Select(tunnel => new List<string>
+				{
+					tunnel.RouteDescription,
+					tunnel.GatewayHostName,
+					tunnel.AuthenticatedAddress,
+					tunnel.ConnectedAtUtc.ToString(user)
+				}),
+				new List<string>
+				{
+					"Tunnel",
+					"Gateway",
+					"Identity",
+					"Connected"
+				},
+				user.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				user.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderGateways(IFuturemud gameworld, IComputerTerminalSession session)
+	{
+		var user = session.User;
+		var gateways = gameworld.ComputerNetworkTunnelService.GetReachableVpnGateways(session).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine("Reachable VPN Gateways:");
+		if (!gateways.Any())
+		{
+			sb.AppendLine("No reachable VPN gateways are currently available from this session.");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			gateways.Select(gateway => new List<string>
+			{
+				gateway.Host.Name,
+				gateway.CanonicalAddress,
+				gateway.DeviceIdentifier,
+				ComputerNetworkRoutingUtilities.DescribeRoutes(gateway.SharedRouteKeys),
+				gateway.VpnNetworkIds.Select(x => x.ColourName()).ListToString()
+			}),
+			new List<string>
+			{
+				"Gateway",
+				"Address",
+				"Device",
+				"Access",
+				"VPNs"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static (string Output, bool Exit) HandleTunnel(IFuturemud gameworld, IComputerTerminalSession session,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			return (RenderRoutes(session.User, session, session.Host), false);
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "connect":
+			case "open":
+				if (ss.IsFinished)
+				{
+					return ($"Which reachable VPN gateway do you want to use?\n\n{RenderPrompt()}", false);
+				}
+
+				var hostIdentifier = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					return ($"Which network identity should authenticate to that VPN gateway?\n\n{RenderPrompt()}", false);
+				}
+
+				var address = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					return ($"What password should be used for {address.ColourName()}?\n\n{RenderPrompt()}", false);
+				}
+
+				var password = ss.PopSpeech();
+				var requestedVpn = ss.IsFinished ? null : ss.SafeRemainingArgument;
+				if (!gameworld.ComputerNetworkTunnelService.TryOpenTunnel(session, hostIdentifier, address, password,
+					    requestedVpn, out var connectError))
+				{
+					return ($"{connectError}\n\n{RenderPrompt()}", false);
+				}
+
+				var tunnelName = string.IsNullOrWhiteSpace(requestedVpn)
+					? "the selected VPN tunnel"
+					: ComputerNetworkRoutingUtilities.DescribeRouteKey(
+						ComputerNetworkRoutingUtilities.GetVpnRouteKey(requestedVpn));
+				return ($"You authenticate as {address.ColourName()} and open {tunnelName.ColourValue()} through {hostIdentifier.ColourName()}.\n\n{RenderPrompt()}",
+					false);
+
+			case "disconnect":
+			case "close":
+				var routeIdentifier = ss.IsFinished ? null : ss.SafeRemainingArgument;
+				if (!gameworld.ComputerNetworkTunnelService.TryCloseTunnel(session, routeIdentifier, out var disconnectError))
+				{
+					return ($"{disconnectError}\n\n{RenderPrompt()}", false);
+				}
+
+				return ((string.IsNullOrWhiteSpace(routeIdentifier) || routeIdentifier.EqualTo("all")
+						? "All active VPN tunnels on this session are now closed."
+						: $"The tunnel {routeIdentifier.ColourCommand()} is now closed.") +
+					$"\n\n{RenderPrompt()}",
+					false);
+
+			default:
+				return ($"Use {"tunnel connect <host> <user@domain> <password> [vpn]".ColourCommand()} or {"tunnel disconnect [vpn|all]".ColourCommand()}.\n\n{RenderPrompt()}",
+					false);
+		}
 	}
 
 	private static string RenderStorage(ICharacter user, IComputerHost host)
@@ -1665,12 +1825,13 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		};
 	}
 
-	private static string RenderReachableHosts(IFuturemud gameworld, ICharacter user, IComputerHost host)
+	private static string RenderReachableHosts(IFuturemud gameworld, ICharacter user, IComputerTerminalSession session,
+		IComputerHost host)
 	{
 		var computerService = gameworld.ComputerExecutionService;
 		var hosts = computerService is null
 			? []
-			: computerService.GetReachableHosts(host).ToList();
+			: computerService.GetReachableHosts(host, session).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine("Reachable Hosts:");
 		if (!hosts.Any())
@@ -1712,7 +1873,8 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		return sb.ToString();
 	}
 
-	private static (string Output, bool Exit) HandleShowRemoteHost(IFuturemud gameworld, ICharacter user, IComputerHost host,
+	private static (string Output, bool Exit) HandleShowRemoteHost(IFuturemud gameworld, ICharacter user,
+		IComputerTerminalSession session, IComputerHost host,
 		StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -1720,14 +1882,14 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			return ("Which reachable host do you want to inspect?\n\n" + RenderPrompt(), false);
 		}
 
-		if (!TryResolveReachableHost(gameworld, host, ss.SafeRemainingArgument, out var summary, out var error))
+		if (!TryResolveReachableHost(gameworld, session, host, ss.SafeRemainingArgument, out var summary, out var error))
 		{
 			return ($"{error}\n\n{RenderPrompt()}", false);
 		}
 
 		var services = gameworld.ComputerExecutionService is null
 			? []
-			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host).ToList();
+			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host, session).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"{summary.Host.Name.ColourName()} :: {summary.CanonicalAddress.ColourCommand()}");
 		sb.AppendLine($"Device Id: {summary.DeviceIdentifier.ColourName()}");
@@ -1746,17 +1908,18 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		return (sb.ToString(), false);
 	}
 
-	private static (string Output, bool Exit) HandleRemoteServices(IFuturemud gameworld, ICharacter user, IComputerHost host,
+	private static (string Output, bool Exit) HandleRemoteServices(IFuturemud gameworld, ICharacter user,
+		IComputerTerminalSession session, IComputerHost host,
 		string identifier)
 	{
-		if (!TryResolveReachableHost(gameworld, host, identifier, out var summary, out var error))
+		if (!TryResolveReachableHost(gameworld, session, host, identifier, out var summary, out var error))
 		{
 			return ($"{error}\n\n{RenderPrompt()}", false);
 		}
 
 		var services = gameworld.ComputerExecutionService is null
 			? []
-			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host).ToList();
+			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host, session).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"Advertised Services for {summary.Host.Name.ColourName()} ({summary.CanonicalAddress.ColourCommand()}):");
 		sb.AppendLine($"Device Id: {summary.DeviceIdentifier.ColourName()}");
@@ -1796,14 +1959,15 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		return (sb.ToString(), false);
 	}
 
-	private static bool TryResolveReachableHost(IFuturemud gameworld, IComputerHost sourceHost, string identifier,
+	private static bool TryResolveReachableHost(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost sourceHost, string identifier,
 		out ComputerNetworkHostSummary? summary, out string error)
 	{
 		summary = null;
 		var computerService = gameworld.ComputerExecutionService;
 		var hosts = computerService is null
 			? []
-			: computerService.GetReachableHosts(sourceHost).ToList();
+			: computerService.GetReachableHosts(sourceHost, session).ToList();
 		if (!hosts.Any())
 		{
 			error = "No reachable hosts are currently available on the telecom-backed network from this host.";
@@ -1912,11 +2076,13 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 		sb.AppendLine(
 			$"Network Adapters: {host.NetworkAdapters.Count().ToString("N0", session.User).ColourValue()}");
 		sb.AppendLine(
+			$"Active Tunnels: {session.ActiveTunnels.Count.ToString("N0", session.User).ColourValue()}");
+		sb.AppendLine(
 			$"Built-In Applications: {host.BuiltInApplications.Select(x => x.Name.ColourName()).ListToString()}");
 
 		AppendStorageSection(sb, session.User, host);
 		AppendTerminalSection(sb, session.User, host);
-		AppendNetworkSection(sb, session.User, host);
+		AppendNetworkSection(sb, session.User, session, host);
 		AppendProcessSection(sb, session.User, host);
 		AppendSignalSection(sb, gameworld, session.User, host);
 
@@ -2009,7 +2175,8 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 			user.Account.UseUnicode));
 	}
 
-	private static void AppendNetworkSection(StringBuilder sb, ICharacter user, IComputerHost host)
+	private static void AppendNetworkSection(StringBuilder sb, ICharacter user, IComputerTerminalSession session,
+		IComputerHost host)
 	{
 		sb.AppendLine();
 		sb.AppendLine("Network Adapters:");
@@ -2044,6 +2211,33 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 			Telnet.BoldGreen,
 			1,
 			user.Account.UseUnicode));
+
+		sb.AppendLine();
+		sb.AppendLine($"Hosted VPN Networks: {(host.HostedVpnNetworkIds.Any() ? host.HostedVpnNetworkIds.Select(x => x.ColourName()).ListToString() : "None".ColourError())}");
+		sb.AppendLine($"Active Tunnel Routes: {(session.ActiveRouteKeys.Any() ? ComputerNetworkRoutingUtilities.DescribeRoutes(session.ActiveRouteKeys).ColourValue() : "None".ColourError())}");
+		if (session.ActiveTunnels.Any())
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				session.ActiveTunnels.Select(tunnel => new List<string>
+				{
+					tunnel.RouteDescription,
+					tunnel.GatewayHostName,
+					tunnel.AuthenticatedAddress,
+					tunnel.ConnectedAtUtc.ToString(user)
+				}),
+				new List<string>
+				{
+					"Tunnel",
+					"Gateway",
+					"Identity",
+					"Connected"
+				},
+				user.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				user.Account.UseUnicode));
+		}
 	}
 
 	private static void AppendProcessSection(StringBuilder sb, ICharacter user, IComputerHost host)

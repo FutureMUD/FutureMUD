@@ -118,6 +118,7 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
 	public IEnumerable<string> EnabledNetworkServices => Enumerable.Empty<string>();
+	public IEnumerable<string> HostedVpnNetworkIds => Enumerable.Empty<string>();
 
 	public IComputerProcess? GetProcess(long processId)
 	{
@@ -132,6 +133,18 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error)
 	{
 		error = "Workspace hosts cannot advertise network services.";
+		return false;
+	}
+
+	public bool AddHostedVpnNetwork(string networkId, out string error)
+	{
+		error = "Workspace hosts cannot expose VPN networks.";
+		return false;
+	}
+
+	public bool RemoveHostedVpnNetwork(string networkId, out string error)
+	{
+		error = "Workspace hosts cannot expose VPN networks.";
 		return false;
 	}
 }

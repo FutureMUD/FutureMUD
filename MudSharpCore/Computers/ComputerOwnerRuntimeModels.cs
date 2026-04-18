@@ -255,9 +255,33 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 
 public sealed class ComputerTerminalSession : IComputerTerminalSession
 {
+	private readonly List<ComputerNetworkTunnelInfo> _activeTunnels = [];
+
 	public required ICharacter User { get; init; }
 	public required IComputerTerminal Terminal { get; init; }
 	public required IComputerHost Host { get; init; }
 	public required IComputerExecutableOwner CurrentOwner { get; set; }
 	public DateTime ConnectedAtUtc { get; init; } = DateTime.UtcNow;
+	public IReadOnlyCollection<ComputerNetworkTunnelInfo> ActiveTunnels => _activeTunnels.AsReadOnly();
+	public IReadOnlyCollection<string> ActiveRouteKeys => _activeTunnels
+		.Select(x => x.RouteKey)
+		.Distinct(StringComparer.InvariantCultureIgnoreCase)
+		.OrderBy(x => x)
+		.ToList();
+
+	public void AddOrReplaceTunnel(ComputerNetworkTunnelInfo tunnel)
+	{
+		_activeTunnels.RemoveAll(x => x.RouteKey.Equals(tunnel.RouteKey, StringComparison.InvariantCultureIgnoreCase));
+		_activeTunnels.Add(tunnel);
+	}
+
+	public bool RemoveTunnel(string routeKey)
+	{
+		return _activeTunnels.RemoveAll(x => x.RouteKey.Equals(routeKey, StringComparison.InvariantCultureIgnoreCase)) > 0;
+	}
+
+	public void ClearTunnels()
+	{
+		_activeTunnels.Clear();
+	}
 }

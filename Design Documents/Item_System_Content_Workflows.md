@@ -181,6 +181,7 @@ For the current signal-automation slice, also validate:
 - whether `Directory` and `SysMon` show device ids and access-route summaries clearly enough that builders can tell why a host is reachable, private, or exchange-local
 - whether public-network discovery excludes exchange-private or VPN-only devices unless the querying host shares the required subnet or VPN membership
 - whether an exchange-local private subnet behaves like an isolated field network at that exchange, with devices visible to each other but hidden from unrelated public hosts elsewhere on the linked-grid graph
+- whether authenticated VPN tunnels add only the expected temporary route memberships to the active terminal session, exposing private hosts there without changing hardware discovery for other sessions
 - whether service access is correctly blocked by a closed `AutomationHousing` item around a mount bay or cable end
 - whether check failure still costs time, but does not permanently consume tools or materials
 - whether abject failure on electrical work produces the intended shock echo and electrical damage
@@ -332,19 +333,21 @@ For the first real in-world computer workflow, a practical pass is:
 16. When testing `type edit <file>`, confirm it hands off to the normal multiline editor, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`.
 17. Use `programming app directory` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
 18. If a `networkadapter` is present, attach it to a telecommunications grid and, if desired, link that exchange to another grid that also has a powered reachable host with its own `networkadapter`.
-19. Use `type summary`, `type services`, `type storage`, `type terminals`, `type adapters`, `type hosts`, `type show <host>`, `type services <host>`, and `type exit` to confirm the connected terminal session is driving Directory, that it still exposes the local host and directly connected devices, and that it now discovers reachable hosts across the linked telecommunications-grid graph.
-20. On a reachable host that should act as a mail server, use `programming mail service on`, `programming mail domain add <domain>`, and `programming mail account add <user@domain> <password>` while connected to that host as an administrator.
-21. Use `type services <host>` in `Directory` from another reachable host and confirm the mail server now advertises `Mail` with its hosted domain details instead of reporting no implemented services.
-22. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-23. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable hosted domain and can inspect mailbox state.
-24. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
-25. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
-26. If that host also has a `filesignalgenerator`, confirm the component owner's backing signal file can be published and later addressed through the same local file-owner selection workflow.
-27. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
-28. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-29. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
-30. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
-31. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
+19. Use `type summary`, `type services`, `type storage`, `type terminals`, `type adapters`, `type routes`, `type gateways`, `type hosts`, `type show <host>`, `type services <host>`, and `type exit` to confirm the connected terminal session is driving Directory, that it still exposes the local host and directly connected devices, and that it now discovers reachable hosts across the linked telecommunications-grid graph.
+20. On a reachable host that should act as a shared identity and mail server, use `programming network domain add <domain>`, `programming network account add <user@domain> <password>`, and if appropriate `programming network vpn add <vpn>` while connected to that host as an administrator.
+21. If that host should act as a VPN gateway, use `type gateways` and then `type tunnel connect <host> <user@domain> <password> [vpn]` from another session and confirm `type routes` now shows the added temporary tunnel route without changing unrelated sessions.
+22. Use `type hosts` before and after the tunnel is connected and confirm VPN-only hosts appear only for the authenticated session that opened the tunnel.
+23. If the same host should also act as a mail server, use `programming mail service on` and confirm `type services <host>` in `Directory` from another reachable host now advertises `Mail` with its hosted domain details instead of reporting no implemented services.
+24. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+25. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable shared network identity on a hosted domain and can inspect mailbox state.
+26. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
+27. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
+28. If that host also has a `filesignalgenerator`, confirm the component owner's backing signal file can be published and later addressed through the same local file-owner selection workflow.
+29. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
+30. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+31. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
+32. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
+33. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
 32. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
 33. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
 34. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
@@ -355,7 +358,7 @@ For the first real in-world computer workflow, a practical pass is:
 39. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
 40. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
-In the current shipped phase, `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the currently implemented remote network services when reachable hosts have `Mail` or `FTP` enabled and configured. `Boards` and `Messenger` remain reserved built-in identities for future phases.
+In the current shipped phase, `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the currently implemented remote network services when reachable hosts have `Mail` or `FTP` enabled and configured, and it can now open and close authenticated VPN tunnels that temporarily extend discovery only for the active terminal session. `Boards` and `Messenger` remain reserved built-in identities for future phases.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

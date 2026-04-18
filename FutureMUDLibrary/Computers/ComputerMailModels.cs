@@ -5,22 +5,12 @@ using System.Collections.Generic;
 
 namespace MudSharp.Computers;
 
-public interface IComputerMailAccount
+public interface IComputerMailAccount : IComputerNetworkAccount
 {
-	long Id { get; }
-	long DomainId { get; }
-	string UserName { get; }
-	string DomainName { get; }
-	string Address { get; }
-	bool Enabled { get; }
 }
 
-public sealed class ComputerMailDomainInfo
+public sealed class ComputerMailDomainInfo : ComputerNetworkDomainInfo
 {
-	public long Id { get; init; }
-	public string DomainName { get; init; } = string.Empty;
-	public long HostItemId { get; init; }
-	public bool Enabled { get; init; }
 }
 
 public sealed class ComputerMailMessageHeader

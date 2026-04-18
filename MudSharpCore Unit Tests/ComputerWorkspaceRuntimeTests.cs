@@ -1512,6 +1512,176 @@ return userinput()";
 	}
 
 	[TestMethod]
+	public void ComputerNetworkIdentityService_RegisterDomainCreateAccountAndAuthenticate_Succeeds()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var host = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Identity Host",
+				OwnerHostItemId = 781L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(781L).ToList()
+			};
+
+			var identityService = gameworld.Object.ComputerNetworkIdentityService;
+			Assert.IsTrue(identityService.RegisterDomain(host, "corp.example", out var domainError), domainError);
+			Assert.IsTrue(identityService.CreateAccount(host, "alice@corp.example", "secret", out var accountError),
+				accountError);
+
+			var authentication = identityService.Authenticate(host, "alice@corp.example", "secret");
+			var domains = identityService.GetHostedDomains(host).ToList();
+			var accounts = identityService.GetAccounts(host).ToList();
+
+			Assert.IsTrue(authentication.Success, authentication.ErrorMessage);
+			Assert.IsNotNull(authentication.Account);
+			Assert.AreEqual("alice@corp.example", authentication.Account!.Address);
+			Assert.AreEqual(1, domains.Count);
+			Assert.AreEqual("corp.example", domains[0].DomainName);
+			Assert.AreEqual(1, accounts.Count);
+			Assert.AreEqual("alice@corp.example", accounts[0].Address);
+			Assert.AreEqual(1, context.ComputerMailDomains.Count());
+			Assert.AreEqual(1, context.ComputerMailAccounts.Count());
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void ComputerNetworkTunnelService_ActiveTunnelAddsPrivateReachabilityOnlyToThatSession()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var service = new ComputerExecutionService(gameworld.Object);
+			gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+			var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+			var remoteGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+			localGrid.LinkGrid(remoteGrid);
+
+			var localHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Local Host",
+				OwnerHostItemId = 791L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(791L).ToList()
+			};
+			var gatewayHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Gateway Host",
+				OwnerHostItemId = 792L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(792L).ToList()
+			};
+			var privateHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Private Host",
+				OwnerHostItemId = 793L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(793L).ToList()
+			};
+
+			Assert.IsTrue(gatewayHost.AddHostedVpnNetwork("ops", out var vpnError), vpnError);
+
+			var localAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 801L,
+				ConnectedHost = localHost,
+				Powered = true,
+				PreferredNetworkAddress = "local.host",
+				TelecommunicationsGrid = localGrid
+			};
+			var gatewayAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 802L,
+				ConnectedHost = gatewayHost,
+				Powered = true,
+				PreferredNetworkAddress = "gateway.host",
+				TelecommunicationsGrid = remoteGrid
+			};
+			var privateAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 803L,
+				ConnectedHost = privateHost,
+				Powered = true,
+				PublicNetworkEnabled = false,
+				VpnNetworkIds = ["ops"],
+				PreferredNetworkAddress = "private.host",
+				TelecommunicationsGrid = remoteGrid
+			};
+
+			localGrid.JoinGrid(localAdapter);
+			remoteGrid.JoinGrid(gatewayAdapter);
+			remoteGrid.JoinGrid(privateAdapter);
+			localHost.NetworkAdapters = [localAdapter];
+			gatewayHost.NetworkAdapters = [gatewayAdapter];
+			privateHost.NetworkAdapters = [privateAdapter];
+
+			var identityService = gameworld.Object.ComputerNetworkIdentityService;
+			Assert.IsTrue(identityService.RegisterDomain(gatewayHost, "corp.example", out var domainError), domainError);
+			Assert.IsTrue(identityService.CreateAccount(gatewayHost, "alice@corp.example", "secret", out var accountError),
+				accountError);
+
+			var user = CreateOwner(gameworld.Object, 108L);
+			var terminal = new Mock<IComputerTerminal>();
+			terminal.SetupGet(x => x.TerminalItemId).Returns(2801L);
+			var session = new ComputerTerminalSession
+			{
+				User = user.Object,
+				Terminal = terminal.Object,
+				Host = localHost,
+				CurrentOwner = localHost
+			};
+			var otherSession = new ComputerTerminalSession
+			{
+				User = user.Object,
+				Terminal = terminal.Object,
+				Host = localHost,
+				CurrentOwner = localHost
+			};
+
+			var reachableBeforeTunnel = service.GetReachableHosts(localHost, session).ToList();
+			Assert.IsTrue(reachableBeforeTunnel.Any(x => ReferenceEquals(x.Host, gatewayHost)));
+			Assert.IsFalse(reachableBeforeTunnel.Any(x => ReferenceEquals(x.Host, privateHost)));
+
+			Assert.IsTrue(
+				gameworld.Object.ComputerNetworkTunnelService.TryOpenTunnel(
+					session,
+					"gateway.host",
+					"alice@corp.example",
+					"secret",
+					"ops",
+					out var connectError),
+				connectError);
+
+			var reachableWithTunnel = service.GetReachableHosts(localHost, session).ToList();
+			var privateSummary = reachableWithTunnel.Single(x => ReferenceEquals(x.Host, privateHost));
+			Assert.IsTrue(session.ActiveRouteKeys.Contains("vpn:ops"));
+			Assert.IsTrue(privateSummary.SharedRouteKeys.Contains("vpn:ops"));
+			Assert.IsFalse(service.GetReachableHosts(localHost, otherSession).Any(x => ReferenceEquals(x.Host, privateHost)));
+
+			Assert.IsTrue(gameworld.Object.ComputerNetworkTunnelService.TryCloseTunnel(session, "ops", out var closeError),
+				closeError);
+			Assert.IsFalse(service.GetReachableHosts(localHost, session).Any(x => ReferenceEquals(x.Host, privateHost)));
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void ComputerMailService_RegisterDomainCreateAccountAndAuthenticate_Succeeds()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -2094,10 +2264,16 @@ return userinput()";
 		var gameworld = new Mock<IFuturemud>();
 		var saveManager = new Mock<ISaveManager>();
 		var mailService = new ComputerMailService(gameworld.Object);
+		var networkIdentityService = new ComputerNetworkIdentityService(gameworld.Object);
+		var networkTunnelService = new ComputerNetworkTunnelService(gameworld.Object);
 		var fileTransferService = new ComputerFileTransferService(gameworld.Object);
+		var executionService = new ComputerExecutionService(gameworld.Object);
 		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(executionService);
 		gameworld.SetupGet(x => x.ComputerMailService).Returns(mailService);
+		gameworld.SetupGet(x => x.ComputerNetworkIdentityService).Returns(networkIdentityService);
+		gameworld.SetupGet(x => x.ComputerNetworkTunnelService).Returns(networkTunnelService);
 		gameworld.SetupGet(x => x.ComputerFileTransferService).Returns(fileTransferService);
 		return gameworld;
 	}
@@ -2189,6 +2365,7 @@ return userinput()";
 	{
 		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
 		private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> _hostedVpnNetworkIds = new(StringComparer.InvariantCultureIgnoreCase);
 		private readonly Dictionary<string, ComputerMutableFtpAccount> _ftpAccounts = new(StringComparer.InvariantCultureIgnoreCase);
 		private long _nextProcessId = 1L;
 
@@ -2208,6 +2385,7 @@ return userinput()";
 		public IEnumerable<IComputerTerminal> ConnectedTerminals { get; set; } = Enumerable.Empty<IComputerTerminal>();
 		public IEnumerable<INetworkAdapter> NetworkAdapters { get; set; } = Enumerable.Empty<INetworkAdapter>();
 		public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
+		public IEnumerable<string> HostedVpnNetworkIds => _hostedVpnNetworkIds.OrderBy(x => x).ToList();
 		public IEnumerable<IComputerFtpAccount> FtpAccounts => _ftpAccounts.Values.OrderBy(x => x.UserName).ToList();
 
 		public IComputerProcess? GetProcess(long processId)
@@ -2230,6 +2408,44 @@ return userinput()";
 			else
 			{
 				_enabledNetworkServices.Remove(applicationId);
+			}
+
+			return true;
+		}
+
+		public bool AddHostedVpnNetwork(string networkId, out string error)
+		{
+			error = string.Empty;
+			var normalised = ComputerNetworkRoutingUtilities.NormaliseIdentifier(networkId);
+			if (string.IsNullOrWhiteSpace(normalised))
+			{
+				error = "You must specify a VPN network identifier.";
+				return false;
+			}
+
+			if (!_hostedVpnNetworkIds.Add(normalised))
+			{
+				error = "That VPN network is already hosted.";
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool RemoveHostedVpnNetwork(string networkId, out string error)
+		{
+			error = string.Empty;
+			var normalised = ComputerNetworkRoutingUtilities.NormaliseIdentifier(networkId);
+			if (string.IsNullOrWhiteSpace(normalised))
+			{
+				error = "You must specify a VPN network identifier.";
+				return false;
+			}
+
+			if (!_hostedVpnNetworkIds.Remove(normalised))
+			{
+				error = "That VPN network is not hosted.";
+				return false;
 			}
 
 			return true;

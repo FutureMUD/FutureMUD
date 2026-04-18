@@ -58,6 +58,12 @@ You can use the following syntax:
 	#3type <terminal> <text>#0 - types into a specific nearby terminal
 	#3programming apps#0 - lists the built-in computer applications available on your connected host
 	#3programming app <name>#0 - runs one built-in computer application on your connected host
+	#3programming network#0 - shows shared network identity and VPN gateway status for the connected host (administrators only)
+	#3programming network domain add|remove|enable|disable <domain>#0 - manages shared hosted network domains on the connected host (administrators only)
+	#3programming network account add <user@domain> <password>#0 - creates a shared network account on the connected host (administrators only)
+	#3programming network account enable|disable <user@domain>#0 - enables or disables a shared network account (administrators only)
+	#3programming network account password <user@domain> <password>#0 - changes a shared network account password (administrators only)
+	#3programming network vpn add|remove <network>#0 - changes which VPN networks this host exposes for authenticated tunnels (administrators only)
 	#3programming mail#0 - shows mail service status for the connected host (administrators only)
 	#3programming mail service on|off#0 - enables or disables the connected host's mail service advertisement (administrators only)
 	#3programming mail domain add|remove|enable|disable <domain>#0 - manages hosted mail domains on the connected host (administrators only)
@@ -126,6 +132,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		"execute",
 		"app",
 		"apps",
+		"network",
 		"mail",
 		"ftp",
 		"processes",
@@ -353,6 +360,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 			case "apps":
 				ProgrammingWorkspaceApplications(actor);
 				return;
+			case "network":
+				ProgrammingNetwork(actor, ss);
+				return;
 			case "mail":
 				ProgrammingMail(actor, ss);
 				return;
@@ -526,6 +536,8 @@ If more than one terminal could be used, specify one explicitly or connect first
 		sb.AppendLine($"Connected Host: {session.Host.Name.ColourName()}");
 		sb.AppendLine($"Current Owner: {DescribeComputerOwner(actor, session.CurrentOwner)}");
 		sb.AppendLine($"Connected Since: {session.ConnectedAtUtc.ToString(actor).ColourValue()}");
+		sb.AppendLine(
+			$"Active Tunnels: {(session.ActiveRouteKeys.Any() ? ComputerNetworkRoutingUtilities.DescribeRoutes(session.ActiveRouteKeys).ColourValue() : "None".ColourError())}");
 		var storage = session.Host.MountedStorage.ToList();
 		sb.AppendLine("Mounted Storage:");
 		if (!storage.Any())
@@ -2021,6 +2033,303 @@ If more than one terminal could be used, specify one explicitly or connect first
 			actor.Account.UseUnicode), nopage: true);
 	}
 
+	private static void ProgrammingNetwork(ICharacter actor, StringStack ss)
+	{
+		if (!TryGetProgrammingNetworkHost(actor, out var host))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			ShowProgrammingNetworkStatus(actor, host);
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "domain":
+				ProgrammingNetworkDomain(actor, host, ss);
+				return;
+			case "account":
+				ProgrammingNetworkAccount(actor, host, ss);
+				return;
+			case "vpn":
+			case "gateway":
+				ProgrammingNetworkVpn(actor, host, ss);
+				return;
+			default:
+				ShowProgrammingNetworkStatus(actor, host);
+				return;
+		}
+	}
+
+	private static bool TryGetProgrammingNetworkHost(ICharacter actor, out IComputerHost host)
+	{
+		host = default!;
+		if (!actor.IsAdministrator())
+		{
+			actor.Send("Only administrators can configure computer network services.");
+			return false;
+		}
+
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("You must be connected to a computer terminal to configure network services.");
+			return false;
+		}
+
+		host = session.Host;
+		return true;
+	}
+
+	private static void ShowProgrammingNetworkStatus(ICharacter actor, IComputerHost host)
+	{
+		var identityService = actor.Gameworld.ComputerNetworkIdentityService;
+		var domains = identityService.GetHostedDomains(host).ToList();
+		var accounts = identityService.GetAccounts(host).ToList();
+		var vpnNetworks = host.HostedVpnNetworkIds.OrderBy(x => x).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Network Host: {host.Name.ColourName()}");
+		sb.AppendLine($"Hosted Domains: {domains.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Accounts: {accounts.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"VPN Networks: {(vpnNetworks.Any() ? vpnNetworks.Select(x => x.ColourName()).ListToString() : "None".ColourError())}");
+		sb.AppendLine();
+		sb.AppendLine("Domains:");
+		if (!domains.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				domains.Select(domain => new List<string>
+				{
+					domain.DomainName,
+					domain.Enabled.ToColouredString()
+				}),
+				new List<string>
+				{
+					"Domain",
+					"Enabled"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Accounts:");
+		if (!accounts.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				accounts.Select(account => new List<string>
+				{
+					account.Address,
+					account.Enabled.ToColouredString()
+				}),
+				new List<string>
+				{
+					"Identity",
+					"Enabled"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine(
+			$"Use {"programming network domain add|remove|enable|disable <domain>".ColourCommand()}, {"programming network account add|enable|disable|password ...".ColourCommand()}, and {"programming network vpn add|remove <network>".ColourCommand()} to configure this host.");
+		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static void ProgrammingNetworkDomain(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to add, remove, enable or disable a domain?");
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		if (ss.IsFinished)
+		{
+			actor.Send("Which domain do you want to work with?");
+			return;
+		}
+
+		var domain = ss.SafeRemainingArgument;
+		var identityService = actor.Gameworld.ComputerNetworkIdentityService;
+		var success = action switch
+		{
+			"add" => identityService.RegisterDomain(host, domain, out var addError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now hosted by {host.Name.ColourName()}.")
+				: SendMailError(actor, addError),
+			"remove" => identityService.RemoveDomain(host, domain, out var removeError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is no longer hosted by {host.Name.ColourName()}.")
+				: SendMailError(actor, removeError),
+			"enable" => identityService.SetDomainEnabled(host, domain, true, out var enableError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now enabled on {host.Name.ColourName()}.")
+				: SendMailError(actor, enableError),
+			"disable" => identityService.SetDomainEnabled(host, domain, false, out var disableError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now disabled on {host.Name.ColourName()}.")
+				: SendMailError(actor, disableError),
+			_ => false
+		};
+
+		if (!success && action is not ("add" or "remove" or "enable" or "disable"))
+		{
+			actor.Send("You must specify add, remove, enable or disable.");
+		}
+	}
+
+	private static void ProgrammingNetworkAccount(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to add, enable, disable or change the password of an account?");
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		var identityService = actor.Gameworld.ComputerNetworkIdentityService;
+		switch (action)
+		{
+			case "add":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which account address do you want to create?");
+					return;
+				}
+
+				var address = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.Send("What password should that new account use?");
+					return;
+				}
+
+				if (!identityService.CreateAccount(host, address, ss.SafeRemainingArgument, out var addError))
+				{
+					actor.Send(addError);
+					return;
+				}
+
+				actor.Send($"Created the shared network account {address.ColourName()} on {host.Name.ColourName()}.");
+				return;
+			case "enable":
+			case "disable":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which account address do you want to change?");
+					return;
+				}
+
+				var targetAddress = ss.SafeRemainingArgument;
+				if (!identityService.SetAccountEnabled(host, targetAddress, action == "enable", out var toggleError))
+				{
+					actor.Send(toggleError);
+					return;
+				}
+
+				actor.Send(
+					$"{targetAddress.ColourName()} is now {(action == "enable" ? "enabled".ColourValue() : "disabled".ColourError())} on {host.Name.ColourName()}.");
+				return;
+			case "password":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which account address do you want to change the password for?");
+					return;
+				}
+
+				var passwordAddress = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.Send("What new password should that account use?");
+					return;
+				}
+
+				if (!identityService.SetAccountPassword(host, passwordAddress, ss.SafeRemainingArgument, out var passwordError))
+				{
+					actor.Send(passwordError);
+					return;
+				}
+
+				actor.Send($"Updated the password for {passwordAddress.ColourName()} on {host.Name.ColourName()}.");
+				return;
+			default:
+				actor.Send("You must specify add, enable, disable or password.");
+				return;
+		}
+	}
+
+	private static void ProgrammingNetworkVpn(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished || ss.PeekSpeech().EqualTo("list"))
+		{
+			if (!ss.IsFinished)
+			{
+				ss.PopSpeech();
+			}
+
+			var vpnNetworks = host.HostedVpnNetworkIds.OrderBy(x => x).ToList();
+			if (!vpnNetworks.Any())
+			{
+				actor.Send($"{host.Name.ColourName()} is not currently exposing any VPN tunnel networks.");
+				return;
+			}
+
+			actor.Send(
+				$"{host.Name.ColourName()} is currently exposing the following VPN networks: {vpnNetworks.Select(x => x.ColourName()).ListToString()}.");
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		if (ss.IsFinished)
+		{
+			actor.Send("Which VPN network do you want to work with?");
+			return;
+		}
+
+		var networkId = ss.SafeRemainingArgument;
+		switch (action)
+		{
+			case "add":
+			case "enable":
+				if (!host.AddHostedVpnNetwork(networkId, out var addError))
+				{
+					actor.Send(addError);
+					return;
+				}
+
+				actor.Send($"{host.Name.ColourName()} now exposes the VPN network {networkId.ColourName()} for authenticated tunnels.");
+				return;
+			case "remove":
+			case "disable":
+				if (!host.RemoveHostedVpnNetwork(networkId, out var removeError))
+				{
+					actor.Send(removeError);
+					return;
+				}
+
+				actor.Send($"{host.Name.ColourName()} no longer exposes the VPN network {networkId.ColourName()}.");
+				return;
+			default:
+				actor.Send("You must specify add, remove, enable, disable or list.");
+				return;
+		}
+	}
+
 	private static void ProgrammingMail(ICharacter actor, StringStack ss)
 	{
 		if (!TryGetProgrammingMailHost(actor, out var host))
@@ -2074,8 +2383,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 	private static void ShowProgrammingMailStatus(ICharacter actor, IComputerHost host)
 	{
 		var mailService = actor.Gameworld.ComputerMailService;
-		var domains = mailService.GetHostedDomains(host).ToList();
-		var accounts = mailService.GetAccounts(host).ToList();
+		var identityService = actor.Gameworld.ComputerNetworkIdentityService;
+		var domains = identityService.GetHostedDomains(host).ToList();
+		var accounts = identityService.GetAccounts(host).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"Mail Service Host: {host.Name.ColourName()}");
 		sb.AppendLine($"Advertised: {mailService.IsMailServiceEnabled(host).ToColouredString()}");
@@ -2182,19 +2492,19 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		var domain = ss.SafeRemainingArgument;
-		var mailService = actor.Gameworld.ComputerMailService;
+		var identityService = actor.Gameworld.ComputerNetworkIdentityService;
 		var success = action switch
 		{
-			"add" => mailService.RegisterDomain(host, domain, out var addError)
+			"add" => identityService.RegisterDomain(host, domain, out var addError)
 				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now hosted by {host.Name.ColourName()}.")
 				: SendMailError(actor, addError),
-			"remove" => mailService.RemoveDomain(host, domain, out var removeError)
+			"remove" => identityService.RemoveDomain(host, domain, out var removeError)
 				? SendMailStatus(actor, $"The domain {domain.ColourName()} is no longer hosted by {host.Name.ColourName()}.")
 				: SendMailError(actor, removeError),
-			"enable" => mailService.SetDomainEnabled(host, domain, true, out var enableError)
+			"enable" => identityService.SetDomainEnabled(host, domain, true, out var enableError)
 				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now enabled on {host.Name.ColourName()}.")
 				: SendMailError(actor, enableError),
-			"disable" => mailService.SetDomainEnabled(host, domain, false, out var disableError)
+			"disable" => identityService.SetDomainEnabled(host, domain, false, out var disableError)
 				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now disabled on {host.Name.ColourName()}.")
 				: SendMailError(actor, disableError),
 			_ => false
@@ -2215,7 +2525,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 
 		var action = ss.PopSpeech().ToLowerInvariant();
-		var mailService = actor.Gameworld.ComputerMailService;
+		var identityService = actor.Gameworld.ComputerNetworkIdentityService;
 		switch (action)
 		{
 			case "add":
@@ -2232,7 +2542,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 					return;
 				}
 
-				if (!mailService.CreateAccount(host, address, ss.SafeRemainingArgument, out var addError))
+				if (!identityService.CreateAccount(host, address, ss.SafeRemainingArgument, out var addError))
 				{
 					actor.Send(addError);
 					return;
@@ -2249,7 +2559,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 				}
 
 				var targetAddress = ss.SafeRemainingArgument;
-				if (!mailService.SetAccountEnabled(host, targetAddress, action == "enable", out var toggleError))
+				if (!identityService.SetAccountEnabled(host, targetAddress, action == "enable", out var toggleError))
 				{
 					actor.Send(toggleError);
 					return;
@@ -2272,7 +2582,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 					return;
 				}
 
-				if (!mailService.SetAccountPassword(host, passwordAddress, ss.SafeRemainingArgument, out var passwordError))
+				if (!identityService.SetAccountPassword(host, passwordAddress, ss.SafeRemainingArgument, out var passwordError))
 				{
 					actor.Send(passwordError);
 					return;

@@ -144,6 +144,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
         ComputerHelpService = new ComputerHelpService();
+        ComputerNetworkIdentityService = new ComputerNetworkIdentityService(this);
+        ComputerNetworkTunnelService = new ComputerNetworkTunnelService(this);
         ComputerMailService = new ComputerMailService(this);
         ComputerFileTransferService = new ComputerFileTransferService(this);
         ComputerExecutionService = new ComputerExecutionService(this);

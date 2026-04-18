@@ -45,7 +45,7 @@ If the feature also needs shared immutable value objects rather than only a quer
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
 - item-facing component contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` belong in `FutureMUDLibrary/GameItems/Interfaces`
-- concrete behaviours such as `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, or `ComputerTerminal` should still be separate runtime components and component protos in `MudSharpCore`
+- concrete behaviours such as `ComputerHost`, `ComputerStorage`, `ComputerTerminal`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, or `ElectronicDoor` should still be separate runtime components and component protos in `MudSharpCore`
 - avoid collapsing multiple distinct automation behaviours into one generic "sensor" or "actuator" component unless the gameplay contract is genuinely identical
 
 ## Step 2: Start from the GameItem Template

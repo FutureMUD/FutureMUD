@@ -31,6 +31,10 @@ Telecommunications examples include:
 - `comp edit new answeringmachine`
 
 Signal-automation examples now include:
+- `comp edit new computerhost`
+- `comp edit new computerterminal`
+- `comp edit new computerstorage`
+- `comp edit new networkadapter`
 - `comp edit new pushbutton`
 - `comp edit new toggleswitch`
 - `comp edit new motionsensor`
@@ -141,6 +145,10 @@ For telecommunications content, also validate:
 - whether keypad-driven targets receive `TelephoneDigitsReceived` with the expected source item and digit string
 
 For the current signal-automation slice, also validate:
+- whether `computerhost` correctly tracks its powered state, mounted storage devices, terminal connections, network adapters, files, and stored executables
+- whether `computerstorage` mounts into the intended host and exposes the expected files and executables through that host
+- whether `computerterminal` only allows sessions when switched on, powered, and connected to a powered host
+- whether `networkadapter` reports the expected connected host, local address, and local network-ready state
 - whether source and sink bindings resolve to the intended local sibling components and endpoint keys on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
@@ -292,6 +300,22 @@ For the standalone player-owned computer-program workflow in the current phase, 
 4. Use `programming compile` to verify the executable in the relevant computer context.
 5. Use `programming execute <which> [<parameters>]` to run it manually.
 6. If the executable is a program that calls `sleep`, use `programming processes` and `programming kill <process>` to inspect or terminate persisted processes.
+
+For the first real in-world computer workflow, a practical pass is:
+1. Create and submit `computerhost`, `computerterminal`, `computerstorage`, and optionally `networkadapter` component prototypes.
+2. Attach them to suitable item prototypes and ensure the host and terminal are also authored with the required power and connectable composition.
+3. Load a live host, terminal, and storage item and physically connect them through the normal item connectivity rules.
+4. Power the host and terminal on.
+5. Use `programming terminal connect <terminal>` to create a live session.
+6. Use `programming terminal status` to confirm the connected host and mounted storage list.
+7. Use `programming terminal owner host` or `programming terminal owner <storage>` to pick the current programming owner.
+8. Use the normal `programming list`, `new`, `edit`, `set`, `parameter`, `compile`, and `execute` verbs and confirm they now operate on the selected real computer owner rather than the private workspace.
+9. Use file-oriented programs to validate `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, and `GetFiles`.
+10. Use terminal-oriented programs to validate `WriteTerminal` and `ClearTerminal`.
+11. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session rather than the private workspace.
+12. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+13. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+14. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

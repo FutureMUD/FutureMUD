@@ -7,6 +7,18 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
 
+public interface IComputerExecutableOwner
+{
+	string Name { get; }
+	long? OwnerCharacterId { get; }
+	long? OwnerHostItemId { get; }
+	long? OwnerStorageItemId { get; }
+	IComputerHost ExecutionHost { get; }
+	IComputerFileSystem? FileSystem { get; }
+	IEnumerable<IComputerExecutableDefinition> Executables { get; }
+	IEnumerable<IComputerProcess> Processes { get; }
+}
+
 public interface IComputerProcess
 {
 	long Id { get; }
@@ -41,6 +53,12 @@ public interface IComputerFileSystem
 	long CapacityInBytes { get; }
 	long UsedBytes { get; }
 	IEnumerable<IComputerFile> Files { get; }
+	bool FileExists(string fileName);
+	IComputerFile? GetFile(string fileName);
+	string ReadFile(string fileName);
+	void WriteFile(string fileName, string textContents);
+	void AppendFile(string fileName, string textContents);
+	bool DeleteFile(string fileName);
 }
 
 public interface IComputerBuiltInApplication
@@ -51,25 +69,68 @@ public interface IComputerBuiltInApplication
 	bool IsNetworkService { get; }
 }
 
-public interface IComputerHost
+public interface IComputerHost : IComputerExecutableOwner
 {
 	bool Powered { get; }
-	IComputerFileSystem? FileSystem { get; }
-	IEnumerable<IComputerExecutable> Executables { get; }
-	IEnumerable<IComputerProcess> Processes { get; }
 	IEnumerable<IComputerBuiltInApplication> BuiltInApplications { get; }
+	IEnumerable<IComputerStorage> MountedStorage { get; }
+	IEnumerable<IComputerTerminal> ConnectedTerminals { get; }
+	IEnumerable<INetworkAdapter> NetworkAdapters { get; }
+	IComputerProcess? GetProcess(long processId);
 }
 
-public interface ICharacterComputerWorkspace
+public interface IComputerStorage : IComputerExecutableOwner
+{
+	long CapacityInBytes { get; }
+	bool Mounted { get; }
+	IComputerHost? MountedHost { get; }
+}
+
+public interface IComputerTerminalSession
+{
+	ICharacter User { get; }
+	IComputerTerminal Terminal { get; }
+	IComputerHost Host { get; }
+	IComputerExecutableOwner CurrentOwner { get; }
+	DateTime ConnectedAtUtc { get; }
+}
+
+public interface IComputerTerminal
+{
+	IComputerHost? ConnectedHost { get; }
+	IEnumerable<IComputerTerminalSession> Sessions { get; }
+}
+
+public interface INetworkAdapter
+{
+	IComputerHost? ConnectedHost { get; }
+	bool Powered { get; }
+	bool NetworkReady { get; }
+	string? NetworkAddress { get; }
+}
+
+public interface ICharacterComputerWorkspace : IComputerExecutableOwner
 {
 	ICharacter Owner { get; }
-	IEnumerable<IComputerExecutableDefinition> Executables { get; }
-	IEnumerable<IComputerProcess> Processes { get; }
 }
 
 public interface IComputerExecutionService
 {
 	ICharacterComputerWorkspace GetWorkspace(ICharacter owner);
+	IEnumerable<IComputerExecutableDefinition> GetExecutables(IComputerExecutableOwner owner);
+	IComputerExecutableDefinition? GetExecutable(IComputerExecutableOwner owner, string identifier);
+	IComputerExecutableDefinition CreateExecutable(IComputerExecutableOwner owner, ComputerExecutableKind kind,
+		string name);
+	void SaveExecutable(IComputerExecutableOwner owner, IComputerExecutableDefinition executable);
+	bool DeleteExecutable(IComputerExecutableOwner owner, IComputerExecutableDefinition executable, out string error);
+	ComputerExecutionResult Execute(ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerExecutableDefinition executable, IEnumerable<object?> parameters, IComputerTerminalSession? session = null);
+	IEnumerable<IComputerProcess> GetProcesses(IComputerExecutableOwner owner);
+	IComputerProcess? GetProcess(IComputerExecutableOwner owner, long processId);
+	bool KillProcess(IComputerExecutableOwner owner, long processId, out string error);
+	void ActivateOwner(IComputerExecutableOwner owner);
+	void DeactivateOwner(IComputerExecutableOwner owner);
+	bool TrySubmitTerminalInput(IComputerTerminalSession session, string text, out string error);
 	IEnumerable<IComputerExecutableDefinition> GetExecutables(ICharacter owner);
 	IComputerExecutableDefinition? GetExecutable(ICharacter owner, string identifier);
 	IComputerExecutableDefinition? GetExecutable(long id);

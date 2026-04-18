@@ -225,7 +225,7 @@ internal static class ComputerProgramExecutor
 	}
 
 	public static ComputerProgramExecutionOutcome Execute(
-		ComputerWorkspaceProgram program,
+		ComputerRuntimeProgramBase program,
 		IEnumerable<object?> parameters,
 		string? existingStateJson = null)
 	{
@@ -599,7 +599,8 @@ internal static class ComputerProgramExecutor
 		};
 	}
 
-	private static List<ExecutionFrame> CreateInitialFrames(ComputerWorkspaceProgram program, IEnumerable<object?> parameters)
+	private static List<ExecutionFrame> CreateInitialFrames(ComputerRuntimeProgramBase program,
+		IEnumerable<object?> parameters)
 	{
 		var frames = new List<ExecutionFrame>();
 		var rootLocals = new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase);

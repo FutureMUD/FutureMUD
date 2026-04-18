@@ -17,8 +17,10 @@ public class ComputerExecutionService : IComputerExecutionService
 {
 	private readonly IFuturemud _gameworld;
 	private readonly object _sync = new();
-	private readonly Dictionary<long, ComputerWorkspaceExecutableBase> _executables = new();
-	private readonly Dictionary<long, ComputerWorkspaceProcess> _processes = new();
+	private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
+	private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
+	private readonly Dictionary<long, ICharacterComputerWorkspace> _workspaceOwners = new();
+	private readonly Dictionary<long, IComputerExecutableOwner> _mutableExecutableOwners = new();
 	private bool _loaded;
 
 	public ComputerExecutionService(IFuturemud gameworld)
@@ -45,7 +47,7 @@ public class ComputerExecutionService : IComputerExecutionService
 						process.WaitType = ComputerProcessWaitType.None;
 						process.WakeTimeUtc = null;
 						process.WaitArgument = null;
-						PersistProcess_NoLock(process);
+						PersistWorkspaceProcess_NoLock(process);
 						break;
 					case ComputerProcessStatus.Sleeping:
 						ScheduleResume_NoLock(process);
@@ -58,193 +60,194 @@ public class ComputerExecutionService : IComputerExecutionService
 	public ICharacterComputerWorkspace GetWorkspace(ICharacter owner)
 	{
 		EnsureLoaded();
-		return new CharacterComputerWorkspace(owner, () => GetExecutables(owner), () => GetProcesses(owner));
-	}
-
-	public IEnumerable<IComputerExecutableDefinition> GetExecutables(ICharacter owner)
-	{
-		EnsureLoaded();
 		lock (_sync)
 		{
-			return _executables.Values
-				.Where(x => x.OwnerCharacterId == owner.Id)
+			return GetOrCreateWorkspace_NoLock(owner);
+		}
+	}
+
+	public IEnumerable<IComputerExecutableDefinition> GetExecutables(IComputerExecutableOwner owner)
+	{
+		EnsureLoadedForOwner(owner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(owner);
+			return ResolveExecutables_NoLock(owner)
 				.OrderBy(x => x.Name)
 				.ThenBy(x => x.Id)
-				.Cast<IComputerExecutableDefinition>()
 				.ToList();
 		}
 	}
 
-	public IComputerExecutableDefinition? GetExecutable(ICharacter owner, string identifier)
+	public IComputerExecutableDefinition? GetExecutable(IComputerExecutableOwner owner, string identifier)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
+			RegisterOwner_NoLock(owner);
+			var executables = ResolveExecutables_NoLock(owner).ToList();
 			if (long.TryParse(identifier, out var id))
 			{
-				return _executables.GetValueOrDefault(id) is { OwnerCharacterId: var ownerId } executable &&
-				       ownerId == owner.Id
-					? executable
-					: null;
+				return executables.FirstOrDefault(x => x.Id == id);
 			}
 
-			var matches = _executables.Values
-				.Where(x => x.OwnerCharacterId == owner.Id)
+			var exact = executables
 				.Where(x => x.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
-				.Cast<IComputerExecutableDefinition>()
-				.ToList();
-			if (matches.Any())
+				.OrderBy(x => x.Name)
+				.ThenBy(x => x.Id)
+				.FirstOrDefault();
+			if (exact is not null)
 			{
-				return matches.First();
+				return exact;
 			}
 
-			return _executables.Values
-				.Where(x => x.OwnerCharacterId == owner.Id)
+			return executables
 				.Where(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
 				.OrderBy(x => x.Name.Length)
 				.ThenBy(x => x.Name)
-				.Cast<IComputerExecutableDefinition>()
+				.ThenBy(x => x.Id)
 				.FirstOrDefault();
 		}
 	}
 
-	public IComputerExecutableDefinition? GetExecutable(long id)
+	public IComputerExecutableDefinition CreateExecutable(IComputerExecutableOwner owner, ComputerExecutableKind kind,
+		string name)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			return _executables.GetValueOrDefault(id);
-		}
-	}
-
-	public IComputerExecutableDefinition CreateExecutable(ICharacter owner, ComputerExecutableKind kind, string name)
-	{
-		EnsureLoaded();
-		lock (_sync)
-		{
-			var now = DateTime.UtcNow;
-			using (new FMDB())
+			RegisterOwner_NoLock(owner);
+			if (owner is ICharacterComputerWorkspace workspace)
 			{
-				var dbitem = new CharacterComputerExecutable
-				{
-					OwnerCharacterId = owner.Id,
-					Name = string.IsNullOrWhiteSpace(name) ? "Unnamed" : name.Trim(),
-					ExecutableKind = (int)kind,
-					CompilationContext = (int)ComputerExecutableCompiler.GetCompilationContext(kind),
-					ReturnTypeDefinition = ProgVariableTypes.Void.ToStorageString(),
-					SourceCode = string.Empty,
-					CompilationStatus = (int)ComputerCompilationStatus.NotCompiled,
-					CompileError = string.Empty,
-					AutorunOnBoot = false,
-					CreatedAtUtc = now,
-					LastModifiedAtUtc = now
-				};
-				FMDB.Context.CharacterComputerExecutables.Add(dbitem);
-				FMDB.Context.SaveChanges();
+				return CreateWorkspaceExecutable_NoLock(workspace.Owner, kind, name);
+			}
 
-				var executable = CreateRuntimeExecutable(dbitem);
-				_executables[executable.Id] = executable;
+			if (owner is IComputerMutableOwner mutableOwner)
+			{
+				var executable = mutableOwner.CreateExecutableDefinition(kind, name);
+				_mutableExecutableOwners[executable.Id] = owner;
 				return executable;
 			}
+
+			throw new NotSupportedException("That computer executable owner does not support creating executables.");
 		}
 	}
 
-	public void SaveExecutable(IComputerExecutableDefinition executable)
+	public void SaveExecutable(IComputerExecutableOwner owner, IComputerExecutableDefinition executable)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			if (executable is not ComputerWorkspaceExecutableBase runtime)
+			RegisterOwner_NoLock(owner);
+			if (owner is ICharacterComputerWorkspace)
 			{
+				SaveWorkspaceExecutable_NoLock(executable);
 				return;
 			}
 
-			runtime.CompiledProg = null;
-			runtime.CompilationStatus = ComputerCompilationStatus.NotCompiled;
-			runtime.CompileError = string.Empty;
-			runtime.LastModifiedAtUtc = DateTime.UtcNow;
-			PersistExecutable_NoLock(runtime);
+			if (owner is IComputerMutableOwner mutableOwner)
+			{
+				if (executable is ComputerRuntimeExecutableBase runtime)
+				{
+					runtime.CompiledProg = null;
+					runtime.CompilationStatus = ComputerCompilationStatus.NotCompiled;
+					runtime.CompileError = string.Empty;
+					runtime.LastModifiedAtUtc = DateTime.UtcNow;
+				}
+
+				_mutableExecutableOwners[executable.Id] = owner;
+				mutableOwner.SaveExecutableDefinition(executable);
+				return;
+			}
+
+			throw new NotSupportedException("That computer executable owner does not support saving executables.");
 		}
 	}
 
-	public bool DeleteExecutable(ICharacter owner, IComputerExecutableDefinition executable, out string error)
+	public bool DeleteExecutable(IComputerExecutableOwner owner, IComputerExecutableDefinition executable, out string error)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			if (executable.OwnerCharacterId != owner.Id)
+			RegisterOwner_NoLock(owner);
+			if (!ExecutableBelongsToOwner(executable, owner))
 			{
-				error = "You do not own that computer executable.";
+				error = "That computer executable does not belong to the current owner.";
 				return false;
 			}
 
-			if (_processes.Values.Any(x => x.Program.Id == executable.Id && x.Status is ComputerProcessStatus.Running or ComputerProcessStatus.Sleeping))
+			if (ResolveProcesses_NoLock(owner).Any(x =>
+				    x.Program.Id == executable.Id && x.Status is ComputerProcessStatus.Running or ComputerProcessStatus.Sleeping))
 			{
 				error = "You cannot delete a computer executable while one of its processes is still active.";
 				return false;
 			}
 
-			foreach (var process in _processes.Values.Where(x => x.Program.Id == executable.Id).ToList())
+			if (owner is ICharacterComputerWorkspace workspace)
 			{
-				_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
-				_processes.Remove(process.Id);
+				return DeleteWorkspaceExecutable_NoLock(workspace.Owner, executable, out error);
 			}
 
-			_executables.Remove(executable.Id);
-			using (new FMDB())
+			if (owner is IComputerMutableOwner mutableOwner)
 			{
-				var dbitem = FMDB.Context.CharacterComputerExecutables
-					.Include(x => x.Parameters)
-					.Include(x => x.Processes)
-					.FirstOrDefault(x => x.Id == executable.Id);
-				if (dbitem is not null)
+				foreach (var process in ResolveProcesses_NoLock(owner).Where(x => x.Program.Id == executable.Id).ToList())
 				{
-					FMDB.Context.CharacterComputerExecutables.Remove(dbitem);
-					FMDB.Context.SaveChanges();
+					if (process is not ComputerRuntimeProcess runtimeProcess)
+					{
+						continue;
+					}
+
+					_gameworld.Scheduler.Destroy(runtimeProcess, ScheduleType.ComputerProgram);
+					mutableOwner.DeleteProcessDefinition(runtimeProcess);
 				}
+
+				_mutableExecutableOwners.Remove(executable.Id);
+				return mutableOwner.DeleteExecutableDefinition(executable, out error);
 			}
 
-			error = string.Empty;
-			return true;
+			error = "That computer executable owner does not support deleting executables.";
+			return false;
 		}
 	}
 
-	public ComputerCompilationResult CompileExecutable(IComputerExecutableDefinition executable)
+	public ComputerExecutionResult Execute(ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerExecutableDefinition executable, IEnumerable<object?> parameters, IComputerTerminalSession? session = null)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			return CompileExecutable_NoLock(executable);
-		}
-	}
-
-	public ComputerExecutionResult Execute(ICharacter owner, IComputerExecutableDefinition executable,
-		IEnumerable<object?> parameters)
-	{
-		EnsureLoaded();
-		lock (_sync)
-		{
-			if (executable.OwnerCharacterId != owner.Id)
+			RegisterOwner_NoLock(owner);
+			if (!ExecutableBelongsToOwner(executable, owner))
 			{
 				return new ComputerExecutionResult
 				{
 					Success = false,
-					ErrorMessage = "You do not own that computer executable.",
+					ErrorMessage = "That computer executable does not belong to the current owner.",
 					Status = ComputerProcessStatus.Failed
 				};
 			}
 
-			if (executable is not ComputerWorkspaceExecutableBase runtimeExecutable)
+			if (owner is not ICharacterComputerWorkspace && !owner.ExecutionHost.Powered)
 			{
 				return new ComputerExecutionResult
 				{
 					Success = false,
-					ErrorMessage = "That executable is not backed by the character workspace runtime.",
+					ErrorMessage = $"{owner.ExecutionHost.Name} is not currently powered.",
 					Status = ComputerProcessStatus.Failed
 				};
 			}
 
-			if (!EnsureCompiled_NoLock(runtimeExecutable, out var compileError))
+			if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+			{
+				return new ComputerExecutionResult
+				{
+					Success = false,
+					ErrorMessage = "That executable is not backed by a mutable computer runtime.",
+					Status = ComputerProcessStatus.Failed
+				};
+			}
+
+			if (!EnsureCompiled_NoLock(owner, runtimeExecutable, out var compileError))
 			{
 				return new ComputerExecutionResult
 				{
@@ -254,7 +257,15 @@ public class ComputerExecutionService : IComputerExecutionService
 				};
 			}
 
-			if (runtimeExecutable is ComputerWorkspaceFunction function)
+			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+			{
+				Owner = owner,
+				Host = owner.ExecutionHost,
+				Actor = actor,
+				Session = session
+			});
+
+			if (runtimeExecutable is ComputerRuntimeFunctionBase function)
 			{
 				var result = function.CompiledProg!.Execute(parameters.ToArray());
 				return new ComputerExecutionResult
@@ -265,7 +276,7 @@ public class ComputerExecutionService : IComputerExecutionService
 				};
 			}
 
-			if (runtimeExecutable is not ComputerWorkspaceProgram program)
+			if (runtimeExecutable is not ComputerRuntimeProgramBase program)
 			{
 				return new ComputerExecutionResult
 				{
@@ -275,9 +286,9 @@ public class ComputerExecutionService : IComputerExecutionService
 				};
 			}
 
-			var process = CreateProcess_NoLock(owner, program);
+			var process = CreateProcess_NoLock(actor, owner, program);
 			var outcome = ComputerProgramExecutor.Execute(program, parameters);
-			ApplyExecutionOutcome_NoLock(process, outcome);
+			ApplyExecutionOutcome_NoLock(owner, process, outcome);
 
 			return new ComputerExecutionResult
 			{
@@ -290,62 +301,259 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
-	public IEnumerable<IComputerProcess> GetProcesses(ICharacter owner)
+	public IEnumerable<IComputerProcess> GetProcesses(IComputerExecutableOwner owner)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			return _processes.Values
-				.Where(x => x.OwnerCharacterId == owner.Id)
+			RegisterOwner_NoLock(owner);
+			return ResolveProcesses_NoLock(owner)
 				.OrderByDescending(x => x.LastUpdatedAtUtc)
 				.ThenByDescending(x => x.Id)
-				.Cast<IComputerProcess>()
 				.ToList();
 		}
 	}
 
-	public IComputerProcess? GetProcess(ICharacter owner, long processId)
+	public IComputerProcess? GetProcess(IComputerExecutableOwner owner, long processId)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			return _processes.GetValueOrDefault(processId) is { OwnerCharacterId: var ownerId } process &&
-			       ownerId == owner.Id
-				? process
-				: null;
+			RegisterOwner_NoLock(owner);
+			return ResolveProcesses_NoLock(owner).FirstOrDefault(x => x.Id == processId);
 		}
 	}
 
-	public bool KillProcess(ICharacter owner, long processId, out string error)
+	public bool KillProcess(IComputerExecutableOwner owner, long processId, out string error)
 	{
-		EnsureLoaded();
+		EnsureLoadedForOwner(owner);
 		lock (_sync)
 		{
-			if (!_processes.TryGetValue(processId, out var process) || process.OwnerCharacterId != owner.Id)
+			RegisterOwner_NoLock(owner);
+			var process = ResolveProcesses_NoLock(owner).FirstOrDefault(x => x.Id == processId);
+			if (process is not ComputerRuntimeProcess runtimeProcess)
 			{
 				error = "There is no such computer process for you to kill.";
 				return false;
 			}
 
-			if (process.Status is ComputerProcessStatus.Completed or ComputerProcessStatus.Failed or ComputerProcessStatus.Killed)
+			if (runtimeProcess.Status is ComputerProcessStatus.Completed or ComputerProcessStatus.Failed or ComputerProcessStatus.Killed)
 			{
 				error = "That computer process has already ended.";
 				return false;
 			}
 
-			_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
-			process.Status = ComputerProcessStatus.Killed;
-			process.WaitType = ComputerProcessWaitType.None;
-			process.WakeTimeUtc = null;
-			process.WaitArgument = null;
-			process.LastError = "Killed by user request.";
-			process.LastUpdatedAtUtc = DateTime.UtcNow;
-			process.EndedAtUtc = DateTime.UtcNow;
-			process.StateJson = string.Empty;
-			PersistProcess_NoLock(process);
+			_gameworld.Scheduler.Destroy(runtimeProcess, ScheduleType.ComputerProgram);
+			runtimeProcess.Status = ComputerProcessStatus.Killed;
+			runtimeProcess.WaitType = ComputerProcessWaitType.None;
+			runtimeProcess.WakeTimeUtc = null;
+			runtimeProcess.WaitArgument = null;
+			runtimeProcess.LastError = "Killed by user request.";
+			runtimeProcess.LastUpdatedAtUtc = DateTime.UtcNow;
+			runtimeProcess.EndedAtUtc = DateTime.UtcNow;
+			runtimeProcess.StateJson = string.Empty;
+			PersistProcess_NoLock(owner, runtimeProcess);
 			error = string.Empty;
 			return true;
 		}
+	}
+
+	public void ActivateOwner(IComputerExecutableOwner owner)
+	{
+		EnsureLoadedForOwner(owner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(owner);
+			foreach (var process in ResolveProcesses_NoLock(owner).OfType<ComputerRuntimeProcess>().ToList())
+			{
+				switch (process.Status)
+				{
+					case ComputerProcessStatus.Running:
+					case ComputerProcessStatus.NotStarted:
+						process.Status = ComputerProcessStatus.Failed;
+						process.LastError = "The computer program lost power before it could complete.";
+						process.LastUpdatedAtUtc = DateTime.UtcNow;
+						process.EndedAtUtc = DateTime.UtcNow;
+						process.StateJson = string.Empty;
+						process.WaitType = ComputerProcessWaitType.None;
+						process.WakeTimeUtc = null;
+						process.WaitArgument = null;
+						PersistProcess_NoLock(owner, process);
+						break;
+					case ComputerProcessStatus.Sleeping when owner.ExecutionHost.Powered:
+						ScheduleResume_NoLock(process);
+						break;
+				}
+			}
+		}
+	}
+
+	public void DeactivateOwner(IComputerExecutableOwner owner)
+	{
+		EnsureLoadedForOwner(owner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(owner);
+			foreach (var process in ResolveProcesses_NoLock(owner).OfType<ComputerRuntimeProcess>().ToList())
+			{
+				_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
+
+				if (!process.IsRunning)
+				{
+					continue;
+				}
+
+				switch (process.PowerLossBehaviour)
+				{
+					case ComputerPowerLossBehaviour.PersistSuspended when process.Status == ComputerProcessStatus.Sleeping:
+						break;
+					default:
+						process.Status = ComputerProcessStatus.Failed;
+						process.WaitType = ComputerProcessWaitType.None;
+						process.WakeTimeUtc = null;
+						process.WaitArgument = null;
+						process.LastError = "The computer program was interrupted by power loss.";
+						process.LastUpdatedAtUtc = DateTime.UtcNow;
+						process.EndedAtUtc = DateTime.UtcNow;
+						process.StateJson = string.Empty;
+						PersistProcess_NoLock(owner, process);
+						break;
+				}
+			}
+		}
+	}
+
+	public bool TrySubmitTerminalInput(IComputerTerminalSession session, string text, out string error)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			error = "What do you want to type?";
+			return false;
+		}
+
+		EnsureLoadedForOwner(session.CurrentOwner);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(session.CurrentOwner);
+			if (!session.Host.Powered)
+			{
+				error = $"{session.Host.Name} is not currently powered.";
+				return false;
+			}
+
+			var waitingProcesses = ResolveProcesses_NoLock(session.CurrentOwner)
+				.OfType<ComputerRuntimeProcess>()
+				.Where(x => x.Status == ComputerProcessStatus.Sleeping)
+				.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
+				.OrderByDescending(x => x.LastUpdatedAtUtc)
+				.ThenByDescending(x => x.Id)
+				.ToList();
+			if (!waitingProcesses.Any())
+			{
+				error = $"Nothing on {session.Host.Name} is currently waiting for terminal input.";
+				return false;
+			}
+
+			error = "Interactive terminal input waits are not implemented yet.";
+			return false;
+		}
+	}
+
+	public IEnumerable<IComputerExecutableDefinition> GetExecutables(ICharacter owner)
+	{
+		return GetExecutables(GetWorkspace(owner));
+	}
+
+	public IComputerExecutableDefinition? GetExecutable(ICharacter owner, string identifier)
+	{
+		return GetExecutable(GetWorkspace(owner), identifier);
+	}
+
+	public IComputerExecutableDefinition? GetExecutable(long id)
+	{
+		EnsureLoaded();
+		lock (_sync)
+		{
+			if (_executables.TryGetValue(id, out var executable))
+			{
+				return executable;
+			}
+
+			if (_mutableExecutableOwners.TryGetValue(id, out var owner))
+			{
+				return owner.Executables.FirstOrDefault(x => x.Id == id);
+			}
+		}
+
+		return EnumerateItemOwners()
+			.SelectMany(x => x.Executables)
+			.FirstOrDefault(x => x.Id == id);
+	}
+
+	public IComputerExecutableDefinition CreateExecutable(ICharacter owner, ComputerExecutableKind kind, string name)
+	{
+		return CreateExecutable(GetWorkspace(owner), kind, name);
+	}
+
+	public void SaveExecutable(IComputerExecutableDefinition executable)
+	{
+		EnsureLoadedForExecutable(executable);
+		lock (_sync)
+		{
+			var owner = ResolveOwnerForExecutable_NoLock(executable);
+			if (owner is null)
+			{
+				return;
+			}
+
+			SaveExecutable(owner, executable);
+		}
+	}
+
+	public bool DeleteExecutable(ICharacter owner, IComputerExecutableDefinition executable, out string error)
+	{
+		return DeleteExecutable(GetWorkspace(owner), executable, out error);
+	}
+
+	public ComputerCompilationResult CompileExecutable(IComputerExecutableDefinition executable)
+	{
+		EnsureLoadedForExecutable(executable);
+		lock (_sync)
+		{
+			var owner = ResolveOwnerForExecutable_NoLock(executable);
+			if (owner is null)
+			{
+				return new ComputerCompilationResult
+				{
+					Success = false,
+					ErrorMessage = "That executable does not currently belong to a loaded computer owner.",
+					Executable = executable
+				};
+			}
+
+			return CompileExecutable_NoLock(owner, executable);
+		}
+	}
+
+	public ComputerExecutionResult Execute(ICharacter owner, IComputerExecutableDefinition executable,
+		IEnumerable<object?> parameters)
+	{
+		return Execute(owner, GetWorkspace(owner), executable, parameters);
+	}
+
+	public IEnumerable<IComputerProcess> GetProcesses(ICharacter owner)
+	{
+		return GetProcesses(GetWorkspace(owner));
+	}
+
+	public IComputerProcess? GetProcess(ICharacter owner, long processId)
+	{
+		return GetProcess(GetWorkspace(owner), processId);
+	}
+
+	public bool KillProcess(ICharacter owner, long processId, out string error)
+	{
+		return KillProcess(GetWorkspace(owner), processId, out error);
 	}
 
 	private void EnsureLoaded()
@@ -362,12 +570,85 @@ public class ComputerExecutionService : IComputerExecutionService
 				return;
 			}
 
-			LoadFromDatabase_NoLock();
+			LoadWorkspaceFromDatabase_NoLock();
 			_loaded = true;
 		}
 	}
 
-	private void LoadFromDatabase_NoLock()
+	private void EnsureLoadedForOwner(IComputerExecutableOwner owner)
+	{
+		if (owner is ICharacterComputerWorkspace)
+		{
+			EnsureLoaded();
+		}
+	}
+
+	private void EnsureLoadedForExecutable(IComputerExecutableDefinition executable)
+	{
+		if (executable.OwnerCharacterId is > 0)
+		{
+			EnsureLoaded();
+		}
+	}
+
+	private ICharacterComputerWorkspace GetOrCreateWorkspace_NoLock(ICharacter owner)
+	{
+		if (_workspaceOwners.TryGetValue(owner.Id, out var existing))
+		{
+			return existing;
+		}
+
+		var workspace = new CharacterComputerWorkspace(owner, () => GetExecutables(owner), () => GetProcesses(owner));
+		_workspaceOwners[owner.Id] = workspace;
+		return workspace;
+	}
+
+	private void RegisterOwner_NoLock(IComputerExecutableOwner owner)
+	{
+		if (owner is ICharacterComputerWorkspace workspace)
+		{
+			_workspaceOwners[workspace.Owner.Id] = workspace;
+			return;
+		}
+
+		foreach (var executable in owner.Executables)
+		{
+			_mutableExecutableOwners[executable.Id] = owner;
+		}
+	}
+
+	private IEnumerable<IComputerExecutableDefinition> ResolveExecutables_NoLock(IComputerExecutableOwner owner)
+	{
+		if (owner is ICharacterComputerWorkspace workspace)
+		{
+			return _executables.Values.Where(x => x.OwnerCharacterId == workspace.Owner.Id).ToList();
+		}
+
+		return owner.Executables.ToList();
+	}
+
+	private IEnumerable<IComputerProcess> ResolveProcesses_NoLock(IComputerExecutableOwner owner)
+	{
+		if (owner is ICharacterComputerWorkspace workspace)
+		{
+			return _processes.Values.Where(x => x.OwnerCharacterId == workspace.Owner.Id).ToList();
+		}
+
+		return owner.Processes.ToList();
+	}
+
+	private bool ExecutableBelongsToOwner(IComputerExecutableDefinition executable, IComputerExecutableOwner owner)
+	{
+		if (owner is ICharacterComputerWorkspace workspace)
+		{
+			return executable.OwnerCharacterId == workspace.Owner.Id;
+		}
+
+		return owner.OwnerStorageItemId.HasValue && executable.OwnerStorageItemId == owner.OwnerStorageItemId ||
+		       owner.OwnerHostItemId.HasValue && executable.OwnerHostItemId == owner.OwnerHostItemId;
+	}
+
+	private void LoadWorkspaceFromDatabase_NoLock()
 	{
 		_executables.Clear();
 		_processes.Clear();
@@ -381,7 +662,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 			foreach (var executable in executables)
 			{
-				var runtimeExecutable = CreateRuntimeExecutable(executable);
+				var runtimeExecutable = CreateWorkspaceRuntimeExecutable(executable);
 				_executables[runtimeExecutable.Id] = runtimeExecutable;
 			}
 
@@ -392,12 +673,12 @@ public class ComputerExecutionService : IComputerExecutionService
 			foreach (var process in processes)
 			{
 				if (!_executables.TryGetValue(process.CharacterComputerExecutableId, out var executable) ||
-				    executable is not ComputerWorkspaceProgram runtimeProgram)
+				    executable is not ComputerRuntimeProgramBase runtimeProgram)
 				{
 					continue;
 				}
 
-				var runtimeProcess = new ComputerWorkspaceProcess
+				var runtimeProcess = new ComputerRuntimeProcess
 				{
 					Id = process.Id,
 					ProcessName = process.ProcessName,
@@ -421,20 +702,14 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
-	private ComputerWorkspaceExecutableBase CreateRuntimeExecutable(CharacterComputerExecutable dbitem)
+	private ComputerRuntimeExecutableBase CreateWorkspaceRuntimeExecutable(CharacterComputerExecutable dbitem)
 	{
-		ComputerWorkspaceExecutableBase executable;
-		if (dbitem.ExecutableKind == (int)ComputerExecutableKind.Function)
-		{
-			executable = new ComputerWorkspaceFunction(dbitem.Id, _gameworld);
-		}
-		else
-		{
-			executable = new ComputerWorkspaceProgram(dbitem.Id, _gameworld)
+		ComputerRuntimeExecutableBase executable = dbitem.ExecutableKind == (int)ComputerExecutableKind.Function
+			? new ComputerWorkspaceFunction(dbitem.Id, _gameworld)
+			: new ComputerWorkspaceProgram(dbitem.Id, _gameworld)
 			{
 				AutorunOnBoot = dbitem.AutorunOnBoot
 			};
-		}
 
 		executable.Name = dbitem.Name;
 		executable.SourceCode = dbitem.SourceCode;
@@ -454,7 +729,83 @@ public class ComputerExecutionService : IComputerExecutionService
 		return executable;
 	}
 
-	private bool EnsureCompiled_NoLock(ComputerWorkspaceExecutableBase executable, out string error)
+	private IComputerExecutableDefinition CreateWorkspaceExecutable_NoLock(ICharacter owner, ComputerExecutableKind kind,
+		string name)
+	{
+		var now = DateTime.UtcNow;
+		using (new FMDB())
+		{
+			var dbitem = new CharacterComputerExecutable
+			{
+				OwnerCharacterId = owner.Id,
+				Name = string.IsNullOrWhiteSpace(name) ? "Unnamed" : name.Trim(),
+				ExecutableKind = (int)kind,
+				CompilationContext = (int)ComputerExecutableCompiler.GetCompilationContext(kind),
+				ReturnTypeDefinition = ProgVariableTypes.Void.ToStorageString(),
+				SourceCode = string.Empty,
+				CompilationStatus = (int)ComputerCompilationStatus.NotCompiled,
+				CompileError = string.Empty,
+				AutorunOnBoot = false,
+				CreatedAtUtc = now,
+				LastModifiedAtUtc = now
+			};
+			FMDB.Context.CharacterComputerExecutables.Add(dbitem);
+			FMDB.Context.SaveChanges();
+
+			var executable = CreateWorkspaceRuntimeExecutable(dbitem);
+			_executables[executable.Id] = executable;
+			return executable;
+		}
+	}
+
+	private void SaveWorkspaceExecutable_NoLock(IComputerExecutableDefinition executable)
+	{
+		if (executable is not ComputerRuntimeExecutableBase runtime)
+		{
+			return;
+		}
+
+		runtime.CompiledProg = null;
+		runtime.CompilationStatus = ComputerCompilationStatus.NotCompiled;
+		runtime.CompileError = string.Empty;
+		runtime.LastModifiedAtUtc = DateTime.UtcNow;
+		PersistWorkspaceExecutable_NoLock(runtime);
+	}
+
+	private bool DeleteWorkspaceExecutable_NoLock(ICharacter owner, IComputerExecutableDefinition executable, out string error)
+	{
+		if (executable.OwnerCharacterId != owner.Id)
+		{
+			error = "You do not own that computer executable.";
+			return false;
+		}
+
+		foreach (var process in _processes.Values.Where(x => x.Program.Id == executable.Id).ToList())
+		{
+			_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
+			_processes.Remove(process.Id);
+		}
+
+		_executables.Remove(executable.Id);
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.CharacterComputerExecutables
+				.Include(x => x.Parameters)
+				.Include(x => x.Processes)
+				.FirstOrDefault(x => x.Id == executable.Id);
+			if (dbitem is not null)
+			{
+				FMDB.Context.CharacterComputerExecutables.Remove(dbitem);
+				FMDB.Context.SaveChanges();
+			}
+		}
+
+		error = string.Empty;
+		return true;
+	}
+
+	private bool EnsureCompiled_NoLock(IComputerExecutableOwner owner, ComputerRuntimeExecutableBase executable,
+		out string error)
 	{
 		if (executable.CompiledProg is not null && executable.CompilationStatus == ComputerCompilationStatus.Compiled)
 		{
@@ -462,19 +813,20 @@ public class ComputerExecutionService : IComputerExecutionService
 			return true;
 		}
 
-		var result = CompileExecutable_NoLock(executable);
+		var result = CompileExecutable_NoLock(owner, executable);
 		error = result.ErrorMessage;
 		return result.Success;
 	}
 
-	private ComputerCompilationResult CompileExecutable_NoLock(IComputerExecutableDefinition executable)
+	private ComputerCompilationResult CompileExecutable_NoLock(IComputerExecutableOwner owner,
+		IComputerExecutableDefinition executable)
 	{
-		if (executable is not ComputerWorkspaceExecutableBase runtime)
+		if (executable is not ComputerRuntimeExecutableBase runtime)
 		{
 			return new ComputerCompilationResult
 			{
 				Success = false,
-				ErrorMessage = "That executable cannot be compiled by the workspace compiler.",
+				ErrorMessage = "That executable cannot be compiled by the computer compiler.",
 				Executable = executable
 			};
 		}
@@ -491,7 +843,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		runtime.CompilationStatus = prog is null ? ComputerCompilationStatus.Failed : ComputerCompilationStatus.Compiled;
 		runtime.CompileError = compileError;
 		runtime.LastModifiedAtUtc = DateTime.UtcNow;
-		PersistExecutable_NoLock(runtime);
+		PersistExecutable_NoLock(owner, runtime);
 
 		return new ComputerCompilationResult
 		{
@@ -501,45 +853,57 @@ public class ComputerExecutionService : IComputerExecutionService
 		};
 	}
 
-	private ComputerWorkspaceProcess CreateProcess_NoLock(ICharacter owner, ComputerWorkspaceProgram program)
+	private ComputerRuntimeProcess CreateProcess_NoLock(ICharacter? actor, IComputerExecutableOwner owner,
+		ComputerRuntimeProgramBase program)
 	{
-		var now = DateTime.UtcNow;
-		using (new FMDB())
+		if (owner is ICharacterComputerWorkspace workspace)
 		{
-			var dbprocess = new CharacterComputerProgramProcess
+			var now = DateTime.UtcNow;
+			using (new FMDB())
 			{
-				CharacterComputerExecutableId = program.Id,
-				OwnerCharacterId = owner.Id,
-				ProcessName = program.Name,
-				Status = (int)ComputerProcessStatus.Running,
-				WaitType = (int)ComputerProcessWaitType.None,
-				PowerLossBehaviour = (int)ComputerPowerLossBehaviour.PersistSuspended,
-				StateJson = string.Empty,
-				StartedAtUtc = now,
-				LastUpdatedAtUtc = now
-			};
-			FMDB.Context.CharacterComputerProgramProcesses.Add(dbprocess);
-			FMDB.Context.SaveChanges();
+				var dbprocess = new CharacterComputerProgramProcess
+				{
+					CharacterComputerExecutableId = program.Id,
+					OwnerCharacterId = workspace.Owner.Id,
+					ProcessName = program.Name,
+					Status = (int)ComputerProcessStatus.Running,
+					WaitType = (int)ComputerProcessWaitType.None,
+					PowerLossBehaviour = (int)ComputerPowerLossBehaviour.PersistSuspended,
+					StateJson = string.Empty,
+					StartedAtUtc = now,
+					LastUpdatedAtUtc = now
+				};
+				FMDB.Context.CharacterComputerProgramProcesses.Add(dbprocess);
+				FMDB.Context.SaveChanges();
 
-			var runtimeProcess = new ComputerWorkspaceProcess
-			{
-				Id = dbprocess.Id,
-				ProcessName = dbprocess.ProcessName,
-				OwnerCharacterId = owner.Id,
-				Program = program,
-				Host = CreateWorkspaceHost_NoLock(owner.Id),
-				Status = ComputerProcessStatus.Running,
-				WaitType = ComputerProcessWaitType.None,
-				PowerLossBehaviour = ComputerPowerLossBehaviour.PersistSuspended,
-				StartedAtUtc = now,
-				LastUpdatedAtUtc = now
-			};
-			_processes[runtimeProcess.Id] = runtimeProcess;
-			return runtimeProcess;
+				var runtimeProcess = new ComputerRuntimeProcess
+				{
+					Id = dbprocess.Id,
+					ProcessName = dbprocess.ProcessName,
+					OwnerCharacterId = workspace.Owner.Id,
+					Program = program,
+					Host = CreateWorkspaceHost_NoLock(workspace.Owner.Id),
+					Status = ComputerProcessStatus.Running,
+					WaitType = ComputerProcessWaitType.None,
+					PowerLossBehaviour = ComputerPowerLossBehaviour.PersistSuspended,
+					StartedAtUtc = now,
+					LastUpdatedAtUtc = now
+				};
+				_processes[runtimeProcess.Id] = runtimeProcess;
+				return runtimeProcess;
+			}
 		}
+
+		if (owner is IComputerMutableOwner mutableOwner)
+		{
+			return mutableOwner.CreateProcessDefinition(actor, program);
+		}
+
+		throw new NotSupportedException("That computer executable owner does not support creating processes.");
 	}
 
-	private void ApplyExecutionOutcome_NoLock(ComputerWorkspaceProcess process, ComputerProgramExecutionOutcome outcome)
+	private void ApplyExecutionOutcome_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
+		ComputerProgramExecutionOutcome outcome)
 	{
 		_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
 		process.Status = outcome.Status;
@@ -553,15 +917,29 @@ public class ComputerExecutionService : IComputerExecutionService
 		process.EndedAtUtc = outcome.Status is ComputerProcessStatus.Completed or ComputerProcessStatus.Failed or ComputerProcessStatus.Killed
 			? DateTime.UtcNow
 			: null;
-		PersistProcess_NoLock(process);
+		PersistProcess_NoLock(owner, process);
 
-		if (outcome.Status == ComputerProcessStatus.Sleeping)
+		if (outcome.Status == ComputerProcessStatus.Sleeping && owner.ExecutionHost.Powered)
 		{
 			ScheduleResume_NoLock(process);
 		}
 	}
 
-	private void PersistExecutable_NoLock(ComputerWorkspaceExecutableBase executable)
+	private void PersistExecutable_NoLock(IComputerExecutableOwner owner, ComputerRuntimeExecutableBase executable)
+	{
+		if (owner is ICharacterComputerWorkspace)
+		{
+			PersistWorkspaceExecutable_NoLock(executable);
+			return;
+		}
+
+		if (owner is IComputerMutableOwner mutableOwner)
+		{
+			mutableOwner.SaveExecutableDefinition(executable);
+		}
+	}
+
+	private void PersistWorkspaceExecutable_NoLock(ComputerRuntimeExecutableBase executable)
 	{
 		using (new FMDB())
 		{
@@ -600,7 +978,21 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
-	private void PersistProcess_NoLock(ComputerWorkspaceProcess process)
+	private void PersistProcess_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process)
+	{
+		if (owner is ICharacterComputerWorkspace)
+		{
+			PersistWorkspaceProcess_NoLock(process);
+			return;
+		}
+
+		if (owner is IComputerMutableOwner mutableOwner)
+		{
+			mutableOwner.SaveProcessDefinition(process);
+		}
+	}
+
+	private void PersistWorkspaceProcess_NoLock(ComputerRuntimeProcess process)
 	{
 		using (new FMDB())
 		{
@@ -632,7 +1024,7 @@ public class ComputerExecutionService : IComputerExecutionService
 				{
 					return _executables.Values
 						.Where(x => x.OwnerCharacterId == ownerCharacterId)
-						.Cast<IComputerExecutable>()
+						.Cast<IComputerExecutableDefinition>()
 						.ToList();
 				}
 			},
@@ -648,7 +1040,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			});
 	}
 
-	private void ScheduleResume_NoLock(ComputerWorkspaceProcess process)
+	private void ScheduleResume_NoLock(ComputerRuntimeProcess process)
 	{
 		if (process.Status != ComputerProcessStatus.Sleeping)
 		{
@@ -662,7 +1054,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 
 		_gameworld.Scheduler.Destroy(process, ScheduleType.ComputerProgram);
-		_gameworld.Scheduler.AddSchedule(new Schedule<ComputerWorkspaceProcess>(
+		_gameworld.Scheduler.AddSchedule(new Schedule<ComputerRuntimeProcess>(
 			process,
 			ResumeScheduledProcess,
 			ScheduleType.ComputerProgram,
@@ -670,24 +1062,29 @@ public class ComputerExecutionService : IComputerExecutionService
 			$"Resume computer program process #{process.Id}"));
 	}
 
-	private void ResumeScheduledProcess(ComputerWorkspaceProcess process)
+	private void ResumeScheduledProcess(ComputerRuntimeProcess process)
 	{
 		EnsureLoaded();
 		lock (_sync)
 		{
-			if (!_processes.TryGetValue(process.Id, out var liveProcess))
+			var owner = ResolveOwnerForExecutable_NoLock(process.Program);
+			if (owner is null)
 			{
 				return;
 			}
 
-			if (liveProcess.Status != ComputerProcessStatus.Sleeping || liveProcess.Program is not ComputerWorkspaceProgram program)
+			var liveProcess = ResolveProcesses_NoLock(owner)
+				.OfType<ComputerRuntimeProcess>()
+				.FirstOrDefault(x => x.Id == process.Id);
+			if (liveProcess is null || liveProcess.Status != ComputerProcessStatus.Sleeping ||
+			    liveProcess.Program is not ComputerRuntimeProgramBase program)
 			{
 				return;
 			}
 
-			if (!EnsureCompiled_NoLock(program, out var compileError))
+			if (!EnsureCompiled_NoLock(owner, program, out var compileError))
 			{
-				ApplyExecutionOutcome_NoLock(liveProcess, new ComputerProgramExecutionOutcome
+				ApplyExecutionOutcome_NoLock(owner, liveProcess, new ComputerProgramExecutionOutcome
 				{
 					Status = ComputerProcessStatus.Failed,
 					Error = compileError
@@ -695,15 +1092,71 @@ public class ComputerExecutionService : IComputerExecutionService
 				return;
 			}
 
+			using var scope = new ComputerExecutionContextScope(new ComputerExecutionContext
+			{
+				Owner = owner,
+				Host = owner.ExecutionHost
+			});
+
 			liveProcess.Status = ComputerProcessStatus.Running;
 			liveProcess.WaitType = ComputerProcessWaitType.None;
 			liveProcess.WakeTimeUtc = null;
 			liveProcess.WaitArgument = null;
 			liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
-			PersistProcess_NoLock(liveProcess);
+			PersistProcess_NoLock(owner, liveProcess);
 
 			var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
-			ApplyExecutionOutcome_NoLock(liveProcess, outcome);
+			ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
 		}
+	}
+
+	private IComputerExecutableOwner? ResolveOwnerForExecutable_NoLock(IComputerExecutableDefinition executable)
+	{
+		if (_mutableExecutableOwners.TryGetValue(executable.Id, out var mutableOwner))
+		{
+			return mutableOwner;
+		}
+
+		if (executable.OwnerCharacterId is > 0 &&
+		    _workspaceOwners.TryGetValue(executable.OwnerCharacterId.Value, out var cachedWorkspace))
+		{
+			return cachedWorkspace;
+		}
+
+		if (executable.OwnerStorageItemId is > 0)
+		{
+			return _gameworld.TryGetItem(executable.OwnerStorageItemId.Value, true)?.Components
+				.OfType<IComputerStorage>()
+				.FirstOrDefault();
+		}
+
+		if (executable.OwnerHostItemId is > 0)
+		{
+			return _gameworld.TryGetItem(executable.OwnerHostItemId.Value, true)?.Components
+				.OfType<IComputerHost>()
+				.FirstOrDefault();
+		}
+
+		if (executable.OwnerCharacterId is > 0)
+		{
+			var owner = _gameworld.TryGetCharacter(executable.OwnerCharacterId.Value, true);
+			if (owner is null)
+			{
+				return null;
+			}
+
+			return GetOrCreateWorkspace_NoLock(owner);
+		}
+
+		return null;
+	}
+
+	private IEnumerable<IComputerExecutableOwner> EnumerateItemOwners()
+	{
+		return _gameworld.Items
+			.SelectMany(item => item.Components
+				.OfType<IComputerHost>()
+				.Cast<IComputerExecutableOwner>()
+				.Concat(item.Components.OfType<IComputerStorage>()));
 	}
 }

@@ -9,54 +9,28 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
 
-public abstract class ComputerWorkspaceExecutableBase : IComputerExecutableDefinition
+public abstract class ComputerWorkspaceExecutableBase : ComputerRuntimeExecutableBase
 {
 	protected ComputerWorkspaceExecutableBase(long id, IFuturemud gameworld)
+		: base(id, gameworld)
 	{
-		Id = id;
-		Gameworld = gameworld;
 	}
-
-	protected IFuturemud Gameworld { get; }
-	internal MudSharp.FutureProg.FutureProg? CompiledProg { get; set; }
-
-	public long Id { get; protected set; }
-	public string Name { get; set; } = string.Empty;
-	public string FrameworkItemType => "ComputerExecutable";
-	public string SourceCode { get; set; } = string.Empty;
-	public ProgVariableTypes ReturnType { get; set; } = ProgVariableTypes.Void;
-	public IReadOnlyCollection<ComputerExecutableParameter> Parameters { get; set; } =
-		Array.Empty<ComputerExecutableParameter>();
-	public FutureProgCompilationContext CompilationContext => ComputerExecutableCompiler.GetCompilationContext(ExecutableKind);
-	public ComputerCompilationStatus CompilationStatus { get; set; }
-	public string CompileError { get; set; } = string.Empty;
-	public long? OwnerCharacterId { get; set; }
-	public long? OwnerHostItemId { get; set; }
-	public long? OwnerStorageItemId { get; set; }
-	public abstract ComputerExecutableKind ExecutableKind { get; }
-	public DateTime CreatedAtUtc { get; set; }
-	public DateTime LastModifiedAtUtc { get; set; }
 }
 
-public sealed class ComputerWorkspaceFunction : ComputerWorkspaceExecutableBase, IComputerFunction
+public sealed class ComputerWorkspaceFunction : ComputerRuntimeFunctionBase
 {
 	public ComputerWorkspaceFunction(long id, IFuturemud gameworld)
 		: base(id, gameworld)
 	{
 	}
-
-	public override ComputerExecutableKind ExecutableKind => ComputerExecutableKind.Function;
 }
 
-public sealed class ComputerWorkspaceProgram : ComputerWorkspaceExecutableBase, IComputerProgramDefinition
+public sealed class ComputerWorkspaceProgram : ComputerRuntimeProgramBase
 {
 	public ComputerWorkspaceProgram(long id, IFuturemud gameworld)
 		: base(id, gameworld)
 	{
 	}
-
-	public override ComputerExecutableKind ExecutableKind => ComputerExecutableKind.Program;
-	public bool AutorunOnBoot { get; set; }
 }
 
 public sealed class ComputerWorkspaceProcess : IComputerProcess, IFrameworkItem
@@ -97,17 +71,25 @@ public sealed class CharacterComputerWorkspace : ICharacterComputerWorkspace
 	}
 
 	public ICharacter Owner { get; }
+	public string Name => $"{Owner.HowSeen(Owner, true)} workspace";
+	public long? OwnerCharacterId => Owner.Id;
+	public long? OwnerHostItemId => null;
+	public long? OwnerStorageItemId => null;
+	public IComputerHost ExecutionHost => new CharacterWorkspaceHost(Owner.Gameworld, Owner.Id,
+		() => Executables,
+		() => Processes);
+	public IComputerFileSystem? FileSystem => null;
 	public IEnumerable<IComputerExecutableDefinition> Executables => _executableSource();
 	public IEnumerable<IComputerProcess> Processes => _processSource();
 }
 
 public sealed class CharacterWorkspaceHost : IComputerHost
 {
-	private readonly Func<IEnumerable<IComputerExecutable>> _executables;
+	private readonly Func<IEnumerable<IComputerExecutableDefinition>> _executables;
 	private readonly Func<IEnumerable<IComputerProcess>> _processes;
 
 	public CharacterWorkspaceHost(IFuturemud gameworld, long ownerCharacterId,
-		Func<IEnumerable<IComputerExecutable>> executables,
+		Func<IEnumerable<IComputerExecutableDefinition>> executables,
 		Func<IEnumerable<IComputerProcess>> processes)
 	{
 		Gameworld = gameworld;
@@ -118,9 +100,22 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 
 	public IFuturemud Gameworld { get; }
 	public long OwnerCharacterId { get; }
+	long? IComputerExecutableOwner.OwnerCharacterId => OwnerCharacterId;
+	public long? OwnerHostItemId => null;
+	public long? OwnerStorageItemId => null;
+	public string Name => $"Workspace Host [{OwnerCharacterId:N0}]";
+	public IComputerHost ExecutionHost => this;
 	public bool Powered => true;
 	public IComputerFileSystem? FileSystem => null;
-	public IEnumerable<IComputerExecutable> Executables => _executables();
+	public IEnumerable<IComputerExecutableDefinition> Executables => _executables();
 	public IEnumerable<IComputerProcess> Processes => _processes();
 	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => ComputerBuiltInApplications.All;
+	public IEnumerable<IComputerStorage> MountedStorage => Enumerable.Empty<IComputerStorage>();
+	public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
+	public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
+
+	public IComputerProcess? GetProcess(long processId)
+	{
+		return Processes.FirstOrDefault(x => x.Id == processId);
+	}
 }

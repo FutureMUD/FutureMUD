@@ -95,13 +95,19 @@ The planned computer-programs subsystem follows the same composition rules:
 - live item behaviour should come from item components, not special-case `GameItem` subclasses
 - common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
 - concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
-- standalone player-owned computer code currently lives outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`
+- standalone player-owned computer code still exists outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`, but the same runtime now also supports real host-owned and storage-owned executables through `IComputerExecutableOwner`
 
 This means "computerised" items are expected to compose multiple capabilities:
 - a host component to own files, executables, and running processes
 - one or more terminal or network-facing components for user and remote interaction
 - signal source and sink components for electrical-style automation
 - ordinary door, lock, light, or switch components when the item also has traditional physical behaviour
+
+The current shipped computer-host slice now provides those first concrete families:
+- `ComputerHost` is a powered machine component plus `IConnectable` that owns files, executables, processes, mounted storage, terminal connections, network adapters, and built-in application exposure
+- `ComputerStorage` is an `IConnectable` storage owner that persists files and executables and can be mounted into a host
+- `ComputerTerminal` is a powered machine component plus `IConnectable` that owns live player sessions into a connected powered host
+- `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's local network-facing readiness and preferred address
 
 As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
 
@@ -158,11 +164,21 @@ Current runtime connection rules for that slice are:
 - automation hosts now use sibling `AutomationHousing` components for mount-bay service access
 - `AutomationMountHost` forwards `Quit()` / `Delete()` teardown to installed mounted items so extracted bay modules do not remain live when their host leaves the game or is destroyed
 - there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments
+- local computer runtime now also exposes:
+  - generic executable ownership through `IComputerExecutableOwner`
+  - mutable host and storage owners through `IComputerMutableOwner`
+  - terminal-scoped execution context via `IComputerTerminalSession`
+  - local file and terminal functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, and `KillProgram`
 
 The current player-work runtime flow for that slice is:
 - `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
 - `programming` also targets the standalone character-owned workspace when the first token is a reserved workspace verb
+- `programming terminal connect <terminal>` creates a terminal session on a powered connected `ComputerTerminal`
+- `programming terminal owner host` or `programming terminal owner <storage>` selects which real computer owner the workspace-style `programming` verbs mutate
+- when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
+- `type` is now the terminal-facing input verb: it submits text to the current terminal session, or auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly
 - `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
+- real host-backed or storage-backed program execution is now blocked when the execution host is not powered
 - actions are modelled as targeted delayed effects rather than instant mutation
 - required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials
 - success, progress, cancel, failure, and shock output are driven by configurable static strings rather than hard-coded prose

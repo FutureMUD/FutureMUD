@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.Models;
+using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -141,7 +142,7 @@ return @value + 1",
 			var service = new ComputerExecutionService(gameworld.Object);
 
 			var executable = service.CreateExecutable(owner.Object, ComputerExecutableKind.Function, "Adder");
-			var runtimeExecutable = (ComputerWorkspaceExecutableBase)executable;
+			var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
 			runtimeExecutable.ReturnType = ProgVariableTypes.Number;
 			runtimeExecutable.Parameters = new[]
 			{
@@ -185,7 +186,7 @@ return @value + 1",
 			var service = new ComputerExecutionService(gameworld.Object);
 
 			var executable = service.CreateExecutable(owner.Object, ComputerExecutableKind.Program, "Sleeper");
-			var runtimeExecutable = (ComputerWorkspaceExecutableBase)executable;
+			var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
 			runtimeExecutable.ReturnType = ProgVariableTypes.Number;
 			runtimeExecutable.SourceCode = @"sleep 1s
 return 42";
@@ -219,6 +220,94 @@ return 42";
 		{
 			RestoreFMDBState(fmdbState);
 		}
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_RejectsExecutionOnUnpoweredHostOwner()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var actor = CreateOwner(gameworld.Object);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = false, Name = "Offline Host" };
+		var owner = new StubComputerOwner(host, "Offline Host Storage");
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Function, "Adder");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Number;
+		runtimeExecutable.Parameters = new[]
+		{
+			new ComputerExecutableParameter("value", ProgVariableTypes.Number)
+		};
+		runtimeExecutable.SourceCode = @"return @value + 1";
+		service.SaveExecutable(owner, executable);
+
+		var result = service.Execute(actor.Object, owner, executable, new object?[] { 4.0m });
+
+		Assert.IsFalse(result.Success);
+		Assert.AreEqual(ComputerProcessStatus.Failed, result.Status);
+		StringAssert.Contains(result.ErrorMessage, "not currently powered");
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_WriteTerminalFunction_UsesCurrentSession()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var output = new Mock<IOutputHandler>();
+		var user = new Mock<ICharacter>();
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+
+		var executable = service.CreateExecutable(owner, ComputerExecutableKind.Function, "WriteTerminal");
+		var runtimeExecutable = (ComputerRuntimeExecutableBase)executable;
+		runtimeExecutable.ReturnType = ProgVariableTypes.Boolean;
+		runtimeExecutable.SourceCode = @"return writeterminal(""hello from host"")";
+		service.SaveExecutable(owner, executable);
+
+		var compile = service.CompileExecutable(executable);
+		Assert.IsTrue(compile.Success, compile.ErrorMessage);
+
+		var result = service.Execute(null, owner, executable, Array.Empty<object?>(), session);
+
+		Assert.IsTrue(result.Success, result.ErrorMessage);
+		Assert.AreEqual(ComputerProcessStatus.Completed, result.Status);
+		Assert.AreEqual(true, result.Result);
+		output.Verify(x => x.Send("hello from host", true, true), Times.Once);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_RejectsWhenNothingIsWaiting()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
+		var owner = new StubComputerOwner(host, "Local Host");
+		var user = CreateOwner(gameworld.Object);
+		var terminal = new Mock<IComputerTerminal>();
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = owner
+		};
+
+		var result = service.TrySubmitTerminalInput(session, "hello", out var error);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(error, "waiting for terminal input");
 	}
 
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
@@ -294,5 +383,103 @@ return 42";
 		typeof(FMDB).GetProperty("Connection", BindingFlags.Public | BindingFlags.Static)!.SetValue(null, state.Connection);
 		typeof(FMDB).GetProperty("InstanceCount", BindingFlags.NonPublic | BindingFlags.Static)!
 			.SetValue(null, state.InstanceCount);
+	}
+
+	private sealed class StubComputerHost : IComputerHost
+	{
+		public bool Powered { get; set; }
+		public string Name { get; set; } = string.Empty;
+		public long? OwnerCharacterId => null;
+		public long? OwnerHostItemId => 1L;
+		public long? OwnerStorageItemId => null;
+		public IComputerHost ExecutionHost => this;
+		public IComputerFileSystem? FileSystem => null;
+		public IEnumerable<IComputerExecutableDefinition> Executables { get; set; } = Enumerable.Empty<IComputerExecutableDefinition>();
+		public IEnumerable<IComputerProcess> Processes { get; set; } = Enumerable.Empty<IComputerProcess>();
+		public IEnumerable<IComputerBuiltInApplication> BuiltInApplications => Enumerable.Empty<IComputerBuiltInApplication>();
+		public IEnumerable<IComputerStorage> MountedStorage { get; set; } = Enumerable.Empty<IComputerStorage>();
+		public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
+		public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
+
+		public IComputerProcess? GetProcess(long processId)
+		{
+			return Processes.FirstOrDefault(x => x.Id == processId);
+		}
+	}
+
+	private sealed class StubComputerOwner : IComputerMutableOwner
+	{
+		private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
+		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
+		private long _nextExecutableId = 1L;
+		private long _nextProcessId = 1L;
+
+		public StubComputerOwner(IComputerHost host, string name)
+		{
+			ExecutionHost = host;
+			Name = name;
+		}
+
+		public string Name { get; }
+		public long? OwnerCharacterId => null;
+		public long? OwnerHostItemId => null;
+		public long? OwnerStorageItemId => 99L;
+		public IComputerHost ExecutionHost { get; }
+		public IComputerFileSystem? FileSystem => null;
+		public IEnumerable<IComputerExecutableDefinition> Executables => _executables.Values;
+		public IEnumerable<IComputerProcess> Processes => _processes.Values;
+
+		public IComputerExecutableDefinition CreateExecutableDefinition(ComputerExecutableKind kind, string name)
+		{
+			ComputerRuntimeExecutableBase executable = kind == ComputerExecutableKind.Function
+				? new ComputerMutableFunction(_nextExecutableId++, FutureProgTestBootstrap.Gameworld)
+				: new ComputerMutableProgram(_nextExecutableId++, FutureProgTestBootstrap.Gameworld);
+			executable.Name = name;
+			executable.OwnerStorageItemId = OwnerStorageItemId;
+			executable.CompilationStatus = ComputerCompilationStatus.NotCompiled;
+			executable.CreatedAtUtc = DateTime.UtcNow;
+			executable.LastModifiedAtUtc = DateTime.UtcNow;
+			_executables[executable.Id] = executable;
+			return executable;
+		}
+
+		public void SaveExecutableDefinition(IComputerExecutableDefinition executable)
+		{
+			_executables[executable.Id] = (ComputerRuntimeExecutableBase)executable;
+		}
+
+		public bool DeleteExecutableDefinition(IComputerExecutableDefinition executable, out string error)
+		{
+			error = string.Empty;
+			return _executables.Remove(executable.Id);
+		}
+
+		public ComputerRuntimeProcess CreateProcessDefinition(ICharacter? actor, ComputerRuntimeProgramBase program)
+		{
+			var process = new ComputerRuntimeProcess
+			{
+				Id = _nextProcessId++,
+				ProcessName = program.Name,
+				OwnerCharacterId = actor?.Id ?? 0L,
+				Program = program,
+				Host = ExecutionHost,
+				Status = ComputerProcessStatus.Running,
+				WaitType = ComputerProcessWaitType.None,
+				StartedAtUtc = DateTime.UtcNow,
+				LastUpdatedAtUtc = DateTime.UtcNow
+			};
+			_processes[process.Id] = process;
+			return process;
+		}
+
+		public void SaveProcessDefinition(ComputerRuntimeProcess process)
+		{
+			_processes[process.Id] = process;
+		}
+
+		public void DeleteProcessDefinition(IComputerProcess process)
+		{
+			_processes.Remove(process.Id);
+		}
 	}
 }

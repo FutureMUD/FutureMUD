@@ -49,6 +49,13 @@ Routed cables are one-room segments. Longer runs are built by chaining another c
 	private const string ProgrammingHelpText = @"The #3programming#0 command is used to inspect and work with computer functions, computer programs, and installed microcontrollers.
 
 You can use the following syntax:
+	#3programming terminal connect <terminal>#0 - connects you to a powered computer terminal
+	#3programming terminal disconnect#0 - disconnects you from your current computer terminal session
+	#3programming terminal status#0 - shows your current computer terminal session and selected owner
+	#3programming terminal owner host#0 - selects the connected host as the current programming owner
+	#3programming terminal owner <storage>#0 - selects one mounted storage device as the current programming owner
+	#3type <text>#0 - types into your current terminal session, or a nearby terminal if one can be resolved automatically
+	#3type <terminal> <text>#0 - types into a specific nearby terminal
 	#3programming list [functions|programs]#0 - lists your workspace computer executables
 	#3programming new function|program <name>#0 - creates a new workspace executable and begins editing it
 	#3programming edit <which>#0 - begins editing a workspace executable
@@ -63,7 +70,7 @@ You can use the following syntax:
 	#3programming compile [<which>]#0 - compiles a workspace executable
 	#3programming execute <which> [<parameters>]#0 - executes a workspace executable
 	#3programming processes#0 - shows your recent computer-program processes
-	#3programming kill <process>#0 - kills one of your running or sleeping computer-program processes
+	#3programming kill <process>#0 - kills one of your running or sleeping computer-program processes on the current programming owner
 	#3programming help <topic>#0 - shows programming help filtered to the computer-safe language subset
 	#3programming item <item>#0 - shows all programmable microcontrollers on the item
 	#3programming item <item> logic [<component>]#0 - opens an editor to replace the controller logic
@@ -71,8 +78,19 @@ You can use the following syntax:
 	#3programming item <item> input add [<component>] <variable> <source> [<endpoint>]#0 - binds an input variable to a local signal source
 	#3programming item <item> input remove [<component>] <variable>#0 - removes an input variable
 
+Workspace-style authoring commands operate on your current programming owner, which is either your private workspace or the owner selected on your connected computer terminal session.
 The old short form of #3programming <item>#0 still works for item-targeted microcontroller programming whenever the first word is not one of the reserved workspace verbs.
 Mounted microcontrollers remain separate items, so you can target them with syntax like #6host@module#0 when they are installed behind an open access panel.";
+
+	private const string TypeHelpText = @"The #3type#0 command is used to type text into a computer terminal.
+
+You can use the following syntax:
+	#3type <text>#0 - types into your current terminal session, or a nearby terminal if one can be resolved automatically
+	#3type <terminal> <text>#0 - types into a specific nearby terminal
+
+If you are already connected to a computer terminal, #3type#0 uses that session by default.
+If you are not connected, it prefers the only nearby terminal, or a terminal on or attached to your current position target.
+If more than one terminal could be used, specify one explicitly or connect first with #3programming terminal connect <terminal>#0.";
 
 	private static readonly HashSet<string> ReservedProgrammingWorkspaceVerbs = new(StringComparer.InvariantCultureIgnoreCase)
 	{
@@ -88,7 +106,8 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		"compile",
 		"execute",
 		"processes",
-		"kill"
+		"kill",
+		"terminal"
 	};
 
 	private ElectronicsModule()
@@ -215,6 +234,62 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			new StringStack(ss.IsFinished ? firstToken : $"{firstToken} {ss.RemainingArgument}"));
 	}
 
+	[PlayerCommand("Type", "type")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[NoHideCommand]
+	[HelpInfo("type", TypeHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Type(ICharacter actor, string command)
+	{
+		if (!actor.Gameworld.GetStaticBool("ProgrammingCommandEnabled"))
+		{
+			actor.Send("Computer terminal interaction is not available in this game.");
+			return;
+		}
+
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(TypeHelpText.SubstituteANSIColour());
+			return;
+		}
+
+		if (!TryResolveTerminalForTyping(actor, ss.SafeRemainingArgument.Trim(), out var terminalItem, out var terminal,
+			    out var text, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			actor.Send($"What do you want to type into {terminalItem.HowSeen(actor, true)}?");
+			return;
+		}
+
+		var manipulation = CanManipulateElectronicsTarget(actor, terminalItem);
+		if (!manipulation.Truth)
+		{
+			actor.OutputHandler.Send(manipulation.Message);
+			return;
+		}
+
+		if (!TryEnsureProgrammingTerminalSession(actor, terminal, out _, out var connectedTerminal, out error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		if (connectedTerminal)
+		{
+			actor.Send($"You connect to {terminalItem.HowSeen(actor, true).ColourName()}.");
+		}
+
+		if (!terminal.TryType(actor, text, out error))
+		{
+			actor.Send(error);
+		}
+	}
+
 	private static void ProgrammingWorkspace(ICharacter actor, string verb, StringStack ss)
 	{
 		switch (verb.ToLowerInvariant())
@@ -258,10 +333,180 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			case "kill":
 				ProgrammingWorkspaceKill(actor, ss);
 				return;
+			case "terminal":
+				ProgrammingTerminal(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void ProgrammingTerminal(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			ShowProgrammingTerminalStatus(actor);
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "connect":
+			case "use":
+				ProgrammingTerminalConnect(actor, ss);
+				return;
+			case "disconnect":
+			case "close":
+			case "exit":
+				ProgrammingTerminalDisconnect(actor);
+				return;
+			case "status":
+			case "show":
+				ShowProgrammingTerminalStatus(actor);
+				return;
+			case "owner":
+			case "select":
+				ProgrammingTerminalOwner(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(ProgrammingHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ProgrammingTerminalConnect(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which computer terminal do you want to connect to?");
+			return;
+		}
+
+		var terminalItem = actor.TargetItem(ss.SafeRemainingArgument);
+		if (terminalItem is null)
+		{
+			actor.Send("You do not see any such computer terminal here.");
+			return;
+		}
+
+		var manipulation = CanManipulateElectronicsTarget(actor, terminalItem);
+		if (!manipulation.Truth)
+		{
+			actor.OutputHandler.Send(manipulation.Message);
+			return;
+		}
+
+		if (terminalItem.Components.OfType<IComputerTerminal>().FirstOrDefault() is not ComputerTerminalGameItemComponent terminal)
+		{
+			actor.Send($"{terminalItem.HowSeen(actor, true)} is not a usable computer terminal.");
+			return;
+		}
+
+		if (!TryEnsureProgrammingTerminalSession(actor, terminal, out var session, out _, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send(
+			$"You connect to {terminalItem.HowSeen(actor, true).ColourName()}, which is attached to {session!.Host.Name.ColourName()}. Programming commands will now use {DescribeComputerOwner(actor, session.CurrentOwner)}.");
+	}
+
+	private static void ProgrammingTerminalDisconnect(ICharacter actor)
+	{
+		var effect = GetCurrentProgrammingTerminalSessionEffect(actor);
+		if (effect is null)
+		{
+			actor.Send("You are not currently connected to any computer terminal.");
+			return;
+		}
+
+		var terminalDescription = DescribeTerminal(actor, effect.Session.Terminal);
+		actor.RemoveEffect(effect);
+		actor.Send(
+			$"You disconnect from {terminalDescription}. Programming commands will now use {DescribeComputerOwner(actor, actor.Gameworld.ComputerExecutionService.GetWorkspace(actor))}.");
+	}
+
+	private static void ProgrammingTerminalOwner(ICharacter actor, StringStack ss)
+	{
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("You are not currently connected to any computer terminal.");
+			return;
+		}
+
+		if (session.Terminal is not ComputerTerminalGameItemComponent terminal)
+		{
+			actor.Send("That terminal session is not attached to a configurable computer terminal.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to select the host or one of its mounted storage devices?");
+			return;
+		}
+
+		IComputerExecutableOwner owner;
+		var identifier = ss.SafeRemainingArgument.Trim();
+		if (identifier.EqualTo("host"))
+		{
+			owner = session.Host;
+		}
+		else
+		{
+			var storage = ResolveTerminalStorageOwner(actor, session.Host, identifier);
+			if (storage is null)
+			{
+				return;
+			}
+
+			owner = storage;
+		}
+
+		if (!terminal.TrySelectOwner(actor, owner, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send(
+			$"You select {DescribeComputerOwner(actor, owner)} as the current programming owner on {DescribeTerminal(actor, terminal)}.");
+	}
+
+	private static void ShowProgrammingTerminalStatus(ICharacter actor)
+	{
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send(
+				$"You are not currently connected to any computer terminal. Programming commands are using {DescribeComputerOwner(actor, actor.Gameworld.ComputerExecutionService.GetWorkspace(actor))}.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Computer Terminal: {DescribeTerminal(actor, session.Terminal)}");
+		sb.AppendLine($"Connected Host: {session.Host.Name.ColourName()}");
+		sb.AppendLine($"Current Owner: {DescribeComputerOwner(actor, session.CurrentOwner)}");
+		sb.AppendLine($"Connected Since: {session.ConnectedAtUtc.ToString(actor).ColourValue()}");
+		var storage = session.Host.MountedStorage.ToList();
+		sb.AppendLine("Mounted Storage:");
+		if (!storage.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			foreach (var item in storage.OrderBy(x => x.Name).ThenBy(x => x.OwnerStorageItemId))
+			{
+				sb.AppendLine(
+					$"\t{DescribeComputerOwner(actor, item)}{(ReferenceEquals(item, session.CurrentOwner) ? " (selected)".ColourValue() : string.Empty)}");
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void ProgrammingItem(ICharacter actor, StringStack ss)
@@ -1197,10 +1442,11 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 	private static void ProgrammingWorkspaceList(ICharacter actor, StringStack ss)
 	{
-		var executables = actor.Gameworld.ComputerExecutionService.GetExecutables(actor).ToList();
+		var owner = GetCurrentProgrammingOwner(actor);
+		var executables = actor.Gameworld.ComputerExecutionService.GetExecutables(owner).ToList();
 		if (!executables.Any())
 		{
-			actor.Send("You do not have any workspace computer executables.");
+			actor.Send($"There are no computer executables on {DescribeComputerOwner(actor, owner)}.");
 			return;
 		}
 
@@ -1260,18 +1506,19 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			return;
 		}
 
+		var owner = GetCurrentProgrammingOwner(actor);
 		var name = ss.IsFinished ? $"Unnamed{kind.Value.DescribeEnum()}" : ss.SafeRemainingArgument.Trim();
-		if (actor.Gameworld.ComputerExecutionService.GetExecutables(actor)
+		if (actor.Gameworld.ComputerExecutionService.GetExecutables(owner)
 			    .Any(x => x.Name.EqualTo(name)))
 		{
-			actor.Send("You already have a workspace executable with that name.");
+			actor.Send($"There is already an executable with that name on {DescribeComputerOwner(actor, owner)}.");
 			return;
 		}
 
-		var executable = actor.Gameworld.ComputerExecutionService.CreateExecutable(actor, kind.Value, name);
+		var executable = actor.Gameworld.ComputerExecutionService.CreateExecutable(owner, kind.Value, name);
 		SetEditingComputerExecutable(actor, executable);
 		actor.Send(
-			$"You create the {kind.Value.DescribeEnum().ToLowerInvariant().ColourValue()} {executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}], which you are now editing.");
+			$"You create the {kind.Value.DescribeEnum().ToLowerInvariant().ColourValue()} {executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}] on {DescribeComputerOwner(actor, owner)}, which you are now editing.");
 	}
 
 	private static void ProgrammingWorkspaceEdit(ICharacter actor, StringStack ss)
@@ -1281,7 +1528,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			var editing = GetEditingComputerExecutable(actor);
 			if (editing is null)
 			{
-				actor.Send("Which workspace executable do you want to edit?");
+				actor.Send($"Which executable on {DescribeComputerOwner(actor, GetCurrentProgrammingOwner(actor))} do you want to edit?");
 				return;
 			}
 
@@ -1289,7 +1536,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			return;
 		}
 
-		var executable = ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		var executable = ResolveProgrammingExecutable(actor, ss.SafeRemainingArgument);
 		if (executable is null)
 		{
 			return;
@@ -1304,7 +1551,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		var editing = GetEditingComputerExecutable(actor);
 		if (editing is null)
 		{
-			actor.Send("You are not currently editing any workspace executable.");
+			actor.Send("You are not currently editing any computer executable.");
 			return;
 		}
 
@@ -1314,12 +1561,12 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 	private static void ProgrammingWorkspaceShow(ICharacter actor, StringStack ss)
 	{
-		var executable = ss.IsFinished ? GetEditingComputerExecutable(actor) : ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		var executable = ss.IsFinished ? GetEditingComputerExecutable(actor) : ResolveProgrammingExecutable(actor, ss.SafeRemainingArgument);
 		if (executable is null)
 		{
 			actor.Send(ss.IsFinished
-				? "You are not currently editing any workspace executable."
-				: "There is no such workspace executable.");
+				? "You are not currently editing any computer executable."
+				: $"There is no such executable on {DescribeComputerOwner(actor, GetCurrentProgrammingOwner(actor))}.");
 			return;
 		}
 
@@ -1330,17 +1577,18 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 	{
 		if (ss.IsFinished)
 		{
-			actor.Send("Which workspace executable do you want to delete?");
+			actor.Send($"Which executable on {DescribeComputerOwner(actor, GetCurrentProgrammingOwner(actor))} do you want to delete?");
 			return;
 		}
 
-		var executable = ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		var owner = GetCurrentProgrammingOwner(actor);
+		var executable = ResolveProgrammingExecutable(actor, ss.SafeRemainingArgument, owner);
 		if (executable is null)
 		{
 			return;
 		}
 
-		if (!actor.Gameworld.ComputerExecutionService.DeleteExecutable(actor, executable, out var error))
+		if (!actor.Gameworld.ComputerExecutionService.DeleteExecutable(owner, executable, out var error))
 		{
 			actor.Send(error);
 			return;
@@ -1351,7 +1599,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			actor.RemoveAllEffects<ComputerExecutableEditingEffect>();
 		}
 
-		actor.Send($"You delete the workspace executable {executable.Name.ColourName()}.");
+		actor.Send($"You delete {executable.Name.ColourName()} from {DescribeComputerOwner(actor, owner)}.");
 	}
 
 	private static void ProgrammingWorkspaceSet(ICharacter actor, StringStack ss)
@@ -1359,7 +1607,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		var executable = GetEditingComputerExecutable(actor);
 		if (executable is null)
 		{
-			actor.Send("You are not currently editing any workspace executable.");
+			actor.Send("You are not currently editing any computer executable.");
 			return;
 		}
 
@@ -1392,22 +1640,29 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 	{
 		if (ss.IsFinished)
 		{
-			actor.Send("What new name do you want to give to that workspace executable?");
+			actor.Send("What new name do you want to give to that executable?");
 			return;
 		}
 
+		if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+		{
+			actor.Send("That executable cannot be edited.");
+			return;
+		}
+
+		var owner = ResolveExecutableOwner(actor, executable) ?? GetCurrentProgrammingOwner(actor);
 		var name = ss.SafeRemainingArgument.Trim();
-		if (actor.Gameworld.ComputerExecutionService.GetExecutables(actor)
+		if (actor.Gameworld.ComputerExecutionService.GetExecutables(owner)
 			    .Any(x => x.Id != executable.Id && x.Name.EqualTo(name)))
 		{
-			actor.Send("You already have another workspace executable with that name.");
+			actor.Send($"There is already another executable with that name on {DescribeComputerOwner(actor, owner)}.");
 			return;
 		}
 
-		((ComputerWorkspaceExecutableBase)executable).Name = name;
+		runtimeExecutable.Name = name;
 		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-		AutoCompileWorkspaceExecutable(actor, executable,
-			$"You rename the workspace executable to {name.ColourName()}.");
+		AutoCompileExecutable(actor, executable,
+			$"You rename the executable to {name.ColourName()}.");
 	}
 
 	private static void ProgrammingWorkspaceSetReturn(ICharacter actor, IComputerExecutableDefinition executable,
@@ -1427,9 +1682,15 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			return;
 		}
 
-		((ComputerWorkspaceExecutableBase)executable).ReturnType = type;
+		if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+		{
+			actor.Send("That executable cannot be edited.");
+			return;
+		}
+
+		runtimeExecutable.ReturnType = type;
 		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-		AutoCompileWorkspaceExecutable(actor, executable,
+		AutoCompileExecutable(actor, executable,
 			$"You change the return type of {executable.Name.ColourName()} to {type.Describe().ColourValue()}.");
 	}
 
@@ -1442,21 +1703,33 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			actor.EditorMode(
 				(text, handler, _) =>
 				{
-					((ComputerWorkspaceExecutableBase)executable).SourceCode = text;
+					if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+					{
+						handler.Send("That executable can no longer be edited.");
+						return;
+					}
+
+					runtimeExecutable.SourceCode = text;
 					actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-					AutoCompileWorkspaceExecutable(actor, executable,
+					AutoCompileExecutable(actor, executable,
 						$"You replace the source code for {executable.Name.ColourName()}.");
 				},
-				(handler, _) => handler.Send("You decide not to change the workspace source code."),
+				(handler, _) => handler.Send("You decide not to change the source code."),
 				1.0,
 				recallText: executable.SourceCode,
 				options: EditorOptions.PermitEmpty);
 			return;
 		}
 
-		((ComputerWorkspaceExecutableBase)executable).SourceCode = ss.SafeRemainingArgument;
+		if (executable is not ComputerRuntimeExecutableBase runtime)
+		{
+			actor.Send("That executable cannot be edited.");
+			return;
+		}
+
+		runtime.SourceCode = ss.SafeRemainingArgument;
 		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-		AutoCompileWorkspaceExecutable(actor, executable,
+		AutoCompileExecutable(actor, executable,
 			$"You replace the source code for {executable.Name.ColourName()}.");
 	}
 
@@ -1465,7 +1738,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		var executable = GetEditingComputerExecutable(actor);
 		if (executable is null)
 		{
-			actor.Send("You are not currently editing any workspace executable.");
+			actor.Send("You are not currently editing any computer executable.");
 			return;
 		}
 
@@ -1531,9 +1804,15 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		}
 
 		parameters.Add(new ComputerExecutableParameter(variableName, type));
-		((ComputerWorkspaceExecutableBase)executable).Parameters = parameters;
+		if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+		{
+			actor.Send("That executable cannot be edited.");
+			return;
+		}
+
+		runtimeExecutable.Parameters = parameters;
 		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-		AutoCompileWorkspaceExecutable(actor, executable,
+		AutoCompileExecutable(actor, executable,
 			$"You add the parameter {variableName.ColourCommand()} as {type.Describe().ColourValue()}.");
 	}
 
@@ -1556,9 +1835,15 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		}
 
 		parameters.Remove(parameter);
-		((ComputerWorkspaceExecutableBase)executable).Parameters = parameters;
+		if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+		{
+			actor.Send("That executable cannot be edited.");
+			return;
+		}
+
+		runtimeExecutable.Parameters = parameters;
 		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-		AutoCompileWorkspaceExecutable(actor, executable,
+		AutoCompileExecutable(actor, executable,
 			$"You remove the parameter {parameter.Name.ColourCommand()}.");
 	}
 
@@ -1589,35 +1874,43 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		}
 
 		(parameters[firstIndex], parameters[secondIndex]) = (parameters[secondIndex], parameters[firstIndex]);
-		((ComputerWorkspaceExecutableBase)executable).Parameters = parameters;
+		if (executable is not ComputerRuntimeExecutableBase runtimeExecutable)
+		{
+			actor.Send("That executable cannot be edited.");
+			return;
+		}
+
+		runtimeExecutable.Parameters = parameters;
 		actor.Gameworld.ComputerExecutionService.SaveExecutable(executable);
-		AutoCompileWorkspaceExecutable(actor, executable,
+		AutoCompileExecutable(actor, executable,
 			$"You swap the order of {first.ColourCommand()} and {second.ColourCommand()}.");
 	}
 
 	private static void ProgrammingWorkspaceCompile(ICharacter actor, StringStack ss)
 	{
-		var executable = ss.IsFinished ? GetEditingComputerExecutable(actor) : ResolveWorkspaceExecutable(actor, ss.SafeRemainingArgument);
+		var executable = ss.IsFinished ? GetEditingComputerExecutable(actor) : ResolveProgrammingExecutable(actor, ss.SafeRemainingArgument);
 		if (executable is null)
 		{
 			actor.Send(ss.IsFinished
-				? "You are not currently editing any workspace executable."
-				: "There is no such workspace executable.");
+				? "You are not currently editing any computer executable."
+				: $"There is no such executable on {DescribeComputerOwner(actor, GetCurrentProgrammingOwner(actor))}.");
 			return;
 		}
 
-		AutoCompileWorkspaceExecutable(actor, executable, $"You compile {executable.Name.ColourName()}.");
+		AutoCompileExecutable(actor, executable, $"You compile {executable.Name.ColourName()}.");
 	}
 
 	private static void ProgrammingWorkspaceExecute(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
 		{
-			actor.Send("Which workspace executable do you want to execute?");
+			actor.Send($"Which executable on {DescribeComputerOwner(actor, GetCurrentProgrammingOwner(actor))} do you want to execute?");
 			return;
 		}
 
-		var executable = ResolveWorkspaceExecutable(actor, ss.PopSpeech());
+		var owner = GetCurrentProgrammingOwner(actor);
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		var executable = ResolveProgrammingExecutable(actor, ss.PopSpeech(), owner);
 		if (executable is null)
 		{
 			return;
@@ -1649,7 +1942,8 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			parameters.Add(outcome.result);
 		}
 
-		var result = actor.Gameworld.ComputerExecutionService.Execute(actor, executable, parameters);
+		var result = actor.Gameworld.ComputerExecutionService.Execute(actor, owner, executable, parameters,
+			ReferenceEquals(session?.CurrentOwner, owner) ? session : null);
 		if (!result.Success && result.Status != ComputerProcessStatus.Completed)
 		{
 			actor.Send(result.ErrorMessage);
@@ -1658,6 +1952,7 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 		var sb = new StringBuilder();
 		sb.AppendLine($"Executing {executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}]...");
+		sb.AppendLine($"Owner: {DescribeComputerOwner(actor, owner)}");
 		if (parameters.Any())
 		{
 			sb.AppendLine();
@@ -1697,10 +1992,11 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 	private static void ProgrammingWorkspaceProcesses(ICharacter actor)
 	{
-		var processes = actor.Gameworld.ComputerExecutionService.GetProcesses(actor).ToList();
+		var owner = GetCurrentProgrammingOwner(actor);
+		var processes = actor.Gameworld.ComputerExecutionService.GetProcesses(owner).ToList();
 		if (!processes.Any())
 		{
-			actor.Send("You do not have any computer-program processes.");
+			actor.Send($"There are no computer-program processes on {DescribeComputerOwner(actor, owner)}.");
 			return;
 		}
 
@@ -1738,13 +2034,15 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 			return;
 		}
 
-		if (!actor.Gameworld.ComputerExecutionService.KillProcess(actor, processId, out var error))
+		var owner = GetCurrentProgrammingOwner(actor);
+		if (!actor.Gameworld.ComputerExecutionService.KillProcess(owner, processId, out var error))
 		{
 			actor.Send(error);
 			return;
 		}
 
-		actor.Send($"You kill the computer-program process {processId.ToString("N0", actor).ColourValue()}.");
+		actor.Send(
+			$"You kill the computer-program process {processId.ToString("N0", actor).ColourValue()} on {DescribeComputerOwner(actor, owner)}.");
 	}
 
 	private static IComputerExecutableDefinition? GetEditingComputerExecutable(ICharacter actor)
@@ -1758,19 +2056,236 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 		actor.AddEffect(new ComputerExecutableEditingEffect(actor) { EditingItem = executable });
 	}
 
-	private static IComputerExecutableDefinition? ResolveWorkspaceExecutable(ICharacter actor, string identifier)
+	private static ComputerTerminalSessionEffect? GetCurrentProgrammingTerminalSessionEffect(ICharacter actor)
 	{
-		var executable = actor.Gameworld.ComputerExecutionService.GetExecutable(actor, identifier);
+		return actor.CombinedEffectsOfType<ComputerTerminalSessionEffect>().FirstOrDefault();
+	}
+
+	private static bool TryEnsureProgrammingTerminalSession(ICharacter actor, ComputerTerminalGameItemComponent terminal,
+		out IComputerTerminalSession? session, out bool connectedTerminal, out string error)
+	{
+		session = null;
+		connectedTerminal = false;
+
+		var existingEffect = GetCurrentProgrammingTerminalSessionEffect(actor);
+		if (existingEffect is not null && !ReferenceEquals(existingEffect.Session.Terminal, terminal))
+		{
+			actor.RemoveEffect(existingEffect);
+			existingEffect = null;
+		}
+
+		if (!terminal.TryConnectSession(actor, out session, out error))
+		{
+			return false;
+		}
+
+		if (existingEffect is not null && ReferenceEquals(existingEffect.Session.Terminal, terminal) &&
+		    ReferenceEquals(existingEffect.Session, session))
+		{
+			return true;
+		}
+
+		actor.RemoveAllEffects<ComputerTerminalSessionEffect>();
+		actor.AddEffect(new ComputerTerminalSessionEffect(actor) { Session = session! });
+		connectedTerminal = true;
+		error = string.Empty;
+		return true;
+	}
+
+	private static IComputerTerminalSession? GetCurrentProgrammingTerminalSession(ICharacter actor)
+	{
+		return GetCurrentProgrammingTerminalSessionEffect(actor)?.Session;
+	}
+
+	private static IEnumerable<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)> GetContextualComputerTerminals(
+		ICharacter actor)
+	{
+		return actor.ContextualItems
+			.Select(x => (Item: x, Terminal: x.Components.OfType<IComputerTerminal>().FirstOrDefault()))
+			.Where(x => x.Terminal is ComputerTerminalGameItemComponent)
+			.Select(x => (x.Item, (ComputerTerminalGameItemComponent)x.Terminal!))
+			.GroupBy(x => x.Item.Id)
+			.Select(x => x.First())
+			.ToList();
+	}
+
+	private static IEnumerable<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)>
+		GetPositionTargetComputerTerminals(ICharacter actor)
+	{
+		if (actor.PositionTarget is not IGameItem itemTarget)
+		{
+			return Enumerable.Empty<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)>();
+		}
+
+		var terminals = new List<(IGameItem Item, ComputerTerminalGameItemComponent Terminal)>();
+		if (itemTarget.Components.OfType<IComputerTerminal>().FirstOrDefault() is ComputerTerminalGameItemComponent direct)
+		{
+			terminals.Add((itemTarget, direct));
+		}
+
+		terminals.AddRange(itemTarget.AttachedAndConnectedItems
+			.Select(x => (Item: x, Terminal: x.Components.OfType<IComputerTerminal>().FirstOrDefault()))
+			.Where(x => x.Terminal is ComputerTerminalGameItemComponent)
+			.Select(x => (x.Item, (ComputerTerminalGameItemComponent)x.Terminal!)));
+
+		return terminals
+			.GroupBy(x => x.Item.Id)
+			.Select(x => x.First())
+			.ToList();
+	}
+
+	private static bool TryResolveTerminalForTyping(ICharacter actor, string argumentText, out IGameItem terminalItem,
+		out ComputerTerminalGameItemComponent terminal, out string text, out string error)
+	{
+		terminalItem = null!;
+		terminal = null!;
+		text = string.Empty;
+		error = string.Empty;
+
+		var ss = new StringStack(argumentText);
+		var firstToken = ss.PopSpeech();
+		if (!string.IsNullOrWhiteSpace(firstToken) && !ss.IsFinished)
+		{
+			var explicitTerminalItem = actor.TargetItem(firstToken);
+			if (explicitTerminalItem?.Components.OfType<IComputerTerminal>().FirstOrDefault() is
+			    ComputerTerminalGameItemComponent explicitTerminal)
+			{
+				terminalItem = explicitTerminalItem;
+				terminal = explicitTerminal;
+				text = ss.SafeRemainingArgument.Trim();
+				return true;
+			}
+		}
+
+		var currentSession = GetCurrentProgrammingTerminalSession(actor);
+		if (currentSession?.Terminal is ComputerTerminalGameItemComponent currentTerminal)
+		{
+			terminalItem = currentTerminal.Parent;
+			terminal = currentTerminal;
+			text = argumentText;
+			return true;
+		}
+
+		var nearbyTerminals = GetContextualComputerTerminals(actor).ToList();
+		if (nearbyTerminals.Count == 1)
+		{
+			(terminalItem, terminal) = nearbyTerminals[0];
+			text = argumentText;
+			return true;
+		}
+
+		var positionTargetTerminals = GetPositionTargetComputerTerminals(actor).ToList();
+		if (positionTargetTerminals.Count == 1)
+		{
+			(terminalItem, terminal) = positionTargetTerminals[0];
+			text = argumentText;
+			return true;
+		}
+
+		if (!nearbyTerminals.Any() && !positionTargetTerminals.Any())
+		{
+			error = "You are not near any usable computer terminal.";
+			return false;
+		}
+
+		var candidateText = nearbyTerminals
+			.Concat(positionTargetTerminals)
+			.GroupBy(x => x.Item.Id)
+			.Select(x => x.First())
+			.OrderBy(x => x.Item.HowSeen(actor))
+			.Select(x => $"\t{actor.BestKeywordFor(x.Item).ColourCommand()} - {x.Item.HowSeen(actor, true).ColourName()}")
+			.ToList();
+		error =
+			$"You are near more than one usable computer terminal. Position yourself at one, connect explicitly with {"programming terminal connect <terminal>".ColourCommand()}, or use one of:\n{candidateText.ListToString(separator: "\n", conjunction: string.Empty, twoItemJoiner: "\n")}";
+		return false;
+	}
+
+	private static IComputerExecutableOwner GetCurrentProgrammingOwner(ICharacter actor)
+	{
+		return GetCurrentProgrammingTerminalSession(actor)?.CurrentOwner ??
+		       actor.Gameworld.ComputerExecutionService.GetWorkspace(actor);
+	}
+
+	private static IComputerExecutableOwner? ResolveExecutableOwner(ICharacter actor, IComputerExecutableDefinition executable)
+	{
+		if (executable.OwnerCharacterId == actor.Id)
+		{
+			return actor.Gameworld.ComputerExecutionService.GetWorkspace(actor);
+		}
+
+		if (executable.OwnerHostItemId is > 0)
+		{
+			return actor.Gameworld.TryGetItem(executable.OwnerHostItemId.Value, true)?.Components.OfType<IComputerHost>()
+				.FirstOrDefault();
+		}
+
+		if (executable.OwnerStorageItemId is > 0)
+		{
+			return actor.Gameworld.TryGetItem(executable.OwnerStorageItemId.Value, true)?.Components.OfType<IComputerStorage>()
+				.FirstOrDefault();
+		}
+
+		return null;
+	}
+
+	private static IComputerStorage? ResolveTerminalStorageOwner(ICharacter actor, IComputerHost host, string identifier)
+	{
+		var storageItems = host.MountedStorage
+			.Select(x => x as IGameItemComponent)
+			.Where(x => x is not null)
+			.Select(x => x!.Parent)
+			.Distinct()
+			.ToList();
+		if (!storageItems.Any())
+		{
+			actor.Send($"{host.Name.ColourName()} has no mounted storage devices.");
+			return null;
+		}
+
+		var item = ResolveItemReference(actor, storageItems, identifier);
+		if (item?.Components.OfType<IComputerStorage>().FirstOrDefault() is { } storage)
+		{
+			return storage;
+		}
+
+		actor.Send(
+			$"You must specify one of the following mounted storage devices on {host.Name.ColourName()}:\n{storageItems.Select(x => $"\t{x.HowSeen(actor, true).ColourName()}").ListToLines()}");
+		return null;
+	}
+
+	private static string DescribeComputerOwner(ICharacter actor, IComputerExecutableOwner owner)
+	{
+		return owner switch
+		{
+			ICharacterComputerWorkspace => "your private workspace".ColourName(),
+			IComputerStorage => owner.Name.ColourName(),
+			IComputerHost => owner.Name.ColourName(),
+			_ => owner.Name.ColourName()
+		};
+	}
+
+	private static string DescribeTerminal(ICharacter actor, IComputerTerminal terminal)
+	{
+		return terminal is IGameItemComponent component
+			? component.Parent.HowSeen(actor, true).ColourName()
+			: terminal.GetType().Name.ColourName();
+	}
+
+	private static IComputerExecutableDefinition? ResolveProgrammingExecutable(ICharacter actor, string identifier,
+		IComputerExecutableOwner? owner = null)
+	{
+		owner ??= GetCurrentProgrammingOwner(actor);
+		var executable = actor.Gameworld.ComputerExecutionService.GetExecutable(owner, identifier);
 		if (executable is not null)
 		{
 			return executable;
 		}
 
-		actor.Send("There is no such workspace executable.");
+		actor.Send($"There is no such executable on {DescribeComputerOwner(actor, owner)}.");
 		return null;
 	}
 
-	private static void AutoCompileWorkspaceExecutable(ICharacter actor, IComputerExecutableDefinition executable,
+	private static void AutoCompileExecutable(ICharacter actor, IComputerExecutableDefinition executable,
 		string successPrefix)
 	{
 		var result = actor.Gameworld.ComputerExecutionService.CompileExecutable(executable);
@@ -1785,9 +2300,14 @@ Mounted microcontrollers remain separate items, so you can target them with synt
 
 	private static void ShowWorkspaceExecutable(ICharacter actor, IComputerExecutableDefinition executable)
 	{
+		var owner = ResolveExecutableOwner(actor, executable);
 		var sb = new StringBuilder();
 		sb.AppendLine(
 			$"{executable.Name.ColourName()} [{executable.Id.ToString("N0", actor).ColourValue()}] - {executable.ExecutableKind.DescribeEnum().ColourValue()}");
+		if (owner is not null)
+		{
+			sb.AppendLine($"Owner: {DescribeComputerOwner(actor, owner)}");
+		}
 		sb.AppendLine($"Return Type: {executable.ReturnType.Describe().ColourValue()}");
 		sb.AppendLine($"Status: {executable.CompilationStatus.DescribeEnum().ColourName()}");
 		if (!string.IsNullOrWhiteSpace(executable.CompileError))

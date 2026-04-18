@@ -1,0 +1,33 @@
+#nullable enable
+
+using System;
+using MudSharp.Character;
+
+namespace MudSharp.Computers;
+
+internal sealed class ComputerExecutionContext
+{
+	public required IComputerExecutableOwner Owner { get; init; }
+	public required IComputerHost Host { get; init; }
+	public ICharacter? Actor { get; init; }
+	public IComputerTerminalSession? Session { get; init; }
+}
+
+internal sealed class ComputerExecutionContextScope : IDisposable
+{
+	[ThreadStatic] private static ComputerExecutionContext? _current;
+	private readonly ComputerExecutionContext? _prior;
+
+	public ComputerExecutionContextScope(ComputerExecutionContext context)
+	{
+		_prior = _current;
+		_current = context;
+	}
+
+	public static ComputerExecutionContext? Current => _current;
+
+	public void Dispose()
+	{
+		_current = _prior;
+	}
+}

@@ -158,6 +158,10 @@ Telecommunications items also expose scripting hooks through item and endpoint q
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
 
 The current signal-automation slice has its own presentation and integration rules:
+- `ComputerHost` decorates the full description with its switch state, power state, executable count, file count, and how many storage devices, terminals, and network adapters are currently connected
+- `ComputerStorage` decorates the full description with whether it is mounted, how many stored executables it has, and how many files it contains
+- `ComputerTerminal` decorates the full description with its switch state, power state, and the currently connected host if any
+- `NetworkAdapter` decorates the full description with its switch state, power state, connected host, and whether it is currently network-ready
 - `PushButton` decorates the full description to show the selectable keyword and whether it is currently active
 - `ToggleSwitch` decorates short and full descriptions to show whether it is currently on or off
 - `MotionSensor` decorates the full description to show whether it is currently active plus the movement mode and minimum size it watches for
@@ -178,6 +182,8 @@ The current signal-automation slice has its own presentation and integration rul
 - the current slice is not purely same-item any more, but the external graph is still intentionally modest: presentation should explain mounted modules and one-hop cable segments without implying a full arbitrary wiring network
 - the live `electrical` and `programming` verbs are now part of the player-facing integration surface for these items, and their staged begin/continue/success/failure output should be authored through configurable static strings rather than embedded per-component prose
 - `programming help` should mirror the normal `prog help` structure, but filtered to the computer-safe subset so the player-facing language reference stays aligned with the actual compiler/runtime surface
+- `programming terminal status` is now part of that player-facing integration surface as well, because it is how players see which powered host they are currently connected to and whether they are editing the host itself or one mounted storage device
+- `type` is now part of that same player-facing integration surface, because it is how players submit text to a terminal session and, in the future, how terminal programs waiting on `UserInput` will receive that text
 - abject failure on electrical work is also part of the presentation layer because it must produce a visible shock emote and corresponding damage feedback
 - `AutomationHousing` is now the dedicated housing or junction presentation family, and because it is itself the lockable-container capability, it deliberately layers on ordinary container/openable/lockable item presentation rather than replacing it
 - those housings should be presented as ordinary openable service panels on the parent item, reached through normal `open` / `close` subtargets rather than bespoke verbs

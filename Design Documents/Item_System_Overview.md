@@ -47,6 +47,10 @@ The intended component families are:
 Those families should share common computer/signal contracts, but each concrete behaviour should still have its own prototype, runtime component, builder help, and persistence rules.
 
 The first shipped automation slice now includes:
+- `ComputerHost`
+- `ComputerTerminal`
+- `ComputerStorage`
+- `NetworkAdapter`
 - `PushButton`
 - `ToggleSwitch`
 - `MotionSensor`
@@ -77,6 +81,14 @@ The first live player command surface for that slice is also now present:
 - `programming` as a hybrid surface for both:
   - a private workspace of computer functions and programs
   - inspecting and live-programming real microcontroller items, including mounted ones
+  - connecting to a powered `ComputerTerminal` and then targeting the connected `ComputerHost` or a mounted `ComputerStorage` as the current programming owner
+
+The first real computer-host slice now also includes:
+- powered `ComputerHost` components that own files, executables, running processes, and built-in application exposure
+- `ComputerStorage` items that persist files and executables and can be mounted into a host
+- `ComputerTerminal` items that own user sessions into a powered host
+- `NetworkAdapter` items that represent the host's local network-facing capability
+- local computer runtime functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, and `KillProgram`
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

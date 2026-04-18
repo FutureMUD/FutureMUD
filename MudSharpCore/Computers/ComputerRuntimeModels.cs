@@ -72,14 +72,57 @@ public sealed class ComputerFileSystemDefinition : IComputerFileSystem
 	public long CapacityInBytes { get; init; }
 	public IEnumerable<IComputerFile> Files { get; init; } = Enumerable.Empty<IComputerFile>();
 	public long UsedBytes => Files.Sum(x => x.SizeInBytes);
+	public bool FileExists(string fileName)
+	{
+		return Files.Any(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	public IComputerFile? GetFile(string fileName)
+	{
+		return Files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	public string ReadFile(string fileName)
+	{
+		return GetFile(fileName)?.TextContents ?? string.Empty;
+	}
+
+	public void WriteFile(string fileName, string textContents)
+	{
+		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
+	}
+
+	public void AppendFile(string fileName, string textContents)
+	{
+		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
+	}
+
+	public bool DeleteFile(string fileName)
+	{
+		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
+	}
 }
 
 public sealed class ComputerHostDefinition : IComputerHost
 {
+	public string Name { get; init; } = string.Empty;
+	public long? OwnerCharacterId { get; init; }
+	public long? OwnerHostItemId { get; init; }
+	public long? OwnerStorageItemId { get; init; }
+	public IComputerHost ExecutionHost => this;
 	public bool Powered { get; init; }
 	public IComputerFileSystem? FileSystem { get; init; }
-	public IEnumerable<IComputerExecutable> Executables { get; init; } = Enumerable.Empty<IComputerExecutable>();
+	public IEnumerable<IComputerExecutableDefinition> Executables { get; init; } =
+		Enumerable.Empty<IComputerExecutableDefinition>();
 	public IEnumerable<IComputerProcess> Processes { get; init; } = Enumerable.Empty<IComputerProcess>();
 	public IEnumerable<IComputerBuiltInApplication> BuiltInApplications { get; init; } =
 		ComputerBuiltInApplications.All;
+	public IEnumerable<IComputerStorage> MountedStorage { get; init; } = Enumerable.Empty<IComputerStorage>();
+	public IEnumerable<IComputerTerminal> ConnectedTerminals { get; init; } = Enumerable.Empty<IComputerTerminal>();
+	public IEnumerable<INetworkAdapter> NetworkAdapters { get; init; } = Enumerable.Empty<INetworkAdapter>();
+
+	public IComputerProcess? GetProcess(long processId)
+	{
+		return Processes.FirstOrDefault(x => x.Id == processId);
+	}
 }

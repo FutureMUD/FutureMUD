@@ -27,6 +27,7 @@ internal static class ComputerBuiltInApplicationExecutors
 		new IComputerBuiltInApplicationExecutor[]
 		{
 			new FileManagerBuiltInApplicationExecutor(),
+			new DirectoryBuiltInApplicationExecutor(),
 			new SysMonBuiltInApplicationExecutor()
 		}.ToDictionary(x => x.ApplicationId, StringComparer.InvariantCultureIgnoreCase);
 
@@ -562,6 +563,330 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		}
 
 		return storages.FirstOrDefault(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static string DescribeOwner(IComputerExecutableOwner owner)
+	{
+		return owner switch
+		{
+			IComputerStorage storage => storage.Name,
+			IComputerHost host => host.Name,
+			_ => owner.Name
+		};
+	}
+}
+
+internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInApplicationExecutor
+{
+	public string ApplicationId => "directory";
+
+	public ComputerProgramExecutionOutcome Execute(IFuturemud gameworld, ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerTerminalSession? session, ComputerRuntimeProcess process, IComputerBuiltInApplication application)
+	{
+		if (session is null)
+		{
+			return new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = $"{application.Name} requires an active computer terminal session."
+			};
+		}
+
+		var input = ComputerExecutionContextScope.Current?.ConsumePendingTerminalInput();
+		if (string.IsNullOrWhiteSpace(input))
+		{
+			SendOverview(session, application, process.Host);
+			return WaitForInput(session);
+		}
+
+		var response = HandleCommand(session, application, process.Host, input!);
+		if (!string.IsNullOrWhiteSpace(response.Output))
+		{
+			session.User.OutputHandler.Send(response.Output, nopage: true);
+		}
+
+		return response.Exit
+			? new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Completed
+			}
+			: WaitForInput(session);
+	}
+
+	private static (string Output, bool Exit) HandleCommand(IComputerTerminalSession session,
+		IComputerBuiltInApplication application,
+		IComputerHost host,
+		string input)
+	{
+		var ss = new StringStack(input.Trim());
+		var command = ss.PopSpeech().ToLowerInvariant();
+		return command switch
+		{
+			"" or "summary" or "host" => (RenderSummary(session.User, application, host), false),
+			"help" => (RenderHelp(application), false),
+			"services" or "apps" => (RenderServices(session.User, host), false),
+			"storage" or "drives" => (RenderStorage(session.User, host), false),
+			"terminals" or "sessions" => (RenderTerminals(session.User, host), false),
+			"adapters" or "network" => (RenderAdapters(session.User, host), false),
+			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
+			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt()}", false)
+		};
+	}
+
+	private static void SendOverview(IComputerTerminalSession session, IComputerBuiltInApplication application,
+		IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine(RenderSummary(session.User, application, host));
+		sb.AppendLine();
+		sb.Append(RenderHelp(application));
+		session.User.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static string RenderSummary(ICharacter user, IComputerBuiltInApplication application, IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{application.Name.ColourName()} :: {host.Name.ColourName()}");
+		sb.AppendLine(
+			$"Host Power: {(host.Powered ? "powered".ColourValue() : "not powered".ColourError())}");
+		if (host.FileSystem is not null)
+		{
+			sb.AppendLine(
+				$"Host Storage: {host.FileSystem.UsedBytes.ToString("N0", user).ColourValue()} / {host.FileSystem.CapacityInBytes.ToString("N0", user).ColourValue()} bytes used");
+		}
+
+		sb.AppendLine(
+			$"Local Services: {host.BuiltInApplications.Count().ToString("N0", user).ColourValue()}");
+		sb.AppendLine(
+			$"Mounted Storage: {host.MountedStorage.Count().ToString("N0", user).ColourValue()}");
+		sb.AppendLine(
+			$"Connected Terminals: {host.ConnectedTerminals.Count().ToString("N0", user).ColourValue()}");
+		sb.AppendLine(
+			$"Network Adapters: {host.NetworkAdapters.Count().ToString("N0", user).ColourValue()}");
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderHelp(IComputerBuiltInApplication application)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{application.Name.ColourName()} commands:");
+		sb.AppendLine($"\t{"summary".ColourCommand()} - show the local host summary");
+		sb.AppendLine($"\t{"services".ColourCommand()} - list built-in applications on the current host");
+		sb.AppendLine($"\t{"storage".ColourCommand()} - list mounted storage devices");
+		sb.AppendLine($"\t{"terminals".ColourCommand()} - list connected terminals and sessions");
+		sb.AppendLine($"\t{"adapters".ColourCommand()} - list local network adapters");
+		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
+		sb.AppendLine($"\t{"exit".ColourCommand()} - close Directory");
+		sb.AppendLine();
+		sb.AppendLine("This first shipped Directory slice is local-only. It shows the current host and its directly connected services and devices.");
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderServices(ICharacter user, IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Local Services:");
+		var applications = host.BuiltInApplications
+			.OrderBy(x => x.Name)
+			.ThenBy(x => x.Id)
+			.ToList();
+		if (!applications.Any())
+		{
+			sb.AppendLine("\tNone");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			applications.Select(application => new List<string>
+			{
+				application.Name,
+				application.IsNetworkService ? "network-ready" : "local",
+				application.Summary
+			}),
+			new List<string>
+			{
+				"Service",
+				"Scope",
+				"Summary"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderStorage(ICharacter user, IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Mounted Storage:");
+		var storage = host.MountedStorage.ToList();
+		if (!storage.Any())
+		{
+			sb.AppendLine("\tNone");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			storage.Select(device => new List<string>
+			{
+				device.Name,
+				device.OwnerStorageItemId?.ToString("N0", user) ?? "-",
+				device.FileSystem?.UsedBytes.ToString("N0", user) ?? "0",
+				device.CapacityInBytes.ToString("N0", user),
+				device.Executables.Count().ToString("N0", user)
+			}),
+			new List<string>
+			{
+				"Storage",
+				"Selector",
+				"Used",
+				"Capacity",
+				"Executables"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderTerminals(ICharacter user, IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Connected Terminals:");
+		var terminals = host.ConnectedTerminals.ToList();
+		if (!terminals.Any())
+		{
+			sb.AppendLine("\tNone");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			terminals.SelectMany(terminal =>
+			{
+				var terminalName = DescribeTerminal(user, terminal);
+				var sessions = terminal.Sessions.ToList();
+				return sessions.Any()
+					? sessions.Select(session => new List<string>
+					{
+						terminalName,
+						session.User.HowSeen(user),
+						DescribeOwner(session.CurrentOwner),
+						session.ConnectedAtUtc.ToString(user)
+					})
+					: new[]
+					{
+						new List<string>
+						{
+							terminalName,
+							"Idle",
+							"-",
+							"-"
+						}
+					};
+			}),
+			new List<string>
+			{
+				"Terminal",
+				"User",
+				"Owner",
+				"Connected"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderAdapters(ICharacter user, IComputerHost host)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Network Adapters:");
+		var adapters = host.NetworkAdapters.ToList();
+		if (!adapters.Any())
+		{
+			sb.AppendLine("\tNone");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			adapters.Select(adapter => new List<string>
+			{
+				DescribeAdapter(adapter),
+				adapter.Powered.ToColouredString(),
+				adapter.NetworkReady.ToColouredString(),
+				adapter.NetworkAddress ?? "-"
+			}),
+			new List<string>
+			{
+				"Adapter",
+				"Powered",
+				"Ready",
+				"Address"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static string RenderPrompt()
+	{
+		return $"Use {"type <command>".ColourCommand()} to browse the local directory.";
+	}
+
+	private static ComputerProgramExecutionOutcome WaitForInput(IComputerTerminalSession session)
+	{
+		return new ComputerProgramExecutionOutcome
+		{
+			Status = ComputerProcessStatus.Sleeping,
+			WaitType = ComputerProcessWaitType.UserInput,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
+			WaitingCharacterId = session.User.Id,
+			WaitingTerminalItemId = session.Terminal.TerminalItemId,
+			StateJson = string.Empty
+		};
+	}
+
+	private static string DescribeTerminal(ICharacter user, IComputerTerminal terminal)
+	{
+		return terminal is IGameItemComponent component
+			? component.Parent.HowSeen(user, true)
+			: $"Terminal #{terminal.TerminalItemId.ToString("N0", user)}";
+	}
+
+	private static string DescribeAdapter(INetworkAdapter adapter)
+	{
+		return adapter is IGameItemComponent component
+			? component.Parent.Name
+			: adapter.NetworkAddress ?? "Network Adapter";
 	}
 
 	private static string DescribeOwner(IComputerExecutableOwner owner)

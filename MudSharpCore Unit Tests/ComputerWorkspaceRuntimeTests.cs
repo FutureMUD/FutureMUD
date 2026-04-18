@@ -717,8 +717,10 @@ return userinput()";
 
 		Assert.IsFalse(service.GetBuiltInApplications(workspaceHost).Any());
 		var applications = service.GetBuiltInApplications(storageOwner).ToList();
+		Assert.IsTrue(applications.Any(x => x.ApplicationId == "directory"));
 		Assert.IsTrue(applications.Any(x => x.ApplicationId == "sysmon"));
 		Assert.IsNotNull(service.GetBuiltInApplication(storageOwner, "sys"));
+		Assert.IsNotNull(service.GetBuiltInApplication(storageOwner, "dir"));
 	}
 
 	[TestMethod]
@@ -989,6 +991,127 @@ return userinput()";
 		Assert.AreEqual("updated text", storage.FileSystem.ReadFile("notes.txt"));
 	}
 
+	[TestMethod]
+	public void ComputerExecutionService_ExecuteBuiltInApplication_Directory_SuspendsForTerminalInput()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			FileSystemStorage = new ComputerMutableFileSystem(4096),
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var storage = new StubComputerOwner(host, "Archive Drive")
+		{
+			OwnerStorageItemIdValue = 77L,
+			FileSystemStorage = new ComputerMutableFileSystem(1024)
+		};
+		host.MountedStorage = new[] { storage };
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1205L);
+		terminal.SetupGet(x => x.Sessions).Returns(Enumerable.Empty<IComputerTerminalSession>());
+		host.ConnectedTerminals = new[] { terminal.Object };
+		var adapter = new Mock<INetworkAdapter>();
+		adapter.SetupGet(x => x.Powered).Returns(true);
+		adapter.SetupGet(x => x.NetworkReady).Returns(true);
+		adapter.SetupGet(x => x.NetworkAddress).Returns("local.host");
+		host.NetworkAdapters = new[] { adapter.Object };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 66L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = host
+		};
+		var application = service.GetBuiltInApplication(host, "directory");
+
+		Assert.IsNotNull(application);
+		var result = service.ExecuteBuiltInApplication(user.Object, host, application!, session);
+
+		Assert.IsTrue(result.Success, result.ErrorMessage);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, result.Status);
+		Assert.IsNotNull(result.Process);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, result.Process!.WaitType);
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Directory") && s.Contains("Local Services") && s.Contains("Connected Terminals")),
+				true,
+				true),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_ResumesBuiltInDirectoryAndShowsServices()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 1L,
+			FileSystemStorage = new ComputerMutableFileSystem(4096),
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(1L).ToList()
+		};
+		var storage = new StubComputerOwner(host, "Archive Drive")
+		{
+			OwnerStorageItemIdValue = 88L,
+			FileSystemStorage = new ComputerMutableFileSystem(1024)
+		};
+		host.MountedStorage = new[] { storage };
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1206L);
+		terminal.SetupGet(x => x.Sessions).Returns(Enumerable.Empty<IComputerTerminalSession>());
+		host.ConnectedTerminals = new[] { terminal.Object };
+		var adapter = new Mock<INetworkAdapter>();
+		adapter.SetupGet(x => x.Powered).Returns(true);
+		adapter.SetupGet(x => x.NetworkReady).Returns(false);
+		adapter.SetupGet(x => x.NetworkAddress).Returns("local.dir");
+		host.NetworkAdapters = new[] { adapter.Object };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 67L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = host
+		};
+		var application = service.GetBuiltInApplication(host, "directory");
+
+		Assert.IsNotNull(application);
+		var start = service.ExecuteBuiltInApplication(user.Object, host, application!, session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "services", out var servicesError), servicesError);
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Local Services") && s.Contains("Directory") && s.Contains("FileManager") && s.Contains("SysMon")),
+				true,
+				true),
+			Times.AtLeastOnce);
+
+		var liveProcess = host.GetProcess(start.Process!.Id);
+		Assert.IsNotNull(liveProcess);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, liveProcess!.Status);
+		Assert.AreEqual(ComputerProcessWaitType.UserInput, liveProcess.WaitType);
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -1114,8 +1237,8 @@ return userinput()";
 		public IEnumerable<IComputerProcess> Processes => _processes.Values;
 		public IEnumerable<IComputerBuiltInApplication> BuiltInApplications { get; set; } = Enumerable.Empty<IComputerBuiltInApplication>();
 		public IEnumerable<IComputerStorage> MountedStorage { get; set; } = Enumerable.Empty<IComputerStorage>();
-		public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
-		public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
+		public IEnumerable<IComputerTerminal> ConnectedTerminals { get; set; } = Enumerable.Empty<IComputerTerminal>();
+		public IEnumerable<INetworkAdapter> NetworkAdapters { get; set; } = Enumerable.Empty<INetworkAdapter>();
 
 		public IComputerProcess? GetProcess(long processId)
 		{

@@ -113,7 +113,7 @@ Built-in applications now follow the same host-owned runtime model rather than e
 - a real `ComputerHost` exposes built-in application definitions as host-bound built-in programs
 - those built-ins are not exposed by the private workspace or mounted storage devices
 - executing one creates a real host process through the shared computer execution service
-- in the current shipped phase `SysMon` and `FileManager` have implemented built-in behaviour, while the other built-in identities remain reserved for future phases
+- in the current shipped phase `SysMon`, `FileManager`, and `Directory` have implemented built-in behaviour, while the other built-in identities remain reserved for future phases
 
 As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
 
@@ -186,6 +186,7 @@ The current player-work runtime flow for that slice is:
 - `programming app <name>` executes the named built-in application on that connected powered host as a real host process
 - `FileManager` is now a shipped built-in application on that surface: it runs as a host process, keeps its current host-or-storage file target in persisted process state, and uses repeated `type <text>` input to drive `list`, `show`, `edit`, `write`, `append`, `delete`, `copy`, `owners`, `use`, `help`, and `exit`
 - `type edit <file>` hands off to the engine's ordinary multiline editor flow, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`
+- `Directory` is now also a shipped built-in application on that surface: it runs as a host process and uses repeated `type <text>` input to browse the local host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters
 - `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
 - computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
 - host-backed computer processes can now also suspend in `WaitSignal()` with persisted signal-wait metadata that records the awaited local signal binding on the real execution host item

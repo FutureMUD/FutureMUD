@@ -238,10 +238,11 @@ In the current shipped phase:
 - built-in applications are represented as host-bound built-in program definitions rather than a disconnected catalog
 - they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
 - they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
-- `SysMon` and `FileManager` currently have implemented runtime behaviour
+- `SysMon`, `FileManager`, and `Directory` currently have implemented runtime behaviour
 - `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, running processes, and locally accessible automation signal sources and sinks on the execution host item
 - `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, and retargeting files between the host and mounted storage devices
-- `Mail`, `Boards`, `Messenger`, and `Directory` remain reserved built-in application identities for later phases
+- `Directory` is a terminal-session interactive local discovery utility that suspends in `UserInput()` between commands and currently supports browsing the current host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters
+- `Mail`, `Boards`, and `Messenger` remain reserved built-in application identities for later phases
 
 ## Systems Needed
 

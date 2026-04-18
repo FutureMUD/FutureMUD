@@ -741,11 +741,11 @@ public class FutureProg : SaveableItem, IFutureProg
                 : $"\"{functionName}\" is not a valid built in function", null);
     }
 
-    public static IProgVariable GetVariable(ProgVariableTypes type, object value)
-    {
-        if (value == null)
-        {
-            return new NullVariable(type);
+	public static IProgVariable GetVariable(ProgVariableTypes type, object value)
+	{
+		if (value == null)
+		{
+			return new NullVariable(type);
         }
 
         if (type.HasFlag(ProgVariableTypes.Collection))
@@ -784,20 +784,25 @@ public class FutureProg : SaveableItem, IFutureProg
 
         }
 
-        if (type.HasFlag(ProgVariableTypes.CollectionDictionary))
-        {
-            ProgVariableTypes underlyingType = type ^ ProgVariableTypes.CollectionDictionary;
-            if (value is not ICollectionDictionaryWithKey<string> cdString)
-            {
+		if (type.HasFlag(ProgVariableTypes.CollectionDictionary))
+		{
+			ProgVariableTypes underlyingType = type ^ ProgVariableTypes.CollectionDictionary;
+			if (value is not ICollectionDictionaryWithKey<string> cdString)
+			{
                 return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(), underlyingType);
             }
 
-            IEnumerable<KeyValuePair<string, List<IProgVariable>>> values = cdString.KeysAndValues.Select(x => new KeyValuePair<string, List<IProgVariable>>(x.Key, x.Value.Select(y => GetVariable(underlyingType, y)).ToList()));
-            return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(values), underlyingType);
-        }
+			IEnumerable<KeyValuePair<string, List<IProgVariable>>> values = cdString.KeysAndValues.Select(x => new KeyValuePair<string, List<IProgVariable>>(x.Key, x.Value.Select(y => GetVariable(underlyingType, y)).ToList()));
+			return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(values), underlyingType);
+		}
 
-        switch (type.LegacyCode)
-        {
+		if (type == ProgVariableTypes.LegalClass)
+		{
+			return value as IProgVariable;
+		}
+
+		switch (type.LegacyCode)
+		{
             case ProgVariableTypeCode.Text:
                 if (value is Enum evalue)
                 {
@@ -1123,10 +1128,15 @@ public class FutureProg : SaveableItem, IFutureProg
             return sb.ToString();
         }
 
-        ProgVariableTypes type = variable.Type & ~ProgVariableTypes.Literal;
-        IFrameworkItem thing = variable.GetObject as IFrameworkItem;
-        switch (type.LegacyCode)
-        {
+		ProgVariableTypes type = variable.Type & ~ProgVariableTypes.Literal;
+		IFrameworkItem thing = variable.GetObject as IFrameworkItem;
+		if (type == ProgVariableTypes.LegalClass)
+		{
+			return $"Legal Class #{thing.Id} - {thing.Name}";
+		}
+
+		switch (type.LegacyCode)
+		{
             case ProgVariableTypeCode.Text:
                 return $"\"{variable.GetObject}\"";
             case ProgVariableTypeCode.Number:

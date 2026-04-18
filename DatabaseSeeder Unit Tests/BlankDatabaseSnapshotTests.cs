@@ -9,6 +9,8 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
+	private const string LatestMigrationId = "20260415122407_MarketPopulationIncomeAndPricePressure";
+
     [TestMethod]
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()
     {
@@ -26,11 +28,11 @@ public class BlankDatabaseSnapshotTests
     public void Assess_WhenManifestIsCurrent_BlankDatabaseUsesSnapshotImport()
     {
         using TemporaryDirectoryHarness harness = new();
-        WriteSnapshotFiles(harness.DirectoryPath, "20260402053811_RemoveOldSunCelestialDefault");
+        WriteSnapshotFiles(harness.DirectoryPath, LatestMigrationId);
 
         BlankDatabaseSnapshotAssessment assessment = BlankDatabaseSnapshotManager.Assess(
             harness.DirectoryPath,
-            "20260402053811_RemoveOldSunCelestialDefault");
+            LatestMigrationId);
         DatabaseBootstrapMode mode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank: true, assessment);
 
         Assert.IsTrue(assessment.CanUseSnapshot);
@@ -45,7 +47,7 @@ public class BlankDatabaseSnapshotTests
 
         BlankDatabaseSnapshotAssessment assessment = BlankDatabaseSnapshotManager.Assess(
             harness.DirectoryPath,
-            "20260402053811_RemoveOldSunCelestialDefault");
+            LatestMigrationId);
         DatabaseBootstrapMode mode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank: true, assessment);
 
         Assert.IsFalse(assessment.CanUseSnapshot);

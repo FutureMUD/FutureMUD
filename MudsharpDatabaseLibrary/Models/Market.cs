@@ -41,6 +41,7 @@ public class MarketInfluence
     public long CharacterKnowsAboutInfluenceProgId { get; set; }
     public long? MarketInfluenceTemplateId { get; set; }
     public string Impacts { get; set; }
+    public string PopulationImpacts { get; set; }
     public virtual Market Market { get; set; }
     public virtual FutureProg CharacterKnowsAboutInfluenceProg { get; set; }
     public virtual MarketInfluenceTemplate MarketInfluenceTemplate { get; set; }
@@ -53,6 +54,7 @@ public class MarketInfluenceTemplate
     public string Description { get; set; }
     public long CharacterKnowsAboutInfluenceProgId { get; set; }
     public string Impacts { get; set; }
+    public string PopulationImpacts { get; set; }
     public string TemplateSummary { get; set; }
     public virtual FutureProg CharacterKnowsAboutInfluenceProg { get; set; }
 }
@@ -69,6 +71,8 @@ public class MarketCategory
     public string Description { get; set; }
     public double ElasticityFactorAbove { get; set; }
     public double ElasticityFactorBelow { get; set; }
+    public int MarketCategoryType { get; set; }
     public string Tags { get; set; }
+    public string CombinationCategories { get; set; }
     public virtual ICollection<Market> Markets { get; set; }
 }

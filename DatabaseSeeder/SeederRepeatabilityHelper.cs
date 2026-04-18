@@ -118,7 +118,7 @@ internal static class SeederRepeatabilityHelper
             {
                 FutureProg = prog,
                 ParameterIndex = index,
-                ParameterType = (long)type,
+                ParameterTypeDefinition = type.ToStorageString(),
                 ParameterName = name
             });
         }

@@ -89,9 +89,9 @@ public partial class RobotSeeder
                     CanUseWeapons = template.CanUseWeapons,
                     CanAttack = true,
                     CanDefend = true,
-                    NaturalArmourType = template.Size <= SizeCategory.Small ? _robotLightPlatingArmour : _robotPlatingArmour,
-                    NaturalArmourMaterial = _chassisAlloy,
-                    NaturalArmourQuality = 4,
+					NaturalArmourType = _robotFrameArmour,
+					NaturalArmourMaterial = _chassisAlloy,
+					NaturalArmourQuality = 4,
                     BloodLiquid = _context.Liquids.First(x => x.Name == template.BloodLiquidName),
                     NeedsToBreathe = false,
                     SweatLiquid = null,
@@ -141,14 +141,22 @@ public partial class RobotSeeder
                 _context.SaveChanges();
                 summary.RacesAdded++;
             }
-            else
-            {
-                CharacterCombatSetting defaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, CombatStrategyFor(template));
-                if (race.DefaultCombatSettingId != defaultCombatSetting.Id)
-                {
-                    race.DefaultCombatSetting = defaultCombatSetting;
-                }
-            }
+			else
+			{
+				CharacterCombatSetting defaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, CombatStrategyFor(template));
+				if (race.DefaultCombatSettingId != defaultCombatSetting.Id)
+				{
+					race.DefaultCombatSetting = defaultCombatSetting;
+				}
+
+				if (race.NaturalArmourTypeId != _robotFrameArmour.Id)
+				{
+					race.NaturalArmourType = _robotFrameArmour;
+				}
+
+				race.NaturalArmourMaterial = _chassisAlloy;
+				race.NaturalArmourQuality = 4;
+			}
 
             CopyRaceAttributes(race);
             if (template.UsesHumanoidCharacteristics)

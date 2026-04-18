@@ -475,6 +475,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
         Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this,
             fm =>
             {
+                foreach (Economy.Markets.Market market in fm.Markets.OfType<Economy.Markets.Market>())
+                {
+                    market.RefreshPricingCache();
+                }
+
                 foreach (IMarketPopulation population in fm.MarketPopulations)
                 {
                     population.MarketPopulationHeartbeat();
@@ -722,6 +727,11 @@ For information on the syntax to use in emotes (such as those included in bracke
             _marketCategories.Add(new Economy.Markets.MarketCategory(this, item));
         }
 
+        foreach (var category in _marketCategories.OfType<Economy.Markets.MarketCategory>())
+        {
+            category.ResolveCombinationComponents();
+        }
+
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
@@ -784,6 +794,15 @@ For information on the syntax to use in emotes (such as those included in bracke
         foreach (MarketPopulation item in populations)
         {
             _marketPopulations.Add(new Economy.Markets.MarketPopulation(this, item));
+        }
+        foreach (var template in _marketInfluenceTemplates.OfType<Economy.Markets.MarketInfluenceTemplate>())
+        {
+            template.ResolvePopulationImpacts();
+        }
+
+        foreach (var influence in _marketInfluences.OfType<Economy.Markets.MarketInfluence>())
+        {
+            influence.ResolvePopulationImpacts();
         }
 #if DEBUG
         sw.Stop();
@@ -3048,7 +3067,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         Dictionary<long, Tuple<HearingProfile, Form.Audio.HearingProfiles.HearingProfile>> stagingtable = new();
         foreach (HearingProfile profile in profiles)
         {
-            Form.Audio.HearingProfiles.HearingProfile newprofile = Form.Audio.HearingProfiles.HearingProfile.LoadProfile(profile);
+            Form.Audio.HearingProfiles.HearingProfile newprofile = Form.Audio.HearingProfiles.HearingProfile.LoadProfile(profile, this);
             stagingtable.Add(profile.Id, Tuple.Create(profile, newprofile));
             _hearingProfiles.Add(newprofile);
         }

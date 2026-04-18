@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.RPG.Law
 {
-    public interface ILegalClass : IFrameworkItem, ISaveable, IEditableItem
+    public interface ILegalClass : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
     {
         ILegalAuthority Authority { get; }
         int LegalClassPriority { get; }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.RPG.Law;
 
-public class LegalClass : SaveableItem, ILegalClass
+public partial class LegalClass : SaveableItem, ILegalClass
 {
     public override string FrameworkItemType => "LegalClass";
 

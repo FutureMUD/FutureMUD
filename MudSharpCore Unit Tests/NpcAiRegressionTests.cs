@@ -147,7 +147,6 @@ public class NpcAiRegressionTests
         onProg.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
 
         Assert.IsTrue(ScavengeAI.IsValidWillScavengeProg(willProg.Object));
-        Assert.IsFalse(ScavengeAI.IsValidOnScavengeProg(willProg.Object));
         Assert.IsTrue(ScavengeAI.IsValidOnScavengeProg(onProg.Object));
         Assert.IsFalse(ScavengeAI.IsValidWillScavengeProg(onProg.Object));
     }

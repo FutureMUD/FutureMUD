@@ -76,7 +76,7 @@ You can change all of these values yourself later but the starting values will b
 
 You can choose from the following ""themes"" of punishment styles, as per below:
 
-#BTiered#F - mostly fines for crimes against lower classes, capital punishment for lower classes #9[Not Yet Supported]#F
+#BTiered#F - mostly fines for crimes against lower classes, capital punishment for lower classes
 #BWeregild#F - all but the most serious punishments come with a fine
 #BWestern#F - fines for misdemeanours, prison time for serious crimes, capital punishment for the worst
 #BLiberal#F - fines for misdemeanours, prison time for serious crimes, no capital punishment
@@ -205,6 +205,133 @@ Please enter your penalty unit: ", (context, answers) => true,
             FutureProgStaticType.NotStatic,
             parameters);
         return prog;
+    }
+
+    private FutureProg EnsureAiProg(
+        string functionName,
+        string comment,
+        ProgVariableTypes returnType,
+        string text,
+        params (ProgVariableTypes Type, string Name)[] parameters)
+    {
+        return SeederRepeatabilityHelper.EnsureProg(
+            Context,
+            functionName,
+            "AI",
+            "Law",
+            returnType,
+            comment,
+            text,
+            false,
+            false,
+            FutureProgStaticType.NotStatic,
+            parameters);
+    }
+
+    private ArtificialIntelligence EnsureArtificialIntelligence(string name, string type, string definition)
+    {
+        ArtificialIntelligence ai = SeederRepeatabilityHelper.EnsureNamedEntity(
+            Context.ArtificialIntelligences,
+            name,
+            x => x.Name,
+            () =>
+            {
+                ArtificialIntelligence created = new();
+                Context.ArtificialIntelligences.Add(created);
+                return created;
+            });
+
+        ai.Name = name;
+        ai.Type = type;
+        ai.Definition = definition;
+        return ai;
+    }
+
+    private static string NormalizeClassKey(string value)
+    {
+        return value.ToLowerInvariant() switch
+        {
+            "non-citizen" => "noncitizen",
+            _ => value.ToLowerInvariant()
+        };
+    }
+
+    private string BuildLawApplicabilityProgName(string lawName, string variantKey)
+    {
+        return $"LawApplies{AuthorityName.CollapseString()}{lawName.CollapseString()}{variantKey.CollapseString()}";
+    }
+
+    private FutureProg EnsureLawApplicabilityProg(string lawName, string variantKey, string comment, string text)
+    {
+        return EnsureLawProg(
+            BuildLawApplicabilityProgName(lawName, variantKey),
+            comment,
+            ProgVariableTypes.Boolean,
+            text,
+            (ProgVariableTypes.Character, "criminal"),
+            (ProgVariableTypes.Character, "victim"),
+            (ProgVariableTypes.Item, "item"),
+            (ProgVariableTypes.Number, "lawId"),
+            (ProgVariableTypes.Text, "crimeName"));
+    }
+
+    private string BuildTierComparisonText(bool offenderOutranksVictim)
+    {
+        string outranksCheck = $"LegalClassOutranks(@criminal, @victim, ToLegalAuthority({Authority.Id}))";
+        return $@"if (isnull(@victim))
+  return false
+end if
+if ({outranksCheck})
+  return {(offenderOutranksVictim ? "true" : "false")}
+end if
+return {(offenderOutranksVictim ? "false" : "true")}";
+    }
+
+    private static bool IsTieredVictimBasedCrime(CrimeTypes crime)
+    {
+        return crime switch
+        {
+            CrimeTypes.Assault => true,
+            CrimeTypes.AssaultWithADeadlyWeapon => true,
+            CrimeTypes.Battery => true,
+            CrimeTypes.AttemptedMurder => true,
+            CrimeTypes.Murder => true,
+            CrimeTypes.Manslaughter => true,
+            CrimeTypes.Torture => true,
+            CrimeTypes.GreviousBodilyHarm => true,
+            CrimeTypes.Mayhem => true,
+            CrimeTypes.Theft => true,
+            CrimeTypes.Fraud => true,
+            CrimeTypes.Forgery => true,
+            CrimeTypes.Racketeering => true,
+            CrimeTypes.CartelCollusion => true,
+            CrimeTypes.UnauthorisedDealing => true,
+            CrimeTypes.Embezzlement => true,
+            CrimeTypes.PossessingStolenGoods => true,
+            CrimeTypes.Vandalism => true,
+            CrimeTypes.BreakAndEnter => true,
+            CrimeTypes.DestructionOfProperty => true,
+            CrimeTypes.Arson => true,
+            CrimeTypes.Negligence => true,
+            CrimeTypes.Libel => true,
+            CrimeTypes.Slander => true,
+            CrimeTypes.Intimidation => true,
+            CrimeTypes.Blackmail => true,
+            CrimeTypes.Extortion => true,
+            CrimeTypes.Harassment => true,
+            CrimeTypes.Bribery => true,
+            CrimeTypes.Tyranny => true,
+            CrimeTypes.Rape => true,
+            CrimeTypes.SexualAssault => true,
+            CrimeTypes.Kidnapping => true,
+            CrimeTypes.Slavery => true,
+            CrimeTypes.AnimalCruelty => true,
+            CrimeTypes.Adultery => true,
+            CrimeTypes.Sodomy => true,
+            CrimeTypes.Fornication => true,
+            CrimeTypes.Prostitution => true,
+            _ => false
+        };
     }
 
     private LegalClass EnsureLegalClass(
@@ -390,7 +517,9 @@ end if
         #region Legal Classes
 
         List<string> classNames = questionAnswers["classes"].Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => x.ToLowerInvariant()).ToList();
+            .Select(NormalizeClassKey)
+            .Distinct()
+            .ToList();
         classNames.Add("other");
         Dictionary<string, LegalClass> classes = new(StringComparer.OrdinalIgnoreCase);
         SetupClasses(classNames);
@@ -417,7 +546,10 @@ end if
 
         #region Artificial Intelligence
 
-        SetupAI();
+        if (questionAnswers["createai"].EqualToAny("yes", "y"))
+        {
+            SetupAI();
+        }
 
         #endregion
 
@@ -594,199 +726,142 @@ return 1.0",
 
     private void SetupAI()
     {
-        FutureProg identifyProg = new()
-        {
-            FunctionName = $"IsIdentityKnown{AuthorityName.CollapseString()}",
-            Category = "AI",
-            Subcategory = "Law",
-            FunctionComment = "Determines whether an enforcer can tell a character's identity",
-            ReturnType = (long)ProgVariableTypes.Boolean,
-            AcceptsAnyParameters = false,
-            Public = false,
-            StaticType = 0,
-            FunctionText =
-                @"// You might consider things like how prominent a character is, whether they are disguised, merits/flaws etc
-return true"
-        };
-        identifyProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = identifyProg,
-            ParameterIndex = 0,
-            ParameterName = "enforcer",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        identifyProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = identifyProg,
-            ParameterIndex = 1,
-            ParameterName = "criminal",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        Context.FutureProgs.Add(identifyProg);
+        FutureProg identifyProg = EnsureAiProg(
+            $"IsIdentityKnown{AuthorityName.CollapseString()}",
+            "Determines whether an enforcer or judge can tell a character's identity",
+            ProgVariableTypes.Boolean,
+            @"// You might consider things like how prominent a character is, whether they are disguised, merits/flaws etc
+return true",
+            (ProgVariableTypes.Character, "enforcer"),
+            (ProgVariableTypes.Character, "criminal"));
 
-        FutureProg warnEchoProg = new()
-        {
-            FunctionName = $"WarnEcho{AuthorityName.CollapseString()}",
-            Category = "AI",
-            Subcategory = "Law",
-            FunctionComment = "A prog that is executed when the enforcer needs to warn someone to surrender",
-            ReturnType = (long)ProgVariableTypes.Text,
-            AcceptsAnyParameters = false,
-            Public = false,
-            StaticType = 0,
-            FunctionText =
-                @"return ""yellat "" + BestKeyword(@enforcer, @criminal) + "" You are under arrest for the crime of "" + @crime.Name + ""! Your compliance is required. Do not resist."""
-        };
+        FutureProg warnEchoProg = EnsureAiProg(
+            $"WarnEcho{AuthorityName.CollapseString()}",
+            "A prog that is executed when the enforcer or judge needs to warn someone to surrender",
+            ProgVariableTypes.Text,
+            @"return ""yellat "" + BestKeyword(@enforcer, @criminal) + "" You are under arrest for the crime of "" + @crime.Name + ""! Your compliance is required. Do not resist.""",
+            (ProgVariableTypes.Character, "enforcer"),
+            (ProgVariableTypes.Character, "criminal"),
+            (ProgVariableTypes.Crime, "crime"));
 
-        warnEchoProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = warnEchoProg,
-            ParameterIndex = 0,
-            ParameterName = "enforcer",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        warnEchoProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = warnEchoProg,
-            ParameterIndex = 1,
-            ParameterName = "criminal",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        warnEchoProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = warnEchoProg,
-            ParameterIndex = 2,
-            ParameterName = "crime",
-            ParameterType = (long)ProgVariableTypes.Crime
-        });
-        Context.FutureProgs.Add(warnEchoProg);
+        FutureProg warnMoveProg = EnsureAiProg(
+            $"WarnMoveEcho{AuthorityName.CollapseString()}",
+            "A prog that is executed when the enforcer or judge needs to warn someone not to move away from the area",
+            ProgVariableTypes.Text,
+            @"return ""yellat "" + BestKeyword(@enforcer, @criminal) + "" You must immediately stop and surrender, or you will be resisting arrest!""",
+            (ProgVariableTypes.Character, "enforcer"),
+            (ProgVariableTypes.Character, "criminal"),
+            (ProgVariableTypes.Crime, "crime"));
 
-        FutureProg warnMoveProg = new()
-        {
-            FunctionName = $"WarnMoveEcho{AuthorityName.CollapseString()}",
-            Category = "AI",
-            Subcategory = "Law",
-            FunctionComment =
-                "A prog that is executed when the enforcer needs to warn someone not to move away from the area",
-            ReturnType = (long)ProgVariableTypes.Text,
-            AcceptsAnyParameters = false,
-            Public = false,
-            StaticType = 0,
-            FunctionText =
-                @"return ""yellat "" + BestKeyword(@enforcer, @criminal) + "" You must immediately stop and surrender, or you will be resisting arrest!"""
-        };
+        FutureProg failToComplyProg = EnsureAiProg(
+            $"FailComplyEcho{AuthorityName.CollapseString()}",
+            "A prog that is executed when someone fails to comply with an enforcer or judge",
+            ProgVariableTypes.Text,
+            @"return ""tell "" + BestKeyword(@enforcer, @criminal) + "" Stop resisting arrest! You will be apprehended by force!""",
+            (ProgVariableTypes.Character, "enforcer"),
+            (ProgVariableTypes.Character, "criminal"),
+            (ProgVariableTypes.Crime, "crime"));
 
-        warnMoveProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = warnMoveProg,
-            ParameterIndex = 0,
-            ParameterName = "enforcer",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        warnMoveProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = warnMoveProg,
-            ParameterIndex = 1,
-            ParameterName = "criminal",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        warnMoveProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = warnMoveProg,
-            ParameterIndex = 2,
-            ParameterName = "crime",
-            ParameterType = (long)ProgVariableTypes.Crime
-        });
-        Context.FutureProgs.Add(warnMoveProg);
+        FutureProg throwInCellProg = EnsureAiProg(
+            $"ThrowInCellEcho{AuthorityName.CollapseString()}",
+            "A prog that is executed when the enforcer or judge throws someone in a cell",
+            ProgVariableTypes.Text,
+            @"return ""tell "" + BestKeyword(@enforcer, @criminal) + "" You are being held in remand until a judge hears your case.\nemote opens up a cell door and throws ~"" + BestKeyword(@enforcer, @criminal) + "" into a cell.""",
+            (ProgVariableTypes.Character, "enforcer"),
+            (ProgVariableTypes.Character, "criminal"),
+            (ProgVariableTypes.Crime, "crime"));
 
-        FutureProg failToCompyProg = new()
-        {
-            FunctionName = $"FailComplyEcho{AuthorityName.CollapseString()}",
-            Category = "AI",
-            Subcategory = "Law",
-            FunctionComment = "A prog that is executed when someone fails to comply with an enforcer",
-            ReturnType = (long)ProgVariableTypes.Text,
-            AcceptsAnyParameters = false,
-            Public = false,
-            StaticType = 0,
-            FunctionText =
-                @"return ""tell "" + BestKeyword(@enforcer, @criminal) + "" Stop resisting arrest! You will be apprehended by force!"""
-        };
+        FutureProg lawyerCanHireProg = EnsureAiProg(
+            $"LawyerCanHireTemplate{AuthorityName.CollapseString()}",
+            "Template prog that determines whether someone can hire this lawyer",
+            ProgVariableTypes.Boolean,
+            "return true",
+            (ProgVariableTypes.Character, "hirer"),
+            (ProgVariableTypes.Character, "lawyer"));
 
-        failToCompyProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = failToCompyProg,
-            ParameterIndex = 0,
-            ParameterName = "enforcer",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        failToCompyProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = failToCompyProg,
-            ParameterIndex = 1,
-            ParameterName = "criminal",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        failToCompyProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = failToCompyProg,
-            ParameterIndex = 2,
-            ParameterName = "crime",
-            ParameterType = (long)ProgVariableTypes.Crime
-        });
-        Context.FutureProgs.Add(failToCompyProg);
+        FutureProg lawyerFeeProg = EnsureAiProg(
+            $"LawyerFeeTemplate{AuthorityName.CollapseString()}",
+            "Template prog that determines the fee for hiring this lawyer",
+            ProgVariableTypes.Number,
+            "return 0",
+            (ProgVariableTypes.Character, "hirer"),
+            (ProgVariableTypes.Character, "lawyer"));
 
-        FutureProg throwInCellProg = new()
-        {
-            FunctionName = $"ThrowInCellEcho{AuthorityName.CollapseString()}",
-            Category = "AI",
-            Subcategory = "Law",
-            FunctionComment = "A prog that is executed when the enforcer throws someone in a cell",
-            ReturnType = (long)ProgVariableTypes.Text,
-            AcceptsAnyParameters = false,
-            Public = false,
-            StaticType = 0,
-            FunctionText =
-                @"return ""tell "" + BestKeyword(@enforcer, @criminal) + "" You are being held in remand until a judge hears your case.\nemote opens up a cell door and throws ~"" + BestKeyword(@enforcer, @criminal) + "" into a cell."""
-        };
+        FutureProg lawyerHomeBaseProg = EnsureAiProg(
+            $"LawyerHomeBaseTemplate{AuthorityName.CollapseString()}",
+            "Template prog that determines where this lawyer goes when not practicing law",
+            ProgVariableTypes.Location,
+            @"return Null(""Location"")",
+            (ProgVariableTypes.Character, "lawyer"));
 
-        throwInCellProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = throwInCellProg,
-            ParameterIndex = 0,
-            ParameterName = "enforcer",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        throwInCellProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = throwInCellProg,
-            ParameterIndex = 1,
-            ParameterName = "criminal",
-            ParameterType = (long)ProgVariableTypes.Character
-        });
-        throwInCellProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = throwInCellProg,
-            ParameterIndex = 2,
-            ParameterName = "crime",
-            ParameterType = (long)ProgVariableTypes.Crime
-        });
-        Context.FutureProgs.Add(throwInCellProg);
+        FutureProg lawyerBankAccountProg = EnsureAiProg(
+            $"LawyerBankAccountTemplate{AuthorityName.CollapseString()}",
+            "Template prog that determines which bank account this lawyer uses",
+            ProgVariableTypes.BankAccount,
+            @"return Null(""BankAccount"")",
+            (ProgVariableTypes.Character, "lawyer"));
 
         Context.SaveChanges();
 
-        Context.ArtificialIntelligences.Add(new ArtificialIntelligence
-        {
-            Name = $"Enforcer{AuthorityName.CollapseString()}",
-            Type = "Enforcer",
-            Definition = @$"<AI>
-   <IdentityProg>{identifyProg.Id}</IdentityProg>
-   <WarnEchoProg>{warnEchoProg.Id}</WarnEchoProg>
-   <WarnStartMoveEchoProg>{warnMoveProg.Id}</WarnStartMoveEchoProg>
-   <FailToComplyEchoProg>{failToCompyProg.Id}</FailToComplyEchoProg>
-   <ThrowInPrisonEchoProg>{throwInCellProg.Id}</ThrowInPrisonEchoProg>
- </AI>"
-        });
+        EnsureArtificialIntelligence(
+            $"Enforcer{AuthorityName.CollapseString()}",
+            "Enforcer",
+            $@"<Definition>
+  <IdentityProg>{identifyProg.Id}</IdentityProg>
+  <WarnEchoProg>{warnEchoProg.Id}</WarnEchoProg>
+  <WarnStartMoveEchoProg>{warnMoveProg.Id}</WarnStartMoveEchoProg>
+  <FailToComplyEchoProg>{failToComplyProg.Id}</FailToComplyEchoProg>
+  <ThrowInPrisonEchoProg>{throwInCellProg.Id}</ThrowInPrisonEchoProg>
+</Definition>");
+
+        EnsureArtificialIntelligence(
+            $"Judge{AuthorityName.CollapseString()}",
+            "Judge",
+            $@"<Definition>
+  <IdentityProg>{identifyProg.Id}</IdentityProg>
+  <WarnEchoProg>{warnEchoProg.Id}</WarnEchoProg>
+  <WarnStartMoveEchoProg>{warnMoveProg.Id}</WarnStartMoveEchoProg>
+  <FailToComplyEchoProg>{failToComplyProg.Id}</FailToComplyEchoProg>
+  <ThrowInPrisonEchoProg>{throwInCellProg.Id}</ThrowInPrisonEchoProg>
+  <IntroductionDelay>15</IntroductionDelay>
+  <ChargesDelay>15</ChargesDelay>
+  <PleaDelay>30</PleaDelay>
+  <CaseDelayPerCrime>30</CaseDelayPerCrime>
+  <ClosingArgumentDelay>30</ClosingArgumentDelay>
+  <VerdictDelay>15</VerdictDelay>
+  <SentencingDelay>15</SentencingDelay>
+  <TrialIntroductionEmote><![CDATA[@ tell|tells $1, ""{4}, you stand accused of {6} {7}, being {5}. In this trial we will determine your guilt or innocence.""]]></TrialIntroductionEmote>
+  <TrialChargesEmote><![CDATA[@ tell|tells $1, ""I will now proceed to read out the charges in order, and after each you can enter a plea of guilty or innocent.""]]></TrialChargesEmote>
+  <TrialPleaEmote><![CDATA[@ ask|asks $1, ""The {10} charge is that on {8} you {9}. How do you plead?""]]></TrialPleaEmote>
+  <TrialDefaultPleaEnteredEmote><![CDATA[@ declare|declares, ""By {2} silence, the defendant has entered a plea of guilty to the {10} charge.""]]></TrialDefaultPleaEnteredEmote>
+  <TrialCaseEmote><![CDATA[@ say|says, ""I will now hear the cases of the prosecution and defense.""]]></TrialCaseEmote>
+  <TrialClosingArgumentsEmote><![CDATA[@ say|says, ""Both parties will now give their closing arguments.""]]></TrialClosingArgumentsEmote>
+  <TrialEndArgumentsEmote><![CDATA[@ say|says, ""I have heard enough. We are now ready to move on to the verdict. I will read the verdict for each crime in turn.""]]></TrialEndArgumentsEmote>
+  <TrialVerdictGuiltyEmote><![CDATA[@ tell|tells $1, ""On the matter of the {10} charge, that on {8} you {9}, I judge you to be guilty.""]]></TrialVerdictGuiltyEmote>
+  <TrialVerdictNotGuiltyEmote><![CDATA[@ tell|tells $1, ""On the matter of the {10} charge, that on {8} you {9}, I judge you to be not guilty.""]]></TrialVerdictNotGuiltyEmote>
+  <TrialSentencingEmote><![CDATA[@ tell|tells $1, ""For the {10} crime, I sentence you to {11}.""]]></TrialSentencingEmote>
+  <TrialEndFreeToGo><![CDATA[@ tell|tells $1, ""That concludes the trial. You are free to leave the court.""]]></TrialEndFreeToGo>
+  <TrialEndRemandedIntoCustody><![CDATA[@ tell|tells $1, ""You will now begin your custodial sentence. Please remand the prisoner into custody.""]]></TrialEndRemandedIntoCustody>
+  <TrialEndRemandedAwaitingExecution><![CDATA[@ tell|tells $1, ""You will now be returned to custody until the time of your execution.""]]></TrialEndRemandedAwaitingExecution>
+</Definition>");
+
+        EnsureArtificialIntelligence(
+            $"Lawyer{AuthorityName.CollapseString()}",
+            "Lawyer",
+            $@"<Definition>
+  <OpenDoors>true</OpenDoors>
+  <UseKeys>true</UseKeys>
+  <SmashLockedDoors>false</SmashLockedDoors>
+  <CloseDoorsBehind>false</CloseDoorsBehind>
+  <UseDoorguards>true</UseDoorguards>
+  <MoveEvenIfObstructionInWay>true</MoveEvenIfObstructionInWay>
+  <CanBeEngagedAsCourtAppointedLawyer>true</CanBeEngagedAsCourtAppointedLawyer>
+  <CanBeHiredProg>{lawyerCanHireProg.Id}</CanBeHiredProg>
+  <HomeBaseProg>{lawyerHomeBaseProg.Id}</HomeBaseProg>
+  <BankAccountProg>{lawyerBankAccountProg.Id}</BankAccountProg>
+  <FeeProg>{lawyerFeeProg.Id}</FeeProg>
+</Definition>");
+
         Context.SaveChanges();
     }
 
@@ -1488,8 +1563,44 @@ return true"
         return 100;
     }
 
-    private void CreateLaw(string name, CrimeTypes type, EnforcementStrategy enforcement, IEnumerable<string> victims,
-        IEnumerable<string> offenders, CrimeContext context)
+    private static uint TieredFineMultiplier(CrimeTypes type, CrimeContext context)
+    {
+        if (context.PenaltyUnitMultiplier > 0)
+        {
+            return context.PenaltyUnitMultiplier;
+        }
+
+        if (type.IsMajorCrime())
+        {
+            return 100;
+        }
+
+        if (type.IsViolentCrime())
+        {
+            return 25;
+        }
+
+        if (type.IsMoralCrime())
+        {
+            return 10;
+        }
+
+        return 5;
+    }
+
+    private string BuildDefaultApplicabilityComment(string lawName)
+    {
+        return $"Determines whether the {lawName} law applies";
+    }
+
+    private bool UseTieredLawVariants(CrimeTypes type)
+    {
+        return QuestionAnswers["punishmentlevel"].Equals("tiered", StringComparison.OrdinalIgnoreCase) &&
+               IsTieredVictimBasedCrime(type);
+    }
+
+    private void CreateLawCore(string name, CrimeTypes type, EnforcementStrategy enforcement, IEnumerable<string> victims,
+        IEnumerable<string> offenders, CrimeContext context, FutureProg lawAppliesProg)
     {
         string punishmentStrategy;
         if (context.BondLength > MudTimeSpan.Zero)
@@ -1559,6 +1670,8 @@ return true"
         law.ActivePeriod = DefaultActivePeriod(type).TotalSeconds;
         law.EnforcementStrategy = enforcement.DescribeEnum();
         law.PunishmentStrategy = punishmentStrategy;
+        law.LawAppliesProg = lawAppliesProg;
+        law.LawAppliesProgId = lawAppliesProg.Id;
         foreach (LawsVictimClasses? existing in law.LawsVictimClasses.ToList())
         {
             Context.LawsVictimClasses.Remove(existing);
@@ -1588,6 +1701,64 @@ return true"
         }
     }
 
+    private void CreateLaw(string name, CrimeTypes type, EnforcementStrategy enforcement, IEnumerable<string> victims,
+        IEnumerable<string> offenders, CrimeContext context)
+    {
+        if (UseTieredLawVariants(type))
+        {
+            FutureProg standardProg = EnsureLawApplicabilityProg(
+                name,
+                "Standard",
+                $"{BuildDefaultApplicabilityComment(name)} when the offender does not outrank the victim",
+                BuildTierComparisonText(false));
+            CreateLawCore(name, type, enforcement, victims, offenders, context, standardProg);
+
+            FutureProg inferiorProg = EnsureLawApplicabilityProg(
+                name,
+                "AgainstInferior",
+                $"{BuildDefaultApplicabilityComment(name)} when the offender outranks the victim",
+                BuildTierComparisonText(true));
+            CreateLawCore(
+                $"{name} Against Inferior",
+                type,
+                EnforcementStrategy.NoActiveEnforcement,
+                victims,
+                offenders,
+                context with
+                {
+                    UseImprisonment = false,
+                    UseCapitalPunishment = false,
+                    BondLength = MudTimeSpan.Zero,
+                    MinimumImprisonmentLength = MudTimeSpan.Zero,
+                    MaximumImprisonmentLength = MudTimeSpan.Zero,
+                    PenaltyUnitMultiplier = TieredFineMultiplier(type, context),
+                    CanBeArrested = false,
+                    CanBeOfferedBail = false
+                },
+                inferiorProg);
+            return;
+        }
+
+        FutureProg defaultProg = EnsureLawApplicabilityProg(
+            name,
+            "Default",
+            BuildDefaultApplicabilityComment(name),
+            "return true");
+        CreateLawCore(name, type, enforcement, victims, offenders, context, defaultProg);
+    }
+
+    private void SetupTieredLaws(uint penaltyUnits)
+    {
+        SetupFlatLaws(new CrimeContext(
+            penaltyUnits,
+            false,
+            true,
+            true,
+            MudTimeSpan.Zero,
+            MudTimeSpan.Zero,
+            MudTimeSpan.Zero));
+    }
+
     protected void SetupLaws()
     {
         uint penaltyUnits = uint.Parse(QuestionAnswers["penaltyunits"]);
@@ -1596,7 +1767,7 @@ return true"
         switch (punishmentLevel.ToLowerInvariant())
         {
             case "tiered":
-                //SetupTieredLaws(penaltyUnits, useReligiousLaws);
+                SetupTieredLaws(penaltyUnits);
                 break;
             case "weregild":
                 SetupFlatLaws(new CrimeContext(penaltyUnits, false, false, true, MudTimeSpan.Zero, MudTimeSpan.Zero,
@@ -1815,7 +1986,7 @@ return true"
                     CreateLaw(crime.DescribeEnum(true), crime, EnforcementStrategy.ArrestAndDetain, sophontVictims,
                         sophontPerps, crimeContext with
                         {
-                            Automatic = true,
+                            Automatic = false,
                             CanBeArrested = true,
                             CanBeOfferedBail = true,
                             BondLength = MudTimeSpan.FromMonths(1),

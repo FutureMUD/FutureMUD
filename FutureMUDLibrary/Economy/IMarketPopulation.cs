@@ -13,6 +13,26 @@ public interface IMarketPopulation : ISaveable, IEditableItem
     int PopulationScale { get; }
 
     /// <summary>
+    /// A multiplier applied to this population's base budget when working out how much income it has available.
+    /// </summary>
+    decimal IncomeFactor { get; }
+
+    /// <summary>
+    /// Expressed in multiples of this population's base budget, representing budget cycles of savings currently on hand.
+    /// </summary>
+    decimal Savings { get; }
+
+    /// <summary>
+    /// Expressed in multiples of this population's base budget, representing the largest savings reserve this population can accumulate.
+    /// </summary>
+    decimal SavingsCap { get; }
+
+    /// <summary>
+    /// The absolute hysteresis buffer applied when stress is falling so thresholds do not rapidly toggle on and off.
+    /// </summary>
+    decimal StressFlickerThreshold { get; }
+
+    /// <summary>
     /// The market this market population belongs to
     /// </summary>
     IMarket Market { get; }
@@ -20,7 +40,7 @@ public interface IMarketPopulation : ISaveable, IEditableItem
     string Description { get; }
 
     /// <summary>
-    /// Expressed as a percentage of base expenditure at base prices. Positive stresses represent debt, negative savings
+    /// Expressed as a percentage of base expenditure at base prices, after current income and accumulated savings have both been applied.
     /// </summary>
     decimal CurrentStress { get; }
 

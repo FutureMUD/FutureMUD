@@ -284,7 +284,7 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
             Name = "Human Full Model",
             Type = "ComplexLiving",
             Definition =
-                $"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <MaximumStunExpression>{stunExpression.Id}</MaximumStunExpression> <MaximumPainExpression>{painExpression.Id}</MaximumPainExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression> <HealingTickStunExpression>{stunTick.Id}</HealingTickStunExpression> <HealingTickPainExpression>{painTick.Id}</HealingTickPainExpression> <LodgeDamageExpression>max(0, damage - 30)</LodgeDamageExpression> <PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty> <PercentageStunPerPenalty>0.2</PercentageStunPerPenalty> <PercentagePainPerPenalty>0.2</PercentagePainPerPenalty> <SeverityRanges> <Severity value=\"0\" lower=\"-2\" upper=\"-1\" lowerpec=\"-100\" upperperc=\"0\"/> <Severity value=\"1\" lower=\"-1\" upper=\"2\" lowerpec=\"0\" upperperc=\"0.4\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\" lowerpec=\"0.4\" upperperc=\"0.55\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\" lowerpec=\"0.55\" upperperc=\"0.65\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\" lowerpec=\"0.65\" upperperc=\"0.75\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\" lowerpec=\"0.75\" upperperc=\"0.85\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\" lowerpec=\"0.85\" upperperc=\"0.9\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\" lowerpec=\"0.9\" upperperc=\"0.95\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\" lowerpec=\"0.95\" upperperc=\"100\"/> </SeverityRanges> </Definition>"
+                $"<Definition> <MaximumHitPointsExpression>{hpExpression.Id}</MaximumHitPointsExpression> <MaximumStunExpression>{stunExpression.Id}</MaximumStunExpression> <MaximumPainExpression>{painExpression.Id}</MaximumPainExpression> <HealingTickDamageExpression>{hpTick.Id}</HealingTickDamageExpression> <HealingTickStunExpression>{stunTick.Id}</HealingTickStunExpression> <HealingTickPainExpression>{painTick.Id}</HealingTickPainExpression> <LodgeDamageExpression>max(0, damage - 30)</LodgeDamageExpression> <PercentageHealthPerPenalty>0.2</PercentageHealthPerPenalty> <PercentageStunPerPenalty>0.2</PercentageStunPerPenalty> <PercentagePainPerPenalty>0.2</PercentagePainPerPenalty> <SeverityRanges> <Severity value=\"0\" lower=\"-2\" upper=\"-1\" lowerpec=\"-100\" upperperc=\"0\"/> <Severity value=\"1\" lower=\"-1\" upper=\"2\" lowerpec=\"0\" upperperc=\"0.15\"/> <Severity value=\"2\" lower=\"2\" upper=\"4\" lowerpec=\"0.15\" upperperc=\"0.3\"/> <Severity value=\"3\" lower=\"4\" upper=\"7\" lowerpec=\"0.3\" upperperc=\"0.45\"/> <Severity value=\"4\" lower=\"7\" upper=\"12\" lowerpec=\"0.45\" upperperc=\"0.6\"/> <Severity value=\"5\" lower=\"12\" upper=\"18\" lowerpec=\"0.6\" upperperc=\"0.75\"/> <Severity value=\"6\" lower=\"18\" upper=\"27\" lowerpec=\"0.75\" upperperc=\"0.87\"/> <Severity value=\"7\" lower=\"27\" upper=\"40\" lowerpec=\"0.87\" upperperc=\"0.95\"/> <Severity value=\"8\" lower=\"40\" upper=\"100\" lowerpec=\"0.95\" upperperc=\"100\"/> </SeverityRanges> </Definition>"
         };
         _context.HealthStrategies.Add(fullStrategy);
         _context.SaveChanges();
@@ -1778,7 +1778,7 @@ return 0"
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
             NaturalArmourQuality = 2,
-            NaturalArmourType = _naturalArmour,
+            NaturalArmourType = _racialNaturalArmour,
             SweatLiquid = sweat,
             SweatRateInLitresPerMinute = 0.8,
             BloodLiquid = blood,
@@ -1836,7 +1836,7 @@ return 0"
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
             NaturalArmourQuality = 2,
-            NaturalArmourType = _naturalArmour,
+            NaturalArmourType = _racialNaturalArmour,
             SweatLiquid = sweat,
             SweatRateInLitresPerMinute = 0.8,
             BloodLiquid = blood,
@@ -1899,7 +1899,7 @@ return 0"
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
             NaturalArmourQuality = 2,
-            NaturalArmourType = _naturalArmour,
+            NaturalArmourType = _racialNaturalArmour,
             SweatLiquid = sweat,
             SweatRateInLitresPerMinute = 0.8,
             BloodLiquid = blood,

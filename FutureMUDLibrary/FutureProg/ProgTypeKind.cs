@@ -62,7 +62,8 @@ public enum ProgTypeKind
     Market,
     MarketCategory,
     LiquidMixture,
-    Script,
-    Writing,
-    Area
+	Script,
+	Writing,
+	Area,
+	LegalClass
 }

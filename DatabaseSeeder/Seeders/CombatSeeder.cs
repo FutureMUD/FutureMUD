@@ -625,7 +625,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             context.SaveChanges();
         }
 
-        AddArmourType("Light Clothing", 1, 0, 0, 0.5, 0.75, 0.6,
+        AddArmourType("Light Clothing", 1, 0, 0, 0.45, 0.75, 0.6,
             new List<DamageType>
             {
                 DamageType.Chemical,
@@ -649,13 +649,16 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Eldritch
             }
         );
-        AddArmourType("Heavy Clothing", 1, 0, 1, 0.8, 1.2, 0.9,
+        AddArmourType("Heavy Clothing", 1, 0, 1, 0.9, 1.2, 0.9,
             new List<DamageType>
             {
                 DamageType.Chemical,
                 DamageType.Freezing,
                 DamageType.Burning,
-                DamageType.Electrical
+                DamageType.Electrical,
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.Falling
             },
             new List<DamageType>
             {
@@ -674,13 +677,16 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Eldritch
             }
         );
-        AddArmourType("Ultra Heavy Clothing", 1, 1, 2, 1.2, 2.5, 1.5,
+        AddArmourType("Ultra Heavy Clothing", 1, 1, 2, 1.1, 2.5, 1.5,
             new List<DamageType>
             {
                 DamageType.Chemical,
                 DamageType.Freezing,
                 DamageType.Burning,
-                DamageType.Electrical
+                DamageType.Electrical,
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.Falling
             },
             new List<DamageType>
             {
@@ -938,19 +944,20 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Crushing
             }
         );
-        AddArmourType("Boiled Leather", 1, 1, 2, 1.6, 2.9, 1.9,
+        AddArmourType("Boiled Leather", 1, 1, 2, 1.4, 2.9, 1.9,
             new List<DamageType>
             {
                 DamageType.Chemical,
                 DamageType.Freezing,
                 DamageType.Burning,
-                DamageType.Electrical
+                DamageType.Electrical,
+                DamageType.Slashing,
+                DamageType.Chopping
             },
             new List<DamageType>
             {
                 DamageType.Piercing,
-                DamageType.Chopping,
-                DamageType.Slashing,
+                DamageType.Crushing,
                 DamageType.Ballistic,
                 DamageType.Bite,
                 DamageType.Claw
@@ -964,80 +971,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Eldritch
             }
         );
-        AddArmourType("Studded Leather", 1, 1, 2, 2.1, 3.5, 2.5,
-            new List<DamageType>
-            {
-                DamageType.Chemical,
-                DamageType.Freezing,
-                DamageType.Burning,
-                DamageType.Electrical
-            },
-            new List<DamageType>
-            {
-                DamageType.Piercing,
-                DamageType.Chopping,
-                DamageType.Slashing,
-                DamageType.Ballistic,
-                DamageType.Bite
-            },
-            new List<DamageType>
-            {
-                DamageType.BallisticArmourPiercing,
-                DamageType.ArmourPiercing,
-                DamageType.Arcane,
-                DamageType.Necrotic,
-                DamageType.Eldritch
-            }
-        );
-        AddArmourType("Leather Scale", 1, 1, 2, 2.5, 3.9, 2.9,
-            new List<DamageType>
-            {
-                DamageType.Chemical,
-                DamageType.Freezing,
-                DamageType.Burning,
-                DamageType.Electrical
-            },
-            new List<DamageType>
-            {
-                DamageType.Piercing,
-                DamageType.Chopping,
-                DamageType.Bite,
-                DamageType.Ballistic
-            },
-            new List<DamageType>
-            {
-                DamageType.BallisticArmourPiercing,
-                DamageType.ArmourPiercing,
-                DamageType.Arcane,
-                DamageType.Necrotic,
-                DamageType.Eldritch
-            }
-        );
-        AddArmourType("Metal Scale", 1, 1, 2, 4.0, 5.0, 4.5,
-            new List<DamageType>
-            {
-                DamageType.Chemical,
-                DamageType.Freezing,
-                DamageType.Burning,
-                DamageType.Electrical
-            },
-            new List<DamageType>
-            {
-                DamageType.Piercing,
-                DamageType.Chopping,
-                DamageType.Bite,
-                DamageType.Ballistic
-            },
-            new List<DamageType>
-            {
-                DamageType.BallisticArmourPiercing,
-                DamageType.ArmourPiercing,
-                DamageType.Arcane,
-                DamageType.Necrotic,
-                DamageType.Eldritch
-            }
-        );
-        AddArmourType("Laminar", 1, 1, 2, 4.0, 5.0, 4.5,
+        AddArmourType("Studded Leather", 1, 1, 2, 1.8, 3.5, 2.5,
             new List<DamageType>
             {
                 DamageType.Chemical,
@@ -1049,8 +983,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             new List<DamageType>
             {
                 DamageType.Piercing,
+                DamageType.Crushing,
+                DamageType.Ballistic,
                 DamageType.Bite,
-                DamageType.Ballistic
+                DamageType.Chopping
             },
             new List<DamageType>
             {
@@ -1061,20 +997,46 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Eldritch
             }
         );
-        AddArmourType("Lamellar", 1, 1, 2, 4.0, 5.0, 4.5,
+        AddArmourType("Leather Scale", 1, 1, 2, 2.2, 3.9, 2.9,
             new List<DamageType>
             {
                 DamageType.Chemical,
                 DamageType.Freezing,
                 DamageType.Burning,
                 DamageType.Electrical,
-                DamageType.Claw
+                DamageType.Slashing,
+                DamageType.Chopping
             },
             new List<DamageType>
             {
-                DamageType.Piercing,
-                DamageType.Chopping,
-                DamageType.Bite,
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing
+            },
+            new List<DamageType>
+            {
+                DamageType.Arcane,
+                DamageType.Necrotic,
+                DamageType.Eldritch
+            }
+        );
+        AddArmourType("Metal Scale", 1, 1, 2, 3.6, 5.0, 4.5,
+            new List<DamageType>
+            {
+                DamageType.Chemical,
+                DamageType.Freezing,
+                DamageType.Burning,
+                DamageType.Electrical,
+                DamageType.Slashing,
+                DamageType.Chopping
+            },
+            new List<DamageType>
+            {
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing,
                 DamageType.Ballistic
             },
             new List<DamageType>
@@ -1086,7 +1048,61 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Eldritch
             }
         );
-        AddArmourType("Chainmail", 1, 1, 2, 4.0, 5.0, 4.5,
+        AddArmourType("Laminar", 1, 1, 2, 3.7, 5.0, 4.5,
+            new List<DamageType>
+            {
+                DamageType.Chemical,
+                DamageType.Freezing,
+                DamageType.Burning,
+                DamageType.Electrical,
+                DamageType.Slashing,
+                DamageType.Chopping
+            },
+            new List<DamageType>
+            {
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing,
+                DamageType.Ballistic
+            },
+            new List<DamageType>
+            {
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing,
+                DamageType.Arcane,
+                DamageType.Necrotic,
+                DamageType.Eldritch
+            }
+        );
+        AddArmourType("Lamellar", 1, 1, 2, 3.5, 5.0, 4.5,
+            new List<DamageType>
+            {
+                DamageType.Chemical,
+                DamageType.Freezing,
+                DamageType.Burning,
+                DamageType.Electrical,
+                DamageType.Slashing,
+                DamageType.Chopping
+            },
+            new List<DamageType>
+            {
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing,
+                DamageType.Ballistic
+            },
+            new List<DamageType>
+            {
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing,
+                DamageType.Arcane,
+                DamageType.Necrotic,
+                DamageType.Eldritch
+            }
+        );
+        AddArmourType("Chainmail", 1, 1, 2, 3.5, 5.0, 4.5,
             new List<DamageType>
             {
                 DamageType.Chemical,
@@ -1100,20 +1116,21 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             },
             new List<DamageType>
             {
-                DamageType.Piercing,
-                DamageType.Bite,
-                DamageType.Ballistic
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.Falling,
+                DamageType.Ballistic,
+                DamageType.BallisticArmourPiercing,
+                DamageType.ArmourPiercing
             },
             new List<DamageType>
             {
-                DamageType.BallisticArmourPiercing,
-                DamageType.ArmourPiercing,
                 DamageType.Arcane,
                 DamageType.Necrotic,
                 DamageType.Eldritch
             }
         );
-        AddArmourType("Platemail", 1, 2, 3, 6.0, 6.0, 8.0,
+        AddArmourType("Platemail", 1, 2, 3, 4.5, 6.0, 8.0,
             new List<DamageType>
             {
                 DamageType.Chemical,
@@ -1122,10 +1139,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 DamageType.Electrical,
                 DamageType.Slashing,
                 DamageType.Claw,
+                DamageType.Chopping,
                 DamageType.Shearing
             },
             new List<DamageType>
             {
+                DamageType.Crushing,
+                DamageType.Shockwave,
+                DamageType.Falling,
                 DamageType.Ballistic
             },
             new List<DamageType>

@@ -20,6 +20,7 @@ public interface IMarketInfluenceTemplate : ISaveable, IEditableItem
     /// </summary>
     string Description { get; }
     IEnumerable<MarketImpact> MarketImpacts { get; }
+    IEnumerable<MarketPopulationIncomeImpact> PopulationIncomeImpacts { get; }
     IFutureProg CharacterKnowsAboutInfluenceProg { get; }
     IMarketInfluenceTemplate Clone(string newName);
 }

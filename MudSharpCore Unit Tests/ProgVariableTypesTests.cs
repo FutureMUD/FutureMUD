@@ -20,12 +20,13 @@ public class ProgVariableTypesTests
     [TestMethod]
     public void StorageString_OverflowType_RoundTrips()
     {
-        const string definition = "v1:800000000000000000";
+        string definition = ProgVariableTypes.LegalClass.ToStorageString();
 
         ProgVariableTypes parsed = ProgVariableTypes.FromStorageString(definition);
 
         Assert.AreEqual(definition, parsed.ToStorageString());
         Assert.AreEqual(ProgVariableTypeCode.Unknown, parsed.LegacyCode);
+        Assert.AreEqual(ProgTypeKind.LegalClass, parsed.ExactKind);
     }
 
     [TestMethod]
@@ -60,6 +61,9 @@ public class ProgVariableTypesTests
         Assert.IsTrue(ProgVariableTypes.TryParse("Terrain", out ProgVariableTypes terrain));
         Assert.AreEqual(ProgVariableTypes.Terrain, terrain);
 
+        Assert.IsTrue(ProgVariableTypes.TryParse("LegalClass", out ProgVariableTypes legalClass));
+        Assert.AreEqual(ProgVariableTypes.LegalClass, legalClass);
+
         Assert.IsTrue(ProgVariableTypes.TryParse("4398046511104", out ProgVariableTypes terrainFromLegacy));
         Assert.AreEqual(ProgVariableTypes.Terrain, terrainFromLegacy);
 
@@ -68,6 +72,12 @@ public class ProgVariableTypesTests
 
         Assert.IsTrue(ProgVariableTypes.TryParse("v1:408", out ProgVariableTypes storageType));
         Assert.AreEqual(ProgVariableTypes.Character | ProgVariableTypes.Collection, storageType);
+
+        Assert.IsTrue(ProgVariableTypes.ReferenceType.HasFlag(ProgVariableTypes.LegalClass));
+        Assert.IsTrue(ProgVariableTypes.CollectionItem.HasFlag(ProgVariableTypes.LegalClass));
+        Assert.IsTrue(ProgVariableTypes.Anything.HasFlag(ProgVariableTypes.LegalClass));
+        Assert.AreEqual("LegalClass", ProgVariableTypes.LegalClass.Describe());
+        Assert.AreEqual(ProgTypeKind.LegalClass, (ProgVariableTypes.LegalClass | ProgVariableTypes.Collection).ElementKind);
     }
 
     [TestMethod]

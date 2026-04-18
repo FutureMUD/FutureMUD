@@ -23,7 +23,7 @@ public class EconomySeeder : IDatabaseSeeder
     private const string MarketSuffix = "Economy Template Market";
     private const string DefaultMarketPriceFormula =
         "if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))";
-    private const string HelperProgPrefix = "Market";
+    private const string HelperProgPrefix = "EconomySeeder";
 
     public static readonly IReadOnlyDictionary<string, string[]> RequiredMarketTagHierarchy =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
@@ -63,6 +63,22 @@ public class EconomySeeder : IDatabaseSeeder
         .SelectMany(x => x.Value.Prepend(x.Key))
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
+
+    private static readonly IReadOnlySet<string> StockCombinationFamilyExamples =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Medicine",
+            "Writing Materials",
+            "Clothing",
+            "Intoxicants",
+            "Household Goods",
+            "Hospitality",
+            "Entertainment",
+            "Personal Services",
+            "Communications",
+            "Military Goods",
+            "Professional Tools"
+        };
 
     private static readonly IReadOnlyList<EraDefinition> EraDefinitions =
     [
@@ -620,7 +636,11 @@ public class EconomySeeder : IDatabaseSeeder
                 "Medieval Age" => "A failed harvest across the countryside tightens everyday supply.",
                 _ => "A string of poor harvests reduces the flow of basic necessities."
             },
-            era => $"{era} harvest losses squeeze the essentials trade."),
+            era => $"{era} harvest losses squeeze the essentials trade.",
+            [
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Rural, MultiplicativeIncomeImpact: 0.90m),
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Commoner, MultiplicativeIncomeImpact: 0.96m)
+            ]),
         new(
             "Unseasonable Weather",
             ["Essentials"],
@@ -646,7 +666,8 @@ public class EconomySeeder : IDatabaseSeeder
                 "Medieval Age" => "Broken bridges and unsafe roads slow staple deliveries into town.",
                 _ => "Transport delays slow the arrival of bulk essentials."
             },
-            era => $"{era} transport trouble pinches basic supply."),
+            era => $"{era} transport trouble pinches basic supply.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Merchant, MultiplicativeIncomeImpact: 0.92m)]),
         new(
             "Bumper Harvest",
             ["Essentials"],
@@ -659,7 +680,11 @@ public class EconomySeeder : IDatabaseSeeder
                 "Medieval Age" => "Strong harvests fill granaries and make staples easy to find.",
                 _ => "Excellent harvests make staples plentiful and comparatively cheap."
             },
-            era => $"{era} bumper yields ease prices on essentials."),
+            era => $"{era} bumper yields ease prices on essentials.",
+            [
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Rural, MultiplicativeIncomeImpact: 1.10m),
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Commoner, MultiplicativeIncomeImpact: 1.04m)
+            ]),
         new(
             "Caravan Surplus",
             ["Essentials"],
@@ -672,7 +697,8 @@ public class EconomySeeder : IDatabaseSeeder
                 "Medieval Age" => "Merchants arrive in force and staple stocks pile up in town.",
                 _ => "A glut of inbound carriers leaves storehouses unexpectedly full."
             },
-            era => $"{era} trade arrivals create an essentials glut."),
+            era => $"{era} trade arrivals create an essentials glut.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Merchant, MultiplicativeIncomeImpact: 1.06m)]),
         new(
             "Mild Season",
             ["Essentials"],
@@ -776,7 +802,8 @@ public class EconomySeeder : IDatabaseSeeder
                 "Medieval Age" => "A local war sharply increases demand for arms, armour and military stores.",
                 _ => "A war scare sharply increases demand for weapons, ammunition and military stores."
             },
-            era => $"{era} conflict drives up martial demand."),
+            era => $"{era} conflict drives up martial demand.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Martial, MultiplicativeIncomeImpact: 1.12m)]),
         new(
             "Border Raiding",
             ["Martial"],
@@ -841,7 +868,8 @@ public class EconomySeeder : IDatabaseSeeder
                 "Medieval Age" => "Demobilised troops reduce martial demand and release kit to market.",
                 _ => "Demobilisation reduces martial demand and frees up spare kit."
             },
-            era => $"{era} demobilisation cools martial demand."),
+            era => $"{era} demobilisation cools martial demand.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Martial, MultiplicativeIncomeImpact: 0.85m)]),
         new(
             "Road And Port Trouble",
             ["Logistics"],
@@ -1116,7 +1144,8 @@ public class EconomySeeder : IDatabaseSeeder
             0.16,
             -0.06,
             era => $"Authorities subsidise armourers and fletchers, improving the flow of military goods in the {era.ToLowerInvariant()} market.",
-            era => $"{era} official subsidies expand martial supply."),
+            era => $"{era} official subsidies expand martial supply.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Merchant, MultiplicativeIncomeImpact: 1.05m)]),
         new(
             "Muster Exhaustion",
             ["Martial"],
@@ -1208,6 +1237,69 @@ public class EconomySeeder : IDatabaseSeeder
             0.12,
             era => $"Coordinated refusals, guild discipline or labour unrest reduce finished output in the {era.ToLowerInvariant()} workshop economy.",
             era => $"{era} labour unrest strains industrial prices.")
+    ];
+
+    private static readonly IReadOnlyList<IncomeInfluenceBlueprint> IncomeInfluenceBlueprints =
+    [
+        new(
+            "Rural Wage Squeeze",
+            era => $"Weak harvest rents, poor seasonal hiring and tightening village credit cut rural incomes across the {era.ToLowerInvariant()} economy.",
+            era => $"{era} rural earnings contract sharply.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Rural, MultiplicativeIncomeImpact: 0.90m)]),
+        new(
+            "Bountiful Hiring Season",
+            era => $"Strong labour demand for farms, transport and related support work lifts ordinary household earnings in the {era.ToLowerInvariant()} market.",
+            era => $"{era} hiring demand lifts common incomes.",
+            [
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Commoner, MultiplicativeIncomeImpact: 1.08m),
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Rural, MultiplicativeIncomeImpact: 1.12m)
+            ]),
+        new(
+            "Merchant Credit Crunch",
+            era => $"Tighter lending, slower settlements and failing counterparties squeeze commercial incomes in the {era.ToLowerInvariant()} economy.",
+            era => $"{era} merchants are squeezed by tight credit.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Merchant, MultiplicativeIncomeImpact: 0.88m)]),
+        new(
+            "Trade Windfall",
+            era => $"A run of profitable voyages, fairs or contracts lifts mercantile incomes across the {era.ToLowerInvariant()} market.",
+            era => $"{era} trade profits swell merchant incomes.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Merchant, MultiplicativeIncomeImpact: 1.12m)]),
+        new(
+            "Garrison Muster",
+            era => $"Fresh musters and wartime provisioning put more coin into martial households across the {era.ToLowerInvariant()} economy.",
+            era => $"{era} musters raise martial incomes.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Martial, MultiplicativeIncomeImpact: 1.15m)]),
+        new(
+            "Demobilisation Glut",
+            era => $"Campaigns end, retainers are dismissed and military wages soften across the {era.ToLowerInvariant()} market.",
+            era => $"{era} demobilisation cuts martial incomes.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Martial, MultiplicativeIncomeImpact: 0.85m)]),
+        new(
+            "Tithe Boom",
+            era => $"Strong collections and generous patronage improve clerical incomes in the {era.ToLowerInvariant()} economy.",
+            era => $"{era} tithe receipts lift clerical incomes.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Clergy, MultiplicativeIncomeImpact: 1.10m)]),
+        new(
+            "Alms Shortfall",
+            era => $"Weaker donations and poorer lay support reduce religious-house incomes across the {era.ToLowerInvariant()} market.",
+            era => $"{era} weak alms reduce religious incomes.",
+            [
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Clergy, MultiplicativeIncomeImpact: 0.90m),
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Monastic, MultiplicativeIncomeImpact: 0.88m)
+            ]),
+        new(
+            "Noble Rent Increase",
+            era => $"Higher dues, rents and seigneurial claims improve elite household incomes across the {era.ToLowerInvariant()} economy.",
+            era => $"{era} rising rents enrich elite households.",
+            [new PopulationIncomeImpactBlueprint(PopulationArchetype.Elite, MultiplicativeIncomeImpact: 1.12m)]),
+        new(
+            "Patronage Windfall",
+            era => $"Court favour, civic contracts and wealthy commissions improve privileged incomes in the {era.ToLowerInvariant()} market.",
+            era => $"{era} patronage spreads new income among favoured households.",
+            [
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Elite, MultiplicativeIncomeImpact: 1.08m),
+                new PopulationIncomeImpactBlueprint(PopulationArchetype.Merchant, MultiplicativeIncomeImpact: 1.06m)
+            ])
     ];
 
     private static readonly IReadOnlyList<StressLevelDefinition> StressLevels =
@@ -1340,9 +1432,6 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         context.SaveChanges();
 
         CategoryContext categoryContext = BuildCategoryContext(context, marketRoot, marketTags, categoriesByTagId);
-        EnsureExternalInfluenceTemplates(context, era, categoryContext, supportProgs.AlwaysKnownProg);
-        context.SaveChanges();
-
         PopulationContext populationContext = EnsurePopulationsAndStressTemplates(
             context,
             era,
@@ -1350,6 +1439,11 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             market,
             categoryContext,
             supportProgs.AlwaysKnownProg);
+        context.SaveChanges();
+
+        EnsureExternalInfluenceTemplates(context, era, categoryContext, supportProgs.AlwaysKnownProg, populationContext);
+        EnsureCategoryAdjustmentTemplates(context, era, categoryContext, supportProgs.AlwaysKnownProg);
+        EnsureIncomeInfluenceTemplates(context, era, supportProgs.AlwaysKnownProg, populationContext);
         context.SaveChanges();
 
         EnsureShoppers(
@@ -1512,8 +1606,10 @@ It is intended to be additive across eras and safe to rerun to restore or refres
     private static Dictionary<long, MarketCategory> EnsureMarketCategories(FuturemudDatabaseContext context, IEnumerable<Tag> tags)
     {
         List<Tag> allTags = context.Tags.ToList();
+        List<Tag> marketTags = tags.OrderBy(x => x.Name).ToList();
+        Dictionary<long, List<Tag>> childTagsByParentId = BuildChildTagMap(marketTags);
         Dictionary<long, MarketCategory> result = new();
-        foreach (Tag? tag in tags.OrderBy(x => x.Name))
+        foreach (Tag? tag in marketTags)
         {
             string familyName = ResolveTopFamilyName(tag, allTags);
             (double Under, double Over) elasticity = FamilyElasticityMap.TryGetValue(familyName, out (double Under, double Over) value)
@@ -1534,8 +1630,34 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             category.Description = $"{CategoryPrefix}: items carrying the {tag.Name} market tag.";
             category.ElasticityFactorBelow = elasticity.Under;
             category.ElasticityFactorAbove = elasticity.Over;
+            category.MarketCategoryType = 0;
             category.Tags = new XElement("Tags", new XElement("Tag", tag.Id)).ToString();
+            category.CombinationCategories = new XElement("Components").ToString();
             result[tag.Id] = category;
+        }
+
+        foreach (Tag tag in marketTags)
+        {
+            if (!ShouldSeedCombinationCategory(tag, childTagsByParentId))
+            {
+                continue;
+            }
+
+            List<MarketCategory> componentCategories = childTagsByParentId[tag.Id]
+                .Where(x => result.ContainsKey(x.Id))
+                .Select(x => result[x.Id])
+                .OrderBy(x => x.Name)
+                .ToList();
+            if (componentCategories.Count < 2)
+            {
+                continue;
+            }
+
+            MarketCategory category = result[tag.Id];
+            category.Description =
+                $"{CategoryPrefix}: seeded aggregate {tag.Name} basket priced as an equal-weight combination of {string.Join(", ", componentCategories.Select(x => x.Name))}.";
+            category.MarketCategoryType = 1;
+            category.CombinationCategories = SaveCombinationCategories(componentCategories.Select(x => x.Id));
         }
 
         return result;
@@ -1680,10 +1802,12 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         IReadOnlyDictionary<long, MarketCategory> categoriesByTagId)
     {
         Dictionary<long, Tag> tagsById = context.Tags.ToList().ToDictionary(x => x.Id);
+        Dictionary<long, List<Tag>> childTagsByParentId = BuildChildTagMap(descendantTags);
         Dictionary<string, Tag> tagsByName = descendantTags.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, MarketCategory> categoriesByName = categoriesByTagId.Values.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, string> categorySectorMap = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, List<MarketCategory>> categoriesBySector = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<MarketCategory>> impactCategoriesBySector = new(StringComparer.OrdinalIgnoreCase);
         foreach (Tag tag in descendantTags)
         {
             string familyName = ResolveTopFamilyName(tag, tagsById);
@@ -1699,19 +1823,48 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             categoriesBySector[sector].Add(categoriesByTagId[tag.Id]);
         }
 
-        return new CategoryContext(marketRoot, tagsById, tagsByName, categoriesByName, categorySectorMap, categoriesBySector);
+        foreach (Tag familyTag in descendantTags
+                     .Where(x => x.ParentId == marketRoot.Id)
+                     .OrderBy(x => x.Name))
+        {
+            string sector = categorySectorMap[familyTag.Name];
+            if (!impactCategoriesBySector.ContainsKey(sector))
+            {
+                impactCategoriesBySector[sector] = [];
+            }
+
+            impactCategoriesBySector[sector].AddRange(GetSectorImpactCategories(familyTag, childTagsByParentId, categoriesByTagId));
+        }
+
+        foreach ((string sector, List<MarketCategory> categories) in impactCategoriesBySector.ToList())
+        {
+            impactCategoriesBySector[sector] = categories
+                .DistinctBy(x => x.Id)
+                .OrderBy(x => x.Name)
+                .ToList();
+        }
+
+        return new CategoryContext(
+            marketRoot,
+            tagsById,
+            tagsByName,
+            categoriesByName,
+            categorySectorMap,
+            categoriesBySector,
+            impactCategoriesBySector);
     }
 
     private static void EnsureExternalInfluenceTemplates(
         FuturemudDatabaseContext context,
         EraDefinition era,
         CategoryContext categoryContext,
-        FutureProg alwaysKnownProg)
+        FutureProg alwaysKnownProg,
+        PopulationContext populationContext)
     {
         foreach (SectorInfluenceBlueprint blueprint in ExternalInfluenceBlueprints)
         {
             List<MarketCategory> affectedCategories = blueprint.Sectors
-                .SelectMany(sector => categoryContext.CategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories) ? categories : [])
+                .SelectMany(sector => categoryContext.ImpactCategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories) ? categories : [])
                 .DistinctBy(x => x.Id)
                 .OrderBy(x => x.Name)
                 .ToList();
@@ -1738,7 +1891,86 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             template.Impacts = SaveImpacts(affectedCategories.Select(category => new MarketImpactValue(
                 category.Id,
                 blueprint.SupplyImpact,
-                blueprint.DemandImpact)));
+                blueprint.DemandImpact,
+                blueprint.FlatPriceImpact)));
+            template.PopulationImpacts = SavePopulationImpacts(BuildPopulationIncomeImpacts(populationContext, blueprint.PopulationIncomeImpacts));
+        }
+    }
+
+    private static void EnsureCategoryAdjustmentTemplates(
+        FuturemudDatabaseContext context,
+        EraDefinition era,
+        CategoryContext categoryContext,
+        FutureProg alwaysKnownProg)
+    {
+        foreach (MarketCategory category in categoryContext.CategoriesByName.Values.OrderBy(x => x.Name))
+        {
+            EnsureCategoryAdjustmentTemplate(context, era, category, alwaysKnownProg, "Minor Tariff", 0.05);
+            EnsureCategoryAdjustmentTemplate(context, era, category, alwaysKnownProg, "Major Tariff", 0.12);
+            EnsureCategoryAdjustmentTemplate(context, era, category, alwaysKnownProg, "Minor Subsidy", -0.05);
+            EnsureCategoryAdjustmentTemplate(context, era, category, alwaysKnownProg, "Major Subsidy", -0.12);
+        }
+    }
+
+    private static void EnsureCategoryAdjustmentTemplate(
+        FuturemudDatabaseContext context,
+        EraDefinition era,
+        MarketCategory category,
+        FutureProg alwaysKnownProg,
+        string adjustmentName,
+        double flatPriceImpact)
+    {
+        string templateName = $"{era.DisplayName} {category.Name} {adjustmentName}";
+        MarketInfluenceTemplate template = SeederRepeatabilityHelper.EnsureNamedEntity(
+            context.MarketInfluenceTemplates,
+            templateName,
+            x => x.Name,
+            () =>
+            {
+                MarketInfluenceTemplate created = new();
+                context.MarketInfluenceTemplates.Add(created);
+                return created;
+            });
+
+        template.Name = templateName;
+        template.TemplateSummary = $"{adjustmentName} template for {category.Name} in the {era.DisplayName.ToLowerInvariant()} market.";
+        template.Description = flatPriceImpact >= 0.0
+            ? $"{adjustmentName} raises the effective market price of {category.Name.ToLowerInvariant()} in the {era.DisplayName.ToLowerInvariant()} economy."
+            : $"{adjustmentName} lowers the effective market price of {category.Name.ToLowerInvariant()} in the {era.DisplayName.ToLowerInvariant()} economy.";
+        template.CharacterKnowsAboutInfluenceProgId = alwaysKnownProg.Id;
+        template.Impacts = SaveImpacts(
+        [
+            new MarketImpactValue(category.Id, 0.0, 0.0, flatPriceImpact)
+        ]);
+        template.PopulationImpacts = SavePopulationImpacts([]);
+    }
+
+    private static void EnsureIncomeInfluenceTemplates(
+        FuturemudDatabaseContext context,
+        EraDefinition era,
+        FutureProg alwaysKnownProg,
+        PopulationContext populationContext)
+    {
+        foreach (IncomeInfluenceBlueprint blueprint in IncomeInfluenceBlueprints)
+        {
+            string templateName = $"{era.DisplayName} {blueprint.Name}";
+            MarketInfluenceTemplate template = SeederRepeatabilityHelper.EnsureNamedEntity(
+                context.MarketInfluenceTemplates,
+                templateName,
+                x => x.Name,
+                () =>
+                {
+                    MarketInfluenceTemplate created = new();
+                    context.MarketInfluenceTemplates.Add(created);
+                    return created;
+                });
+
+            template.Name = templateName;
+            template.TemplateSummary = blueprint.SummaryFactory(era.DisplayName);
+            template.Description = blueprint.DescriptionFactory(era.DisplayName);
+            template.CharacterKnowsAboutInfluenceProgId = alwaysKnownProg.Id;
+            template.Impacts = SaveImpacts([]);
+            template.PopulationImpacts = SavePopulationImpacts(BuildPopulationIncomeImpacts(populationContext, blueprint.PopulationIncomeImpacts));
         }
     }
 
@@ -1776,6 +2008,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                     $"{populationName} has entered a {level.DisplayName.ToLowerInvariant()} state. Households cut lower-priority spending while strained local production also reduces supply in the sectors they anchor.";
                 template.CharacterKnowsAboutInfluenceProgId = alwaysKnownProg.Id;
                 template.Impacts = SaveImpacts(impactedCategories);
+                template.PopulationImpacts = SavePopulationImpacts([]);
                 stressTemplates.Add(new StressTemplateContext(level, templateName));
             }
 
@@ -1801,6 +2034,10 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             population.Name = populationName;
             population.Description = blueprint.Description;
             population.PopulationScale = blueprint.PopulationScale;
+            population.IncomeFactor = blueprint.IncomeFactor;
+            population.Savings = 0.0m;
+            population.SavingsCap = blueprint.SeedSavingsCap;
+            population.StressFlickerThreshold = 0.01m;
             population.MarketId = market.Id;
             List<MarketNeedValue> scaledNeeds = blueprint.Needs
                 .Select(need => new MarketNeedValue(
@@ -1812,6 +2049,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
             populations.Add(new PopulationSeedContext(
                 blueprint,
+                population.Id,
                 populationName,
                 stressProgs,
                 ResolvePopulationBudget(blueprint, scaledNeeds.Sum(x => x.BaseExpenditure))));
@@ -1860,7 +2098,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
         void ApplySupplyImpact(string sector, double supplyImpact)
         {
-            if (!categoryContext.CategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories))
+            if (!categoryContext.ImpactCategoriesBySector.TryGetValue(sector, out List<MarketCategory>? categories))
             {
                 return;
             }
@@ -2093,7 +2331,35 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             impacts.Select(impact => new XElement("Impact",
                 new XAttribute("demand", impact.DemandImpact.ToString(CultureInfo.InvariantCulture)),
                 new XAttribute("supply", impact.SupplyImpact.ToString(CultureInfo.InvariantCulture)),
+                new XAttribute("price", impact.FlatPriceImpact.ToString(CultureInfo.InvariantCulture)),
                 new XAttribute("category", impact.CategoryId)))).ToString();
+    }
+
+    private static string SavePopulationImpacts(IEnumerable<PopulationIncomeImpactValue> impacts)
+    {
+        return new XElement("PopulationImpacts",
+            impacts.Select(impact => new XElement("PopulationImpact",
+                new XAttribute("population", impact.PopulationId),
+                new XAttribute("additive", impact.AdditiveIncomeImpact.ToString(CultureInfo.InvariantCulture)),
+                new XAttribute("multiplier", impact.MultiplicativeIncomeImpact.ToString(CultureInfo.InvariantCulture))))).ToString();
+    }
+
+    private static IReadOnlyList<PopulationIncomeImpactValue> BuildPopulationIncomeImpacts(
+        PopulationContext populationContext,
+        IReadOnlyList<PopulationIncomeImpactBlueprint>? blueprints)
+    {
+        if (blueprints is null || blueprints.Count == 0)
+        {
+            return [];
+        }
+
+        return (from blueprint in blueprints
+                from population in populationContext.Populations
+                where population.Blueprint.Archetype == blueprint.Archetype
+                select new PopulationIncomeImpactValue(
+                    population.PopulationId,
+                    blueprint.AdditiveIncomeImpact,
+                    blueprint.MultiplicativeIncomeImpact)).ToList();
     }
 
     private static string SaveNeeds(IEnumerable<MarketNeedValue> needs)
@@ -2102,6 +2368,14 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             needs.Select(need => new XElement("Need",
                 new XAttribute("category", need.CategoryId),
                 new XAttribute("expenditure", need.BaseExpenditure.ToString(CultureInfo.InvariantCulture))))).ToString();
+    }
+
+    private static string SaveCombinationCategories(IEnumerable<long> categoryIds)
+    {
+        return new XElement("Components",
+            categoryIds.Select(categoryId => new XElement("Component",
+                new XAttribute("category", categoryId),
+                new XAttribute("weight", 1.0m.ToString(CultureInfo.InvariantCulture))))).ToString();
     }
 
     private static string SaveStressPoints(IEnumerable<StressPointValue> stressPoints)
@@ -2136,6 +2410,64 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         return ResolveTopFamilyName(tag, allTags.ToDictionary(x => x.Id));
     }
 
+    private static Dictionary<long, List<Tag>> BuildChildTagMap(IEnumerable<Tag> tags)
+    {
+        return tags
+            .Where(x => x.ParentId.HasValue)
+            .GroupBy(x => x.ParentId!.Value)
+            .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Name).ToList());
+    }
+
+    private static bool ShouldSeedCombinationCategory(Tag tag, IReadOnlyDictionary<long, List<Tag>> childTagsByParentId)
+    {
+        return StockCombinationFamilyExamples.Contains(tag.Name)
+               && childTagsByParentId.TryGetValue(tag.Id, out List<Tag>? childTags)
+               && childTags.Count > 1;
+    }
+
+    private static IEnumerable<MarketCategory> GetSectorImpactCategories(
+        Tag familyTag,
+        IReadOnlyDictionary<long, List<Tag>> childTagsByParentId,
+        IReadOnlyDictionary<long, MarketCategory> categoriesByTagId)
+    {
+        if (!categoriesByTagId.TryGetValue(familyTag.Id, out MarketCategory? familyCategory))
+        {
+            return [];
+        }
+
+        if (familyCategory.MarketCategoryType == 1)
+        {
+            return [familyCategory];
+        }
+
+        return EnumerateTagAndDescendants(familyTag, childTagsByParentId)
+            .Where(x => categoriesByTagId.ContainsKey(x.Id))
+            .Select(x => categoriesByTagId[x.Id])
+            .DistinctBy(x => x.Id)
+            .ToList();
+    }
+
+    private static IEnumerable<Tag> EnumerateTagAndDescendants(
+        Tag rootTag,
+        IReadOnlyDictionary<long, List<Tag>> childTagsByParentId)
+    {
+        Queue<Tag> queue = new([rootTag]);
+        while (queue.Count > 0)
+        {
+            Tag current = queue.Dequeue();
+            yield return current;
+            if (!childTagsByParentId.TryGetValue(current.Id, out List<Tag>? childTags))
+            {
+                continue;
+            }
+
+            foreach (Tag childTag in childTags)
+            {
+                queue.Enqueue(childTag);
+            }
+        }
+    }
+
     private static string EconomicZoneName(EraDefinition era)
     {
         return $"{era.DisplayName} {ZoneSuffix}";
@@ -2148,17 +2480,17 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
     private static string ExternalTemplateName(EraDefinition era, SectorInfluenceBlueprint blueprint)
     {
-        return $"{blueprint.Name}";
+        return $"{HelperProgPrefix} External {era.DisplayName} {blueprint.Name}";
     }
 
     private static string PopulationName(EraDefinition era, PopulationBlueprint blueprint)
     {
-        return $"{blueprint.Name}";
+        return $"{era.DisplayName} {blueprint.Name}";
     }
 
     private static string StressTemplateName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level)
     {
-        return $"{PopulationName(era, blueprint)} {level.DisplayName}";
+        return $"{HelperProgPrefix} Stress {PopulationName(era, blueprint)} {level.DisplayName}";
     }
 
     private static string StressStartProgName(EraDefinition era, PopulationBlueprint blueprint, StressLevelDefinition level)
@@ -2318,7 +2650,9 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         string Description,
         int PopulationScale,
         PopulationArchetype Archetype,
-        IReadOnlyList<PopulationNeedBlueprint> Needs)
+        IReadOnlyList<PopulationNeedBlueprint> Needs,
+        decimal IncomeFactor = 1.0m,
+        decimal? SavingsCap = null)
     {
         public decimal ShopperBudgetFactor => Archetype switch
         {
@@ -2331,6 +2665,18 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             PopulationArchetype.Elite => 0.34m,
             _ => 0.18m
         };
+
+        public decimal SeedSavingsCap => SavingsCap ?? Archetype switch
+        {
+            PopulationArchetype.Commoner => 0.20m,
+            PopulationArchetype.Rural => 0.30m,
+            PopulationArchetype.Merchant => 0.60m,
+            PopulationArchetype.Martial => 0.35m,
+            PopulationArchetype.Clergy => 0.45m,
+            PopulationArchetype.Monastic => 0.55m,
+            PopulationArchetype.Elite => 1.20m,
+            _ => 0.20m
+        };
     }
 
     private sealed record PopulationNeedBlueprint(string CategoryName, decimal BaseExpenditure, int Weight);
@@ -2340,7 +2686,18 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         double SupplyImpact,
         double DemandImpact,
         Func<string, string> DescriptionFactory,
-        Func<string, string> SummaryFactory);
+        Func<string, string> SummaryFactory,
+        IReadOnlyList<PopulationIncomeImpactBlueprint>? PopulationIncomeImpacts = null,
+        double FlatPriceImpact = 0.0);
+    private sealed record IncomeInfluenceBlueprint(
+        string Name,
+        Func<string, string> DescriptionFactory,
+        Func<string, string> SummaryFactory,
+        IReadOnlyList<PopulationIncomeImpactBlueprint> PopulationIncomeImpacts);
+    private sealed record PopulationIncomeImpactBlueprint(
+        PopulationArchetype Archetype,
+        decimal AdditiveIncomeImpact = 0.0m,
+        decimal MultiplicativeIncomeImpact = 1.0m);
     private sealed record StressLevelDefinition(
         string DisplayName,
         decimal Threshold,
@@ -2385,13 +2742,16 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         IReadOnlyDictionary<string, Tag> TagsByName,
         IReadOnlyDictionary<string, MarketCategory> CategoriesByName,
         IReadOnlyDictionary<string, string> CategorySectorMap,
-        IReadOnlyDictionary<string, List<MarketCategory>> CategoriesBySector);
-    private sealed record MarketImpactValue(long CategoryId, double SupplyImpact, double DemandImpact);
+        IReadOnlyDictionary<string, List<MarketCategory>> CategoriesBySector,
+        IReadOnlyDictionary<string, List<MarketCategory>> ImpactCategoriesBySector);
+    private sealed record MarketImpactValue(long CategoryId, double SupplyImpact, double DemandImpact, double FlatPriceImpact = 0.0);
+    private sealed record PopulationIncomeImpactValue(long PopulationId, decimal AdditiveIncomeImpact, decimal MultiplicativeIncomeImpact);
     private sealed record MarketNeedValue(long CategoryId, decimal BaseExpenditure);
     private sealed record StressPointValue(string Name, string Description, decimal Threshold, long OnStartProgId, long OnEndProgId);
     private sealed record StressTemplateContext(StressLevelDefinition Level, string TemplateName);
     private sealed record PopulationSeedContext(
         PopulationBlueprint Blueprint,
+        long PopulationId,
         string PopulationName,
         IReadOnlyList<StressPointValue> StressPoints,
         decimal ScaledBudget);

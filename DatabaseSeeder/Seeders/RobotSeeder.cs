@@ -69,11 +69,12 @@ public partial class RobotSeeder : IDatabaseSeeder
     private Material _circuitryMaterial = null!;
     private Material _hydraulicResidue = null!;
     private Material _oilResidue = null!;
-    private Liquid _hydraulicFluid = null!;
-    private Liquid _machineOil = null!;
-    private ArmourType _robotPlatingArmour = null!;
-    private ArmourType _robotLightPlatingArmour = null!;
-    private ArmourType _robotInternalArmour = null!;
+	private Liquid _hydraulicFluid = null!;
+	private Liquid _machineOil = null!;
+	private ArmourType _robotFrameArmour = null!;
+	private ArmourType _robotPlatingArmour = null!;
+	private ArmourType _robotLightPlatingArmour = null!;
+	private ArmourType _robotInternalArmour = null!;
     private CorpseModel _robotHumanoidCorpse = null!;
     private CorpseModel _robotAnimalCorpse = null!;
     private Culture _robotCulture = null!;

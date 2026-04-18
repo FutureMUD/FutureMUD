@@ -21,8 +21,8 @@ public class SimpleHearingProfile : HearingProfile
 
     private Difficulty _defaultDifficulty;
 
-    public SimpleHearingProfile(MudSharp.Models.HearingProfile profile)
-            : base(profile)
+    public SimpleHearingProfile(MudSharp.Models.HearingProfile profile, IFuturemud game)
+            : base(profile, game)
     {
     }
 
@@ -32,9 +32,27 @@ public class SimpleHearingProfile : HearingProfile
         _defaultDifficulty = Difficulty.Automatic;
     }
 
+    private SimpleHearingProfile(SimpleHearingProfile rhs, string name)
+            : base(rhs.Gameworld, name, rhs.Type)
+    {
+        CopyBaseSettingsFrom(rhs);
+        _defaultDifficulty = rhs._defaultDifficulty;
+        foreach (KeyValuePair<Tuple<AudioVolume, Proximity>, Difficulty> item in rhs._difficultyMap)
+        {
+            _difficultyMap[item.Key] = item.Value;
+        }
+
+        Changed = true;
+    }
+
     public override string FrameworkItemType => "SimpleHearingProfile";
 
     public override string Type => "Simple";
+
+    public override HearingProfile Clone(string name)
+    {
+        return new SimpleHearingProfile(this, name);
+    }
 
     public override Difficulty AudioDifficulty(ILocation location, AudioVolume volume, Proximity proximity)
     {
@@ -147,11 +165,34 @@ public class SimpleHearingProfile : HearingProfile
     {
         StringBuilder sb = new();
         sb.Append(base.Show(actor));
+        sb.AppendLine();
         sb.AppendLine($"Default Difficulty: {_defaultDifficulty.Describe().ColourValue()}");
-        foreach (KeyValuePair<Tuple<AudioVolume, Proximity>, Difficulty> item in _difficultyMap)
+        sb.AppendLine();
+        if (_difficultyMap.Any())
         {
-            sb.AppendLine($"{item.Key.Item1.Describe(),-15} {item.Key.Item2.Describe(),-15} : {item.Value.Describe().ColourValue()}");
+            sb.AppendLine(StringUtilities.GetTextTable(
+                from item in _difficultyMap.OrderBy(x => x.Key.Item1).ThenBy(x => x.Key.Item2)
+                select new List<string>
+                {
+                    item.Key.Item1.Describe(),
+                    item.Key.Item2.Describe(),
+                    item.Value.Describe().ColourValue()
+                },
+                new List<string>
+                {
+                    "Volume",
+                    "Proximity",
+                    "Difficulty"
+                },
+                actor,
+                Telnet.Green
+            ));
         }
+        else
+        {
+            sb.AppendLine("No specific volume or proximity difficulties are configured.");
+        }
+
         return sb.ToString();
     }
 

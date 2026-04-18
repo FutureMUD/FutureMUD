@@ -154,8 +154,7 @@ public partial class AnimalSeeder
         string? BodyAuditKey = null,
         IReadOnlyList<AnimalBodypartUsageTemplate>? AdditionalBodypartUsages = null,
         string CombatStrategyKey = "Beast Brawler",
-        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
-        IReadOnlyList<SeederScarTemplateDefinition>? ScarTemplates = null
+        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null
     );
 
     internal static IReadOnlyDictionary<string, AnimalAgeProfileTemplate> AgeProfilesForTesting => AgeProfiles;

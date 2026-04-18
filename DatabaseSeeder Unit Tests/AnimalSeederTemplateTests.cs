@@ -154,9 +154,6 @@ public class AnimalSeederTemplateTests
         Assert.IsTrue(
             AnimalSeeder.RaceTemplatesForTesting.Values.All(x => x.TattooTemplates is null || x.TattooTemplates.Count == 0),
             "Animal stock templates should default to no tattoo templates until a later content pass fills them in.");
-        Assert.IsTrue(
-            AnimalSeeder.RaceTemplatesForTesting.Values.All(x => x.ScarTemplates is null || x.ScarTemplates.Count == 0),
-            "Animal stock templates should default to no scar templates until a later content pass fills them in.");
     }
 
     [TestMethod]

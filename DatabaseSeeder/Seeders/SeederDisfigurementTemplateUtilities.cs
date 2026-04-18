@@ -71,37 +71,6 @@ internal sealed record SeederTattooTemplateDefinition(
     OverrideCharacteristicWith
 );
 
-internal sealed record SeederScarTemplateDefinition(
-    string Name,
-    string ShortDescription,
-    string FullDescription,
-    int SizeSteps = 0,
-    int Distinctiveness = 1,
-    bool Unique = false,
-    double DamageHealingScarWeight = 0.0,
-    double SurgeryHealingScarWeight = 0.0,
-    IReadOnlyDictionary<DamageType, WoundSeverity>? DamageTypes = null,
-    IReadOnlyList<SurgicalProcedureType>? SurgeryTypes = null,
-    IReadOnlyList<string>? BodypartShapeNames = null,
-    IReadOnlyList<string>? BodypartAliases = null,
-    bool CanSelectInChargen = false,
-    string? CanSelectInChargenProgName = null,
-    IReadOnlyDictionary<string, int>? ChargenCosts = null,
-    string? OverrideCharacteristicPlain = null,
-    string? OverrideCharacteristicWith = null
-) : SeederDisfigurementTemplateDefinition(
-    Name,
-    ShortDescription,
-    FullDescription,
-    BodypartShapeNames,
-    BodypartAliases,
-    CanSelectInChargen,
-    CanSelectInChargenProgName,
-    ChargenCosts,
-    OverrideCharacteristicPlain,
-    OverrideCharacteristicWith
-);
-
 internal static class SeederDisfigurementTemplateUtilities
 {
 	private static readonly int CurrentRevisionStatus = (int)RevisionStatus.Current;
@@ -109,8 +78,7 @@ internal static class SeederDisfigurementTemplateUtilities
 	public static void SeedTemplates(
 		FuturemudDatabaseContext context,
 		BodyProto body,
-		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions = null,
-		IEnumerable<SeederScarTemplateDefinition>? scarDefinitions = null)
+		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions = null)
 	{
 		var writingDefaults = ResolveTattooWritingDefaults(context);
 		foreach (var definition in GetSeedableTattooDefinitions(tattooDefinitions, writingDefaults))
@@ -118,29 +86,18 @@ internal static class SeederDisfigurementTemplateUtilities
 			SeedTattooTemplate(context, body, definition, writingDefaults);
 		}
 
-		foreach (var definition in scarDefinitions ?? Enumerable.Empty<SeederScarTemplateDefinition>())
-		{
-			SeedScarTemplate(context, body, definition);
-		}
-
 		context.SaveChanges();
 	}
 
 	public static bool HasMissingDefinitions(
 		FuturemudDatabaseContext context,
-		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions = null,
-		IEnumerable<SeederScarTemplateDefinition>? scarDefinitions = null)
+		IEnumerable<SeederTattooTemplateDefinition>? tattooDefinitions = null)
 	{
 		var writingDefaults = ResolveTattooWritingDefaults(context);
 		var expected = new HashSet<(string Type, string Name)>(StringComparerTupleComparer.Instance);
 		foreach (var definition in GetSeedableTattooDefinitions(tattooDefinitions, writingDefaults))
 		{
 			expected.Add(("Tattoo", definition.Name));
-		}
-
-		foreach (var definition in scarDefinitions ?? Enumerable.Empty<SeederScarTemplateDefinition>())
-		{
-			expected.Add(("Scar", definition.Name));
 		}
 
 		if (!expected.Any())
@@ -208,41 +165,6 @@ internal static class SeederDisfigurementTemplateUtilities
 
 			yield return definition;
 		}
-	}
-
-	private static void SeedScarTemplate(
-		FuturemudDatabaseContext context,
-		BodyProto body,
-		SeederScarTemplateDefinition definition)
-	{
-		var template = GetOrCreateTemplate(context, "Scar", definition.Name);
-		var bodypartShapes = ResolveBodypartShapes(context, body, definition).ToList();
-		var canSelectProg = ResolveProgIdOrZero(context, definition.CanSelectInChargenProgName);
-		template.Name = definition.Name;
-		template.Type = "Scar";
-		template.ShortDescription = definition.ShortDescription;
-		template.FullDescription = definition.FullDescription;
-		template.Definition = new XElement("Scar",
-			BuildChargenElements(context, definition, canSelectProg),
-			new XElement("OverrideCharacteristicPlain", definition.OverrideCharacteristicPlain ?? string.Empty),
-			new XElement("OverrideCharacteristicWith", definition.OverrideCharacteristicWith ?? string.Empty),
-			new XElement("SizeSteps", definition.SizeSteps),
-			new XElement("Distinctiveness", definition.Distinctiveness),
-			new XElement("Unique", definition.Unique),
-			new XElement("DamageHealingScarChance", definition.DamageHealingScarChance),
-			new XElement("SurgeryHealingScarChance", definition.SurgeryHealingScarChance),
-			new XElement("Shapes",
-				from shapeId in bodypartShapes
-				select new XElement("Shape", shapeId)),
-			new XElement("Surgeries",
-				from surgery in definition.SurgeryTypes ?? Enumerable.Empty<SurgicalProcedureType>()
-				select new XElement("Surgery", (int)surgery)),
-			new XElement("Damages",
-				from damage in definition.DamageTypes ?? Enumerable.Empty<KeyValuePair<DamageType, WoundSeverity>>()
-				select new XElement("Damage",
-					new XAttribute("severity", (int)damage.Value),
-					new XAttribute("type", (int)damage.Key)))
-		).ToString();
 	}
 
 	private static MudSharp.Models.DisfigurementTemplate GetOrCreateTemplate(

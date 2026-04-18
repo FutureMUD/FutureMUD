@@ -366,8 +366,6 @@ public class SeederDisfigurementTemplateUtilityTests
 			.SelectMany(x => x.TextSlots!)
 			.All(x => string.IsNullOrWhiteSpace(x.DefaultLanguageName) && string.IsNullOrWhiteSpace(x.DefaultScriptName)),
 			"Human writing tattoos should infer their default language and script at runtime rather than pinning seeder-time names.");
-		Assert.AreEqual(0, HumanSeeder.ScarTemplatesForTesting.Count,
-			"Human stock scar hooks should remain empty until a scar content pass adds templates.");
 	}
 
     private static BodyProto SeedMinimalBodyContext(FuturemudDatabaseContext context)

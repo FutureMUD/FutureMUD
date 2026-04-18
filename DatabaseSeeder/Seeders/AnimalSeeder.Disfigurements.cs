@@ -15,8 +15,7 @@ public partial class AnimalSeeder
         return RaceTemplates.Values.Any(template =>
             SeederDisfigurementTemplateUtilities.HasMissingDefinitions(
                 context,
-                template.TattooTemplates,
-                template.ScarTemplates));
+                template.TattooTemplates));
     }
 
     private void SeedAnimalDisfigurementTemplates(
@@ -39,8 +38,7 @@ public partial class AnimalSeeder
             SeederDisfigurementTemplateUtilities.SeedTemplates(
                 _context,
                 body,
-                template.TattooTemplates,
-                template.ScarTemplates);
+                template.TattooTemplates);
         }
     }
 
@@ -86,6 +84,6 @@ public partial class AnimalSeeder
 
     private static bool HasDisfigurementDefinitions(AnimalRaceTemplate template)
     {
-        return template.TattooTemplates?.Any() == true || template.ScarTemplates?.Any() == true;
+        return template.TattooTemplates?.Any() == true;
     }
 }

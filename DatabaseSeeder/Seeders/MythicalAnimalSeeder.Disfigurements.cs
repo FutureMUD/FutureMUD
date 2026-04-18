@@ -15,8 +15,7 @@ public partial class MythicalAnimalSeeder
         return Templates.Values.Any(template =>
             SeederDisfigurementTemplateUtilities.HasMissingDefinitions(
                 context,
-                template.TattooTemplates,
-                template.ScarTemplates));
+                template.TattooTemplates));
     }
 
     private void SeedMythicalDisfigurementTemplates(
@@ -39,13 +38,12 @@ public partial class MythicalAnimalSeeder
             SeederDisfigurementTemplateUtilities.SeedTemplates(
                 _context,
                 body,
-                template.TattooTemplates,
-                template.ScarTemplates);
+                template.TattooTemplates);
         }
     }
 
     private static bool HasDisfigurementDefinitions(MythicalRaceTemplate template)
     {
-        return template.TattooTemplates?.Any() == true || template.ScarTemplates?.Any() == true;
+        return template.TattooTemplates?.Any() == true;
     }
 }
